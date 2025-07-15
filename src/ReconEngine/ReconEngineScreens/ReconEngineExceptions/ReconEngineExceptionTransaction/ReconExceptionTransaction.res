@@ -2,6 +2,9 @@
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -25,17 +28,18 @@ let make = () => {
     setFilteredExceptionData(_ => filteredList)
   }, ~wait=200)
 
-  let getExceptionEntriesList = async _ => {
+  let getExceptionsTransactionsList = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleDataExceptionTransaction.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("exceptions", [])
-      //TODO: remove this filter once backend filtering is there
-      let filteredData = data->Array.filter(item => {
-        let status = item->getDictFromJsonObject->getString("transaction_status", "")
-        status === "expected" || status === "mismatched"
-      })
-      let exceptionList = filteredData->getArrayOfTransactionsListPayloadType
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+        ~queryParamerters=Some("status=mismatched,expected"),
+      )
+      let res = await fetchDetails(url)
+      let data = res->getDictFromJsonObject->getArrayFromDict("transactions", [])
+      let exceptionList = data->getArrayOfTransactionsListPayloadType
       setExceptionData(_ => exceptionList->Array.map(Nullable.make))
       setFilteredExceptionData(_ => exceptionList->Array.map(Nullable.make))
       setScreenState(_ => Success)
@@ -45,7 +49,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getExceptionEntriesList()->ignore
+    getExceptionsTransactionsList()->ignore
     None
   }, [])
 

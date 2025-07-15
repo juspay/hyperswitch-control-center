@@ -865,8 +865,13 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
+            //to be changed to transactions/list
             | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
-            | None => `${reconBaseURL}/transactions`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/transactions?${queryParams}`
+              | None => `${reconBaseURL}/transactions`
+              }
             }
           | _ => ""
           }
@@ -890,7 +895,11 @@ let useGetURL = () => {
           }
         | #PROCESSING_ENTRIES_LIST =>
           switch methodType {
-          | Get => `${reconBaseURL}/staging_entries`
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/staging_entries`
+            }
           | _ => ""
           }
         //TODO: Remove once depercated

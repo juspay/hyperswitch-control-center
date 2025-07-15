@@ -1,6 +1,9 @@
 @react.component
 let make = () => {
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (stagingData, setStagingData) = React.useState(_ => [])
   let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -23,14 +26,18 @@ let make = () => {
     setFilteredStagingData(_ => filteredList)
   }, ~wait=200)
 
-  let getStagingEntriesList = async _ => {
+  let getStagingExceptionsData = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleDataExceptionStaging.data
-      let data = response->getArrayFromJson([])
-      let stagingList = data->Array.map(item => {
-        item->getDictFromJsonObject->ReconEngineAccountEntity.processingItemToObjMapper
-      })
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+        ~queryParamerters=Some("status=needs_manual_review"),
+      )
+      let res = await fetchDetails(url)
+      let stagingList =
+        res->LogicUtils.getArrayDataFromJson(ReconEngineAccountEntity.processingItemToObjMapper)
       setStagingData(_ => stagingList->Array.map(Nullable.make))
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
       setScreenState(_ => Success)
@@ -40,7 +47,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getStagingEntriesList()->ignore
+    getStagingExceptionsData()->ignore
     None
   }, [])
 

@@ -59,8 +59,7 @@ let make = (~id) => {
       />}>
       <div className="flex flex-col gap-8">
         <TransactionDetailInfo
-          currentTransactionDetails={currentExceptionsDetails}
-          detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
+          currentTransactionDetails={currentExceptionsDetails} detailsFields=[TransactionId, Status]
         />
         <AuditTrail allTransactionDetails={allExceptionDetails} />
       </div>
