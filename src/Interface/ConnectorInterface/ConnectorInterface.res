@@ -19,14 +19,14 @@ module type ConnectorInterface = {
 module V1: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
   and type mapperOutput = connectorPayloadCommonType
-  and type filterCriteria = ConnectorTypes.connectorTypeVariants
-  and type input = ConnectorTypes.connector
-  and type output = ConnectorTypes.connectorTypes = {
+  and type filterCriteria = connectorTypeVariants
+  and type input = connector
+  and type output = connectorTypes = {
   type mapperInput = Dict.t<JSON.t>
   type mapperOutput = connectorPayloadCommonType
-  type filterCriteria = ConnectorTypes.connectorTypeVariants
-  type input = ConnectorTypes.connector
-  type output = ConnectorTypes.connectorTypes
+  type filterCriteria = connectorTypeVariants
+  type input = connector
+  type output = connectorTypes
 
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayload(dict)->mapV1DictToCommonConnectorPayload
@@ -42,14 +42,14 @@ module V1: ConnectorInterface
 module V2: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
   and type mapperOutput = connectorPayloadCommonType
-  and type filterCriteria = ConnectorTypes.connectorTypeVariants
-  and type input = ConnectorTypes.connector
-  and type output = ConnectorTypes.connectorTypes = {
+  and type filterCriteria = connectorTypeVariants
+  and type input = connector
+  and type output = connectorTypes = {
   type mapperInput = Dict.t<JSON.t>
   type mapperOutput = connectorPayloadCommonType
-  type filterCriteria = ConnectorTypes.connectorTypeVariants
-  type input = ConnectorTypes.connector
-  type output = ConnectorTypes.connectorTypes
+  type filterCriteria = connectorTypeVariants
+  type input = connector
+  type output = connectorTypes
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayloadV2(dict)->mapV2DictToCommonConnectorPayload
   let mapJsonArrayToConnectorPayloads = (json: JSON.t, retainInList: filterCriteria) =>
@@ -76,18 +76,18 @@ type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
 let connectorInterfaceV1: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadCommonType,
-  ConnectorTypes.connectorTypeVariants,
-  ConnectorTypes.connector,
-  ConnectorTypes.connectorTypes,
+  connectorTypeVariants,
+  connector,
+  connectorTypes,
 > = module(V1)
 
 // Defines connectorInterfaceV2 using V2.
 let connectorInterfaceV2: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadCommonType,
-  ConnectorTypes.connectorTypeVariants,
-  ConnectorTypes.connector,
-  ConnectorTypes.connectorTypes,
+  connectorTypeVariants,
+  connector,
+  connectorTypes,
 > = module(V2)
 
 // Generic Function: mapDictToConnectorPayload
