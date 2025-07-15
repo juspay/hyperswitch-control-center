@@ -121,6 +121,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDPAYVANTIV),
   Processors(BARCLAYCARD),
   Processors(TOKENIO),
+  Processors(AUTHIPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -458,6 +459,10 @@ let tokenioInfo = {
   description: "Token.io is a fintech company that provides open banking-based, account-to-account (A2A) payment infrastructure—essentially enabling “Pay by Bank” solutions for banks, fintechs, platforms, and payment service providers.",
 }
 
+let authipayInfo = {
+  description: "Authipay is a payment gateway that provides secure and seamless payment processing solutions for businesses of all sizes."
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -725,6 +730,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYVANTIV => "worldpayvantiv"
   | BARCLAYCARD => "barclaycard"
   | TOKENIO => "tokenio"
+  | AUTHIPAY => "authipay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -877,6 +883,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | "barclaycard" => Processors(BARCLAYCARD)
     | "tokenio" => Processors(TOKENIO)
+    | "authipay" => Processors(AUTHIPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1009,6 +1016,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYVANTIV => worldpayVantivInfo
   | BARCLAYCARD => barclaycardInfo
   | TOKENIO => tokenioInfo
+  | AUTHIPAY => authipayInfo
   }
 }
 
@@ -1884,6 +1892,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYVANTIV => "Worldpay Vantiv"
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
   | TOKENIO => "Token.io"
+  | AUTHIPAY => "Authipay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
