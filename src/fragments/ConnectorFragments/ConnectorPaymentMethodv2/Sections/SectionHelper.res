@@ -23,7 +23,7 @@ module PaymentMethodTypes = {
     ~connector,
     ~showCheckbox=true,
     ~onClick=None,
-    ~formValues: ConnectorTypes.connectorPayloadV2,
+    ~formValues: ConnectorTypes.connectorPayloadCommonType,
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -59,7 +59,7 @@ module HeadingSection = {
   let make = (
     ~index,
     ~pm,
-    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
+    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeCommon>,
     ~pmIndex,
     ~pmt,
     ~showSelectAll,
@@ -90,7 +90,7 @@ module HeadingSection = {
 
 module SelectedPMT = {
   @react.component
-  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigTypeV2>, ~index, ~pm) => {
+  let make = (~pmtData: array<ConnectorTypes.paymentMethodConfigTypeCommon>, ~index, ~pm) => {
     open LogicUtils
     open ConnectorPaymentMethodV2Utils
     <RenderIf condition={pmtData->Array.length > 0}>

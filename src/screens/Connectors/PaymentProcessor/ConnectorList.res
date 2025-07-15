@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open ConnectorUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -33,7 +34,6 @@ let make = () => {
         connectorsList,
       )
       setConfiguredConnectors(_ => list)
-
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -49,11 +49,11 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.id, searchText) ||
           isContainingStringLowercase(obj.connector_label, searchText)
         | None => false
         }
@@ -69,6 +69,10 @@ let make = () => {
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive
     : connectorList
+
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="orchestration_payment_connectors_view")
+  }
 
   <div>
     <PageLoaderWrapper screenState>
@@ -136,9 +140,11 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(
+            entity={ConnectorInterfaceTableEntity.connectorEntity(
               "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~sendMixpanelEvent,
+              ~version=V1,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

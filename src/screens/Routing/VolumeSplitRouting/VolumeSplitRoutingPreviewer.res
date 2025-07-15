@@ -7,7 +7,9 @@ module GatewayView = {
     let getGatewayName = name => {
       switch connectorList {
       | Some(list) =>
-        (list->ConnectorTableUtils.getConnectorObjectFromListViaId(name)).connector_label
+        (
+          list->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(name, ~version=V1)
+        ).connector_label
       | None => name
       }
     }

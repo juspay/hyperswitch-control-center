@@ -34,9 +34,11 @@ let encodeAdvanceConfig = (advanceConfig: option<ConnectorTypes.advancedConfigur
   | None => None->Option.map(JSON.Encode.object)->Option.getOr(JSON.Encode.null)
   }
 }
-let encodePaymentMethodConfig = (paymentMethodConfig: ConnectorTypes.paymentMethodConfigType) => {
+let encodePaymentMethodConfig = (
+  paymentMethodConfig: ConnectorTypes.paymentMethodConfigTypeCommon,
+) => {
   [
-    ("payment_method_type", JSON.Encode.string(paymentMethodConfig.payment_method_type)),
+    ("payment_method_type", JSON.Encode.string(paymentMethodConfig.payment_method_subtype)),
     (
       "card_networks",
       JSON.Encode.array(paymentMethodConfig.card_networks->Array.map(JSON.Encode.string)),
@@ -75,18 +77,20 @@ let encodePaymentMethodConfig = (paymentMethodConfig: ConnectorTypes.paymentMeth
     ),
   ]->LogicUtils.getJsonFromArrayOfJson
 }
-let encodePaymentMethodEnabled = (paymentMethodRecord: ConnectorTypes.paymentMethodEnabledType) => {
+let encodePaymentMethodEnabled = (
+  paymentMethodRecord: ConnectorTypes.paymentMethodEnabledTypeCommon,
+) => {
   let paymentMethodConfig =
-    paymentMethodRecord.payment_method_types
+    paymentMethodRecord.payment_method_subtypes
     ->Array.map(encodePaymentMethodConfig)
     ->JSON.Encode.array
   [
-    ("payment_method", JSON.Encode.string(paymentMethodRecord.payment_method)),
+    ("payment_method", JSON.Encode.string(paymentMethodRecord.payment_method_type)),
     ("payment_method_types", paymentMethodConfig),
   ]->LogicUtils.getJsonFromArrayOfJson
 }
 
-let encodeConnectorPayload = (typedValue: ConnectorTypes.connectorPayload) => {
+let encodeConnectorPayload = (typedValue: ConnectorTypes.connectorPayloadCommonType) => {
   let paymentMethodEnabled =
     typedValue.payment_methods_enabled->Array.map(encodePaymentMethodEnabled)->JSON.Encode.array
   [
@@ -111,19 +115,19 @@ let pmtConfigFilter = (dict): PaymentMethodConfigTypes.paymentMethodConfigFilter
 }
 
 let mapPaymentMethodTypeValues = (
-  paymentMethodType: ConnectorTypes.paymentMethodConfigType,
-  connectorPayload: ConnectorTypes.connectorPayload,
+  paymentMethodType: ConnectorTypes.paymentMethodConfigTypeCommon,
+  connectorPayload: ConnectorTypes.connectorPayloadCommonType,
   pmIndex: int,
   pmtIndex: int,
   paymentMethod: string,
 ): PaymentMethodConfigTypes.paymentMethodConfiguration => {
   payment_method_index: pmIndex,
   payment_method_types_index: pmtIndex,
-  merchant_connector_id: connectorPayload.merchant_connector_id,
+  merchant_connector_id: connectorPayload.id,
   connector_name: connectorPayload.connector_name,
   profile_id: connectorPayload.profile_id,
   payment_method: paymentMethod,
-  payment_method_type: paymentMethodType.payment_method_type,
+  payment_method_type: paymentMethodType.payment_method_subtype,
   card_networks: paymentMethodType.card_networks,
   accepted_currencies: paymentMethodType.accepted_currencies,
   accepted_countries: paymentMethodType.accepted_countries,
@@ -135,21 +139,21 @@ let mapPaymentMethodTypeValues = (
 }
 
 let mapPaymentMethodValues = (
-  ~connectorPayload: ConnectorTypes.connectorPayload,
+  ~connectorPayload: ConnectorTypes.connectorPayloadCommonType,
   ~mappedArr,
   ~pmIndex: int,
   ~filters=Dict.make()->pmtConfigFilter,
 ) => {
   let pm =
     connectorPayload.payment_methods_enabled[pmIndex]->Option.getOr(
-      Dict.make()->ConnectorInterfaceUtils.getPaymentMethodsEnabled,
+      Dict.make()->ConnectorInterfaceUtils.getPaymentMethodsEnabledCommonType,
     )
-  pm.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
-    let paymentMethod = pm.payment_method
+  pm.payment_method_subtypes->Array.forEachWithIndex((data, pmtIndex) => {
+    let paymentMethod = pm.payment_method_type
 
     switch filters.paymentMethodType {
     | Some(pmtsType) =>
-      if pmtsType->Array.includes(data.payment_method_type) {
+      if pmtsType->Array.includes(data.payment_method_subtype) {
         mappedArr->Array.push(
           data->mapPaymentMethodTypeValues(connectorPayload, pmIndex, pmtIndex, paymentMethod),
         )
@@ -164,13 +168,13 @@ let mapPaymentMethodValues = (
 
 let paymentMethodFilter = (
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
-  connectorPayload: ConnectorTypes.connectorPayload,
+  connectorPayload: ConnectorTypes.connectorPayloadCommonType,
   mappedArr,
 ) => {
   connectorPayload.payment_methods_enabled->Array.forEachWithIndex((item, pmIndex) => {
     switch filters.paymentMethod {
     | Some(methods) =>
-      if methods->Array.includes(item.payment_method) {
+      if methods->Array.includes(item.payment_method_type) {
         mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters)
       }
     | None => mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters)
@@ -180,7 +184,7 @@ let paymentMethodFilter = (
 
 let connectorIdFilter = (
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
-  connectorPayload: ConnectorTypes.connectorPayload,
+  connectorPayload: ConnectorTypes.connectorPayloadCommonType,
   mappedArr,
 ) => {
   switch filters.connectorId {

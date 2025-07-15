@@ -518,7 +518,7 @@ let make = (
   ~routingRuleId,
   ~isActive,
   ~setCurrentRouting,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
@@ -751,7 +751,10 @@ let make = (
         ->Array.map(id => {
           {
             "connector": (
-              connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(id)
+              connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+                id,
+                ~version=V1,
+              )
             ).connector_name,
             "merchant_connector_id": id,
           }
@@ -808,7 +811,7 @@ let make = (
     ->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
-        value: item.merchant_connector_id,
+        value: item.id,
       }
     })
   }, (profile, connectors->Array.length))

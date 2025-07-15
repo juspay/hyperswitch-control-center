@@ -23,6 +23,7 @@ let make = () => {
 
   let getConnectorListAndUpdateState = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       connectorsList->Array.reverse
       sortByDisableField(connectorsList, connectorPayload => connectorPayload.disabled)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
@@ -49,7 +50,7 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadV2>) => {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
@@ -70,8 +71,8 @@ let make = () => {
     ? connectorListForLive
     : connectorList
 
-  let callMixpanel = eventName => {
-    mixpanelEvent(~eventName)
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="orchestration_v2_payment_connectors_view")
   }
 
   <div>
@@ -138,10 +139,11 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={PaymentProcessorEntity.connectorEntity(
+            entity={ConnectorInterfaceTableEntity.connectorEntity(
               "v2/orchestration/connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-              callMixpanel,
+              ~sendMixpanelEvent,
+              ~version=V2,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

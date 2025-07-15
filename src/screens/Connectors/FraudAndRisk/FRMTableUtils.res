@@ -7,7 +7,9 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   ->Array.map(itemToObjMapper)
 }
 
-let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload> = json => {
+let getPreviouslyConnectedList: JSON.t => array<
+  ConnectorTypes.connectorPayloadCommonType,
+> = json => {
   let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
     ConnectorInterface.connectorInterfaceV1,
     json,
@@ -20,15 +22,15 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
-    ~defaultColumns=ConnectorTableUtils.defaultColumns,
-    ~getHeading=ConnectorTableUtils.getHeading,
-    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer),
+    ~defaultColumns=ConnectorInterfaceTableEntity.defaultColumns,
+    ~getHeading=ConnectorInterfaceTableEntity.getHeading,
+    ~getCell=ConnectorInterfaceTableEntity.getTableCell(~connectorType=FRMPlayer),
     ~dataKey="",
     ~getShowLink={
       connec =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
           ),
           ~authorization,
         )

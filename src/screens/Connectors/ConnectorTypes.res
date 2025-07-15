@@ -207,6 +207,11 @@ type paymentMethodConfigTypeV2 = {
   ...paymentMethodConfigCommonType,
 }
 
+type paymentMethodConfigTypeCommon = {
+  payment_method_subtype: string,
+  ...paymentMethodConfigCommonType,
+}
+
 type paymentMethodEnabled = {
   payment_method: string,
   payment_method_type: string,
@@ -318,8 +323,14 @@ type paymentMethodEnabledTypeV2 = {
   payment_method_subtypes: array<paymentMethodConfigTypeV2>,
 }
 
+type paymentMethodEnabledTypeCommon = {
+  payment_method_type: string,
+  payment_method_subtypes: array<paymentMethodConfigTypeCommon>,
+}
+
 type payment_methods_enabled = array<paymentMethodEnabledType>
 type payment_methods_enabledV2 = array<paymentMethodEnabledTypeV2>
+type payment_methods_enabledCommon = array<paymentMethodEnabledTypeCommon>
 
 type frm_payment_method_type = {
   payment_method_type: string,
@@ -370,6 +381,24 @@ type connectorPayloadV2 = {
   connector_webhook_details: JSON.t,
   additional_merchant_data: JSON.t,
   feature_metadata: JSON.t,
+}
+
+type connectorPayloadCommonType = {
+  connector_type: connectorTypeVariants,
+  connector_name: string,
+  connector_label: string,
+  connector_account_details: connectorAuthTypeObj,
+  test_mode?: bool,
+  disabled: bool,
+  payment_methods_enabled: payment_methods_enabledCommon,
+  profile_id: string,
+  metadata: JSON.t,
+  id: string,
+  frm_configs?: array<frm_config>,
+  status: string,
+  connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
+  feature_metadata?: JSON.t,
 }
 
 type connector =
