@@ -178,52 +178,48 @@ let make = () => {
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
-                        {switch url.path->urlPath {
+                        {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
-                        | list{"v2", "home"} => <DefaultHome />
+                        | (_, list{"v2", "home"}) => <DefaultHome />
 
-                        | list{"organization-chart"} => <OrganisationChart />
+                        | (_, list{"organization-chart"}) => <OrganisationChart />
 
-                        | list{"v2", _, "onboarding", ..._}
-                        | list{"v1", _, "onboarding", ..._} =>
-                          switch activeProduct {
-                          | Invalid => <DefaultOnboardingPage />
-                          | _ => <HyperswitchURLRouting />
-                          }
+                        | (
+                            Invalid,
+                            list{"v2", _, "onboarding", ..._}
+                            | list{"v1", _, "onboarding", ..._},
+                          ) =>
+                          <DefaultOnboardingPage />
 
-                        | list{"account-settings", "profile", ...remainingPath} =>
+                        | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-                        | list{"unauthorized"} =>
+                        | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
                         /* RECON V1 PRODUCT */
 
-                        | list{"v1", "recon-engine", ..._} => <ReconEngineApp />
+                        | (Recon(V1), _) => <ReconEngineApp />
 
                         /* RECON V2 PRODUCT */
 
-                        | list{"v2", "recon", ..._} => <ReconApp />
+                        | (Recon(V2), _) => <ReconApp />
 
                         /* RECOVERY PRODUCT */
-                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
+                        | (Recovery, _) => <RevenueRecoveryApp />
                         /* VAULT PRODUCT */
-                        | list{"v2", "vault", ..._} => <VaultApp />
+                        | (Vault, _) => <VaultApp />
                         /* HYPERSENSE PRODUCT */
-                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
-                        /* INTELLIGENT ROUTING PRODUCT */
-                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
-                        /* ORCHESTRATOR V2 PRODUCT */
-                        | list{"v2", "orchestration", ..._} => <OrchestrationV2App />
-                        | _ =>
-                          switch activeProduct {
-                          | Orchestration(V1) => <OrchestrationApp setScreenState />
-                          | _ => <HyperswitchURLRouting />
-                          }
+                        | (CostObservability, _) => <HypersenseApp />
+                        | (DynamicRouting, _) => <IntelligentRoutingApp />
+                        | (Orchestration(V2), _) => <OrchestrationV2App />
+                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+
+                        | _ => React.null
                         }}
                       </ErrorBoundary>
                     </div>

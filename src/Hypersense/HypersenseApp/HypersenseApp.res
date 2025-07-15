@@ -4,14 +4,10 @@ let make = () => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
   {
-    switch activeProduct {
-    | CostObservability =>
-      switch url.path->HSwitchUtils.urlPath {
-      | list{"v2", "cost-observability"} => <HypersenseConfigurationContainer />
-      | list{"v2", "cost-observability", "home"} => <HypersenseHomeContainer />
-      | _ => <EmptyPage path="/v2/cost-observability/home" />
-      }
-    | _ => <HyperswitchURLRouting />
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"v2", "cost-observability"} => <HypersenseConfigurationContainer />
+    | list{"v2", "cost-observability", "home"} => <HypersenseHomeContainer />
+    | _ => <EmptyPage path="/v2/cost-observability/home" />
     }
   }
 }

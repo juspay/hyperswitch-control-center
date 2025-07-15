@@ -56,17 +56,13 @@ let make = () => {
   }, [])
 
   <PageLoaderWrapper screenState sectionHeight="!h-screen">
-    {switch activeProduct {
-    | Recon(V2) =>
-      switch url.path->HSwitchUtils.urlPath {
-      | list{"v2", "recon"} => <ReconOnboardingLanding />
-      | list{"v2", "recon", "overview"} => <ReconOverviewContainer showOnBoarding />
-      | list{"v2", "recon", "configuration"} =>
-        <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
-      | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
-      | _ => <EmptyPage path="/v2/recon/overview" />
-      }
-    | _ => React.null
+    {switch url.path->HSwitchUtils.urlPath {
+    | list{"v2", "recon"} => <ReconOnboardingLanding />
+    | list{"v2", "recon", "overview"} => <ReconOverviewContainer showOnBoarding />
+    | list{"v2", "recon", "configuration"} =>
+      <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
+    | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
+    | _ => <EmptyPage path="/v2/recon/overview" />
     }}
   </PageLoaderWrapper>
 }

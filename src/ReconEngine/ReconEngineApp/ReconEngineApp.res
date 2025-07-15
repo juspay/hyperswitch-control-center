@@ -10,7 +10,7 @@ let make = () => {
     | list{"v1", "recon-engine", "exceptions"} => <ReconEngineExceptionContainer />
     | list{"v1", "recon-engine", "queue"} => <ReconEngineQueueContainer />
     | list{"v1", "recon-engine", "rules", ..._} => <ReconEngineRulesContainer />
-    | _ => React.null
+    | _ => <EmptyPage path="/v1/recon-engine/overview" />
     }
   }
 }
