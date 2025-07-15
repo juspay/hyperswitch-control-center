@@ -36,7 +36,7 @@ let make = () => {
         status === "expected" || status === "mismatched"
       })
       let exceptionList = filteredData->getArrayOfTransactionsListPayloadType
-      setExceptionData(_ => exceptionList)
+      setExceptionData(_ => exceptionList->Array.map(Nullable.make))
       setFilteredExceptionData(_ => exceptionList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
@@ -61,7 +61,7 @@ let make = () => {
           )}
           resultsPerPage=10
           filters={<TableSearchFilter
-            data={exceptionData->Array.map(Nullable.make)}
+            data={exceptionData}
             filterLogic
             placeholder="Search Exception ID or Status"
             customSearchBarWrapperWidth="w-full lg:w-1/2 mt-8 mb-2"

@@ -31,7 +31,7 @@ let make = () => {
       let stagingList = data->Array.map(item => {
         item->getDictFromJsonObject->ReconEngineAccountEntity.processingItemToObjMapper
       })
-      setStagingData(_ => stagingList)
+      setStagingData(_ => stagingList->Array.map(Nullable.make))
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
@@ -64,7 +64,7 @@ let make = () => {
           enableEqualWidthCol=false
           showAutoScroll=true
           filters={<TableSearchFilter
-            data={stagingData->Array.map(Nullable.make)}
+            data={stagingData}
             filterLogic
             placeholder="Search Staging Entry ID or Status"
             customSearchBarWrapperWidth="w-full lg:w-1/2 mt-8 mb-2"
