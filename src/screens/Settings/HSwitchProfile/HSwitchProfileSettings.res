@@ -109,7 +109,7 @@ module ResetPassword = {
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
     let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
-    let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
+    let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
 

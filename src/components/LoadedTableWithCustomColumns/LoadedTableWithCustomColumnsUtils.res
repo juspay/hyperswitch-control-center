@@ -1,26 +1,9 @@
 open LogicUtils
-type operationSection =
-  | Refunds
-  | Orders
-  | Payouts
-  | Disputes
-  | Customers
-  | Unknown
-
-let textToVariantMapper = text => {
-  switch text {
-  | "Orders" => Orders
-  | "Refunds" => Refunds
-  | "Disputes" => Disputes
-  | "Payouts" => Payouts
-  | "Customers" => Customers
-  | _ => Unknown
-  }
-}
 
 let setColumnValueInLocalStorage = (val, title) => {
-  let varianType = title->textToVariantMapper
-  let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
+  let varianType = title->getNonEmptyString->Option.getOr("Unknown")->String.toLowerCase
+
+  let optionalValueFromLocalStorage = HSLocalStorage.getCustomTableColumnsfromLocalStorage()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
   let valueDict =
@@ -34,16 +17,16 @@ let setColumnValueInLocalStorage = (val, title) => {
     valueDict
     ->JSON.Encode.object
     ->JSON.stringify
-  HyperSwitchEntryUtils.setCustomTableHeaders(finalValue)
+  HSLocalStorage.setCustomTableHeadersInLocalStorage(finalValue)
 }
 
 let retrieveColumnValueFromLocalStorage = title => {
-  let optionalValueFromLocalStorage = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()
+  let optionalValueFromLocalStorage = HSLocalStorage.getCustomTableColumnsfromLocalStorage()
   let valueFromLocalStorage = optionalValueFromLocalStorage->Option.getOr("")
 
   valueFromLocalStorage
   ->safeParse
   ->getDictFromJsonObject
-  ->getString(title, "")
+  ->getString(title->String.toLowerCase, "")
   ->String.split(",")
 }

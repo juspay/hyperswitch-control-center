@@ -139,16 +139,15 @@ let errorSubCodeMapper = (subCode: string) => {
 
 let clearLocalStorage = () => {
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
-  let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
-  let emaill = HyperSwitchEntryUtils.getEmailfromStore()->Option.getOr("")
-  let customTableColumns = HyperSwitchEntryUtils.getCustomTableColumnsfromStore()->Option.getOr("")
+  let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
+  let customTableColumns = HSLocalStorage.getCustomTableColumnsfromLocalStorage()->Option.getOr("")
 
   LocalStorage.clear()
-  HyperSwitchEntryUtils.setEmailToStore(emaill) // Preserve email in login page
   HyperSwitchEntryUtils.setThemeIdtoStore(themeId) // Preserve theme id in url and login page
-  HyperSwitchEntryUtils.setDomaintoStore(domain) // Preserve domain in url and login page
-  HyperSwitchEntryUtils.setCustomTableHeaders(customTableColumns) // Preserve tableColumnsOrder in login page
+  HSLocalStorage.setDomaintoStore(domain) // Preserve domain in url and login page
+  HSLocalStorage.setCustomTableHeadersInLocalStorage(customTableColumns) // Preserve tableColumnsOrder in login page
 }
+
 module ToggleLiveTestMode = {
   open GlobalVars
   open CommonAuthTypes

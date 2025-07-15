@@ -19,9 +19,6 @@ let make = (~children) => {
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       let themeId = userInfo.themeId
-      let email = userInfo.email
-      HyperSwitchEntryUtils.handleSavedColumnsInStore(email)
-      HyperSwitchEntryUtils.setEmailToStore(email)
       HyperSwitchEntryUtils.setThemeIdtoStore(themeId)
       setUserInfo(_ => userInfo)
       setScreenState(_ => Success)

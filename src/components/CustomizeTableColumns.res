@@ -13,8 +13,8 @@ let make = (
   ~showSerialNumber=true,
   ~isDraggable=false,
   ~title,
-  ~setValueInLocalStorage: (array<'a>, string) => unit=(_, _) => (),
 ) => {
+  open LoadedTableWithCustomColumnsUtils
   let headingWhenDraggable = {
     let notInVisible = allHeadersArray->Array.reduce([], (acc, item) => {
       visibleColumns->Array.includes(item) ? acc : acc->Array.concat([item])
@@ -67,7 +67,7 @@ let make = (
       ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
       : headers
 
-    setValueInLocalStorage(values, title)
+    setColumnValueInLocalStorage(values, title)
 
     setColumns(_ => headers)
   }
