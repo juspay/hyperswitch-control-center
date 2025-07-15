@@ -226,7 +226,7 @@ let make = () => {
         let response =
           (await res->(res => res->Fetch.Response.json))->LogicUtils.getDictFromJsonObject
 
-        switch JSON.Classify.classify(response->LogicUtils.getJsonObjectFromDict("output")) {
+        switch JSON.Classify.classify(response->LogicUtils.getJsonObjectFromDict("response")) {
         | Object(dict) =>
           let summary = dict->LogicUtils.getString("summary", "")
           let markdown = dict->LogicUtils.getString("markdown", "")
