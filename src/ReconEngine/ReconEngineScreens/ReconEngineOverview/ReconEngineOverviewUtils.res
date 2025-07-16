@@ -161,8 +161,9 @@ let getOverviewLineGraphTooltipFormatter = (
       point: {index: 0},
       series: {name: ""},
     }
-    let primaryPoint = this.points->Array.get(0)->Option.getOr(defaultValue)
-    let secondaryPoint = this.points->Array.get(1)->Option.getOr(defaultValue)
+
+    let primaryPoint = this.points->getValueFromArray(0, defaultValue)
+    let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
 
     let getRowHtml = (~iconColor, ~name, ~value) => {
       let valueString = value->Float.toString
