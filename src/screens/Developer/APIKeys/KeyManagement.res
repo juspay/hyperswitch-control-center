@@ -398,13 +398,8 @@ module KeysManagement = {
   @react.component
   let make = () => {
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPTypeHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-
-    let isPlatformOrg = OMPSwitchUtils.isPlatformOMP(orgList, orgId)
-    let isPlatformMerchant = OMPSwitchUtils.isPlatformOMP(merchantList, merchantId)
 
     let redirectToDocs = _ => {
       let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
@@ -413,7 +408,7 @@ module KeysManagement = {
     }
     let bannerText = {
       DeveloperUtils.bannerText(
-        ~isPlatformMerchant,
+        ~isPlatformMerchant=isCurrentMerchantPlatform,
         ~hasCreateApiKeyAccess=hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsManage),
           userHasAccess(~groupAccess=AccountManage),
@@ -425,11 +420,11 @@ module KeysManagement = {
       <PageUtils.PageHeading
         title="Keys" subTitle="Manage API keys and credentials for integrated payment services"
       />
-      <RenderIf condition={isPlatformOrg}>
+      <RenderIf condition={isCurrentOrganizationPlatform}>
         <div className="py-4">
           <HSwitchUtils.AlertBanner
             bannerContent={<div>
-              <RenderIf condition={isPlatformMerchant}>
+              <RenderIf condition={isCurrentMerchantPlatform}>
                 <span className="leading-24 text-nd_gray-800 font-semibold">
                   {"Platform Merchant Account: "->React.string}
                 </span>

@@ -120,11 +120,3 @@ let isPlatformOMP = (list: array<OMPSwitchTypes.ompListTypes>, id) => {
   | None => false
   }
 }
-
-let isPlatformOMPCustomType = (list: array<OMPSwitchTypes.ompListTypesCustom>, id) => {
-  let ompObj = list->Array.find(obj => obj.id == id)
-  switch ompObj {
-  | Some(omp) => omp.\"type"->Option.getOr(#standard) == #platform
-  | None => false
-  }
-}

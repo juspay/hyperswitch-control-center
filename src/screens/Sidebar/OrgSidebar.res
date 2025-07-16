@@ -46,7 +46,7 @@ module OrgTile = {
     let onSubmit = async (newOrgName: string) => {
       try {
         let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
-        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgID))
+        let url = getURL(~entityName=V1(ORGANIZATION_RETRIEVE), ~methodType=Put, ~id=Some(orgID))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
 
