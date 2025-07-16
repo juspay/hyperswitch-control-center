@@ -103,6 +103,10 @@ let make = (
     if connectorList->Array.length > 0 {
       connectorList->Array.sort(sortByName)
     }
+
+    let marginClass = showDummyConnectorButton ? "mt-4 mb-4" : ""
+    let customStyleClass = showDummyConnectorButton ? "2xl:grid-cols-4 lg:grid-cols-3" : ""
+
     <>
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
@@ -110,10 +114,7 @@ let make = (
           {heading->React.string}
         </h2>
       </AddDataAttributes>
-      <div
-        className={`flex w-full justify-between gap-4 ${showDummyConnectorButton
-            ? "mt-4 mb-4"
-            : ""} `}>
+      <div className={`flex w-full justify-between gap-4 ${marginClass} `}>
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
             <input
@@ -152,10 +153,7 @@ let make = (
           <CantFindProcessor showRequestConnectorBtn setShowModal />
         </div>
       </div>
-      <div
-        className={`grid gap-x-5 gap-y-6 ${showDummyConnectorButton
-            ? "2xl:grid-cols-4 lg:grid-cols-3"
-            : ""} md:grid-cols-2 grid-cols-1 mb-5`}>
+      <div className={`grid gap-x-5 gap-y-6 ${customStyleClass} md:grid-cols-2 grid-cols-1 mb-5`}>
         <RenderIf condition={connectorList->Array.length > 0}>
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
