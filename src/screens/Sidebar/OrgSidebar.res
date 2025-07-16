@@ -16,7 +16,8 @@ module OrgTile = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+    let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
+    let {isPlatformOrganization} = OMPPlatformHooks.useOMPType()
     let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
@@ -109,8 +110,6 @@ module OrgTile = {
       }
     }
 
-    let isPlatformOrg = OMPSwitchUtils.isPlatformOMP(orgList, orgID)
-
     <div
       onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
@@ -118,7 +117,7 @@ module OrgTile = {
         className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${ringClass} ${isActive
             ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
             : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
-        <RenderIf condition={isPlatformOrg}>
+        <RenderIf condition={isPlatformOrganization(orgID)}>
           <div
             className={`absolute top-5-px right-5-px w-0 h-0 border-t-[10px] border-l-[10px] ${isActive
                 ? "border-t-blue-600"
@@ -130,7 +129,7 @@ module OrgTile = {
           <InlineEditInput
             index
             labelText={orgName}
-            subText={isPlatformOrg ? "Platform Organization" : "Organization"}
+            subText={isPlatformOrganization(orgID) ? "Platform Organization" : "Organization"}
             customStyle={`p-3 !h-12 ${backgroundColor.sidebarSecondary} ${hoverInput2}`}
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2}`}

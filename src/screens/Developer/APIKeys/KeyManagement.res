@@ -398,7 +398,7 @@ module KeysManagement = {
   @react.component
   let make = () => {
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPTypeHook()
+    let {isCurrentMerchantPlatform, isCurrentOrganizationPlatform} = OMPPlatformHooks.useOMPType()
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let redirectToDocs = _ => {

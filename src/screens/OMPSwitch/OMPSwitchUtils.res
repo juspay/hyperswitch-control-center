@@ -112,11 +112,3 @@ let keyExtractorForMerchantid = item => {
   let dict = item->getDictFromJsonObject
   dict->getString("merchant_id", "")
 }
-
-let isPlatformOMP = (list: array<OMPSwitchTypes.ompListTypes>, id) => {
-  let ompObj = list->Array.find(obj => obj.id == id)
-  switch ompObj {
-  | Some(omp) => omp.\"type"->Option.getOr(#standard) == #platform
-  | None => false
-  }
-}
