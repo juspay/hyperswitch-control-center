@@ -5,7 +5,7 @@ let make = () => {
   let (rulesData, setRulesData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let resultsPerPage = 20
-
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   React.useEffect(() => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -29,7 +29,10 @@ let make = () => {
           title="Recon Rules"
           hideTitle=true
           actualData={rulesData->Array.map(Nullable.make)}
-          entity={rulesTableEntity()}
+          entity={rulesTableEntity(
+            `v1/recon-engine/rules`,
+            ~authorization=userHasAccess(~groupAccess=UsersManage),
+          )}
           resultsPerPage
           showSerialNumber=true
           totalResults={rulesData->Array.length}

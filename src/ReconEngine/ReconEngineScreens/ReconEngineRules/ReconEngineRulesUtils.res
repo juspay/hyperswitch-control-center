@@ -1,15 +1,9 @@
-open LogicUtils
-open ReconEngineRulesTypes
-
-let ruleItemToObjMapper = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-    rule_description: dict->getString("rule_description", ""),
-    priority: dict->getInt("priority", 0),
-    is_active: dict->getBool("is_active", false),
-    profile_id: dict->getString("profile_id", ""),
-    sources: [],
-    targets: [],
+let getFieldDisplayName = (field: string): string => {
+  if field->String.startsWith("metadata.") {
+    field->String.replace("metadata.", "")->LogicUtils.getTitle
+  } else {
+    // For non-metadata fields, just use the part after the last dot
+    let fieldName = field->String.split(".")->Array.get(-1)->Option.getOr(field)
+    fieldName->LogicUtils.getTitle
   }
 }
