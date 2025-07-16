@@ -1,3 +1,5 @@
+open Typography
+
 @react.component
 let make = () => {
   open ReconEngineTransactionsUtils
@@ -104,6 +106,15 @@ let make = () => {
         </div>
       </div>
     </div>
+    <RenderIf condition={configuredTransactions->Array.length == 0}>
+      <div className="my-4">
+        <NoDataFound
+          message="No transactions found."
+          renderType={Painting}
+          customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
+        />
+      </div>
+    </RenderIf>
     <RenderIf condition={configuredTransactions->Array.length > 0}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
@@ -117,7 +128,8 @@ let make = () => {
           data={configuredTransactions->Array.map(Nullable.make)}
           filterLogic
           placeholder="Search Transaction Id or Status"
-          customSearchBarWrapperWidth="w-1/3"
+          customSearchBarWrapperWidth="w-full lg:w-1/2 mb-2"
+          customInputBoxWidth="w-full rounded-xl "
           searchVal=searchText
           setSearchVal=setSearchText
         />}

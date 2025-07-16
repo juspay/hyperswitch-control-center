@@ -53,47 +53,84 @@ module AccountCard = {
   }
 }
 
+module ReconRuleTransactionInfo = {
+  @react.component
+  let make = () => {
+    open ReconEngineOverviewHelper
+    <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <OverviewCard title="Expected from OMS" value="$125,000" />
+        <OverviewCard title="Received by PSP" value="$124,200" />
+        <OverviewCard title="Net Variance" value="-$800" />
+      </div>
+      <StackedBarGraph />
+      <ReconRuleLineGraph />
+      <ReconRuleTransactions />
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   open ReconEngineOverviewUtils
-  let (accountData, setAccountData) = React.useState(_ => [])
+  open ReconEngineOverviewTypes
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (reconRulesList, setReconRulesList) = React.useState(_ => [])
+
   let getAccountData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response =
-        SampleOverviewData.account->LogicUtils.getArrayDataFromJson(accountItemToObjMapper)
-      setAccountData(_ => response)
+      let response = SampleData.rules->LogicUtils.getArrayDataFromJson(reconRuleItemToObjMapper)
+      setReconRulesList(_ => response)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
 
+  let tabs: array<Tabs.tab> = React.useMemo(() => {
+    open Tabs
+    reconRulesList->Array.map(ruleDetails => {
+      {
+        title: ruleDetails.rule_name,
+        renderContent: () => <ReconRuleTransactionInfo />,
+      }
+    })
+  }, [reconRulesList])
+
   React.useEffect(() => {
     getAccountData()->ignore
     None
   }, [])
+
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">
-      <div className="flex items-center justify-between w-full">
-        <PageUtils.PageHeading title="Overview" />
-      </div>
-      <div>
-        <div className={`${body.lg.semibold} text-nd_gray-800 mb-2`}>
-          {"Accounts"->React.string}
+      <PageUtils.PageHeading
+        title="Overview"
+        subTitle="Monitor the three-accounts reconciliation flow: OMS → Processor → Bank"
+        customSubTitleStyle={body.lg.medium}
+        customTitleStyle={heading.lg.semibold}
+      />
+      <RenderIf condition={reconRulesList->Array.length == 0}>
+        <div className="my-4">
+          <NoDataFound
+            message="No recon rules found. Please create a recon rule to view the transactions."
+            renderType={Painting}
+            customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
+          />
         </div>
-        <div className={`${body.md.regular} text-nd_gray-600 mb-6`}>
-          {"Monitor account-level financials including currency, balances, and reconciliation insights."->React.string}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
-          {accountData
-          ->Array.mapWithIndex((account, index) => {
-            <AccountCard key={index->Int.toString} account index />
-          })
-          ->React.array}
-        </div>
-      </div>
+      </RenderIf>
+      <RenderIf condition={Array.length(tabs) > 0}>
+        <Tabs
+          tabs
+          showBorder=true
+          includeMargin=false
+          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
+          selectTabBottomBorderColor="bg-primary"
+          customBottomBorderColor="mb-6"
+        />
+      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }
