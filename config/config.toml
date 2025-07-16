@@ -20,7 +20,7 @@ is_live_mode=false
 feedback=false
 x_feature_route=false
 compliance_certificate=false
-force_cookies=false
+force_cookies=true
 audit_trail=true
 granularity=false
 maintenance_alert=""
@@ -71,7 +71,7 @@ dev_webhooks=false
 acquirer_config_settings=false
 payment_settings_v2=false
 dev_omp_chart=false
-dev_recon_engine_v1=false
+dev_recon_engine_v1=true
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
