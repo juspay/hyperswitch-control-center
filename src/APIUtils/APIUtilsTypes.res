@@ -110,6 +110,7 @@ type hyperswitchReconType = [
   | #PROCESSING_ENTRIES_LIST
   | #TRANSACTIONS_LIST
   | #FILE_UPLOAD
+  | #RECON_RULES
   | #NONE
 ]
 

@@ -847,7 +847,7 @@ let useGetURL = () => {
           switch methodType {
           | Post =>
             switch id {
-            | Some(accountid) => `${reconBaseURL}/accounts/${accountid}/upload`
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/upload`
             | None => ``
             }
           | _ => ""
@@ -865,7 +865,6 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            //to be changed to transactions/list
             | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
             | None =>
               switch queryParamerters {
@@ -899,6 +898,15 @@ let useGetURL = () => {
             switch queryParamerters {
             | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
             | None => `${reconBaseURL}/staging_entries`
+            }
+          | _ => ""
+          }
+        | #RECON_RULES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(ruleId) => `${reconBaseURL}/accounts/${ruleId}/entries`
+            | None => ""
             }
           | _ => ""
           }
