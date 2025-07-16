@@ -228,8 +228,8 @@ module TriggerRules = {
     let valueInput = createFormInput(~name="trigger_value", ~value=triggerValue)
 
     <div className="p-6">
-      <div className="flex flex-row gap-6">
-        <div className="flex-1 flex-col gap-2">
+      <div className="flex flex-row gap-6 max-w-2xl">
+        <div className="flex-1 flex flex-col gap-2">
           <label className={`${labelCss}`}> {"Field"->React.string} </label>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
@@ -258,7 +258,7 @@ module TriggerRules = {
             customButtonStyle="w-16"
           />
         </div>
-        <div className="flex-1 flex-col gap-2">
+        <div className="flex-1 flex flex-col gap-2">
           <label className={`${labelCss}`}> {"Value"->React.string} </label>
           {InputFields.textInput(~isDisabled=true, ~inputStyle="rounded-lg")(
             ~input=valueInput,
