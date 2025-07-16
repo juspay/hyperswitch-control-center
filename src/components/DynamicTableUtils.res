@@ -284,13 +284,39 @@ module ChooseColumns = {
     ~orderdColumnBasedOnDefaultCol: bool=false,
     ~showSerialNumber=true,
     ~mandatoryOptions=[],
+    ~isDraggable=false,
+    ~title="",
   ) => {
+    open LoadedTableWithCustomColumnsUtils
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
-    let {getHeading} = entity
+
+    let {getHeading, allColumns} = entity
+    let getHeadingCol = text => {
+      switch allColumns {
+      | Some(cols) =>
+        let index =
+          cols
+          ->Array.map(head => getHeading(head).title)
+          ->Array.indexOf(text)
+        cols->Array.get(index)
+      | None => None
+      }
+    }
+
+    let colTypeArray = retrieveColumnValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
+
     let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
       setShowColumnSelector(_ => false)
     }, [setVisibleColumns])
+
+    React.useEffect(() => {
+      if !{colTypeArray->Array.length === 0} {
+        setColumns(_ => colTypeArray)
+      }
+      None
+    }, [])
+
     if entity.allColumns->Option.isSome && totalResults > 0 {
       <CustomizeTableColumns
         showModal=showColumnSelector
@@ -304,6 +330,8 @@ module ChooseColumns = {
         sortingBasedOnDisabled
         orderdColumnBasedOnDefaultCol
         showSerialNumber
+        isDraggable
+        title
       />
     } else {
       React.null
@@ -324,6 +352,8 @@ module ChooseColumnsWrapper = {
     ~sortingBasedOnDisabled=true,
     ~showSerialNumber=true,
     ~setShowDropDown=_ => (),
+    ~isDraggable=false,
+    ~title="",
   ) => {
     switch optionalActiveColumnsAtom {
     | Some(activeColumnsAtom) =>
@@ -338,6 +368,8 @@ module ChooseColumnsWrapper = {
           showColumnSelector
           sortingBasedOnDisabled
           showSerialNumber
+          isDraggable
+          title
         />
       </AddDataAttributes>
     | None => React.null
