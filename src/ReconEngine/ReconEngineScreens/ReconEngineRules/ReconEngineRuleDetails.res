@@ -417,7 +417,7 @@ module RuleDetailsContent = {
       ),
     ]
 
-    <div className="flex flex-col gap-16">
+    <div className="flex flex-col gap-10">
       <div className="rounded-lg p-6 border border-nd_gray-150">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {fields
@@ -428,7 +428,7 @@ module RuleDetailsContent = {
           <StatusBadge isActive={rule.is_active} />
         </div>
       </div>
-      <div className="bg-white rounded-lg">
+      <div>
         <div className="flex flex-col gap-1 mb-6">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
             {"Rule Schema"->React.string}
