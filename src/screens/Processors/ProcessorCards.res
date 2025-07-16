@@ -58,7 +58,6 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
-  (),
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
