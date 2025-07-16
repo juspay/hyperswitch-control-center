@@ -58,7 +58,6 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
-  ~hideSidebar=false,
   (),
 ) => {
   open ConnectorUtils
@@ -66,7 +65,6 @@ let make = (
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
-  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let urlPathArray = url.path->List.toArray
   let connectorTypeName = switch urlPathArray[1] {
   | Some(val) => val->LogicUtils.kebabToSnakeCase
@@ -87,9 +85,6 @@ let make = (
     RescriptReactRouter.push(
       GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
     )
-    if hideSidebar {
-      setShowSideBar(_ => false)
-    }
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
 
