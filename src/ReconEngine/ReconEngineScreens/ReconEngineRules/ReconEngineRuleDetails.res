@@ -419,7 +419,7 @@ module RuleDetailsContent = {
 
     <div className="flex flex-col gap-10">
       <div className="rounded-lg p-6 border border-nd_gray-150">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8">
           {fields
           ->Array.mapWithIndex(((label, value), index) => {
             <FieldDisplay key={index->Int.toString} label value />
