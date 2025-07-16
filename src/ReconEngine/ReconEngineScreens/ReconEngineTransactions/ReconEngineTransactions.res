@@ -15,7 +15,6 @@ let make = () => {
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -110,7 +109,7 @@ let make = () => {
         actualData={filteredTransactionsData}
         entity={TransactionsTableEntity.transactionsEntity(
           `v1/recon-engine/transactions`,
-          ~authorization=userHasAccess(~groupAccess=UsersManage),
+          ~authorization=Access,
         )}
         resultsPerPage=10
         filters={<TableSearchFilter
