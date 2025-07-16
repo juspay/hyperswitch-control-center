@@ -3,6 +3,7 @@ open Typography
 open ReconEngineRulesEntity
 open ReconEngineRulesUtils
 let labelCss = `block ${body.md.medium} text-nd_gray-700 mb-2`
+
 module FieldDisplay = {
   @react.component
   let make = (~label: string, ~value: string, ~className: string="") => {
@@ -20,9 +21,9 @@ module StatusBadge = {
       : ("bg-nd_gray-100", "text-nd_gray-800", "INACTIVE")
 
     <div className="flex flex-col gap-2">
-      <div className="text-sm font-medium text-jp-gray-600"> {"Status"->React.string} </div>
+      <div className={`${body.md.medium} text-nd_gray-500`}> {"Status"->React.string} </div>
       <div className="flex items-center">
-        <span className={`px-2 py-1 text-xs font-medium rounded-sm ${bgColor} ${textColor}`}>
+        <span className={`px-2 py-1 ${body.md.semibold} rounded-sm ${bgColor} ${textColor}`}>
           {text->React.string}
         </span>
       </div>
@@ -58,7 +59,6 @@ module SourceTargetHeader = {
 module SearchIdentifier = {
   @react.component
   let make = (~rule: rulePayload) => {
-    // Get search identifier from targets[0].search_identifier
     let searchIdentifier =
       rule.targets
       ->Array.get(0)
@@ -67,44 +67,31 @@ module SearchIdentifier = {
     <div className="p-6">
       <SourceTargetHeader />
       <div className="flex flex-col gap-4">
-        // Search identifier mapping
         {switch searchIdentifier {
         | Some(identifier) =>
-          // Create individual inputs for source and target fields
-          let sourceFieldInput: ReactFinalForm.fieldRenderPropsInput = {
-            name: "search_source_field",
-            onBlur: _ => (),
-            onChange: _ => (),
-            onFocus: _ => (),
-            value: identifier.source_field->JSON.Encode.string,
-            checked: true,
-          }
-
-          let targetFieldInput: ReactFinalForm.fieldRenderPropsInput = {
-            name: "search_target_field",
-            onBlur: _ => (),
-            onChange: _ => (),
-            onFocus: _ => (),
-            value: identifier.target_field->JSON.Encode.string,
-            checked: true,
-          }
+          let sourceFieldInput = createFormInput(
+            ~name="search_source_field",
+            ~value=identifier.source_field,
+          )
+          let targetFieldInput = createFormInput(
+            ~name="search_target_field",
+            ~value=identifier.target_field,
+          )
 
           let sourceFieldOptions = [
-            {
-              SelectBox.label: getFieldDisplayName(identifier.source_field),
-              value: identifier.source_field,
-            },
+            createDropdownOption(
+              ~label=getFieldDisplayName(identifier.source_field),
+              ~value=identifier.source_field,
+            ),
           ]
-
           let targetFieldOptions = [
-            {
-              SelectBox.label: getFieldDisplayName(identifier.target_field),
-              value: identifier.target_field,
-            },
+            createDropdownOption(
+              ~label=getFieldDisplayName(identifier.target_field),
+              ~value=identifier.target_field,
+            ),
           ]
 
           <div className="flex items-center gap-4 py-2">
-            // Source Field
             <div className="flex-1 max-w-xs">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
@@ -117,11 +104,9 @@ module SearchIdentifier = {
                 fullLength=true
               />
             </div>
-            // Arrow
             <div className="flex items-center">
               <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
             </div>
-            // Target Field
             <div className="flex-1 max-w-xs">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
@@ -147,7 +132,6 @@ module SearchIdentifier = {
 module MappingRules = {
   @react.component
   let make = (~rule: rulePayload) => {
-    // Get mapping rules from targets[0].match_rules.rules
     let mappingRules =
       rule.targets
       ->Array.get(0)
@@ -159,36 +143,26 @@ module MappingRules = {
       <div className="flex flex-col gap-4">
         {mappingRules
         ->Array.mapWithIndex((mapping, index) => {
-          let sourceFieldInput: ReactFinalForm.fieldRenderPropsInput = {
-            name: `mapping_source_${index->Int.toString}`,
-            onBlur: _ => (),
-            onChange: _ => (),
-            onFocus: _ => (),
-            value: mapping.source_field->JSON.Encode.string,
-            checked: true,
-          }
-
-          let targetFieldInput: ReactFinalForm.fieldRenderPropsInput = {
-            name: `mapping_target_${index->Int.toString}`,
-            onBlur: _ => (),
-            onChange: _ => (),
-            onFocus: _ => (),
-            value: mapping.target_field->JSON.Encode.string,
-            checked: true,
-          }
+          let sourceFieldInput = createFormInput(
+            ~name=`mapping_source_${index->Int.toString}`,
+            ~value=mapping.source_field,
+          )
+          let targetFieldInput = createFormInput(
+            ~name=`mapping_target_${index->Int.toString}`,
+            ~value=mapping.target_field,
+          )
 
           let sourceFieldOptions = [
-            {
-              SelectBox.label: getFieldDisplayName(mapping.source_field),
-              value: mapping.source_field,
-            },
+            createDropdownOption(
+              ~label=getFieldDisplayName(mapping.source_field),
+              ~value=mapping.source_field,
+            ),
           ]
-
           let targetFieldOptions = [
-            {
-              SelectBox.label: getFieldDisplayName(mapping.target_field),
-              value: mapping.target_field,
-            },
+            createDropdownOption(
+              ~label=getFieldDisplayName(mapping.target_field),
+              ~value=mapping.target_field,
+            ),
           ]
 
           <div key={index->Int.toString} className="flex items-center gap-4 py-2">
@@ -204,11 +178,9 @@ module MappingRules = {
                 fullLength=true
               />
             </div>
-            // Arrow
             <div className="flex items-center">
               <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
             </div>
-            // Target Field
             <div className="flex-1 max-w-xs">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
@@ -232,11 +204,11 @@ module TriggerRules = {
   @react.component
   let make = (~rule: rulePayload) => {
     let getOperatorOptions = (): array<SelectBox.dropdownOption> => [
-      {label: "=", value: "equals"},
-      {label: "≠", value: "not_equals"},
+      createDropdownOption(~label="=", ~value="equals"),
+      createDropdownOption(~label="≠", ~value="not_equals"),
     ]
     let getFieldOptions = (): array<SelectBox.dropdownOption> => [
-      {label: "Card Type", value: "metadata.card_type"},
+      createDropdownOption(~label="Card Type", ~value="metadata.card_type"),
     ]
     let operatorOptions = getOperatorOptions()
     let fieldOptions = getFieldOptions()
@@ -245,37 +217,15 @@ module TriggerRules = {
       rule.sources
       ->Array.get(0)
       ->Option.map(source => source.trigger)
+
     let triggerField = triggerData->Option.map(trigger => trigger.field)->Option.getOr("")
     let triggerOperator =
       triggerData->Option.map(trigger => trigger.operator.value)->Option.getOr("")
     let triggerValue = triggerData->Option.map(trigger => trigger.value)->Option.getOr("")
 
-    let fieldInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "trigger_field",
-      onBlur: _ => (),
-      onChange: _ => (),
-      onFocus: _ => (),
-      value: triggerField->JSON.Encode.string,
-      checked: true,
-    }
-
-    let operatorInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "trigger_operator",
-      onBlur: _ => (),
-      onChange: _ => (),
-      onFocus: _ => (),
-      value: triggerOperator->JSON.Encode.string,
-      checked: true,
-    }
-
-    let valueInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "trigger_value",
-      onBlur: _ => (),
-      onChange: _ => (),
-      onFocus: _ => (),
-      value: triggerValue->JSON.Encode.string,
-      checked: true,
-    }
+    let fieldInput = createFormInput(~name="trigger_field", ~value=triggerField)
+    let operatorInput = createFormInput(~name="trigger_operator", ~value=triggerOperator)
+    let valueInput = createFormInput(~name="trigger_value", ~value=triggerValue)
 
     <div className="p-6">
       <div className="flex flex-row gap-6">
@@ -306,7 +256,6 @@ module TriggerRules = {
             deselectDisable=true
             disableSelect=true
             customButtonStyle="w-16"
-            // fullLength=true
           />
         </div>
         <div className="flex-1 flex-col gap-2">
@@ -323,65 +272,34 @@ module TriggerRules = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let getAccountName = (accountId: string): string => {
-      let accounts =
-        SampleOverviewData.account->LogicUtils.getArrayDataFromJson(
-          ReconEngineOverviewUtils.accountItemToObjMapper,
-        )
+    let accounts =
+      SampleOverviewData.account->LogicUtils.getArrayDataFromJson(
+        ReconEngineOverviewUtils.accountItemToObjMapper,
+      )
 
+    let getAccountName = (accountId: string): string => {
       accounts
       ->Array.find(account => account.account_id === accountId)
       ->Option.map(account => account.account_name)
       ->Option.getOr("Unknown Account")
     }
 
-    let getAccountOptions = () => {
-      let accounts =
-        SampleOverviewData.account->LogicUtils.getArrayDataFromJson(
-          ReconEngineOverviewUtils.accountItemToObjMapper,
-        )
-      accounts->Array.map((account): SelectBox.dropdownOption => {
-        {
-          label: account.account_name,
-          value: account.account_id,
-        }
-      })
-    }
-    let accountOptions = getAccountOptions()
+    let accountOptions =
+      accounts->Array.map((account): SelectBox.dropdownOption =>
+        createDropdownOption(~label=account.account_name, ~value=account.account_id)
+      )
+
     let sourceAccountId =
-      rule.sources
-      ->Array.get(0)
-      ->Option.map(source => source.account_id)
-      ->Option.getOr("")
-
+      rule.sources->Array.get(0)->Option.map(source => source.account_id)->Option.getOr("")
     let targetAccountId =
-      rule.targets
-      ->Array.get(0)
-      ->Option.map(target => target.account_id)
-      ->Option.getOr("")
+      rule.targets->Array.get(0)->Option.map(target => target.account_id)->Option.getOr("")
 
-    let sourceAccountInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "source_account",
-      onBlur: _ => (),
-      onChange: _ => (),
-      onFocus: _ => (),
-      value: sourceAccountId->JSON.Encode.string,
-      checked: true,
-    }
-
-    let targetAccountInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "target_account",
-      onBlur: _ => (),
-      onChange: _ => (),
-      onFocus: _ => (),
-      value: targetAccountId->JSON.Encode.string,
-      checked: true,
-    }
+    let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
+    let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
 
     {
       <div className="p-6">
         <div className="flex items-center gap-4">
-          // Source Account
           <div className="flex-1 max-w-xs">
             <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
             <SelectBox.BaseDropdown
@@ -416,9 +334,12 @@ module SourceTargetAccount = {
     }
   }
 }
+
 module RuleSchemaComponents = {
   @react.component
   let make = (~rule: rulePayload) => {
+    let accordianTitleCss = `${body.lg.semibold} text-nd_gray-800`
+    let accordianContainerCss = "border border-nd_gray-150 rounded-lg"
     <div className="flex flex-col gap-6">
       // source target accounts
       <Accordion
@@ -430,10 +351,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss="border border-nd_gray-150 rounded-lg"
+        accordianTopContainerCss={`${accordianContainerCss}`}
         accordianBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle="font-semibold text-md text-jp-gray-900"
+        titleStyle={`${accordianTitleCss}`}
       />
       // Trigger Rules Section
       <Accordion
@@ -445,10 +366,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss="border border-nd_gray-150 rounded-lg"
+        accordianTopContainerCss={`${accordianContainerCss}`}
         accordianBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle="font-semibold text-md text-jp-gray-900"
+        titleStyle={`${accordianTitleCss}`}
       />
       // Search Identifier Section
       <Accordion
@@ -460,10 +381,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss="border border-nd_gray-150 rounded-lg"
+        accordianTopContainerCss={`${accordianContainerCss}`}
         accordianBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle="font-semibold text-md text-jp-gray-900"
+        titleStyle={`${accordianTitleCss}`}
       />
       // Mapping Rules Section
       <Accordion
@@ -475,10 +396,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss="border border-nd_gray-150 rounded-lg"
+        accordianTopContainerCss={`${accordianContainerCss}`}
         accordianBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle="font-semibold text-md text-jp-gray-900"
+        titleStyle={`${accordianTitleCss}`}
       />
     </div>
   }
@@ -530,6 +451,7 @@ let make = (~id) => {
   let getRuleDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+
       let response = SampleData.rules
       let data = response->LogicUtils.getArrayDataFromJson(ruleItemToObjMapper)
       let foundRule = data->Array.find(rule => rule.rule_id === id)
@@ -547,11 +469,7 @@ let make = (~id) => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 p-6">
-      <PageUtils.PageHeading
-        title="Rule Details"
-        subTitle="View the details of the selected rule"
-        customHeadingStyle="py-0"
-      />
+      <PageUtils.PageHeading title="Rule Details" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>

@@ -7,3 +7,17 @@ let getFieldDisplayName = (field: string): string => {
     fieldName->LogicUtils.getTitle
   }
 }
+
+let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
+  name,
+  onBlur: _ => (),
+  onChange: _ => (),
+  onFocus: _ => (),
+  value: value->JSON.Encode.string,
+  checked: true,
+}
+
+let createDropdownOption = (~label, ~value) => {
+  SelectBox.label,
+  value,
+}
