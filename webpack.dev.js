@@ -8,6 +8,12 @@ let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = [
   {
+    context: ["/api/hyperswitch-recon-engine"],
+    pathRewrite: { "^/api/hyperswitch-recon-engine": "" },
+    target: "http://localhost:8081",
+    changeOrigin: true,
+  },
+  {
     context: ["/api"],
     target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },

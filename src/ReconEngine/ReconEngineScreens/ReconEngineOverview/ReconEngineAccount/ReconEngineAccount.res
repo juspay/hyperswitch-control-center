@@ -136,13 +136,13 @@ module ProcessingEntriesTable = {
       try {
         let url = getURL(
           ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_WITH_ACCOUNT,
+          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
           ~methodType=Get,
-          ~id=Some(accountId),
+          ~queryParamerters=Some(`account_id=${accountId}`),
         )
         let res = await fetchDetails(url)
-        let processedEntriesData = res->getArrayDataFromJson(processingItemToObjMapper)
-        setProcessingEntriesData(_ => processedEntriesData)
+        let processingEntriesList = res->getArrayDataFromJson(processingItemToObjMapper)
+        setProcessingEntriesData(_ => processingEntriesList)
         setScreenState(_ => Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

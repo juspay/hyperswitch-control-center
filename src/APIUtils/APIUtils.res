@@ -902,17 +902,6 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-        //TODO: Remove once depercated
-        | #PROCESSING_ENTRIES_LIST_WITH_ACCOUNT =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/staging_entries`
-            | None => ""
-            }
-          | _ => ""
-          }
-
         | #NONE => ""
         }
 
