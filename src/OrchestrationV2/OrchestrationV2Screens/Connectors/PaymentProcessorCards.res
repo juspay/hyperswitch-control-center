@@ -61,6 +61,7 @@ let make = (
   ~showAllConnectors=true,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
+  ~urlPrefix: string,
   ~showTestProcessor=false,
 ) => {
   open ConnectorUtils
@@ -82,7 +83,7 @@ let make = (
     mixpanelEvent(~eventName=`orchestration_v2_connector_click_${connectorName}`)
     setShowSideBar(_ => false)
     RescriptReactRouter.push(
-      GlobalVars.appendDashboardPath(~url=`v2/orchestration/connectors/new?name=${connectorName}`),
+      GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
     )
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
@@ -109,7 +110,10 @@ let make = (
           {heading->React.string}
         </h2>
       </AddDataAttributes>
-      <div className="flex w-full justify-between gap-4 mt-4 mb-4">
+      <div
+        className={`flex w-full justify-between gap-4 ${showDummyConnectorButton
+            ? "mt-4 mb-4"
+            : ""} `}>
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
             <input
@@ -149,8 +153,9 @@ let make = (
         </div>
       </div>
       <div
-        className="grid gap-x-5 gap-y-6 
-              2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-3 mb-5">
+        className={`grid gap-x-5 gap-y-6 ${showDummyConnectorButton
+            ? "2xl:grid-cols-4 lg:grid-cols-3"
+            : ""} md:grid-cols-2 grid-cols-1 mb-5`}>
         <RenderIf condition={connectorList->Array.length > 0}>
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
@@ -213,6 +218,7 @@ let make = (
       ->descriptedConnectors(
         ~heading="",
         ~showRequestConnectorBtn=false,
+        ~showSearch=false,
         ~showDummyConnectorButton=false,
         (),
       )}

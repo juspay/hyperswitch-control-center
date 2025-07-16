@@ -149,10 +149,13 @@ let make = () => {
           />
         </RenderIf>
         <PaymentProcessorCards
-          configuredConnectors connectorsAvailableForIntegration setProcessorModal
+          configuredConnectors
+          connectorsAvailableForIntegration
+          setProcessorModal
+          urlPrefix="v2/orchestration/connectors/new"
         />
         <RenderIf condition={processorModal}>
-          <DummyProcessorModal
+          <DummyProcessorModalV2
             processorModal
             setProcessorModal
             urlPrefix="v2/orchestration/connectors/new"
