@@ -66,7 +66,7 @@ module HyperSwitchEntryComponent = {
       }
 
       if domainUrl->Option.isSome {
-        setDomaintoStore(domainUrl->Option.getOr(""))
+        HSLocalStorage.setDomaintoStore(domainUrl->Option.getOr(""))
       }
       let themeId = getThemeIdfromStore()
       (themeId, domainUrl)
