@@ -24,7 +24,7 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -173,12 +173,16 @@ let make = () => {
                     </RenderIf>
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
-                      <div
-                        onClick={_ =>
-                          RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
-                        className="absolute z-10 bottom-5 right-5 border bg-blue-200 p-2 cursor-pointer rounded-full hover:bg-blue-300 transition-all">
-                        <Icon name="robot" size=32 customIconColor="text-primary" />
-                      </div>
+                      <RenderIf
+                        condition={featureFlagDetails.devAiChatBot &&
+                        userHasAccess(~groupAccess=MerchantDetailsView) == Access}>
+                        <div
+                          onClick={_ =>
+                            RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
+                          className="absolute z-10 bottom-5 right-5 border bg-blue-200 p-2 cursor-pointer rounded-full hover:bg-blue-300 transition-all">
+                          <Icon name="robot" size=32 customIconColor="text-primary" />
+                        </div>
+                      </RenderIf>
                       <ErrorBoundary>
                         {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         /* DEFAULT HOME */

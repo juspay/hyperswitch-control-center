@@ -167,9 +167,6 @@ let make = () => {
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
-  let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
   let scrollToBottom = () => {
     switch chatContainerRef.current->Nullable.toOption {
     | Some(element) =>
