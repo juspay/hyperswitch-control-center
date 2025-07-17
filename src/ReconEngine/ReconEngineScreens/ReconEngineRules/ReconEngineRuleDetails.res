@@ -497,7 +497,17 @@ let make = (~id) => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 p-6">
-      <PageUtils.PageHeading title="Rule Details" customHeadingStyle="py-0" />
+      <BreadCrumbNavigation
+        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
+        currentPageTitle=id
+        cursorStyle="cursor-pointer"
+        customTextClass="text-nd_gray-400"
+        titleTextClass="text-nd_gray-600 font-medium"
+        fontWeight="font-medium"
+        dividerVal=Slash
+        childGapClass="gap-2"
+      />
+      <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>
