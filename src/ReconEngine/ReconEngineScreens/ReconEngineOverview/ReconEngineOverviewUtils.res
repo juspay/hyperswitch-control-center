@@ -1,6 +1,19 @@
 open LogicUtils
 open ReconEngineOverviewTypes
 
+let defaultAccount = {
+  account_name: "Unknown Account",
+  account_id: "",
+  currency: "",
+  pending_balance: "",
+  posted_balance: "",
+}
+
+let defaultAccountDetails = {
+  id: "",
+  account_id: "Unknown Account",
+}
+
 let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
@@ -11,12 +24,40 @@ let accountItemToObjMapper = dict => {
   }
 }
 
+let accountRefItemToObjMapper = dict => {
+  {
+    id: dict->getString("id", ""),
+    account_id: dict->getString("account_id", ""),
+  }
+}
+
 let reconRuleItemToObjMapper = dict => {
   {
     rule_id: dict->getString("rule_id", ""),
     rule_name: dict->getString("rule_name", ""),
     rule_description: dict->getString("rule_description", ""),
+    sources: dict
+    ->getArrayFromDict("sources", [])
+    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
+    targets: dict
+    ->getArrayFromDict("targets", [])
+    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
   }
+}
+
+let accountDetailsItemToObjMapper = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+  }
+}
+
+let getAccountName = (accountData: array<accountType>, accountId: string): string => {
+  let account =
+    accountData
+    ->Array.find(account => account.account_id === accountId)
+    ->Option.getOr(defaultAccount)
+  account.account_name
 }
 
 let (

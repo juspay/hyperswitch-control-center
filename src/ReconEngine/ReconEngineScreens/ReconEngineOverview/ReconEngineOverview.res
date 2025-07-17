@@ -55,18 +55,80 @@ module AccountCard = {
 
 module ReconRuleTransactionInfo = {
   @react.component
-  let make = () => {
+  let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     open ReconEngineOverviewHelper
-    <div className="flex flex-col gap-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <OverviewCard title="Expected from OMS" value="$125,000" />
-        <OverviewCard title="Received by PSP" value="$124,200" />
-        <OverviewCard title="Net Variance" value="-$800" />
+    open LogicUtils
+    open ReconEngineTransactionsUtils
+    open APIUtils
+    open ReconEngineOverviewUtils
+
+    let (transactionsData, setTransactionsData) = React.useState(_ => [])
+    let (accountData, setAccountData) = React.useState(_ => [])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+
+    let getAccountsData = async _ => {
+      try {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#ACCOUNTS_LIST,
+        )
+        let res = await fetchDetails(url)
+        let accountData = res->getArrayDataFromJson(accountItemToObjMapper)
+        setAccountData(_ => accountData)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+      }
+    }
+
+    let getTransactionsList = async _ => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~hyperswitchReconType=#TRANSACTIONS_LIST,
+          ~methodType=Get,
+          ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        )
+        let res = await fetchDetails(url)
+        let transactionsData = res->getArrayDataFromJson(getAllTransactionPayload)
+        setTransactionsData(_ => transactionsData)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+      }
+    }
+
+    let sourceAccountName = React.useMemo(() => {
+      let source = ruleDetails.sources->getValueFromArray(0, defaultAccountDetails)
+      getAccountName(accountData, source.account_id)
+    }, [ruleDetails])
+
+    let targetAccountName = React.useMemo(() => {
+      let target = ruleDetails.targets->getValueFromArray(0, defaultAccountDetails)
+      getAccountName(accountData, target.account_id)
+    }, [ruleDetails])
+
+    React.useEffect(() => {
+      getAccountsData()->ignore
+      getTransactionsList()->ignore
+      None
+    }, [])
+
+    <PageLoaderWrapper screenState>
+      <div className="flex flex-col gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <OverviewCard title={`Expected from ${sourceAccountName}`} value="100" />
+          <OverviewCard title={`Received by ${targetAccountName}`} value="200" />
+          <OverviewCard title="Net Variance" value="300" />
+        </div>
+        <StackedBarGraph transactionsData />
+        <ReconRuleLineGraph transactionsData />
+        <ReconRuleTransactions ruleDetails={ruleDetails} />
       </div>
-      <StackedBarGraph />
-      <ReconRuleLineGraph />
-      <ReconRuleTransactions />
-    </div>
+    </PageLoaderWrapper>
   }
 }
 
@@ -74,15 +136,24 @@ module ReconRuleTransactionInfo = {
 let make = () => {
   open ReconEngineOverviewUtils
   open ReconEngineOverviewTypes
+  open APIUtils
+  open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
-
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let getAccountData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleData.rules->LogicUtils.getArrayDataFromJson(reconRuleItemToObjMapper)
-      setReconRulesList(_ => response)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#RECON_RULES,
+        ~methodType=Get,
+      )
+      let res = await fetchDetails(url)
+      let ruleDetails = res->getArrayDataFromJson(reconRuleItemToObjMapper)
+      setReconRulesList(_ => ruleDetails)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -94,7 +165,7 @@ let make = () => {
     reconRulesList->Array.map(ruleDetails => {
       {
         title: ruleDetails.rule_name,
-        renderContent: () => <ReconRuleTransactionInfo />,
+        renderContent: () => <ReconRuleTransactionInfo ruleDetails={ruleDetails} />,
       }
     })
   }, [reconRulesList])
