@@ -39,6 +39,7 @@ let make = () => {
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
+            buttonState=Disabled
             onClick={_ => {
               mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
             }}

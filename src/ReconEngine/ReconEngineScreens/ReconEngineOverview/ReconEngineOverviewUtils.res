@@ -1,18 +1,60 @@
 open LogicUtils
 open ReconEngineOverviewTypes
 
+let defaultAccount = {
+  account_name: "Unknown Account",
+  account_id: "",
+  currency: "",
+  profile_id: "",
+  initial_balance: {
+    value: 0.0,
+    currency: "USD",
+  },
+  pending_balance: {
+    value: 0.0,
+    currency: "USD",
+  },
+  posted_balance: {
+    value: 0.0,
+    currency: "USD",
+  },
+}
+
+let defaultAccountDetails = {
+  id: "",
+  account_id: "Unknown Account",
+}
+
+let getAmountPayload = dict => {
+  {
+    value: dict->getFloat("value", 0.0),
+    currency: dict->getString("currency", ""),
+  }
+}
+
 let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
-    currency: dict->getString("currency", ""),
-    pending_balance: dict->getFloat("pending_balance", 0.0),
-    posted_balance: dict->getFloat("posted_balance", 0.0),
+    profile_id: dict->getString("profile_id", ""),
+    currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
+    initial_balance: dict
+    ->getDictfromDict("initial_balance")
+    ->getAmountPayload,
+    pending_balance: dict
+    ->getDictfromDict("pending_balance")
+    ->getAmountPayload,
+    posted_balance: dict
+    ->getDictfromDict("posted_balance")
+    ->getAmountPayload,
   }
 }
 
-let getAmountString = (amount, currency) => {
-  amount->Float.toString ++ " " ++ currency
+let accountRefItemToObjMapper = dict => {
+  {
+    id: dict->getString("id", ""),
+    account_id: dict->getString("account_id", ""),
+  }
 }
 
 let reconRuleItemToObjMapper = dict => {
@@ -20,145 +62,83 @@ let reconRuleItemToObjMapper = dict => {
     rule_id: dict->getString("rule_id", ""),
     rule_name: dict->getString("rule_name", ""),
     rule_description: dict->getString("rule_description", ""),
+    sources: dict
+    ->getArrayFromDict("sources", [])
+    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
+    targets: dict
+    ->getArrayFromDict("targets", [])
+    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
   }
 }
 
-let reconRuleItemToObjMapper = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-    rule_description: dict->getString("rule_description", ""),
-  }
+let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: string): (
+  string,
+  string,
+) => {
+  let account =
+    accountData
+    ->Array.find(account => account.account_id === accountId)
+    ->Option.getOr(defaultAccount)
+  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
 }
 
-let (
-  startTimeFilterKey,
-  endTimeFilterKey,
-  smartRetryKey,
-  compareToStartTimeKey,
-  compareToEndTimeKey,
-  comparisonKey,
-) = (
-  "startTime",
-  "endTime",
-  "is_smart_retry_enabled",
-  "compareToStartTime",
-  "compareToEndTime",
-  "comparison",
-)
-let initialFixedFilterFields = (~events=?) => {
-  let events = switch events {
-  | Some(fn) => fn
-  | _ => () => ()
-  }
-  let customButtonStyle = "border !rounded-lg !bg-none"
-  let newArr = [
-    (
-      {
-        localFilter: None,
-        field: FormRenderer.makeMultiInputFieldInfo(
-          ~label="",
-          ~comboCustomInput=InputFields.filterDateRangeField(
-            ~startKey=startTimeFilterKey,
-            ~endKey=endTimeFilterKey,
-            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-            ~showTime=true,
-            ~disablePastDates={false},
-            ~disableFutureDates={true},
-            ~predefinedDays=[
-              Hour(0.5),
-              Hour(1.0),
-              Hour(2.0),
-              Today,
-              Yesterday,
-              Day(2.0),
-              Day(7.0),
-              Day(30.0),
-              ThisMonth,
-              LastMonth,
-            ],
-            ~numMonths=2,
-            ~disableApply=false,
-            ~dateRangeLimit=180,
-            ~events,
-            ~customButtonStyle,
-          ),
-          ~inputFields=[],
-          ~isRequired=false,
-        ),
-      }: EntityType.initialFilters<'t>
-    ),
-  ]
-
-  newArr
+let formatAmountWithCurrency = (amount: float, currency: string) => {
+  let roundedAmount = (amount *. 100.0)->Math.round /. 100.0
+  `${roundedAmount->Float.toString} ${currency}`
 }
 
-let accountBalanceOptions: ColumnGraphTypes.columnGraphPayload = {
-  title: {
-    text: "",
-  },
-  data: [
-    {
-      showInLegend: false,
-      name: "Account Balance",
-      colorByPoint: true,
-      data: [
-        {
-          name: "1 Day",
-          y: 13711.0,
-          color: "#8BC2F3",
-        },
-        {
-          name: "2 Day",
-          y: 44579.0,
-          color: "#8BC2F3",
-        },
-        {
-          name: "3 Day",
-          y: 40510.0,
-          color: "#8BC2F3",
-        },
-        {
-          name: "4 Day",
-          y: 48035.0,
-          color: "#8BC2F3",
-        },
-        {
-          name: "5 Day",
-          y: 51640.0,
-          color: "#8BC2F3",
-        },
-        {
-          name: "6 Day",
-          y: 51483.0,
-          color: "#8BC2F3",
-        },
-        {
-          name: "7 Day",
-          y: 50049.0,
-          color: "#8BC2F3",
-        },
-      ],
-      color: "",
-    },
-  ],
-  tooltipFormatter: ColumnGraphUtils.columnGraphTooltipFormatter(
-    ~title="Account Balance",
-    ~metricType=FormattedAmount,
-  ),
-  yAxisFormatter: ColumnGraphUtils.columnGraphYAxisFormatter(
-    ~statType=FormattedAmount,
-    ~currency="$",
-  ),
-}
+let calculateAccountAmounts = (
+  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+) => {
+  let (
+    sourcePosted,
+    targetPosted,
+    sourceMismatched,
+    targetMismatched,
+    sourceExpected,
+    targetExpected,
+  ) = transactionsData->Array.reduce((0.0, 0.0, 0.0, 0.0, 0.0, 0.0), (
+    (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected),
+    transaction,
+  ) => {
+    // Use pre-calculated credit_amount and debit_amount instead of iterating through entries
+    let creditAmount = transaction.credit_amount.value
+    let debitAmount = transaction.debit_amount.value
 
-let getAccountIcon = index => {
-  switch index {
-  | 0 => "settings"
-  | 1 => "credit-card"
-  | 2 => "nd-bank"
-  | _ => "building"
-  }
+    switch transaction.transaction_status {
+    | "posted" => (
+        sPosted +. creditAmount,
+        tPosted +. debitAmount,
+        sMismatched,
+        tMismatched,
+        sExpected,
+        tExpected,
+      )
+    | "mismatched" => (
+        sPosted,
+        tPosted,
+        sMismatched +. creditAmount,
+        tMismatched +. debitAmount,
+        sExpected,
+        tExpected,
+      )
+    | "expected" => (
+        sPosted,
+        tPosted,
+        sMismatched,
+        tMismatched,
+        sExpected +. creditAmount,
+        tExpected +. debitAmount,
+      )
+    | _ => (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected)
+    }
+  })
+
+  let totalSourceAmount = sourcePosted +. sourceMismatched +. sourceExpected
+  let totalTargetAmount = targetPosted +. targetMismatched +. targetExpected
+  let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
+
+  (totalSourceAmount, totalTargetAmount, variance)
 }
 
 let getOverviewLineGraphTooltipFormatter = (
