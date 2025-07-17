@@ -6,8 +6,20 @@ let accountItemToObjMapper = dict => {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
     currency: dict->getString("currency", ""),
-    pending_balance: dict->getString("pending_balance", ""),
-    posted_balance: dict->getString("posted_balance", ""),
+    pending_balance: dict->getFloat("pending_balance", 0.0),
+    posted_balance: dict->getFloat("posted_balance", 0.0),
+  }
+}
+
+let getAmountString = (amount, currency) => {
+  amount->Float.toString ++ " " ++ currency
+}
+
+let reconRuleItemToObjMapper = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    rule_description: dict->getString("rule_description", ""),
   }
 }
 

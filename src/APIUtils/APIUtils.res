@@ -878,7 +878,11 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/entries`
+            | Some(accountId) =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/accounts/${accountId}/entries?${queryParams}`
+              | None => `${reconBaseURL}/accounts/${accountId}/entries`
+              }
             | None => ""
             }
           | _ => ""

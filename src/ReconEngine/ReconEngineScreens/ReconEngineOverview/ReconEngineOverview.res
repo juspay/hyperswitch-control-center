@@ -37,7 +37,7 @@ module AccountCard = {
             {"Posted Balance"->React.string}
           </div>
           <div className={`${body.md.medium} text-nd_gray-900`}>
-            {account.posted_balance->React.string}
+            {account.posted_balance->Float.toString->React.string}
           </div>
         </div>
         <div>
@@ -45,7 +45,7 @@ module AccountCard = {
             {"Pending Balance"->React.string}
           </div>
           <div className={`${body.md.medium} text-nd_gray-900`}>
-            {account.pending_balance->React.string}
+            {account.pending_balance->Float.toString->React.string}
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ let make = () => {
   }, [reconRulesList])
 
   React.useEffect(() => {
-    getAccountData()->ignore
+    getAccountsData()->ignore
     None
   }, [])
 

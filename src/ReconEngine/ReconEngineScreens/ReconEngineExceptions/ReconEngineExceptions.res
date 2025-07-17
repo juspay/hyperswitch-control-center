@@ -7,16 +7,24 @@ let make = () => {
     [
       {
         title: "Exceptions at Upload",
-        renderContent: () => <ReconEngineExceptionStaging />,
+        renderContent: () =>
+          <FilterContext
+            key="recon-engine-exception-staging" index="recon-engine-exception-staging">
+            <ReconEngineExceptionStaging />
+          </FilterContext>,
       },
       {
         title: "Exceptions at Recon",
-        renderContent: () => <ReconExceptionTransaction />,
+        renderContent: () =>
+          <FilterContext
+            key="recon-engine-exception-transaction" index="recon-engine-exception-transaction">
+            <ReconExceptionTransaction />
+          </FilterContext>,
       },
     ]
   }, [])
 
-  <div className="flex flex-col gap-8 p-6">
+  <div className="flex flex-col gap-8">
     <div className="flex flex-row justify-between items-center gap-4">
       <div className="flex-shrink-0">
         <PageUtils.PageHeading
