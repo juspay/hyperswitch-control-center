@@ -165,7 +165,7 @@ let make = () => {
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-  let {isCurrentMerchantPlatform, isCurrentOrganizationPlatform} = OMPPlatformHooks.useOMPType()
+  let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
     globalUIConfig: {
       sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
