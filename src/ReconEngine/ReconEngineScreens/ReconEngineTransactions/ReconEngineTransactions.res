@@ -15,7 +15,6 @@ let make = () => {
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -54,7 +53,7 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase(obj.transaction_status, searchText)
         | None => false
         }
       })
@@ -68,7 +67,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = SampleTransactions.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("data", [])
+      let data = response->getDictFromJsonObject->getArrayFromDict("transactions", [])
       let transactionsList = data->getArrayOfTransactionsListPayloadType
       setConfiguredReports(_ => transactionsList)
       setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
@@ -104,38 +103,35 @@ let make = () => {
         </div>
       </div>
     </div>
-    <ReconEngineTransactionsHelper.StackedBarGraph />
-    <RenderIf condition={configuredTransactions->Array.length > 0}>
-      <LoadedTableWithCustomColumns
-        title="All Transactions"
-        actualData={filteredTransactionsData}
-        entity={TransactionsTableEntity.transactionsEntity(
-          `v1/recon-engine/transactions`,
-          ~authorization=userHasAccess(~groupAccess=UsersManage),
-        )}
-        resultsPerPage=10
-        filters={<TableSearchFilter
-          data={configuredTransactions->Array.map(Nullable.make)}
-          filterLogic
-          placeholder="Search Transaction Id or Status"
-          customSearchBarWrapperWidth="w-1/3"
-          searchVal=searchText
-          setSearchVal=setSearchText
-        />}
-        totalResults={filteredTransactionsData->Array.length}
-        offset
-        setOffset
-        currrentFetchCount={configuredTransactions->Array.length}
-        customColumnMapper=TableAtoms.reconTransactionsDefaultCols
-        defaultColumns={TransactionsTableEntity.defaultColumns}
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        hideTitle=true
-        remoteSortEnabled=true
-        customizeColumnButtonIcon="nd-filter-horizontal"
-        hideRightTitleElement=true
-        showAutoScroll=true
-      />
-    </RenderIf>
+    <LoadedTableWithCustomColumns
+      title="All Transactions"
+      actualData={filteredTransactionsData}
+      entity={TransactionsTableEntity.transactionsEntity(
+        `v1/recon-engine/transactions`,
+        ~authorization=Access,
+      )}
+      resultsPerPage=10
+      filters={<TableSearchFilter
+        data={configuredTransactions->Array.map(Nullable.make)}
+        filterLogic
+        placeholder="Search Transaction Id or Status"
+        customSearchBarWrapperWidth="w-1/3"
+        searchVal=searchText
+        setSearchVal=setSearchText
+      />}
+      totalResults={filteredTransactionsData->Array.length}
+      offset
+      setOffset
+      currrentFetchCount={configuredTransactions->Array.length}
+      customColumnMapper=TableAtoms.reconTransactionsDefaultCols
+      defaultColumns={TransactionsTableEntity.defaultColumns}
+      showSerialNumberInCustomizeColumns=false
+      sortingBasedOnDisabled=false
+      hideTitle=true
+      remoteSortEnabled=true
+      customizeColumnButtonIcon="nd-filter-horizontal"
+      hideRightTitleElement=true
+      showAutoScroll=true
+    />
   </PageLoaderWrapper>
 }

@@ -109,6 +109,7 @@ type processorTypes =
   | WORLDPAYVANTIV
   | BARCLAYCARD
   | TOKENIO
+  | PAYLOAD
 
 type payoutProcessorTypes =
   | ADYEN

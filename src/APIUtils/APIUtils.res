@@ -117,12 +117,14 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
+    let reconBaseURL = `hyperswitch-recon-engine`
 
     let endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -843,16 +845,79 @@ let useGetURL = () => {
           | _ => ""
           }
         }
-      /* V1 RECON */
-      | RECON_FILE_UPLOAD =>
-        switch methodType {
-        | Post =>
-          switch id {
-          | Some(accountid) => `hyperswitch-recon-engine/accounts/${accountid}/upload`
-          | None => ``
+
+      | HYPERSWITCH_RECON =>
+        switch hyperswitchReconType {
+        | #FILE_UPLOAD =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/upload`
+            | None => ``
+            }
+          | _ => ""
           }
-        | _ => ""
+        | #ACCOUNTS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}`
+            | None => `${reconBaseURL}/accounts`
+            }
+          | _ => ""
+          }
+        | #TRANSACTIONS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/transactions?${queryParams}`
+              | None => `${reconBaseURL}/transactions`
+              }
+            }
+          | _ => ""
+          }
+        | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/entries`
+            | None => ""
+            }
+          | _ => ""
+          }
+        | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
+            | None => `${reconBaseURL}/entries`
+            }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/staging_entries`
+            }
+          | _ => ""
+          }
+        | #RECON_RULES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(ruleId) => `${reconBaseURL}/accounts/${ruleId}/entries`
+            | None => ""
+            }
+          | _ => ""
+          }
+        | #NONE => ""
         }
+
       /* INTELLIGENT ROUTING */
       | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
@@ -1021,6 +1086,7 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | CHAT_BOT => `chat/ai/data`
       }
 
     | V2(entityNameForv2) =>
