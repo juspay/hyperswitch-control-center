@@ -121,7 +121,7 @@ let make = () => {
           />
         </div>
       </RenderIf>
-      <RenderIf condition={reconRulesList->Array.length == 0}>
+      <RenderIf condition={reconRulesList->Array.length > 0}>
         <Tabs
           tabs
           showBorder=true
