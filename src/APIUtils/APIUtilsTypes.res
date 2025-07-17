@@ -84,6 +84,7 @@ type entityName =
   | RECOVERY_ATTEMPTS
   | THREE_DS_EXEMPTION_RULES
   | HYPERSWITCH_RECON
+  | CHAT_BOT
 
 type v2entityNameType =
   | CUSTOMERS

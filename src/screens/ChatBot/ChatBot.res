@@ -1,12 +1,4 @@
-type response = {
-  summary: string,
-  markdown: string,
-}
-type chat = {
-  message: string,
-  response: response,
-}
-
+open ChatBotTypes
 module ChatBot = {
   @react.component
   let make = (~loading) => {
@@ -45,8 +37,6 @@ module ChatMessage = {
   @react.component
   let make = (~message: string, ~response: response, ~isLatest: bool, ~loading: bool) => {
     let isTyping = isLatest && loading && response.markdown->LogicUtils.isEmptyString
-
-    Js.log2("markdown", response.markdown)
 
     <div className="space-y-6">
       <div className="flex justify-end">
@@ -162,8 +152,9 @@ module EmptyState = {
 
 @react.component
 let make = () => {
-  let fetchApiWindow = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  open APIUtils
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
@@ -208,20 +199,12 @@ let make = () => {
       )
 
       try {
-        let dict =
-          [("message", message->JSON.Encode.string)]
-          ->Dict.fromArray
-          ->JSON.Encode.object
+        let dict = [("message", message->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         setLoading(_ => true)
-        let res = await fetchApiWindow(
-          `${Window.env.apiBaseUrl}/chat/ai/data`,
-          ~method_=Post,
-          ~xFeatureRoute,
-          ~forceCookies,
-          ~bodyStr=JSON.stringify(dict),
-        )
-        let response =
-          (await res->(res => res->Fetch.Response.json))->LogicUtils.getDictFromJsonObject
+
+        let url = getURL(~entityName=V1(CHAT_BOT), ~methodType=Post)
+        let res = await updateDetails(url, dict, Post)
+        let response = res->LogicUtils.getDictFromJsonObject
 
         switch JSON.Classify.classify(response->LogicUtils.getJsonObjectFromDict("response")) {
         | Object(dict) =>
