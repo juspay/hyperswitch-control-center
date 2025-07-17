@@ -3,7 +3,7 @@ type config = {
   merchantId: option<string>,
   profileId: option<string>,
 }
-type merchantSpecificConfig = {newAnalytics: config}
+type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -143,5 +143,6 @@ let merchantSpecificConfig = (config: JSON.t) => {
   let dict = config->getDictFromJsonObject
   {
     newAnalytics: dict->getDictfromDict("new_analytics")->configMapper,
+    devReconEngineV1: dict->getDictfromDict("dev_recon_engine_v1")->configMapper,
   }
 }

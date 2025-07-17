@@ -55,21 +55,63 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
       process.env[`${domain}__merchant_config__${key}__profile_ids`];
 
     const orgId = checkEnvValues(envOrgIds, tomlConfig[key].org_ids).find(
-      (id) => body.org_id === id,
+      (id) => body.org_id === id
     );
     const merchantId = checkEnvValues(
       envMerchantIds,
-      tomlConfig[key].merchant_ids,
+      tomlConfig[key].merchant_ids
     ).find((id) => body.merchant_id === id);
     const profileId = checkEnvValues(
       envProfileIds,
-      tomlConfig[key].profile_ids,
+      tomlConfig[key].profile_ids
     ).find((id) => body.profile_id === id);
 
     modifiedConfig[key] = {
       org_id: orgId,
       merchant_id: merchantId,
       profile_id: profileId,
+    };
+  }
+  return modifiedConfig;
+}
+
+// Update whitelist config using environment variables
+function updateWhitelistConfigWithEnv(tomlConfig, body, domain = "default") {
+  let modifiedConfig = {};
+
+  for (const key in tomlConfig.whitelist) {
+    const envOrgIds =
+      process.env[`${domain}__merchant_config__whitelist__${key}__org_ids`];
+    const envMerchantIds =
+      process.env[
+        `${domain}__merchant_config__whitelist__${key}__merchant_ids`
+      ];
+    const envProfileIds =
+      process.env[`${domain}__merchant_config__whitelist__${key}__profile_ids`];
+
+    const orgIds = checkEnvValues(envOrgIds, tomlConfig.whitelist[key].org_ids);
+    const merchantIds = checkEnvValues(
+      envMerchantIds,
+      tomlConfig.whitelist[key].merchant_ids
+    );
+    const profileIds = checkEnvValues(
+      envProfileIds,
+      tomlConfig.whitelist[key].profile_ids
+    );
+
+    const isOrgWhitelisted = orgIds.length > 0 && orgIds.includes(body.org_id);
+    const isMerchantWhitelisted =
+      merchantIds.length > 0 && merchantIds.includes(body.merchant_id);
+    const isProfileWhitelisted =
+      profileIds.length > 0 && profileIds.includes(body.profile_id);
+
+    const hasAccess =
+      isOrgWhitelisted || isMerchantWhitelisted || isProfileWhitelisted;
+
+    modifiedConfig[key] = {
+      org_id: hasAccess ? body.org_id : undefined,
+      merchant_id: hasAccess ? body.merchant_id : undefined,
+      profile_id: hasAccess ? body.profile_id : undefined,
     };
   }
   return modifiedConfig;
@@ -99,7 +141,7 @@ const configHandler = async (
   res,
   isDeployed = false,
   domain = "default",
-  configPath = "dist/server/config/config.toml",
+  configPath = "dist/server/config/config.toml"
 ) => {
   const filePath = isDeployed ? configPath : "config/config.toml";
   try {
@@ -150,7 +192,7 @@ const merchantConfigHandler = async (
   res,
   isDeployed = false,
   domain = "default",
-  configPath = "dist/server/config/config.toml",
+  configPath = "dist/server/config/config.toml"
 ) => {
   const filePath = isDeployed ? configPath : "config/config.toml";
   try {
@@ -159,12 +201,17 @@ const merchantConfigHandler = async (
     const merchantConfig =
       config[domain]?.merchant_config || config.default.merchant_config;
     const data = updateMerchantConfigWithEnv(merchantConfig, body, domain);
-
+    const whitelistData = updateWhitelistConfigWithEnv(
+      merchantConfig,
+      body,
+      domain
+    );
+    const mergedData = { ...data, ...whitelistData };
     res.writeHead(200, {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     });
-    res.end(JSON.stringify(data));
+    res.end(JSON.stringify(mergedData));
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.log(error); //
