@@ -8,12 +8,16 @@ let make = (~showModal, ~setShowModal) => {
   open FormDataUtils
   open APIUtils
   open ReconEngineQueueUtils
+
   let (currentStep, setCurrentStep) = React.useState(_ => AccountSelection)
   let (selectedAccount, setSelectedAccount) = React.useState(_ => "")
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let fetchDetails = useGetMethod()
+  let (accountData, setAccountData) = React.useState(_ => [])
 
   let closeModal = () => {
     setShowModal(_ => false)
@@ -24,6 +28,29 @@ let make = (~showModal, ~setShowModal) => {
   let handleNext = () => {
     setCurrentStep(_ => FileUpload)
   }
+
+  let getAccountsData = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#ACCOUNTS_LIST,
+      )
+      let res = await fetchDetails(url)
+      let accountData =
+        res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      setAccountData(_ => accountData)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
+  React.useEffect(() => {
+    getAccountsData()->ignore
+    None
+  }, [])
 
   let handleFileUpload = async ev => {
     try {
@@ -128,24 +155,32 @@ let make = (~showModal, ~setShowModal) => {
             {"Account"->React.string}
             <span className="text-red-500"> {"*"->React.string} </span>
           </label>
-          <SelectBox
-            input={{
-              name: "selectedAccount",
-              value: selectedAccount->JSON.Encode.string,
-              onChange: ev => {
-                let value = ev->Identity.formReactEventToString
-                setSelectedAccount(_ => value)
-              },
-              onBlur: _ => (),
-              onFocus: _ => (),
-              checked: false,
-            }}
-            options={ReconEngineQueueSample.account->generateAccountDropdownOptions}
-            buttonText="Select Account"
-            allowMultiSelect=false
-            deselectDisable=true
-            fullLength=true
-          />
+          <PageLoaderWrapper
+            screenState
+            customLoader={<div className="h-full flex flex-col justify-center items-center">
+              <div className="animate-spin">
+                <Icon name="spinner" size=20 />
+              </div>
+            </div>}>
+            <SelectBox
+              input={{
+                name: "selectedAccount",
+                value: selectedAccount->JSON.Encode.string,
+                onChange: ev => {
+                  let value = ev->Identity.formReactEventToString
+                  setSelectedAccount(_ => value)
+                },
+                onBlur: _ => (),
+                onFocus: _ => (),
+                checked: false,
+              }}
+              options={accountData->generateAccountDropdownOptions}
+              buttonText="Select Account"
+              allowMultiSelect=false
+              deselectDisable=true
+              fullLength=true
+            />
+          </PageLoaderWrapper>
         </div>
         <div className="flex justify-end gap-3 pt-4">
           <Button text="Cancel" buttonType=Secondary onClick={_ => closeModal()} />

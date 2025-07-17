@@ -5,6 +5,43 @@ let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
 
+let getAmountPayload = dict => {
+  {
+    value: dict->getFloat("value", 0.0),
+    currency: dict->getString("currency", ""),
+  }
+}
+
+let getRulePayload = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+  }
+}
+
+let getAccountPayload = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+  }
+}
+
+let getTransactionsEntryPayload = dict => {
+  {
+    entry_id: dict->getString("entry_id", ""),
+    entry_type: dict->getString("entry_type", ""),
+    account: dict
+    ->getDictfromDict("account")
+    ->getAccountPayload,
+  }
+}
+
+let getArrayOfTransactionsEntriesListPayloadType = json => {
+  json->Array.map(entriesJson => {
+    entriesJson->getDictFromJsonObject->getTransactionsEntryPayload
+  })
+}
+
 let getHeadersForCSV = () => {
   "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
 }
@@ -13,14 +50,14 @@ let getAllTransactionPayload = dict => {
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
-    entry_id: dict->getStrArray("entry_id"),
-    credit_account: dict->getString("credit_account", ""),
-    debit_account: dict->getString("debit_account", ""),
-    amount: dict->getFloat("amount", 0.0),
-    currency: dict->getString("currency", ""),
+    profile_id: dict->getString("profile_id", ""),
+    entries: dict
+    ->getArrayFromDict("entries", [])
+    ->getArrayOfTransactionsEntriesListPayloadType,
+    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
+    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
+    rule: dict->getDictfromDict("rule")->getRulePayload,
     transaction_status: dict->getString("transaction_status", ""),
-    variance: dict->getInt("variance", 0),
-    discarded_status: dict->getString("discarded_status", ""),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
   }
@@ -37,8 +74,8 @@ let getAllEntryPayload = dict => {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
     transaction_id: dict->getString("transaction_id", ""),
-    amount: dict->getFloat("amount", 0.0),
-    currency: dict->getString("currency", ""),
+    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
+    currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
     discarded_status: dict->getString("discarded_status", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
@@ -68,53 +105,54 @@ let sortByVersion = (
   compareLogic(c1.version, c2.version)
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
+// Helper function to get unique account names by entry type
+let getAccounts = (entries: array<transactionEntryType>, entryType: string): string => {
+  let accounts =
+    entries
+    ->Array.filter(entry => entry.entry_type === entryType)
+    ->Array.map(entry => entry.account.account_name)
 
-let initialFixedFilterFields = (~events=?) => {
-  let events = switch events {
-  | Some(fn) => fn
-  | _ => () => ()
-  }
+  // Get unique account names using Set-like behavior
+  let uniqueAccounts = accounts->Array.reduce([], (acc, accountName) => {
+    if Array.includes(acc, accountName) {
+      acc
+    } else {
+      Array.concat(acc, [accountName])
+    }
+  })
 
-  let newArr = [
+  uniqueAccounts->Array.joinWith(", ")
+}
+
+let initialDisplayFilters = () => {
+  let statusOptions: array<FilterSelectBox.dropdownOption> = [
+    {label: "Mismatched", value: "mismatched"},
+    {label: "Expected", value: "expected"},
+    {label: "Posted", value: "posted"},
+    {label: "Archived", value: "archived"},
+  ]
+
+  [
     (
       {
-        localFilter: None,
-        field: FormRenderer.makeMultiInputFieldInfo(
-          ~label="",
-          ~comboCustomInput=InputFields.filterDateRangeField(
-            ~startKey=startTimeFilterKey,
-            ~endKey=endTimeFilterKey,
-            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-            ~showTime=true,
-            ~disablePastDates={false},
-            ~disableFutureDates={true},
-            ~predefinedDays=[
-              Hour(0.5),
-              Hour(1.0),
-              Hour(2.0),
-              Today,
-              Yesterday,
-              Day(2.0),
-              Day(7.0),
-              Day(30.0),
-              ThisMonth,
-              LastMonth,
-            ],
-            ~numMonths=2,
-            ~disableApply=false,
-            ~dateRangeLimit=180,
-            ~disable=false,
-            ~events,
+        field: FormRenderer.makeFieldInfo(
+          ~label="transaction_status",
+          ~name="transaction_status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Transaction Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
           ),
-          ~inputFields=[],
-          ~isRequired=false,
         ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
       }: EntityType.initialFilters<'t>
     ),
   ]
-
-  newArr
 }
 
 let getSampleStackedBarGraphData = () => {
