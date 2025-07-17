@@ -9,11 +9,11 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
   }
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let startTimeVal = filterValueJson->getString("startTime", "")
-  let endTimeVal = filterValueJson->getString("endTime", "")
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -29,9 +29,12 @@ let make = () => {
         initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+          null,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
+        tabNames=filterKeys
         key="ReconEngineTransactionsFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
@@ -61,12 +64,8 @@ let make = () => {
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      // Build query string using utility function
-      let queryString = buildTransactionsFiltersQueryString(
-        ~startTimeVal,
-        ~endTimeVal,
-        ~filterValueJson,
-      )
+      // Build query string using shared utility function
+      let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
       let transactionsUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,

@@ -13,11 +13,11 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let startTimeVal = filterValueJson->getString("startTime", "")
-  let endTimeVal = filterValueJson->getString("endTime", "")
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
@@ -42,12 +42,18 @@ let make = () => {
   let fetchExceptionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      // Build query string using utility function with default transaction status
-      let queryString = buildTransactionsFiltersQueryString(
-        ~startTimeVal,
-        ~endTimeVal,
-        ~filterValueJson,
-        ~defaultTransactionStatus=["expected", "mismatched"],
+      // Build query string using shared utility function
+      // Add default transaction status if not present in filterValueJson
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      if statusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set(
+          "transaction_status",
+          ["expected", "mismatched"]->Array.map(JSON.Encode.string)->JSON.Encode.array,
+        )
+      }
+      let queryString = ReconEngineUtils.buildQueryStringFromFilters(
+        ~filterValueJson=enhancedFilterValueJson,
       )
       let exceptionsUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
@@ -96,9 +102,12 @@ let make = () => {
         initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+          null,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
+        tabNames=filterKeys
         key="ReconEngineExceptionTransactionFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}

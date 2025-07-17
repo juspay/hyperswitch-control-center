@@ -11,11 +11,12 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let startTimeVal = filterValueJson->getString("startTime", "")
-  let endTimeVal = filterValueJson->getString("endTime", "")
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -42,8 +43,11 @@ let make = () => {
   let fetchStagingData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      // Build query string using utility function
-      let queryString = buildStagingFiltersQueryString(~startTimeVal, ~endTimeVal, ~filterValueJson)
+      // Build query string using shared utility function
+      let queryString =
+        ReconEngineUtils.buildQueryStringFromFilters(
+          ~filterValueJson,
+        ) ++ "&status=needs_manual_review"
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
@@ -91,9 +95,12 @@ let make = () => {
         initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+          null,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
+        tabNames=filterKeys
         key="ReconEngineExceptionStagingFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
