@@ -164,7 +164,7 @@ module OrgTile = {
 module OrgTileGroup = {
   @react.component
   let make = (
-    ~heading=?,
+    ~heading: string="",
     ~customHeading=?,
     ~hasPlatformOrg,
     ~orgList: array<OMPSwitchTypes.ompListTypes>,
@@ -176,16 +176,12 @@ module OrgTileGroup = {
 
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
-        {switch heading {
-        | Some(heading) =>
+        {switch customHeading {
+        | Some(customHeading) => customHeading
+        | None =>
           <div className="text-nd_gray-400 uppercase leading-12 text-fs-8 font-bold">
             <div className="flex justify-center"> {heading->React.string} </div>
           </div>
-        | None => React.null
-        }}
-        {switch customHeading {
-        | Some(customHeading) => customHeading
-        | None => React.null
         }}
       </RenderIf>
       {orgList
