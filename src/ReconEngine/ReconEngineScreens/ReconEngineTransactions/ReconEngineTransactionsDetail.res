@@ -19,23 +19,24 @@ let make = (~id) => {
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(
+      let currentTransactionUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSACTIONS_LIST,
+        ~id=Some(id),
       )
-      let res = await fetchDetails(url)
-      let data = res->getDictFromJsonObject->getArrayFromDict("transactions", [])
-      let transactionsList = data->getArrayOfTransactionsListPayloadType
-      let selectedCurrentTransactionArray = transactionsList->Array.filter(item => item.id == id)
-      let selectedCurrentTransactionData =
-        selectedCurrentTransactionArray->getValueFromArray(0, Dict.make()->getAllTransactionPayload)
-      let allTransactionDetails =
-        transactionsList->Array.filter(item =>
-          item.transaction_id == selectedCurrentTransactionData.transaction_id
-        )
-      setCurrentTransactionDetails(_ => selectedCurrentTransactionData)
-      setAllTransactionDetails(_ => allTransactionDetails)
+      let res = await fetchDetails(currentTransactionUrl)
+      let currentTransaction = res->getDictFromJsonObject->getAllTransactionPayload
+      let allTransactionUrl = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+        ~queryParamerters=Some("transaction_id=" ++ currentTransaction.transaction_id),
+      )
+      let allTransactionRes = await fetchDetails(allTransactionUrl)
+      let transactionsList = allTransactionRes->getArrayDataFromJson(getAllTransactionPayload)
+      setCurrentTransactionDetails(_ => currentTransaction)
+      setAllTransactionDetails(_ => transactionsList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
@@ -69,7 +70,7 @@ let make = (~id) => {
       <div className="flex flex-col gap-8">
         <TransactionDetailInfo
           currentTransactionDetails={currentTransactionDetails}
-          detailsFields=[TransactionId, Status]
+          detailsFields=[TransactionId, Status, Variance, CreatedAt]
         />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>

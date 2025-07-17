@@ -2,6 +2,8 @@
 let make = () => {
   open LogicUtils
   open APIUtils
+  open ReconEngineExceptionStagingUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (stagingData, setStagingData) = React.useState(_ => [])
@@ -9,6 +11,17 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+    FilterContext.filterContext,
+  )
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
+  }
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -26,43 +39,83 @@ let make = () => {
     setFilteredStagingData(_ => filteredList)
   }, ~wait=200)
 
-  let getStagingExceptionsData = async _ => {
+  let fetchStagingData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(
+      // Build query string using utility function
+      let queryString = buildStagingFiltersQueryString(~startTimeVal, ~endTimeVal, ~filterValueJson)
+      let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=Some("status=needs_manual_review"),
+        ~queryParamerters=Some(queryString),
       )
-      let res = await fetchDetails(url)
+
+      let res = await fetchDetails(stagingUrl)
       let stagingList =
         res->LogicUtils.getArrayDataFromJson(ReconEngineAccountEntity.processingItemToObjMapper)
-      setStagingData(_ => stagingList->Array.map(Nullable.make))
-      setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
-      setScreenState(_ => Success)
+
+      let stagingDataList = stagingList->Array.map(Nullable.make)
+      setStagingData(_ => stagingDataList)
+      setFilteredStagingData(_ => stagingDataList)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
 
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~origin="recon_engine_exception_staging",
+    (),
+  )
+
   React.useEffect(() => {
-    getStagingExceptionsData()->ignore
+    setInitialFilters()
     None
   }, [])
 
-  <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-4">
+  React.useEffect(() => {
+    if !(filterValue->isEmptyDict) {
+      fetchStagingData()->ignore
+    }
+    None
+  }, [filterValue])
+
+  let topFilterUi = {
+    <div className="flex flex-row">
+      <DynamicFilter
+        title="ReconEngineExceptionStagingFilters"
+        initialFilters={initialDisplayFilters()}
+        options=[]
+        popupFilterFields=[]
+        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        tabNames
+        key="ReconEngineExceptionStagingFilters"
+        updateUrlWith=updateExistingKeys
+        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        showCustomFilter=false
+        refreshFilters=false
+      />
+    </div>
+  }
+
+  <div className="flex flex-col gap-4 my-4">
+    <div className="flex-shrink-0"> {topFilterUi} </div>
+    <PageLoaderWrapper screenState>
       <LoadedTable
         title="Staging Entries"
         hideTitle=true
         actualData={filteredStagingData}
         entity={ReconEngineAccountEntity.processingTableEntity}
-        resultsPerPage=10
+        resultsPerPage=50
         totalResults={filteredStagingData->Array.length}
         offset
         setOffset
-        currrentFetchCount={stagingData->Array.length}
+        currrentFetchCount={filteredStagingData->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"
@@ -73,12 +126,12 @@ let make = () => {
           data={stagingData}
           filterLogic
           placeholder="Search Staging Entry ID or Status"
-          customSearchBarWrapperWidth="w-full lg:w-1/2 mt-8 mb-2"
-          customInputBoxWidth="w-full rounded-xl "
+          customSearchBarWrapperWidth="w-full lg:w-1/2"
+          customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText
           setSearchVal=setSearchText
         />}
       />
-    </div>
-  </PageLoaderWrapper>
+    </PageLoaderWrapper>
+  </div>
 }

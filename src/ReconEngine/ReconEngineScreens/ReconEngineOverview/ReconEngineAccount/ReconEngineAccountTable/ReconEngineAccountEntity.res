@@ -16,7 +16,6 @@ type processingEntryType = {
   currency: string,
   status: string,
   effective_at: string,
-  created_at: string,
 }
 
 type accountType = {
@@ -66,7 +65,6 @@ let processingItemToObjMapper = dict => {
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
     effective_at: dict->getString("effective_at", ""),
-    created_at: dict->getString("created_at", ""),
   }
 }
 
@@ -131,7 +129,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   switch colType {
   | StagingEntryId => Text(data.staging_entry_id)
   | EntryType => Text(data.entry_type)
-  | Amount => Numeric(data.amount, amount => `$${amount->Float.toString}`)
+  | Amount => Numeric(data.amount, amount => {amount->Float.toString})
   | Currency => Text(data.currency)
   | Status =>
     Label({

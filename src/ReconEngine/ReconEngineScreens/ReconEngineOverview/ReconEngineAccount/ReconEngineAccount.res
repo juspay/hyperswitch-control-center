@@ -138,7 +138,7 @@ module ProcessingEntriesTable = {
           ~entityName=V1(HYPERSWITCH_RECON),
           ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
           ~methodType=Get,
-          ~queryParamerters=Some(`account_id=${accountId}`),
+          ~queryParamerters=Some(`account_id=${accountId}&status=needs_manual_review`),
         )
         let res = await fetchDetails(url)
         let processingEntriesList = res->getArrayDataFromJson(processingItemToObjMapper)

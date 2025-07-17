@@ -151,9 +151,9 @@ module AuditTrail = {
         )
         let res = await fetchDetails(url)
         let entriesList = res->getArrayDataFromJson(getAllEntryPayload)
-        let entriesDataArray = openedTransaction.entry_id->Array.map(entryId => {
+        let entriesDataArray = openedTransaction.entries->Array.map(entry => {
           entriesList
-          ->Array.find(entry => entry.entry_id == entryId)
+          ->Array.find(e => entry.entry_id == e.entry_id)
           ->Option.getOr(Dict.make()->getAllEntryPayload)
         })
         setEntriesList(_ => entriesDataArray)
@@ -168,7 +168,8 @@ module AuditTrail = {
         id: transaction.version->Int.toString,
         customComponent: Some(
           <TransactionDetailInfo
-            currentTransactionDetails=transaction detailsFields=[TransactionId, Status]
+            currentTransactionDetails=transaction
+            detailsFields=[TransactionId, Status, Variance, CreatedAt]
           />,
         ),
         onClick: _ => {
