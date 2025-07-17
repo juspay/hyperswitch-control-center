@@ -1,13 +1,11 @@
 open LogicUtils
 
-// Generic function to build query string from filter data
 let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
   let queryParts = []
 
   filterValueJson
   ->Dict.toArray
   ->Array.forEach(((key, value)) => {
-    // Convert key to API format (e.g., "startTime" -> "start_time")
     let apiKey = switch key {
     | "startTime" => "start_time"
     | "endTime" => "end_time"

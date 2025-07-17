@@ -42,14 +42,12 @@ let make = () => {
   let fetchExceptionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      // Build query string using shared utility function
-      // Add default transaction status if not present in filterValueJson
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched"]->Array.map(JSON.Encode.string)->JSON.Encode.array,
+          ["expected", "mismatched"]->getJsonFromArrayOfString,
         )
       }
       let queryString = ReconEngineUtils.buildQueryStringFromFilters(

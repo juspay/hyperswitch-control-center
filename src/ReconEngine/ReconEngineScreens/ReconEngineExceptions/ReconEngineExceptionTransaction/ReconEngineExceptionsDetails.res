@@ -28,7 +28,7 @@ let make = (~id) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParamerters=Some("transaction_id=" ++ currentException.transaction_id),
+        ~queryParamerters=Some(`transaction_id=${currentException.transaction_id}`),
       )
       let allExceptionsList = await fetchDetails(allExceptionsUrl)
       let exceptionsList = allExceptionsList->getArrayDataFromJson(getAllTransactionPayload)

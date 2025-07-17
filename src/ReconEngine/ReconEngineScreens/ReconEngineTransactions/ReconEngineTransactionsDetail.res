@@ -31,7 +31,7 @@ let make = (~id) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParamerters=Some("transaction_id=" ++ currentTransaction.transaction_id),
+        ~queryParamerters=Some(`transaction_id=${currentTransaction.transaction_id}`),
       )
       let allTransactionRes = await fetchDetails(allTransactionUrl)
       let transactionsList = allTransactionRes->getArrayDataFromJson(getAllTransactionPayload)

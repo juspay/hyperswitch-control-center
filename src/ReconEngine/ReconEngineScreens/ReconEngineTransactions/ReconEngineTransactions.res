@@ -64,7 +64,6 @@ let make = () => {
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      // Build query string using shared utility function
       let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
       let transactionsUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
@@ -77,7 +76,7 @@ let make = () => {
       let transactionsList = res->getArrayDataFromJson(getAllTransactionPayload)
 
       let transactionsDataList = transactionsList->Array.map(Nullable.make)
-      setConfiguredTransactions(_ => transactionsList)
+      setConfiguredTransactions(_ => transactionsList->Array.map(Nullable.make))
       setFilteredReports(_ => transactionsDataList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -136,7 +135,7 @@ let make = () => {
         )}
         resultsPerPage=10
         filters={<TableSearchFilter
-          data={configuredTransactions->Array.map(Nullable.make)}
+          data={configuredTransactions}
           filterLogic
           placeholder="Search Transaction Id or Status"
           customSearchBarWrapperWidth="w-1/3"
