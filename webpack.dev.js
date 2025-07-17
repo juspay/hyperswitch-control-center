@@ -10,7 +10,7 @@ let proxy = [
   {
     context: ["/api/hyperswitch-recon-engine"],
     pathRewrite: { "^/api/hyperswitch-recon-engine": "" },
-    target: "",
+    target: "http://localhost:8081",
     changeOrigin: true,
   },
   {
