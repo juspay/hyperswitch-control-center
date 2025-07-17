@@ -909,8 +909,8 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/accounts/${ruleId}/entries`
-            | None => ""
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules`
             }
           | _ => ""
           }
