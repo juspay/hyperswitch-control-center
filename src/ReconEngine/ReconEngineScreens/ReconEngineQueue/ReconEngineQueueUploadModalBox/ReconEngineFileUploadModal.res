@@ -54,8 +54,9 @@ let make = (~showModal, ~setShowModal) => {
     | Some(file) =>
       try {
         let url = getURL(
-          ~entityName=V1(RECON_FILE_UPLOAD),
+          ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Post,
+          ~hyperswitchReconType=#FILE_UPLOAD,
           ~id=Some(selectedAccount),
         )
         let formData = formData()
