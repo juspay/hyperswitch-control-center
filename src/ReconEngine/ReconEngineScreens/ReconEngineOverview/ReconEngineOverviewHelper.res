@@ -15,45 +15,17 @@ module StackedBarGraph = {
   @react.component
   let make = (~transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>) => {
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
-
-    // Process transaction data to count statuses
     let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
-      transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-        switch transaction.transaction_status {
-        | "posted" => (posted + 1, mismatched, expected)
-        | "mismatched" => (posted, mismatched + 1, expected)
-        | "expected" => (posted, mismatched, expected + 1)
-        | _ => (posted, mismatched, expected)
-        }
-      })
+      ReconEngineOverviewUtils.calculateTransactionCounts(transactionsData)
     }, [transactionsData])
 
     let totalTransactions = postedCount + mismatchedCount + expectedCount
-
-    // Create stacked bar graph data
     let stackedBarGraphData = React.useMemo(() => {
-      open StackedBarGraphTypes
-      {
-        categories: ["Transactions"],
-        data: [
-          {
-            name: "Posted",
-            data: [postedCount->Int.toFloat],
-            color: "#7AB891",
-          },
-          {
-            name: "Mismatched",
-            data: [mismatchedCount->Int.toFloat],
-            color: "#EA8A8F",
-          },
-          {
-            name: "Expected",
-            data: [expectedCount->Int.toFloat],
-            color: "#8BC2F3",
-          },
-        ],
-        labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
-      }
+      ReconEngineOverviewUtils.getStackedBarGraphData(
+        ~postedCount,
+        ~mismatchedCount,
+        ~expectedCount,
+      )
     }, [postedCount, mismatchedCount, expectedCount])
 
     <div
@@ -80,116 +52,8 @@ module StackedBarGraph = {
 module ReconRuleLineGraph = {
   @react.component
   let make = (~transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>=[], ()) => {
-    // Process transaction data to create time-based trends
     let lineGraphData = React.useMemo(() => {
-      // Group transactions by date and status
-      let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
-        let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
-        let currentDateData = acc->Dict.get(dateStr)->Option.getOr(Dict.make())
-
-        switch transaction.transaction_status {
-        | "posted" => {
-            let currentCount = currentDateData->Dict.get("posted")->Option.getOr(0)
-            currentDateData->Dict.set("posted", currentCount + 1)
-          }
-        | "expected" => {
-            let currentCount = currentDateData->Dict.get("expected")->Option.getOr(0)
-            currentDateData->Dict.set("expected", currentCount + 1)
-          }
-        | "mismatched" => {
-            let currentCount = currentDateData->Dict.get("mismatched")->Option.getOr(0)
-            currentDateData->Dict.set("mismatched", currentCount + 1)
-          }
-        | "archived" => {
-            let currentCount = currentDateData->Dict.get("archived")->Option.getOr(0)
-            currentDateData->Dict.set("archived", currentCount + 1)
-          }
-        | _ => ()
-        }
-
-        acc->Dict.set(dateStr, currentDateData)
-        acc
-      })
-
-      // Convert to sorted arrays for the line graph
-      let sortedDates = groupedByDate->Dict.keysToArray->Array.toSorted(String.compare)
-      let categories = sortedDates->Array.map(date => {
-        // Convert YYYY-MM-DD to MMM DD format
-        let parts = date->String.split("-")
-        let month = switch parts->Array.get(1) {
-        | Some("01") => "Jan"
-        | Some("02") => "Feb"
-        | Some("03") => "Mar"
-        | Some("04") => "Apr"
-        | Some("05") => "May"
-        | Some("06") => "Jun"
-        | Some("07") => "Jul"
-        | Some("08") => "Aug"
-        | Some("09") => "Sep"
-        | Some("10") => "Oct"
-        | Some("11") => "Nov"
-        | Some("12") => "Dec"
-        | _ => "Jan"
-        }
-        let day = parts->Array.get(2)->Option.getOr("01")
-        `${month} ${day}`
-      })
-
-      let postedData = sortedDates->Array.map(date => {
-        groupedByDate
-        ->Dict.get(date)
-        ->Option.getOr(Dict.make())
-        ->Dict.get("posted")
-        ->Option.getOr(0)
-        ->Int.toFloat
-      })
-
-      let expectedData = sortedDates->Array.map(date => {
-        groupedByDate
-        ->Dict.get(date)
-        ->Option.getOr(Dict.make())
-        ->Dict.get("expected")
-        ->Option.getOr(0)
-        ->Int.toFloat
-      })
-
-      let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
-        chartHeight: LineGraphTypes.DefaultHeight,
-        chartLeftSpacing: LineGraphTypes.DefaultLeftSpacing,
-        categories,
-        data: [
-          {
-            showInLegend: true,
-            name: "Posted",
-            data: postedData,
-            color: "#7AB891",
-          },
-          {
-            showInLegend: true,
-            name: "Expected",
-            data: expectedData,
-            color: "#8BC2F3",
-          },
-        ],
-        title: {
-          text: "",
-          align: "left",
-        },
-        tooltipFormatter: ReconEngineOverviewUtils.getOverviewLineGraphTooltipFormatter,
-        yAxisMaxValue: None,
-        yAxisMinValue: None,
-        yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(~statType=Default),
-        legend: {
-          useHTML: true,
-          labelFormatter: LineGraphUtils.valueFormatter,
-          align: "left",
-          verticalAlign: "top",
-          floating: false,
-          margin: 30,
-        },
-      }
-
-      lineGraphOptions
+      ReconEngineOverviewUtils.processLineGraphData(transactionsData)
     }, [transactionsData])
 
     <div className="border rounded-xl border-nd_gray-200">

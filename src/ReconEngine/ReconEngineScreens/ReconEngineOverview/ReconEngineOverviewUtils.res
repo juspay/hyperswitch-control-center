@@ -2,27 +2,27 @@ open LogicUtils
 open ReconEngineOverviewTypes
 
 let defaultAccount = {
-  account_name: "Unknown Account",
+  account_name: "",
   account_id: "",
   currency: "",
   profile_id: "",
   initial_balance: {
     value: 0.0,
-    currency: "USD",
+    currency: "",
   },
   pending_balance: {
     value: 0.0,
-    currency: "USD",
+    currency: "",
   },
   posted_balance: {
     value: 0.0,
-    currency: "USD",
+    currency: "",
   },
 }
 
 let defaultAccountDetails = {
   id: "",
-  account_id: "Unknown Account",
+  account_id: "",
 }
 
 let getAmountPayload = dict => {
@@ -218,8 +218,152 @@ let lineGraphYAxisFormatter = (
   }
 )->LineGraphTypes.asTooltipPointFormatter
 
+let calculateTransactionCounts = (
+  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+) => {
+  transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
+    switch transaction.transaction_status {
+    | "posted" => (posted + 1, mismatched, expected)
+    | "mismatched" => (posted, mismatched + 1, expected)
+    | "expected" => (posted, mismatched, expected + 1)
+    | _ => (posted, mismatched, expected)
+    }
+  })
+}
+
+let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
+  open StackedBarGraphTypes
+  {
+    categories: ["Transactions"],
+    data: [
+      {
+        name: "Posted",
+        data: [postedCount->Int.toFloat],
+        color: "#7AB891",
+      },
+      {
+        name: "Mismatched",
+        data: [mismatchedCount->Int.toFloat],
+        color: "#EA8A8F",
+      },
+      {
+        name: "Expected",
+        data: [expectedCount->Int.toFloat],
+        color: "#8BC2F3",
+      },
+    ],
+    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
+  }
+}
+
+let processLineGraphData = (
+  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+) => {
+  let getCountFromDate = (groupedByDate, date, status) => {
+    groupedByDate
+    ->getObj(date, Dict.make())
+    ->getInt(status, 0)
+    ->Int.toFloat
+  }
+
+  let getMonthAbbreviation = monthStr => {
+    switch monthStr {
+    | "01" => "Jan"
+    | "02" => "Feb"
+    | "03" => "Mar"
+    | "04" => "Apr"
+    | "05" => "May"
+    | "06" => "Jun"
+    | "07" => "Jul"
+    | "08" => "Aug"
+    | "09" => "Sep"
+    | "10" => "Oct"
+    | "11" => "Nov"
+    | "12" => "Dec"
+    | _ => "Jan"
+    }
+  }
+
+  let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
+    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
+    let currentDateData = acc->getObj(dateStr, Dict.make())
+
+    switch transaction.transaction_status {
+    | "posted" => {
+        let currentCount = currentDateData->getInt("posted", 0)
+        currentDateData->Dict.set("posted", (currentCount + 1)->JSON.Encode.int)
+      }
+    | "expected" => {
+        let currentCount = currentDateData->getInt("expected", 0)
+        currentDateData->Dict.set("expected", (currentCount + 1)->JSON.Encode.int)
+      }
+    | "mismatched" => {
+        let currentCount = currentDateData->getInt("mismatched", 0)
+        currentDateData->Dict.set("mismatched", (currentCount + 1)->JSON.Encode.int)
+      }
+    | "archived" => {
+        let currentCount = currentDateData->getInt("archived", 0)
+        currentDateData->Dict.set("archived", (currentCount + 1)->JSON.Encode.int)
+      }
+    | _ => ()
+    }
+
+    acc->Dict.set(dateStr, currentDateData->JSON.Encode.object)
+    acc
+  })
+
+  let sortedDates = groupedByDate->Dict.keysToArray->Array.toSorted(String.compare)
+  let categories = sortedDates->Array.map(date => {
+    let parts = date->String.split("-")
+    let month = parts->getValueFromArray(1, "01")->getMonthAbbreviation
+    let day = parts->getValueFromArray(2, "01")
+    `${month} ${day}`
+  })
+
+  let postedData = sortedDates->Array.map(date => getCountFromDate(groupedByDate, date, "posted"))
+  let expectedData =
+    sortedDates->Array.map(date => getCountFromDate(groupedByDate, date, "expected"))
+
+  let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
+    chartHeight: LineGraphTypes.DefaultHeight,
+    chartLeftSpacing: LineGraphTypes.DefaultLeftSpacing,
+    categories,
+    data: [
+      {
+        showInLegend: true,
+        name: "Posted",
+        data: postedData,
+        color: "#7AB891",
+      },
+      {
+        showInLegend: true,
+        name: "Expected",
+        data: expectedData,
+        color: "#8BC2F3",
+      },
+    ],
+    title: {
+      text: "",
+      align: "left",
+    },
+    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
+    yAxisMaxValue: None,
+    yAxisMinValue: None,
+    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(~statType=Default),
+    legend: {
+      useHTML: true,
+      labelFormatter: LineGraphUtils.valueFormatter,
+      align: "left",
+      verticalAlign: "top",
+      floating: false,
+      margin: 30,
+    },
+  }
+
+  lineGraphOptions
+}
+
 let getLineGraphOptions = () => {
-  // Static data for posted and expected counts per day
   let categories = ["Jan 01", "Jan 02", "Jan 03", "Jan 04", "Jan 05", "Jan 06", "Jan 07"]
 
   let postedData = [120.0, 150.0, 180.0, 200.0, 175.0, 220.0, 250.0]

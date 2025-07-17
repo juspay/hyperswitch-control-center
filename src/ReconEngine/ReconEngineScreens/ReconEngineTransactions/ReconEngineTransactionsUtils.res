@@ -105,14 +105,12 @@ let sortByVersion = (
   compareLogic(c1.version, c2.version)
 }
 
-// Helper function to get unique account names by entry type
 let getAccounts = (entries: array<transactionEntryType>, entryType: string): string => {
   let accounts =
     entries
     ->Array.filter(entry => entry.entry_type === entryType)
     ->Array.map(entry => entry.account.account_name)
 
-  // Get unique account names using Set-like behavior
   let uniqueAccounts = accounts->Array.reduce([], (acc, accountName) => {
     if Array.includes(acc, accountName) {
       acc
