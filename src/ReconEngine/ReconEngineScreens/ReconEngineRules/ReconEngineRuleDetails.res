@@ -272,20 +272,41 @@ module TriggerRules = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let accounts =
-      SampleOverviewData.account->LogicUtils.getArrayDataFromJson(
-        ReconEngineOverviewUtils.accountItemToObjMapper,
-      )
+    open APIUtils
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let (accountData, setAccountData) = React.useState(_ => [])
+
+    let getAccountsData = async _ => {
+      try {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#ACCOUNTS_LIST,
+        )
+        let res = await fetchDetails(url)
+        let accountData =
+          res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+        setAccountData(_ => accountData)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    React.useEffect(() => {
+      getAccountsData()->ignore
+      None
+    }, [])
 
     let getAccountName = (accountId: string): string => {
-      accounts
+      accountData
       ->Array.find(account => account.account_id === accountId)
       ->Option.map(account => account.account_name)
       ->Option.getOr("Unknown Account")
     }
 
     let accountOptions =
-      accounts->Array.map((account): SelectBox.dropdownOption =>
+      accountData->Array.map((account): SelectBox.dropdownOption =>
         createDropdownOption(~label=account.account_name, ~value=account.account_id)
       )
 
@@ -445,31 +466,48 @@ module RuleDetailsContent = {
 
 @react.component
 let make = (~id) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (ruleData, setRuleData) = React.useState(_ => None)
+  let (ruleData, setRuleData) = React.useState((): option<rulePayload> => None)
 
-  let getRuleDetails = async _ => {
+  let getRulesDetails = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-
-      let response = SampleData.rules
-      let data = response->LogicUtils.getArrayDataFromJson(ruleItemToObjMapper)
-      let foundRule = data->Array.find(rule => rule.rule_id === id)
-      setRuleData(_ => foundRule)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RECON_RULES,
+        ~id=Some(id),
+      )
+      let res = await fetchDetails(url)
+      let rule = res->LogicUtils.getDictFromJsonObject->ruleItemToObjMapper
+      setRuleData(_ => Some(rule))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load rule details"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
 
   React.useEffect(() => {
-    getRuleDetails()->ignore
+    getRulesDetails()->ignore
     None
-  }, [id])
+  }, [])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 p-6">
-      <PageUtils.PageHeading title="Rule Details" customHeadingStyle="py-0" />
+      <BreadCrumbNavigation
+        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
+        currentPageTitle=id
+        cursorStyle="cursor-pointer"
+        customTextClass="text-nd_gray-400"
+        titleTextClass="text-nd_gray-600 font-medium"
+        fontWeight="font-medium"
+        dividerVal=Slash
+        childGapClass="gap-2"
+      />
+      <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>
