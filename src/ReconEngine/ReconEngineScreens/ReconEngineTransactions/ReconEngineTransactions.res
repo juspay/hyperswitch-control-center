@@ -133,7 +133,7 @@ let make = () => {
         actualData={filteredTransactionsData}
         entity={TransactionsTableEntity.transactionsEntity(
           `v1/recon-engine/transactions`,
-          ~authorization=userHasAccess(~groupAccess=UsersManage),
+          ~authorization=Access,
         )}
         resultsPerPage=10
         filters={<TableSearchFilter
