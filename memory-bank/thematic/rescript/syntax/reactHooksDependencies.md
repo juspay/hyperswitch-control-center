@@ -10,7 +10,7 @@ This document details how to correctly specify dependency arrays for React hooks
 @react.component
 let make = (~userId: string) => {
   let (userData, setUserData) = React.useState(_ => None)
-
+  
   // Effect with single dependency
   React.useEffect1(() => {
     let fetchUser = async () => {
@@ -21,7 +21,7 @@ let make = (~userId: string) => {
     fetchUser()->ignore
     None
   }, [userId])
-
+  
   // Render component
   <div> {React.string("User component")} </div>
 }
@@ -33,7 +33,7 @@ let make = (~userId: string) => {
 @react.component
 let make = (~userId: string, ~includeProfile: bool, ~refreshToken: int) => {
   let (data, setData) = React.useState(_ => None)
-
+  
   // Effect with multiple dependencies
   React.useEffect3(() => {
     let fetchData = async () => {
@@ -48,7 +48,7 @@ let make = (~userId: string, ~includeProfile: bool, ~refreshToken: int) => {
     fetchData()->ignore
     None
   }, (userId, includeProfile, refreshToken))
-
+  
   <div> {React.string("Component with multiple deps")} </div>
 }
 ```
@@ -65,7 +65,7 @@ type filterOptions = {
 @react.component
 let make = (~filters: filterOptions, ~sortBy: string) => {
   let (payments, setPayments) = React.useState(_ => [])
-
+  
   // Effect with complex object dependencies
   React.useEffect2(() => {
     let fetchPayments = async () => {
@@ -75,7 +75,7 @@ let make = (~filters: filterOptions, ~sortBy: string) => {
     fetchPayments()->ignore
     None
   }, (filters, sortBy))
-
+  
   <div> {React.string("Payments list")} </div>
 }
 ```
@@ -88,16 +88,16 @@ let make = (~filters: filterOptions, ~sortBy: string) => {
 @react.component
 let make = (~onSave: string => unit, ~userId: string) => {
   let (formData, setFormData) = React.useState(_ => "")
-
+  
   // Callback with dependencies
   let handleSubmit = React.useCallback2(() => {
     if String.length(formData) > 0 {
       onSave(formData)
     }
   }, (formData, onSave))
-
+  
   <form onSubmit={_ => handleSubmit()}>
-    <input
+    <input 
       value={formData}
       onChange={event => {
         let value = ReactEvent.Form.target(event)["value"]
@@ -121,7 +121,7 @@ type apiConfig = {
 @react.component
 let make = (~config: apiConfig, ~authToken: option<string>) => {
   let (isLoading, setIsLoading) = React.useState(_ => false)
-
+  
   // Callback that depends on config and auth token
   let makeApiCall = React.useCallback2(endpoint => {
     async () => {
@@ -131,12 +131,12 @@ let make = (~config: apiConfig, ~authToken: option<string>) => {
         | Some(token) => [("Authorization", `Bearer ${token}`)]
         | None => []
         }
-
+        
         let response = await fetch(`${config.baseUrl}/${endpoint}`, {
           headers: headers,
           timeout: config.timeout,
         })
-
+        
         let data = await response->Fetch.Response.json
         setIsLoading(_ => false)
         data
@@ -148,7 +148,7 @@ let make = (~config: apiConfig, ~authToken: option<string>) => {
       }
     }
   }, (config, authToken))
-
+  
   <div> {React.string("API component")} </div>
 }
 ```
@@ -162,16 +162,16 @@ let make = (~config: apiConfig, ~authToken: option<string>) => {
 let make = (~items: array<string>, ~searchTerm: string) => {
   // Memoized filtered items
   let filteredItems = React.useMemo2(() => {
-    items->Belt.Array.filter(item =>
+    items->Belt.Array.filter(item => 
       item->Js.String2.toLowerCase->Js.String2.includes(
         searchTerm->Js.String2.toLowerCase
       )
     )
   }, (items, searchTerm))
-
+  
   <ul>
     {filteredItems
-    ->Belt.Array.mapWithIndex((item, index) =>
+    ->Belt.Array.mapWithIndex((item, index) => 
         <li key={Int.toString(index)}> {React.string(item)} </li>
       )
     ->React.array}
@@ -202,17 +202,17 @@ let make = (~payments: array<payment>, ~currency: string) => {
   // Expensive calculation memoized
   let summary = React.useMemo2(() => {
     let filteredPayments = payments->Belt.Array.filter(p => p.currency == currency)
-
+    
     let totalAmount = filteredPayments
       ->Belt.Array.reduce(0.0, (acc, payment) => acc +. payment.amount)
-
+    
     let paymentCount = Belt.Array.length(filteredPayments)
     let averageAmount = if paymentCount > 0 {
       totalAmount /. Int.toFloat(paymentCount)
     } else {
       0.0
     }
-
+    
     let statusCounts = Js.Dict.empty()
     filteredPayments->Belt.Array.forEach(payment => {
       let currentCount = statusCounts
@@ -220,7 +220,7 @@ let make = (~payments: array<payment>, ~currency: string) => {
         ->Belt.Option.getOr(0)
       statusCounts->Js.Dict.set(payment.status, currentCount + 1)
     })
-
+    
     {
       totalAmount,
       averageAmount,
@@ -228,7 +228,7 @@ let make = (~payments: array<payment>, ~currency: string) => {
       statusCounts,
     }
   }, (payments, currency))
-
+  
   <div>
     <h3> {React.string(`Summary for ${currency}`)} </h3>
     <p> {React.string(`Total: ${Float.toString(summary.totalAmount)}`)} </p>
@@ -246,7 +246,7 @@ let make = (~payments: array<payment>, ~currency: string) => {
 @react.component
 let make = (~userId: option<string>, ~config: option<apiConfig>) => {
   let (data, setData) = React.useState(_ => None)
-
+  
   // Effect with optional dependencies
   React.useEffect2(() => {
     switch (userId, config) {
@@ -261,7 +261,7 @@ let make = (~userId: option<string>, ~config: option<apiConfig>) => {
     }
     None
   }, (userId, config))
-
+  
   <div> {React.string("Component with optional deps")} </div>
 }
 ```
@@ -272,7 +272,7 @@ let make = (~userId: option<string>, ~config: option<apiConfig>) => {
 @react.component
 let make = (~userIds: array<string>, ~batchSize: int) => {
   let (users, setUsers) = React.useState(_ => [])
-
+  
   // Effect with array dependency
   React.useEffect2(() => {
     let fetchUsers = async () => {
@@ -289,22 +289,22 @@ let make = (~userIds: array<string>, ~batchSize: int) => {
           | _ => Belt.Array.concat(acc, [[userId]])
           }
         })
-
+      
       let allUsers = []
       for batch in batches {
         let batchUsers = await getUsersBatch(batch)
         allUsers->Js.Array2.pushMany(batchUsers)->ignore
       }
-
+      
       setUsers(_ => allUsers)
     }
-
+    
     if Belt.Array.length(userIds) > 0 {
       fetchUsers()->ignore
     }
     None
   }, (userIds, batchSize))
-
+  
   <div> {React.string("Batch user loader")} </div>
 }
 ```
@@ -323,7 +323,7 @@ type searchParams = {
 let make = (~searchParams: searchParams, ~pageSize: int) => {
   let (results, setResults) = React.useState(_ => [])
   let (isLoading, setIsLoading) = React.useState(_ => false)
-
+  
   // Effect with record dependency
   React.useEffect2(() => {
     let search = async () => {
@@ -337,7 +337,7 @@ let make = (~searchParams: searchParams, ~pageSize: int) => {
         setIsLoading(_ => false)
       }
     }
-
+    
     if String.length(searchParams.query) > 0 {
       search()->ignore
     } else {
@@ -345,7 +345,7 @@ let make = (~searchParams: searchParams, ~pageSize: int) => {
     }
     None
   }, (searchParams, pageSize))
-
+  
   if isLoading {
     <div> {React.string("Loading...")} </div>
   } else {
@@ -362,7 +362,7 @@ let make = (~searchParams: searchParams, ~pageSize: int) => {
 @react.component
 let make = (~onDataChange: array<string> => unit) => {
   let (items, setItems) = React.useState(_ => [])
-
+  
   // Stable callback reference
   let handleItemAdd = React.useCallback1(newItem => {
     setItems(prevItems => {
@@ -371,7 +371,7 @@ let make = (~onDataChange: array<string> => unit) => {
       updatedItems
     })
   }, [onDataChange])
-
+  
   let handleItemRemove = React.useCallback1(itemToRemove => {
     setItems(prevItems => {
       let updatedItems = prevItems->Belt.Array.filter(item => item !== itemToRemove)
@@ -379,13 +379,13 @@ let make = (~onDataChange: array<string> => unit) => {
       updatedItems
     })
   }, [onDataChange])
-
+  
   <div>
     <button onClick={_ => handleItemAdd("New Item")}>
       {React.string("Add Item")}
     </button>
     {items
-    ->Belt.Array.mapWithIndex((item, index) =>
+    ->Belt.Array.mapWithIndex((item, index) => 
         <div key={Int.toString(index)}>
           <span> {React.string(item)} </span>
           <button onClick={_ => handleItemRemove(item)}>
@@ -415,27 +415,27 @@ let make = (~rawData: array<string>, ~processingOptions: processingConfig) => {
     let processedItems = rawData
       ->Belt.Array.map(item => processItem(item, processingOptions))
       ->Belt.Array.filter(item => isValidItem(item))
-
+    
     let calculations = Js.Dict.empty()
     processedItems->Belt.Array.forEach(item => {
       let value = calculateValue(item)
       calculations->Js.Dict.set(item, value)
     })
-
+    
     let metadata = generateMetadata(processedItems, processingOptions)
-
+    
     {
       processedItems,
       calculations,
       metadata,
     }
   }, (rawData, processingOptions))
-
+  
   // Memoize render-heavy components
   let expensiveComponent = React.useMemo1(() => {
     <ExpensiveVisualization data={processedData} />
   }, [processedData])
-
+  
   <div>
     <h2> {React.string("Data Analysis")} </h2>
     {expensiveComponent}
@@ -451,12 +451,12 @@ let useApiData = (~endpoint: string, ~params: option<Js.Dict.t<string>>) => {
   let (data, setData) = React.useState(_ => None)
   let (isLoading, setIsLoading) = React.useState(_ => false)
   let (error, setError) = React.useState(_ => None)
-
+  
   React.useEffect2(() => {
     let fetchData = async () => {
       setIsLoading(_ => true)
       setError(_ => None)
-
+      
       try {
         let queryString = switch params {
         | Some(p) => {
@@ -465,7 +465,7 @@ let useApiData = (~endpoint: string, ~params: option<Js.Dict.t<string>>) => {
           }
         | None => ""
         }
-
+        
         let response = await fetch(`${endpoint}${queryString}`)
         let json = await response->Fetch.Response.json
         setData(_ => Some(json))
@@ -478,11 +478,11 @@ let useApiData = (~endpoint: string, ~params: option<Js.Dict.t<string>>) => {
         setIsLoading(_ => false)
       }
     }
-
+    
     fetchData()->ignore
     None
   }, (endpoint, params))
-
+  
   (data, isLoading, error)
 }
 
@@ -493,9 +493,9 @@ let make = (~userId: string, ~includeProfile: bool) => {
     ("userId", userId),
     ("includeProfile", includeProfile ? "true" : "false"),
   ])
-
+  
   let (userData, isLoading, error) = useApiData(~endpoint="/api/user", ~params=Some(params))
-
+  
   switch (isLoading, error, userData) {
   | (true, _, _) => <div> {React.string("Loading...")} </div>
   | (false, Some(err), _) => <div> {React.string(`Error: ${err}`)} </div>
@@ -511,14 +511,14 @@ let make = (~userId: string, ~includeProfile: bool) => {
 @react.component
 let make = (~config: {baseUrl: string, timeout: int}, ~filters: array<string>) => {
   let (data, setData) = React.useState(_ => [])
-
+  
   // Extract stable values to avoid unnecessary re-renders
   let baseUrl = config.baseUrl
   let timeout = config.timeout
-
+  
   // Memoize filters array to avoid reference changes
   let stableFilters = React.useMemo1(() => filters, [filters])
-
+  
   React.useEffect3(() => {
     let fetchData = async () => {
       let response = await fetchWithConfig(~baseUrl, ~timeout, ~filters=stableFilters, ())
@@ -527,7 +527,7 @@ let make = (~config: {baseUrl: string, timeout: int}, ~filters: array<string>) =
     fetchData()->ignore
     None
   }, (baseUrl, timeout, stableFilters))
-
+  
   <div> {React.string("Component with optimized deps")} </div>
 }
 ```
@@ -541,13 +541,13 @@ let make = (~config: {baseUrl: string, timeout: int}, ~filters: array<string>) =
 @react.component
 let make = (~userId: string) => {
   let config = {baseUrl: "/api", timeout: 5000} // New object every render!
-
+  
   React.useEffect2(() => {
     // This will run on every render
     fetchUserData(userId, config)
     None
   }, (userId, config))
-
+  
   <div />
 }
 
@@ -557,12 +557,12 @@ let make = (~userId: string) => {
   let config = React.useMemo0(() => {
     {baseUrl: "/api", timeout: 5000}
   })
-
+  
   React.useEffect2(() => {
     fetchUserData(userId, config)
     None
   }, (userId, config))
-
+  
   <div />
 }
 ```
@@ -577,13 +577,13 @@ let make = (~onSuccess: string => unit) => {
     // Process data
     onSuccess(data)
   }
-
+  
   React.useEffect1(() => {
     // This effect runs every render because handleSubmit changes
     setupEventListener(handleSubmit)
     None
   }, [handleSubmit])
-
+  
   <div />
 }
 
@@ -594,12 +594,12 @@ let make = (~onSuccess: string => unit) => {
     // Process data
     onSuccess(data)
   }, [onSuccess])
-
+  
   React.useEffect1(() => {
     setupEventListener(handleSubmit)
     None
   }, [handleSubmit])
-
+  
   <div />
 }
 ```

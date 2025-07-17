@@ -496,22 +496,27 @@ POST   v1/user/create_merchant         - Create merchant
 ## Best Practices
 
 1. **Type-First Approach**
+
    - Always use the proper entity types when constructing URLs
    - Let ReScript's type system validate your API calls
 
 2. **Centralized URL Generation**
+
    - Always use `useGetURL()` for constructing API endpoints
    - Never hardcode URLs in components
 
 3. **Consistent Error Handling**
+
    - Use the `showErrorToast` parameter to control user-facing errors
    - Add specific error handling in components as needed
 
 4. **Request Isolation**
+
    - Wrap each API call in its own try/catch block
    - Avoid chaining multiple API calls without error handling
 
 5. **Response Typing**
+
    - Cast response data to typed structures
    - Use option types for potentially missing values
 

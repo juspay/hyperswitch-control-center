@@ -162,7 +162,7 @@ let doubled = maybeNumber->map(x => x * 2) // Some(84)
 let noneDoubled = None->map(x => x * 2) // None
 
 // FlatMap - chain optional operations
-let maybeString = maybeNumber->flatMap(x =>
+let maybeString = maybeNumber->flatMap(x => 
   if x > 0 {
     Some(Int.toString(x))
   } else {
@@ -452,7 +452,7 @@ let replaceAll = text->Js.String2.replaceByRe(%re("/Hello/g"), "Hi")
 // "Hi, World! Hi, Universe!"
 
 // Replace with function
-let withFunction = text->Js.String2.replaceByRe(%re("/\w+/g"), match =>
+let withFunction = text->Js.String2.replaceByRe(%re("/\w+/g"), match => 
   String.toUpperCase(match)
 )
 ```

@@ -232,14 +232,17 @@ let pieGraphTooltipFormatter = (
 The PieGraph is particularly useful for:
 
 1. **Payment Method Distribution**
+
    - Show breakdown of card vs. wallet vs. bank transfer payments
    - Visualize card brand (Visa, Mastercard, etc.) distribution
 
 2. **Status Breakdowns**
+
    - Display transaction statuses (successful, failed, pending)
    - Show dispute resolution outcomes
 
 3. **Geographical Analysis**
+
    - Display transaction distribution by country or region
    - Show revenue breakdown by market
 
@@ -282,15 +285,18 @@ let options = PieGraphUtils.getPieGraphOptions(pieChartConfig)
 ## Styling Considerations
 
 1. **Color Selection**
+
    - Use distinct colors for different segments
    - Follow design system color palette for consistency
    - Ensure sufficient contrast between adjacent segments
 
 2. **Label Placement**
+
    - Consider enabling or disabling data labels based on chart size
    - Use shorter labels when possible to avoid overlap
 
 3. **Legend Design**
+
    - Position legend for optimal space usage (bottom for larger segments, right for many small segments)
    - Use custom formatting for clearer representation
 
@@ -366,18 +372,22 @@ plotOptions: {
 ## Best Practices
 
 1. **Limit Segments**
+
    - Keep the number of segments below 7 for readability
    - Consider grouping small segments into an "Other" category
 
 2. **Order Segments**
+
    - Arrange segments by size (largest to smallest) or by logical grouping
    - Place the most important segment at the 12 o'clock position
 
 3. **Use Clear Labels**
+
    - Ensure labels clearly identify each segment
    - Consider using percentages in labels when appropriate
 
 4. **Provide Context**
+
    - Include a clear title that explains what the pie represents
    - Add a subtitle if additional context is needed
 
@@ -433,21 +443,25 @@ plotOptions: {
 ## Troubleshooting
 
 1. **Overlapping Labels**
+
    - Reduce label content or size
    - Switch to using tooltips instead of data labels
    - Increase chart size if possible
 
 2. **Poor Segment Visibility**
+
    - Adjust colors for better contrast
    - Group very small segments into an "Other" category
    - Consider using a donut chart for better differentiation
 
 3. **Unclear Proportions**
+
    - Ensure total adds up to 100%
    - Sort segments by size for easier comparison
    - Add percentage values to tooltips or labels
 
 4. **Legend Issues**
+
    - Adjust legend position based on available space
    - Use shorter names in the legend
    - Consider a custom legend formatter for better control

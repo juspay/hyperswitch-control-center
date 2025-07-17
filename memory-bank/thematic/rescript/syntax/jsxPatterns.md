@@ -43,7 +43,7 @@ let make = (~children: React.element) => {
 @react.component
 let make = (~title: string, ~size: string="medium", ~disabled: bool=false) => {
   let className = `btn btn-${size} ${disabled ? "disabled" : ""}`
-
+  
   <button className disabled>
     {React.string(title)}
   </button>
@@ -62,7 +62,7 @@ type buttonProps = {
 @react.component
 let make = (~props: buttonProps) => {
   let {title, variant, size} = props
-
+  
   <button className={`btn-${variant} btn-${size}`}>
     {React.string(title)}
   </button>
@@ -77,7 +77,7 @@ let make = (~props: buttonProps) => {
 @react.component
 let make = (~isLoggedIn: bool, ~userName: string) => {
   <div>
-    {isLoggedIn
+    {isLoggedIn 
       ? <span> {React.string(`Welcome, ${userName}`)} </span>
       : <span> {React.string("Please log in")} </span>
     }
@@ -125,7 +125,7 @@ let make = (~user: option<string>) => {
 let make = (~items: array<string>) => {
   <ul>
     {items
-    ->Array.mapWithIndex((item, index) =>
+    ->Array.mapWithIndex((item, index) => 
         <li key={Int.toString(index)}> {React.string(item)} </li>
       )
     ->React.array}
@@ -146,7 +146,7 @@ type user = {
 let make = (~users: array<user>) => {
   <div className="user-list">
     {users
-    ->Array.map(user =>
+    ->Array.map(user => 
         <div key={user.id} className="user-card">
           <h3> {React.string(user.name)} </h3>
           <p> {React.string(user.email)} </p>
@@ -162,13 +162,13 @@ let make = (~users: array<user>) => {
 ```rescript
 @react.component
 let make = (~items: array<string>, ~filter: string) => {
-  let filteredItems = items->Array.filter(item =>
+  let filteredItems = items->Array.filter(item => 
     item->String.includes(filter)
   )
-
+  
   <ul>
     {filteredItems
-    ->Array.mapWithIndex((item, index) =>
+    ->Array.mapWithIndex((item, index) => 
         <li key={Int.toString(index)}> {React.string(item)} </li>
       )
     ->React.array}
@@ -210,11 +210,11 @@ let make = () => {
 @react.component
 let make = () => {
   let (count, setCount) = React.useState(_ => 0)
-
+  
   let handleClick = _ => {
     setCount(prev => prev + 1)
   }
-
+  
   <button onClick={handleClick}>
     {React.string(`Count: ${Int.toString(count)}`)}
   </button>
@@ -229,7 +229,7 @@ let make = (~onItemClick: string => unit) => {
   let handleClick = (itemId: string) => {
     _ => onItemClick(itemId)
   }
-
+  
   <div>
     <button onClick={handleClick("item1")}>
       {React.string("Item 1")}
@@ -247,21 +247,21 @@ let make = (~onItemClick: string => unit) => {
 @react.component
 let make = () => {
   let (inputValue, setInputValue) = React.useState(_ => "")
-
+  
   let handleChange = event => {
     let value = ReactEvent.Form.target(event)["value"]
     setInputValue(_ => value)
   }
-
+  
   let handleSubmit = event => {
     ReactEvent.Form.preventDefault(event)
     // Handle form submission
   }
-
+  
   <form onSubmit={handleSubmit}>
-    <input
-      type_="text"
-      value={inputValue}
+    <input 
+      type_="text" 
+      value={inputValue} 
       onChange={handleChange}
     />
     <button type_="submit"> {React.string("Submit")} </button>
@@ -277,14 +277,14 @@ let make = () => {
 @react.component
 let make = () => {
   let inputRef = React.useRef(Nullable.null)
-
+  
   let focusInput = _ => {
     switch inputRef.current->Nullable.toOption {
     | Some(element) => element->focus
     | None => ()
     }
   }
-
+  
   <div>
     <input ref={ReactDOM.Ref.domRef(inputRef)} />
     <button onClick={focusInput}>
@@ -307,7 +307,7 @@ let make = (~isActive: bool, ~size: string, ~variant: string) => {
     `btn-${variant}`,
     isActive ? "active" : "",
   ]->Array.filter(cls => cls !== "")->Array.join(" ")
-
+  
   <button className>
     {React.string("Button")}
   </button>
@@ -324,7 +324,7 @@ let make = (~color: string, ~fontSize: int) => {
     ~fontSize=`${Int.toString(fontSize)}px`,
     ()
   )
-
+  
   <div style>
     {React.string("Styled text")}
   </div>
@@ -339,7 +339,7 @@ let make = (~color: string, ~fontSize: int) => {
 @react.component
 let make = () => {
   let {theme, toggleTheme} = React.useContext(ThemeContext.context)
-
+  
   <div className={`app ${theme}`}>
     <button onClick={_ => toggleTheme()}>
       {React.string("Toggle Theme")}
@@ -354,7 +354,7 @@ let make = () => {
 @react.component
 let make = (~children: React.element, ~isOpen: bool) => {
   switch isOpen {
-  | true =>
+  | true => 
     ReactDOM.createPortal(
       <div className="modal-overlay">
         <div className="modal">
@@ -379,15 +379,15 @@ type loadingState<'a> = Loading | Success('a) | Error(string)
 let make = (~data: loadingState<array<string>>) => {
   switch data {
   | Loading => <div> {React.string("Loading...")} </div>
-  | Success(items) =>
+  | Success(items) => 
     <ul>
       {items
-      ->Array.mapWithIndex((item, index) =>
+      ->Array.mapWithIndex((item, index) => 
           <li key={Int.toString(index)}> {React.string(item)} </li>
         )
       ->React.array}
     </ul>
-  | Error(message) =>
+  | Error(message) => 
     <div className="error"> {React.string(`Error: ${message}`)} </div>
   }
 }
@@ -403,7 +403,7 @@ module Card = {
       {children}
     </div>
   }
-
+  
   module Header = {
     @react.component
     let make = (~children: React.element) => {
@@ -412,7 +412,7 @@ module Card = {
       </div>
     }
   }
-
+  
   module Body = {
     @react.component
     let make = (~children: React.element) => {

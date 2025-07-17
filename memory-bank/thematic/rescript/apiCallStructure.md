@@ -236,6 +236,7 @@ let submitData = (data) => {
 2. **Centralize URL Generation**: Always use the `useGetURL` hook for consistent URL generation.
 
 3. **Handle Errors Gracefully**:
+
    - Use try/catch blocks around API calls
    - Show user-friendly error messages
    - Log errors for debugging

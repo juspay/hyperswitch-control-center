@@ -115,7 +115,7 @@ module Types = {
     status: int,
     message: string,
   }
-
+  
   type error = {
     code: int,
     message: string,
@@ -126,7 +126,7 @@ module HTTP = {
   let get = url => {
     // Implementation
   }
-
+  
   let post = (url, body) => {
     // Implementation
   }
@@ -136,7 +136,7 @@ module Validation = {
   let isValidUrl = url => {
     url->String.startsWith("http")
   }
-
+  
   let isValidEmail = email => {
     email->String.includes("@")
   }
@@ -198,7 +198,7 @@ module MakeComparable = (T: {
   let compare: (t, t) => int
 }) => {
   type t = T.t
-
+  
   let equal = (a, b) => T.compare(a, b) == 0
   let lessThan = (a, b) => T.compare(a, b) < 0
   let greaterThan = (a, b) => T.compare(a, b) > 0
@@ -226,7 +226,7 @@ module Types = {
     currency: string,
     status: string,
   }
-
+  
   type paymentRequest = {
     amount: float,
     currency: string,
@@ -242,15 +242,15 @@ module Endpoints = {
 
 module API = {
   open Types
-
+  
   let getPayments = async () => {
     // API call implementation
   }
-
+  
   let getPayment = async id => {
     // API call implementation
   }
-
+  
   let createPayment = async request => {
     // API call implementation
   }
@@ -265,11 +265,11 @@ module Format = {
   let toISOString = date => {
     // Implementation
   }
-
+  
   let toDisplayString = date => {
     // Implementation
   }
-
+  
   let toTimestamp = date => {
     // Implementation
   }
@@ -279,7 +279,7 @@ module Parse = {
   let fromString = str => {
     // Implementation
   }
-
+  
   let fromTimestamp = timestamp => {
     // Implementation
   }
@@ -289,7 +289,7 @@ module Validation = {
   let isValidDate = str => {
     // Implementation
   }
-
+  
   let isInRange = (date, startDate, endDate) => {
     // Implementation
   }
@@ -303,7 +303,7 @@ module Validation = {
 module Types = {
   type variant = Primary | Secondary | Danger
   type size = Small | Medium | Large
-
+  
   type props = {
     variant: variant,
     size: size,
@@ -321,7 +321,7 @@ module Styles = {
     | Danger => "btn-danger"
     }
   }
-
+  
   let getSizeClass = size => {
     switch size {
     | Small => "btn-sm"
@@ -339,7 +339,7 @@ let make = (~variant=Types.Primary, ~size=Types.Medium, ~disabled=false, ~onClic
     Styles.getSizeClass(size),
     disabled ? "disabled" : "",
   ]->Array.join(" ")
-
+  
   <button className disabled onClick={_ => onClick()}>
     {children}
   </button>
@@ -356,15 +356,15 @@ module UserManagement = {
   module Types = {
     // User-related types
   }
-
+  
   module Validation = {
     // User validation functions
   }
-
+  
   module API = {
     // User API calls
   }
-
+  
   module Utils = {
     // User utility functions
   }

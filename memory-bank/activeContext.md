@@ -75,7 +75,6 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 ### Recent Changes
 
 #### Latest Features Added
-
 - **Worldpayxml Processor Integration (2025-05-26)**: Complete integration of new payment processor
 - Enhanced analytics dashboard with customizable visualization options
 - Streamlined connector integration workflow with guided setup
@@ -84,7 +83,6 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 - Introduced PageLoaderWrapper component for standardized loading states
 
 #### Refactoring and Improvements
-
 - Consolidated API utility functions with improved typing and error handling
 - Standardized component prop interfaces with comprehensive .resi files
 - Migrated to ReScript 11.1.1 with enhanced compiler performance
@@ -92,7 +90,6 @@ This document tracks the current focus areas and recent changes in the Hyperswit
 - Improved API response handling with standardized loader states
 
 #### Technical Debt Addressed
-
 - Fixed inconsistent error handling patterns
 - Improved type definitions for better type safety
 - Consolidated duplicate code in utility functions

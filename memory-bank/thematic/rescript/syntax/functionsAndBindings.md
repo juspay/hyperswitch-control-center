@@ -226,7 +226,7 @@ let rec mapList = (lst, fn) => {
 let rec filterList = (lst, predicate) => {
   switch lst {
   | list{} => list{}
-  | list{head, ...tail} =>
+  | list{head, ...tail} => 
     if predicate(head) {
       list{head, ...filterList(tail, predicate)}
     } else {
@@ -422,7 +422,7 @@ let processUserAsync = async userId => {
     ->Promise.then(userData => {
       userData->validateUserData->Promise.resolve
     })
-
+  
   result
 }
 ```
@@ -488,7 +488,7 @@ let makeApiCall = async (~method, ~url, ~body=?, ~headers=[], ()) => {
       headers: headers->Belt.Array.concat([("Content-Type", "application/json")]),
       body: body,
     })
-
+    
     if response->Fetch.Response.ok {
       let json = await response->Fetch.Response.json
       Ok(json)
@@ -552,7 +552,7 @@ let validateEmail = email => {
 let validateForm = formData => {
   let nameResult = validateRequired("Name", formData.name)
   let emailResult = formData.email->validateRequired("Email")->Belt.Result.flatMap(validateEmail)
-
+  
   switch (nameResult, emailResult) {
   | (Ok(name), Ok(email)) => Ok({...formData, name, email})
   | (Error(e), _) => Error(e)

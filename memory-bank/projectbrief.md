@@ -23,15 +23,18 @@ Hyperswitch Control Center is an open-source dashboard designed to manage paymen
 ### Functional Requirements
 
 1. **Processor Integration**
+
    - Connect to multiple payment processors with minimal configuration
    - Support for major processors (Stripe, Braintree, Adyen, etc.)
 
 2. **Payment Management**
+
    - View and manage payments across all connected processors
    - Process refunds and handle disputes
    - Track payment statuses and history
 
 3. **Routing Configuration**
+
    - Create and manage volume-based routing rules
    - Configure rule-based intelligent routing
    - Test and simulate routing scenarios
@@ -44,16 +47,19 @@ Hyperswitch Control Center is an open-source dashboard designed to manage paymen
 ### Technical Requirements
 
 1. **User Interface**
+
    - Modern, responsive dashboard using React and ReScript
    - Intuitive UI/UX for complex payment operations
    - Data visualization with charts and graphs
 
 2. **Performance**
+
    - Fast loading times for transaction data
    - Efficient handling of large data volumes
    - Responsive interactions even with complex operations
 
 3. **Security**
+
    - Secure handling of payment credentials
    - Role-based access control
    - Audit trails for sensitive operations
