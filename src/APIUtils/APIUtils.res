@@ -1085,6 +1085,7 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | CHAT_BOT => `chat/ai/data`
       }
 
     | V2(entityNameForv2) =>

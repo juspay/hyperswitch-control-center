@@ -71,7 +71,8 @@ dev_webhooks=false
 acquirer_config_settings=false
 payment_settings_v2=false
 dev_omp_chart=false
-dev_recon_engine_v1=true
+dev_recon_engine_v1=false
+dev_ai_chat_bot=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]

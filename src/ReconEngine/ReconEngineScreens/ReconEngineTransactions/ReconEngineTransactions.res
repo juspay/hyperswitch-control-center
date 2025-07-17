@@ -17,7 +17,6 @@ let make = () => {
   let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()

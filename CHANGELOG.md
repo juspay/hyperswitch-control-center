@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.17.1
+
+### Features
+
+- Recon rules detail page ([#3302](https://github.com/juspay/hyperswitch-control-center/pull/3302)) ([`2f26ba6`](https://github.com/juspay/hyperswitch-control-center/commit/2f26ba6c95340b87ed5835c4116523990b5b3ac9))
+- Integrate chat bot ([#3301](https://github.com/juspay/hyperswitch-control-center/pull/3301)) ([`63968e0`](https://github.com/juspay/hyperswitch-control-center/commit/63968e0bd32cf8fca46058f0e6ec766bc4a815e6))
+
+**Full Changelog:** [`2025.07.17.0...2025.07.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.17.0...2025.07.17.1)
+
+- - -
+
 ## 2025.07.17.0
 
 ### Features
