@@ -7,7 +7,6 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -57,7 +56,7 @@ let make = () => {
           actualData={filteredExceptionData}
           entity={TransactionsTableEntity.transactionsEntity(
             `v1/recon-engine/exceptions`,
-            ~authorization=userHasAccess(~groupAccess=UsersManage),
+            ~authorization=Access,
           )}
           resultsPerPage=10
           filters={<TableSearchFilter
