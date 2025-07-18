@@ -53,12 +53,13 @@ type entryPayload = {
 }
 
 type transactionColType =
-  | Id
   | TransactionId
   | Status
   | Variance
   | CreditAccount
   | DebitAccount
+  | CreditAmount
+  | DebitAmount
   | CreatedAt
 
 type entryColType =

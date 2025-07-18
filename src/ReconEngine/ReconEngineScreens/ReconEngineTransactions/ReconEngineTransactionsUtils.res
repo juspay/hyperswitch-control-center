@@ -5,6 +5,10 @@ let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
 
+let formatAmountToString = (amount, ~currency) => {
+  `${amount->Float.toString} ${currency}`
+}
+
 let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),

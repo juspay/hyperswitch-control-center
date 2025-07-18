@@ -159,7 +159,7 @@ module StackedBarGraph = {
       <div
         className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
         <p className={`text-nd_gray-400 ${body.sm.medium}`}>
-          {"Transaction Status Distribution"->React.string}
+          {"Total Transaction"->React.string}
         </p>
         <p className={`text-nd_gray-800 ${heading.lg.semibold}`}>
           {totalTransactions->Int.toString->React.string}
@@ -250,7 +250,6 @@ module ReconRuleTransactions = {
     let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
     let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
     let (offset, setOffset) = React.useState(_ => 0)
-    let (searchText, setSearchText) = React.useState(_ => "")
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
       FilterContext.filterContext,
@@ -263,23 +262,6 @@ module ReconRuleTransactions = {
     let dateDropDownTriggerMixpanelCallback = () => {
       mixpanelEvent(~eventName="recon_engine_overview_transactions_date_filter_opened")
     }
-
-    let filterLogic = ReactDebounce.useDebounced(ob => {
-      let (searchText, arr) = ob
-      let filteredList = if searchText->isNonEmptyString {
-        arr->Array.filter((obj: Nullable.t<ReconEngineTransactionsTypes.transactionPayload>) => {
-          switch Nullable.toOption(obj) {
-          | Some(obj) =>
-            isContainingStringLowercase(obj.transaction_id, searchText) ||
-            isContainingStringLowercase(obj.transaction_status, searchText)
-          | None => false
-          }
-        })
-      } else {
-        arr
-      }
-      setFilteredReports(_ => filteredList)
-    }, ~wait=200)
 
     let fetchTransactionsData = async () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -363,20 +345,12 @@ module ReconRuleTransactions = {
             ~authorization=Access,
           )}
           resultsPerPage=10
-          filters={<TableSearchFilter
-            data={configuredTransactions}
-            filterLogic
-            placeholder="Search Transaction Id or Status"
-            customSearchBarWrapperWidth="w-1/3"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />}
           totalResults={filteredTransactionsData->Array.length}
           offset
           setOffset
           currrentFetchCount={configuredTransactions->Array.length}
-          customColumnMapper=TableAtoms.reconTransactionsDefaultCols
-          defaultColumns={TransactionsTableEntity.defaultColumns}
+          customColumnMapper=TableAtoms.reconTransactionsOverviewDefaultCols
+          defaultColumns={TransactionsTableEntity.defaultColumnsOverview}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           hideTitle=true

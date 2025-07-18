@@ -49,7 +49,7 @@ let make = () => {
       title="Overview"
       subTitle="Monitor the three-accounts reconciliation flow: OMS → Processor → Bank"
       customSubTitleStyle={body.lg.medium}
-      customTitleStyle={heading.lg.semibold}
+      customTitleStyle={`${heading.lg.semibold} py-0`}
     />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>

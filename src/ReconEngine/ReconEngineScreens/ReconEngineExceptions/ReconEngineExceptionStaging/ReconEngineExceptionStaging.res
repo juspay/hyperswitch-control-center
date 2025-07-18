@@ -132,7 +132,7 @@ let make = () => {
           data={stagingData}
           filterLogic
           placeholder="Search Staging Entry ID or Status"
-          customSearchBarWrapperWidth="w-full lg:w-1/2"
+          customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText
           setSearchVal=setSearchText

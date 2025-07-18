@@ -1,3 +1,5 @@
+open Typography
+
 @react.component
 let make = () => {
   open ReconEngineTransactionsUtils
@@ -104,13 +106,14 @@ let make = () => {
     None
   }, [filterValue])
 
-  <div className="flex flex-col gap-4 my-4">
+  <div className="flex flex-col gap-4">
     <div className="flex flex-row justify-between items-center gap-3">
       <div className="flex-shrink-0">
         <PageUtils.PageHeading
           title="Transactions"
           subTitle="View your transactions and their details"
-          customHeadingStyle="!py-0"
+          customSubTitleStyle={body.lg.medium}
+          customTitleStyle={`${heading.lg.semibold} py-0`}
         />
       </div>
       <div className="flex-shrink-0 mt-2">
@@ -139,9 +142,10 @@ let make = () => {
           data={configuredTransactions}
           filterLogic
           placeholder="Search Transaction Id or Status"
-          customSearchBarWrapperWidth="w-1/3"
           searchVal=searchText
           setSearchVal=setSearchText
+          customSearchBarWrapperWidth="w-full lg:w-1/3"
+          customInputBoxWidth="w-full rounded-xl"
         />}
         totalResults={filteredTransactionsData->Array.length}
         offset
