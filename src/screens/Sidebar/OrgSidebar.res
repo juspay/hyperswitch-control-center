@@ -346,9 +346,9 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-
+  let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -395,6 +395,7 @@ let make = () => {
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
+
   let getOrgList = async () => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
@@ -409,9 +410,21 @@ let make = () => {
       }
     }
   }
+
+  let fetchOrganizationDetails = async () => {
+    try {
+      let _ = await fetchOrganizationDetails()
+    } catch {
+    | _ => showToast(~message="Failed to fetch organization details", ~toastType=ToastError)
+    }
+  }
+
   React.useEffect(() => {
     if !isInternalUser {
       getOrgList()->ignore
+      if version === V1 {
+        fetchOrganizationDetails()->ignore
+      }
     } else {
       setOrgList(_ => [ompDefaultValue(orgId, "")])
     }

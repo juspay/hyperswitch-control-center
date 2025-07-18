@@ -27,7 +27,6 @@ let make = () => {
   let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -71,9 +70,6 @@ let make = () => {
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
-      if version === V1 {
-        let _ = await fetchOrganizationDetails()
-      }
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
