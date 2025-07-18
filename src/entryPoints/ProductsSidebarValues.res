@@ -17,12 +17,13 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let {
-    useIsFeatureWhitelistedForMerchant,
+    useIsFeatureEnabledForWhiteListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
 
   let isDevReconEngineV1Enabled =
-    devReconEngineV1 && useIsFeatureWhitelistedForMerchant(merchantSpecificConfig.devReconEngineV1)
+    devReconEngineV1 &&
+    useIsFeatureEnabledForWhiteListMerchant(merchantSpecificConfig.devReconEngineV1)
 
   let sideBarValues = [
     Link({

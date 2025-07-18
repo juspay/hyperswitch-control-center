@@ -57,6 +57,9 @@ let configMiddleware = (req, res, next) => {
   }
   if (req.path.includes("/config/merchant") && req.method == "POST") {
     let { domain = "default" } = req.query;
+    if (!domain || domain === "") {
+      domain = "default"; // Fallback to default if no domain is provided
+    }
     config
       .then((result) => {
         result.merchantConfigHandler(req, res, false, domain);

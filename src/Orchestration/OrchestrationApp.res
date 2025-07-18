@@ -5,7 +5,7 @@ let make = (~setScreenState) => {
   let url = RescriptReactRouter.useUrl()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -57,7 +57,7 @@ let make = (~setScreenState) => {
     | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
-        useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
+        useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="NewAnalytics" index="NewAnalytics">
           <InsightsAnalyticsContainer />

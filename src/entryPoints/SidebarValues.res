@@ -638,11 +638,11 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     paymentSettingsV2,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),

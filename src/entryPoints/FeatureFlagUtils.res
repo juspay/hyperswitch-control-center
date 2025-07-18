@@ -141,8 +141,16 @@ let configMapper = dict => {
 let merchantSpecificConfig = (config: JSON.t) => {
   open LogicUtils
   let dict = config->getDictFromJsonObject
+
+  let blacklistDict = dict->getDictfromDict("blacklist")
+  let newAnalyticsBlacklist = blacklistDict->getDictfromDict("new_analytics")->configMapper
+
+  let whitelistDict = dict->getDictfromDict("whitelist")
+  let devReconEngineV1Whitelist =
+    whitelistDict->getDictfromDict("dev_recon_engine_v1")->configMapper
+
   {
-    newAnalytics: dict->getDictfromDict("new_analytics")->configMapper,
-    devReconEngineV1: dict->getDictfromDict("dev_recon_engine_v1")->configMapper,
+    newAnalytics: newAnalyticsBlacklist,
+    devReconEngineV1: devReconEngineV1Whitelist,
   }
 }
