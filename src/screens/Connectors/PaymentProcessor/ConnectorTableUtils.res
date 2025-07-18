@@ -70,7 +70,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         />,
         "",
       )
-    | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False") 
+    | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False")
 
     | Disabled =>
       Label({
