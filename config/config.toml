@@ -74,7 +74,15 @@ dev_omp_chart=false
 dev_recon_engine_v1=false
 dev_ai_chat_bot=false
 [default.merchant_config]
-[default.merchant_config.new_analytics]
+[default.merchant_config.whitelist]
+[default.merchant_config.whitelist.dev_recon_engine_v1]
 org_ids=[]
 merchant_ids=[]
 profile_ids=[]
+
+[default.merchant_config.blacklist]
+[default.merchant_config.blacklist.new_analytics]
+org_ids=[]
+merchant_ids=[]
+profile_ids=[]
+
