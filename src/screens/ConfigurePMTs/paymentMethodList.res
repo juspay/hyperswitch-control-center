@@ -73,10 +73,10 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])} // no filters
+        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])} // no filters
+        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}

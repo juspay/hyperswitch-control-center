@@ -49,7 +49,7 @@ let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeC
   })
   paymentMethods
 }
-let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
+let getTableCell = (~connectorType: connector=Processor) => {
   let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     switch colType {
     | Name =>

@@ -45,7 +45,7 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 let getConnectorObjectFromListViaId = (
-  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  connectorList: array<connectorPayloadCommonType>,
   mca_id: string,
 ) => {
   let default = ConnectorInterface.mapDictToConnectorPayload(
@@ -63,7 +63,7 @@ let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeC
   })
   paymentMethods
 }
-let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
+let getTableCell = (~connectorType: connector=Processor) => {
   let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     switch colType {
     | Name =>

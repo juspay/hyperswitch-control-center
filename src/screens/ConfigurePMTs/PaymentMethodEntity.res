@@ -88,23 +88,23 @@ let getCell = (~setReferesh) => {
   getPaymentMethodConfigCell
 }
 
-let itemObjMapper = (arr: ConnectorTypes.connectorPayloadCommonType, mappedArr) => {
-  let paymentMethod = arr.payment_methods_enabled
+let itemObjMapper = (list: ConnectorTypes.connectorPayloadCommonType, mappedArr) => {
+  let paymentMethod = list.payment_methods_enabled
 
-  if arr.connector_type === PaymentProcessor {
+  if list.connector_type === PaymentProcessor {
     paymentMethod->Array.forEachWithIndex((_, pmIndex) => {
-      PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload=arr, ~mappedArr, ~pmIndex)
+      PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload=list, ~mappedArr, ~pmIndex)
     })
   }
 }
 
 let getFilterdConnectorList = (
-  arr: array<ConnectorTypes.connectorPayloadCommonType>,
+  list: array<ConnectorTypes.connectorPayloadCommonType>,
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ): array<paymentMethodConfiguration> => {
   let mappedArr = []
   let _ =
-    arr->Array.forEach(item =>
+    list->Array.forEach(item =>
       item->PaymentMethodConfigUtils.filterItemObjMapper(mappedArr, filters)
     )
   mappedArr
@@ -112,9 +112,9 @@ let getFilterdConnectorList = (
 
 let getConnectedList: array<ConnectorTypes.connectorPayloadCommonType> => array<
   paymentMethodConfiguration,
-> = arr => {
+> = list => {
   let mappedArr = []
-  arr->Array.forEach(item => itemObjMapper(item, mappedArr))
+  list->Array.forEach(item => itemObjMapper(item, mappedArr))
   mappedArr
 }
 
