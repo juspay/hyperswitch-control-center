@@ -297,7 +297,7 @@ let make = () => {
       input
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent(
-        isCurrentOrganizationPlatform,
+        ~isPlatformOrg=isCurrentOrganizationPlatform,
       )}
       marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true

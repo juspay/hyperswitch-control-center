@@ -208,9 +208,9 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
               {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
             </p>
             <HSwitchUtils.AlertBanner
-              bannerContent={<div>
+              bannerContent={<p>
                 {"These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."->React.string}
-              </div>}
+              </p>}
               bannerType=Warning
             />
             <TwoFaElements.ShowRecoveryCodes recoveryCodes />

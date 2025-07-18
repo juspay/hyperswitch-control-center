@@ -273,9 +273,9 @@ module SuccessUI = {
           </div>
           <HSwitchUtils.AlertBanner
             bannerType=Info
-            bannerContent={<div>
+            bannerContent={<p>
               {"Please note down the API key for your future use as you won't be able to view it later."->React.string}
-            </div>}
+            </p>}
           />
         </div>
       </div>

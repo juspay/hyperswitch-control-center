@@ -1,3 +1,5 @@
+open Typography
+
 module PlatformMerchantModalContent = {
   @react.component
   let make = () => {
@@ -16,17 +18,17 @@ module PlatformMerchantModalContent = {
 
     let listItem = (~title, ~text) =>
       <li>
-        <span className="text-nd_gray-600 font-semibold"> {title->React.string} </span>
-        <span className="text-nd_gray-500 font-normal"> {` ${text}`->React.string} </span>
+        <span className={`text-nd_gray-600 ${body.md.semibold}`}> {title->React.string} </span>
+        <span className={`text-nd_gray-500  ${body.md.regular}`}> {` ${text}`->React.string} </span>
       </li>
 
     <div className="grid grid-cols-3 gap-8" onClick={handleModalClick}>
       <div className="flex flex-col gap-5 col-span-1">
-        <p className="text-nd_gray-500 font-normal">
+        <p className={`text-nd_gray-500  ${body.md.regular}`}>
           {"A Platform merchant account lets you onboard and manage multiple merchants in one place and gives you full API access to do it all programmatically."->React.string}
         </p>
         <div className="flex flex-col gap-3.5">
-          <p className="text-nd_gray-700 font-semibold"> {"At a glance:"->React.string} </p>
+          <p className={`text-nd_gray-700 ${body.md.semibold}`}> {"At a glance:"->React.string} </p>
           <div className="pl-4">
             <ul className="flex flex-col gap-2 list-disc">
               {listItem(
@@ -45,7 +47,9 @@ module PlatformMerchantModalContent = {
           </div>
         </div>
         <div className="flex" onClick=onLearnMoreClick>
-          <span className="!text-nd_primary_blue-500"> {"Learn more"->React.string} </span>
+          <span className={`!text-nd_primary_blue-500 ${body.md.regular}`}>
+            {"Learn more"->React.string}
+          </span>
           <span>
             <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500" />
           </span>
@@ -95,10 +99,10 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`text-sm cursor-pointer font-semibold ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1`}>
+          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1 ${body.sm.semibold}`}>
           <div className="flex flex-row w-full justify-between">
             <div className="flex gap-2">
-              <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
+              <span className={`${secondaryTextColor} opacity-50 ${body.sm.medium}`}>
                 {headingText->React.string}
               </span>
               <RenderIf condition={isPlatform}>
@@ -125,7 +129,7 @@ module ListBaseComp = {
           </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
-              className={`fs-10 ${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre `}>
+              className={`${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre ${body.md.semibold}`}>
               {subHeading->React.string}
             </p>
             {showDropdownArrow
@@ -656,8 +660,8 @@ let generateDropdownOptions: (
 
 let generateDropdownOptionsCustomComponent: (
   array<OMPSwitchTypes.ompListTypesCustom>,
-  bool,
-) => array<SelectBox.dropdownOption> = (dropdownList, isPlatformOrg) => {
+  ~isPlatformOrg: bool,
+) => array<SelectBox.dropdownOption> = (dropdownList, ~isPlatformOrg) => {
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {

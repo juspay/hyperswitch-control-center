@@ -1,4 +1,5 @@
 module OrgTile = {
+  open Typography
   @react.component
   let make = (
     ~orgID: string,
@@ -124,7 +125,7 @@ module OrgTile = {
                 : "border-t-sidebar-textColor/30"}  border-l-transparent translate-x-1/2 -translate-y-1/2 rounded-tr-[5px]`}
           />
         </RenderIf>
-        <span className="text-xs font-medium"> {displayText->React.string} </span>
+        <span className={body.xs.medium}> {displayText->React.string} </span>
         <div className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40`}>
           <InlineEditInput
             index
@@ -396,11 +397,22 @@ let make = () => {
     globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
 
+  let fetchOrgDetails = async () => {
+    try {
+      let _ = await fetchOrganizationDetails()
+    } catch {
+    | _ => showToast(~message="Failed to fetch organization details", ~toastType=ToastError)
+    }
+  }
+
   let getOrgList = async () => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
+      if version === V1 {
+        fetchOrgDetails()->ignore
+      }
       orgData->Array.sort(sortByOrgName)
       setOrgList(_ => orgData)
     } catch {
@@ -411,20 +423,9 @@ let make = () => {
     }
   }
 
-  let fetchOrganizationDetails = async () => {
-    try {
-      let _ = await fetchOrganizationDetails()
-    } catch {
-    | _ => showToast(~message="Failed to fetch organization details", ~toastType=ToastError)
-    }
-  }
-
   React.useEffect(() => {
     if !isInternalUser {
       getOrgList()->ignore
-      if version === V1 {
-        fetchOrganizationDetails()->ignore
-      }
     } else {
       setOrgList(_ => [ompDefaultValue(orgId, "")])
     }

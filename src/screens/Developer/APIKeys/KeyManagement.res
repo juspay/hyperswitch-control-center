@@ -395,6 +395,7 @@ module ApiKeysTable = {
 }
 
 module KeysManagement = {
+  open Typography
   @react.component
   let make = () => {
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -423,18 +424,21 @@ module KeysManagement = {
       <RenderIf condition={isCurrentOrganizationPlatform}>
         <div className="py-4">
           <HSwitchUtils.AlertBanner
-            bannerContent={<div>
+            bannerContent={<p>
               <RenderIf condition={isCurrentMerchantPlatform}>
-                <span className="leading-24 text-nd_gray-800 font-semibold">
+                <span className={`text-nd_gray-800 ${body.md.semibold}`}>
                   {"Platform Merchant Account: "->React.string}
                 </span>
               </RenderIf>
-              <span className="leading-24 text-nd_gray-600"> {bannerText->React.string} </span>
+              <span className={`text-nd_gray-600 ${body.md.regular}`}>
+                {bannerText->React.string}
+              </span>
               <span
-                onClick={redirectToDocs} className="text-nd_primary_blue-500 hover:cursor-pointer">
+                onClick={redirectToDocs}
+                className={`text-nd_primary_blue-500 hover:cursor-pointer ${body.md.regular}`}>
                 {" Learn More"->React.string}
               </span>
-            </div>}
+            </p>}
             bannerType=Warning
           />
         </div>
