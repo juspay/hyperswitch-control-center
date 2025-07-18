@@ -11,7 +11,7 @@ let make = () => {
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (_processorModal, setProcessorModal) = React.useState(_ => false)
+  let (processorModal, setProcessorModal) = React.useState(_ => false)
 
   let connectorsList = ConnectorInterface.useConnectorArrayMapper(
     ~interface=ConnectorInterface.connectorInterfaceV2,
@@ -149,8 +149,20 @@ let make = () => {
           />
         </RenderIf>
         <PaymentProcessorCards
-          configuredConnectors connectorsAvailableForIntegration setProcessorModal
+          configuredConnectors
+          connectorsAvailableForIntegration
+          setProcessorModal
+          urlPrefix="v2/orchestration/connectors/new"
         />
+        <RenderIf condition={processorModal}>
+          <DummyProcessorModalV2
+            processorModal
+            setProcessorModal
+            urlPrefix="v2/orchestration/connectors/new"
+            configuredConnectors
+            connectorsAvailableForIntegration
+          />
+        </RenderIf>
       </div>
     </PageLoaderWrapper>
   </div>

@@ -4,10 +4,14 @@ let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
-    currency: dict->getString("currency", ""),
-    pending_balance: dict->getString("pending_balance", ""),
-    posted_balance: dict->getString("posted_balance", ""),
+    currency: dict->getDictfromDict("posted_balance")->getString("currency", ""),
+    pending_balance: dict->getDictfromDict("pending_balance")->getFloat("value", 0.0),
+    posted_balance: dict->getDictfromDict("posted_balance")->getFloat("value", 0.0),
   }
+}
+
+let getAmountString = (amount, currency) => {
+  amount->Float.toString ++ " " ++ currency
 }
 
 let (

@@ -16,7 +16,6 @@ type processingEntryType = {
   currency: string,
   status: string,
   effective_at: string,
-  created_at: string,
 }
 
 type accountType = {
@@ -33,9 +32,7 @@ type processedColType =
   | Amount
   | Currency
   | Status
-  | ReconStatus
   | EffectiveAt
-  | CreatedAt
 
 type processingColType =
   | StagingEntryId
@@ -44,15 +41,14 @@ type processingColType =
   | Currency
   | Status
   | EffectiveAt
-  | CreatedAt
 
 let processedItemToObjMapper = dict => {
   open LogicUtils
   {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
-    amount: dict->getFloat("amount", 0.0),
-    currency: dict->getString("currency", ""),
+    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
+    currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
     expected: dict->getString("expected", ""),
     effective_at: dict->getString("effective_at", ""),
@@ -65,35 +61,14 @@ let processingItemToObjMapper = dict => {
   {
     staging_entry_id: dict->getString("staging_entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
-    amount: dict->getFloat("amount", 0.0),
-    currency: dict->getString("currency", ""),
+    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
+    currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
     effective_at: dict->getString("effective_at", ""),
-    created_at: dict->getString("created_at", ""),
   }
 }
 
-let accountItemToObjMapper = dict => {
-  open LogicUtils
-  {
-    account_name: dict->getString("account_name", ""),
-    account_id: dict->getString("account_id", ""),
-    currency: dict->getString("currency", ""),
-    pending_balance: dict->getString("pending_balance", ""),
-    posted_balance: dict->getString("posted_balance", ""),
-  }
-}
-
-let processedDefaultColumns = [
-  EntryId,
-  EntryType,
-  Amount,
-  Currency,
-  Status,
-  ReconStatus,
-  EffectiveAt,
-  CreatedAt,
-]
+let processedDefaultColumns = [EntryId, EntryType, Amount, Currency, Status, EffectiveAt]
 
 let getProcessedHeading = colType => {
   switch colType {
@@ -102,9 +77,7 @@ let getProcessedHeading = colType => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | ReconStatus => Table.makeHeaderInfo(~key="recon_status", ~title="Recon Status")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   }
 }
 
@@ -112,7 +85,7 @@ let getProcessedCell = (data: processedEntryType, colType): Table.cell => {
   switch colType {
   | EntryId => Text(data.entry_id)
   | EntryType => Text(data.entry_type)
-  | Amount => Numeric(data.amount, amount => `$${amount->Float.toString}`)
+  | Amount => Numeric(data.amount, amount => amount->Float.toString)
   | Currency => Text(data.currency)
   | Status =>
     Label({
@@ -126,21 +99,7 @@ let getProcessedCell = (data: processedEntryType, colType): Table.cell => {
       | _ => LabelLightGray
       },
     })
-  | ReconStatus =>
-    Label({
-      title: data.expected->String.toUpperCase,
-      color: switch data.expected->String.toLowerCase {
-      | "expected" => LabelOrange
-      | "posted" => LabelGreen
-      | "pending" => LabelBlue
-      | "processed" => LabelGreen
-      | "matched" => LabelGreen
-      | "unmatched" => LabelRed
-      | _ => LabelLightGray
-      },
-    })
   | EffectiveAt => Text(data.effective_at)
-  | CreatedAt => Text(data.created_at)
   }
 }
 
@@ -153,15 +112,7 @@ let processedTableEntity = EntityType.makeEntity(
   ~dataKey="",
 )
 
-let processingDefaultColumns = [
-  StagingEntryId,
-  EntryType,
-  Amount,
-  Currency,
-  Status,
-  EffectiveAt,
-  CreatedAt,
-]
+let processingDefaultColumns = [StagingEntryId, EntryType, Amount, Currency, Status, EffectiveAt]
 
 let getProcessingHeading = colType => {
   switch colType {
@@ -171,7 +122,6 @@ let getProcessingHeading = colType => {
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   }
 }
 
@@ -179,7 +129,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   switch colType {
   | StagingEntryId => Text(data.staging_entry_id)
   | EntryType => Text(data.entry_type)
-  | Amount => Numeric(data.amount, amount => `$${amount->Float.toString}`)
+  | Amount => Numeric(data.amount, amount => {amount->Float.toString})
   | Currency => Text(data.currency)
   | Status =>
     Label({
@@ -189,13 +139,13 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
       | "pending" => LabelBlue
       | "processed" => LabelGreen
       | "processing" => LabelOrange
+      | "needs_manual_review" => LabelOrange
       | "failed" => LabelRed
       | "cancelled" => LabelGray
       | _ => LabelLightGray
       },
     })
   | EffectiveAt => Text(data.effective_at)
-  | CreatedAt => Text(data.created_at)
   }
 }
 
