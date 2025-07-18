@@ -32,6 +32,13 @@ type transactionPayload = {
   created_at: string,
 }
 
+type transactionStatus =
+  | Posted
+  | Mismatched
+  | Expected
+  | Archived
+  | None
+
 type entryPayload = {
   entry_id: string,
   entry_type: string,

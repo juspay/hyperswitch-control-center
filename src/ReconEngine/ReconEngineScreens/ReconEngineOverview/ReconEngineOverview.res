@@ -9,8 +9,6 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
-  let (accountData, setAccountData) = React.useState(_ => [])
-  let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -25,40 +23,9 @@ let make = () => {
       let res = await fetchDetails(url)
       let ruleDetails = res->getArrayDataFromJson(reconRuleItemToObjMapper)
       setReconRulesList(_ => ruleDetails)
-      setScreenState(_ => Success)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
-
-  let getAccountsData = async _ => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(accountItemToObjMapper)
-      setAccountData(_ => accountData)
-    } catch {
-    | _ => ()
-    }
-  }
-
-  let getAllTransactionsData = async _ => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~methodType=Get,
-      )
-      let res = await fetchDetails(url)
-      let transactionsData =
-        res->getArrayDataFromJson(ReconEngineTransactionsUtils.getAllTransactionPayload)
-      setAllTransactionsData(_ => transactionsData)
-    } catch {
-    | _ => ()
     }
   }
 
@@ -67,29 +34,24 @@ let make = () => {
     reconRulesList->Array.map(ruleDetails => {
       {
         title: ruleDetails.rule_name,
-        renderContent: () =>
-          <ReconEngineOverviewDetails
-            ruleDetails accountData transactionsData=allTransactionsData
-          />,
+        renderContent: () => <ReconEngineOverviewDetails ruleDetails />,
       }
     })
-  }, (reconRulesList, accountData, allTransactionsData))
+  }, [reconRulesList])
 
   React.useEffect(() => {
     getReconRulesData()->ignore
-    getAccountsData()->ignore
-    getAllTransactionsData()->ignore
     None
   }, [])
 
-  <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-6 w-full">
-      <PageUtils.PageHeading
-        title="Overview"
-        subTitle="Monitor the three-accounts reconciliation flow: OMS → Processor → Bank"
-        customSubTitleStyle={body.lg.medium}
-        customTitleStyle={heading.lg.semibold}
-      />
+  <div className="flex flex-col gap-6 w-full">
+    <PageUtils.PageHeading
+      title="Overview"
+      subTitle="Monitor the three-accounts reconciliation flow: OMS → Processor → Bank"
+      customSubTitleStyle={body.lg.medium}
+      customTitleStyle={heading.lg.semibold}
+    />
+    <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">
           <NoDataFound
@@ -109,6 +71,6 @@ let make = () => {
           customBottomBorderColor="mb-6"
         />
       </RenderIf>
-    </div>
-  </PageLoaderWrapper>
+    </PageLoaderWrapper>
+  </div>
 }

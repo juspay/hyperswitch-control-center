@@ -87,6 +87,18 @@ let formatAmountWithCurrency = (amount: float, currency: string) => {
   `${roundedAmount->Float.toString} ${currency}`
 }
 
+let getTransactionTypeFromString = (
+  status: string,
+): ReconEngineTransactionsTypes.transactionStatus => {
+  switch status {
+  | "posted" => Posted
+  | "mismatched" => Mismatched
+  | "expected" => Expected
+  | "archived" => Archived
+  | _ => None
+  }
+}
+
 let calculateAccountAmounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
@@ -105,8 +117,8 @@ let calculateAccountAmounts = (
     let creditAmount = transaction.credit_amount.value
     let debitAmount = transaction.debit_amount.value
 
-    switch transaction.transaction_status {
-    | "posted" => (
+    switch transaction.transaction_status->getTransactionTypeFromString {
+    | Posted => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
         sMismatched,
@@ -114,7 +126,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | "mismatched" => (
+    | Mismatched => (
         sPosted,
         tPosted,
         sMismatched +. creditAmount,
@@ -122,7 +134,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | "expected" => (
+    | Expected => (
         sPosted,
         tPosted,
         sMismatched,
@@ -141,6 +153,33 @@ let calculateAccountAmounts = (
   (totalSourceAmount, totalTargetAmount, variance)
 }
 
+// Stacked Bar Graph Data
+let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
+  open StackedBarGraphTypes
+  {
+    categories: ["Transactions"],
+    data: [
+      {
+        name: "Posted",
+        data: [postedCount->Int.toFloat],
+        color: "#7AB891",
+      },
+      {
+        name: "Mismatched",
+        data: [mismatchedCount->Int.toFloat],
+        color: "#EA8A8F",
+      },
+      {
+        name: "Expected",
+        data: [expectedCount->Int.toFloat],
+        color: "#8BC2F3",
+      },
+    ],
+    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
+  }
+}
+
+// Line Graph Data
 let getOverviewLineGraphTooltipFormatter = (
   @this
   (this: LineGraphTypes.pointFormatter) => {
@@ -222,38 +261,13 @@ let calculateTransactionCounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-    switch transaction.transaction_status {
-    | "posted" => (posted + 1, mismatched, expected)
-    | "mismatched" => (posted, mismatched + 1, expected)
-    | "expected" => (posted, mismatched, expected + 1)
+    switch transaction.transaction_status->getTransactionTypeFromString {
+    | Posted => (posted + 1, mismatched, expected)
+    | Mismatched => (posted, mismatched + 1, expected)
+    | Expected => (posted, mismatched, expected + 1)
     | _ => (posted, mismatched, expected)
     }
   })
-}
-
-let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
-  open StackedBarGraphTypes
-  {
-    categories: ["Transactions"],
-    data: [
-      {
-        name: "Posted",
-        data: [postedCount->Int.toFloat],
-        color: "#7AB891",
-      },
-      {
-        name: "Mismatched",
-        data: [mismatchedCount->Int.toFloat],
-        color: "#EA8A8F",
-      },
-      {
-        name: "Expected",
-        data: [expectedCount->Int.toFloat],
-        color: "#8BC2F3",
-      },
-    ],
-    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
-  }
 }
 
 let processLineGraphData = (
@@ -288,20 +302,20 @@ let processLineGraphData = (
     let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
     let currentDateData = acc->getObj(dateStr, Dict.make())
 
-    switch transaction.transaction_status {
-    | "posted" => {
+    switch transaction.transaction_status->getTransactionTypeFromString {
+    | Posted => {
         let currentCount = currentDateData->getInt("posted", 0)
         currentDateData->Dict.set("posted", (currentCount + 1)->JSON.Encode.int)
       }
-    | "expected" => {
+    | Expected => {
         let currentCount = currentDateData->getInt("expected", 0)
         currentDateData->Dict.set("expected", (currentCount + 1)->JSON.Encode.int)
       }
-    | "mismatched" => {
+    | Mismatched => {
         let currentCount = currentDateData->getInt("mismatched", 0)
         currentDateData->Dict.set("mismatched", (currentCount + 1)->JSON.Encode.int)
       }
-    | "archived" => {
+    | Archived => {
         let currentCount = currentDateData->getInt("archived", 0)
         currentDateData->Dict.set("archived", (currentCount + 1)->JSON.Encode.int)
       }
@@ -350,51 +364,6 @@ let processLineGraphData = (
     yAxisMaxValue: None,
     yAxisMinValue: None,
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(~statType=Default),
-    legend: {
-      useHTML: true,
-      labelFormatter: LineGraphUtils.valueFormatter,
-      align: "left",
-      verticalAlign: "top",
-      floating: false,
-      margin: 30,
-    },
-  }
-
-  lineGraphOptions
-}
-
-let getLineGraphOptions = () => {
-  let categories = ["Jan 01", "Jan 02", "Jan 03", "Jan 04", "Jan 05", "Jan 06", "Jan 07"]
-
-  let postedData = [120.0, 150.0, 180.0, 200.0, 175.0, 220.0, 250.0]
-  let expectedData = [100.0, 140.0, 160.0, 190.0, 170.0, 210.0, 240.0]
-
-  let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
-    chartHeight: LineGraphTypes.DefaultHeight,
-    chartLeftSpacing: LineGraphTypes.DefaultLeftSpacing,
-    categories,
-    data: [
-      {
-        showInLegend: true,
-        name: "Expected",
-        data: postedData,
-        color: "#8BC2F3",
-      },
-      {
-        showInLegend: true,
-        name: "Posted",
-        data: expectedData,
-        color: "#00D492",
-      },
-    ],
-    title: {
-      text: "",
-      align: "left",
-    },
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
-    yAxisMaxValue: None,
-    yAxisMinValue: None,
-    yAxisFormatter: lineGraphYAxisFormatter,
     legend: {
       useHTML: true,
       labelFormatter: LineGraphUtils.valueFormatter,
