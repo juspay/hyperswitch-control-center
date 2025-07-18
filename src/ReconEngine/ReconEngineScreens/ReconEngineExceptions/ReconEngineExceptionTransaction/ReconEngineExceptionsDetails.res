@@ -13,6 +13,7 @@ let make = (~id) => {
   let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let getExceptionDetails = async _ => {
     try {
@@ -24,14 +25,9 @@ let make = (~id) => {
       )
       let res = await fetchDetails(currentExceptionUrl)
       let currentException = res->getDictFromJsonObject->getAllTransactionPayload
-      let allExceptionsUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+      let exceptionsList = await getTransactions(
         ~queryParamerters=Some(`transaction_id=${currentException.transaction_id}`),
       )
-      let allExceptionsList = await fetchDetails(allExceptionsUrl)
-      let exceptionsList = allExceptionsList->getArrayDataFromJson(getAllTransactionPayload)
       setCurrentExceptionDetails(_ => currentException)
       setAllExceptionDetails(_ => exceptionsList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -48,7 +44,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-8">
       <BreadCrumbNavigation
-        path=[{title: "Overview", link: `/v1/recon-engine/exceptions`}]
+        path=[{title: "Exceptions", link: `/v1/recon-engine/exceptions`}]
         currentPageTitle=id
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"

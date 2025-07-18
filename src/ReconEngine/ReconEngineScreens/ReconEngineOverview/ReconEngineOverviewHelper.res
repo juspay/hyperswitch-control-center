@@ -23,6 +23,7 @@ module OverviewCardDetails = {
     let (accountData, setAccountData) = React.useState(_ => [])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
+    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
     let getTransactionsAndAccountData = async () => {
       try {
@@ -35,15 +36,9 @@ module OverviewCardDetails = {
         let res = await fetchDetails(url)
         let accountData = res->getArrayDataFromJson(accountItemToObjMapper)
         setAccountData(_ => accountData)
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#TRANSACTIONS_LIST,
-          ~methodType=Get,
+        let transactionsData = await getTransactions(
           ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
         )
-        let res = await fetchDetails(url)
-        let transactionsData =
-          res->getArrayDataFromJson(ReconEngineTransactionsUtils.getAllTransactionPayload)
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -104,25 +99,16 @@ module OverviewCardDetails = {
 module StackedBarGraph = {
   @react.component
   let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
-    open APIUtils
-    open LogicUtils
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
     let getAllTransactionsData = async _ => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#TRANSACTIONS_LIST,
-          ~methodType=Get,
+        let transactionsData = await getTransactions(
           ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
         )
-        let res = await fetchDetails(url)
-        let transactionsData =
-          res->getArrayDataFromJson(ReconEngineTransactionsUtils.getAllTransactionPayload)
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -181,25 +167,16 @@ module StackedBarGraph = {
 module ReconRuleLineGraph = {
   @react.component
   let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
-    open APIUtils
-    open LogicUtils
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
     let getAllTransactionsData = async _ => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#TRANSACTIONS_LIST,
-          ~methodType=Get,
+        let transactionsData = await getTransactions(
           ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
         )
-        let res = await fetchDetails(url)
-        let transactionsData =
-          res->getArrayDataFromJson(ReconEngineTransactionsUtils.getAllTransactionPayload)
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -243,10 +220,7 @@ module ReconRuleTransactions = {
   let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     open LogicUtils
     open ReconEngineTransactionsUtils
-    open APIUtils
 
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
     let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
     let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
     let (offset, setOffset) = React.useState(_ => 0)
@@ -254,9 +228,9 @@ module ReconRuleTransactions = {
     let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
       FilterContext.filterContext,
     )
+    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
     let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
     let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let dateDropDownTriggerMixpanelCallback = () => {
@@ -272,16 +246,7 @@ module ReconRuleTransactions = {
         } else {
           `rule_id=${ruleDetails.rule_id}`
         }
-
-        let transactionsUrl = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#TRANSACTIONS_LIST,
-          ~queryParamerters=Some(queryString),
-        )
-
-        let res = await fetchDetails(transactionsUrl)
-        let transactionsList = res->LogicUtils.getArrayDataFromJson(getAllTransactionPayload)
+        let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
 
         let transactionsDataList = transactionsList->Array.map(Nullable.make)
         setConfiguredReports(_ => transactionsDataList)

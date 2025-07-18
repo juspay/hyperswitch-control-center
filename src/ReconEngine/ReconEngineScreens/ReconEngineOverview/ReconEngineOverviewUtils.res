@@ -87,18 +87,6 @@ let formatAmountWithCurrency = (amount: float, currency: string) => {
   `${roundedAmount->Float.toString} ${currency}`
 }
 
-let getTransactionTypeFromString = (
-  status: string,
-): ReconEngineTransactionsTypes.transactionStatus => {
-  switch status {
-  | "posted" => Posted
-  | "mismatched" => Mismatched
-  | "expected" => Expected
-  | "archived" => Archived
-  | _ => None
-  }
-}
-
 let calculateAccountAmounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
@@ -117,7 +105,7 @@ let calculateAccountAmounts = (
     let creditAmount = transaction.credit_amount.value
     let debitAmount = transaction.debit_amount.value
 
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
     | Posted => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
@@ -261,7 +249,7 @@ let calculateTransactionCounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
@@ -302,7 +290,7 @@ let processLineGraphData = (
     let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
     let currentDateData = acc->getObj(dateStr, Dict.make())
 
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
     | Posted => {
         let currentCount = currentDateData->getInt("posted", 0)
         currentDateData->Dict.set("posted", (currentCount + 1)->JSON.Encode.int)

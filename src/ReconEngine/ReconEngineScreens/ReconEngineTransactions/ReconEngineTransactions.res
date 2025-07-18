@@ -4,7 +4,6 @@ open Typography
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
-  open APIUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -21,8 +20,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let topFilterUi = {
     <div className="flex flex-row">
@@ -67,19 +65,9 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
-      let transactionsUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParamerters=Some(queryString),
-      )
-
-      let res = await fetchDetails(transactionsUrl)
-      let transactionsList = res->getArrayDataFromJson(getAllTransactionPayload)
-
-      let transactionsDataList = transactionsList->Array.map(Nullable.make)
+      let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
       setConfiguredTransactions(_ => transactionsList->Array.map(Nullable.make))
-      setFilteredReports(_ => transactionsDataList)
+      setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

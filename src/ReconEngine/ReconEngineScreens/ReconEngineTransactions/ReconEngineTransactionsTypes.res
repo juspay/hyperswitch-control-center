@@ -37,7 +37,7 @@ type transactionStatus =
   | Mismatched
   | Expected
   | Archived
-  | None
+  | Unknown
 
 type entryPayload = {
   entry_id: string,

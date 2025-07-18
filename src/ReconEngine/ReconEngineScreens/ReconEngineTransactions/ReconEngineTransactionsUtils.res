@@ -102,10 +102,7 @@ let getEntriesList: JSON.t => array<entryPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, getAllEntryPayload)
 }
 
-let sortByVersion = (
-  c1: ReconEngineTransactionsTypes.transactionPayload,
-  c2: ReconEngineTransactionsTypes.transactionPayload,
-) => {
+let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {
   compareLogic(c1.version, c2.version)
 }
 
@@ -124,6 +121,16 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   })
 
   uniqueAccounts->Array.joinWith(", ")
+}
+
+let getTransactionTypeFromString = (status: string) => {
+  switch status {
+  | "posted" => ReconEngineTransactionsTypes.Posted
+  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
+  | "expected" => ReconEngineTransactionsTypes.Expected
+  | "archived" => ReconEngineTransactionsTypes.Archived
+  | _ => ReconEngineTransactionsTypes.Unknown
+  }
 }
 
 let initialDisplayFilters = () => {

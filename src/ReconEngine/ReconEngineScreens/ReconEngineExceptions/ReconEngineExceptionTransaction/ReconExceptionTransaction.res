@@ -2,9 +2,6 @@
 let make = () => {
   open ReconEngineExceptionTransactionUtils
   open LogicUtils
-  open APIUtils
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -12,6 +9,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
@@ -53,16 +51,7 @@ let make = () => {
       let queryString = ReconEngineUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
-      let exceptionsUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParamerters=Some(queryString),
-      )
-
-      let res = await fetchDetails(exceptionsUrl)
-      let exceptionList =
-        res->getArrayDataFromJson(ReconEngineTransactionsUtils.getAllTransactionPayload)
+      let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)

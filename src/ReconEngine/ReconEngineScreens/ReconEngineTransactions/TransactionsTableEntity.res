@@ -70,11 +70,11 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
   | Status =>
     Label({
       title: {transaction.transaction_status->String.toUpperCase},
-      color: switch transaction.transaction_status->String.toLowerCase {
-      | "posted" => LabelGreen
-      | "mismatched" => LabelRed
-      | "expected" => LabelBlue
-      | "archived" => LabelGray
+      color: switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+      | Posted => LabelGreen
+      | Mismatched => LabelRed
+      | Expected => LabelBlue
+      | Archived => LabelGray
       | _ => LabelGray
       },
     })
