@@ -55,7 +55,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
       />,
       "",
     )
-  | TestMode => Text(connector.test_mode->Option.getOr(true) ? "True" : "False") //
+  | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False") 
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",

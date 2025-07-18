@@ -119,7 +119,6 @@ let make = () => {
             feedbackVia="connected_a_connector"
           />
         </RenderIf>
-        // todo:  make this common for v1 and v2
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
