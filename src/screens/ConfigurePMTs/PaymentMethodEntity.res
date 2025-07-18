@@ -88,52 +88,44 @@ let getCell = (~setReferesh) => {
   getPaymentMethodConfigCell
 }
 
-let itemObjMapper = (dict, mappedArr) => {
-  open LogicUtils
-  let connectorPayload = ConnectorInterface.mapDictToConnectorPayload(
-    ConnectorInterface.connectorInterfaceV1,
-    dict,
-  )
-  let paymentMethod =
-    dict
-    ->Dict.get("payment_methods_enabled")
-    ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabled)
-  if dict->getString("connector_type", "") === "payment_processor" {
+let itemObjMapper = (list: ConnectorTypes.connectorPayloadCommonType, mappedArr) => {
+  let paymentMethod = list.payment_methods_enabled
+
+  if list.connector_type === PaymentProcessor {
     paymentMethod->Array.forEachWithIndex((_, pmIndex) => {
-      PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex)
+      PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload=list, ~mappedArr, ~pmIndex)
     })
   }
 }
 
 let getFilterdConnectorList = (
-  json: JSON.t,
+  list: array<ConnectorTypes.connectorPayloadCommonType>,
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ): array<paymentMethodConfiguration> => {
   let mappedArr = []
   let _ =
-    json
-    ->JSON.Decode.array
-    ->Option.getOr([])
-    ->Belt.Array.keepMap(JSON.Decode.object)
-    ->Array.map(dict => dict->PaymentMethodConfigUtils.filterItemObjMapper(mappedArr, filters))
+    list->Array.forEach(item =>
+      item->PaymentMethodConfigUtils.filterItemObjMapper(mappedArr, filters)
+    )
   mappedArr
 }
 
-let getConnectedList: JSON.t => array<paymentMethodConfiguration> = json => {
+let getConnectedList: array<ConnectorTypes.connectorPayloadCommonType> => array<
+  paymentMethodConfiguration,
+> = list => {
   let mappedArr = []
-  let _ =
-    json
-    ->JSON.Decode.array
-    ->Option.getOr([])
-    ->Belt.Array.keepMap(JSON.Decode.object)
-    ->Array.map(dict => dict->itemObjMapper(mappedArr))
+  list->Array.forEach(item => itemObjMapper(item, mappedArr))
   mappedArr
 }
+
+let getObjects: JSON.t => array<'t> = _ => {
+  []
+}
+
 let paymentMethodEntity = (~setReferesh: unit => promise<unit>) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getConnectedList,
+    ~getObjects,
     ~defaultColumns,
     ~getHeading,
     ~getCell=getCell(~setReferesh),

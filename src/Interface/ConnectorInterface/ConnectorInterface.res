@@ -9,29 +9,29 @@ module type ConnectorInterface = {
   type input
   type output
   let mapDictToConnectorPayload: mapperInput => mapperOutput
-  let mapJsonArrayToConnectorPayloads: (JSON.t, filterCriteria) => array<mapperOutput>
+  let mapListToFilteredConnectorList: (array<mapperOutput>, filterCriteria) => array<mapperOutput>
   let mapConnectorPayloadToConnectorType: (input, array<mapperOutput>) => array<output>
 }
 
-// Each module implements the ConnectorInterface but uses different types.
+// Each module implements the ConnectorInterface and maps to common types with respective intermediate types
 
 // Module Implementation for V1
 module V1: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
-  and type mapperOutput = connectorPayload
-  and type filterCriteria = ConnectorTypes.connectorTypeVariants
-  and type input = ConnectorTypes.connector
-  and type output = ConnectorTypes.connectorTypes = {
+  and type mapperOutput = connectorPayloadCommonType
+  and type filterCriteria = connectorTypeVariants
+  and type input = connector
+  and type output = connectorTypes = {
   type mapperInput = Dict.t<JSON.t>
-  type mapperOutput = connectorPayload
-  type filterCriteria = ConnectorTypes.connectorTypeVariants
-  type input = ConnectorTypes.connector
-  type output = ConnectorTypes.connectorTypes
+  type mapperOutput = connectorPayloadCommonType
+  type filterCriteria = connectorTypeVariants
+  type input = connector
+  type output = connectorTypes
 
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
-    mapDictToConnectorPayload(dict)
-  let mapJsonArrayToConnectorPayloads = (json: JSON.t, retainInList: filterCriteria) =>
-    mapJsonArrayToConnectorPayloads(json, retainInList)
+    mapDictToConnectorPayload(dict)->mapV1DictToCommonConnectorPayload
+  let mapListToFilteredConnectorList = (list: array<mapperOutput>, retainInList: filterCriteria) =>
+    mapListToFilteredConnectorList(list, retainInList)
   let mapConnectorPayloadToConnectorType = (
     connectorType: input,
     connectorList: array<mapperOutput>,
@@ -41,26 +41,26 @@ module V1: ConnectorInterface
 // Module Implementation for V2
 module V2: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
-  and type mapperOutput = connectorPayloadV2
-  and type filterCriteria = ConnectorTypes.connectorTypeVariants
-  and type input = ConnectorTypes.connector
-  and type output = ConnectorTypes.connectorTypes = {
+  and type mapperOutput = connectorPayloadCommonType
+  and type filterCriteria = connectorTypeVariants
+  and type input = connector
+  and type output = connectorTypes = {
   type mapperInput = Dict.t<JSON.t>
-  type mapperOutput = connectorPayloadV2
-  type filterCriteria = ConnectorTypes.connectorTypeVariants
-  type input = ConnectorTypes.connector
-  type output = ConnectorTypes.connectorTypes
+  type mapperOutput = connectorPayloadCommonType
+  type filterCriteria = connectorTypeVariants
+  type input = connector
+  type output = connectorTypes
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
-    mapDictToConnectorPayloadV2(dict)
-  let mapJsonArrayToConnectorPayloads = (json: JSON.t, retainInList: filterCriteria) =>
-    mapJsonArrayToConnectorPayloadsV2(json, retainInList)
+    mapDictToConnectorPayloadV2(dict)->mapV2DictToCommonConnectorPayload
+  let mapListToFilteredConnectorList = (list: array<mapperOutput>, retainInList: filterCriteria) =>
+    mapListToFilteredConnectorListV2(list, retainInList)
   let mapConnectorPayloadToConnectorType = (
     connectorType: input,
     connectorList: array<mapperOutput>,
   ): array<output> => mapConnectorPayloadToConnectorTypeV2(~connectorType, connectorList)
 }
-//parametric polymorphism, connectorInterfaceFCM is a type that takes 5 type parameters
 
+//parametric polymorphism, connectorInterfaceFCM is a type that takes 5 type parameters
 // This allows for parametric polymorphism, meaning we can generalize the ConnectorInterface module with different types ('a, 'b, etc.).
 type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
   type mapperInput = 'a
@@ -75,19 +75,19 @@ type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
 //Defines connectorInterfaceV1 as an instance of ConnectorInterface using V1.
 let connectorInterfaceV1: connectorInterfaceFCM<
   Dict.t<JSON.t>,
-  connectorPayload,
-  ConnectorTypes.connectorTypeVariants,
-  ConnectorTypes.connector,
-  ConnectorTypes.connectorTypes,
+  connectorPayloadCommonType,
+  connectorTypeVariants,
+  connector,
+  connectorTypes,
 > = module(V1)
 
 // Defines connectorInterfaceV2 using V2.
 let connectorInterfaceV2: connectorInterfaceFCM<
   Dict.t<JSON.t>,
-  connectorPayloadV2,
-  ConnectorTypes.connectorTypeVariants,
-  ConnectorTypes.connector,
-  ConnectorTypes.connectorTypes,
+  connectorPayloadCommonType,
+  connectorTypeVariants,
+  connector,
+  connectorTypes,
 > = module(V2)
 
 // Generic Function: mapDictToConnectorPayload
@@ -110,7 +110,7 @@ let mapDictToConnectorPayload = (
   L.mapDictToConnectorPayload(inp)
 }
 
-let mapJsonArrayToConnectorPayloads = (
+let mapListToFilteredConnectorList = (
   type a b c d e,
   module(L: ConnectorInterface with
     type mapperInput = a
@@ -119,10 +119,10 @@ let mapJsonArrayToConnectorPayloads = (
     and type input = d
     and type output = e
   ),
-  inp: JSON.t,
+  inp: array<b>,
   filterCriteria: c,
 ): array<b> => {
-  L.mapJsonArrayToConnectorPayloads(inp, filterCriteria)
+  L.mapListToFilteredConnectorList(inp, filterCriteria)
 }
 
 let mapConnectorPayloadToConnectorType = (
@@ -141,7 +141,7 @@ let mapConnectorPayloadToConnectorType = (
 }
 
 let useConnectorArrayMapper = (~interface, ~retainInList=PaymentProcessor) => {
-  let json = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
-  let data = mapJsonArrayToConnectorPayloads(interface, json, retainInList)
+  let list = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let data = mapListToFilteredConnectorList(interface, list, retainInList)
   data
 }

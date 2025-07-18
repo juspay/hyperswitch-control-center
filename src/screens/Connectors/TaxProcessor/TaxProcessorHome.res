@@ -81,7 +81,7 @@ let make = () => {
   let disableConnector = async isConnectorDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
+      let connectorID = connectorInfo.id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,

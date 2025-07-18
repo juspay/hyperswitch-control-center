@@ -58,16 +58,20 @@ let getPaymentMethod = paymentMethod => {
   (paymentMethodDict->getString("payment_method", ""), pmTypesArr->getUniqueArray)
 }
 
-let parseConnectorConfig = dict => {
-  open LogicUtils
+let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType) => {
+  let connectorName = connector.connector_name
+  let connectorPaymentMethods = connector.payment_methods_enabled
   let pmDict = Dict.make()
-  let connectorPaymentMethods = dict->getArrayFromDict("payment_methods_enabled", [])
   connectorPaymentMethods->Array.forEach(item => {
-    let (pmName, pmTypes) = item->getPaymentMethod
+    let pmTypes =
+      item.payment_method_subtypes
+      ->Array.map(item => item.payment_method_subtype)
+      ->LogicUtils.getUniqueArray
+    let (pmName, pmTypes) = (item.payment_method_type, pmTypes)
+
     pmDict->Dict.set(pmName, pmTypes)
   })
-
-  (getString(dict, "connector_name", ""), pmDict)
+  (connectorName, pmDict)
 }
 
 let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) => {
@@ -99,7 +103,7 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
   }
 }
 
-let getConnectorConfig = connectors => {
+let getConnectorConfig = (connectors: array<ConnectorTypes.connectorPayloadCommonType>) => {
   let configDict = Dict.make()
 
   connectors->Array.forEach(connector => {
@@ -110,11 +114,10 @@ let getConnectorConfig = connectors => {
   configDict
 }
 
-let filterList = (items, ~removeFromList) => {
-  open LogicUtils
-  items->Array.filter(dict => {
-    let isConnector = dict->getString("connector_type", "") !== "payment_vas"
-    let isThreedsConnector = dict->getString("connector_type", "") !== "authentication_processor"
+let filterList = (items: array<ConnectorTypes.connectorPayloadCommonType>, ~removeFromList) => {
+  items->Array.filter(item => {
+    let isConnector = item.connector_type !== PaymentVas
+    let isThreedsConnector = item.connector_type !== AuthenticationProcessor
 
     switch removeFromList {
     | Connector => !isConnector

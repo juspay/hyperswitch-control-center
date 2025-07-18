@@ -43,7 +43,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
-  ~formValues: ConnectorTypes.connectorPayloadV2,
+  ~formValues: ConnectorTypes.connectorPayloadCommonType,
 ) => {
   open LogicUtils
   open SectionHelper

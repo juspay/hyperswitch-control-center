@@ -1091,7 +1091,7 @@ let acceptedValues = dict => {
   values.list->Array.length > 0 ? Some(values) : None
 }
 
-let itemProviderMapper = dict => {
+let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType = dict => {
   open LogicUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),

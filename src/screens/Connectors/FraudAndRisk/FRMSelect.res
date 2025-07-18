@@ -82,7 +82,7 @@ let make = () => {
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (
-    configuredFRMs: array<ConnectorTypes.connectorPayload>,
+    configuredFRMs: array<ConnectorTypes.connectorPayloadCommonType>,
     setConfiguredFRMs,
   ) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
@@ -134,11 +134,11 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) =>
           isContainingStringLowercase(frmPlayer.connector_name, searchText) ||
-          isContainingStringLowercase(frmPlayer.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(frmPlayer.id, searchText) ||
           isContainingStringLowercase(frmPlayer.connector_label, searchText)
         | None => false
         }
