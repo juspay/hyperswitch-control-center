@@ -142,6 +142,12 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
+    | list{"chat-bot"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAiChatBot}
+        authorization={userHasAccess(~groupAccess=MerchantDetailsView)}>
+        <ChatBot />
+      </AccessControl>
     | _ => <EmptyPage path="/home" />
     }
   }

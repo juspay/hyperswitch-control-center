@@ -14,6 +14,7 @@ module NewMerchantCreationModal = {
         switch activeProduct {
         | Orchestration(V1)
         | DynamicRouting
+        | Recon(V1)
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
             let _ = await updateDetails(url, values, Post)
