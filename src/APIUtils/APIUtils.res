@@ -1178,7 +1178,8 @@ let responseHandler = async (
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 
   switch responseStatus {
-  | 200 => json
+  | 200
+  | 201 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
