@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.18.0
+
+### Features
+
+- Recon rules API integration ([#3310](https://github.com/juspay/hyperswitch-control-center/pull/3310)) ([`7ef8f34`](https://github.com/juspay/hyperswitch-control-center/commit/7ef8f34397e54843163ed7630b6c37e93ae34a31))
+- Recon V1 filters and transaction API integration ([#3306](https://github.com/juspay/hyperswitch-control-center/pull/3306)) ([`d92b44f`](https://github.com/juspay/hyperswitch-control-center/commit/d92b44f7a46a1a318132441f4b8332b91e7aa8ab))
+
+**Full Changelog:** [`2025.07.17.1...2025.07.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.17.1...2025.07.18.0)
+
+- - -
+
 ## 2025.07.17.1
 
 ### Features
