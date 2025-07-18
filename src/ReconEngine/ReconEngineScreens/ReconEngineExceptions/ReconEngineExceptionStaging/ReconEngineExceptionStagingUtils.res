@@ -1,6 +1,4 @@
-let isNonEmptyValue = value => {
-  value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
-}
+open ReconEngineExceptionTypes
 
 let initialDisplayFilters = () => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
@@ -50,4 +48,16 @@ let initialDisplayFilters = () => {
       }: EntityType.initialFilters<'t>
     ),
   ]
+}
+
+let processingItemToObjMapper = dict => {
+  open LogicUtils
+  {
+    staging_entry_id: dict->getString("staging_entry_id", ""),
+    entry_type: dict->getString("entry_type", ""),
+    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
+    currency: dict->getDictfromDict("amount")->getString("currency", ""),
+    status: dict->getString("status", ""),
+    effective_at: dict->getString("effective_at", ""),
+  }
 }

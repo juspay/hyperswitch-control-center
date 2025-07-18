@@ -1,3 +1,5 @@
+open Typography
+
 @react.component
 let make = () => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
@@ -24,13 +26,14 @@ let make = () => {
     ]
   }, [])
 
-  <div className="flex flex-col gap-8">
+  <div className="flex flex-col gap-6">
     <div className="flex flex-row justify-between items-center gap-4">
       <div className="flex-shrink-0">
         <PageUtils.PageHeading
           title="Exceptions"
           subTitle="View your exceptions and their details"
-          customTitleStyle="py-0"
+          customSubTitleStyle={body.lg.medium}
+          customTitleStyle={`${heading.lg.semibold} py-0`}
         />
       </div>
       <div className="flex flex-row items-center gap-4">
@@ -39,6 +42,7 @@ let make = () => {
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
+            buttonState=Disabled
             onClick={_ => {
               mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
             }}

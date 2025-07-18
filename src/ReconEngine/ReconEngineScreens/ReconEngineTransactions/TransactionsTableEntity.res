@@ -2,16 +2,6 @@ open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
 
 let defaultColumns: array<transactionColType> = [
-  Id,
-  TransactionId,
-  CreditAccount,
-  DebitAccount,
-  Variance,
-  Status,
-  CreatedAt,
-]
-let allColumns: array<transactionColType> = [
-  Id,
   TransactionId,
   CreditAccount,
   DebitAccount,
@@ -20,12 +10,33 @@ let allColumns: array<transactionColType> = [
   CreatedAt,
 ]
 
+let defaultColumnsOverview: array<transactionColType> = [
+  TransactionId,
+  CreditAmount,
+  DebitAmount,
+  Variance,
+  Status,
+  CreatedAt,
+]
+
+let allColumns: array<transactionColType> = [
+  TransactionId,
+  CreditAccount,
+  DebitAccount,
+  CreditAmount,
+  DebitAmount,
+  Variance,
+  Status,
+  CreatedAt,
+]
+
 let getHeading = (colType: transactionColType) => {
   switch colType {
-  | Id => Table.makeHeaderInfo(~key="id", ~title="ID")
   | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | CreditAccount => Table.makeHeaderInfo(~key="credit_account", ~title="Credit Account")
   | DebitAccount => Table.makeHeaderInfo(~key="debit_account", ~title="Debit Account")
+  | CreditAmount => Table.makeHeaderInfo(~key="credit_amount", ~title="Credit Amount")
+  | DebitAmount => Table.makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
@@ -34,20 +45,36 @@ let getHeading = (colType: transactionColType) => {
 
 let getCell = (transaction: transactionPayload, colType: transactionColType): Table.cell => {
   switch colType {
-  | Id => Text(transaction.id)
   | TransactionId => EllipsisText(transaction.transaction_id, "")
   | CreditAccount => Text(getAccounts(transaction.entries, "credit"))
   | DebitAccount => Text(getAccounts(transaction.entries, "debit"))
+  | CreditAmount =>
+    Text(
+      transaction.credit_amount.value->formatAmountToString(
+        ~currency=transaction.credit_amount.currency,
+      ),
+    )
+  | DebitAmount =>
+    Text(
+      transaction.debit_amount.value->formatAmountToString(
+        ~currency=transaction.debit_amount.currency,
+      ),
+    )
   | Variance =>
-    Text(Float.toString(transaction.credit_amount.value -. transaction.debit_amount.value))
+    Text(
+      formatAmountToString(
+        transaction.credit_amount.value -. transaction.debit_amount.value,
+        ~currency=transaction.credit_amount.currency,
+      ),
+    )
   | Status =>
     Label({
       title: {transaction.transaction_status->String.toUpperCase},
-      color: switch transaction.transaction_status->String.toLowerCase {
-      | "posted" => LabelGreen
-      | "mismatched" => LabelRed
-      | "expected" => LabelBlue
-      | "archived" => LabelGray
+      color: switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+      | Posted => LabelGreen
+      | Mismatched => LabelRed
+      | Expected => LabelBlue
+      | Archived => LabelGray
       | _ => LabelGray
       },
     })

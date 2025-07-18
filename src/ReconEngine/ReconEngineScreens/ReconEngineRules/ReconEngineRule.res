@@ -1,3 +1,5 @@
+open Typography
+
 open ReconEngineRulesEntity
 @react.component
 let make = () => {
@@ -31,9 +33,12 @@ let make = () => {
   }, [])
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-8 p-6">
+    <div className="flex flex-col gap-8">
       <PageUtils.PageHeading
-        title="Rules Library" subTitle="View your Rules and their details" customHeadingStyle="py-0"
+        title="Rules Library"
+        subTitle="View your Rules and their details"
+        customSubTitleStyle={body.lg.medium}
+        customTitleStyle={`${heading.lg.semibold} py-0`}
       />
       <div className="bg-white rounded-lg">
         <LoadedTable

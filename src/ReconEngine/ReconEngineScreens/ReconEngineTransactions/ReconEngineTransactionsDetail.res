@@ -15,6 +15,7 @@ let make = (~id) => {
   let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -27,14 +28,10 @@ let make = (~id) => {
       )
       let res = await fetchDetails(currentTransactionUrl)
       let currentTransaction = res->getDictFromJsonObject->getAllTransactionPayload
-      let allTransactionUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+
+      let transactionsList = await getTransactions(
         ~queryParamerters=Some(`transaction_id=${currentTransaction.transaction_id}`),
       )
-      let allTransactionRes = await fetchDetails(allTransactionUrl)
-      let transactionsList = allTransactionRes->getArrayDataFromJson(getAllTransactionPayload)
       setCurrentTransactionDetails(_ => currentTransaction)
       setAllTransactionDetails(_ => transactionsList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -51,7 +48,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-8">
       <BreadCrumbNavigation
-        path=[{title: "Overview", link: `/v1/recon-engine/transactions`}]
+        path=[{title: "Transactions", link: `/v1/recon-engine/transactions`}]
         currentPageTitle=id
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"

@@ -32,6 +32,13 @@ type transactionPayload = {
   created_at: string,
 }
 
+type transactionStatus =
+  | Posted
+  | Mismatched
+  | Expected
+  | Archived
+  | Unknown
+
 type entryPayload = {
   entry_id: string,
   entry_type: string,
@@ -46,12 +53,13 @@ type entryPayload = {
 }
 
 type transactionColType =
-  | Id
   | TransactionId
   | Status
   | Variance
   | CreditAccount
   | DebitAccount
+  | CreditAmount
+  | DebitAmount
   | CreatedAt
 
 type entryColType =

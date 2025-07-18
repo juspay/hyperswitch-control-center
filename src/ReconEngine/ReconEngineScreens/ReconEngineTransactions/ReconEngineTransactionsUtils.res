@@ -5,6 +5,10 @@ let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
 
+let formatAmountToString = (amount, ~currency) => {
+  `${amount->Float.toString} ${currency}`
+}
+
 let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),
@@ -98,21 +102,16 @@ let getEntriesList: JSON.t => array<entryPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, getAllEntryPayload)
 }
 
-let sortByVersion = (
-  c1: ReconEngineTransactionsTypes.transactionPayload,
-  c2: ReconEngineTransactionsTypes.transactionPayload,
-) => {
+let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {
   compareLogic(c1.version, c2.version)
 }
 
-// Helper function to get unique account names by entry type
 let getAccounts = (entries: array<transactionEntryType>, entryType: string): string => {
   let accounts =
     entries
     ->Array.filter(entry => entry.entry_type === entryType)
     ->Array.map(entry => entry.account.account_name)
 
-  // Get unique account names using Set-like behavior
   let uniqueAccounts = accounts->Array.reduce([], (acc, accountName) => {
     if Array.includes(acc, accountName) {
       acc
@@ -122,6 +121,16 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   })
 
   uniqueAccounts->Array.joinWith(", ")
+}
+
+let getTransactionTypeFromString = (status: string) => {
+  switch status {
+  | "posted" => ReconEngineTransactionsTypes.Posted
+  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
+  | "expected" => ReconEngineTransactionsTypes.Expected
+  | "archived" => ReconEngineTransactionsTypes.Archived
+  | _ => ReconEngineTransactionsTypes.Unknown
+  }
 }
 
 let initialDisplayFilters = () => {

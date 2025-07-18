@@ -1,30 +1,4 @@
-type processedEntryType = {
-  entry_id: string,
-  entry_type: string,
-  amount: float,
-  currency: string,
-  status: string,
-  expected: string,
-  effective_at: string,
-  created_at: string,
-}
-
-type processingEntryType = {
-  staging_entry_id: string,
-  entry_type: string,
-  amount: float,
-  currency: string,
-  status: string,
-  effective_at: string,
-}
-
-type accountType = {
-  account_name: string,
-  account_id: string,
-  currency: string,
-  pending_balance: string,
-  posted_balance: string,
-}
+open ReconEngineExceptionTypes
 
 type processedColType =
   | EntryId
@@ -41,32 +15,6 @@ type processingColType =
   | Currency
   | Status
   | EffectiveAt
-
-let processedItemToObjMapper = dict => {
-  open LogicUtils
-  {
-    entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
-    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
-    currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: dict->getString("status", ""),
-    expected: dict->getString("expected", ""),
-    effective_at: dict->getString("effective_at", ""),
-    created_at: dict->getString("created_at", ""),
-  }
-}
-
-let processingItemToObjMapper = dict => {
-  open LogicUtils
-  {
-    staging_entry_id: dict->getString("staging_entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
-    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
-    currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: dict->getString("status", ""),
-    effective_at: dict->getString("effective_at", ""),
-  }
-}
 
 let processedDefaultColumns = [EntryId, EntryType, Amount, Currency, Status, EffectiveAt]
 

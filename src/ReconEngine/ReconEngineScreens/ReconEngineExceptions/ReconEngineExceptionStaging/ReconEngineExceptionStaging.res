@@ -3,6 +3,7 @@ let make = () => {
   open LogicUtils
   open APIUtils
   open ReconEngineExceptionStagingUtils
+  open ReconEngineExceptionTypes
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -26,7 +27,7 @@ let make = () => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineAccountEntity.processingEntryType>) => {
+      arr->Array.filter((obj: Nullable.t<processingEntryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
@@ -55,8 +56,7 @@ let make = () => {
       )
 
       let res = await fetchDetails(stagingUrl)
-      let stagingList =
-        res->LogicUtils.getArrayDataFromJson(ReconEngineAccountEntity.processingItemToObjMapper)
+      let stagingList = res->LogicUtils.getArrayDataFromJson(processingItemToObjMapper)
 
       let stagingDataList = stagingList->Array.map(Nullable.make)
       setStagingData(_ => stagingDataList)
@@ -116,7 +116,7 @@ let make = () => {
         title="Staging Entries"
         hideTitle=true
         actualData={filteredStagingData}
-        entity={ReconEngineAccountEntity.processingTableEntity}
+        entity={ReconEngineExceptionEntity.processingTableEntity}
         resultsPerPage=50
         totalResults={filteredStagingData->Array.length}
         offset
@@ -132,7 +132,7 @@ let make = () => {
           data={stagingData}
           filterLogic
           placeholder="Search Staging Entry ID or Status"
-          customSearchBarWrapperWidth="w-full lg:w-1/2"
+          customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText
           setSearchVal=setSearchText

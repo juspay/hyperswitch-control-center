@@ -1,8 +1,9 @@
+open Typography
+
 @react.component
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
-  open APIUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -19,8 +20,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let topFilterUi = {
     <div className="flex flex-row">
@@ -65,19 +65,9 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
-      let transactionsUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParamerters=Some(queryString),
-      )
-
-      let res = await fetchDetails(transactionsUrl)
-      let transactionsList = res->getArrayDataFromJson(getAllTransactionPayload)
-
-      let transactionsDataList = transactionsList->Array.map(Nullable.make)
+      let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
       setConfiguredTransactions(_ => transactionsList->Array.map(Nullable.make))
-      setFilteredReports(_ => transactionsDataList)
+      setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -104,13 +94,14 @@ let make = () => {
     None
   }, [filterValue])
 
-  <div className="flex flex-col gap-4 my-4">
+  <div className="flex flex-col gap-4">
     <div className="flex flex-row justify-between items-center gap-3">
       <div className="flex-shrink-0">
         <PageUtils.PageHeading
           title="Transactions"
           subTitle="View your transactions and their details"
-          customHeadingStyle="!py-0"
+          customSubTitleStyle={body.lg.medium}
+          customTitleStyle={`${heading.lg.semibold} py-0`}
         />
       </div>
       <div className="flex-shrink-0 mt-2">
@@ -118,6 +109,7 @@ let make = () => {
           text="Generate Report"
           buttonType=Primary
           buttonSize=Large
+          buttonState=Disabled
           onClick={_ => {
             mixpanelEvent(~eventName="recon_engine_transactions_generate_reports_clicked")
           }}
@@ -138,9 +130,10 @@ let make = () => {
           data={configuredTransactions}
           filterLogic
           placeholder="Search Transaction Id or Status"
-          customSearchBarWrapperWidth="w-1/3"
           searchVal=searchText
           setSearchVal=setSearchText
+          customSearchBarWrapperWidth="w-full lg:w-1/3"
+          customInputBoxWidth="w-full rounded-xl"
         />}
         totalResults={filteredTransactionsData->Array.length}
         offset
