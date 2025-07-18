@@ -13,9 +13,9 @@ let make = () => {
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
-    let (searchText, arr) = ob
+    let (searchText, list) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
+      list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
@@ -25,7 +25,7 @@ let make = () => {
         }
       })
     } else {
-      arr
+      list
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
