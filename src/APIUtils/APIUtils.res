@@ -878,7 +878,11 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/entries`
+            | Some(accountId) =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/accounts/${accountId}/entries?${queryParams}`
+              | None => `${reconBaseURL}/accounts/${accountId}/entries`
+              }
             | None => ""
             }
           | _ => ""
@@ -905,8 +909,8 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/accounts/${ruleId}/entries`
-            | None => ""
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules`
             }
           | _ => ""
           }
