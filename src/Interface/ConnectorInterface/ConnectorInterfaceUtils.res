@@ -365,32 +365,12 @@ let mapConnectorPayloadToConnectorTypeV2 = (
   )
 }
 
-let mapJsonArrayToConnectorPayloads = (json, retainInList) => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data =
-      connectorJson
-      ->getDictFromJsonObject
-      ->mapDictToConnectorPayload
-      ->mapV1DictToCommonConnectorPayload
-    data
-  })
-  ->filterConnectorList(retainInList)
+let mapListToFilteredConnectorList = (list, retainInList) => {
+  list->filterConnectorList(retainInList)
 }
 
-let mapJsonArrayToConnectorPayloadsV2 = (json, retainInList) => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data =
-      connectorJson
-      ->getDictFromJsonObject
-      ->mapDictToConnectorPayloadV2
-      ->mapV2DictToCommonConnectorPayload
-    data
-  })
-  ->filterConnectorListV2(retainInList)
+let mapListToFilteredConnectorListV2 = (list, retainInList) => {
+  list->filterConnectorListV2(retainInList)
 }
 
 let getPaymentMethodsEnabledCommonType: Dict.t<JSON.t> => paymentMethodEnabledTypeCommon = dict => {

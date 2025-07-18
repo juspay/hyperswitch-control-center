@@ -1,10 +1,6 @@
 open ConnectorTypes
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
-  ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV2,
-    json,
-    PaymentProcessor,
-  )
+let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
+  []
 }
 
 type colType =

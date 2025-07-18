@@ -63,13 +63,8 @@ let sortPreviouslyConnectedList = arr => {
   Array.toSorted(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV1,
-    json,
-    AuthenticationProcessor,
-  )
-  data
+let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
+  []
 }
 
 let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

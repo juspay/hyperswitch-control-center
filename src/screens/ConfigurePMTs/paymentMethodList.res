@@ -7,15 +7,9 @@ let make = (~isPayoutFlow=false) => {
     HyperswitchAtom.businessProfileFromIdAtom,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (connectorResponse, setConnectorResponse) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object
-  )
-  let (filteredConnectors, setFiltersConnectors) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->getConnectedList
-  )
-  let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->getConnectedList
-  )
+  let (connectorResponse, setConnectorResponse) = React.useState(_ => [])
+  let (filteredConnectors, setFiltersConnectors) = React.useState(_ => [])
+  let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let {updateExistingKeys, reset, filterValueJson, filterValue} =
     FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
@@ -79,10 +73,10 @@ let make = (~isPayoutFlow=false) => {
         defaultFilters={Dict.make()->JSON.Encode.object}
         fixedFilters=[]
         requiredSearchFieldsList=[]
-        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
+        localFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])} // no filters
         localOptions=[]
         remoteOptions=[]
-        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])}
+        remoteFilters={configuredConnectors->initialFilters([businessProfileRecoilVal])} // no filters
         defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => handleClearFilter()->ignore}

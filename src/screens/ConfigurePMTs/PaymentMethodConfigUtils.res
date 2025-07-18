@@ -197,14 +197,10 @@ let connectorIdFilter = (
 }
 
 let filterItemObjMapper = (
-  dict,
+  connectorPayload: ConnectorTypes.connectorPayloadCommonType,
   mappedArr,
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ) => {
-  let connectorPayload = ConnectorInterface.mapDictToConnectorPayload(
-    ConnectorInterface.connectorInterfaceV1,
-    dict,
-  )
   let {profile_id, connector_type} = connectorPayload
 
   if connector_type === PaymentProcessor {

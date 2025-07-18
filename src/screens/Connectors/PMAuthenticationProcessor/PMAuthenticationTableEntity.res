@@ -69,13 +69,8 @@ let sortPreviouslyConnectedList = arr => {
   Array.toSorted(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV1,
-    json,
-    PMAuthProcessor,
-  )
-  data
+let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
+  []
 }
 
 let pmAuthenticationEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

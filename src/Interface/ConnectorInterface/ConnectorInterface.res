@@ -9,7 +9,7 @@ module type ConnectorInterface = {
   type input
   type output
   let mapDictToConnectorPayload: mapperInput => mapperOutput
-  let mapJsonArrayToConnectorPayloads: (JSON.t, filterCriteria) => array<mapperOutput>
+  let mapListToFilteredConnectorList: (array<mapperOutput>, filterCriteria) => array<mapperOutput>
   let mapConnectorPayloadToConnectorType: (input, array<mapperOutput>) => array<output>
 }
 
@@ -30,8 +30,8 @@ module V1: ConnectorInterface
 
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayload(dict)->mapV1DictToCommonConnectorPayload
-  let mapJsonArrayToConnectorPayloads = (json: JSON.t, retainInList: filterCriteria) =>
-    mapJsonArrayToConnectorPayloads(json, retainInList)
+  let mapListToFilteredConnectorList = (list: array<mapperOutput>, retainInList: filterCriteria) =>
+    mapListToFilteredConnectorList(list, retainInList)
   let mapConnectorPayloadToConnectorType = (
     connectorType: input,
     connectorList: array<mapperOutput>,
@@ -52,8 +52,8 @@ module V2: ConnectorInterface
   type output = connectorTypes
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayloadV2(dict)->mapV2DictToCommonConnectorPayload
-  let mapJsonArrayToConnectorPayloads = (json: JSON.t, retainInList: filterCriteria) =>
-    mapJsonArrayToConnectorPayloadsV2(json, retainInList)
+  let mapListToFilteredConnectorList = (list: array<mapperOutput>, retainInList: filterCriteria) =>
+    mapListToFilteredConnectorListV2(list, retainInList)
   let mapConnectorPayloadToConnectorType = (
     connectorType: input,
     connectorList: array<mapperOutput>,
@@ -110,7 +110,7 @@ let mapDictToConnectorPayload = (
   L.mapDictToConnectorPayload(inp)
 }
 
-let mapJsonArrayToConnectorPayloads = (
+let mapListToFilteredConnectorList = (
   type a b c d e,
   module(L: ConnectorInterface with
     type mapperInput = a
@@ -119,10 +119,10 @@ let mapJsonArrayToConnectorPayloads = (
     and type input = d
     and type output = e
   ),
-  inp: JSON.t,
+  inp: array<b>,
   filterCriteria: c,
 ): array<b> => {
-  L.mapJsonArrayToConnectorPayloads(inp, filterCriteria)
+  L.mapListToFilteredConnectorList(inp, filterCriteria)
 }
 
 let mapConnectorPayloadToConnectorType = (
@@ -141,7 +141,7 @@ let mapConnectorPayloadToConnectorType = (
 }
 
 let useConnectorArrayMapper = (~interface, ~retainInList=PaymentProcessor) => {
-  let json = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
-  let data = mapJsonArrayToConnectorPayloads(interface, json, retainInList)
+  let list = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let data = mapListToFilteredConnectorList(interface, list, retainInList)
   data
 }

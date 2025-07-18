@@ -98,13 +98,8 @@ let sortPreviouslyConnectedList = arr => {
   Array.toSorted(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV1,
-    json,
-    PayoutProcessor,
-  )
-  data
+let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
+  []
 }
 
 let payoutProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {

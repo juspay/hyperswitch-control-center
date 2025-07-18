@@ -1,21 +1,5 @@
-let getArrayDataFromJson = (json, itemToObjMapper) => {
-  json
-  ->JSON.Decode.array
-  ->Option.getOr([])
-  ->Belt.Array.keepMap(JSON.Decode.object)
-  ->FRMUtils.filterList(~removeFromList=Connector)
-  ->Array.map(itemToObjMapper)
-}
-
-let getPreviouslyConnectedList: JSON.t => array<
-  ConnectorTypes.connectorPayloadCommonType,
-> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV1,
-    json,
-    PaymentVas,
-  )
-  data
+let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
+  []
 }
 
 let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
