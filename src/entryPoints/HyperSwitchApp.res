@@ -169,7 +169,9 @@ let make = () => {
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner bannerText={maintenanceAlert} bannerType={Info} />
+                      <HSwitchUtils.AlertBanner
+                        bannerContent={<p> {maintenanceAlert->React.string} </p>} bannerType={Info}
+                      />
                     </RenderIf>
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">

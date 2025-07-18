@@ -144,8 +144,13 @@ let useGetURL = () => {
       | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 
       /* ORGANIZATION UPDATE */
-      | UPDATE_ORGANIZATION =>
+      | ORGANIZATION_RETRIEVE =>
         switch methodType {
+        | Get =>
+          switch id {
+          | Some(id) => `organization/${id}`
+          | None => ``
+          }
         | Put =>
           switch id {
           | Some(id) => `organization/${id}`

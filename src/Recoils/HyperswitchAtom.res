@@ -3,9 +3,17 @@ type accessMapping = {
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
+
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
+)
+
+let organizationDetailsValueAtom: Recoil.recoilAtom<
+  HSwitchSettingTypes.organizationPayload,
+> = Recoil.atom(
+  "organizationDetailsValue",
+  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
 )
 
 let businessProfilesAtom = Recoil.atom(
