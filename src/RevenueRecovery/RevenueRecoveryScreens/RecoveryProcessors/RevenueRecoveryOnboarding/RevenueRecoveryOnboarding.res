@@ -2,7 +2,7 @@
 let make = () => {
   open RevenueRecoveryOnboardingUtils
 
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+  let connectorList = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=PaymentProcessor,
   )

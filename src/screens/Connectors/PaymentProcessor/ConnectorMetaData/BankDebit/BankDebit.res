@@ -77,7 +77,7 @@ let make = (
 ) => {
   open LogicUtils
   open BankDebitUtils
-  let connectorsListPMAuth = ConnectorInterface.useConnectorArrayMapper(
+  let connectorsListPMAuth = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PMAuthProcessor,
   )

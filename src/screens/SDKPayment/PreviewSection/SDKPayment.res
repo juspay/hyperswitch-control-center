@@ -65,7 +65,7 @@ let make = () => {
     ->getDictFromJsonObject
     ->getString("theme", "default")
 
-  let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
+  let connectorListFromRecoil = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=PaymentProcessor,
   )

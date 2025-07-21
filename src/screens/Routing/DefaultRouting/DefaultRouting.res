@@ -16,7 +16,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
-  let typedConnectorValue = ConnectorInterface.useConnectorArrayMapper(
+  let typedConnectorValue = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=connectorVariant,
   )

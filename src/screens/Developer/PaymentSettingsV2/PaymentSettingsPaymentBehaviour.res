@@ -126,7 +126,7 @@ module ClickToPaySection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let connectorListAtom = ConnectorInterface.useConnectorArrayMapper(
+    let connectorListAtom = ConnectorInterface.useFilteredConnectorList(
       ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=AuthenticationProcessor,
     )

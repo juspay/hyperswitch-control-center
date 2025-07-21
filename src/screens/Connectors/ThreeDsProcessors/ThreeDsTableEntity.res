@@ -36,7 +36,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
       />,
       "",
     )
-  | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False") //
+  | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False")
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
@@ -55,14 +55,12 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   }
 }
 
-let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
-  []
-}
-
 let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => {
+      []
+    },
     ~defaultColumns,
     ~getHeading,
     ~getCell,

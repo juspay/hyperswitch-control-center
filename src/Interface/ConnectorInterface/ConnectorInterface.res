@@ -140,8 +140,7 @@ let mapConnectorPayloadToConnectorType = (
   L.mapConnectorPayloadToConnectorType(inp1, inp2)
 }
 
-let useConnectorArrayMapper = (~interface, ~retainInList=PaymentProcessor) => {
+let useFilteredConnectorList = (~interface, ~retainInList=PaymentProcessor) => {
   let list = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
-  let data = mapListToFilteredConnectorList(interface, list, retainInList)
-  data
+  mapListToFilteredConnectorList(interface, list, retainInList)
 }

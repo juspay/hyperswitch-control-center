@@ -1,7 +1,4 @@
 open ConnectorTypes
-let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
-  []
-}
 
 type colType =
   | Name
@@ -103,7 +100,9 @@ let connectorEntity = (
 ) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => {
+      []
+    },
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),

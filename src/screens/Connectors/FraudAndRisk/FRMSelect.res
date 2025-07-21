@@ -88,11 +88,11 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+  let connectorList = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )
-  let frmConnectorList = ConnectorInterface.useConnectorArrayMapper(
+  let frmConnectorList = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentVas,
   )

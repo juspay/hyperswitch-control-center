@@ -31,7 +31,7 @@ let make = (~getClientSecret) => {
     Nullable.null
   }
 
-  let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
+  let paymentConnectorList = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )

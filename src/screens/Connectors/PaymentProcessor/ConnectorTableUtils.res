@@ -109,14 +109,12 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   getCell
 }
 
-let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
-  []
-}
-
 let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => {
+      []
+    },
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),

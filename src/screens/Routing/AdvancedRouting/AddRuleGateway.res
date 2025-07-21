@@ -12,7 +12,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   | PayoutRouting => ConnectorTypes.PayoutProcessor
   | _ => ConnectorTypes.PaymentProcessor
   }
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+  let connectorList = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=connectorType,
   )

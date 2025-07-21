@@ -10,7 +10,7 @@ module GatewayView = {
     | PayoutRouting => ConnectorTypes.PayoutProcessor
     | _ => ConnectorTypes.PaymentProcessor
     }
-    let connectorList = ConnectorInterface.useConnectorArrayMapper(
+    let connectorList = ConnectorInterface.useFilteredConnectorList(
       ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=connectorType,
     )

@@ -61,14 +61,12 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   }
 }
 
-let getPreviouslyConnectedList: JSON.t => array<'t> = _ => {
-  []
-}
-
 let taxProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => {
+      []
+    },
     ~defaultColumns,
     ~getHeading,
     ~getCell,

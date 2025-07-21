@@ -13,7 +13,7 @@ let make = () => {
     setFilteredConnectorData,
   ) = React.useState(_ => [])
 
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
+  let connectorList = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=AuthenticationProcessor,
   )

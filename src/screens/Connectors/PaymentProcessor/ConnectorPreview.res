@@ -344,7 +344,7 @@ let make = (
   )
 
   let connectorCount =
-    ConnectorInterface.useConnectorArrayMapper(
+    ConnectorInterface.useFilteredConnectorList(
       ~interface=ConnectorInterface.connectorInterfaceV1,
     )->Array.length
 

@@ -28,7 +28,7 @@ let make = () => {
     }
   }
 
-  let connectors = ConnectorInterface.useConnectorArrayMapper(
+  let connectors = ConnectorInterface.useFilteredConnectorList(
     ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=BillingProcessor,
   )
