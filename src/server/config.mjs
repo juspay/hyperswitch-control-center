@@ -43,35 +43,65 @@ function checkEnvValues(env, tomlConfig) {
   return [];
 }
 
-// Update merchant config using environment variables
-function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
-  let modifiedConfig = {};
-  for (const key in tomlConfig) {
+function processConfigList(configList, body, domain, listType) {
+  const result = {};
+  for (const key in configList) {
     const envOrgIds =
-      process.env[`${domain}__merchant_config__${key}__org_ids`];
+      process.env[`${domain}__merchant_config__${listType}__${key}__org_ids`];
     const envMerchantIds =
-      process.env[`${domain}__merchant_config__${key}__merchant_ids`];
+      process.env[
+        `${domain}__merchant_config__${listType}__${key}__merchant_ids`
+      ];
     const envProfileIds =
-      process.env[`${domain}__merchant_config__${key}__profile_ids`];
+      process.env[
+        `${domain}__merchant_config__${listType}__${key}__profile_ids`
+      ];
 
-    const orgId = checkEnvValues(envOrgIds, tomlConfig[key].org_ids).find(
-      (id) => body.org_id === id,
+    const orgId = checkEnvValues(envOrgIds, configList[key].org_ids).find(
+      (id) => body.org_id === id
     );
     const merchantId = checkEnvValues(
       envMerchantIds,
-      tomlConfig[key].merchant_ids,
+      configList[key].merchant_ids
     ).find((id) => body.merchant_id === id);
     const profileId = checkEnvValues(
       envProfileIds,
-      tomlConfig[key].profile_ids,
+      configList[key].profile_ids
     ).find((id) => body.profile_id === id);
 
-    modifiedConfig[key] = {
+    result[key] = {
       org_id: orgId,
       merchant_id: merchantId,
       profile_id: profileId,
     };
   }
+  return result;
+}
+
+// Update merchant config using environment variables
+function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
+  let modifiedConfig = {};
+
+  // Handle blacklist configurations
+  if (tomlConfig.blacklist) {
+    modifiedConfig.blacklist = processConfigList(
+      tomlConfig.blacklist,
+      body,
+      domain,
+      "blacklist"
+    );
+  }
+
+  // Handle whitelist configurations
+  if (tomlConfig.whitelist) {
+    modifiedConfig.whitelist = processConfigList(
+      tomlConfig.whitelist,
+      body,
+      domain,
+      "whitelist"
+    );
+  }
+
   return modifiedConfig;
 }
 
@@ -99,7 +129,7 @@ const configHandler = async (
   res,
   isDeployed = false,
   domain = "default",
-  configPath = "dist/server/config/config.toml",
+  configPath = "dist/server/config/config.toml"
 ) => {
   const filePath = isDeployed ? configPath : "config/config.toml";
   try {
@@ -150,7 +180,7 @@ const merchantConfigHandler = async (
   res,
   isDeployed = false,
   domain = "default",
-  configPath = "dist/server/config/config.toml",
+  configPath = "dist/server/config/config.toml"
 ) => {
   const filePath = isDeployed ? configPath : "config/config.toml";
   try {
@@ -167,7 +197,7 @@ const merchantConfigHandler = async (
     res.end(JSON.stringify(data));
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
-      console.log(error); //
+      console.log(error);
     }
     errorHandler(res, "Server Error");
   }

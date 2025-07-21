@@ -16,6 +16,15 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
   } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
+  let {
+    useIsFeatureEnabledForWhiteListMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+
+  let isDevReconEngineV1Enabled =
+    devReconEngineV1 &&
+    useIsFeatureEnabledForWhiteListMerchant(merchantSpecificConfig.devReconEngineV1)
+
   let sideBarValues = [
     Link({
       name: Orchestration(V1)->getProductDisplayName,
@@ -86,7 +95,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  if devReconEngineV1 {
+  if isDevReconEngineV1Enabled {
     sideBarValues->Array.push(
       Link({
         name: Recon(V1)->getProductDisplayName,

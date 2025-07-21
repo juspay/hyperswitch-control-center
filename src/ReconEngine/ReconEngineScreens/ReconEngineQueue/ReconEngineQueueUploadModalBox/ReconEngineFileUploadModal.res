@@ -8,22 +8,66 @@ let make = (~showModal, ~setShowModal) => {
   open FormDataUtils
   open APIUtils
   open ReconEngineQueueUtils
+
   let (currentStep, setCurrentStep) = React.useState(_ => AccountSelection)
   let (selectedAccount, setSelectedAccount) = React.useState(_ => "")
+  let (fileType, setFileType) = React.useState(_ => "")
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let fetchDetails = useGetMethod()
+  let (accountData, setAccountData) = React.useState(_ => [])
+  let fileTypeField = FormRenderer.makeFieldInfo(
+    ~label="File Type",
+    ~name="file_type",
+    ~placeholder="Enter a file type",
+    ~customInput=(~input, ~placeholder as _) =>
+      InputFields.textInput(~customStyle="rounded-lg -ml-1")(
+        ~input={
+          ...input,
+          value: fileType->JSON.Encode.string,
+          onChange: event => setFileType(_ => ReactEvent.Form.target(event)["value"]),
+        },
+        ~placeholder="Enter your file_type",
+      ),
+    ~isRequired=true,
+  )
 
   let closeModal = () => {
     setShowModal(_ => false)
     setCurrentStep(_ => AccountSelection)
     setSelectedFile(_ => None)
+    setFileType(_ => "")
   }
 
   let handleNext = () => {
     setCurrentStep(_ => FileUpload)
   }
+
+  let getAccountsData = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#ACCOUNTS_LIST,
+      )
+      let res = await fetchDetails(url)
+      let accountData =
+        res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      setAccountData(_ => accountData)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
+  React.useEffect(() => {
+    getAccountsData()->ignore
+    None
+  }, [])
 
   let handleFileUpload = async ev => {
     try {
@@ -61,6 +105,7 @@ let make = (~showModal, ~setShowModal) => {
         )
         let formData = formData()
         append(formData, "file", file)
+        append(formData, "file_type", fileType)
         let _ = await updateDetails(
           ~bodyFormData=formData,
           url,
@@ -82,7 +127,7 @@ let make = (~showModal, ~setShowModal) => {
     <div>
       <input
         type_="file"
-        accept=".csv"
+        accept=".csv,.ext"
         onChange={ev => ev->handleFileUpload->ignore}
         hidden=true
         id="fileUploadInput"
@@ -97,7 +142,7 @@ let make = (~showModal, ~setShowModal) => {
               {"Choose a file to upload"->React.string}
             </div>
             <div className={`${body.md.medium} text-nd_gray-500`}>
-              {".csv only | Max size 8 MB"->React.string}
+              {".csv .ext only | Max size 8 MB"->React.string}
             </div>
           </div>
           <div
@@ -108,57 +153,69 @@ let make = (~showModal, ~setShowModal) => {
       </label>
     </div>
   }
-
-  <Modal
-    showModal
-    closeOnOutsideClick=false
-    setShowModal
-    modalHeading="File Upload"
-    modalHeadingClass={`${heading.sm.semibold}`}
-    modalClass="w-1/3 m-auto"
-    childClass="p-0"
-    modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-      {"Select the files to Upload."->React.string}
-    </div>}>
-    {switch currentStep {
-    | AccountSelection =>
-      <div className="flex flex-col gap-6 px-8 py-4">
-        <div>
-          <label className={`block ${body.md.medium} text-gray-900 mb-2`}>
-            {"Account"->React.string}
-            <span className="text-red-500"> {"*"->React.string} </span>
-          </label>
-          <SelectBox
-            input={{
-              name: "selectedAccount",
-              value: selectedAccount->JSON.Encode.string,
-              onChange: ev => {
-                let value = ev->Identity.formReactEventToString
-                setSelectedAccount(_ => value)
-              },
-              onBlur: _ => (),
-              onFocus: _ => (),
-              checked: false,
-            }}
-            options={ReconEngineQueueSample.account->generateAccountDropdownOptions}
-            buttonText="Select Account"
-            allowMultiSelect=false
-            deselectDisable=true
-            fullLength=true
+  <Form onSubmit key="reconEngineFileUploadForm">
+    <Modal
+      showModal
+      closeOnOutsideClick=false
+      setShowModal
+      modalHeading="File Upload"
+      modalHeadingClass={`${heading.sm.semibold}`}
+      modalClass="w-1/3 m-auto"
+      childClass="p-0"
+      modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
+        {"Select the files to Upload."->React.string}
+      </div>}>
+      {switch currentStep {
+      | AccountSelection =>
+        <div className="flex flex-col gap-6 px-8 py-4">
+          <div>
+            <label className={`block ${body.md.medium} text-gray-900 mb-2`}>
+              {"Account"->React.string}
+              <span className="text-red-500"> {"*"->React.string} </span>
+            </label>
+            <PageLoaderWrapper
+              screenState
+              customLoader={<div className="h-full flex flex-col justify-center items-center">
+                <div className="animate-spin">
+                  <Icon name="spinner" size=20 />
+                </div>
+              </div>}>
+              <SelectBox
+                input={{
+                  name: "selectedAccount",
+                  value: selectedAccount->JSON.Encode.string,
+                  onChange: ev => {
+                    let value = ev->Identity.formReactEventToString
+                    setSelectedAccount(_ => value)
+                  },
+                  onBlur: _ => (),
+                  onFocus: _ => (),
+                  checked: false,
+                }}
+                options={accountData->generateAccountDropdownOptions}
+                buttonText="Select Account"
+                allowMultiSelect=false
+                deselectDisable=true
+                fullLength=true
+              />
+            </PageLoaderWrapper>
+          </div>
+          <FormRenderer.FieldRenderer
+            labelClass={`${body.md.medium} text-nd_gray-700 !-ml-1`} field=fileTypeField
           />
+          <div className="flex justify-end gap-3 pt-4">
+            <Button text="Cancel" buttonType=Secondary onClick={_ => closeModal()} />
+            <Button
+              text="Next"
+              buttonType=Primary
+              onClick={_ => handleNext()}
+              buttonState={selectedAccount->isNonEmptyString && fileType->isNonEmptyString
+                ? Normal
+                : Disabled}
+            />
+          </div>
         </div>
-        <div className="flex justify-end gap-3 pt-4">
-          <Button text="Cancel" buttonType=Secondary onClick={_ => closeModal()} />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => handleNext()}
-            buttonState={selectedAccount->isNonEmptyString ? Normal : Disabled}
-          />
-        </div>
-      </div>
-    | FileUpload =>
-      <Form onSubmit key="reconEngineFileUploadForm">
+      | FileUpload =>
         <div className="flex flex-col gap-6 px-8 py-4">
           <div>
             <label required=true className={`block ${body.md.medium} text-nd_gray-700 mb-6`}>
@@ -193,7 +250,7 @@ let make = (~showModal, ~setShowModal) => {
             <FormRenderer.SubmitButton buttonType=Primary text="Upload" />
           </div>
         </div>
-      </Form>
-    }}
-  </Modal>
+      }}
+    </Modal>
+  </Form>
 }

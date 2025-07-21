@@ -883,7 +883,11 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/entries`
+            | Some(accountId) =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/accounts/${accountId}/entries?${queryParams}`
+              | None => `${reconBaseURL}/accounts/${accountId}/entries`
+              }
             | None => ""
             }
           | _ => ""
@@ -910,8 +914,8 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/accounts/${ruleId}/entries`
-            | None => ""
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules`
             }
           | _ => ""
           }
@@ -1179,7 +1183,8 @@ let responseHandler = async (
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 
   switch responseStatus {
-  | 200 => json
+  | 200
+  | 201 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify

@@ -3,6 +3,10 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
+  open APIUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
@@ -11,22 +15,25 @@ let make = (~id) => {
   let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let getTransactionDetails = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let response = SampleTransactions.data
-      let data = response->getDictFromJsonObject->getArrayFromDict("transactions", [])
-      let transactionsList = data->getArrayOfTransactionsListPayloadType
-      let selectedCurrentTransactionArray = transactionsList->Array.filter(item => item.id == id)
-      let selectedCurrentTransactionData =
-        selectedCurrentTransactionArray->getValueFromArray(0, Dict.make()->getAllTransactionPayload)
-      let allTransactionDetails =
-        transactionsList->Array.filter(item =>
-          item.transaction_id == selectedCurrentTransactionData.transaction_id
-        )
-      setCurrentTransactionDetails(_ => selectedCurrentTransactionData)
-      setAllTransactionDetails(_ => allTransactionDetails)
+      let currentTransactionUrl = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSACTIONS_LIST,
+        ~id=Some(id),
+      )
+      let res = await fetchDetails(currentTransactionUrl)
+      let currentTransaction = res->getDictFromJsonObject->getAllTransactionPayload
+
+      let transactionsList = await getTransactions(
+        ~queryParamerters=Some(`transaction_id=${currentTransaction.transaction_id}`),
+      )
+      setCurrentTransactionDetails(_ => currentTransaction)
+      setAllTransactionDetails(_ => transactionsList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
@@ -41,7 +48,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-8">
       <BreadCrumbNavigation
-        path=[{title: "Overview", link: `/v1/recon-engine/transactions`}]
+        path=[{title: "Transactions", link: `/v1/recon-engine/transactions`}]
         currentPageTitle=id
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"
@@ -60,7 +67,7 @@ let make = (~id) => {
       <div className="flex flex-col gap-8">
         <TransactionDetailInfo
           currentTransactionDetails={currentTransactionDetails}
-          detailsFields=[TransactionId, Status, CreditAccount, DebitAccount, CreatedAt]
+          detailsFields=[TransactionId, Status, Variance, CreatedAt]
         />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>
