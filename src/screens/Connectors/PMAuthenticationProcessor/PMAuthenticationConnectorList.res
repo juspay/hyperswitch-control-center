@@ -6,10 +6,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PMAuthProcessor,
-  )
+  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PMAuthProcessor)
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils

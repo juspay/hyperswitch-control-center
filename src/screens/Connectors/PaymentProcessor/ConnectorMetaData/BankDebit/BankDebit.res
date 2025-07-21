@@ -78,7 +78,6 @@ let make = (
   open LogicUtils
   open BankDebitUtils
   let connectorsListPMAuth = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PMAuthProcessor,
   )
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

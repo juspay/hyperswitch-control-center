@@ -10,10 +10,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
 
-  let connectorsList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentProcessor,
-  )
+  let connectorsList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 

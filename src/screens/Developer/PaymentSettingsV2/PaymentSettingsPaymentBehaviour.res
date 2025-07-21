@@ -127,7 +127,6 @@ module ClickToPaySection = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let connectorListAtom = ConnectorInterface.useFilteredConnectorList(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=AuthenticationProcessor,
     )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

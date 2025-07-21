@@ -19,7 +19,6 @@ let make = (~getClientSecret) => {
   let (showModal, setShowModal) = React.useState(() => false)
   let showToast = ToastState.useShowToast()
   let paymentConnectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=PaymentProcessor,
   )
 

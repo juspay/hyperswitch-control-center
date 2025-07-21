@@ -343,10 +343,7 @@ let make = (
     connectorInfoDict,
   )
 
-  let connectorCount =
-    ConnectorInterface.useFilteredConnectorList(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
-    )->Array.length
+  let connectorCount = ConnectorInterface.useFilteredConnectorList()->Array.length
 
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors

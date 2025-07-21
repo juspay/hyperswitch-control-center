@@ -62,7 +62,6 @@ let make = () => {
   open FormRenderer
 
   let threedsConnectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=AuthenticationProcessor,
   )
   let getURL = useGetURL()

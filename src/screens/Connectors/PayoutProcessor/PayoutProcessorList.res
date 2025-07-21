@@ -10,10 +10,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let connectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PayoutProcessor,
-  )
+  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
 
   let getConnectorListAndUpdateState = async () => {
     try {

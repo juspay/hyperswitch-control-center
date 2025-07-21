@@ -9,7 +9,6 @@ let make = (~routingType) => {
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
   let connectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
     ~retainInList=ConnectorTypes.PaymentProcessor,
   )
 

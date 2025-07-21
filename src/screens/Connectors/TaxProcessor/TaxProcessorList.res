@@ -1,9 +1,6 @@
 @react.component
 let make = () => {
-  let connectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=TaxProcessor,
-  )
+  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=TaxProcessor)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)

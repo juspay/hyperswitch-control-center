@@ -88,14 +88,8 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentProcessor,
-  )
-  let frmConnectorList = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentVas,
-  )
+  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
+  let frmConnectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <HelperComponents.BluredTableComponent

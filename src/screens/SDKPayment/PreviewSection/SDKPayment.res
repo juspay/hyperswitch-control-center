@@ -11,7 +11,7 @@ module PaymentStatusPage = {
     let {errorMessage} = React.useContext(SDKProvider.defaultContext)
     let headerTextStyle = "text-xl font-semibold text-grey-700"
 
-    <div className="w-4/5 flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow">
+    <div className="flex flex-col gap-4 p-9 h-full w-full justify-between rounded shadow">
       <div
         className={`p-4 h-5/6 ${config.bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=config.iconName size=120 />
@@ -66,7 +66,6 @@ let make = () => {
     ->getString("theme", "default")
 
   let connectorListFromRecoil = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=PaymentProcessor,
   )
 

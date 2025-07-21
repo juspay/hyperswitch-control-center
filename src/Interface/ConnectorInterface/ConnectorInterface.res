@@ -9,7 +9,6 @@ module type ConnectorInterface = {
   type input
   type output
   let mapDictToConnectorPayload: mapperInput => mapperOutput
-  let mapListToFilteredConnectorList: (array<mapperOutput>, filterCriteria) => array<mapperOutput>
   let mapConnectorPayloadToConnectorType: (input, array<mapperOutput>) => array<output>
 }
 
@@ -30,8 +29,6 @@ module V1: ConnectorInterface
 
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayload(dict)->mapV1DictToCommonConnectorPayload
-  let mapListToFilteredConnectorList = (list: array<mapperOutput>, retainInList: filterCriteria) =>
-    mapListToFilteredConnectorList(list, retainInList)
   let mapConnectorPayloadToConnectorType = (
     connectorType: input,
     connectorList: array<mapperOutput>,
@@ -52,8 +49,6 @@ module V2: ConnectorInterface
   type output = connectorTypes
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayloadV2(dict)->mapV2DictToCommonConnectorPayload
-  let mapListToFilteredConnectorList = (list: array<mapperOutput>, retainInList: filterCriteria) =>
-    mapListToFilteredConnectorListV2(list, retainInList)
   let mapConnectorPayloadToConnectorType = (
     connectorType: input,
     connectorList: array<mapperOutput>,
@@ -110,21 +105,6 @@ let mapDictToConnectorPayload = (
   L.mapDictToConnectorPayload(inp)
 }
 
-let mapListToFilteredConnectorList = (
-  type a b c d e,
-  module(L: ConnectorInterface with
-    type mapperInput = a
-    and type mapperOutput = b
-    and type filterCriteria = c
-    and type input = d
-    and type output = e
-  ),
-  inp: array<b>,
-  filterCriteria: c,
-): array<b> => {
-  L.mapListToFilteredConnectorList(inp, filterCriteria)
-}
-
 let mapConnectorPayloadToConnectorType = (
   type a b c d e,
   module(L: ConnectorInterface with
@@ -140,7 +120,7 @@ let mapConnectorPayloadToConnectorType = (
   L.mapConnectorPayloadToConnectorType(inp1, inp2)
 }
 
-let useFilteredConnectorList = (~interface, ~retainInList=PaymentProcessor) => {
+let useFilteredConnectorList = (~retainInList=PaymentProcessor) => {
   let list = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
-  mapListToFilteredConnectorList(interface, list, retainInList)
+  filterConnectorList(list, retainInList)
 }

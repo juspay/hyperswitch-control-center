@@ -343,10 +343,6 @@ let filterConnectorList = (items: array<connectorPayloadCommonType>, retainInLis
   items->Array.filter(connector => connector.connector_type->filter(~retainInList))
 }
 
-let filterConnectorListV2 = (items: array<connectorPayloadCommonType>, retainInList) => {
-  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
-}
-
 let mapConnectorPayloadToConnectorType = (
   ~connectorType=Processor,
   connectorsList: array<connectorPayloadCommonType>,
@@ -365,13 +361,6 @@ let mapConnectorPayloadToConnectorTypeV2 = (
   )
 }
 
-let mapListToFilteredConnectorList = (list, retainInList) => {
-  list->filterConnectorList(retainInList)
-}
-
-let mapListToFilteredConnectorListV2 = (list, retainInList) => {
-  list->filterConnectorListV2(retainInList)
-}
 
 let getPaymentMethodsEnabledCommonType: Dict.t<JSON.t> => paymentMethodEnabledTypeCommon = dict => {
   {

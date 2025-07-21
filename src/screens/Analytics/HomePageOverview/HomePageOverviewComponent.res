@@ -8,7 +8,6 @@ module ConnectorOverview = {
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
     let connectorsList = ConnectorInterface.useFilteredConnectorList(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
       ~retainInList=ConnectorTypes.PaymentProcessor,
     )
     let configuredConnectors =

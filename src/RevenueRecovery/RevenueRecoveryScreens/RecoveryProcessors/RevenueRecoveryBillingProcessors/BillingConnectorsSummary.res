@@ -13,7 +13,6 @@ module BillingConnectorDetails = {
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
     let billingConnectorListFromRecoil = ConnectorInterface.useFilteredConnectorList(
-      ~interface=ConnectorInterface.connectorInterfaceV2,
       ~retainInList=BillingProcessor,
     )
 

@@ -7,7 +7,6 @@ let make = () => {
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
 
   let connectorListFromRecoil = ConnectorInterface.useFilteredConnectorList(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
