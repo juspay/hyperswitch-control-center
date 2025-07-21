@@ -73,7 +73,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues) => {
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let frmInfo = ConnectorInterface.mapDictToConnectorPayload(
+  let frmInfo = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->getDictFromJsonObject,
   )

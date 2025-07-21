@@ -73,7 +73,7 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfo = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -83,7 +83,7 @@ let make = () => {
   let disableConnector = async isConnectorDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.id
+      let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
         connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,

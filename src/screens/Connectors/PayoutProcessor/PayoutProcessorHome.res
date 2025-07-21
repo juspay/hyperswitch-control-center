@@ -269,7 +269,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
+              connectorInfo={ConnectorInterface.mapDictToIndividualConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}

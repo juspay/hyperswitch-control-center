@@ -40,7 +40,7 @@ module BillingConnectorDetails = {
       None
     }, [])
 
-    let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    let connectorInfodict = ConnectorInterface.mapDictToIndividualConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
@@ -54,7 +54,6 @@ module BillingConnectorDetails = {
 
           let revenueRecovery =
             connectorInfodict.feature_metadata
-            ->Option.getOr(JSON.Encode.null)
             ->getDictFromJsonObject
             ->getDictfromDict("revenue_recovery")
           let paymentConnectors =
@@ -87,7 +86,6 @@ module BillingConnectorDetails = {
 
     let revenueRecovery =
       connectorInfodict.feature_metadata
-      ->Option.getOr(JSON.Encode.null)
       ->getDictFromJsonObject
       ->getDictfromDict("revenue_recovery")
     let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
@@ -194,7 +192,7 @@ module PaymentConnectorDetails = {
       None
     }, [connectorId])
 
-    let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    let connectorInfodict = ConnectorInterface.mapDictToIndividualConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )

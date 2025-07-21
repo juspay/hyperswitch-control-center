@@ -1,6 +1,6 @@
 @react.component
 let make = (~initialValues, ~merchantId, ~onNextClick) => {
-  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfoDict = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )

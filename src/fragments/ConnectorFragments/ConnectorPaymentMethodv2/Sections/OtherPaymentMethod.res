@@ -4,7 +4,7 @@ module SelectedCardValues = {
     open LogicUtils
     open SectionHelper
     let data1 = initialValues->getDictFromJsonObject
-    let data = ConnectorInterface.mapDictToConnectorPayload(
+    let data = ConnectorInterface.mapDictToIndividualConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       data1,
     )
@@ -31,7 +31,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
-  ~formValues: ConnectorTypes.connectorPayloadCommonType,
+  ~formValues: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open SectionHelper
@@ -57,15 +57,13 @@ let make = (
   let form = ReactFinalForm.useForm()
   let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
   let (selectedWallet, setSelectedWallet) = React.useState(_ =>
-    Dict.make()
-    ->ConnectorInterfaceUtils.getPaymentMethodTypesV2
-    ->ConnectorInterfaceUtils.paymentMethodsTypesMapperV2
+    Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypesV2
   )
   let (selectedPMTIndex, setSelectedPMTIndex) = React.useState(_ => 0)
 
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let data = formState.values->getDictFromJsonObject
-  let connData: ConnectorTypes.connectorPayloadCommonType = ConnectorInterface.mapDictToConnectorPayload(
+  let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     data,
   )
@@ -112,7 +110,7 @@ let make = (
     )
   }
 
-  let onClick = (pmtData: ConnectorTypes.paymentMethodConfigTypeCommon, pmtIndex) => {
+  let onClick = (pmtData: ConnectorTypes.paymentMethodConfigTypeV2, pmtIndex) => {
     if isMetaDataRequired(pmtData.payment_method_subtype, connector) {
       setSelectedWallet(_ => pmtData)
       setSelectedPMTIndex(_ => pmtIndex)

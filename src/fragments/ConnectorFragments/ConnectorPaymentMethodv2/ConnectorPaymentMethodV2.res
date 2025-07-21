@@ -21,7 +21,10 @@ let make = (~initialValues, ~isInEditState, ~ignoreKeys=[]) => {
   let initialValue = React.useMemo(() => {
     let val = initialValues->getDictFromJsonObject
 
-    ConnectorInterface.mapDictToConnectorPayload(ConnectorInterface.connectorInterfaceV2, val)
+    ConnectorInterface.mapDictToIndividualConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
+      val,
+    )
   }, [initialValues])
   let defaultIgnoreKeys = ConnectorUtils.configKeysToIgnore->Array.concat(ignoreKeys)
 
@@ -103,7 +106,7 @@ let make = (~initialValues, ~isInEditState, ~ignoreKeys=[]) => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let data = formState.values->getDictFromJsonObject
-  let connData = ConnectorInterface.mapDictToConnectorPayload(
+  let connData = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     data,
   )

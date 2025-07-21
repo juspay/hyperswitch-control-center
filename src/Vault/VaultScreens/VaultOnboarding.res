@@ -20,7 +20,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfoDict = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )

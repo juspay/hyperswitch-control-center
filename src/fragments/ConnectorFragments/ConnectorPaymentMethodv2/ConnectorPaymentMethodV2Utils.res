@@ -63,11 +63,7 @@ let acceptedValues = dict => {
   values.list->Array.length > 0 ? Some(values) : None
 }
 
-let getPaymentMethodDictV2 = (
-  dict,
-  pm,
-  connector,
-): ConnectorTypes.paymentMethodConfigTypeCommon => {
+let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethodConfigTypeV2 => {
   let paymentMethodType =
     dict->getString("payment_method_subtype", dict->getString("payment_method_type", ""))
   let (cardNetworks, modifedPaymentMethodType) = switch pm->getPMTFromString {
@@ -105,9 +101,7 @@ let getPaymentMethodDictV2 = (
       ("installment_payment_enabled", installmentPaymentEnabled->JSON.Encode.bool),
     ]->Dict.fromArray
   newPaymentMenthodDict->setOptionString("payment_experience", pme)
-  newPaymentMenthodDict
-  ->ConnectorInterfaceUtils.getPaymentMethodTypesV2
-  ->ConnectorInterfaceUtils.paymentMethodsTypesMapperV2
+  newPaymentMenthodDict->ConnectorInterfaceUtils.getPaymentMethodTypesV2
 }
 
 let getPaymentMethodMapper = (arr, connector, pm) => {
@@ -126,7 +120,7 @@ let pmIcon = pm =>
   | _ => ""
   }
 
-let checkKlaranRegion = (connData: connectorPayloadCommonType) =>
+let checkKlaranRegion = (connData: connectorPayloadV2) =>
   switch connData.metadata
   ->getDictFromJsonObject
   ->getString("klarna_region", "")

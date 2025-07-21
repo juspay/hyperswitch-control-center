@@ -5,7 +5,7 @@ module SelectedCardValues = {
     open SectionHelper
     open ConnectorPaymentMethodV2Utils
     let data1 = initialValues->getDictFromJsonObject
-    let data = ConnectorInterface.mapDictToConnectorPayload(
+    let data = ConnectorInterface.mapDictToIndividualConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       data1,
     )
@@ -43,7 +43,7 @@ let make = (
   ~connector,
   ~isInEditState,
   ~initialValues,
-  ~formValues: ConnectorTypes.connectorPayloadCommonType,
+  ~formValues: ConnectorTypes.connectorPayloadV2,
 ) => {
   open LogicUtils
   open SectionHelper

@@ -6,7 +6,7 @@ let make = (~connectorInfo) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfodict = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo->LogicUtils.getDictFromJsonObject,
   )

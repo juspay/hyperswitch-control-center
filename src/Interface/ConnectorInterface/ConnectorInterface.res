@@ -5,9 +5,12 @@ open ConnectorInterfaceUtils
 module type ConnectorInterface = {
   type mapperInput
   type mapperOutput
+  type individualTypeOutput
   type filterCriteria
   type input
   type output
+
+  let mapDictToIndividualConnectorPayload: mapperInput => individualTypeOutput
   let mapDictToConnectorPayload: mapperInput => mapperOutput
   let mapConnectorPayloadToConnectorType: (input, array<mapperOutput>) => array<output>
 }
@@ -18,15 +21,19 @@ module type ConnectorInterface = {
 module V1: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
   and type mapperOutput = connectorPayloadCommonType
+  and type individualTypeOutput = connectorPayload
   and type filterCriteria = connectorTypeVariants
   and type input = connector
   and type output = connectorTypes = {
   type mapperInput = Dict.t<JSON.t>
   type mapperOutput = connectorPayloadCommonType
+  type individualTypeOutput = connectorPayload
   type filterCriteria = connectorTypeVariants
   type input = connector
   type output = connectorTypes
 
+  let mapDictToIndividualConnectorPayload = (dict: mapperInput): individualTypeOutput =>
+    mapDictToConnectorPayload(dict)
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayload(dict)->mapV1DictToCommonConnectorPayload
   let mapConnectorPayloadToConnectorType = (
@@ -39,14 +46,19 @@ module V1: ConnectorInterface
 module V2: ConnectorInterface
   with type mapperInput = Dict.t<JSON.t>
   and type mapperOutput = connectorPayloadCommonType
+  and type individualTypeOutput = connectorPayloadV2
   and type filterCriteria = connectorTypeVariants
   and type input = connector
   and type output = connectorTypes = {
   type mapperInput = Dict.t<JSON.t>
   type mapperOutput = connectorPayloadCommonType
+  type individualTypeOutput = connectorPayloadV2
   type filterCriteria = connectorTypeVariants
   type input = connector
   type output = connectorTypes
+
+  let mapDictToIndividualConnectorPayload = (dict: mapperInput): individualTypeOutput =>
+    mapDictToConnectorPayloadV2(dict)
   let mapDictToConnectorPayload = (dict: mapperInput): mapperOutput =>
     mapDictToConnectorPayloadV2(dict)->mapV2DictToCommonConnectorPayload
   let mapConnectorPayloadToConnectorType = (
@@ -57,12 +69,13 @@ module V2: ConnectorInterface
 
 //parametric polymorphism, connectorInterfaceFCM is a type that takes 5 type parameters
 // This allows for parametric polymorphism, meaning we can generalize the ConnectorInterface module with different types ('a, 'b, etc.).
-type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
+type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e, 'f> = module(ConnectorInterface with
   type mapperInput = 'a
   and type mapperOutput = 'b
-  and type filterCriteria = 'c
-  and type input = 'd
-  and type output = 'e
+  and type individualTypeOutput = 'c
+  and type filterCriteria = 'd
+  and type input = 'e
+  and type output = 'f
 )
 
 //Creating Instances of the Interface
@@ -71,6 +84,7 @@ type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorInterface with
 let connectorInterfaceV1: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadCommonType,
+  connectorPayload,
   connectorTypeVariants,
   connector,
   connectorTypes,
@@ -80,6 +94,7 @@ let connectorInterfaceV1: connectorInterfaceFCM<
 let connectorInterfaceV2: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadCommonType,
+  connectorPayloadV2,
   connectorTypeVariants,
   connector,
   connectorTypes,
@@ -92,31 +107,48 @@ let connectorInterfaceV2: connectorInterfaceFCM<
 // 2. An input of type a (mapperInput).
 // 3. It calls L.mapDictToConnectorPayload and returns the mapped output.
 let mapDictToConnectorPayload = (
-  type a b c d e,
+  type a b c d e f,
   module(L: ConnectorInterface with
     type mapperInput = a
     and type mapperOutput = b
-    and type filterCriteria = c
-    and type input = d
-    and type output = e
+    and type individualTypeOutput = c
+    and type filterCriteria = d
+    and type input = e
+    and type output = f
   ),
   inp: a,
 ): b => {
   L.mapDictToConnectorPayload(inp)
 }
 
-let mapConnectorPayloadToConnectorType = (
-  type a b c d e,
+let mapDictToIndividualConnectorPayload = (
+  type a b c d e f,
   module(L: ConnectorInterface with
     type mapperInput = a
     and type mapperOutput = b
-    and type filterCriteria = c
-    and type input = d
-    and type output = e
+    and type individualTypeOutput = c
+    and type filterCriteria = d
+    and type input = e
+    and type output = f
   ),
-  inp1: d,
+  inp: a,
+): c => {
+  L.mapDictToIndividualConnectorPayload(inp)
+}
+
+let mapConnectorPayloadToConnectorType = (
+  type a b c d e f,
+  module(L: ConnectorInterface with
+    type mapperInput = a
+    and type mapperOutput = b
+    and type individualTypeOutput = c
+    and type filterCriteria = d
+    and type input = e
+    and type output = f
+  ),
+  inp1: e,
   inp2: array<b>,
-): array<e> => {
+): array<f> => {
   L.mapConnectorPayloadToConnectorType(inp1, inp2)
 }
 

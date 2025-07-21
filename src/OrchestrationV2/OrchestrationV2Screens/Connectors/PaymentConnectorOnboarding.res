@@ -28,7 +28,7 @@ let make = () => {
     subSectionId: None,
   })
 
-  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfoDict = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -230,6 +230,7 @@ let make = () => {
                   tooltipForWidthClass="w-full"
                 />
               </div>
+              <FormValuesSpy />
             </Form>
           </PageLoaderWrapper>
         </div>

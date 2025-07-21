@@ -42,10 +42,10 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 let getConnectorObjectFromListViaId = (
-  connectorList: array<connectorPayloadCommonType>,
+  connectorList: array<connectorPayloadV2>,
   mca_id: string,
 ) => {
-  let default = ConnectorInterface.mapDictToConnectorPayload(
+  let default = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     Dict.make(),
   )

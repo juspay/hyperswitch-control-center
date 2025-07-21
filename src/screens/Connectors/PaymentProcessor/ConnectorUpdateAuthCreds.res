@@ -1,5 +1,5 @@
 @react.component
-let make = (~connectorInfo: ConnectorTypes.connectorPayloadCommonType, ~getConnectorDetails) => {
+let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetails) => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
@@ -41,7 +41,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayloadCommonType, ~getConne
         JSON.Encode.null
       }
     }
-  }, [connectorInfo.id])
+  }, [connectorInfo.merchant_connector_id])
   let {
     connectorAccountFields,
     connectorMetaDataFields,
@@ -92,7 +92,11 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayloadCommonType, ~getConne
 
   let onSubmit = async (values, _) => {
     try {
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorInfo.id))
+      let url = getURL(
+        ~entityName=V1(CONNECTOR),
+        ~methodType=Post,
+        ~id=Some(connectorInfo.merchant_connector_id),
+      )
       let _ = await updateAPIHook(url, values, Post)
       switch getConnectorDetails {
       | Some(fun) => fun()->ignore

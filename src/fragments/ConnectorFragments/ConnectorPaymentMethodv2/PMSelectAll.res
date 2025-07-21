@@ -1,7 +1,7 @@
 module PMSelectAll = {
   @react.component
   let make = (
-    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeCommon>,
+    ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~pm,
     ~pmt,
@@ -9,11 +9,10 @@ module PMSelectAll = {
     open LogicUtils
     open ConnectorPaymentMethodV2Utils
     let pmEnabledInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
-    let pmEnabledValue = pmEnabledInp.value->getArrayDataFromJson(item =>
-      item
-      ->ConnectorInterfaceUtils.getPaymentMethodsEnabledV2
-      ->ConnectorInterfaceUtils.paymentMethodsEnabledMapperV2
-    )
+    let pmEnabledValue =
+      pmEnabledInp.value->getArrayDataFromJson(item =>
+        item->ConnectorInterfaceUtils.getPaymentMethodsEnabledV2
+      )
     let pmArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let (isSelectedAll, setIsSelectedAll) = React.useState(() => false)
     let removeAllPM = () => {
@@ -148,7 +147,7 @@ module PMSelectAll = {
 }
 
 let renderSelectAllValueInp = (
-  ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeCommon>,
+  ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
   ~pm,
   ~pmt,
 ) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
@@ -156,7 +155,7 @@ let renderSelectAllValueInp = (
 }
 
 let selectAllValueInput = (
-  ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeCommon>,
+  ~availablePM: array<ConnectorTypes.paymentMethodConfigTypeV2>,
   ~pmIndex,
   ~pm,
   ~pmt,
