@@ -115,7 +115,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfo = ConnectorInterface.mapDictToIndividualConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -176,7 +176,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let disableConnector = async isConnectorDisabled => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.id
+      let connectorID = connectorInfo.merchant_connector_id
       let disableConnectorPayload = getDisableConnectorPayload(
         connectorInfo.connector_type->connectorTypeTypedValueToStringMapper,
         isConnectorDisabled,
