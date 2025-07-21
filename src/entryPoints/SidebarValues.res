@@ -638,11 +638,11 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     paymentSettingsV2,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
@@ -707,12 +707,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars
-  | Recon => ReconSidebarValues.reconSidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

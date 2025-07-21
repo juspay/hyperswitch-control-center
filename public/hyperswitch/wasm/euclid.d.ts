@@ -56,6 +56,7 @@ export function getResponsePayload(input: any): any;
 export function getAllPayoutKeys(): any;
 export function getPayoutVariantValues(key: string): any;
 export function getPayoutDescriptionCategory(): any;
+export function getValidWebhookStatus(key: string): any;
 /**
  *
  * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -94,6 +95,7 @@ export interface InitOutput {
   readonly getAllPayoutKeys: (a: number) => void;
   readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
   readonly getPayoutDescriptionCategory: (a: number) => void;
+  readonly getValidWebhookStatus: (a: number, b: number, c: number) => void;
   readonly ring_core_0_17_14__bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
