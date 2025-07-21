@@ -1,4 +1,5 @@
 open ExploreWorkflowsTypes
+open WorkflowSideDrawerHelper
 
 let workflowCardsData: array<cardDetails> = [
   {
@@ -8,65 +9,71 @@ let workflowCardsData: array<cardDetails> = [
     imageLink: "smart_retries_graphic.png",
     workflowType: #ExploreSmartRetries,
   },
-  {
-    title: "Explore Routing",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. adipiscing elit.",
-    buttonText: "Setup Routing",
-    imageLink: "routing_graphic.png",
-    workflowType: #ExploreRouting,
-  },
 ]
 
 let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
+  open Typography
   switch workflowTitle {
   | #ExploreSmartRetries => [
       {
-        title: "Step 1: Connect Processors",
-        description: "Navigate to Connectors > Add Processor, and enter your API credentials. Connect at least two processors so Smart Retries has a backup.",
-        videoPath: Some("smartRetry/enable_auto_retry.mp4"),
-        ctaText: Some("Add processors →"),
-        ctaLink: Some("/connectors"),
-      },
-      {
-        title: "Step 2: Configure Fallback Order",
-        description: "Define the sequence of processors to try if the primary one fails.",
+        title: "Get Started",
+        description: <span className={`${body.md.medium} text-nd_gray-600`}>
+          {React.string(
+            "This guide uses pre-configured dummy processors and test cards to simulate Smart Retry. For real connectors, refer to docs.",
+          )}
+        </span>,
         videoPath: None,
-        ctaText: Some("Configure Routing →"),
-        ctaLink: Some("/routing/default"),
+        cta: Some((
+          "Refer Docs →",
+          ExternalLink({
+            url: "https://docs.hyperswitch.io/",
+            trackingEvent: "Explore Smart Retries - Refer Docs",
+          }),
+        )),
       },
       {
-        title: "Step 3: Set Up Retry Rules",
-        description: "Define when and how to retry failed payments. Configure retry attempts, intervals, and conditions.",
-        videoPath: None,
-        ctaText: Some("Configure Retries →"),
-        ctaLink: Some("/settings/retry"),
+        title: "Step 1: Enable Auto Retries",
+        description: exploreAutoRetries,
+        videoPath: Some("smartRetry/step1.mp4"),
+        cta: Some(("Go to Payment Settings →", InternalRoute("/payment-settings"))),
       },
       {
-        title: "Step 4: Monitor Performance",
-        description: "Track the success rate of your retries in the Analytics dashboard. Adjust your strategy based on performance data.",
-        videoPath: None,
-        ctaText: Some("View Analytics →"),
-        ctaLink: Some("/analytics-payments"),
+        title: "Step 2: Add at Least Two Payment Connectors",
+        description: addAtleastTwoConnectors,
+        videoPath: Some("smartRetry/step2.mp4"),
+        cta: Some(("Go to Payment Processors →", InternalRoute("/connectors"))),
       },
-    ]
-
-  | #ExploreRouting => [
       {
-        title: "Step 1: Define Routing Rules",
-        description: "Create rules in the Routing section to direct payments based on your criteria.",
-        videoPath: Some("smartRetry/enable_auto_retry.mp4"),
-        ctaText: Some("Setup Routing →"),
-        ctaLink: Some("/routing"),
+        title: "Step 3: Set Processor Priority Order",
+        description: setProcessorPriorityOrder,
+        videoPath: Some("smartRetry/step3.mp4"),
+        cta: Some(("Set Fallback Order →", InternalRoute("/routing/default"))),
+      },
+      {
+        title: "Step 4: Simulate a Failed Payment and Verify the Retry",
+        description: React.string(
+          "Track the success rate of your retries in the Analytics dashboard. Adjust your strategy based on performance data.",
+        ),
+        videoPath: Some("smartRetry/step4.mp4"),
+        cta: Some(("View Analytics →", InternalRoute("/analytics-payments"))),
       },
     ]
   | _ => []
   }
 }
 
-let getDrawerTitleFromVariant = (workflowType: workflowTypes): string => {
+let getCurrentWorkflowDetails = (workflowType: workflowTypes): (
+  string,
+  string,
+  array<stepDetails>,
+) => {
   switch workflowType {
-  | #ExploreSmartRetries => "Explore Smart Retries"
-  | #ExploreRouting => "Explore Routing"
+  | #ExploreSmartRetries => (
+      "Smart Retry Setup Guide",
+      "Automatically re-attempt failed payments using fallback processors to improve your success rate.",
+      getStepsForWorkflow(workflowType),
+    )
+  | #ExploreRouting => ("Explore Routing", "", getStepsForWorkflow(workflowType))
   }
 }
 

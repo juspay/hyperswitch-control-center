@@ -1,13 +1,12 @@
 open ExploreWorkflowsTypes
 open RenderIf
+open Typography
 
 module AccordionItemComponent = {
   @react.component
   let make = (~step: stepDetails) => {
     <div className="flex flex-col gap-4">
-      <p className="text-fs-14 text-nd_gray-400 font-medium dark:text-jp-gray-400 leading-5">
-        {step.description->React.string}
-      </p>
+      {step.description}
       {switch step.videoPath {
       | Some(videoPath) =>
         <video className="w-full" controls=true preload="metadata">
@@ -16,15 +15,15 @@ module AccordionItemComponent = {
         </video>
       | None => React.null
       }}
-      {switch step.ctaText {
-      | Some(text) =>
+      {switch step.cta {
+      | Some((text, action)) =>
         <a
-          href={step.ctaLink->Option.getOr("#")}
           onClick={event => {
             ReactEvent.Mouse.preventDefault(event)
-            switch step.ctaLink {
-            | Some(link) => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=link))
-            | None => ()
+            switch action {
+            | InternalRoute(link) =>
+              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=link))
+            | ExternalLink({url, _}) => Window._open(url) /* Open in new tab */
             }
           }}
           className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-fs-14 inline-flex items-center gap-1 pb-4">
@@ -49,7 +48,7 @@ let make = () => {
   | Closed => #ExploreSmartRetries
   }
 
-  let steps = getStepsForWorkflow(workflowTitle)
+  let (heading, subHeading, steps) = getCurrentWorkflowDetails(workflowTitle)
 
   let accordionItems = steps->Array.map(step => {
     let accItem: Accordion.accordion = {
@@ -98,28 +97,33 @@ let make = () => {
           </div>
         </RenderIf>
         <div className="flex flex-col justify-between overflow-y-scroll overflow-x-hidden">
-          <div className="flex items-center justify-between p-6">
-            <h3
-              className="font-inter-style font-semibold text-fs-18 text-jp-gray-900 dark:text-jp-gray-text_darktheme">
-              {workflowTitle->getDrawerTitleFromVariant->React.string}
-            </h3>
-            <div className="flex items-center gap-6 justify-center">
-              <RenderIf condition={!isSmallerScreen}>
+          <div className="flex flex-col p-6 gap-2">
+            <div className="flex gap-1 justify-between items-center">
+              <h3
+                className="font-inter-style font-semibold text-fs-18 text-jp-gray-900 dark:text-jp-gray-text_darktheme">
+                {heading->React.string}
+              </h3>
+              <div className="flex items-center gap-6 justify-center">
+                <RenderIf condition={!isSmallerScreen}>
+                  <Icon
+                    name="nd_minimise"
+                    size=22
+                    className="text-jp-gray-700 dark:text-jp-gray-300 cursor-pointer"
+                    onClick={_ =>
+                      setWorkflowDrawerState(prevState => getNextStateBasedOnPrevState(prevState))}
+                  />
+                </RenderIf>
                 <Icon
-                  name="nd_minimise"
-                  size=22
+                  name="close"
+                  size=14
                   className="text-jp-gray-700 dark:text-jp-gray-300 cursor-pointer"
-                  onClick={_ =>
-                    setWorkflowDrawerState(prevState => getNextStateBasedOnPrevState(prevState))}
+                  onClick={_ => setWorkflowDrawerState(_ => Closed)}
                 />
-              </RenderIf>
-              <Icon
-                name="close"
-                size=14
-                className="text-jp-gray-700 dark:text-jp-gray-300 cursor-pointer"
-                onClick={_ => setWorkflowDrawerState(_ => Closed)}
-              />
+              </div>
             </div>
+            <span className={`${body.md.semibold} text-nd_gray-400 w-full`}>
+              {subHeading->React.string}
+            </span>
           </div>
           <hr />
           <div className="p-6 pt-3 overflow-y-scroll">
@@ -130,7 +134,7 @@ let make = () => {
               accordianTopContainerCss="border-0 border-b border-nd_br_gray-150"
               accordianBottomContainerCss="py-4 px-0 pb-6"
               contentExpandCss="border-none"
-              titleStyle="text-fs-14 font-bold text-jp-gray-900 dark:text-jp-gray-text_darktheme justify-between"
+              titleStyle="text-fs-14 font-bold text-jp-gray-900 dark:text-jp-gray-text_darktheme justify-between hover:bg-white"
               gapClass="space-y-4"
               accordionHeaderTextClass="!ml-0"
             />

@@ -136,12 +136,10 @@ The following features are controlled via feature flags, allowing for progressiv
 ## Known Limitations
 
 1. **Scale Limitations**
-
    - Large volume payment processing may experience performance degradation
    - Analytics visualizations may be slow with very large datasets
 
 2. **Browser Support**
-
    - Optimized for modern browsers (Chrome, Firefox, Safari, Edge)
    - Limited support for older browsers
 
@@ -165,21 +163,18 @@ The following features are controlled via feature flags, allowing for progressiv
 The project maintains a structured approach to technical debt management:
 
 1. **Recently Addressed**
-
    - API response handling standardization with typed responses
    - Component prop interfaces with comprehensive .resi files
    - Error recovery mechanisms with PageLoaderWrapper pattern
    - Consolidated styling patterns using Tailwind utility classes
 
 2. **Currently Addressing**
-
    - Legacy state management patterns being migrated to Recoil atoms
    - Improving test coverage for core components and utilities
    - Refactoring older components to follow current patterns
    - Optimizing API fetch patterns with cancellation support
 
 3. **Scheduled for Next Sprint**
-
    - Code splitting optimization for better bundle size
    - Enhanced documentation for component usage patterns
    - Performance optimizations for complex data visualizations

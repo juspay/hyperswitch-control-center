@@ -3,6 +3,10 @@ type workflowTypes = [
   | #ExploreRouting
 ]
 
+type actionType =
+  | InternalRoute(string)
+  | ExternalLink({url: string, trackingEvent: string})
+
 type cardDetails = {
   title: string,
   description: string,
@@ -13,10 +17,9 @@ type cardDetails = {
 
 type stepDetails = {
   title: string,
-  description: string,
+  description: React.element,
   videoPath: option<string>,
-  ctaText: option<string>,
-  ctaLink: option<string>,
+  cta: option<(string, actionType)>,
 }
 
 type workflowSideDrawerProps = {
