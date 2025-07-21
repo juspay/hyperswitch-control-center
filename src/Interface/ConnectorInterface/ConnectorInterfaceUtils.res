@@ -361,7 +361,6 @@ let mapConnectorPayloadToConnectorTypeV2 = (
   )
 }
 
-
 let getPaymentMethodsEnabledCommonType: Dict.t<JSON.t> => paymentMethodEnabledTypeCommon = dict => {
   {
     payment_method_type: dict->getString("payment_method_type", ""),
