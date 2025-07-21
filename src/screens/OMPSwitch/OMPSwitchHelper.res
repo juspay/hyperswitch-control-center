@@ -13,7 +13,6 @@ module ListBaseComp = {
     let {
       globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let arrowClassName = isDarkBg
       ? `${arrow
             ? "rotate-180"
@@ -31,23 +30,21 @@ module ListBaseComp = {
             <span className={`text-xs ${secondaryTextColor} opacity-50 font-medium`}>
               {"Merchant Account"->React.string}
             </span>
-            <RenderIf condition=devOmpChart>
-              <ToolTip
-                description="Organisation Chart"
-                customStyle="!whitespace-nowrap"
-                toolTipFor={<button
-                  className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
-                  onClick={ev => {
-                    ReactEvent.Mouse.stopPropagation(ev)
-                    RescriptReactRouter.push(
-                      GlobalVars.appendDashboardPath(~url="/organization-chart"),
-                    )
-                  }}>
-                  <Icon name="github-fork" size=14 className={`${secondaryTextColor}`} />
-                </button>}
-                toolTipPosition=ToolTip.Right
-              />
-            </RenderIf>
+            <ToolTip
+              description="Organisation Chart"
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<button
+                className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
+                onClick={ev => {
+                  ReactEvent.Mouse.stopPropagation(ev)
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(~url="/organization-chart"),
+                  )
+                }}>
+                <Icon name="github-fork" size=14 className={`${secondaryTextColor}`} />
+              </button>}
+              toolTipPosition=ToolTip.Right
+            />
           </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p
