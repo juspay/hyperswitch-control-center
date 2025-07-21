@@ -47,9 +47,28 @@ let validateAcquirerConfigForm = (values, keys) => {
   let validateField = (key, value) => {
     switch key {
     | "acquirer_fraud_rate" =>
-      let fraudRate = valuesDict->getFloat(key, 0.0)
-      if fraudRate < 0.0 || fraudRate > 100.0 {
-        key->setFieldError("Fraud rate should be between 0 and 100")
+      let fraudRate = valuesDict->getOptionFloat(key)
+      switch fraudRate {
+      | Some(rate) =>
+        if rate < 0.0 || rate > 100.0 {
+          key->setFieldError("Fraud rate should be between 0 and 100")
+        }
+      | None => key->setFieldError("This field is required")
+      }
+
+    | "acquirer_bin" =>
+      let binValue = valuesDict->getOptionFloat(key)
+      switch binValue {
+      | Some(binValue) =>
+        if binValue->Float.toString->String.includes(".") {
+          key->setFieldError("Acquirer BIN must be a whole number")
+        } else {
+          let binLength = binValue->Float.toString->String.length
+          if binLength < 5 || binLength > 20 {
+            key->setFieldError("Acquirer BIN must be between 5 and 20 digits")
+          }
+        }
+      | None => key->setFieldError("This field is required")
       }
     | _ =>
       if value === "" {
@@ -71,6 +90,7 @@ let validateAcquirerConfigForm = (values, keys) => {
 let acquirerConfigTypeMapper = (json: JSON.t): acquirerConfig => {
   let dict = json->getDictFromJsonObject
   {
+    id: dict->getString("profile_acquirer_id", ""),
     acquirer_assigned_merchant_id: dict->getString("acquirer_assigned_merchant_id", ""),
     merchant_name: dict->getString("merchant_name", ""),
     merchant_country_code: dict->getString("merchant_country_code", ""),
@@ -78,4 +98,15 @@ let acquirerConfigTypeMapper = (json: JSON.t): acquirerConfig => {
     acquirer_bin: dict->getString("acquirer_bin", ""),
     acquirer_fraud_rate: dict->getFloat("acquirer_fraud_rate", 0.0),
   }
+}
+
+let getInitialValuesFromConfig = (config: acquirerConfig): JSON.t => {
+  [
+    ("acquirer_assigned_merchant_id", config.acquirer_assigned_merchant_id->JSON.Encode.string),
+    ("merchant_name", config.merchant_name->JSON.Encode.string),
+    ("merchant_country_code", config.merchant_country_code->JSON.Encode.string),
+    ("network", config.network->JSON.Encode.string),
+    ("acquirer_bin", config.acquirer_bin->JSON.Encode.string),
+    ("acquirer_fraud_rate", config.acquirer_fraud_rate->JSON.Encode.float),
+  ]->getJsonFromArrayOfJson
 }

@@ -229,10 +229,11 @@ let validateConditionJson = (json, keys) => {
 
 let validateConditionsFor3ds = dict => {
   let conditionsArray = dict->getArrayFromDict("statements", [])
+  let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
     value->validateConditionJson(["comparison", "lhs"])
-  })
+  }) && decisionValue->isNonEmptyString
 }
 
 let getRecordsObject = json => {
@@ -281,6 +282,15 @@ let urlToVariantMapper = (url: RescriptReactRouter.url) => {
   | list{"payoutrouting", _} => PayoutRouting
   | list{"3ds", _} => ThreedsRouting
   | list{"surcharge", _} => SurchargeRouting
+  | _ => Routing
+  }
+}
+
+let getRoutingTypefromString = (routingType: string) => {
+  switch routingType {
+  | "payoutrouting" => PayoutRouting
+  | "3dsrouting" => ThreedsRouting
+  | "surchargerouting" => SurchargeRouting
   | _ => Routing
   }
 }

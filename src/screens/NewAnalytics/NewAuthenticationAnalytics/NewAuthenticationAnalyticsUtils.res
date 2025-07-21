@@ -2,6 +2,27 @@ open NewAuthenticationAnalyticsTypes
 open LogicUtils
 open DateRangeUtils
 
+type tabType =
+  | AuthenticationAnalyticsTab
+  | ThreeDSExemptionAnalyticsTab
+  | NoTab
+
+let getTabFromIndex = (tabIndex: int): tabType => {
+  switch tabIndex {
+  | 0 => AuthenticationAnalyticsTab
+  | 1 => ThreeDSExemptionAnalyticsTab
+  | _ => NoTab
+  }
+}
+
+let getTabIndex = (tab: tabType): int => {
+  switch tab {
+  | AuthenticationAnalyticsTab => 0
+  | ThreeDSExemptionAnalyticsTab => 1
+  | NoTab => -1
+  }
+}
+
 let defaultQueryData: queryDataType = {
   authentication_count: 0,
   authentication_attempt_count: 0,
@@ -307,17 +328,57 @@ let getMetricsData = (queryData: queryDataType) => {
   dataArray
 }
 
-let getUpdatedFilterValueJson = (filterValueJson: Dict.t<JSON.t>) => {
+let getUpdatedFilterValueJson = (
+  filterValueJson: Dict.t<JSON.t>,
+  ~currentTab: tabType=ThreeDSExemptionAnalyticsTab,
+) => {
   let updatedFilterValueJson = Js.Dict.map(t => t, filterValueJson)
-  let authConnectors =
-    filterValueJson->getArrayFromDict("authentication_connector", [])->getNonEmptyArray
-  let messageVersions = filterValueJson->getArrayFromDict("message_version", [])->getNonEmptyArray
+  let booleanFilterFields = ["exemption_accepted", "exemption_requested", "whitelist_decision"]
 
-  updatedFilterValueJson->LogicUtils.setOptionArray("authentication_connector", authConnectors)
-  updatedFilterValueJson->LogicUtils.setOptionArray("message_version", messageVersions)
-  updatedFilterValueJson->deleteNestedKeys(["startTime", "endTime"])
+  switch currentTab {
+  | AuthenticationAnalyticsTab => {
+      let authConnectors =
+        filterValueJson->getArrayFromDict("authentication_connector", [])->getNonEmptyArray
+      let messageVersions =
+        filterValueJson->getArrayFromDict("message_version", [])->getNonEmptyArray
 
-  updatedFilterValueJson
+      updatedFilterValueJson->LogicUtils.setOptionArray("authentication_connector", authConnectors)
+      updatedFilterValueJson->LogicUtils.setOptionArray("message_version", messageVersions)
+
+      let filterKeys = updatedFilterValueJson->Dict.keysToArray
+      filterKeys->Array.forEach(key => {
+        if key !== "authentication_connector" && key !== "message_version" {
+          updatedFilterValueJson->Dict.delete(key)
+        }
+      })
+      updatedFilterValueJson
+    }
+  | ThreeDSExemptionAnalyticsTab => {
+      let filterKeys = updatedFilterValueJson->Dict.keysToArray
+
+      filterKeys->Array.forEach(key => {
+        if key !== "startTime" && key !== "endTime" {
+          if booleanFilterFields->Array.includes(key) {
+            let arrayValue = filterValueJson->getArrayFromDict(key, [])
+            let booleanArray =
+              arrayValue
+              ->Array.map(item => {
+                let stringValue = item->getStringFromJson("")
+                stringValue->getBoolFromString(false)->JSON.Encode.bool
+              })
+              ->getNonEmptyArray
+            updatedFilterValueJson->LogicUtils.setOptionArray(key, booleanArray)
+          } else {
+            let arrayValue = filterValueJson->getArrayFromDict(key, [])->getNonEmptyArray
+            updatedFilterValueJson->LogicUtils.setOptionArray(key, arrayValue)
+          }
+        }
+      })
+      updatedFilterValueJson->deleteNestedKeys(["startTime", "endTime"])
+      updatedFilterValueJson
+    }
+  | NoTab => Dict.make()
+  }
 }
 
 let renderValueInp = () => (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {

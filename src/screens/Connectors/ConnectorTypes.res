@@ -107,6 +107,9 @@ type processorTypes =
   | FACILITAPAY
   | ARCHIPEL
   | WORLDPAYVANTIV
+  | BARCLAYCARD
+  | TOKENIO
+  | PAYLOAD
 
 type payoutProcessorTypes =
   | ADYEN
@@ -129,7 +132,7 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING
 
 type connectorTypeVariants =
   | PaymentProcessor

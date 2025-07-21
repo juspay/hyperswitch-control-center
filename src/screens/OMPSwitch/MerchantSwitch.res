@@ -2,6 +2,7 @@ module NewMerchantCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -11,8 +12,9 @@ module NewMerchantCreationModal = {
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
-        | Orchestration
+        | Orchestration(V1)
         | DynamicRouting
+        | Recon(V1)
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
             let _ = await updateDetails(url, values, Post)
@@ -41,13 +43,12 @@ module NewMerchantCreationModal = {
       let dict = Dict.make()
       dict->Dict.set(
         "product_type",
-        (Obj.magic(activeProduct) :> string)->String.toLowerCase->JSON.Encode.string,
+        activeProduct->ProductUtils.getProductStringName->String.toLowerCase->JSON.Encode.string,
       )
       dict->JSON.Encode.object
     }, [activeProduct])
 
     let onSubmit = (values, _) => {
-      open LogicUtils
       let dict = values->getDictFromJsonObject
       let trimmedData = dict->getString("company_name", "")->String.trim
       Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
@@ -73,7 +74,6 @@ module NewMerchantCreationModal = {
     )
 
     let validateForm = (values: JSON.t) => {
-      open LogicUtils
       let errors = Dict.make()
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
       let isDuplicate =
@@ -203,8 +203,7 @@ let make = () => {
         []
       }
       let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
-      let response =
-        concatenatedList->LogicUtils.uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
+      let response = concatenatedList->uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
       let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
       setMerchantList(_ => concatenatedListTyped)
     } catch {
@@ -223,7 +222,7 @@ let make = () => {
         ->Array.find(merchant => merchant.id == value)
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
-      let productType = merchantData.productType->Option.getOr(Orchestration)
+      let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
       setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
@@ -274,7 +273,7 @@ let make = () => {
         merchantName=item.name
         productType={switch item.productType {
         | Some(product) => product
-        | None => Orchestration
+        | None => Orchestration(V1)
         }}
         index=i
         currentId=item.id

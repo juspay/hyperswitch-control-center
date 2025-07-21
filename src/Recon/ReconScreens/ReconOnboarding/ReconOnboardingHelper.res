@@ -14,11 +14,11 @@ module ReconOnboardingLanding = {
 
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let onTryDemoClick = () => {
-      setCreateNewMerchant(ProductTypes.Recon)
+      setCreateNewMerchant(ProductTypes.Recon(V2))
     }
 
     let handleClick = () => {
-      if activeProduct == Recon {
+      if activeProduct == Recon(V2) {
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="v2/recon/configuration"))
       } else {
         onTryDemoClick()
@@ -93,7 +93,7 @@ module ListBaseComp = {
     let bgClass = subHeading->String.length > 0 ? "bg-white" : "bg-nd_gray-50"
 
     <div
-      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 ${bgClass} border rounded-lg border-nd_gray-100 shadow-sm`}>
+      className={`flex flex-row cursor-pointer items-center py-5 px-4 gap-2 min-w-44 justify-between h-8 ${bgClass} border rounded-lg border-nd_gray-150 shadow-sm`}>
       <div className="flex flex-row items-center gap-2">
         <RenderIf condition={subHeading->String.length > 0}>
           <p

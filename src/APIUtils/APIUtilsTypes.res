@@ -82,10 +82,14 @@ type entityName =
   | ACQUIRER_CONFIG_SETTINGS
   | RECOVERY_INVOICES
   | RECOVERY_ATTEMPTS
+  | THREE_DS_EXEMPTION_RULES
+  | HYPERSWITCH_RECON
+  | CHAT_BOT
 
 type v2entityNameType =
   | CUSTOMERS
   | V2_CONNECTOR
+  | V2_ATTEMPTS_LIST
   | V2_ORDERS_LIST
   | PAYMENT_METHOD_LIST
   | RETRIEVE_PAYMENT_METHOD
@@ -93,11 +97,23 @@ type v2entityNameType =
   | USERS
   | TOTAL_TOKEN_COUNT
   | MERCHANT_ACCOUNT
+  | PROCESS_TRACKER
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
 type reconType = [#TOKEN | #REQUEST | #NONE]
 type hypersenseType = [#TOKEN | #HOME | #NONE]
+
+type hyperswitchReconType = [
+  | #ACCOUNTS_LIST
+  | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT
+  | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION
+  | #PROCESSING_ENTRIES_LIST
+  | #TRANSACTIONS_LIST
+  | #FILE_UPLOAD
+  | #RECON_RULES
+  | #NONE
+]
 
 type userType = [
   | #CONNECT_ACCOUNT
@@ -166,6 +182,7 @@ type getUrlTypes = (
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
+  ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParamerters: option<string>=?,
 ) => string

@@ -330,6 +330,16 @@ let payoutRouting = userHasResourceAccess => {
   })
 }
 
+let threeDsExemption = userHasResourceAccess => {
+  SubLevelLink({
+    name: "3DS Exemption Manager",
+    iconTag: "betaTag",
+    link: `/3ds-exemption`,
+    access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager), // Assuming same access as 3DS Decision Manager for now
+    searchOptions: [("View 3DS Exemption", "")],
+  })
+}
+
 let threeDs = userHasResourceAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -350,6 +360,7 @@ let surcharge = userHasResourceAccess => {
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
+  threedsExemptionRules,
   ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
@@ -370,6 +381,9 @@ let workflow = (
   }
   if isPayoutEnabled {
     defaultWorkFlow->Array.push(payoutRouting)->ignore
+  }
+  if threedsExemptionRules {
+    defaultWorkFlow->Array.push(threeDsExemption(userHasResourceAccess))->ignore
   }
 
   isWorkflowEnabled
@@ -620,14 +634,15 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    threedsExemptionRules,
     paymentSettingsV2,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
@@ -649,6 +664,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     default->workflow(
       isSurchargeEnabled,
+      threedsExemptionRules,
       ~userHasResourceAccess,
       ~isPayoutEnabled=payOut,
       ~userEntity,
@@ -671,6 +687,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let defaultSidebar = []
 
   if featureFlagDetails.devModularityV2 {
@@ -689,12 +706,14 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   }
 
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration => hsSidebars
-  | Recon => ReconSidebarValues.reconSidebars
+  | Orchestration(V1) => hsSidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
   | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | Orchestration(V2) => orchestratorV2Sidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

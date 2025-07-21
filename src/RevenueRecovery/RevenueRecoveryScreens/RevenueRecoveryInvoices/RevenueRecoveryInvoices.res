@@ -34,14 +34,34 @@ let make = () => {
     }
   }
 
-  let getPaymentsList = async (_: RescriptCore.Dict.t<Core__JSON.t>) => {
+  let getPaymentsList = async (query: RescriptCore.Dict.t<Core__JSON.t>) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let url = getURL(~entityName=V1(RECOVERY_INVOICES), ~methodType=Get)
-      let res = await fetchDetails(url, ~version=V1)
+      let filter =
+        query
+        ->Dict.toArray
+        ->Array.map(item => {
+          let (key, value) = item
 
-      let data = res->JSON.Decode.array->Option.getOr([])
-      let total = res->getDictFromJsonObject->getInt("total_count", data->Array.length)
+          let value = switch value->JSON.Classify.classify {
+          | String(str) => str
+          | Number(num) => num->Float.toString
+          | _ => ""
+          }
+
+          (key, value)
+        })
+        ->Dict.fromArray
+
+      let url = getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
+      )
+      let res = await fetchDetails(url, ~version=V2)
+
+      let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+      let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
       setData(total, data)
     } catch {
@@ -72,7 +92,11 @@ let make = () => {
       filters->Dict.delete("amount_filter")
 
       filters
-    | _ => Dict.make()
+    | _ => {
+        let filters = Dict.make()
+        filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
+        filters
+      }
     }
 
     query
@@ -81,6 +105,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    // TODO: filters will be enabled later
     // if filters->OrderUIUtils.isNonEmptyValue {
     //   fetchOrders()
     // }
@@ -91,13 +116,9 @@ let make = () => {
 
   let customTitleStyle = "py-0 !pt-0"
 
-  // let customUI =
-  //   <NoDataFound
-  //     customCssClass="my-6" message="Recovery details will appear soon" renderType={ExtendDateUI}
-  //   />
-
   let (widthClass, heightClass) = ("w-full", "")
 
+  // TODO: filters will be enabled later
   // let filtersUI = React.useMemo(() => {
   //   <RemoteTableFilters
   //     title="Orders"
