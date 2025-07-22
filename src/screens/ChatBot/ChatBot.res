@@ -66,9 +66,11 @@ module ChatMessage = {
               response.markdown->LogicUtils.isEmptyString}>
               <div
                 className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-2xl rounded-tl-none px-4 py-3 border border-nd_gray-150 dark:border-nd_gray-700">
-                <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300 leading-relaxed">
-                  {"Something went wrong, please try again."->React.string}
-                </p>
+                <div className="text-sm text-nd_gray-700 dark:text-nd_gray-300 leading-relaxed">
+                  <p className="mb-2">
+                    {"I\'m having trouble understanding which data you need."->React.string}
+                  </p>
+                </div>
               </div>
             </RenderIf>
             <RenderIf condition={isTyping || response.markdown->LogicUtils.isNonEmptyString}>
@@ -108,43 +110,78 @@ module ChatMessage = {
 
 module EmptyState = {
   @react.component
-  let make = () => {
-    <div className="flex flex-col items-center justify-center h-full">
-      <div
-        className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center mb-6">
-        <Icon name="robot" size=32 customIconColor="text-primary" />
+  let make = (~onQuestionClick) => {
+    let questions = [
+      (
+        "💳 Get me the 10 most recent successful payments",
+        "Get me the 10 most recent successful payments",
+      ),
+      (
+        "📊 Show me the payment trends for the last 30 days",
+        "Show me the payment trends for the last 30 days",
+      ),
+      (
+        "⚙️ Give me the payment analytics for the last 7 days",
+        "Give me the payment analytics for the last 7 days",
+      ),
+      (
+        "🔍 Get me the 10 most recent failed payments?",
+        "Get me the 10 most recent failed payments?",
+      ),
+    ]
+
+    <div className="flex flex-col items-center justify-center h-full px-6 py-8">
+      // Header Section
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-nd_gray-800 dark:text-nd_gray-100 mb-3">
+          {"Welcome to Data Assistant"->React.string}
+        </h2>
+        <p
+          className="text-nd_gray-600 dark:text-nd_gray-400 text-center max-w-lg leading-relaxed text-base">
+          {"Ask questions about your payments, refunds, and analytics. Get instant insights without writing any SQL queries."->React.string}
+        </p>
       </div>
-      <h3 className="text-xl font-semibold text-nd_gray-800 dark:text-nd_gray-100 mb-2">
-        {"Welcome to AI Assistant"->React.string}
-      </h3>
-      <p className="text-nd_gray-600 dark:text-nd_gray-400 text-center max-w-md leading-relaxed">
-        {"I'm here to help you with questions about your payments, analytics, and platform features. Ask me anything!"->React.string}
-      </p>
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
-        <div
-          className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-lg p-3 border border-nd_gray-150 dark:border-nd_gray-700">
-          <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300">
-            {"💳 \"Get me the 10 most recent successful payments \""->React.string}
+      // Example Questions Section
+      <div className="w-full max-w-2xl">
+        <div className="text-center mb-6">
+          <h3 className="text-lg font-semibold text-nd_gray-800 dark:text-nd_gray-100 mb-2">
+            {"Try these examples"->React.string}
+          </h3>
+          <p className="text-sm text-nd_gray-500 dark:text-nd_gray-400">
+            {"Click on any question below to get started"->React.string}
           </p>
         </div>
-        <div
-          className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-lg p-3 border border-nd_gray-150 dark:border-nd_gray-700">
-          <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300">
-            {"📊 \"Show me the payment trends for the last 30 days\""->React.string}
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {questions
+          ->Array.mapWithIndex(((displayText, messageText), index) => {
+            <div
+              key={index->Int.toString}
+              className="group bg-white dark:bg-nd_gray-800 rounded-xl p-4 border border-nd_gray-200 dark:border-nd_gray-600 cursor-pointer hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10 hover:shadow-md transition-all duration-200"
+              onClick={_ => onQuestionClick(messageText)}>
+              <div className="flex items-start space-x-3">
+                <div
+                  className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-200">
+                  <span className="text-lg">
+                    {displayText->String.slice(~start=0, ~end=2)->React.string}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <p
+                    className="text-sm font-medium text-nd_gray-700 dark:text-nd_gray-300 group-hover:text-primary transition-colors duration-200 leading-relaxed">
+                    {displayText->String.sliceToEnd(~start=2)->React.string}
+                  </p>
+                </div>
+              </div>
+            </div>
+          })
+          ->React.array}
         </div>
-        <div
-          className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-lg p-3 border border-nd_gray-150 dark:border-nd_gray-700">
-          <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300">
-            {"⚙️ \"Give me the payment analytics for the last 7 days\""->React.string}
-          </p>
-        </div>
-        <div
-          className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-lg p-3 border border-nd_gray-150 dark:border-nd_gray-700">
-          <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300">
-            {"🔍 \"Get me the 10 most recent failed payments?\""->React.string}
-          </p>
-        </div>
+      </div>
+      // Footer Section
+      <div className="mt-8 text-center">
+        <p className="text-xs text-nd_gray-500 dark:text-nd_gray-400">
+          {"Or type your own question in the input field below"->React.string}
+        </p>
       </div>
     </div>
   }
@@ -158,6 +195,14 @@ let make = () => {
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
+
+  // Generate and store new session UUID on every page load/refresh
+  let _ = React.useMemo(() => {
+    let sessionKey = "chatbot_session_id"
+    let newId = LogicUtils.randomString(~length=32)
+    SessionStorage.sessionStorage.setItem(sessionKey, newId)
+  }, [])
+
   let scrollToBottom = () => {
     switch chatContainerRef.current->Nullable.toOption {
     | Some(element) =>
@@ -178,13 +223,10 @@ let make = () => {
     }
   }, [chat])
 
-  let onSubmit = async (values, form: ReactFinalForm.formApi) => {
-    let message = values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", "")
-
+  let submitMessage = async (message: string) => {
     if message->String.trim->String.length === 0 {
-      Nullable.null
+      ()
     } else {
-      form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
       setChat(_ =>
         [
           ...chat,
@@ -254,9 +296,23 @@ let make = () => {
       } catch {
       | _ => setLoading(_ => false)
       }
+    }
+  }
 
+  let onSubmit = async (values, form: ReactFinalForm.formApi) => {
+    let message = values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", "")
+
+    if message->String.trim->String.length === 0 {
+      Nullable.null
+    } else {
+      form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
+      await submitMessage(message)
       Nullable.null
     }
+  }
+
+  let onQuestionClick = (question: string) => {
+    submitMessage(question)->ignore
   }
 
   <div className="relative flex flex-col h-85-vh justify-between">
@@ -268,14 +324,14 @@ let make = () => {
         </div>
         <div>
           <h1 className="text-lg font-semibold text-nd_gray-800 dark:text-nd_gray-100">
-            {"AI Assistant"->React.string}
+            {"Data Assistant"->React.string}
           </h1>
         </div>
       </div>
     </div>
-    <div className="p-6 h-80-vh overflow-y-auto" ref={chatContainerRef->ReactDOM.Ref.domRef}>
+    <div className="h-80-vh overflow-y-auto" ref={chatContainerRef->ReactDOM.Ref.domRef}>
       <RenderIf condition={chat->Array.length === 0}>
-        <EmptyState />
+        <EmptyState onQuestionClick />
       </RenderIf>
       <RenderIf condition={chat->Array.length > 0}>
         <div className="w-full space-y-6 mb-16">
