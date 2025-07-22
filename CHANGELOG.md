@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.22.0
+
+### Miscellaneous Tasks
+
+- Recovery invoices page changes ([#3319](https://github.com/juspay/hyperswitch-control-center/pull/3319)) ([`09fd5a8`](https://github.com/juspay/hyperswitch-control-center/commit/09fd5a89e77495a62857d48cb5dc24695eea299c))
+
+**Full Changelog:** [`2025.07.21.0...2025.07.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.21.0...2025.07.22.0)
+
+- - -
+
 ## 2025.07.21.0
 
 ### Features
