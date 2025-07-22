@@ -69,9 +69,7 @@ module NewProcessorCards = {
     let headerText = "Connect a new fraud & risk management player"
 
     <RenderIf condition={unConfiguredFRMCount > 0}>
-      <div className="flex flex-col gap-4">
-        {frmAvailableForIntegration->descriptedFRMs(headerText)}
-      </div>
+      <div className="flex flex-col gap-4"> {unConfiguredFRMs->descriptedFRMs(headerText)} </div>
     </RenderIf>
   }
 }
