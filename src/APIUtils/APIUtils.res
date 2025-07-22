@@ -1110,7 +1110,6 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
-
   let fetchApi = AuthHooks.useApiFetcher()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
@@ -1129,7 +1128,6 @@ let useHandleLogout = (~eventName="user_sign_out") => {
         })
       setAuthStateToLogout()
       clearRecoilValue()
-
       CommonAuthUtils.clearLocalStorage()
     } catch {
     | _ => CommonAuthUtils.clearLocalStorage()
