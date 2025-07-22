@@ -70,27 +70,30 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
+  open HSwitchOrderUtils
   let errorCode = ref("")
   let errorMessage = ref("")
-  json
-  ->getArrayFromJson([])
-  ->Array.map(item => {
+
+  let attemptsList = json->getArrayFromJson([])
+
+  let updateGlobalError = (network_decline_code, network_error_message) => {
+    errorCode := network_decline_code
+    errorMessage := network_error_message
+  }
+
+  attemptsList->Array.map(item => {
     let dict = item->getDictFromJsonObject
 
-    let network_decline_code =
-      dict
-      ->getDictfromDict("error")
-      ->getString("network_decline_code", "")
-    let network_error_message =
-      dict
-      ->getDictfromDict("error")
-      ->getString("network_error_message", "")
+    let errorDict = dict->getDictfromDict("error")
+
+    let networkDeclineCode = errorDict->getString("network_decline_code", "")
+    let networkErrorMessage = errorDict->getString("network_error_message", "")
 
     if (
-      (network_decline_code->isEmptyString || network_error_message->isEmptyString) &&
-        dict->getString("status", "") != "charged"
+      (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&
+        dict->getString("status", "")->paymentAttemptStatusVariantMapper != #CHARGED
     ) {
-      let temp =
+      let errorObject =
         [
           ("network_decline_code", errorCode.contents->JSON.Encode.string),
           ("network_error_message", errorMessage.contents->JSON.Encode.string),
@@ -98,12 +101,11 @@ let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
         ->Dict.fromArray
         ->JSON.Encode.object
 
-      dict->Dict.set("error", temp)
+      dict->Dict.set("error", errorObject)
     }
 
     if errorCode.contents->isEmptyString || errorMessage.contents->isEmptyString {
-      errorCode := network_decline_code
-      errorMessage := network_error_message
+      updateGlobalError(networkDeclineCode, networkErrorMessage)
     }
 
     dict->attemptsItemToObjMapper
