@@ -8,7 +8,7 @@ let make = (~routingType) => {
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
-  let connectorList = ConnectorInterface.useFilteredConnectorList(
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=ConnectorTypes.PaymentProcessor,
   )
 

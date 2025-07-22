@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=TaxProcessor)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=TaxProcessor)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -79,8 +79,8 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
-            ConnectorInterface.connectorInterfaceV1,
+          configuredConnectors={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+            ConnectorListInterface.connectorInterfaceV1,
             ConnectorTypes.TaxProcessor,
             configuredConnectors,
           )}

@@ -12,7 +12,7 @@ module BillingConnectorDetails = {
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-    let billingConnectorListFromRecoil = ConnectorInterface.useFilteredConnectorList(
+    let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
     )
 
@@ -40,8 +40,8 @@ module BillingConnectorDetails = {
       None
     }, [])
 
-    let connectorInfodict = ConnectorInterface.mapDictToIndividualConnectorPayload(
-      ConnectorInterface.connectorInterfaceV2,
+    let connectorInfodict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+      ConnectorListInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
 
@@ -192,8 +192,8 @@ module PaymentConnectorDetails = {
       None
     }, [connectorId])
 
-    let connectorInfodict = ConnectorInterface.mapDictToIndividualConnectorPayload(
-      ConnectorInterface.connectorInterfaceV2,
+    let connectorInfodict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+      ConnectorListInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
 

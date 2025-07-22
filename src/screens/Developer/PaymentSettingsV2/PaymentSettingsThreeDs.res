@@ -61,7 +61,7 @@ let make = () => {
   open HSwitchUtils
   open FormRenderer
 
-  let threedsConnectorList = ConnectorInterface.useFilteredConnectorList(
+  let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
   let getURL = useGetURL()

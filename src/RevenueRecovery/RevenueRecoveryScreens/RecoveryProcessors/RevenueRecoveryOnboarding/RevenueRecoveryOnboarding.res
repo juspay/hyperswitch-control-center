@@ -2,7 +2,9 @@
 let make = () => {
   open RevenueRecoveryOnboardingUtils
 
-  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PaymentProcessor,
+  )
   let hasConfiguredPaymentConnector = connectorList->Array.length > 0
   let (connectorID, connectorName) = connectorList->BillingProcessorsUtils.getConnectorDetails
   let (currentStep, setNextStep) = React.useState(() =>

@@ -12,7 +12,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   | PayoutRouting => ConnectorTypes.PayoutProcessor
   | _ => ConnectorTypes.PaymentProcessor
   }
-  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=connectorType)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
   React.useEffect(() => {
     let typeString = if isDistribute {

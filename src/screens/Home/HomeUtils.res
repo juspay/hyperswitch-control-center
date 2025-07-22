@@ -74,7 +74,7 @@ module CheckoutCard = {
     let {userHasAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
-    let connectorList = ConnectorInterface.useFilteredConnectorList()
+    let connectorList = ConnectorListInterface.useFilteredConnectorList()
 
     let isConfigureConnector = connectorList->Array.length > 0
 

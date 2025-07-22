@@ -10,7 +10,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -21,8 +21,8 @@ let make = () => {
       setFilteredConnectorData(_ => connectorList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorList->Array.map(Nullable.make))
 
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV1,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV1,
         ConnectorTypes.PayoutProcessor,
         connectorList,
       )

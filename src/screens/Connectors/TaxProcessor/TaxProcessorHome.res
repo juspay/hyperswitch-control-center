@@ -71,8 +71,8 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = ConnectorInterface.mapDictToIndividualConnectorPayload(
-    ConnectorInterface.connectorInterfaceV1,
+  let connectorInfo = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+    ConnectorListInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
 
@@ -343,8 +343,8 @@ let make = () => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.mapDictToIndividualConnectorPayload(
-                ConnectorInterface.connectorInterfaceV1,
+              connectorInfo={ConnectorListInterface.mapDictToIndividualConnectorPayload(
+                ConnectorListInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}
               connector=connectorName

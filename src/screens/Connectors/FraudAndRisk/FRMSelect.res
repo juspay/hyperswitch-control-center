@@ -88,8 +88,10 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
-  let frmConnectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentVas)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PaymentProcessor,
+  )
+  let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -176,8 +178,8 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        configuredFRMs={ConnectorInterface.mapConnectorPayloadToConnectorType(
-          ConnectorInterface.connectorInterfaceV1,
+        configuredFRMs={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+          ConnectorListInterface.connectorInterfaceV1,
           ConnectorTypes.FRMPlayer,
           configuredFRMs,
         )}

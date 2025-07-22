@@ -6,7 +6,7 @@ let make = () => {
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
 
-  let connectorListFromRecoil = ConnectorInterface.useFilteredConnectorList(
+  let connectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -20,8 +20,8 @@ let make = () => {
 
       connectorListFromRecoil->Array.reverse
 
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV2,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV2,
         ConnectorTypes.Processor,
         connectorListFromRecoil,
       )

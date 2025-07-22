@@ -122,8 +122,8 @@ let make = () => {
       }
     }
   }, [connectorName])
-  let connectorInfo = ConnectorInterface.mapDictToIndividualConnectorPayload(
-    ConnectorInterface.connectorInterfaceV1,
+  let connectorInfo = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+    ConnectorListInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
 
@@ -315,8 +315,8 @@ let make = () => {
             connectorType=ThreeDsAuthenticator
             headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.mapDictToIndividualConnectorPayload(
-                ConnectorInterface.connectorInterfaceV1,
+              connectorInfo={ConnectorListInterface.mapDictToIndividualConnectorPayload(
+                ConnectorListInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}
               connector=connectorName

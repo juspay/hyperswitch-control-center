@@ -3,8 +3,8 @@ let make = (~connectorInfo) => {
   open CommonAuthHooks
   open LogicUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let connectorInfodict = ConnectorInterface.mapDictToIndividualConnectorPayload(
-    ConnectorInterface.connectorInterfaceV2,
+  let connectorInfodict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+    ConnectorListInterface.connectorInterfaceV2,
     connectorInfo->LogicUtils.getDictFromJsonObject,
   )
   let mixpanelEvent = MixpanelHook.useSendEvent()

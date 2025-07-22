@@ -13,7 +13,7 @@ let make = () => {
     setFilteredConnectorData,
   ) = React.useState(_ => [])
 
-  let connectorList = ConnectorInterface.useFilteredConnectorList(
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
 
@@ -91,8 +91,8 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
-            ConnectorInterface.connectorInterfaceV1,
+          configuredConnectors={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+            ConnectorListInterface.connectorInterfaceV1,
             ConnectorTypes.ThreeDsAuthenticator,
             configuredConnectors,
           )}

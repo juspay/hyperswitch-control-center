@@ -450,7 +450,7 @@ module ClickToPaySection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let connectorListAtom = ConnectorInterface.useFilteredConnectorList(
+    let connectorListAtom = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=AuthenticationProcessor,
     )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -546,7 +546,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
-  let threedsConnectorList = ConnectorInterface.useFilteredConnectorList(
+  let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
   let isBusinessProfileHasThreeds =

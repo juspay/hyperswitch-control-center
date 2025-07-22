@@ -18,7 +18,7 @@ let make = (~getClientSecret) => {
   } = React.useContext(SDKProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(() => false)
   let showToast = ToastState.useShowToast()
-  let paymentConnectorList = ConnectorInterface.useFilteredConnectorList(
+  let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
 

@@ -10,7 +10,9 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
 
-  let connectorsList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
+  let connectorsList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PaymentProcessor,
+  )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -24,8 +26,8 @@ let make = () => {
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
 
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV1,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV1,
         ConnectorTypes.Processor,
         connectorsList,
       )

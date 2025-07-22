@@ -115,8 +115,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let connectorInfo = ConnectorInterface.mapDictToIndividualConnectorPayload(
-    ConnectorInterface.connectorInterfaceV1,
+  let connectorInfo = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+    ConnectorListInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
 
@@ -269,8 +269,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector connectorType={PayoutProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.mapDictToIndividualConnectorPayload(
-                ConnectorInterface.connectorInterfaceV1,
+              connectorInfo={ConnectorListInterface.mapDictToIndividualConnectorPayload(
+                ConnectorListInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}
               connector

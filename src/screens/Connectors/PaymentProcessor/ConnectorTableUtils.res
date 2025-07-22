@@ -27,8 +27,8 @@ let getConnectorObjectFromListViaId = (
   connectorList
   ->Array.find(ele => {ele.id == mca_id})
   ->Option.getOr(
-    ConnectorInterface.mapDictToConnectorPayload(
-      ConnectorInterface.connectorInterfaceV1,
+    ConnectorListInterface.mapDictToConnectorPayload(
+      ConnectorListInterface.connectorInterfaceV1,
       Dict.make(),
     ),
   )

@@ -13,7 +13,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
 
-  let connectorsList = ConnectorInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
+  let connectorsList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
 
   let textStyle = HSwitchUtils.getTextClass((H2, Optional))
   let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-nd_gray-400`
@@ -25,8 +25,8 @@ let make = () => {
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
 
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV2,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV2,
         ConnectorTypes.Processor,
         connectorsList,
       )

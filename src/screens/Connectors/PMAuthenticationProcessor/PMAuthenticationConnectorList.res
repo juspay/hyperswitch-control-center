@@ -6,7 +6,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorList = ConnectorInterface.useFilteredConnectorList(~retainInList=PMAuthProcessor)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PMAuthProcessor)
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -80,8 +80,8 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
-            ConnectorInterface.connectorInterfaceV1,
+          configuredConnectors={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+            ConnectorListInterface.connectorInterfaceV1,
             ConnectorTypes.PMAuthenticationProcessor,
             configuredConnectors,
           )}

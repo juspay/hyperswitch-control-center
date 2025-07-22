@@ -7,7 +7,7 @@ module ConnectorOverview = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
 
-    let connectorsList = ConnectorInterface.useFilteredConnectorList(
+    let connectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=ConnectorTypes.PaymentProcessor,
     )
     let configuredConnectors =

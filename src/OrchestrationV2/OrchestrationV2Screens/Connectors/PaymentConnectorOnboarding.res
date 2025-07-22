@@ -28,8 +28,8 @@ let make = () => {
     subSectionId: None,
   })
 
-  let connectorInfoDict = ConnectorInterface.mapDictToIndividualConnectorPayload(
-    ConnectorInterface.connectorInterfaceV2,
+  let connectorInfoDict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
+    ConnectorListInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
 

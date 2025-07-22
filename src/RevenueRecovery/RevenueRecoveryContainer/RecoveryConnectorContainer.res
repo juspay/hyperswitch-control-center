@@ -28,7 +28,7 @@ let make = () => {
     }
   }
 
-  let connectors = ConnectorInterface.useFilteredConnectorList(~retainInList=BillingProcessor)
+  let connectors = ConnectorListInterface.useFilteredConnectorList(~retainInList=BillingProcessor)
 
   let hasConfiguredBillingConnector = connectors->Array.length > 0
 
