@@ -135,7 +135,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
           </div>
         </div>
         {
-          let keyExtractor = (index, gateway: JSON.t, isDragging) => {
+          let keyExtractor = (index, gateway: JSON.t, isDragging, _) => {
             let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
 
             let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
