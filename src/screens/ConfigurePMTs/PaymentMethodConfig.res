@@ -88,7 +88,9 @@ let make = (
   open APIUtils
   let getURL = useGetURL()
 
-  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentProcessor)
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PaymentProcessor,
+  )
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 
