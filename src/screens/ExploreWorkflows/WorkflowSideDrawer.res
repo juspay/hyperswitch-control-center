@@ -41,6 +41,7 @@ let make = () => {
   let {setWorkflowDrawerState, workflowDrawerState} = React.useContext(
     GlobalProvider.defaultContext,
   )
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let isSmallerScreen = MatchMedia.useScreenSizeChecker(~screenSize="1279")
 
   let workflowTitle = switch workflowDrawerState {
@@ -79,7 +80,12 @@ let make = () => {
   let padding = isSmallerScreen ? "p-4 pr-0" : "p-4"
   let roundedClass = isSmallerScreen ? "rounded-tl-lg rounded-bl-lg" : "rounded-lg"
 
-  <RenderIf condition={workflowDrawerState !== Closed}>
+  let showWorkflowDrawer = switch activeProduct {
+  | Orchestration(V1) => true
+  | _ => false
+  }
+
+  <RenderIf condition={workflowDrawerState !== Closed && showWorkflowDrawer}>
     <div
       className={`fixed inset-0 z-40 bottom-0 flex justify-end items-end ${padding} pointer-events-none overflow-x-hidden`}>
       <div
