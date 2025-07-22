@@ -775,8 +775,7 @@ module BaseSelect = {
       onSelect(selectedValues->Array.map(item => item.value))
     }
     let handleDisable = (item: dropdownOptionWithoutOptional, _) => {
-      !(saneValue->Array.includes(item.value)) ||
-      filteredOptions->Array.length < saneValue->Array.length
+      !(saneValue->Array.includes(item.value)) || searchString->LogicUtils.isNonEmptyString
     }
 
     <div
