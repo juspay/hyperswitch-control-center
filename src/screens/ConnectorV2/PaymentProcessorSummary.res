@@ -66,8 +66,8 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   }
 
   let data = initialValues->getDictFromJsonObject
-  let connectorInfodict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-    ConnectorListInterface.connectorInterfaceV2,
+  let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
     data,
   )
   let {connector_name: connectorName} = connectorInfodict

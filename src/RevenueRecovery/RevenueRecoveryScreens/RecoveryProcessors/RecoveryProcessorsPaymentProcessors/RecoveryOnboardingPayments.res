@@ -33,8 +33,8 @@ let make = (
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-  let connectorInfoDict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-    ConnectorListInterface.connectorInterfaceV2,
+  let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
@@ -113,8 +113,8 @@ let make = (
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
 
-      let connectorInfoDict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-        ConnectorListInterface.connectorInterfaceV2,
+      let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
+        ConnectorInterface.connectorInterfaceV2,
         response->getDictFromJsonObject,
       )
       setConnectorID(_ => connectorInfoDict.id)

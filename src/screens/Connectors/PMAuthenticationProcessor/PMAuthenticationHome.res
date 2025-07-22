@@ -73,8 +73,8 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-    ConnectorListInterface.connectorInterfaceV1,
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
 

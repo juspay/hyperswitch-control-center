@@ -29,8 +29,8 @@ let make = (
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-  let connectorInfoDict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-    ConnectorListInterface.connectorInterfaceV2,
+  let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
   let connectorTypeFromName =

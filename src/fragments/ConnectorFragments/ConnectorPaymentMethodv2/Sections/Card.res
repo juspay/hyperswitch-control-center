@@ -5,8 +5,8 @@ module SelectedCardValues = {
     open SectionHelper
     open ConnectorPaymentMethodV2Utils
     let data1 = initialValues->getDictFromJsonObject
-    let data = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-      ConnectorListInterface.connectorInterfaceV2,
+    let data = ConnectorInterface.mapDictToTypedConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
       data1,
     )
     let cardData =

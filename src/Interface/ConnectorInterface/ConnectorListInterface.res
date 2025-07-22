@@ -5,11 +5,9 @@ open ConnectorInterfaceUtils
 module type ConnectorListInterface = {
   type jsonConnectorData
   type commonPayload
-  type typedConnectorPayload
   type input
   type output
 
-  let mapDictToIndividualConnectorPayload: jsonConnectorData => typedConnectorPayload
   let mapDictToConnectorPayload: jsonConnectorData => commonPayload
   let mapConnectorPayloadToConnectorType: (input, array<commonPayload>) => array<output>
 }
@@ -20,17 +18,13 @@ module type ConnectorListInterface = {
 module V1: ConnectorListInterface
   with type jsonConnectorData = Dict.t<JSON.t>
   and type commonPayload = connectorPayloadCommonType
-  and type typedConnectorPayload = connectorPayload
   and type input = connector
   and type output = connectorTypes = {
   type jsonConnectorData = Dict.t<JSON.t>
   type commonPayload = connectorPayloadCommonType
-  type typedConnectorPayload = connectorPayload
   type input = connector
   type output = connectorTypes
 
-  let mapDictToIndividualConnectorPayload = (dict: jsonConnectorData): typedConnectorPayload =>
-    mapDictToConnectorPayload(dict)
   let mapDictToConnectorPayload = (dict: jsonConnectorData): commonPayload =>
     mapDictToConnectorPayload(dict)->mapV1DictToCommonConnectorPayload
   let mapConnectorPayloadToConnectorType = (
@@ -43,17 +37,13 @@ module V1: ConnectorListInterface
 module V2: ConnectorListInterface
   with type jsonConnectorData = Dict.t<JSON.t>
   and type commonPayload = connectorPayloadCommonType
-  and type typedConnectorPayload = connectorPayloadV2
   and type input = connector
   and type output = connectorTypes = {
   type jsonConnectorData = Dict.t<JSON.t>
   type commonPayload = connectorPayloadCommonType
-  type typedConnectorPayload = connectorPayloadV2
   type input = connector
   type output = connectorTypes
 
-  let mapDictToIndividualConnectorPayload = (dict: jsonConnectorData): typedConnectorPayload =>
-    mapDictToConnectorPayloadV2(dict)
   let mapDictToConnectorPayload = (dict: jsonConnectorData): commonPayload =>
     mapDictToConnectorPayloadV2(dict)->mapV2DictToCommonConnectorPayload
   let mapConnectorPayloadToConnectorType = (
@@ -64,12 +54,11 @@ module V2: ConnectorListInterface
 
 //parametric polymorphism, connectorInterfaceFCM is a type that takes 5 type parameters
 // This allows for parametric polymorphism, meaning we can generalize the ConnectorListInterface module with different types ('a, 'b, etc.).
-type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorListInterface with
+type connectorInterfaceFCM<'a, 'b, 'c, 'd> = module(ConnectorListInterface with
   type jsonConnectorData = 'a
   and type commonPayload = 'b
-  and type typedConnectorPayload = 'c
-  and type input = 'd
-  and type output = 'e
+  and type input = 'c
+  and type output = 'd
 )
 
 //Creating Instances of the Interface
@@ -78,7 +67,6 @@ type connectorInterfaceFCM<'a, 'b, 'c, 'd, 'e> = module(ConnectorListInterface w
 let connectorInterfaceV1: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadCommonType,
-  connectorPayload,
   connector,
   connectorTypes,
 > = module(V1)
@@ -87,57 +75,40 @@ let connectorInterfaceV1: connectorInterfaceFCM<
 let connectorInterfaceV2: connectorInterfaceFCM<
   Dict.t<JSON.t>,
   connectorPayloadCommonType,
-  connectorPayloadV2,
   connector,
   connectorTypes,
 > = module(V2)
 
-// Generic Function: mapDictToConnectorPayload
+// Generic Function: mapDictToConnectorPayload and mapConnectorPayloadToConnectorType
 
 // This function takes:
 // 1. A module L implementing ConnectorListInterface.
 // 2. An input of type a (jsonConnectorData).
 // 3. It calls L.mapDictToConnectorPayload and returns the mapped output.
 let mapDictToConnectorPayload = (
-  type a b c d e,
+  type a b c d,
   module(L: ConnectorListInterface with
     type jsonConnectorData = a
     and type commonPayload = b
-    and type typedConnectorPayload = c
-    and type input = d
-    and type output = e
+    and type input = c
+    and type output = d
   ),
   inp: a,
 ): b => {
   L.mapDictToConnectorPayload(inp)
 }
 
-let mapDictToIndividualConnectorPayload = (
-  type a b c d e,
-  module(L: ConnectorListInterface with
-    type jsonConnectorData = a
-    and type commonPayload = b
-    and type typedConnectorPayload = c
-    and type input = d
-    and type output = e
-  ),
-  inp: a,
-): c => {
-  L.mapDictToIndividualConnectorPayload(inp)
-}
-
 let mapConnectorPayloadToConnectorType = (
-  type a b c d e,
+  type a b c d,
   module(L: ConnectorListInterface with
     type jsonConnectorData = a
     and type commonPayload = b
-    and type typedConnectorPayload = c
-    and type input = d
-    and type output = e
+    and type input = c
+    and type output = d
   ),
-  inp1: d,
+  inp1: c,
   inp2: array<b>,
-): array<e> => {
+): array<d> => {
   L.mapConnectorPayloadToConnectorType(inp1, inp2)
 }
 

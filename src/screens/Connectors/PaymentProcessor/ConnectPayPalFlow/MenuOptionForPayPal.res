@@ -18,8 +18,8 @@ let make = (
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
 
-  let connectorInfo = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-    ConnectorListInterface.connectorInterfaceV1,
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
     connectorInfoDict,
   )
 

@@ -40,8 +40,8 @@ module BillingConnectorDetails = {
       None
     }, [])
 
-    let connectorInfodict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-      ConnectorListInterface.connectorInterfaceV2,
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
 
@@ -192,8 +192,8 @@ module PaymentConnectorDetails = {
       None
     }, [connectorId])
 
-    let connectorInfodict = ConnectorListInterface.mapDictToIndividualConnectorPayload(
-      ConnectorListInterface.connectorInterfaceV2,
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
 
