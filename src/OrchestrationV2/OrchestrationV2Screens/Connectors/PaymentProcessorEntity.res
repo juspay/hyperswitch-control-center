@@ -103,9 +103,7 @@ let connectorEntity = (
 ) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),

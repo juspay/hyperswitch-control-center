@@ -93,9 +93,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
 let payoutProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,

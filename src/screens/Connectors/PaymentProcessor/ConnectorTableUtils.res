@@ -112,9 +112,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
 let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),

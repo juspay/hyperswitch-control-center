@@ -31,9 +31,7 @@ let getCell = (webhook: attemptTable, colType): Table.cell => {
 let webhooksDetailsEntity = () => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,

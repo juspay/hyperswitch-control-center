@@ -54,9 +54,7 @@ let getCell = (webhook: webhookObject, colType): Table.cell => {
 let webhooksEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,

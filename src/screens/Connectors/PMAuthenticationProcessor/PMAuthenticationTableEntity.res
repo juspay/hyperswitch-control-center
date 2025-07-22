@@ -64,9 +64,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
 let pmAuthenticationEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,

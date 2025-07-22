@@ -58,9 +58,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
 let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=_ => {
-      []
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,
