@@ -1,5 +1,6 @@
 open ExploreWorkflowsTypes
 open ExploreWorkflowsUtils
+open Typography
 
 module InternalWorkflowDisplayCard = {
   open Button
@@ -20,14 +21,8 @@ module InternalWorkflowDisplayCard = {
           graphicComponent
         </div>
         <div className="flex flex-col gap-1 mb-4">
-          <h3
-            className="font-inter-style font-semibold text-fs-16 text-jp-gray-900 dark:text-jp-gray-text_darktheme">
-            {title->React.string}
-          </h3>
-          <p
-            className="font-inter-style font-medium text-fs-14 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-70">
-            {description->React.string}
-          </p>
+          <h3 className={`${body.lg.semibold} text-nd_gray-700 `}> {title->React.string} </h3>
+          <p className={`${body.md.medium} text-nd_gray-400`}> {description->React.string} </p>
         </div>
       </div>
       <div className="mt-auto">
@@ -56,13 +51,9 @@ let make = () => {
   }
 
   <div className="py-6">
-    <div className="mb-6">
-      <h2
-        className="font-inter-style font-semibold text-fs-20 text-jp-gray-900 dark:text-jp-gray-text_darktheme">
-        {"Explore Workflows"->React.string}
-      </h2>
-      <p
-        className="font-inter-style font-medium text-fs-16 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-70 mt-1">
+    <div className="flex flex-col gap-2 mb-6">
+      <p className={heading.md.semibold}> {"Explore Workflows"->React.string} </p>
+      <p className={`${body.lg.medium} text-nd_gray-400`}>
         {"Discover and configure powerful workflows to optimize your payment operations."->React.string}
       </p>
     </div>
