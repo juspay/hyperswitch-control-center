@@ -71,14 +71,9 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
   open HSwitchOrderUtils
-  let errorDict = Dict.make()
+  let errorObject = Dict.make()
 
   let attemptsList = json->getArrayFromJson([])
-
-  let updateGlobalError = (network_decline_code, network_error_message) => {
-    errorDict->Dict.set("network_decline_code", network_decline_code)
-    errorDict->Dict.set("network_error_message", network_error_message)
-  }
 
   attemptsList->Array.map(item => {
     let dict = item->getDictFromJsonObject
@@ -92,11 +87,12 @@ let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
       (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&
         dict->getString("status", "")->paymentAttemptStatusVariantMapper != #CHARGED
     ) {
-      dict->Dict.set("error", errorDict->JSON.Encode.object)
+      dict->Dict.set("error", errorObject->JSON.Encode.object)
     }
 
-    if errorDict->LogicUtils.isEmptyDict {
-      updateGlobalError(networkDeclineCode, networkErrorMessage)
+    if errorObject->isEmptyDict {
+      errorObject->Dict.set("network_decline_code", networkDeclineCode->JSON.Encode.string)
+      errorObject->Dict.set("network_error_message", networkErrorMessage->JSON.Encode.string)
     }
 
     dict->attemptsItemToObjMapper
