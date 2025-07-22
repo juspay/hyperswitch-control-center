@@ -71,14 +71,13 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
   open HSwitchOrderUtils
-  let errorCode = ref("")
-  let errorMessage = ref("")
+  let errorDict = Dict.make()
 
   let attemptsList = json->getArrayFromJson([])
 
   let updateGlobalError = (network_decline_code, network_error_message) => {
-    errorCode := network_decline_code
-    errorMessage := network_error_message
+    errorDict->Dict.set("network_decline_code", network_decline_code)
+    errorDict->Dict.set("network_error_message", network_error_message)
   }
 
   attemptsList->Array.map(item => {
@@ -93,18 +92,10 @@ let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
       (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&
         dict->getString("status", "")->paymentAttemptStatusVariantMapper != #CHARGED
     ) {
-      let errorObject =
-        [
-          ("network_decline_code", errorCode.contents->JSON.Encode.string),
-          ("network_error_message", errorMessage.contents->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-
-      dict->Dict.set("error", errorObject)
+      dict->Dict.set("error", errorDict->JSON.Encode.object)
     }
 
-    if errorCode.contents->isEmptyString || errorMessage.contents->isEmptyString {
+    if errorDict->LogicUtils.isEmptyDict {
       updateGlobalError(networkDeclineCode, networkErrorMessage)
     }
 
