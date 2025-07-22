@@ -4,7 +4,7 @@ module SelectedCardValues = {
     open LogicUtils
     open SectionHelper
     let data1 = initialValues->getDictFromJsonObject
-    let data = ConnectorInterface.mapDictToConnectorPayload(
+    let data = ConnectorInterface.mapDictToTypedConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       data1,
     )
@@ -65,7 +65,7 @@ let make = (
 
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let data = formState.values->getDictFromJsonObject
-  let connData: ConnectorTypes.connectorPayloadCommonType = ConnectorInterface.mapDictToConnectorPayload(
+  let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     data,
   )

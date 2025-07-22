@@ -3,26 +3,81 @@ open SDKPaymentHelper
 
 module AuthorizationAndCaptureSettings = {
   @react.component
-  let make = () => {
+  let make = (
+    ~showSetupFutureUsage,
+    ~setShowSetupFutureUsage,
+    ~setInitialValuesForCheckoutForm,
+    ~sendAuthType,
+    ~setSendAuthType,
+    ~businessProfileRecoilVal,
+  ) => {
+    let handleIsSelectedForFuture = (val, setFunc) => {
+      setInitialValuesForCheckoutForm(_ => {
+        SDKPaymentUtils.initialValueForForm(
+          ~showSetupFutureUsage=val,
+          ~sendAuthType,
+          businessProfileRecoilVal,
+        )
+      })
+      setFunc(_ => val)
+    }
+    let handleIsSelectedForThreeDs = (val, setFunc) => {
+      setInitialValuesForCheckoutForm(_ => {
+        SDKPaymentUtils.initialValueForForm(
+          ~sendAuthType=val,
+          ~showSetupFutureUsage,
+          businessProfileRecoilVal,
+        )
+      })
+      setFunc(_ => val)
+    }
+
     <>
-      <DesktopRow itemWrapperClass="">
+      <DesktopRow itemWrapperClass="mx-0">
         <FieldRenderer field=selectCaptureMethodField />
-        <FieldRenderer field=selectSetupFutureUsageField />
+        <div className="flex justify-between mr-2">
+          <FieldRenderer field={selectSetupFutureUsageField(showSetupFutureUsage)} />
+          <BoolInput.BaseComponent
+            isSelected=showSetupFutureUsage
+            setIsSelected={val => handleIsSelectedForFuture(val, setShowSetupFutureUsage)}
+            boolCustomClass="rounded-xl mt-5"
+            toggleEnableColor="bg-primary"
+            toggleBorder="border-primary"
+          />
+        </div>
       </DesktopRow>
-      <DesktopRow itemWrapperClass="">
-        <FieldRenderer field=selectAuthenticationField />
+      <DesktopRow itemWrapperClass="mx-0">
         <FieldRenderer field=external3DSAuthToggle />
+        <div className="flex justify-between mr-2">
+          <FieldRenderer field={selectAuthenticationField(sendAuthType)} labelClass="mr-4" />
+          <BoolInput.BaseComponent
+            boolCustomClass="rounded-xl mt-5"
+            toggleEnableColor="bg-primary"
+            isSelected=sendAuthType
+            setIsSelected={val => handleIsSelectedForThreeDs(val, setSendAuthType)}
+          />
+        </div>
       </DesktopRow>
     </>
   }
 }
 
 @react.component
-let make = (~showModal, ~setShowModal) => {
+let make = (
+  ~showModal,
+  ~setShowModal,
+  ~showSetupFutureUsage,
+  ~setShowSetupFutureUsage,
+  ~sendAuthType,
+  ~setSendAuthType,
+) => {
+  let {setInitialValuesForCheckoutForm} = React.useContext(SDKProvider.defaultContext)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtom,
+  )
   <Modal
     setShowModal
     showModal
-    closeOnOutsideClick=true
     modalClass="w-full max-w-xl max-h-[90vh] mx-auto my-auto overflow-hidden rounded-lg bg-white"
     childClass="m-4 overflow-y-auto max-h-[80vh]"
     customModalHeading={<PageUtils.PageHeading
@@ -45,7 +100,14 @@ let make = (~showModal, ~setShowModal) => {
           {
             title: "Authorization & Capture Settings",
             renderContent: () => {
-              <AuthorizationAndCaptureSettings />
+              <AuthorizationAndCaptureSettings
+                showSetupFutureUsage
+                setShowSetupFutureUsage
+                setInitialValuesForCheckoutForm
+                sendAuthType
+                setSendAuthType
+                businessProfileRecoilVal
+              />
             },
             renderContentOnTop: None,
           },

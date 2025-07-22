@@ -36,7 +36,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
       />,
       "",
     )
-  | TestMode => Text(connector.test_mode->Option.getOr(true) ? "True" : "False") //
+  | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False")
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
@@ -55,27 +55,10 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   }
 }
 
-let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
-  connector1.connector_name->String.localeCompare(connector2.connector_name)
-}
-
-let sortPreviouslyConnectedList = arr => {
-  Array.toSorted(arr, comparatorFunction)
-}
-
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadCommonType> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV1,
-    json,
-    AuthenticationProcessor,
-  )
-  data
-}
-
 let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,

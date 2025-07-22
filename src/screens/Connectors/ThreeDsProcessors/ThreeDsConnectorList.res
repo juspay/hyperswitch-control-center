@@ -13,16 +13,15 @@ let make = () => {
     setFilteredConnectorData,
   ) = React.useState(_ => [])
 
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
-    let (searchText, arr) = ob
+    let (searchText, list) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
+      list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
@@ -32,7 +31,7 @@ let make = () => {
         }
       })
     } else {
-      arr
+      list
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
@@ -92,8 +91,8 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
-            ConnectorInterface.connectorInterfaceV1,
+          configuredConnectors={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+            ConnectorListInterface.connectorInterfaceV1,
             ConnectorTypes.ThreeDsAuthenticator,
             configuredConnectors,
           )}

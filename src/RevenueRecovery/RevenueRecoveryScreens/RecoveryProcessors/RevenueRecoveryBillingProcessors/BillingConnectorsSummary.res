@@ -12,8 +12,7 @@ module BillingConnectorDetails = {
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-    let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV2,
+    let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
     )
 
@@ -41,7 +40,7 @@ module BillingConnectorDetails = {
       None
     }, [])
 
-    let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
@@ -88,7 +87,6 @@ module BillingConnectorDetails = {
 
     let revenueRecovery =
       connectorInfodict.feature_metadata
-      ->Option.getOr(JSON.Encode.null)
       ->getDictFromJsonObject
       ->getDictfromDict("revenue_recovery")
     let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
@@ -195,7 +193,7 @@ module PaymentConnectorDetails = {
       None
     }, [connectorId])
 
-    let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )

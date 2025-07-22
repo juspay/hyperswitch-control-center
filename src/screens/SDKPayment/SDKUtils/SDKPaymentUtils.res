@@ -69,7 +69,7 @@ let captureMethods = ["Automatic", "Manual"]
 
 let setupFutureUsageOptions = ["Off Session", "On Session"]
 
-let authenticationType = ["Three DS", "No Three DS", "None"]
+let authenticationType = ["Three DS", "No Three DS"]
 
 let requestExternal3dsAuthentication = ["True", "False"]
 
@@ -77,7 +77,13 @@ let showSavedCardOptions = ["Yes", "No"]
 
 let labels = ["Above", "Floating"]
 
-let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
+let initialValueForForm = (
+  ~showSetupFutureUsage=false,
+  ~sendAuthType=true,
+  defaultBusinessProfile: HSwitchSettingTypes.profileEntity,
+): SDKPaymentTypes.paymentType => {
+  let setupFutureValue = showSetupFutureUsage ? Some("on_session") : None
+  let authTypevalue = sendAuthType ? Some("three_ds") : None
   let shippingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
       line1: "1600",
@@ -119,18 +125,25 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
     customer_id: Some("hyperswitch_sdk_demo_id"),
-    setup_future_usage: "on_session",
+    setup_future_usage: setupFutureValue,
     show_saved_card: "yes",
     request_external_three_ds_authentication: false,
     email: Nullable.make("guest@example.com"),
-    authentication_type: Nullable.make("none"),
+    authentication_type: authTypevalue,
     shipping: Some(shippingValue),
     billing: Some(billingValue),
     capture_method: "automatic",
   }
 }
 
-let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~isGuestMode) => {
+let getTypedPaymentData = (
+  values,
+  ~onlyEssential=false,
+  ~showBillingAddress,
+  ~isGuestMode,
+  ~showSetupFutureUsage=false,
+  ~sendAuthType=true,
+) => {
   open LogicUtils
   open SDKPaymentTypes
 
@@ -180,12 +193,6 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     }
   }
 
-  let authenticationType = if dict->getString("authentication_type", "none") === "none" {
-    Nullable.null
-  } else {
-    Nullable.make(dict->getString("authentication_type", "none"))
-  }
-
   let base = {
     amount: dict->getFloat("amount", 10000.0),
     currency: getCurrency(),
@@ -193,17 +200,16 @@ let getTypedPaymentData = (values, ~onlyEssential=false, ~showBillingAddress, ~i
     customer_id: !isGuestMode ? dict->getOptionString("customer_id") : None,
     description: dict->getString("description", "Payment Transaction"),
     email: email->isNonEmptyString ? Nullable.make(email) : Nullable.null,
-    authentication_type: authenticationType,
+    authentication_type: sendAuthType ? dict->getOptionString("authentication_type") : None,
+    setup_future_usage: showSetupFutureUsage ? dict->getOptionString("setup_future_usage") : None,
     shipping: None,
     billing: None,
     capture_method: dict->getString("capture_method", "automatic"),
-    setup_future_usage: dict->getString("setup_future_usage", "off_session"),
     request_external_three_ds_authentication: dict->getBool(
       "request_external_three_ds_authentication",
       false,
     ),
   }
-
   if onlyEssential {
     if showBillingAddress {
       {

@@ -88,8 +88,7 @@ let make = (
   open APIUtils
   let getURL = useGetURL()
 
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let fetchDetails = useGetMethod()
@@ -106,12 +105,13 @@ let make = (
         ->Array.filter(item => item.id === paymentMethodConfig.merchant_connector_id)
         ->getValueFromArray(
           0,
-          ConnectorInterface.mapDictToConnectorPayload(
-            ConnectorInterface.connectorInterfaceV1,
+          ConnectorListInterface.mapDictToConnectorPayload(
+            ConnectorListInterface.connectorInterfaceV1,
             Dict.make(),
           ),
         )
 
+      // converting the common connector payload type to the v1 connector payload type as required to update PMTs
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,

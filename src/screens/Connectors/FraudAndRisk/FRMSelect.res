@@ -69,9 +69,7 @@ module NewProcessorCards = {
     let headerText = "Connect a new fraud & risk management player"
 
     <RenderIf condition={unConfiguredFRMCount > 0}>
-      <div className="flex flex-col gap-4">
-        {frmAvailableForIntegration->descriptedFRMs(headerText)}
-      </div>
+      <div className="flex flex-col gap-4"> {unConfiguredFRMs->descriptedFRMs(headerText)} </div>
     </RenderIf>
   }
 }
@@ -88,14 +86,10 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
-  let frmConnectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentVas,
-  )
+  let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -182,8 +176,8 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        configuredFRMs={ConnectorInterface.mapConnectorPayloadToConnectorType(
-          ConnectorInterface.connectorInterfaceV1,
+        configuredFRMs={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+          ConnectorListInterface.connectorInterfaceV1,
           ConnectorTypes.FRMPlayer,
           configuredFRMs,
         )}

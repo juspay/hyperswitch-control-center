@@ -45,6 +45,13 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 
+let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
+  let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
+    acc->Array.concat([item.payment_method_type->LogicUtils.capitalizeString])
+  })
+  paymentMethods
+}
+
 let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     switch colType {
@@ -115,12 +122,7 @@ let connectorEntity = (
 ) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects={
-      switch version {
-      | V1 => getPreviouslyConnectedListV1
-      | V2 => getPreviouslyConnectedListV2
-      }
-    },
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),

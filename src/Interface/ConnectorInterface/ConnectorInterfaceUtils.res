@@ -138,7 +138,7 @@ let getPaymentMethodTypes = (dict): paymentMethodConfigType => {
   }
 }
 
-let getPaymentMethodTypesV2 = (dict): ConnectorTypes.paymentMethodConfigTypeV2 => {
+let getPaymentMethodTypesV2 = (dict): paymentMethodConfigTypeV2 => {
   open ConnectorUtils
   {
     payment_method_subtype: dict->getString("payment_method_subtype", ""),
@@ -339,23 +339,13 @@ let filter = (connectorType, ~retainInList) => {
   }
 }
 
-let filterConnectorList = (
-  items: array<ConnectorTypes.connectorPayloadCommonType>,
-  retainInList,
-) => {
-  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
-}
-
-let filterConnectorListV2 = (
-  items: array<ConnectorTypes.connectorPayloadCommonType>,
-  retainInList,
-) => {
+let filterConnectorList = (items: array<connectorPayloadCommonType>, retainInList) => {
   items->Array.filter(connector => connector.connector_type->filter(~retainInList))
 }
 
 let mapConnectorPayloadToConnectorType = (
-  ~connectorType=ConnectorTypes.Processor,
-  connectorsList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~connectorType=Processor,
+  connectorsList: array<connectorPayloadCommonType>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
@@ -363,40 +353,22 @@ let mapConnectorPayloadToConnectorType = (
 }
 
 let mapConnectorPayloadToConnectorTypeV2 = (
-  ~connectorType=ConnectorTypes.Processor,
-  connectorsList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~connectorType=Processor,
+  connectorsList: array<connectorPayloadCommonType>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
   )
 }
 
-let mapJsonArrayToConnectorPayloads = (json, retainInList) => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data =
-      connectorJson
-      ->getDictFromJsonObject
-      ->mapDictToConnectorPayload
-      ->mapV1DictToCommonConnectorPayload
-    data
-  })
-  ->filterConnectorList(retainInList)
-}
-
-let mapJsonArrayToConnectorPayloadsV2 = (json, retainInList) => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data =
-      connectorJson
-      ->getDictFromJsonObject
-      ->mapDictToConnectorPayloadV2
-      ->mapV2DictToCommonConnectorPayload
-    data
-  })
-  ->filterConnectorListV2(retainInList)
+let getPaymentMethodsEnabledCommonType: Dict.t<JSON.t> => paymentMethodEnabledTypeCommon = dict => {
+  {
+    payment_method_type: dict->getString("payment_method_type", ""),
+    payment_method_subtypes: dict
+    ->Dict.get("payment_method_types")
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
+    ->getArrayDataFromJson(item => item->getPaymentMethodTypes->paymentMethodsTypesMapperV1),
+  }
 }
 
 let getPaymentMethodsEnabledCommonType: Dict.t<JSON.t> => paymentMethodEnabledTypeCommon = dict => {

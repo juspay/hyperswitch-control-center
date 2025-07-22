@@ -23,5 +23,6 @@ module Draggable = {
     ~children: ('a, 'a) => React.element,
     ~draggableId: string,
     ~index: int,
+    ~isDragDisabled: bool=?,
   ) => React.element = "Draggable"
 }
