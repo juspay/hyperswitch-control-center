@@ -2,7 +2,7 @@
 let make = (
   ~routingRuleId,
   ~isActive,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {

@@ -341,15 +341,12 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
 
-  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     connectorInfoDict,
   )
 
-  let connectorCount =
-    ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
-    )->Array.length
+  let connectorCount = ConnectorListInterface.useFilteredConnectorList()->Array.length
 
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors

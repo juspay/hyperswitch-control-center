@@ -51,14 +51,10 @@ let getCell = (webhook: webhookObject, colType): Table.cell => {
   }
 }
 
-let getPreviouslyConnectedList: JSON.t => array<webhookObject> = json => {
-  LogicUtils.getArrayDataFromJson(json, WebhooksUtils.itemToObjectMapper)
-}
-
 let webhooksEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,

@@ -80,20 +80,16 @@ let make = () => {
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (
-    configuredFRMs: array<ConnectorTypes.connectorPayload>,
+    configuredFRMs: array<ConnectorTypes.connectorPayloadCommonType>,
     setConfiguredFRMs,
   ) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
-  let frmConnectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=PaymentVas,
-  )
+  let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -132,11 +128,11 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) =>
           isContainingStringLowercase(frmPlayer.connector_name, searchText) ||
-          isContainingStringLowercase(frmPlayer.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(frmPlayer.id, searchText) ||
           isContainingStringLowercase(frmPlayer.connector_label, searchText)
         | None => false
         }
@@ -180,8 +176,8 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        configuredFRMs={ConnectorInterface.mapConnectorPayloadToConnectorType(
-          ConnectorInterface.connectorInterfaceV1,
+        configuredFRMs={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+          ConnectorListInterface.connectorInterfaceV1,
           ConnectorTypes.FRMPlayer,
           configuredFRMs,
         )}
