@@ -768,7 +768,7 @@ module BaseSelect = {
     let keyExtractor = (index, item: dropdownOptionWithoutOptional, _, isDragDisabled) => {
       listComponent(~item, ~indx=index, ~isItemDisabled=isDragDisabled)
     }
-    
+
     let handleSetDraggableList = val => {
       setFilteredOptions(_ => val)
       let selectedValues = val->Array.filter(item => saneValue->Array.includes(item.value))
