@@ -13,10 +13,10 @@ let businessProfilesAtom = Recoil.atom(
   JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
 )
 
-let connectorListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
-  "connectorListAtom",
-  JSON.Encode.null,
-)
+let connectorListAtom: Recoil.recoilAtom<
+  array<ConnectorTypes.connectorPayloadCommonType>,
+> = Recoil.atom("connectorListAtom", [])
+
 //Todo: remove this once we start using businessProfileInterface
 let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",

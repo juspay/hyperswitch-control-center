@@ -10,7 +10,7 @@ module ShowOrderDetails = {
     ~getCell,
     ~detailsFields,
     ~justifyClassName="justify-start",
-    ~widthClass="w-1/3",
+    ~widthClass="w-1/5",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
     ~isButtonEnabled=false,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
@@ -63,11 +63,11 @@ module Attempts = {
     let (nextScheduleTime, setNextScheduleTime) = React.useState(_ => JSON.Encode.string(""))
 
     let getStyle = status => {
-      let orderStatus = status->HSwitchOrderUtils.refundStatusVariantMapper
+      let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
 
       switch orderStatus {
-      | Success => ("green-status", "nd-check")
-      | Failure => ("red-status", "nd-alert-triangle-outline")
+      | #CHARGED => ("green-status", "nd-check")
+      | #FAILURE => ("red-status", "nd-alert-triangle-outline")
       | _ => ("orange-status", "nd-calender")
       }
     }
@@ -199,7 +199,7 @@ module Attempts = {
                   data=item
                   getHeading=getAttemptHeading
                   getCell=getAttemptCell
-                  detailsFields=[AttemptTriggeredBy, Status, Error]
+                  detailsFields=[AttemptTriggeredBy, Status, CardNetwork, DeclineCode, ErrorMessage]
                 />
               </div>
             </div>

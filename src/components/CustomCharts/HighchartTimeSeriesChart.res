@@ -416,7 +416,7 @@ module LineChart1D = {
       ~getCell,
       ~getHeading,
       ~uri="",
-      ~getObjects=_ => {[]},
+      ~getObjects=_ => [],
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
