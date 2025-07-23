@@ -123,6 +123,46 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   uniqueAccounts->Array.joinWith(", ")
 }
 
+let getAccountOptionsFromTransactions = (
+  transactions: array<transactionPayload>,
+  entryType: string,
+): array<FilterSelectBox.dropdownOption> => {
+  let allAccounts =
+    transactions
+    ->Array.flatMap(transaction => transaction.entries)
+    ->Array.filter(entry => entry.entry_type === entryType)
+    ->Array.map(entry => entry.account)
+
+  let uniqueAccounts = allAccounts->Array.reduce([], (acc, account) => {
+    let exists =
+      acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
+    if exists {
+      acc
+    } else {
+      Array.concat(acc, [account])
+    }
+  })
+
+  uniqueAccounts->Array.map(account => {
+    {
+      FilterSelectBox.label: account.account_name,
+      value: account.account_id,
+    }
+  })
+}
+
+let getCreditAccountOptions = (transactions: array<transactionPayload>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  getAccountOptionsFromTransactions(transactions, "credit")
+}
+
+let getDebitAccountOptions = (transactions: array<transactionPayload>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  getAccountOptionsFromTransactions(transactions, "debit")
+}
+
 let getTransactionTypeFromString = (status: string) => {
   switch status {
   | "posted" => ReconEngineTransactionsTypes.Posted
@@ -133,7 +173,7 @@ let getTransactionTypeFromString = (status: string) => {
   }
 }
 
-let initialDisplayFilters = () => {
+let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Mismatched", value: "mismatched"},
     {label: "Expected", value: "expected"},
@@ -161,7 +201,56 @@ let initialDisplayFilters = () => {
         localFilter: Some((_, _) => []->Array.map(Nullable.make)),
       }: EntityType.initialFilters<'t>
     ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="credit_account",
+          ~name="credit_account",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=creditAccountOptions,
+            ~buttonText="Select Credit Account",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="debit_account",
+          ~name="debit_account",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=debitAccountOptions,
+            ~buttonText="Select Debit Account",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
   ]
+}
+
+let generateAccountFilterOptions = (
+  accountData: array<ReconEngineOverviewTypes.accountType>,
+): array<FilterSelectBox.dropdownOption> => {
+  accountData->Array.map(account => {
+    {
+      FilterSelectBox.label: account.account_name,
+      value: account.account_id,
+    }
+  })
 }
 
 let getSampleStackedBarGraphData = () => {

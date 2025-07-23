@@ -17,16 +17,25 @@ let make = () => {
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
+  let (baseTransactions, setBaseTransactions) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
+  let creditAccountOptions = React.useMemo(() => {
+    getCreditAccountOptions(baseTransactions)
+  }, [baseTransactions])
+
+  let debitAccountOptions = React.useMemo(() => {
+    getDebitAccountOptions(baseTransactions)
+  }, [baseTransactions])
+
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineTransactionsFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -61,6 +70,16 @@ let make = () => {
     setFilteredReports(_ => filteredList)
   }, ~wait=200)
 
+  let fetchBaseTransactionsData = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let transactionsList = await getTransactions(~queryParamerters=None)
+      setBaseTransactions(_ => transactionsList)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -84,6 +103,7 @@ let make = () => {
 
   React.useEffect(() => {
     setInitialFilters()
+    fetchBaseTransactionsData()->ignore
     None
   }, [])
 

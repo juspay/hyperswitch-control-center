@@ -1,7 +1,6 @@
 @react.component
 let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   open LogicUtils
-  open ReconEngineTransactionsUtils
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
@@ -63,7 +62,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineOverviewTransactionsFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={ReconEngineOverviewUtils.initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
