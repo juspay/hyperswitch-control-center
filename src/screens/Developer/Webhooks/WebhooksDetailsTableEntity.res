@@ -28,14 +28,10 @@ let getCell = (webhook: attemptTable, colType): Table.cell => {
   }
 }
 
-let getPreviouslyConnectedList: JSON.t => array<attemptTable> = json => {
-  LogicUtils.getArrayDataFromJson(json, WebhooksUtils.itemToObjectMapperAttemptsTable)
-}
-
 let webhooksDetailsEntity = () => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,
