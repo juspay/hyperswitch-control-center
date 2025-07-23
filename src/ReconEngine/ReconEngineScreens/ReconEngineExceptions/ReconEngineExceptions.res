@@ -8,7 +8,7 @@ let make = () => {
     open Tabs
     [
       {
-        title: "Exceptions at Upload",
+        title: "Ingestion Errors",
         renderContent: () =>
           <FilterContext
             key="recon-engine-exception-staging" index="recon-engine-exception-staging">

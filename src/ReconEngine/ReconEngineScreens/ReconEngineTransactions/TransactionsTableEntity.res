@@ -1,6 +1,13 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
 
+let getDisplayStatusName = (status: string) => {
+  switch status->String.toLowerCase {
+  | "posted" => "Matched"->String.toUpperCase
+  | _ => status->String.toUpperCase
+  }
+}
+
 let defaultColumns: array<transactionColType> = [
   TransactionId,
   CreditAccount,
@@ -69,7 +76,7 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
     )
   | Status =>
     Label({
-      title: {transaction.transaction_status->String.toUpperCase},
+      title: {transaction.transaction_status->getDisplayStatusName},
       color: switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
       | Posted => LabelGreen
       | Mismatched => LabelRed

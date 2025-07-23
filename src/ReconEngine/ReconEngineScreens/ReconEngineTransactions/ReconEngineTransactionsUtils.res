@@ -137,7 +137,7 @@ let initialDisplayFilters = () => {
   let statusOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Mismatched", value: "mismatched"},
     {label: "Expected", value: "expected"},
-    {label: "Posted", value: "posted"},
+    {label: "Matched", value: "posted"},
     {label: "Archived", value: "archived"},
   ]
 
@@ -180,7 +180,7 @@ let getSampleStackedBarGraphData = () => {
         color: "#EA8A8F",
       },
       {
-        name: "Posted",
+        name: "Matched",
         data: [1200.0],
         color: "#7AB891",
       },

@@ -1,5 +1,12 @@
 open ReconEngineExceptionTypes
 
+let getDisplayStatusName = (status: string) => {
+  switch status->String.toLowerCase {
+  | "posted" => "Matched"->String.toUpperCase
+  | _ => status->String.toUpperCase
+  }
+}
+
 type processedColType =
   | EntryId
   | EntryType
@@ -37,7 +44,7 @@ let getProcessedCell = (data: processedEntryType, colType): Table.cell => {
   | Currency => Text(data.currency)
   | Status =>
     Label({
-      title: data.status->String.toUpperCase,
+      title: data.status->getDisplayStatusName,
       color: switch data.status->String.toLowerCase {
       | "posted" => LabelGreen
       | "pending" => LabelBlue
