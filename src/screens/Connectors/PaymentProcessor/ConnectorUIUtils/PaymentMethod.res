@@ -48,8 +48,7 @@ module CardRenderer = {
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
-    let pmAuthProcessorList = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
+    let pmAuthProcessorList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=PMAuthProcessor,
     )
 

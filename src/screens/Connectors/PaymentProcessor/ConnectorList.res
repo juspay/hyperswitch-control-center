@@ -10,8 +10,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
 
-  let connectorsList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorsList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -27,8 +26,8 @@ let make = () => {
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
 
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV1,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV1,
         ConnectorTypes.Processor,
         connectorsList,
       )
@@ -47,19 +46,19 @@ let make = () => {
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
-    let (searchText, arr) = ob
+    let (searchText, list) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.id, searchText) ||
           isContainingStringLowercase(obj.connector_label, searchText)
         | None => false
         }
       })
     } else {
-      arr
+      list
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)

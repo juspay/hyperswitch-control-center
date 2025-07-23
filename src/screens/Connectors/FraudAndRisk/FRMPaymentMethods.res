@@ -211,7 +211,6 @@ module CheckBoxRenderer = {
 
 module PaymentMethodsRenderer = {
   open FRMUtils
-  open LogicUtils
   @react.component
   let make = (~isUpdateFlow) => {
     let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -226,8 +225,6 @@ module PaymentMethodsRenderer = {
         let response = await fetchConnectorListResponse()
         let connectorsConfig =
           response
-          ->getArrayFromJson([])
-          ->Array.map(getDictFromJsonObject)
           ->FRMUtils.filterList(~removeFromList=FRMPlayer)
           ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator)
           ->getConnectorConfig

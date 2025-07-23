@@ -1,9 +1,6 @@
 @react.component
 let make = () => {
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=TaxProcessor,
-  )
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=TaxProcessor)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -13,19 +10,19 @@ let make = () => {
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
-    let (searchText, arr) = ob
+    let (searchText, list) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+      list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.merchant_connector_id, searchText) ||
+          isContainingStringLowercase(obj.id, searchText) ||
           isContainingStringLowercase(obj.connector_label, searchText)
         | None => false
         }
       })
     } else {
-      arr
+      list
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
@@ -82,8 +79,8 @@ let make = () => {
           />
         </RenderIf>
         <ProcessorCards
-          configuredConnectors={ConnectorInterface.mapConnectorPayloadToConnectorType(
-            ConnectorInterface.connectorInterfaceV1,
+          configuredConnectors={ConnectorListInterface.mapConnectorPayloadToConnectorType(
+            ConnectorListInterface.connectorInterfaceV1,
             ConnectorTypes.TaxProcessor,
             configuredConnectors,
           )}
