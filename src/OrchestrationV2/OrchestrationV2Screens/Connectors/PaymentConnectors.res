@@ -69,8 +69,8 @@ let make = () => {
     ? connectorListForLive
     : connectorList
 
-  let callMixpanel = eventName => {
-    mixpanelEvent(~eventName)
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="orchestration_v2_payment_connectors_view")
   }
 
   <div>
@@ -137,10 +137,10 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={PaymentProcessorEntity.connectorEntity(
+            entity={ConnectorInterfaceTableEntity.connectorEntity(
               "v2/orchestration/connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-              callMixpanel,
+              ~sendMixpanelEvent,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
