@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.23.0
+
+### Bug Fixes
+
+- Recon v2 show get production access ([#3322](https://github.com/juspay/hyperswitch-control-center/pull/3322)) ([`27aa5eb`](https://github.com/juspay/hyperswitch-control-center/commit/27aa5eb8a883a3778d3784d1dbdbc11a8e4a02a4))
+
+### Miscellaneous Tasks
+
+- Already configured frm cannot be configured again ([#3317](https://github.com/juspay/hyperswitch-control-center/pull/3317)) ([`3a4233e`](https://github.com/juspay/hyperswitch-control-center/commit/3a4233ec07cc73805728dafd16adaa9f0a5c5b55))
+- Connector interface type changes ([#3277](https://github.com/juspay/hyperswitch-control-center/pull/3277)) ([`962515c`](https://github.com/juspay/hyperswitch-control-center/commit/962515c5a1c867dec64671c8f6c9d60d821c2bb8))
+
+**Full Changelog:** [`2025.07.22.0...2025.07.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.22.0...2025.07.23.0)
+
+- - -
+
 ## 2025.07.22.0
 
 ### Miscellaneous Tasks
