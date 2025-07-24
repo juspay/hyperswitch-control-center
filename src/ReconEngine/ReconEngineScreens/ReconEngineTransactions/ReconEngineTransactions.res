@@ -71,6 +71,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transactionsList = await getTransactions(~queryParamerters=None)
       setBaseTransactions(_ => transactionsList)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
