@@ -2,7 +2,6 @@
 let make = () => {
   open HSAnalyticsUtils
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let (screenState, _) = React.useState(_ => PageLoaderWrapper.Success)
 
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
@@ -19,7 +18,7 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
-  <PageLoaderWrapper screenState>
+  <>
     <div className="flex justify-between mb-6">
       <PageUtils.PageHeading title="Routing Analytics" />
       <div className="flex items-center gap-2">
@@ -49,5 +48,5 @@ let make = () => {
       </div>
     </div>
     <RoutingAnalyticsDistribution />
-  </PageLoaderWrapper>
+  </>
 }

@@ -2,9 +2,11 @@
 let make = () => {
   open APIUtils
   open LogicUtils
+  open Typography
+
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let startTimeVal = filterValueJson->LogicUtils.getString("startTime", "")
-  let endTimeVal = filterValueJson->LogicUtils.getString("endTime", "")
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -43,35 +45,21 @@ let make = () => {
     None
   }, [startTimeVal, endTimeVal])
 
-  let defaultOptions =
-    RoutingAnalyticsDistributionUtils.distributionPayloadMapper(
-      ~data=response,
-      ~groupByText="routing_approach",
-    )->PieGraphUtils.getPieChartOptions
-  let options = {
-    ...defaultOptions,
-    chart: {
-      ...defaultOptions.chart,
-      width: 400,
-      height: 190,
-    },
-    plotOptions: {
-      pie: {
-        ...defaultOptions.plotOptions.pie,
-        center: ["25%", "50%"],
-      },
-    },
-  }
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
     <div className="flex flex-col">
       <div className="border rounded-xl py-2 px-4 border-nd_gray-200 rounded-b-none bg-nd_gray-25">
-        <p className="text-nd_gray-600  px-3 py-[10px] font-semibold text-fs-14">
+        <p className={`text-nd_gray-600  px-3 py-[10px] ${body.md.semibold}`}>
           {"Routing Logic Distribution"->React.string}
         </p>
       </div>
       <div
         className="flex border rounded-xl border-t-0 border-nd_gray-200 h-[14rem] rounded-t-none">
-        <PieGraph options />
+        <PieGraph
+          options={RoutingAnalyticsDistributionUtils.chartOptions(
+            response,
+            ~groupByText="routing_approach",
+          )}
+        />
       </div>
     </div>
   </PageLoaderWrapper>

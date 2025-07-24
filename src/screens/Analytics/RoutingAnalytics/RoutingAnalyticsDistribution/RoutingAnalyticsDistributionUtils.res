@@ -4,7 +4,7 @@ let customLegendFormatter = () => {
   (
     @this
     (this: PieGraphTypes.legendLabelFormatter) => {
-      this.name->LogicUtils.snakeToTitle
+      this.name->snakeToTitle
     }
   )->PieGraphTypes.asLegendPointFormatter
 }
@@ -64,6 +64,25 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
       align: "right",
       verticalAlign: "middle",
       enabled: true,
+    },
+  }
+}
+let chartOptions = (data, ~groupByText) => {
+  let defaultOptions =
+    distributionPayloadMapper(~data, ~groupByText)->PieGraphUtils.getPieChartOptions
+
+  {
+    ...defaultOptions,
+    chart: {
+      ...defaultOptions.chart,
+      width: 400,
+      height: 190,
+    },
+    plotOptions: {
+      pie: {
+        ...defaultOptions.plotOptions.pie,
+        center: ["25%", "50%"],
+      },
     },
   }
 }
