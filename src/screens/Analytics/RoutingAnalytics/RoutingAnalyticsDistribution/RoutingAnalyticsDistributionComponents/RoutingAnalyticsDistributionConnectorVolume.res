@@ -34,10 +34,7 @@ let make = () => {
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
-    | _ => {
-        Js.log("Error fetching data for Routing Approach Distribution")
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
   React.useEffect(_ => {
