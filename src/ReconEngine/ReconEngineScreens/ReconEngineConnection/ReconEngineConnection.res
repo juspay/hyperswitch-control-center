@@ -47,7 +47,7 @@ let make = () => {
   <div className="flex flex-col gap-6 w-full">
     <PageUtils.PageHeading
       title="Connections"
-      subTitle="Manage and monitor external data integrations like SFTP and manual uploads."
+      subTitle="Manage and monitor ingestion configurations for your accounts."
       customSubTitleStyle={body.lg.medium}
       customTitleStyle={`${heading.lg.semibold} py-0`}
     />
