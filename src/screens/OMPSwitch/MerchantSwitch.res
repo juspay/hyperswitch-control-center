@@ -284,7 +284,7 @@ let make = () => {
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
-      \"type": item.\"type"->Option.getOr(#standard),
+      type_: item.type_->Option.getOr(#standard),
       customComponent,
     }
     listItem

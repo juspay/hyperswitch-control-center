@@ -3,7 +3,7 @@ open OMPSwitchTypes
 let ompDefaultValue: (string, string) => ompListTypes = (currUserId, currUserName) => {
   id: currUserId,
   name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
-  \"type": #standard,
+  type_: #standard,
 }
 
 let currentOMPName = (list: array<ompListTypes>, id: string) => {
@@ -37,7 +37,7 @@ let orgItemToObjMapper: dict<JSON.t> => ompListTypes = dict => {
         ? dict->getString("org_id", "")
         : dict->getString("org_name", "")
     },
-    \"type": dict->getString("org_type", "")->ompTypeMapper,
+    type_: dict->getString("org_type", "")->ompTypeMapper,
   }
 }
 
@@ -56,7 +56,7 @@ let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict =>
       ~version=dict->getString("version", "v1")->UserInfoUtils.versionMapper,
     ),
     version: dict->getString("version", "v1")->UserInfoUtils.versionMapper,
-    \"type": dict->getString("merchant_account_type", "")->ompTypeMapper,
+    type_: dict->getString("merchant_account_type", "")->ompTypeMapper,
   }
 }
 

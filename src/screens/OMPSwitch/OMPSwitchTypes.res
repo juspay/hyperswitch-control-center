@@ -6,7 +6,7 @@ type ompListTypes = {
   name: string,
   productType?: ProductTypes.productTypes,
   version?: UserInfoTypes.version,
-  \"type"?: ompType,
+  @as("type") type_?: ompType,
 }
 type ompListTypesCustom = {...ompListTypes, customComponent: React.element}
 

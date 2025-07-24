@@ -16,8 +16,20 @@ module PlatformMerchantModalContent = {
       e->ReactEvent.Mouse.stopPropagation
     }
 
-    let listItem = (~title, ~text) =>
-      <li>
+    let listItems = [
+      ("Auto-onboard sellers:", "Spin up new merchant accounts in seconds via our API"),
+      (
+        "Generate API keys:",
+        "Generate and rotate API keys for each merchant as a Platform Merchant",
+      ),
+      (
+        "Maintain API key mapping:",
+        "Keep track of each key so you can process payments, refunds, etc. on behalf of any sub-merchant",
+      ),
+    ]
+
+    let listItem = (~title, ~text, ~index) =>
+      <li key={index}>
         <span className={`text-nd_gray-600 ${body.md.semibold}`}> {title->React.string} </span>
         <span className={`text-nd_gray-500  ${body.md.regular}`}> {` ${text}`->React.string} </span>
       </li>
@@ -31,23 +43,16 @@ module PlatformMerchantModalContent = {
           <p className={`text-nd_gray-700 ${body.md.semibold}`}> {"At a glance:"->React.string} </p>
           <div className="pl-4">
             <ul className="flex flex-col gap-2 list-disc">
-              {listItem(
-                ~title="Auto-onboard sellers:",
-                ~text="Spin up new merchant accounts in seconds via our API",
-              )}
-              {listItem(
-                ~title="Generate API keys:",
-                ~text="Generate and rotate API keys for each merchant as a Platform Merchant",
-              )}
-              {listItem(
-                ~title="Maintain API key mapping:",
-                ~text="Keep track of each key so you can process payments, refunds, etc. on behalf of any sub-merchant",
-              )}
+              {listItems
+              ->Array.mapWithIndex(((title, text), index) =>
+                listItem(~title, ~text, ~index=Int.toString(index))
+              )
+              ->React.array}
             </ul>
           </div>
         </div>
         <div className="flex" onClick=onLearnMoreClick>
-          <span className={`!text-nd_primary_blue-500 ${body.md.regular}`}>
+          <span className={`!text-nd_primary_blue-500 ${body.md.regular} cursor-pointer`}>
             {"Learn more"->React.string}
           </span>
           <span>
@@ -680,7 +685,7 @@ let generateDropdownOptionsCustomComponent: (
         />,
       ),
       optGroup: {
-        switch item.\"type" {
+        switch item.type_ {
         | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
         | None => ""
         }
@@ -702,9 +707,7 @@ let generateDropdownOptionsCustomComponent: (
         />,
       ),
     }
-
-    let options = isPlatformOrg ? platformOptions : merchantOptions
-    options
+    isPlatformOrg ? platformOptions : merchantOptions
   })
   options
 }

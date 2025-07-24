@@ -191,7 +191,7 @@ module OrgTileGroup = {
           key={Int.toString(i)}
           orgID={org.id}
           isActive={org.id === orgId}
-          isPlatformOrganization={org.\"type"->Option.getOr(#standard) === #platform}
+          isPlatformOrganization={org.type_->Option.getOr(#standard) === #platform}
           orgSwitch
           orgName={org.name}
           index={i}
@@ -380,7 +380,7 @@ let make = () => {
 
   let getOrgsListBasedOnType = ompType =>
     visibleOrgList->Array.filter(item =>
-      switch item.\"type" {
+      switch item.type_ {
       | Some(userType) => userType === ompType
       | None => false
       }
