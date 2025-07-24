@@ -8,7 +8,9 @@ let customLegendFormatter = () => {
     }
   )->PieGraphTypes.asLegendPointFormatter
 }
-let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pieGraphPayload<int> => {
+let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pieGraphPayload<
+  int,
+> => {
   let queryArray = data->getDictFromJsonObject->getArrayFromDict("queryData", [])
   let array = queryArray->Array.map(item => {
     let dict = item->getDictFromJsonObject
@@ -65,4 +67,3 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
     },
   }
 }
-
