@@ -96,7 +96,7 @@ let getTableCell = (~connectorType: connector=Processor) => {
 let connectorEntity = (
   path: string,
   ~authorization: CommonAuthTypes.authorization,
-  callMixpanel,
+  ~sendMixpanelEvent,
 ) => {
   EntityType.makeEntity(
     ~uri=``,
@@ -107,7 +107,7 @@ let connectorEntity = (
     ~dataKey="",
     ~getShowLink={
       connec => {
-        callMixpanel("vault_view_connector_details")
+        sendMixpanelEvent()
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,

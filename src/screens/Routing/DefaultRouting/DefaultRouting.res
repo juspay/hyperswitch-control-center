@@ -140,9 +140,10 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
             let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
             let merchantConnectorId =
               gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
-            let connectorLabel = ConnectorTableUtils.getConnectorObjectFromListViaId(
+            let connectorLabel = ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
               typedConnectorValue,
               merchantConnectorId,
+              ~version=V1,
             ).connector_label
 
             <div

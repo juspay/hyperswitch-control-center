@@ -2,9 +2,9 @@ let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorizati
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],
-    ~defaultColumns=ConnectorTableUtils.defaultColumns,
-    ~getHeading=ConnectorTableUtils.getHeading,
-    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer),
+    ~defaultColumns=ConnectorInterfaceTableEntity.defaultColumns,
+    ~getHeading=ConnectorInterfaceTableEntity.getHeading,
+    ~getCell=ConnectorInterfaceTableEntity.getTableCell(~connectorType=FRMPlayer),
     ~dataKey="",
     ~getShowLink={
       connec =>
