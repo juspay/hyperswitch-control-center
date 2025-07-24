@@ -73,6 +73,7 @@ let make = () => {
       showResultsPerPageSelector=false
       sortingBasedOnDisabled=false
       showAutoScroll=true
+      isDraggable=true
     />
   </PageLoaderWrapper>
 }

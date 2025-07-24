@@ -110,7 +110,7 @@ let getCell = (rule: rulePayload, colType: ruleColType): Table.cell => {
   }
 }
 
-let rulesTableEntity = () => {
+let rulesTableEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=_ => [],
@@ -118,6 +118,14 @@ let rulesTableEntity = () => {
     ~getHeading,
     ~getCell,
     ~dataKey="",
+    ~getShowLink={
+      rule => {
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${rule.rule_id}`),
+          ~authorization,
+        )
+      }
+    },
   )
 }
 

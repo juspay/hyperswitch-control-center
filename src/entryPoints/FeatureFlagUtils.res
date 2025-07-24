@@ -3,7 +3,7 @@ type config = {
   merchantId: option<string>,
   profileId: option<string>,
 }
-type merchantSpecificConfig = {newAnalytics: config}
+type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -61,6 +61,7 @@ type featureFlag = {
   devOmpChart: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
+  devAiChatBot: bool,
   routingAnalytics: bool,
 }
 
@@ -125,6 +126,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devOmpChart: dict->getBool("dev_omp_chart", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
+    devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
     routingAnalytics: dict->getBool("routing_analytics", false),
   }
 }
@@ -141,7 +143,16 @@ let configMapper = dict => {
 let merchantSpecificConfig = (config: JSON.t) => {
   open LogicUtils
   let dict = config->getDictFromJsonObject
+
+  let blacklistDict = dict->getDictfromDict("blacklist")
+  let newAnalyticsBlacklist = blacklistDict->getDictfromDict("new_analytics")->configMapper
+
+  let whitelistDict = dict->getDictfromDict("whitelist")
+  let devReconEngineV1Whitelist =
+    whitelistDict->getDictfromDict("dev_recon_engine_v1")->configMapper
+
   {
-    newAnalytics: dict->getDictfromDict("new_analytics")->configMapper,
+    newAnalytics: newAnalyticsBlacklist,
+    devReconEngineV1: devReconEngineV1Whitelist,
   }
 }
