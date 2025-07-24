@@ -18,6 +18,8 @@ let defaultValue = {
   setIsProdIntentCompleted: _ => (),
   showSideBar: true,
   setShowSideBar: _ => (),
+  workflowDrawerState: Closed,
+  setWorkflowDrawerState: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -37,6 +39,7 @@ let make = (~children) => {
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->ProviderHelper.getIntegrationDetails
   )
+  let (workflowDrawerState, setWorkflowDrawerState) = React.useState(_ => Closed)
 
   <Provider
     value={
@@ -54,6 +57,8 @@ let make = (~children) => {
       setIsProdIntentCompleted,
       showSideBar,
       setShowSideBar,
+      workflowDrawerState,
+      setWorkflowDrawerState,
     }>
     children
   </Provider>
