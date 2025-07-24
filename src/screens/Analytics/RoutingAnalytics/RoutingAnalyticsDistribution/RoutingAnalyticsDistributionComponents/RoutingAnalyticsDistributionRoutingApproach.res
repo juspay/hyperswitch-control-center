@@ -11,6 +11,7 @@ let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (response, setResponse) = React.useState(_ => JSON.Encode.null)
+
   let getData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -38,6 +39,7 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(_ => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       getData()->ignore

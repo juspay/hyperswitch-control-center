@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open Typography
+
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -38,6 +39,7 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(_ => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       getData()->ignore

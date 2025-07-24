@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open Typography
+
   <div>
     <PageUtils.PageHeading
       title="Distribution"

@@ -8,6 +8,7 @@ let customLegendFormatter = () => {
     }
   )->PieGraphTypes.asLegendPointFormatter
 }
+
 let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pieGraphPayload<
   int,
 > => {
@@ -27,7 +28,8 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
     "#9467BD",
     "#7F7F7F",
   ]
-  let data: array<PieGraphTypes.pieGraphDataType> = array->Array.mapWithIndex((item, index) => {
+
+  let dataArr: array<PieGraphTypes.pieGraphDataType> = array->Array.mapWithIndex((item, index) => {
     let (routingApproach, paymentCount) = item
     let dataObj: PieGraphTypes.pieGraphDataType = {
       name: routingApproach,
@@ -42,7 +44,7 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
       \"type": "",
       name: "",
       showInLegend: true,
-      data,
+      data: dataArr,
       innerSize: "70%",
     },
   ]
@@ -67,6 +69,7 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
     },
   }
 }
+
 let chartOptions = (data, ~groupByText) => {
   let defaultOptions =
     distributionPayloadMapper(~data, ~groupByText)->PieGraphUtils.getPieChartOptions
