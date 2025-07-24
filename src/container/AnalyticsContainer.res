@@ -7,7 +7,7 @@ let make = () => {
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {performanceMonitor, disputeAnalytics, authenticationAnalytics} =
+  let {performanceMonitor, disputeAnalytics, authenticationAnalytics, routingAnalytics} =
     featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(analyticsEntity :> string)}>
     {switch url.path->urlPath {
@@ -43,6 +43,13 @@ let make = () => {
         authorization={userHasAccess(~groupAccess=AnalyticsView)} isEnabled={performanceMonitor}>
         <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
           <PerformanceMonitor domain="payments" />
+        </FilterContext>
+      </AccessControl>
+    | list{"analytics-routing"} =>
+      <AccessControl
+        isEnabled={routingAnalytics} authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+        <FilterContext key="RoutingAnalytics" index="RoutingAnalytics">
+          <RoutingAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
