@@ -1,5 +1,27 @@
 open NewAuthenticationAnalyticsTypes
 open LogicUtils
+open DateRangeUtils
+
+type tabType =
+  | AuthenticationAnalyticsTab
+  | ThreeDSExemptionAnalyticsTab
+  | NoTab
+
+let getTabFromIndex = (tabIndex: int): tabType => {
+  switch tabIndex {
+  | 0 => AuthenticationAnalyticsTab
+  | 1 => ThreeDSExemptionAnalyticsTab
+  | _ => NoTab
+  }
+}
+
+let getTabIndex = (tab: tabType): int => {
+  switch tab {
+  | AuthenticationAnalyticsTab => 0
+  | ThreeDSExemptionAnalyticsTab => 1
+  | NoTab => -1
+  }
+}
 
 let defaultQueryData: queryDataType = {
   authentication_count: 0,
@@ -17,6 +39,8 @@ let defaultQueryData: queryDataType = {
   error_message: "",
   authentication_connector: None,
   message_version: None,
+  authentication_exemption_approved_count: None,
+  authentication_exemption_requested_count: None,
   time_range: {
     start_time: "",
     end_time: "",
@@ -68,6 +92,14 @@ let itemToObjMapperForQueryData: Dict.t<JSON.t> => queryDataType = dict => {
     error_message: getString(dict, "error_message", ""),
     authentication_connector: getOptionString(dict, "authentication_connector"),
     message_version: getOptionString(dict, "message_version"),
+    authentication_exemption_approved_count: getOptionInt(
+      dict,
+      "authentication_exemption_approved_count",
+    ),
+    authentication_exemption_requested_count: getOptionInt(
+      dict,
+      "authentication_exemption_requested_count",
+    ),
     time_range: {
       start_time: getString(dict, "start_time", ""),
       end_time: getString(dict, "end_time", ""),
@@ -206,12 +238,14 @@ let getMetricsData = (queryData: queryDataType) => {
   let dataArray = [
     {
       title: "Payments Requiring 3DS authentication",
+      name: "authentication",
       value: queryData.authentication_count->Int.toFloat,
       valueType: Default,
       tooltip_description: "Total number of payments which requires 3DS 2.0 authentication",
     },
     {
       title: "Authentication Success Rate",
+      name: "authentication",
       value: queryData.authentication_success_count->Int.toFloat /.
       queryData.authentication_count->Int.toFloat *. 100.0,
       valueType: Rate,
@@ -219,6 +253,7 @@ let getMetricsData = (queryData: queryDataType) => {
     },
     {
       title: "Challenge Flow Rate",
+      name: "authentication",
       value: queryData.challenge_flow_count->Int.toFloat /.
       queryData.authentication_count->Int.toFloat *. 100.0,
       valueType: Rate,
@@ -226,6 +261,7 @@ let getMetricsData = (queryData: queryDataType) => {
     },
     {
       title: "Frictionless Flow Rate",
+      name: "authentication",
       value: queryData.frictionless_flow_count->Int.toFloat /.
       queryData.authentication_count->Int.toFloat *. 100.0,
       valueType: Rate,
@@ -233,6 +269,7 @@ let getMetricsData = (queryData: queryDataType) => {
     },
     {
       title: "Challenge Attempt Rate",
+      name: "authentication",
       value: queryData.challenge_attempt_count->Int.toFloat /.
       queryData.challenge_flow_count->Int.toFloat *. 100.0,
       valueType: Rate,
@@ -240,6 +277,7 @@ let getMetricsData = (queryData: queryDataType) => {
     },
     {
       title: "Challenge Success Rate",
+      name: "authentication",
       value: queryData.challenge_success_count->Int.toFloat /.
       queryData.challenge_flow_count->Int.toFloat *. 100.0,
       valueType: Rate,
@@ -247,27 +285,100 @@ let getMetricsData = (queryData: queryDataType) => {
     },
     {
       title: "Frictionless Success Rate",
+      name: "authentication",
       value: queryData.frictionless_success_count->Int.toFloat /.
       queryData.frictionless_flow_count->Int.toFloat *. 100.0,
       valueType: Rate,
       tooltip_description: "Successful frictionless requests over total frictionless requests",
+    },
+    {
+      title: "SCA Exemption request rate",
+      name: "3ds_exemption_authentication",
+      value: queryData.authentication_exemption_requested_count->Option.getOr(0)->Int.toFloat /.
+      queryData.authentication_count->Int.toFloat *. 100.0,
+      valueType: Rate,
+      tooltip_description: "Total no. of Exemptions requested by the merchant / Total no. of Payments initiated",
+    },
+    {
+      title: "SCA Exemption approval rate",
+      name: "3ds_exemption_authentication",
+      value: queryData.authentication_exemption_approved_count->Option.getOr(0)->Int.toFloat /.
+      queryData.authentication_exemption_requested_count->Option.getOr(0)->Int.toFloat *. 100.0,
+      valueType: Rate,
+      tooltip_description: "Total no. of Exemptions approved by the issuer / Total no. of Exemptions requested by the merchant",
+    },
+    {
+      title: "Chargebacks on Exempted transactions",
+      name: "3ds_exemption_authentication",
+      value: 0.0,
+      valueType: Default,
+      tooltip_description: "Number of chargebacks received for transactions with exemptions",
+    },
+    {
+      title: "Authorization decline rate on exempted transactions",
+      name: "3ds_exemption_authentication",
+      value: (1.0 -.
+      queryData.frictionless_success_count->Int.toFloat /.
+        queryData.frictionless_flow_count->Int.toFloat) *. 100.0,
+      valueType: Rate,
+      tooltip_description: "Percentage of exempted transactions that were declined during authorization",
     },
   ]
 
   dataArray
 }
 
-let getUpdatedFilterValueJson = (filterValueJson: Dict.t<JSON.t>) => {
+let getUpdatedFilterValueJson = (
+  filterValueJson: Dict.t<JSON.t>,
+  ~currentTab: tabType=ThreeDSExemptionAnalyticsTab,
+) => {
   let updatedFilterValueJson = Js.Dict.map(t => t, filterValueJson)
-  let authConnectors =
-    filterValueJson->getArrayFromDict("authentication_connector", [])->getNonEmptyArray
-  let messageVersions = filterValueJson->getArrayFromDict("message_version", [])->getNonEmptyArray
+  let booleanFilterFields = ["exemption_accepted", "exemption_requested", "whitelist_decision"]
 
-  updatedFilterValueJson->LogicUtils.setOptionArray("authentication_connector", authConnectors)
-  updatedFilterValueJson->LogicUtils.setOptionArray("message_version", messageVersions)
-  updatedFilterValueJson->deleteNestedKeys(["startTime", "endTime"])
+  switch currentTab {
+  | AuthenticationAnalyticsTab => {
+      let authConnectors =
+        filterValueJson->getArrayFromDict("authentication_connector", [])->getNonEmptyArray
+      let messageVersions =
+        filterValueJson->getArrayFromDict("message_version", [])->getNonEmptyArray
 
-  updatedFilterValueJson
+      updatedFilterValueJson->LogicUtils.setOptionArray("authentication_connector", authConnectors)
+      updatedFilterValueJson->LogicUtils.setOptionArray("message_version", messageVersions)
+
+      let filterKeys = updatedFilterValueJson->Dict.keysToArray
+      filterKeys->Array.forEach(key => {
+        if key !== "authentication_connector" && key !== "message_version" {
+          updatedFilterValueJson->Dict.delete(key)
+        }
+      })
+      updatedFilterValueJson
+    }
+  | ThreeDSExemptionAnalyticsTab => {
+      let filterKeys = updatedFilterValueJson->Dict.keysToArray
+
+      filterKeys->Array.forEach(key => {
+        if key !== "startTime" && key !== "endTime" {
+          if booleanFilterFields->Array.includes(key) {
+            let arrayValue = filterValueJson->getArrayFromDict(key, [])
+            let booleanArray =
+              arrayValue
+              ->Array.map(item => {
+                let stringValue = item->getStringFromJson("")
+                stringValue->getBoolFromString(false)->JSON.Encode.bool
+              })
+              ->getNonEmptyArray
+            updatedFilterValueJson->LogicUtils.setOptionArray(key, booleanArray)
+          } else {
+            let arrayValue = filterValueJson->getArrayFromDict(key, [])->getNonEmptyArray
+            updatedFilterValueJson->LogicUtils.setOptionArray(key, arrayValue)
+          }
+        }
+      })
+      updatedFilterValueJson->deleteNestedKeys(["startTime", "endTime"])
+      updatedFilterValueJson
+    }
+  | NoTab => Dict.make()
+  }
 }
 
 let renderValueInp = () => (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
@@ -286,13 +397,32 @@ let compareToInput = (~comparisonKey) => {
   )
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
+let (
+  startTimeFilterKey,
+  endTimeFilterKey,
+  smartRetryKey,
+  compareToStartTimeKey,
+  compareToEndTimeKey,
+  comparisonKey,
+  sampleDataKey,
+) = (
+  "startTime",
+  "endTime",
+  "is_smart_retry_enabled",
+  "compareToStartTime",
+  "compareToEndTime",
+  "comparison",
+  "is_sample_data_enabled",
+)
 
-let initialFixedFilterFields = (~events=?) => {
+let initialFixedFilterFields = (~events=?, ~sampleDataIsEnabled=false) => {
   let events = switch events {
   | Some(fn) => fn
   | _ => () => ()
   }
+  let customButtonStyle = sampleDataIsEnabled
+    ? "!bg-nd_gray-50 !text-nd_gray-400 !rounded-lg !bg-none"
+    : "border !rounded-lg !bg-none"
   let newArr = [
     (
       {
@@ -321,7 +451,9 @@ let initialFixedFilterFields = (~events=?) => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
+            ~disable=sampleDataIsEnabled,
             ~events,
+            ~customButtonStyle,
           ),
           ~inputFields=[],
           ~isRequired=false,

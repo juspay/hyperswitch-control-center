@@ -254,6 +254,12 @@ let disputeAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View Dispute analytics", "")],
 })
+let routingAnalytics = SubLevelLink({
+  name: "Routing",
+  link: `/analytics-routing`,
+  access: Access,
+  searchOptions: [("View routing analytics", "")],
+})
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
@@ -274,6 +280,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
@@ -291,6 +298,9 @@ let analytics = (
 
   if performanceMonitorFlag {
     links->Array.push(performanceMonitor)
+  }
+  if routingAnalyticsFlag {
+    links->Array.push(routingAnalytics)
   }
 
   isAnalyticsEnabled
@@ -330,6 +340,16 @@ let payoutRouting = userHasResourceAccess => {
   })
 }
 
+let threeDsExemption = userHasResourceAccess => {
+  SubLevelLink({
+    name: "3DS Exemption Manager",
+    iconTag: "betaTag",
+    link: `/3ds-exemption`,
+    access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager), // Assuming same access as 3DS Decision Manager for now
+    searchOptions: [("View 3DS Exemption", "")],
+  })
+}
+
 let threeDs = userHasResourceAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -350,6 +370,7 @@ let surcharge = userHasResourceAccess => {
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
+  threedsExemptionRules,
   ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
@@ -370,6 +391,9 @@ let workflow = (
   }
   if isPayoutEnabled {
     defaultWorkFlow->Array.push(payoutRouting)->ignore
+  }
+  if threedsExemptionRules {
+    defaultWorkFlow->Array.push(threeDsExemption(userHasResourceAccess))->ignore
   }
 
   isWorkflowEnabled
@@ -448,6 +472,14 @@ let paymentSettings = userHasResourceAccess => {
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
+let paymentSettingsV2 = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Settings V2",
+    link: `/payment-settings-new`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
+  })
+}
 
 let webhooks = userHasResourceAccess => {
   SubLevelLink({
@@ -463,15 +495,20 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
+  ~isPaymentSettingsV2Enabled,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
   if isWebhooksEnabled {
     defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if isPaymentSettingsV2Enabled {
+    defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
 
   if !isProfileUser {
@@ -607,13 +644,16 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
+    threedsExemptionRules,
+    paymentSettingsV2,
+    routingAnalytics,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
@@ -630,18 +670,25 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       isNewAnalyticsEnable,
+      routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
     default->workflow(
       isSurchargeEnabled,
+      threedsExemptionRules,
       ~userHasResourceAccess,
       ~isPayoutEnabled=payOut,
       ~userEntity,
     ),
     devAltPaymentMethods->alternatePaymentMethods,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(~isWebhooksEnabled=devWebhooks, ~userHasResourceAccess, ~checkUserEntity),
+    default->developers(
+      ~isWebhooksEnabled=devWebhooks,
+      ~userHasResourceAccess,
+      ~checkUserEntity,
+      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
+    ),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
@@ -652,6 +699,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let defaultSidebar = []
 
   if featureFlagDetails.devModularityV2 {
@@ -670,13 +718,14 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   }
 
   let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration => hsSidebars
-  | Recon => ReconSidebarValues.reconSidebars
-  | Recovery =>
-    RevenueRecoverySidebarValues.recoverySidebars(featureFlagDetails.devRecoveryV2ProductAnalytics)
+  | Orchestration(V1) => hsSidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | Orchestration(V2) => orchestratorV2Sidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

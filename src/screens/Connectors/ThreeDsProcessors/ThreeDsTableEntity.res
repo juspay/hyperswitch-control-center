@@ -27,7 +27,7 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 
-let getCell = (connector: connectorPayload, colType): Table.cell => {
+let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   switch colType {
   | Name =>
     CustomCell(
@@ -36,7 +36,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       />,
       "",
     )
-  | TestMode => Text(connector.test_mode ? "True" : "False")
+  | TestMode => Text(connector.test_mode->Option.getOr(false) ? "True" : "False")
   | Disabled =>
     Label({
       title: connector.disabled ? "DISABLED" : "ENABLED",
@@ -51,31 +51,14 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)
-  | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+  | MerchantConnectorId => DisplayCopyCell(connector.id)
   }
-}
-
-let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
-  connector1.connector_name->String.localeCompare(connector2.connector_name)
-}
-
-let sortPreviouslyConnectedList = arr => {
-  Array.toSorted(arr, comparatorFunction)
-}
-
-let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV1,
-    json,
-    AuthenticationProcessor,
-  )
-  data
 }
 
 let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell,
@@ -84,7 +67,7 @@ let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.
       connec =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
           ),
           ~authorization,
         )

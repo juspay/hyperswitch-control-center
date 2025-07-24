@@ -31,12 +31,15 @@ let make = (~showModal, ~setShowModal) => {
     borderBottom=true>
     <div className="flex flex-col h-full w-full px-6">
       <div className={`${body.md.medium} text-nd_gray-600 pt-6 pb-2`}>
-        {"To get started with least-cost routing, ensure connectors with local network support are configured"->React.string}
-        <a
-          href="https://docs.hyperswitch.io/explore-hyperswitch/payment-orchestration/smart-router/least-cost-routing#supported-configuration-for-least-cost-routing"
-          target="_blank">
-          <Icon name="external-link-alt" size=10 className="ml-1 text-blue-500 inline-flex" />
-        </a>
+        <span>
+          {"To get started with least-cost routing, ensure connectors with local network support are configured "->React.string}
+          <a
+            href="https://docs.hyperswitch.io/explore-hyperswitch/payment-orchestration/smart-router/least-cost-routing#supported-configuration-for-least-cost-routing"
+            target="_blank"
+            className="inline-flex items-center">
+            <Icon name="external-link-alt" size=10 className="ml-1 text-blue-500" />
+          </a>
+        </span>
       </div>
       <div className="flex justify-end gap-4 pb-8 pt-2">
         <Button

@@ -3,9 +3,17 @@ type accessMapping = {
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
+
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
+)
+
+let organizationDetailsValueAtom: Recoil.recoilAtom<
+  HSwitchSettingTypes.organizationPayload,
+> = Recoil.atom(
+  "organizationDetailsValue",
+  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
 )
 
 let businessProfilesAtom = Recoil.atom(
@@ -13,15 +21,21 @@ let businessProfilesAtom = Recoil.atom(
   JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
 )
 
-let connectorListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
-  "connectorListAtom",
-  JSON.Encode.null,
-)
+let connectorListAtom: Recoil.recoilAtom<
+  array<ConnectorTypes.connectorPayloadCommonType>,
+> = Recoil.atom("connectorListAtom", [])
 
+//Todo: remove this once we start using businessProfileInterface
 let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
   JSON.Encode.null->BusinessProfileMapper.businessProfileTypeMapper,
 )
+//Todo:remove this after businessProfileInterface is stable
+let businessProfileFromIdAtomInterface = Recoil.atom(
+  "businessProfileFromIdAtomInterface",
+  JSON.Encode.null,
+)
+
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
 let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(

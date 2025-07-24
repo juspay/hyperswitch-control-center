@@ -1,8 +1,9 @@
 open OMPSwitchTypes
 
-let ompDefaultValue = (currUserId, currUserName) => {
+let ompDefaultValue: (string, string) => ompListTypes = (currUserId, currUserName) => {
   id: currUserId,
   name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
+  type_: #standard,
 }
 
 let currentOMPName = (list: array<ompListTypes>, id: string) => {
@@ -12,7 +13,22 @@ let currentOMPName = (list: array<ompListTypes>, id: string) => {
   }
 }
 
-let orgItemToObjMapper = dict => {
+let ompTypeMapper = (ompType: string): ompType => {
+  switch ompType {
+  | "platform" => #platform
+  | "standard" => #standard
+  | _ => #standard
+  }
+}
+
+let ompTypeHeading = (ompType: ompType): string => {
+  switch ompType {
+  | #platform => "Platform Merchant"
+  | #standard => "Merchants"
+  }
+}
+
+let orgItemToObjMapper: dict<JSON.t> => ompListTypes = dict => {
   open LogicUtils
   {
     id: dict->getString("org_id", ""),
@@ -21,6 +37,7 @@ let orgItemToObjMapper = dict => {
         ? dict->getString("org_id", "")
         : dict->getString("org_name", "")
     },
+    type_: dict->getString("org_type", "")->ompTypeMapper,
   }
 }
 
@@ -33,8 +50,13 @@ let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict =>
         ? dict->getString("merchant_id", "")
         : dict->getString("merchant_name", "")
     },
-    productType: dict->getString("product_type", "")->ProductUtils.getProductVariantFromString,
+    productType: dict
+    ->getString("product_type", "")
+    ->ProductUtils.getProductVariantFromString(
+      ~version=dict->getString("version", "v1")->UserInfoUtils.versionMapper,
+    ),
     version: dict->getString("version", "v1")->UserInfoUtils.versionMapper,
+    type_: dict->getString("merchant_account_type", "")->ompTypeMapper,
   }
 }
 

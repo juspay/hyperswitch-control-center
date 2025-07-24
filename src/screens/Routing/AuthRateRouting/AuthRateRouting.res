@@ -2,7 +2,7 @@
 let make = (
   ~routingRuleId,
   ~isActive,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
@@ -368,11 +368,12 @@ let make = (
                   customSumbitButtonStyle="w-1/5 rounded-lg"
                   tooltipWidthClass="w-48"
                 />}
+                showCancelButton=false
                 submitButton={<RoutingUtils.SaveAndActivateButton
                   onSubmit handleActivateConfiguration
                 />}
                 headingText="Activate Current Configuration?"
-                subHeadingText="Activating this configuration will override the current one. Alternatively, save it to access later from the configuration history. Please confirm."
+                subHeadingText="Activating this configuration will override the current one. Please confirm."
                 leftIcon="warning-modal"
                 iconSize=35
               />

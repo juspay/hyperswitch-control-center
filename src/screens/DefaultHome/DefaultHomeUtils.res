@@ -7,13 +7,11 @@ module DefaultActionItem = {
       className="border rounded-xl p-3 flex items-center gap-4 shadow-cardShadow group cursor-pointer w-full justify-between py-4"
       onClick={_ => {
         switch action {
-        | InternalRoute(route) =>
-          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=route))
         | ExternalLink({url, trackingEvent}) => {
             mixpanelEvent(~eventName=trackingEvent)
             url->Window._open
           }
-        | CustomAction => ()
+        | _ => ()
         }
       }}>
       <div className="flex items-center gap-2">
@@ -29,14 +27,12 @@ module DefaultActionItem = {
 }
 module DefaultHomeCard = {
   @react.component
-  let make = (~heading, ~description, ~img, ~action) => {
+  let make = (~product, ~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.merchantListAtom,
-    )
-    let {activeProduct, setSelectMerchantToSwitch} = React.useContext(
+    let {activeProduct, onProductSelectClick} = React.useContext(
       ProductSelectionProvider.defaultContext,
     )
+    let url = RescriptReactRouter.useUrl()
 
     <div
       className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
@@ -56,17 +52,21 @@ module DefaultHomeCard = {
         customButtonStyle="w-full"
         onClick={_ => {
           switch action {
-          | InternalRoute(route) =>
-            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=route))
+          | InternalRoute =>
+            if product === activeProduct {
+              let currentUrl = GlobalVars.extractModulePath(
+                ~path=url.path,
+                ~end=url.path->List.toArray->Array.length,
+              )
+
+              let productUrl = ProductUtils.getProductUrl(~productType=product, ~url=currentUrl)
+              RescriptReactRouter.replace(productUrl)
+            } else {
+              onProductSelectClick(heading)
+            }
           | ExternalLink({url, trackingEvent}) => {
               mixpanelEvent(~eventName=trackingEvent)
               url->Window._open
-            }
-          | CustomAction =>
-            switch activeProduct {
-            | Orchestration =>
-              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/home"))
-            | _ => setSelectMerchantToSwitch(merchantList)
             }
           }
         }}
@@ -100,32 +100,32 @@ let defaultHomeActionArray = {
 let defaultHomeCardsArray = {
   [
     {
-      product: Orchestration,
+      product: Orchestration(V1),
       heading: "Orchestrator",
       description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: CustomAction,
+      action: InternalRoute,
     },
     {
       product: Vault,
       heading: "Vault",
       description: "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data—without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute("v2/vault"),
+      action: InternalRoute,
     },
     {
-      product: Recon,
+      product: Recon(V2),
       heading: "Recon",
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",
-      action: InternalRoute("v2/recon"),
+      action: InternalRoute,
     },
     {
       product: Recovery,
       heading: "Revenue Recovery",
       description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
       imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
-      action: InternalRoute("v2/recovery"),
+      action: InternalRoute,
     },
   ]
 }

@@ -166,7 +166,7 @@ let connectorSelectionDataMapperFromJson: JSON.t => RoutingTypes.connectorSelect
   }
 }
 
-let getDefaultSelection: Dict.t<JSON.t> => RoutingTypes.connectorSelection = defaultSelection => {
+let getDefaultSelection = (defaultSelection: Dict.t<JSON.t>): RoutingTypes.connectorSelection => {
   open LogicUtils
   open RoutingTypes
   let override3dsValue = defaultSelection->getString("override_3ds", "")
@@ -206,6 +206,17 @@ let getDefaultSelection: Dict.t<JSON.t> => RoutingTypes.connectorSelection = def
   }
 }
 
+let getDefaultSelectionFor3dsExemption = (
+  defaultSelection: Dict.t<JSON.t>,
+): RoutingTypes.connectorSelection => {
+  open LogicUtils
+  open RoutingTypes
+  let override3dsValue = defaultSelection->getString("decision", "")
+  {
+    override_3ds: override3dsValue,
+  }
+}
+
 let getConnectorStringFromConnectorSelectionData = connectorSelectionData => {
   open RoutingTypes
   switch connectorSelectionData {
@@ -228,7 +239,7 @@ let getSplitFromConnectorSelectionData = connectorSelectionData => {
   }
 }
 
-let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper = (json: Dict.t<JSON.t>): RoutingTypes.algorithmData => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -252,6 +263,34 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithmData = json => {
   {
     rules: rulesModifiedArray,
     defaultSelection: getDefaultSelection(defaultSelection),
+    metadata: json->getJsonObjectFromDict("metadata"),
+  }
+}
+
+let ruleInfoTypeMapperForThreeDsExemption = (json: Dict.t<JSON.t>): RoutingTypes.algorithmData => {
+  open LogicUtils
+  let rulesArray = json->getArrayFromDict("rules", [])
+
+  let defaultSelection = json->getDictfromDict("defaultSelection")
+
+  let rulesModifiedArray = rulesArray->Array.map(rule => {
+    let ruleDict = rule->getDictFromJsonObject
+    let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
+
+    let connectorSelection = getDefaultSelectionFor3dsExemption(connectorsDict)
+    let ruleName = ruleDict->getString("name", "")
+
+    let eachRule: RoutingTypes.rule = {
+      name: ruleName,
+      connectorSelection,
+      statements: conditionTypeMapper(ruleDict->getArrayFromDict("statements", [])),
+    }
+    eachRule
+  })
+
+  {
+    rules: rulesModifiedArray,
+    defaultSelection: getDefaultSelectionFor3dsExemption(defaultSelection),
     metadata: json->getJsonObjectFromDict("metadata"),
   }
 }
@@ -298,7 +337,7 @@ let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   statement.lhs->isNonEmptyString && (statement.value.\"type"->isNonEmptyString && statementValue)
 }
 
-let algorithmTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithm = values => {
+let algorithmTypeMapper = (values: Dict.t<JSON.t>): RoutingTypes.algorithm => {
   open LogicUtils
   {
     data: values->getDictfromDict("data")->ruleInfoTypeMapper,
@@ -306,14 +345,37 @@ let algorithmTypeMapper: Dict.t<JSON.t> => RoutingTypes.algorithm = values => {
   }
 }
 
-let getRoutingTypesFromJson: JSON.t => RoutingTypes.advancedRouting = values => {
+let algorithmTypeMapperFor3DsExemption = (values: Dict.t<JSON.t>): RoutingTypes.algorithm => {
+  open LogicUtils
+  {
+    data: values->getDictfromDict("data")->ruleInfoTypeMapperForThreeDsExemption,
+    \"type": values->getString("type", ""),
+  }
+}
+
+let getRoutingTypesFromJson = (values: JSON.t): RoutingTypes.advancedRouting => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
   {
     name: valuesDict->getString("name", ""),
     description: valuesDict->getString("description", ""),
-    algorithm: valuesDict->getDictfromDict("algorithm")->algorithmTypeMapper,
+    algorithm: valuesDict
+    ->getDictfromDict("algorithm")
+    ->algorithmTypeMapper,
+  }
+}
+
+let getRoutingTypesFromJsonForThreeDsExemption = (values: JSON.t): RoutingTypes.advancedRouting => {
+  open LogicUtils
+  let valuesDict = values->getDictFromJsonObject
+
+  {
+    name: valuesDict->getString("name", ""),
+    description: valuesDict->getString("description", ""),
+    algorithm: valuesDict
+    ->getDictfromDict("algorithm")
+    ->algorithmTypeMapperFor3DsExemption,
   }
 }
 
@@ -364,7 +426,11 @@ let generateStatements = statements => {
       filteredArr
     }
 
-    newAcc
+    let filteredAcc = newAcc->Array.filter(item => {
+      item.condition->Array.length > 0
+    })
+
+    filteredAcc
   })
 }
 
@@ -376,9 +442,35 @@ let generateRule = rulesDict => {
 
     let modifiedStatements = statements->generateStatements
 
+    let connectorSelection = ruleDict->getJsonObjectFromDict("connectorSelection")
+
     {
       "name": ruleDict->getString("name", ""),
-      "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
+      "connectorSelection": connectorSelection,
+      "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->JSON.Encode.array,
+    }
+  })
+  modifiedRules
+}
+
+let generateRuleForThreeDsExemption = rulesDict => {
+  let modifiedRules = rulesDict->Array.map(ruleJson => {
+    open LogicUtils
+    let ruleDict = ruleJson->getDictFromJsonObject
+    let statements = ruleDict->getArrayFromDict("statements", [])
+
+    let modifiedStatements = statements->generateStatements
+
+    let connectorSelection = {
+      let connectorSelectionJson = ruleDict->getJsonObjectFromDict("connectorSelection")
+      let connectorSelectionDict = connectorSelectionJson->getDictFromJsonObject
+      let decision = connectorSelectionDict->getString("override_3ds", "")
+      [("decision", decision->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+    }
+
+    {
+      "name": ruleDict->getString("name", ""),
+      "connectorSelection": connectorSelection,
       "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->JSON.Encode.array,
     }
   })

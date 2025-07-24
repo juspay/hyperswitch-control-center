@@ -24,3 +24,13 @@ let reconExceptionReportsDefaultCols = Recoil.atom(
   "reconExceptionReportsDefaultCols",
   ReportsExceptionTableEntity.defaultColumns,
 )
+
+let reconTransactionsOverviewDefaultCols = Recoil.atom(
+  "reconTransactionsOverviewDefaultCols",
+  TransactionsTableEntity.defaultColumnsOverview,
+)
+
+let reconTransactionsDefaultCols = Recoil.atom(
+  "reconTransactionsDefaultCols",
+  TransactionsTableEntity.defaultColumns,
+)

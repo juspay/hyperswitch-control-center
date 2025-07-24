@@ -533,6 +533,20 @@ Cypress.Commands.add("redirect_from_mail_inbox", () => {
   });
 });
 
+Cypress.Commands.add("signin_from_mail_inbox", () => {
+  cy.visit(Cypress.env("MAIL_URL"));
+  cy.get("div.messages > div")
+    .contains("Unlock Hyperswitch: Use Your Magic Link to Sign In")
+    .click();
+  cy.wait(1000);
+  cy.get("iframe").then(($iframe) => {
+    // Verify email
+    const doc = $iframe.contents();
+    const verifyEmail = doc.find("a").get(0);
+    cy.visit(verifyEmail.href);
+  });
+});
+
 const getIframeBody = () => {
   return cy
     .get("iframe")
@@ -540,3 +554,42 @@ const getIframeBody = () => {
     .should("not.be.empty")
     .then(cy.wrap);
 };
+
+Cypress.Commands.add("create_auth", () => {
+  cy.request({
+    method: "POST",
+    url: `http://localhost:8080/user/auth`,
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "test_admin",
+    },
+    body: {
+      owner_id: "okta_test",
+      owner_type: "organization",
+      auth_method: {
+        auth_type: "open_id_connect",
+        private_config: {
+          base_url: Cypress.env("CYPRESS_SSO_BASE_URL"),
+          client_id: Cypress.env("CYPRESS_SSO_CLIENT_ID"),
+          client_secret: Cypress.env("CYPRESS_SSO_CLIENT_SECRET"),
+        },
+        public_config: {
+          name: "okta",
+        },
+      },
+      allow_signup: false,
+      email_domain: "cypresstest.in",
+    },
+  });
+});
+
+Cypress.Commands.add("get_authID_by_email", () => {
+  return cy
+    .request({
+      method: "GET",
+      url: `http://localhost:8080/user/auth/list?email_domain=cypresstest.in`,
+    })
+    .then((response) => {
+      return response.body[0].auth_id;
+    });
+});

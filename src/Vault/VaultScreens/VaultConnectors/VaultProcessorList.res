@@ -2,8 +2,7 @@
 let make = () => {
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
+  let connectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -21,8 +20,8 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       connectorListFromRecoil->Array.reverse
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV2,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV2,
         ConnectorTypes.Processor,
         connectorListFromRecoil,
       )
@@ -40,8 +39,8 @@ let make = () => {
     None
   }, [connectorListFromRecoil->Array.length])
 
-  let callMixpanel = eventName => {
-    mixpanelEvent(~eventName)
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="vault_view_connector_details")
   }
 
   let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
@@ -59,7 +58,7 @@ let make = () => {
           entity={VaultConnectorEntity.connectorEntity(
             "v2/vault/onboarding",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-            callMixpanel,
+            ~sendMixpanelEvent,
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false

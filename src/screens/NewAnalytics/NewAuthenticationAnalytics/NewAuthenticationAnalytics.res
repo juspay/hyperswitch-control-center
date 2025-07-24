@@ -3,18 +3,20 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open NewAuthenticationAnalyticsUtils
-  open NewAuthenticationAnalyticsHelper
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (queryData, setQueryData) = React.useState(_ => Dict.make()->itemToObjMapperForQueryData)
   let (funnelData, setFunnelData) = React.useState(_ => Dict.make()->itemToObjMapperForFunnelData)
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+  let {updateExistingKeys, updateFilterAsync, filterValueJson, filterValue} = React.useContext(
     FilterContext.filterContext,
   )
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
 
   let title = "Authentication Analytics"
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
@@ -29,6 +31,13 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="authentication_analytics_date_filter_opened")
   }
+
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
 
   let loadInfo = async () => {
     try {
@@ -74,89 +83,165 @@ let make = () => {
   let getMetricsDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
-      let metricsRequestBody = InsightsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
-        ~mode=Some("ORDER"),
-        ~metrics=[
-          #authentication_count,
-          #authentication_attempt_count,
-          #authentication_success_count,
-          #challenge_flow_count,
-          #frictionless_flow_count,
-          #frictionless_success_count,
-          #challenge_attempt_count,
-          #challenge_success_count,
-        ],
-        ~delta=Some(true),
-      )
+      if isSampleDataEnabled {
+        setQueryData(_ => Dict.make()->itemToObjMapperForQueryData)
+        setFunnelData(_ => Dict.make()->itemToObjMapperForFunnelData)
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let res = await fetchApi(
+          paymentsUrl,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let paymentsResponse = await res->Fetch.Response.json
+        let paymentData =
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("authenticationsOverviewData")
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForQueryData)
+          ->getValueFromArray(0, defaultQueryData)
 
-      let metricsQueryResponse = await updateDetails(metricsUrl, metricsRequestBody, Post)
+        setQueryData(_ => paymentData)
 
-      let queryDataArray =
-        metricsQueryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(itemToObjMapperForQueryData)
+        let authenticationInitiated = (
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("funnelData1")
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
 
-      let valueOfQueryData = queryDataArray->getValueFromArray(0, defaultQueryData)
-      setQueryData(_ => valueOfQueryData)
+        let authenticationAttempted = (
+          paymentsResponse
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("funnelData2")
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
 
-      let secondFunnelRequestBody = InsightsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~filter=Some(getUpdatedFilterValueJson(filterValueJson)->JSON.Encode.object),
-        ~metrics=[#authentication_funnel],
-        ~delta=Some(true),
-      )
+        let queryDataMapped = paymentData
+        let funnelDict = Dict.make()->itemToObjMapperForFunnelData
+        funnelDict.authentication_initiated = authenticationInitiated
+        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.payments_requiring_3ds_2_authentication = queryDataMapped.authentication_count
+        funnelDict.authentication_successful = queryDataMapped.authentication_success_count
 
-      let secondFunnelQueryResponse = await updateDetails(metricsUrl, secondFunnelRequestBody, Post)
+        setFunnelData(_ => funnelDict)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setQueryData(_ => Dict.make()->itemToObjMapperForQueryData)
+        setFunnelData(_ => Dict.make()->itemToObjMapperForFunnelData)
+        let metricsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
+        let metricsRequestBody = InsightsUtils.requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=Some(
+            getUpdatedFilterValueJson(
+              filterValueJson,
+              ~currentTab=getTabFromIndex(tabIndex),
+            )->JSON.Encode.object,
+          ),
+          ~mode=Some("ORDER"),
+          ~metrics=[
+            #authentication_count,
+            #authentication_attempt_count,
+            #authentication_success_count,
+            #challenge_flow_count,
+            #frictionless_flow_count,
+            #frictionless_success_count,
+            #challenge_attempt_count,
+            #authentication_exemption_approved_count,
+            #authentication_exemption_requested_count,
+          ],
+          ~delta=Some(true),
+        )
 
-      let authenticationInitiated = (
-        secondFunnelQueryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
-        ->getValueFromArray(0, defaultSecondFunnelData)
-      ).authentication_funnel
+        let metricsQueryResponse = await updateDetails(metricsUrl, metricsRequestBody, Post)
 
-      let updatedFilters = Js.Dict.map(t => t, getUpdatedFilterValueJson(filterValueJson))
-      updatedFilters->Dict.set(
-        "authentication_status",
-        ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
-      )
+        let queryDataArray =
+          metricsQueryResponse
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForQueryData)
 
-      let thirdFunnelRequestBody = InsightsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~filter=Some(updatedFilters->JSON.Encode.object),
-        ~metrics=[#authentication_funnel],
-        ~delta=Some(true),
-      )
+        let valueOfQueryData = queryDataArray->getValueFromArray(0, defaultQueryData)
+        setQueryData(_ => valueOfQueryData)
 
-      let thirdFunnelQueryResponse = await updateDetails(metricsUrl, thirdFunnelRequestBody, Post)
+        let secondFunnelRequestBody = InsightsUtils.requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=Some(
+            getUpdatedFilterValueJson(
+              filterValueJson,
+              ~currentTab=getTabFromIndex(tabIndex),
+            )->JSON.Encode.object,
+          ),
+          ~metrics=[#authentication_funnel],
+          ~delta=Some(true),
+        )
 
-      let authenticationAttempted = (
-        thirdFunnelQueryResponse
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
-        ->getValueFromArray(0, defaultSecondFunnelData)
-      ).authentication_funnel
+        let secondFunnelQueryResponse = await updateDetails(
+          metricsUrl,
+          secondFunnelRequestBody,
+          Post,
+        )
 
-      let funnelDict = Dict.make()->itemToObjMapperForFunnelData
-      funnelDict.authentication_initiated = authenticationInitiated
-      funnelDict.authentication_attemped = authenticationAttempted
-      funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
-      funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
+        let authenticationInitiated = (
+          secondFunnelQueryResponse
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
 
-      setFunnelData(_ => funnelDict)
-      setScreenState(_ => PageLoaderWrapper.Success)
+        let updatedFilters = Js.Dict.map(
+          t => t,
+          getUpdatedFilterValueJson(filterValueJson, ~currentTab=getTabFromIndex(tabIndex)),
+        )
+        updatedFilters->Dict.set(
+          "authentication_status",
+          ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
+        )
+
+        let thirdFunnelRequestBody = InsightsUtils.requestBody(
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=Some(updatedFilters->JSON.Encode.object),
+          ~metrics=[#authentication_funnel],
+          ~delta=Some(true),
+        )
+
+        let thirdFunnelQueryResponse = await updateDetails(metricsUrl, thirdFunnelRequestBody, Post)
+
+        let authenticationAttempted = (
+          thirdFunnelQueryResponse
+          ->getDictFromJsonObject
+          ->getArrayFromDict("queryData", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapperForSecondFunnelData)
+          ->getValueFromArray(0, defaultSecondFunnelData)
+        ).authentication_funnel
+
+        let funnelDict = Dict.make()->itemToObjMapperForFunnelData
+        funnelDict.authentication_initiated = authenticationInitiated
+        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
+        funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
+
+        setFunnelData(_ => funnelDict)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -191,83 +276,108 @@ let make = () => {
       getMetricsDetails()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValue))
+  }, (startTimeVal, endTimeVal, filterValue, isSampleDataEnabled, tabIndex))
 
-  let topFilterUi = switch filterDataJson {
-  | Some(filterData) =>
+  let topFilterUi = {
+    let (initialFilters, popupFilterFields, key) = switch filterDataJson {
+    | Some(filterData) => (
+        isSampleDataEnabled ? [] : HSAnalyticsUtils.initialFilterFields(filterData, ~isTitle=true),
+        HSAnalyticsUtils.options(filterData),
+        "0",
+      )
+    | None => ([], [], "1")
+    }
+
     <div className="flex flex-row">
       <DynamicFilter
         title="AuthenticationAnalyticsV2"
-        initialFilters={HSAnalyticsUtils.initialFilterFields(filterData)}
+        initialFilters
         options=[]
-        popupFilterFields={HSAnalyticsUtils.options(filterData)}
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
+        popupFilterFields
+        initialFixedFilters={initialFixedFilterFields(
+          ~events=dateDropDownTriggerMixpanelCallback,
+          ~sampleDataIsEnabled=isSampleDataEnabled,
+        )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
-        key="0"
+        key
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
       />
-    </div>
-  | None =>
-    <div className="flex flex-row">
-      <DynamicFilter
-        title="AuthenticationAnalyticsV2"
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(~events=dateDropDownTriggerMixpanelCallback)}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
-        key="1"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
+      <div className="mt-15-px">
+        <Portal to="NewAnalyticsOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+            disabled=isSampleDataEnabled
+            disabledDisplayName="Hyperswitch_test"
+          />
+        </Portal>
+      </div>
     </div>
   }
+  let applySampleDateFilters = async isSampleDateEnabled => {
+    try {
+      setScreenState(_ => Loading)
+      let sampleDateRange: HSwitchRemoteFilter.filterBody = {
+        start_time: "2025-05-20T00:00:00.000Z",
+        end_time: "2025-06-03T00:00:00.000Z",
+      }
+      let values = InsightsUtils.getSampleDateRange(
+        ~useSampleDates=isSampleDateEnabled,
+        ~sampleDateRange,
+      )
+      values->Dict.set(sampleDataKey, isSampleDateEnabled->getStringFromBool)
+      let _ = await updateFilterAsync(~delay=1000, values)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => Success)
+    }
+  }
 
+  let funnelRenderCondition = React.useMemo(
+    () =>
+      funnelData.authentication_initiated > 0 &&
+      funnelData.payments_requiring_3ds_2_authentication > 0 &&
+      funnelData.authentication_attemped > 0 &&
+      funnelData.authentication_successful > 0,
+    [funnelData],
+  )
+
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Authentication Analytics",
+      renderContent: () =>
+        <AuthenticationContainer queryData funnelData metrics funnelRenderCondition />,
+    },
+    {
+      title: "3DS Exemption Analytics",
+      renderContent: () => <ExemptionContainer queryData />,
+    },
+  ]
   <PageLoaderWrapper screenState customUI={<HSAnalyticsUtils.NoData title />}>
-    <div>
-      <PageUtils.PageHeading title />
-      <div className="flex justify-end mr-4">
-        <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} />
-      </div>
-      <div
-        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
-        {topFilterUi}
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {getMetricsData(queryData)
-        ->Array.mapWithIndex((metric, index) =>
-          <Card
-            key={index->Int.toString}
-            title={metric.title}
-            value={metric.value}
-            valueType={metric.valueType}
-            description={metric.tooltip_description}
-          />
-        )
-        ->React.array}
-      </div>
-      <RenderIf
-        condition={funnelData.authentication_initiated > 0 &&
-        funnelData.payments_requiring_3ds_2_authentication > 0 &&
-        funnelData.authentication_attemped > 0 &&
-        funnelData.authentication_successful > 0}>
-        <div className="border border-gray-200 mt-5 rounded-lg">
-          <FunnelChart
-            data={getFunnelChartData(funnelData)}
-            metrics={metrics}
-            moduleName="Authentication Funnel"
-            description=Some("Breakdown of ThreeDS 2.0 Journey")
-          />
-        </div>
-      </RenderIf>
-      <Insights />
+    <InsightsHelper.SampleDataBanner applySampleDateFilters />
+    <PageUtils.PageHeading title />
+    <div className="flex justify-end mr-4">
+      <GenerateReport entityName={V1(AUTHENTICATION_REPORT)} disableReport={isSampleDataEnabled} />
     </div>
+    <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+      {topFilterUi}
+    </div>
+    <Tabs
+      initialIndex={tabIndex}
+      tabs
+      onTitleClick={tabId => setTabIndex(_ => tabId)}
+      disableIndicationArrow=true
+      showBorder=true
+      includeMargin=false
+      lightThemeColor="black"
+      textStyle="text-blue-600"
+      selectTabBottomBorderColor="bg-blue-600 !z-0"
+    />
   </PageLoaderWrapper>
 }

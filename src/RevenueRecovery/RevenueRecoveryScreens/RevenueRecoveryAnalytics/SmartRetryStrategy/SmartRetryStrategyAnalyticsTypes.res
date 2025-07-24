@@ -21,6 +21,10 @@ type responseKeys = [
   | #overall_success_rate
   | #groupwise_data
   | #error_category_analysis
+  | #billing_state
+  | #card_funding
+  | #card_network
+  | #card_issuer
 ]
 
 type successRateSeries = {

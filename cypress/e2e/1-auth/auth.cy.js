@@ -2,11 +2,13 @@ import * as helper from "../../support/helper";
 import SignInPage from "../../support/pages/auth/SignInPage";
 import SignUpPage from "../../support/pages/auth/SignUpPage";
 import ResetPasswordPage from "../../support/pages/auth/ResetPasswordPage";
-import { reset } from "mixpanel-browser";
+import HomePage from "../../support/pages/homepage/HomePage";
+import { authenticator } from "otplib";
 
 const signinPage = new SignInPage();
 const signupPage = new SignUpPage();
 const resetPasswordPage = new ResetPasswordPage();
+const homepage = new HomePage();
 
 describe("Sign up", () => {
   it("should verify all components on the sign-up page", () => {
@@ -77,6 +79,33 @@ describe("Sign up", () => {
     signupPage.footerText.should("be.visible").should("contain", "Cancel");
   });
 
+  it("should verify password masking while signup", () => {
+    const email = helper.generateUniqueEmail();
+    const password = Cypress.env("CYPRESS_PASSWORD");
+
+    cy.visit_signupPage();
+    signupPage.emailInput.type(email);
+    signupPage.signUpButton.click();
+
+    cy.redirect_from_mail_inbox();
+    signinPage.skip2FAButton.click();
+
+    resetPasswordPage.createPassword
+      .should("have.attr", "type", "password")
+      .type(password);
+    resetPasswordPage.confirmPassword
+      .should("have.attr", "type", "password")
+      .type(password);
+
+    resetPasswordPage.eyeIcon.eq(0).click();
+    resetPasswordPage.createPassword.should("have.attr", "type", "text");
+    resetPasswordPage.createPassword.should("have.value", password);
+
+    resetPasswordPage.eyeIcon.click();
+    resetPasswordPage.confirmPassword.should("have.attr", "type", "text");
+    resetPasswordPage.confirmPassword.should("have.value", password);
+  });
+
   it("should be able to sign up using magic link", () => {
     const email = helper.generateUniqueEmail();
     const password = Cypress.env("CYPRESS_PASSWORD");
@@ -114,39 +143,11 @@ describe("Sign up", () => {
     signupPage.footerText.click();
     cy.url().should("include", "/login");
   });
-
-  it("should verify password masking while signup", () => {
-    const email = helper.generateUniqueEmail();
-    const password = Cypress.env("CYPRESS_PASSWORD");
-
-    cy.visit_signupPage();
-    signupPage.emailInput.type(email);
-    signupPage.signUpButton.click();
-
-    cy.redirect_from_mail_inbox();
-    signinPage.skip2FAButton.click();
-
-    resetPasswordPage.createPassword
-      .should("have.attr", "type", "password")
-      .type(password);
-    resetPasswordPage.confirmPassword
-      .should("have.attr", "type", "password")
-      .type(password);
-
-    resetPasswordPage.eyeIcon.eq(0).click();
-    resetPasswordPage.createPassword.should("have.attr", "type", "text");
-    resetPasswordPage.createPassword.should("have.value", password);
-
-    resetPasswordPage.eyeIcon.click();
-    resetPasswordPage.confirmPassword.should("have.attr", "type", "text");
-    resetPasswordPage.confirmPassword.should("have.value", password);
-  });
 });
 
 describe("Sign in", () => {
-  it("should verify all required components on the login page", () => {
+  it("should verify all components on the signin page", () => {
     cy.visit("/");
-    cy.url().should("include", "/dashboard/login");
 
     signinPage.headerText.should("contain", "Hey there, Welcome back!");
     signinPage.signUpLink.should("contain", "Sign up");
@@ -162,7 +163,13 @@ describe("Sign in", () => {
       "placeholder",
       "Enter your Password",
     );
+    signinPage.forgetPasswordLink
+      .should("be.visible")
+      .and("contains.text", "Forgot Password?");
     signinPage.signinButton.should("be.visible");
+    signinPage.emailSigninLink
+      .should("be.visible")
+      .and("contains.text", "sign in with an email");
     signinPage.tcText.should("exist");
     signinPage.footerText.should("exist");
   });
@@ -202,42 +209,32 @@ describe("Sign in", () => {
     signinPage.invalidCredsToast.should("be.visible");
   });
 
-  it("should login successfully with email containing spaces", () => {
+  it("should successfully login using magic link for registered user", () => {
     const email = helper.generateUniqueEmail();
-    cy.visit("/");
-    cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+    const password = Cypress.env("CYPRESS_PASSWORD");
 
-    cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
+    cy.visit_signupPage();
+    signupPage.emailInput.type(email);
+    signupPage.signUpButton.click();
+    signupPage.headerText.should("contain", "Please check your inbox");
+
+    cy.redirect_from_mail_inbox();
+
+    signinPage.skip2FAButton.click();
+
+    resetPasswordPage.createPassword.type(password);
+    resetPasswordPage.confirmPassword.type(password);
+    resetPasswordPage.confirmButton.click();
+
+    signinPage.emailSigninLink.click();
+    signinPage.emailInput.type(email);
+    signinPage.signinButton.click();
+
+    cy.signin_from_mail_inbox();
+
+    signinPage.skip2FAButton.click();
 
     cy.url().should("include", "/dashboard/home");
-  });
-
-  it("should verify all components on the signin page", () => {
-    cy.visit("/");
-
-    signinPage.headerText.should("contain", "Hey there, Welcome back!");
-    signinPage.signUpLink.should("contain", "Sign up");
-    signinPage.emailInput.should("be.visible");
-    signupPage.emailInput.should(
-      "have.attr",
-      "placeholder",
-      "Enter your Email",
-    );
-    signinPage.passwordInput.should("be.visible");
-    signupPage.passwordInput.should(
-      "have.attr",
-      "placeholder",
-      "Enter your Password",
-    );
-    signinPage.forgetPasswordLink
-      .should("be.visible")
-      .and("contains.text", "Forgot Password?");
-    signinPage.signinButton.should("be.visible");
-    signinPage.emailSigninLink
-      .should("be.visible")
-      .and("contains.text", "sign in with an email");
-    signinPage.tcText.should("exist");
-    signinPage.footerText.should("exist");
   });
 
   it("should display only email field when 'sign in with an email' is clicked", () => {
@@ -364,6 +361,169 @@ describe("Sign in", () => {
   });
 });
 
+(Cypress.env("CYPRESS_SSO_BASE_URL") ? describe : describe.skip)(
+  "Okta SSO tests",
+  () => {
+    let auth_id = "";
+
+    before(() => {
+      cy.signup_API(
+        Cypress.env("CYPRESS_SSO_USERNAME"),
+        Cypress.env("CYPRESS_SSO_PASSWORD"),
+      );
+      cy.create_auth();
+      cy.get_authID_by_email().then((authId) => {
+        auth_id = authId;
+      });
+    });
+
+    it("should display “Continue with Okta” button when login URL is accessed with valid okta enabled auth_id", () => {
+      cy.visit(`/?auth_id=${auth_id}`);
+
+      signinPage.continueWithOktaButton.should("be.visible");
+      signinPage.continueWithOktaButton.should("contain", "Continue with Okta");
+    });
+
+    it("should not display the SSO button when login URL is accessed without, with empty, or with invalid auth_id parameter", () => {
+      cy.visit("/");
+      signinPage.continueWithOktaButton.should("not.exist");
+
+      cy.visit("/?auth_id=");
+      signinPage.continueWithOktaButton.should("not.exist");
+
+      cy.visit("/?auth_id=abcd");
+      signinPage.continueWithOktaButton.should("not.exist");
+    });
+
+    it("should redirect to Okta login page when “Continue with Okta” button is clicked", () => {
+      cy.visit(`/?auth_id=${auth_id}`);
+
+      signinPage.continueWithOktaButton.click();
+
+      cy.waitUntil(() => cy.url().then((url) => url.includes("okta.com")), {
+        errorMsg: "Did not reach okta.com in time",
+        timeout: 10000,
+        interval: 300,
+      });
+    });
+
+    it("should redirect to dashboard homepage after entering valid Okta credentials ", () => {
+      cy.visit(`/?auth_id=${auth_id}`);
+
+      signinPage.continueWithOktaButton.click();
+
+      cy.waitUntil(() => cy.url().then((url) => url.includes("okta.com")), {
+        errorMsg: "Did not reach okta.com in time",
+        timeout: 10000,
+        interval: 300,
+      });
+
+      signinPage.oktaEmailInput.type(Cypress.env("CYPRESS_SSO_USERNAME"));
+      signinPage.oktaNextButton.click();
+      signinPage.oktaPasswordInput.type(Cypress.env("CYPRESS_SSO_PASSWORD"));
+      signinPage.oktaVerifynButton.click();
+
+      cy.waitUntil(
+        () => cy.url().then((url) => url.includes("/dashboard/home")),
+        {
+          errorMsg: "Did not reach /dashboard/home in time",
+          timeout: 10000,
+          interval: 300,
+        },
+      );
+    });
+
+    it("should show authentication error after entering invalid Okta credentials and stay on Okta login page", () => {
+      cy.visit(`/?auth_id=${auth_id}`);
+
+      signinPage.continueWithOktaButton.click();
+
+      signinPage.oktaEmailInput.type("demo.user@test.com");
+      signinPage.oktaNextButton.click();
+      signinPage.oktaPasswordInput.type("Test@1234");
+      signinPage.oktaVerifynButton.click();
+
+      signinPage.oktaErrorMessage
+        .should("be.visible")
+        .should("contain", "Unable to sign in");
+
+      cy.url().should("contain", "okta.com");
+    });
+
+    it(`should automatically log in and redirect to the dashboard after logout once initial Okta login is successfull`, () => {
+      cy.visit(`/?auth_id=${auth_id}`);
+
+      signinPage.continueWithOktaButton.click();
+
+      signinPage.oktaEmailInput.type(Cypress.env("CYPRESS_SSO_USERNAME"));
+      signinPage.oktaNextButton.click();
+      signinPage.oktaPasswordInput.type(Cypress.env("CYPRESS_SSO_PASSWORD"));
+      signinPage.oktaVerifynButton.click();
+
+      cy.waitUntil(
+        () => cy.url().then((url) => url.includes("/dashboard/home")),
+        {
+          errorMsg: "Did not reach /dashboard/home in time",
+          timeout: 10000,
+          interval: 300,
+        },
+      );
+
+      homepage.user_account.click();
+      homepage.sign_out.click();
+
+      signinPage.continueWithOktaButton.click();
+
+      cy.waitUntil(
+        () => cy.url().then((url) => url.includes("/dashboard/home")),
+        {
+          errorMsg: "Did not reach /dashboard/home in time",
+          timeout: 10000,
+          interval: 300,
+        },
+      );
+    });
+
+    it(`should require full Okta login after logged out from okta`, () => {
+      cy.visit(`/?auth_id=${auth_id}`);
+
+      signinPage.continueWithOktaButton.click();
+
+      signinPage.oktaEmailInput.type(Cypress.env("CYPRESS_SSO_USERNAME"));
+      signinPage.oktaNextButton.click();
+      signinPage.oktaPasswordInput.type(Cypress.env("CYPRESS_SSO_PASSWORD"));
+      signinPage.oktaVerifynButton.click();
+
+      cy.waitUntil(
+        () => cy.url().then((url) => url.includes("/dashboard/home")),
+        {
+          errorMsg: "Did not reach /dashboard/home in time",
+          timeout: 10000,
+          interval: 300,
+        },
+      );
+
+      homepage.user_account.click();
+      homepage.sign_out.click();
+
+      cy.request({
+        method: "GET",
+        url: `${Cypress.env("CYPRESS_SSO_BASE_URL")}/login/signout`,
+        followRedirect: false,
+      });
+
+      signinPage.continueWithOktaButton.click();
+
+      cy.waitUntil(() => cy.url().then((url) => url.includes("okta.com")), {
+        errorMsg: "Did not reach okta.com in time",
+        timeout: 10000,
+        interval: 300,
+      });
+      cy.url().should("contain", "okta.com");
+    });
+  },
+);
+
 describe("Forgot password", () => {
   it("should verify all components in forgot passowrd page", () => {
     cy.visit("/");
@@ -449,5 +609,48 @@ describe("Forgot password", () => {
     signinPage.signinButton.click();
     signinPage.skip2FAButton.click();
     cy.url().should("include", "/dashboard/home");
+  });
+
+  //TODO
+  //Verify "Cancel" link redirects to login page
+});
+
+describe.skip("TOTP flows", () => {
+  it("should successfully setup 2FA while signup", () => {
+    cy.intercept("GET", "**/2fa/totp/begin", (req) => {
+      req.continue((res) => {
+        const totpSecret = res.body.secret.secret;
+        Cypress.env("TOTP_SECRET", totpSecret);
+      });
+    }).as("generateTotp");
+
+    const email = helper.generateUniqueEmail();
+    cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+
+    cy.visit("/");
+    signinPage.emailInput.type(email);
+    signinPage.passwordInput.type(Cypress.env("CYPRESS_PASSWORD"));
+    signinPage.signinButton.click();
+
+    cy.get('[viewBox="0 0 41 41"]').should("be.visible");
+
+    cy.wait("@generateTotp").then(() => {
+      const secret = Cypress.env("TOTP_SECRET");
+      const token = authenticator.generate(secret);
+
+      signinPage.otpBox2FA
+        .children()
+        .eq(1)
+        .find("div.w-16.h-16")
+        .each(($input, index) => {
+          cy.wrap($input).type(token.charAt(index));
+        });
+
+      signinPage.enable2FA.click();
+
+      cy.get('[data-button-for="download"]').click();
+
+      cy.url().should("include", "/dashboard/home");
+    });
   });
 });

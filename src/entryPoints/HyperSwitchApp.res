@@ -24,7 +24,7 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -107,6 +107,16 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
+  let leftCustomClass = switch activeProduct {
+  | Orchestration(V1) => ""
+  | _ => "-left-180-px"
+  }
+
+  let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
+  | Orchestration(V1) => true
+  | _ => false
+  }
+
   <>
     <div>
       {switch dashboardPageState {
@@ -114,7 +124,7 @@ let make = () => {
         <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
-            <div className="flex relative overflow-auto h-screen ">
+            <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
                   path={url.path}
@@ -131,8 +141,7 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
-                          <RenderIf
-                            condition={merchantDetailsTypedValue.product_type == Orchestration}>
+                          <RenderIf condition={showGlobalSearchBar}>
                             <GlobalSearchBar />
                           </RenderIf>
                           <RenderIf condition={isInternalUser}>
@@ -154,25 +163,39 @@ let make = () => {
                         </div>
                       }}
                       midUiActions={<TestMode />}
-                      midUiActionsCustomClass={`top-0 relative flex justify-center ${activeProduct !==
-                          Orchestration
-                          ? "-left-[180px]"
-                          : ""} `}
+                      midUiActionsCustomClass={`top-0 relative flex justify-center ${leftCustomClass}`}
                     />
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner bannerText={maintenanceAlert} bannerType={Info} />
+                      <HSwitchUtils.AlertBanner
+                        bannerContent={<p> {maintenanceAlert->React.string} </p>} bannerType={Info}
+                      />
                     </RenderIf>
+                    <WorkflowSideDrawer />
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
+                      <RenderIf
+                        condition={featureFlagDetails.devAiChatBot &&
+                        userHasAccess(~groupAccess=MerchantDetailsView) == Access}>
+                        <div
+                          onClick={_ =>
+                            RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
+                          className="absolute z-10 bottom-5 right-5 border bg-blue-200 p-2 cursor-pointer rounded-full hover:bg-blue-300 transition-all">
+                          <Icon name="robot" size=32 customIconColor="text-primary" />
+                        </div>
+                      </RenderIf>
                       <ErrorBoundary>
                         {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         /* DEFAULT HOME */
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
-                        | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
+                        | (_, list{"organization-chart"}) => <OrganisationChart />
+
+                        | (_, list{"v2", "onboarding", ..._})
+                        | (_, list{"v1", "onboarding", ..._}) =>
+                          <DefaultOnboardingPage />
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
@@ -185,8 +208,13 @@ let make = () => {
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
-                        /* RECON PRODUCT */
-                        | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
+                        /* RECON V1 PRODUCT */
+
+                        | (Recon(V1), list{"v1", "recon-engine", ..._}) => <ReconEngineApp />
+
+                        /* RECON V2 PRODUCT */
+
+                        | (Recon(V2), list{"v2", "recon", ..._}) => <ReconApp />
 
                         /* RECOVERY PRODUCT */
                         | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
@@ -202,8 +230,12 @@ let make = () => {
                         | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
                           <IntelligentRoutingApp />
 
+                        /* ORCHESTRATOR V2 PRODUCT */
+                        | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
+                          <OrchestrationV2App />
+
                         /* ORCHESTRATOR PRODUCT */
-                        | (Orchestration, _) => <OrchestrationApp setScreenState />
+                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
 
                         | _ =>
                           <UnauthorizedPage

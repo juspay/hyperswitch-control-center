@@ -16,6 +16,8 @@
 // Import commands.js using ES2015 syntax:
 import "@cypress/code-coverage/support";
 import "./commands";
+import "cypress-wait-until";
+import "otplib";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

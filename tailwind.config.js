@@ -32,6 +32,9 @@ module.exports = {
       scale: {
         400: "4",
       },
+      margin: {
+        "15-px": "15px",
+      },
       height: {
         "1.1-rem": "1.125rem",
         "5-rem": "5rem",
@@ -61,6 +64,7 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "774-px": "774px",
+        "840-px": "840px",
         "890-px": "890px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
@@ -69,10 +73,14 @@ module.exports = {
         "10-px": "10px",
       },
       maxHeight: {
+        "15-rem": "15rem",
         "25-rem": "25rem",
+        "30-rem": "30rem",
       },
       inset: {
+        "5-px": "5px",
         "76-px": "76px",
+        "180-px": "180px",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -123,6 +131,7 @@ module.exports = {
         800: "800px",
       },
       lineHeight: {
+        14: "14px",
         17: "17px",
         18: "18px",
         20: "20px",
@@ -159,10 +168,13 @@ module.exports = {
         focusBoxShadow:
           "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
         cardShadow: "0px 2px 2px 0px rgba(0, 0, 0, 0.04)",
+        rightDrawerShadow:
+          "0px 4px 6px 0px rgba(0,0,0,0.05) , 0px 10px 15px -3px rgba(16,24,40,0.1)",
       },
       fontSize: {
         base: "var(--base-font-size)",
         heading: "var(--base-heading-font-size)",
+        "fs-8": "8px",
         "fs-10": "10px",
         "fs-11": "11px",
         "fs-12": "12px",
@@ -374,7 +386,7 @@ module.exports = {
         nd_gray: {
           25: "#FCFCFD",
           50: "#F5F7FA",
-          100: "FBFBFB",
+          100: "#FBFBFB",
           150: "#ECEFF3",
           200: "#E1E4EA",
           300: "#CACFD8",
@@ -385,11 +397,13 @@ module.exports = {
           800: "#222530",
         },
         nd_primary_blue: {
+          25: "#F6FAFE",
           50: "#E4F1FD",
           100: "#BCD7FA",
           200: "#93BCF6",
           300: "#6AA1F2",
           400: "#4287EF",
+          450: "#247DF9",
           500: "#1C6DEA",
           600: "#0561E2",
         },
@@ -413,6 +427,7 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          200: "#FCB5AA",
           600: "#C91C00",
           400: "#EC5941",
         },
@@ -424,6 +439,7 @@ module.exports = {
         nd_yellow: {
           100: "#FFFBEE",
           200: "#5E4200",
+          300: "#FFDF20",
           800: "#998335",
         },
       },
