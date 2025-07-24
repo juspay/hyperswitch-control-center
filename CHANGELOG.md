@@ -3,6 +3,55 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.24.1
+
+### Features
+
+- Right drawer for product exploration ([#3169](https://github.com/juspay/hyperswitch-control-center/pull/3169)) ([`f0ea731`](https://github.com/juspay/hyperswitch-control-center/commit/f0ea731cc22b7aa2b00ade28ea91c3354ceb6abd))
+
+**Full Changelog:** [`2025.07.24.0...2025.07.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.24.0...2025.07.24.1)
+
+- - -
+
+## 2025.07.24.0
+
+### Bug Fixes
+
+- Disabled draggable columns when columns are searched in loaded table with custom columns ([#3320](https://github.com/juspay/hyperswitch-control-center/pull/3320)) ([`a7138ca`](https://github.com/juspay/hyperswitch-control-center/commit/a7138ca31878d348d2b211a3456a69d15d578e6b))
+
+### Miscellaneous Tasks
+
+- Common entity for connector list loaded table ([#3329](https://github.com/juspay/hyperswitch-control-center/pull/3329)) ([`0e438e6`](https://github.com/juspay/hyperswitch-control-center/commit/0e438e632ff81ff36fb844a7fb27d67522c2ead8))
+
+**Full Changelog:** [`2025.07.23.0...2025.07.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.23.0...2025.07.24.0)
+
+- - -
+
+## 2025.07.23.0
+
+### Bug Fixes
+
+- Recon v2 show get production access ([#3322](https://github.com/juspay/hyperswitch-control-center/pull/3322)) ([`27aa5eb`](https://github.com/juspay/hyperswitch-control-center/commit/27aa5eb8a883a3778d3784d1dbdbc11a8e4a02a4))
+
+### Miscellaneous Tasks
+
+- Already configured frm cannot be configured again ([#3317](https://github.com/juspay/hyperswitch-control-center/pull/3317)) ([`3a4233e`](https://github.com/juspay/hyperswitch-control-center/commit/3a4233ec07cc73805728dafd16adaa9f0a5c5b55))
+- Connector interface type changes ([#3277](https://github.com/juspay/hyperswitch-control-center/pull/3277)) ([`962515c`](https://github.com/juspay/hyperswitch-control-center/commit/962515c5a1c867dec64671c8f6c9d60d821c2bb8))
+
+**Full Changelog:** [`2025.07.22.0...2025.07.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.22.0...2025.07.23.0)
+
+- - -
+
+## 2025.07.22.0
+
+### Miscellaneous Tasks
+
+- Recovery invoices page changes ([#3319](https://github.com/juspay/hyperswitch-control-center/pull/3319)) ([`09fd5a8`](https://github.com/juspay/hyperswitch-control-center/commit/09fd5a89e77495a62857d48cb5dc24695eea299c))
+
+**Full Changelog:** [`2025.07.21.0...2025.07.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.21.0...2025.07.22.0)
+
+- - -
+
 ## 2025.07.21.0
 
 ### Features
