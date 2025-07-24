@@ -1,5 +1,6 @@
 open ReconEngineTransactionsTypes
 open LogicUtils
+open ReconEngineUtils
 
 let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
@@ -134,11 +135,7 @@ let getTransactionTypeFromString = (status: string) => {
 }
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions: array<FilterSelectBox.dropdownOption> = [
-    {label: "Mismatched", value: "mismatched"},
-    {label: "Expected", value: "expected"},
-    {label: "Posted", value: "posted"},
-  ]
+  let statusOptions = getTransactionStatusOptions([Mismatched, Expected, Posted])
 
   [
     (
@@ -199,17 +196,6 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       }: EntityType.initialFilters<'t>
     ),
   ]
-}
-
-let generateAccountFilterOptions = (
-  accountData: array<ReconEngineOverviewTypes.accountType>,
-): array<FilterSelectBox.dropdownOption> => {
-  accountData->Array.map(account => {
-    {
-      FilterSelectBox.label: account.account_name,
-      value: account.account_id,
-    }
-  })
 }
 
 let getSampleStackedBarGraphData = () => {

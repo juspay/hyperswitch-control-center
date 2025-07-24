@@ -366,12 +366,8 @@ let processLineGraphData = (
 }
 
 let initialDisplayFilters = () => {
-  let statusOptions: array<FilterSelectBox.dropdownOption> = [
-    {label: "Mismatched", value: "mismatched"},
-    {label: "Expected", value: "expected"},
-    {label: "Posted", value: "posted"},
-  ]
-
+  open ReconEngineTransactionsTypes
+  let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
   [
     (
       {

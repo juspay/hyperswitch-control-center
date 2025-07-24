@@ -23,12 +23,10 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
-  let creditAccountOptions = React.useMemo(() => {
-    getCreditAccountOptions(baseTransactions)
-  }, [baseTransactions])
-
-  let debitAccountOptions = React.useMemo(() => {
-    getDebitAccountOptions(baseTransactions)
+  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
+    let creditAccountOptions = getCreditAccountOptions(baseTransactions)
+    let debitAccountOptions = getDebitAccountOptions(baseTransactions)
+    (creditAccountOptions, debitAccountOptions)
   }, [baseTransactions])
 
   let topFilterUi = {

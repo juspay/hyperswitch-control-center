@@ -20,12 +20,10 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
   }
-  let creditAccountOptions = React.useMemo(() => {
-    getCreditAccountOptions(baseTransactions)
-  }, [baseTransactions])
-
-  let debitAccountOptions = React.useMemo(() => {
-    getDebitAccountOptions(baseTransactions)
+  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
+    let creditAccountOptions = getCreditAccountOptions(baseTransactions)
+    let debitAccountOptions = getDebitAccountOptions(baseTransactions)
+    (creditAccountOptions, debitAccountOptions)
   }, [baseTransactions])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
@@ -74,6 +72,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transactionsList = await getTransactions(~queryParamerters=None)
       setBaseTransactions(_ => transactionsList)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }

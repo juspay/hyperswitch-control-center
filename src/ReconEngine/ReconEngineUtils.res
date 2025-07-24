@@ -71,3 +71,16 @@ let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
 
   queryParts->Array.joinWith("&")
 }
+
+let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  statusList->Array.map(status => {
+    let value: string = (status :> string)->String.toLowerCase
+    let label = (status :> string)->capitalizeString
+    {
+      FilterSelectBox.label,
+      value,
+    }
+  })
+}

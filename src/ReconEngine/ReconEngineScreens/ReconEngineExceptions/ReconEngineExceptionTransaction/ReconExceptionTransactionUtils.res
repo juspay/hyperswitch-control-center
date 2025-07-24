@@ -1,9 +1,8 @@
-let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions: array<FilterSelectBox.dropdownOption> = [
-    {label: "Mismatched", value: "mismatched"},
-    {label: "Expected", value: "expected"},
-  ]
+open ReconEngineUtils
+open ReconEngineTransactionsTypes
 
+let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+  let statusOptions = getTransactionStatusOptions([Mismatched, Expected])
   [
     (
       {
