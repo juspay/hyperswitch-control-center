@@ -61,6 +61,7 @@ type featureFlag = {
   devOmpChart: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
+  routingAnalytics: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -124,6 +125,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devOmpChart: dict->getBool("dev_omp_chart", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
+    routingAnalytics: dict->getBool("routing_analytics", false),
   }
 }
 

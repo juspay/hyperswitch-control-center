@@ -48,7 +48,8 @@ let make = (~setScreenState) => {
     | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
-    | list{"analytics-authentication"} =>
+    | list{"analytics-authentication"}
+    | list{"analytics-routing"} =>
       <AnalyticsContainer />
 
     | list{"new-analytics"}
