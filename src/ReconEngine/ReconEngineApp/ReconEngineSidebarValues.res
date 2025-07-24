@@ -32,8 +32,8 @@ let reconExceptions = {
 
 let reconQueue = {
   Link({
-    name: "Recon Queue",
-    link: `/v1/recon-engine/queue`,
+    name: "File Management",
+    link: `/v1/recon-engine/file-management/ingestion-history`,
     access: Access,
     icon: "nd-workflow",
     selectedIcon: "nd-workflow-fill",

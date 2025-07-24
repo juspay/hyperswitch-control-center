@@ -7,11 +7,11 @@ type modalStep = AccountSelection | FileUpload
 let make = (~showModal, ~setShowModal) => {
   open FormDataUtils
   open APIUtils
-  open ReconEngineQueueUtils
+  open ReconEngineIngestionUtils
 
   let (currentStep, setCurrentStep) = React.useState(_ => AccountSelection)
   let (selectedAccount, setSelectedAccount) = React.useState(_ => "")
-  let (fileType, setFileType) = React.useState(_ => "")
+  let (ingestionConfigType, setIngestionConfigType) = React.useState(_ => "")
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -19,27 +19,13 @@ let make = (~showModal, ~setShowModal) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = useGetMethod()
   let (accountData, setAccountData) = React.useState(_ => [])
-  let fileTypeField = FormRenderer.makeFieldInfo(
-    ~label="File Type",
-    ~name="file_type",
-    ~placeholder="Enter a file type",
-    ~customInput=(~input, ~placeholder as _) =>
-      InputFields.textInput(~customStyle="rounded-lg -ml-1")(
-        ~input={
-          ...input,
-          value: fileType->JSON.Encode.string,
-          onChange: event => setFileType(_ => ReactEvent.Form.target(event)["value"]),
-        },
-        ~placeholder="Enter your file_type",
-      ),
-    ~isRequired=true,
-  )
+  let (ingestionConfigData, setIngestionConfigData) = React.useState(_ => [])
 
   let closeModal = () => {
     setShowModal(_ => false)
     setCurrentStep(_ => AccountSelection)
     setSelectedFile(_ => None)
-    setFileType(_ => "")
+    setIngestionConfigType(_ => "")
   }
 
   let handleNext = () => {
@@ -64,10 +50,36 @@ let make = (~showModal, ~setShowModal) => {
     }
   }
 
+  let getIngestionConfigData = async _ => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#INGESTION_CONFIG,
+        ~queryParamerters=Some(`account_id=${selectedAccount}&is_active=true`),
+      )
+      let res = await fetchDetails(url)
+      let ingestionConfigData =
+        res->LogicUtils.getArrayDataFromJson(
+          ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper,
+        )
+      setIngestionConfigData(_ => ingestionConfigData)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
   React.useEffect(() => {
     getAccountsData()->ignore
     None
   }, [])
+
+  React.useEffect(() => {
+    getIngestionConfigData()->ignore
+    None
+  }, [selectedAccount])
 
   let handleFileUpload = async ev => {
     try {
@@ -101,11 +113,10 @@ let make = (~showModal, ~setShowModal) => {
           ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Post,
           ~hyperswitchReconType=#FILE_UPLOAD,
-          ~id=Some(selectedAccount),
+          ~id=Some(ingestionConfigType),
         )
         let formData = formData()
         append(formData, "file", file)
-        append(formData, "file_type", fileType)
         let _ = await updateDetails(
           ~bodyFormData=formData,
           url,
@@ -180,36 +191,60 @@ let make = (~showModal, ~setShowModal) => {
                   <Icon name="spinner" size=20 />
                 </div>
               </div>}>
-              <SelectBox
-                input={{
-                  name: "selectedAccount",
-                  value: selectedAccount->JSON.Encode.string,
-                  onChange: ev => {
-                    let value = ev->Identity.formReactEventToString
-                    setSelectedAccount(_ => value)
-                  },
-                  onBlur: _ => (),
-                  onFocus: _ => (),
-                  checked: false,
-                }}
-                options={accountData->generateAccountDropdownOptions}
-                buttonText="Select Account"
-                allowMultiSelect=false
-                deselectDisable=true
-                fullLength=true
-              />
+              <div className="flex flex-col gap-4">
+                <SelectBox
+                  input={{
+                    name: "selectedAccount",
+                    value: selectedAccount->JSON.Encode.string,
+                    onChange: ev => {
+                      let value = ev->Identity.formReactEventToString
+                      setSelectedAccount(_ => value)
+                    },
+                    onBlur: _ => (),
+                    onFocus: _ => (),
+                    checked: false,
+                  }}
+                  options={accountData->generateAccountDropdownOptions}
+                  buttonText="Select Account"
+                  allowMultiSelect=false
+                  deselectDisable=true
+                  fullLength=true
+                />
+                <div>
+                  <label className={`block ${body.md.medium} text-gray-900 mb-2`}>
+                    {"Ingestion Config Type"->React.string}
+                    <span className="text-red-500"> {"*"->React.string} </span>
+                  </label>
+                  <SelectBox
+                    input={{
+                      name: "ingestionConfigType",
+                      value: ingestionConfigType->JSON.Encode.string,
+                      onChange: ev => {
+                        let value = ev->Identity.formReactEventToString
+                        setIngestionConfigType(_ => value)
+                      },
+                      onBlur: _ => (),
+                      onFocus: _ => (),
+                      checked: false,
+                    }}
+                    options={ingestionConfigData->generateIngestionConfigDropdownOptions}
+                    buttonText="Select Ingestion Config Type"
+                    allowMultiSelect=false
+                    deselectDisable=true
+                    fullLength=true
+                  />
+                </div>
+              </div>
             </PageLoaderWrapper>
           </div>
-          <FormRenderer.FieldRenderer
-            labelClass={`${body.md.medium} text-nd_gray-700 !-ml-1`} field=fileTypeField
-          />
           <div className="flex justify-end gap-3 pt-4">
             <Button text="Cancel" buttonType=Secondary onClick={_ => closeModal()} />
             <Button
               text="Next"
               buttonType=Primary
               onClick={_ => handleNext()}
-              buttonState={selectedAccount->isNonEmptyString && fileType->isNonEmptyString
+              buttonState={selectedAccount->isNonEmptyString &&
+                ingestionConfigType->isNonEmptyString
                 ? Normal
                 : Disabled}
             />
