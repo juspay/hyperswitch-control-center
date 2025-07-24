@@ -28,10 +28,14 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         `rule_id=${ruleDetails.rule_id}`
       }
       let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-
-      let transactionsDataList = transactionsList->Array.map(Nullable.make)
-      setConfiguredReports(_ => transactionsDataList)
-      setFilteredReports(_ => transactionsDataList)
+      let filteredTransactions =
+        transactionsList
+        ->Array.filter(transaction => {
+          transaction.transaction_status !== "archived"
+        })
+        ->Array.map(Nullable.make)
+      setConfiguredReports(_ => filteredTransactions)
+      setFilteredReports(_ => filteredTransactions)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

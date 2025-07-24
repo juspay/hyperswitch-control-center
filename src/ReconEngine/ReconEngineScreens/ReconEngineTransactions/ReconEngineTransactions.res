@@ -85,8 +85,14 @@ let make = () => {
     try {
       let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
       let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-      setConfiguredTransactions(_ => transactionsList->Array.map(Nullable.make))
-      setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
+      let filteredTransactions =
+        transactionsList
+        ->Array.filter(transaction => {
+          transaction.transaction_status !== "archived"
+        })
+        ->Array.map(Nullable.make)
+      setConfiguredTransactions(_ => filteredTransactions)
+      setFilteredReports(_ => filteredTransactions)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

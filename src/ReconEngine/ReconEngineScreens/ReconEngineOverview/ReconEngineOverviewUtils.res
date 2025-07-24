@@ -370,7 +370,6 @@ let initialDisplayFilters = () => {
     {label: "Mismatched", value: "mismatched"},
     {label: "Expected", value: "expected"},
     {label: "Posted", value: "posted"},
-    {label: "Archived", value: "archived"},
   ]
 
   [
