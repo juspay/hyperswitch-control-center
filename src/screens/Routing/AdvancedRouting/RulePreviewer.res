@@ -14,7 +14,10 @@ module GatewayView = {
 
     let getGatewayName = merchantConnectorId => {
       (
-        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+        connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+          merchantConnectorId,
+          ~version=V1,
+        )
       ).connector_label
     }
 
