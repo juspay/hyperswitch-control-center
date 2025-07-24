@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.24.1
+
+### Features
+
+- Right drawer for product exploration ([#3169](https://github.com/juspay/hyperswitch-control-center/pull/3169)) ([`f0ea731`](https://github.com/juspay/hyperswitch-control-center/commit/f0ea731cc22b7aa2b00ade28ea91c3354ceb6abd))
+
+**Full Changelog:** [`2025.07.24.0...2025.07.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.24.0...2025.07.24.1)
+
+- - -
+
 ## 2025.07.24.0
 
 ### Bug Fixes
