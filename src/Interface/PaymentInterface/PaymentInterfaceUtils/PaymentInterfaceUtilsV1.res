@@ -78,10 +78,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
 
   let getEmail = dict => {
     let defaultEmail = dict->getString("email", "")
-
-    dict
-    ->getDictfromDict("customer")
-    ->getString("email", defaultEmail)
+    dict->getStringFromNestedDict("customer", "email", defaultEmail)
   }
 
   {
@@ -123,46 +120,39 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
       }
     },
     payment_token: dict->getString("payment_token", ""),
-    shipping: dict
-    ->getDictfromDict("shipping")
-    ->getDictfromDict("address")
-    ->PaymentInterfaceUtils.concatValueOfGivenKeysOfDict(addressKeys),
-    shippingEmail: dict->getDictfromDict("shipping")->getString("email", ""),
+    shipping: getDictFromNestedDict(
+      dict,
+      "shipping",
+      "address",
+    )->PaymentInterfaceUtils.concatAddressFromDict(addressKeys),
+    shippingEmail: dict->getStringFromNestedDict("shipping", "email", ""),
     shippingPhone: dict
-    ->getDictfromDict("shipping")
-    ->getDictfromDict("phone")
+    ->getDictFromNestedDict("shipping", "phone")
     ->getPhoneNumberString,
     billing: dict
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
-    ->PaymentInterfaceUtils.concatValueOfGivenKeysOfDict(addressKeys),
+    ->getDictFromNestedDict("billing", "address")
+    ->PaymentInterfaceUtils.concatAddressFromDict(addressKeys),
     payment_method_billing_address: dict
     ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
-    ->PaymentInterfaceUtils.concatValueOfGivenKeysOfDict(addressKeys),
+    ->getDictFromNestedDict("billing", "address")
+    ->PaymentInterfaceUtils.concatAddressFromDict(addressKeys),
     payment_method_billing_first_name: dict
     ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
+    ->getDictFromNestedDict("billing", "address")
     ->getString("first_name", ""),
     payment_method_billing_last_name: dict
     ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
+    ->getDictFromNestedDict("billing", "address")
     ->getString("last_name", ""),
     payment_method_billing_phone: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
+    ->getDictFromNestedDict("payment_method_data", "billing")
     ->getString("email", ""),
     payment_method_billing_email: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
+    ->getDictFromNestedDict("payment_method_data", "billing")
     ->getString("", ""),
-    billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
+    billingEmail: dict->getStringFromNestedDict("billing", "email", ""),
     billingPhone: dict
-    ->getDictfromDict("billing")
-    ->getDictfromDict("phone")
+    ->getDictFromNestedDict("billing", "phone")
     ->getPhoneNumberString,
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getEmail,
