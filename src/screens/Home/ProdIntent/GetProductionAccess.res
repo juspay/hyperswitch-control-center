@@ -19,7 +19,6 @@ let make = () => {
   let eventName = switch activeProduct {
   | DynamicRouting => "intelligent_routing_get_production_access"
   | Orchestration(V1) => "get_production_access"
-  | Recon(V1) => "recon_v1_get_production_access"
   | _ => `${activeProduct->ProductUtils.getProductStringName}_get_production_access`
   }
 
@@ -43,7 +42,7 @@ let make = () => {
   let isProdAccessAvailableForProduct = switch activeProduct {
   | Orchestration(V1)
   | DynamicRouting
-  | Recon(V1) => true
+  | Recon(V2) => true
   | _ => false
   }
 

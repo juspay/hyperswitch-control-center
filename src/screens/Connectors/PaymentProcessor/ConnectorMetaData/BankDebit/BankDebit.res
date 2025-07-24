@@ -77,8 +77,7 @@ let make = (
 ) => {
   open LogicUtils
   open BankDebitUtils
-  let connectorsListPMAuth = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorsListPMAuth = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PMAuthProcessor,
   )
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -94,7 +93,7 @@ let make = (
       item.connector_name == connector->ConnectorUtils.getConnectorNameString
     })
     switch connectorData {
-    | Some(connectorData) => connectorData.merchant_connector_id
+    | Some(connectorData) => connectorData.id
     | None => ""
     }
   }

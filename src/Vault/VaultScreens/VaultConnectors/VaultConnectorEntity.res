@@ -1,12 +1,5 @@
 open ConnectorTypes
-let getPreviouslyConnectedList: JSON.t => array<connectorPayloadV2> = json => {
-  let data = ConnectorInterface.mapJsonArrayToConnectorPayloads(
-    ConnectorInterface.connectorInterfaceV2,
-    json,
-    PaymentProcessor,
-  )
-  data
-}
+
 type colType =
   | Name
   | Status
@@ -47,14 +40,14 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 
-let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeV2>) => {
+let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
     acc->Array.concat([item.payment_method_type->LogicUtils.capitalizeString])
   })
   paymentMethods
 }
-let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
-  let getCell = (connector: connectorPayloadV2, colType): Table.cell => {
+let getTableCell = (~connectorType: connector=Processor) => {
+  let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     switch colType {
     | Name =>
       CustomCell(
@@ -107,7 +100,7 @@ let connectorEntity = (
 ) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),

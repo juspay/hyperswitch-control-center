@@ -10,7 +10,9 @@ module PMSelectAll = {
     open ConnectorPaymentMethodV2Utils
     let pmEnabledInp = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let pmEnabledValue =
-      pmEnabledInp.value->getArrayDataFromJson(ConnectorInterfaceUtils.getPaymentMethodsEnabledV2)
+      pmEnabledInp.value->getArrayDataFromJson(item =>
+        item->ConnectorInterfaceUtils.getPaymentMethodsEnabledV2
+      )
     let pmArrayInp = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let (isSelectedAll, setIsSelectedAll) = React.useState(() => false)
     let removeAllPM = () => {
