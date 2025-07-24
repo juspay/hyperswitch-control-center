@@ -369,6 +369,8 @@ let initialDisplayFilters = () => {
   let statusOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Mismatched", value: "mismatched"},
     {label: "Expected", value: "expected"},
+    {label: "Posted", value: "posted"},
+    {label: "Archived", value: "archived"},
   ]
 
   [

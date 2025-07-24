@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open LogicUtils
-  open ReconEngineTransactionsUtils
+  open ReconEngineUtils
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -103,7 +103,11 @@ let make = () => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
-        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
+        initialFilters={ReconExceptionTransactionUtils.initialDisplayFilters(
+          ~creditAccountOptions,
+          ~debitAccountOptions,
+          (),
+        )}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(

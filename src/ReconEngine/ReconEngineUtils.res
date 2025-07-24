@@ -1,5 +1,45 @@
 open LogicUtils
+open ReconEngineTransactionsTypes
 
+let getAccountOptionsFromTransactions = (
+  transactions: array<transactionPayload>,
+  entryType: string,
+): array<FilterSelectBox.dropdownOption> => {
+  let allAccounts =
+    transactions
+    ->Array.flatMap(transaction => transaction.entries)
+    ->Array.filter(entry => entry.entry_type === entryType)
+    ->Array.map(entry => entry.account)
+
+  let uniqueAccounts = allAccounts->Array.reduce([], (acc, account) => {
+    let exists =
+      acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
+    if exists {
+      acc
+    } else {
+      Array.concat(acc, [account])
+    }
+  })
+
+  uniqueAccounts->Array.map(account => {
+    {
+      FilterSelectBox.label: account.account_name,
+      value: account.account_id,
+    }
+  })
+}
+
+let getCreditAccountOptions = (transactions: array<transactionPayload>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  getAccountOptionsFromTransactions(transactions, "credit")
+}
+
+let getDebitAccountOptions = (transactions: array<transactionPayload>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  getAccountOptionsFromTransactions(transactions, "debit")
+}
 let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
   let queryParts = []
 

@@ -4,7 +4,7 @@ open Typography
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
-
+  open ReconEngineUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
