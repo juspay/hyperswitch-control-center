@@ -20,10 +20,9 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
   }
+
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
-    let creditAccountOptions = getCreditAccountOptions(baseTransactions)
-    let debitAccountOptions = getDebitAccountOptions(baseTransactions)
-    (creditAccountOptions, debitAccountOptions)
+    (getCreditAccountOptions(baseTransactions), getDebitAccountOptions(baseTransactions))
   }, [baseTransactions])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {

@@ -24,9 +24,7 @@ let make = () => {
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
-    let creditAccountOptions = getCreditAccountOptions(baseTransactions)
-    let debitAccountOptions = getDebitAccountOptions(baseTransactions)
-    (creditAccountOptions, debitAccountOptions)
+    (getCreditAccountOptions(baseTransactions), getDebitAccountOptions(baseTransactions))
   }, [baseTransactions])
 
   let topFilterUi = {
