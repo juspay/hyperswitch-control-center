@@ -90,6 +90,7 @@ module IngestionHistoryDetailsInfo = {
 
 module TransformationHistoryDetailsInfo = {
   open ReconEngineFileManagementTypes
+  open ReconEngineFileManagementUtils
   open ReconEngineFileManagementEntity
 
   @react.component
@@ -118,16 +119,18 @@ module TransformationHistoryDetailsInfo = {
           accountData
         />
       </div>
-      <div className="flex-[1]">
-        <Button
-          text="View"
-          buttonType=Secondary
-          buttonState=Normal
-          buttonSize=Small
-          customButtonStyle="!w-fit"
-          onClick={_ => onClick()}
-        />
-      </div>
+      <RenderIf condition={transformationHistoryData.status->statusMapper == Processed}>
+        <div className="flex-[1]">
+          <Button
+            text="View"
+            buttonType=Secondary
+            buttonState=Normal
+            buttonSize=Small
+            customButtonStyle="!w-fit"
+            onClick={_ => onClick()}
+          />
+        </div>
+      </RenderIf>
     </div>
   }
 }
