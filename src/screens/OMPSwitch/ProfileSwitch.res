@@ -230,7 +230,7 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options={updatedProfileList->generateDropdownOptionsCustomComponent}
+      options={updatedProfileList->generateDropdownOptionsCustomComponent(~isPlatformOrg=false)}
       marginTop="mt-10"
       hideMultiSelectButtons=true
       addButton=false

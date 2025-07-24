@@ -78,6 +78,13 @@ type merchantPayload = {
   sub_merchants_enabled: bool,
   recon_status: reconStatus,
   product_type: ProductTypes.productTypes,
+  merchant_account_type: OMPSwitchTypes.ompType,
+}
+
+type organizationPayload = {
+  organization_id: string,
+  organization_name: option<string>,
+  organization_type: OMPSwitchTypes.ompType,
 }
 
 type colType =

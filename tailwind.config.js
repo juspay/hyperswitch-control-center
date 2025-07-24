@@ -78,6 +78,7 @@ module.exports = {
         "30-rem": "30rem",
       },
       inset: {
+        "5-px": "5px",
         "76-px": "76px",
         "180-px": "180px",
       },
@@ -130,6 +131,7 @@ module.exports = {
         800: "800px",
       },
       lineHeight: {
+        14: "14px",
         17: "17px",
         18: "18px",
         20: "20px",
@@ -172,6 +174,7 @@ module.exports = {
       fontSize: {
         base: "var(--base-font-size)",
         heading: "var(--base-heading-font-size)",
+        "fs-8": "8px",
         "fs-10": "10px",
         "fs-11": "11px",
         "fs-12": "12px",
@@ -424,6 +427,7 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          200: "#FCB5AA",
           600: "#C91C00",
           400: "#EC5941",
         },
@@ -435,6 +439,7 @@ module.exports = {
         nd_yellow: {
           100: "#FFFBEE",
           200: "#5E4200",
+          300: "#FFDF20",
           800: "#998335",
         },
       },
