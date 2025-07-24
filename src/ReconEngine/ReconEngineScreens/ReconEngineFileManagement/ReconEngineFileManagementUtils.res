@@ -5,6 +5,8 @@ let initialIngestionDisplayFilters = () => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Pending", value: "pending"},
     {label: "Processed", value: "processed"},
+    {label: "Processing", value: "processing"},
+    {label: "Failed", value: "failed"},
   ]
 
   [
@@ -30,15 +32,6 @@ let initialIngestionDisplayFilters = () => {
   ]
 }
 
-let getAccountNameFromId = accountId => {
-  switch accountId {
-  | "123" => "Account A"
-  | "456" => "Account B"
-  | _ => "Unknown Account"
-  }
-}
-
-// Mapper for ingestionStatus enum
 let statusMapper = statusStr => {
   switch statusStr {
   | "pending" => Pending
@@ -59,7 +52,6 @@ let getStatusStringFromVariant = status => {
   }
 }
 
-// Updated mapper for ingestionHistoryType using proper type mappers
 let ingestionHistoryItemToObjMapper = (dict): ingestionHistoryType => {
   {
     ingestion_id: dict->getString("ingestion_id", ""),

@@ -20,7 +20,7 @@ let make = (~transformationHistoryId) => {
   let (searchText, setSearchText) = React.useState(_ => "")
 
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
+    mixpanelEvent(~eventName="recon_engine_transformation_staging_date_filter_opened")
   }
 
   let fetchStagingData = async () => {
@@ -56,7 +56,7 @@ let make = (~transformationHistoryId) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~origin="recon_engine_exception_staging",
+    ~origin="recon_engine_transformation_staging",
     (),
   )
 
@@ -92,7 +92,7 @@ let make = (~transformationHistoryId) => {
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
-        title="ReconEngineExceptionStagingFilters"
+        title="ReconEngineTransformationStagingFilters"
         initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
@@ -102,7 +102,7 @@ let make = (~transformationHistoryId) => {
         )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
-        key="ReconEngineExceptionStagingFilters"
+        key="ReconEngineTransformationStagingFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false

@@ -1,37 +1,5 @@
 open Typography
 
-module FilePreviewCard = {
-  @react.component
-  let make = (~title, ~value) => {
-    <div className="flex flex-col gap-3 border rounded-xl items-start shadow-xs p-4">
-      <h3 className={`text-nd_gray-400 ${body.lg.medium}`}> {title->React.string} </h3>
-      <p className={` text-nd_gray-900 ${heading.md.semibold}`}>
-        {value->Int.toString->React.string}
-      </p>
-    </div>
-  }
-}
-
-module FilePreviewCards = {
-  open ReconEngineFileManagementTypes
-
-  @react.component
-  let make = (~transformationHistoryData: transformationHistoryType) => {
-    let processedTransformationdata = React.useMemo(() => {
-      transformationHistoryData.data
-    }, [transformationHistoryData.data])
-
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <FilePreviewCard title="All" value={processedTransformationdata.total_count} />
-      <FilePreviewCard
-        title="Succeeded" value={processedTransformationdata.staging_entry_ids->Array.length}
-      />
-      <FilePreviewCard title="Skipped" value={processedTransformationdata.ignored_count} />
-      <FilePreviewCard title="Failed" value={processedTransformationdata.errors->Array.length} />
-    </div>
-  }
-}
-
 module DisplayKeyValueParams = {
   @react.component
   let make = (

@@ -1,4 +1,3 @@
-// Ingestion and Transformation Status enum
 type status =
   | Pending
   | Processing

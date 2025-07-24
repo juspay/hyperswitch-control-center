@@ -65,6 +65,13 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
         {"Check the transformation history for the selected ingestion."->React.string}
       </p>
     </div>
+    <RenderIf condition={transformationHistoryData->Array.length == 0}>
+      <NoDataFound
+        message="No transformation history found for the selected ingestion."
+        renderType={Painting}
+        customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
+      />
+    </RenderIf>
     <div className="flex flex-col gap-4 mt-4 w-full">
       {transformationHistoryData
       ->Array.map(transformationHistory => {

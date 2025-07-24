@@ -18,7 +18,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_file_management_date_filter_opened")
+    mixpanelEvent(~eventName="recon_engine_ingestion_history_date_filter_opened")
   }
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
@@ -69,7 +69,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~origin="recon_engine_file_management",
+    ~origin="recon_engine_ingestion_history",
     (),
   )
 
@@ -88,7 +88,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
-        title="ReconEngineExceptionStagingFilters"
+        title="ReconEngineIngestionHistoryFilters"
         initialFilters={initialIngestionDisplayFilters()}
         options=[]
         popupFilterFields=[]
@@ -98,7 +98,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
         )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
-        key="ReconEngineExceptionStagingFilters"
+        key="ReconEngineIngestionHistoryFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
