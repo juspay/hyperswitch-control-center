@@ -772,11 +772,10 @@ module BaseSelect = {
     let handleSetDraggableList = val => {
       setFilteredOptions(_ => val)
       let selectedValues = val->Array.filter(item => saneValue->Array.includes(item.value))
-
       onSelect(selectedValues->Array.map(item => item.value))
     }
     let handleDisable = (item: dropdownOptionWithoutOptional, _) => {
-      !(saneValue->Array.includes(item.value))
+      !(saneValue->Array.includes(item.value)) || searchString->LogicUtils.isNonEmptyString
     }
 
     <div

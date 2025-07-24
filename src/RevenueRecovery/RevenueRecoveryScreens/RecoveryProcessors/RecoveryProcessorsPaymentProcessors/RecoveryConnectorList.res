@@ -6,8 +6,7 @@ let make = () => {
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
 
-  let connectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
+  let connectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -21,8 +20,8 @@ let make = () => {
 
       connectorListFromRecoil->Array.reverse
 
-      let list = ConnectorInterface.mapConnectorPayloadToConnectorType(
-        ConnectorInterface.connectorInterfaceV2,
+      let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
+        ConnectorListInterface.connectorInterfaceV2,
         ConnectorTypes.Processor,
         connectorListFromRecoil,
       )
@@ -48,9 +47,9 @@ let make = () => {
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
-    let (searchText, arr) = ob
+    let (searchText, list) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadV2>) => {
+      list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
@@ -60,7 +59,7 @@ let make = () => {
         }
       })
     } else {
-      arr
+      list
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
