@@ -726,6 +726,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+  | Invalid => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

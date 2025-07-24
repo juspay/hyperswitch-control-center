@@ -152,7 +152,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutsData, setPayoutsData) = React.useState(_ => JSON.Encode.null)
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)

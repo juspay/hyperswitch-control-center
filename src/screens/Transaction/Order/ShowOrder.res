@@ -599,7 +599,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
   let frmDetailsRef = React.useRef(Nullable.null)
   let fetchDetails = useGetMethod()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
 
   let fetchOrderDetails = async url => {
     try {

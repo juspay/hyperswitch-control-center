@@ -16,7 +16,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let getReconStatus = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -62,7 +62,7 @@ let make = () => {
     | list{"v2", "recon", "configuration"} =>
       <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
-    | _ => React.null
+    | _ => <EmptyPage path="/v2/recon/overview" />
     }}
   </PageLoaderWrapper>
 }

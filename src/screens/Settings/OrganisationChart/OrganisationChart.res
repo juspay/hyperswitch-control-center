@@ -85,7 +85,8 @@ module OrgChartTree = {
 @react.component
 let make = () => {
   open Typography
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (selectedOrg, setSelectedOrg) = React.useState(() => orgId)
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
@@ -93,7 +94,6 @@ let make = () => {
   let (switching, setSwitching) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {
       setSwitching(_ => Switching("organization"))
@@ -119,7 +119,6 @@ let make = () => {
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
       let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(merchant.id), ~version)
-      setActiveProductValue(productType)
       setSwitching(_ => None)
     } catch {
     | _ => {

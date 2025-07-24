@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()
+  // let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -8,7 +9,7 @@ let make = () => {
     | list{"v2", "vault", "home"} => <VaultDefaultHome />
     | list{"v2", "vault", "onboarding", ..._} | list{"v2", "vault", "customers-tokens", ..._} =>
       <VaultContainer />
-    | _ => React.null
+    | _ => <EmptyPage path="/v2/vault/home" />
     }
   }
 }

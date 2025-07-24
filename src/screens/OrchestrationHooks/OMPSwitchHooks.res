@@ -174,11 +174,12 @@ let useProfileSwitch = () => {
   }
 }
 
-let useInternalSwitch = () => {
+let useInternalSwitch = (~setActiveProductValue) => {
+  open HyperswitchAtom
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
-
+  let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
   async (
@@ -189,6 +190,7 @@ let useInternalSwitch = () => {
     ~changePath=false,
   ) => {
     try {
+      setActiveProductValue(ProductTypes.Invalid)
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,
@@ -219,6 +221,7 @@ let useInternalSwitch = () => {
       }
     } catch {
     | Exn.Error(e) => {
+        setActiveProductValue(product_type)
         let err = Exn.message(e)->Option.getOr("Failed to switch!")
         Exn.raiseError(err)
       }
