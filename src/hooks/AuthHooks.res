@@ -52,10 +52,10 @@ let getHeaders = (
     }
 
     // this header is specific to Chat Bot for session tracking
-    if uri->String.includes("chat/ai/data") {
+    if uri->String.includes("webhook") {
       let sessionKey = "chatbot_session_id"
       switch SessionStorage.sessionStorage.getItem(sessionKey)->Nullable.toOption {
-      | Some(sessionId) => headers->Dict.set("X-Chat-Session-Id", sessionId)
+      | Some(sessionId) => headers->Dict.set("x-session-id", sessionId)
       | None => ()
       }
     }
