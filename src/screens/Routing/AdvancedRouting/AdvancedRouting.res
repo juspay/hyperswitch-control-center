@@ -751,7 +751,10 @@ let make = (
         ->Array.map(id => {
           {
             "connector": (
-              connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(id)
+              connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+                id,
+                ~version=V1,
+              )
             ).connector_name,
             "merchant_connector_id": id,
           }

@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.24.0
+
+### Bug Fixes
+
+- Disabled draggable columns when columns are searched in loaded table with custom columns ([#3320](https://github.com/juspay/hyperswitch-control-center/pull/3320)) ([`a7138ca`](https://github.com/juspay/hyperswitch-control-center/commit/a7138ca31878d348d2b211a3456a69d15d578e6b))
+
+### Miscellaneous Tasks
+
+- Common entity for connector list loaded table ([#3329](https://github.com/juspay/hyperswitch-control-center/pull/3329)) ([`0e438e6`](https://github.com/juspay/hyperswitch-control-center/commit/0e438e632ff81ff36fb844a7fb27d67522c2ead8))
+
+**Full Changelog:** [`2025.07.23.0...2025.07.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.23.0...2025.07.24.0)
+
+- - -
+
 ## 2025.07.23.0
 
 ### Bug Fixes

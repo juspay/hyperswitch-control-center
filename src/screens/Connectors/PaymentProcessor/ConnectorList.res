@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open ConnectorUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -32,7 +33,6 @@ let make = () => {
         connectorsList,
       )
       setConfiguredConnectors(_ => list)
-
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -43,6 +43,10 @@ let make = () => {
     getConnectorListAndUpdateState()->ignore
     None
   }, [])
+
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="orchestration_payment_connectors_view")
+  }
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -135,9 +139,10 @@ let make = () => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(
+            entity={ConnectorInterfaceTableEntity.connectorEntity(
               "connectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~sendMixpanelEvent,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
