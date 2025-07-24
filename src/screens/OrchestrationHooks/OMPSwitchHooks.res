@@ -254,3 +254,24 @@ let useOMPData = () => {
 
   (getList, getNameForId)
 }
+
+let useOMPType = () => {
+  let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.merchantDetailsValueAtom,
+  )
+  let {organization_type} = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.organizationDetailsValueAtom,
+  )
+
+  let isCurrentMerchantPlatform = switch merchant_account_type {
+  | #platform => true
+  | _ => false
+  }
+
+  let isCurrentOrganizationPlatform = switch organization_type {
+  | #platform => true
+  | _ => false
+  }
+
+  (isCurrentMerchantPlatform, isCurrentOrganizationPlatform)
+}

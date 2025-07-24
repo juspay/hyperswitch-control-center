@@ -21,7 +21,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
-  let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
+  let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
   let {
     isMagicLinkEnabled,
     isSignUpAllowed,

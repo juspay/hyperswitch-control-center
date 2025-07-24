@@ -8,6 +8,12 @@ let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = [
   {
+    context: ["/api/hyperswitch-recon-engine"],
+    pathRewrite: { "^/api/hyperswitch-recon-engine": "" },
+    target: "",
+    changeOrigin: true,
+  },
+  {
     context: ["/api"],
     target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },
@@ -51,6 +57,9 @@ let configMiddleware = (req, res, next) => {
   }
   if (req.path.includes("/config/merchant") && req.method == "POST") {
     let { domain = "default" } = req.query;
+    if (!domain || domain === "") {
+      domain = "default"; // Fallback to default if no domain is provided
+    }
     config
       .then((result) => {
         result.merchantConfigHandler(req, res, false, domain);
