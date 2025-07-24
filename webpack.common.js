@@ -68,7 +68,7 @@ module.exports = () => {
         patterns: [
           { from: "public/common" },
           // All the current assets needs to be moved to public directory
-          { from: `public/hyperswitch/public/gifs`, to: "public" },
+          { from: `public/hyperswitch/public`, to: "public" },
           //Remove ignore once the gifs are moved to public directory
           {
             from: `public/hyperswitch`,
