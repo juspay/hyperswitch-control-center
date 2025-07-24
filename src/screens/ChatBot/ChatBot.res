@@ -1,4 +1,5 @@
 open ChatBotTypes
+open Typography
 module ChatBot = {
   @react.component
   let make = (~loading) => {
@@ -51,11 +52,11 @@ module ChatMessage = {
             className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
             <Icon name="robot" size=16 customIconColor="text-white" />
           </div>
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-2 min-w-0">
             <RenderIf condition={response.summary->LogicUtils.isNonEmptyString}>
               <div
                 className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-2xl rounded-tl-none px-4 py-3 border border-nd_gray-150 dark:border-nd_gray-700">
-                <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300 leading-relaxed">
+                <p className={`text-nd_gray-700 dark:text-nd_gray-300 ${body.md.regular}`}>
                   {response.summary->React.string}
                 </p>
               </div>
@@ -66,7 +67,7 @@ module ChatMessage = {
               response.markdown->LogicUtils.isEmptyString}>
               <div
                 className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-2xl rounded-tl-none px-4 py-3 border border-nd_gray-150 dark:border-nd_gray-700">
-                <div className="text-sm text-nd_gray-700 dark:text-nd_gray-300 leading-relaxed">
+                <div className={`text-nd_gray-700 dark:text-nd_gray-300 ${body.md.regular}`}>
                   <p className="mb-2">
                     {"I\'m having trouble understanding which data you need."->React.string}
                   </p>
@@ -75,7 +76,7 @@ module ChatMessage = {
             </RenderIf>
             <RenderIf condition={isTyping || response.markdown->LogicUtils.isNonEmptyString}>
               <div
-                className="bg-white dark:bg-nd_gray-800 rounded-2xl rounded-tl-none border border-nd_gray-150 dark:border-nd_gray-700 shadow-sm">
+                className="bg-white dark:bg-nd_gray-800 rounded-2xl rounded-tl-none border border-nd_gray-150 dark:border-nd_gray-700 shadow-sm min-w-0">
                 <RenderIf condition={isTyping}>
                   <div className="px-4 py-6 flex items-center space-x-2">
                     <div className="flex space-x-1">
@@ -95,8 +96,12 @@ module ChatMessage = {
                   </div>
                 </RenderIf>
                 <RenderIf condition={!isTyping}>
-                  <div className="max-w-none p-4 h-full">
-                    <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
+                  <div
+                    className="p-4 max-h-96 overflow-auto overscroll-contain"
+                    style={ReactDOM.Style.make(~minWidth="0", ~width="100%", ())}>
+                    <div style={ReactDOM.Style.make(~minWidth="max-content", ())}>
+                      <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
+                    </div>
                   </div>
                 </RenderIf>
               </div>
@@ -190,17 +195,18 @@ module EmptyState = {
 @react.component
 let make = () => {
   open APIUtils
+  open SessionStorage
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
 
-  // Generate and store new session UUID on every page load/refresh
-  let _ = React.useMemo(() => {
+  React.useEffect(() => {
     let sessionKey = "chatbot_session_id"
     let newId = LogicUtils.randomString(~length=32)
-    SessionStorage.sessionStorage.setItem(sessionKey, newId)
+    sessionStorage.setItem(sessionKey, newId)
+    None
   }, [])
 
   let scrollToBottom = () => {
@@ -215,7 +221,6 @@ let make = () => {
 
   React.useEffect(() => {
     if chat->Array.length > 0 {
-      // Small delay to ensure DOM is updated
       let timeoutId = setTimeout(() => scrollToBottom(), 100)
       Some(() => clearTimeout(timeoutId))
     } else {
