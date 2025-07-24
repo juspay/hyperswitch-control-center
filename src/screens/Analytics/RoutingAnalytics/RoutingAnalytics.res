@@ -2,11 +2,11 @@
 let make = () => {
   open HSAnalyticsUtils
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -14,10 +14,12 @@ let make = () => {
     ~origin="analytics",
     (),
   )
+
   React.useEffect(() => {
     setInitialFilters()
     None
   }, [])
+
   <>
     <div className="flex justify-between mb-6">
       <PageUtils.PageHeading title="Routing Analytics" />
