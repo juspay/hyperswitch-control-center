@@ -166,6 +166,7 @@ let make = () => {
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
+  let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
     globalUIConfig: {
       sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
@@ -283,24 +284,29 @@ let make = () => {
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
+      type_: item.type_->Option.getOr(#standard),
       customComponent,
     }
     listItem
   })
 
-  <div className="w-fit">
+  <div className="w-fit flex flex-col gap-4">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
       input
       deselectDisable=true
-      options={updatedMerchantList->generateDropdownOptionsCustomComponent}
+      options={updatedMerchantList->generateDropdownOptionsCustomComponent(
+        ~isPlatformOrg=isCurrentOrganizationPlatform,
+      )}
       marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=true
-      baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
+      baseComponent={<ListBaseComp
+        user=#Merchant heading="Merchant" subHeading arrow isPlatform=isCurrentMerchantPlatform
+      />}
       baseComponentCustomStyle={`!border-none`}
       bottomComponent={<AddNewOMPButton
         user=#Merchant
@@ -316,6 +322,7 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
+      reverseSortGroupKeys=true
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />
