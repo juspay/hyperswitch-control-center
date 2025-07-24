@@ -12,10 +12,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   | PayoutRouting => ConnectorTypes.PayoutProcessor
   | _ => ConnectorTypes.PaymentProcessor
   }
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
-    ~retainInList=connectorType,
-  )
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
   React.useEffect(() => {
     let typeString = if isDistribute {
@@ -53,7 +50,10 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
             {
               connector: {
                 connector: (
-                  connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(item)
+                  connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+                    item,
+                    ~version=V1,
+                  )
                 ).connector_name,
                 merchant_connector_id: item,
               },
@@ -62,7 +62,10 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
           } else {
             {
               connector: (
-                connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(item)
+                connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+                  item,
+                  ~version=V1,
+                )
               ).connector_name,
               merchant_connector_id: item,
             }->Identity.genericTypeToJson
@@ -97,8 +100,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         {
           connector: {
             connector: (
-              connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(
+              connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
                 obj.merchant_connector_id,
+                ~version=V1,
               )
             ).connector_name,
             merchant_connector_id: obj.merchant_connector_id,
@@ -184,10 +188,11 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                 <div>
                   {React.string(
                     (
-                      connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(
+                      connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
                         (
                           item->AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData
                         ).merchant_connector_id,
+                        ~version=V1,
                       )
                     ).connector_label,
                   )}

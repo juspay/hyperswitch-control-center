@@ -10,14 +10,14 @@ module GatewayView = {
     | PayoutRouting => ConnectorTypes.PayoutProcessor
     | _ => ConnectorTypes.PaymentProcessor
     }
-    let connectorList = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
-      ~retainInList=connectorType,
-    )
+    let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
     let getGatewayName = merchantConnectorId => {
       (
-        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+        connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+          merchantConnectorId,
+          ~version=V1,
+        )
       ).connector_label
     }
 
@@ -57,7 +57,10 @@ let make = (
   let gateWaysInput = ReactFinalForm.useField(`${id}`).input
 
   let gateWayName = merchantConnectorID => {
-    connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorID)
+    connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+      merchantConnectorID,
+      ~version=V1,
+    )
   }
 
   let isDistribute =

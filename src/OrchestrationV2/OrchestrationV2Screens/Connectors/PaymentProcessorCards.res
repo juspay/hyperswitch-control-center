@@ -129,10 +129,7 @@ let make = (
           </AddDataAttributes>
         </RenderIf>
         <div className="flex gap-4">
-          <RenderIf
-            condition={!featureFlagDetails.isLiveMode &&
-            configuredConnectors->Array.length > 0 &&
-            showDummyConnectorButton}>
+          <RenderIf condition={!featureFlagDetails.isLiveMode && showDummyConnectorButton}>
             <ACLButton
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               leftIcon={CustomIcon(
