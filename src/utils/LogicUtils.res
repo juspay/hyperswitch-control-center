@@ -804,3 +804,18 @@ let randomString = (~length) => {
 
   text
 }
+
+let getKeyValuePairsFromDict = dict => {
+  dict
+  ->Dict.toArray
+  ->Array.map(((key, value)) => {
+    let displayKey = key->snakeToTitle
+    let displayValue = switch value->JSON.Classify.classify {
+    | String(str) => str
+    | Number(num) => num->Float.toString
+    | Bool(bool) => bool->getStringFromBool->capitalizeString
+    | _ => "N/A"
+    }
+    (displayKey, displayValue)
+  })
+}

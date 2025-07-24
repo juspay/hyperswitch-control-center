@@ -1,105 +1,3 @@
-module SftpSetup = {
-  @react.component
-  let make = () => {
-    open Typography
-
-    <div className="flex flex-col gap-6 p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="flex flex-col gap-6">
-          // SFTP Server Status
-          <div className="flex flex-col gap-2">
-            <span className={`${body.md.semibold} text-nd_gray-400`}>
-              {"SFTP Server Status"->React.string}
-            </span>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className={`${body.md.medium} text-nd_gray-800`}>
-                {"Active"->React.string}
-              </span>
-            </div>
-          </div>
-          // Last Sync
-          <div className="flex flex-col gap-2">
-            <span className={`${body.md.medium} text-nd_gray-400`}>
-              {"Last Sync"->React.string}
-            </span>
-            <span className={`${body.md.medium} text-nd_gray-800`}>
-              {"Jul 2, 2025, 9:57:30 PM"->React.string}
-            </span>
-          </div>
-          // File Path on Server
-          <div className="flex flex-col gap-2">
-            <span className={`${body.md.medium} text-nd_gray-400`}>
-              {"File Path on Server"->React.string}
-            </span>
-            <span className={`${body.md.medium} text-nd_gray-800`}>
-              {"data/orders/*.csv"->React.string}
-            </span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-6">
-          // Manual Upload
-          <div className="flex flex-col gap-2">
-            <span className={`${body.md.semibold} text-nd_gray-400`}>
-              {"Manual Upload"->React.string}
-            </span>
-            <span
-              className={`${body.sm.medium} text-status-green bg-nd_green-50 px-2 py-1 rounded w-fit`}>
-              {"ACTIVE"->React.string}
-            </span>
-          </div>
-          // Password
-          <div className="flex flex-col gap-2">
-            <span className={`${body.md.medium} text-nd_gray-400`}>
-              {"Password"->React.string}
-            </span>
-            <span className={`${body.md.medium} text-nd_gray-800`}>
-              {"**********"->React.string}
-            </span>
-          </div>
-          // File Format
-          <div className="flex flex-col gap-2">
-            <span className={`${body.md.medium} text-nd_gray-400`}>
-              {"File Format"->React.string}
-            </span>
-            <span className={`${body.md.medium} text-nd_gray-800`}> {".txt"->React.string} </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
-}
-
-module PaymentProcessor = {
-  @react.component
-  let make = () => {
-    open Typography
-
-    <div className="flex flex-col gap-6 p-6">
-      <div className="text-center py-12">
-        <span className={`${body.lg.medium} text-nd_gray-500`}>
-          {"Payment Processor configuration will be available here"->React.string}
-        </span>
-      </div>
-    </div>
-  }
-}
-
-module BankAccount = {
-  @react.component
-  let make = () => {
-    open Typography
-
-    <div className="flex flex-col gap-6 p-6">
-      <div className="text-center py-12">
-        <span className={`${body.lg.medium} text-nd_gray-500`}>
-          {"Bank Account configuration will be available here"->React.string}
-        </span>
-      </div>
-    </div>
-  }
-}
-
 @react.component
 let make = () => {
   open APIUtils
@@ -135,14 +33,9 @@ let make = () => {
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    accountData->Array.mapWithIndex((account, index) => {
+    accountData->Array.map(account => {
       let renderContent = () => {
-        switch index {
-        | 0 => <SftpSetup />
-        | 1 => <PaymentProcessor />
-        | 2 => <BankAccount />
-        | _ => <SftpSetup />
-        }
+        <ReconEngineIngestionConfigDisplay accountId={account.account_id} />
       }
       {
         title: account.account_name,
@@ -179,7 +72,7 @@ let make = () => {
             setTabIndex(_ => index)
           }}
           selectTabBottomBorderColor="bg-primary"
-          customBottomBorderColor="bg-nd_gray-150"
+          customBottomBorderColor="bg-nd_gray-150 mb-6"
         />
       </RenderIf>
     </PageLoaderWrapper>

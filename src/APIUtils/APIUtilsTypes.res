@@ -112,6 +112,7 @@ type hyperswitchReconType = [
   | #TRANSACTIONS_LIST
   | #FILE_UPLOAD
   | #RECON_RULES
+  | #INGESTION_CONFIG
   | #NONE
 ]
 
