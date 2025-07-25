@@ -135,10 +135,10 @@ let calculateAccountAmounts = (
   })
 
   let totalSourceAmount = sourcePosted +. sourceMismatched +. sourceExpected
-  let totalTargetAmount = targetPosted +. targetMismatched +. targetExpected
+  let totalTargetAmount = targetPosted +. targetMismatched
   let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
 
-  (totalSourceAmount, totalTargetAmount, variance)
+  (totalSourceAmount, totalTargetAmount, targetExpected, variance)
 }
 
 // Stacked Bar Graph Data

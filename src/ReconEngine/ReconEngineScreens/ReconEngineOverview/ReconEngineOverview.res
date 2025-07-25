@@ -47,7 +47,7 @@ let make = () => {
   <div className="flex flex-col gap-6 w-full">
     <PageUtils.PageHeading
       title="Overview"
-      subTitle="Monitor the three-accounts reconciliation flow: OMS → Processor → Bank"
+      subTitle="Monitor your accounts and transactions with recon rules."
       customSubTitleStyle={body.lg.medium}
       customTitleStyle={`${heading.lg.semibold} py-0`}
     />

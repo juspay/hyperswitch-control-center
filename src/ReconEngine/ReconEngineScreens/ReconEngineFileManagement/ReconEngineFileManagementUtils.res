@@ -99,13 +99,21 @@ let transformationHistoryItemToObjMapper = (dict): transformationHistoryType => 
   }
 }
 
+let ingestionDataTypeMapper = (dict): ingestionDataType => {
+  {
+    ingestion_type: dict->getString("ingestion_type", ""),
+  }
+}
+
 let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
   {
     ingestion_id: dict->getString("ingestion_id", ""),
-    account_id: dict->getString("account_id", ""),
-    name: dict->getString("name", ""),
-    description: dict->getString("description", ""),
     is_active: dict->getBool("is_active", false),
-    profile_id: dict->getString("profile_id", ""),
+    name: dict->getString("name", ""),
+    last_synced_at: dict->getString("last_synced_at", ""),
+    data: dict
+    ->getJsonObjectFromDict("data")
+    ->getDictFromJsonObject
+    ->ingestionDataTypeMapper,
   }
 }

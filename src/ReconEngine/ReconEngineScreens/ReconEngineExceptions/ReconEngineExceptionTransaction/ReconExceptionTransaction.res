@@ -2,6 +2,7 @@
 let make = () => {
   open LogicUtils
   open ReconEngineUtils
+  open ReconEngineTransactionsTypes
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -10,7 +11,6 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
-  let (baseTransactions, setBaseTransactions) = React.useState(_ => [])
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
@@ -23,15 +23,15 @@ let make = () => {
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
-      getEntryTypeAccountOptions(baseTransactions, ~entryType="credit"),
-      getEntryTypeAccountOptions(baseTransactions, ~entryType="debit"),
+      getEntryTypeAccountOptions(exceptionData, ~entryType="credit"),
+      getEntryTypeAccountOptions(exceptionData, ~entryType="debit"),
     )
-  }, [baseTransactions])
+  }, [exceptionData])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineTransactionsTypes.transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
@@ -69,27 +69,18 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
-  let fetchBaseTransactionsData = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let transactionsList = await getTransactions(~queryParamerters=None)
-      setBaseTransactions(_ => transactionsList)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
+
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_exception_transaction",
     (),
   )
 
   React.useEffect(() => {
     setInitialFilters()
-    fetchBaseTransactionsData()->ignore
     None
   }, [])
 

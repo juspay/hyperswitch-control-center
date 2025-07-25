@@ -27,7 +27,9 @@ module IngestionConfigDetails = {
         ->Array.map(((key, value)) => {
           <div key={key} className="flex flex-col gap-2">
             <span className={`${body.md.medium} text-nd_gray-500`}> {key->React.string} </span>
-            <span className={`${body.md.semibold} text-nd_gray-800`}> {value->React.string} </span>
+            <span className={`${body.md.semibold} text-nd_gray-800 truncate whitespace-pre`}>
+              {value->React.string}
+            </span>
           </div>
         })
         ->React.array}

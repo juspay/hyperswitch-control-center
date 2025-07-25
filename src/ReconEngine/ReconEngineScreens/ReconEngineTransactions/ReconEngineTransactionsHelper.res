@@ -82,28 +82,31 @@ module TransactionDetailInfo = {
 }
 
 module EntryAuditTrailInfo = {
+  open ReconEngineTransactionsTypes
   @react.component
   let make = (~entryDetails) => {
     open EntriesTableEntity
 
+    let detailsFields = React.useMemo(() => {
+      let baseFields: array<entryColType> = [
+        EntryId,
+        EntryType,
+        Amount,
+        Currency,
+        TransactionId,
+        Status,
+      ]
+      let fieldsWithDiscardedStatus = switch entryDetails.discarded_status {
+      | Some(_) => Array.concat(baseFields, [DiscardedStatus])
+      | None => baseFields
+      }
+      Array.concat(fieldsWithDiscardedStatus, [CreatedAt, EffectiveAt])
+    }, [entryDetails.discarded_status])
+
     <div className="flex flex-col gap-4 mb-6 px-2">
       <div className="w-full border border-nd_gray-150 rounded-lg p-2">
         <TransactionDetails
-          data=entryDetails
-          getHeading
-          getCell
-          widthClass="w-1/2"
-          detailsFields=[
-            EntryId,
-            EntryType,
-            Amount,
-            Currency,
-            TransactionId,
-            Status,
-            CreatedAt,
-            EffectiveAt,
-          ]
-          isButtonEnabled=true
+          data=entryDetails getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -169,7 +172,7 @@ module AuditTrail = {
         customComponent: Some(
           <TransactionDetailInfo
             currentTransactionDetails=transaction
-            detailsFields=[TransactionId, Status, Variance, CreatedAt]
+            detailsFields=[TransactionId, Status, DiscardedStatus, Variance, CreatedAt]
           />,
         ),
         onClick: _ => {
