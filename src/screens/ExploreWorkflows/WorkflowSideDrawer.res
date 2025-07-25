@@ -10,7 +10,7 @@ module AccordionItemComponent = {
       {switch step.videoPath {
       | Some(videoPath) =>
         <video className="w-full" controls=true preload="metadata">
-          <source src={`/public/gifs/${videoPath}`} type_="video/mp4" />
+          <source src={`/assets/gifs/${videoPath}`} type_="video/mp4" />
           {"Your browser does not support video playback."->React.string}
         </video>
       | None => React.null
