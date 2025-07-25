@@ -9,6 +9,7 @@ let getV2Url = (
   ~id=None,
   ~profileId,
   ~merchantId,
+  ~transactionEntity,
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
@@ -76,6 +77,20 @@ let getV2Url = (
     | _ => ""
     }
   | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | V2_ORDERS_AGGREGATE =>
+    switch methodType {
+    | Get =>
+      switch queryParamerters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Merchant => `v2/payments/aggregate?${queryParams}`
+        | #Profile => `v2/payments/profile/aggregate?${queryParams}`
+        | _ => `v2/payments/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
@@ -1141,6 +1156,7 @@ let useGetURL = () => {
         ~queryParamerters,
         ~profileId,
         ~merchantId,
+        ~transactionEntity,
       )
     }
 

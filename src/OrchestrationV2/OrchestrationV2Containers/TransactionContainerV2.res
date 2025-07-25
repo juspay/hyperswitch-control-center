@@ -16,7 +16,7 @@ let make = () => {
             entityName="Payments"
             remainingPath
             access=Access
-            renderList={() => <Payments />}
+            renderList={() => <Orders version=V2 />}
             renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
               <PaymentsDetails id profileId merchantId orgId />}
           />

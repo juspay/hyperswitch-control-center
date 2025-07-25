@@ -1,5 +1,5 @@
 @react.component
-let make = (~previewOnly=false) => {
+let make = (~previewOnly=false, ~version=UserInfoTypes.V1) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
@@ -28,21 +28,22 @@ let make = (~previewOnly=false) => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let startTime = filterValueJson->getString(startTimeFilterKey, "")
+  let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
 
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
     let prevStartdate = startDateObj.toDate()->Date.toISOString
     let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
 
-    updateExistingKeys(Dict.fromArray([(startTimeFilterKey, {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([(endTimeFilterKey, {prevStartdate})]))
+    updateExistingKeys(Dict.fromArray([(startTimeFilterKey(version), {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartdate})])) 
   }
+
 
   let getOrdersList = async filterValueJson => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object)
+      let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
       let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
       let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -58,7 +59,7 @@ let make = (~previewOnly=false) => {
           let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
           filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-          let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object)
+          let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
           let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
           let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -165,8 +166,8 @@ let make = (~previewOnly=false) => {
     <RemoteTableFilters
       title="Orders"
       setFilters
-      endTimeFilterKey
-      startTimeFilterKey
+      endTimeFilterKey={endTimeFilterKey(version)}
+      startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters
       initialFixedFilter
       setOffset
@@ -174,7 +175,11 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      entityName=V1(ORDER_FILTERS)
+      entityName={switch version {
+      | V1 => V1(ORDER_FILTERS)
+      | V2 => V2(V2_ORDER_FILTERS)
+      }}
+      version
     />
   }, [searchText])
 
@@ -197,7 +202,7 @@ let make = (~previewOnly=false) => {
         </div>
       </div>
       <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8">
-        <TransactionView entity=TransactionViewTypes.Orders />
+        <TransactionView entity=TransactionViewTypes.Orders version />
       </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
