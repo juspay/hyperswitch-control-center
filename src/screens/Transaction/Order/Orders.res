@@ -36,9 +36,8 @@ let make = (~previewOnly=false, ~version=UserInfoTypes.V1) => {
     let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
 
     updateExistingKeys(Dict.fromArray([(startTimeFilterKey(version), {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartdate})])) 
+    updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartdate})]))
   }
-
 
   let getOrdersList = async filterValueJson => {
     setScreenState(_ => PageLoaderWrapper.Loading)
