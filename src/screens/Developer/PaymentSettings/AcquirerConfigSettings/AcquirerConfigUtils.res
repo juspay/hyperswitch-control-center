@@ -25,7 +25,6 @@ let countryDropDownOptions: array<SelectBox.dropdownOption> =
 let formKeys = [
   "network",
   "merchant_name",
-  "merchant_country_code",
   "acquirer_assigned_merchant_id",
   "acquirer_bin",
   "acquirer_fraud_rate",
@@ -93,7 +92,6 @@ let acquirerConfigTypeMapper = (json: JSON.t): acquirerConfig => {
     id: dict->getString("profile_acquirer_id", ""),
     acquirer_assigned_merchant_id: dict->getString("acquirer_assigned_merchant_id", ""),
     merchant_name: dict->getString("merchant_name", ""),
-    merchant_country_code: dict->getString("merchant_country_code", ""),
     network: dict->getString("network", ""),
     acquirer_bin: dict->getString("acquirer_bin", ""),
     acquirer_fraud_rate: dict->getFloat("acquirer_fraud_rate", 0.0),
@@ -104,7 +102,6 @@ let getInitialValuesFromConfig = (config: acquirerConfig): JSON.t => {
   [
     ("acquirer_assigned_merchant_id", config.acquirer_assigned_merchant_id->JSON.Encode.string),
     ("merchant_name", config.merchant_name->JSON.Encode.string),
-    ("merchant_country_code", config.merchant_country_code->JSON.Encode.string),
     ("network", config.network->JSON.Encode.string),
     ("acquirer_bin", config.acquirer_bin->JSON.Encode.string),
     ("acquirer_fraud_rate", config.acquirer_fraud_rate->JSON.Encode.float),
