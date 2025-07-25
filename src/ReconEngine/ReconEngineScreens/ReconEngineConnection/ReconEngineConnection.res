@@ -35,7 +35,7 @@ let make = () => {
     open Tabs
     accountData->Array.map(account => {
       let renderContent = () => {
-        <ReconEngineIngestionConfigDisplay accountId={account.account_id} />
+        <ReconEngineConnectionDisplay accountId={account.account_id} />
       }
       {
         title: account.account_name,

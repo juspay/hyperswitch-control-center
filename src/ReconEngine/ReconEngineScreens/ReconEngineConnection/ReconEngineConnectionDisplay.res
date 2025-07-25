@@ -3,19 +3,17 @@ open LogicUtils
 
 module IngestionConfigDetails = {
   @react.component
-  let make = (~config: Dict.t<JSON.t>) => {
-    let isActive = config->getBool("is_active", false)
-    let lastSyncedAt = config->getString("last_synced_at", "N/A")->getNonEmptyString
-    let dataDict = config->getDictfromDict("data")
+  let make = (~config: ReconEngineConnectionType.connectionType) => {
+    let lastSyncedAt = config.last_synced_at->getNonEmptyString
+    let dataDict = config.data->getDictFromJsonObject
     let allKeyValuePairs = getKeyValuePairsFromDict(dataDict)
     let keyValuePairs = allKeyValuePairs->Array.filter(((key, _)) => {
       !(key->LogicUtils.titleToSnake == "ingestion_type")
     })
-
     <div className="max-w-4xl p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
         <div className="flex flex-col gap-2">
-          <ReconEngineRuleDetails.StatusBadge isActive />
+          <ReconEngineRuleDetails.StatusBadge isActive=config.is_active />
         </div>
         <div className="flex flex-col gap-2">
           <span className={`${body.md.medium} text-nd_gray-500`}>
@@ -57,7 +55,8 @@ let make = (~accountId: string) => {
         ~queryParamerters=Some(`account_id=${accountId}`),
       )
       let res = await fetchDetails(url)
-      let configs = res->getObjectArrayFromJson
+      let configs =
+        res->LogicUtils.getArrayDataFromJson(ReconEngineConnectionType.connectionTypeToObjMapper)
       setConfigData(_ => configs)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -71,9 +70,8 @@ let make = (~accountId: string) => {
   }, [accountId])
 
   let accordionItems: array<Accordion.accordion> = configData->Array.map(config => {
-    let name = config->getString("name", "N/A")
     let accordionItem: Accordion.accordion = {
-      title: name,
+      title: config.name,
       renderContent: () => <IngestionConfigDetails config />,
       renderContentOnTop: None,
     }
