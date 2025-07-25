@@ -7,11 +7,9 @@ module IngestionConfigDetails = {
     let isActive = config->getBool("is_active", false)
     let lastSyncedAt = config->getString("last_synced_at", "N/A")->getNonEmptyString
     let dataDict = config->getDictfromDict("data")
-
     let allKeyValuePairs = getKeyValuePairsFromDict(dataDict)
     let keyValuePairs = allKeyValuePairs->Array.filter(((key, _)) => {
-      let lowerKey = key->String.toLowerCase
-      !(lowerKey->String.includes("ingestion") && lowerKey->String.includes("type"))
+      !(key->LogicUtils.titleToSnake == "ingestion_type")
     })
 
     <div className="max-w-4xl p-6">
