@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.25.0
+
+### Features
+
+- Vsaas ui changes ([#3255](https://github.com/juspay/hyperswitch-control-center/pull/3255)) ([`5a02551`](https://github.com/juspay/hyperswitch-control-center/commit/5a02551a4d418636f435886cd44231370e968ca6))
+
+### Bug Fixes
+
+- Added routing analytics distribution charts ([#3336](https://github.com/juspay/hyperswitch-control-center/pull/3336)) ([`48a8e06`](https://github.com/juspay/hyperswitch-control-center/commit/48a8e069e448bf0251d94ee370036396d25f192f))
+
+**Full Changelog:** [`2025.07.24.1...2025.07.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.24.1...2025.07.25.0)
+
+- - -
+
 ## 2025.07.24.1
 
 ### Features
