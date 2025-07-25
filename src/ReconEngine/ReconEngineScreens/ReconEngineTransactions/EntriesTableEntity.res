@@ -1,5 +1,6 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
+open ReconEngineUtils
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -39,13 +40,6 @@ let getHeading = (colType: entryColType) => {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
-  }
-}
-
-let getDisplayStatusName = (status: string) => {
-  switch status->String.toLowerCase {
-  | "posted" => "Matched"->String.toUpperCase
-  | _ => status->String.toUpperCase
   }
 }
 

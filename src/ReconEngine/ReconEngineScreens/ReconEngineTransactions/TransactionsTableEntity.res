@@ -1,13 +1,6 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
-
-let getDisplayStatusName = (status: string) => {
-  switch status->String.toLowerCase {
-  | "posted" => "Matched"->String.toUpperCase
-  | _ => status->String.toUpperCase
-  }
-}
-
+open ReconEngineUtils
 let defaultColumns: array<transactionColType> = [
   TransactionId,
   CreditAccount,

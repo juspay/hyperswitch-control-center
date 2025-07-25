@@ -1,11 +1,5 @@
 open ReconEngineExceptionTypes
-
-let getDisplayStatusName = (status: string) => {
-  switch status->String.toLowerCase {
-  | "posted" => "Matched"->String.toUpperCase
-  | _ => status->String.toUpperCase
-  }
-}
+open ReconEngineUtils
 
 type processedColType =
   | EntryId
