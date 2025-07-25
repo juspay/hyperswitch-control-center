@@ -10,6 +10,7 @@ let make = () => {
     | list{"v1", "recon-engine", "exceptions", ..._} => <ReconEngineExceptionContainer />
     | list{"v1", "recon-engine", "file-management", ..._} => <ReconEngineFileManagementContainer />
     | list{"v1", "recon-engine", "rules", ..._} => <ReconEngineRulesContainer />
+    | list{"v1", "recon-engine", "connection", ..._} => <ReconEngineConnectionContainer />
     | _ => React.null
     }
   }
