@@ -58,10 +58,12 @@ type featureFlag = {
   threedsExemptionRules: bool,
   paymentSettingsV2: bool,
   acquirerConfigSettings: bool,
+  exploreRecipes: bool,
   devOmpChart: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
   devAiChatBot: bool,
+  routingAnalytics: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -121,11 +123,13 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
     acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
     paymentSettingsV2: dict->getBool("payment_settings_v2", false),
+    exploreRecipes: dict->getBool("explore_recipes", false),
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOmpChart: dict->getBool("dev_omp_chart", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
+    routingAnalytics: dict->getBool("routing_analytics", false),
   }
 }
 

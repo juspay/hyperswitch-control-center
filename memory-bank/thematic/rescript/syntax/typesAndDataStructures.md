@@ -123,7 +123,7 @@ let userWithAddr: userWithAddress = {
 ```rescript
 type status = Loading | Success | Error
 
-type paymentStatus = 
+type paymentStatus =
   | Pending
   | Processing
   | Completed
@@ -137,11 +137,11 @@ let payment: paymentStatus = Completed
 ### Variants with Data
 
 ```rescript
-type result<'success, 'error> = 
+type result<'success, 'error> =
   | Ok('success)
   | Error('error)
 
-type apiResponse = 
+type apiResponse =
   | Loading
   | Success(string)
   | Error(string)
@@ -154,7 +154,7 @@ let errorResponse: apiResponse = NetworkError(500, "Internal Server Error")
 ### Complex Variants
 
 ```rescript
-type userAction = 
+type userAction =
   | Login(string, string) // email, password
   | Logout
   | UpdateProfile(string, option<string>) // name, avatar
@@ -432,7 +432,7 @@ type response<'data> = {
   message: string,
 }
 
-type apiResult<'success, 'error> = 
+type apiResult<'success, 'error> =
   | Loading
   | Success('success)
   | Error('error)
@@ -451,7 +451,7 @@ let result: apiResult<string, string> = Success("Data loaded")
 
 ```rescript
 // Tree structures
-type tree<'a> = 
+type tree<'a> =
   | Leaf('a)
   | Node(tree<'a>, tree<'a>)
 
@@ -461,7 +461,7 @@ let numberTree = Node(
 )
 
 // JSON-like structures
-type json = 
+type json =
   | String(string)
   | Number(float)
   | Boolean(bool)
@@ -503,7 +503,7 @@ type apiError = {
   details: option<Js.Dict.t<string>>,
 }
 
-type apiResponse<'data> = 
+type apiResponse<'data> =
   | Loading
   | Success('data)
   | Error(apiError)
@@ -534,7 +534,7 @@ type formState<'data> = {
   isValid: bool,
 }
 
-type validationResult<'data> = 
+type validationResult<'data> =
   | Valid('data)
   | Invalid(array<fieldError>)
 ```
@@ -584,7 +584,7 @@ let userFromJson = json => {
       let id = obj->Js.Dict.get("id")->Belt.Option.flatMap(decodeString)
       let name = obj->Js.Dict.get("name")->Belt.Option.flatMap(decodeString)
       let age = obj->Js.Dict.get("age")->Belt.Option.flatMap(decodeNumber)
-      
+
       switch (id, name, age) {
       | (Some(id), Some(name), Some(age)) => Some({
           id: id,
