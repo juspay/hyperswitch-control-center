@@ -1,4 +1,5 @@
 open ReconEngineExceptionTypes
+open ReconEngineUtils
 
 type processedColType =
   | EntryId
@@ -37,7 +38,7 @@ let getProcessedCell = (data: processedEntryType, colType): Table.cell => {
   | Currency => Text(data.currency)
   | Status =>
     Label({
-      title: data.status->String.toUpperCase,
+      title: data.status->getDisplayStatusName,
       color: switch data.status->String.toLowerCase {
       | "posted" => LabelGreen
       | "pending" => LabelBlue

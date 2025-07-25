@@ -148,7 +148,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
     categories: ["Transactions"],
     data: [
       {
-        name: "Posted",
+        name: "Matched",
         data: [postedCount->Int.toFloat],
         color: "#7AB891",
       },
@@ -333,7 +333,7 @@ let processLineGraphData = (
     data: [
       {
         showInLegend: true,
-        name: "Posted",
+        name: "Matched",
         data: postedData,
         color: "#7AB891",
       },

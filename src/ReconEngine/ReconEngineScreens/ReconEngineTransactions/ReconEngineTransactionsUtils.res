@@ -180,7 +180,7 @@ let getSampleStackedBarGraphData = () => {
         color: "#EA8A8F",
       },
       {
-        name: "Posted",
+        name: "Matched",
         data: [1200.0],
         color: "#7AB891",
       },

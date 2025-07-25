@@ -31,3 +31,10 @@ let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
 
   queryParts->Array.joinWith("&")
 }
+
+let getDisplayStatusName = (status: string) => {
+  switch status->String.toLowerCase {
+  | "posted" => "Matched"->String.toUpperCase
+  | _ => status->String.toUpperCase
+  }
+}

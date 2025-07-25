@@ -1,5 +1,6 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
+open ReconEngineUtils
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -51,7 +52,7 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   | Currency => Text(entry.currency)
   | Status =>
     Label({
-      title: {entry.status->String.toUpperCase},
+      title: {entry.status->getDisplayStatusName},
       color: switch entry.status->String.toLowerCase {
       | "posted" => LabelGreen
       | "mismatched" => LabelRed
@@ -63,7 +64,7 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
     })
   | DiscardedStatus =>
     Label({
-      title: {entry.discarded_status->String.toUpperCase},
+      title: {entry.discarded_status->getDisplayStatusName},
       color: switch entry.discarded_status->String.toLowerCase {
       | "posted" => LabelGreen
       | "mismatched" => LabelRed
