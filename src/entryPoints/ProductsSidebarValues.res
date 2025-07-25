@@ -13,6 +13,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devIntelligentRoutingV2,
     devOrchestrationV2Product,
     devReconEngineV1,
+    devTheme,
   } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -105,7 +106,11 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  // Need to be refactored
+
+  if devTheme {
+    sideBarValues->Array.push(ThemeSidebarValues.theme)
+  }
+
   let productName = activeProduct->getProductDisplayName
 
   sideBarValues->Array.filter(topLevelItem =>
