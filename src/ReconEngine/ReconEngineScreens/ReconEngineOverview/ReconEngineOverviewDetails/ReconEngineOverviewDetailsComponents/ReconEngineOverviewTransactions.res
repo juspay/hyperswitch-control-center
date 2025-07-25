@@ -91,7 +91,13 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
 
   <div className="flex flex-col gap-4">
     <div className="flex-shrink-0"> {topFilterUi} </div>
-    <PageLoaderWrapper screenState>
+    <PageLoaderWrapper
+      screenState
+      customLoader={<div className="h-full flex flex-col justify-center items-center">
+        <div className="animate-spin">
+          <Icon name="spinner" size=20 />
+        </div>
+      </div>}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
         actualData={filteredTransactionsData}
