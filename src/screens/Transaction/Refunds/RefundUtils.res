@@ -97,7 +97,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFixedFilter = () => [
+let initialFixedFilter = _ => [
   (
     {
       localFilter: None,
@@ -195,7 +195,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, _, _, _) => {
+let initialFilters = (json, filtervalues, _, _, _, _) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject
