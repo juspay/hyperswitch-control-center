@@ -64,6 +64,7 @@ type featureFlag = {
   devReconEngineV1: bool,
   devAiChatBot: bool,
   routingAnalytics: bool,
+  devTheme: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -130,6 +131,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
     routingAnalytics: dict->getBool("routing_analytics", false),
+    devTheme: dict->getBool("dev_theme", false),
   }
 }
 
