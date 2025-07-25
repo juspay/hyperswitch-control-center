@@ -102,7 +102,7 @@ module TransformationHistoryDetailsInfo = {
     let onClick = () => {
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/file-management/transformation-history/${transformationHistoryData.transformation_history_id}`,
+          ~url=`/v1/recon-engine/file-management/${transformationHistoryData.ingestion_history_id}/transformation-history/${transformationHistoryData.transformation_history_id}`,
         ),
       )
     }

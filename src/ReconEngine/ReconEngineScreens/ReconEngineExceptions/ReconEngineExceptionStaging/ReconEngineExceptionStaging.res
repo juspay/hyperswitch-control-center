@@ -117,7 +117,7 @@ let make = () => {
         hideTitle=true
         actualData={filteredStagingData}
         entity={ReconEngineExceptionEntity.processingTableEntity}
-        resultsPerPage=50
+        resultsPerPage=10
         totalResults={filteredStagingData->Array.length}
         offset
         setOffset

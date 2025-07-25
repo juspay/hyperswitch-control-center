@@ -39,7 +39,7 @@ let make = (~id) => {
 
   <div className="flex flex-col gap-4 mb-8">
     <BreadCrumbNavigation
-      path=[{title: "File Management", link: `/v1/recon-engine/file-management/ingestion-history`}]
+      path=[{title: "File Management", link: `/v1/recon-engine/file-management`}]
       currentPageTitle=id
       cursorStyle="cursor-pointer"
       customTextClass="text-nd_gray-400"

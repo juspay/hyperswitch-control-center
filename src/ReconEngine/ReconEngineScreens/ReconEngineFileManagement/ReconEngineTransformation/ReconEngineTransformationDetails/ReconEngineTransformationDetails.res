@@ -49,10 +49,10 @@ let make = (~transformationHistoryId) => {
     <div className="flex flex-col gap-4">
       <BreadCrumbNavigation
         path=[
-          {title: "File Management", link: `/v1/recon-engine/file-management/ingestion-history`},
+          {title: "File Management", link: `/v1/recon-engine/file-management`},
           {
             title: transformationHistoryData.ingestion_history_id,
-            link: `/v1/recon-engine/file-management/ingestion-history/${transformationHistoryData.ingestion_history_id}`,
+            link: `/v1/recon-engine/file-management/${transformationHistoryData.ingestion_history_id}`,
           },
         ]
         currentPageTitle=transformationHistoryId

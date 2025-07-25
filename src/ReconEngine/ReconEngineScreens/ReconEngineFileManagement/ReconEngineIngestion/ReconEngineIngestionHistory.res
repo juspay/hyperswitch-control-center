@@ -115,7 +115,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
         hideTitle=true
         actualData={filteredHistoryData}
         entity={ReconEngineFileManagementEntity.ingestionHistoryTableEntity(
-          `v1/recon-engine/file-management/ingestion-history`,
+          `v1/recon-engine/file-management`,
           ~authorization=Access,
         )}
         resultsPerPage=50

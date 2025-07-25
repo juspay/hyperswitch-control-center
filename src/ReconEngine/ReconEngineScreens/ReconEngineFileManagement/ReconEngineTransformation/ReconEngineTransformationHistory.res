@@ -72,7 +72,8 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
         customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
       />
     </RenderIf>
-    <div className="flex flex-col gap-4 mt-4 w-full">
+    <div
+      className="flex flex-col gap-4 mt-4 w-full border border-nd_gray-150 rounded-lg p-4 min-h-500-px">
       {transformationHistoryData
       ->Array.map(transformationHistory => {
         <>
