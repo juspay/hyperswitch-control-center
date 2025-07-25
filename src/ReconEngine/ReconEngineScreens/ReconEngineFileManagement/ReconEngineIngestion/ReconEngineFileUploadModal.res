@@ -51,8 +51,8 @@ let make = (~showModal, ~setShowModal) => {
   }
 
   let getIngestionConfigData = async _ => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
@@ -65,7 +65,7 @@ let make = (~showModal, ~setShowModal) => {
           ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper,
         )
       setIngestionConfigData(_ => ingestionConfigData)
-      setScreenState(_ => Success)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }

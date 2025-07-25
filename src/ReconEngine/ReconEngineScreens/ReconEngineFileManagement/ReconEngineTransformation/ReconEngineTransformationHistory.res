@@ -16,8 +16,8 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
   )
 
   let fetchTransformationHistoryData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let transformationHistoryUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,

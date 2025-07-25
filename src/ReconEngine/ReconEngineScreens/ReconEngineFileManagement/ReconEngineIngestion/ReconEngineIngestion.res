@@ -23,7 +23,7 @@ let make = () => {
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
 

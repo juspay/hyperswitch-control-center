@@ -24,8 +24,8 @@ let make = (~transformationHistoryId) => {
   }
 
   let fetchStagingData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let queryString =
         ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
           `&transformation_history_id=${transformationHistoryId}`,

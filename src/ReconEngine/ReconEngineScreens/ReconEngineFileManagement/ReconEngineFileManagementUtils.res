@@ -1,13 +1,19 @@
 open ReconEngineFileManagementTypes
 open LogicUtils
 
+let getStatusOptions = (statusList: array<status>): array<FilterSelectBox.dropdownOption> => {
+  statusList->Array.map(status => {
+    let value: string = (status :> string)->String.toLowerCase
+    let label = (status :> string)->capitalizeString
+    {
+      FilterSelectBox.label,
+      value,
+    }
+  })
+}
+
 let initialIngestionDisplayFilters = () => {
-  let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
-    {label: "Pending", value: "pending"},
-    {label: "Processed", value: "processed"},
-    {label: "Processing", value: "processing"},
-    {label: "Failed", value: "failed"},
-  ]
+  let statusOptions = getStatusOptions([Pending, Processing, Processed, Failed])
 
   [
     (
@@ -16,7 +22,7 @@ let initialIngestionDisplayFilters = () => {
           ~label="status",
           ~name="status",
           ~customInput=InputFields.filterMultiSelectInput(
-            ~options=entryTypeOptions,
+            ~options=statusOptions,
             ~buttonText="Select Status",
             ~showSelectionAsChips=false,
             ~searchable=true,

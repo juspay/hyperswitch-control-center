@@ -40,22 +40,25 @@ let getTransformationHistoryHeading = colType => {
   }
 }
 
+let getStatusLabel = (statusString: string): Table.cell => {
+  Table.Label({
+    title: statusString,
+    color: switch statusString->statusMapper {
+    | Pending => Table.LabelGray
+    | Processing => Table.LabelOrange
+    | Processed => Table.LabelGreen
+    | Failed => Table.LabelRed
+    | StatusNone => Table.LabelLightGray
+    },
+  })
+}
+
 let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell => {
   switch colType {
   | FileName => Text(data.file_name)
   | IngestionName => Text(data.ingestion_name)
   | IngestionHistoryId => Text(data.ingestion_history_id)
-  | Status =>
-    Label({
-      title: data.status,
-      color: switch data.status->statusMapper {
-      | Pending => LabelGray
-      | Processing => LabelOrange
-      | Processed => LabelGreen
-      | Failed => LabelRed
-      | StatusNone => LabelLightGray
-      },
-    })
+  | Status => getStatusLabel(data.status)
   | UploadType => Text(data.upload_type)
   | UploadedAt => Text(data.created_at)
   }
@@ -64,17 +67,7 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
 let getTransformationHistoryCell = (data: transformationHistoryType, colType): Table.cell => {
   switch colType {
   | TransformationName => Text(data.transformation_name)
-  | Status =>
-    Label({
-      title: data.status,
-      color: switch data.status->statusMapper {
-      | Pending => LabelGray
-      | Processing => LabelOrange
-      | Processed => LabelGreen
-      | Failed => LabelRed
-      | StatusNone => LabelLightGray
-      },
-    })
+  | Status => getStatusLabel(data.status)
   | CreatedAt => Text(data.created_at)
   | ProcessedAt => Text(data.processed_at)
   }
