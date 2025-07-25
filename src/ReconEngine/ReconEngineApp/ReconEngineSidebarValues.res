@@ -32,8 +32,8 @@ let reconExceptions = {
 
 let reconQueue = {
   Link({
-    name: "Recon Queue",
-    link: `/v1/recon-engine/queue`,
+    name: "File Management",
+    link: `/v1/recon-engine/file-management`,
     access: Access,
     icon: "nd-workflow",
     selectedIcon: "nd-workflow-fill",
@@ -49,7 +49,25 @@ let reconRuleCreation = {
     selectedIcon: "nd-reports-fill",
   })
 }
+
+let reconConnection = {
+  Link({
+    name: "Connections",
+    link: `/v1/recon-engine/connection`,
+    access: Access,
+    icon: "nd-workflow",
+    selectedIcon: "nd-workflow-fill",
+  })
+}
+
 let reconEngineSidebars = {
-  let sidebar = [reconOverview, reconTransactions, reconExceptions, reconQueue, reconRuleCreation]
+  let sidebar = [
+    reconOverview,
+    reconTransactions,
+    reconExceptions,
+    reconQueue,
+    reconRuleCreation,
+    reconConnection,
+  ]
   sidebar
 }

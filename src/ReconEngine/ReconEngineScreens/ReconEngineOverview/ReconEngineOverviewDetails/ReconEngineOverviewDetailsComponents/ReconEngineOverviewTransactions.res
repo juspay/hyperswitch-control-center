@@ -1,7 +1,6 @@
 @react.component
 let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   open LogicUtils
-  open ReconEngineTransactionsUtils
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
@@ -22,17 +21,26 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let baseQueryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      if statusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set(
+          "transaction_status",
+          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+        )
+      }
+      let baseQueryString = ReconEngineUtils.buildQueryStringFromFilters(
+        ~filterValueJson=enhancedFilterValueJson,
+      )
       let queryString = if baseQueryString->isNonEmptyString {
         `${baseQueryString}&rule_id=${ruleDetails.rule_id}`
       } else {
         `rule_id=${ruleDetails.rule_id}`
       }
       let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-
-      let transactionsDataList = transactionsList->Array.map(Nullable.make)
-      setConfiguredReports(_ => transactionsDataList)
-      setFilteredReports(_ => transactionsDataList)
+      let transactionsListData = transactionsList->Array.map(Nullable.make)
+      setConfiguredReports(_ => transactionsListData)
+      setFilteredReports(_ => transactionsListData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -63,7 +71,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineOverviewTransactionsFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={ReconEngineOverviewUtils.initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -83,7 +91,13 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
 
   <div className="flex flex-col gap-4">
     <div className="flex-shrink-0"> {topFilterUi} </div>
-    <PageLoaderWrapper screenState>
+    <PageLoaderWrapper
+      screenState
+      customLoader={<div className="h-full flex flex-col justify-center items-center">
+        <div className="animate-spin">
+          <Icon name="spinner" size=20 />
+        </div>
+      </div>}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
         actualData={filteredTransactionsData}
