@@ -10,7 +10,7 @@ module AccordionItemComponent = {
       {switch step.videoPath {
       | Some(videoPath) =>
         <video className="w-full" controls=true preload="metadata">
-          // NOTE: Currently the video are taken from S3 bucket
+          // NOTE: In deployed version, the videos are taken from S3 bucket
           <source src={`/assets/gifs/${videoPath}`} type_="video/mp4" />
           {"Your browser does not support video playback."->React.string}
         </video>
