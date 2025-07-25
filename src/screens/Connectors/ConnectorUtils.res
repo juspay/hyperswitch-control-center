@@ -122,6 +122,8 @@ let connectorList: array<connectorTypes> = [
   Processors(BARCLAYCARD),
   Processors(TOKENIO),
   Processors(PAYLOAD),
+  Processors(PAYTM),
+  Processors(PHONEPE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -645,6 +647,12 @@ let archipelInfo = {
 let worldpayVantivInfo = {
   description: "Worldpay Vantiv, also known as the Worldpay CNP API, is a robust XML-based interface used to process online (card-not-present) transactions such as e-commerce purchases, subscription billing, and digital payments.",
 }
+let paytmInfo = {
+  description: "Paytm is a leading digital payment platform in India, offering a wide range of financial services including mobile recharges, bill payments, money transfers, and online shopping. It provides a secure and convenient way for users to make transactions using their smartphones.",
+}
+let phonepeInfo = {
+  description: "PhonePe is a digital payments platform that allows users to make online payments, recharge mobile phones, pay bills, and transfer money. It is widely used in India and offers a seamless payment experience.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -731,6 +739,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BARCLAYCARD => "barclaycard"
   | TOKENIO => "tokenio"
   | PAYLOAD => "payload"
+  | PAYTM => "paytm"
+  | PHONEPE => "phonepe"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -884,6 +894,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "barclaycard" => Processors(BARCLAYCARD)
     | "tokenio" => Processors(TOKENIO)
     | "payload" => Processors(PAYLOAD)
+    | "paytm" => Processors(PAYTM)
+    | "phonepe" => Processors(PHONEPE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1017,6 +1029,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BARCLAYCARD => barclaycardInfo
   | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
+  | PAYTM => paytmInfo
+  | PHONEPE => phonepeInfo
   }
 }
 
@@ -1893,6 +1907,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
   | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
+  | PAYTM => "Paytm"
+  | PHONEPE => "PhonePe"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
