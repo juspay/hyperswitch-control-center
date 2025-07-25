@@ -64,7 +64,11 @@ let make = (~showModal, ~setShowModal) => {
         res->LogicUtils.getArrayDataFromJson(
           ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper,
         )
-      setIngestionConfigData(_ => ingestionConfigData)
+      let manualIngestionConfig =
+        ingestionConfigData->Array.filter(ingestionConfigType =>
+          ingestionConfigType.data.ingestion_type == "manual"
+        )
+      setIngestionConfigData(_ => manualIngestionConfig)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

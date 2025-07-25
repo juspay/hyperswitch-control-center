@@ -69,6 +69,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_ingestion_history",
     (),
   )

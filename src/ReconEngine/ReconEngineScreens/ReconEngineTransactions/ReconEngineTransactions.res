@@ -5,6 +5,8 @@ let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
   open ReconEngineUtils
+  open ReconEngineTransactionsTypes
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -17,7 +19,6 @@ let make = () => {
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
-  let (baseTransactions, setBaseTransactions) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -25,10 +26,10 @@ let make = () => {
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
-      getEntryTypeAccountOptions(baseTransactions, ~entryType="credit"),
-      getEntryTypeAccountOptions(baseTransactions, ~entryType="debit"),
+      getEntryTypeAccountOptions(configuredTransactions, ~entryType="credit"),
+      getEntryTypeAccountOptions(configuredTransactions, ~entryType="debit"),
     )
-  }, [baseTransactions])
+  }, [configuredTransactions])
 
   let topFilterUi = {
     <div className="flex flex-row">
@@ -55,7 +56,7 @@ let make = () => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineTransactionsTypes.transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
@@ -68,17 +69,6 @@ let make = () => {
     }
     setFilteredReports(_ => filteredList)
   }, ~wait=200)
-
-  let fetchBaseTransactionsData = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let transactionsList = await getTransactions(~queryParamerters=None)
-      setBaseTransactions(_ => transactionsList)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
 
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -95,9 +85,9 @@ let make = () => {
         ~filterValueJson=enhancedFilterValueJson,
       )
       let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-      let transactionListData = transactionsList->Array.map(Nullable.make)
+      let transactionListData = transactionsList
       setConfiguredTransactions(_ => transactionListData)
-      setFilteredReports(_ => transactionListData)
+      setFilteredReports(_ => transactionListData->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -108,13 +98,13 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_transactions",
     (),
   )
 
   React.useEffect(() => {
     setInitialFilters()
-    fetchBaseTransactionsData()->ignore
     None
   }, [])
 
@@ -158,7 +148,7 @@ let make = () => {
         )}
         resultsPerPage=10
         filters={<TableSearchFilter
-          data={configuredTransactions}
+          data={configuredTransactions->Array.map(Nullable.make)}
           filterLogic
           placeholder="Search Transaction Id or Status"
           searchVal=searchText

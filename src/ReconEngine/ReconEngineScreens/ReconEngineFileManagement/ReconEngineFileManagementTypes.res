@@ -33,13 +33,14 @@ type ingestionHistoryType = {
   created_at: string,
 }
 
+type ingestionDataType = {ingestion_type: string}
+
 type ingestionConfigType = {
   ingestion_id: string,
-  account_id: string,
-  name: string,
-  description: string,
   is_active: bool,
-  profile_id: string,
+  name: string,
+  last_synced_at: string,
+  data: ingestionDataType,
 }
 
 type transformationHistoryType = {
