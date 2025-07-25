@@ -57,7 +57,7 @@ let getStatusLabel = (statusString: option<string>): Table.cell => {
       | _ => Table.LabelLightGray
       },
     })
-  | None => Text("null")
+  | None => Text("N/A")
   }
 }
 

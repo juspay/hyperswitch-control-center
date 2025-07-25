@@ -28,6 +28,7 @@ type transactionPayload = {
   debit_amount: amountType,
   rule: ruleType,
   transaction_status: string,
+  discarded_status: option<string>,
   version: int,
   created_at: string,
 }
@@ -63,6 +64,7 @@ type entryPayload = {
 type transactionColType =
   | TransactionId
   | Status
+  | DiscardedStatus
   | Variance
   | CreditAccount
   | DebitAccount

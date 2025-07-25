@@ -51,7 +51,7 @@ let getHeadersForCSV = () => {
   "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
 }
 
-let getAllTransactionPayload = dict => {
+let getAllTransactionPayload = (dict): transactionPayload => {
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -63,6 +63,7 @@ let getAllTransactionPayload = dict => {
     debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
     rule: dict->getDictfromDict("rule")->getRulePayload,
     transaction_status: dict->getString("transaction_status", ""),
+    discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
   }
