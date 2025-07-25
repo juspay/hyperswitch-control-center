@@ -43,6 +43,24 @@ let getHeading = (colType: entryColType) => {
   }
 }
 
+let getStatusLabel = (statusString: option<string>): Table.cell => {
+  switch statusString {
+  | Some(status) =>
+    Table.Label({
+      title: status->getDisplayStatusName,
+      color: switch status->String.toLowerCase {
+      | "posted" => Table.LabelGreen
+      | "mismatched" => Table.LabelRed
+      | "expected" => Table.LabelBlue
+      | "archived" => Table.LabelGray
+      | "pending" => Table.LabelOrange
+      | _ => Table.LabelLightGray
+      },
+    })
+  | None => Text("null")
+  }
+}
+
 let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => Text(entry.entry_id)
@@ -50,30 +68,8 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   | TransactionId => Text(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
-  | Status =>
-    Label({
-      title: {entry.status->getDisplayStatusName},
-      color: switch entry.status->String.toLowerCase {
-      | "posted" => LabelGreen
-      | "mismatched" => LabelRed
-      | "expected" => LabelBlue
-      | "archived" => LabelGray
-      | "pending" => LabelOrange
-      | _ => LabelGray
-      },
-    })
-  | DiscardedStatus =>
-    Label({
-      title: {entry.discarded_status->getDisplayStatusName},
-      color: switch entry.discarded_status->String.toLowerCase {
-      | "posted" => LabelGreen
-      | "mismatched" => LabelRed
-      | "expected" => LabelBlue
-      | "archived" => LabelGray
-      | "pending" => LabelOrange
-      | _ => LabelGray
-      },
-    })
+  | Status => getStatusLabel(Some(entry.status))
+  | DiscardedStatus => getStatusLabel(entry.discarded_status)
   | Metadata => CustomCell(<div> {"Here is the metadata: "->React.string} </div>, "")
   | CreatedAt => Text(entry.created_at)
   | EffectiveAt => Text(entry.effective_at)

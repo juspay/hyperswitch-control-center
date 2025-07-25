@@ -51,6 +51,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_overview_transactions",
     (),
   )

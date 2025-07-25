@@ -82,7 +82,7 @@ let getAllEntryPayload = dict => {
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
-    discarded_status: dict->getString("discarded_status", ""),
+    discarded_status: dict->getOptionString("discarded_status"),
     metadata: dict->getJsonObjectFromDict("metadata"),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
@@ -124,13 +124,26 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   uniqueAccounts->Array.joinWith(", ")
 }
 
-let getTransactionTypeFromString = (status: string) => {
+let getTransactionTypeFromString = (
+  status: string,
+): ReconEngineTransactionsTypes.transactionStatus => {
   switch status {
   | "posted" => ReconEngineTransactionsTypes.Posted
   | "mismatched" => ReconEngineTransactionsTypes.Mismatched
   | "expected" => ReconEngineTransactionsTypes.Expected
   | "archived" => ReconEngineTransactionsTypes.Archived
   | _ => ReconEngineTransactionsTypes.Unknown
+  }
+}
+
+let getEntryTypeFromString = (entryType: string): ReconEngineTransactionsTypes.entryStatus => {
+  switch entryType {
+  | "posted" => ReconEngineTransactionsTypes.Posted
+  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
+  | "expected" => ReconEngineTransactionsTypes.Expected
+  | "archived" => ReconEngineTransactionsTypes.Archived
+  | "pending" => ReconEngineTransactionsTypes.Pending
+  | _ => ReconEngineTransactionsTypes.UnknownEntry
   }
 }
 

@@ -63,7 +63,7 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
   | Variance =>
     Text(
       formatAmountToString(
-        transaction.credit_amount.value -. transaction.debit_amount.value,
+        Math.abs(transaction.credit_amount.value -. transaction.debit_amount.value),
         ~currency=transaction.credit_amount.currency,
       ),
     )

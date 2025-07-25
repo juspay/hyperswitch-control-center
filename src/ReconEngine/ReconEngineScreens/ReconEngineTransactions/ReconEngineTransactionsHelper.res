@@ -100,6 +100,7 @@ module EntryAuditTrailInfo = {
             Currency,
             TransactionId,
             Status,
+            DiscardedStatus,
             CreatedAt,
             EffectiveAt,
           ]

@@ -72,6 +72,7 @@ let make = () => {
     ~startTimeFilterKey,
     ~endTimeFilterKey,
     ~origin="recon_engine_exception_staging",
+    ~range=180,
     (),
   )
 

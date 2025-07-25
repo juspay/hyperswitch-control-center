@@ -39,6 +39,14 @@ type transactionStatus =
   | Archived
   | Unknown
 
+type entryStatus =
+  | Posted
+  | Mismatched
+  | Expected
+  | Archived
+  | Pending
+  | UnknownEntry
+
 type entryPayload = {
   entry_id: string,
   entry_type: string,
@@ -46,7 +54,7 @@ type entryPayload = {
   amount: float,
   currency: string,
   status: string,
-  discarded_status: string,
+  discarded_status: option<string>,
   metadata: Js.Json.t,
   created_at: string,
   effective_at: string,

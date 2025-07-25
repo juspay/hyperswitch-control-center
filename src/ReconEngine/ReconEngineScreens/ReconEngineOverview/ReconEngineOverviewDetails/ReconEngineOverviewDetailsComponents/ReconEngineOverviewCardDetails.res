@@ -50,7 +50,12 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     )
   }, (allTransactionsData, ruleDetails.rule_id))
 
-  let (sourcePostedAmount, targetPostedAmount, netVariance) = React.useMemo(() => {
+  let (
+    sourcePostedAmount,
+    targetPostedAmount,
+    missingInTargetAmount,
+    netVariance,
+  ) = React.useMemo(() => {
     calculateAccountAmounts(ruleTransactionsData)
   }, [ruleTransactionsData])
 
@@ -66,7 +71,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         <Icon name="spinner" size=20 />
       </div>
     </div>}>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <OverviewCard
         title={`Expected from ${sourceAccountName}`}
         value={formatAmountWithCurrency(sourcePostedAmount, sourceAccountCurrency)}
@@ -76,7 +81,11 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         value={formatAmountWithCurrency(targetPostedAmount, targetAccountCurrency)}
       />
       <OverviewCard
-        title="Net Variance" value={formatAmountWithCurrency(netVariance, sourceAccountCurrency)}
+        title="Variance" value={formatAmountWithCurrency(netVariance, sourceAccountCurrency)}
+      />
+      <OverviewCard
+        title={`Missing in ${targetAccountName}`}
+        value={formatAmountWithCurrency(missingInTargetAmount, targetAccountCurrency)}
       />
     </div>
   </PageLoaderWrapper>
