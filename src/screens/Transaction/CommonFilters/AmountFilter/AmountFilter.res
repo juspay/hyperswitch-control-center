@@ -1,24 +1,8 @@
-let startamountField = FormRenderer.makeFieldInfo(
-  ~label="",
-  ~name="start_amount",
-  ~placeholder="0",
-  ~customInput=InputFields.numericTextInput(~precision=2),
-  ~type_="number",
-)
-
-let endAmountField = FormRenderer.makeFieldInfo(
-  ~label="",
-  ~name="end_amount",
-  ~placeholder="0",
-  ~customInput=InputFields.numericTextInput(~precision=2),
-  ~type_="number",
-)
-
 module CustomAmountEqualField = {
   @react.component
   let make = () => {
     let form = ReactFinalForm.useForm()
-    <div className={"flex gap-5 items-center justify-center w-28 ml-2"}>
+    <div className="flex gap-5 items-center justify-center w-28 ml-2">
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-black"
         field={FormRenderer.makeFieldInfo(~label="", ~name="start_amount", ~customInput=(
@@ -44,6 +28,7 @@ module CustomAmountEqualField = {
 }
 
 module CustomAmountBetweenField = {
+  open AmountFilterUtils
   @react.component
   let make = () => {
     <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
@@ -71,29 +56,35 @@ module CustomAmountBetweenField = {
     </div>
   }
 }
+
 @react.component
 let make = (~options) => {
-  open AmountFilterTypes
+  open AmountFilterUtils
   open LogicUtils
-  let (selectedOption, setSelectedOption) = React.useState(_ => UnknownRange("Select Amount"))
-  let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
+
   let form = ReactFinalForm.useForm()
   let formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let (selectedOption, setSelectedOption) = React.useState(_ => AmountFilterTypes.UnknownRange(
+    "Select Amount",
+  ))
+  let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
 
   let isApplyButtonDisabled = React.useMemo(() => {
-    AmountFilterUtils.validateAmount(formState.values->getDictFromJsonObject)
+    validateAmount(formState.values->getDictFromJsonObject)
   }, [formState.values])
 
   let handleInputChange = newValue => {
     if newValue->isNonEmptyString {
       let mappedRange = newValue->mapStringToRange
-      setIsAmountRangeVisible(_ => true)
+
       form.change("start_amount", JSON.Encode.null)
       form.change("end_amount", JSON.Encode.null)
       form.change("amount_option", mappedRange->Identity.genericTypeToJson)
+
       setSelectedOption(_ => {newValue->mapStringToRange})
+      setIsAmountRangeVisible(_ => true)
     } else {
       setIsAmountRangeVisible(_ => true)
     }
@@ -119,32 +110,17 @@ let make = (~options) => {
     switch selectedOption {
     | GreaterThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
-        <FormRenderer.FieldRenderer
-          field={FormRenderer.makeFieldInfo(
-            ~label="",
-            ~name="start_amount",
-            ~placeholder="0",
-            ~customInput=InputFields.numericTextInput(~precision=2),
-            ~type_="number",
-          )}
-        />
+        <FormRenderer.FieldRenderer field={startamountField} />
       </div>
     | LessThanOrEqualTo =>
       <div className="flex gap-5 items-center justify-center w-28">
-        <FormRenderer.FieldRenderer
-          field={FormRenderer.makeFieldInfo(
-            ~label="",
-            ~name="end_amount",
-            ~placeholder="0",
-            ~customInput=InputFields.numericTextInput(~precision=2),
-            ~type_="number",
-          )}
-        />
+        <FormRenderer.FieldRenderer field={endAmountField} />
       </div>
     | EqualTo => <CustomAmountEqualField />
     | InBetween => <CustomAmountBetweenField />
     | _ => React.null
     }
+
   React.useEffect(() => {
     let onKeyDown = ev => {
       let keyCode = ev->ReactEvent.Keyboard.keyCode
@@ -160,6 +136,7 @@ let make = (~options) => {
     let dict = formState.values->getDictFromJsonObject
     let start = dict->getOptionFloat("start_amount")
     let end = dict->getOptionFloat("end_amount")
+
     switch (selectedOption, start, end) {
     | (GreaterThanOrEqualTo, Some(start), _) => (true, `More or Equal to ${start->Float.toString}`)
     | (EqualTo, Some(start), _) => (true, `Exactly ${start->Float.toString}`)
@@ -173,6 +150,7 @@ let make = (~options) => {
   }
 
   let (displayCustomCss, buttonText) = displaySelectedRange()
+
   <>
     <FilterSelectBox.BaseDropdown
       key={buttonText}
@@ -187,7 +165,7 @@ let make = (~options) => {
       fullLength=true
       customButtonStyle="bg-white rounded-md !px-4 !py-2 !h-10"
     />
-    {<RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
+    <RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
       <div
         className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0 items-center">
         {renderFields()}
@@ -202,6 +180,6 @@ let make = (~options) => {
           onClick=handleApply
         />
       </div>
-    </RenderIf>}
+    </RenderIf>
   </>
 }

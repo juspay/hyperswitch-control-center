@@ -4,7 +4,7 @@ open Typography
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
-
+  open ReconEngineUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -17,16 +17,24 @@ let make = () => {
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
+  let (baseTransactions, setBaseTransactions) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
+  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
+    (
+      getEntryTypeAccountOptions(baseTransactions, ~entryType="credit"),
+      getEntryTypeAccountOptions(baseTransactions, ~entryType="debit"),
+    )
+  }, [baseTransactions])
+
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineTransactionsFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -61,13 +69,35 @@ let make = () => {
     setFilteredReports(_ => filteredList)
   }, ~wait=200)
 
+  let fetchBaseTransactionsData = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let transactionsList = await getTransactions(~queryParamerters=None)
+      setBaseTransactions(_ => transactionsList)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      if statusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set(
+          "transaction_status",
+          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+        )
+      }
+      let queryString = ReconEngineUtils.buildQueryStringFromFilters(
+        ~filterValueJson=enhancedFilterValueJson,
+      )
       let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-      setConfiguredTransactions(_ => transactionsList->Array.map(Nullable.make))
-      setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
+      let transactionListData = transactionsList->Array.map(Nullable.make)
+      setConfiguredTransactions(_ => transactionListData)
+      setFilteredReports(_ => transactionListData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -84,6 +114,7 @@ let make = () => {
 
   React.useEffect(() => {
     setInitialFilters()
+    fetchBaseTransactionsData()->ignore
     None
   }, [])
 

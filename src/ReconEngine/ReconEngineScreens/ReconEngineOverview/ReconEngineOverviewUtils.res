@@ -148,7 +148,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
     categories: ["Transactions"],
     data: [
       {
-        name: "Posted",
+        name: "Matched",
         data: [postedCount->Int.toFloat],
         color: "#7AB891",
       },
@@ -333,7 +333,7 @@ let processLineGraphData = (
     data: [
       {
         showInLegend: true,
-        name: "Posted",
+        name: "Matched",
         data: postedData,
         color: "#7AB891",
       },
@@ -363,4 +363,30 @@ let processLineGraphData = (
   }
 
   lineGraphOptions
+}
+
+let initialDisplayFilters = () => {
+  open ReconEngineTransactionsTypes
+  let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
+  [
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="transaction_status",
+          ~name="transaction_status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Transaction Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
 }
