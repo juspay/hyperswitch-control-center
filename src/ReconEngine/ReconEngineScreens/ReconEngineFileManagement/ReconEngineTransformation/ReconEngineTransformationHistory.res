@@ -58,9 +58,9 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
       </div>
     </div>}>
     <div className="flex flex-col gap-2 mt-4">
-      <h1 className={`${body.lg.semibold} text-nd_gray-800`}>
+      <p className={`${body.lg.semibold} text-nd_gray-800`}>
         {"Transformation History"->React.string}
-      </h1>
+      </p>
       <p className={`${body.md.regular} text-nd_gray-600`}>
         {"Check the transformation history for the selected ingestion."->React.string}
       </p>
@@ -72,19 +72,21 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
         customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
       />
     </RenderIf>
-    <div
-      className="flex flex-col gap-4 mt-4 w-full border border-nd_gray-150 rounded-lg p-4 min-h-500-px">
-      {transformationHistoryData
-      ->Array.map(transformationHistory => {
-        <>
-          <TransformationHistoryDetailsInfo
-            transformationHistoryData=transformationHistory
-            detailsFields=[TransformationName, Status, ProcessedAt]
-            accountData
-          />
-        </>
-      })
-      ->React.array}
-    </div>
+    <RenderIf condition={transformationHistoryData->Array.length > 0}>
+      <div
+        className="flex flex-col gap-4 mt-4 w-full border border-nd_gray-150 rounded-lg p-4 min-h-500-px">
+        {transformationHistoryData
+        ->Array.map(transformationHistory => {
+          <>
+            <TransformationHistoryDetailsInfo
+              transformationHistoryData=transformationHistory
+              detailsFields=[TransformationName, Status, ProcessedAt]
+              accountData
+            />
+          </>
+        })
+        ->React.array}
+      </div>
+    </RenderIf>
   </PageLoaderWrapper>
 }
