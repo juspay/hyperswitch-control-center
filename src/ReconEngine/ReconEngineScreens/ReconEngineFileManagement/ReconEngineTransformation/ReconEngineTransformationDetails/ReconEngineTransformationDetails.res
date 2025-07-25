@@ -71,9 +71,7 @@ let make = (~transformationHistoryId) => {
       />
       <p className={`${heading.sm.medium} text-nd_gray-400`}>
         <span className={`${heading.xl.semibold} text-nd_gray-800 mr-1`}>
-          {`${transformationHistoryData.data.staging_entry_ids
-            ->Array.length
-            ->Int.toString}`->React.string}
+          {`${transformationHistoryData.data.transformed_count->Int.toString}`->React.string}
         </span>
         {`out of ${transformationHistoryData.data.total_count->Int.toString} processed`->React.string}
       </p>
