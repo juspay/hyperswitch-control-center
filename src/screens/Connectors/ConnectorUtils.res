@@ -648,10 +648,10 @@ let worldpayVantivInfo = {
   description: "Worldpay Vantiv, also known as the Worldpay CNP API, is a robust XML-based interface used to process online (card-not-present) transactions such as e-commerce purchases, subscription billing, and digital payments.",
 }
 let paytmInfo = {
-  description: "Paytm is a leading digital payment platform in India, offering a wide range of financial services including mobile recharges, bill payments, money transfers, and online shopping. It provides a secure and convenient way for users to make transactions using their smartphones.",
+  description: "Paytm is an Indian multinational fintech company specializing in digital payments and financial services. Initially known for its mobile wallet, it has expanded to include a payment bank, e-commerce, ticketing, and wealth management services.",
 }
 let phonepeInfo = {
-  description: "PhonePe is a digital payments platform that allows users to make online payments, recharge mobile phones, pay bills, and transfer money. It is widely used in India and offers a seamless payment experience.",
+  description: "PhonePe is a digital payments and financial services platform built on the UPI system. It allows users to make instant payments, recharge mobiles, pay bills, and access financial services like investments and insurance.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
