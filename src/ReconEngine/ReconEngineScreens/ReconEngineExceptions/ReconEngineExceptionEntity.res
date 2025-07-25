@@ -62,6 +62,7 @@ let processedTableEntity = EntityType.makeEntity(
 )
 
 let processingDefaultColumns = [StagingEntryId, EntryType, Amount, Currency, Status, EffectiveAt]
+let fileManagementStagingDefaultColumns = [StagingEntryId, EntryType, Amount, Currency, EffectiveAt]
 
 let getProcessingHeading = colType => {
   switch colType {
@@ -102,6 +103,15 @@ let processingTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=_ => [],
   ~defaultColumns=processingDefaultColumns,
+  ~getHeading=getProcessingHeading,
+  ~getCell=getProcessingCell,
+  ~dataKey="",
+)
+
+let fileManagementStagingEntity = EntityType.makeEntity(
+  ~uri="",
+  ~getObjects=_ => [],
+  ~defaultColumns=fileManagementStagingDefaultColumns,
   ~getHeading=getProcessingHeading,
   ~getCell=getProcessingCell,
   ~dataKey="",
