@@ -804,3 +804,15 @@ let randomString = (~length) => {
 
   text
 }
+
+let getStringFromNestedDict = (dict, key1, targetKey, defaultString) => {
+  dict
+  ->getDictfromDict(key1)
+  ->getString(targetKey, defaultString)
+}
+
+let getDictFromNestedDict = (dict, dict1, dict2) => {
+  dict
+  ->getDictfromDict(dict1)
+  ->getDictfromDict(dict2)
+}
