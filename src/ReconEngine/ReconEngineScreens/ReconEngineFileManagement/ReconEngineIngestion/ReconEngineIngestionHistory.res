@@ -118,7 +118,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
           `v1/recon-engine/file-management`,
           ~authorization=Access,
         )}
-        resultsPerPage=50
+        resultsPerPage=10
         totalResults={filteredHistoryData->Array.length}
         offset
         setOffset

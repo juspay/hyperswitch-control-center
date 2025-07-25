@@ -124,7 +124,7 @@ let make = (~transformationHistoryId) => {
         title="Staging Entries"
         hideTitle=true
         actualData={filteredStagingData}
-        entity={ReconEngineExceptionEntity.processingTableEntity}
+        entity={ReconEngineExceptionEntity.fileManagementStagingEntity}
         resultsPerPage=10
         totalResults={filteredStagingData->Array.length}
         offset
