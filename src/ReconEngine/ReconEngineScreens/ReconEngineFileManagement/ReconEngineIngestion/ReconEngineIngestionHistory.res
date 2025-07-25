@@ -1,66 +1,64 @@
 @react.component
-let make = () => {
-  open LogicUtils
+let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
   open APIUtils
-  open ReconEngineExceptionStagingUtils
-  open ReconEngineExceptionTypes
+  open ReconEngineFileManagementUtils
+  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (stagingData, setStagingData) = React.useState(_ => [])
-  let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
-  let (offset, setOffset) = React.useState(_ => 0)
+  let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [])
+  let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (offset, setOffset) = React.useState(_ => 0)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
+    mixpanelEvent(~eventName="recon_engine_ingestion_history_date_filter_opened")
   }
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<processingEntryType>) => {
+      arr->Array.filter((obj: Nullable.t<ReconEngineFileManagementTypes.ingestionHistoryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase(obj.status, searchText) ||
+          isContainingStringLowercase(obj.upload_type, searchText)
         | None => false
         }
       })
     } else {
       arr
     }
-    setFilteredStagingData(_ => filteredList)
+    setFilteredHistoryData(_ => filteredList)
   }, ~wait=200)
 
-  let fetchStagingData = async () => {
+  let fetchIngestionHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let queryString =
         ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          "&status=needs_manual_review",
+          `&account_id=${account.account_id}`,
         )
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+        ~hyperswitchReconType=#INGESTION_HISTORY,
         ~queryParamerters=Some(queryString),
       )
 
       let res = await fetchDetails(stagingUrl)
-      let stagingList = res->LogicUtils.getArrayDataFromJson(processingItemToObjMapper)
+      let ingestionHistoryList =
+        res->LogicUtils.getArrayDataFromJson(ingestionHistoryItemToObjMapper)
 
-      let stagingDataList = stagingList->Array.map(Nullable.make)
-      setStagingData(_ => stagingDataList)
-      setFilteredStagingData(_ => stagingDataList)
+      let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
+      setIngestionHistoryData(_ => ingestionHistoryData)
+      setFilteredHistoryData(_ => ingestionHistoryData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -71,7 +69,7 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~origin="recon_engine_exception_staging",
+    ~origin="recon_engine_ingestion_history",
     (),
   )
 
@@ -82,16 +80,16 @@ let make = () => {
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
-      fetchStagingData()->ignore
+      fetchIngestionHistoryData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, showModal))
 
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
-        title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters()}
+        title="ReconEngineIngestionHistoryFilters"
+        initialFilters={initialIngestionDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -100,7 +98,7 @@ let make = () => {
         )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
-        key="ReconEngineExceptionStagingFilters"
+        key="ReconEngineIngestionHistoryFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
@@ -113,15 +111,18 @@ let make = () => {
     <div className="flex-shrink-0"> {topFilterUi} </div>
     <PageLoaderWrapper screenState>
       <LoadedTable
-        title="Staging Entries"
+        title="Ingestion History"
         hideTitle=true
-        actualData={filteredStagingData}
-        entity={ReconEngineExceptionEntity.processingTableEntity}
+        actualData={filteredHistoryData}
+        entity={ReconEngineFileManagementEntity.ingestionHistoryTableEntity(
+          `v1/recon-engine/file-management`,
+          ~authorization=Access,
+        )}
         resultsPerPage=10
-        totalResults={filteredStagingData->Array.length}
+        totalResults={filteredHistoryData->Array.length}
         offset
         setOffset
-        currrentFetchCount={filteredStagingData->Array.length}
+        currrentFetchCount={filteredHistoryData->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"
@@ -129,9 +130,9 @@ let make = () => {
         enableEqualWidthCol=false
         showAutoScroll=true
         filters={<TableSearchFilter
-          data={stagingData}
+          data={ingestionHistoryData}
           filterLogic
-          placeholder="Search Staging Entry ID or Status"
+          placeholder="Search by Status or Upload Type"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText

@@ -853,7 +853,7 @@ let useGetURL = () => {
           switch methodType {
           | Post =>
             switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/upload`
+            | Some(ingestionId) => `${reconBaseURL}/ingestions/${ingestionId}/upload`
             | None => ``
             }
           | _ => ""
@@ -920,6 +920,20 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #INGESTION_HISTORY =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/ingestions/history?${queryParams}`
+            | None =>
+              switch id {
+              | Some(ingestionHistoryId) =>
+                `${reconBaseURL}/ingestions/history/${ingestionHistoryId}`
+              | None => `${reconBaseURL}/ingestions/history`
+              }
+            }
+          | _ => ""
+          }
         | #INGESTION_CONFIG =>
           switch methodType {
           | Get =>
@@ -929,6 +943,21 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSFORMATION_HISTORY =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/transformations/history?${queryParams}`
+            | None =>
+              switch id {
+              | Some(transformationHistoryId) =>
+                `${reconBaseURL}/transformations/history/${transformationHistoryId}`
+              | None => `${reconBaseURL}/transformations/history`
+              }
+            }
+          | _ => ""
+          }
+
         | #NONE => ""
         }
 
