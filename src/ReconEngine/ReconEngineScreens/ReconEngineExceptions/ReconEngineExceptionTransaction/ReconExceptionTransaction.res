@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
-  open ReconEngineExceptionTransactionUtils
   open LogicUtils
+  open ReconEngineUtils
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -10,7 +10,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
-
+  let (baseTransactions, setBaseTransactions) = React.useState(_ => [])
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
@@ -20,6 +20,14 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
   }
+
+  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
+    (
+      getEntryTypeAccountOptions(baseTransactions, ~entryType="credit"),
+      getEntryTypeAccountOptions(baseTransactions, ~entryType="debit"),
+    )
+  }, [baseTransactions])
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -61,7 +69,16 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
-
+  let fetchBaseTransactionsData = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let transactionsList = await getTransactions(~queryParamerters=None)
+      setBaseTransactions(_ => transactionsList)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -72,6 +89,7 @@ let make = () => {
 
   React.useEffect(() => {
     setInitialFilters()
+    fetchBaseTransactionsData()->ignore
     None
   }, [])
 
@@ -86,7 +104,11 @@ let make = () => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={ReconExceptionTransactionUtils.initialDisplayFilters(
+          ~creditAccountOptions,
+          ~debitAccountOptions,
+          (),
+        )}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(

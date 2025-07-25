@@ -364,3 +364,29 @@ let processLineGraphData = (
 
   lineGraphOptions
 }
+
+let initialDisplayFilters = () => {
+  open ReconEngineTransactionsTypes
+  let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
+  [
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="transaction_status",
+          ~name="transaction_status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Transaction Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
+}
