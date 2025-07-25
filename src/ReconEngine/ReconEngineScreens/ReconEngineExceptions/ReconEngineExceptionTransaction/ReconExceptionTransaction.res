@@ -22,7 +22,10 @@ let make = () => {
   }
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
-    (getCreditAccountOptions(baseTransactions), getDebitAccountOptions(baseTransactions))
+    (
+      getEntryTypeAccountOptions(baseTransactions, ~entryType="credit"),
+      getEntryTypeAccountOptions(baseTransactions, ~entryType="debit"),
+    )
   }, [baseTransactions])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {

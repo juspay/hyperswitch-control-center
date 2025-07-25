@@ -29,17 +29,12 @@ let getAccountOptionsFromTransactions = (
   })
 }
 
-let getCreditAccountOptions = (transactions: array<transactionPayload>): array<
+let getEntryTypeAccountOptions = (transactions: array<transactionPayload>, ~entryType): array<
   FilterSelectBox.dropdownOption,
 > => {
-  getAccountOptionsFromTransactions(transactions, "credit")
+  getAccountOptionsFromTransactions(transactions, entryType)
 }
 
-let getDebitAccountOptions = (transactions: array<transactionPayload>): array<
-  FilterSelectBox.dropdownOption,
-> => {
-  getAccountOptionsFromTransactions(transactions, "debit")
-}
 let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
   let queryParts = []
 
