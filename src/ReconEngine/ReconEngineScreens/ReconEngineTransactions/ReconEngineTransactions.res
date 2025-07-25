@@ -5,6 +5,8 @@ let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
   open ReconEngineUtils
+  open ReconEngineTransactionsTypes
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -54,7 +56,7 @@ let make = () => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineTransactionsTypes.transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||

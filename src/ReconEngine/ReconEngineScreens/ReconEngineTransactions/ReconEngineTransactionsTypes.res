@@ -38,7 +38,7 @@ type transactionStatus =
   | Mismatched
   | Expected
   | Archived
-  | Unknown
+  | UnknownTransactionStatus
 
 type entryStatus =
   | Posted

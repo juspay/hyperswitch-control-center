@@ -1,6 +1,6 @@
-open ReconEngineTransactionsTypes
 open LogicUtils
 open ReconEngineUtils
+open ReconEngineTransactionsTypes
 
 let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
@@ -125,26 +125,24 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   uniqueAccounts->Array.joinWith(", ")
 }
 
-let getTransactionTypeFromString = (
-  status: string,
-): ReconEngineTransactionsTypes.transactionStatus => {
+let getTransactionTypeFromString = (status: string): transactionStatus => {
   switch status {
-  | "posted" => ReconEngineTransactionsTypes.Posted
-  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
-  | "expected" => ReconEngineTransactionsTypes.Expected
-  | "archived" => ReconEngineTransactionsTypes.Archived
-  | _ => ReconEngineTransactionsTypes.Unknown
+  | "posted" => Posted
+  | "mismatched" => Mismatched
+  | "expected" => Expected
+  | "archived" => Archived
+  | _ => UnknownTransactionStatus
   }
 }
 
-let getEntryTypeFromString = (entryType: string): ReconEngineTransactionsTypes.entryStatus => {
+let getEntryTypeFromString = (entryType: string): entryStatus => {
   switch entryType {
-  | "posted" => ReconEngineTransactionsTypes.Posted
-  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
-  | "expected" => ReconEngineTransactionsTypes.Expected
-  | "archived" => ReconEngineTransactionsTypes.Archived
-  | "pending" => ReconEngineTransactionsTypes.Pending
-  | _ => ReconEngineTransactionsTypes.UnknownEntry
+  | "posted" => Posted
+  | "mismatched" => Mismatched
+  | "expected" => Expected
+  | "archived" => Archived
+  | "pending" => Pending
+  | _ => UnknownEntry
   }
 }
 
