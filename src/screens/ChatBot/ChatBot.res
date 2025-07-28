@@ -104,9 +104,8 @@ module ChatMessage = {
                 </RenderIf>
                 <RenderIf condition={!isTyping}>
                   <div
-                    className="p-4 max-h-96 overflow-auto overscroll-contain"
-                    style={ReactDOM.Style.make(~minWidth="0", ~width="100%", ())}>
-                    <div style={ReactDOM.Style.make(~minWidth="max-content", ())}>
+                    className="px-7 py-4 max-h-96 overflow-auto overscroll-contain min-w-0 w-full">
+                    <div className="min-w-max">
                       <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
                     </div>
                   </div>
