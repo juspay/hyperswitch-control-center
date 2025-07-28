@@ -164,7 +164,6 @@ module EmptyState = {
     ]
 
     <div className="flex flex-col items-center justify-center h-full px-6 py-8">
-      // Header Section
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-nd_gray-800 dark:text-nd_gray-100 mb-3">
           {"Welcome to Data Assistant"->React.string}
@@ -174,7 +173,6 @@ module EmptyState = {
           {"Ask questions about your payments, refunds, and analytics. Get instant insights without writing any SQL queries."->React.string}
         </p>
       </div>
-      // Example Questions Section
       <div className="w-full max-w-2xl">
         <div className="text-center mb-6">
           <h3 className="text-lg font-semibold text-nd_gray-800 dark:text-nd_gray-100 mb-2">
@@ -210,7 +208,6 @@ module EmptyState = {
           ->React.array}
         </div>
       </div>
-      // Footer Section
       <div className="mt-8 text-center">
         <p className="text-xs text-nd_gray-500 dark:text-nd_gray-400">
           {"Or type your own question in the input field below"->React.string}
@@ -407,7 +404,6 @@ let make = () => {
       <div className="fixed bottom-4 w-77-rem">
         <ChatBot loading onNewChat />
       </div>
-      // <FormValuesSpy />
     </Form>
   </div>
 }
