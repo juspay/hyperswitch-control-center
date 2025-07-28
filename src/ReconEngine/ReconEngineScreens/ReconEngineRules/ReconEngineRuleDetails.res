@@ -23,7 +23,7 @@ module StatusBadge = {
     <div className="flex flex-col gap-2">
       <div className={`${body.md.medium} text-nd_gray-500`}> {"Status"->React.string} </div>
       <div className="flex items-center">
-        <span className={`px-2 py-1 ${body.md.semibold} rounded-sm ${bgColor} ${textColor}`}>
+        <span className={`px-2 py-1 ${body.sm.semibold} rounded-sm ${bgColor} ${textColor}`}>
           {text->React.string}
         </span>
       </div>

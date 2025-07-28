@@ -48,7 +48,7 @@ let getFilterTypeFromString = filterType => {
 }
 let isParentChildFilterMatch = (name, key) => {
   let parentFilter = name->getFilterTypeFromString
-  let child = key->AmountFilterTypes.mapStringToamountFilterChild
+  let child = key->AmountFilterUtils.mapStringToamountFilterChild
   switch (parentFilter, child) {
   | (#amount, #start_amount)
   | (#amount, #end_amount)
@@ -465,79 +465,6 @@ let setData = (
     setScreenState(_ => PageLoaderWrapper.Success)
   } else {
     setScreenState(_ => PageLoaderWrapper.Custom)
-  }
-}
-
-let getOrdersList = async (
-  filterValueJson,
-  ~updateDetails: (
-    string,
-    JSON.t,
-    Fetch.requestMethod,
-    ~bodyFormData: Fetch.formData=?,
-    ~headers: Dict.t<'a>=?,
-    ~contentType: AuthHooks.contentType=?,
-    ~version: UserInfoTypes.version=?,
-  ) => promise<JSON.t>,
-  ~getURL: APIUtilsTypes.getUrlTypes,
-  ~setOrdersData,
-  ~previewOnly,
-  ~setScreenState,
-  ~setOffset,
-  ~setTotalCount,
-  ~offset,
-) => {
-  open LogicUtils
-  setScreenState(_ => PageLoaderWrapper.Loading)
-  try {
-    let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
-    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-    let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-    let total = res->getDictFromJsonObject->getInt("total_count", 0)
-
-    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
-      let payment_id =
-        filterValueJson
-        ->Dict.get("payment_id")
-        ->Option.getOr(""->JSON.Encode.string)
-        ->JSON.Decode.string
-        ->Option.getOr("")
-
-      if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
-        let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
-        filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
-
-        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-        let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-        let total = res->getDictFromJsonObject->getInt("total_count", 0)
-
-        setData(
-          offset,
-          setOffset,
-          total,
-          data,
-          setTotalCount,
-          setOrdersData,
-          setScreenState,
-          previewOnly,
-        )
-      } else {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-    } else {
-      setData(
-        offset,
-        setOffset,
-        total,
-        data,
-        setTotalCount,
-        setOrdersData,
-        setScreenState,
-        previewOnly,
-      )
-    }
-  } catch {
-  | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
   }
 }
 

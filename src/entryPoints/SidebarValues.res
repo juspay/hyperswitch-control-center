@@ -254,6 +254,12 @@ let disputeAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View Dispute analytics", "")],
 })
+let routingAnalytics = SubLevelLink({
+  name: "Routing",
+  link: `/analytics-routing`,
+  access: Access,
+  searchOptions: [("View routing analytics", "")],
+})
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
@@ -274,6 +280,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
@@ -291,6 +298,9 @@ let analytics = (
 
   if performanceMonitorFlag {
     links->Array.push(performanceMonitor)
+  }
+  if routingAnalyticsFlag {
+    links->Array.push(routingAnalytics)
   }
 
   isAnalyticsEnabled
@@ -636,6 +646,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     devWebhooks,
     threedsExemptionRules,
     paymentSettingsV2,
+    routingAnalytics,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -659,6 +670,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       isNewAnalyticsEnable,
+      routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
