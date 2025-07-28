@@ -60,7 +60,6 @@ let make = () => {
         )
         ->getArrayFromJson([])
         ->getValueFromArray(0, JSON.Encode.null)
-      Js.log2("filterBody", filterBody)
       let filterData = await updateDetails(analyticsfilterUrl, filterBody, Post)
       setFilterDataJson(_ => Some(filterData))
     } catch {
