@@ -3,7 +3,6 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open Typography
-  open RoutingAnalyticsUtils
 
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -25,7 +24,7 @@ let make = () => {
             ~groupByNames=Some(["routing_approach"]),
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
-            ~filter=Some(generateFilterObject(~globalFilters=filterValueJson)),
+            ~filter=Some(filterValueJson->JSON.Encode.object),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
