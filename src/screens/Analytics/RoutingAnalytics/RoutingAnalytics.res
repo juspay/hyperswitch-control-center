@@ -82,15 +82,11 @@ let make = () => {
   }, [])
 
   React.useEffect(() => {
-    if (
-      startTimeFilterKey->isNonEmptyString &&
-      endTimeFilterKey->isNonEmptyString &&
-      dimensions->Array.length > 0
-    ) {
+    if startTime->isNonEmptyString && endTime->isNonEmptyString && dimensions->Array.length > 0 {
       getFilters()->ignore
     }
     None
-  }, (startTimeFilterKey, endTimeFilterKey, dimensions))
+  }, (startTime, endTime, dimensions))
 
   let topFilterUi = {
     let (initialFilters, popupFilterFields, key) = switch filterDataJson {
