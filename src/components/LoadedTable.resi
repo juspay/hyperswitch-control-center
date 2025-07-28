@@ -8,7 +8,10 @@ type checkBoxProps = {
 let checkBoxPropDefaultVal: checkBoxProps
 let sortAtom: Recoil.recoilAtom<RescriptCore.Dict.t<sortOb>>
 let backgroundClass: string
-let useSortedObj: (string, option<Table.sortedObject>) => (
+let useSortedObj: (
+  string,
+  option<Table.sortedObject>,
+) => (
   option<Table.sortedObject>,
   (option<Table.sortedObject> => option<Table.sortedObject>) => unit,
 )
@@ -117,5 +120,4 @@ let make: (
   ~showAutoScroll: bool=?,
   ~highlightSelectedRow: bool=?,
   ~showHeading: bool=?,
-  ~customPaddingClass: string=?,
 ) => React.element

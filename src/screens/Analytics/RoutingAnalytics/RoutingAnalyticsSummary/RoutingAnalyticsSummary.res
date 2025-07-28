@@ -121,7 +121,7 @@ let make = () => {
         currrentFetchCount={data.connectors->Array.length}
         showHeading=false
         hideTitle=true
-        enableEqualWidthCol=false
+        enableEqualWidthCol=true
       />
 
     | _ => React.null
@@ -152,6 +152,11 @@ let make = () => {
         firstColRoundedHeadingClass="rounded-tl-xl"
         lastColRoundedHeadingClass="rounded-tr-xl"
         headingBgColor="bg-nd_gray-25"
+        headingFontWeight="font-semibold"
+        headingFontColor="text-nd_gray-400"
+        rowFontColor="text-nd_gray-700"
+        rowFontSize="text-md"
+        rowFontStyle="font-medium"
       />
     </PageLoaderWrapper>
   </div>

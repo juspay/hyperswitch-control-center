@@ -9,6 +9,9 @@ let make = (
   ~getRowDetails,
   ~heading,
   ~title,
+  ~rowFontSize="text-sm",
+  ~rowFontStyle="font-fira-code",
+  ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
 ) => {
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
   let headingArray = []
@@ -16,9 +19,9 @@ let make = (
   heading->Array.forEach((item: TableUtils.header) => {
     headingArray->Array.push(item.title)->ignore
   })
-  let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75"
-  let fontStyle = "font-fira-code"
-  let fontSize = "text-sm"
+  let textColor = rowFontColor
+  let fontStyle = rowFontStyle
+  let fontSize = rowFontSize
   let borderRadius = "rounded-md"
 
   <>

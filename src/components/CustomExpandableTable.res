@@ -19,6 +19,11 @@ let make = (
   ~firstColRoundedHeadingClass="rounded-tl",
   ~lastColRoundedHeadingClass="rounded-tr",
   ~headingBgColor="bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950",
+  ~headingFontWeight="font-bold",
+  ~headingFontColor="text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75",
+  ~rowFontSize="text-sm",
+  ~rowFontStyle="font-fira-code",
+  ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
 ) => {
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
@@ -103,8 +108,8 @@ let make = (
                 let borderClass = isLastCol ? "" : "border-jp-gray-500 dark:border-jp-gray-960"
                 let borderClass = borderClass
                 let bgColor = headingBgColor
-                let headerTextClass = "text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-                let fontWeight = "font-bold"
+                let headerTextClass = headingFontColor
+                let fontWeight = headingFontWeight
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"
                 <AddDataAttributes
@@ -180,6 +185,9 @@ let make = (
               getRowDetails
               heading
               title
+              rowFontSize
+              rowFontStyle
+              rowFontColor
             />
           })
           ->React.array}

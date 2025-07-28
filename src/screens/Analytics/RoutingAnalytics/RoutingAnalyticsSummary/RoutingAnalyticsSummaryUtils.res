@@ -16,7 +16,6 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
   let queryData = responseConnector->getDictFromJsonObject->getArrayFromDict("queryData", [])
   let queryDataRouting = responseRouting->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
-
   let totalPayments = queryData->Array.reduce(0, (acc, item) => {
     let dict = item->getDictFromJsonObject
     acc + dict->getInt("payment_count", 0)
@@ -44,9 +43,7 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
     routingDataLookup->Dict.set(routingApproach, routingData)
   })
 
-
   let routingGroupsDict = groupByRoutingApproach(queryData)
-
 
   routingGroupsDict
   ->Dict.toArray
@@ -61,11 +58,9 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
         ? Int.toFloat(totalPaymentsForRouting) /. Int.toFloat(totalPayments) *. 100.0
         : 0.0
 
-
     let routingData = routingDataLookup->Dict.get(routingApproach)->Option.getOr(Dict.make())
     let authorizationRate = routingData->getFloat("authRate", 0.0)
     let processedAmount = routingData->getFloat("processedAmount", 0.0)
-
 
     let connectorGroupsDict = Dict.make()
     records->Array.forEach(item => {
@@ -75,7 +70,6 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
       connectorGroupsDict->Dict.set(connectorName, [item, ...existing])
     })
 
-  
     let connectors =
       connectorGroupsDict
       ->Dict.toArray
