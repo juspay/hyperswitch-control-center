@@ -3,7 +3,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open Typography
-  open RoutingAnalyticsDistributionUtils
+  open RoutingAnalyticsUtils
 
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
