@@ -6,7 +6,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"themev2", ...remainingPath} =>
+    | list{"theme", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
         <EntityScaffold
           entityName="Themes"
