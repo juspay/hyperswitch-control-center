@@ -51,7 +51,7 @@ module ChatMessage = {
       <div className="flex justify-end">
         <div
           className="max-w-860 bg-primary text-white rounded-2xl rounded-br-none px-4 py-3 shadow-sm">
-          <p className="text-sm leading-relaxed break-words"> {message->React.string} </p>
+          <p className={`${body.md.regular} break-words`}> {message->React.string} </p>
         </div>
       </div>
       <div className="flex justify-start">
@@ -115,7 +115,8 @@ module ChatMessage = {
             </RenderIf>
             <RenderIf condition={!isTyping && response.responseTime->Option.isSome}>
               <div className="flex justify-start mt-1">
-                <div className="text-xs text-nd_gray-500 px-2 py-1 flex items-center space-x-1">
+                <div
+                  className={`${body.sm.medium} text-nd_gray-500 px-2 py-1 flex items-center space-x-1`}>
                   <Icon
                     name="clock" size=10 customIconColor="text-nd_gray-500 dark:text-nd_gray-400"
                   />
@@ -165,7 +166,7 @@ module EmptyState = {
           {"Welcome to Data Assistant"->React.string}
         </h2>
         <p
-          className="text-nd_gray-600 dark:text-nd_gray-400 text-center max-w-lg leading-relaxed text-base">
+          className={`${body.sm.medium} text-nd_gray-600 dark:text-nd_gray-400 text-center max-w-lg`}>
           {"Ask questions about your payments, refunds, and analytics. Get instant insights without writing any SQL queries."->React.string}
         </p>
       </div>
@@ -188,13 +189,13 @@ module EmptyState = {
               <div className="flex items-start space-x-3">
                 <div
                   className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-200">
-                  <span className="text-lg">
+                  <span className={`${body.lg.medium}`}>
                     {displayText->String.slice(~start=0, ~end=2)->React.string}
                   </span>
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`${body.sm.medium} text-nd_gray-700 dark:text-nd_gray-300 group-hover:text-primary transition-colors duration-200 leading-relaxed`}>
+                    className={`${body.sm.medium} text-nd_gray-700 dark:text-nd_gray-300 group-hover:text-primary transition-colors duration-200`}>
                     {displayText->String.sliceToEnd(~start=2)->React.string}
                   </p>
                 </div>
