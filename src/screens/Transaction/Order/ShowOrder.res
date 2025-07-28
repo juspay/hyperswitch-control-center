@@ -592,6 +592,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open OrderUIUtils
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -630,12 +631,17 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   }
 
   React.useEffect(() => {
-    let accountUrl = getURL(
-      ~entityName=V1(ORDERS),
-      ~methodType=Get,
-      ~id=Some(id),
-      ~queryParamerters=Some("expand_attempts=true"),
-    )
+    let accountUrl = switch version {
+    | V1 =>
+      getURL(
+        ~entityName=V1(ORDERS),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParamerters=Some("expand_attempts=true"),
+      )
+    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    }
+
     fetchOrderDetails(accountUrl)->ignore
     None
   }, [id])
