@@ -2,7 +2,7 @@ open ChatBotTypes
 open Typography
 module ChatBot = {
   @react.component
-  let make = (~loading) => {
+  let make = (~loading, ~onNewChat) => {
     let form = ReactFinalForm.useForm()
 
     <div className="">
@@ -13,7 +13,14 @@ module ChatBot = {
           ~description="",
           ~name="message",
           ~customInput=InputFields.textInput(
-            ~customStyle="!border-nd_gray-150 dark:!border-nd_gray-700 !rounded-xl !py-6 !pl-4 !pr-14 !text-nd_gray-800 dark:!text-nd_gray-100 !bg-white dark:!bg-nd_gray-800 focus:!border-primary focus:!ring-2 focus:!ring-primary/20 !shadow-sm hover:!border-nd_gray-200 dark:hover:!border-nd_gray-600 transition-all duration-200",
+            ~customStyle="!border-nd_gray-150 dark:!border-nd_gray-700 !rounded-xl !py-6 !pl-12 !pr-14 !text-nd_gray-800 dark:!text-nd_gray-100 !bg-white dark:!bg-nd_gray-800 focus:!border-primary focus:!ring-2 focus:!ring-primary/20 !shadow-sm hover:!border-nd_gray-200 dark:hover:!border-nd_gray-600 transition-all duration-200",
+            ~leftIcon={
+              <div
+                onClick={_ => onNewChat()}
+                className="border border-nd_gray-500 p-1.5 rounded-full cursor-pointer">
+                <Icon name="plus" size=16 customIconColor="text-nd_gray-900" />
+              </div>
+            },
             ~rightIcon={
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <Button
@@ -104,6 +111,28 @@ module ChatMessage = {
                     </div>
                   </div>
                 </RenderIf>
+              </div>
+            </RenderIf>
+            <RenderIf condition={!isTyping && response.responseTime->Option.isSome}>
+              <div className="flex justify-start mt-1">
+                <div className="text-xs text-nd_gray-500 px-2 py-1 flex items-center space-x-1">
+                  <Icon
+                    name="clock" size=10 customIconColor="text-nd_gray-500 dark:text-nd_gray-400"
+                  />
+                  <span>
+                    {switch response.responseTime {
+                    | Some(time) =>
+                      if time < 1.0 {
+                        `Responded in ${(time *. 1000.0)
+                          ->Float.toString
+                          ->String.slice(~start=0, ~end=3)}ms`
+                      } else {
+                        `Responded in ${time->Float.toString->String.slice(~start=0, ~end=4)}s`
+                      }
+                    | None => "Response time unavailable"
+                    }->React.string}
+                  </span>
+                </div>
               </div>
             </RenderIf>
           </div>
@@ -202,10 +231,14 @@ let make = () => {
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
 
-  React.useEffect(() => {
+  let generateNewSession = () => {
     let sessionKey = "chatbot_session_id"
     let newId = LogicUtils.randomString(~length=32)
     sessionStorage.setItem(sessionKey, newId)
+  }
+
+  React.useEffect(() => {
+    generateNewSession()
     None
   }, [])
 
@@ -240,6 +273,7 @@ let make = () => {
             response: {
               summary: "",
               markdown: "",
+              responseTime: None,
             },
           },
         ]
@@ -249,9 +283,13 @@ let make = () => {
         let dict = [("message", message->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         setLoading(_ => true)
 
+        let startTime = Date.now()
         let url = getURL(~entityName=V1(CHAT_BOT), ~methodType=Post)
         let res = await updateDetails(url, dict, Post)
         let response = res->LogicUtils.getDictFromJsonObject
+
+        let endTime = Date.now()
+        let responseTime = (endTime -. startTime) /. 1000.0 // Convert to seconds
 
         switch JSON.Classify.classify(response->LogicUtils.getJsonObjectFromDict("response")) {
         | Object(dict) =>
@@ -265,6 +303,7 @@ let make = () => {
                 response: {
                   summary,
                   markdown,
+                  responseTime: Some(responseTime),
                 },
               },
             ]
@@ -278,6 +317,7 @@ let make = () => {
                 response: {
                   summary: "",
                   markdown: str,
+                  responseTime: Some(responseTime),
                 },
               },
             ]
@@ -291,6 +331,7 @@ let make = () => {
                 response: {
                   summary: "",
                   markdown: "Error: Invalid response format",
+                  responseTime: Some(responseTime),
                 },
               },
             ]
@@ -318,6 +359,11 @@ let make = () => {
 
   let onQuestionClick = (question: string) => {
     submitMessage(question)->ignore
+  }
+
+  let onNewChat = () => {
+    setChat(_ => [])
+    generateNewSession()
   }
 
   <div className="relative flex flex-col h-85-vh justify-between">
@@ -360,7 +406,7 @@ let make = () => {
       onSubmit={(values, f) => onSubmit(values, f)}
       formClass="w-full">
       <div className="fixed bottom-4 w-77-rem">
-        <ChatBot loading />
+        <ChatBot loading onNewChat />
       </div>
       // <FormValuesSpy />
     </Form>
