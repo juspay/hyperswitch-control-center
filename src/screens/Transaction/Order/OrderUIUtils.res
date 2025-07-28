@@ -181,7 +181,18 @@ module NoData = {
   }
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
+let startTimeFilterKey = (version: UserInfoTypes.version) => {
+  switch version {
+  | V1 => "start_time"
+  | V2 => "created.gte"
+  }
+}
+
+let endTimeFilterKey = (version: UserInfoTypes.version) =>
+  switch version {
+  | V1 => "end_time"
+  | V2 => "created.lte"
+  }
 
 let filterByData = (txnArr, value) => {
   open LogicUtils
@@ -210,6 +221,14 @@ let getLabelFromFilterType = (filter: filter) => (filter :> string)
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
   | #connector_label => "merchant_connector_id"
+  | _ => (filter :> string)
+  }
+}
+
+let getValueFromFilterTypeV2 = (filter: filter) => {
+  switch filter {
+  | #payment_method => "payment_method_type"
+  | #payment_method_type => "payment_method_subtype"
   | _ => (filter :> string)
   }
 }
@@ -302,7 +321,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys) => {
+let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys, version) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject
@@ -389,7 +408,12 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
-        ~name=getValueFromFilterType(key->getFilterTypeFromString),
+        ~name={
+          switch (version: UserInfoTypes.version) {
+          | V1 => getValueFromFilterType(key->getFilterTypeFromString)
+          | V2 => getValueFromFilterTypeV2(key->getFilterTypeFromString)
+          }
+        },
         ~customInput,
       ),
       localFilter: Some(filterByData),
@@ -397,15 +421,15 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   })
 }
 
-let initialFixedFilter = () => [
+let initialFixedFilter = (version: UserInfoTypes.version) => [
   (
     {
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
         ~comboCustomInput=InputFields.filterDateRangeField(
-          ~startKey=startTimeFilterKey,
-          ~endKey=endTimeFilterKey,
+          ~startKey=startTimeFilterKey(version),
+          ~endKey=endTimeFilterKey(version),
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
           ~showTime=true,
           ~disablePastDates={false},
