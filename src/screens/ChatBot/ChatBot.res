@@ -258,7 +258,7 @@ let make = () => {
   }, [chat])
 
   let submitMessage = async (message: string) => {
-    if message->String.trim->String.length === 0 {
+    if message->String.trim->LogicUtils.isEmptyString {
       ()
     } else {
       setChat(_ =>
@@ -344,7 +344,7 @@ let make = () => {
   let onSubmit = async (values, form: ReactFinalForm.formApi) => {
     let message = values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", "")
 
-    if message->String.trim->String.length === 0 {
+    if message->String.trim->LogicUtils.isEmptyString {
       Nullable.null
     } else {
       form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
