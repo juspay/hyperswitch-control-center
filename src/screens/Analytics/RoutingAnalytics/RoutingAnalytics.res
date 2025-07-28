@@ -20,7 +20,7 @@ let make = () => {
     None
   }, [])
 
-  <>
+  <div className="flex flex-col gap-4">
     <div className="flex justify-between mb-6">
       <PageUtils.PageHeading title="Routing Analytics" />
       <div className="flex items-center gap-2">
@@ -50,5 +50,6 @@ let make = () => {
       </div>
     </div>
     <RoutingAnalyticsDistribution />
-  </>
+    <RoutingAnalyticsSummary />
+  </div>
 }

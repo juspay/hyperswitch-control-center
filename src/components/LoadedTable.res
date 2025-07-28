@@ -233,6 +233,8 @@ let make = (
   ~remoteSortEnabled=false,
   ~showAutoScroll=false,
   ~highlightSelectedRow=false,
+  ~showHeading=true,
+  ~customPaddingClass="px-8",
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -835,6 +837,8 @@ let make = (
                 showAutoScroll
                 showPagination
                 highlightSelectedRow
+                showHeading
+                customPaddingClass
               />
             switch tableLocalFilter {
             | true =>

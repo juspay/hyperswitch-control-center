@@ -2,16 +2,13 @@ type sortTyp = ASC | DSC
 type sortOb = {sortKey: string, sortType: sortTyp}
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: array<JSON.t>,
-  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
+  selectedData: array<RescriptCore.JSON.t>,
+  setSelectedData: (array<RescriptCore.JSON.t> => array<RescriptCore.JSON.t>) => unit,
 }
 let checkBoxPropDefaultVal: checkBoxProps
 let sortAtom: Recoil.recoilAtom<RescriptCore.Dict.t<sortOb>>
 let backgroundClass: string
-let useSortedObj: (
-  string,
-  option<Table.sortedObject>,
-) => (
+let useSortedObj: (string, option<Table.sortedObject>) => (
   option<Table.sortedObject>,
   (option<Table.sortedObject> => option<Table.sortedObject>) => unit,
 )
@@ -33,7 +30,7 @@ let make: (
   ~clearFormattedDataButton: React.element=?,
   ~bottomActions: React.element=?,
   ~showSerialNumber: bool=?,
-  ~actualData: array<Nullable.t<'b>>,
+  ~actualData: array<RescriptCore.Nullable.t<'b>>,
   ~totalResults: int,
   ~resultsPerPage: int,
   ~offset: int,
@@ -58,7 +55,7 @@ let make: (
   ~tableDataLoading: bool=?,
   ~dataLoading: bool=?,
   ~advancedSearchComponent: React.element=?,
-  ~setData: ('e => option<array<Nullable.t<'b>>>) => unit=?,
+  ~setData: ('e => option<array<RescriptCore.Nullable.t<'b>>>) => unit=?,
   ~setSummary: ('f => EntityType.summary) => unit=?,
   ~dataNotFoundComponent: React.element=?,
   ~renderCard: (~index: int, ~item: 'b, ~onRowClick: int => unit) => React.element=?,
@@ -67,7 +64,7 @@ let make: (
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: Nullable.t<'b> => React.element=?,
+  ~getRowDetails: RescriptCore.Nullable.t<'b> => React.element=?,
   ~onMouseEnter: 'b => unit=?,
   ~onMouseLeave: 'b => unit=?,
   ~frozenUpto: int=?,
@@ -88,7 +85,7 @@ let make: (
   ~filterDropdownClass: string=?,
   ~maxTableHeight: string=?,
   ~showTableOnMobileView: bool=?,
-  ~labelMargin: string=?,
+  ~labelMargin: TableUtils.labelMargin=?,
   ~customFilterRowStyle: string=?,
   ~noDataMsg: string=?,
   ~tableActionBorder: string=?,
@@ -104,7 +101,7 @@ let make: (
   ~headerCustomBgColor: string=?,
   ~alignCellContent: string=?,
   ~minTableHeightClass: string=?,
-  ~setExtFilteredDataLength: ('h => int) => unit=?,
+  ~setExtFilteredDataLength: ('g => int) => unit=?,
   ~filterDropdownMaxHeight: string=?,
   ~showResultsPerPageSelector: bool=?,
   ~customCellColor: string=?,
@@ -119,4 +116,6 @@ let make: (
   ~remoteSortEnabled: bool=?,
   ~showAutoScroll: bool=?,
   ~highlightSelectedRow: bool=?,
+  ~showHeading: bool=?,
+  ~customPaddingClass: string=?,
 ) => React.element

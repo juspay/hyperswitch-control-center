@@ -85,6 +85,7 @@ module TableRow = {
     ~highlightSelectedRow=false,
     ~selectedIndex,
     ~setSelectedIndex,
+    ~customPaddingClass="px-8",
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
@@ -201,7 +202,7 @@ module TableRow = {
           } else {
             `align-center ${borderClass} ${highlightClass} ${tableDataBorderClass} ${cursorI} ${rowHeightClass}`
           }
-          let paddingClass = `px-8 ${paddingClass}`
+          let paddingClass = `${customPaddingClass} ${paddingClass}`
           let tableRowPaddingClass = if isHighchartLegend {
             `box-border py-1 ${lastColProp} ${alignCellContent}`
           } else {
@@ -670,6 +671,7 @@ let make = (
   ~showVerticalScroll=false,
   ~showPagination=true,
   ~highlightSelectedRow=false,
+  ~customPaddingClass="px-8",
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -754,6 +756,7 @@ let make = (
         selectedIndex
         setSelectedIndex
         highlightSelectedRow
+        customPaddingClass
       />
     })
     ->React.array

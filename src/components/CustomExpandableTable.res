@@ -14,6 +14,11 @@ let make = (
   ~expandedRowIndexArray,
   ~getRowDetails,
   ~showSerial=false,
+  ~tableClass="",
+  ~borderClass="border border-jp-gray-500 dark:border-jp-gray-960 rounded",
+  ~firstColRoundedHeadingClass="rounded-tl",
+  ~lastColRoundedHeadingClass="rounded-tr",
+  ~headingBgColor="bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950",
 ) => {
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
@@ -75,9 +80,6 @@ let make = (
     }
   }
 
-  let tableClass = ""
-  let borderClass = "border border-jp-gray-500 dark:border-jp-gray-960 rounded"
-
   <div
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
     style={minHeight: {filterPresent ? "30rem" : ""}}>
@@ -91,16 +93,16 @@ let make = (
                 let isFirstCol = i === 0
                 let isLastCol = i === headingsLen - 1
                 let oldThemeRoundedClass = if isFirstCol {
-                  "rounded-tl"
+                  firstColRoundedHeadingClass
                 } else if isLastCol {
-                  "rounded-tr"
+                  lastColRoundedHeadingClass
                 } else {
                   ""
                 }
                 let roundedClass = oldThemeRoundedClass
                 let borderClass = isLastCol ? "" : "border-jp-gray-500 dark:border-jp-gray-960"
                 let borderClass = borderClass
-                let bgColor = "bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950"
+                let bgColor = headingBgColor
                 let headerTextClass = "text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
                 let fontWeight = "font-bold"
                 let fontSize = "text-sm"
