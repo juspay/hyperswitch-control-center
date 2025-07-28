@@ -51,11 +51,11 @@ let make = () => {
         responseRouting->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseData->Array.length > 0 || responseRoutingData->Array.length > 0 {
-        let hi = RoutingAnalyticsSummaryUtils.processRoutingAnalyticsSummaryResponse(
+        let typedData = RoutingAnalyticsSummaryUtils.processRoutingAnalyticsSummaryResponse(
           ~dataConnector=response,
           ~dataRouting=responseRouting,
         )
-        setData(_ => hi)
+        setData(_ => typedData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
