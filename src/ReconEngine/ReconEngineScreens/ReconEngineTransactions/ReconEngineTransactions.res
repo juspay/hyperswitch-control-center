@@ -4,6 +4,8 @@ open Typography
 let make = () => {
   open ReconEngineTransactionsUtils
   open LogicUtils
+  open ReconEngineUtils
+  open ReconEngineTransactionsTypes
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -22,11 +24,18 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
+  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
+    (
+      getEntryTypeAccountOptions(configuredTransactions, ~entryType="credit"),
+      getEntryTypeAccountOptions(configuredTransactions, ~entryType="debit"),
+    )
+  }, [configuredTransactions])
+
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineTransactionsFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -47,7 +56,7 @@ let make = () => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineTransactionsTypes.transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
@@ -64,10 +73,21 @@ let make = () => {
   let fetchTransactionsData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      if statusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set(
+          "transaction_status",
+          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+        )
+      }
+      let queryString = ReconEngineUtils.buildQueryStringFromFilters(
+        ~filterValueJson=enhancedFilterValueJson,
+      )
       let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-      setConfiguredTransactions(_ => transactionsList->Array.map(Nullable.make))
-      setFilteredReports(_ => transactionsList->Array.map(Nullable.make))
+      let transactionListData = transactionsList
+      setConfiguredTransactions(_ => transactionListData)
+      setFilteredReports(_ => transactionListData->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -78,6 +98,7 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_transactions",
     (),
   )
@@ -127,7 +148,7 @@ let make = () => {
         )}
         resultsPerPage=10
         filters={<TableSearchFilter
-          data={configuredTransactions}
+          data={configuredTransactions->Array.map(Nullable.make)}
           filterLogic
           placeholder="Search Transaction Id or Status"
           searchVal=searchText

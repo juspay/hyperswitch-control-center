@@ -271,7 +271,7 @@ let getElementText = elementId => {
 // Working with undefined
 @val external undefined: 'a = "undefined"
 
-type jsValue<'a> = 
+type jsValue<'a> =
   | @as(undefined) Undefined
   | Value('a)
 
@@ -435,7 +435,7 @@ let logError = error => {
   let message = error->errorMessage
   let name = error->errorName
   let stack = error->errorStack->Belt.Option.getOr("No stack trace")
-  
+
   Js.log(`Error: ${name} - ${message}`)
   Js.log(`Stack: ${stack}`)
 }
@@ -456,14 +456,14 @@ let apiCall = async (~method="GET", ~url, ~body=?, ~headers=[], ()) => {
         ...Object.fromEntries(headers)
       }
     }`)
-    
+
     switch body {
     | Some(b) => fetchOptions->setProperty("body", stringify(b))
     | None => ()
     }
-    
+
     let response = await fetch(url, fetchOptions)
-    
+
     if response->getOk {
       let data = await response->json
       Ok(data)
@@ -496,7 +496,7 @@ module LocalStorage = {
     | _ => Error("Failed to serialize value")
     }
   }
-  
+
   let getItem = key => {
     try {
       switch getItem(key)->Js.Nullable.toOption {
@@ -507,7 +507,7 @@ module LocalStorage = {
     | _ => None
     }
   }
-  
+
   let removeItem = removeItem
   let clear = clear
 }
@@ -575,7 +575,7 @@ let createLineChart = (canvasElement, data) => {
       }
     }`)),
   }
-  
+
   createChart(canvasElement, config)
 }
 ```

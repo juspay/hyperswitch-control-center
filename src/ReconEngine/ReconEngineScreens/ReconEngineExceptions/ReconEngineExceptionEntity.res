@@ -1,4 +1,5 @@
 open ReconEngineExceptionTypes
+open ReconEngineUtils
 
 type processedColType =
   | EntryId
@@ -37,7 +38,7 @@ let getProcessedCell = (data: processedEntryType, colType): Table.cell => {
   | Currency => Text(data.currency)
   | Status =>
     Label({
-      title: data.status->String.toUpperCase,
+      title: data.status->getDisplayStatusName,
       color: switch data.status->String.toLowerCase {
       | "posted" => LabelGreen
       | "pending" => LabelBlue
@@ -61,6 +62,7 @@ let processedTableEntity = EntityType.makeEntity(
 )
 
 let processingDefaultColumns = [StagingEntryId, EntryType, Amount, Currency, Status, EffectiveAt]
+let fileManagementStagingDefaultColumns = [StagingEntryId, EntryType, Amount, Currency, EffectiveAt]
 
 let getProcessingHeading = colType => {
   switch colType {
@@ -101,6 +103,15 @@ let processingTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=_ => [],
   ~defaultColumns=processingDefaultColumns,
+  ~getHeading=getProcessingHeading,
+  ~getCell=getProcessingCell,
+  ~dataKey="",
+)
+
+let fileManagementStagingEntity = EntityType.makeEntity(
+  ~uri="",
+  ~getObjects=_ => [],
+  ~defaultColumns=fileManagementStagingDefaultColumns,
   ~getHeading=getProcessingHeading,
   ~getCell=getProcessingCell,
   ~dataKey="",

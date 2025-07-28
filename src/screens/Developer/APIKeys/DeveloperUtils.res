@@ -273,7 +273,9 @@ module SuccessUI = {
           </div>
           <HSwitchUtils.AlertBanner
             bannerType=Info
-            bannerText="Please note down the API key for your future use as you won't be able to view it later."
+            bannerContent={<p>
+              {"Please note down the API key for your future use as you won't be able to view it later."->React.string}
+            </p>}
           />
         </div>
       </div>
@@ -291,3 +293,19 @@ module SuccessUI = {
     </div>
   }
 }
+
+let elevatedWithAccess = "Your API keys have elevated privileges. You can use them to create new merchants and generate API keys for any merchant within this organization."
+
+let elevatedWithoutAccess = "The API keys shown here have elevated privileges. They can be used to create merchants and generate API keys for any merchant within this organization. Contact your administrator if you require access."
+
+let regularWithAccess = "The API keys shown here include keys you've created yourself, along with keys generated for you by the Platform Merchant account."
+
+let regularWithoutAccess = "The API keys displayed here include keys generated for your account by the Platform Merchant."
+
+let bannerText = (~isPlatformMerchant, ~hasCreateApiKeyAccess: CommonAuthTypes.authorization) =>
+  switch (isPlatformMerchant, hasCreateApiKeyAccess) {
+  | (true, Access) => elevatedWithAccess
+  | (true, NoAccess) => elevatedWithoutAccess
+  | (false, Access) => regularWithAccess
+  | (false, NoAccess) => regularWithoutAccess
+  }

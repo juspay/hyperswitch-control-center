@@ -1,7 +1,8 @@
 open ChatBotTypes
+open Typography
 module ChatBot = {
   @react.component
-  let make = (~loading) => {
+  let make = (~loading, ~onNewChat) => {
     let form = ReactFinalForm.useForm()
 
     <div className="">
@@ -12,7 +13,14 @@ module ChatBot = {
           ~description="",
           ~name="message",
           ~customInput=InputFields.textInput(
-            ~customStyle="!border-nd_gray-150 dark:!border-nd_gray-700 !rounded-xl !py-6 !pl-4 !pr-14 !text-nd_gray-800 dark:!text-nd_gray-100 !bg-white dark:!bg-nd_gray-800 focus:!border-primary focus:!ring-2 focus:!ring-primary/20 !shadow-sm hover:!border-nd_gray-200 dark:hover:!border-nd_gray-600 transition-all duration-200",
+            ~customStyle="!border-nd_gray-150 dark:!border-nd_gray-700 !rounded-xl !py-6 !pl-12 !pr-14 !text-nd_gray-800 dark:!text-nd_gray-100 !bg-white dark:!bg-nd_gray-800 focus:!border-primary focus:!ring-2 focus:!ring-primary/20 !shadow-sm hover:!border-nd_gray-200 dark:hover:!border-nd_gray-600 transition-all duration-200",
+            ~leftIcon={
+              <div
+                onClick={_ => onNewChat()}
+                className="border border-nd_gray-500 p-1.5 rounded-full cursor-pointer">
+                <Icon name="plus" size=16 customIconColor="text-nd_gray-900" />
+              </div>
+            },
             ~rightIcon={
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <Button
@@ -36,13 +44,14 @@ module ChatBot = {
 module ChatMessage = {
   @react.component
   let make = (~message: string, ~response: response, ~isLatest: bool, ~loading: bool) => {
-    let isTyping = isLatest && loading && response.markdown->LogicUtils.isEmptyString
+    open LogicUtils
+    let isTyping = isLatest && loading && response.markdown->isEmptyString
 
     <div className="space-y-6">
       <div className="flex justify-end">
         <div
           className="max-w-860 bg-primary text-white rounded-2xl rounded-br-none px-4 py-3 shadow-sm">
-          <p className="text-sm leading-relaxed break-words"> {message->React.string} </p>
+          <p className={`${body.md.regular} break-words`}> {message->React.string} </p>
         </div>
       </div>
       <div className="flex justify-start">
@@ -51,31 +60,31 @@ module ChatMessage = {
             className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
             <Icon name="robot" size=16 customIconColor="text-white" />
           </div>
-          <div className="flex-1 space-y-2">
-            <RenderIf condition={response.summary->LogicUtils.isNonEmptyString}>
+          <div className="flex-1 space-y-2 min-w-0">
+            <RenderIf condition={response.summary->isNonEmptyString}>
               <div
                 className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-2xl rounded-tl-none px-4 py-3 border border-nd_gray-150 dark:border-nd_gray-700">
-                <p className="text-sm text-nd_gray-700 dark:text-nd_gray-300 leading-relaxed">
+                <p className={`text-nd_gray-700 dark:text-nd_gray-300 ${body.md.regular}`}>
                   {response.summary->React.string}
                 </p>
               </div>
             </RenderIf>
             <RenderIf
               condition={!isTyping &&
-              response.summary->LogicUtils.isEmptyString &&
-              response.markdown->LogicUtils.isEmptyString}>
+              response.summary->isEmptyString &&
+              response.markdown->isEmptyString}>
               <div
                 className="bg-nd_gray-50 dark:bg-nd_gray-800 rounded-2xl rounded-tl-none px-4 py-3 border border-nd_gray-150 dark:border-nd_gray-700">
-                <div className="text-sm text-nd_gray-700 dark:text-nd_gray-300 leading-relaxed">
+                <div className={`text-nd_gray-700 dark:text-nd_gray-300 ${body.md.regular}`}>
                   <p className="mb-2">
                     {"I\'m having trouble understanding which data you need."->React.string}
                   </p>
                 </div>
               </div>
             </RenderIf>
-            <RenderIf condition={isTyping || response.markdown->LogicUtils.isNonEmptyString}>
+            <RenderIf condition={isTyping || response.markdown->isNonEmptyString}>
               <div
-                className="bg-white dark:bg-nd_gray-800 rounded-2xl rounded-tl-none border border-nd_gray-150 dark:border-nd_gray-700 shadow-sm">
+                className="bg-white dark:bg-nd_gray-800 rounded-2xl rounded-tl-none border border-nd_gray-150 dark:border-nd_gray-700 shadow-sm min-w-0">
                 <RenderIf condition={isTyping}>
                   <div className="px-4 py-6 flex items-center space-x-2">
                     <div className="flex space-x-1">
@@ -95,10 +104,31 @@ module ChatMessage = {
                   </div>
                 </RenderIf>
                 <RenderIf condition={!isTyping}>
-                  <div className="max-w-none p-4 h-full">
-                    <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
+                  <div
+                    className="px-7 py-4 max-h-96 overflow-auto overscroll-contain min-w-0 w-full">
+                    <div className="min-w-max">
+                      <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
+                    </div>
                   </div>
                 </RenderIf>
+              </div>
+            </RenderIf>
+            <RenderIf condition={!isTyping && response.responseTime->Option.isSome}>
+              <div className="flex justify-start mt-1">
+                <div
+                  className={`${body.sm.medium} text-nd_gray-500 px-2 py-1 flex items-center space-x-1`}>
+                  <Icon
+                    name="clock" size=10 customIconColor="text-nd_gray-500 dark:text-nd_gray-400"
+                  />
+                  <span>
+                    {switch response.responseTime {
+                    | Some(time) =>
+                      let t = latencyShortNum(~labelValue=time, ~includeMilliseconds=true)
+                      `Responded in ${t->String.slice(~start=0, ~end=3)} s`
+                    | None => "Response time unavailable"
+                    }->React.string}
+                  </span>
+                </div>
               </div>
             </RenderIf>
           </div>
@@ -131,23 +161,21 @@ module EmptyState = {
     ]
 
     <div className="flex flex-col items-center justify-center h-full px-6 py-8">
-      // Header Section
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-nd_gray-800 dark:text-nd_gray-100 mb-3">
+        <h2 className={`${heading.xl.bold} text-nd_gray-800 dark:text-nd_gray-100 mb-3`}>
           {"Welcome to Data Assistant"->React.string}
         </h2>
         <p
-          className="text-nd_gray-600 dark:text-nd_gray-400 text-center max-w-lg leading-relaxed text-base">
+          className={`${body.sm.medium} text-nd_gray-600 dark:text-nd_gray-400 text-center max-w-lg`}>
           {"Ask questions about your payments, refunds, and analytics. Get instant insights without writing any SQL queries."->React.string}
         </p>
       </div>
-      // Example Questions Section
       <div className="w-full max-w-2xl">
         <div className="text-center mb-6">
-          <h3 className="text-lg font-semibold text-nd_gray-800 dark:text-nd_gray-100 mb-2">
+          <p className={`${body.lg.bold} text-nd_gray-800 dark:text-nd_gray-100 mb-2`}>
             {"Try these examples"->React.string}
-          </h3>
-          <p className="text-sm text-nd_gray-500 dark:text-nd_gray-400">
+          </p>
+          <p className={`${body.sm.medium} text-nd_gray-500 dark:text-nd_gray-400`}>
             {"Click on any question below to get started"->React.string}
           </p>
         </div>
@@ -161,13 +189,13 @@ module EmptyState = {
               <div className="flex items-start space-x-3">
                 <div
                   className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-200">
-                  <span className="text-lg">
+                  <span className={`${body.lg.medium}`}>
                     {displayText->String.slice(~start=0, ~end=2)->React.string}
                   </span>
                 </div>
                 <div className="flex-1">
                   <p
-                    className="text-sm font-medium text-nd_gray-700 dark:text-nd_gray-300 group-hover:text-primary transition-colors duration-200 leading-relaxed">
+                    className={`${body.sm.medium} text-nd_gray-700 dark:text-nd_gray-300 group-hover:text-primary transition-colors duration-200`}>
                     {displayText->String.sliceToEnd(~start=2)->React.string}
                   </p>
                 </div>
@@ -177,9 +205,8 @@ module EmptyState = {
           ->React.array}
         </div>
       </div>
-      // Footer Section
       <div className="mt-8 text-center">
-        <p className="text-xs text-nd_gray-500 dark:text-nd_gray-400">
+        <p className={`${body.sm.medium} text-nd_gray-500 dark:text-nd_gray-400`}>
           {"Or type your own question in the input field below"->React.string}
         </p>
       </div>
@@ -190,17 +217,24 @@ module EmptyState = {
 @react.component
 let make = () => {
   open APIUtils
+  open SessionStorage
+  open LogicUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
 
-  // Generate and store new session UUID on every page load/refresh
-  let _ = React.useMemo(() => {
+  let generateNewSession = () => {
     let sessionKey = "chatbot_session_id"
-    let newId = LogicUtils.randomString(~length=32)
-    SessionStorage.sessionStorage.setItem(sessionKey, newId)
+    let newId = randomString(~length=32)
+    sessionStorage.setItem(sessionKey, newId)
+  }
+
+  React.useEffect(() => {
+    generateNewSession()
+    None
   }, [])
 
   let scrollToBottom = () => {
@@ -215,7 +249,6 @@ let make = () => {
 
   React.useEffect(() => {
     if chat->Array.length > 0 {
-      // Small delay to ensure DOM is updated
       let timeoutId = setTimeout(() => scrollToBottom(), 100)
       Some(() => clearTimeout(timeoutId))
     } else {
@@ -224,7 +257,7 @@ let make = () => {
   }, [chat])
 
   let submitMessage = async (message: string) => {
-    if message->String.trim->String.length === 0 {
+    if message->String.trim->isEmptyString {
       ()
     } else {
       setChat(_ =>
@@ -235,23 +268,28 @@ let make = () => {
             response: {
               summary: "",
               markdown: "",
+              responseTime: None,
             },
           },
         ]
       )
 
       try {
-        let dict = [("message", message->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        let dict = [("message", message->JSON.Encode.string)]->getJsonFromArrayOfJson
         setLoading(_ => true)
 
+        let startTime = Date.now()
         let url = getURL(~entityName=V1(CHAT_BOT), ~methodType=Post)
         let res = await updateDetails(url, dict, Post)
-        let response = res->LogicUtils.getDictFromJsonObject
+        let response = res->getDictFromJsonObject
 
-        switch JSON.Classify.classify(response->LogicUtils.getJsonObjectFromDict("response")) {
+        let endTime = Date.now()
+        let responseTime = Math.abs(endTime -. startTime) /. 1000.0 // Convert to seconds
+
+        switch JSON.Classify.classify(response->getJsonObjectFromDict("response")) {
         | Object(dict) =>
-          let summary = dict->LogicUtils.getString("summary", "")
-          let markdown = dict->LogicUtils.getString("markdown", "")
+          let summary = dict->getString("summary", "")
+          let markdown = dict->getString("markdown", "")
           setChat(_ =>
             [
               ...chat,
@@ -260,6 +298,7 @@ let make = () => {
                 response: {
                   summary,
                   markdown,
+                  responseTime: Some(responseTime),
                 },
               },
             ]
@@ -273,6 +312,7 @@ let make = () => {
                 response: {
                   summary: "",
                   markdown: str,
+                  responseTime: Some(responseTime),
                 },
               },
             ]
@@ -286,6 +326,7 @@ let make = () => {
                 response: {
                   summary: "",
                   markdown: "Error: Invalid response format",
+                  responseTime: Some(responseTime),
                 },
               },
             ]
@@ -300,12 +341,12 @@ let make = () => {
   }
 
   let onSubmit = async (values, form: ReactFinalForm.formApi) => {
-    let message = values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", "")
+    let message = values->getDictFromJsonObject->getString("message", "")
 
-    if message->String.trim->String.length === 0 {
+    if message->String.trim->isEmptyString {
       Nullable.null
     } else {
-      form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
+      form.reset(getJsonFromArrayOfJson([])->Nullable.make)
       await submitMessage(message)
       Nullable.null
     }
@@ -313,6 +354,11 @@ let make = () => {
 
   let onQuestionClick = (question: string) => {
     submitMessage(question)->ignore
+  }
+
+  let onNewChat = () => {
+    setChat(_ => [])
+    generateNewSession()
   }
 
   <div className="relative flex flex-col h-85-vh justify-between">
@@ -323,7 +369,7 @@ let make = () => {
           <Icon name="robot" size=20 customIconColor="text-white" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-nd_gray-800 dark:text-nd_gray-100">
+          <h1 className={`${heading.md.bold} text-nd_gray-800 dark:text-nd_gray-100`}>
             {"Data Assistant"->React.string}
           </h1>
         </div>
@@ -355,9 +401,8 @@ let make = () => {
       onSubmit={(values, f) => onSubmit(values, f)}
       formClass="w-full">
       <div className="fixed bottom-4 w-77-rem">
-        <ChatBot loading />
+        <ChatBot loading onNewChat />
       </div>
-      // <FormValuesSpy />
     </Form>
   </div>
 }

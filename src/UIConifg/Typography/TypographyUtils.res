@@ -40,6 +40,7 @@ let createFontStyle = (variant, size, weight) => {
   | Medium => "font-medium"
   | Regular => "font-normal"
   | Light => "font-light"
+  | Bold => "font-bold"
   }
 
   let fontFamily = switch variant {
@@ -56,6 +57,7 @@ let createWeightStyles = (variant, size) => {
     medium: createFontStyle(variant, size, Medium),
     regular: createFontStyle(variant, size, Regular),
     light: createFontStyle(variant, size, Light),
+    bold: createFontStyle(variant, size, Bold),
   }
 }
 
