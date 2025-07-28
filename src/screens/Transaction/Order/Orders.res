@@ -1,14 +1,15 @@
 @react.component
-let make = (~previewOnly=false, ~version=UserInfoTypes.V1) => {
+let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity, merchantId, orgId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    userInfo: {transactionEntity, merchantId, orgId, version},
+    checkUserEntity,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -212,7 +213,7 @@ let make = (~previewOnly=false, ~version=UserInfoTypes.V1) => {
         <LoadedTableWithCustomColumns
           title="Orders"
           actualData=orderData
-          entity={OrderEntity.orderEntity(merchantId, orgId)}
+          entity={OrderEntity.orderEntity(merchantId, orgId, ~version)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
