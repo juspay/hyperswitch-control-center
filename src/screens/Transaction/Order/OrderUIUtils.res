@@ -473,7 +473,6 @@ let setData = (
   }
 
   if total > 0 {
-
     let orderData =
       arr
       ->Array.concat(data)

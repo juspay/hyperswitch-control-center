@@ -115,9 +115,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =
-        [orderData]->JSON.Encode.array->LogicUtils.getArrayDataFromJson(
-          PaymentInterfaceUtils.mapDictToPaymentPayload,
-        )
+        [orderData]
+        ->JSON.Encode.array
+        ->LogicUtils.getArrayDataFromJson(PaymentInterfaceUtils.mapDictToPaymentPayload)
       setOrdersData(_ => paymentArray->Array.map(Nullable.make))
       setRefundData(_ => refundData)
       setScreenStateForRefund(_ => Success)
