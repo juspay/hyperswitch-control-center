@@ -24,6 +24,7 @@ let make = (
   ~rowFontSize="text-sm",
   ~rowFontStyle="font-fira-code",
   ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
+  ~isLastRowRounded=false,
 ) => {
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
@@ -60,7 +61,7 @@ let make = (
   } else {
     ""
   }
-
+  let totalRows = rowInfo->Array.length
   let handleUpdateFilterObj = (ev, i) => {
     switch setFilterObj {
     | Some(fn) =>
@@ -188,6 +189,8 @@ let make = (
               rowFontSize
               rowFontStyle
               rowFontColor
+              totalRows
+              isLastRowRounded
             />
           })
           ->React.array}

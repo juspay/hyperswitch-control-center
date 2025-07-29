@@ -122,6 +122,8 @@ let make = () => {
         showHeading=false
         hideTitle=true
         enableEqualWidthCol=true
+        customBorderClass="!border-t-0"
+        rowCustomClass="!bg-nd_gray-25 !text-nd_gray-700"
       />
 
     | _ => React.null
@@ -157,6 +159,7 @@ let make = () => {
         rowFontColor="text-nd_gray-700"
         rowFontSize="text-md"
         rowFontStyle="font-medium"
+        isLastRowRounded=true
       />
     </PageLoaderWrapper>
   </div>
