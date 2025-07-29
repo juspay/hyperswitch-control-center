@@ -19,7 +19,7 @@ module TopFilterUI = {
     | None => ([], [], "1")
     }
 
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="RoutingAnalytics"
         initialFilters
