@@ -22,15 +22,12 @@ let make = (
   heading->Array.forEach((item: TableUtils.header) => {
     headingArray->Array.push(item.title)->ignore
   })
-  let textColor = rowFontColor
-  let fontStyle = rowFontStyle
-  let fontSize = rowFontSize
   let borderRadius = "rounded-md"
 
   <>
     <DesktopView>
       <tr
-        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
+        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${rowFontColor} ${rowFontStyle} transition duration-300 ease-in-out ${rowFontSize}}`}>
         {item
         ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {

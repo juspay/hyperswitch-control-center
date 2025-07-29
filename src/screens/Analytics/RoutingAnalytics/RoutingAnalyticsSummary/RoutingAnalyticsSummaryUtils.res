@@ -2,12 +2,12 @@ open RoutingAnalyticsSummaryTypes
 open LogicUtils
 
 let groupByRoutingApproach = (queryData: array<JSON.t>) => {
-  let routingGroupsDict = Dict.make()
-  queryData->Array.forEach(item => {
-    let dict = item->getDictFromJsonObject
-    let routingApproach = dict->getString("routing_approach", "Unknown")
-    let existing = routingGroupsDict->Dict.get(routingApproach)->Option.getOr([])
-    routingGroupsDict->Dict.set(routingApproach, [item, ...existing])
+  let routingGroupsDict = queryData->Array.reduce(Dict.make(), (acc, item: JSON.t) => {
+    let routingApproach = item->getDictFromJsonObject->getString("routing_approach", "Unknown")
+    let existing = acc->getArrayFromDict(routingApproach, [])
+    let concatedArray = Array.concat(existing, [item])
+    acc->Dict.set(routingApproach, concatedArray->JSON.Encode.array)
+    acc
   })
   routingGroupsDict
 }
@@ -17,38 +17,41 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
   let queryDataRouting = responseRouting->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
   let totalPayments = queryData->Array.reduce(0, (acc, item) => {
-    let dict = item->getDictFromJsonObject
-    acc + dict->getInt("payment_count", 0)
+    acc + item->getDictFromJsonObject->getInt("payment_count", 0)
   })
 
   let routingGroupsRoutingApproachDict = groupByRoutingApproach(queryDataRouting)
 
-  let routingDataLookup = Dict.make()
+  let routingDataLookup =
+    routingGroupsRoutingApproachDict
+    ->Dict.toArray
+    ->Array.reduce(Dict.make(), (acc, (routingApproach, records)) => {
+      let recordsJson = records->getArrayFromJson([])
+      let authrate = recordsJson->Array.reduce(0.0, (acc, record) => {
+        let dict = record->getDictFromJsonObject
+        acc +. dict->getFloat("payment_success_rate", 0.0)
+      })
+      let processedAmount = recordsJson->Array.reduce(0.0, (acc, record) => {
+        let dict = record->getDictFromJsonObject
+        acc +. dict->getFloat("payment_processed_amount", 0.0)
+      })
+      let routingData =
+        [
+          ("authRate", authrate->JSON.Encode.float),
+          ("processedAmount", processedAmount->JSON.Encode.float),
+        ]->getJsonFromArrayOfJson
 
-  routingGroupsRoutingApproachDict
-  ->Dict.toArray
-  ->Array.forEach(((routingApproach, records)) => {
-    let authrate = records->Array.reduce(0.0, (acc, record) => {
-      let dict = record->getDictFromJsonObject
-      acc +. dict->getFloat("payment_success_rate", 0.0)
+      acc->Dict.set(routingApproach, routingData)
+      acc
     })
-    let processedAmount = records->Array.reduce(0.0, (acc, record) => {
-      let dict = record->getDictFromJsonObject
-      acc +. dict->getFloat("payment_processed_amount", 0.0)
-    })
-    let routingData = Dict.make()
-    routingData->Dict.set("authRate", authrate)
-    routingData->Dict.set("processedAmount", processedAmount)
-
-    routingDataLookup->Dict.set(routingApproach, routingData)
-  })
 
   let routingGroupsDict = groupByRoutingApproach(queryData)
 
   routingGroupsDict
   ->Dict.toArray
   ->Array.map(((routingApproach, records)) => {
-    let totalPaymentsForRouting = records->Array.reduce(0, (acc, record) => {
+    let recordsJson = records->getArrayFromJson([])
+    let totalPaymentsForRouting = recordsJson->Array.reduce(0, (acc, record) => {
       let dict = record->getDictFromJsonObject
       acc + dict->getInt("payment_count", 0)
     })
@@ -58,23 +61,24 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
         ? Int.toFloat(totalPaymentsForRouting) /. Int.toFloat(totalPayments) *. 100.0
         : 0.0
 
-    let routingData = routingDataLookup->Dict.get(routingApproach)->Option.getOr(Dict.make())
+    let routingData = routingDataLookup->getDictfromDict(routingApproach)
     let authorizationRate = routingData->getFloat("authRate", 0.0)
     let processedAmount = routingData->getFloat("processedAmount", 0.0)
 
-    let connectorGroupsDict = Dict.make()
-    records->Array.forEach(item => {
-      let dict = item->getDictFromJsonObject
-      let connectorName = dict->getString("connector", "Unknown")
-      let existing = connectorGroupsDict->Dict.get(connectorName)->Option.getOr([])
-      connectorGroupsDict->Dict.set(connectorName, [item, ...existing])
+    let connectorGroupsDict = recordsJson->Array.reduce(Dict.make(), (acc, item) => {
+      let connectorName = item->getDictFromJsonObject->getString("connector", "Unknown")
+      let existing = acc->getArrayFromDict(connectorName, [])
+      let concatedArray = Array.concat(existing, [item])
+      acc->Dict.set(connectorName, concatedArray->JSON.Encode.array)
+      acc
     })
 
     let connectors =
       connectorGroupsDict
       ->Dict.toArray
       ->Array.map(((connectorName, connectorRecords)) => {
-        let connectorPayments = connectorRecords->Array.reduce(
+        let connectorRecordsJson = connectorRecords->getArrayFromJson([])
+        let connectorPayments = connectorRecordsJson->Array.reduce(
           0,
           (acc, record) => {
             let dict = record->getDictFromJsonObject
@@ -82,7 +86,7 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
           },
         )
 
-        let connectorProcessedAmount = connectorRecords->Array.reduce(
+        let connectorProcessedAmount = connectorRecordsJson->Array.reduce(
           0.0,
           (acc, record) => {
             let dict = record->getDictFromJsonObject
@@ -90,7 +94,7 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
           },
         )
 
-        let connectorSuccessRate = connectorRecords->Array.reduce(
+        let connectorSuccessRate = connectorRecordsJson->Array.reduce(
           0.0,
           (acc, record) => {
             let dict = record->getDictFromJsonObject
@@ -122,12 +126,4 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
       connectors,
     }
   })
-}
-
-let processRoutingAnalyticsSummaryResponse = (~dataConnector: JSON.t, ~dataRouting: JSON.t): array<
-  summaryMain,
-> => {
-  let responseConnector = dataConnector
-  let responseRouting = dataRouting
-  mapToTableData(~responseConnector, ~responseRouting)
 }

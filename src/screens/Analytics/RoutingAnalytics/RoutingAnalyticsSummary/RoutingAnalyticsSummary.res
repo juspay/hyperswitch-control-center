@@ -1,7 +1,33 @@
+module RowDetailsComponent = {
+  @react.component
+  let make = (~rowIndex, ~data) => {
+    open RoutingAnalyticsSummaryEntity
+    open RoutingAnalyticsSummaryTypes
+    switch data->Array.get(rowIndex) {
+    | Some(data) =>
+      <LoadedTable
+        title=" "
+        actualData={data.connectors->Array.map(Nullable.make)}
+        totalResults={data.connectors->Array.length}
+        resultsPerPage=20
+        offset=0
+        setOffset={_ => ()}
+        entity={connectorEntity()}
+        currrentFetchCount={data.connectors->Array.length}
+        showHeading=false
+        hideTitle=true
+        enableEqualWidthCol=true
+        customBorderClass="!border-t-0"
+        rowCustomClass="!bg-nd_gray-25 !text-nd_gray-700"
+      />
+
+    | _ => React.null
+    }
+  }
+}
 @react.component
 let make = () => {
   open RoutingAnalyticsSummaryEntity
-  open RoutingAnalyticsSummaryTypes
   open APIUtils
   open Typography
   open LogicUtils
@@ -53,9 +79,9 @@ let make = () => {
         responseRouting->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseData->Array.length > 0 || responseRoutingData->Array.length > 0 {
-        let typedData = RoutingAnalyticsSummaryUtils.processRoutingAnalyticsSummaryResponse(
-          ~dataConnector=response,
-          ~dataRouting=responseRouting,
+        let typedData = RoutingAnalyticsSummaryUtils.mapToTableData(
+          ~responseConnector=response,
+          ~responseRouting,
         )
         setData(_ => typedData)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -63,7 +89,7 @@ let make = () => {
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
     }
   }
   React.useEffect(_ => {
@@ -81,18 +107,19 @@ let make = () => {
   }, [expand])
 
   let onExpandClick = idx => {
-    setExpandedRowIndexArray(_ => {
-      [idx]
-    })
+    setExpandedRowIndexArray(_ => [idx])
   }
 
   let collapseClick = idx => {
-    let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
-    setExpandedRowIndexArray(_ => {
-      let array = expandedRowIndexArray->Array.map(item => item)
-      array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
-
-      array
+    setExpandedRowIndexArray(prev => {
+      let indexOfRemovalItem = prev->Array.findIndex(item => item === idx)
+      if indexOfRemovalItem === -1 {
+        prev
+      } else {
+        let newArray = prev->Array.slice(~start=0, ~end=Array.length(prev))
+        newArray->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
+        newArray
+      }
     })
   }
 
@@ -107,30 +134,6 @@ let make = () => {
   let rows = data->Array.map(item => {
     summaryMainColumns->Array.map(colType => getSummaryMainCell(item, colType))
   })
-
-  let getRowDetails = rowIndex => {
-    let data = data[rowIndex]
-    switch data {
-    | Some(data) =>
-      <LoadedTable
-        title=" "
-        actualData={data.connectors->Array.map(Nullable.make)}
-        totalResults={data.connectors->Array.length}
-        resultsPerPage=20
-        offset=0
-        setOffset={_ => ()}
-        entity={connectorEntity()}
-        currrentFetchCount={data.connectors->Array.length}
-        showHeading=false
-        hideTitle=true
-        enableEqualWidthCol=true
-        customBorderClass="!border-t-0"
-        rowCustomClass="!bg-nd_gray-25 !text-nd_gray-700"
-      />
-
-    | _ => React.null
-    }
-  }
 
   <div>
     <PageUtils.PageHeading
@@ -148,7 +151,7 @@ let make = () => {
         rows={rows}
         onExpandIconClick={onExpandIconClick}
         expandedRowIndexArray={expandedRowIndexArray}
-        getRowDetails
+        getRowDetails={rowindex => <RowDetailsComponent rowIndex=rowindex data />}
         showSerial={false}
         fullWidth=true
         tableClass="border rounded-xl"

@@ -108,17 +108,14 @@ let make = (
                 let roundedClass = oldThemeRoundedClass
                 let borderClass = isLastCol ? "" : "border-jp-gray-500 dark:border-jp-gray-960"
                 let borderClass = borderClass
-                let bgColor = headingBgColor
-                let headerTextClass = headingFontColor
-                let fontWeight = headingFontWeight
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"
                 <AddDataAttributes
                   attributes=[("data-table-heading", item.title)] key={i->Int.toString}>
                   <th className="p-0">
                     <div
-                      className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${bgColor} ${headerTextClass} whitespace-pre ${roundedClass}`}>
-                      <div className={`${fontWeight} ${fontSize}`}>
+                      className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${headingBgColor} ${headingFontColor} whitespace-pre ${roundedClass}`}>
+                      <div className={`${headingFontWeight} ${fontSize}`}>
                         {React.string(item.title)}
                       </div>
                       <RenderIf condition={item.showFilter || item.showSort}>
