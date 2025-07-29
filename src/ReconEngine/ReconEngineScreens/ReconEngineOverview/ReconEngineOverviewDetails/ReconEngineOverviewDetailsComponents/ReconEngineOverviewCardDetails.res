@@ -4,6 +4,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   open ReconEngineOverviewUtils
   open ReconEngineOverviewHelper
   open APIUtils
+  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -74,18 +75,19 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <OverviewCard
         title={`Expected from ${sourceAccountName}`}
-        value={formatAmountWithCurrency(sourcePostedAmount, sourceAccountCurrency)}
+        value={sourcePostedAmount->formatAmountWithCurrency(~currency=sourceAccountCurrency)}
       />
       <OverviewCard
         title={`Received by ${targetAccountName}`}
-        value={formatAmountWithCurrency(targetPostedAmount, targetAccountCurrency)}
+        value={targetPostedAmount->formatAmountWithCurrency(~currency=targetAccountCurrency)}
       />
       <OverviewCard
-        title="Variance" value={formatAmountWithCurrency(netVariance, sourceAccountCurrency)}
+        title="Variance"
+        value={netVariance->formatAmountWithCurrency(~currency=sourceAccountCurrency)}
       />
       <OverviewCard
         title={`Missing in ${targetAccountName}`}
-        value={formatAmountWithCurrency(missingInTargetAmount, targetAccountCurrency)}
+        value={missingInTargetAmount->formatAmountWithCurrency(~currency=targetAccountCurrency)}
       />
     </div>
   </PageLoaderWrapper>

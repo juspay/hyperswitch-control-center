@@ -68,19 +68,21 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
   | DebitAccount => Text(getAccounts(transaction.entries, "debit"))
   | CreditAmount =>
     Text(
-      transaction.credit_amount.value->formatAmountToString(
+      formatAmountWithCurrency(
+        transaction.credit_amount.value,
         ~currency=transaction.credit_amount.currency,
       ),
     )
   | DebitAmount =>
     Text(
-      transaction.debit_amount.value->formatAmountToString(
+      formatAmountWithCurrency(
+        transaction.debit_amount.value,
         ~currency=transaction.debit_amount.currency,
       ),
     )
   | Variance =>
     Text(
-      formatAmountToString(
+      formatAmountWithCurrency(
         Math.abs(transaction.credit_amount.value -. transaction.debit_amount.value),
         ~currency=transaction.credit_amount.currency,
       ),
