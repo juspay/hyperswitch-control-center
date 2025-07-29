@@ -25,34 +25,35 @@ let isAmountMetric = key => {
   }
 }
 
-let getOverviewLineGraphTooltipFormatter = (
-  @this
-  (this: LineGraphTypes.pointFormatter) => {
-    let title = `<div style="font-size: 16px; font-weight: bold;">Transaction Count</div>`
-    let getRowHtml = (~iconColor, ~name, ~value) => {
-      let valueString = value->Float.toString
-      `<div style="display: flex; align-items: center;">
+let getOverviewLineGraphTooltipFormatter = (~title: string) =>
+  (
+    @this
+    (this: LineGraphTypes.pointFormatter) => {
+      let titleHtml = `<div style="font-size: 14px; font-weight: bold;">${title}</div>`
+      let getRowHtml = (~iconColor, ~name, ~value) => {
+        let valueString = value->Float.toString
+        `<div style="display: flex; align-items: center;">
               <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-              <div style="margin-left: 8px;">${name}</div>
-              <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+              <div style="margin-left: 8px;font-size: 12px;">${name}</div>
+              <div style="flex: 1; text-align: right;font-size: 12px;font-weight: bold;margin-left: 25px;">${valueString}</div>
           </div>`
-    }
+      }
 
-    let tableItems =
-      this.points
-      ->Array.map(point => {
-        getRowHtml(~iconColor=point.color, ~name=point.series.name, ~value=point.y)
-      })
-      ->Array.joinWith("")
+      let tableItems =
+        this.points
+        ->Array.map(point => {
+          getRowHtml(~iconColor=point.color, ~name=point.series.name, ~value=point.y)
+        })
+        ->Array.joinWith("")
 
-    let content = `
+      let content = `
             <div style=" 
             padding:5px 12px;
             display:flex;
             flex-direction:column;
             justify-content: space-between;
             gap: 7px;">
-                ${title}
+                ${titleHtml}
                 <div style="
                   margin-top: 5px;
                   display:flex;
@@ -62,7 +63,7 @@ let getOverviewLineGraphTooltipFormatter = (
                 </div>
           </div>`
 
-    `<div style="
+      `<div style="
       padding: 10px;
       width:fit-content;
       border-radius: 7px;
@@ -73,8 +74,8 @@ let getOverviewLineGraphTooltipFormatter = (
       position:relative;">
           ${content}
       </div>`
-  }
-)->LineGraphTypes.asTooltipPointFormatter
+    }
+  )->LineGraphTypes.asTooltipPointFormatter
 
 let modifyQueryData = data => {
   data->Array.map(item => {
@@ -160,7 +161,7 @@ let routingSuccessRateMapper = (
     },
     yAxisMaxValue: Some(100),
     yAxisMinValue: Some(0),
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
+    tooltipFormatter: getOverviewLineGraphTooltipFormatter(~title="Success Rate"),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=Rate,
       ~currency="",
@@ -242,7 +243,7 @@ let routingVolumeMapper = (
     },
     yAxisMaxValue: None,
     yAxisMinValue: Some(0),
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
+    tooltipFormatter: getOverviewLineGraphTooltipFormatter(~title="Volume"),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=Volume,
       ~currency="",
