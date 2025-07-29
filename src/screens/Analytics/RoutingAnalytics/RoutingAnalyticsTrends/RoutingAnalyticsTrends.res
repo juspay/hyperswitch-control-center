@@ -1,114 +1,128 @@
+module SuccessChart = {
+  @react.component
+  let make = (~data: JSON.t) => {
+    let params = {
+      InsightsTypes.data,
+      xKey: "time_bucket",
+      yKey: "payment_success_rate",
+      comparison: DateRangeUtils.DisableComparison,
+    }
+
+    let options =
+      RoutingAnalyticsTrendsEntity.routingSuccessRateChartEntity.getObjects(
+        ~params,
+      )->RoutingAnalyticsTrendsEntity.routingSuccessRateChartEntity.getChatOptions
+
+    <div className="p-6">
+      <LineGraph options />
+    </div>
+  }
+}
+
+module VolumeChart = {
+  @react.component
+  let make = (~data: JSON.t) => {
+    let params = {
+      InsightsTypes.data,
+      yKey: "payment_count",
+      xKey: "time_bucket",
+      comparison: DateRangeUtils.DisableComparison,
+    }
+
+    let options =
+      RoutingAnalyticsTrendsEntity.routingVolumeChartEntity.getObjects(
+        ~params,
+      )->RoutingAnalyticsTrendsEntity.routingVolumeChartEntity.getChatOptions
+
+    <div className="p-6">
+      <LineGraph options />
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
-  // open RoutingAnalyticsTrendsUtils
+  open APIUtils
+  open LogicUtils
+  open InsightsUtils
   open Typography
-  open HSAnalyticsUtils
-  let successChartEntity = DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/routing`),
-    ~filterKeys=["connector"],
-    ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
-    ~currentMetrics=("Success Rate", "Time"),
-    ~cardinality=[],
-    ~granularity=[],
-    ~chartTypes=[Line],
-    ~uriConfig=[
-      {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/routing`,
-        timeSeriesBody: DynamicChart.getTimeSeriesChart,
-        legendBody: DynamicChart.getLegendBody,
-        metrics: [
-          {
-            metric_name_db: "payment_success_rate",
-            metric_label: "Auth Rate",
-            metric_type: Rate,
-            thresholdVal: None,
-            step_up_threshold: None,
-            legendOption: (Current, Overall),
-          },
-        ],
-        timeCol: "time_bucket",
-        filterKeys: ["connector"],
-      },
-    ],
-    ~moduleName="Routing Analytics",
-    ~enableLoaders=true,
-  )
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+  let (successData, setSuccessData) = React.useState(_ => JSON.Encode.array([]))
+  let (volumeData, setVolumeData) = React.useState(_ => JSON.Encode.array([]))
 
-  let volumeChartEntity = DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/routing`),
-    ~filterKeys=["connector"],
-    ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
-    ~currentMetrics=("Success Rate", "Time"),
-    ~cardinality=[],
-    ~granularity=[],
-    ~chartTypes=[Line],
-    ~uriConfig=[
-      {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/routing`,
-        timeSeriesBody: DynamicChart.getTimeSeriesChart,
-        legendBody: DynamicChart.getLegendBody,
-        metrics: [
-          {
-            metric_name_db: "payment_count",
-            metric_label: "Auth Rate",
-            metric_type: Volume,
-            thresholdVal: None,
-            step_up_threshold: None,
-            legendOption: (Average, Overall),
-          },
-        ],
-        timeCol: "time_bucket",
-        filterKeys: ["connector"],
-      },
-    ],
-    ~moduleName="Routing Analytics",
-    ~enableLoaders=true,
-  )
+  let getMetricData = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = getURL(~entityName=V1(ANALYTICS_ROUTING), ~methodType=Post, ~id=Some("routing"))
+      let body =
+        [
+          AnalyticsUtils.getFilterRequestBody(
+            ~metrics=Some(["payment_success_rate", "payment_count"]),
+            ~delta=false,
+            ~groupByNames=Some(["connector"]),
+            ~startDateTime=startTimeVal,
+            ~endDateTime=endTimeVal,
+          )->JSON.Encode.object,
+        ]->JSON.Encode.array
+      let response = await updateDetails(url, body, Post)
+      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let processedData = responseData->RoutingAnalyticsTrendsUtils.modifyQueryData
+      let sortedData = processedData->sortQueryDataByDate
+      setSuccessData(_ => sortedData->Identity.genericTypeToJson)
+      setVolumeData(_ => sortedData->Identity.genericTypeToJson)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Unable to fetch."))
+    }
+  }
 
-  <div className="flex flex-col gap-6 w-full mt-12">
-    <div className="flex flex-col gap-1 mb-2">
-      <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Routing Trends"->React.string} </p>
-      <p className={`${body.md.medium} text-nd_gray-400`}>
-        {"Analyze the trends in routing metrics over time."->React.string}
-      </p>
-    </div>
-    <div className="border border-nd_gray-200 rounded-xl">
-      <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
-        <p className={`${body.md.semibold} text-gray-800`}> {"Success Over Time"->React.string} </p>
+  let getData = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    await getMetricData()
+    let successDataLength = successData->getArrayFromJson([])->Array.length
+    let volumeDataLength = volumeData->getArrayFromJson([])->Array.length
+
+    if successDataLength > 0 || volumeDataLength > 0 {
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+
+  React.useEffect(_ => {
+    getData()->ignore
+    None
+  }, (startTimeVal, endTimeVal))
+
+  <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
+    <div className="flex flex-col gap-6 w-full mt-12">
+      <div className="flex flex-col gap-1 mb-2">
+        <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Routing Trends"->React.string} </p>
+        <p className={`${body.md.medium} text-nd_gray-400`}>
+          {"Analyze the trends in routing metrics over time."->React.string}
+        </p>
       </div>
-      <div className="p-6">
-        <DynamicChart
-          entity=successChartEntity
-          selectedTab={Some(["connector"])}
-          chartId="routing_success_rate"
-          updateUrl={_ => ()}
-          enableBottomChart=false
-          showTableLegend=false
-          showMarkers=true
-          legendType=HighchartTimeSeriesChart.Points
-          tabTitleMapper={Dict.make()}
-          comparitionWidget=true
-        />
+      <div className="border border-nd_gray-200 rounded-xl">
+        <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
+          <p className={`${body.md.semibold} text-gray-800`}>
+            {"Success Over Time"->React.string}
+          </p>
+        </div>
+        <SuccessChart data=successData />
       </div>
-    </div>
-    <div className="border border-nd_gray-200 rounded-xl">
-      <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
-        <p className={`${body.md.semibold} text-gray-800`}> {"Volume Over Time"->React.string} </p>
-      </div>
-      <div className="p-6">
-        <DynamicChart
-          entity=volumeChartEntity
-          selectedTab={Some(["connector"])}
-          chartId="routing_volume"
-          updateUrl={_ => ()}
-          enableBottomChart=false
-          showTableLegend=false
-          showMarkers=true
-          legendType=HighchartTimeSeriesChart.Points
-          tabTitleMapper={Dict.make()}
-          comparitionWidget=true
-        />
+      <div className="border border-nd_gray-200 rounded-xl">
+        <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
+          <p className={`${body.md.semibold} text-gray-800`}>
+            {"Volume Over Time"->React.string}
+          </p>
+        </div>
+        <VolumeChart data=volumeData />
       </div>
     </div>
-  </div>
+  </PageLoaderWrapper>
 }
