@@ -199,7 +199,8 @@ module ConnectorCustomCell = {
   let make = (
     ~connectorName,
     ~connectorType: option<ConnectorTypes.connector>=?,
-    ~customWidth="",
+    ~customStyle="",
+    ~customIconStyle="w-6 h-6 mr-2",
   ) => {
     let connector_Type = switch connectorType {
     | Some(connectorType) => connectorType
@@ -207,8 +208,8 @@ module ConnectorCustomCell = {
     }
     if connectorName->LogicUtils.isNonEmptyString {
       <div
-        className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-6 ${customWidth}`}>
-        <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 mr-2" />
+        className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-6 ${customStyle}`}>
+        <GatewayIcon gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`} />
         <div>
           {connectorName
           ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)

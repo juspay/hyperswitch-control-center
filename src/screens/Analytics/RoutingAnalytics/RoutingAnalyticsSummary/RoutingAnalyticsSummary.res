@@ -3,28 +3,43 @@ module RowDetailsComponent = {
   let make = (~rowIndex, ~data) => {
     open RoutingAnalyticsSummaryEntity
     open RoutingAnalyticsSummaryTypes
+    open Typography
+
     switch data->Array.get(rowIndex) {
     | Some(data) =>
-      <LoadedTable
-        title=" "
-        actualData={data.connectors->Array.map(Nullable.make)}
-        totalResults={data.connectors->Array.length}
-        resultsPerPage=20
-        offset=0
-        setOffset={_ => ()}
-        entity={connectorEntity()}
-        currrentFetchCount={data.connectors->Array.length}
-        showHeading=false
-        hideTitle=true
-        enableEqualWidthCol=true
-        customBorderClass="!border-t-0"
-        rowCustomClass="!bg-nd_gray-25 !text-nd_gray-700"
-      />
+      let tableCellArray = data.connectors->Array.map(connectorDetails => {
+        connectorCols->Array.map(colType => getConnectorCell(connectorDetails, colType))
+      })
+
+      <table className="table-auto min-w-full h-full" colSpan=0>
+        <tbody>
+          {tableCellArray
+          ->Array.map(item => {
+            <DesktopView>
+              <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 ">
+                {item
+                ->Array.map(obj =>
+                  <td
+                    className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} text-nd_gray-700`}
+                    style={width: "430px"}>
+                    <div className={`box-border px-4  py-3`}>
+                      <Table.TableCell cell=obj />
+                    </div>
+                  </td>
+                )
+                ->React.array}
+              </tr>
+            </DesktopView>
+          })
+          ->React.array}
+        </tbody>
+      </table>
 
     | _ => React.null
     }
   }
 }
+
 @react.component
 let make = () => {
   open RoutingAnalyticsSummaryEntity
