@@ -46,14 +46,14 @@ let make = () => {
   open LogicUtils
   open InsightsUtils
   open Typography
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let (successData, setSuccessData) = React.useState(_ => JSON.Encode.array([]))
-  let (volumeData, setVolumeData) = React.useState(_ => JSON.Encode.array([]))
+  let (successData, setSuccessData) = React.useState(_ => JSON.Encode.null)
+  let (volumeData, setVolumeData) = React.useState(_ => JSON.Encode.null)
 
   let getMetricData = async () => {
     try {
@@ -71,33 +71,22 @@ let make = () => {
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let processedData = responseData->RoutingAnalyticsTrendsUtils.modifyQueryData
-      let sortedData = processedData->sortQueryDataByDate
-      setSuccessData(_ => sortedData->Identity.genericTypeToJson)
-      setVolumeData(_ => sortedData->Identity.genericTypeToJson)
+      let processedData =
+        responseData->RoutingAnalyticsTrendsUtils.modifyQueryData->sortQueryDataByDate
+      setSuccessData(_ => processedData->Identity.genericTypeToJson)
+      setVolumeData(_ => processedData->Identity.genericTypeToJson)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Unable to fetch."))
     }
   }
 
-  let getData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    await getMetricData()
-    let successDataLength = successData->getArrayFromJson([])->Array.length
-    let volumeDataLength = volumeData->getArrayFromJson([])->Array.length
-
-    if successDataLength > 0 || volumeDataLength > 0 {
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } else {
-      setScreenState(_ => PageLoaderWrapper.Custom)
-    }
-  }
-
   React.useEffect(_ => {
-    getData()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getMetricData()->ignore
+    }
     None
-  }, (startTimeVal, endTimeVal))
+  }, (startTimeVal, endTimeVal, filterValue))
 
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
     <div className="flex flex-col gap-6 w-full mt-12">

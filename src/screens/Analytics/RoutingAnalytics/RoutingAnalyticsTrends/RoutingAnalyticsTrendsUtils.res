@@ -25,6 +25,57 @@ let isAmountMetric = key => {
   }
 }
 
+let getOverviewLineGraphTooltipFormatter = (
+  @this
+  (this: LineGraphTypes.pointFormatter) => {
+    let title = `<div style="font-size: 16px; font-weight: bold;">Transaction Count</div>`
+    let getRowHtml = (~iconColor, ~name, ~value) => {
+      let valueString = value->Float.toString
+      `<div style="display: flex; align-items: center;">
+              <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
+              <div style="margin-left: 8px;">${name}</div>
+              <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+          </div>`
+    }
+
+    let tableItems =
+      this.points
+      ->Array.map(point => {
+        getRowHtml(~iconColor=point.color, ~name=point.series.name, ~value=point.y)
+      })
+      ->Array.joinWith("")
+
+    let content = `
+            <div style=" 
+            padding:5px 12px;
+            display:flex;
+            flex-direction:column;
+            justify-content: space-between;
+            gap: 7px;">
+                ${title}
+                <div style="
+                  margin-top: 5px;
+                  display:flex;
+                  flex-direction:column;
+                  gap: 7px;">
+                  ${tableItems}
+                </div>
+          </div>`
+
+    `<div style="
+      padding: 10px;
+      width:fit-content;
+      border-radius: 7px;
+      background-color:#FFFFFF;
+      padding:10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border: 1px solid #E5E5E5;
+      position:relative;">
+          ${content}
+      </div>`
+  }
+)->LineGraphTypes.asTooltipPointFormatter
+
 let modifyQueryData = data => {
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
@@ -49,12 +100,6 @@ let routingSuccessRateMapper = (
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
   let {data, xKey, yKey} = params
-  let currency = params.currency->Option.getOr("")
-  let comparison = switch params.comparison {
-  | Some(val) => Some(val)
-  | None => None
-  }
-  let secondaryCategories = data->getCategories(1, yKey)
   let dataArray = data->getArrayFromJson([])
   let connectorGroups = Dict.make()
 
@@ -101,19 +146,7 @@ let routingSuccessRateMapper = (
     })
 
   open LogicUtilsTypes
-  let metricType = switch xKey->getVariantValueFromString {
-  | Payment_Success_Rate => Rate
-  | Payment_Count => Volume
-  | _ => Volume
-  }
 
-  let tooltipFormatter = tooltipFormatter(
-    ~secondaryCategories,
-    ~title="Payment Success Rate",
-    ~metricType,
-    ~comparison,
-    ~currency,
-  )
   {
     chartHeight: DefaultHeight,
     chartLeftSpacing: DefaultLeftSpacing,
@@ -127,7 +160,7 @@ let routingSuccessRateMapper = (
     },
     yAxisMaxValue: Some(100),
     yAxisMinValue: Some(0),
-    tooltipFormatter,
+    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=Rate,
       ~currency="",
@@ -150,16 +183,7 @@ let routingVolumeMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-
   let {data, xKey, yKey} = params
-  let currency = params.currency->Option.getOr("")
-  let comparison = switch params.comparison {
-  | Some(val) => Some(val)
-  | None => None
-  }
-
-  let secondaryCategories = data->getCategories(1, yKey)
-
   let dataArray = data->getArrayFromJson([])
   let connectorGroups = Dict.make()
 
@@ -205,21 +229,6 @@ let routingVolumeMapper = (
         ~isAmount=false,
       )
     })
-
-  let metricType = switch xKey->getVariantValueFromString {
-  | Payment_Success_Rate => Rate
-  | Payment_Count => Volume
-  | _ => Volume
-  }
-
-  let tooltipFormatter = tooltipFormatter(
-    ~secondaryCategories,
-    ~title="Volume",
-    ~metricType,
-    ~comparison,
-    ~currency,
-  )
-
   {
     chartHeight: DefaultHeight,
     chartLeftSpacing: DefaultLeftSpacing,
@@ -233,7 +242,7 @@ let routingVolumeMapper = (
     },
     yAxisMaxValue: None,
     yAxisMinValue: Some(0),
-    tooltipFormatter,
+    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=Volume,
       ~currency="",
