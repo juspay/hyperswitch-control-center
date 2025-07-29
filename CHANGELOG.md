@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.29.0
+
+### Features
+
+- Payment operations list v2 ([#3354](https://github.com/juspay/hyperswitch-control-center/pull/3354)) ([`8b17189`](https://github.com/juspay/hyperswitch-control-center/commit/8b17189ee7b17e20b60ee699e8b03607db20a88c))
+
+### Miscellaneous Tasks
+
+- Webpack-common changes and asset movement ([#3341](https://github.com/juspay/hyperswitch-control-center/pull/3341)) ([`11409fc`](https://github.com/juspay/hyperswitch-control-center/commit/11409fcd40e6bd8940ae607a605c3af27e5f947b))
+
+**Full Changelog:** [`2025.07.28.0...2025.07.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.28.0...2025.07.29.0)
+
+- - -
+
 ## 2025.07.28.0
 
 ### Features
