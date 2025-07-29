@@ -4,7 +4,7 @@ let make = () => {
   open LogicUtils
   open Typography
 
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -25,6 +25,7 @@ let make = () => {
             ~groupByNames=Some(["connector"]),
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
+            ~filter=Some(filterValueJson->JSON.Encode.object),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
@@ -45,7 +46,7 @@ let make = () => {
       getData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal))
+  }, (startTimeVal, endTimeVal, filterValue))
 
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
     <div className="flex flex-col">

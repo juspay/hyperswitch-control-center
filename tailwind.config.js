@@ -77,6 +77,9 @@ module.exports = {
         "25-rem": "25rem",
         "30-rem": "30rem",
       },
+      minHeight: {
+        "500-px": "500px",
+      },
       inset: {
         "5-px": "5px",
         "76-px": "76px",

@@ -28,6 +28,7 @@ type transactionPayload = {
   debit_amount: amountType,
   rule: ruleType,
   transaction_status: string,
+  discarded_status: option<string>,
   version: int,
   created_at: string,
 }
@@ -37,7 +38,15 @@ type transactionStatus =
   | Mismatched
   | Expected
   | Archived
-  | Unknown
+  | UnknownTransactionStatus
+
+type entryStatus =
+  | Posted
+  | Mismatched
+  | Expected
+  | Archived
+  | Pending
+  | UnknownEntry
 
 type entryPayload = {
   entry_id: string,
@@ -46,7 +55,7 @@ type entryPayload = {
   amount: float,
   currency: string,
   status: string,
-  discarded_status: string,
+  discarded_status: option<string>,
   metadata: Js.Json.t,
   created_at: string,
   effective_at: string,
@@ -55,6 +64,7 @@ type entryPayload = {
 type transactionColType =
   | TransactionId
   | Status
+  | DiscardedStatus
   | Variance
   | CreditAccount
   | DebitAccount
