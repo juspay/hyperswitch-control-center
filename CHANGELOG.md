@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.29.1
+
+### Features
+
+- Chat bot ui changes ([#3324](https://github.com/juspay/hyperswitch-control-center/pull/3324)) ([`5f23e3b`](https://github.com/juspay/hyperswitch-control-center/commit/5f23e3bac218c977666b0f46263cb56ed383b51d))
+- Add filters in routing analytics ([#3358](https://github.com/juspay/hyperswitch-control-center/pull/3358)) ([`795c960`](https://github.com/juspay/hyperswitch-control-center/commit/795c960eef545dfe311a9aa03026ec531ce6a881))
+
+**Full Changelog:** [`2025.07.29.0...2025.07.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.29.0...2025.07.29.1)
+
+- - -
+
+## 2025.07.29.0
+
+### Features
+
+- Payment operations list v2 ([#3354](https://github.com/juspay/hyperswitch-control-center/pull/3354)) ([`8b17189`](https://github.com/juspay/hyperswitch-control-center/commit/8b17189ee7b17e20b60ee699e8b03607db20a88c))
+
+### Miscellaneous Tasks
+
+- Webpack-common changes and asset movement ([#3341](https://github.com/juspay/hyperswitch-control-center/pull/3341)) ([`11409fc`](https://github.com/juspay/hyperswitch-control-center/commit/11409fcd40e6bd8940ae607a605c3af27e5f947b))
+
+**Full Changelog:** [`2025.07.28.0...2025.07.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.28.0...2025.07.29.0)
+
+- - -
+
 ## 2025.07.28.0
 
 ### Features

@@ -936,7 +936,7 @@ let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let orderEntity = (merchantId, orgId) =>
+let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
@@ -946,9 +946,17 @@ let orderEntity = (merchantId, orgId) =>
     ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
-      order =>
-        GlobalVars.appendDashboardPath(
-          ~url=`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
-        )
+      order => {
+        switch version {
+        | V1 =>
+          GlobalVars.appendDashboardPath(
+            ~url=`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
+          )
+        | V2 =>
+          GlobalVars.appendDashboardPath(
+            ~url=`v2/orchestration/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`,
+          )
+        }
+      }
     },
   )
