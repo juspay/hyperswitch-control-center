@@ -67,14 +67,8 @@ module.exports = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          // All the current assets needs to be moved to public directory
-          { from: `public/hyperswitch/public`, to: "public" },
-          //Remove ignore once the gifs are moved to public directory
           {
             from: `public/hyperswitch`,
-            globOptions: {
-              ignore: ["**/public/gifs/**"],
-            },
           },
         ].filter(Boolean),
       }),
