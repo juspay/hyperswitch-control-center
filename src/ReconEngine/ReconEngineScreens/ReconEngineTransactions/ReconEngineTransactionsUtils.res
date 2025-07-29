@@ -195,7 +195,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
           ~name="debit_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
-            ~buttonText="Select Debit Account",
+            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
