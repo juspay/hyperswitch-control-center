@@ -51,7 +51,7 @@ let getSummaryMainCell = (summaryMain: summaryMain, colType: summaryColType): Ta
       <CustomNumeric
         num=summaryMain.traffic_percentage
         mapper=usaNumberAbbreviation
-        customStyling="ml-12 2xl:ml-4"
+        customStyling="ml-54-px 2xl:ml-4"
       />,
       "",
     )
@@ -67,14 +67,14 @@ let getSummaryMainCell = (summaryMain: summaryMain, colType: summaryColType): Ta
       <CustomNumeric
         num=summaryMain.authorization_rate
         mapper=usaNumberAbbreviation
-        customStyling="ml-6 2xl:ml-3"
+        customStyling="ml-8 2xl:ml-3"
       />,
       "",
     )
   | ProcessedAmount =>
     CustomCell(
       <CustomNumeric
-        num=summaryMain.processed_amount mapper=usaNumberAbbreviation customStyling="ml-2 2xl:ml-2"
+        num=summaryMain.processed_amount mapper=usaNumberAbbreviation customStyling="ml-4 2xl:ml-2"
       />,
       "",
     )
@@ -91,7 +91,7 @@ let getConnectorCell = (connector: connectorDetails, colType: connectorColType):
       <HelperComponents.ConnectorCustomCell
         connectorName=connector.connector_name
         connectorType={ConnectorUtils.connectorTypeFromConnectorName(connector.connector_name)}
-        customStyle="w-[7rem] 2xl:w-[10rem] !pl-6"
+        customStyle="w-7-rem 2xl:w-10-rem !pl-6"
         customIconStyle="w-4 h-4 mr-2"
       />,
       "",
