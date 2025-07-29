@@ -19,11 +19,6 @@ let make = () => {
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="routing_analytics_date_filter_opened")
-  }
 
   let loadInfo = async () => {
     try {
@@ -88,37 +83,6 @@ let make = () => {
     None
   }, (startTime, endTime, dimensions))
 
-  let topFilterUi = {
-    let (initialFilters, popupFilterFields, key) = switch filterDataJson {
-    | Some(filterData) => (
-        HSAnalyticsUtils.initialFilterFields(filterData, ~isTitle=true),
-        HSAnalyticsUtils.options(filterData),
-        "0",
-      )
-    | None => ([], [], "1")
-    }
-
-    <div className="flex flex-row">
-      <DynamicFilter
-        title="RoutingAnalytics"
-        initialFilters
-        options=[]
-        popupFilterFields
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames
-        key
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-    </div>
-  }
-
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />}>
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -135,7 +99,7 @@ let make = () => {
           </Portal>
         </div>
       </div>
-      <div className="-ml-1.5"> topFilterUi </div>
+      <RoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
       <RoutingAnalyticsDistribution />
     </div>
   </PageLoaderWrapper>
