@@ -1,4 +1,4 @@
-open OrderTypes
+open PaymentInterfaceTypes
 open LogicUtils
 
 module CurrencyCell = {
@@ -8,7 +8,7 @@ module CurrencyCell = {
   }
 }
 
-let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.cell => {
+let getRefundCell = (refunds: refunds, refundsColType: OrderTypes.refundsColType): Table.cell => {
   switch refundsColType {
   | Amount =>
     CustomCell(
@@ -43,7 +43,10 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
   }
 }
 
-let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
+let getAttemptCell = (
+  attempt: PaymentInterfaceTypes.attempts,
+  attemptColType: OrderTypes.attemptColType,
+): Table.cell => {
   switch attemptColType {
   | Amount =>
     CustomCell(
@@ -96,7 +99,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   }
 }
 
-let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
+let getFrmCell = (orderDetais: order, frmColType: OrderTypes.frmColType): Table.cell => {
   switch frmColType {
   | PaymentId => Text(orderDetais.payment_id)
   | PaymentMethodType => Text(orderDetais.payment_method_type)
@@ -111,11 +114,14 @@ let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
   | PaymentProcessor => Text(orderDetais.connector)
   | FRMConnector => Text(orderDetais.frm_message.frm_name)
   | FRMMessage => Text(orderDetais.frm_message.frm_reason)
-  | MerchantDecision => Text(orderDetais.merchant_decision)
+  | MerchantDecision => Text(orderDetais.frm_merchant_decision)
   }
 }
 
-let getAuthenticationCell = (orderDetais: order, colType: authenticationColType): Table.cell => {
+let getAuthenticationCell = (
+  orderDetais: order,
+  colType: OrderTypes.authenticationColType,
+): Table.cell => {
   let authenticationDetails =
     orderDetais.external_authentication_details
     ->Option.getOr(JSON.Encode.null)
@@ -132,9 +138,15 @@ let getAuthenticationCell = (orderDetais: order, colType: authenticationColType)
   }
 }
 
-let refundColumns: array<refundsColType> = [Created, LastUpdated, Amount, PaymentId, RefundStatus]
+let refundColumns: array<OrderTypes.refundsColType> = [
+  Created,
+  LastUpdated,
+  Amount,
+  PaymentId,
+  RefundStatus,
+]
 
-let attemptsColumns: array<attemptColType> = [
+let attemptsColumns: array<OrderTypes.attemptColType> = [
   Status,
   Amount,
   Currency,
@@ -143,7 +155,7 @@ let attemptsColumns: array<attemptColType> = [
   PaymentMethodType,
 ]
 
-let frmColumns: array<frmColType> = [
+let frmColumns: array<OrderTypes.frmColType> = [
   PaymentId,
   PaymentMethodType,
   Amount,
@@ -154,7 +166,7 @@ let frmColumns: array<frmColType> = [
   MerchantDecision,
 ]
 
-let authenticationColumns: array<authenticationColType> = [
+let authenticationColumns: array<OrderTypes.authenticationColType> = [
   AuthenticationFlow,
   DsTransactionId,
   ElectronicCommerceIndicator,
@@ -164,7 +176,7 @@ let authenticationColumns: array<authenticationColType> = [
   Version,
 ]
 
-let refundDetailsFields = [
+let refundDetailsFields: array<OrderTypes.refundsColType> = [
   RefundId,
   PaymentId,
   RefundStatus,
@@ -174,7 +186,7 @@ let refundDetailsFields = [
   ErrorMessage,
 ]
 
-let attemptDetailsField = [
+let attemptDetailsField: array<OrderTypes.attemptColType> = [
   AttemptId,
   Status,
   Amount,
@@ -197,7 +209,7 @@ let attemptDetailsField = [
   ClientVersion,
 ]
 
-let getRefundHeading = (refundsColType: refundsColType) => {
+let getRefundHeading = (refundsColType: OrderTypes.refundsColType) => {
   switch refundsColType {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
@@ -211,7 +223,7 @@ let getRefundHeading = (refundsColType: refundsColType) => {
   }
 }
 
-let getAttemptHeading = (attemptColType: attemptColType) => {
+let getAttemptHeading = (attemptColType: OrderTypes.attemptColType) => {
   switch attemptColType {
   | AttemptId =>
     Table.makeHeaderInfo(
@@ -247,7 +259,7 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
   }
 }
 
-let getFrmHeading = (frmDetailsColType: frmColType) => {
+let getFrmHeading = (frmDetailsColType: OrderTypes.frmColType) => {
   switch frmDetailsColType {
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="PaymentId")
   | PaymentMethodType =>
@@ -261,7 +273,7 @@ let getFrmHeading = (frmDetailsColType: frmColType) => {
   }
 }
 
-let getAuthenticationHeading = (authenticationDetailsColType: authenticationColType) => {
+let getAuthenticationHeading = (authenticationDetailsColType: OrderTypes.authenticationColType) => {
   switch authenticationDetailsColType {
   | AuthenticationFlow =>
     Table.makeHeaderInfo(~key="authentication_flow", ~title="Authentication Flow")
@@ -334,7 +346,7 @@ let getAttempts: JSON.t => array<attempts> = json => {
   LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
-let defaultColumns: array<colType> = [
+let defaultColumns: array<OrderTypes.colType> = [
   PaymentId,
   Connector,
   ProfileId,
@@ -351,7 +363,7 @@ let defaultColumns: array<colType> = [
   Created,
 ]
 
-let allColumns = [
+let allColumns: array<OrderTypes.colType> = [
   Amount,
   AmountCapturable,
   AuthenticationType,
@@ -377,7 +389,7 @@ let allColumns = [
   CardNetwork,
 ]
 
-let getHeading = (colType: colType) => {
+let getHeading = (colType: OrderTypes.colType) => {
   switch colType {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
@@ -462,7 +474,7 @@ let useGetStatus = order => {
   }
 }
 
-let getHeadingForSummary = summaryColType => {
+let getHeadingForSummary = (summaryColType: OrderTypes.summaryColType) => {
   switch summaryColType {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
@@ -484,7 +496,7 @@ let getHeadingForSummary = summaryColType => {
   }
 }
 
-let getHeadingForAboutPayment = aboutPaymentColType => {
+let getHeadingForAboutPayment = (aboutPaymentColType: OrderTypes.aboutPaymentColType) => {
   switch aboutPaymentColType {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
@@ -502,7 +514,7 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
   }
 }
 
-let getHeadingForOtherDetails = otherDetailsColType => {
+let getHeadingForOtherDetails = (otherDetailsColType: OrderTypes.otherDetailsColType) => {
   switch otherDetailsColType {
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
   | SetupFutureUsage => Table.makeHeaderInfo(~key="setup_future_usage", ~title="Setup Future Usage")
@@ -552,9 +564,9 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   }
 }
 
-let getCellForSummary = (order, summaryColType): Table.cell => {
+let getCellForSummary = (order, summaryColType: OrderTypes.summaryColType): Table.cell => {
   switch summaryColType {
-  | Created => Date(order.created)
+  | Created => Date(order.created_at)
   | NetAmount =>
     CustomCell(
       <CurrencyCell
@@ -562,32 +574,35 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
       />,
       "",
     )
-  | LastUpdated => Date(order.last_updated)
+  | LastUpdated => Date(order.last_updated->Option.getOr(""))
   | PaymentId => DisplayCopyCell(order.payment_id)
   | Currency => Text(order.currency)
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
-        amount={(order.amount_received /. 100.0)->Float.toString} currency={order.currency}
+        amount={(order.amount_captured /. 100.0)->Float.toString} currency={order.currency}
       />,
       "",
     )
   | ClientSecret => Text(order.client_secret)
-  | OrderQuantity => Text(order.order_quantity)
-  | ProductName => Text(order.product_name)
-  | ErrorMessage => Text(order.error_message)
+  | OrderQuantity => Text(order.order_quantity->Option.getOr(""))
+  | ProductName => Text(order.product_name->Option.getOr(""))
+  | ErrorMessage => Text(order.error.error_message)
   | ConnectorTransactionID =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_transaction_id)
+        displayValue=Some(order.connector_payment_id)
       />,
       "",
     )
   }
 }
 
-let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
+let getCellForAboutPayment = (
+  order,
+  aboutPaymentColType: OrderTypes.aboutPaymentColType,
+): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
   | Connector =>
@@ -602,8 +617,8 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | PaymentMethodType => Text(order.payment_method_type)
   | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
   | AuthenticationType => Text(order.authentication_type)
-  | ConnectorLabel => Text(order.connector_label)
-  | CardBrand => Text(order.card_brand)
+  | ConnectorLabel => Text(order.connector_label->Option.getOr(""))
+  | CardBrand => Text(order.card_brand->Option.getOr(""))
   | ProfileId => Text(order.profile_id)
   | ProfileName =>
     Table.CustomCell(<HelperComponents.ProfileNameComponent profile_id=order.profile_id />, "")
@@ -619,24 +634,27 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   }
 }
 
-let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
-  let splittedName = order.name->String.split(" ")
+let getCellForOtherDetails = (
+  order,
+  aboutPaymentColType: OrderTypes.otherDetailsColType,
+): Table.cell => {
+  let splittedName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
   | ReturnUrl => Text(order.return_url)
-  | OffSession => Text(order.off_session)
-  | CaptureOn => Date(order.off_session)
+  | OffSession => Text(order.customer_present)
+  | CaptureOn => Date(order.capture_on->Option.getOr(""))
   | CaptureMethod => Text(order.capture_method)
   | NextAction => Text(order.next_action)
   | SetupFutureUsage => Text(order.setup_future_usage)
   | CancellationReason => Text(order.cancellation_reason)
-  | StatementDescriptorName => Text(order.statement_descriptor_name)
-  | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix)
+  | StatementDescriptorName => Text(order.statement_descriptor)
+  | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix->Option.getOr(""))
   | PaymentExperience => Text(order.payment_experience)
   | FirstName => Text(splittedName->Array.get(0)->Option.getOr(""))
   | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
-  | Phone => Text(order.phone)
-  | Email => Text(order.email)
+  | Phone => Text(order.phone->Option.getOr(""))
+  | Email => Text(order.email->Option.getOr(""))
   | CustomerId => Text(order.customer_id)
   | Description => Text(order.description)
   | ShippingAddress => Text(order.shipping)
@@ -644,8 +662,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | ShippingEmail => Text(order.shippingEmail)
   | BillingAddress => Text(order.billing)
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
-  | ErrorCode => Text(order.error_code)
-  | MandateData => Text(order.mandate_data)
+  | ErrorCode => Text(order.error.error_code)
+  | MandateData => Text(order.mandate_data->Option.getOr(""))
   | FRMName => Text(order.frm_message.frm_name)
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
   | FRMStatus => Text(order.frm_message.frm_status)
@@ -656,11 +674,11 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | PMBillingFirstName => Text(order.payment_method_billing_first_name)
   | PMBillingLastName => Text(order.payment_method_billing_last_name)
   | BillingPhone => Text(`${order.billingPhone}`)
-  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
+  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   }
 }
 
-let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
+let getCell = (order, colType: OrderTypes.colType, merchantId, orgId): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
@@ -711,17 +729,17 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       "",
     )
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
-  | AmountReceived => Currency(order.amount_received /. 100.0, order.currency)
+  | AmountReceived => Currency(order.amount_captured /. 100.0, order.currency)
   | ClientSecret => Text(order.client_secret)
-  | Created => Date(order.created)
+  | Created => Date(order.created_at)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
-  | MandateId => Text(order.mandate_id)
-  | MandateData => Text(order.mandate_data)
+  | MandateId => Text(order.mandate_id->Option.getOr(""))
+  | MandateData => Text(order.mandate_data->Option.getOr(""))
   | SetupFutureUsage => Text(order.setup_future_usage)
-  | OffSession => Text(order.off_session)
-  | CaptureOn => Date(order.off_session)
+  | OffSession => Text(order.customer_present)
+  | CaptureOn => Date(order.capture_on->Option.getOr(""))
   | CaptureMethod => Text(order.capture_method)
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodData => Text(order.payment_method_data->JSON.stringifyAny->Option.getOr(""))
@@ -729,22 +747,22 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | PaymentToken => Text(order.payment_token)
   | Shipping => Text(order.shipping)
   | Billing => Text(order.billing)
-  | Email => Text(order.email)
-  | Name => Text(order.name)
-  | Phone => Text(order.phone)
+  | Email => Text(order.email->Option.getOr(""))
+  | Name => Text(order.name->Option.getOr(""))
+  | Phone => Text(order.phone->Option.getOr(""))
   | ReturnUrl => Text(order.return_url)
   | AuthenticationType => Text(order.authentication_type)
-  | StatementDescriptorName => Text(order.statement_descriptor_name)
-  | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix)
+  | StatementDescriptorName => Text(order.statement_descriptor)
+  | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix->Option.getOr(""))
   | NextAction => Text(order.next_action)
   | CancellationReason => Text(order.cancellation_reason)
-  | ErrorCode => Text(order.error_code)
-  | ErrorMessage => Text(order.error_message)
+  | ErrorCode => Text(order.error.error_code)
+  | ErrorMessage => Text(order.error.error_message)
   | ConnectorTransactionID =>
     CustomCell(
       <CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_transaction_id)
+        displayValue=Some(order.connector_payment_id)
       />,
       "",
     )
@@ -764,7 +782,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
 
       Text(dict->getString("card_network", ""))
     }
-  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
+  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   | AttemptCount => Text(order.attempt_count->Int.toString)
   }
 }
@@ -801,139 +819,139 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
   })
 }
 
-let itemToObjMapper = dict => {
-  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
+// let itemToObjMapper = dict => {
+//   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
-  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
-    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
-  }
+//   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
+//     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+//   }
 
-  let getEmail = dict => {
-    let defaultEmail = dict->getString("email", "")
+//   let getEmail = dict => {
+//     let defaultEmail = dict->getString("email", "")
 
-    dict
-    ->getDictfromDict("customer")
-    ->getString("email", defaultEmail)
-  }
+//     dict
+//     ->getDictfromDict("customer")
+//     ->getString("email", defaultEmail)
+//   }
 
-  {
-    payment_id: dict->getString("payment_id", ""),
-    merchant_id: dict->getString("merchant_id", ""),
-    net_amount: dict->getFloat("net_amount", 0.0),
-    connector: dict->getString("connector", ""),
-    status: dict->getString("status", ""),
-    amount: dict->getFloat("amount", 0.0),
-    amount_capturable: dict->getFloat("amount_capturable", 0.0),
-    amount_received: dict->getFloat("amount_received", 0.0),
-    client_secret: dict->getString("client_secret", ""),
-    created: dict->getString("created", ""),
-    last_updated: dict->getString("last_updated", ""),
-    currency: dict->getString("currency", ""),
-    customer_id: dict->getString("customer_id", ""),
-    description: dict->getString("description", ""),
-    mandate_id: dict->getString("mandate_id", ""),
-    mandate_data: dict->getString("mandate_data", ""),
-    setup_future_usage: dict->getString("setup_future_usage", ""),
-    off_session: dict->getString("off_session", ""),
-    capture_on: dict->getString("capture_on", ""),
-    capture_method: dict->getString("capture_method", ""),
-    payment_method: dict->getString("payment_method", ""),
-    payment_method_type: dict->getString("payment_method_type", ""),
-    payment_method_data: {
-      let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
-      switch paymentMethodData->JSON.Classify.classify {
-      | Object(value) => Some(value->getJsonObjectFromDict("card"))
-      | _ => None
-      }
-    },
-    external_authentication_details: {
-      let externalAuthenticationDetails =
-        dict->getJsonObjectFromDict("external_authentication_details")
-      switch externalAuthenticationDetails->JSON.Classify.classify {
-      | Object(_) => Some(externalAuthenticationDetails)
-      | _ => None
-      }
-    },
-    payment_token: dict->getString("payment_token", ""),
-    shipping: dict
-    ->getDictfromDict("shipping")
-    ->getDictfromDict("address")
-    ->concatValueOfGivenKeysOfDict(addressKeys),
-    shippingEmail: dict->getDictfromDict("shipping")->getString("email", ""),
-    shippingPhone: dict
-    ->getDictfromDict("shipping")
-    ->getDictfromDict("phone")
-    ->getPhoneNumberString,
-    billing: dict
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
-    ->concatValueOfGivenKeysOfDict(addressKeys),
-    payment_method_billing_address: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
-    ->concatValueOfGivenKeysOfDict(addressKeys),
-    payment_method_billing_first_name: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
-    ->getString("first_name", ""),
-    payment_method_billing_last_name: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getDictfromDict("address")
-    ->getString("last_name", ""),
-    payment_method_billing_phone: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getString("email", ""),
-    payment_method_billing_email: dict
-    ->getDictfromDict("payment_method_data")
-    ->getDictfromDict("billing")
-    ->getString("", ""),
-    billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
-    billingPhone: dict
-    ->getDictfromDict("billing")
-    ->getDictfromDict("phone")
-    ->getPhoneNumberString,
-    metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
-    email: dict->getEmail,
-    name: dict->getString("name", ""),
-    phone: dict
-    ->getDictfromDict("customer")
-    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code"),
-    return_url: dict->getString("return_url", ""),
-    authentication_type: dict->getString("authentication_type", ""),
-    statement_descriptor_name: dict->getString("statement_descriptor_name", ""),
-    statement_descriptor_suffix: dict->getString("statement_descriptor_suffix", ""),
-    next_action: dict->getString("next_action", ""),
-    cancellation_reason: dict->getString("cancellation_reason", ""),
-    error_code: dict->getString("error_code", ""),
-    error_message: dict->getString("error_message", ""),
-    order_quantity: dict->getString("order_quantity", ""),
-    product_name: dict->getString("product_name", ""),
-    card_brand: dict->getString("card_brand", ""),
-    payment_experience: dict->getString("payment_experience", ""),
-    connector_transaction_id: dict->getString("connector_transaction_id", ""),
-    refunds: dict
-    ->getArrayFromDict("refunds", [])
-    ->JSON.Encode.array
-    ->getArrayDataFromJson(refunditemToObjMapper),
-    profile_id: dict->getString("profile_id", ""),
-    frm_message: dict->getFRMDetails,
-    merchant_decision: dict->getString("merchant_decision", ""),
-    merchant_connector_id: dict->getString("merchant_connector_id", ""),
-    disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
-    attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
-    merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
-    attempt_count: dict->getInt("attempt_count", 0),
-    connector_label: dict->getString("connector_label", "NA"),
-    split_payments: dict->getDictfromDict("split_payments"),
-  }
-}
+//   {
+//     payment_id: dict->getString("payment_id", ""),
+//     merchant_id: dict->getString("merchant_id", ""),
+//     net_amount: dict->getFloat("net_amount", 0.0),
+//     connector: dict->getString("connector", ""),
+//     status: dict->getString("status", ""),
+//     amount: dict->getFloat("amount", 0.0),
+//     amount_capturable: dict->getFloat("amount_capturable", 0.0),
+//     amount_captured: dict->getFloat("amount_captured", 0.0),
+//     client_secret: dict->getString("client_secret", ""),
+//     created_at: dict->getString("created_at", ""),
+//     last_updated: dict->getString("last_updated", ""),
+//     currency: dict->getString("currency", ""),
+//     customer_id: dict->getString("customer_id", ""),
+//     description: dict->getString("description", ""),
+//     mandate_id: dict->getString("mandate_id", ""),
+//     mandate_data: dict->getString("mandate_data", ""),
+//     setup_future_usage: dict->getString("setup_future_usage", ""),
+//     customer_present: dict->getString("customer_present", ""),
+//     capture_on: dict->getString("capture_on", ""),
+//     capture_method: dict->getString("capture_method", ""),
+//     payment_method: dict->getString("payment_method", ""),
+//     payment_method_type: dict->getString("payment_method_type", ""),
+//     payment_method_data: {
+//       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
+//       switch paymentMethodData->JSON.Classify.classify {
+//       | Object(value) => Some(value->getJsonObjectFromDict("card"))
+//       | _ => None
+//       }
+//     },
+//     external_authentication_details: {
+//       let externalAuthenticationDetails =
+//         dict->getJsonObjectFromDict("external_authentication_details")
+//       switch externalAuthenticationDetails->JSON.Classify.classify {
+//       | Object(_) => Some(externalAuthenticationDetails)
+//       | _ => None
+//       }
+//     },
+//     payment_token: dict->getString("payment_token", ""),
+//     shipping: dict
+//     ->getDictfromDict("shipping")
+//     ->getDictfromDict("address")
+//     ->concatValueOfGivenKeysOfDict(addressKeys),
+//     shippingEmail: dict->getDictfromDict("shipping")->getString("email", ""),
+//     shippingPhone: dict
+//     ->getDictfromDict("shipping")
+//     ->getDictfromDict("phone")
+//     ->getPhoneNumberString,
+//     billing: dict
+//     ->getDictfromDict("billing")
+//     ->getDictfromDict("address")
+//     ->concatValueOfGivenKeysOfDict(addressKeys),
+//     payment_method_billing_address: dict
+//     ->getDictfromDict("payment_method_data")
+//     ->getDictfromDict("billing")
+//     ->getDictfromDict("address")
+//     ->concatValueOfGivenKeysOfDict(addressKeys),
+//     payment_method_billing_first_name: dict
+//     ->getDictfromDict("payment_method_data")
+//     ->getDictfromDict("billing")
+//     ->getDictfromDict("address")
+//     ->getString("first_name", ""),
+//     payment_method_billing_last_name: dict
+//     ->getDictfromDict("payment_method_data")
+//     ->getDictfromDict("billing")
+//     ->getDictfromDict("address")
+//     ->getString("last_name", ""),
+//     payment_method_billing_phone: dict
+//     ->getDictfromDict("payment_method_data")
+//     ->getDictfromDict("billing")
+//     ->getString("email", ""),
+//     payment_method_billing_email: dict
+//     ->getDictfromDict("payment_method_data")
+//     ->getDictfromDict("billing")
+//     ->getString("", ""),
+//     billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
+//     billingPhone: dict
+//     ->getDictfromDict("billing")
+//     ->getDictfromDict("phone")
+//     ->getPhoneNumberString,
+//     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
+//     email: dict->getEmail,
+//     name: dict->getString("name", ""),
+//     phone: dict
+//     ->getDictfromDict("customer")
+//     ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code"),
+//     return_url: dict->getString("return_url", ""),
+//     authentication_type: dict->getString("authentication_type", ""),
+//     statement_descriptor: dict->getString("statement_descriptor", ""),
+//     statement_descriptor_suffix: dict->getString("statement_descriptor_suffix", ""),
+//     next_action: dict->getString("next_action", ""),
+//     cancellation_reason: dict->getString("cancellation_reason", ""),
+//     error_code: dict->getString("error_code", ""),
+//     error_message: dict->getString("error_message", ""),
+//     order_quantity: dict->getString("order_quantity", ""),
+//     product_name: dict->getString("product_name", ""),
+//     card_brand: dict->getString("card_brand", ""),
+//     payment_experience: dict->getString("payment_experience", ""),
+//     connector_transaction_id: dict->getString("connector_transaction_id", ""),
+//     refunds: dict
+//     ->getArrayFromDict("refunds", [])
+//     ->JSON.Encode.array
+//     ->getArrayDataFromJson(refunditemToObjMapper),
+//     profile_id: dict->getString("profile_id", ""),
+//     frm_message: dict->getFRMDetails,
+//     merchant_decision: dict->getString("merchant_decision", ""),
+//     merchant_connector_id: dict->getString("merchant_connector_id", ""),
+//     disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
+//     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
+//     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
+//     attempt_count: dict->getInt("attempt_count", 0),
+//     connector_label: dict->getString("connector_label", "NA"),
+//     split_payments: dict->getDictfromDict("split_payments"),
+//   }
+// }
 
 let getOrders: JSON.t => array<order> = json => {
-  getArrayDataFromJson(json, itemToObjMapper)
+  getArrayDataFromJson(json, PaymentInterfaceUtils.mapDictToPaymentPayload)
 }
 
 let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>

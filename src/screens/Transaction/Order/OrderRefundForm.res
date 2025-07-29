@@ -6,7 +6,7 @@ open OrderTypes
 open LogicUtils
 @react.component
 let make = (
-  ~order,
+  ~order: PaymentInterfaceTypes.order,
   ~setShowModal,
   ~requestedRefundAmount,
   ~amountRefunded,

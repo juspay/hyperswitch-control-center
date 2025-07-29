@@ -461,24 +461,22 @@ let setData = (
   offset,
   setOffset,
   total,
-  data,
+  data: array<PaymentInterfaceTypes.order>,
   setTotalCount,
   setOrdersData,
   setScreenState,
   previewOnly,
 ) => {
-  let arr = Array.make(~length=offset, Dict.make())
+  let arr = Array.make(~length=offset, Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload)
   if total <= offset {
     setOffset(_ => 0)
   }
 
   if total > 0 {
-    let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
     let orderData =
       arr
-      ->Array.concat(orderDataDictArr)
-      ->Array.map(OrderEntity.itemToObjMapper)
+      ->Array.concat(data)
       ->Array.filterWithIndex((_, i) => {
         !previewOnly || i <= 2
       })
