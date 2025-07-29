@@ -101,7 +101,7 @@ let make = () => {
       </div>
       <RoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
       <RoutingAnalyticsDistribution />
+      <RoutingAnalyticsSummary />
     </div>
-    <RoutingAnalyticsSummary />
-  </divPageLoaderWrapper>
+  </PageLoaderWrapper>
 }

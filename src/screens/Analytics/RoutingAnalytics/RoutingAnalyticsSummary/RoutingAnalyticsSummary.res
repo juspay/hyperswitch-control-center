@@ -12,7 +12,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
@@ -29,6 +29,7 @@ let make = () => {
             ~groupByNames=Some(["connector", "routing_approach"]),
             ~source="BATCH",
             ~metrics=Some(["payment_count", "payment_processed_amount", "payment_success_rate"]),
+            ~filter=Some(filterValueJson->JSON.Encode.object),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
@@ -40,6 +41,7 @@ let make = () => {
             ~groupByNames=Some(["routing_approach"]),
             ~source="BATCH",
             ~metrics=Some(["payment_count", "payment_processed_amount", "payment_success_rate"]),
+            ~filter=Some(filterValueJson->JSON.Encode.object),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
@@ -69,7 +71,7 @@ let make = () => {
       getData()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, (startTimeVal, endTimeVal, filterValue))
 
   React.useEffect(() => {
     if expand != -1 {
