@@ -46,7 +46,6 @@ let make = () => {
   open APIUtils
   open Typography
   open LogicUtils
-  let expand = -1
   let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
   let heading = summaryMainColumns->Array.map(colType => getSummaryMainHeading(colType))
   let getURL = useGetURL()
@@ -113,13 +112,6 @@ let make = () => {
     }
     None
   }, (startTimeVal, endTimeVal, filterValue))
-
-  React.useEffect(() => {
-    if expand != -1 {
-      setExpandedRowIndexArray(_ => [expand])
-    }
-    None
-  }, [expand])
 
   let onExpandClick = idx => {
     setExpandedRowIndexArray(_ => [idx])
