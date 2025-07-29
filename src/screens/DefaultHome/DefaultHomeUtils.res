@@ -100,7 +100,7 @@ let defaultHomeActionArray = {
 let defaultHomeCardsArray = {
   [
     {
-      product: Orchestration,
+      product: Orchestration(V1),
       heading: "Orchestrator",
       description: "Unified the diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions and reporting systems",
       imgSrc: "/assets/DefaultHomeVaultCard.svg",
@@ -114,7 +114,7 @@ let defaultHomeCardsArray = {
       action: InternalRoute,
     },
     {
-      product: Recon,
+      product: Recon(V2),
       heading: "Recon",
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",

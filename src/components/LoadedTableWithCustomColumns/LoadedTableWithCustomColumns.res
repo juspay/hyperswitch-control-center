@@ -67,6 +67,7 @@ let make = (
   ~showAutoScroll=false,
   ~hideCustomisableColumnButton=false,
   ~customizeColumnButtonIcon="customise-columns",
+  ~isDraggable=false,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -74,6 +75,7 @@ let make = (
 
   let chooseCols =
     <DynamicTableUtils.ChooseColumnsWrapper
+      title
       entity
       totalResults={actualData->Array.length}
       activeColumnsAtom
@@ -82,6 +84,7 @@ let make = (
       showColumnSelector
       sortingBasedOnDisabled
       showSerialNumber={showSerialNumberInCustomizeColumns}
+      isDraggable
     />
 
   let filt =

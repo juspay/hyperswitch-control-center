@@ -23,7 +23,6 @@ let getHeaders = (
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
-  let isRecoveryInvoices = uri->String.includes("list-invoices")
 
   let headerObj = if isMixpanel {
     [
@@ -35,10 +34,6 @@ let getHeaders = (
     | (Some(str), V1) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
-
-        if isRecoveryInvoices {
-          headers->Dict.set("x-tenant-id", `public`)
-        }
       }
     | (Some(str), V2) => headers->Dict.set("authorization", `Bearer ${str}`)
     | _ => ()
@@ -54,6 +49,15 @@ let getHeaders = (
     // this header is specific to Intelligent Routing (Dynamic Routing)
     if uri->String.includes("dynamic-routing") {
       headers->Dict.set("x-feature", "dynamo-simulator")
+    }
+
+    // this header is specific to Chat Bot for session tracking
+    if uri->String.includes("/chat/ai/data") {
+      let sessionKey = "chatbot_session_id"
+      switch SessionStorage.sessionStorage.getItem(sessionKey)->Nullable.toOption {
+      | Some(sessionId) => headers->Dict.set("x-chat-session-id", sessionId)
+      | None => ()
+      }
     }
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)

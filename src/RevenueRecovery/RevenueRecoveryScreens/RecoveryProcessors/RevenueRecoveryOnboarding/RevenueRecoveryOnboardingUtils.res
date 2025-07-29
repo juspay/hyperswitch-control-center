@@ -153,6 +153,36 @@ module PageWrapper = {
 open ConnectorTypes
 let billingConnectorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
+let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
+  {
+    name: "Recurly",
+    icon: "/assets/recurly-logo.png",
+  },
+  {
+    name: "Recharge",
+    icon: "/assets/recharge-logo.png",
+  },
+  {
+    name: "Zoura",
+    icon: "/assets/zoura-logo.png",
+  },
+  {
+    name: "Stripe Billing",
+    icon: "/Gateway/STRIPEBILLING.svg",
+  },
+]
+
+let billingConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
+  {
+    name: "Kill Bill",
+    icon: "/assets/kill_bill-logo.png",
+  },
+  {
+    name: "Custom",
+    icon: "/assets/custom-logo.png",
+  },
+]
+
 let getOptions: array<ConnectorTypes.connectorTypes> => array<
   SelectBox.dropdownOption,
 > = dropdownList => {

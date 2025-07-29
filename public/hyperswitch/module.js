@@ -107,6 +107,14 @@ function getThreeDsKeys() {
   }
 }
 
+function getThreeDsDecisionRuleKeys() {
+  if (wasm) {
+    return wasm.getThreeDsDecisionRuleKeys();
+  } else {
+    return [];
+  }
+}
+
 function getSurchargeKeys() {
   if (wasm) {
     return wasm.getSurchargeKeys();
@@ -207,6 +215,13 @@ function getPayoutVariantValues(str) {
     return wasm.getPayoutVariantValues(str);
   } else {
     return [];
+  }
+}
+function getMerchantCategoryCodeWithName() {
+  if (wasm) {
+    return wasm.getMerchantCategoryCodeWithName();
+  } else {
+    return {};
   }
 }
 

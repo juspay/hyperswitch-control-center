@@ -11,7 +11,7 @@ module VolumeRoutingView = {
     ~routingId,
     ~pageState,
     ~setPageState,
-    ~connectors: array<ConnectorTypes.connectorPayload>,
+    ~connectors: array<ConnectorTypes.connectorPayloadCommonType>,
     ~isActive,
     ~profile,
     ~setFormState,
@@ -98,7 +98,7 @@ module VolumeRoutingView = {
       ->Array.map((item): SelectBox.dropdownOption => {
         {
           label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
-          value: item.merchant_connector_id,
+          value: item.id,
         }
       })
     }, [profile])
@@ -203,7 +203,7 @@ module VolumeRoutingView = {
 let make = (
   ~routingRuleId,
   ~isActive,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {

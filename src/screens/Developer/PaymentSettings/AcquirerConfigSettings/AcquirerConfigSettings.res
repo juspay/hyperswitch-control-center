@@ -2,6 +2,7 @@ open LogicUtils
 open APIUtilsTypes
 open AcquirerConfigUtils
 open AcquirerConfigEntity
+open AcquirerConfigTypes
 open FormRenderer
 open FramerMotion
 
@@ -24,7 +25,8 @@ module FieldRendererWithStyles = {
 
 module SettingsForm = {
   @react.component
-  let make = (~isAcquirerConfigArrEmpty, ~setIsShowAcquirerConfigSettings) => {
+  let make = (~isAcquirerConfigArrEmpty, ~handleCloseForm, ~editingConfig=None) => {
+    open Fetch
     let showToast = ToastState.useShowToast()
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let getURL = APIUtils.useGetURL()
@@ -32,24 +34,85 @@ module SettingsForm = {
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
     let validateForm = values => validateAcquirerConfigForm(values, formKeys)
 
-    let onSubmit = async (values, _) => {
+    let isUpdateMode = editingConfig->Option.isSome
+    let initialValues =
+      editingConfig
+      ->Option.map(getInitialValuesFromConfig)
+      ->Option.getOr(JSON.Encode.null)
+
+    let (submitButtonTitle, cancelButtonTitle) = isUpdateMode
+      ? ("Update", "Exit Update Mode")
+      : ("Save", "Close")
+
+    let prepareFormData = values => {
+      let valuesDict = values->getDictFromJsonObject
+      let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
+      if acquirerBinValue > 0.0 {
+        valuesDict->Dict.set("acquirer_bin", acquirerBinValue->Float.toString->JSON.Encode.string)
+      }
+      valuesDict
+    }
+
+    let handleApiError = e => {
+      let defaultErrorMessage = "Failed to process acquirer config"
+      let errorMessage = switch Exn.message(e) {
+      | Some(err) => {
+          let errorCode =
+            err->JSON.parseExn->getDictFromJsonObject->LogicUtils.getString("code", "")
+          switch errorCode {
+          | "IR_38" => "Duplicate entry found"
+          | _ => defaultErrorMessage
+          }
+        }
+      | None => defaultErrorMessage
+      }
+      showToast(~message=errorMessage, ~toastType=ToastState.ToastError)
+    }
+
+    let createAcquirerConfig = async values => {
       try {
-        showToast(~message="Updating acquirer config...", ~toastType=ToastState.ToastInfo)
-        let valuesDict = values->getDictFromJsonObject
+        showToast(~message="Creating acquirer config...", ~toastType=ToastState.ToastInfo)
+
+        let valuesDict = prepareFormData(values)
         valuesDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
-        let url = getURL(~entityName=V1(ACQUIRER_CONFIG_SETTINGS), ~methodType=Fetch.Post)
-        let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Fetch.Post)
+        let (entityName, methodType) = (V1(ACQUIRER_CONFIG_SETTINGS), Post)
+        let url = getURL(~entityName, ~methodType)
 
-        setIsShowAcquirerConfigSettings(_ => false)
-        showToast(~message="Acquirer config updated", ~toastType=ToastState.ToastSuccess)
+        let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
 
+        handleCloseForm()
+        showToast(~message="Acquirer config created", ~toastType=ToastState.ToastSuccess)
         fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       } catch {
-      | _ =>
-        showToast(~message="Failed to update acquirer config", ~toastType=ToastState.ToastError)
+      | Exn.Error(e) => handleApiError(e)
       }
+    }
 
+    let updateAcquirerConfig = async (values, configId) => {
+      try {
+        showToast(~message="Updating acquirer config...", ~toastType=ToastState.ToastInfo)
+
+        let valuesDict = prepareFormData(values)
+
+        let (entityName, methodType) = (V1(ACQUIRER_CONFIG_SETTINGS), Post)
+        let url = getURL(~entityName, ~methodType, ~id=Some(configId))
+
+        let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
+
+        handleCloseForm()
+        showToast(~message="Acquirer config updated", ~toastType=ToastState.ToastSuccess)
+        fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
+      } catch {
+      | Exn.Error(e) => handleApiError(e)
+      }
+    }
+
+    let onSubmit = async (values, _) => {
+      switch editingConfig {
+      | Some({id}) => await updateAcquirerConfig(values, id)
+      | _ => await createAcquirerConfig(values)
+      }
       Nullable.null
     }
 
@@ -68,6 +131,7 @@ module SettingsForm = {
           subscription=ReactFinalForm.subscribeToValues
           validate=validateForm
           onSubmit
+          initialValues
           render={({handleSubmit}) => {
             <form
               onSubmit={handleSubmit}
@@ -96,12 +160,14 @@ module SettingsForm = {
               </div>
               <DesktopRow>
                 <div className="flex justify-end w-full gap-2">
-                  <SubmitButton text="Save" buttonType=Button.Primary buttonSize=Button.Medium />
+                  <SubmitButton
+                    text=submitButtonTitle buttonType=Button.Primary buttonSize=Button.Medium
+                  />
                   <RenderIf condition={!isAcquirerConfigArrEmpty}>
                     <Button
                       buttonType=Button.Secondary
-                      onClick={_ => setIsShowAcquirerConfigSettings(_ => false)}
-                      text="Cancel"
+                      onClick={_ => handleCloseForm()}
+                      text=cancelButtonTitle
                     />
                   </RenderIf>
                 </div>
@@ -143,6 +209,7 @@ module AcquirerConfigContent = {
     let (offset, setOffset) = React.useState(_ => 0)
     let resultsPerPage = 10
     let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
+    let (editingConfig, setEditingConfig) = React.useState(_ => None)
     let {acquirer_configs: acquirerConfig} =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
 
@@ -154,7 +221,22 @@ module AcquirerConfigContent = {
     let totalResults = acquirerConfigArr->Array.length
     let isAcquirerConfigArrEmpty = acquirerConfigArr->Array.length == 0
 
-    <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full overflow-scroll">
+    let handleEdit = (config: acquirerConfig) => {
+      setEditingConfig(_ => Some(config))
+      setIsShowAcquirerConfigSettings(_ => true)
+    }
+
+    let handleCloseForm = _ => {
+      setIsShowAcquirerConfigSettings(_ => false)
+      setEditingConfig(_ => None)
+    }
+
+    let entityWithEditHandler = React.useMemo(
+      () => makeEntityWithEditHandler(~onEdit=Some(handleEdit)),
+      [handleEdit],
+    )
+
+    <div className="border-t-2 dark:border-jp-gray-950 md:border-0 w-full">
       <RenderIf condition={!isAcquirerConfigArrEmpty}>
         <LoadedTable
           title="Acquirer Configurations"
@@ -164,7 +246,7 @@ module AcquirerConfigContent = {
           resultsPerPage
           offset
           setOffset
-          entity
+          entity=entityWithEditHandler
           currrentFetchCount=totalResults
           showPagination={totalResults > resultsPerPage}
           tableLocalFilter=false
@@ -177,7 +259,7 @@ module AcquirerConfigContent = {
       <AnimatePresence mode="wait">
         {!isShowAcquirerConfigSettings && !isAcquirerConfigArrEmpty
           ? <ActionButtons setIsShowAcquirerConfigSettings />
-          : <SettingsForm isAcquirerConfigArrEmpty setIsShowAcquirerConfigSettings />}
+          : <SettingsForm isAcquirerConfigArrEmpty handleCloseForm editingConfig />}
       </AnimatePresence>
     </div>
   }
@@ -196,11 +278,11 @@ let make = () => {
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
     <Accordion
       accordion=accordionData
-      accordianTopContainerCss="border overflow-hidden border-jp-gray-500 rounded-md dark:border-jp-gray-960"
+      accordianTopContainerCss="border overflow-visible border-jp-gray-500 rounded-md dark:border-jp-gray-960"
       accordianBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
-      contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0"
+      contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0 rounded-md"
       arrowFillColor="#6B7280"
-      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75"
+      titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-md"
     />
   </div>
 }

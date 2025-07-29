@@ -9,6 +9,7 @@ let getV2Url = (
   ~id=None,
   ~profileId,
   ~merchantId,
+  ~transactionEntity,
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
@@ -47,7 +48,7 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParamerters {
         | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
-        | None => `${peymantsBaseURL}/${key_id}`
+        | None => `${peymantsBaseURL}/${key_id}/get-intent`
         }
       | None =>
         switch queryParamerters {
@@ -57,7 +58,39 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | V2_ATTEMPTS_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `${peymantsBaseURL}/${key_id}/list_attempts`
+      | None => ""
+      }
+    | _ => ""
+    }
+  | PROCESS_TRACKER =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) => `v2/process_tracker/revenue_recovery_workflow/${key_id}`
+      | None => "v2/process_tracker/revenue_recovery_workflow"
+      }
+    | _ => ""
+    }
   | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | V2_ORDERS_AGGREGATE =>
+    switch methodType {
+    | Get =>
+      switch queryParamerters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Merchant => `v2/payments/aggregate?${queryParams}`
+        | #Profile => `v2/payments/profile/aggregate?${queryParams}`
+        | _ => `v2/payments/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
@@ -99,12 +132,14 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
+    ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
+    let reconBaseURL = `hyperswitch-recon-engine`
 
     let endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -124,8 +159,13 @@ let useGetURL = () => {
       | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 
       /* ORGANIZATION UPDATE */
-      | UPDATE_ORGANIZATION =>
+      | ORGANIZATION_RETRIEVE =>
         switch methodType {
+        | Get =>
+          switch id {
+          | Some(id) => `organization/${id}`
+          | None => ``
+          }
         | Put =>
           switch id {
           | Some(id) => `organization/${id}`
@@ -476,7 +516,8 @@ let useGetURL = () => {
       | ANALYTICS_REFUNDS
       | ANALYTICS_PAYMENTS
       | ANALYTICS_DISPUTES
-      | ANALYTICS_AUTHENTICATION =>
+      | ANALYTICS_AUTHENTICATION
+      | ANALYTICS_ROUTING =>
         switch methodType {
         | Get =>
           switch id {
@@ -512,16 +553,16 @@ let useGetURL = () => {
         | Get =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `analytics/v1/auth_events/info`
+          | #Organization => `analytics/v1/org/auth_events/info`
+          | #Merchant => `analytics/v1/merchant/auth_events/info`
+          | #Profile => `analytics/v1/profile/auth_events/info`
           }
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `analytics/v1/metrics/auth_events`
+          | #Organization => `analytics/v1/org/metrics/auth_events`
+          | #Merchant => `analytics/v1/merchant/metrics/auth_events`
+          | #Profile => `analytics/v1/profile/metrics/auth_events`
           }
 
         | _ => ""
@@ -531,11 +572,10 @@ let useGetURL = () => {
         | Post =>
           switch analyticsEntity {
           | #Tenant
-          | #Organization
-          | #Merchant
-          | #Profile => `analytics/v1/filters/auth_events`
+          | #Organization => `analytics/v1/org/filters/auth_events`
+          | #Merchant => `analytics/v1/merchant/filters/auth_events`
+          | #Profile => `analytics/v1/profile/filters/auth_events`
           }
-
         | _ => ""
         }
       | ANALYTICS_FILTERS =>
@@ -621,6 +661,23 @@ let useGetURL = () => {
 
       /* THREE DS ROUTING */
       | THREE_DS => `routing/decision`
+
+      /* THREE DS ROUTING */
+
+      | THREE_DS_EXEMPTION_RULES =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(routingId) => `routing/${routingId}`
+          | None => `routing/active?transaction_type=three_ds_authentication&limit=100`
+          }
+        | Post =>
+          switch id {
+          | Some(routing_id) => `routing/${routing_id}/activate`
+          | _ => "routing"
+          }
+        | _ => ""
+        }
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
@@ -759,7 +816,11 @@ let useGetURL = () => {
       /* MERCHANT ACQUIRER */
       | ACQUIRER_CONFIG_SETTINGS =>
         switch methodType {
-        | Post => `profile_acquirer`
+        | Post =>
+          switch id {
+          | Some(acquirerId) => `profile_acquirer/${profileId}/${acquirerId}`
+          | None => `profile_acquirer`
+          }
         | _ => ""
         }
 
@@ -799,6 +860,120 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        }
+
+      | HYPERSWITCH_RECON =>
+        switch hyperswitchReconType {
+        | #FILE_UPLOAD =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(ingestionId) => `${reconBaseURL}/ingestions/${ingestionId}/upload`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #ACCOUNTS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}`
+            | None => `${reconBaseURL}/accounts`
+            }
+          | _ => ""
+          }
+        | #TRANSACTIONS_LIST =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/transactions?${queryParams}`
+              | None => `${reconBaseURL}/transactions`
+              }
+            }
+          | _ => ""
+          }
+        | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(accountId) =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/accounts/${accountId}/entries?${queryParams}`
+              | None => `${reconBaseURL}/accounts/${accountId}/entries`
+              }
+            | None => ""
+            }
+          | _ => ""
+          }
+        | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/entries`
+            | None => `${reconBaseURL}/entries`
+            }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRIES_LIST =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
+            | None => `${reconBaseURL}/staging_entries`
+            }
+          | _ => ""
+          }
+        | #RECON_RULES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules`
+            }
+          | _ => ""
+          }
+        | #INGESTION_HISTORY =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/ingestions/history?${queryParams}`
+            | None =>
+              switch id {
+              | Some(ingestionHistoryId) =>
+                `${reconBaseURL}/ingestions/history/${ingestionHistoryId}`
+              | None => `${reconBaseURL}/ingestions/history`
+              }
+            }
+          | _ => ""
+          }
+        | #INGESTION_CONFIG =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
+            | None => `${reconBaseURL}/ingestions/config`
+            }
+          | _ => ""
+          }
+        | #TRANSFORMATION_HISTORY =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/transformations/history?${queryParams}`
+            | None =>
+              switch id {
+              | Some(transformationHistoryId) =>
+                `${reconBaseURL}/transformations/history/${transformationHistoryId}`
+              | None => `${reconBaseURL}/transformations/history`
+              }
+            }
+          | _ => ""
+          }
+
+        | #NONE => ""
         }
 
       /* INTELLIGENT ROUTING */
@@ -969,6 +1144,7 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
+      | CHAT_BOT => `chat/ai/data`
       }
 
     | V2(entityNameForv2) =>
@@ -980,6 +1156,7 @@ let useGetURL = () => {
         ~queryParamerters,
         ~profileId,
         ~merchantId,
+        ~transactionEntity,
       )
     }
 
@@ -1061,7 +1238,8 @@ let responseHandler = async (
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 
   switch responseStatus {
-  | 200 => json
+  | 200
+  | 201 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify

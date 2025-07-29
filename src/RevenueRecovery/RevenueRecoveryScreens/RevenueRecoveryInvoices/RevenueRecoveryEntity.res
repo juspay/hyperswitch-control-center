@@ -15,9 +15,9 @@ let getAttemptCell = (
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
-      color: switch attempt.status->HSwitchOrderUtils.refundStatusVariantMapper {
-      | Success => LabelGreen
-      | Failure => LabelRed
+      color: switch attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
+      | #CHARGED => LabelGreen
+      | #FAILURE => LabelRed
       | _ => LabelLightGray
       },
     })
@@ -25,6 +25,9 @@ let getAttemptCell = (
   | Error => Text(attempt.error)
   | AttemptTriggeredBy => Text(attempt.attempt_triggered_by->LogicUtils.snakeToTitle)
   | Created => Text(attempt.created)
+  | CardNetwork => Text(`${attempt.card_network} - ***** ${attempt.last4}`)
+  | DeclineCode => Text(attempt.network_decline_code)
+  | ErrorMessage => Text(attempt.network_error_message)
   }
 }
 
@@ -35,22 +38,65 @@ let getAttemptHeading = (attemptColType: RevenueRecoveryOrderTypes.attemptColTyp
   | Error => Table.makeHeaderInfo(~key="Error", ~title="Error Reason")
   | AttemptTriggeredBy => Table.makeHeaderInfo(~key="AttemptTriggeredBy", ~title="Attempted By")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
+  | CardNetwork => Table.makeHeaderInfo(~key="Card used", ~title="Card used")
+  | DeclineCode => Table.makeHeaderInfo(~key=" DeclineCode", ~title=" Decline Code")
+  | ErrorMessage => Table.makeHeaderInfo(~key="ErrorMessage", ~title="Error Message")
   }
 }
 
 let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempts = dict => {
   id: dict->getString("id", ""),
   status: dict->getString("status", ""),
-  error: dict->getString("error", ""),
+  error: dict->getDictfromDict("error")->getString("message", ""),
   attempt_triggered_by: dict
   ->getDictfromDict("feature_metadata")
   ->getDictfromDict("revenue_recovery")
-  ->getString("attempt_triggered_by", ""),
-  created: dict->getString("created", ""),
+  ->getString("attempt_triggered_by", "Internal"),
+  created: dict->getString("created_at", ""),
+  card_network: dict
+  ->getDictfromDict("payment_method_data")
+  ->getDictfromDict("card")
+  ->getString("card_issuer", ""),
+  last4: dict
+  ->getDictfromDict("payment_method_data")
+  ->getDictfromDict("card")
+  ->getString("last4", ""),
+  network_decline_code: dict
+  ->getDictfromDict("error")
+  ->getString("network_decline_code", ""),
+  network_error_message: dict
+  ->getDictfromDict("error")
+  ->getString("network_error_message", ""),
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
-  LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
+  open HSwitchOrderUtils
+  let errorObject = Dict.make()
+
+  let attemptsList = json->getArrayFromJson([])
+
+  attemptsList->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+
+    let errorDict = dict->getDictfromDict("error")
+
+    let networkDeclineCode = errorDict->getString("network_decline_code", "")
+    let networkErrorMessage = errorDict->getString("network_error_message", "")
+
+    if (
+      (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&
+        dict->getString("status", "")->paymentAttemptStatusVariantMapper != #CHARGED
+    ) {
+      dict->Dict.set("error", errorObject->JSON.Encode.object)
+    }
+
+    if errorObject->isEmptyDict {
+      errorObject->Dict.set("network_decline_code", networkDeclineCode->JSON.Encode.string)
+      errorObject->Dict.set("network_error_message", networkErrorMessage->JSON.Encode.string)
+    }
+
+    dict->attemptsItemToObjMapper
+  })
 }
 
 let allColumns: array<RevenueRecoveryOrderTypes.colType> = [
@@ -77,7 +123,7 @@ let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->HSwitchOrderUtils.refundStatusVariantMapper
+  let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -91,10 +137,18 @@ let getCell = (
     Label({
       title: order.status->String.toUpperCase,
       color: switch orderStatus {
-      | Success => LabelGreen
-      | Failure => LabelRed
-      | Pending => LabelBlue
-      | _ => LabelLightGray
+      | Succeeded
+      | PartiallyCaptured =>
+        LabelGreen
+      | Failed
+      | Cancelled =>
+        LabelRed
+      | Processing
+      | RequiresCustomerAction
+      | RequiresConfirmation
+      | RequiresPaymentMethod =>
+        LabelBlue
+      | _ => LabelBlue
       },
     })
   | OrderAmount =>
@@ -140,15 +194,39 @@ let defaultColumns: array<RevenueRecoveryOrderTypes.colType> = [
   PaymentMethodType,
 ]
 
+let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
+  let attempts = dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts
+
+  let revenueRecoveryMetadata =
+    dict
+    ->getDictfromDict("feature_metadata")
+    ->getDictfromDict("revenue_recovery")
+
+  attempts->Array.reverse
+  {
+    id: dict->getString("id", ""),
+    status: dict->getString("status", ""),
+    order_amount: dict
+    ->getDictfromDict("amount_details")
+    ->getFloat("order_amount", 0.0),
+    connector: revenueRecoveryMetadata->getString("connector", ""),
+    created: dict->getString("created", ""),
+    payment_method_type: revenueRecoveryMetadata->getString("payment_method_type", ""),
+    payment_method_subtype: revenueRecoveryMetadata->getString("payment_method_subtype", ""),
+    attempts,
+  }
+}
+
 let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
   let attempts = dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts
+
   attempts->Array.reverse
   {
     id: dict->getString("id", ""),
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount")
-    ->getFloat("order_amount", 0.0) *. 100.0,
+    ->getFloat("order_amount", 0.0),
     connector: dict->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: dict->getString("payment_method_type", ""),

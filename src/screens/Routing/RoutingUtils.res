@@ -229,10 +229,11 @@ let validateConditionJson = (json, keys) => {
 
 let validateConditionsFor3ds = dict => {
   let conditionsArray = dict->getArrayFromDict("statements", [])
+  let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
     value->validateConditionJson(["comparison", "lhs"])
-  })
+  }) && decisionValue->isNonEmptyString
 }
 
 let getRecordsObject = json => {
@@ -253,7 +254,10 @@ let filter = (connector_type, ~retainInList) => {
   }
 }
 
-let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, ~retainInList) => {
+let filterConnectorList = (
+  items: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~retainInList,
+) => {
   open ConnectorTypes
   items->Array.filter(connector =>
     connector.connector_type

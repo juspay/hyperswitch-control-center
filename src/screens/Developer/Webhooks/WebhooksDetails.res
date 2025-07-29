@@ -118,6 +118,7 @@ let make = (~id) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => JSON.Encode.null)
@@ -173,6 +174,7 @@ let make = (~id) => {
         ~id=Some(selectedEvent.eventId),
       )
       let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
+      mixpanelEvent(~eventName="webhooks_retry")
       fetchWebhooksEventDetails()->ignore
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to retry webhook", ~toastType=ToastError)
@@ -212,6 +214,7 @@ let make = (~id) => {
       collapseTableRow=false
       showSerialNumber=true
       highlightSelectedRow=true
+      showAutoScroll=true
     />
 
   let tabList: array<Tabs.tab> = [
@@ -244,10 +247,10 @@ let make = (~id) => {
       cursorStyle="cursor-pointer"
     />
     <PageLoaderWrapper screenState>
-      <div className="flex gap-6">
-        <div> {table} </div>
+      <div className="flex gap-6 max-h-screen">
+        <div className="flex-1 min-w-0"> {table} </div>
         <div
-          className="flex flex-col gap-2 border border-nd_gray-200 rounded-lg bg-white w-[40rem] overflow-auto p-2">
+          className="flex flex-col gap-2 border border-nd_gray-200 rounded-lg bg-white flex-1 min-w-0 lg:max-w-[40rem] overflow-auto p-2">
           <RenderIf condition={!(selectedEvent.deliveryAttempt->LogicUtils.isEmptyString)}>
             <div className="flex justify-between items-center mx-4 mt-5">
               <div className="flex items-center gap-3 text-fs-14 px-2">

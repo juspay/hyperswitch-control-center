@@ -12,8 +12,7 @@ module BillingConnectorDetails = {
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-    let billingConnectorListFromRecoil = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV2,
+    let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
     )
 
@@ -41,7 +40,7 @@ module BillingConnectorDetails = {
       None
     }, [])
 
-    let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )
@@ -86,7 +85,9 @@ module BillingConnectorDetails = {
     let {connectorAccountFields} = getConnectorFields(connectorDetails)
 
     let revenueRecovery =
-      connectorInfodict.feature_metadata->getDictFromJsonObject->getDictfromDict("revenue_recovery")
+      connectorInfodict.feature_metadata
+      ->getDictFromJsonObject
+      ->getDictfromDict("revenue_recovery")
     let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
@@ -137,10 +138,10 @@ module BillingConnectorDetails = {
           {connector_webhook_details
           ->getDictFromJsonObject
           ->Dict.toArray
-          ->Array.map(item => {
+          ->Array.mapWithIndex((item, index) => {
             let (key, value) = item
 
-            <div className="flex flex-col gap-0.5-rem ">
+            <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
               <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
               {value->JSON.Decode.string->Option.getOr("")->React.string}
             </div>
@@ -191,7 +192,7 @@ module PaymentConnectorDetails = {
       None
     }, [connectorId])
 
-    let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
       ConnectorInterface.connectorInterfaceV2,
       initialValues->LogicUtils.getDictFromJsonObject,
     )

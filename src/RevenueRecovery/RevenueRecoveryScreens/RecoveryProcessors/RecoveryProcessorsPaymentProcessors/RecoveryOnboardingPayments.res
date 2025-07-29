@@ -33,7 +33,7 @@ let make = (
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -113,7 +113,7 @@ let make = (
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
 
-      let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+      let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
         ConnectorInterface.connectorInterfaceV2,
         response->getDictFromJsonObject,
       )
@@ -184,9 +184,37 @@ let make = (
   }
   let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
 
-  let addItemBtnStyle = "border border-t-0 !w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
+
+  let recoveryConnectorListProd: array<
+    BillingProcessorsUtils.optionType,
+  > = RecoveryConnectorUtils.recoveryConnectorListProd->Array.map(connector => {
+    let connectorName = connector->getConnectorNameString
+
+    let option: BillingProcessorsUtils.optionType = {
+      name: connectorName->getDisplayNameForConnector(~connectorType=ConnectorTypes.Processor),
+      icon: `/Gateway/${connectorName->String.toUpperCase}.svg`,
+    }
+
+    option
+  })
+
+  let gatewaysBottomComponent = {
+    open BillingProcessorsUtils
+    <>
+      <p
+        className="text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white border-t px-5 pt-4">
+        {"Available for Production"->React.string}
+      </p>
+      <div className="p-2">
+        <ReadOnlyOptionsList list=recoveryConnectorListProd headerText="Payment Gateways" />
+        <ReadOnlyOptionsList
+          list=RecoveryConnectorUtils.recoveryConnectorInHouseList headerText="Payment Orchestrator"
+        />
+      </div>
+    </>
+  }
 
   open IntelligentRoutingUtils
   <div>
@@ -278,12 +306,7 @@ let make = (
                 baseComponent={<ListBaseComp
                   placeHolder="Choose a processor" heading="Profile" subHeading=connector arrow
                 />}
-                bottomComponent={<AddNewOMPButton
-                  filterConnector=None
-                  prodConnectorList=RecoveryConnectorUtils.recoveryConnectorListProd
-                  user=#Profile
-                  addItemBtnStyle
-                />}
+                bottomComponent=gatewaysBottomComponent
                 hideMultiSelectButtons=true
                 addButton=false
                 searchable=true

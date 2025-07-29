@@ -18,8 +18,8 @@ let make = () => {
     : "Get Production Access"
   let eventName = switch activeProduct {
   | DynamicRouting => "intelligent_routing_get_production_access"
-  | Orchestration => "get_production_access"
-  | _ => `${(Obj.magic(activeProduct) :> string)}_get_production_access`
+  | Orchestration(V1) => "get_production_access"
+  | _ => `${activeProduct->ProductUtils.getProductStringName}_get_production_access`
   }
 
   let prodAccess = switch isProdIntentCompleted {
@@ -39,11 +39,12 @@ let make = () => {
   | None => React.null
   }
 
-  let productsToShowProductionAccess: array<ProductTypes.productTypes> = [
-    Orchestration,
-    DynamicRouting,
-    Recon,
-  ]
+  let isProdAccessAvailableForProduct = switch activeProduct {
+  | Orchestration(V1)
+  | DynamicRouting
+  | Recon(V2) => true
+  | _ => false
+  }
 
   let showGetProductionAccess =
     !isLiveMode &&
@@ -53,7 +54,7 @@ let make = () => {
       userHasAccess(~groupAccess=UserManagementTypes.MerchantDetailsManage),
       userHasAccess(~groupAccess=UserManagementTypes.AccountManage),
     ) === CommonAuthTypes.Access &&
-    productsToShowProductionAccess->Array.includes(activeProduct)
+    isProdAccessAvailableForProduct
 
   <RenderIf condition={showGetProductionAccess}> {prodAccess} </RenderIf>
 }

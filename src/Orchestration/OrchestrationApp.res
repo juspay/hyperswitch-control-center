@@ -5,7 +5,7 @@ let make = (~setScreenState) => {
   let url = RescriptReactRouter.useUrl()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -48,15 +48,17 @@ let make = (~setScreenState) => {
     | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
-    | list{"analytics-authentication"} =>
+    | list{"analytics-authentication"}
+    | list{"analytics-routing"} =>
       <AnalyticsContainer />
+
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
     | list{"new-analytics", "refund"}
     | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
-        useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
+        useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="NewAnalytics" index="NewAnalytics">
           <InsightsAnalyticsContainer />
@@ -99,6 +101,12 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <Surcharge />
       </AccessControl>
+    | list{"3ds-exemption"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.threedsExemptionRules}
+        authorization={userHasAccess(~groupAccess=WorkflowsView)}>
+        <HSwitchThreeDsExemption />
+      </AccessControl>
     | list{"account-settings"} =>
       <AccessControl
         isEnabled=featureFlagDetails.sampleData
@@ -135,9 +143,13 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ =>
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-      <MerchantAccountContainer setAppScreenState=setScreenState />
+    | list{"chat-bot"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAiChatBot}
+        authorization={userHasAccess(~groupAccess=MerchantDetailsView)}>
+        <ChatBot />
+      </AccessControl>
+    | _ => <EmptyPage path="/home" />
     }
   }
 }

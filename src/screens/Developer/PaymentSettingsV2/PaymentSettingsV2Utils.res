@@ -1,8 +1,7 @@
 open PaymentSettingsV2Types
+open HSwitchSettingTypes
 
-let parseBusinessProfileForPaymentBehaviour = (
-  profileRecord: HSwitchSettingTypes.profileEntity,
-) => {
+let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => {
   open LogicUtils
   let {
     profile_name,
@@ -52,7 +51,7 @@ let parseBusinessProfileForPaymentBehaviour = (
 }
 
 let validateEmptyArray = (key, errors, arrayValue) => {
-  switch key {
+  switch (key: validationFieldsV2) {
   | AuthenticationConnectors(_) =>
     let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
 
@@ -106,25 +105,22 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       }
     }
   | ThreeDsRequestorAppUrl =>
-    if value->LogicUtils.isEmptyString {
-      Dict.set(errors, "three_ds_requestor_app_url", "URL cannot be empty"->JSON.Encode.string)
-    } else {
-      let httpUrlValid = isLiveMode
-        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-        : RegExp.test(%re("/^(http|https):\/\//i"), value)
+    let httpUrlValid = isLiveMode
+      ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
+      : RegExp.test(%re("/^(http|https):\/\//i"), value)
 
-      let deepLinkValid = RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
-      if !(httpUrlValid || deepLinkValid) {
-        let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
-        errors->Dict.set("authentication_connector_details", JSON.Encode.null)
-        Dict.set(
-          newDict,
-          "three_ds_requestor_app_url",
-          "Please enter a valid URL or Mobile Deeplink"->JSON.Encode.string,
-        )
-        Dict.set(errors, "authentication_connector_details", newDict->JSON.Encode.object)
-      }
+    let deepLinkValid = RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
+    if !(httpUrlValid || deepLinkValid) {
+      let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
+      errors->Dict.set("authentication_connector_details", JSON.Encode.null)
+      Dict.set(
+        newDict,
+        "three_ds_requestor_app_url",
+        "Please enter a valid URL or Mobile Deeplink"->JSON.Encode.string,
+      )
+      Dict.set(errors, "authentication_connector_details", newDict->JSON.Encode.object)
     }
+
   | _ => ()
   }
 }
@@ -133,16 +129,17 @@ let validationFieldsReverseMapperV2 = value => {
   switch value {
   | "webhook_details" => WebhookDetails
   | "return_url" => ReturnUrl
-  | "authentication_details.authentication_connectors" => AuthenticationConnectors([])
-  | "authentication_details.three_ds_requestor_url" => ThreeDsRequestorUrl
-  | "max_auto_retries_enabled" => MaxAutoRetries
   | "is_auto_retries_enabled" => AutoRetry
-  | "authentication_details.three_ds_requestor_app_url" => ThreeDsRequestorAppUrl
   | "authentication_connector_details" => AuthenticationConnectorDetails
   | _ => UnknownValidateFields(value)
   }
 }
-let validateMerchantAccountFormV2 = (~values: JSON.t, ~isLiveMode) => {
+
+let validateMerchantAccountFormV2 = (
+  ~values: JSON.t,
+  ~isLiveMode,
+  ~businessProfileRecoilVal: profileEntity,
+) => {
   open LogicUtils
   let errors = Dict.make()
 
@@ -179,12 +176,19 @@ let validateMerchantAccountFormV2 = (~values: JSON.t, ~isLiveMode) => {
       | _ => ()
       }
     | AuthenticationConnectorDetails =>
+      let initiallyConnectedAuthConnectorsLength =
+        businessProfileRecoilVal.authentication_connector_details.authentication_connectors->Option.mapOr(
+          0,
+          arr => {arr->Array.length},
+        )
+
       let authenticationConnectorDetailsDict =
         valuesDict->getDictfromDict("authentication_connector_details")
       let threedsArray =
         authenticationConnectorDetailsDict
         ->getArrayFromDict("authentication_connectors", [])
         ->getNonEmptyArray
+      let threeDsArrayVal = threedsArray->Option.mapOr([], arr => arr)
       let threedsUrl =
         authenticationConnectorDetailsDict
         ->getString("three_ds_requestor_url", "")
@@ -193,6 +197,12 @@ let validateMerchantAccountFormV2 = (~values: JSON.t, ~isLiveMode) => {
         authenticationConnectorDetailsDict
         ->getString("three_ds_requestor_app_url", "")
         ->getNonEmptyString
+
+      if initiallyConnectedAuthConnectorsLength > 0 {
+        let url = authenticationConnectorDetailsDict->getString("three_ds_requestor_url", "")
+        AuthenticationConnectors(threeDsArrayVal)->validateEmptyArray(errors, threeDsArrayVal)
+        ThreeDsRequestorUrl->validateCustom(errors, url, isLiveMode)
+      }
       switch threedsArray {
       | Some(valArr) => {
           let url = authenticationConnectorDetailsDict->getString("three_ds_requestor_url", "")
@@ -231,4 +241,110 @@ let validateMerchantAccountFormV2 = (~values: JSON.t, ~isLiveMode) => {
   })
 
   errors->JSON.Encode.object
+}
+let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profileEntity) => {
+  open LogicUtils
+  let {
+    authentication_connector_details,
+    force_3ds_challenge,
+    is_debit_routing_enabled,
+  } = profileRecord
+
+  let threeDsInfo = Dict.make()
+  let authConnectorDetails = Dict.make()
+  authConnectorDetails->setOptionArray(
+    "authentication_connectors",
+    authentication_connector_details.authentication_connectors,
+  )
+  authConnectorDetails->setOptionString(
+    "three_ds_requestor_url",
+    authentication_connector_details.three_ds_requestor_url,
+  )
+  authConnectorDetails->setOptionString(
+    "three_ds_requestor_app_url",
+    authentication_connector_details.three_ds_requestor_app_url,
+  )
+  threeDsInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
+  threeDsInfo->setOptionBool("is_debit_routing_enabled", is_debit_routing_enabled)
+
+  threeDsInfo->setOptionDict(
+    "authentication_connector_details",
+    !(authConnectorDetails->isEmptyDict) ? Some(authConnectorDetails) : None,
+  )
+  threeDsInfo
+}
+
+let isAuthConnectorArrayEmpty = values => {
+  open LogicUtils
+  values
+  ->getDictFromJsonObject
+  ->getDictfromDict("authentication_connector_details")
+  ->getArrayFromDict("authentication_connectors", [])
+  ->Array.length === 0
+}
+
+let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
+  open LogicUtils
+
+  let customHeaderDict = Dict.make()
+
+  switch profileRecord.outgoing_webhook_custom_http_headers {
+  | Some(headers) =>
+    customHeaderDict->setOptionDict("outgoing_webhook_custom_http_headers", Some(headers))
+  | None => ()
+  }
+
+  customHeaderDict
+}
+
+let getCustomHeadersPayload = valuesDict => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+  customHeaderDict->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    Some(outGoingWebHookCustomHttpHeaders),
+  )
+  customHeaderDict
+}
+
+let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
+  open LogicUtils
+
+  let customHeaderDict = Dict.make()
+
+  switch profileRecord.metadata {
+  | Some(headers) => customHeaderDict->setOptionDict("metadata", Some(headers))
+  | None => ()
+  }
+
+  customHeaderDict
+}
+let getMetdataKeyValuePayload = valuesDict => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let customMetadataVal = Dict.make()
+  let formValues = valuesDict->getDictfromDict("metadata")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("metadata")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      customMetadataVal->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
+    })
+  customHeaderDict->setOptionDict("metadata", Some(customMetadataVal))
+  customHeaderDict
 }

@@ -10,14 +10,14 @@ module GatewayView = {
     | PayoutRouting => ConnectorTypes.PayoutProcessor
     | _ => ConnectorTypes.PaymentProcessor
     }
-    let connectorList = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
-      ~retainInList=connectorType,
-    )
+    let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
     let getGatewayName = merchantConnectorId => {
       (
-        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+        connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+          merchantConnectorId,
+          ~version=V1,
+        )
       ).connector_label
     }
 
@@ -75,7 +75,12 @@ module SurchargeCompressedView = {
 }
 
 @react.component
-let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
+let make = (
+  ~ruleInfo: algorithmData,
+  ~isFrom3ds=false,
+  ~isFromSurcharge=false,
+  ~isFrom3DsExemptions=false,
+) => {
   open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   <div
@@ -160,10 +165,10 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                 <RenderIf condition={rule.statements->Array.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </RenderIf>
-                <RenderIf condition={isFrom3ds}>
+                <RenderIf condition={isFrom3ds || isFrom3DsExemptions}>
                   <ThreedsTypeView threeDsType />
                 </RenderIf>
-                <RenderIf condition={!isFrom3ds}>
+                <RenderIf condition={!isFrom3ds && !isFrom3DsExemptions}>
                   <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
                 </RenderIf>
                 <RenderIf condition={isFromSurcharge}>
