@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.29.1
+
+### Features
+
+- Chat bot ui changes ([#3324](https://github.com/juspay/hyperswitch-control-center/pull/3324)) ([`5f23e3b`](https://github.com/juspay/hyperswitch-control-center/commit/5f23e3bac218c977666b0f46263cb56ed383b51d))
+- Add filters in routing analytics ([#3358](https://github.com/juspay/hyperswitch-control-center/pull/3358)) ([`795c960`](https://github.com/juspay/hyperswitch-control-center/commit/795c960eef545dfe311a9aa03026ec531ce6a881))
+
+**Full Changelog:** [`2025.07.29.0...2025.07.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.29.0...2025.07.29.1)
+
+- - -
+
 ## 2025.07.29.0
 
 ### Features
