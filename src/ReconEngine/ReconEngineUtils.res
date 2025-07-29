@@ -1,10 +1,6 @@
 open LogicUtils
 open ReconEngineTransactionsTypes
 
-let formatAmountWithCurrency = (value, ~currency) => {
-  `${value->Float.toFixedWithPrecision(~digits=2)} ${currency}`
-}
-
 let getAccountOptionsFromTransactions = (
   transactions: array<transactionPayload>,
   entryType: string,

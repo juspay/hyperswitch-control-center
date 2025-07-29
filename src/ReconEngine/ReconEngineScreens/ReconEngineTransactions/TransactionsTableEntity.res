@@ -1,6 +1,8 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
 open ReconEngineUtils
+open LogicUtils
+
 let defaultColumns: array<transactionColType> = [
   TransactionId,
   CreditAccount,
@@ -68,23 +70,26 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
   | DebitAccount => Text(getAccounts(transaction.entries, "debit"))
   | CreditAmount =>
     Text(
-      formatAmountWithCurrency(
+      valueFormatter(
         transaction.credit_amount.value,
-        ~currency=transaction.credit_amount.currency,
+        AmountWithSuffix,
+        ~suffix=transaction.credit_amount.currency,
       ),
     )
   | DebitAmount =>
     Text(
-      formatAmountWithCurrency(
+      valueFormatter(
         transaction.debit_amount.value,
-        ~currency=transaction.debit_amount.currency,
+        AmountWithSuffix,
+        ~suffix=transaction.debit_amount.currency,
       ),
     )
   | Variance =>
     Text(
-      formatAmountWithCurrency(
+      valueFormatter(
         Math.abs(transaction.credit_amount.value -. transaction.debit_amount.value),
-        ~currency=transaction.credit_amount.currency,
+        AmountWithSuffix,
+        ~suffix=transaction.credit_amount.currency,
       ),
     )
   | Status => getStatusLabel(Some(transaction.transaction_status))
