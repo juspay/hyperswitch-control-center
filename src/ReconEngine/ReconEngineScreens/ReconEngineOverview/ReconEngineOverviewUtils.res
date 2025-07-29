@@ -129,10 +129,9 @@ let calculateAccountAmounts = (
     }
   })
 
-  let totalSourceAmount =
-    (sourcePosted +. sourceMismatched +. sourceExpected) *. 100.0->Math.round /. 100.0
-  let totalTargetAmount = (targetPosted +. targetMismatched) *. 100.0->Math.round /. 100.0
-  let variance = (Math.abs(totalSourceAmount -. totalTargetAmount) *. 100.0)->Math.round /. 100.0
+  let totalSourceAmount = sourcePosted +. sourceMismatched +. sourceExpected
+  let totalTargetAmount = targetPosted +. targetMismatched
+  let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
 
   (totalSourceAmount, totalTargetAmount, targetExpected, variance)
 }
