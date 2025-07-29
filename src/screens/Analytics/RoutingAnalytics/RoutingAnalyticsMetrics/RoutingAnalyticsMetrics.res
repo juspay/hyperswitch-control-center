@@ -74,7 +74,6 @@ module RoutingAnalyticsCard = {
               payment_success_rate: 0.0,
               payment_count: totalMetricsResponseObj.payment_count,
               payment_success_count: 0,
-              payments_success_rate_without_smart_retries: 0.0,
               payment_failed_count: failureMetricsResponseObj.payment_count,
             }
 
@@ -84,11 +83,7 @@ module RoutingAnalyticsCard = {
             }
 
             setMetricsDataResponse(_ => combinedResponse)
-            if combinedResponse.queryData->Array.length > 0 {
-              setScreenState(_ => PageLoaderWrapper.Success)
-            } else {
-              setScreenState(_ => PageLoaderWrapper.Custom)
-            }
+            setScreenState(_ => PageLoaderWrapper.Success)
           }
         | _ => {
             let body =
@@ -106,11 +101,7 @@ module RoutingAnalyticsCard = {
             let responseObj = response->getDictFromJsonObject->metricsResponseItemToObjMapper
 
             setMetricsDataResponse(_ => responseObj)
-            if responseObj.queryData->Array.length > 0 {
-              setScreenState(_ => PageLoaderWrapper.Success)
-            } else {
-              setScreenState(_ => PageLoaderWrapper.Custom)
-            }
+            setScreenState(_ => PageLoaderWrapper.Success)
           }
         }
       } catch {

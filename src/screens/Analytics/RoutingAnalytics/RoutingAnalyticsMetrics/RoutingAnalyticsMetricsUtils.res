@@ -19,11 +19,8 @@ let getDisplayNameFromMetricType = (metrics: metrics) => {
 
 let getMetricRequestPayloadFromMetricType = (metrics: metrics) => {
   switch metrics {
-  | #overall_authorization_rate => ["payment_success_rate", "payment_count"]
-  | #first_attempt_authorization_rate => [
-      "sessionized_payments_success_rate",
-      "sessionized_payment_intent_count",
-    ]
+  | #overall_authorization_rate => ["payment_success_rate"]
+  | #first_attempt_authorization_rate => ["sessionized_payments_success_rate"]
   | #total_successful => ["payment_success_count", "payment_count"]
   | #total_failure => ["payment_count"]
   }
@@ -34,10 +31,6 @@ let metricsQueryDataItemToObjMapper = dict => {
     payment_success_rate: dict->getFloat("payment_success_rate", 0.0),
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
-    payments_success_rate_without_smart_retries: dict->getFloat(
-      "payments_success_rate_without_smart_retries",
-      0.0,
-    ),
     payment_failed_count: dict->getInt("payment_failed_count", 0),
   }
 }

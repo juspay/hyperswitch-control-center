@@ -9,7 +9,6 @@ type metricsQueryDataResponse = {
   payment_success_rate: float,
   payment_count: int,
   payment_success_count: int,
-  payments_success_rate_without_smart_retries: float,
   payment_failed_count: int,
 }
 
