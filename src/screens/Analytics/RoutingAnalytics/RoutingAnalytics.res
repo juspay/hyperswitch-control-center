@@ -50,5 +50,6 @@ let make = () => {
       </div>
     </div>
     <RoutingAnalyticsDistribution />
+    <RoutingAnalyticsTrends />
   </>
 }
