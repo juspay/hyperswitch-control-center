@@ -19,22 +19,12 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
     let paymentCount = dict->getFloat("payment_count", 0.0)
     (routingApproach, paymentCount)
   })
-  let pieGraphColorSeries = [
-    "#72BEF4",
-    "#CB80DC",
-    "#BCBD22",
-    "#5CB7AF",
-    "#F36960",
-    "#9467BD",
-    "#7F7F7F",
-  ]
 
-  let dataArr: array<PieGraphTypes.pieGraphDataType> = array->Array.mapWithIndex((item, index) => {
+  let dataArr: array<PieGraphTypes.pieGraphDataType> = array->Array.map(item => {
     let (routingApproach, paymentCount) = item
     let dataObj: PieGraphTypes.pieGraphDataType = {
       name: routingApproach,
       y: paymentCount,
-      color: pieGraphColorSeries[index]->Option.getOr(""),
     }
     dataObj
   })
