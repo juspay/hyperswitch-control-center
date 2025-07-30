@@ -1,40 +1,47 @@
 open RoutingAnalyticsSummaryTypes
 open LogicUtils
 
-let groupByRoutingApproach = (queryData: array<JSON.t>) => {
-  let routingGroupsDict = queryData->Array.reduce(Dict.make(), (acc, item: JSON.t) => {
-    let routingApproach = item->getDictFromJsonObject->getString("routing_approach", "Unknown")
-    let existing = acc->getArrayFromDict(routingApproach, [])
+let groupByField = (data: array<JSON.t>, fieldName: string) => {
+  data->Array.reduce(Dict.make(), (acc, item: JSON.t) => {
+    let fieldValue = item->getDictFromJsonObject->getString(fieldName, "Unknown")
+    let existing = acc->getArrayFromDict(fieldValue, [])
     let concatedArray = Array.concat(existing, [item])
-    acc->Dict.set(routingApproach, concatedArray->JSON.Encode.array)
+    acc->Dict.set(fieldValue, concatedArray->JSON.Encode.array)
     acc
   })
-  routingGroupsDict
 }
 
-let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> => {
+let sumIntField = (records: array<JSON.t>, fieldName: string) => {
+  records->Array.reduce(0, (acc, record) => {
+    acc + record->getDictFromJsonObject->getInt(fieldName, 0)
+  })
+}
+
+let sumFloatField = (records: array<JSON.t>, fieldName: string) => {
+  records->Array.reduce(0.0, (acc, record) => {
+    acc +. record->getDictFromJsonObject->getFloat(fieldName, 0.0)
+  })
+}
+
+let calculateTrafficPercentage = (part: int, total: int) => {
+  total > 0 ? Int.toFloat(part) /. Int.toFloat(total) *. 100.0 : 0.0
+}
+
+let mapToTableData = (~responseConnector, ~responseRouting) => {
   let queryData = responseConnector->getDictFromJsonObject->getArrayFromDict("queryData", [])
   let queryDataRouting = responseRouting->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
-  let totalPayments = queryData->Array.reduce(0, (acc, item) => {
-    acc + item->getDictFromJsonObject->getInt("payment_count", 0)
-  })
+  let totalPayments = sumIntField(queryData, "payment_count")
 
-  let routingGroupsRoutingApproachDict = groupByRoutingApproach(queryDataRouting)
+  let routingGroupsRoutingApproachDict = groupByField(queryDataRouting, "routing_approach")
 
   let routingDataLookup =
     routingGroupsRoutingApproachDict
     ->Dict.toArray
     ->Array.reduce(Dict.make(), (acc, (routingApproach, records)) => {
       let recordsJson = records->getArrayFromJson([])
-      let authrate = recordsJson->Array.reduce(0.0, (acc, record) => {
-        let dict = record->getDictFromJsonObject
-        acc +. dict->getFloat("payment_success_rate", 0.0)
-      })
-      let processedAmount = recordsJson->Array.reduce(0.0, (acc, record) => {
-        let dict = record->getDictFromJsonObject
-        acc +. dict->getFloat("payment_processed_amount", 0.0)
-      })
+      let authrate = sumFloatField(recordsJson, "payment_success_rate")
+      let processedAmount = sumFloatField(recordsJson, "payment_processed_amount")
       let routingData =
         [
           ("authRate", authrate->JSON.Encode.float),
@@ -45,68 +52,38 @@ let mapToTableData = (~responseConnector, ~responseRouting): array<summaryMain> 
       acc
     })
 
-  let routingGroupsDict = groupByRoutingApproach(queryData)
+  let routingGroupsDict = groupByField(queryData, "routing_approach")
 
   routingGroupsDict
   ->Dict.toArray
   ->Array.map(((routingApproach, records)) => {
     let recordsJson = records->getArrayFromJson([])
-    let totalPaymentsForRouting = recordsJson->Array.reduce(0, (acc, record) => {
-      let dict = record->getDictFromJsonObject
-      acc + dict->getInt("payment_count", 0)
-    })
-
-    let trafficPercentage =
-      totalPayments > 0
-        ? Int.toFloat(totalPaymentsForRouting) /. Int.toFloat(totalPayments) *. 100.0
-        : 0.0
-
+    let totalPaymentsForRouting = sumIntField(recordsJson, "payment_count")
+    let trafficPercentage = calculateTrafficPercentage(totalPaymentsForRouting, totalPayments)
     let routingData = routingDataLookup->getDictfromDict(routingApproach)
     let authorizationRate = routingData->getFloat("authRate", 0.0)
     let processedAmount = routingData->getFloat("processedAmount", 0.0)
 
-    let connectorGroupsDict = recordsJson->Array.reduce(Dict.make(), (acc, item) => {
-      let connectorName = item->getDictFromJsonObject->getString("connector", "Unknown")
-      let existing = acc->getArrayFromDict(connectorName, [])
-      let concatedArray = Array.concat(existing, [item])
-      acc->Dict.set(connectorName, concatedArray->JSON.Encode.array)
-      acc
-    })
+    let connectorGroupsDict = groupByField(recordsJson, "connector")
 
     let connectors =
       connectorGroupsDict
       ->Dict.toArray
       ->Array.map(((connectorName, connectorRecords)) => {
         let connectorRecordsJson = connectorRecords->getArrayFromJson([])
-        let connectorPayments = connectorRecordsJson->Array.reduce(
-          0,
-          (acc, record) => {
-            let dict = record->getDictFromJsonObject
-            acc + dict->getInt("payment_count", 0)
-          },
+        let connectorPayments = sumIntField(connectorRecordsJson, "payment_count")
+
+        let connectorProcessedAmount = sumFloatField(
+          connectorRecordsJson,
+          "payment_processed_amount",
         )
 
-        let connectorProcessedAmount = connectorRecordsJson->Array.reduce(
-          0.0,
-          (acc, record) => {
-            let dict = record->getDictFromJsonObject
-            acc +. dict->getFloat("payment_processed_amount", 0.0)
-          },
-        )
+        let connectorSuccessRate = sumFloatField(connectorRecordsJson, "payment_success_rate")
 
-        let connectorSuccessRate = connectorRecordsJson->Array.reduce(
-          0.0,
-          (acc, record) => {
-            let dict = record->getDictFromJsonObject
-            let successRate = dict->getFloat("payment_success_rate", 0.0)
-            acc +. successRate
-          },
+        let connectorTrafficPercentage = calculateTrafficPercentage(
+          connectorPayments,
+          totalPaymentsForRouting,
         )
-
-        let connectorTrafficPercentage =
-          totalPaymentsForRouting > 0
-            ? Int.toFloat(connectorPayments) /. Int.toFloat(totalPaymentsForRouting) *. 100.0
-            : 0.0
 
         {
           connector_name: connectorName,

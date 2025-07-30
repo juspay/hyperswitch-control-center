@@ -17,7 +17,7 @@ let connectorCols = [
   ProcessedAmount,
 ]
 
-let getSummaryMainHeading = (colType: summaryColType) => {
+let getSummaryMainHeading = colType => {
   switch colType {
   | RoutingLogic => Table.makeHeaderInfo(~key="routing_logic", ~title="Routing Logic")
   | TrafficPercentage =>
@@ -28,7 +28,7 @@ let getSummaryMainHeading = (colType: summaryColType) => {
   | ProcessedAmount => Table.makeHeaderInfo(~key="processed_amount", ~title="Processed Amount")
   }
 }
-let getConnectorHeading = (colType: connectorColType) => {
+let getConnectorHeading = colType => {
   switch colType {
   | ConnectorName => Table.makeHeaderInfo(~key="connector_name", ~title="Connector Name")
   | TrafficPercentage =>
@@ -40,7 +40,7 @@ let getConnectorHeading = (colType: connectorColType) => {
   }
 }
 
-let getSummaryMainCell = (summaryMain: summaryMain, colType: summaryColType): Table.cell => {
+let getSummaryMainCell = (summaryMain, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
     shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
@@ -81,7 +81,7 @@ let getSummaryMainCell = (summaryMain: summaryMain, colType: summaryColType): Ta
   }
 }
 
-let getConnectorCell = (connector: connectorDetails, colType: connectorColType): Table.cell => {
+let getConnectorCell = (connector, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
     shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }

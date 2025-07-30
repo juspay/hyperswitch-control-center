@@ -88,7 +88,7 @@ let make: (
   ~filterDropdownClass: string=?,
   ~maxTableHeight: string=?,
   ~showTableOnMobileView: bool=?,
-  ~labelMargin: TableUtils.labelMargin=?,
+  ~labelMargin: string=?,
   ~customFilterRowStyle: string=?,
   ~noDataMsg: string=?,
   ~tableActionBorder: string=?,
@@ -104,7 +104,7 @@ let make: (
   ~headerCustomBgColor: string=?,
   ~alignCellContent: string=?,
   ~minTableHeightClass: string=?,
-  ~setExtFilteredDataLength: ('g => int) => unit=?,
+  ~setExtFilteredDataLength: ('h => int) => unit=?,
   ~filterDropdownMaxHeight: string=?,
   ~showResultsPerPageSelector: bool=?,
   ~customCellColor: string=?,
@@ -119,5 +119,4 @@ let make: (
   ~remoteSortEnabled: bool=?,
   ~showAutoScroll: bool=?,
   ~highlightSelectedRow: bool=?,
-  ~showHeading: bool=?,
 ) => React.element
