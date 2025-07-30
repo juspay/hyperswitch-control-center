@@ -299,7 +299,7 @@ module RemoteTableFilters = {
         filterValue->updateExistingKeys
       }
       None
-    }, [value->OrderTypes.getSortString, value.sortKey])
+    }, [value->PaymentInterfaceTypes.getSortString, value.sortKey])
 
     let getAllFilter =
       filterValue

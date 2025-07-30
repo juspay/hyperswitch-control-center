@@ -8,7 +8,7 @@ module CurrencyCell = {
   }
 }
 
-let getRefundCell = (refunds: refunds, refundsColType: OrderTypes.refundsColType): Table.cell => {
+let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.cell => {
   switch refundsColType {
   | Amount =>
     CustomCell(
@@ -43,10 +43,7 @@ let getRefundCell = (refunds: refunds, refundsColType: OrderTypes.refundsColType
   }
 }
 
-let getAttemptCell = (
-  attempt: PaymentInterfaceTypes.attempts,
-  attemptColType: OrderTypes.attemptColType,
-): Table.cell => {
+let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
   switch attemptColType {
   | Amount =>
     CustomCell(
@@ -99,7 +96,7 @@ let getAttemptCell = (
   }
 }
 
-let getFrmCell = (orderDetais: order, frmColType: OrderTypes.frmColType): Table.cell => {
+let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
   switch frmColType {
   | PaymentId => Text(orderDetais.payment_id)
   | PaymentMethodType => Text(orderDetais.payment_method_type)
@@ -118,10 +115,7 @@ let getFrmCell = (orderDetais: order, frmColType: OrderTypes.frmColType): Table.
   }
 }
 
-let getAuthenticationCell = (
-  orderDetais: order,
-  colType: OrderTypes.authenticationColType,
-): Table.cell => {
+let getAuthenticationCell = (orderDetais: order, colType: authenticationColType): Table.cell => {
   let authenticationDetails =
     orderDetais.external_authentication_details
     ->Option.getOr(JSON.Encode.null)
@@ -138,15 +132,9 @@ let getAuthenticationCell = (
   }
 }
 
-let refundColumns: array<OrderTypes.refundsColType> = [
-  Created,
-  LastUpdated,
-  Amount,
-  PaymentId,
-  RefundStatus,
-]
+let refundColumns: array<refundsColType> = [Created, LastUpdated, Amount, PaymentId, RefundStatus]
 
-let attemptsColumns: array<OrderTypes.attemptColType> = [
+let attemptsColumns: array<attemptColType> = [
   Status,
   Amount,
   Currency,
@@ -155,7 +143,7 @@ let attemptsColumns: array<OrderTypes.attemptColType> = [
   PaymentMethodType,
 ]
 
-let frmColumns: array<OrderTypes.frmColType> = [
+let frmColumns: array<frmColType> = [
   PaymentId,
   PaymentMethodType,
   Amount,
@@ -166,7 +154,7 @@ let frmColumns: array<OrderTypes.frmColType> = [
   MerchantDecision,
 ]
 
-let authenticationColumns: array<OrderTypes.authenticationColType> = [
+let authenticationColumns: array<authenticationColType> = [
   AuthenticationFlow,
   DsTransactionId,
   ElectronicCommerceIndicator,
@@ -176,7 +164,7 @@ let authenticationColumns: array<OrderTypes.authenticationColType> = [
   Version,
 ]
 
-let refundDetailsFields: array<OrderTypes.refundsColType> = [
+let refundDetailsFields: array<refundsColType> = [
   RefundId,
   PaymentId,
   RefundStatus,
@@ -186,7 +174,7 @@ let refundDetailsFields: array<OrderTypes.refundsColType> = [
   ErrorMessage,
 ]
 
-let attemptDetailsField: array<OrderTypes.attemptColType> = [
+let attemptDetailsField: array<attemptColType> = [
   AttemptId,
   Status,
   Amount,
@@ -209,7 +197,7 @@ let attemptDetailsField: array<OrderTypes.attemptColType> = [
   ClientVersion,
 ]
 
-let getRefundHeading = (refundsColType: OrderTypes.refundsColType) => {
+let getRefundHeading = (refundsColType: refundsColType) => {
   switch refundsColType {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
@@ -223,7 +211,7 @@ let getRefundHeading = (refundsColType: OrderTypes.refundsColType) => {
   }
 }
 
-let getAttemptHeading = (attemptColType: OrderTypes.attemptColType) => {
+let getAttemptHeading = (attemptColType: attemptColType) => {
   switch attemptColType {
   | AttemptId =>
     Table.makeHeaderInfo(
@@ -259,7 +247,7 @@ let getAttemptHeading = (attemptColType: OrderTypes.attemptColType) => {
   }
 }
 
-let getFrmHeading = (frmDetailsColType: OrderTypes.frmColType) => {
+let getFrmHeading = (frmDetailsColType: frmColType) => {
   switch frmDetailsColType {
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="PaymentId")
   | PaymentMethodType =>
@@ -273,7 +261,7 @@ let getFrmHeading = (frmDetailsColType: OrderTypes.frmColType) => {
   }
 }
 
-let getAuthenticationHeading = (authenticationDetailsColType: OrderTypes.authenticationColType) => {
+let getAuthenticationHeading = (authenticationDetailsColType: authenticationColType) => {
   switch authenticationDetailsColType {
   | AuthenticationFlow =>
     Table.makeHeaderInfo(~key="authentication_flow", ~title="Authentication Flow")
@@ -346,7 +334,7 @@ let getAttempts: JSON.t => array<attempts> = json => {
   LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
-let defaultColumns: array<OrderTypes.colType> = [
+let defaultColumns: array<colType> = [
   PaymentId,
   Connector,
   ProfileId,
@@ -363,7 +351,7 @@ let defaultColumns: array<OrderTypes.colType> = [
   Created,
 ]
 
-let allColumns: array<OrderTypes.colType> = [
+let allColumns: array<colType> = [
   Amount,
   AmountCapturable,
   AuthenticationType,
@@ -389,7 +377,7 @@ let allColumns: array<OrderTypes.colType> = [
   CardNetwork,
 ]
 
-let getHeading = (colType: OrderTypes.colType) => {
+let getHeading = (colType: colType) => {
   switch colType {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
@@ -474,7 +462,7 @@ let useGetStatus = order => {
   }
 }
 
-let getHeadingForSummary = (summaryColType: OrderTypes.summaryColType) => {
+let getHeadingForSummary = (summaryColType: summaryColType) => {
   switch summaryColType {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
@@ -496,7 +484,7 @@ let getHeadingForSummary = (summaryColType: OrderTypes.summaryColType) => {
   }
 }
 
-let getHeadingForAboutPayment = (aboutPaymentColType: OrderTypes.aboutPaymentColType) => {
+let getHeadingForAboutPayment = (aboutPaymentColType: aboutPaymentColType) => {
   switch aboutPaymentColType {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
@@ -514,7 +502,7 @@ let getHeadingForAboutPayment = (aboutPaymentColType: OrderTypes.aboutPaymentCol
   }
 }
 
-let getHeadingForOtherDetails = (otherDetailsColType: OrderTypes.otherDetailsColType) => {
+let getHeadingForOtherDetails = (otherDetailsColType: otherDetailsColType) => {
   switch otherDetailsColType {
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
   | SetupFutureUsage => Table.makeHeaderInfo(~key="setup_future_usage", ~title="Setup Future Usage")
@@ -564,7 +552,7 @@ let getHeadingForOtherDetails = (otherDetailsColType: OrderTypes.otherDetailsCol
   }
 }
 
-let getCellForSummary = (order, summaryColType: OrderTypes.summaryColType): Table.cell => {
+let getCellForSummary = (order, summaryColType: summaryColType): Table.cell => {
   switch summaryColType {
   | Created => Date(order.created_at)
   | NetAmount =>
@@ -601,7 +589,7 @@ let getCellForSummary = (order, summaryColType: OrderTypes.summaryColType): Tabl
 
 let getCellForAboutPayment = (
   order,
-  aboutPaymentColType: OrderTypes.aboutPaymentColType,
+  aboutPaymentColType: aboutPaymentColType,
 ): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
@@ -636,7 +624,7 @@ let getCellForAboutPayment = (
 
 let getCellForOtherDetails = (
   order,
-  aboutPaymentColType: OrderTypes.otherDetailsColType,
+  aboutPaymentColType: otherDetailsColType,
 ): Table.cell => {
   let splittedName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
@@ -678,7 +666,7 @@ let getCellForOtherDetails = (
   }
 }
 
-let getCell = (order, colType: OrderTypes.colType, merchantId, orgId): Table.cell => {
+let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {

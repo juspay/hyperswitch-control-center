@@ -111,7 +111,7 @@ let make = (~previewOnly=false) => {
             "order",
             [
               ("on", sortObj.sortKey->JSON.Encode.string),
-              ("by", sortObj->OrderTypes.getSortString->JSON.Encode.string),
+              ("by", sortObj->PaymentInterfaceTypes.getSortString->JSON.Encode.string),
             ]->getJsonFromArrayOfJson,
           )
         }

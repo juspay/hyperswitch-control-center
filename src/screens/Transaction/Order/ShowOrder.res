@@ -1,7 +1,7 @@
 open LogicUtils
 open OrderUtils
 open HSwitchOrderUtils
-open OrderTypes
+open PaymentInterfaceTypes
 
 type scrollIntoViewParams = {behavior: string, block: string, inline: string}
 @send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView"
@@ -91,7 +91,7 @@ module OrderInfo = {
   open OrderEntity
   @react.component
   let make = (
-    ~order: PaymentInterfaceTypes.order,
+    ~order: order,
     ~openRefundModal,
     ~isNonRefundConnector,
     ~paymentId,
@@ -171,7 +171,7 @@ module RefundSection = {
 module AttemptsSection = {
   open OrderEntity
   @react.component
-  let make = (~data: PaymentInterfaceTypes.attempts) => {
+  let make = (~data: attempts) => {
     let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
       <div className="w-full p-2">
@@ -272,7 +272,7 @@ module Refunds = {
 module Attempts = {
   open OrderEntity
   @react.component
-  let make = (~order: PaymentInterfaceTypes.order) => {
+  let make = (~order: order) => {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -404,7 +404,7 @@ module Disputes = {
 
 module OrderActions = {
   @react.component
-  let make = (~orderData: PaymentInterfaceTypes.order, ~refetch, ~showModal, ~setShowModal) => {
+  let make = (~orderData: order, ~refetch, ~showModal, ~setShowModal) => {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
 
@@ -452,7 +452,7 @@ module FraudRiskBannerDetails = {
   open OrderEntity
   open APIUtils
   @react.component
-  let make = (~order: PaymentInterfaceTypes.order, ~refetch) => {
+  let make = (~order: order, ~refetch) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -537,7 +537,7 @@ module FraudRiskBannerDetails = {
 module AuthenticationDetails = {
   open OrderEntity
   @react.component
-  let make = (~order: PaymentInterfaceTypes.order) => {
+  let make = (~order: order) => {
     <div
       className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
       <div
@@ -564,7 +564,7 @@ module AuthenticationDetails = {
 module FraudRiskBanner = {
   @react.component
   let make = (
-    ~frmMessage: PaymentInterfaceTypes.frmMessage,
+    ~frmMessage: frmMessage,
     ~refElement: React.ref<Js.nullable<Dom.element>>,
   ) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
