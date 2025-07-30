@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchUtils
   open GlobalVars
   open APIUtils
-
+  open Typography
   open HyperswitchAtom
   open HyperswitchAppHelper
 
@@ -147,6 +147,36 @@ let make = () => {
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
+                          <RenderIf
+                            condition={featureFlagDetails.devAiChatBot &&
+                            userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
+                            merchantDetailsTypedValue.product_type == Orchestration(V1)}>
+                            <div
+                              onClick={_ =>
+                                RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
+                              className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"
+                              style={ReactDOM.Style.make(
+                                ~background="linear-gradient(90deg, transparent 0%, #3b82f6 25%, transparent 50%, #3b82f6 75%, transparent 100%)",
+                                ~backgroundSize="200% 100%",
+                                ~animation="sparkleBorder 5s linear infinite",
+                                ~borderRadius="15px",
+                                ~padding="1px",
+                                (),
+                              )}>
+                              <div
+                                className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
+                                <Icon name="stars" size=20 customIconColor="text-blue-500" />
+                                <span className={`${body.md.semibold} text-blue-500`}>
+                                  {"Ask AI"->React.string}
+                                </span>
+                              </div>
+                              <style>
+                                {React.string(
+                                  "@keyframes sparkleBorder { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }",
+                                )}
+                              </style>
+                            </div>
+                          </RenderIf>
                         </div>
                       </div>}
                       headerLeftActions={switch logoURL {
@@ -176,16 +206,6 @@ let make = () => {
                     <WorkflowSideDrawer />
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
-                      <RenderIf
-                        condition={featureFlagDetails.devAiChatBot &&
-                        userHasAccess(~groupAccess=MerchantDetailsView) == Access}>
-                        <div
-                          onClick={_ =>
-                            RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
-                          className="absolute z-10 bottom-5 right-5 border bg-blue-200 p-2 cursor-pointer rounded-full hover:bg-blue-300 transition-all">
-                          <Icon name="robot" size=32 customIconColor="text-primary" />
-                        </div>
-                      </RenderIf>
                       <ErrorBoundary>
                         {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
                         /* DEFAULT HOME */
