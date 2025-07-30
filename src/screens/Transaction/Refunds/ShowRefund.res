@@ -89,8 +89,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (orderData, setOrdersData) = React.useState(_ => [])
   let fetchDetails = APIUtils.useGetMethod()
   let showToast = ToastState.useShowToast()
-  let paymentId =
-    refundData->getDictFromJsonObject->getString("payment_id", "")
+  let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -105,8 +104,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedProfileId=profileId,
       )
       let refundData = await fetchDetails(refundUrl)
-      let paymentId =
-        refundData->getDictFromJsonObject->getString("payment_id", "")
+      let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
       let orderUrl = getURL(
         ~entityName=V1(ORDERS),
         ~methodType=Get,
