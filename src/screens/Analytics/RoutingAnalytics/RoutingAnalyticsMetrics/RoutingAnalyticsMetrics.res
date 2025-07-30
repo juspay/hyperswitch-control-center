@@ -163,10 +163,7 @@ module RoutingAnalyticsCard = {
         | #total_successful =>
           <div className="flex flex-col gap-2">
             <p className={`${heading.md.semibold} text-nd_gray-800`}>
-              {firstQueryData.payment_success_count
-              ->Int.toFloat
-              ->valueFormatter(Default)
-              ->React.string}
+              {firstQueryData.payment_success_count->Int.toString->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
               {`Out of ${firstQueryData.payment_count->Int.toString} transactions`->React.string}
@@ -175,10 +172,7 @@ module RoutingAnalyticsCard = {
         | #total_failure =>
           <div className="flex flex-col gap-2">
             <p className={`${heading.md.semibold} text-nd_gray-800`}>
-              {firstQueryData.payment_failed_count
-              ->Int.toFloat
-              ->valueFormatter(Default)
-              ->React.string}
+              {firstQueryData.payment_failed_count->Int.toString->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
               {`Out of ${firstQueryData.payment_count->Int.toString} transactions`->React.string}
