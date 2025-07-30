@@ -104,6 +104,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+        setOffset
       />
     </div>
   }
