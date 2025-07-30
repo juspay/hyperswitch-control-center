@@ -2,7 +2,7 @@
 let make = () => {
   open Typography
 
-  <>
+  <div className="mt-4">
     <PageUtils.PageHeading
       title="Distribution"
       customHeadingStyle="flex flex-col mb-6 "
@@ -12,5 +12,5 @@ let make = () => {
       <RoutingAnalyticsDistributionConnectorVolume />
       <RoutingAnalyticsDistributionRoutingApproach />
     </div>
-  </>
+  </div>
 }
