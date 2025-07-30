@@ -90,12 +90,7 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (
-    ~order: order,
-    ~openRefundModal,
-    ~isNonRefundConnector,
-    ~paymentId,
-  ) => {
+  let make = (~order: order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -563,10 +558,7 @@ module AuthenticationDetails = {
 
 module FraudRiskBanner = {
   @react.component
-  let make = (
-    ~frmMessage: frmMessage,
-    ~refElement: React.ref<Js.nullable<Dom.element>>,
-  ) => {
+  let make = (~frmMessage: frmMessage, ~refElement: React.ref<Js.nullable<Dom.element>>) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">

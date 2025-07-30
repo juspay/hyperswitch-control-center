@@ -587,10 +587,7 @@ let getCellForSummary = (order, summaryColType: summaryColType): Table.cell => {
   }
 }
 
-let getCellForAboutPayment = (
-  order,
-  aboutPaymentColType: aboutPaymentColType,
-): Table.cell => {
+let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
   | Connector =>
@@ -622,10 +619,7 @@ let getCellForAboutPayment = (
   }
 }
 
-let getCellForOtherDetails = (
-  order,
-  aboutPaymentColType: otherDetailsColType,
-): Table.cell => {
+let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): Table.cell => {
   let splittedName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
