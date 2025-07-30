@@ -1,4 +1,5 @@
 open APIUtils
+open PaymentListInterface
 
 let useFetchOrdersHook = () => {
   let getURL = useGetURL()
@@ -12,7 +13,7 @@ let useFetchOrdersHook = () => {
       | V1 => {
           let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
           let res = await updateDetails(ordersUrl, payload, Post)
-          res->PaymentListInterface.mapJsonToOrdersObject(PaymentListInterface.paymentInterfaceV1)
+          res->mapJsonToOrdersObject(paymentInterfaceV1)
         }
       | V2 => {
           let ordersUrl = getURL(
@@ -21,7 +22,7 @@ let useFetchOrdersHook = () => {
             ~queryParamerters=Some(query),
           )
           let res = await fetchDetails(ordersUrl)
-          res->PaymentListInterface.mapJsonToOrdersObject(PaymentListInterface.paymentInterfaceV2)
+          res->mapJsonToOrdersObject(paymentInterfaceV2)
         }
       }
 

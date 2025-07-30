@@ -72,11 +72,11 @@ let mapJsonToOrdersObject = (json: JSON.t, interface): PaymentInterfaceTypes.ord
   let dict = json->getDictFromJsonObject
 
   let count = dict->getInt("count", 0)
-
-  let jsonArray = dict->getArrayFromDict("data", [])
-  let data = mapJsonToOrdersList(interface, jsonArray) // convert json array to array of PaymentInterfaceTypes.order (common type)
-
   let total_count = dict->getInt("total_count", 0)
+  let jsonArray = dict->getArrayFromDict("data", [])
+
+  // convert json array to array of PaymentInterfaceTypes.order (common type)
+  let data = mapJsonToOrdersList(interface, jsonArray)
 
   {count, data, total_count}
 }

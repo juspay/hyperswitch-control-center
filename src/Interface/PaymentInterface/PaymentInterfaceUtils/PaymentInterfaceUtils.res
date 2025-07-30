@@ -32,7 +32,7 @@ let attemptsItemToObjMapper = dict => {
 }
 
 let getAttempts: JSON.t => array<attempts> = json => {
-  LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
+  getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
 let itemToObjMapperForFRMDetails = dict => {
@@ -62,9 +62,9 @@ let errorMapper = (dict: dict<JSON.t>) => {
 
 let refundMetaitemToObjMapper = dict => {
   {
-    udf1: LogicUtils.getString(dict, "udf1", ""),
-    new_customer: LogicUtils.getString(dict, "new_customer", ""),
-    login_date: LogicUtils.getString(dict, "login_date", ""),
+    udf1: getString(dict, "udf1", ""),
+    new_customer: getString(dict, "new_customer", ""),
+    login_date: getString(dict, "login_date", ""),
   }
 }
 

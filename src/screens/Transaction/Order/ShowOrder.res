@@ -613,6 +613,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchOrderDetails = async url => {
+    open PaymentsInterface
     try {
       setScreenState(_ => Loading)
       let _ = await internalSwitch(
@@ -623,13 +624,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       let res = await fetchDetails(url)
       let order = switch version {
       | V1 =>
-        PaymentsInterface.mapJsonDictToCommonPaymentPayload(
-          PaymentsInterface.paymentInterfaceV1,
+        mapJsonDictToCommonPaymentPayload(
+          paymentInterfaceV1,
           res->getDictFromJsonObject,
         )
       | V2 =>
-        PaymentsInterface.mapJsonDictToCommonPaymentPayload(
-          PaymentsInterface.paymentInterfaceV2,
+        mapJsonDictToCommonPaymentPayload(
+          paymentInterfaceV2,
           res->getDictFromJsonObject,
         )
       }
