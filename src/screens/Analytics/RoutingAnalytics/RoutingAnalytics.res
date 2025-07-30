@@ -103,5 +103,6 @@ let make = () => {
       <RoutingAnalyticsMetrics />
       <RoutingAnalyticsDistribution />
     </div>
+    <RoutingAnalyticsTrends />
   </PageLoaderWrapper>
 }

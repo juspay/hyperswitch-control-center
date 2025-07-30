@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.30.0
+
+### Bug Fixes
+
+- Org retrieve api requires organization manage permission to call ([#3366](https://github.com/juspay/hyperswitch-control-center/pull/3366)) ([`34db52e`](https://github.com/juspay/hyperswitch-control-center/commit/34db52e0b22887721ac304e87caf144377781747))
+
+**Full Changelog:** [`2025.07.29.1...2025.07.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.29.1...2025.07.30.0)
+
+- - -
+
 ## 2025.07.29.1
 
 ### Features

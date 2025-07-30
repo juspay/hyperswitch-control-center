@@ -619,7 +619,7 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="", 
 
   switch statType {
   | Amount => `${value->indianShortNum} ${amountSuffix}`
-  | AmountWithSuffix => `${currency} ${value->Float.toString}${suffix}`
+  | AmountWithSuffix => `${currency} ${value->Float.toFixedWithPrecision(~digits=2)} ${suffix}`
   | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
   | Volume => value->indianShortNum
   | Latency => latencyShortNum(~labelValue=value)
