@@ -90,7 +90,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchDetails = APIUtils.useGetMethod()
   let showToast = ToastState.useShowToast()
   let paymentId =
-    refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+    refundData->getDictFromJsonObject->getString("payment_id", "")
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -106,7 +106,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       )
       let refundData = await fetchDetails(refundUrl)
       let paymentId =
-        refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+        refundData->getDictFromJsonObject->getString("payment_id", "")
       let orderUrl = getURL(
         ~entityName=V1(ORDERS),
         ~methodType=Get,
@@ -117,7 +117,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       let paymentArray =
         [orderData]
         ->JSON.Encode.array
-        ->LogicUtils.getArrayDataFromJson(PaymentInterfaceUtils.mapDictToPaymentPayload)
+        ->getArrayDataFromJson(PaymentInterfaceUtils.mapDictToPaymentPayload)
       setOrdersData(_ => paymentArray->Array.map(Nullable.make))
       setRefundData(_ => refundData)
       setScreenStateForRefund(_ => Success)
@@ -190,7 +190,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         title="Something Went Wrong!"
         overriddingStylesTitle={`text-3xl font-semibold`}
       />}>
-      <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
+      <RefundInfo orderDict={refundData->getDictFromJsonObject} />
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
