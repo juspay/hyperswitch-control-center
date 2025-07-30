@@ -50,7 +50,7 @@ let make = () => {
 
   <PageLoaderWrapper
     screenState
-    customUI={<InsightsHelper.NoData height="h-6472" />}
+    customUI={<InsightsHelper.NoData height="h-72" />}
     customLoader={<Shimmer styleClass="w-full h-72 rounded-xl" />}>
     <div className="flex flex-col">
       <div className="border rounded-xl py-2 px-4 border-nd_gray-200 rounded-b-none bg-nd_gray-25">
