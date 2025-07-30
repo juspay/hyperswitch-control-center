@@ -35,8 +35,8 @@ let allColumns: array<transactionColType> = [
 let getHeading = (colType: transactionColType) => {
   switch colType {
   | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
-  | CreditAccount => Table.makeHeaderInfo(~key="credit_account", ~title="Credit Account")
-  | DebitAccount => Table.makeHeaderInfo(~key="debit_account", ~title="Debit Account")
+  | CreditAccount => Table.makeHeaderInfo(~key="credit_account", ~title="Source Account")
+  | DebitAccount => Table.makeHeaderInfo(~key="debit_account", ~title="Target Account")
   | CreditAmount => Table.makeHeaderInfo(~key="credit_amount", ~title="Credit Amount")
   | DebitAmount => Table.makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")

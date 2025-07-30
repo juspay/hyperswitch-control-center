@@ -108,6 +108,7 @@ let make = (~transformationHistoryId) => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+        setOffset
       />
     </div>
   }
