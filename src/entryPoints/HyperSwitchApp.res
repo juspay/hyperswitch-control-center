@@ -153,7 +153,7 @@ let make = () => {
                             <div
                               onClick={_ =>
                                 RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
-                              className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative"
+                              className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"
                               style={ReactDOM.Style.make(
                                 ~background="linear-gradient(90deg, transparent 0%, #3b82f6 25%, transparent 50%, #3b82f6 75%, transparent 100%)",
                                 ~backgroundSize="200% 100%",
