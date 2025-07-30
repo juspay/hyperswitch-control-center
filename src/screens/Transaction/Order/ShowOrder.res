@@ -623,16 +623,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       )
       let res = await fetchDetails(url)
       let order = switch version {
-      | V1 =>
-        mapJsonDictToCommonPaymentPayload(
-          paymentInterfaceV1,
-          res->getDictFromJsonObject,
-        )
-      | V2 =>
-        mapJsonDictToCommonPaymentPayload(
-          paymentInterfaceV2,
-          res->getDictFromJsonObject,
-        )
+      | V1 => mapJsonDictToCommonPaymentPayload(paymentInterfaceV1, res->getDictFromJsonObject)
+      | V2 => mapJsonDictToCommonPaymentPayload(paymentInterfaceV2, res->getDictFromJsonObject)
       }
       setOrderData(_ => order)
       setScreenState(_ => Success)
