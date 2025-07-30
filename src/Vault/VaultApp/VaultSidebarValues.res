@@ -21,6 +21,7 @@ let vaultCustomersAndTokens = {
     selectedIcon: "nd-vault-customers-fill",
   })
 }
+
 let vaultHome = {
   Link({
     name: "Overview",
@@ -32,6 +33,17 @@ let vaultHome = {
   })
 }
 
+let vaultAPIKeys = {
+  Link({
+    name: "API Keys",
+    link: `/v2/vault/api-keys`,
+    icon: "api-key",
+    access: Access,
+    searchOptions: [("Vault API keys", "")],
+    selectedIcon: "api-key",
+  })
+}
+
 let vaultSidebars = {
-  [vaultHome, vaultConfiguration, vaultCustomersAndTokens]
+  [vaultHome, vaultConfiguration, vaultCustomersAndTokens, vaultAPIKeys]
 }
