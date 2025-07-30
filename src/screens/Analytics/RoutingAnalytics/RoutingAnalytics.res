@@ -84,7 +84,7 @@ let make = () => {
   }, (startTime, endTime, dimensions))
 
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />}>
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <PageUtils.PageHeading title="Routing Analytics" />
         <div className="mr-4">
@@ -100,6 +100,7 @@ let make = () => {
         </div>
       </div>
       <RoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
+      <RoutingAnalyticsMetrics />
       <RoutingAnalyticsDistribution />
       <RoutingAnalyticsSummary />
       <RoutingAnalyticsTrends />

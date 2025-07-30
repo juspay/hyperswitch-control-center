@@ -86,6 +86,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+        setOffset
       />
     </div>
   }

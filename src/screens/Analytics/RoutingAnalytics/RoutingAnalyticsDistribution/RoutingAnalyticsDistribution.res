@@ -2,7 +2,7 @@
 let make = () => {
   open Typography
 
-  <div>
+  <div className="mt-4">
     <PageUtils.PageHeading
       title="Distribution"
       customHeadingStyle="flex flex-col mb-6 "

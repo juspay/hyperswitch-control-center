@@ -19,13 +19,13 @@ let getVariantValueFromString = value => {
   }
 }
 
-let getOverviewLineGraphTooltipFormatter = (~title: string) =>
+let getRoutingTrendsSuccessOverTimeLineGraphTooltipFormatter = (~title: string) =>
   (
     @this
     (this: LineGraphTypes.pointFormatter) => {
       let titleHtml = `<div style="font-size: 14px; font-weight: bold;">${title}</div>`
       let getRowHtml = (~iconColor, ~name, ~value) => {
-        let valueString = value->Float.toString
+        let valueString = value->valueFormatter(Rate)
         `<div style="display: flex; align-items: center;">
               <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
               <div style="margin-left: 8px;font-size: 12px;">${name}</div>
@@ -152,7 +152,9 @@ let genericRoutingMapper = (
     },
     yAxisMaxValue: config.yAxisMaxValue,
     yAxisMinValue: Some(0),
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter(~title=config.tooltipTitle),
+    tooltipFormatter: getRoutingTrendsSuccessOverTimeLineGraphTooltipFormatter(
+      ~title=config.tooltipTitle,
+    ),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=config.statType,
       ~currency="",
