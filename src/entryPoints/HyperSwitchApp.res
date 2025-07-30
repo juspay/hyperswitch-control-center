@@ -149,7 +149,8 @@ let make = () => {
                           </RenderIf>
                           <RenderIf
                             condition={featureFlagDetails.devAiChatBot &&
-                            userHasAccess(~groupAccess=MerchantDetailsView) == Access}>
+                            userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
+                            merchantDetailsTypedValue.product_type == Orchestration(V1)}>
                             <div
                               onClick={_ =>
                                 RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
