@@ -496,7 +496,7 @@ module PublishableAndHashKeySection = {
                     toolTipFor={<div
                       className="cursor-pointer"
                       onClick={_ => {
-                        "https://hyperswitch.io/docs"->Window._open 
+                        "https://hyperswitch.io/docs"->Window._open
                       }}>
                       <Icon name="open_arrow" size=12 />
                     </div>}
