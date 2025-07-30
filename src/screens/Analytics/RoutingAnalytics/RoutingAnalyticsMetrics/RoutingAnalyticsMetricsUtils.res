@@ -47,12 +47,10 @@ let metricsMetadataItemToObjMapper = dict => {
 let metricsResponseItemToObjMapper = dict => {
   {
     queryData: dict
-    ->getArrayFromDict("queryData", [])
-    ->JSON.Encode.array
+    ->getJsonObjectFromDict("queryData")
     ->getArrayDataFromJson(metricsQueryDataItemToObjMapper),
     metaData: dict
-    ->getArrayFromDict("metaData", [])
-    ->JSON.Encode.array
+    ->getJsonObjectFromDict("metaData")
     ->getArrayDataFromJson(metricsMetadataItemToObjMapper),
   }
 }
