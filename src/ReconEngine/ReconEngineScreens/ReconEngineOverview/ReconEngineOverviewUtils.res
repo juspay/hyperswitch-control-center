@@ -82,11 +82,6 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
 }
 
-let formatAmountWithCurrency = (amount: float, currency: string) => {
-  let roundedAmount = (amount *. 100.0)->Math.round /. 100.0
-  `${roundedAmount->Float.toString} ${currency}`
-}
-
 let calculateAccountAmounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
