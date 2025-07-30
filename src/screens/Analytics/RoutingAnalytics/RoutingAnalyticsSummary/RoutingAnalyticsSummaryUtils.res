@@ -27,30 +27,58 @@ let calculateTrafficPercentage = (part: int, total: int) => {
   total > 0 ? Int.toFloat(part) /. Int.toFloat(total) *. 100.0 : 0.0
 }
 
+let getConnectorsData = (records, totalPaymentsForRouting) => {
+  let connectorGroupsDict = records->groupByField("connector")
+
+  connectorGroupsDict
+  ->Dict.toArray
+  ->Array.map(((connectorName, connectorRecords)) => {
+    let connectorRecordsJson = connectorRecords->getArrayFromJson([])
+    let connectorPayments = connectorRecordsJson->sumIntField("payment_count")
+    let connectorProcessedAmount = connectorRecordsJson->sumFloatField("payment_processed_amount")
+    let connectorSuccessRate = connectorRecordsJson->sumFloatField("payment_success_rate")
+
+    let connectorTrafficPercentage =
+      totalPaymentsForRouting > 0
+        ? Int.toFloat(connectorPayments) /. Int.toFloat(totalPaymentsForRouting) *. 100.0
+        : 0.0
+
+    {
+      connector_name: connectorName,
+      traffic_percentage: connectorTrafficPercentage,
+      no_of_payments: connectorPayments,
+      authorization_rate: connectorSuccessRate,
+      processed_amount: connectorProcessedAmount,
+    }
+  })
+}
+
+let getRoutingDataLookup = queryDataRouting => {
+  let routingGroupsRoutingApproachDict = queryDataRouting->groupByField("routing_approach")
+
+  routingGroupsRoutingApproachDict
+  ->Dict.toArray
+  ->Array.reduce(Dict.make(), (acc, (routingApproach, records)) => {
+    let recordsJson = records->getArrayFromJson([])
+    let authRate = recordsJson->sumFloatField("payment_success_rate")
+    let processedAmount = recordsJson->sumFloatField("payment_processed_amount")
+
+    let routingData =
+      [
+        ("authRate", authRate->JSON.Encode.float),
+        ("processedAmount", processedAmount->JSON.Encode.float),
+      ]->getJsonFromArrayOfJson
+
+    acc->Dict.set(routingApproach, routingData)
+    acc
+  })
+}
+
 let mapToTableData = (~responseConnector, ~responseRouting) => {
   let queryData = responseConnector->getDictFromJsonObject->getArrayFromDict("queryData", [])
   let queryDataRouting = responseRouting->getDictFromJsonObject->getArrayFromDict("queryData", [])
-
+  let routingDataLookup = getRoutingDataLookup(queryDataRouting)
   let totalPayments = sumIntField(queryData, "payment_count")
-
-  let routingGroupsRoutingApproachDict = groupByField(queryDataRouting, "routing_approach")
-
-  let routingDataLookup =
-    routingGroupsRoutingApproachDict
-    ->Dict.toArray
-    ->Array.reduce(Dict.make(), (acc, (routingApproach, records)) => {
-      let recordsJson = records->getArrayFromJson([])
-      let authrate = sumFloatField(recordsJson, "payment_success_rate")
-      let processedAmount = sumFloatField(recordsJson, "payment_processed_amount")
-      let routingData =
-        [
-          ("authRate", authrate->JSON.Encode.float),
-          ("processedAmount", processedAmount->JSON.Encode.float),
-        ]->getJsonFromArrayOfJson
-
-      acc->Dict.set(routingApproach, routingData)
-      acc
-    })
 
   let routingGroupsDict = groupByField(queryData, "routing_approach")
 
@@ -64,35 +92,7 @@ let mapToTableData = (~responseConnector, ~responseRouting) => {
     let authorizationRate = routingData->getFloat("authRate", 0.0)
     let processedAmount = routingData->getFloat("processedAmount", 0.0)
 
-    let connectorGroupsDict = groupByField(recordsJson, "connector")
-
-    let connectors =
-      connectorGroupsDict
-      ->Dict.toArray
-      ->Array.map(((connectorName, connectorRecords)) => {
-        let connectorRecordsJson = connectorRecords->getArrayFromJson([])
-        let connectorPayments = sumIntField(connectorRecordsJson, "payment_count")
-
-        let connectorProcessedAmount = sumFloatField(
-          connectorRecordsJson,
-          "payment_processed_amount",
-        )
-
-        let connectorSuccessRate = sumFloatField(connectorRecordsJson, "payment_success_rate")
-
-        let connectorTrafficPercentage = calculateTrafficPercentage(
-          connectorPayments,
-          totalPaymentsForRouting,
-        )
-
-        {
-          connector_name: connectorName,
-          traffic_percentage: connectorTrafficPercentage,
-          no_of_payments: connectorPayments,
-          authorization_rate: connectorSuccessRate,
-          processed_amount: connectorProcessedAmount,
-        }
-      })
+    let connectors = getConnectorsData(recordsJson, totalPaymentsForRouting)
 
     {
       routing_logic: routingApproach,

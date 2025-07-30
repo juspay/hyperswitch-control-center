@@ -109,9 +109,7 @@ let connectorEntity = () =>
     ~defaultColumns={connectorCols},
     ~allColumns={connectorCols},
     ~getHeading=getConnectorHeading,
-    ~getObjects={
-      _ => []
-    },
+    ~getObjects=_ => [],
     ~getCell=getConnectorCell,
     ~dataKey="",
   )
