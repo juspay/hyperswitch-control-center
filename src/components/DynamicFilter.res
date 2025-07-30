@@ -164,6 +164,7 @@ let make = (
   ~filtersDisplayOption=true,
   ~showSelectFiltersSearch=false,
   ~refreshFilters=true,
+  ~setOffset=?,
 ) => {
   open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
@@ -234,6 +235,7 @@ let make = (
       customRightView=customFilters
       customLeftView
       ?updateUrlWith
+      ?setOffset
       clearFilters
       initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
       showSelectFiltersSearch

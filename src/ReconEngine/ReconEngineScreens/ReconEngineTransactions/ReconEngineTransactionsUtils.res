@@ -6,10 +6,6 @@ let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
 
-let formatAmountToString = (amount, ~currency) => {
-  `${amount->Float.toString} ${currency}`
-}
-
 let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),
@@ -172,11 +168,11 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="credit_account",
+          ~label="source_account",
           ~name="credit_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=creditAccountOptions,
-            ~buttonText="Select Credit Account",
+            ~buttonText="Select Source Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -191,11 +187,11 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="debit_account",
+          ~label="target_account",
           ~name="debit_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
-            ~buttonText="Select Debit Account",
+            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
