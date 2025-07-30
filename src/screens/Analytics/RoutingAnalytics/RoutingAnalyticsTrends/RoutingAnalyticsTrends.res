@@ -91,11 +91,13 @@ let make = () => {
   }, (startTimeVal, endTimeVal))
 
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
-    <div className="flex flex-col gap-6 w-full mt-12">
+    <div className="flex flex-col gap-6 w-full">
       <div className="flex flex-col gap-1 mb-2">
-        <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Routing Trends"->React.string} </p>
+        <p className={`${body.lg.semibold} text-nd_gray-800`}>
+          {"Time Series Distribution"->React.string}
+        </p>
         <p className={`${body.md.medium} text-nd_gray-400`}>
-          {"Analyze the trends in routing metrics over time."->React.string}
+          {"Track the auth rates and transaction volumes of various processors across time"->React.string}
         </p>
       </div>
       <div className="border border-nd_gray-200 rounded-xl">

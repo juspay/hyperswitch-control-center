@@ -144,9 +144,12 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading
-      title="Summary"
+      title="Routing Logic Performance Summary"
+      subTitle="Deep-dive into the performance of various routing strategies with auth rate comparison
+"
       customHeadingStyle="flex flex-col mb-6"
       customTitleStyle={`!${body.lg.semibold} text-nd_gray-800`}
+      customSubTitleStyle={`${body.md.medium} text-nd_gray-400 !opacity-100 !mt-1`}
     />
     <PageLoaderWrapper
       screenState

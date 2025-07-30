@@ -1,12 +1,10 @@
 open RoutingAnalyticsSummaryTypes
 open LogicUtils
 
-let groupByField = (data: array<JSON.t>, fieldName: string) => {
-  data->Array.reduce(Dict.make(), (acc, item: JSON.t) => {
+let groupByField = (data, fieldName) => {
+  data->Array.reduce(Dict.make(), (acc, item) => {
     let fieldValue = item->getDictFromJsonObject->getString(fieldName, "Unknown")
-    let existing = acc->getArrayFromDict(fieldValue, [])
-    let concatedArray = Array.concat(existing, [item])
-    acc->Dict.set(fieldValue, concatedArray->JSON.Encode.array)
+    acc->Dict.set(fieldValue, [...acc->getArrayFromDict(fieldValue, []), item]->JSON.Encode.array)
     acc
   })
 }
