@@ -46,7 +46,7 @@ let make = () => {
   open LogicUtils
   open InsightsUtils
   open Typography
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -71,11 +71,15 @@ let make = () => {
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let processedData =
-        responseData->RoutingAnalyticsTrendsUtils.modifyQueryData->sortQueryDataByDate
-      setSuccessData(_ => processedData->Identity.genericTypeToJson)
-      setVolumeData(_ => processedData->Identity.genericTypeToJson)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if responseData->Array.length == 0 {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      } else {
+        let processedData =
+          responseData->RoutingAnalyticsTrendsUtils.modifyQueryData->sortQueryDataByDate
+        setSuccessData(_ => processedData->Identity.genericTypeToJson)
+        setVolumeData(_ => processedData->Identity.genericTypeToJson)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Unable to fetch."))
     }
@@ -86,7 +90,7 @@ let make = () => {
       getMetricData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValue))
+  }, (startTimeVal, endTimeVal))
 
   <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
     <div className="flex flex-col gap-6 w-full mt-12">

@@ -8,3 +8,11 @@ type routingTrendsObject = {
   payment_count: int,
   time_bucket: string,
 }
+
+type routingMapperConfig = {
+  title: string,
+  tooltipTitle: string,
+  yAxisMaxValue: option<int>,
+  statType: LogicUtilsTypes.valueType,
+  suffix: string,
+}

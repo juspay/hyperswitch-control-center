@@ -1,7 +1,6 @@
 open RoutingAnalyticsTrendsTypes
 open InsightsUtils
 open LogicUtils
-open LogicUtilsTypes
 
 let getStringFromVariant = value => {
   switch value {
@@ -96,10 +95,10 @@ let modifyQueryData = data => {
   })
 }
 
-let routingSuccessRateMapper = (
+let genericRoutingMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
+  ~config: routingMapperConfig,
 ): LineGraphTypes.lineGraphPayload => {
-  open LineGraphTypes
   let {data, xKey, yKey} = params
   let dataArray = data->getArrayFromJson([])
   let connectorGroups = Dict.make()
@@ -146,26 +145,24 @@ let routingSuccessRateMapper = (
       )
     })
 
-  open LogicUtilsTypes
-
   {
     chartHeight: DefaultHeight,
     chartLeftSpacing: DefaultLeftSpacing,
     categories,
     data: lineGraphData,
     title: {
-      text: "Auth Rate",
+      text: config.title,
       style: {
         color: "white",
       },
     },
-    yAxisMaxValue: Some(100),
+    yAxisMaxValue: config.yAxisMaxValue,
     yAxisMinValue: Some(0),
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter(~title="Success Rate"),
+    tooltipFormatter: getOverviewLineGraphTooltipFormatter(~title=config.tooltipTitle),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
-      ~statType=Rate,
+      ~statType=config.statType,
       ~currency="",
-      ~suffix="%",
+      ~suffix=config.suffix,
     ),
     legend: {
       useHTML: true,
@@ -180,84 +177,32 @@ let routingSuccessRateMapper = (
   }
 }
 
+let routingSuccessRateMapper = (
+  ~params: InsightsTypes.getObjects<JSON.t>,
+): LineGraphTypes.lineGraphPayload => {
+  genericRoutingMapper(
+    ~params,
+    ~config={
+      title: "Auth Rate",
+      tooltipTitle: "Success Rate",
+      yAxisMaxValue: Some(100),
+      statType: Rate,
+      suffix: "%",
+    },
+  )
+}
+
 let routingVolumeMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
-  open LineGraphTypes
-  let {data, xKey, yKey} = params
-  let dataArray = data->getArrayFromJson([])
-  let connectorGroups = Dict.make()
-
-  dataArray->Array.forEach(item => {
-    let itemDict = item->getDictFromJsonObject
-    let connector = itemDict->getString("connector", "Unknown")
-
-    switch connectorGroups->Dict.get(connector) {
-    | Some(existingData) => {
-        let updatedData = existingData->Array.concat([item])
-        connectorGroups->Dict.set(connector, updatedData)
-      }
-    | None => connectorGroups->Dict.set(connector, [item])
-    }
-  })
-
-  let allTimeBuckets =
-    dataArray
-    ->Array.map(item => {
-      item->getDictFromJsonObject->getString(xKey, "")
-    })
-    ->Array.filter(timeBucket => timeBucket->isNonEmptyString)
-
-  let categories =
-    allTimeBuckets
-    ->Array.map(timeBucket => {
-      let dateObj = timeBucket->DayJs.getDayJsForString
-      let date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
-      date
-    })
-    ->Array.toSorted((a, b) => a <= b ? -1. : 1.)
-
-  let lineGraphData =
-    connectorGroups
-    ->Dict.toArray
-    ->Array.mapWithIndex(((connectorName, connectorData), index) => {
-      let color = index->InsightsUtils.getColor
-      InsightsUtils.getLineGraphObj(
-        ~array=connectorData,
-        ~key=yKey,
-        ~name=connectorName,
-        ~color,
-        ~isAmount=false,
-      )
-    })
-  {
-    chartHeight: DefaultHeight,
-    chartLeftSpacing: DefaultLeftSpacing,
-    categories,
-    data: lineGraphData,
-    title: {
-      text: "Auth Rate",
-      style: {
-        color: "white",
-      },
+  genericRoutingMapper(
+    ~params,
+    ~config={
+      title: "Auth Rate",
+      tooltipTitle: "Volume",
+      yAxisMaxValue: None,
+      statType: Volume,
+      suffix: "",
     },
-    yAxisMaxValue: None,
-    yAxisMinValue: Some(0),
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter(~title="Volume"),
-    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
-      ~statType=Volume,
-      ~currency="",
-      ~suffix="",
-    ),
-    legend: {
-      useHTML: true,
-      labelFormatter: LineGraphUtils.valueFormatter,
-      symbolPadding: -7,
-      symbolWidth: 0,
-      align: "center",
-      verticalAlign: "top",
-      floating: false,
-      margin: 30,
-    },
-  }
+  )
 }
