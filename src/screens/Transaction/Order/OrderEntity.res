@@ -164,7 +164,7 @@ let authenticationColumns: array<authenticationColType> = [
   Version,
 ]
 
-let refundDetailsFields: array<refundsColType> = [
+let refundDetailsFields = [
   RefundId,
   PaymentId,
   RefundStatus,
@@ -174,7 +174,7 @@ let refundDetailsFields: array<refundsColType> = [
   ErrorMessage,
 ]
 
-let attemptDetailsField: array<attemptColType> = [
+let attemptDetailsField = [
   AttemptId,
   Status,
   Amount,
@@ -278,62 +278,6 @@ let getAuthenticationHeading = (authenticationDetailsColType: authenticationColT
   }
 }
 
-let refundMetaitemToObjMapper = dict => {
-  {
-    udf1: LogicUtils.getString(dict, "udf1", ""),
-    new_customer: LogicUtils.getString(dict, "new_customer", ""),
-    login_date: LogicUtils.getString(dict, "login_date", ""),
-  }
-}
-
-let getRefundMetaData: JSON.t => refundMetaData = json => {
-  json->JSON.Decode.object->Option.getOr(Dict.make())->refundMetaitemToObjMapper
-}
-
-let refunditemToObjMapper = dict => {
-  refund_id: dict->getString("refund_id", ""),
-  payment_id: dict->getString("payment_id", ""),
-  amount: dict->getFloat("amount", 0.0),
-  currency: dict->getString("currency", ""),
-  reason: dict->getString("reason", ""),
-  status: dict->getString("status", ""),
-  error_message: dict->getString("error_message", ""),
-  metadata: dict->getJsonObjectFromDict("metadata")->getRefundMetaData,
-  updated_at: dict->getString("updated_at", ""),
-  created_at: dict->getString("created_at", ""),
-}
-
-let attemptsItemToObjMapper = dict => {
-  attempt_id: dict->getString("attempt_id", ""),
-  status: dict->getString("status", ""),
-  amount: dict->getFloat("amount", 0.0),
-  currency: dict->getString("currency", ""),
-  connector: dict->getString("connector", ""),
-  error_message: dict->getString("error_message", ""),
-  payment_method: dict->getString("payment_method", ""),
-  connector_transaction_id: dict->getString("connector_transaction_id", ""),
-  capture_method: dict->getString("capture_method", ""),
-  authentication_type: dict->getString("authentication_type", ""),
-  cancellation_reason: dict->getString("cancellation_reason", ""),
-  mandate_id: dict->getString("mandate_id", ""),
-  error_code: dict->getString("error_code", ""),
-  payment_token: dict->getString("payment_token", ""),
-  connector_metadata: dict->getString("connector_metadata", ""),
-  payment_experience: dict->getString("payment_experience", ""),
-  payment_method_type: dict->getString("payment_method_type", ""),
-  reference_id: dict->getString("reference_id", ""),
-  client_source: dict->getString("client_source", ""),
-  client_version: dict->getString("client_version", ""),
-}
-
-let getRefunds: JSON.t => array<refunds> = json => {
-  LogicUtils.getArrayDataFromJson(json, refunditemToObjMapper)
-}
-
-let getAttempts: JSON.t => array<attempts> = json => {
-  LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
-}
-
 let defaultColumns: array<colType> = [
   PaymentId,
   Connector,
@@ -351,7 +295,7 @@ let defaultColumns: array<colType> = [
   Created,
 ]
 
-let allColumns: array<colType> = [
+let allColumns = [
   Amount,
   AmountCapturable,
   AuthenticationType,
@@ -462,7 +406,7 @@ let useGetStatus = order => {
   }
 }
 
-let getHeadingForSummary = (summaryColType: summaryColType) => {
+let getHeadingForSummary = summaryColType => {
   switch summaryColType {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
@@ -484,7 +428,7 @@ let getHeadingForSummary = (summaryColType: summaryColType) => {
   }
 }
 
-let getHeadingForAboutPayment = (aboutPaymentColType: aboutPaymentColType) => {
+let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
@@ -502,7 +446,7 @@ let getHeadingForAboutPayment = (aboutPaymentColType: aboutPaymentColType) => {
   }
 }
 
-let getHeadingForOtherDetails = (otherDetailsColType: otherDetailsColType) => {
+let getHeadingForOtherDetails = otherDetailsColType => {
   switch otherDetailsColType {
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
   | SetupFutureUsage => Table.makeHeaderInfo(~key="setup_future_usage", ~title="Setup Future Usage")
@@ -552,7 +496,7 @@ let getHeadingForOtherDetails = (otherDetailsColType: otherDetailsColType) => {
   }
 }
 
-let getCellForSummary = (order, summaryColType: summaryColType): Table.cell => {
+let getCellForSummary = (order, summaryColType): Table.cell => {
   switch summaryColType {
   | Created => Date(order.created_at)
   | NetAmount =>
@@ -768,169 +712,6 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | AttemptCount => Text(order.attempt_count->Int.toString)
   }
 }
-
-let itemToObjMapperForFRMDetails = dict => {
-  {
-    frm_name: dict->getString("frm_name", ""),
-    frm_transaction_id: dict->getString("frm_transaction_id", ""),
-    frm_transaction_type: dict->getString("frm_transaction_type", ""),
-    frm_status: dict->getString("frm_status", ""),
-    frm_score: dict->getInt("frm_score", 0),
-    frm_reason: dict->getString("frm_reason", ""),
-    frm_error: dict->getString("frm_error", ""),
-  }
-}
-
-let getFRMDetails = dict => {
-  dict->getJsonObjectFromDict("frm_message")->getDictFromJsonObject->itemToObjMapperForFRMDetails
-}
-
-let concatValueOfGivenKeysOfDict = (dict, keys) => {
-  Array.reduceWithIndex(keys, "", (acc, key, i) => {
-    let val = dict->getString(key, "")
-    let delimiter = if val->isNonEmptyString {
-      if key !== "first_name" {
-        i + 1 == keys->Array.length ? "." : ", "
-      } else {
-        " "
-      }
-    } else {
-      ""
-    }
-    String.concat(acc, `${val}${delimiter}`)
-  })
-}
-
-// let itemToObjMapper = dict => {
-//   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
-
-//   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
-//     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
-//   }
-
-//   let getEmail = dict => {
-//     let defaultEmail = dict->getString("email", "")
-
-//     dict
-//     ->getDictfromDict("customer")
-//     ->getString("email", defaultEmail)
-//   }
-
-//   {
-//     payment_id: dict->getString("payment_id", ""),
-//     merchant_id: dict->getString("merchant_id", ""),
-//     net_amount: dict->getFloat("net_amount", 0.0),
-//     connector: dict->getString("connector", ""),
-//     status: dict->getString("status", ""),
-//     amount: dict->getFloat("amount", 0.0),
-//     amount_capturable: dict->getFloat("amount_capturable", 0.0),
-//     amount_captured: dict->getFloat("amount_captured", 0.0),
-//     client_secret: dict->getString("client_secret", ""),
-//     created_at: dict->getString("created_at", ""),
-//     last_updated: dict->getString("last_updated", ""),
-//     currency: dict->getString("currency", ""),
-//     customer_id: dict->getString("customer_id", ""),
-//     description: dict->getString("description", ""),
-//     mandate_id: dict->getString("mandate_id", ""),
-//     mandate_data: dict->getString("mandate_data", ""),
-//     setup_future_usage: dict->getString("setup_future_usage", ""),
-//     customer_present: dict->getString("customer_present", ""),
-//     capture_on: dict->getString("capture_on", ""),
-//     capture_method: dict->getString("capture_method", ""),
-//     payment_method: dict->getString("payment_method", ""),
-//     payment_method_type: dict->getString("payment_method_type", ""),
-//     payment_method_data: {
-//       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
-//       switch paymentMethodData->JSON.Classify.classify {
-//       | Object(value) => Some(value->getJsonObjectFromDict("card"))
-//       | _ => None
-//       }
-//     },
-//     external_authentication_details: {
-//       let externalAuthenticationDetails =
-//         dict->getJsonObjectFromDict("external_authentication_details")
-//       switch externalAuthenticationDetails->JSON.Classify.classify {
-//       | Object(_) => Some(externalAuthenticationDetails)
-//       | _ => None
-//       }
-//     },
-//     payment_token: dict->getString("payment_token", ""),
-//     shipping: dict
-//     ->getDictfromDict("shipping")
-//     ->getDictfromDict("address")
-//     ->concatValueOfGivenKeysOfDict(addressKeys),
-//     shippingEmail: dict->getDictfromDict("shipping")->getString("email", ""),
-//     shippingPhone: dict
-//     ->getDictfromDict("shipping")
-//     ->getDictfromDict("phone")
-//     ->getPhoneNumberString,
-//     billing: dict
-//     ->getDictfromDict("billing")
-//     ->getDictfromDict("address")
-//     ->concatValueOfGivenKeysOfDict(addressKeys),
-//     payment_method_billing_address: dict
-//     ->getDictfromDict("payment_method_data")
-//     ->getDictfromDict("billing")
-//     ->getDictfromDict("address")
-//     ->concatValueOfGivenKeysOfDict(addressKeys),
-//     payment_method_billing_first_name: dict
-//     ->getDictfromDict("payment_method_data")
-//     ->getDictfromDict("billing")
-//     ->getDictfromDict("address")
-//     ->getString("first_name", ""),
-//     payment_method_billing_last_name: dict
-//     ->getDictfromDict("payment_method_data")
-//     ->getDictfromDict("billing")
-//     ->getDictfromDict("address")
-//     ->getString("last_name", ""),
-//     payment_method_billing_phone: dict
-//     ->getDictfromDict("payment_method_data")
-//     ->getDictfromDict("billing")
-//     ->getString("email", ""),
-//     payment_method_billing_email: dict
-//     ->getDictfromDict("payment_method_data")
-//     ->getDictfromDict("billing")
-//     ->getString("", ""),
-//     billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
-//     billingPhone: dict
-//     ->getDictfromDict("billing")
-//     ->getDictfromDict("phone")
-//     ->getPhoneNumberString,
-//     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
-//     email: dict->getEmail,
-//     name: dict->getString("name", ""),
-//     phone: dict
-//     ->getDictfromDict("customer")
-//     ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code"),
-//     return_url: dict->getString("return_url", ""),
-//     authentication_type: dict->getString("authentication_type", ""),
-//     statement_descriptor: dict->getString("statement_descriptor", ""),
-//     statement_descriptor_suffix: dict->getString("statement_descriptor_suffix", ""),
-//     next_action: dict->getString("next_action", ""),
-//     cancellation_reason: dict->getString("cancellation_reason", ""),
-//     error_code: dict->getString("error_code", ""),
-//     error_message: dict->getString("error_message", ""),
-//     order_quantity: dict->getString("order_quantity", ""),
-//     product_name: dict->getString("product_name", ""),
-//     card_brand: dict->getString("card_brand", ""),
-//     payment_experience: dict->getString("payment_experience", ""),
-//     connector_transaction_id: dict->getString("connector_transaction_id", ""),
-//     refunds: dict
-//     ->getArrayFromDict("refunds", [])
-//     ->JSON.Encode.array
-//     ->getArrayDataFromJson(refunditemToObjMapper),
-//     profile_id: dict->getString("profile_id", ""),
-//     frm_message: dict->getFRMDetails,
-//     merchant_decision: dict->getString("merchant_decision", ""),
-//     merchant_connector_id: dict->getString("merchant_connector_id", ""),
-//     disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
-//     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
-//     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
-//     attempt_count: dict->getInt("attempt_count", 0),
-//     connector_label: dict->getString("connector_label", "NA"),
-//     split_payments: dict->getDictfromDict("split_payments"),
-//   }
-// }
 
 let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, PaymentInterfaceUtils.mapDictToPaymentPayload)

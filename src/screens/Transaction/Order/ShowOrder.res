@@ -90,7 +90,7 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order: order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
+  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     <div className="md:flex md:flex-col md:gap-5">
@@ -267,7 +267,7 @@ module Refunds = {
 module Attempts = {
   open OrderEntity
   @react.component
-  let make = (~order: order) => {
+  let make = (~order) => {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -399,7 +399,7 @@ module Disputes = {
 
 module OrderActions = {
   @react.component
-  let make = (~orderData: order, ~refetch, ~showModal, ~setShowModal) => {
+  let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
 
@@ -740,6 +740,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
+        // hide the logs section for V2 since the apis are failing
         <RenderIf
           condition={version == V1 &&
           featureFlagDetails.auditTrail &&
