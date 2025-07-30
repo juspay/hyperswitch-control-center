@@ -1,13 +1,14 @@
 open RoutingAnalyticsTrendsTypes
 open InsightsUtils
 open LogicUtils
+open LogicUtilsTypes
 
-let getStringFromVariant = value => {
-  switch value {
-  | Payment_Success_Rate => "payment_success_rate"
-  | Payment_Count => "payment_count"
-  | Time_Bucket => "time_bucket"
-  }
+type routingMapperConfig = {
+  title: string,
+  tooltipTitle: string,
+  yAxisMaxValue: option<int>,
+  statType: LogicUtilsTypes.valueType,
+  suffix: string,
 }
 
 let getVariantValueFromString = value => {
@@ -15,12 +16,6 @@ let getVariantValueFromString = value => {
   | "payment_success_rate" => Payment_Success_Rate
   | "payment_count" => Payment_Count
   | "time_bucket" | _ => Time_Bucket
-  }
-}
-
-let isAmountMetric = key => {
-  switch key->getVariantValueFromString {
-  | Payment_Success_Rate | Payment_Count | Time_Bucket => false
   }
 }
 
@@ -80,18 +75,17 @@ let modifyQueryData = data => {
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
     let connector = valueDict->getString("connector", "Unknown")
-    let timeBucket = valueDict->getString(Time_Bucket->getStringFromVariant, "")
-    let paymentSuccessRate = valueDict->getFloat(Payment_Success_Rate->getStringFromVariant, 0.0)
-    let paymentCount = valueDict->getInt(Payment_Count->getStringFromVariant, 0)
-    let resultDict = Dict.make()
-    resultDict->Dict.set("connector", connector->JSON.Encode.string)
-    resultDict->Dict.set(Time_Bucket->getStringFromVariant, timeBucket->JSON.Encode.string)
-    resultDict->Dict.set(
-      Payment_Success_Rate->getStringFromVariant,
-      paymentSuccessRate->JSON.Encode.float,
-    )
-    resultDict->Dict.set(Payment_Count->getStringFromVariant, paymentCount->JSON.Encode.int)
-    resultDict->JSON.Encode.object
+    let timeBucket = valueDict->getString((Time_Bucket :> string)->String.toLowerCase, "")
+    let paymentSuccessRate =
+      valueDict->getFloat((Payment_Success_Rate :> string)->String.toLowerCase, 0.0)
+    let paymentCount = valueDict->getInt((Payment_Count :> string)->String.toLowerCase, 0)
+
+    [
+      ("connector", connector->JSON.Encode.string),
+      ((Time_Bucket :> string)->String.toLowerCase, timeBucket->JSON.Encode.string),
+      ((Payment_Success_Rate :> string)->String.toLowerCase, paymentSuccessRate->JSON.Encode.float),
+      ((Payment_Count :> string)->String.toLowerCase, paymentCount->JSON.Encode.int),
+    ]->LogicUtils.getJsonFromArrayOfJson
   })
 }
 

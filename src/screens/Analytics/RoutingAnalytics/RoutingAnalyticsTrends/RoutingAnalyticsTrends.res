@@ -52,8 +52,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let (successData, setSuccessData) = React.useState(_ => JSON.Encode.null)
-  let (volumeData, setVolumeData) = React.useState(_ => JSON.Encode.null)
+  let (sharedData, setSharedData) = React.useState(_ => JSON.Encode.null)
 
   let getMetricData = async () => {
     try {
@@ -76,8 +75,7 @@ let make = () => {
       } else {
         let processedData =
           responseData->RoutingAnalyticsTrendsUtils.modifyQueryData->sortQueryDataByDate
-        setSuccessData(_ => processedData->Identity.genericTypeToJson)
-        setVolumeData(_ => processedData->Identity.genericTypeToJson)
+        setSharedData(_ => processedData->Identity.genericTypeToJson)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
@@ -106,7 +104,7 @@ let make = () => {
             {"Success Over Time"->React.string}
           </p>
         </div>
-        <SuccessChart data=successData />
+        <SuccessChart data=sharedData />
       </div>
       <div className="border border-nd_gray-200 rounded-xl">
         <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
@@ -114,7 +112,7 @@ let make = () => {
             {"Volume Over Time"->React.string}
           </p>
         </div>
-        <VolumeChart data=volumeData />
+        <VolumeChart data=sharedData />
       </div>
     </div>
   </PageLoaderWrapper>
