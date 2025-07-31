@@ -14,6 +14,17 @@ let make = (
   ~expandedRowIndexArray,
   ~getRowDetails,
   ~showSerial=false,
+  ~tableClass="",
+  ~borderClass="border border-jp-gray-500 dark:border-jp-gray-960 rounded",
+  ~firstColRoundedHeadingClass="rounded-tl",
+  ~lastColRoundedHeadingClass="rounded-tr",
+  ~headingBgColor="bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950",
+  ~headingFontWeight="font-bold",
+  ~headingFontColor="text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75",
+  ~rowFontSize="text-sm",
+  ~rowFontStyle="font-fira-code",
+  ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
+  ~isLastRowRounded=false,
 ) => {
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
@@ -50,7 +61,7 @@ let make = (
   } else {
     ""
   }
-
+  let totalRows = rowInfo->Array.length
   let handleUpdateFilterObj = (ev, i) => {
     switch setFilterObj {
     | Some(fn) =>
@@ -75,9 +86,6 @@ let make = (
     }
   }
 
-  let tableClass = ""
-  let borderClass = "border border-jp-gray-500 dark:border-jp-gray-960 rounded"
-
   <div
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
     style={minHeight: {filterPresent ? "30rem" : ""}}>
@@ -91,26 +99,23 @@ let make = (
                 let isFirstCol = i === 0
                 let isLastCol = i === headingsLen - 1
                 let oldThemeRoundedClass = if isFirstCol {
-                  "rounded-tl"
+                  firstColRoundedHeadingClass
                 } else if isLastCol {
-                  "rounded-tr"
+                  lastColRoundedHeadingClass
                 } else {
                   ""
                 }
                 let roundedClass = oldThemeRoundedClass
                 let borderClass = isLastCol ? "" : "border-jp-gray-500 dark:border-jp-gray-960"
                 let borderClass = borderClass
-                let bgColor = "bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950"
-                let headerTextClass = "text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-                let fontWeight = "font-bold"
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"
                 <AddDataAttributes
                   attributes=[("data-table-heading", item.title)] key={i->Int.toString}>
                   <th className="p-0">
                     <div
-                      className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${bgColor} ${headerTextClass} whitespace-pre ${roundedClass}`}>
-                      <div className={`${fontWeight} ${fontSize}`}>
+                      className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${headingBgColor} ${headingFontColor} whitespace-pre ${roundedClass}`}>
+                      <div className={`${headingFontWeight} ${fontSize}`}>
                         {React.string(item.title)}
                       </div>
                       <RenderIf condition={item.showFilter || item.showSort}>
@@ -178,6 +183,11 @@ let make = (
               getRowDetails
               heading
               title
+              rowFontSize
+              rowFontStyle
+              rowFontColor
+              totalRows
+              isLastRowRounded
             />
           })
           ->React.array}

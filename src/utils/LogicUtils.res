@@ -619,7 +619,7 @@ let valueFormatter = (value, statType: LogicUtilsTypes.valueType, ~currency="", 
 
   switch statType {
   | Amount => `${value->indianShortNum} ${amountSuffix}`
-  | AmountWithSuffix => `${currency} ${value->Float.toString}${suffix}`
+  | AmountWithSuffix => `${currency} ${value->Float.toFixedWithPrecision(~digits=2)} ${suffix}`
   | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
   | Volume => value->indianShortNum
   | Latency => latencyShortNum(~labelValue=value)
@@ -815,4 +815,19 @@ let getDictFromNestedDict = (dict, dict1, dict2) => {
   dict
   ->getDictfromDict(dict1)
   ->getDictfromDict(dict2)
+}
+
+let getKeyValuePairsFromDict = dict => {
+  dict
+  ->Dict.toArray
+  ->Array.map(((key, value)) => {
+    let displayKey = key->snakeToTitle
+    let displayValue = switch value->JSON.Classify.classify {
+    | String(str) => str
+    | Number(num) => num->Float.toString
+    | Bool(bool) => bool->getStringFromBool->capitalizeString
+    | _ => "N/A"
+    }
+    (displayKey, displayValue)
+  })
 }

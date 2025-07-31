@@ -72,6 +72,7 @@ let make = () => {
     ~startTimeFilterKey,
     ~endTimeFilterKey,
     ~origin="recon_engine_exception_staging",
+    ~range=180,
     (),
   )
 
@@ -105,6 +106,7 @@ let make = () => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+        setOffset
       />
     </div>
   }
@@ -117,7 +119,7 @@ let make = () => {
         hideTitle=true
         actualData={filteredStagingData}
         entity={ReconEngineExceptionEntity.processingTableEntity}
-        resultsPerPage=50
+        resultsPerPage=10
         totalResults={filteredStagingData->Array.length}
         offset
         setOffset
