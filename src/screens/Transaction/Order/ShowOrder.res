@@ -469,7 +469,7 @@ module FraudRiskBannerDetails = {
       }
     }
 
-    let openPopUp = (~decision: frmStatus) => {
+    let openPopUp = (~decision: OrderTypes.frmStatus) => {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: `Confirm Action?`,

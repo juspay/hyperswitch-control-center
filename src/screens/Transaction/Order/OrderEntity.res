@@ -1,5 +1,6 @@
 open PaymentInterfaceTypes
 open LogicUtils
+open OrderTypes
 
 module CurrencyCell = {
   @react.component
