@@ -11,29 +11,53 @@ module RowDetailsComponent = {
         connectorCols->Array.map(colType => getConnectorCell(connectorDetails, colType))
       })
 
-      <table className="table-auto min-w-full h-full" colSpan=0>
-        <tbody>
-          {tableCellArray
-          ->Array.map(item => {
-            <DesktopView>
-              <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 ">
-                {item
-                ->Array.map(obj =>
-                  <td
-                    className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} text-nd_gray-700`}
-                    style={width: "430px"}>
-                    <div className={`box-border px-4  py-3`}>
-                      <Table.TableCell cell=obj />
-                    </div>
-                  </td>
-                )
-                ->React.array}
-              </tr>
-            </DesktopView>
-          })
-          ->React.array}
-        </tbody>
-      </table>
+      // <table className="table-auto min-w-full h-full" colSpan=0>
+      //   <tbody>
+
+      {
+        tableCellArray
+        ->Array.mapWithIndex((item, index) => {
+          // <DesktopView>
+          //   <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 ">
+          //     {item
+          //     ->Array.map(obj =>
+          //       <td
+          //         className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} text-nd_gray-700`}
+          //         style={width: "430px"}>
+          //         <div className={`box-border px-4  py-3`}>
+          //           <Table.TableCell cell=obj />
+          //         </div>
+          //       </td>
+          //     )
+          //     ->React.array}
+          //   </tr>
+          // </DesktopView>
+          <Table.TableRow
+            item
+            rowIndex=index
+            title=" "
+            fixedWidthClass="430px"
+            onRowClick=Some(_ => ())
+            onRowDoubleClick=Some(_ => ())
+            offset=0
+            onRowClickPresent=true
+            selectedIndex=1
+            setSelectedIndex={_ => ()}
+            removeVerticalLines=true
+            highlightSelectedRow=false
+            removeHorizontalLines=false
+            evenVertivalLines=false
+            highlightEnabledFieldsArray={[]}
+            expandedRow={_ => React.null}
+            onMouseEnter=Some(_ => ())
+            onMouseLeave=Some(_ => ())
+            highlightText=""
+            rowCustomClass={`!bg-nd_gray-25 !text-nd_gray-700 ${body.md.medium} `}
+            // alignCellContent={` !px-6 !py-3`}
+          />
+        })
+        ->React.array
+      }
 
     | _ => React.null
     }

@@ -51,15 +51,14 @@ let getSummaryMainCell = (summaryMain, colType): Table.cell => {
       <CustomNumeric
         num=summaryMain.traffic_percentage
         mapper=usaNumberAbbreviation
-        customStyling="ml-54-px 2xl:ml-4"
+        // customStyling="ml-54-px 2xl:ml-[30px]"
+        customStyling=""
       />,
       "",
     )
   | NoOfPayments =>
     CustomCell(
-      <div className="ml-9 2xl:ml-2">
-        {`${summaryMain.no_of_payments->string_of_int}`->React.string}
-      </div>,
+      <div className=""> {`${summaryMain.no_of_payments->string_of_int}`->React.string} </div>,
       "",
     )
   | AuthorizationRate =>
@@ -67,14 +66,18 @@ let getSummaryMainCell = (summaryMain, colType): Table.cell => {
       <CustomNumeric
         num=summaryMain.authorization_rate
         mapper=usaNumberAbbreviation
-        customStyling="ml-8 2xl:ml-3"
+        // customStyling="ml-8 2xl:ml-8"
+        customStyling=""
       />,
       "",
     )
   | ProcessedAmount =>
     CustomCell(
       <CustomNumeric
-        num=summaryMain.processed_amount mapper=usaNumberAbbreviation customStyling="ml-4 2xl:ml-2"
+        num=summaryMain.processed_amount
+        mapper=usaNumberAbbreviation
+        // customStyling="ml-4 2xl:ml-6"
+        customStyling=""
       />,
       "",
     )
@@ -91,7 +94,8 @@ let getConnectorCell = (connector, colType): Table.cell => {
       <HelperComponents.ConnectorCustomCell
         connectorName=connector.connector_name
         connectorType={ConnectorUtils.connectorTypeFromConnectorName(connector.connector_name)}
-        customStyle="w-7-rem 2xl:w-10-rem !pl-6"
+        // customStyle="!pl-6"
+        // customStyle="!pl-6"
         customIconStyle="w-4 h-4 mr-2"
       />,
       "",
