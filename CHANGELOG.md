@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.07.31.0
+
+### Features
+
+- Routing Analytics Trends Distribution Graph ([#3361](https://github.com/juspay/hyperswitch-control-center/pull/3361)) ([`ca62626`](https://github.com/juspay/hyperswitch-control-center/commit/ca62626f503ca20da28d64c657529686bc54cca3))
+- Add metrics in routing analytics ([#3369](https://github.com/juspay/hyperswitch-control-center/pull/3369)) ([`73b8658`](https://github.com/juspay/hyperswitch-control-center/commit/73b8658607e78600edebfb56c8a8ab686513a335))
+- Added Routing analytics summary table component ([#3360](https://github.com/juspay/hyperswitch-control-center/pull/3360)) ([`70b7eea`](https://github.com/juspay/hyperswitch-control-center/commit/70b7eea93bd2525e0df14fd345dd705e3b17cf55))
+
+### Bug Fixes
+
+- Standardize amount format in recon engine ([#3363](https://github.com/juspay/hyperswitch-control-center/pull/3363)) ([`6c56318`](https://github.com/juspay/hyperswitch-control-center/commit/6c563188c88159ffcf65ca491515a911406bdba2))
+
+### Refactors
+
+- Chatbot button changes ([#3374](https://github.com/juspay/hyperswitch-control-center/pull/3374)) ([`c5fee2b`](https://github.com/juspay/hyperswitch-control-center/commit/c5fee2bb8045a98aa888edd7e6bf20ba7c32d7a8))
+
+### Miscellaneous Tasks
+
+- Renaming source and target names and setoffset ([#3371](https://github.com/juspay/hyperswitch-control-center/pull/3371)) ([`c0714d8`](https://github.com/juspay/hyperswitch-control-center/commit/c0714d80e1c2d40a09dd9227f3ce4e4e3b91daa1))
+
+**Full Changelog:** [`2025.07.30.0...2025.07.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.30.0...2025.07.31.0)
+
+- - -
+
 ## 2025.07.30.0
 
 ### Bug Fixes
