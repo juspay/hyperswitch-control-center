@@ -211,7 +211,6 @@ module ApiKeyAddBtn = {
 
 module TableActionsCell = {
   open DeveloperUtils
-  open HSwitchSettingTypes
   @react.component
   let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
     let getURL = APIUtils.useGetURL()
