@@ -1,11 +1,12 @@
 open VaultAPIKeysUtils
 open VaultAPITypes
+open Typography
 
 module ErrorUI = {
   @react.component
   let make = (~text) => {
     <div className="flex p-5">
-      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/error.svg`} alt="warning" />
+      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/warning.svg`} alt="warning" />
       <div className="text-jp-gray-900">
         <div
           className="font-bold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
@@ -486,7 +487,7 @@ module PublishableAndHashKeySection = {
           <FormRenderer.DesktopRow itemWrapperClass="">
             <div className="flex flex-col gap-1 md:gap-4 mb-4 md:mb-0">
               <div className="flex">
-                <div className="break-all text-md text-base text-grey-700 font-semibold">
+                <div className={`break-all text-md text-base text-nd_gray-400 ${body.md.medium}`}>
                   {"Publishable Key"->React.string}
                 </div>
                 <div className="ml-1 mt-0.5 h-5 w-5">
@@ -498,7 +499,7 @@ module PublishableAndHashKeySection = {
                       onClick={_ => {
                         "https://hyperswitch.io/docs"->Window._open
                       }}>
-                      <Icon name="open_arrow" size=12 />
+                      <Icon name="nd_question_mark_circle" size=12 />
                     </div>}
                     toolTipPosition=ToolTip.Top
                   />
@@ -506,14 +507,14 @@ module PublishableAndHashKeySection = {
               </div>
               <HelperComponents.CopyTextCustomComp
                 displayValue={Some(merchantInfo.publishable_key)}
-                customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-jp-gray-800 text-opacity-75"
-                customParentClass="flex items-center gap-5"
+                customTextCss="break-all text-sm truncate md:whitespace-normal font-semibold text-nd_gray-600"
                 customIconCss="text-jp-gray-700"
               />
             </div>
             <RenderIf condition={paymentResponsHashKey->String.length !== 0}>
               <div className="flex flex-col gap-2 md:gap-4">
-                <div className="break-all text-md text-base text-grey-700 font-semibold">
+                <div
+                  className={`break-all text-md text-base text-nd_gray-400 font-semibold ${body.md.medium}`}>
                   {"Payment Response Hash Key"->React.string}
                 </div>
                 <HelperComponents.CopyTextCustomComp
