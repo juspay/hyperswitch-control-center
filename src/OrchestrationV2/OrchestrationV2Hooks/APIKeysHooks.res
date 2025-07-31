@@ -7,8 +7,7 @@ let useGetApiKeysHook = () => {
   async () => {
     try {
       let url = getURL(~entityName=V2(V2_API_KEYS), ~methodType=Get)
-      let res = await fetchDetails(url)
-      res
+      await fetchDetails(url)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch API Keys list!")
@@ -25,8 +24,7 @@ let useDeleteApiKeyHook = () => {
   async (~apiKeyId, ~payload) => {
     try {
       let url = getURL(~entityName=V2(V2_API_KEYS), ~methodType=Delete, ~id=Some(apiKeyId))
-      let res = await updateDetails(url, payload, Delete)
-      res
+      await updateDetails(url, payload, Delete)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to delete API Key!")
@@ -43,9 +41,7 @@ let useCreateApiKeyHook = () => {
   async (~payload) => {
     try {
       let url = getURL(~entityName=V2(V2_API_KEYS), ~methodType=Post)
-      Js.log2("url in api hooks create api", url)
-      let res = await updateDetails(url, payload, Post)
-      res
+      await updateDetails(url, payload, Post)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to create API Key!")
@@ -62,8 +58,7 @@ let useUpdateApiKeyHook = () => {
   async (~payload, ~apiKeyId=None) => {
     try {
       let url = getURL(~entityName=V2(V2_API_KEYS), ~methodType=Put, ~id=apiKeyId)
-      let res = await updateDetails(url, payload, Put)
-      res
+      await updateDetails(url, payload, Put)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to update API Key!")

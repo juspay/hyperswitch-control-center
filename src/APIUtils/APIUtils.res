@@ -106,12 +106,12 @@ let getV2Url = (
     switch methodType {
     | Get => `v2/api-keys/list`
     | Post => `v2/api-keys`
-    | Put =>
+    | Put
+    | Delete =>
       switch id {
       | Some(key_id) => `v2/api-keys/${key_id}`
       | None => `v2/api-keys`
       }
-    | Delete => `v2/api-keys/${id->Option.getOr("")}`
     | _ => ""
     }
 

@@ -37,10 +37,10 @@ let vaultAPIKeys = {
   Link({
     name: "API Keys",
     link: `/v2/vault/api-keys`,
-    icon: "api-key",
+    icon: "nd-api-keys",
     access: Access,
     searchOptions: [("Vault API keys", "")],
-    selectedIcon: "api-key",
+    selectedIcon: "nd-api-keys",
   })
 }
 

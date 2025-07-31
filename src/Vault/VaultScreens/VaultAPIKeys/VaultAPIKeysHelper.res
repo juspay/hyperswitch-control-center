@@ -499,7 +499,7 @@ module PublishableAndHashKeySection = {
                       onClick={_ => {
                         "https://hyperswitch.io/docs"->Window._open
                       }}>
-                      <Icon name="nd_question_mark_circle" size=12 />
+                      <Icon name="open_arrow" size=12 />
                     </div>}
                     toolTipPosition=ToolTip.Top
                   />
