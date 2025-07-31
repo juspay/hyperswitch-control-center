@@ -110,6 +110,7 @@ type processorTypes =
   | BARCLAYCARD
   | TOKENIO
   | PAYLOAD
+  | FLEXITI
 
 type payoutProcessorTypes =
   | ADYEN

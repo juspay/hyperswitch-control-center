@@ -122,6 +122,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BARCLAYCARD),
   Processors(TOKENIO),
   Processors(PAYLOAD),
+  Processors(FLEXITI),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -463,6 +464,10 @@ let payloadInfo = {
   description: "Payload is an embedded finance solution for modern platforms and businesses, automating inbound and outbound payments with an industry-leading platform and driving innovation into the future.",
 }
 
+let flexitiInfo = {
+  description: "Flexiti is a comprehensive point-of-sale financing platform for modern retailers and businesses, automating consumer credit applications and payment processing with an industry-leading omni-channel solution and driving innovation into the future of retail financing.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -731,6 +736,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BARCLAYCARD => "barclaycard"
   | TOKENIO => "tokenio"
   | PAYLOAD => "payload"
+  | FLEXITI => "flexiti"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -884,6 +890,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "barclaycard" => Processors(BARCLAYCARD)
     | "tokenio" => Processors(TOKENIO)
     | "payload" => Processors(PAYLOAD)
+    | "flexiti" => Processors(FLEXITI)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1017,6 +1024,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BARCLAYCARD => barclaycardInfo
   | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
+  | FLEXITI => flexitiInfo
   }
 }
 
@@ -1893,6 +1901,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
   | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
+  | FLEXITI => "Flexiti"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
