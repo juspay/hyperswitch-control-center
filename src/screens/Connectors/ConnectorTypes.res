@@ -110,6 +110,8 @@ type processorTypes =
   | BARCLAYCARD
   | TOKENIO
   | PAYLOAD
+  | PAYTM
+  | PHONEPE
   | FLEXITI
 
 type payoutProcessorTypes =
