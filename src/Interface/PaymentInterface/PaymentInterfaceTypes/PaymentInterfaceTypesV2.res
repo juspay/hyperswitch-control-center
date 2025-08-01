@@ -58,7 +58,7 @@ type error_v2 = {
 }
 
 type order_v2 = {
-  merchant_reference_id: string,
+  payment_id: string,
   merchant_id: string,
   net_amount: float,
   status: string,

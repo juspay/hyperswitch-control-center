@@ -261,7 +261,7 @@ let mapErrorObject: order_v1 => PaymentInterfaceTypes.error = order => {
 
 let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order => {
   {
-    merchant_reference_id: order.payment_id,
+    payment_id: order.payment_id,
     merchant_id: order.merchant_id,
     net_amount: order.net_amount,
     connector: order.connector,

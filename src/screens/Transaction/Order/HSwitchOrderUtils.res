@@ -153,7 +153,7 @@ let getStripeChargeType = splitPaymentsDict => {
   stripeChargeType->String.toLowerCase->getStripeChargeVariantFromString
 }
 
-let initialValuesDict = (~isSplitPayment, ~order: OrderTypes.order) => {
+let initialValuesDict = (~isSplitPayment, ~order: PaymentInterfaceTypes.order) => {
   switch (isSplitPayment, order.split_payments->getStripeChargeType) {
   | (true, Direct) =>
     Dict.fromArray([

@@ -86,7 +86,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
   }
 
   {
-    merchant_reference_id: dict->getString("payment_id", ""),
+    payment_id: dict->getString("id", ""),
     merchant_id: dict->getString("merchant_id", ""),
     net_amount: dict->getFloat("net_amount", 0.0),
     connector: dict->getString("connector", ""),
@@ -254,7 +254,7 @@ let mapFrmV1ToCommonType: frmMessage_v2 => PaymentInterfaceTypes.frmMessage = fr
 
 let mapPaymentV2ToCommonType: order_v2 => PaymentInterfaceTypes.order = order => {
   {
-    merchant_reference_id: order.merchant_order_reference_id,
+    payment_id: order.payment_id,
     merchant_id: order.merchant_id,
     net_amount: order.net_amount,
     connector: order.connector,

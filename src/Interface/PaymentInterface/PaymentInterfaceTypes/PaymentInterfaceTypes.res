@@ -58,7 +58,7 @@ type error = {
 }
 
 type order = {
-  merchant_reference_id: string,
+  payment_id: string,
   merchant_id: string,
   net_amount: float,
   status: string,
@@ -125,4 +125,10 @@ type order = {
   routing_algorithm_applied?: Dict.t<JSON.t>,
   authentication_applied?: string,
   split_payments: Dict.t<JSON.t>,
+}
+
+type ordersObject = {
+  count: int,
+  data: array<order>,
+  total_count: int,
 }
