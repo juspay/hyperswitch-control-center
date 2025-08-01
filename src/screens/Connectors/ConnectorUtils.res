@@ -125,6 +125,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYTM),
   Processors(PHONEPE),
   Processors(FLEXITI),
+  Processors(BREADPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -658,6 +659,9 @@ let paytmInfo = {
 let phonepeInfo = {
   description: "PhonePe is a digital payments and financial services platform built on the UPI system. It allows users to make instant payments, recharge mobiles, pay bills, and access financial services like investments and insurance.",
 }
+let breadpayInfo = {
+  description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -747,6 +751,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYTM => "paytm"
   | PHONEPE => "phonepe"
   | FLEXITI => "flexiti"
+  | BREADPAY => "breadpay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -903,6 +908,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paytm" => Processors(PAYTM)
     | "phonepe" => Processors(PHONEPE)
     | "flexiti" => Processors(FLEXITI)
+    | "breadpay" => Processors(BREADPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1039,6 +1045,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYTM => paytmInfo
   | PHONEPE => phonepeInfo
   | FLEXITI => flexitiInfo
+  | BREADPAY => breadpayInfo
   }
 }
 
@@ -1918,6 +1925,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYTM => "Paytm"
   | PHONEPE => "PhonePe"
   | FLEXITI => "Flexiti"
+  | BREADPAY => "Breadpay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
