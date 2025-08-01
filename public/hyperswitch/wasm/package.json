@@ -1,6 +1,5 @@
 {
   "name": "euclid_wasm",
-  "type": "module",
   "description": "WASM bindings for Euclid DSL",
   "version": "0.1.0",
   "license": "Apache-2.0",
@@ -9,7 +8,7 @@
     "euclid.js",
     "euclid.d.ts"
   ],
-  "main": "euclid.js",
+  "module": "euclid.js",
   "types": "euclid.d.ts",
   "sideEffects": [
     "./snippets/*"
