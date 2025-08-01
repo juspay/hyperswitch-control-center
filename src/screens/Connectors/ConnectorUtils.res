@@ -467,10 +467,6 @@ let payloadInfo = {
   description: "Payload is an embedded finance solution for modern platforms and businesses, automating inbound and outbound payments with an industry-leading platform and driving innovation into the future.",
 }
 
-let flexitiInfo = {
-  description: "Flexiti is a comprehensive point-of-sale financing platform for modern retailers and businesses, automating consumer credit applications and payment processing with an industry-leading omni-channel solution and driving innovation into the future of retail financing.",
-}
-
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -656,9 +652,15 @@ let worldpayVantivInfo = {
 let paytmInfo = {
   description: "Paytm is an Indian multinational fintech company specializing in digital payments and financial services. Initially known for its mobile wallet, it has expanded to include a payment bank, e-commerce, ticketing, and wealth management services.",
 }
+
 let phonepeInfo = {
   description: "PhonePe is a digital payments and financial services platform built on the UPI system. It allows users to make instant payments, recharge mobiles, pay bills, and access financial services like investments and insurance.",
 }
+
+let flexitiInfo = {
+  description: "Flexiti is a comprehensive point-of-sale financing platform for modern retailers and businesses, automating consumer credit applications and payment processing with an industry-leading omni-channel solution and driving innovation into the future of retail financing.",
+}
+
 let breadpayInfo = {
   description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
 }
