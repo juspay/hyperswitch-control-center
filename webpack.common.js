@@ -67,7 +67,9 @@ module.exports = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          { from: `public/hyperswitch` },
+          {
+            from: `public/hyperswitch`,
+          },
         ].filter(Boolean),
       }),
       new MonacoWebpackPlugin(),

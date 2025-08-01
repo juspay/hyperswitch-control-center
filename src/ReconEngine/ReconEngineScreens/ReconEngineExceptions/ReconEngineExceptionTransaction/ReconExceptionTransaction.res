@@ -1,7 +1,8 @@
 @react.component
 let make = () => {
-  open ReconEngineExceptionTransactionUtils
   open LogicUtils
+  open ReconEngineUtils
+  open ReconEngineTransactionsTypes
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -10,7 +11,6 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
-
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
@@ -20,10 +20,18 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_exception_transaction_date_filter_opened")
   }
+
+  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
+    (
+      getEntryTypeAccountOptions(exceptionData, ~entryType="credit"),
+      getEntryTypeAccountOptions(exceptionData, ~entryType="debit"),
+    )
+  }, [exceptionData])
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineTransactionsTypes.transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
@@ -66,6 +74,7 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_exception_transaction",
     (),
   )
@@ -86,7 +95,11 @@ let make = () => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={ReconExceptionTransactionUtils.initialDisplayFilters(
+          ~creditAccountOptions,
+          ~debitAccountOptions,
+          (),
+        )}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -100,6 +113,7 @@ let make = () => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+        setOffset
       />
     </div>
   }

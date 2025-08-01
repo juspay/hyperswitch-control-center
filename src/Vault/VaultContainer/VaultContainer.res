@@ -18,7 +18,7 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsView) === Access ||
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
-        setConnectorList(_ => []->Identity.genericTypeToJson)
+        setConnectorList(_ => [])
         let _ = await fetchConnectorListResponse()
       }
       setScreenState(_ => PageLoaderWrapper.Success)

@@ -82,11 +82,6 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
 }
 
-let formatAmountWithCurrency = (amount: float, currency: string) => {
-  let roundedAmount = (amount *. 100.0)->Math.round /. 100.0
-  `${roundedAmount->Float.toString} ${currency}`
-}
-
 let calculateAccountAmounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
@@ -135,10 +130,10 @@ let calculateAccountAmounts = (
   })
 
   let totalSourceAmount = sourcePosted +. sourceMismatched +. sourceExpected
-  let totalTargetAmount = targetPosted +. targetMismatched +. targetExpected
+  let totalTargetAmount = targetPosted +. targetMismatched
   let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
 
-  (totalSourceAmount, totalTargetAmount, variance)
+  (totalSourceAmount, totalTargetAmount, targetExpected, variance)
 }
 
 // Stacked Bar Graph Data
@@ -148,7 +143,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
     categories: ["Transactions"],
     data: [
       {
-        name: "Posted",
+        name: "Matched",
         data: [postedCount->Int.toFloat],
         color: "#7AB891",
       },
@@ -173,17 +168,6 @@ let getOverviewLineGraphTooltipFormatter = (
   (this: LineGraphTypes.pointFormatter) => {
     let title = `<div style="font-size: 16px; font-weight: bold;">Transaction Count</div>`
 
-    let defaultValue: LineGraphTypes.point = {
-      color: "",
-      x: "",
-      y: 0.0,
-      point: {index: 0},
-      series: {name: ""},
-    }
-
-    let primaryPoint = this.points->getValueFromArray(0, defaultValue)
-    let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
-
     let getRowHtml = (~iconColor, ~name, ~value) => {
       let valueString = value->Float.toString
       `<div style="display: flex; align-items: center;">
@@ -194,18 +178,11 @@ let getOverviewLineGraphTooltipFormatter = (
     }
 
     let tableItems =
-      [
-        getRowHtml(
-          ~iconColor=primaryPoint.color,
-          ~name=primaryPoint.series.name,
-          ~value=primaryPoint.y,
-        ),
-        getRowHtml(
-          ~iconColor=secondaryPoint.color,
-          ~name=secondaryPoint.series.name,
-          ~value=secondaryPoint.y,
-        ),
-      ]->Array.joinWith("")
+      this.points
+      ->Array.map(point => {
+        getRowHtml(~iconColor=point.color, ~name=point.series.name, ~value=point.y)
+      })
+      ->Array.joinWith("")
 
     let content = `
             <div style=" 
@@ -333,7 +310,7 @@ let processLineGraphData = (
     data: [
       {
         showInLegend: true,
-        name: "Posted",
+        name: "Matched",
         data: postedData,
         color: "#7AB891",
       },
@@ -363,4 +340,30 @@ let processLineGraphData = (
   }
 
   lineGraphOptions
+}
+
+let initialDisplayFilters = () => {
+  open ReconEngineTransactionsTypes
+  let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
+  [
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="transaction_status",
+          ~name="transaction_status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Transaction Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
 }

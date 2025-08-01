@@ -1,16 +1,15 @@
 @react.component
 let make = (~previewOnly=false) => {
-  open APIUtils
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
 
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
+  let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity, merchantId, orgId}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    userInfo: {transactionEntity, merchantId, orgId, version},
+    checkUserEntity,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -30,15 +29,68 @@ let make = (~previewOnly=false) => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let startTime = filterValueJson->getString("start_time", "")
+  let startTime = filterValueJson->getString(startTimeFilterKey(version), "")
 
   let handleExtendDateButtonClick = _ => {
     let startDateObj = startTime->DayJs.getDayJsForString
     let prevStartdate = startDateObj.toDate()->Date.toISOString
     let extendedStartDate = startDateObj.subtract(90, "day").toDate()->Date.toISOString
 
-    updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
-    updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+    updateExistingKeys(Dict.fromArray([(startTimeFilterKey(version), {extendedStartDate})]))
+    updateExistingKeys(Dict.fromArray([(endTimeFilterKey(version), {prevStartdate})]))
+  }
+
+  let getOrdersList = async filterValueJson => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
+      let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+      let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+      if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
+        let payment_id =
+          filterValueJson
+          ->Dict.get("payment_id")
+          ->Option.getOr(""->JSON.Encode.string)
+          ->JSON.Decode.string
+          ->Option.getOr("")
+
+        if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
+          let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
+          filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
+
+          let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
+          let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+          let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+          setData(
+            offset,
+            setOffset,
+            total,
+            data,
+            setTotalCount,
+            setOrdersData,
+            setScreenState,
+            previewOnly,
+          )
+        } else {
+          setScreenState(_ => PageLoaderWrapper.Custom)
+        }
+      } else {
+        setData(
+          offset,
+          setOffset,
+          total,
+          data,
+          setTotalCount,
+          setOrdersData,
+          setScreenState,
+          previewOnly,
+        )
+      }
+    } catch {
+    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+    }
   }
 
   let fetchOrders = () => {
@@ -74,16 +126,7 @@ let make = (~previewOnly=false) => {
         //to delete unused keys
         filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         filters
-        ->getOrdersList(
-          ~updateDetails,
-          ~setOrdersData,
-          ~previewOnly,
-          ~setScreenState,
-          ~setOffset,
-          ~setTotalCount,
-          ~offset,
-          ~getURL,
-        )
+        ->getOrdersList
         ->ignore
 
       | _ => ()
@@ -92,16 +135,7 @@ let make = (~previewOnly=false) => {
       let filters = Dict.make()
 
       filters
-      ->getOrdersList(
-        ~updateDetails,
-        ~setOrdersData,
-        ~previewOnly,
-        ~setScreenState,
-        ~setOffset,
-        ~setTotalCount,
-        ~offset,
-        ~getURL,
-      )
+      ->getOrdersList
       ->ignore
     }
   }
@@ -132,8 +166,8 @@ let make = (~previewOnly=false) => {
     <RemoteTableFilters
       title="Orders"
       setFilters
-      endTimeFilterKey
-      startTimeFilterKey
+      endTimeFilterKey={endTimeFilterKey(version)}
+      startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters
       initialFixedFilter
       setOffset
@@ -141,7 +175,11 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      entityName=V1(ORDER_FILTERS)
+      entityName={switch version {
+      | V1 => V1(ORDER_FILTERS)
+      | V2 => V2(V2_ORDER_FILTERS)
+      }}
+      version
     />
   }, [searchText])
 
@@ -164,7 +202,7 @@ let make = (~previewOnly=false) => {
         </div>
       </div>
       <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8">
-        <TransactionView entity=TransactionViewTypes.Orders />
+        <TransactionView entity=TransactionViewTypes.Orders version />
       </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
@@ -175,7 +213,7 @@ let make = (~previewOnly=false) => {
         <LoadedTableWithCustomColumns
           title="Orders"
           actualData=orderData
-          entity={OrderEntity.orderEntity(merchantId, orgId)}
+          entity={OrderEntity.orderEntity(merchantId, orgId, ~version)}
           resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}

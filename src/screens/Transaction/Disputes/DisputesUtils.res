@@ -100,7 +100,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFixedFilter = () => [
+let initialFixedFilter = _ => [
   (
     {
       localFilter: None,
@@ -193,7 +193,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, _, _, _) => {
+let initialFilters = (json, filtervalues, _, _, _, _) => {
   let filterDict = json->getDictFromJsonObject
   let filtersArray = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 
