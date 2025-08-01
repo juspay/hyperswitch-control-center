@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.01.0
+
+### Bug Fixes
+
+- Recon overview txn filters bug ([#3376](https://github.com/juspay/hyperswitch-control-center/pull/3376)) ([`de93c3a`](https://github.com/juspay/hyperswitch-control-center/commit/de93c3a0cbea8bbeb5fccace5071069d757ef16e))
+
+### Miscellaneous Tasks
+
+- Removed merchantCountryCode field ([#3345](https://github.com/juspay/hyperswitch-control-center/pull/3345)) ([`bffb23b`](https://github.com/juspay/hyperswitch-control-center/commit/bffb23b8886c11d0fa3011748ee5e6efc2f84783))
+
+**Full Changelog:** [`2025.07.31.0...2025.08.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.07.31.0...2025.08.01.0)
+
+- - -
+
 ## 2025.07.31.0
 
 ### Features
