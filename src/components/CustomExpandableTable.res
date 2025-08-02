@@ -25,6 +25,8 @@ let make = (
   ~rowFontStyle="font-fira-code",
   ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
   ~isLastRowRounded=false,
+  ~rowComponentInCell=true,
+  ~customRowStyle="",
 ) => {
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
@@ -188,6 +190,7 @@ let make = (
               rowFontColor
               totalRows
               isLastRowRounded
+              rowComponentInCell
             />
           })
           ->React.array}

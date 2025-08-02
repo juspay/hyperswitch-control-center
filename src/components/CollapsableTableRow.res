@@ -14,6 +14,8 @@ let make = (
   ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
   ~totalRows,
   ~isLastRowRounded=false,
+  ~rowComponentInCell=true,
+  ~customRowStyle="",
 ) => {
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
   let headingArray = []
@@ -72,8 +74,8 @@ let make = (
                   onExpandIconClick(isCurrentRowExpanded, rowIndex)
                 }
               }}>
-              <div className={`h-full box-border px-4 ${paddingClass}`}>
-                <div className="flex flex-row gap-4 items-center">
+              <div className={`h-full box-border px-4 ${paddingClass} ${customRowStyle}`}>
+                <div className="flex flex-row gap-4 items-center text-sm">
                   <RenderIf condition={cellIndex === 0}>
                     <Icon name={isCurrentRowExpanded ? "caret-down" : "caret-right"} size=14 />
                   </RenderIf>
@@ -85,11 +87,16 @@ let make = (
         })
         ->React.array}
       </tr>
-      <RenderIf condition=isCurrentRowExpanded>
+      <RenderIf condition={isCurrentRowExpanded && rowComponentInCell}>
         <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
           <tr className="dark:border-jp-gray-dark_disable_border_color">
             <td colSpan=12 className=""> {getRowDetails(rowIndex)} </td>
           </tr>
+        </AddDataAttributes>
+      </RenderIf>
+      <RenderIf condition={isCurrentRowExpanded && !rowComponentInCell}>
+        <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
+          {getRowDetails(rowIndex)}
         </AddDataAttributes>
       </RenderIf>
     </DesktopView>

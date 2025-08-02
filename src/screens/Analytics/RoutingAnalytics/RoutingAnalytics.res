@@ -26,7 +26,16 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_ROUTING), ~methodType=Get, ~id=Some("routing"))
       let infoDetails = await fetchDetails(infoUrl)
-      setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
+
+      setDimensions(_ =>
+        infoDetails
+        ->getDictFromJsonObject
+        ->getArrayFromDict("dimensions", [])
+        ->Array.filter(dim => {
+          let name = dim->getDictFromJsonObject->getString("name", "")
+          !{name == "currency"}
+        })
+      )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>

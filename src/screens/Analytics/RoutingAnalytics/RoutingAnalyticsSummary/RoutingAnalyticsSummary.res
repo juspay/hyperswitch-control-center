@@ -1,43 +1,49 @@
 module RowDetailsComponent = {
   @react.component
-  let make = (~rowIndex, ~data) => {
+  let make = (~rowIndex, ~data, ~rows) => {
     open RoutingAnalyticsSummaryEntity
     open RoutingAnalyticsSummaryTypes
     open Typography
 
     switch data->Array.get(rowIndex) {
     | Some(data) =>
-      let childRows = data.connectors->Array.map(connectorDetails => {
-        summaryMainColumns->Array.map(colType => {
-          switch colType {
-          | RoutingLogic => getConnectorCell(connectorDetails, ConnectorName)
-          | TrafficPercentage => getConnectorCell(connectorDetails, TrafficPercentage)
-          | NoOfPayments => getConnectorCell(connectorDetails, NoOfPayments)
-          | AuthorizationRate => getConnectorCell(connectorDetails, AuthorizationRate)
-          | ProcessedAmount => getConnectorCell(connectorDetails, ProcessedAmount)
-          }
-        })
+      let tableCellArray = data.connectors->Array.map(connectorDetails => {
+        connectorCols->Array.map(colType => getConnectorCell(connectorDetails, colType))
       })
+      let isLastRow = rowIndex == rows->Array.length - 1
 
-      <div className="w-full">
-        {childRows
-        ->Array.mapWithIndex((row, index) => {
-          <div
-            key={index->Int.toString}
-            className={`bg-nd_gray-25 text-nd_gray-700 ${body.md.medium} border-t border-jp-gray-500 dark:border-jp-gray-960`}>
-            <div className="grid grid-cols-5">
-              {row
-              ->Array.mapWithIndex((cell, cellIndex) => {
-                <div key={cellIndex->Int.toString} className={`px-4 py-3`}>
-                  <Table.TableCell cell />
+      {
+        tableCellArray
+        ->Array.map(item => {
+          <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 ">
+            {item
+            ->Array.mapWithIndex((obj, cellIndex) => {
+              let isFirstCell = cellIndex === 0
+              let isLastCell = cellIndex === item->Array.length - 1
+              let roundedClass = if isLastRow {
+                if isFirstCell {
+                  "rounded-bl-xl"
+                } else if isLastCell {
+                  "rounded-br-xl"
+                } else {
+                  ""
+                }
+              } else {
+                ""
+              }
+
+              <td
+                className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} ${roundedClass} text-nd_gray-700`}>
+                <div className="box-border px-4 py-3">
+                  <Table.TableCell cell=obj />
                 </div>
-              })
-              ->React.array}
-            </div>
-          </div>
+              </td>
+            })
+            ->React.array}
+          </tr>
         })
-        ->React.array}
-      </div>
+        ->React.array
+      }
 
     | _ => React.null
     }
@@ -110,6 +116,7 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
     }
   }
+
   React.useEffect(_ => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       getData()->ignore
@@ -159,133 +166,28 @@ let make = () => {
       screenState
       customUI={<InsightsHelper.NoData />}
       customLoader={<Shimmer styleClass="w-full h-96" />}>
-      <div className="border border-gray-200 rounded-xl overflow-hidden">
-        <table className="w-full table-auto">
-          <thead>
-            <tr className="bg-gray-50">
-              {heading
-              ->Array.mapWithIndex((item, i) => {
-                let isFirstCol = i === 0
-                let isLastCol = i === heading->Array.length - 1
-                let roundedClass = if isFirstCol {
-                  "rounded-tl-xl"
-                } else if isLastCol {
-                  "rounded-tr-xl"
-                } else {
-                  ""
-                }
-                <th
-                  key={i->Int.toString}
-                  className={`px-4 py-3 text-sm font-medium text-gray-600 ${roundedClass}`}>
-                  {item.title->React.string}
-                </th>
-              })
-              ->React.array}
-            </tr>
-          </thead>
-          <tbody>
-            {rows
-            ->Array.mapWithIndex((row, rowIndex) => {
-              let isExpanded = expandedRowIndexArray->Array.includes(rowIndex)
-              let modifiedRow = row->Array.mapWithIndex((cell, cellIndex) => {
-                if cellIndex === 0 {
-                  // Add caret icon to the first cell
-                  Table.CustomCell(
-                    <div className="flex items-center gap-2">
-                      <Icon
-                        name={isExpanded ? "caret-down" : "caret-right"}
-                        size=14
-                        className="text-gray-500"
-                      />
-                      <Table.TableCell cell />
-                    </div>,
-                    "",
-                  )
-                } else {
-                  cell
-                }
-              })
-              <>
-                <Table.TableRow
-                  item=modifiedRow
-                  rowIndex
-                  title=""
-                  onRowClick=Some(_ => onExpandIconClick(isExpanded, rowIndex))
-                  onRowDoubleClick=None
-                  onRowClickPresent=true
-                  offset=0
-                  removeVerticalLines=true
-                  highlightSelectedRow=false
-                  removeHorizontalLines=false
-                  evenVertivalLines=false
-                  highlightEnabledFieldsArray={[]}
-                  expandedRow={_ => React.null}
-                  onMouseEnter=None
-                  onMouseLeave=None
-                  highlightText=""
-                  rowCustomClass={`bg-white text-gray-700 text-sm font-normal hover:bg-gray-50 cursor-pointer border-b border-gray-100`}
-                  alignCellContent="px-4 py-3 text-left"
-                  collapseTableRow=false
-                  fixedWidthClass=""
-                  selectedIndex=0
-                  setSelectedIndex={_ => ()}
-                />
-                {if isExpanded {
-                  data
-                  ->Array.get(rowIndex)
-                  ->Option.map(data => {
-                    data.connectors
-                    ->Array.mapWithIndex(
-                      (connector, connectorIndex) => {
-                        let connectorRow = summaryMainColumns->Array.mapWithIndex(
-                          (colType, cellIndex) => {
-                            let cell = switch colType {
-                            | RoutingLogic => getConnectorCell(connector, ConnectorName)
-                            | TrafficPercentage => getConnectorCell(connector, TrafficPercentage)
-                            | NoOfPayments => getConnectorCell(connector, NoOfPayments)
-                            | AuthorizationRate => getConnectorCell(connector, AuthorizationRate)
-                            | ProcessedAmount => getConnectorCell(connector, ProcessedAmount)
-                            }
-                            cell
-                          },
-                        )
-                        <Table.TableRow
-                          item=connectorRow
-                          rowIndex={connectorIndex}
-                          title=""
-                          onRowClick=None
-                          onRowDoubleClick=None
-                          onRowClickPresent=false
-                          offset=0
-                          removeVerticalLines=true
-                          highlightSelectedRow=false
-                          removeHorizontalLines=false
-                          evenVertivalLines=false
-                          highlightEnabledFieldsArray={[]}
-                          expandedRow={_ => React.null}
-                          onMouseEnter=None
-                          onMouseLeave=None
-                          highlightText=""
-                          rowCustomClass={`bg-gray-50 text-gray-700 text-sm font-normal border-b border-gray-100`}
-                          alignCellContent="px-4 py-3 text-left"
-                          fixedWidthClass=""
-                          selectedIndex=0
-                          setSelectedIndex={_ => ()}
-                        />
-                      },
-                    )
-                    ->React.array
-                  })
-                  ->Option.getOr(React.null)
-                } else {
-                  React.null
-                }}
-              </>
-            })
-            ->React.array}
-          </tbody>
-        </table>
-      </div>
+      <CustomExpandableTable
+        title=" "
+        heading
+        rows={rows}
+        onExpandIconClick={onExpandIconClick}
+        expandedRowIndexArray={expandedRowIndexArray}
+        getRowDetails={rowindex => <RowDetailsComponent rowIndex=rowindex data rows />}
+        showSerial={false}
+        fullWidth=true
+        tableClass="border rounded-xl"
+        borderClass=" "
+        firstColRoundedHeadingClass="rounded-tl-xl"
+        lastColRoundedHeadingClass="rounded-tr-xl"
+        headingBgColor="bg-nd_gray-25"
+        headingFontWeight="font-semibold"
+        headingFontColor="text-nd_gray-400"
+        rowFontColor="text-nd_gray-700"
+        customRowStyle="text-sm"
+        rowFontStyle="font-medium"
+        isLastRowRounded=true
+        rowComponentInCell=false
+      />
     </PageLoaderWrapper>
   </div>
 }
