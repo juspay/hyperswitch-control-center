@@ -64,6 +64,7 @@ let make = () => {
           options={RoutingAnalyticsDistributionUtils.chartOptions(
             response,
             ~groupByText="connector",
+            ~tooltipTitle="Connector",
           )}
         />
       </div>
