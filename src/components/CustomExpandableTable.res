@@ -191,6 +191,7 @@ let make = (
               totalRows
               isLastRowRounded
               rowComponentInCell
+              customRowStyle
             />
           })
           ->React.array}

@@ -74,8 +74,8 @@ let make = (
                   onExpandIconClick(isCurrentRowExpanded, rowIndex)
                 }
               }}>
-              <div className={`h-full box-border px-4 ${paddingClass} ${customRowStyle}`}>
-                <div className="flex flex-row gap-4 items-center text-sm">
+              <div className={`h-full box-border px-4 ${paddingClass}`}>
+                <div className={`flex flex-row gap-4 items-center ${customRowStyle}`}>
                   <RenderIf condition={cellIndex === 0}>
                     <Icon name={isCurrentRowExpanded ? "caret-down" : "caret-right"} size=14 />
                   </RenderIf>
