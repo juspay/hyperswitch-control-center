@@ -102,6 +102,19 @@ let getV2Url = (
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
     | None => ""
     }
+  | V2_API_KEYS =>
+    switch methodType {
+    | Get => `v2/api-keys/list`
+    | Post => `v2/api-keys`
+    | Put
+    | Delete =>
+      switch id {
+      | Some(key_id) => `v2/api-keys/${key_id}`
+      | None => `v2/api-keys`
+      }
+    | _ => ""
+    }
+
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
   | MERCHANT_ACCOUNT => `v2/merchant-accounts/${merchantId}`
   | USERS =>
