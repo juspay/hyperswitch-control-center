@@ -1,4 +1,3 @@
-open VerticalStepIndicatorTypes
 open RevenueRecoveryOnboardingTypes
 
 let getMainStepName = step => {
@@ -10,15 +9,12 @@ let getMainStepName = step => {
   }
 }
 
-let getStepName = step => {
+let getStepName = (step: revenueRecoverySubsections) => {
   switch step {
   | #selectProcessor => "Select a Processor"
   | #activePaymentMethods => "Active Payment Methods"
-  | #setupWebhookProcessor => "Setup Webhook"
   | #selectAPlatform => "Select a Platform"
-  | #configureRetries => "Configure Retries"
-  | #connectProcessor => "Connect Processor"
-  | #setupWebhookPlatform => "Setup Webhook"
+  | #processorSetUp => "Billing Processor Set-up"
   }
 }
 
@@ -31,6 +27,7 @@ let getIcon = step => {
   }
 }
 
+open VerticalStepIndicatorTypes
 let sections = [
   {
     id: (#chooseDataSource: revenueRecoverySections :> string),
@@ -47,10 +44,6 @@ let sections = [
         id: (#selectProcessor: revenueRecoverySubsections :> string),
         name: #selectProcessor->getStepName,
       },
-      {
-        id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
-        name: #setupWebhookProcessor->getStepName,
-      },
     ]),
   },
   {
@@ -63,16 +56,8 @@ let sections = [
         name: #selectAPlatform->getStepName,
       },
       {
-        id: (#configureRetries: revenueRecoverySubsections :> string),
-        name: #configureRetries->getStepName,
-      },
-      {
-        id: (#connectProcessor: revenueRecoverySubsections :> string),
-        name: #connectProcessor->getStepName,
-      },
-      {
-        id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
-        name: #setupWebhookPlatform->getStepName,
+        id: (#processorSetUp: revenueRecoverySubsections :> string),
+        name: #processorSetUp->getStepName,
       },
     ]),
   },
@@ -125,14 +110,11 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
   | "reviewDetails" | _ => #reviewDetails
   }
 
-  let subSection = switch subSectionId {
+  let subSection: revenueRecoverySubsections = switch subSectionId {
   | Some("selectProcessor") => #selectProcessor
   | Some("activePaymentMethods") => #activePaymentMethods
-  | Some("setupWebhookProcessor") => #setupWebhookProcessor
   | Some("selectAPlatform") => #selectAPlatform
-  | Some("configureRetries") => #configureRetries
-  | Some("connectProcessor") => #connectProcessor
-  | Some("setupWebhookPlatform") | _ => #setupWebhookPlatform
+  | Some("processorSetUp") | _ => #processorSetUp
   }
 
   (mainSection, subSection)
@@ -214,11 +196,8 @@ let getMixpanelEventName = currentStep => {
   switch currentStep->getSectionVariant {
   | (#connectProcessor, #selectProcessor) => "recovery_payment_processor"
   | (#connectProcessor, #activePaymentMethods) => "recovery_processor_active_payment_method"
-  | (#connectProcessor, #setupWebhookProcessor) => "recovery_processor_setup_webhook"
   | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor"
-  | (#addAPlatform, #configureRetries) => "recovery_configure_retries"
-  | (#addAPlatform, #connectProcessor) => "recovery_connector_processor_billing"
-  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_webhook_setup"
+  | (#addAPlatform, #processorSetUp) => "recovery_billing_processor_set_up"
   | _ => ""
   }
 }

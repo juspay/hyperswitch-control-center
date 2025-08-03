@@ -26,6 +26,7 @@ let make = (
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
   let (arrow, setArrow) = React.useState(_ => false)
+  let (showModal, setShowModal) = React.useState(_ => false)
 
   let toggleChevronState = () => {
     setArrow(prev => !prev)
@@ -120,7 +121,7 @@ let make = (
       setConnectorID(_ => connectorInfoDict.id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
-      onNextClick(currentStep, setNextStep)
+      setShowModal(_ => true)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -212,6 +213,37 @@ let make = (
         <ReadOnlyOptionsList
           list=RecoveryConnectorUtils.recoveryConnectorInHouseList headerText="Payment Orchestrator"
         />
+      </div>
+    </>
+  }
+
+  let modalBody = {
+    <>
+      <div className="p-2 m-2">
+        <div className="py-5 px-3 flex justify-between align-top">
+          <CardUtils.CardHeader
+            heading="Setup Payments Webhook"
+            subHeading="Configure this endpoint in the payment processors dashboard under webhook settings for us to receive events from the processor."
+            customSubHeadingStyle="w-full !max-w-none pr-10"
+          />
+        </div>
+        <div className="px-3 pb-5">
+          <ConnectorWebhookPreview
+            merchantId
+            connectorName=connectorInfoDict.id
+            textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrain-mono"
+            containerClass="flex flex-row items-center justify-between"
+            displayTextLength=38
+            hideLabel=true
+            showFullCopy=true
+          />
+          <Button
+            text="Next"
+            buttonType=Primary
+            onClick={_ => handleClick()}
+            customButtonStyle="w-full mt-8"
+          />
+        </div>
       </div>
     </>
   }
@@ -335,6 +367,15 @@ let make = (
                   />
                 </div>
               </RenderIf>
+              <Modal
+                showModal
+                closeOnOutsideClick=false
+                setShowModal
+                childClass="p-0"
+                borderBottom=true
+                modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+                modalBody
+              </Modal>
             </Form>
           </PageLoaderWrapper>
         </div>
@@ -357,29 +398,6 @@ let make = (
           </PageLoaderWrapper>
         </div>
       </PageWrapper>
-    | (#connectProcessor, #setupWebhookProcessor) =>
-      <PageWrapper
-        title="Setup Payments Webhook"
-        subTitle="Configure this endpoint in the payment processors dashboard under webhook settings for us to receive events from the processor.">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-          <ConnectorWebhookPreview
-            merchantId
-            connectorName=connectorInfoDict.id
-            textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 mb-6 mt-6  text-nd_gray-400 w-full !font-jetbrain-mono"
-            containerClass="flex flex-row items-center justify-between"
-            displayTextLength=38
-            hideLabel=true
-            showFullCopy=true
-          />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => handleClick()}
-            customButtonStyle="w-full mt-8"
-          />
-        </div>
-      </PageWrapper>
-
     | (_, _) => React.null
     }}
   </div>
