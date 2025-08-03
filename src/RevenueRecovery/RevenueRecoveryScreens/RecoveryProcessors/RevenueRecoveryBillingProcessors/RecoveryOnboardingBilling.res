@@ -46,19 +46,15 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set(
-      "connector_account_details",
-      RevenueRecoveryData.connector_account_details,
+
+    RevenueRecoveryData.fillDummyData(
+      ~connector,
+      ~initialValuesToDict,
+      ~merchantId,
+      ~connectorID,
+      ~connectorType=ConnectorTypes.BillingProcessor,
     )
-    initialValuesToDict->Dict.set(
-      "connector_webhook_details",
-      RevenueRecoveryData.connector_webhook_details,
-    )
-    initialValuesToDict->Dict.set(
-      "feature_metadata",
-      RevenueRecoveryData.feature_metadata(~id=connectorID),
-    )
-    initialValuesToDict->Dict.set("metadata", RevenueRecoveryData.metadata)
+
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
@@ -67,6 +63,11 @@ let make = (
     setInitialValues(_ => values)
     onNextClick(currentStep, setNextStep)
     Nullable.null
+  }
+
+  let handleClick = () => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+    onNextClick(currentStep, setNextStep)->ignore
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -80,7 +81,11 @@ let make = (
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
-      setShowModal(_ => true)
+
+      switch connector->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
+      | BillingProcessor(CUSTOMBILLING) => handleClick()
+      | _ => setShowModal(_ => true)
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -114,10 +119,7 @@ let make = (
       }
     }
   }, [connector])
-  let handleClick = () => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep)->ignore
-  }
+
   let {
     connectorAccountFields,
     connectorMetaDataFields,

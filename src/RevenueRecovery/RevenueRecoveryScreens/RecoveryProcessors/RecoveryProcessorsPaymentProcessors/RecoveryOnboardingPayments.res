@@ -70,14 +70,9 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set(
-      "connector_webhook_details",
-      RevenueRecoveryData.payment_connector_webhook_details,
-    )
-    initialValuesToDict->Dict.set(
-      "connector_account_details",
-      RevenueRecoveryData.connector_account_details,
-    )
+
+    RevenueRecoveryData.fillDummyData(~connector, ~initialValuesToDict, ~merchantId)
+
     let keys =
       connectorDetails
       ->getDictFromJsonObject
@@ -106,6 +101,11 @@ let make = (
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
+  let handleClick = () => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+    onNextClick(currentStep, setNextStep)->ignore
+  }
+
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     try {
@@ -121,7 +121,11 @@ let make = (
       setConnectorID(_ => connectorInfoDict.id)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
-      setShowModal(_ => true)
+
+      switch connector->getConnectorNameTypeFromString {
+      | Processors(WORLDPAYVANTIV) => handleClick()
+      | _ => setShowModal(_ => true)
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -165,10 +169,7 @@ let make = (
       errors->JSON.Encode.object,
     )
   }
-  let handleClick = () => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep)->ignore
-  }
+
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
