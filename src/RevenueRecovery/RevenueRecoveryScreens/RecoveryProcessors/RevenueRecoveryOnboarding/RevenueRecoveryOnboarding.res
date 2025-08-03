@@ -21,6 +21,7 @@ let make = () => {
   let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => connectorName)
   let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => connectorID)
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
+  let defaultPath = RecoveryConnectorContainerUtils.useGetDefaultPath()
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
@@ -38,7 +39,7 @@ let make = () => {
       sections
       currentStep
       backClick={() => {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/overview"))
+        RescriptReactRouter.replace(defaultPath)
       }}
     />
     <div className="flex flex-row ml-14 mt-16 w-540-px">
