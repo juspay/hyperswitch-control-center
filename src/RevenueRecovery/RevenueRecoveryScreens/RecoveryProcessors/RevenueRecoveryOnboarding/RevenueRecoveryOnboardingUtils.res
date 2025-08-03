@@ -28,50 +28,66 @@ let getIcon = step => {
 }
 
 open VerticalStepIndicatorTypes
-let sections = [
-  {
-    id: (#chooseDataSource: revenueRecoverySections :> string),
-    name: #chooseDataSource->getMainStepName,
-    icon: #chooseDataSource->getIcon,
-    subSections: None,
-  },
-  {
-    id: (#connectProcessor: revenueRecoverySections :> string),
-    name: #connectProcessor->getMainStepName,
-    icon: #connectProcessor->getIcon,
-    subSections: Some([
-      {
-        id: (#selectProcessor: revenueRecoverySubsections :> string),
-        name: #selectProcessor->getStepName,
-      },
-    ]),
-  },
-  {
-    id: (#addAPlatform: revenueRecoverySections :> string),
-    name: #addAPlatform->getMainStepName,
-    icon: #addAPlatform->getIcon,
-    subSections: Some([
-      {
-        id: (#selectAPlatform: revenueRecoverySubsections :> string),
-        name: #selectAPlatform->getStepName,
-      },
-      {
-        id: (#processorSetUp: revenueRecoverySubsections :> string),
-        name: #processorSetUp->getStepName,
-      },
-    ]),
-  },
-  {
-    id: (#reviewDetails: revenueRecoverySections :> string),
-    name: #reviewDetails->getMainStepName,
-    icon: #reviewDetails->getIcon,
-    subSections: None,
-  },
-]
+let getSections = isLiveMode => {
+  let defaultSteps = [
+    {
+      id: (#connectProcessor: revenueRecoverySections :> string),
+      name: #connectProcessor->getMainStepName,
+      icon: #connectProcessor->getIcon,
+      subSections: Some([
+        {
+          id: (#selectProcessor: revenueRecoverySubsections :> string),
+          name: #selectProcessor->getStepName,
+        },
+      ]),
+    },
+    {
+      id: (#addAPlatform: revenueRecoverySections :> string),
+      name: #addAPlatform->getMainStepName,
+      icon: #addAPlatform->getIcon,
+      subSections: Some([
+        {
+          id: (#selectAPlatform: revenueRecoverySubsections :> string),
+          name: #selectAPlatform->getStepName,
+        },
+        {
+          id: (#processorSetUp: revenueRecoverySubsections :> string),
+          name: #processorSetUp->getStepName,
+        },
+      ]),
+    },
+    {
+      id: (#reviewDetails: revenueRecoverySections :> string),
+      name: #reviewDetails->getMainStepName,
+      icon: #reviewDetails->getIcon,
+      subSections: None,
+    },
+  ]
 
-let defaultStep = {
-  sectionId: (#chooseDataSource: revenueRecoverySections :> string),
-  subSectionId: None,
+  if !isLiveMode {
+    defaultSteps->Array.unshift({
+      id: (#chooseDataSource: revenueRecoverySections :> string),
+      name: #chooseDataSource->getMainStepName,
+      icon: #chooseDataSource->getIcon,
+      subSections: None,
+    })
+  }
+
+  defaultSteps
+}
+
+let getDefaultStep = isLiveMode => {
+  if isLiveMode {
+    {
+      sectionId: (#connectProcessor: revenueRecoverySections :> string),
+      subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
+    }
+  } else {
+    {
+      sectionId: (#chooseDataSource: revenueRecoverySections :> string),
+      subSectionId: None,
+    }
+  }
 }
 
 let defaultStepBilling = {
@@ -80,23 +96,23 @@ let defaultStepBilling = {
 }
 
 open VerticalStepIndicatorUtils
-let getNextStep = (currentStep: step): option<step> => {
-  findNextStep(sections, currentStep)
+let getNextStep = (currentStep: step, isLiveMode): option<step> => {
+  findNextStep(getSections(isLiveMode), currentStep)
 }
 
-let getPreviousStep = (currentStep: step): option<step> => {
-  findPreviousStep(sections, currentStep)
+let getPreviousStep = (currentStep: step, isLiveMode): option<step> => {
+  findPreviousStep(getSections(isLiveMode), currentStep)
 }
 
-let onNextClick = (currentStep, setNextStep) => {
-  switch getNextStep(currentStep) {
+let onNextClick = (currentStep, setNextStep, isLiveMode) => {
+  switch getNextStep(currentStep, isLiveMode) {
   | Some(nextStep) => setNextStep(_ => nextStep)
   | None => ()
   }
 }
 
-let onPreviousClick = (currentStep, setNextStep) => {
-  switch getPreviousStep(currentStep) {
+let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
+  switch getPreviousStep(currentStep, isLiveMode) {
   | Some(previousStep) => setNextStep(_ => previousStep)
   | None => ()
   }
@@ -137,6 +153,8 @@ let billingConnectorList: array<connectorTypes> = [
   BillingProcessor(CHARGEBEE),
   BillingProcessor(CUSTOMBILLING),
 ]
+
+let prodBillingConnectorList: array<connectorTypes> = [BillingProcessor(CUSTOMBILLING)]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   {

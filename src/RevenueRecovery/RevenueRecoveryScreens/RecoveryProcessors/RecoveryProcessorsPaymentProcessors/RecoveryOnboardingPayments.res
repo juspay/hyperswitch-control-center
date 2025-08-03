@@ -15,7 +15,7 @@ let make = (
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
   open ConnectProcessorsHelper
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -71,7 +71,9 @@ let make = (
     initialValuesToDict->Dict.set("connector_type", "payment_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
-    RevenueRecoveryData.fillDummyData(~connector, ~initialValuesToDict, ~merchantId)
+    if !isLiveMode {
+      RevenueRecoveryData.fillDummyData(~connector, ~initialValuesToDict, ~merchantId)
+    }
 
     let keys =
       connectorDetails
@@ -103,7 +105,7 @@ let make = (
 
   let handleClick = () => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep)->ignore
+    onNextClick(currentStep, setNextStep, isLiveMode)->ignore
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -133,7 +135,7 @@ let make = (
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStep)
+          setNextStep(_ => RevenueRecoveryOnboardingUtils.getDefaultStep(isLiveMode))
           setScreenState(_ => Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
@@ -184,7 +186,11 @@ let make = (
     value: connector->JSON.Encode.string,
     checked: true,
   }
-  let options = RecoveryConnectorUtils.recoveryConnectorList->getOptions
+
+  let options = {
+    open RecoveryConnectorUtils
+    isLiveMode ? recoveryConnectorProdList : recoveryConnectorList
+  }->getOptions
 
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
@@ -204,7 +210,7 @@ let make = (
 
   let gatewaysBottomComponent = {
     open BillingProcessorsUtils
-    <>
+    <RenderIf condition={!isLiveMode}>
       <p
         className="text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white border-t px-5 pt-4">
         {"Available for Production"->React.string}
@@ -215,7 +221,7 @@ let make = (
           list=RecoveryConnectorUtils.recoveryConnectorInHouseList headerText="Payment Orchestrator"
         />
       </div>
-    </>
+    </RenderIf>
   }
 
   let modalBody = {

@@ -11,7 +11,7 @@ let make = (
 ) => {
   open LogicUtils
   open ConnectProcessorsHelper
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (arrow, setArrow) = React.useState(_ => false)
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -33,15 +33,17 @@ let make = (
     setArrow(prev => !prev)
   }
 
-  let options =
-    RevenueRecoveryOnboardingUtils.billingConnectorList->RevenueRecoveryOnboardingUtils.getOptions
+  let options = {
+    open RevenueRecoveryOnboardingUtils
+    isLiveMode ? prodBillingConnectorList : billingConnectorList
+  }->RevenueRecoveryOnboardingUtils.getOptions
 
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
   let gatewaysBottomComponent = {
     open BillingProcessorsUtils
-    <>
+    <RenderIf condition={!isLiveMode}>
       <p
         className="text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white border-t px-5 pt-4">
         {"Available for Production"->React.string}
@@ -55,7 +57,7 @@ let make = (
           list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList headerText="In House"
         />
       </div>
-    </>
+    </RenderIf>
   }
 
   open RevenueRecoveryOnboardingUtils

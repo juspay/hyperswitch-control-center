@@ -80,6 +80,8 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 open ConnectorTypes
 let recoveryConnectorList: array<connectorTypes> = [Processors(STRIPE), Processors(WORLDPAYVANTIV)]
 
+let recoveryConnectorProdList: array<connectorTypes> = [Processors(WORLDPAYVANTIV)]
+
 let recoveryConnectorListProd: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(CYBERSOURCE),

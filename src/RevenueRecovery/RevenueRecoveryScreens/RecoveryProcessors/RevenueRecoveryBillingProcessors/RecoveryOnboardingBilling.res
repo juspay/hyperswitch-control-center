@@ -15,7 +15,7 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
@@ -47,13 +47,15 @@ let make = (
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
-    RevenueRecoveryData.fillDummyData(
-      ~connector,
-      ~initialValuesToDict,
-      ~merchantId,
-      ~connectorID,
-      ~connectorType=ConnectorTypes.BillingProcessor,
-    )
+    if !isLiveMode {
+      RevenueRecoveryData.fillDummyData(
+        ~connector,
+        ~initialValuesToDict,
+        ~merchantId,
+        ~connectorID,
+        ~connectorType=ConnectorTypes.BillingProcessor,
+      )
+    }
 
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
@@ -61,13 +63,13 @@ let make = (
   let handleAuthKeySubmit = async (values, _) => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     setInitialValues(_ => values)
-    onNextClick(currentStep, setNextStep)
+    onNextClick(currentStep, setNextStep, isLiveMode)
     Nullable.null
   }
 
   let handleClick = () => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep)->ignore
+    onNextClick(currentStep, setNextStep, isLiveMode)->ignore
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
