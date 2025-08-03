@@ -84,37 +84,10 @@ module BillingConnectorDetails = {
 
     let {connectorAccountFields} = getConnectorFields(connectorDetails)
 
-    let revenueRecovery =
-      connectorInfodict.feature_metadata
-      ->getDictFromJsonObject
-      ->getDictfromDict("revenue_recovery")
-    let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
-    let billing_connector_retry_threshold =
-      revenueRecovery->getInt("billing_connector_retry_threshold", 0)
-
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-7">
+      <div className="flex flex-col gap-9">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-lg font-semibold text-nd_gray-600">
-            {"Revenue Recovery Details"->React.string}
-          </p>
-        </div>
-        <div className="grid grid-cols-3 px-2">
-          <div className="flex flex-col gap-0.5-rem ">
-            <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
-            {billing_connector_retry_threshold->Int.toString->React.string}
-          </div>
-          <div className="flex flex-col gap-0.5-rem ">
-            <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
-            {max_retry_count->Int.toString->React.string}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-7">
-        <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-lg font-semibold text-nd_gray-600">
-            {"Billing Platform Details"->React.string}
-          </p>
+          <p className="text-xl font-semibold"> {"Billing Platform Details"->React.string} </p>
         </div>
         <div className="grid grid-cols-3 px-2">
           <div className="flex flex-col gap-0.5-rem ">
@@ -280,9 +253,7 @@ module PaymentConnectorDetails = {
       <PageLoaderWrapper screenState sectionHeight="h-96">
         <div className="flex flex-col gap-7">
           <div className="flex justify-between border-b pb-4 px-2 items-end">
-            <p className="text-lg font-semibold text-nd_gray-600">
-              {"Payment Processor Details"->React.string}
-            </p>
+            <p className="text-xl font-semibold "> {"Payment Processor Details"->React.string} </p>
           </div>
           <Form onSubmit={onSubmit} initialValues={initialValues} validate=validateMandatoryField>
             <div className="grid grid-cols-3 px-2">
@@ -331,6 +302,78 @@ module PaymentConnectorDetails = {
   }
 }
 
+module RetriesConfiguration = {
+  open PageLoaderWrapper
+  open LogicUtils
+  open APIUtils
+  @react.component
+  let make = (~removeFieldsFromRespose) => {
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let (screenState, setScreenState) = React.useState(_ => Loading)
+    let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+
+    let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=BillingProcessor,
+    )
+
+    let (connectorID, _) =
+      billingConnectorListFromRecoil->BillingProcessorsUtils.getConnectorDetails
+
+    let getConnectorDetails = async () => {
+      try {
+        setScreenState(_ => Loading)
+        let connectorUrl = getURL(
+          ~entityName=V2(V2_CONNECTOR),
+          ~methodType=Get,
+          ~id=Some(connectorID),
+        )
+        let json = await fetchDetails(connectorUrl, ~version=V2)
+        setInitialValues(_ => json->removeFieldsFromRespose)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
+      }
+    }
+
+    React.useEffect(() => {
+      getConnectorDetails()->ignore
+      None
+    }, [])
+
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
+      initialValues->LogicUtils.getDictFromJsonObject,
+    )
+
+    let revenueRecovery =
+      connectorInfodict.feature_metadata
+      ->getDictFromJsonObject
+      ->getDictfromDict("revenue_recovery")
+    let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
+    let billing_connector_retry_threshold =
+      revenueRecovery->getInt("billing_connector_retry_threshold", 0)
+
+    <PageLoaderWrapper screenState>
+      <div className="flex flex-col gap-7">
+        <div className="flex justify-between border-b pb-4 px-2 items-end">
+          <p className="text-xl font-semibold"> {"Retries configuration"->React.string} </p>
+        </div>
+        <div className="grid grid-cols-3 px-2">
+          <div className="flex flex-col gap-0.5-rem ">
+            <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
+            {billing_connector_retry_threshold->Int.toString->React.string}
+          </div>
+          <div className="flex flex-col gap-0.5-rem ">
+            <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
+            {max_retry_count->Int.toString->React.string}
+          </div>
+        </div>
+      </div>
+    </PageLoaderWrapper>
+  }
+}
+
 @react.component
 let make = () => {
   open LogicUtils
@@ -346,8 +389,41 @@ let make = () => {
     dict->JSON.Encode.object
   }
 
-  <div className="flex flex-col gap-20 -ml-2">
-    <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
-    <PaymentConnectorDetails connectorId=paymentConnectorId removeFieldsFromRespose merchantId />
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Processor details",
+      renderContent: () => {
+        <div className="flex flex-col gap-20 mt-10">
+          <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
+          <PaymentConnectorDetails
+            connectorId=paymentConnectorId removeFieldsFromRespose merchantId
+          />
+        </div>
+      },
+    },
+    {
+      title: "Retries Configuration",
+      renderContent: () => {
+        <div className="flex flex-col gap-20 mt-10">
+          <RetriesConfiguration removeFieldsFromRespose />
+        </div>
+      },
+    },
+  ]
+
+  <div className="flex flex-col -ml-2">
+    <div className="flex justify-between px-2 items-end">
+      <PageUtils.PageHeading title="Configuration" />
+    </div>
+    <Tabs
+      tabs
+      showBorder=true
+      includeMargin=false
+      initialIndex={tabIndex}
+      onTitleClick={index => setTabIndex(_ => index)}
+      selectTabBottomBorderColor="bg-nd_primary_blue-500"
+    />
   </div>
 }
