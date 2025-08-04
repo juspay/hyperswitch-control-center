@@ -27,12 +27,7 @@ let make = () => {
       let infoUrl = getURL(~entityName=V1(ANALYTICS_ROUTING), ~methodType=Get, ~id=Some("routing"))
       let infoDetails = await fetchDetails(infoUrl)
 
-      setDimensions(_ =>
-        infoDetails
-        ->getDictFromJsonObject
-        ->getArrayFromDict("dimensions", [])
-        ->RoutingAnalyticsUtils.filterCurrencyFromDimensions
-      )
+      setDimensions(_ => infoDetails->RoutingAnalyticsUtils.filterCurrencyFromDimensions)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>

@@ -16,8 +16,11 @@ let globalFilter: array<filters> = [
   #routing_approach,
 ]
 
-let filterCurrencyFromDimensions = dim =>
-  dim->Array.filter(dim => {
+let filterCurrencyFromDimensions = data =>
+  data
+  ->getDictFromJsonObject
+  ->getArrayFromDict("dimensions", [])
+  ->Array.filter(dim => {
     let name = dim->getDictFromJsonObject->getString("name", "")
     !{name == "currency"}
   })
