@@ -103,3 +103,17 @@ let mapToTableData = (~responseConnector, ~responseRouting) => {
     }
   })
 }
+
+let lastRowCellsRounded = (~isLastRow, ~isFirstCell, ~isLastCell) => {
+  if isLastRow {
+    if isFirstCell {
+      "rounded-bl-xl"
+    } else if isLastCell {
+      "rounded-br-xl"
+    } else {
+      ""
+    }
+  } else {
+    ""
+  }
+}

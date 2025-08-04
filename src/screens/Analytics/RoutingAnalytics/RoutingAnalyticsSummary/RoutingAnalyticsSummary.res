@@ -14,26 +14,20 @@ module RowDetailsComponent = {
 
       {
         tableCellArray
-        ->Array.map(item => {
-          <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 ">
+        ->Array.mapWithIndex((item, index) => {
+          <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 " key={index->Int.toString}>
             {item
             ->Array.mapWithIndex((obj, cellIndex) => {
               let isFirstCell = cellIndex === 0
               let isLastCell = cellIndex === item->Array.length - 1
-              let roundedClass = if isLastRow {
-                if isFirstCell {
-                  "rounded-bl-xl"
-                } else if isLastCell {
-                  "rounded-br-xl"
-                } else {
-                  ""
-                }
-              } else {
-                ""
-              }
-
+              let roundedClass = RoutingAnalyticsSummaryUtils.lastRowCellsRounded(
+                ~isLastRow,
+                ~isFirstCell,
+                ~isLastCell,
+              )
               <td
-                className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} ${roundedClass} text-nd_gray-700`}>
+                className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} ${roundedClass} text-nd_gray-700`}
+                key={cellIndex->Int.toString}>
                 <div className="box-border px-4 py-3">
                   <Table.TableCell cell=obj />
                 </div>

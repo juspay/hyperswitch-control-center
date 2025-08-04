@@ -31,10 +31,7 @@ let make = () => {
         infoDetails
         ->getDictFromJsonObject
         ->getArrayFromDict("dimensions", [])
-        ->Array.filter(dim => {
-          let name = dim->getDictFromJsonObject->getString("name", "")
-          !{name == "currency"}
-        })
+        ->RoutingAnalyticsUtils.filterCurrencyFromDimensions
       )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
