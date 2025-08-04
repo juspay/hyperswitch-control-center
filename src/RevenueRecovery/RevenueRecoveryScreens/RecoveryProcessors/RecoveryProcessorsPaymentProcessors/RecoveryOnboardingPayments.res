@@ -361,7 +361,9 @@ let make = (
               <RenderIf condition={connector->isNonEmptyString}>
                 <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
                   <ConnectorAuthKeys
-                    initialValues={updatedInitialVal} showVertically=true updateAccountDetails=false
+                    initialValues={updatedInitialVal}
+                    showVertically=true
+                    updateAccountDetails=isLiveMode
                   />
                   <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
                   <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />

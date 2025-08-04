@@ -99,7 +99,7 @@ let make = (
                 initialValues={updatedInitialVal}
                 showVertically=true
                 processorType=ConnectorTypes.BillingProcessor
-                updateAccountDetails=false
+                updateAccountDetails=isLiveMode
               />
               <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorMetadataV2
