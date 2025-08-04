@@ -122,6 +122,10 @@ let connectorList: array<connectorTypes> = [
   Processors(BARCLAYCARD),
   Processors(TOKENIO),
   Processors(PAYLOAD),
+  Processors(PAYTM),
+  Processors(PHONEPE),
+  Processors(FLEXITI),
+  Processors(BREADPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -645,6 +649,21 @@ let archipelInfo = {
 let worldpayVantivInfo = {
   description: "Worldpay Vantiv, also known as the Worldpay CNP API, is a robust XML-based interface used to process online (card-not-present) transactions such as e-commerce purchases, subscription billing, and digital payments.",
 }
+let paytmInfo = {
+  description: "Paytm is an Indian multinational fintech company specializing in digital payments and financial services. Initially known for its mobile wallet, it has expanded to include a payment bank, e-commerce, ticketing, and wealth management services.",
+}
+
+let phonepeInfo = {
+  description: "PhonePe is a digital payments and financial services platform built on the UPI system. It allows users to make instant payments, recharge mobiles, pay bills, and access financial services like investments and insurance.",
+}
+
+let flexitiInfo = {
+  description: "Flexiti is a comprehensive point-of-sale financing platform for modern retailers and businesses, automating consumer credit applications and payment processing with an industry-leading omni-channel solution and driving innovation into the future of retail financing.",
+}
+
+let breadpayInfo = {
+  description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -731,6 +750,10 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BARCLAYCARD => "barclaycard"
   | TOKENIO => "tokenio"
   | PAYLOAD => "payload"
+  | PAYTM => "paytm"
+  | PHONEPE => "phonepe"
+  | FLEXITI => "flexiti"
+  | BREADPAY => "breadpay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -884,6 +907,10 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "barclaycard" => Processors(BARCLAYCARD)
     | "tokenio" => Processors(TOKENIO)
     | "payload" => Processors(PAYLOAD)
+    | "paytm" => Processors(PAYTM)
+    | "phonepe" => Processors(PHONEPE)
+    | "flexiti" => Processors(FLEXITI)
+    | "breadpay" => Processors(BREADPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1017,6 +1044,10 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BARCLAYCARD => barclaycardInfo
   | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
+  | PAYTM => paytmInfo
+  | PHONEPE => phonepeInfo
+  | FLEXITI => flexitiInfo
+  | BREADPAY => breadpayInfo
   }
 }
 
@@ -1893,6 +1924,10 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
   | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
+  | PAYTM => "Paytm"
+  | PHONEPE => "PhonePe"
+  | FLEXITI => "Flexiti"
+  | BREADPAY => "Breadpay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
