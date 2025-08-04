@@ -667,7 +667,7 @@ let breadpayInfo = {
 }
 
 let bluecodeInfo = {
-  description: "Bluecode unites successful payment networks for smooth payment worldwide - always under European security standards.",
+  description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
