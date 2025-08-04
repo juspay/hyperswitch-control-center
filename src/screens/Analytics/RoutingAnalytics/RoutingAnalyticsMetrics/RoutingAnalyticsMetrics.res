@@ -190,7 +190,9 @@ let make = () => {
 
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
     {metricsArray
-    ->Array.map(metric => <RoutingAnalyticsCard metric />)
+    ->Array.mapWithIndex((metric, index) =>
+      <RoutingAnalyticsCard metric key={index->Int.toString} />
+    )
     ->React.array}
   </div>
 }

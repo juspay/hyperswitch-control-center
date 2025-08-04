@@ -9,21 +9,23 @@ let customLegendFormatter = () => {
   )->PieGraphTypes.asLegendPointFormatter
 }
 
-let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pieGraphPayload<
-  int,
-> => {
+let distributionPayloadMapper = (
+  ~data: JSON.t,
+  ~groupByText,
+  ~tooltipTitle,
+): PieGraphTypes.pieGraphPayload<int> => {
   let queryArray = data->getDictFromJsonObject->getArrayFromDict("queryData", [])
   let array = queryArray->Array.map(item => {
     let dict = item->getDictFromJsonObject
-    let routingApproach = dict->getString(groupByText, "NA")
+    let groupedByText = dict->getString(groupByText, "NA")
     let paymentCount = dict->getFloat("payment_count", 0.0)
-    (routingApproach, paymentCount)
+    (groupedByText, paymentCount)
   })
 
   let dataArr: array<PieGraphTypes.pieGraphDataType> = array->Array.map(item => {
-    let (routingApproach, paymentCount) = item
+    let (groupedByText, paymentCount) = item
     let dataObj: PieGraphTypes.pieGraphDataType = {
-      name: routingApproach,
+      name: groupedByText->snakeToTitle,
       y: paymentCount,
     }
     dataObj
@@ -46,7 +48,7 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
     },
     data,
     tooltipFormatter: PieGraphUtils.pieGraphTooltipFormatter(
-      ~title="Routing Approach",
+      ~title=tooltipTitle,
       ~valueFormatterType=Amount,
     ),
     legendFormatter: customLegendFormatter(),
@@ -60,9 +62,9 @@ let distributionPayloadMapper = (~data: JSON.t, ~groupByText): PieGraphTypes.pie
   }
 }
 
-let chartOptions = (data, ~groupByText) => {
+let chartOptions = (data, ~groupByText, ~tooltipTitle) => {
   let defaultOptions =
-    distributionPayloadMapper(~data, ~groupByText)->PieGraphUtils.getPieChartOptions
+    distributionPayloadMapper(~data, ~groupByText, ~tooltipTitle)->PieGraphUtils.getPieChartOptions
 
   {
     ...defaultOptions,
