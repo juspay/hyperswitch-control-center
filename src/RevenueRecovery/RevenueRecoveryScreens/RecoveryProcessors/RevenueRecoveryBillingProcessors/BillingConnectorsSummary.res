@@ -1,5 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 open Typography
+
 module BillingConnectorDetails = {
   open PageLoaderWrapper
   open LogicUtils
@@ -99,28 +100,47 @@ module BillingConnectorDetails = {
               {connectorName->React.string}
             </div>
           </div>
-          <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+          <RenderIf
+            condition={connectorName->getConnectorNameTypeFromString(
+              ~connectorType=BillingProcessor,
+            ) != BillingProcessor(CUSTOMBILLING)}>
+            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+          </RenderIf>
         </div>
-        <ConnectorHelperV2.PreviewCreds
-          connectorInfo=connectorInfodict
-          connectorAccountFields
-          customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
-          customElementStyle="px-2 "
-        />
-        <div className="grid grid-cols-3 px-2">
-          {connector_webhook_details
-          ->getDictFromJsonObject
-          ->Dict.toArray
-          ->Array.mapWithIndex((item, index) => {
-            let (key, value) = item
+        {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
+        | BillingProcessor(CUSTOMBILLING) =>
+          <div className="px-2">
+            <KeyManagement.ApiKeysTable
+              entityName=V2(API_KEYS)
+              dataNotFoundComponent={<div className="p-1">
+                <InsightsHelper.NoData height="h-56 -m-2" message="No API Keys Available" />
+              </div>}
+            />
+          </div>
+        | _ =>
+          <>
+            <ConnectorHelperV2.PreviewCreds
+              connectorInfo=connectorInfodict
+              connectorAccountFields
+              customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
+              customElementStyle="px-2 "
+            />
+            <div className="grid grid-cols-3 px-2">
+              {connector_webhook_details
+              ->getDictFromJsonObject
+              ->Dict.toArray
+              ->Array.mapWithIndex((item, index) => {
+                let (key, value) = item
 
-            <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
-              <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
-              {value->JSON.Decode.string->Option.getOr("")->React.string}
+                <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
+                  <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
+                  {value->JSON.Decode.string->Option.getOr("")->React.string}
+                </div>
+              })
+              ->React.array}
             </div>
-          })
-          ->React.array}
-        </div>
+          </>
+        }}
       </div>
     </PageLoaderWrapper>
   }

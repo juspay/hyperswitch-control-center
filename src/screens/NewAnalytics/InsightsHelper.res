@@ -11,10 +11,10 @@ module Card = {
 
 module NoData = {
   @react.component
-  let make = (~height="h-96") => {
+  let make = (~height="h-96", ~message="No entires in selected time period.") => {
     <div
       className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-      {"No entires in selected time period."->React.string}
+      {message->React.string}
     </div>
   }
 }

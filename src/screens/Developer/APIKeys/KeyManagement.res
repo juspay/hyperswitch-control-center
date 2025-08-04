@@ -10,6 +10,7 @@ module ApiEditModal = {
     ~showModal,
     ~action=Create,
     ~keyId=?,
+    ~entityName,
   ) => {
     let getURL = APIUtils.useGetURL()
     let (apiKey, setApiKey) = React.useState(_ => "")
@@ -63,16 +64,23 @@ module ApiEditModal = {
 
         setModalState(_ => Loading)
 
+        open APIUtilsTypes
+        open Fetch
+        let methodType = switch entityName {
+        | V2(_) => Put
+        | V1(_) => Post
+        }
+
         let url = switch action {
         | Update => {
             let key_id = keyId->Option.getOr("")
-            getURL(~entityName=V1(API_KEYS), ~methodType=Post, ~id=Some(key_id))
+            getURL(~entityName, ~methodType, ~id=Some(key_id))
           }
 
-        | _ => getURL(~entityName=V1(API_KEYS), ~methodType=Post)
+        | _ => getURL(~entityName, ~methodType=Post)
         }
 
-        let json = await updateDetails(url, body->JSON.Encode.object, Post)
+        let json = await updateDetails(url, body->JSON.Encode.object, methodType)
         let keyDict = json->LogicUtils.getDictFromJsonObject
 
         setApiKey(_ => keyDict->LogicUtils.getString("api_key", ""))
@@ -175,7 +183,7 @@ module ApiEditModal = {
 module ApiKeyAddBtn = {
   open DeveloperUtils
   @react.component
-  let make = (~getAPIKeyDetails) => {
+  let make = (~getAPIKeyDetails, ~entityName) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let (showModal, setShowModal) = React.useState(_ => false)
@@ -184,7 +192,7 @@ module ApiKeyAddBtn = {
     let isMobileView = MatchMedia.useMobileChecker()
 
     <>
-      <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
+      <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails entityName />
       <ACLButton
         text="Create New API Key"
         leftIcon={CustomIcon(
@@ -213,7 +221,7 @@ module TableActionsCell = {
   open DeveloperUtils
   open HSwitchSettingTypes
   @react.component
-  let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
+  let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey, ~entityName) => {
     let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let (showModal, setShowModal) = React.useState(_ => false)
@@ -231,7 +239,7 @@ module TableActionsCell = {
         Dict.set(body, "key_id", keyId->JSON.Encode.string)
         Dict.set(body, "revoked", true->JSON.Encode.bool)
 
-        let deleteUrl = getURL(~entityName=V1(API_KEYS), ~methodType=Delete, ~id=Some(keyId))
+        let deleteUrl = getURL(~entityName, ~methodType=Delete, ~id=Some(keyId))
         (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete))->ignore
         getAPIKeyDetails()->ignore
       } catch {
@@ -272,7 +280,13 @@ module TableActionsCell = {
 
     <div>
       <ApiEditModal
-        showModal setShowModal initialValues={initialValues} getAPIKeyDetails keyId action={Update}
+        showModal
+        setShowModal
+        initialValues={initialValues}
+        getAPIKeyDetails
+        keyId
+        action={Update}
+        entityName
       />
       <div className="invisible cursor-pointer group-hover:visible flex ">
         <ACLDiv
@@ -308,7 +322,7 @@ module ApiKeysTable = {
   open DeveloperUtils
   open HSwitchSettingTypes
   @react.component
-  let make = () => {
+  let make = (~entityName, ~dataNotFoundComponent=?) => {
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
     let (offset, setOffset) = React.useState(_ => 0)
@@ -317,7 +331,7 @@ module ApiKeysTable = {
 
     let getAPIKeyDetails = async () => {
       try {
-        let apiKeyListUrl = getURL(~entityName=V1(API_KEYS), ~methodType=Get)
+        let apiKeyListUrl = getURL(~entityName, ~methodType=Get)
         let apiKeys = await fetchDetails(apiKeyListUrl)
         setData(_ => apiKeys->getItems)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -350,7 +364,10 @@ module ApiKeysTable = {
           Date(item.expiration_date)
         }
       | CustomCell =>
-        Table.CustomCell(<TableActionsCell keyId={item.key_id} getAPIKeyDetails data=item />, "")
+        Table.CustomCell(
+          <TableActionsCell keyId={item.key_id} getAPIKeyDetails data=item entityName />,
+          "",
+        )
       }
     }
 
@@ -386,8 +403,9 @@ module ApiKeysTable = {
           currrentFetchCount={data->Array.length}
           showAutoScroll=true
           tableActions={<div className="mt-0 md:mt-5">
-            <ApiKeyAddBtn getAPIKeyDetails />
+            <ApiKeyAddBtn getAPIKeyDetails entityName />
           </div>}
+          ?dataNotFoundComponent
         />
       </div>}
     </PageLoaderWrapper>
@@ -443,7 +461,7 @@ module KeysManagement = {
           />
         </div>
       </RenderIf>
-      <ApiKeysTable />
+      <ApiKeysTable entityName=V1(API_KEYS) />
       <PublishableAndHashKeySection />
     </div>
   }
