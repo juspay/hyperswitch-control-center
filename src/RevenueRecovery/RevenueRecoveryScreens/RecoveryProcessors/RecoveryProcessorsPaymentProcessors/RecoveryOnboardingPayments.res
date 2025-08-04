@@ -15,6 +15,7 @@ let make = (
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
   open ConnectProcessorsHelper
+  open Typography
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
@@ -267,7 +268,7 @@ let make = (
             switch dataSource {
             | Historical =>
               <>
-                <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
+                <div className={`text-nd_gray-400 ${body.xs.semibold} tracking-wider`}>
                   {dataSource
                   ->dataTypeVariantToString
                   ->String.toUpperCase
@@ -294,7 +295,7 @@ let make = (
               </>
             | Realtime =>
               <>
-                <div className="text-nd_gray-400 text-xs font-semibold tracking-wider">
+                <div className={`text-nd_gray-400  ${body.xs.semibold} tracking-wider`}>
                   {dataSource
                   ->dataTypeVariantToString
                   ->String.toUpperCase

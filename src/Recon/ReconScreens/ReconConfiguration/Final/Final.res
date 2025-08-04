@@ -4,6 +4,7 @@ open VerticalStepIndicatorTypes
 let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
   open ReconConfigurationUtils
   open VerticalStepIndicatorUtils
+  open Typography
 
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -24,7 +25,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
   let customSelectionComponent =
     <>
       <Icon name="nd-tick-circle" customHeight="16" />
-      <p className="font-semibold text-sm leading-5 text-nd_green-600">
+      <p className={`font-semibold ${body.sm.regular} leading-5 text-nd_green-600`}>
         {"Completed"->React.string}
       </p>
     </>

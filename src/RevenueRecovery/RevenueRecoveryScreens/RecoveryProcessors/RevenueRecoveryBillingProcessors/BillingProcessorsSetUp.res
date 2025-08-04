@@ -40,6 +40,7 @@ let make = (
   ~connector_account_reference_id,
 ) => {
   open RevenueRecoveryOnboardingUtils
+  open Typography
 
   let connectorName = connector->ConnectorUtils.getDisplayNameForConnector
 
@@ -50,7 +51,7 @@ let make = (
       <Form onSubmit initialValues validate=validateMandatoryField>
         <div className="mb-10 flex flex-col gap-10">
           <div className="flex flex-col gap-5">
-            <div className={"text-lg font-semibold"}> {"Retry Settings"->React.string} </div>
+            <div className={heading.sm.semibold}> {"Retry Settings"->React.string} </div>
             <div>
               <div className="text-nd_gray-700 font-medium flex gap-1 w-fit align-center">
                 {"Start Retry After"->React.string}
@@ -109,10 +110,10 @@ let make = (
           <div className="border-t w-full my-2" />
           <div className="mb-10 flex flex-col gap-7">
             <div>
-              <div className={`text-lg font-semibold`}>
+              <div className={heading.sm.semibold}>
                 {"Set Up Payment Processor Reference"->React.string}
               </div>
-              <div className={`text-md text-medium font-medium leading-5 opacity-50 mt-2`}>
+              <div className={`${heading.xs.medium} font-medium leading-5 opacity-50 mt-2`}>
                 {"Enter the same processor ID used in your subscription platform."->React.string}
               </div>
             </div>
@@ -123,7 +124,7 @@ let make = (
                 </div>
                 <div className="flex gap-4 items-center">
                   <GatewayIcon gateway={connector->String.toUpperCase} className="w-10" />
-                  <h1 className="text-medium font-semibold text-gray-600">
+                  <h1 className={`${body.lg.semibold} text-gray-600`}>
                     {connectorName->React.string}
                   </h1>
                 </div>

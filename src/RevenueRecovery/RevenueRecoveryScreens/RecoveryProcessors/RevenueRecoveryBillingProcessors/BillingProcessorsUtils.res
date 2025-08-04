@@ -18,7 +18,6 @@ let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadC
 }
 
 let getConnectorConfig = connector => {
-  Js.log2(">>", connector)
   switch connector {
   | "chargebee" =>
     {

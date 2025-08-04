@@ -1,5 +1,5 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
-
+open Typography
 module BillingConnectorDetails = {
   open PageLoaderWrapper
   open LogicUtils
@@ -87,7 +87,7 @@ module BillingConnectorDetails = {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-9">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-xl font-semibold"> {"Billing Platform Details"->React.string} </p>
+          <p className={heading.md.semibold}> {"Billing Platform Details"->React.string} </p>
         </div>
         <div className="grid grid-cols-3 px-2">
           <div className="flex flex-col gap-0.5-rem ">
@@ -253,7 +253,7 @@ module PaymentConnectorDetails = {
       <PageLoaderWrapper screenState sectionHeight="h-96">
         <div className="flex flex-col gap-7">
           <div className="flex justify-between border-b pb-4 px-2 items-end">
-            <p className="text-xl font-semibold "> {"Payment Processor Details"->React.string} </p>
+            <p className=heading.md.semibold> {"Payment Processor Details"->React.string} </p>
           </div>
           <Form onSubmit={onSubmit} initialValues={initialValues} validate=validateMandatoryField>
             <div className="grid grid-cols-3 px-2">
@@ -283,7 +283,7 @@ module PaymentConnectorDetails = {
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between border-b pb-4 px-2 items-end">
-                  <p className="text-lg font-semibold text-nd_gray-600">
+                  <p className={`${heading.sm.semibold} text-nd_gray-600`}>
                     {"Authentication keys"->React.string}
                   </p>
                 </div>
@@ -357,7 +357,7 @@ module RetriesConfiguration = {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-7">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-xl font-semibold"> {"Retries configuration"->React.string} </p>
+          <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
         </div>
         <div className="grid grid-cols-3 px-2">
           <div className="flex flex-col gap-0.5-rem ">
