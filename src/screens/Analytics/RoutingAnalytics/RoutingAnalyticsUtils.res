@@ -21,6 +21,5 @@ let filterCurrencyFromDimensions = data =>
   ->getDictFromJsonObject
   ->getArrayFromDict("dimensions", [])
   ->Array.filter(dim => {
-    let name = dim->getDictFromJsonObject->getString("name", "")
-    !{name == "currency"}
+    dim->getDictFromJsonObject->getString("name", "") !== "currency"
   })
