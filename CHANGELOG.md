@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.04.0
+
+### Features
+
+- New connector addition Paytm and Phonepe ([#3352](https://github.com/juspay/hyperswitch-control-center/pull/3352)) ([`7df7198`](https://github.com/juspay/hyperswitch-control-center/commit/7df7198d3cd3651d9f6566655ee26b19d8620612))
+- Added new connectors fexiti and breadpay ([#3387](https://github.com/juspay/hyperswitch-control-center/pull/3387)) ([`241b468`](https://github.com/juspay/hyperswitch-control-center/commit/241b46831346ca4ecaafce24316f868e641a0ed3))
+
+### Bug Fixes
+
+- Signup coming up even when in auth methods its disabled ([#3385](https://github.com/juspay/hyperswitch-control-center/pull/3385)) ([`bbb6f33`](https://github.com/juspay/hyperswitch-control-center/commit/bbb6f33710cb4e9824ed258d1f5d5db25ba319dd))
+
+### Miscellaneous Tasks
+
+- Updated wasm for connectors flexiti and breadpay ([#3388](https://github.com/juspay/hyperswitch-control-center/pull/3388)) ([`ea0b4c1`](https://github.com/juspay/hyperswitch-control-center/commit/ea0b4c15230ac8f11cfb0890ed025cd03ccac0e5))
+
+**Full Changelog:** [`2025.08.01.0...2025.08.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.01.0...2025.08.04.0)
+
+- - -
+
 ## 2025.08.01.0
 
 ### Bug Fixes
