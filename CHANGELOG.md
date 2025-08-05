@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.05.0
+
+### Features
+
+- Payment interface modifications for v1 and v2 ([#3367](https://github.com/juspay/hyperswitch-control-center/pull/3367)) ([`04c9322`](https://github.com/juspay/hyperswitch-control-center/commit/04c9322a96285e34ab29d7464251656137a422bc))
+
+### Bug Fixes
+
+- Fixed routing analytics bugs ([#3393](https://github.com/juspay/hyperswitch-control-center/pull/3393)) ([`a2664fc`](https://github.com/juspay/hyperswitch-control-center/commit/a2664fc00ba30c66e90eff34ddf694715e50af8a))
+
+**Full Changelog:** [`2025.08.04.0...2025.08.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.04.0...2025.08.05.0)
+
+- - -
+
 ## 2025.08.04.0
 
 ### Features
