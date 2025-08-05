@@ -114,6 +114,7 @@ type processorTypes =
   | PHONEPE
   | FLEXITI
   | BREADPAY
+  | BLUECODE
 
 type payoutProcessorTypes =
   | ADYEN

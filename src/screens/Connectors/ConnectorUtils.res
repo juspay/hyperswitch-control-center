@@ -126,6 +126,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PHONEPE),
   Processors(FLEXITI),
   Processors(BREADPAY),
+  Processors(BLUECODE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -665,6 +666,10 @@ let breadpayInfo = {
   description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
 }
 
+let bluecodeInfo = {
+  description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -754,6 +759,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PHONEPE => "phonepe"
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
+  | BLUECODE => "bluecode"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -911,6 +917,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "phonepe" => Processors(PHONEPE)
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
+    | "bluecode" => Processors(BLUECODE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1048,6 +1055,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PHONEPE => phonepeInfo
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
+  | BLUECODE => bluecodeInfo
   }
 }
 
@@ -1957,6 +1965,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PHONEPE => "PhonePe"
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
+  | BLUECODE => "Bluecode"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
