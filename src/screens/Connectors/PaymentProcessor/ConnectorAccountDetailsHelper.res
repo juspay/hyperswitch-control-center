@@ -292,8 +292,8 @@ module Payload = {
   let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
     open ConnectorUtils
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
     let (selectedCountry, setSelectedCountry) = React.useState(_ => "")
     let (showConfigurationModal, setConfigurationModal) = React.useState(_ => false)
