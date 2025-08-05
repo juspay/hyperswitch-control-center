@@ -1446,11 +1446,11 @@ let validateConnectorRequiredFields = (
       })
 
       Js.Vector.filterInPlace(val => val, vector)
-
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
       }
     }
+
   | Processors(PAYLOAD) => {
       let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
