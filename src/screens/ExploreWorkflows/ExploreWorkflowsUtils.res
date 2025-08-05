@@ -23,11 +23,12 @@ let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
           )}
         </span>,
         videoPath: None,
+        sectionTrackingEvent: "explore_smart_retries_get_started",
         cta: Some((
           "Refer Docs →",
           ExternalLink({
             url: "https://docs.hyperswitch.io/",
-            trackingEvent: "Explore Smart Retries - Refer Docs",
+            trackingEvent: "external_redirect_to_docs",
           }),
         )),
       },
@@ -35,25 +36,41 @@ let getStepsForWorkflow = (workflowTitle): array<stepDetails> => {
         title: "Step 1: Enable Auto Retries",
         description: exploreAutoRetries,
         videoPath: Some("smartRetry/step1.mp4"),
-        cta: Some(("Go to Payment Settings →", InternalRoute("/payment-settings"))),
+        sectionTrackingEvent: "step_1_enable_auto_retries",
+        cta: Some((
+          "Go to Payment Settings →",
+          InternalRoute({url: "/payment-settings", trackingEvent: "redirect_to_payment_settings"}),
+        )),
       },
       {
         title: "Step 2: Add Two Dummy Connectors",
         description: addAtleastTwoConnectors,
         videoPath: Some("smartRetry/step2.mp4"),
-        cta: Some(("Go to Payment Processors →", InternalRoute("/connectors"))),
+        sectionTrackingEvent: "step_2_add_dummy_connectors",
+        cta: Some((
+          "Go to Payment Processors →",
+          InternalRoute({url: "/connectors", trackingEvent: "redirect_to_connectors"}),
+        )),
       },
       {
         title: "Step 3: Set Connector Priority Order",
         description: setProcessorPriorityOrder,
         videoPath: Some("smartRetry/step3.mp4"),
-        cta: Some(("Set Fallback Order →", InternalRoute("/routing/default"))),
+        sectionTrackingEvent: "step_3_set_connector_priority_order",
+        cta: Some((
+          "Set Fallback Order →",
+          InternalRoute({url: "/routing/default", trackingEvent: "redirect_to_routing"}),
+        )),
       },
       {
         title: "Step 4: Simulate a Failed Payment and Verify the Retry",
         description: simulateAndVerifyRetry,
         videoPath: Some("smartRetry/step4.mp4"),
-        cta: Some(("Try It Out →", InternalRoute("/sdk"))),
+        sectionTrackingEvent: "step_4_simulate_failed_payment",
+        cta: Some((
+          "Try It Out →",
+          InternalRoute({url: "/sdk", trackingEvent: "redirect_to_sdk"}),
+        )),
       },
     ]
   | _ => []
