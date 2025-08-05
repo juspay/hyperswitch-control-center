@@ -274,7 +274,7 @@ type summaryColType =
   | ConnectorTransactionID
   | ErrorMessage
 
-type aboutPaymentColType =
+type aboutPayoutColType =
   | Connector
   | ProfileId
   | ProfileName
@@ -482,30 +482,22 @@ let itemToObjMapper = dict => {
     currency: getString(dict, "currency", ""),
     connector: getString(dict, "connector", ""),
     payout_type: getString(dict, "payout_type", ""),
-    billing: {
-      let billingDict = dict->getDictfromDict("billing")
-      let addressDict = billingDict->getDictfromDict("address")
-      if addressDict->Dict.keysToArray->Array.length === 0 {
-        ""
-      } else {
-        addressDict->concatValueOfGivenKeysOfDict(addressKeys)
-      }
-    },
-    billingEmail: dict->getStringFromNestedDict("billing", "email", ""),
-    billingPhone: {
-      let billingDict = dict->getDictfromDict("billing")
-      let phoneDict = billingDict->getDictfromDict("phone")
-      if phoneDict->Dict.keysToArray->Array.length === 0 {
-        ""
-      } else {
-        phoneDict->getPhoneNumberString
-      }
-    },
+    billing: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
+    billingPhone: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("phone")
+    ->getPhoneNumberString,
     customer_id: getString(dict, "customer_id", ""),
     auto_fulfill: getBool(dict, "auto_fulfill", false),
     email: getString(dict, "email", ""),
     name: getString(dict, "name", ""),
-    phone: getString(dict, "phone", ""),
+    phone: dict
+    ->getDictfromDict("customer")
+    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code"),
     phone_country_code: getString(dict, "phone_country_code", ""),
     client_secret: getString(dict, "client_secret", ""),
     return_url: getString(dict, "return_url", ""),
@@ -656,14 +648,14 @@ let getCellForAboutPayment = (payoutData, aboutPaymentColType): Table.cell => {
   | Connector =>
     CustomCell(<HelperComponents.ConnectorCustomCell connectorName=payoutData.connector />, "")
   | ProfileId => DisplayCopyCell(payoutData.profile_id)
-  | ProfileName => Text("") // Not available in payout data
+  | ProfileName => Text("")
   | PayoutMethod => Text(payoutData.payout_type)
   | PayoutMethodType => Text(payoutData.payout_type)
-  | CardBrand => Text("") // Not available in payout data
+  | CardBrand => Text("")
   | ConnectorLabel => Text(payoutData.connector)
-  | AuthenticationType => Text("") // Not available in payout data
-  | CaptureMethod => Text("") // Not available in payout data
-  | CardNetwork => Text("") // Not available in payout data
+  | AuthenticationType => Text("")
+  | CaptureMethod => Text("")
+  | CardNetwork => Text("")
   }
 }
 
@@ -678,11 +670,11 @@ let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
   | BillingEmail => Text(payoutData.billingEmail)
   | BillingPhone => Text(payoutData.billingPhone)
   | BillingAddress => Text(payoutData.billing)
-  | FirstName => Text("") // Not available in payout data
-  | LastName => Text("") // Not available in payout data
-  | PaymentMethodEmail => Text("") // Not available in payout data
-  | PaymentMethodPhone => Text("") // Not available in payout data
-  | PaymentMethodAddress => Text("") // Not available in payout data
+  | FirstName => Text("")
+  | LastName => Text("")
+  | PaymentMethodEmail => Text("")
+  | PaymentMethodPhone => Text("")
+  | PaymentMethodAddress => Text("")
   | AutoFulfill => Text(payoutData.auto_fulfill->LogicUtils.getStringFromBool)
   | Recurring => Text(payoutData.recurring->LogicUtils.getStringFromBool)
   | EntityType => Text(payoutData.entity_type)

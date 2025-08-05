@@ -23,9 +23,8 @@ module AttemptsSection = {
 
 module Attempts = {
   @react.component
-  let make = (~data: JSON.t) => {
-    let payoutObj = data->getDictFromJsonObject->PayoutsEntity.itemToObjMapper
-    let attemptsData = payoutObj.attempts
+  let make = (~data) => {
+    let attemptsData = data.attempts
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -264,7 +263,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let getURL = useGetURL()
   let fetchDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (payoutsData, setPayoutsData) = React.useState(_ => JSON.Encode.null)
+  let (payoutData, setPayoutsData) = React.useState(_ => Dict.make()->PayoutsEntity.itemToObjMapper)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchPayoutsData = async () => {
@@ -274,7 +273,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       let filterData = Dict.make()
       filterData->Dict.set("payout_id", id->JSON.Encode.string)
       filterData->Dict.set("limit", 1->JSON.Encode.int)
-
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
@@ -288,7 +286,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ->getValueFromArray(0, JSON.Encode.null)
         ->getDictFromJsonObject
         ->PayoutsEntity.itemToObjMapper
-      setPayoutsData(_ => payoutData->Identity.genericTypeToDictOfJson->JSON.Encode.object)
+      setPayoutsData(_ => payoutData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
@@ -317,78 +315,74 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div />
         </div>
       </div>
-      {
-        let payoutData =
-          payoutsData->LogicUtils.getDictFromJsonObject->PayoutsEntity.itemToObjMapper
-        <div className="flex flex-col gap-8">
-          <PayoutInfo payoutData />
-          <div className="overflow-scroll">
-            <Attempts data=payoutsData />
-          </div>
-          <RenderAccordian
-            accordion=[
-              {
-                title: "Customer Details",
-                renderContent: () => {
-                  <CustomerDetails payoutData />
-                },
-                renderContentOnTop: None,
-              },
-            ]
-          />
-          <RenderAccordian
-            accordion=[
-              {
-                title: "More Payout Details",
-                renderContent: () => {
-                  <MorePayoutDetails payoutData />
-                },
-                renderContentOnTop: None,
-              },
-            ]
-          />
-          <RenderIf
-            condition={payoutData.payout_type === "card" &&
-              payoutData.payout_method_data->Option.isSome}>
-            <RenderAccordian
-              accordion=[
-                {
-                  title: "Payout Method Details",
-                  renderContent: () => {
-                    <div className="bg-white p-2">
-                      <PrettyPrintJson
-                        jsonToDisplay={payoutData.payout_method_data
-                        ->JSON.stringifyAny
-                        ->Option.getOr("")}
-                        overrideBackgroundColor="bg-white"
-                      />
-                    </div>
-                  },
-                  renderContentOnTop: None,
-                },
-              ]
-            />
-          </RenderIf>
-          <RenderIf condition={!(payoutData.metadata->LogicUtils.isEmptyDict)}>
-            <RenderAccordian
-              accordion=[
-                {
-                  title: "Payout Metadata",
-                  renderContent: () => {
-                    <div className="bg-white p-2">
-                      <PrettyPrintJson
-                        jsonToDisplay={payoutData.metadata->JSON.stringifyAny->Option.getOr("")}
-                        overrideBackgroundColor="bg-white"
-                      />
-                    </div>
-                  },
-                  renderContentOnTop: None,
-                },
-              ]
-            />
-          </RenderIf>
+      {<div className="flex flex-col gap-8">
+        <PayoutInfo payoutData />
+        <div className="overflow-scroll">
+          <Attempts data=payoutData />
         </div>
-      }
+        <RenderAccordian
+          accordion=[
+            {
+              title: "Customer Details",
+              renderContent: () => {
+                <CustomerDetails payoutData />
+              },
+              renderContentOnTop: None,
+            },
+          ]
+        />
+        <RenderAccordian
+          accordion=[
+            {
+              title: "More Payout Details",
+              renderContent: () => {
+                <MorePayoutDetails payoutData />
+              },
+              renderContentOnTop: None,
+            },
+          ]
+        />
+        <RenderIf
+          condition={payoutData.payout_type === "card" &&
+            payoutData.payout_method_data->Option.isSome}>
+          <RenderAccordian
+            accordion=[
+              {
+                title: "Payout Method Details",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <PrettyPrintJson
+                      jsonToDisplay={payoutData.payout_method_data
+                      ->JSON.stringifyAny
+                      ->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]
+          />
+        </RenderIf>
+        <RenderIf condition={!(payoutData.metadata->LogicUtils.isEmptyDict)}>
+          <RenderAccordian
+            accordion=[
+              {
+                title: "Payout Metadata",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <PrettyPrintJson
+                      jsonToDisplay={payoutData.metadata->JSON.stringifyAny->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]
+          />
+        </RenderIf>
+      </div>}
     </div>
   </PageLoaderWrapper>
 }
