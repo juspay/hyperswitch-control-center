@@ -397,6 +397,7 @@ module RetriesConfiguration = {
 @react.component
 let make = () => {
   open LogicUtils
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -423,15 +424,19 @@ let make = () => {
         </div>
       },
     },
-    {
+  ]
+
+  // TODO: remove once we have upload file flow on prod
+  if !isLiveMode {
+    tabs->Array.push({
       title: "Retries Configuration",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
           <RetriesConfiguration removeFieldsFromRespose />
         </div>
       },
-    },
-  ]
+    })
+  }
 
   <div className="flex flex-col -ml-2">
     <div className="flex justify-between px-2 items-end">
