@@ -5,6 +5,8 @@ open Typography
 module AccordionItemComponent = {
   @react.component
   let make = (~step: stepDetails) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+
     <div className="flex flex-col gap-4">
       {step.description}
       {switch step.videoPath {
@@ -22,9 +24,14 @@ module AccordionItemComponent = {
           onClick={event => {
             ReactEvent.Mouse.preventDefault(event)
             switch action {
-            | InternalRoute(link) =>
-              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=link))
-            | ExternalLink({url, _}) => Window._open(url) /* Open in new tab */
+            | InternalRoute({url, trackingEvent}) => {
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
+                mixpanelEvent(~eventName=trackingEvent)
+              }
+            | ExternalLink({url, trackingEvent}) => {
+                Window._open(url)
+                mixpanelEvent(~eventName=trackingEvent)
+              } /* Open in new tab */
             }
           }}
           className={`text-blue-500 hover:text-blue-700 ${body.md.medium} inline-flex items-center gap-1 pb-4`}>
@@ -39,6 +46,7 @@ module AccordionItemComponent = {
 @react.component
 let make = () => {
   open ExploreWorkflowsUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setWorkflowDrawerState, workflowDrawerState} = React.useContext(
     GlobalProvider.defaultContext,
   )
@@ -57,6 +65,9 @@ let make = () => {
       title: step.title,
       renderContent: () => <AccordionItemComponent step />,
       renderContentOnTop: None,
+      onItemExpandClick: _ => {
+        mixpanelEvent(~eventName=step.sectionTrackingEvent)
+      },
     }
     accItem
   })
