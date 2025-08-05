@@ -112,6 +112,8 @@ type processorTypes =
   | PAYLOAD
   | PAYTM
   | PHONEPE
+  | FLEXITI
+  | BREADPAY
 
 type payoutProcessorTypes =
   | ADYEN
