@@ -513,11 +513,10 @@ let itemToObjMapper = dict => {
     connector_transaction_id: getString(dict, "connector_transaction_id", ""),
     priority: getString(dict, "priority", ""),
     payout_method_data: {
-      let payoutMethodData = dict->getJsonObjectFromDict("payout_method_data")
-      if payoutMethodData->isNullJson {
-        None
-      } else {
-        Some(payoutMethodData)
+      let payoutMethodData = dict->LogicUtils.getvalFromDict("payout_method_data")
+      switch payoutMethodData {
+      | Some(data) => data->LogicUtils.isNullJson ? None : Some(data)
+      | None => None
       }
     },
     attempts: dict->getArrayFromDict("attempts", [])->Array.map(itemToObjMapperAttempts),

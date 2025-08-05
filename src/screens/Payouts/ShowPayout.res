@@ -265,15 +265,17 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       //TODO: Needs to be replaced with get API
       let payoutsUrl = getURL(~entityName=V1(PAYOUTS), ~methodType=Post)
-      let filterData = Dict.make()
-      filterData->Dict.set("payout_id", id->JSON.Encode.string)
-      filterData->Dict.set("limit", 1->JSON.Encode.int)
+      let filterData =
+        [
+          ("payout_id", id->JSON.Encode.string),
+          ("limit", 1->JSON.Encode.int),
+        ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await internalSwitch(
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
       )
-      let response = await fetchDetails(payoutsUrl, filterData->JSON.Encode.object, Post)
+      let response = await fetchDetails(payoutsUrl, filterData, Post)
       let payoutData =
         response
         ->getDictFromJsonObject
