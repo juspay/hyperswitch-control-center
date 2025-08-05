@@ -55,6 +55,19 @@ let make = (
         ~connectorID,
         ~connectorType=ConnectorTypes.BillingProcessor,
       )
+    } else {
+      // TODO: need to be removed when we have file upload on live
+      let revenueRecovery = Dict.make()
+
+      revenueRecovery->Dict.set("billing_connector_retry_threshold", 0->JSON.Encode.int)
+      revenueRecovery->Dict.set("max_retry_count", 0->JSON.Encode.int)
+
+      initialValuesToDict->Dict.set(
+        "feature_metadata",
+        [("revenue_recovery", revenueRecovery->JSON.Encode.object)]
+        ->Dict.fromArray
+        ->JSON.Encode.object,
+      )
     }
 
     initialValuesToDict->JSON.Encode.object
@@ -148,32 +161,34 @@ let make = (
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
 
-      if billing_connector_retry_threshold === 0 {
-        Dict.set(
-          errors,
-          "billing_connector_retry_threshold",
-          `Please enter start retry count`->JSON.Encode.string,
-        )
-      } else if billing_connector_retry_threshold > 15 {
-        Dict.set(
-          errors,
-          "billing_connector_retry_threshold",
-          `Start retry count should be less than 15`->JSON.Encode.string,
-        )
-      }
+      if !isLiveMode {
+        if billing_connector_retry_threshold === 0 {
+          Dict.set(
+            errors,
+            "billing_connector_retry_threshold",
+            `Please enter start retry count`->JSON.Encode.string,
+          )
+        } else if billing_connector_retry_threshold > 15 {
+          Dict.set(
+            errors,
+            "billing_connector_retry_threshold",
+            `Start retry count should be less than 15`->JSON.Encode.string,
+          )
+        }
 
-      if max_retry_count === 0 {
-        Dict.set(
-          errors,
-          "max_retry_count",
-          `Please enter max retry count count`->JSON.Encode.string,
-        )
-      } else if max_retry_count > 15 {
-        Dict.set(
-          errors,
-          "max_retry_count",
-          `Max retry count count should be less than 15`->JSON.Encode.string,
-        )
+        if max_retry_count === 0 {
+          Dict.set(
+            errors,
+            "max_retry_count",
+            `Please enter max retry count count`->JSON.Encode.string,
+          )
+        } else if max_retry_count > 15 {
+          Dict.set(
+            errors,
+            "max_retry_count",
+            `Max retry count count should be less than 15`->JSON.Encode.string,
+          )
+        }
       }
     }
 
