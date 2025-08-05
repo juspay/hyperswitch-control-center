@@ -196,7 +196,7 @@ module CustomerDetails = {
         data=payoutData
         getHeading=getHeadingForOtherDetails
         getCell=getCellForOtherDetails
-        detailsFields=[CustomerId, Name, Email, Phone, PhoneCountryCode, Description]
+        detailsFields=[CustomerId, FirstName, LastName, Email, Phone, PhoneCountryCode, Description]
         widthClass="md:w-1/4 w-full"
         border=""
       />
@@ -216,13 +216,7 @@ module CustomerDetails = {
         data=payoutData
         getHeading=getHeadingForOtherDetails
         getCell=getCellForOtherDetails
-        detailsFields=[
-          FirstName,
-          LastName,
-          PaymentMethodEmail,
-          PaymentMethodPhone,
-          PaymentMethodAddress,
-        ]
+        detailsFields=[FirstName, LastName, PayoutMethodEmail, PayoutMethodAddress]
         widthClass="md:w-1/4 w-full"
         border=""
       />

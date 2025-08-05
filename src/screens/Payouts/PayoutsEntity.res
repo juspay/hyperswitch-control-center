@@ -298,9 +298,8 @@ type otherDetailsColType =
   | BillingAddress
   | FirstName
   | LastName
-  | PaymentMethodEmail
-  | PaymentMethodPhone
-  | PaymentMethodAddress
+  | PayoutMethodEmail
+  | PayoutMethodAddress
   | AutoFulfill
   | Recurring
   | EntityType
@@ -602,12 +601,11 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
-  | PayoutMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
-  | PayoutMethodType =>
-    Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
+  | PayoutMethod => Table.makeHeaderInfo(~key="payout_method", ~title="Payout Method")
+  | PayoutMethodType => Table.makeHeaderInfo(~key="payout_method_type", ~title="Payout Method Type")
   | AuthenticationType => Table.makeHeaderInfo(~key="authentication_type", ~title="Auth Type")
   | CaptureMethod => Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method")
-  | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
+  | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
   }
 }
 
@@ -624,12 +622,10 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | BillingAddress => Table.makeHeaderInfo(~key="billing_address", ~title="Billing Address")
   | FirstName => Table.makeHeaderInfo(~key="first_name", ~title="First Name")
   | LastName => Table.makeHeaderInfo(~key="last_name", ~title="Last Name")
-  | PaymentMethodEmail =>
-    Table.makeHeaderInfo(~key="payment_method_email", ~title="Payment Method Email")
-  | PaymentMethodPhone =>
-    Table.makeHeaderInfo(~key="payment_method_phone", ~title="Payment Method Phone")
-  | PaymentMethodAddress =>
-    Table.makeHeaderInfo(~key="payment_method_address", ~title="Payment Method Address")
+  | PayoutMethodEmail =>
+    Table.makeHeaderInfo(~key="Payout_method_email", ~title="Payout Method Email")
+  | PayoutMethodAddress =>
+    Table.makeHeaderInfo(~key="Payout_method_address", ~title="Payout Method Address")
   | AutoFulfill => Table.makeHeaderInfo(~key="auto_fulfill", ~title="Auto Fulfill")
   | Recurring => Table.makeHeaderInfo(~key="recurring", ~title="Recurring")
   | EntityType => Table.makeHeaderInfo(~key="entity_type", ~title="Entity Type")
@@ -660,6 +656,7 @@ let getCellForAboutPayment = (payoutData, aboutPaymentColType): Table.cell => {
 }
 
 let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
+  let splittedName = payoutData.name->String.split(" ")
   switch otherDetailsColType {
   | CustomerId => DisplayCopyCell(payoutData.customer_id)
   | Name => Text(payoutData.name)
@@ -670,11 +667,10 @@ let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
   | BillingEmail => Text(payoutData.billingEmail)
   | BillingPhone => Text(payoutData.billingPhone)
   | BillingAddress => Text(payoutData.billing)
-  | FirstName => Text("")
-  | LastName => Text("")
-  | PaymentMethodEmail => Text("")
-  | PaymentMethodPhone => Text("")
-  | PaymentMethodAddress => Text("")
+  | FirstName => Text(splittedName->Array.get(0)->Option.getOr(""))
+  | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
+  | PayoutMethodEmail => Text(payoutData.email)
+  | PayoutMethodAddress => Text(payoutData.billing)
   | AutoFulfill => Text(payoutData.auto_fulfill->LogicUtils.getStringFromBool)
   | Recurring => Text(payoutData.recurring->LogicUtils.getStringFromBool)
   | EntityType => Text(payoutData.entity_type)
