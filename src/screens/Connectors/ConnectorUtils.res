@@ -1425,15 +1425,11 @@ let checkPayloadFields = (dict, country, valuesFlattenJson) => {
   open LogicUtils
   let keys = dict->getDictfromDict(country)->Dict.keysToArray
 
-  keys
-  ->Array.map(field => {
+  keys->Array.every(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
-    let value = valuesFlattenJson->getString(`${key}`, "")
-    value->String.length === 0 ? false : true
+    let value = valuesFlattenJson->getString(key, "")
+    value->String.trim->String.length > 0
   })
-  ->Array.includes(false)
-    ? false
-    : true
 }
 
 let validateConnectorRequiredFields = (
