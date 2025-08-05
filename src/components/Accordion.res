@@ -2,6 +2,7 @@ type accordion = {
   title: string,
   renderContent: unit => React.element,
   renderContentOnTop: option<unit => React.element>,
+  onItemExpandClick?: unit => unit,
 }
 
 type arrowPosition = Left | Right
@@ -89,6 +90,12 @@ module AccordionInfo = {
     let (isExpanded, setIsExpanded) = React.useState(() => expanded)
 
     let handleClick = _ => {
+      if !isExpanded {
+        switch accordion.onItemExpandClick {
+        | Some(fn) => fn()
+        | None => ()
+        }
+      }
       setIsExpanded(prevExpanded => !prevExpanded)
     }
 

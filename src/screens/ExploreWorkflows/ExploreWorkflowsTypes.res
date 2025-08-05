@@ -4,7 +4,7 @@ type workflowTypes = [
 ]
 
 type actionType =
-  | InternalRoute(string)
+  | InternalRoute({url: string, trackingEvent: string})
   | ExternalLink({url: string, trackingEvent: string})
 
 type cardDetails = {
@@ -19,6 +19,7 @@ type stepDetails = {
   title: string,
   description: React.element,
   videoPath: option<string>,
+  sectionTrackingEvent: string,
   cta: option<(string, actionType)>,
 }
 
