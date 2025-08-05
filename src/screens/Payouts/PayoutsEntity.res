@@ -513,9 +513,9 @@ let itemToObjMapper = dict => {
     connector_transaction_id: getString(dict, "connector_transaction_id", ""),
     priority: getString(dict, "priority", ""),
     payout_method_data: {
-      let payoutMethodData = dict->LogicUtils.getvalFromDict("payout_method_data")
+      let payoutMethodData = dict->getvalFromDict("payout_method_data")
       switch payoutMethodData {
-      | Some(data) => data->LogicUtils.isNullJson ? None : Some(data)
+      | Some(data) => data->isNullJson ? None : Some(data)
       | None => None
       }
     },
