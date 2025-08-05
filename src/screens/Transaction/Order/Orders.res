@@ -44,8 +44,8 @@ let make = (~previewOnly=false) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
-      let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-      let total = res->getDictFromJsonObject->getInt("total_count", 0)
+      let data = res.data
+      let total = res.total_count
 
       if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
         let payment_id =
@@ -60,8 +60,8 @@ let make = (~previewOnly=false) => {
           filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
           let res = await fetchOrdersHook(~payload=filterValueJson->JSON.Encode.object, ~version)
-          let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-          let total = res->getDictFromJsonObject->getInt("total_count", 0)
+          let data = res.data
+          let total = res.total_count
 
           setData(
             offset,

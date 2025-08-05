@@ -1,5 +1,4 @@
 open RoutingAnalyticsSummaryTypes
-open RoutingAnalyticsSummaryHelper
 open LogicUtils
 
 let summaryMainColumns = [
@@ -21,11 +20,11 @@ let getSummaryMainHeading = colType => {
   switch colType {
   | RoutingLogic => Table.makeHeaderInfo(~key="routing_logic", ~title="Routing Logic")
   | TrafficPercentage =>
-    Table.makeHeaderInfo(~key="traffic_percentage", ~title="Traffic Percentage")
+    Table.makeHeaderInfo(~key="traffic_percentage", ~title="Traffic Percentage (%)")
   | NoOfPayments => Table.makeHeaderInfo(~key="no_of_payments", ~title="No. of Payments")
   | AuthorizationRate =>
-    Table.makeHeaderInfo(~key="authorization_rate", ~title="Authorization Rate")
-  | ProcessedAmount => Table.makeHeaderInfo(~key="processed_amount", ~title="Processed Amount")
+    Table.makeHeaderInfo(~key="authorization_rate", ~title="Authorization Rate (%)")
+  | ProcessedAmount => Table.makeHeaderInfo(~key="processed_amount", ~title="Processed Amount ($)")
   }
 }
 let getConnectorHeading = colType => {
@@ -46,38 +45,10 @@ let getSummaryMainCell = (summaryMain, colType): Table.cell => {
   }
   switch colType {
   | RoutingLogic => Text(summaryMain.routing_logic->snakeToTitle)
-  | TrafficPercentage =>
-    CustomCell(
-      <CustomNumeric
-        num=summaryMain.traffic_percentage
-        mapper=usaNumberAbbreviation
-        customStyling="ml-54-px 2xl:ml-4"
-      />,
-      "",
-    )
-  | NoOfPayments =>
-    CustomCell(
-      <div className="ml-9 2xl:ml-2">
-        {`${summaryMain.no_of_payments->string_of_int}`->React.string}
-      </div>,
-      "",
-    )
-  | AuthorizationRate =>
-    CustomCell(
-      <CustomNumeric
-        num=summaryMain.authorization_rate
-        mapper=usaNumberAbbreviation
-        customStyling="ml-8 2xl:ml-3"
-      />,
-      "",
-    )
-  | ProcessedAmount =>
-    CustomCell(
-      <CustomNumeric
-        num=summaryMain.processed_amount mapper=usaNumberAbbreviation customStyling="ml-4 2xl:ml-2"
-      />,
-      "",
-    )
+  | TrafficPercentage => Numeric(summaryMain.traffic_percentage, usaNumberAbbreviation)
+  | NoOfPayments => Text(summaryMain.no_of_payments->string_of_int)
+  | AuthorizationRate => Numeric(summaryMain.authorization_rate, usaNumberAbbreviation)
+  | ProcessedAmount => Numeric(summaryMain.processed_amount, usaNumberAbbreviation)
   }
 }
 
@@ -91,8 +62,7 @@ let getConnectorCell = (connector, colType): Table.cell => {
       <HelperComponents.ConnectorCustomCell
         connectorName=connector.connector_name
         connectorType={ConnectorUtils.connectorTypeFromConnectorName(connector.connector_name)}
-        customStyle="w-7-rem 2xl:w-10-rem !pl-6"
-        customIconStyle="w-4 h-4 mr-2"
+        customIconStyle="w-4 h-4 mx-3"
       />,
       "",
     )
