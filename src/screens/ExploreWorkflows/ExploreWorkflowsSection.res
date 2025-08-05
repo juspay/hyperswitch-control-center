@@ -41,6 +41,7 @@ module InternalWorkflowDisplayCard = {
 @react.component
 let make = () => {
   let {setWorkflowDrawerState} = React.useContext(GlobalProvider.defaultContext)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let renderGraphic = (cardData: cardDetails) => {
     <img
@@ -66,6 +67,7 @@ let make = () => {
           description={cardData.description}
           buttonText={cardData.buttonText}
           onButtonClick={() => {
+            mixpanelEvent(~eventName=`${cardData.buttonText->LogicUtils.titleToSnake}_button_click`)
             setWorkflowDrawerState(_ => FullWidth(cardData.workflowType))
           }}
           graphicComponent={renderGraphic(cardData)}

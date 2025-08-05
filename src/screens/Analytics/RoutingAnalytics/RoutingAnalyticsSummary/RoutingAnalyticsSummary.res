@@ -1,6 +1,6 @@
 module RowDetailsComponent = {
   @react.component
-  let make = (~rowIndex, ~data) => {
+  let make = (~rowIndex, ~data, ~rows) => {
     open RoutingAnalyticsSummaryEntity
     open RoutingAnalyticsSummaryTypes
     open Typography
@@ -10,30 +10,34 @@ module RowDetailsComponent = {
       let tableCellArray = data.connectors->Array.map(connectorDetails => {
         connectorCols->Array.map(colType => getConnectorCell(connectorDetails, colType))
       })
+      let isLastRow = rowIndex == rows->Array.length - 1
 
-      <table className="table-auto min-w-full h-full" colSpan=0>
-        <tbody>
-          {tableCellArray
-          ->Array.map(item => {
-            <DesktopView>
-              <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 ">
-                {item
-                ->Array.map(obj =>
-                  <td
-                    className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} text-nd_gray-700`}
-                    style={width: "430px"}>
-                    <div className={`box-border px-4  py-3`}>
-                      <Table.TableCell cell=obj />
-                    </div>
-                  </td>
-                )
-                ->React.array}
-              </tr>
-            </DesktopView>
-          })
-          ->React.array}
-        </tbody>
-      </table>
+      {
+        tableCellArray
+        ->Array.mapWithIndex((item, index) => {
+          <tr className="group h-full bg-nd_gray-25 text-nd_gray-700 " key={index->Int.toString}>
+            {item
+            ->Array.mapWithIndex((obj, cellIndex) => {
+              let isFirstCell = cellIndex === 0
+              let isLastCell = cellIndex === item->Array.length - 1
+              let roundedClass = RoutingAnalyticsSummaryUtils.lastRowCellsRounded(
+                ~isLastRow,
+                ~isFirstCell,
+                ~isLastCell,
+              )
+              <td
+                className={`h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 ${body.md.medium} ${roundedClass} text-nd_gray-700`}
+                key={cellIndex->Int.toString}>
+                <div className="box-border px-4 py-3">
+                  <Table.TableCell cell=obj />
+                </div>
+              </td>
+            })
+            ->React.array}
+          </tr>
+        })
+        ->React.array
+      }
 
     | _ => React.null
     }
@@ -106,6 +110,7 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
     }
   }
+
   React.useEffect(_ => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       getData()->ignore
@@ -161,7 +166,7 @@ let make = () => {
         rows={rows}
         onExpandIconClick={onExpandIconClick}
         expandedRowIndexArray={expandedRowIndexArray}
-        getRowDetails={rowindex => <RowDetailsComponent rowIndex=rowindex data />}
+        getRowDetails={rowindex => <RowDetailsComponent rowIndex=rowindex data rows />}
         showSerial={false}
         fullWidth=true
         tableClass="border rounded-xl"
@@ -172,9 +177,10 @@ let make = () => {
         headingFontWeight="font-semibold"
         headingFontColor="text-nd_gray-400"
         rowFontColor="text-nd_gray-700"
-        rowFontSize="text-md"
+        customRowStyle="text-sm"
         rowFontStyle="font-medium"
         isLastRowRounded=true
+        rowComponentInCell=false
       />
     </PageLoaderWrapper>
   </div>

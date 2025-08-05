@@ -33,7 +33,8 @@ let getConnectorsData = (records, totalPaymentsForRouting) => {
   ->Array.map(((connectorName, connectorRecords)) => {
     let connectorRecordsJson = connectorRecords->getArrayFromJson([])
     let connectorPayments = connectorRecordsJson->sumIntField("payment_count")
-    let connectorProcessedAmount = connectorRecordsJson->sumFloatField("payment_processed_amount")
+    let connectorProcessedAmount =
+      connectorRecordsJson->sumFloatField("payment_processed_amount_in_usd") /. 100.00
     let connectorSuccessRate = connectorRecordsJson->sumFloatField("payment_success_rate")
 
     let connectorTrafficPercentage =
@@ -59,7 +60,7 @@ let getRoutingDataLookup = queryDataRouting => {
   ->Array.reduce(Dict.make(), (acc, (routingApproach, records)) => {
     let recordsJson = records->getArrayFromJson([])
     let authRate = recordsJson->sumFloatField("payment_success_rate")
-    let processedAmount = recordsJson->sumFloatField("payment_processed_amount")
+    let processedAmount = recordsJson->sumFloatField("payment_processed_amount_in_usd") /. 100.00
 
     let routingData =
       [
@@ -102,3 +103,14 @@ let mapToTableData = (~responseConnector, ~responseRouting) => {
     }
   })
 }
+
+let lastRowCellsRounded = (~isLastRow, ~isFirstCell, ~isLastCell) =>
+  if !isLastRow {
+    ""
+  } else if isFirstCell {
+    "rounded-bl-xl"
+  } else if isLastCell {
+    "rounded-br-xl"
+  } else {
+    ""
+  }
