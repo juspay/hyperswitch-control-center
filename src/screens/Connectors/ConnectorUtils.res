@@ -1436,6 +1436,17 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
   result->Array.includes(true)
 }
 
+let checkPayloadFields = (dict, country, valuesFlattenJson) => {
+  open LogicUtils
+  let keys = dict->getDictfromDict(country)->Dict.keysToArray
+
+  keys->Array.every(field => {
+    let key = `connector_account_details.auth_key_map.${country}.${field}`
+    let value = valuesFlattenJson->getString(key, "")
+    value->String.trim->String.length > 0
+  })
+}
+
 let validateConnectorRequiredFields = (
   connector: connectorTypes,
   valuesFlattenJson,
@@ -1463,7 +1474,25 @@ let validateConnectorRequiredFields = (
       })
 
       Js.Vector.filterInPlace(val => val, vector)
+      if vector->Js.Vector.length === 0 {
+        Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
+      }
+    }
 
+  | Processors(PAYLOAD) => {
+      let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+
+      let indexLength = dict->Dict.keysToArray->Array.length
+      let vector = Js.Vector.make(indexLength, false)
+
+      dict
+      ->Dict.keysToArray
+      ->Array.forEachWithIndex((country, index) => {
+        let res = checkPayloadFields(dict, country, valuesFlattenJson)
+        vector->Js.Vector.set(index, res)
+      })
+
+      Js.Vector.filterInPlace(val => val, vector)
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
       }
