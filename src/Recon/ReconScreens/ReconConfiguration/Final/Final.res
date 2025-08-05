@@ -25,7 +25,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
   let customSelectionComponent =
     <>
       <Icon name="nd-tick-circle" customHeight="16" />
-      <p className={`font-semibold ${body.sm.regular} leading-5 text-nd_green-600`}>
+      <p className={`${body.sm.regular} leading-5 text-nd_green-600`}>
         {"Completed"->React.string}
       </p>
     </>

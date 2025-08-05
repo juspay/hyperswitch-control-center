@@ -11,6 +11,7 @@ let make = (
 ) => {
   open LogicUtils
   open ConnectProcessorsHelper
+  open RevenueRecoveryOnboardingUtils
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (arrow, setArrow) = React.useState(_ => false)
 
@@ -34,9 +35,8 @@ let make = (
   }
 
   let options = {
-    open RevenueRecoveryOnboardingUtils
     isLiveMode ? prodBillingConnectorList : billingConnectorList
-  }->RevenueRecoveryOnboardingUtils.getOptions
+  }->getOptions
 
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
@@ -49,18 +49,12 @@ let make = (
         {"Available for Production"->React.string}
       </p>
       <div className="p-2">
-        <ReadOnlyOptionsList
-          list=RevenueRecoveryOnboardingUtils.billingConnectorProdList
-          headerText="Billing Platforms"
-        />
-        <ReadOnlyOptionsList
-          list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList headerText="In House"
-        />
+        <ReadOnlyOptionsList list=billingConnectorProdList headerText="Billing Platforms" />
+        <ReadOnlyOptionsList list=billingConnectorInHouseList headerText="In House" />
       </div>
     </RenderIf>
   }
 
-  open RevenueRecoveryOnboardingUtils
   <PageWrapper
     title="Choose your Billing Platform"
     subTitle="Select your subscription management platform to get started.">
