@@ -264,7 +264,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
         suggestedAction
         setVerifyDone
       />
-      <FormValuesSpy/>
+      // <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
