@@ -263,6 +263,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      //TODO: Needs to be replaced with get API
       let payoutsUrl = getURL(~entityName=V1(PAYOUTS), ~methodType=Post)
       let filterData = Dict.make()
       filterData->Dict.set("payout_id", id->JSON.Encode.string)

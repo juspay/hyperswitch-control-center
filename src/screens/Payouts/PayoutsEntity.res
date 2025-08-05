@@ -421,7 +421,7 @@ let getCell = (payoutData, colType: payoutsColType, merchantId, orgId): Table.ce
   | Created => Date(payoutData.created)
   | PayoutType => Text(payoutData.payout_type)
   | Billing => Text(payoutData.billing)
-  | AutoFulfill => Text(payoutData.auto_fulfill->LogicUtils.getStringFromBool)
+  | AutoFulfill => Text(payoutData.auto_fulfill->getStringFromBool)
   | Name => Text(payoutData.name)
   | Phone => Text(payoutData.phone)
   | PhoneCountryCode => Text(payoutData.phone_country_code)
@@ -430,7 +430,7 @@ let getCell = (payoutData, colType: payoutsColType, merchantId, orgId): Table.ce
   | BusinessLabel => Text(payoutData.business_label)
   | Description => Text(payoutData.description)
   | Entity_type => Text(payoutData.entity_type)
-  | Recurring => Text(payoutData.recurring->LogicUtils.getStringFromBool)
+  | Recurring => Text(payoutData.recurring->getStringFromBool)
   | ErrorCode => Text(payoutData.error_code)
   | ConnectorTransactionId => DisplayCopyCell(payoutData.connector_transaction_id)
   | SendPriority =>
@@ -514,7 +514,7 @@ let itemToObjMapper = dict => {
     priority: getString(dict, "priority", ""),
     payout_method_data: {
       let payoutMethodData = dict->getJsonObjectFromDict("payout_method_data")
-      if payoutMethodData->LogicUtils.isNullJson {
+      if payoutMethodData->isNullJson {
         None
       } else {
         Some(payoutMethodData)
@@ -671,8 +671,8 @@ let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
   | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
   | PayoutMethodEmail => Text(payoutData.email)
   | PayoutMethodAddress => Text(payoutData.billing)
-  | AutoFulfill => Text(payoutData.auto_fulfill->LogicUtils.getStringFromBool)
-  | Recurring => Text(payoutData.recurring->LogicUtils.getStringFromBool)
+  | AutoFulfill => Text(payoutData.auto_fulfill->getStringFromBool)
+  | Recurring => Text(payoutData.recurring->getStringFromBool)
   | EntityType => Text(payoutData.entity_type)
   | BusinessCountry => Text(payoutData.business_country)
   | BusinessLabel => Text(payoutData.business_label)
