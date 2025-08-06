@@ -57,10 +57,11 @@ let make = (
       )
     } else {
       // TODO: need to be removed when we have file upload on live
-      let revenueRecovery = Dict.make()
-
-      revenueRecovery->Dict.set("billing_connector_retry_threshold", 0->JSON.Encode.int)
-      revenueRecovery->Dict.set("max_retry_count", 0->JSON.Encode.int)
+      let revenueRecovery =
+        [
+          ("billing_connector_retry_threshold", 0->JSON.Encode.int),
+          ("max_retry_count", 0->JSON.Encode.int),
+        ]->Dict.fromArray
 
       initialValuesToDict->Dict.set(
         "feature_metadata",
