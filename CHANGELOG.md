@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.06.0
+
+### Features
+
+- Added new connector bluecode ([#3398](https://github.com/juspay/hyperswitch-control-center/pull/3398)) ([`b8751b4`](https://github.com/juspay/hyperswitch-control-center/commit/b8751b4b09cba2079ef5b9df0fcfdcce05707657))
+- Support payload connector ([#3403](https://github.com/juspay/hyperswitch-control-center/pull/3403)) ([`7dd76b6`](https://github.com/juspay/hyperswitch-control-center/commit/7dd76b6dccf43726cc414e8977190e40109abb65))
+- Payouts detail page ([#3402](https://github.com/juspay/hyperswitch-control-center/pull/3402)) ([`d5bd661`](https://github.com/juspay/hyperswitch-control-center/commit/d5bd6616f50b8b3dbaec416872f9ef475b3cd87c))
+
+### Miscellaneous Tasks
+
+- Updated wasm for bluecode connector ([#3399](https://github.com/juspay/hyperswitch-control-center/pull/3399)) ([`05482bd`](https://github.com/juspay/hyperswitch-control-center/commit/05482bd809911f3ad572b98393e87588b5182718))
+- Explore recipes mixpanel event addition ([#3406](https://github.com/juspay/hyperswitch-control-center/pull/3406)) ([`9e47476`](https://github.com/juspay/hyperswitch-control-center/commit/9e47476d99cf0764c53c06c0a89fbdb93123269d))
+
+**Full Changelog:** [`2025.08.05.0...2025.08.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.05.0...2025.08.06.0)
+
+- - -
+
 ## 2025.08.05.0
 
 ### Features
