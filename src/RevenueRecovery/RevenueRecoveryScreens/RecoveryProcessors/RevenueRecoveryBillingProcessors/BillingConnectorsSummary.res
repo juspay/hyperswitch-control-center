@@ -127,7 +127,7 @@ module BillingConnectorDetails = {
               <p className={heading.sm.semibold}> {"Webhooks Url"->React.string} </p>
             </div>
             <p
-              className="border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-5 text-nd_gray-400 !font-jetbrain-mono bg-nd_gray-150 w-96 cursor-not-allowed opacity-70"
+              className={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-5 text-nd_gray-400 !font-jetbrain-mono bg-nd_gray-150 w-96 cursor-not-allowed opacity-70`}
             />
           </div>
         | _ =>
