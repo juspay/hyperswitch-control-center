@@ -149,7 +149,6 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     legend: {
       ...legend,
       useHTML: true,
-      labelFormatter: valueFormatter,
       symbolPadding: 0,
       symbolWidth: 0,
       itemStyle: {
