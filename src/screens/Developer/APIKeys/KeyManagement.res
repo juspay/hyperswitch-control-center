@@ -403,9 +403,8 @@ module KeysManagement = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let redirectToDocs = _ => {
-      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
       mixpanelEvent(~eventName="api_keys_banner_learn_more")
-      Window._open(docsUrl)
+      Window._open(DeveloperUtils.platformDocsUrl)
     }
     let bannerText = {
       DeveloperUtils.bannerText(

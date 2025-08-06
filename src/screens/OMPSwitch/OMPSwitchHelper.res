@@ -7,9 +7,8 @@ module PlatformMerchantModalContent = {
 
     let onLearnMoreClick = e => {
       e->ReactEvent.Mouse.stopPropagation
-      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
       mixpanelEvent(~eventName="platform_account_modal_learn_more")
-      Window._open(docsUrl)
+      Window._open(DeveloperUtils.platformDocsUrl)
     }
 
     let handleModalClick = e => {
