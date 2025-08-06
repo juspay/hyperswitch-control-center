@@ -1,6 +1,7 @@
 open InsightsTypes
 open RetriesComparisionAnalyticsUtils
 open RetriesComparisionAnalyticsTypes
+open Typography
 
 @react.component
 let make = (
@@ -72,7 +73,7 @@ let make = (
 
   <div>
     <div className="space-y-1 mb-5">
-      <h2 className="text-xl font-semibold text-gray-900"> {entity.title->React.string} </h2>
+      <h2 className={`${heading.md.semibold} text-gray-900`}> {entity.title->React.string} </h2>
       <p className="text-gray-500">
         {"Static Retries are executed based on predefined rules, whereas Smart Retries are dynamically triggered"->React.string}
       </p>

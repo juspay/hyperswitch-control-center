@@ -118,6 +118,23 @@ let getV2Url = (
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
     }
+  /* API KEYS */
+  | API_KEYS =>
+    switch methodType {
+    | Get => `v2/api-keys/list`
+    | Post =>
+      switch id {
+      | Some(key_id) => `v2/api-keys/${key_id}`
+      | None => `v2/api-keys`
+      }
+    | Put =>
+      switch id {
+      | Some(key_id) => `v2/api-keys/${key_id}`
+      | None => `v2/api-keys`
+      }
+    | Delete => `v2/api-keys/${id->Option.getOr("")}`
+    | _ => ""
+    }
   }
 }
 

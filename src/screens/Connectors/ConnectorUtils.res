@@ -604,6 +604,10 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let customBillingInfo = {
+  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+}
+
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
@@ -808,6 +812,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | CUSTOMBILLING => "custombilling"
   }
 }
 
@@ -961,6 +966,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -1104,6 +1110,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | CUSTOMBILLING => customBillingInfo
   }
 }
 
@@ -2011,6 +2018,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
+  | CUSTOMBILLING => "Custom"
   }
 }
 

@@ -35,7 +35,7 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -55,7 +55,7 @@ let make = () => {
       ~query=url.search,
       ~end=url.path->List.toArray->Array.length,
     )
-    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
+    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl, ~isLiveMode)
     RescriptReactRouter.replace(productUrl)
     switch url.path->urlPath {
     | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))

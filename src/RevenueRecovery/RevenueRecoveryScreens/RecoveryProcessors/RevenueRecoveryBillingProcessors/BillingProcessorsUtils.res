@@ -44,12 +44,20 @@ let getConnectorConfig = connector => {
     {
       "connector_auth": {
         "HeaderKey": {
-          "api_key": "Stripe billing API Key",
+          "api_key": "Custom billing API Key",
         },
       },
       "connector_webhook_details": {
         "merchant_secret": "Username",
         "additional_secret": "Password",
+      },
+    }->Identity.genericTypeToJson
+  | "custombilling" =>
+    {
+      "connector_auth": {
+        "HeaderKey": {
+          "api_key": "Custom billing API Key",
+        },
       },
     }->Identity.genericTypeToJson
   | _ => JSON.Encode.null
