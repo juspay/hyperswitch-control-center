@@ -190,7 +190,7 @@ let useInternalSwitch = (~setActiveProductValue) => {
     ~changePath=false,
   ) => {
     try {
-      setActiveProductValue(ProductTypes.Invalid)
+      setActiveProductValue(ProductTypes.UnknownProduct)
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,

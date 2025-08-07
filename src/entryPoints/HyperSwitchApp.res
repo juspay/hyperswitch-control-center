@@ -70,7 +70,7 @@ let make = () => {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
-      setActiveProductValue(Invalid)
+      setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
@@ -218,7 +218,7 @@ let make = () => {
                         | (_, list{"organization-chart"}) => <OrganisationChart />
 
                         | (
-                            Invalid,
+                            UnknownProduct,
                             list{"v2", _, "onboarding", ..._}
                             | list{"v1", _, "onboarding", ..._},
                           ) =>

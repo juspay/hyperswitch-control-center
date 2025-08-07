@@ -10,6 +10,6 @@ let make = () => {
   | Vault => <EmptyPage path="/v2/vault/home" />
   | CostObservability => <EmptyPage path="/v2/cost-observability/home" />
   | DynamicRouting => <EmptyPage path="/v2/dynamic-routing" />
-  | Invalid => React.null
+  | UnknownProduct => React.null
   }
 }

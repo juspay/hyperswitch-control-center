@@ -28,7 +28,7 @@ let getProductDisplayName = product =>
   | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
   | Orchestration(V2) => "Orchestrator V2"
-  | Invalid => ""
+  | UnknownProduct => ""
   }
 
 let getProductRouteName = product =>
@@ -41,7 +41,7 @@ let getProductRouteName = product =>
   | DynamicRouting => "dynamic-routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
-  | Invalid => ""
+  | UnknownProduct => ""
   }
 
 let getProductStringName = product =>
@@ -54,7 +54,7 @@ let getProductStringName = product =>
   | DynamicRouting => "dynamic_routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
-  | Invalid => ""
+  | UnknownProduct => ""
   }
 
 let getProductStringDisplayName = product =>
@@ -67,7 +67,7 @@ let getProductStringDisplayName = product =>
   | DynamicRouting => "intelligent_routing"
   | Orchestration(V1)
   | Orchestration(V2) => "orchestration"
-  | Invalid => ""
+  | UnknownProduct => ""
   }
 
 let getProductVariantFromDisplayName = product => {
@@ -105,6 +105,6 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url, ~isLiveMode)
   | DynamicRouting
   | Orchestration(V2) =>
     `/dashboard/v2/${productType->getProductRouteName}/home`
-  | Invalid => ""
+  | UnknownProduct => ""
   }
 }
