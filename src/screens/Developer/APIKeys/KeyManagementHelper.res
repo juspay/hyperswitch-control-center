@@ -236,9 +236,10 @@ module TableActionsCell = {
 
     let deleteKey = async () => {
       try {
-        let body = Dict.make()
-        Dict.set(body, "key_id", keyId->JSON.Encode.string)
-        Dict.set(body, "revoked", true->JSON.Encode.bool)
+        let body = Dict.fromArray([
+          ("key_id", keyId->JSON.Encode.string),
+          ("revoked", true->JSON.Encode.bool),
+        ])
 
         let entityName = switch version {
         | V1 => V1(API_KEYS)
@@ -249,12 +250,8 @@ module TableActionsCell = {
         let _ = await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete)
         getAPIKeyDetails()->ignore
       } catch {
-      | Exn.Error(e) =>
-        switch Exn.message(e) {
-        | Some(_error) =>
-          showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError)
-        | None => ()
-        }
+      | Exn.Error(_) =>
+        showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError)
       }
     }
 
