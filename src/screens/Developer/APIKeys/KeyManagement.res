@@ -21,12 +21,9 @@ module ApiEditModal = {
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (modalState, setModalState) = React.useState(_ => action)
     let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
-    let setShowCustomDate = val => {
-      setShowCustomDate(_ => val)
-    }
 
     React.useEffect(() => {
-      setShowCustomDate(false)
+      setShowCustomDate(_ => false)
       setModalState(_ => action)
       None
     }, [showModal])

@@ -23,14 +23,14 @@ let validateAPIKeyForm = (
       | _ => ()
       }
     } else if key == "expiration" && value->String.toLowerCase != "never" {
-      setShowCustomDate(true)
+      setShowCustomDate(_ => true)
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
       if date->LogicUtils.isEmptyString {
         Dict.set(errors, "expiration_date", "Please select expiry date"->JSON.Encode.string)
       }
     } else if key == "expiration" && value->String.toLowerCase == "never" {
-      setShowCustomDate(false)
+      setShowCustomDate(_ => false)
     } else if key == "name" && value->String.length > 64 {
       Dict.set(errors, "name", "Name can't be more than 64 characters"->JSON.Encode.string)
     } else if key == "description" && value->String.length > 256 {
