@@ -217,9 +217,14 @@ let genericRoutingMapper = (
     | None => connectorGroups->Dict.set(connector, [item])
     }
   })
+  
+  let (_, connectorData) =
+    connectorGroups
+    ->Dict.toArray
+    ->getValueFromArray(0, ("", [JSON.Encode.null]))
 
   let allTimeBuckets =
-    dataArray
+    connectorData
     ->Array.map(item => {
       item->getDictFromJsonObject->getString(xKey, "")
     })
