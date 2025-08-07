@@ -83,7 +83,7 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+let getProductUrl = (~productType: ProductTypes.productTypes, ~url, ~isLiveMode) => {
   switch productType {
   | Orchestration(V1) =>
     if url->String.includes("v2") {
@@ -93,7 +93,12 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
     }
   | Recon(V2) => `/dashboard/v2/recon/overview`
   | Recon(V1) => `/dashboard/v1/recon-engine/overview`
-  | Recovery => `/dashboard/v2/recovery/overview`
+  | Recovery =>
+    if isLiveMode {
+      "/dashboard/v2/recovery/invoices"
+    } else {
+      "/dashboard/v2/recovery/overview"
+    }
   | Vault
   | CostObservability
   | DynamicRouting

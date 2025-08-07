@@ -70,7 +70,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFixedFilter = () => [
+let initialFixedFilter = _ => [
   (
     {
       localFilter: None,
@@ -124,7 +124,7 @@ let getOptionsForPayoutFilters = (dict, filterValues) => {
   newArr
 }
 
-let initialFilters = (json, _, _, _, _) => {
+let initialFilters = (json, _, _, _, _, _) => {
   open LogicUtils
 
   let dropdownValue =

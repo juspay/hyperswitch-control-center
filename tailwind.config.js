@@ -34,6 +34,7 @@ module.exports = {
       },
       margin: {
         "15-px": "15px",
+        "54-px": "54px",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -77,6 +78,9 @@ module.exports = {
         "25-rem": "25rem",
         "30-rem": "30rem",
       },
+      minHeight: {
+        "500-px": "500px",
+      },
       inset: {
         "5-px": "5px",
         "76-px": "76px",
@@ -96,6 +100,8 @@ module.exports = {
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "7-rem": "7-rem",
+        "10-rem": "10rem",
         "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",

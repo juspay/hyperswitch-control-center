@@ -351,6 +351,7 @@ let make = () => {
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -411,7 +412,7 @@ let make = () => {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
-      if version === V1 {
+      if version === V1 && userHasAccess(~groupAccess=OrganizationManage) === Access {
         fetchOrgDetails()->ignore
       }
       orgData->Array.sort(sortByOrgName)

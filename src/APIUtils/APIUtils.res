@@ -9,6 +9,7 @@ let getV2Url = (
   ~id=None,
   ~profileId,
   ~merchantId,
+  ~transactionEntity,
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
@@ -76,6 +77,20 @@ let getV2Url = (
     | _ => ""
     }
   | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | V2_ORDERS_AGGREGATE =>
+    switch methodType {
+    | Get =>
+      switch queryParamerters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Merchant => `v2/payments/aggregate?${queryParams}`
+        | #Profile => `v2/payments/profile/aggregate?${queryParams}`
+        | _ => `v2/payments/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
@@ -101,6 +116,23 @@ let getV2Url = (
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
+    | _ => ""
+    }
+  /* API KEYS */
+  | API_KEYS =>
+    switch methodType {
+    | Get => `v2/api-keys/list`
+    | Post =>
+      switch id {
+      | Some(key_id) => `v2/api-keys/${key_id}`
+      | None => `v2/api-keys`
+      }
+    | Put =>
+      switch id {
+      | Some(key_id) => `v2/api-keys/${key_id}`
+      | None => `v2/api-keys`
+      }
+    | Delete => `v2/api-keys/${id->Option.getOr("")}`
     | _ => ""
     }
   }
@@ -853,7 +885,7 @@ let useGetURL = () => {
           switch methodType {
           | Post =>
             switch id {
-            | Some(accountId) => `${reconBaseURL}/accounts/${accountId}/upload`
+            | Some(ingestionId) => `${reconBaseURL}/ingestions/${ingestionId}/upload`
             | None => ``
             }
           | _ => ""
@@ -920,6 +952,44 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #INGESTION_HISTORY =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/ingestions/history?${queryParams}`
+            | None =>
+              switch id {
+              | Some(ingestionHistoryId) =>
+                `${reconBaseURL}/ingestions/history/${ingestionHistoryId}`
+              | None => `${reconBaseURL}/ingestions/history`
+              }
+            }
+          | _ => ""
+          }
+        | #INGESTION_CONFIG =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
+            | None => `${reconBaseURL}/ingestions/config`
+            }
+          | _ => ""
+          }
+        | #TRANSFORMATION_HISTORY =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/transformations/history?${queryParams}`
+            | None =>
+              switch id {
+              | Some(transformationHistoryId) =>
+                `${reconBaseURL}/transformations/history/${transformationHistoryId}`
+              | None => `${reconBaseURL}/transformations/history`
+              }
+            }
+          | _ => ""
+          }
+
         | #NONE => ""
         }
 
@@ -1103,6 +1173,7 @@ let useGetURL = () => {
         ~queryParamerters,
         ~profileId,
         ~merchantId,
+        ~transactionEntity,
       )
     }
 

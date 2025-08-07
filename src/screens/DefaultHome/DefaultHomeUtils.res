@@ -32,6 +32,7 @@ module DefaultHomeCard = {
     let {activeProduct, onProductSelectClick} = React.useContext(
       ProductSelectionProvider.defaultContext,
     )
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
     let url = RescriptReactRouter.useUrl()
 
     <div
@@ -59,7 +60,11 @@ module DefaultHomeCard = {
                 ~end=url.path->List.toArray->Array.length,
               )
 
-              let productUrl = ProductUtils.getProductUrl(~productType=product, ~url=currentUrl)
+              let productUrl = ProductUtils.getProductUrl(
+                ~productType=product,
+                ~url=currentUrl,
+                ~isLiveMode,
+              )
               RescriptReactRouter.replace(productUrl)
             } else {
               onProductSelectClick(heading)

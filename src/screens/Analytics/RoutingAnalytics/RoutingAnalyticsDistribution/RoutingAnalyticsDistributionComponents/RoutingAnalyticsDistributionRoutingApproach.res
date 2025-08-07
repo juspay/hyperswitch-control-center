@@ -4,7 +4,7 @@ let make = () => {
   open LogicUtils
   open Typography
 
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -24,6 +24,7 @@ let make = () => {
             ~groupByNames=Some(["routing_approach"]),
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
+            ~filter=Some(filterValueJson->JSON.Encode.object),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
@@ -45,9 +46,12 @@ let make = () => {
       getData()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, (startTimeVal, endTimeVal, filterValue))
 
-  <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />} customLoader={<Shimmer />}>
+  <PageLoaderWrapper
+    screenState
+    customUI={<InsightsHelper.NoData height="h-72" />}
+    customLoader={<Shimmer styleClass="w-full h-72 rounded-xl" />}>
     <div className="flex flex-col">
       <div className="border rounded-xl py-2 px-4 border-nd_gray-200 rounded-b-none bg-nd_gray-25">
         <p className={`text-nd_gray-600  px-3 py-[10px] ${body.md.semibold}`}>
@@ -60,6 +64,7 @@ let make = () => {
           options={RoutingAnalyticsDistributionUtils.chartOptions(
             response,
             ~groupByText="routing_approach",
+            ~tooltipTitle="Routing Approach",
           )}
         />
       </div>

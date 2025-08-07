@@ -78,13 +78,14 @@ let getOptions: array<ConnectorTypes.connectorTypes> => array<
 }
 
 open ConnectorTypes
-let recoveryConnectorList: array<connectorTypes> = [Processors(STRIPE)]
+let recoveryConnectorList: array<connectorTypes> = [Processors(STRIPE), Processors(WORLDPAYVANTIV)]
+
+let recoveryConnectorProdList: array<connectorTypes> = [Processors(WORLDPAYVANTIV)]
 
 let recoveryConnectorListProd: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(CYBERSOURCE),
   Processors(GLOBEPAY),
-  Processors(WORLDPAY),
   Processors(NOON),
   Processors(BANKOFAMERICA),
 ]

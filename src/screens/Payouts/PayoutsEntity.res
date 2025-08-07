@@ -1,5 +1,21 @@
 open LogicUtils
 
+let concatValueOfGivenKeysOfDict = (dict, keys) => {
+  Array.reduceWithIndex(keys, "", (acc, key, i) => {
+    let val = dict->getString(key, "")
+    let delimiter = if val->isNonEmptyString {
+      if key !== "first_name" {
+        i + 1 == keys->Array.length ? "." : ", "
+      } else {
+        " "
+      }
+    } else {
+      ""
+    }
+    String.concat(acc, `${val}${delimiter}`)
+  })
+}
+
 type payoutAttempts = {
   attempt_id: string,
   status: string,
@@ -24,6 +40,8 @@ type payouts = {
   connector: string,
   payout_type: string,
   billing: string,
+  billingEmail: string,
+  billingPhone: string,
   customer_id: string,
   auto_fulfill: bool,
   email: string,
@@ -44,7 +62,9 @@ type payouts = {
   created: string,
   connector_transaction_id: string,
   priority: string,
+  payout_method_data: option<JSON.t>,
   attempts: array<payoutAttempts>,
+  metadata: Dict.t<JSON.t>,
 }
 
 type payoutsAttemptColType =
@@ -62,7 +82,9 @@ type payoutsAttemptColType =
   | UnifiedCode
   | UnifiedMessage
 
-let attemptsColumns = [
+let attemptsColumns = [AttemptId, Status, Amount, Currency, Connector]
+
+let attemptDetailsField = [
   AttemptId,
   Status,
   Amount,
@@ -122,7 +144,12 @@ let priorityVariantMapper: string => priority = priorityLabel =>
 
 let getAttemptHeading = colType => {
   switch colType {
-  | AttemptId => Table.makeHeaderInfo(~key="AttemptId", ~title="Attempt Id")
+  | AttemptId =>
+    Table.makeHeaderInfo(
+      ~key="AttemptId",
+      ~title="Attempt Id",
+      ~description="You can validate the information shown here by cross checking the payout attempt identifier (Attempt ID) in your payout processor portal.",
+    )
   | Status => Table.makeHeaderInfo(~key="Status", ~title="Status")
   | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency")
@@ -136,7 +163,7 @@ let getAttemptHeading = colType => {
   | CancellationReason =>
     Table.makeHeaderInfo(~key="CancellationReason", ~title="Cancellation Reason")
   | UnifiedCode => Table.makeHeaderInfo(~key="UnifiedCode", ~title="Unified Code")
-  | UnifiedMessage => Table.makeHeaderInfo(~key="UnifiedMessage", ~title="UnifiedM essage")
+  | UnifiedMessage => Table.makeHeaderInfo(~key="UnifiedMessage", ~title="Unified Message")
   }
 }
 
@@ -238,6 +265,51 @@ let allColumns = [
   Created,
   ConnectorTransactionId,
 ]
+type summaryColType =
+  | Created
+  | AmountReceived
+  | PayoutId
+  | Currency
+  | ClientSecret
+  | ConnectorTransactionID
+  | ErrorMessage
+
+type aboutPayoutColType =
+  | Connector
+  | ProfileId
+  | ProfileName
+  | PayoutMethodType
+  | PayoutMethod
+  | CardBrand
+  | ConnectorLabel
+  | AuthenticationType
+  | CaptureMethod
+  | CardNetwork
+
+type otherDetailsColType =
+  | CustomerId
+  | Name
+  | Email
+  | Phone
+  | PhoneCountryCode
+  | Description
+  | BillingEmail
+  | BillingPhone
+  | BillingAddress
+  | FirstName
+  | LastName
+  | PayoutMethodEmail
+  | PayoutMethodAddress
+  | AutoFulfill
+  | Recurring
+  | EntityType
+  | BusinessCountry
+  | BusinessLabel
+  | ReturnUrl
+  | ClientSecret
+  | Priority
+  | ErrorCode
+  | MerchantId
 
 let useGetStatus = order => {
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
@@ -266,7 +338,7 @@ let useGetStatus = order => {
   }
 }
 
-let getHeading = colType => {
+let getHeading = (colType: payoutsColType) => {
   switch colType {
   | PayoutId => Table.makeHeaderInfo(~key="PayoutId", ~title="Payout Id")
   | MerchantId => Table.makeHeaderInfo(~key="MerchantId", ~title="Merchant Id")
@@ -280,7 +352,6 @@ let getHeading = colType => {
   | Status => Table.makeHeaderInfo(~key="status", ~title="Payout Status", ~dataType=DropDown)
   | CustomerId => Table.makeHeaderInfo(~key="CustomerId", ~title="Customer Id")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created At")
-
   | PayoutType => Table.makeHeaderInfo(~key="PayoutType", ~title="Payout Type")
   | Billing => Table.makeHeaderInfo(~key="Billing", ~title="Billing")
   | AutoFulfill => Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Full fill")
@@ -296,12 +367,11 @@ let getHeading = colType => {
   | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="ErrorCode")
   | ConnectorTransactionId =>
     Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction ID")
-
   | SendPriority => Table.makeHeaderInfo(~key="SendPriority", ~title="Send Priority")
   }
 }
 
-let getCell = (payoutData, colType, merchantId, orgId): Table.cell => {
+let getCell = (payoutData, colType: payoutsColType, merchantId, orgId): Table.cell => {
   switch colType {
   | PayoutId =>
     CustomCell(
@@ -398,6 +468,12 @@ let itemToObjMapperAttempts = json => {
 }
 
 let itemToObjMapper = dict => {
+  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
+
+  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
+    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+  }
+
   {
     payout_id: getString(dict, "payout_id", ""),
     merchant_id: getString(dict, "merchant_id", ""),
@@ -405,12 +481,22 @@ let itemToObjMapper = dict => {
     currency: getString(dict, "currency", ""),
     connector: getString(dict, "connector", ""),
     payout_type: getString(dict, "payout_type", ""),
-    billing: getString(dict, "billing", ""),
+    billing: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
+    billingPhone: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("phone")
+    ->getPhoneNumberString,
     customer_id: getString(dict, "customer_id", ""),
     auto_fulfill: getBool(dict, "auto_fulfill", false),
     email: getString(dict, "email", ""),
     name: getString(dict, "name", ""),
-    phone: getString(dict, "phone", ""),
+    phone: dict
+    ->getDictfromDict("customer")
+    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code"),
     phone_country_code: getString(dict, "phone_country_code", ""),
     client_secret: getString(dict, "client_secret", ""),
     return_url: getString(dict, "return_url", ""),
@@ -426,7 +512,15 @@ let itemToObjMapper = dict => {
     created: getString(dict, "created", ""),
     connector_transaction_id: getString(dict, "connector_transaction_id", ""),
     priority: getString(dict, "priority", ""),
+    payout_method_data: {
+      let payoutMethodData = dict->getvalFromDict("payout_method_data")
+      switch payoutMethodData {
+      | Some(data) => data->isNullJson ? None : Some(data)
+      | None => None
+      }
+    },
     attempts: dict->getArrayFromDict("attempts", [])->Array.map(itemToObjMapperAttempts),
+    metadata: dict->getDictfromDict("metadata"),
   }
 }
 
@@ -450,3 +544,141 @@ let payoutEntity = (merchantId, orgId) =>
         )
     },
   )
+module CurrencyCell = {
+  @react.component
+  let make = (~amount, ~currency) => {
+    <p className="whitespace-nowrap"> {`${amount} ${currency}`->React.string} </p>
+  }
+}
+let getCellForSummary = (order, summaryColType): Table.cell => {
+  switch summaryColType {
+  | Created => Date(order.created)
+  | AmountReceived =>
+    CustomCell(
+      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
+      "",
+    )
+
+  | PayoutId => DisplayCopyCell(order.payout_id)
+  | Currency => Text(order.currency)
+
+  | ClientSecret => Text(order.client_secret)
+  | ErrorMessage => Text(order.error_message)
+  | ConnectorTransactionID =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.connector_transaction_id)
+      />,
+      "",
+    )
+  }
+}
+
+let getHeadingForSummary = summaryColType => {
+  switch summaryColType {
+  | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
+  | AmountReceived =>
+    Table.makeHeaderInfo(
+      ~key="amount_received",
+      ~title="Amount Received",
+      ~description="Amount processed by the payout processor for this payout.",
+    )
+  | PayoutId => Table.makeHeaderInfo(~key="payout_id", ~title="Payout ID")
+  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
+  | ClientSecret => Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret")
+  | ConnectorTransactionID =>
+    Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
+  | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
+  }
+}
+
+let getHeadingForAboutPayment = aboutPaymentColType => {
+  switch aboutPaymentColType {
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
+  | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
+  | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
+  | PayoutMethod => Table.makeHeaderInfo(~key="payout_method", ~title="Payout Method")
+  | PayoutMethodType => Table.makeHeaderInfo(~key="payout_method_type", ~title="Payout Method Type")
+  | AuthenticationType => Table.makeHeaderInfo(~key="authentication_type", ~title="Auth Type")
+  | CaptureMethod => Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method")
+  | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
+  }
+}
+
+let getHeadingForOtherDetails = otherDetailsColType => {
+  switch otherDetailsColType {
+  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Name")
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
+  | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
+  | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
+  | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
+  | BillingEmail => Table.makeHeaderInfo(~key="billing_email", ~title="Billing Email")
+  | BillingPhone => Table.makeHeaderInfo(~key="billing_phone", ~title="Billing Phone")
+  | BillingAddress => Table.makeHeaderInfo(~key="billing_address", ~title="Billing Address")
+  | FirstName => Table.makeHeaderInfo(~key="first_name", ~title="First Name")
+  | LastName => Table.makeHeaderInfo(~key="last_name", ~title="Last Name")
+  | PayoutMethodEmail =>
+    Table.makeHeaderInfo(~key="Payout_method_email", ~title="Payout Method Email")
+  | PayoutMethodAddress =>
+    Table.makeHeaderInfo(~key="Payout_method_address", ~title="Payout Method Address")
+  | AutoFulfill => Table.makeHeaderInfo(~key="auto_fulfill", ~title="Auto Fulfill")
+  | Recurring => Table.makeHeaderInfo(~key="recurring", ~title="Recurring")
+  | EntityType => Table.makeHeaderInfo(~key="entity_type", ~title="Entity Type")
+  | BusinessCountry => Table.makeHeaderInfo(~key="business_country", ~title="Business Country")
+  | BusinessLabel => Table.makeHeaderInfo(~key="business_label", ~title="Business Label")
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
+  | ClientSecret => Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret")
+  | Priority => Table.makeHeaderInfo(~key="priority", ~title="Priority")
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
+  | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
+  }
+}
+
+let getCellForAboutPayment = (payoutData, aboutPaymentColType): Table.cell => {
+  switch aboutPaymentColType {
+  | Connector =>
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=payoutData.connector />, "")
+  | ProfileId => DisplayCopyCell(payoutData.profile_id)
+  | ProfileName => Text("")
+  | PayoutMethod => Text(payoutData.payout_type)
+  | PayoutMethodType => Text(payoutData.payout_type)
+  | CardBrand => Text("")
+  | ConnectorLabel => Text(payoutData.connector)
+  | AuthenticationType => Text("")
+  | CaptureMethod => Text("")
+  | CardNetwork => Text("")
+  }
+}
+
+let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
+  let splittedName = payoutData.name->String.split(" ")
+  switch otherDetailsColType {
+  | CustomerId => DisplayCopyCell(payoutData.customer_id)
+  | Name => Text(payoutData.name)
+  | Email => Text(payoutData.email)
+  | Phone => Text(payoutData.phone)
+  | PhoneCountryCode => Text(payoutData.phone_country_code)
+  | Description => Text(payoutData.description)
+  | BillingEmail => Text(payoutData.billingEmail)
+  | BillingPhone => Text(payoutData.billingPhone)
+  | BillingAddress => Text(payoutData.billing)
+  | FirstName => Text(splittedName->getValueFromArray(0, ""))
+  | LastName => Text(splittedName->getValueFromArray(splittedName->Array.length - 1, ""))
+  | PayoutMethodEmail => Text(payoutData.email)
+  | PayoutMethodAddress => Text(payoutData.billing)
+  | AutoFulfill => Text(payoutData.auto_fulfill->getStringFromBool)
+  | Recurring => Text(payoutData.recurring->getStringFromBool)
+  | EntityType => Text(payoutData.entity_type)
+  | BusinessCountry => Text(payoutData.business_country)
+  | BusinessLabel => Text(payoutData.business_label)
+  | ReturnUrl => Text(payoutData.return_url)
+  | ClientSecret => Text(payoutData.client_secret)
+  | Priority => Text(payoutData.priority)
+  | ErrorCode => Text(payoutData.error_code)
+  | MerchantId => DisplayCopyCell(payoutData.merchant_id)
+  }
+}

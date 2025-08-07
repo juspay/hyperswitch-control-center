@@ -1,12 +1,9 @@
-open ReconEngineTransactionsTypes
 open LogicUtils
+open ReconEngineUtils
+open ReconEngineTransactionsTypes
 
 let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
-}
-
-let formatAmountToString = (amount, ~currency) => {
-  `${amount->Float.toString} ${currency}`
 }
 
 let getAmountPayload = dict => {
@@ -50,7 +47,7 @@ let getHeadersForCSV = () => {
   "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
 }
 
-let getAllTransactionPayload = dict => {
+let getAllTransactionPayload = (dict): transactionPayload => {
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -62,6 +59,7 @@ let getAllTransactionPayload = dict => {
     debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
     rule: dict->getDictfromDict("rule")->getRulePayload,
     transaction_status: dict->getString("transaction_status", ""),
+    discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
   }
@@ -81,7 +79,7 @@ let getAllEntryPayload = dict => {
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
-    discarded_status: dict->getString("discarded_status", ""),
+    discarded_status: dict->getOptionString("discarded_status"),
     metadata: dict->getJsonObjectFromDict("metadata"),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
@@ -123,23 +121,29 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   uniqueAccounts->Array.joinWith(", ")
 }
 
-let getTransactionTypeFromString = (status: string) => {
+let getTransactionTypeFromString = (status: string): transactionStatus => {
   switch status {
-  | "posted" => ReconEngineTransactionsTypes.Posted
-  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
-  | "expected" => ReconEngineTransactionsTypes.Expected
-  | "archived" => ReconEngineTransactionsTypes.Archived
-  | _ => ReconEngineTransactionsTypes.Unknown
+  | "posted" => Posted
+  | "mismatched" => Mismatched
+  | "expected" => Expected
+  | "archived" => Archived
+  | _ => UnknownTransactionStatus
   }
 }
 
-let initialDisplayFilters = () => {
-  let statusOptions: array<FilterSelectBox.dropdownOption> = [
-    {label: "Mismatched", value: "mismatched"},
-    {label: "Expected", value: "expected"},
-    {label: "Posted", value: "posted"},
-    {label: "Archived", value: "archived"},
-  ]
+let getEntryTypeFromString = (entryType: string): entryStatus => {
+  switch entryType {
+  | "posted" => Posted
+  | "mismatched" => Mismatched
+  | "expected" => Expected
+  | "archived" => Archived
+  | "pending" => Pending
+  | _ => UnknownEntry
+  }
+}
+
+let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
+  let statusOptions = getTransactionStatusOptions([Mismatched, Expected, Posted])
 
   [
     (
@@ -150,6 +154,44 @@ let initialDisplayFilters = () => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="source_account",
+          ~name="credit_account",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=creditAccountOptions,
+            ~buttonText="Select Source Account",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="target_account",
+          ~name="debit_account",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=debitAccountOptions,
+            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -180,7 +222,7 @@ let getSampleStackedBarGraphData = () => {
         color: "#EA8A8F",
       },
       {
-        name: "Posted",
+        name: "Matched",
         data: [1200.0],
         color: "#7AB891",
       },

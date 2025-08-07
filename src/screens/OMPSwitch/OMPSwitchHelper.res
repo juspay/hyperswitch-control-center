@@ -7,9 +7,8 @@ module PlatformMerchantModalContent = {
 
     let onLearnMoreClick = e => {
       e->ReactEvent.Mouse.stopPropagation
-      let docsUrl = "https://docs.hyperswitch.io/use-cases/for-marketplace-platforms"
       mixpanelEvent(~eventName="platform_account_modal_learn_more")
-      Window._open(docsUrl)
+      Window._open(DeveloperUtils.platformDocsUrl)
     }
 
     let handleModalClick = e => {
@@ -83,7 +82,6 @@ module ListBaseComp = {
     let {
       globalUIConfig: {sidebarColor: {secondaryTextColor, backgroundColor, borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let {devOmpChart} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (showModal, setShowModal) = React.useState(_ => false)
     let arrowClassName = isDarkBg
       ? `${arrow
@@ -114,23 +112,21 @@ module ListBaseComp = {
                 <Icon name="nd_question_mark_circle" size=14 onClick={openPlatformModal} />
               </RenderIf>
             </div>
-            <RenderIf condition=devOmpChart>
-              <ToolTip
-                description="Organisation Chart"
-                customStyle="!whitespace-nowrap"
-                toolTipFor={<button
-                  className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
-                  onClick={ev => {
-                    ReactEvent.Mouse.stopPropagation(ev)
-                    RescriptReactRouter.push(
-                      GlobalVars.appendDashboardPath(~url="/organization-chart"),
-                    )
-                  }}>
-                  <Icon name="github-fork" size=14 className={`${secondaryTextColor}`} />
-                </button>}
-                toolTipPosition=ToolTip.Right
-              />
-            </RenderIf>
+            <ToolTip
+              description="Organisation Chart"
+              customStyle="!whitespace-nowrap"
+              toolTipFor={<button
+                className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
+                onClick={ev => {
+                  ReactEvent.Mouse.stopPropagation(ev)
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(~url="/organization-chart"),
+                  )
+                }}>
+                <Icon name="github-fork" size=14 className={`${secondaryTextColor}`} />
+              </button>}
+              toolTipPosition=ToolTip.Right
+            />
           </div>
           <div className="text-left flex gap-2 w-13.5-rem justify-between">
             <p

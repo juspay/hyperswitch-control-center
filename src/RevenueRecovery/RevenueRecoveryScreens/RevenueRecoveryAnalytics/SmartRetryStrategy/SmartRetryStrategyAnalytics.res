@@ -1,5 +1,6 @@
 open InsightsTypes
 open SmartRetryStrategyAnalyticsUtils
+open Typography
 @react.component
 let make = (~entity: moduleEntity) => {
   open LogicUtils
@@ -136,7 +137,9 @@ let make = (~entity: moduleEntity) => {
 
   <div>
     <div className="space-y-1 mb-5">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2"> {entity.title->React.string} </h2>
+      <h2 className={`${heading.md.semibold} text-gray-900 mb-2`}>
+        {entity.title->React.string}
+      </h2>
       <div className="bg-gray-50 text-gray-700 p-3 rounded-md border flex gap-2">
         <Icon size=15 name="info-circle-unfilled" />
         {"Smart retries are attempted by targeting specific error groups where the probability of success is highest."->React.string}
