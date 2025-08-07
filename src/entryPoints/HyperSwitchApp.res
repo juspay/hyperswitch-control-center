@@ -61,8 +61,6 @@ let make = () => {
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
-      // setCurrentProduct(_=>Some(merchantResponse.product_type))
-      // setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -236,7 +234,11 @@ let make = () => {
                         | (Orchestration(V2), _) => <OrchestrationV2App />
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
 
-                        | _ => React.null
+                        | _ =>
+                          <UnauthorizedPage
+                            productType=merchantDetailsTypedValue.product_type
+                            message="You don't have access to this module."
+                          />
                         }}
                       </ErrorBoundary>
                     </div>
