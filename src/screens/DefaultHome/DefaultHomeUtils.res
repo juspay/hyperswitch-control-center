@@ -33,7 +33,6 @@ module DefaultHomeCard = {
       ProductSelectionProvider.defaultContext,
     )
     let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-    let url = RescriptReactRouter.useUrl()
 
     <div
       className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
@@ -55,16 +54,7 @@ module DefaultHomeCard = {
           switch action {
           | InternalRoute =>
             if product === activeProduct {
-              let currentUrl = GlobalVars.extractModulePath(
-                ~path=url.path,
-                ~end=url.path->List.toArray->Array.length,
-              )
-
-              let productUrl = ProductUtils.getProductUrl(
-                ~productType=product,
-                ~url=currentUrl,
-                ~isLiveMode,
-              )
+              let productUrl = ProductUtils.getProductUrl(~productType=product, ~isLiveMode)
               RescriptReactRouter.replace(productUrl)
             } else {
               onProductSelectClick(heading)
