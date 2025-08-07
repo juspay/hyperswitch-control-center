@@ -67,6 +67,7 @@ let getProductStringDisplayName = product =>
   | DynamicRouting => "intelligent_routing"
   | Orchestration(V1)
   | Orchestration(V2) => "orchestration"
+  | Invalid => ""
   }
 
 let getProductVariantFromDisplayName = product => {

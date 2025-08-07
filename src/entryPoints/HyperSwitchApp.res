@@ -51,19 +51,19 @@ let make = () => {
     }
   }
   // set the product url based on the product type
-  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(
-      ~path=url.path,
-      ~query=url.search,
-      ~end=url.path->List.toArray->Array.length,
-    )
-    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl, ~isLiveMode)
-    RescriptReactRouter.replace(productUrl)
-    switch url.path->urlPath {
-    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))
-    | _ => ()
-    }
-  }
+  // let setupProductUrl = (~productType: ProductTypes.productTypes) => {
+  //   let currentUrl = GlobalVars.extractModulePath(
+  //     ~path=url.path,
+  //     ~query=url.search,
+  //     ~end=url.path->List.toArray->Array.length,
+  //   )
+  //   let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl, ~isLiveMode)
+  //   RescriptReactRouter.replace(productUrl)
+  //   switch url.path->urlPath {
+  //   | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))
+  //   | _ => ()
+  //   }
+  // }
 
   let setUpDashboard = async () => {
     try {
