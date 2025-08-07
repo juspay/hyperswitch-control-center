@@ -36,8 +36,12 @@ let revenueRecoverySummary = {
   })
 }
 
-let recoverySidebars = {
-  let links = [revenueRecoveryPayments, revenueRecoveryInvoices, revenueRecoverySummary]
+let recoverySidebars = isLiveMode => {
+  let links = [revenueRecoveryInvoices, revenueRecoverySummary]
+
+  if !isLiveMode {
+    links->Array.unshift(revenueRecoveryPayments)
+  }
 
   links
 }

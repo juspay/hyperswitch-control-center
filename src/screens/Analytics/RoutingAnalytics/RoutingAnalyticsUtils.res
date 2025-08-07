@@ -1,4 +1,5 @@
 open RoutingAnalyticsTypes
+open LogicUtils
 
 let globalFilter: array<filters> = [
   #connector,
@@ -14,3 +15,11 @@ let globalFilter: array<filters> = [
   #merchant_id,
   #routing_approach,
 ]
+
+let filterCurrencyFromDimensions = data =>
+  data
+  ->getDictFromJsonObject
+  ->getArrayFromDict("dimensions", [])
+  ->Array.filter(dim => {
+    dim->getDictFromJsonObject->getString("name", "") !== "currency"
+  })

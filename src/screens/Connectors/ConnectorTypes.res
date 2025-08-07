@@ -112,6 +112,9 @@ type processorTypes =
   | PAYLOAD
   | PAYTM
   | PHONEPE
+  | FLEXITI
+  | BREADPAY
+  | BLUECODE
 
 type payoutProcessorTypes =
   | ADYEN
@@ -134,7 +137,7 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
 type connectorTypeVariants =
   | PaymentProcessor

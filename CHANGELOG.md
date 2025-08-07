@@ -3,6 +3,74 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.07.0
+
+### Features
+
+- Recovery prod changes ([#3395](https://github.com/juspay/hyperswitch-control-center/pull/3395)) ([`cecb97b`](https://github.com/juspay/hyperswitch-control-center/commit/cecb97ba9f2e4be6d9b84925685ecd23796db081))
+
+### Bug Fixes
+
+- Add email enabled check for magic link during sign up ([#3409](https://github.com/juspay/hyperswitch-control-center/pull/3409)) ([`ea18609`](https://github.com/juspay/hyperswitch-control-center/commit/ea18609e8ea46a5c0a48db91e3f4f56225d1b181))
+
+### Miscellaneous Tasks
+
+- Platform docs url update ([#3411](https://github.com/juspay/hyperswitch-control-center/pull/3411)) ([`3605cff`](https://github.com/juspay/hyperswitch-control-center/commit/3605cff83337710fdb3e0e4c652f83d2e7b47201))
+
+**Full Changelog:** [`2025.08.06.0...2025.08.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.06.0...2025.08.07.0)
+
+- - -
+
+## 2025.08.06.0
+
+### Features
+
+- Added new connector bluecode ([#3398](https://github.com/juspay/hyperswitch-control-center/pull/3398)) ([`b8751b4`](https://github.com/juspay/hyperswitch-control-center/commit/b8751b4b09cba2079ef5b9df0fcfdcce05707657))
+- Support payload connector ([#3403](https://github.com/juspay/hyperswitch-control-center/pull/3403)) ([`7dd76b6`](https://github.com/juspay/hyperswitch-control-center/commit/7dd76b6dccf43726cc414e8977190e40109abb65))
+- Payouts detail page ([#3402](https://github.com/juspay/hyperswitch-control-center/pull/3402)) ([`d5bd661`](https://github.com/juspay/hyperswitch-control-center/commit/d5bd6616f50b8b3dbaec416872f9ef475b3cd87c))
+
+### Miscellaneous Tasks
+
+- Updated wasm for bluecode connector ([#3399](https://github.com/juspay/hyperswitch-control-center/pull/3399)) ([`05482bd`](https://github.com/juspay/hyperswitch-control-center/commit/05482bd809911f3ad572b98393e87588b5182718))
+- Explore recipes mixpanel event addition ([#3406](https://github.com/juspay/hyperswitch-control-center/pull/3406)) ([`9e47476`](https://github.com/juspay/hyperswitch-control-center/commit/9e47476d99cf0764c53c06c0a89fbdb93123269d))
+
+**Full Changelog:** [`2025.08.05.0...2025.08.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.05.0...2025.08.06.0)
+
+- - -
+
+## 2025.08.05.0
+
+### Features
+
+- Payment interface modifications for v1 and v2 ([#3367](https://github.com/juspay/hyperswitch-control-center/pull/3367)) ([`04c9322`](https://github.com/juspay/hyperswitch-control-center/commit/04c9322a96285e34ab29d7464251656137a422bc))
+
+### Bug Fixes
+
+- Fixed routing analytics bugs ([#3393](https://github.com/juspay/hyperswitch-control-center/pull/3393)) ([`a2664fc`](https://github.com/juspay/hyperswitch-control-center/commit/a2664fc00ba30c66e90eff34ddf694715e50af8a))
+
+**Full Changelog:** [`2025.08.04.0...2025.08.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.04.0...2025.08.05.0)
+
+- - -
+
+## 2025.08.04.0
+
+### Features
+
+- New connector addition Paytm and Phonepe ([#3352](https://github.com/juspay/hyperswitch-control-center/pull/3352)) ([`7df7198`](https://github.com/juspay/hyperswitch-control-center/commit/7df7198d3cd3651d9f6566655ee26b19d8620612))
+- Added new connectors fexiti and breadpay ([#3387](https://github.com/juspay/hyperswitch-control-center/pull/3387)) ([`241b468`](https://github.com/juspay/hyperswitch-control-center/commit/241b46831346ca4ecaafce24316f868e641a0ed3))
+
+### Bug Fixes
+
+- Signup coming up even when in auth methods its disabled ([#3385](https://github.com/juspay/hyperswitch-control-center/pull/3385)) ([`bbb6f33`](https://github.com/juspay/hyperswitch-control-center/commit/bbb6f33710cb4e9824ed258d1f5d5db25ba319dd))
+
+### Miscellaneous Tasks
+
+- Updated wasm for connectors flexiti and breadpay ([#3388](https://github.com/juspay/hyperswitch-control-center/pull/3388)) ([`ea0b4c1`](https://github.com/juspay/hyperswitch-control-center/commit/ea0b4c15230ac8f11cfb0890ed025cd03ccac0e5))
+
+**Full Changelog:** [`2025.08.01.0...2025.08.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.01.0...2025.08.04.0)
+
+- - -
+
 ## 2025.08.01.0
 
 ### Bug Fixes

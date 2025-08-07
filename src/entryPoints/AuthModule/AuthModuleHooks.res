@@ -88,7 +88,8 @@ let useAuthMethods = (): authMethodProps => {
     let emailFeatureFlagEnable = featureFlagValues.email
 
     let isSingUpAllowedinMagicLink = switch magicLinkmethod {
-    | Some(magicLinkData) => magicLinkData->Array.some(v => v.allow_signup)
+    | Some(magicLinkData) =>
+      magicLinkData->Array.some(v => v.allow_signup && emailFeatureFlagEnable)
     | None => emailFeatureFlagEnable
     }
 

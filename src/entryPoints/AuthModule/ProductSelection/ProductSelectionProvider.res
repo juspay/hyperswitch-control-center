@@ -41,7 +41,7 @@ module SelectMerchantBody = {
     let showToast = ToastState.useShowToast()
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
-
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
     let dropDownOptions =
       merchantList
       ->Array.filter(item => {
@@ -128,6 +128,7 @@ module SelectMerchantBody = {
             let productUrl = ProductUtils.getProductUrl(
               ~productType=merchantDetailsTypedValue.product_type,
               ~url=currentUrl,
+              ~isLiveMode,
             )
             RescriptReactRouter.replace(productUrl)
           }}>
@@ -167,7 +168,7 @@ module CreateNewMerchantBody = {
   let make = (~setShowModal, ~selectedProduct: productTypes) => {
     open APIUtils
     open LogicUtils
-
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
     let url = RescriptReactRouter.useUrl()
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -295,6 +296,7 @@ module CreateNewMerchantBody = {
             let productUrl = ProductUtils.getProductUrl(
               ~productType=merchantDetailsTypedValue.product_type,
               ~url=currentUrl,
+              ~isLiveMode,
             )
             RescriptReactRouter.replace(productUrl)
           }}>
