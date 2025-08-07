@@ -174,7 +174,7 @@ let useProfileSwitch = () => {
   }
 }
 
-let useInternalSwitch = (~setActiveProductValue) => {
+let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productTypes => unit>=?) => {
   open HyperswitchAtom
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
@@ -190,7 +190,11 @@ let useInternalSwitch = (~setActiveProductValue) => {
     ~changePath=false,
   ) => {
     try {
-      setActiveProductValue(ProductTypes.UnknownProduct)
+      // setActiveProductValue(ProductTypes.UnknownProduct)
+      switch setActiveProductValue {
+      | Some(fn) => fn(ProductTypes.UnknownProduct)
+      | None => ()
+      }
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,
@@ -221,7 +225,10 @@ let useInternalSwitch = (~setActiveProductValue) => {
       }
     } catch {
     | Exn.Error(e) => {
-        setActiveProductValue(product_type)
+        switch setActiveProductValue {
+        | Some(fn) => fn(product_type)
+        | None => ()
+        }
         let err = Exn.message(e)->Option.getOr("Failed to switch!")
         Exn.raiseError(err)
       }

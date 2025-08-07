@@ -84,14 +84,10 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~url, ~isLiveMode) => {
+let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
   switch productType {
-  | Orchestration(V1) =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
-    } else {
-      url
-    }
+  | Orchestration(V1) => `/dashboard/home`
+
   | Recon(V2) => `/dashboard/v2/recon/overview`
   | Recon(V1) => `/dashboard/v1/recon-engine/overview`
   | Recovery =>

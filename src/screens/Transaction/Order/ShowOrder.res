@@ -602,8 +602,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   )
   let frmDetailsRef = React.useRef(Nullable.null)
   let fetchDetails = useGetMethod()
-  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchOrderDetails = async url => {
     open PaymentsInterface
