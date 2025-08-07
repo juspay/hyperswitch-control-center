@@ -217,7 +217,7 @@ let genericRoutingMapper = (
     | None => connectorGroups->Dict.set(connector, [item])
     }
   })
-  
+
   let (_, connectorData) =
     connectorGroups
     ->Dict.toArray
