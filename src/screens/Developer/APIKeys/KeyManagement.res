@@ -1,5 +1,6 @@
 module ApiEditModal = {
   open DeveloperUtils
+  open LogicUtils
   open HSwitchUtils
   open HSwitchSettingTypes
   open APIUtilsTypes
@@ -15,11 +16,11 @@ module ApiEditModal = {
   ) => {
     let getURL = APIUtils.useGetURL()
     let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
-    let (apiKey, setApiKey) = React.useState(_ => "")
-    let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
-    let (modalState, setModalState) = React.useState(_ => action)
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod()
+    let (apiKey, setApiKey) = React.useState(_ => "")
+    let (modalState, setModalState) = React.useState(_ => action)
+    let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
     let setShowCustomDate = val => {
       setShowCustomDate(_ => val)
     }
@@ -31,7 +32,7 @@ module ApiEditModal = {
     }, [showModal])
 
     let downloadKey = _ => {
-      DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
+      DownloadUtils.downloadOld(~fileName="apiKey.txt", ~content=apiKey)
     }
 
     let primaryBtnText = switch action {
@@ -46,17 +47,16 @@ module ApiEditModal = {
 
     let onSubmit = async (values, _) => {
       try {
-        let valuesDict = values->LogicUtils.getDictFromJsonObject
+        let valuesDict = values->getDictFromJsonObject
 
         let body = Dict.make()
-        Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->JSON.Encode.string)
-        let description = valuesDict->LogicUtils.getString("description", "")
-        Dict.set(body, "description", description->JSON.Encode.string)
+        Dict.set(body, "name", valuesDict->getString("name", "")->JSON.Encode.string)
+        Dict.set(body, "description", valuesDict->getString("description", "")->JSON.Encode.string)
 
-        let expirationDate = valuesDict->LogicUtils.getString("expiration_date", "")
+        let expirationDate = valuesDict->getString("expiration_date", "")
 
         let expriryValue = switch valuesDict
-        ->LogicUtils.getString("expiration", "")
+        ->getString("expiration", "")
         ->getRecordTypeFromString {
         | Custom => expirationDate
         | _ => Never->getStringFromRecordType
@@ -74,27 +74,24 @@ module ApiEditModal = {
         }
 
         let url = switch action {
-        | Update => {
-            let key_id = keyId->Option.getOr("")
-            getURL(~entityName, ~methodType, ~id=Some(key_id))
-          }
-
+        | Update => getURL(~entityName, ~methodType, ~id=Some(keyId->Option.getOr("")))
         | _ => getURL(~entityName, ~methodType=Post)
         }
 
         let json = await updateDetails(url, body->JSON.Encode.object, methodType)
-        let keyDict = json->LogicUtils.getDictFromJsonObject
+        let keyDict = json->getDictFromJsonObject
 
-        setApiKey(_ => keyDict->LogicUtils.getString("api_key", ""))
+        setApiKey(_ => keyDict->getString("api_key", ""))
+
         switch action {
         | Update => setShowModal(_ => false)
         | _ => {
-            Clipboard.writeText(keyDict->LogicUtils.getString("api_key", ""))
+            Clipboard.writeText(keyDict->getString("api_key", ""))
             setModalState(_ => Success)
           }
         }
 
-        let _ = getAPIKeyDetails()
+        getAPIKeyDetails()->ignore
       } catch {
       | Exn.Error(e) =>
         switch Exn.message(e) {
@@ -111,6 +108,7 @@ module ApiEditModal = {
       <div>
         {switch modalState {
         | Loading => <Loader />
+
         | Update
         | Create =>
           <ReactFinalForm.Form
@@ -165,6 +163,7 @@ module ApiEditModal = {
               </LabelVisibilityContext>
             }}
           />
+
         | SettingApiModalError => <ErrorUI text=primaryBtnText />
 
         | Success => <SuccessUI apiKey downloadFun=downloadKey />
@@ -187,11 +186,12 @@ module ApiKeyAddBtn = {
   @react.component
   let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let isMobileView = MatchMedia.useMobileChecker()
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let (showModal, setShowModal) = React.useState(_ => false)
+
     let initialValues = Dict.make()
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
-    let isMobileView = MatchMedia.useMobileChecker()
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
@@ -226,16 +226,16 @@ module TableActionsCell = {
   @react.component
   let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
     let getURL = APIUtils.useGetURL()
-    let showToast = ToastState.useShowToast()
-    let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
-    let (showModal, setShowModal) = React.useState(_ => false)
-    let showPopUp = PopUpState.useShowPopUp()
     let deleteDetails = APIUtils.useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
+    let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let showButtons = hasAnyGroupAccess(
       userHasAccess(~groupAccess=MerchantDetailsManage),
       userHasAccess(~groupAccess=AccountManage),
     )
+    let (showModal, setShowModal) = React.useState(_ => false)
 
     let deleteKey = async () => {
       try {
@@ -243,13 +243,13 @@ module TableActionsCell = {
         Dict.set(body, "key_id", keyId->JSON.Encode.string)
         Dict.set(body, "revoked", true->JSON.Encode.bool)
 
-        let entityName: APIUtilsTypes.entityTypeWithVersion = switch version {
+        let entityName = switch version {
         | V1 => V1(API_KEYS)
         | V2 => V2(API_KEYS)
         }
 
         let deleteUrl = getURL(~entityName, ~methodType=Delete, ~id=Some(keyId))
-        (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete))->ignore
+        let _ = await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete)
         getAPIKeyDetails()->ignore
       } catch {
       | Exn.Error(e) =>
@@ -291,7 +291,7 @@ module TableActionsCell = {
       <ApiEditModal
         showModal setShowModal initialValues={initialValues} getAPIKeyDetails keyId action={Update}
       />
-      <div className="invisible cursor-pointer group-hover:visible flex ">
+      <div className="flex invisible cursor-pointer group-hover:visible">
         <ACLDiv
           showTooltip={showButtons == Access}
           authorization={showButtons}
@@ -336,7 +336,7 @@ module ApiKeysTable = {
 
     let getAPIKeyDetails = async () => {
       try {
-        let entityName: APIUtilsTypes.entityTypeWithVersion = switch version {
+        let entityName = switch version {
         | V1 => V1(API_KEYS)
         | V2 => V2(API_KEYS)
         }
@@ -431,6 +431,7 @@ module KeysManagement = {
       mixpanelEvent(~eventName="api_keys_banner_learn_more")
       Window._open(DeveloperUtils.platformDocsUrl)
     }
+
     let bannerText = {
       DeveloperUtils.bannerText(
         ~isPlatformMerchant=isCurrentMerchantPlatform,
