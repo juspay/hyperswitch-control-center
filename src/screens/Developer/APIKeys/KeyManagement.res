@@ -2,6 +2,8 @@ module ApiEditModal = {
   open DeveloperUtils
   open HSwitchUtils
   open HSwitchSettingTypes
+  open APIUtilsTypes
+  open Fetch
   @react.component
   let make = (
     ~setShowModal,
@@ -10,9 +12,9 @@ module ApiEditModal = {
     ~showModal,
     ~action=Create,
     ~keyId=?,
-    ~version: UserInfoTypes.version,
   ) => {
     let getURL = APIUtils.useGetURL()
+    let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
     let (modalState, setModalState) = React.useState(_ => action)
@@ -64,17 +66,9 @@ module ApiEditModal = {
 
         setModalState(_ => Loading)
 
-        open APIUtilsTypes
-        open Fetch
-
-        let entityName = switch version {
-        | V1 => V1(API_KEYS)
-        | V2 => V2(API_KEYS)
-        }
-
-        let methodType = switch entityName {
-        | V2(_) => Put
-        | V1(_) => Post
+        let (entityName, methodType) = switch version {
+        | V1 => (V1(API_KEYS), Post)
+        | V2 => (V2(API_KEYS), Put)
         }
 
         let url = switch action {
@@ -189,7 +183,7 @@ module ApiEditModal = {
 module ApiKeyAddBtn = {
   open DeveloperUtils
   @react.component
-  let make = (~getAPIKeyDetails, ~version) => {
+  let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let (showModal, setShowModal) = React.useState(_ => false)
@@ -198,7 +192,7 @@ module ApiKeyAddBtn = {
     let isMobileView = MatchMedia.useMobileChecker()
 
     <>
-      <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails version />
+      <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
       <ACLButton
         text="Create New API Key"
         leftIcon={CustomIcon(
@@ -228,14 +222,10 @@ module TableActionsCell = {
   open HSwitchSettingTypes
   open APIUtilsTypes
   @react.component
-  let make = (
-    ~keyId,
-    ~getAPIKeyDetails: unit => promise<unit>,
-    ~data: apiKey,
-    ~version: UserInfoTypes.version,
-  ) => {
+  let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
     let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
+    let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
     let (showModal, setShowModal) = React.useState(_ => false)
     let showPopUp = PopUpState.useShowPopUp()
     let deleteDetails = APIUtils.useUpdateMethod()
@@ -251,7 +241,7 @@ module TableActionsCell = {
         Dict.set(body, "key_id", keyId->JSON.Encode.string)
         Dict.set(body, "revoked", true->JSON.Encode.bool)
 
-        let entityName = switch version {
+        let entityName: APIUtilsTypes.entityTypeWithVersion = switch version {
         | V1 => V1(API_KEYS)
         | V2 => V2(API_KEYS)
         }
@@ -297,13 +287,7 @@ module TableActionsCell = {
 
     <div>
       <ApiEditModal
-        showModal
-        setShowModal
-        initialValues={initialValues}
-        getAPIKeyDetails
-        keyId
-        action={Update}
-        version
+        showModal setShowModal initialValues={initialValues} getAPIKeyDetails keyId action={Update}
       />
       <div className="invisible cursor-pointer group-hover:visible flex ">
         <ACLDiv
@@ -340,16 +324,17 @@ module ApiKeysTable = {
   open HSwitchSettingTypes
   open APIUtilsTypes
   @react.component
-  let make = (~version: UserInfoTypes.version, ~dataNotFoundComponent=?) => {
+  let make = (~dataNotFoundComponent=?) => {
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
+    let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
     let (offset, setOffset) = React.useState(_ => 0)
     let (data, setData) = React.useState(_ => [])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let getAPIKeyDetails = async () => {
       try {
-        let entityName = switch version {
+        let entityName: APIUtilsTypes.entityTypeWithVersion = switch version {
         | V1 => V1(API_KEYS)
         | V2 => V2(API_KEYS)
         }
@@ -387,10 +372,7 @@ module ApiKeysTable = {
           Date(item.expiration_date)
         }
       | CustomCell =>
-        Table.CustomCell(
-          <TableActionsCell keyId={item.key_id} getAPIKeyDetails data=item version />,
-          "",
-        )
+        Table.CustomCell(<TableActionsCell keyId={item.key_id} getAPIKeyDetails data=item />, "")
       }
     }
 
@@ -426,7 +408,7 @@ module ApiKeysTable = {
           currrentFetchCount={data->Array.length}
           showAutoScroll=true
           tableActions={<div className="mt-0 md:mt-5">
-            <ApiKeyAddBtn getAPIKeyDetails version />
+            <ApiKeyAddBtn getAPIKeyDetails />
           </div>}
           ?dataNotFoundComponent
         />
@@ -437,7 +419,6 @@ module ApiKeysTable = {
 
 module KeysManagement = {
   open Typography
-  open UserInfoTypes
   @react.component
   let make = () => {
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -484,7 +465,7 @@ module KeysManagement = {
           />
         </div>
       </RenderIf>
-      <ApiKeysTable version=V1 />
+      <ApiKeysTable />
       <PublishableAndHashKeySection />
     </div>
   }

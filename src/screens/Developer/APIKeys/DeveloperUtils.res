@@ -239,7 +239,7 @@ module ErrorUI = {
   @react.component
   let make = (~text) => {
     <div className="flex p-5">
-      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/error.svg`} alt="warning" />
+      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/warning.svg`} alt="warning" />
       <div className="text-jp-gray-900">
         <div
           className="font-bold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
