@@ -233,12 +233,7 @@ let make = () => {
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
-
-                        | _ =>
-                          <UnauthorizedPage
-                            productType=merchantDetailsTypedValue.product_type
-                            message="You don't have access to this module."
-                          />
+                        | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>
                     </div>
