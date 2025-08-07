@@ -40,7 +40,7 @@ let vaultAPIKeys = {
     icon: "nd-api-keys",
     access: Access,
     searchOptions: [("Vault API keys", "")],
-    selectedIcon: "nd-api-keys",
+    selectedIcon: "nd-api-keys-fill",
   })
 }
 
