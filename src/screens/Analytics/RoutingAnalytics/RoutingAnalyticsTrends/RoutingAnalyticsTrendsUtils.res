@@ -150,22 +150,21 @@ let fillMissingDataPointsForConnectors = (
 
     let connectorDict = connectorDataDict->Dict.get(connector)->Option.getOr(Dict.make())
 
-    let newItem = itemDict->Dict.copy
-    newItem->Dict.set("time_bucket", time->JSON.Encode.string)
+    itemDict->Dict.set("time_bucket", time->JSON.Encode.string)
 
-    connectorDict->Dict.set(time, newItem->JSON.Encode.object)
+    connectorDict->Dict.set(time, itemDict->JSON.Encode.object)
     connectorDataDict->Dict.set(connector, connectorDict)
   })
 
   let allConnectors = connectorDataDict->Dict.keysToArray
 
   let startingPoint = startDate->DayJs.getDayJsForString
-  let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
+  let startingPointFormatted = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
   let gap = "minute"
   let devider = granularity->getGranularityGap
   let limit =
-    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
+    (endingPoint.diff(startingPointFormatted.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
     ->Math.floor
     ->Float.toInt
 
@@ -180,7 +179,7 @@ let fillMissingDataPointsForConnectors = (
     let connectorDict = connectorDataDict->Dict.get(connector)->Option.getOr(Dict.make())
 
     for x in 0 to limit {
-      let timeVal = startingPoint.add(x * devider, gap).format(format)
+      let timeVal = startingPointFormatted.add(x * devider, gap).format(format)
 
       switch connectorDict->Dict.get(timeVal) {
       | Some(val) => completeDataPoints->Array.push(val)
