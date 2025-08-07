@@ -8,7 +8,7 @@ let make = () => {
     | list{"v2", "vault", "home"} => <VaultDefaultHome />
     | list{"v2", "vault", "onboarding", ..._} | list{"v2", "vault", "customers-tokens", ..._} =>
       <VaultContainer />
-    | list{"v2", "vault", "api-keys"} => <KeyManagement.KeysManagement />
+    | list{"v2", "vault", "api-keys"} => <KeyManagement />
     | _ => React.null
     }
   }
