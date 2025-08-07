@@ -66,9 +66,11 @@ module ApiEditModal = {
 
         setModalState(_ => Loading)
 
-        let (entityName, methodType) = switch version {
-        | V1 => (V1(API_KEYS), Post)
-        | V2 => (V2(API_KEYS), Put)
+        let (entityName, methodType) = switch (version, action) {
+        | (V1, Update) => (V1(API_KEYS), Post)
+        | (V2, Update) => (V2(API_KEYS), Put)
+        | (V2, _) => (V2(API_KEYS), Post)
+        | (V1, _) => (V1(API_KEYS), Post)
         }
 
         let url = switch action {
