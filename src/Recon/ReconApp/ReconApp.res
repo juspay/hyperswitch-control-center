@@ -16,7 +16,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+
   let getReconStatus = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)

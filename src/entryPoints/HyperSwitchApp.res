@@ -19,7 +19,6 @@ let make = () => {
     ProductSelectionProvider.defaultContext,
   )
 
-  // let (currentProduct, setCurrentProduct) = React.useState(_ => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -37,7 +36,6 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -50,20 +48,6 @@ let make = () => {
     | _ => ()
     }
   }
-  // set the product url based on the product type
-  // let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-  //   let currentUrl = GlobalVars.extractModulePath(
-  //     ~path=url.path,
-  //     ~query=url.search,
-  //     ~end=url.path->List.toArray->Array.length,
-  //   )
-  //   let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl, ~isLiveMode)
-  //   RescriptReactRouter.replace(productUrl)
-  //   switch url.path->urlPath {
-  //   | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))
-  //   | _ => ()
-  //   }
-  // }
 
   let setUpDashboard = async () => {
     try {

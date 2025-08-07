@@ -117,7 +117,6 @@ let make = () => {
         ->Array.find(m => m.id == merchant.id)
         ->Option.getOr(merchant)
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
-      let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(merchant.id), ~version)
       setSwitching(_ => None)
     } catch {

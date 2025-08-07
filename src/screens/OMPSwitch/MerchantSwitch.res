@@ -223,7 +223,6 @@ let make = () => {
         ->Array.find(merchant => merchant.id == value)
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
-      let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
       setShowSwitchingMerch(_ => false)
     } catch {
