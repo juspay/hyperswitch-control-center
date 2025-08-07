@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.07.1
+
+### Miscellaneous Tasks
+
+- Enable module based feature flag ([#3416](https://github.com/juspay/hyperswitch-control-center/pull/3416)) ([`d1a010b`](https://github.com/juspay/hyperswitch-control-center/commit/d1a010be4516be29ef5e605bfe80970dcc962190))
+
+**Full Changelog:** [`2025.08.07.0...2025.08.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.07.0...2025.08.07.1)
+
+- - -
+
 ## 2025.08.07.0
 
 ### Features
