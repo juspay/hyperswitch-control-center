@@ -46,9 +46,14 @@ module ApiEditModal = {
       try {
         let valuesDict = values->getDictFromJsonObject
 
-        let body = Dict.make()
-        Dict.set(body, "name", valuesDict->getString("name", "")->JSON.Encode.string)
-        Dict.set(body, "description", valuesDict->getString("description", "")->JSON.Encode.string)
+        let name = valuesDict->getString("name", "")
+        let description = valuesDict->getString("description", "")
+
+        let body =
+          [
+            ("name", name->JSON.Encode.string),
+            ("description", description->JSON.Encode.string),
+          ]->Dict.fromArray
 
         let expirationDate = valuesDict->getString("expiration_date", "")
 
