@@ -143,7 +143,7 @@ external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string 
 
 type legend = {
   useHTML: bool,
-  labelFormatter: legendPoint => string,
+  labelFormatter?: legendPoint => string,
   symbolPadding?: int,
   symbolWidth?: int,
   itemStyle?: itemStyle,
@@ -181,4 +181,5 @@ type lineGraphPayload = {
   tooltipFormatter: pointFormatter => string,
   yAxisFormatter: pointFormatter => string,
   legend: legend,
+  legendFormatter?: legendPoint => string,
 }

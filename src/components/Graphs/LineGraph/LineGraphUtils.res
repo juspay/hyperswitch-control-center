@@ -46,6 +46,11 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     legend,
   } = lineGraphOptions
 
+  let legendFormatter = switch lineGraphOptions.legendFormatter {
+  | Some(legendFormatter) => legendFormatter
+  | None => valueFormatter
+  }
+
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
     1,
@@ -149,9 +154,9 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     legend: {
       ...legend,
       useHTML: true,
-      labelFormatter: valueFormatter,
       symbolPadding: 0,
       symbolWidth: 0,
+      labelFormatter: legendFormatter,
       itemStyle: {
         fontFamily,
         fontSize: "12px",
