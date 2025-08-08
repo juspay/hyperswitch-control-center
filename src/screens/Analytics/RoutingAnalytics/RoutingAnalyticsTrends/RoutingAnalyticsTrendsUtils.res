@@ -148,7 +148,7 @@ let fillMissingDataPointsForConnectors = (
     | _ => itemDict->getString(timeKey, "")
     }
 
-    let connectorDict = connectorDataDict->Dict.get(connector)->Option.getOr(Dict.make())
+    let connectorDict = connectorDataDict->getvalFromDict(connector)->Option.getOr(Dict.make())
 
     itemDict->Dict.set("time_bucket", time->JSON.Encode.string)
 
@@ -176,12 +176,12 @@ let fillMissingDataPointsForConnectors = (
   let completeDataPoints = []
 
   allConnectors->Array.forEach(connector => {
-    let connectorDict = connectorDataDict->Dict.get(connector)->Option.getOr(Dict.make())
+    let connectorDict = connectorDataDict->getvalFromDict(connector)->Option.getOr(Dict.make())
 
     for x in 0 to limit {
       let timeVal = startingPointFormatted.add(x * devider, gap).format(format)
 
-      switch connectorDict->Dict.get(timeVal) {
+      switch connectorDict->getvalFromDict(timeVal) {
       | Some(val) => completeDataPoints->Array.push(val)
       | None => {
           let newDict = defaultValue->getDictFromJsonObject->Dict.copy
@@ -217,10 +217,10 @@ let genericRoutingMapper = (
     }
   })
 
-  let (_, connectorData) =
+  let connectorData =
     connectorGroups
-    ->Dict.toArray
-    ->getValueFromArray(0, ("", [JSON.Encode.null]))
+    ->Dict.valuesToArray
+    ->getValueFromArray(0, [])
 
   let allTimeBuckets =
     connectorData
@@ -279,7 +279,6 @@ let genericRoutingMapper = (
     ),
     legend: {
       useHTML: true,
-      labelFormatter: customLegendFormatter,
       symbolPadding: -7,
       symbolWidth: 0,
       align: "center",
@@ -287,6 +286,7 @@ let genericRoutingMapper = (
       floating: false,
       margin: 30,
     },
+    legendFormatter: customLegendFormatter,
   }
 }
 
