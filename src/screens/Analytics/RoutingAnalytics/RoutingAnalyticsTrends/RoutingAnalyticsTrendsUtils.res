@@ -120,34 +120,30 @@ let fillMissingDataPointsForConnectors = (
     let itemDict = item->getDictFromJsonObject
     let connector = itemDict->getString("connector", "Unknown")
 
-    let time = switch (
-      granularityEnabled,
-      granularity != (#G_ONEDAY: InsightsTypes.granularity :> string),
-    ) {
-    | (true, true) => {
-        let value =
-          item
-          ->getDictFromJsonObject
-          ->getObj("time_range", Dict.make())
-        let time = value->getString("start_time", "")
-        let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
+    let time =
+      granularityEnabled && granularity != (#G_ONEDAY: InsightsTypes.granularity :> string)
+        ? {
+            let value =
+              item
+              ->getDictFromJsonObject
+              ->getObj("time_range", Dict.make())
+            let time = value->getString("start_time", "")
+            let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
 
-        if (
-          granularity == (#G_THIRTYMIN: InsightsTypes.granularity :> string) ||
-            granularity == (#G_FIFTEENMIN: InsightsTypes.granularity :> string)
-        ) {
-          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
-            "YYYY-MM-DD HH:mm:ss",
-          )
-        } else {
-          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
-            "YYYY-MM-DD HH:00:00",
-          )
-        }
-      }
-    | _ => itemDict->getString(timeKey, "")
-    }
-
+            if (
+              granularity == (#G_THIRTYMIN: InsightsTypes.granularity :> string) ||
+                granularity == (#G_FIFTEENMIN: InsightsTypes.granularity :> string)
+            ) {
+              (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
+                "YYYY-MM-DD HH:mm:ss",
+              )
+            } else {
+              (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
+                "YYYY-MM-DD HH:00:00",
+              )
+            }
+          }
+        : itemDict->getString(timeKey, "")
     let connectorDict = connectorDataDict->getvalFromDict(connector)->Option.getOr(Dict.make())
 
     itemDict->Dict.set("time_bucket", time->JSON.Encode.string)
