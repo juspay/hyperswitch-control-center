@@ -190,7 +190,6 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
     ~changePath=false,
   ) => {
     try {
-      // setActiveProductValue(ProductTypes.UnknownProduct)
       switch setActiveProductValue {
       | Some(fn) => fn(ProductTypes.UnknownProduct)
       | None => ()
