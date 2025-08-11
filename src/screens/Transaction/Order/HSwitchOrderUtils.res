@@ -8,6 +8,7 @@ type status =
   | RequiresPaymentMethod
   | RequiresConfirmation
   | PartiallyCaptured
+  | CancelledPostCapture
   | None
 
 type paymentAttemptStatus = [
