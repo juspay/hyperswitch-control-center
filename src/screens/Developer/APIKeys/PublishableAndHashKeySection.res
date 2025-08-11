@@ -2,6 +2,7 @@
 let make = () => {
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
     JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails
   )
@@ -10,7 +11,11 @@ let make = () => {
   let getMerchantDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let accountUrl = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Get)
+      let entityName: APIUtilsTypes.entityTypeWithVersion = switch version {
+      | V1 => V1(MERCHANT_ACCOUNT)
+      | V2 => V2(MERCHANT_ACCOUNT)
+      }
+      let accountUrl = getURL(~entityName, ~methodType=Get)
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo = merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails
       setMerchantInfo(_ => merchantInfo)

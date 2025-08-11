@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.11.0
+
+### Features
+
+- Api keys v2 orchestration ([#3420](https://github.com/juspay/hyperswitch-control-center/pull/3420)) ([`a9ec48e`](https://github.com/juspay/hyperswitch-control-center/commit/a9ec48e594ed5d5432bdfd0eb9aed0e7c9e1f8ed))
+
+### Miscellaneous Tasks
+
+- Api keys support for v2 and for vault ([#3415](https://github.com/juspay/hyperswitch-control-center/pull/3415)) ([`4081e0a`](https://github.com/juspay/hyperswitch-control-center/commit/4081e0a5451eba42c7ba121bf133d9433d69cd08))
+
+**Full Changelog:** [`2025.08.07.1...2025.08.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.07.1...2025.08.11.0)
+
+- - -
+
 ## 2025.08.07.1
 
 ### Miscellaneous Tasks
