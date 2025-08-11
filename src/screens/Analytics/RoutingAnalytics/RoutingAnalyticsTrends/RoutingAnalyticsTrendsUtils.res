@@ -7,7 +7,7 @@ type routingMapperConfig = {
   title: string,
   tooltipTitle: string,
   yAxisMaxValue: option<int>,
-  statType: LogicUtilsTypes.valueType,
+  statType: valueType,
   suffix: string,
 }
 
@@ -100,7 +100,7 @@ let modifyQueryData = data => {
       ((Payment_Success_Rate :> string)->String.toLowerCase, paymentSuccessRate->JSON.Encode.float),
       ((Payment_Count :> string)->String.toLowerCase, paymentCount->JSON.Encode.int),
       ("time_range", timeRange->JSON.Encode.object),
-    ]->LogicUtils.getJsonFromArrayOfJson
+    ]->getJsonFromArrayOfJson
   })
 }
 
