@@ -60,11 +60,6 @@ let make = () => {
           ~isoStringToCustomTimeZone,
           ~granularityEnabled=featureFlag.granularity,
         )
-        Js.log2(
-          "processeddata",
-          responseData->RoutingAnalyticsTrendsUtils.modifyQueryData->sortQueryDataByDate,
-        )
-        Js.log2("processedModifiedData", processedModifiedData)
 
         setSharedData(_ => processedModifiedData->Identity.genericTypeToJson)
         setScreenState(_ => PageLoaderWrapper.Success)

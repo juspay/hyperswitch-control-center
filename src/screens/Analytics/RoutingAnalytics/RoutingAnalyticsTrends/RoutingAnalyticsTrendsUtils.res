@@ -144,12 +144,12 @@ let fillMissingDataPointsForConnectors = (
             }
           }
         : itemDict->getString(timeKey, "")
-    let connectorDict = connectorDataDict->getvalFromDict(connector)->Option.getOr(Dict.make())
+    let connectorDict = connectorDataDict->getDictfromDict(connector)
 
     itemDict->Dict.set("time_bucket", time->JSON.Encode.string)
 
     connectorDict->Dict.set(time, itemDict->JSON.Encode.object)
-    connectorDataDict->Dict.set(connector, connectorDict)
+    connectorDataDict->Dict.set(connector, connectorDict->JSON.Encode.object)
   })
 
   let allConnectors = connectorDataDict->Dict.keysToArray
@@ -172,19 +172,20 @@ let fillMissingDataPointsForConnectors = (
   let completeDataPoints = []
 
   allConnectors->Array.forEach(connector => {
-    let connectorDict = connectorDataDict->getvalFromDict(connector)->Option.getOr(Dict.make())
+    let connectorDict = connectorDataDict->getDictfromDict(connector)
 
     for x in 0 to limit {
       let timeVal = startingPointFormatted.add(x * devider, gap).format(format)
+      let existingDictKeys = connectorDict->getDictfromDict(timeVal)->Dict.keysToArray
 
-      switch connectorDict->getvalFromDict(timeVal) {
-      | Some(val) => completeDataPoints->Array.push(val)
-      | None => {
-          let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-          newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-          newDict->Dict.set("connector", connector->JSON.Encode.string)
-          completeDataPoints->Array.push(newDict->JSON.Encode.object)
-        }
+      if existingDictKeys->Array.length > 0 {
+        let existingDict = connectorDict->getDictfromDict(timeVal)
+        completeDataPoints->Array.push(existingDict->JSON.Encode.object)
+      } else {
+        let newDict = defaultValue->getDictFromJsonObject->Dict.copy
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        newDict->Dict.set("connector", connector->JSON.Encode.string)
+        completeDataPoints->Array.push(newDict->JSON.Encode.object)
       }
     }
   })
