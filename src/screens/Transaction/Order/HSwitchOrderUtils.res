@@ -59,6 +59,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_PAYMENT_METHOD" => RequiresPaymentMethod
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
+  | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
   | _ => None
   }
 
