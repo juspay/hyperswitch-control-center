@@ -96,10 +96,14 @@ let make = () => {
     )->RoutingAnalyticsTrendsEntity.routingVolumeChartEntity.getChatOptions
 
   <PageLoaderWrapper
-    screenState customUI={<InsightsHelper.NoData height="h-72" />} customLoader={<Shimmer />}>
-    <div className="border border-nd_gray-200 rounded-xl">
+    screenState
+    customUI={<InsightsHelper.NoData height="h-72" />}
+    customLoader={<Shimmer styleClass="w-full h-96" />}>
+    <div className="border border-nd_gray-200 rounded-xl w-full">
       <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
-        <p className={`${body.md.semibold} text-gray-800`}> {"Volume Over Time"->React.string} </p>
+        <p className={`${body.md.semibold} text-nd_gray-800`}>
+          {"Volume Over Time"->React.string}
+        </p>
       </div>
       <div className="p-4">
         <InsightsHelper.Tabs
