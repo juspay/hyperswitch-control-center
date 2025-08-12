@@ -127,13 +127,13 @@ module SelectMerchantBody = {
             setActiveProductValue(merchantDetailsTypedValue.product_type)
             setShowModal(_ => false)
           }}>
-          <Icon name="modal-close-icon" className="cursor-pointer text-gray-500" size=30 />
+          <Icon name="modal-close-icon" className="cursor-pointer nd_gray-500" size=30 />
         </div>
       </div>
       <hr />
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
-          <span className={`${body.sm.medium} text-gray-400  mx-4 mt-4`}>
+          <span className={`${body.sm.medium} nd_gray-400  mx-4 mt-4`}>
             {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
           </span>
           <div className="py-4">
