@@ -115,6 +115,16 @@ module Attempts = {
 
       let dict = nextScheduleTime->getDictFromJsonObject
 
+      // Alternative: Simple conversion for your specific format
+      let convertScheduleTimeToUTC = (scheduleTime: string) => {
+        if scheduleTime->String.includes(" ") {
+          // "2025-08-15 19:24:18.375771" -> "2025-08-15T19:24:18.375Z"
+          scheduleTime->String.replace(" ", "T") ++ "Z"
+        } else {
+          scheduleTime
+        }
+      }
+
       <RenderIf
         condition={dict->Dict.keysToArray->Array.length > 0 &&
           dict->getString("status", "") != "finish"}>
@@ -125,7 +135,10 @@ module Attempts = {
             </div>
             <div className="w-full flex justify-end text-xs opacity-50">
               {<Table.DateCell
-                timestamp={dict->getString("schedule_time_for_payment", "")} isCard=true
+                timestamp={dict
+                ->getString("schedule_time_for_payment", "")
+                ->convertScheduleTimeToUTC}
+                isCard=true
               />}
             </div>
           </div>
@@ -234,7 +247,7 @@ let make = (~id) => {
       let processTrackerDataDict = processTrackerData->getDictFromJsonObject
 
       // If we get a response, modify the payment object
-      if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
+      let orderDetails = if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
         // Create a modified order object with additional process tracker data
         {
           ...orderData,
@@ -244,9 +257,11 @@ let make = (~id) => {
         // Keep the order as-is if no response
         orderData
       }
+      setRevenueRecoveryData(_ => orderDetails)
     } catch {
-    | Exn.Error(_) => // Keep the order as-is if there's an error
-      orderData
+    | Exn.Error(_) =>
+      // Keep the order as-is if there's an error
+      setRevenueRecoveryData(_ => orderData)
     }
   }
 
@@ -262,16 +277,13 @@ let make = (~id) => {
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
 
-      let orderDetails = if (
-        orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed
-      ) {
+      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
         await getPTDetails(~orderData)
       } else {
         // Keep non-failed orders as-is
-        orderData
+        setRevenueRecoveryData(_ => orderData)
       }
 
-      setRevenueRecoveryData(_ => orderDetails)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
