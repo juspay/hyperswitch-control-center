@@ -3,6 +3,58 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.12.0
+
+### Features
+
+- Add `CancelledPostCapture` status in the payments ([#3425](https://github.com/juspay/hyperswitch-control-center/pull/3425)) ([`59632ff`](https://github.com/juspay/hyperswitch-control-center/commit/59632ffac5f867f01970815c19fd48541c902f05))
+
+**Full Changelog:** [`2025.08.11.0...2025.08.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.11.0...2025.08.12.0)
+
+- - -
+
+## 2025.08.11.0
+
+### Features
+
+- Api keys v2 orchestration ([#3420](https://github.com/juspay/hyperswitch-control-center/pull/3420)) ([`a9ec48e`](https://github.com/juspay/hyperswitch-control-center/commit/a9ec48e594ed5d5432bdfd0eb9aed0e7c9e1f8ed))
+
+### Miscellaneous Tasks
+
+- Api keys support for v2 and for vault ([#3415](https://github.com/juspay/hyperswitch-control-center/pull/3415)) ([`4081e0a`](https://github.com/juspay/hyperswitch-control-center/commit/4081e0a5451eba42c7ba121bf133d9433d69cd08))
+
+**Full Changelog:** [`2025.08.07.1...2025.08.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.07.1...2025.08.11.0)
+
+- - -
+
+## 2025.08.07.1
+
+### Miscellaneous Tasks
+
+- Enable module based feature flag ([#3416](https://github.com/juspay/hyperswitch-control-center/pull/3416)) ([`d1a010b`](https://github.com/juspay/hyperswitch-control-center/commit/d1a010be4516be29ef5e605bfe80970dcc962190))
+
+**Full Changelog:** [`2025.08.07.0...2025.08.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.07.0...2025.08.07.1)
+
+- - -
+
+## 2025.08.07.0
+
+### Features
+
+- Recovery prod changes ([#3395](https://github.com/juspay/hyperswitch-control-center/pull/3395)) ([`cecb97b`](https://github.com/juspay/hyperswitch-control-center/commit/cecb97ba9f2e4be6d9b84925685ecd23796db081))
+
+### Bug Fixes
+
+- Add email enabled check for magic link during sign up ([#3409](https://github.com/juspay/hyperswitch-control-center/pull/3409)) ([`ea18609`](https://github.com/juspay/hyperswitch-control-center/commit/ea18609e8ea46a5c0a48db91e3f4f56225d1b181))
+
+### Miscellaneous Tasks
+
+- Platform docs url update ([#3411](https://github.com/juspay/hyperswitch-control-center/pull/3411)) ([`3605cff`](https://github.com/juspay/hyperswitch-control-center/commit/3605cff83337710fdb3e0e4c652f83d2e7b47201))
+
+**Full Changelog:** [`2025.08.06.0...2025.08.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.06.0...2025.08.07.0)
+
+- - -
+
 ## 2025.08.06.0
 
 ### Features
