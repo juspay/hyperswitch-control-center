@@ -663,7 +663,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
-    !(id->isTestData) && status !== Succeeded && status !== Failed
+    !(id->isTestData) &&
+    status !== Succeeded &&
+    status !== Failed &&
+    status !== CancelledPostCapture
   }, [orderData])
 
   let refreshStatus = async () => {
