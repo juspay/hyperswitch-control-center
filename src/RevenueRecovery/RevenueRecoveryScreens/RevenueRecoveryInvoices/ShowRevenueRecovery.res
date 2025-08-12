@@ -222,6 +222,34 @@ let make = (~id) => {
   )
   let showToast = ToastState.useShowToast()
 
+  let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {
+    try {
+      let processTrackerUrl = getURL(
+        ~entityName=V2(PROCESS_TRACKER),
+        ~methodType=Get,
+        ~id=Some(orderData.id),
+      )
+      let processTrackerData = await fetchDetails(processTrackerUrl, ~version=V2)
+
+      let processTrackerDataDict = processTrackerData->getDictFromJsonObject
+
+      // If we get a response, modify the payment object
+      if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
+        // Create a modified order object with additional process tracker data
+        {
+          ...orderData,
+          status: "scheduled",
+        }
+      } else {
+        // Keep the order as-is if no response
+        orderData
+      }
+    } catch {
+    | Exn.Error(_) => // Keep the order as-is if there's an error
+      orderData
+    }
+  }
+
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
@@ -229,12 +257,21 @@ let make = (~id) => {
       let url = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
       let data = await fetchDetails(url, ~version=V2)
 
-      setRevenueRecoveryData(_ =>
+      let orderData =
         data
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
-      )
 
+      let orderDetails = if (
+        orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed
+      ) {
+        await getPTDetails(~orderData)
+      } else {
+        // Keep non-failed orders as-is
+        orderData
+      }
+
+      setRevenueRecoveryData(_ => orderDetails)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
