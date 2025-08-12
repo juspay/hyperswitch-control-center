@@ -66,15 +66,45 @@ let connectors = (isConnectorsEnabled, ~isLiveMode, ~userHasResourceAccess) => {
     : emptyComponent
 }
 
+let apiKeys = userHasResourceAccess => {
+  SubLevelLink({
+    name: "API Keys",
+    link: `v2/orchestration/developer-api-keys`,
+    access: userHasResourceAccess(~resourceAccess=ApiKey),
+    searchOptions: [("View API Keys", ""), ("Create API Key", "")],
+  })
+}
+
+let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
+  let isProfileUser = checkUserEntity([#Profile])
+  let apiKeys = apiKeys(userHasResourceAccess)
+
+  let defaultDevelopersOptions = []
+  if !isProfileUser {
+    defaultDevelopersOptions->Array.push(apiKeys)
+  }
+
+  isDevelopersEnabled
+    ? Section({
+        name: "Developers",
+        icon: "nd-developers",
+        showSection: true,
+        links: defaultDevelopersOptions,
+      })
+    : emptyComponent
+}
+
 let useGetOrchestrationV2SidebarValues = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {default, isLiveMode} = featureFlagDetails
 
   let sidebar = [
     home,
     default->connectors(~isLiveMode, ~userHasResourceAccess),
     default->operations(~userHasResourceAccess),
+    default->developers(~userHasResourceAccess, ~checkUserEntity),
   ]
 
   sidebar

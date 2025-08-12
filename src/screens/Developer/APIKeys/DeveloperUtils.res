@@ -23,14 +23,14 @@ let validateAPIKeyForm = (
       | _ => ()
       }
     } else if key == "expiration" && value->String.toLowerCase != "never" {
-      setShowCustomDate(true)
+      setShowCustomDate(_ => true)
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
       if date->LogicUtils.isEmptyString {
         Dict.set(errors, "expiration_date", "Please select expiry date"->JSON.Encode.string)
       }
     } else if key == "expiration" && value->String.toLowerCase == "never" {
-      setShowCustomDate(false)
+      setShowCustomDate(_ => false)
     } else if key == "name" && value->String.length > 64 {
       Dict.set(errors, "name", "Name can't be more than 64 characters"->JSON.Encode.string)
     } else if key == "description" && value->String.length > 256 {
@@ -239,7 +239,7 @@ module ErrorUI = {
   @react.component
   let make = (~text) => {
     <div className="flex p-5">
-      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/error.svg`} alt="warning" />
+      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/warning.svg`} alt="warning" />
       <div className="text-jp-gray-900">
         <div
           className="font-bold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
