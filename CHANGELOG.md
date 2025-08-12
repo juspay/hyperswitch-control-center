@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.12.0
+
+### Features
+
+- Add `CancelledPostCapture` status in the payments ([#3425](https://github.com/juspay/hyperswitch-control-center/pull/3425)) ([`59632ff`](https://github.com/juspay/hyperswitch-control-center/commit/59632ffac5f867f01970815c19fd48541c902f05))
+
+**Full Changelog:** [`2025.08.11.0...2025.08.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.11.0...2025.08.12.0)
+
+- - -
+
 ## 2025.08.11.0
 
 ### Features
