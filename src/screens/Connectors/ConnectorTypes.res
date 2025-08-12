@@ -97,6 +97,7 @@ type processorTypes =
   | NOVALNET
   | DEUTSCHEBANK
   | NEXIXPAY
+  | NORDEA
   | XENDIT
   | JPMORGAN
   | INESPAY
@@ -106,8 +107,10 @@ type processorTypes =
   | PAYSTACK
   | FACILITAPAY
   | ARCHIPEL
+  | AUTHIPAY
   | WORLDPAYVANTIV
   | BARCLAYCARD
+  | SILVERFLOW
   | TOKENIO
   | PAYLOAD
   | PAYTM

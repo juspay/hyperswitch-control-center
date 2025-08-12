@@ -109,6 +109,7 @@ let connectorList: array<connectorTypes> = [
   Processors(NOVALNET),
   Processors(DEUTSCHEBANK),
   Processors(NEXIXPAY),
+  Processors(NORDEA),
   Processors(JPMORGAN),
   Processors(XENDIT),
   Processors(INESPAY),
@@ -118,8 +119,10 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYSTACK),
   Processors(FACILITAPAY),
   Processors(ARCHIPEL),
+  Processors(AUTHIPAY),
   Processors(WORLDPAYVANTIV),
   Processors(BARCLAYCARD),
+  Processors(SILVERFLOW),
   Processors(TOKENIO),
   Processors(PAYLOAD),
   Processors(PAYTM),
@@ -611,6 +614,18 @@ let customBillingInfo = {
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
+
+let nordeaInfo = {
+  description: "Nordea is a leading Nordic universal bank - we are a strong and personal financial partner with financial solutions that best meet your needs so you can achieve your goals and realise your dreams.",
+}
+
+let authipayInfo = {
+  description: "Authipay is a convenient and cost-effective way to process payments online. It combines a payment gateway with merchant account services in one handy service. Request your demo today.",
+}
+
+let silverflowInfo = {
+  description: "Silverflow provides a direct connection to the card networks that is always up to date. Enabling PSPs, payfacs, merchants and acquirers to innovate.",
+}
 let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
@@ -746,6 +761,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NOVALNET => "novalnet"
   | DEUTSCHEBANK => "deutschebank"
   | NEXIXPAY => "nexixpay"
+  | NORDEA => "nordea"
   | JPMORGAN => "jpmorgan"
   | XENDIT => "xendit"
   | INESPAY => "inespay"
@@ -755,8 +771,10 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYSTACK => "paystack"
   | FACILITAPAY => "facilitapay"
   | ARCHIPEL => "archipel"
+  | AUTHIPAY => "authipay"
   | WORLDPAYVANTIV => "worldpayvantiv"
   | BARCLAYCARD => "barclaycard"
+  | SILVERFLOW => "silverflow"
   | TOKENIO => "tokenio"
   | PAYLOAD => "payload"
   | PAYTM => "paytm"
@@ -905,6 +923,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "novalnet" => Processors(NOVALNET)
     | "deutschebank" => Processors(DEUTSCHEBANK)
     | "nexixpay" => Processors(NEXIXPAY)
+    | "nordea" => Processors(NORDEA)
     | "jpmorgan" => Processors(JPMORGAN)
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
@@ -914,8 +933,10 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paystack" => Processors(PAYSTACK)
     | "facilitapay" => Processors(FACILITAPAY)
     | "archipel" => Processors(ARCHIPEL)
+    | "authipay" => Processors(AUTHIPAY)
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | "barclaycard" => Processors(BARCLAYCARD)
+    | "silverflow" => Processors(SILVERFLOW)
     | "tokenio" => Processors(TOKENIO)
     | "payload" => Processors(PAYLOAD)
     | "paytm" => Processors(PAYTM)
@@ -1044,6 +1065,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | NOVALNET => novalnetInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | NEXIXPAY => nexixpayInfo
+  | NORDEA => nordeaInfo
   | JPMORGAN => jpmorganInfo
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
@@ -1053,8 +1075,10 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYSTACK => paystackInfo
   | FACILITAPAY => facilitapayInfo
   | ARCHIPEL => archipelInfo
+  | AUTHIPAY => authipayInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
   | BARCLAYCARD => barclaycardInfo
+  | SILVERFLOW => silverflowInfo
   | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
   | PAYTM => paytmInfo
@@ -1955,6 +1979,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
   | NEXIXPAY => "Nexixpay"
+  | NORDEA => "Nordea"
   | JPMORGAN => "JP Morgan"
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
@@ -1964,8 +1989,10 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYSTACK => "Paystack"
   | FACILITAPAY => "Facilitapay"
   | ARCHIPEL => "ArchiPEL"
+  | AUTHIPAY => "Authipay"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
+  | SILVERFLOW => "Silverflow"
   | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
   | PAYTM => "Paytm"
