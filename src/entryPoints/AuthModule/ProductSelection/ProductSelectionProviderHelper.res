@@ -6,6 +6,7 @@ module SwitchMerchantBody = {
     ~selectedProduct,
     ~setActiveProductValue,
   ) => {
+    open Typography
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastState.useShowToast()
 
@@ -25,7 +26,7 @@ module SwitchMerchantBody = {
     }, [])
     <div className="flex flex-col items-center gap-2">
       <Loader />
-      <div className="text-xl font-semibold mb-4"> {"Switching merchant...."->React.string} </div>
+      <div className={`${body.md.semibold} mb-4`}> {"Switching merchant...."->React.string} </div>
     </div>
   }
 }
@@ -38,6 +39,7 @@ module SelectMerchantBody = {
     ~selectedProduct: ProductTypes.productTypes,
     ~setActiveProductValue,
   ) => {
+    open Typography
     open LogicUtils
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastState.useShowToast()
@@ -116,7 +118,7 @@ module SelectMerchantBody = {
         <CardUtils.CardHeader
           heading={`Merchant Selection for ${selectedProduct->ProductUtils.getProductDisplayName}`}
           subHeading=""
-          customHeadingStyle="!text-lg font-semibold"
+          customHeadingStyle={`!${body.md.medium} `}
           customSubHeadingStyle="w-full !max-w-none "
         />
         <div
@@ -131,7 +133,7 @@ module SelectMerchantBody = {
       <hr />
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
-          <span className="text-sm text-gray-400 font-medium mx-4 mt-4">
+          <span className={`${body.sm.medium} text-gray-400  mx-4 mt-4`}>
             {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
           </span>
           <div className="py-4">
@@ -141,7 +143,7 @@ module SelectMerchantBody = {
                 field={merchantName}
                 showErrorOnChange=true
                 errorClass={ProdVerifyModalUtils.errorClass}
-                labelClass="!text-black font-medium"
+                labelClass={`!text-black ${body.md.medium}`}
               />
             </FormRenderer.DesktopRow>
           </div>
@@ -161,7 +163,7 @@ module CreateNewMerchantBody = {
   let make = (~setShowModal, ~selectedProduct: productTypes, ~setActiveProductValue) => {
     open APIUtils
     open LogicUtils
-
+    open Typography
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -296,7 +298,7 @@ module CreateNewMerchantBody = {
                 field={merchantName}
                 showErrorOnChange=true
                 errorClass={ProdVerifyModalUtils.errorClass}
-                labelClass="!text-black font-medium !-ml-[0.5px]"
+                labelClass={`!text-black ${body.md.medium} !-ml-[0.5px]`}
               />
             </FormRenderer.DesktopRow>
           </div>
