@@ -14,7 +14,6 @@ let make = () => {
     dashboardPageState,
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
-
   let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
