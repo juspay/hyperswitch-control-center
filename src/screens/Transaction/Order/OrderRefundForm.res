@@ -16,7 +16,6 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let showRefundAddressEmailList = ["coingate"]
-  let isAdyenConnector = order.connector->String.toLowerCase === "adyen"
   let showRefundAddressEmail =
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
@@ -202,18 +201,20 @@ let make = (
           <FormRenderer.DesktopRow>
             <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
-          <RenderIf condition={!isAdyenConnector}>
-            <FormRenderer.DesktopRow>
-              <FormRenderer.FieldRenderer field={reasonField} labelClass="text-fs-11" />
-            </FormRenderer.DesktopRow>
-          </RenderIf>
-          <RenderIf condition={isAdyenConnector}>
+          {switch order.connector
+          ->String.toLowerCase
+          ->ConnectorUtils.getConnectorNameTypeFromString {
+          | Processors(ADYEN) =>
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer
                 field={adyenReasonDropdownField} labelClass="text-fs-11"
               />
             </FormRenderer.DesktopRow>
-          </RenderIf>
+          | _ =>
+            <FormRenderer.DesktopRow>
+              <FormRenderer.FieldRenderer field={reasonField} labelClass="text-fs-11" />
+            </FormRenderer.DesktopRow>
+          }}
           <RenderIf condition={showRefundAddressEmail}>
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer field={refundAddressField} labelClass="text-fs-11" />
