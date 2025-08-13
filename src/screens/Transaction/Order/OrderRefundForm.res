@@ -15,11 +15,8 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let notShowRefundReasonList = ["adyen"]
   let showRefundAddressEmailList = ["coingate"]
-  let showRefundReason = !(
-    notShowRefundReasonList->Array.includes(order.connector->String.toLowerCase)
-  )
+  let isAdyenConnector = order.connector->String.toLowerCase === "adyen"
   let showRefundAddressEmail =
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
@@ -59,10 +56,6 @@ let make = (
     Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
-
-    if !showRefundReason {
-      Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
-    }
     updateRefundDetails(body->JSON.Encode.object)->ignore
     Nullable.null->resolve
   }
@@ -209,9 +202,16 @@ let make = (
           <FormRenderer.DesktopRow>
             <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
-          <RenderIf condition={showRefundReason}>
+          <RenderIf condition={!isAdyenConnector}>
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer field={reasonField} labelClass="text-fs-11" />
+            </FormRenderer.DesktopRow>
+          </RenderIf>
+          <RenderIf condition={isAdyenConnector}>
+            <FormRenderer.DesktopRow>
+              <FormRenderer.FieldRenderer
+                field={adyenReasonDropdownField} labelClass="text-fs-11"
+              />
             </FormRenderer.DesktopRow>
           </RenderIf>
           <RenderIf condition={showRefundAddressEmail}>

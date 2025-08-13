@@ -118,6 +118,24 @@ let reasonField = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let adyenReasonDropdownField = FormRenderer.makeFieldInfo(
+  ~name="reason",
+  ~label="Reason",
+  ~customInput=InputFields.selectInput(
+    ~options=[
+      {label: "Fraud", value: "FRAUD"},
+      {label: "Customer Request", value: "CUSTOMERREQUEST"},
+      {label: "Return", value: "RETURN"},
+      {label: "Duplicate", value: "DUPLICATE"},
+      {label: "Other", value: "OTHER"},
+    ],
+    ~buttonText="Select Reason",
+    ~searchable=false,
+  ),
+  ~placeholder="Select Reason",
+  ~isRequired=true,
+)
+
 let refundAddressField = FormRenderer.makeFieldInfo(
   ~name="metadata.address",
   ~label="Cryptocurrency Address",
