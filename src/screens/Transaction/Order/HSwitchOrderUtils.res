@@ -49,6 +49,13 @@ type stripeChargeType =
   | Direct
   | None
 
+type adyenRefundReason =
+  | Fraud
+  | CustomerRequest
+  | Return
+  | Duplicate
+  | Other
+
 let statusVariantMapper: string => status = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
@@ -100,6 +107,26 @@ let refundStatusVariantMapper: string => refundStatus = statusLabel => {
   }
 }
 
+let adyenRefundReasonToString = reason =>
+  switch reason {
+  | Fraud => "FRAUD"
+  | CustomerRequest => "CUSTOMERREQUEST"
+  | Return => "RETURN"
+  | Duplicate => "DUPLICATE"
+  | Other => "OTHER"
+  }
+
+let adyenRefundReasonToDisplayName = reason =>
+  switch reason {
+  | Fraud => "Fraud"
+  | CustomerRequest => "Customer Request"
+  | Return => "Return"
+  | Duplicate => "Duplicate"
+  | Other => "Other"
+  }
+
+let allAdyenRefundReasons = [Fraud, CustomerRequest, Return, Duplicate, Other]
+
 let isTestData = id => id->String.includes("test_")
 
 let amountField = FormRenderer.makeFieldInfo(
@@ -122,13 +149,12 @@ let adyenReasonDropdownField = FormRenderer.makeFieldInfo(
   ~name="reason",
   ~label="Reason",
   ~customInput=InputFields.selectInput(
-    ~options=[
-      {label: "Fraud", value: "FRAUD"},
-      {label: "Customer Request", value: "CUSTOMERREQUEST"},
-      {label: "Return", value: "RETURN"},
-      {label: "Duplicate", value: "DUPLICATE"},
-      {label: "Other", value: "OTHER"},
-    ],
+    ~options=allAdyenRefundReasons->Array.map((reason): SelectBox.dropdownOption => {
+      {
+        label: reason->adyenRefundReasonToDisplayName,
+        value: reason->adyenRefundReasonToString,
+      }
+    }),
     ~buttonText="Select Reason",
     ~searchable=false,
   ),
