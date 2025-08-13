@@ -57,6 +57,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BLUESNAP),
   Processors(BRAINTREE),
   Processors(CASHTOCODE),
+  Processors(CHECKBOOK),
   Processors(CHECKOUT),
   Processors(COINBASE),
   Processors(COINGATE),
@@ -626,6 +627,10 @@ let authipayInfo = {
 let silverflowInfo = {
   description: "Silverflow provides a direct connection to the card networks that is always up to date. Enabling PSPs, payfacs, merchants and acquirers to innovate.",
 }
+
+let checkbookInfo = {
+  description: "Checkbook offers businesses a versatile and embeddable way to scale their payouts. As a leading provider of both paper and digital options, we're uniquely positioned to enable the speed, flexibility, and cost savings of modern payments, with the familiarity and simplicity of paper checks.",
+}
 let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
@@ -731,6 +736,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PRETENDPAY => "pretendpay"
   | CRYPTOPAY => "cryptopay"
   | CASHTOCODE => "cashtocode"
+  | CHECKBOOK => "checkbook"
   | PAYME => "payme"
   | GLOBEPAY => "globepay"
   | POWERTRANZ => "powertranz"
@@ -895,6 +901,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "stripe_test" => Processors(STRIPE_TEST)
     | "paypal_test" => Processors(PAYPAL_TEST)
     | "cashtocode" => Processors(CASHTOCODE)
+    | "checkbook" => Processors(CHECKBOOK)
     | "payme" => Processors(PAYME)
     | "globepay" => Processors(GLOBEPAY)
     | "powertranz" => Processors(POWERTRANZ)
@@ -1034,6 +1041,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BITPAY => bitPayInfo
   | CRYPTOPAY => cryptopayInfo
   | CASHTOCODE => cashToCodeInfo
+  | CHECKBOOK => checkbookInfo
   | PHONYPAY => phonypayInfo
   | FAUXPAY => fauxpayInfo
   | PRETENDPAY => pretendpayInfo
@@ -1950,6 +1958,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PRETENDPAY => "Pretendpay"
   | CRYPTOPAY => "Cryptopay"
   | CASHTOCODE => "CashtoCode"
+  | CHECKBOOK => "Checkbook"
   | PAYME => "PayMe"
   | GLOBEPAY => "GlobePay"
   | POWERTRANZ => "Powertranz"
