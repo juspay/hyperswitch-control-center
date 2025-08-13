@@ -4,7 +4,8 @@ module OrganisationSelection = {
   @react.component
   let make = () => {
     let showToast = ToastState.useShowToast()
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -55,7 +56,8 @@ module MerchantSelection = {
   @react.component
   let make = () => {
     let showToast = ToastState.useShowToast()
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
     let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
@@ -129,7 +131,8 @@ module ProfileSelection = {
   @react.component
   let make = () => {
     let showToast = ToastState.useShowToast()
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
     let form = ReactFinalForm.useForm()
@@ -245,7 +248,8 @@ module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
     let showToast = ToastState.useShowToast()
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
 
     let onSwitchForUserAction = async () => {
       try {

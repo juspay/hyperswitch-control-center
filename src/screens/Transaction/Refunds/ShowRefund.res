@@ -90,11 +90,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchDetails = APIUtils.useGetMethod()
   let showToast = ToastState.useShowToast()
   let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+
   let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let fetchRefundData = async () => {
     try {
       let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Get, ~id=Some(id))

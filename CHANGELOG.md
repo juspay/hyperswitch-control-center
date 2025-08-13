@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.13.0
+
+### Features
+
+- Add new connectors `AuthiPay`, `SilverFlow` and `Nordea` ([#3430](https://github.com/juspay/hyperswitch-control-center/pull/3430)) ([`a7ca4dc`](https://github.com/juspay/hyperswitch-control-center/commit/a7ca4dc2cd87974e650607f98f3b25bf266e3ea4))
+- Wasm changes for `AuthiPay`, `SilverFlow` and `Nordea` connectors ([#3432](https://github.com/juspay/hyperswitch-control-center/pull/3432)) ([`71ad7aa`](https://github.com/juspay/hyperswitch-control-center/commit/71ad7aa5d18e08e9cb6b0a4e89cb7231866791b3))
+
+### Miscellaneous Tasks
+
+- Folder restructure ([`4602752`](https://github.com/juspay/hyperswitch-control-center/commit/46027524120f12fb7a0bf6d9d0d1c1963ab986cc))
+
+**Full Changelog:** [`2025.08.12.0...2025.08.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.12.0...2025.08.13.0)
+
+- - -
+
 ## 2025.08.12.0
 
 ### Features
