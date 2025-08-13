@@ -14,6 +14,8 @@ let make = () => {
     dashboardPageState,
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
+
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
@@ -101,6 +103,11 @@ let make = () => {
   | _ => false
   }
 
+  let onAskPulseClick = () => {
+    mixpanelEvent(~eventName="ask_pulse_clicked")
+    RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))
+  }
+
   <>
     <div>
       {switch dashboardPageState {
@@ -136,8 +143,7 @@ let make = () => {
                             userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
                             merchantDetailsTypedValue.product_type == Orchestration(V1)}>
                             <div
-                              onClick={_ =>
-                                RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
+                              onClick={_ => onAskPulseClick()}
                               className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"
                               style={ReactDOM.Style.make(
                                 ~background="linear-gradient(90deg, transparent 0%, #3b82f6 25%, transparent 50%, #3b82f6 75%, transparent 100%)",
@@ -151,7 +157,7 @@ let make = () => {
                                 className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
                                 <Icon name="stars" size=20 customIconColor="text-blue-500" />
                                 <span className={`${body.md.semibold} text-blue-500`}>
-                                  {"Ask AI"->React.string}
+                                  {"Ask Pulse"->React.string}
                                 </span>
                               </div>
                               <style>
