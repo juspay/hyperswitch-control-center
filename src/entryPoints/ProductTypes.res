@@ -5,4 +5,5 @@ type productTypes =
   | CostObservability
   | DynamicRouting
   | Recovery
+  | OnBoarding(string)
   | UnknownProduct

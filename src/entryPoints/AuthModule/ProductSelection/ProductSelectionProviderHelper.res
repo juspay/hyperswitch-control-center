@@ -172,6 +172,7 @@ module CreateNewMerchantBody = {
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()
       let productName = selectedProduct->ProductUtils.getProductStringName
@@ -185,7 +186,6 @@ module CreateNewMerchantBody = {
     let switchMerch = async merchantid => {
       try {
         let version = UserUtils.getVersion(selectedProduct)
-
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
@@ -221,8 +221,11 @@ module CreateNewMerchantBody = {
           ~autoClose=true,
         )
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
+      | _ =>
+        setActiveProductValue(merchantDetailsTypedValue.product_type)
+        showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
       }
+
       setShowModal(_ => false)
       Nullable.null
     }

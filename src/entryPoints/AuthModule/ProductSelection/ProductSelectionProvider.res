@@ -65,7 +65,7 @@ let make = (~children) => {
 
   let setCreateNewMerchant = product => {
     setShowModal(_ => true)
-    setActiveProduct(_ => UnknownProduct)
+    setActiveProduct(_ => OnBoarding(product->ProductUtils.getProductStringName))
     setAction(_ => Some(CreateNewMerchant))
     setSelectedProduct(_ => Some(product))
   }

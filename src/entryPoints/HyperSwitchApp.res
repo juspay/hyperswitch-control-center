@@ -197,13 +197,6 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
 
-                        | (
-                            UnknownProduct,
-                            list{"v2", _, "onboarding", ..._}
-                            | list{"v1", _, "onboarding", ..._},
-                          ) =>
-                          <DefaultOnboardingPage />
-
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"
@@ -214,6 +207,7 @@ let make = () => {
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
+                        | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
 
                         | (Recon(V1), _) => <ReconEngineApp />
