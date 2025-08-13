@@ -400,6 +400,10 @@ let useGetStatus = order => {
     <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
+  | CancelledPostCapture =>
+    <div className={`${fixedStatusCss} bg-red-960 dark:bg-opacity-50`}>
+      {orderStatusLabel->React.string}
+    </div>
   | _ =>
     <div className={`${fixedStatusCss} ${primaryColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
@@ -640,7 +644,8 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       | PartiallyCaptured =>
         LabelGreen
       | Failed
-      | Cancelled =>
+      | Cancelled
+      | CancelledPostCapture =>
         LabelRed
       | Processing
       | RequiresCustomerAction

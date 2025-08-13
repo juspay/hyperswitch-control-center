@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.13.0
+
+### Features
+
+- Add new connectors `AuthiPay`, `SilverFlow` and `Nordea` ([#3430](https://github.com/juspay/hyperswitch-control-center/pull/3430)) ([`a7ca4dc`](https://github.com/juspay/hyperswitch-control-center/commit/a7ca4dc2cd87974e650607f98f3b25bf266e3ea4))
+- Wasm changes for `AuthiPay`, `SilverFlow` and `Nordea` connectors ([#3432](https://github.com/juspay/hyperswitch-control-center/pull/3432)) ([`71ad7aa`](https://github.com/juspay/hyperswitch-control-center/commit/71ad7aa5d18e08e9cb6b0a4e89cb7231866791b3))
+
+### Miscellaneous Tasks
+
+- Folder restructure ([`4602752`](https://github.com/juspay/hyperswitch-control-center/commit/46027524120f12fb7a0bf6d9d0d1c1963ab986cc))
+
+**Full Changelog:** [`2025.08.12.0...2025.08.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.12.0...2025.08.13.0)
+
+- - -
+
+## 2025.08.12.0
+
+### Features
+
+- Add `CancelledPostCapture` status in the payments ([#3425](https://github.com/juspay/hyperswitch-control-center/pull/3425)) ([`59632ff`](https://github.com/juspay/hyperswitch-control-center/commit/59632ffac5f867f01970815c19fd48541c902f05))
+
+**Full Changelog:** [`2025.08.11.0...2025.08.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.11.0...2025.08.12.0)
+
+- - -
+
+## 2025.08.11.0
+
+### Features
+
+- Api keys v2 orchestration ([#3420](https://github.com/juspay/hyperswitch-control-center/pull/3420)) ([`a9ec48e`](https://github.com/juspay/hyperswitch-control-center/commit/a9ec48e594ed5d5432bdfd0eb9aed0e7c9e1f8ed))
+
+### Miscellaneous Tasks
+
+- Api keys support for v2 and for vault ([#3415](https://github.com/juspay/hyperswitch-control-center/pull/3415)) ([`4081e0a`](https://github.com/juspay/hyperswitch-control-center/commit/4081e0a5451eba42c7ba121bf133d9433d69cd08))
+
+**Full Changelog:** [`2025.08.07.1...2025.08.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.07.1...2025.08.11.0)
+
+- - -
+
 ## 2025.08.07.1
 
 ### Miscellaneous Tasks
