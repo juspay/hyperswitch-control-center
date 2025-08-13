@@ -28,6 +28,8 @@ let getProductDisplayName = product =>
   | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
   | Orchestration(V2) => "Orchestrator V2"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductRouteName = product =>
@@ -40,6 +42,8 @@ let getProductRouteName = product =>
   | DynamicRouting => "dynamic-routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductStringName = product =>
@@ -52,6 +56,8 @@ let getProductStringName = product =>
   | DynamicRouting => "dynamic_routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductStringDisplayName = product =>
@@ -64,6 +70,8 @@ let getProductStringDisplayName = product =>
   | DynamicRouting => "intelligent_routing"
   | Orchestration(V1)
   | Orchestration(V2) => "orchestration"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductVariantFromDisplayName = product => {
@@ -80,14 +88,10 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~url, ~isLiveMode) => {
+let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
   switch productType {
-  | Orchestration(V1) =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
-    } else {
-      url
-    }
+  | Orchestration(V1) => `/dashboard/home`
+
   | Recon(V2) => `/dashboard/v2/recon/overview`
   | Recon(V1) => `/dashboard/v1/recon-engine/overview`
   | Recovery =>
@@ -101,5 +105,7 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~url, ~isLiveMode)
   | DynamicRouting
   | Orchestration(V2) =>
     `/dashboard/v2/${productType->getProductRouteName}/home`
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 }
