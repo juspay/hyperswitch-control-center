@@ -2,7 +2,8 @@
 let make = () => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let (value, setValue) = React.useState(() => "")
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
