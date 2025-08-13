@@ -110,7 +110,7 @@ let refundStatusVariantMapper: string => refundStatus = statusLabel => {
 let adyenRefundReasonToString = reason =>
   switch reason {
   | Fraud => "FRAUD"
-  | CustomerRequest => "CUSTOMERREQUEST"
+  | CustomerRequest => "CUSTOMER REQUEST"
   | Return => "RETURN"
   | Duplicate => "DUPLICATE"
   | Other => "OTHER"
