@@ -3,11 +3,12 @@ let make = () => {
   open Typography
   open InsightsHelper
   open InsightsTypes
-  let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (value, setValue) = React.useState(() => "")
   let (showModal, setShowModal) = React.useState(_ => false)
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let maxStringLength = 50
 
   let (selectedVersion, setSelectedVersion) = React.useState(_ => {
     label: "V1",
@@ -39,6 +40,13 @@ let make = () => {
     }
   }, [value])
 
+  let showToast = ToastState.useShowToast()
+  let onCopyClick = ev => {
+    ev->ReactEvent.Mouse.stopPropagation
+    Clipboard.writeText(merchantId)
+    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+  }
+
   let switchMerchant = async () => {
     try {
       let _ = await internalSwitch(
@@ -49,6 +57,8 @@ let make = () => {
     | _ => showToast(~message="Failed to switch the merchant! Try again.", ~toastType=ToastError)
     }
   }
+
+  let truncatedMerchantId = merchantId->String.slice(~start=0, ~end=maxStringLength)
 
   <div className="flex items-center gap-4">
     <Modal
@@ -104,12 +114,29 @@ let make = () => {
         </div>
       </div>
     </Modal>
-    <div
-      className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 hover:bg-nd_gray-150 dark:bg-gray-900 rounded-xl border"
-      onClick={_ => setShowModal(_ => true)}>
-      <span className={`${body.md.semibold} text-gray-500 cursor-pointer`}>
-        {"Switch merchant"->React.string}
-      </span>
+    <div className="flex items-center gap-2">
+      <div
+        className={`flex gap-3 px-3 py-2 rounded-lg whitespace-nowrap text-fs-13 bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green ${body.md.semibold}`}>
+        {truncatedMerchantId->React.string}
+        <RenderIf condition={merchantId->String.length > maxStringLength}>
+          {"..."->React.string}
+        </RenderIf>
+        <Icon
+          name="nd-copy"
+          className="cursor-pointer"
+          size=18
+          onClick={ev => {
+            onCopyClick(ev)
+          }}
+        />
+      </div>
+      <div
+        className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 hover:bg-nd_gray-150 dark:bg-gray-900 rounded-xl border"
+        onClick={_ => setShowModal(_ => true)}>
+        <span className={`${body.md.semibold} text-gray-500 cursor-pointer`}>
+          {"Switch merchant"->React.string}
+        </span>
+      </div>
     </div>
   </div>
 }
