@@ -473,16 +473,18 @@ let make = () => {
           currentlyEditingId
           handleIdUnderEdit
         />
-        <hr className="w-full" />
       </RenderIf>
-      <OrgTileGroup
-        heading="Org"
-        hasPlatformOrg={platformOrgList->Array.length > 0}
-        orgList=standardOrgList
-        orgSwitch
-        currentlyEditingId
-        handleIdUnderEdit
-      />
+      <RenderIf condition={standardOrgList->Array.length > 0}>
+        <hr className="w-full" />
+        <OrgTileGroup
+          heading="Org"
+          hasPlatformOrg={platformOrgList->Array.length > 0}
+          orgList=standardOrgList
+          orgSwitch
+          currentlyEditingId
+          handleIdUnderEdit
+        />
+      </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
         <Icon
           name="nd-angle-down"
