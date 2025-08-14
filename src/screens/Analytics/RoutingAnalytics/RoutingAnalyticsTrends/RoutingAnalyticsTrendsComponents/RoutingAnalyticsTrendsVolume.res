@@ -4,6 +4,8 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open InsightsUtils
+  open RoutingAnalyticsTrendsTypes
+  open RoutingAnalyticsTrendsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
@@ -14,27 +16,24 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let (sharedData, setSharedData) = React.useState(_ => JSON.Encode.null)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let defaultGranularity = InsightsUtils.getDefaultGranularity(
-    ~startTime=startTimeVal,
-    ~endTime=endTimeVal,
-    ~granularity=featureFlag.granularity,
-  )
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let (granularity, setGranularity) = React.useState(_ => defaultGranularity)
+  let (granularityTabState, setGranularityTabState) = React.useState(_ =>
+    defaultGranularityOptionsObject
+  )
 
-  let getMetricData = async () => {
+  let getMetricData = async (~granularityValue) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(ANALYTICS_ROUTING), ~methodType=Post, ~id=Some("routing"))
       let body =
         [
           AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some(["payment_success_rate", "payment_count"]),
+            ~metrics=Some([(#payment_count: routingTrendsMetrics :> string)]),
             ~delta=false,
-            ~groupByNames=Some(["connector"]),
+            ~groupByNames=Some([(#connector: routingTrendsMetrics :> string)]),
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
-            ~granularity=Some(granularity.value),
+            ~granularity=Some(granularityValue),
             ~filter=Some(filterValueJson->JSON.Encode.object),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
@@ -45,17 +44,18 @@ let make = () => {
       if responseData->Array.length == 0 {
         setScreenState(_ => PageLoaderWrapper.Custom)
       } else {
-        let processedModifiedData = RoutingAnalyticsTrendsUtils.fillMissingDataPointsForConnectors(
-          ~data=responseData->RoutingAnalyticsTrendsUtils.modifyQueryData->sortQueryDataByDate,
+        let processedModifiedData = fillMissingDataPointsForConnectors(
+          ~data=responseData
+          ->modifyQueryDataForVolumeGraph
+          ->sortQueryDataByDate,
           ~startDate=startTimeVal,
           ~endDate=endTimeVal,
           ~defaultValue={
-            "payment_success_rate": 0.0,
             "payment_count": 0,
             "time_bucket": startTimeVal,
             "connector": "",
           }->Identity.genericTypeToJson,
-          ~granularity=granularity.value,
+          ~granularity=granularityValue,
           ~isoStringToCustomTimeZone,
           ~granularityEnabled=featureFlag.granularity,
         )
@@ -67,28 +67,28 @@ let make = () => {
     }
   }
 
-  React.useEffect(() => {
-    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      setGranularity(_ => defaultGranularity)
-    }
-    None
-  }, (startTimeVal, endTimeVal))
-
   React.useEffect(_ => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getMetricData()->ignore
+      let defaultGranularity = getDefaultGranularity(
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~granularity=featureFlag.granularity,
+      )
+      setGranularityTabState(_ => defaultGranularity)
+      getMetricData(~granularityValue=defaultGranularity.value)->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, granularity.value, filterValue))
+  }, (startTimeVal, endTimeVal, filterValue))
 
   let params = {
     InsightsTypes.data: sharedData,
-    yKey: "payment_count",
-    xKey: "time_bucket",
+    yKey: (#payment_count: routingTrendsMetrics :> string),
+    xKey: (#time_bucket: routingTrendsMetrics :> string),
     comparison: DateRangeUtils.DisableComparison,
   }
-  let setGranularity = value => {
-    setGranularity(_ => value)
+  let setGranularity = (option: InsightsTypes.optionType) => {
+    setGranularityTabState(_ => option)
+    getMetricData(~granularityValue=option.value)->ignore
   }
   let options =
     RoutingAnalyticsTrendsEntity.routingVolumeChartEntity.getObjects(
@@ -107,7 +107,7 @@ let make = () => {
       </div>
       <div className="p-4">
         <InsightsHelper.Tabs
-          option={granularity}
+          option={granularityTabState}
           setOption={setGranularity}
           options={granularityOptions}
           showSingleTab=false

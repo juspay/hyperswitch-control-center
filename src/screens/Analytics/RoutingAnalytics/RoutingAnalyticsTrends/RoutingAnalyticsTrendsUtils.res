@@ -11,14 +11,6 @@ type routingMapperConfig = {
   suffix: string,
 }
 
-let getVariantValueFromString = value => {
-  switch value {
-  | "payment_success_rate" => Payment_Success_Rate
-  | "payment_count" => Payment_Count
-  | "time_bucket" | _ => Time_Bucket
-  }
-}
-
 let customLegendFormatter = (
   @this
   (this: LineGraphTypes.legendPoint) => {
@@ -84,22 +76,54 @@ let getRoutingTrendsSuccessOverTimeLineGraphTooltipFormatter = (
     }
   )->LineGraphTypes.asTooltipPointFormatter
 
-let modifyQueryData = data => {
+let modifyQueryDataForSucessGraph = data => {
   data->Array.map(item => {
     let valueDict = item->getDictFromJsonObject
-    let connector = valueDict->getString("connector", "Unknown")
-    let timeBucket = valueDict->getString((Time_Bucket :> string)->String.toLowerCase, "")
+    let connector = valueDict->getString((#connector: routingTrendsMetrics :> string), "Unknown")
+    let timeBucket =
+      valueDict->getString((#time_bucket: routingTrendsMetrics :> string)->String.toLowerCase, "")
     let paymentSuccessRate =
-      valueDict->getFloat((Payment_Success_Rate :> string)->String.toLowerCase, 0.0)
-    let paymentCount = valueDict->getInt((Payment_Count :> string)->String.toLowerCase, 0)
+      valueDict->getFloat(
+        (#payment_success_rate: routingTrendsMetrics :> string)->String.toLowerCase,
+        0.0,
+      )
     let timeRange = valueDict->getObj("time_range", Dict.make())
 
     [
-      ("connector", connector->JSON.Encode.string),
-      ((Time_Bucket :> string)->String.toLowerCase, timeBucket->JSON.Encode.string),
-      ((Payment_Success_Rate :> string)->String.toLowerCase, paymentSuccessRate->JSON.Encode.float),
-      ((Payment_Count :> string)->String.toLowerCase, paymentCount->JSON.Encode.int),
-      ("time_range", timeRange->JSON.Encode.object),
+      ((#connector: routingTrendsMetrics :> string), connector->JSON.Encode.string),
+      (
+        (#time_bucket: routingTrendsMetrics :> string)->String.toLowerCase,
+        timeBucket->JSON.Encode.string,
+      ),
+      (
+        (#payment_success_rate: routingTrendsMetrics :> string)->String.toLowerCase,
+        paymentSuccessRate->JSON.Encode.float,
+      ),
+      ((#time_range: routingTrendsMetrics :> string), timeRange->JSON.Encode.object),
+    ]->getJsonFromArrayOfJson
+  })
+}
+let modifyQueryDataForVolumeGraph = data => {
+  data->Array.map(item => {
+    let valueDict = item->getDictFromJsonObject
+    let connector = valueDict->getString((#connector: routingTrendsMetrics :> string), "Unknown")
+    let timeBucket =
+      valueDict->getString((#time_bucket: routingTrendsMetrics :> string)->String.toLowerCase, "")
+    let paymentCount =
+      valueDict->getInt((#payment_count: routingTrendsMetrics :> string)->String.toLowerCase, 0)
+    let timeRange = valueDict->getObj("time_range", Dict.make())
+
+    [
+      ((#connector: routingTrendsMetrics :> string), connector->JSON.Encode.string),
+      (
+        (#time_bucket: routingTrendsMetrics :> string)->String.toLowerCase,
+        timeBucket->JSON.Encode.string,
+      ),
+      (
+        (#payment_count: routingTrendsMetrics :> string)->String.toLowerCase,
+        paymentCount->JSON.Encode.int,
+      ),
+      ((#time_range: routingTrendsMetrics :> string), timeRange->JSON.Encode.object),
     ]->getJsonFromArrayOfJson
   })
 }
@@ -317,4 +341,8 @@ let routingVolumeMapper = (
     },
     ~tooltipValueFormatterType=Amount,
   )
+}
+let defaultGranularityOptionsObject: InsightsTypes.optionType = {
+  label: "",
+  value: "",
 }
