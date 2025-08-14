@@ -153,7 +153,7 @@ let dropDownOptions = [
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},
 ]
 
-let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string)}]
 
 let defaultMetric = {
   label: "By Amount",
@@ -162,7 +162,7 @@ let defaultMetric = {
 
 let defaulGranularity = {
   label: "Daily",
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
