@@ -15,7 +15,7 @@ let proxy = [
   },
   {
     context: ["/api"],
-    target: "http://localhost:8080",
+    target: "https://integ.hyperswitch.io/api",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
