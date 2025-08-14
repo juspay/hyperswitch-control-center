@@ -142,7 +142,7 @@ let fillMissingDataPointsForConnectors = (
 
   data->Array.forEach(item => {
     let itemDict = item->getDictFromJsonObject
-    let connector = itemDict->getString("connector", "Unknown")
+    let connector = itemDict->getString((#connector: routingTrendsMetrics :> string), "Unknown")
 
     let time = if (
       granularityEnabled && granularity != (#G_ONEDAY: InsightsTypes.granularity :> string)
@@ -150,7 +150,7 @@ let fillMissingDataPointsForConnectors = (
       let value =
         item
         ->getDictFromJsonObject
-        ->getObj("time_range", Dict.make())
+        ->getObj((#time_range: routingTrendsMetrics :> string), Dict.make())
       let time = value->getString("start_time", "")
       let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
 
@@ -171,7 +171,7 @@ let fillMissingDataPointsForConnectors = (
     }
     let connectorDict = connectorDataDict->getDictfromDict(connector)
 
-    itemDict->Dict.set("time_bucket", time->JSON.Encode.string)
+    itemDict->Dict.set((#time_bucket: routingTrendsMetrics :> string), time->JSON.Encode.string)
 
     connectorDict->Dict.set(time, itemDict->JSON.Encode.object)
     connectorDataDict->Dict.set(connector, connectorDict->JSON.Encode.object)
@@ -209,7 +209,10 @@ let fillMissingDataPointsForConnectors = (
       } else {
         let newDict = defaultValue->getDictFromJsonObject->Dict.copy
         newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        newDict->Dict.set("connector", connector->JSON.Encode.string)
+        newDict->Dict.set(
+          (#connector: routingTrendsMetrics :> string),
+          connector->JSON.Encode.string,
+        )
         completeDataPoints->Array.push(newDict->JSON.Encode.object)
       }
     }
