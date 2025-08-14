@@ -53,7 +53,6 @@ type metrics = [
   | #authentication_exemption_requested_count
 ]
 
-
 type requestBodyConfig = {
   metrics: array<metrics>,
   delta?: bool,

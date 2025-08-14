@@ -611,7 +611,6 @@ let fillMissingDataPoints = (
 ) => {
   let existingTimeDict = NewAnalyticsUtils.extractTimeDict(
     ~data,
-    ~dataKey="start_time",
     ~granularity,
     ~granularityEnabled,
     ~isoStringToCustomTimeZone,
