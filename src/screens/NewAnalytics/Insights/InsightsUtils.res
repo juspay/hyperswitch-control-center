@@ -557,7 +557,7 @@ let getGranularityLabel = option => {
 
 let defaulGranularity = {
   label: #G_ONEDAY->getGranularityLabel,
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 let getGranularityOptions = (~startTime, ~endTime) => {
@@ -577,7 +577,7 @@ let getGranularityOptions = (~startTime, ~endTime) => {
 
   options->Array.map(option => {
     label: option->getGranularityLabel,
-    value: (option: granularity :> string),
+    value: (option: NewAnalyticsTypes.granularity :> string),
   })
 }
 

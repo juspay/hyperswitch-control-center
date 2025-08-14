@@ -11,9 +11,9 @@ let getGranularityGap = option => {
 
 let getFormat = (~granularity) => {
   if (
-    granularity == (#G_THIRTYMIN: InsightsTypes.granularity :> string) ||
-    granularity == (#G_FIFTEENMIN: InsightsTypes.granularity :> string) ||
-    granularity == (#G_ONEDAY: InsightsTypes.granularity :> string)
+    granularity == (#G_THIRTYMIN: NewAnalyticsTypes.granularity :> string) ||
+    granularity == (#G_FIFTEENMIN: NewAnalyticsTypes.granularity :> string) ||
+    granularity == (#G_ONEDAY: NewAnalyticsTypes.granularity :> string)
   ) {
     "YYYY-MM-DD HH:mm:ss"
   } else {
@@ -29,7 +29,7 @@ let formatTime = (
   dataKey,
   timeKey: string,
 ) => {
-  if granularityEnabled && granularity != (#G_ONEDAY: InsightsTypes.granularity :> string) {
+  if granularityEnabled && granularity != (#G_ONEDAY: NewAnalyticsTypes.granularity :> string) {
     let rangeObj = itemDict->getObj(dataKey, Dict.make())
     let time = rangeObj->getString(timeKey, "")
     let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
