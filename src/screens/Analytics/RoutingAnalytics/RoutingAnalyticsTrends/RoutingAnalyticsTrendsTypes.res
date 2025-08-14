@@ -1,7 +1,10 @@
-type routingTrendsMetrics =
-  | Payment_Success_Rate
-  | Payment_Count
-  | Time_Bucket
+type routingTrendsMetrics = [
+  | #payment_success_rate
+  | #payment_count
+  | #time_bucket
+  | #time_range
+  | #connector
+]
 
 type routingTrendsObject = {
   payment_success_rate: float,
