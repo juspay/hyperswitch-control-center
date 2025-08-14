@@ -1582,8 +1582,8 @@ module BaseRadio = {
             customSelectionIcon
           />
         } else {
-          {
-            optgroupKeys
+          <>
+            {optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
               <React.Fragment key={index->Int.toString}>
                 <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
@@ -1616,8 +1616,11 @@ module BaseRadio = {
                 />
               </React.Fragment>
             })
-            ->React.array
-          }
+            ->React.array}
+            <div className="sticky bottom-0">
+              <span> {bottomComponent} </span>
+            </div>
+          </>
         }}
       </div>
     </div>
