@@ -3,7 +3,7 @@ let make = (
   ~initialValues,
   ~setConnectorName,
   ~connector,
-  ~handleAuthKeySubmit,
+  ~onSubmit,
   ~validateMandatoryField,
   ~updatedInitialVal,
   ~connectorInfoDict,
@@ -60,7 +60,7 @@ let make = (
     subTitle="Select your subscription management platform to get started.">
     <div className="-m-1 mb-10 flex flex-col gap-7">
       <PageLoaderWrapper screenState>
-        <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+        <Form onSubmit initialValues validate=validateMandatoryField>
           <p className="text-sm text-gray-700 font-semibold mb-1">
             {"Select a Platform"->React.string}
           </p>

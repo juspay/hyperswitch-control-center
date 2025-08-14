@@ -57,10 +57,13 @@ let make = (
       )
     } else {
       // TODO: need to be removed when we have file upload on live
+      let billingAccountReference = [(connectorID, connectorID->JSON.Encode.string)]->Dict.fromArray
+
       let revenueRecovery =
         [
           ("billing_connector_retry_threshold", 0->JSON.Encode.int),
           ("max_retry_count", 0->JSON.Encode.int),
+          ("billing_account_reference", billingAccountReference->JSON.Encode.object),
         ]->Dict.fromArray
 
       initialValuesToDict->Dict.set(
@@ -251,6 +254,8 @@ let make = (
     </>
   }
 
+  let authKeysSubmit = isLiveMode ? onSubmit : handleAuthKeySubmit
+
   <div>
     <Form onSubmit initialValues>
       {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
@@ -259,7 +264,7 @@ let make = (
           initialValues
           setConnectorName
           connector
-          handleAuthKeySubmit
+          onSubmit=authKeysSubmit
           validateMandatoryField
           updatedInitialVal
           connectorInfoDict

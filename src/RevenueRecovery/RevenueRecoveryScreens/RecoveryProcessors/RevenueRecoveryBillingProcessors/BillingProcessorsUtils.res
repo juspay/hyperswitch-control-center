@@ -55,9 +55,7 @@ let getConnectorConfig = connector => {
   | "custombilling" =>
     {
       "connector_auth": {
-        "HeaderKey": {
-          "api_key": "Custom billing API Key",
-        },
+        "NoKey": "null",
       },
     }->Identity.genericTypeToJson
   | _ => JSON.Encode.null

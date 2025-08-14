@@ -123,7 +123,7 @@ let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
+  let orderStatus = order.status->RevenueRecoveryOrderUtils.statusVariantMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -143,6 +143,7 @@ let getCell = (
       | Failed
       | Cancelled =>
         LabelRed
+      | Scheduled => LabelOrange
       | Processing
       | RequiresCustomerAction
       | RequiresConfirmation

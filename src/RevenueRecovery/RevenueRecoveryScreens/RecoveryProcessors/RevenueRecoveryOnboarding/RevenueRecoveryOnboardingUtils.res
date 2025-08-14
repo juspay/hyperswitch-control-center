@@ -29,6 +29,20 @@ let getIcon = step => {
 
 open VerticalStepIndicatorTypes
 let getSections = isLiveMode => {
+  let platformSubsectionsDefaultSteps = [
+    {
+      id: (#selectAPlatform: revenueRecoverySubsections :> string),
+      name: #selectAPlatform->getStepName,
+    },
+  ]
+
+  if !isLiveMode {
+    platformSubsectionsDefaultSteps->Array.push({
+      id: (#processorSetUp: revenueRecoverySubsections :> string),
+      name: #processorSetUp->getStepName,
+    })
+  }
+
   let defaultSteps = [
     {
       id: (#connectProcessor: revenueRecoverySections :> string),
@@ -45,16 +59,7 @@ let getSections = isLiveMode => {
       id: (#addAPlatform: revenueRecoverySections :> string),
       name: #addAPlatform->getMainStepName,
       icon: #addAPlatform->getIcon,
-      subSections: Some([
-        {
-          id: (#selectAPlatform: revenueRecoverySubsections :> string),
-          name: #selectAPlatform->getStepName,
-        },
-        {
-          id: (#processorSetUp: revenueRecoverySubsections :> string),
-          name: #processorSetUp->getStepName,
-        },
-      ]),
+      subSections: Some(platformSubsectionsDefaultSteps),
     },
     {
       id: (#reviewDetails: revenueRecoverySections :> string),
