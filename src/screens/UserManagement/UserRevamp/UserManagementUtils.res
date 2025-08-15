@@ -1,3 +1,5 @@
+open UserManagementTypes
+open LogicUtils
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 let createCustomRole = FormRenderer.makeFieldInfo(
@@ -17,7 +19,7 @@ let roleScope = userRole => {
   })
 
   FormRenderer.makeFieldInfo(
-    ~label="Role Scope",
+    ~label="Role Visibility",
     ~name="role_scope",
     ~customInput=InputFields.selectInput(
       ~options=roleScopeArray,
@@ -38,7 +40,6 @@ let validateEmptyValue = (key, errors) => {
 
 let validateForm = (values, ~fieldsToValidate: array<string>) => {
   let errors = Dict.make()
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
   fieldsToValidate->Array.forEach(key => {
@@ -59,7 +60,6 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 }
 let validateFormForRoles = values => {
   let errors = Dict.make()
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   if valuesDict->getString("role_scope", "")->isEmptyString {
     Dict.set(errors, "role_scope", "Role scope is required"->JSON.Encode.string)
@@ -70,8 +70,8 @@ let validateFormForRoles = values => {
   if valuesDict->getString("role_name", "")->String.length > 64 {
     Dict.set(errors, "role_name", "Role name should be less than 64 characters"->JSON.Encode.string)
   }
-  if valuesDict->getArrayFromDict("groups", [])->Array.length === 0 {
-    Dict.set(errors, "groups", "Roles required"->JSON.Encode.string)
+  if valuesDict->getArrayFromDict("parent_groups", [])->Array.length === 0 {
+    Dict.set(errors, "parent_groups", "Roles required"->JSON.Encode.string)
   }
   errors->JSON.Encode.object
 }
@@ -125,5 +125,13 @@ let stringToVariantMapperTenantAdmin: string => UserManagementTypes.admin = role
   switch roleId {
   | "tenant_admin" => TenantAdmin
   | _ => NonTenantAdmin
+  }
+}
+
+let permissionModuleMapper = (dict: Dict.t<JSON.t>): parentGroupInfo => {
+  {
+    name: getString(dict, "name", ""),
+    description: getString(dict, "description", ""),
+    scopes: getStrArrayFromDict(dict, "scopes", []),
   }
 }
