@@ -1,62 +1,154 @@
-module RenderCustomRoles = {
+open LogicUtils
+open Typography
+open UserManagementUtils
+open UserManagementTypes
+module RenderPermissionModule = {
   @react.component
-  let make = (~heading, ~description, ~groupName) => {
-    let groupsInput = ReactFinalForm.useField(`groups`).input
-    let groupsAdded = groupsInput.value->LogicUtils.getStrArryFromJson
-    let (checkboxSelected, setCheckboxSelected) = React.useState(_ =>
-      groupsAdded->Array.includes(groupName)
-    )
-    let onClickGroup = groupName => {
-      if !(groupsAdded->Array.includes(groupName)) {
-        let _ = groupsAdded->Array.push(groupName)
-        groupsInput.onChange(groupsAdded->Identity.arrayOfGenericTypeToFormReactEvent)
-      } else {
-        let arr = groupsInput.value->LogicUtils.getStrArryFromJson
+  let make = (~moduleName, ~description, ~scopes) => {
+    let parentGroupsInput = ReactFinalForm.useField(`parent_groups`).input
+    let parentGroupsValue = parentGroupsInput.value->getArrayFromJson([])
 
-        let filteredValue = arr->Array.filter(value => {value !== groupName})
-        groupsInput.onChange(filteredValue->Identity.arrayOfGenericTypeToFormReactEvent)
+    let existingModule = parentGroupsValue->Array.find(group => {
+      group->getDictFromJsonObject->getString("name", "") === moduleName
+    })
+
+    let (selectedScopes, setSelectedScopes) = React.useState(_ => {
+      switch existingModule {
+      | Some(data) => data->getDictFromJsonObject->getStrArrayFromDict("scopes", [])
+      | None => []
       }
-      setCheckboxSelected(prev => !prev)
+    })
+
+    let handleScopeChange = (scope: string, isSelected: bool) => {
+      let newScopes = if isSelected {
+        if !(selectedScopes->Array.includes(scope)) {
+          if scope === "write" {
+            let scopesToAdd = if selectedScopes->Array.includes("read") {
+              ["write"]
+            } else {
+              ["read", "write"]
+            }
+            Array.concat(selectedScopes, scopesToAdd)
+          } else {
+            Array.concat(selectedScopes, [scope])
+          }
+        } else {
+          selectedScopes
+        }
+      } else if scope === "read" {
+        selectedScopes->Array.filter(s => s !== "read" && s !== "write")
+      } else if scope === "write" {
+        selectedScopes->Array.filter(s => s !== "read" && s !== "write")
+      } else {
+        selectedScopes->Array.filter(s => s !== scope)
+      }
+
+      setSelectedScopes(_ => newScopes)
+      let updatedGroups = if newScopes->Array.length > 0 {
+        let moduleConfig =
+          [
+            ("name", moduleName->JSON.Encode.string),
+            ("scopes", newScopes->Array.map(scope => scope->JSON.Encode.string)->JSON.Encode.array),
+          ]->getJsonFromArrayOfJson
+
+        if existingModule->Option.isSome {
+          parentGroupsValue->Array.map(group => {
+            let groupDict = group->getDictFromJsonObject
+            if getString(groupDict, "name", "") === moduleName {
+              moduleConfig
+            } else {
+              group
+            }
+          })
+        } else {
+          Array.concat(parentGroupsValue, [moduleConfig])
+        }
+      } else {
+        parentGroupsValue->Array.filter(group => {
+          group->getDictFromJsonObject->getString("name", "") !== moduleName
+        })
+      }
+
+      parentGroupsInput.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
-    <RenderIf
-      condition={groupName->GroupACLMapper.mapStringToGroupAccessType !== OrganizationManage}>
-      <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
-        <div className="mt-1">
-          <CheckBoxIcon isSelected={checkboxSelected} size={Large} />
+    let isReadSelected = selectedScopes->Array.includes("read")
+    let isWriteSelected = selectedScopes->Array.includes("write")
+
+    let isReadAvailable = scopes->Array.includes("read")
+    let isWriteAvailable = scopes->Array.includes("write")
+
+    <div className="flex items-center py-4 px-6">
+      <div className="flex-1">
+        <div className={`${body.md.semibold} text-nd_gray-700`}> {moduleName->React.string} </div>
+        <div className={`${body.sm.medium} text-nd_gray-400`}> {description->React.string} </div>
+      </div>
+      <div className="flex gap-8">
+        <div className="w-20 flex justify-center">
+          <CheckBoxIcon
+            isSelected=isReadSelected
+            setIsSelected={scope => handleScopeChange("read", scope)}
+            isDisabled={!isReadAvailable}
+            size=Large
+          />
         </div>
-        <div className="flex flex-col gap-3 items-start">
-          <div className="font-semibold"> {heading->React.string} </div>
-          <div className="text-base text-hyperswitch_black opacity-50 flex-1">
-            {description->React.string}
-          </div>
+        <div className="w-24 flex justify-center">
+          <CheckBoxIcon
+            isSelected=isWriteSelected
+            setIsSelected={scope => handleScopeChange("write", scope)}
+            isDisabled={!isWriteAvailable}
+            size=Large
+          />
         </div>
       </div>
-    </RenderIf>
+    </div>
   }
 }
 
 module NewCustomRoleInputFields = {
-  open UserManagementUtils
   open CommonAuthHooks
   @react.component
   let make = () => {
     let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-    <div className="flex justify-between">
-      <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4">
+      <div className={`${body.md.semibold} text-nd_gray-700`}> {"Role Details"->React.string} </div>
+      <div className="flex flex-row gap-6 w-full">
+        <FormRenderer.FieldRenderer
+          field=createCustomRole fieldWrapperClass="w-3/5" labelClass="!text-black !-ml-[0.5px]"
+        />
         <FormRenderer.FieldRenderer
           field={userRole->roleScope}
-          fieldWrapperClass="w-4/5"
-          labelClass="!text-black !text-base !-ml-[0.5px]"
-        />
-        <FormRenderer.FieldRenderer
-          field=createCustomRole
-          fieldWrapperClass="w-4/5"
-          labelClass="!text-black !text-base !-ml-[0.5px]"
+          fieldWrapperClass="w-fit"
+          labelClass="!text-black !-ml-[0.5px]"
         />
       </div>
-      <div className="absolute top-10 right-5">
-        <FormRenderer.SubmitButton text="Create role" loadingText="Loading..." />
+    </div>
+  }
+}
+
+module PermissionTableWrapper = {
+  @react.component
+  let make = (~permissionModules) => {
+    <div className="border border-nd_gray-150 rounded-lg">
+      <div
+        className={`flex items-center rounded-t-lg py-3 px-6 bg-nd_gray-25 border-b border-nd_gray-150 text-nd_gray-400 ${body.sm.medium}`}>
+        <div className="flex-1"> {"Module"->React.string} </div>
+        <div className="flex gap-8">
+          <div className="w-20 text-center"> {"View"->React.string} </div>
+          <div className="w-24 text-center"> {"View & Edit"->React.string} </div>
+        </div>
+      </div>
+      <div className="divide-y divide-nd_gray-150">
+        {permissionModules
+        ->Array.mapWithIndex((moduleData, index) => {
+          <RenderPermissionModule
+            key={index->Int.toString}
+            moduleName={moduleData.name}
+            description={moduleData.description}
+            scopes={moduleData.scopes}
+          />
+        })
+        ->React.array}
       </div>
     </div>
   }
@@ -65,8 +157,6 @@ module NewCustomRoleInputFields = {
 @react.component
 let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~breadCrumbHeader) => {
   open APIUtils
-  open LogicUtils
-
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -74,22 +164,21 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   let initialValuesForForm =
     [
       ("role_scope", "merchant"->JSON.Encode.string),
-      ("groups", []->JSON.Encode.array),
+      ("role_name", ""->JSON.Encode.string),
+      ("parent_groups", []->JSON.Encode.array),
     ]->Dict.fromArray
 
-  let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
+  let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initalValue, setInitialValues) = React.useState(_ => initialValuesForForm)
-
-  let paddingClass = isInviteUserFlow ? "p-10" : ""
-  let marginClass = isInviteUserFlow ? "mt-5" : ""
+  let marginClass = isInviteUserFlow ? "mt-6" : ""
   let showToast = ToastState.useShowToast()
+
   let onSubmit = async (values, _) => {
     try {
-      // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
       let copiedJson = JSON.parseExn(JSON.stringify(values))
-      let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post)
+      let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE_V2, ~methodType=Post)
 
       let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
       let roleNameValue =
@@ -104,7 +193,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "UR_35" {
-          setInitialValues(_ => values->LogicUtils.getDictFromJsonObject)
+          setInitialValues(_ => values->getDictFromJsonObject)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
@@ -115,18 +204,18 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     Nullable.null
   }
 
-  let getPermissionInfo = async () => {
+  let getPermissionModules = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=V1(USERS),
-        ~userType=#GROUP_ACCESS_INFO,
+        ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
+        ~queryParamerters=Some(`entity_type=merchant`), // Currently we create custom roles with merchant entity type by default
       )
       let res = await fetchDetails(url)
-      let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
-      setPermissionInfo(_ => permissionInfoValue)
+      let modules = getArrayDataFromJson(res, permissionModuleMapper)
+      setPermissionModules(_ => modules)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
@@ -134,8 +223,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   }
 
   React.useEffect(() => {
-    if permissionInfo->Array.length === 0 {
-      getPermissionInfo()->ignore
+    if permissionModules->Array.length === 0 {
+      getPermissionModules()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
@@ -146,17 +235,17 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     <RenderIf condition={isInviteUserFlow}>
       <div className="flex flex-col gap-2">
         <PageUtils.PageHeading
-          title="Create custom role"
-          subTitle="Adjust permissions to create custom roles that match your requirement"
+          title="Create Custom Role"
+          subTitle="Adjust permissions to create roles that match your requirement"
         />
         <BreadCrumbNavigation
           path=[{title: breadCrumbHeader, link: `/${baseUrl}`}]
-          currentPageTitle="Create custom roles"
+          currentPageTitle="Create Custom Role"
         />
       </div>
     </RenderIf>
     <div
-      className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 ${paddingClass} ${marginClass}`}>
+      className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 ${marginClass}`}>
       <PageLoaderWrapper screenState>
         <Form
           key="invite-user-management"
@@ -165,17 +254,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
-          <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
-            {permissionInfo
-            ->Array.mapWithIndex((ele, index) => {
-              <RenderCustomRoles
-                key={index->Int.toString}
-                heading={`${ele.module_->snakeToTitle}`}
-                description={ele.description}
-                groupName={ele.module_}
-              />
-            })
-            ->React.array}
+          <div className="flex flex-col gap-6">
+            <div className={`${body.md.semibold} text-nd_gray-700`}>
+              {"Select Permission Level"->React.string}
+            </div>
+            <PermissionTableWrapper permissionModules />
+          </div>
+          <div className="flex justify-end">
+            <FormRenderer.SubmitButton text="Create role" loadingText="Loading..." />
           </div>
         </Form>
       </PageLoaderWrapper>
