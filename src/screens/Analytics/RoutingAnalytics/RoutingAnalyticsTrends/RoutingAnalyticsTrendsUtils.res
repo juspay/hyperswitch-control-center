@@ -137,90 +137,55 @@ let fillMissingDataPointsForConnectors = (
   ~granularity: string,
   ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
   ~granularityEnabled,
+  ~groupByKey="connector",
 ) => {
-  let connectorDataDict = Dict.make()
+  let groupedData = Dict.make()
 
   data->Array.forEach(item => {
     let itemDict = item->getDictFromJsonObject
-    let connector = itemDict->getString((#connector: routingTrendsMetrics :> string), "Unknown")
+    let groupValue = itemDict->getString(groupByKey, "Unknown")
 
-    let time = if (
-      granularityEnabled && granularity != (#G_ONEDAY: InsightsTypes.granularity :> string)
-    ) {
-      let value =
-        item
-        ->getDictFromJsonObject
-        ->getObj((#time_range: routingTrendsMetrics :> string), Dict.make())
-      let time = value->getString("start_time", "")
-      let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
-
-      if (
-        granularity == (#G_THIRTYMIN: InsightsTypes.granularity :> string) ||
-          granularity == (#G_FIFTEENMIN: InsightsTypes.granularity :> string)
-      ) {
-        (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
-          "YYYY-MM-DD HH:mm:ss",
-        )
-      } else {
-        (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
-          "YYYY-MM-DD HH:00:00",
-        )
+    switch groupedData->Dict.get(groupValue) {
+    | Some(existingData) => {
+        let updatedData = existingData->Array.concat([item])
+        groupedData->Dict.set(groupValue, updatedData)
       }
-    } else {
-      itemDict->getString(timeKey, "")
+    | None => groupedData->Dict.set(groupValue, [item])
     }
-    let connectorDict = connectorDataDict->getDictfromDict(connector)
-
-    itemDict->Dict.set((#time_bucket: routingTrendsMetrics :> string), time->JSON.Encode.string)
-
-    connectorDict->Dict.set(time, itemDict->JSON.Encode.object)
-    connectorDataDict->Dict.set(connector, connectorDict->JSON.Encode.object)
   })
-
-  let allConnectors = connectorDataDict->Dict.keysToArray
-
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let startingPointFormatted = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = "minute"
-  let devider = granularity->getGranularityGap
-  let limit =
-    (endingPoint.diff(startingPointFormatted.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
-    ->Math.floor
-    ->Float.toInt
-
-  let format =
-    granularity != (#G_ONEDAY: InsightsTypes.granularity :> string)
-      ? "YYYY-MM-DD HH:mm:ss"
-      : "YYYY-MM-DD 00:00:00"
 
   let completeDataPoints = []
+  groupedData
+  ->Dict.toArray
+  ->Array.forEach(((groupValue, groupData)) => {
+    let timeDict = NewAnalyticsUtils.extractTimeDict(
+      ~data=groupData,
+      ~granularityEnabled,
+      ~granularity,
+      ~isoStringToCustomTimeZone,
+      ~timeKey,
+    )
 
-  allConnectors->Array.forEach(connector => {
-    let connectorDict = connectorDataDict->getDictfromDict(connector)
+    let defaultValueWithGroup = defaultValue->getDictFromJsonObject->Dict.copy
+    defaultValueWithGroup->Dict.set(groupByKey, groupValue->JSON.Encode.string)
 
-    for x in 0 to limit {
-      let timeVal = startingPointFormatted.add(x * devider, gap).format(format)
-      let existingDictKeys = connectorDict->getDictfromDict(timeVal)->Dict.keysToArray
+    let filledTimeDict = NewAnalyticsUtils.fillForMissingTimeRange(
+      ~existingTimeDict=timeDict,
+      ~timeKey,
+      ~defaultValue=defaultValueWithGroup->JSON.Encode.object,
+      ~startDate,
+      ~endDate,
+      ~granularity,
+    )
 
-      if existingDictKeys->Array.length > 0 {
-        let existingDict = connectorDict->getDictfromDict(timeVal)
-        completeDataPoints->Array.push(existingDict->JSON.Encode.object)
-      } else {
-        let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        newDict->Dict.set(
-          (#connector: routingTrendsMetrics :> string),
-          connector->JSON.Encode.string,
-        )
-        completeDataPoints->Array.push(newDict->JSON.Encode.object)
-      }
-    }
+    filledTimeDict
+    ->Dict.valuesToArray
+    ->Array.forEach(item => {
+      completeDataPoints->Array.push(item)
+    })
   })
-
   completeDataPoints
 }
-
 let genericRoutingMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
   ~config: routingMapperConfig,
