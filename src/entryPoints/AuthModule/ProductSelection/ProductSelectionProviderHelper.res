@@ -120,7 +120,7 @@ module SelectMerchantBody = {
         <CardUtils.CardHeader
           heading={`Merchant Selection for ${selectedProduct->ProductUtils.getProductDisplayName}`}
           subHeading=""
-          customHeadingStyle={`!${body.md.medium} `}
+          customHeadingStyle={`!${body.lg.semibold}`}
           customSubHeadingStyle="w-full !max-w-none "
         />
         <div
