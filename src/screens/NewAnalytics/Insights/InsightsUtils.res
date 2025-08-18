@@ -557,7 +557,7 @@ let getGranularityLabel = option => {
 
 let defaulGranularity = {
   label: #G_ONEDAY->getGranularityLabel,
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 let getGranularityOptions = (~startTime, ~endTime) => {
@@ -577,7 +577,7 @@ let getGranularityOptions = (~startTime, ~endTime) => {
 
   options->Array.map(option => {
     label: option->getGranularityLabel,
-    value: (option: granularity :> string),
+    value: (option: NewAnalyticsTypes.granularity :> string),
   })
 }
 
@@ -609,77 +609,23 @@ let fillMissingDataPoints = (
   ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
   ~granularityEnabled,
 ) => {
-  let dataDict = Dict.make()
+  let existingTimeDict = NewAnalyticsUtils.extractTimeDict(
+    ~data,
+    ~granularity,
+    ~granularityEnabled,
+    ~isoStringToCustomTimeZone,
+    ~timeKey,
+  )
 
-  data->Array.forEach(item => {
-    let time = switch (granularityEnabled, granularity != (#G_ONEDAY: granularity :> string)) {
-    | (true, true) => {
-        let value =
-          item
-          ->getDictFromJsonObject
-          ->getObj("time_range", Dict.make())
-
-        let time = value->getString("start_time", "")
-
-        let {year, month, date, hour, minute} = isoStringToCustomTimeZone(time)
-
-        if (
-          granularity == (#G_THIRTYMIN: granularity :> string) ||
-            granularity == (#G_FIFTEENMIN: granularity :> string)
-        ) {
-          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
-            "YYYY-MM-DD HH:mm:ss",
-          )
-        } else {
-          (`${year}-${month}-${date} ${hour}:${minute}`->DayJs.getDayJsForString).format(
-            "YYYY-MM-DD HH:00:00",
-          )
-        }
-      }
-    | _ =>
-      item
-      ->getDictFromJsonObject
-      ->getString(timeKey, "")
-    }
-
-    let newItem = item->getDictFromJsonObject
-    newItem->Dict.set("time_bucket", time->JSON.Encode.string)
-
-    dataDict->Dict.set(time, newItem->JSON.Encode.object)
-  })
-
-  let dataPoints = Dict.make()
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let startingPoint = startingPoint.format("YYYY-MM-DD HH:00:00")->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = "minute"
-  let devider = granularity->getGranularityGap
-  let limit =
-    (endingPoint.diff(startingPoint.toString(), gap)->Int.toFloat /. devider->Int.toFloat)
-    ->Math.floor
-    ->Float.toInt
-
-  let format =
-    granularity != (#G_ONEDAY: granularity :> string)
-      ? "YYYY-MM-DD HH:mm:ss"
-      : "YYYY-MM-DD 00:00:00"
-
-  for x in 0 to limit {
-    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x * devider, gap).format(format)
-    switch dataDict->Dict.get(timeVal) {
-    | Some(val) => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, val)
-      }
-    | None => {
-        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
-      }
-    }
-  }
-
-  dataPoints->Dict.valuesToArray
+  let dateTimeRange = NewAnalyticsUtils.fillForMissingTimeRange(
+    ~existingTimeDict,
+    ~defaultValue,
+    ~timeKey,
+    ~endDate,
+    ~startDate,
+    ~granularity,
+  )
+  dateTimeRange->Dict.valuesToArray
 }
 
 let getSampleDateRange = (~useSampleDates, ~sampleDateRange) => {

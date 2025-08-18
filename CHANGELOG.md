@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.14.0
+
+### Features
+
+- Add new connector `CheckBook` ([#3439](https://github.com/juspay/hyperswitch-control-center/pull/3439)) ([`776cb62`](https://github.com/juspay/hyperswitch-control-center/commit/776cb627d225c9b20fef7223e4e58cbf5def4123))
+
+### Refactors
+
+- Url routing ([#3340](https://github.com/juspay/hyperswitch-control-center/pull/3340)) ([`627eea7`](https://github.com/juspay/hyperswitch-control-center/commit/627eea7911cc47ae6b14f4def14056a3771796ef))
+
+### Miscellaneous Tasks
+
+- Rename data assistant to pulse ai and add mixpanel events ([#3440](https://github.com/juspay/hyperswitch-control-center/pull/3440)) ([`054c7d1`](https://github.com/juspay/hyperswitch-control-center/commit/054c7d1b7aa30a06fc1e611a489a01d5495a905f))
+- Fix product url ([`c36709f`](https://github.com/juspay/hyperswitch-control-center/commit/c36709f8328daf35635f045175067ef96eb5a9d3))
+
+**Full Changelog:** [`2025.08.13.0...2025.08.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.13.0...2025.08.14.0)
+
+- - -
+
 ## 2025.08.13.0
 
 ### Features
