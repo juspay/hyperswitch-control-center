@@ -127,7 +127,6 @@ let make = (
         </RenderIf>
         <RenderIf
           condition={!featureFlagDetails.isLiveMode &&
-          configuredConnectors->Array.length > 0 &&
           showDummyConnectorButton &&
           urlPrefix == "connectors/new"}>
           <ACLButton

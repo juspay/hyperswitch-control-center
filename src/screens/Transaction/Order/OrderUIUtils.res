@@ -48,7 +48,7 @@ let getFilterTypeFromString = filterType => {
 }
 let isParentChildFilterMatch = (name, key) => {
   let parentFilter = name->getFilterTypeFromString
-  let child = key->AmountFilterTypes.mapStringToamountFilterChild
+  let child = key->AmountFilterUtils.mapStringToamountFilterChild
   switch (parentFilter, child) {
   | (#amount, #start_amount)
   | (#amount, #end_amount)
@@ -181,7 +181,18 @@ module NoData = {
   }
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
+let startTimeFilterKey = (version: UserInfoTypes.version) => {
+  switch version {
+  | V1 => "start_time"
+  | V2 => "created.gte"
+  }
+}
+
+let endTimeFilterKey = (version: UserInfoTypes.version) =>
+  switch version {
+  | V1 => "end_time"
+  | V2 => "created.lte"
+  }
 
 let filterByData = (txnArr, value) => {
   open LogicUtils
@@ -210,6 +221,14 @@ let getLabelFromFilterType = (filter: filter) => (filter :> string)
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
   | #connector_label => "merchant_connector_id"
+  | _ => (filter :> string)
+  }
+}
+
+let getValueFromFilterTypeV2 = (filter: filter) => {
+  switch filter {
+  | #payment_method => "payment_method_type"
+  | #payment_method_type => "payment_method_subtype"
   | _ => (filter :> string)
   }
 }
@@ -302,7 +321,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys) => {
+let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys, version) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject
@@ -389,7 +408,12 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
-        ~name=getValueFromFilterType(key->getFilterTypeFromString),
+        ~name={
+          switch (version: UserInfoTypes.version) {
+          | V1 => getValueFromFilterType(key->getFilterTypeFromString)
+          | V2 => getValueFromFilterTypeV2(key->getFilterTypeFromString)
+          }
+        },
         ~customInput,
       ),
       localFilter: Some(filterByData),
@@ -397,15 +421,15 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   })
 }
 
-let initialFixedFilter = () => [
+let initialFixedFilter = (version: UserInfoTypes.version) => [
   (
     {
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
         ~comboCustomInput=InputFields.filterDateRangeField(
-          ~startKey=startTimeFilterKey,
-          ~endKey=endTimeFilterKey,
+          ~startKey=startTimeFilterKey(version),
+          ~endKey=endTimeFilterKey(version),
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
           ~showTime=true,
           ~disablePastDates={false},
@@ -437,24 +461,21 @@ let setData = (
   offset,
   setOffset,
   total,
-  data,
+  data: array<PaymentInterfaceTypes.order>,
   setTotalCount,
   setOrdersData,
   setScreenState,
   previewOnly,
 ) => {
-  let arr = Array.make(~length=offset, Dict.make())
+  let arr = Array.make(~length=offset, Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload)
   if total <= offset {
     setOffset(_ => 0)
   }
 
   if total > 0 {
-    let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-
     let orderData =
       arr
-      ->Array.concat(orderDataDictArr)
-      ->Array.map(OrderEntity.itemToObjMapper)
+      ->Array.concat(data)
       ->Array.filterWithIndex((_, i) => {
         !previewOnly || i <= 2
       })
@@ -465,79 +486,6 @@ let setData = (
     setScreenState(_ => PageLoaderWrapper.Success)
   } else {
     setScreenState(_ => PageLoaderWrapper.Custom)
-  }
-}
-
-let getOrdersList = async (
-  filterValueJson,
-  ~updateDetails: (
-    string,
-    JSON.t,
-    Fetch.requestMethod,
-    ~bodyFormData: Fetch.formData=?,
-    ~headers: Dict.t<'a>=?,
-    ~contentType: AuthHooks.contentType=?,
-    ~version: UserInfoTypes.version=?,
-  ) => promise<JSON.t>,
-  ~getURL: APIUtilsTypes.getUrlTypes,
-  ~setOrdersData,
-  ~previewOnly,
-  ~setScreenState,
-  ~setOffset,
-  ~setTotalCount,
-  ~offset,
-) => {
-  open LogicUtils
-  setScreenState(_ => PageLoaderWrapper.Loading)
-  try {
-    let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
-    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-    let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-    let total = res->getDictFromJsonObject->getInt("total_count", 0)
-
-    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
-      let payment_id =
-        filterValueJson
-        ->Dict.get("payment_id")
-        ->Option.getOr(""->JSON.Encode.string)
-        ->JSON.Decode.string
-        ->Option.getOr("")
-
-      if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
-        let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
-        filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
-
-        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-        let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-        let total = res->getDictFromJsonObject->getInt("total_count", 0)
-
-        setData(
-          offset,
-          setOffset,
-          total,
-          data,
-          setTotalCount,
-          setOrdersData,
-          setScreenState,
-          previewOnly,
-        )
-      } else {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-    } else {
-      setData(
-        offset,
-        setOffset,
-        total,
-        data,
-        setTotalCount,
-        setOrdersData,
-        setScreenState,
-        previewOnly,
-      )
-    }
-  } catch {
-  | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
   }
 }
 

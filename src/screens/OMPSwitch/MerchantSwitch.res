@@ -14,6 +14,7 @@ module NewMerchantCreationModal = {
         switch activeProduct {
         | Orchestration(V1)
         | DynamicRouting
+        | Recon(V1)
         | CostObservability => {
             let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_MERCHANT, ~methodType=Post)
             let _ = await updateDetails(url, values, Post)
@@ -152,10 +153,11 @@ let make = () => {
   open LogicUtils
   open OMPSwitchUtils
   open OMPSwitchHelper
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -165,6 +167,7 @@ let make = () => {
   )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
+  let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
     globalUIConfig: {
       sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
@@ -172,7 +175,6 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {devModularityV2} = featureFlagDetails
-  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
 
   let getV2MerchantList = async () => {
     try {
@@ -221,9 +223,7 @@ let make = () => {
         ->Array.find(merchant => merchant.id == value)
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
-      let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
-      setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -282,24 +282,29 @@ let make = () => {
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
+      type_: item.type_->Option.getOr(#standard),
       customComponent,
     }
     listItem
   })
 
-  <div className="w-fit">
+  <div className="w-fit flex flex-col gap-4">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
       input
       deselectDisable=true
-      options={updatedMerchantList->generateDropdownOptionsCustomComponent}
+      options={updatedMerchantList->generateDropdownOptionsCustomComponent(
+        ~isPlatformOrg=isCurrentOrganizationPlatform,
+      )}
       marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
       searchable=true
-      baseComponent={<ListBaseComp user=#Merchant heading="Merchant" subHeading arrow />}
+      baseComponent={<ListBaseComp
+        user=#Merchant heading="Merchant" subHeading arrow isPlatform=isCurrentMerchantPlatform
+      />}
       baseComponentCustomStyle={`!border-none`}
       bottomComponent={<AddNewOMPButton
         user=#Merchant
@@ -315,6 +320,7 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
+      reverseSortGroupKeys=true
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal getMerchantList />

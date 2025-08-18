@@ -71,7 +71,9 @@ module.exports = () => {
             to: path.resolve(__dirname, "dist/hyperswitch/ext_libs/de-routing"),
           },
           { from: "public/common" },
-          { from: `public/hyperswitch` },
+          {
+            from: `public/hyperswitch`,
+          },
         ].filter(Boolean),
       }),
       new MonacoWebpackPlugin(),

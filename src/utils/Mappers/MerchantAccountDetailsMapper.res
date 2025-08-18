@@ -70,6 +70,9 @@ let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
       "product_type",
       "",
     )->ProductUtils.getProductVariantFromString(~version),
+    merchant_account_type: valuesDict
+    ->getString("merchant_account_type", "")
+    ->OMPSwitchUtils.ompTypeMapper,
   }
   payload
 }

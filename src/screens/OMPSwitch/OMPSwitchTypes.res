@@ -1,9 +1,12 @@
+type ompType = [#platform | #standard]
+
 // TODO: remove productType optional
 type ompListTypes = {
   id: string,
   name: string,
   productType?: ProductTypes.productTypes,
   version?: UserInfoTypes.version,
+  @as("type") type_?: ompType,
 }
 type ompListTypesCustom = {...ompListTypes, customComponent: React.element}
 

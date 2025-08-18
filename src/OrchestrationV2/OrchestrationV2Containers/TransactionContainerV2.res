@@ -16,9 +16,9 @@ let make = () => {
             entityName="Payments"
             remainingPath
             access=Access
-            renderList={() => <Payments />}
+            renderList={() => <Orders />}
             renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
-              <PaymentsDetails id profileId merchantId orgId />}
+              <ShowOrder id profileId merchantId orgId />}
           />
         </FilterContext>
       </AccessControl>

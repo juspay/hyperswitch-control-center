@@ -25,3 +25,27 @@ let setIsPlaygroundInLocalStorage = (val: bool) => {
 let removeItemFromLocalStorage = (~key) => {
   LocalStorage.removeItem(key)
 }
+
+let setDomaintoStore = domain => {
+  let domain = domain->LogicUtils.getNonEmptyString
+  if domain->Option.isSome {
+    LocalStorage.setItem("domain", domain->Option.getOr(""))
+  }
+}
+
+let getDomainfromStore = () => {
+  let domain = LocalStorage.getItem("domain")->Nullable.toOption
+  domain
+}
+
+let setCustomTableHeadersInLocalStorage = val => {
+  let val = val->LogicUtils.getNonEmptyString
+  if val->Option.isSome {
+    LocalStorage.setItem("tableColumnsOrder", val->Option.getOr(""))
+  }
+}
+
+let getCustomTableColumnsfromLocalStorage = () => {
+  let customTableColumns = LocalStorage.getItem("tableColumnsOrder")->Nullable.toOption
+  customTableColumns
+}

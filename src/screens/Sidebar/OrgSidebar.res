@@ -1,4 +1,5 @@
 module OrgTile = {
+  open Typography
   @react.component
   let make = (
     ~orgID: string,
@@ -8,6 +9,7 @@ module OrgTile = {
     ~index: int,
     ~currentlyEditingId: option<int>,
     ~handleIdUnderEdit,
+    ~isPlatformOrganization,
   ) => {
     open LogicUtils
     open APIUtils
@@ -46,7 +48,7 @@ module OrgTile = {
     let onSubmit = async (newOrgName: string) => {
       try {
         let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
-        let url = getURL(~entityName=V1(UPDATE_ORGANIZATION), ~methodType=Put, ~id=Some(orgID))
+        let url = getURL(~entityName=V1(ORGANIZATION_RETRIEVE), ~methodType=Put, ~id=Some(orgID))
         let _ = await updateDetails(url, values, Put)
         let _ = await getOrgList()
 
@@ -111,21 +113,27 @@ module OrgTile = {
 
     <div
       onClick={_ => handleClick()}
-      className={`w-10 h-10 rounded-lg  flex items-center justify-center relative cursor-pointer ${hoverLabel1} `}>
+      className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
       <div
-        className={`w-8 h-8 border  cursor-pointer flex items-center justify-center rounded-md shadow-md ${ringClass} ${isActive
+        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${ringClass} ${isActive
             ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
-            : ` ${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
-        <span className="text-xs font-medium"> {displayText->React.string} </span>
-        <div
-          className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40 `}>
+            : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
+        <RenderIf condition={isPlatformOrganization}>
+          <div
+            className={`absolute top-5-px right-5-px w-0 h-0 border-t-[10px] border-l-[10px] ${isActive
+                ? "border-t-blue-600"
+                : "border-t-sidebar-textColor/30"}  border-l-transparent translate-x-1/2 -translate-y-1/2 rounded-tr-[5px]`}
+          />
+        </RenderIf>
+        <span className={body.xs.medium}> {displayText->React.string} </span>
+        <div className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40`}>
           <InlineEditInput
             index
             labelText={orgName}
-            subText={"Organization"}
-            customStyle={` p-3 !h-12 ${backgroundColor.sidebarSecondary}  ${hoverInput2}`}
+            subText={isPlatformOrganization ? "Platform Organization" : "Organization"}
+            customStyle={`p-3 !h-12 ${backgroundColor.sidebarSecondary} ${hoverInput2}`}
             showEditIconOnHover=false
-            customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2} `}
+            customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2}`}
             customIconComponent={<ToolTip
               description={orgID}
               customStyle="!whitespace-nowrap"
@@ -133,7 +141,7 @@ module OrgTile = {
                 <HelperComponents.CopyTextCustomComp
                   customIconCss={`${secondaryTextColor}`}
                   displayValue=Some("")
-                  copyValue=Some({orgID})
+                  copyValue=Some(orgID)
                 />
               </div>}
               toolTipPosition=ToolTip.Right
@@ -150,6 +158,48 @@ module OrgTile = {
           />
         </div>
       </div>
+    </div>
+  }
+}
+
+module OrgTileGroup = {
+  @react.component
+  let make = (
+    ~heading: string="",
+    ~customHeading=?,
+    ~hasPlatformOrg,
+    ~orgList: array<OMPSwitchTypes.ompListTypes>,
+    ~orgSwitch,
+    ~currentlyEditingId,
+    ~handleIdUnderEdit,
+  ) => {
+    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+
+    <div className="flex flex-col justify-center gap-3">
+      <RenderIf condition={hasPlatformOrg}>
+        {switch customHeading {
+        | Some(customHeading) => customHeading
+        | None =>
+          <div className="text-nd_gray-400 uppercase leading-12 text-fs-8 font-bold">
+            <div className="flex justify-center"> {heading->React.string} </div>
+          </div>
+        }}
+      </RenderIf>
+      {orgList
+      ->Array.mapWithIndex((org, i) => {
+        <OrgTile
+          key={Int.toString(i)}
+          orgID={org.id}
+          isActive={org.id === orgId}
+          isPlatformOrganization={org.type_->Option.getOr(#standard) === #platform}
+          orgSwitch
+          orgName={org.name}
+          index={i}
+          handleIdUnderEdit
+          currentlyEditingId
+        />
+      })
+      ->React.array}
     </div>
   }
 }
@@ -287,6 +337,7 @@ module NewOrgCreationModal = {
     </Modal>
   }
 }
+
 @react.component
 let make = () => {
   open APIUtils
@@ -296,9 +347,11 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
+  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -327,6 +380,17 @@ let make = () => {
     orgList->Array.slice(~start=0, ~end=maxVisibleOrgs)
   }
 
+  let getOrgsListBasedOnType = ompType =>
+    visibleOrgList->Array.filter(item =>
+      switch item.type_ {
+      | Some(userType) => userType === ompType
+      | None => false
+      }
+    )
+
+  let standardOrgList = getOrgsListBasedOnType(#standard)
+  let platformOrgList = getOrgsListBasedOnType(#platform)
+
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
     compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
   }
@@ -334,11 +398,23 @@ let make = () => {
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
+
+  let fetchOrgDetails = async () => {
+    try {
+      let _ = await fetchOrganizationDetails()
+    } catch {
+    | _ => showToast(~message="Failed to fetch organization details", ~toastType=ToastError)
+    }
+  }
+
   let getOrgList = async () => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
+      if version === V1 && userHasAccess(~groupAccess=OrganizationManage) === Access {
+        fetchOrgDetails()->ignore
+      }
       orgData->Array.sort(sortByOrgName)
       setOrgList(_ => orgData)
     } catch {
@@ -348,6 +424,7 @@ let make = () => {
       }
     }
   }
+
   React.useEffect(() => {
     if !isInternalUser {
       getOrgList()->ignore
@@ -375,7 +452,6 @@ let make = () => {
   }
 
   <div className={`${backgroundColor.sidebarNormal}  p-2 pt-3 border-r w-14 ${borderColor}`}>
-    // the org tiles
     <div className="flex flex-col gap-5 pt-2 px-2 items-center justify-center ">
       <RenderIf condition={showAllOrgs}>
         <Icon
@@ -385,20 +461,31 @@ let make = () => {
           onClick={_ => setShowAllOrgs(_ => false)}
         />
       </RenderIf>
-      {visibleOrgList
-      ->Array.mapWithIndex((org, i) => {
-        <OrgTile
-          key={Int.toString(i)}
-          orgID={org.id}
-          isActive={org.id === orgId}
+      <RenderIf condition={platformOrgList->Array.length > 0}>
+        <OrgTileGroup
+          customHeading={<div
+            className="text-nd_gray-400 uppercase leading-12 text-fs-8 font-bold flex flex-col items-center">
+            <div> {"Platform"->React.string} </div>
+            <div> {"Org"->React.string} </div>
+          </div>}
+          hasPlatformOrg={platformOrgList->Array.length > 0}
+          orgList=platformOrgList
           orgSwitch
-          orgName={org.name}
-          index={i}
-          handleIdUnderEdit
           currentlyEditingId
+          handleIdUnderEdit
         />
-      })
-      ->React.array}
+      </RenderIf>
+      <RenderIf condition={standardOrgList->Array.length > 0}>
+        <hr className="w-full" />
+        <OrgTileGroup
+          heading="Org"
+          hasPlatformOrg={platformOrgList->Array.length > 0}
+          orgList=standardOrgList
+          orgSwitch
+          currentlyEditingId
+          handleIdUnderEdit
+        />
+      </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
         <Icon
           name="nd-angle-down"

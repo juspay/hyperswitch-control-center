@@ -28,10 +28,7 @@ let make = () => {
     }
   }
 
-  let connectors = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV2,
-    ~retainInList=BillingProcessor,
-  )
+  let connectors = ConnectorListInterface.useFilteredConnectorList(~retainInList=BillingProcessor)
 
   let hasConfiguredBillingConnector = connectors->Array.length > 0
 
@@ -39,7 +36,6 @@ let make = () => {
     setUpConnectorContainer()->ignore
     None
   }, [merchantId, profileId])
-
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
@@ -85,7 +81,7 @@ let make = () => {
         <RevenueRecoveryOnboardingLanding createMerchant=false />
       }
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <NotFoundPage />
+    | _ => <EmptyPage path="/v2/recovery/overview" />
     }}
   </PageLoaderWrapper>
 }

@@ -8,7 +8,7 @@ module SubHeading = {
   }
 }
 
-let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadV2>) => {
+let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadCommonType>) => {
   let (mca, name) = switch connectorList->Array.get(0) {
   | Some(connectorDetails) => (connectorDetails.id, connectorDetails.connector_name)
   | _ => ("", "")
@@ -44,12 +44,20 @@ let getConnectorConfig = connector => {
     {
       "connector_auth": {
         "HeaderKey": {
-          "api_key": "Stripe billing API Key",
+          "api_key": "Custom billing API Key",
         },
       },
       "connector_webhook_details": {
         "merchant_secret": "Username",
         "additional_secret": "Password",
+      },
+    }->Identity.genericTypeToJson
+  | "custombilling" =>
+    {
+      "connector_auth": {
+        "HeaderKey": {
+          "api_key": "Custom billing API Key",
+        },
       },
     }->Identity.genericTypeToJson
   | _ => JSON.Encode.null

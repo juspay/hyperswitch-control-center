@@ -1,7 +1,9 @@
 type productTypes =
   | Orchestration(UserInfoTypes.version)
-  | Recon
+  | Recon(UserInfoTypes.version)
   | Vault
   | CostObservability
   | DynamicRouting
   | Recovery
+  | OnBoarding(string)
+  | UnknownProduct

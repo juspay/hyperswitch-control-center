@@ -254,6 +254,12 @@ let disputeAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View Dispute analytics", "")],
 })
+let routingAnalytics = SubLevelLink({
+  name: "Routing",
+  link: `/analytics-routing`,
+  access: Access,
+  searchOptions: [("View routing analytics", "")],
+})
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
@@ -274,6 +280,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
@@ -291,6 +298,9 @@ let analytics = (
 
   if performanceMonitorFlag {
     links->Array.push(performanceMonitor)
+  }
+  if routingAnalyticsFlag {
+    links->Array.push(routingAnalytics)
   }
 
   isAnalyticsEnabled
@@ -636,13 +646,14 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     devWebhooks,
     threedsExemptionRules,
     paymentSettingsV2,
+    routingAnalytics,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForMerchant,
+    useIsFeatureEnabledForBlackListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
@@ -659,6 +670,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       isNewAnalyticsEnable,
+      routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
@@ -684,6 +696,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 }
 
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
@@ -708,12 +721,15 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) =>
     hsSidebars->Array.concat(ExtLibSidebarValues.getExternalLibs(featureFlagDetails))
-  | Recon => ReconSidebarValues.reconSidebars
-  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
   | Vault => VaultSidebarValues.vaultSidebars
   | CostObservability => HypersenseSidebarValues.hypersenseSidebars
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+  | OnBoarding(_) => []
+  | UnknownProduct => []
   }
   defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

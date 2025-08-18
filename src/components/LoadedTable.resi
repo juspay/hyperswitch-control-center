@@ -6,7 +6,7 @@ type checkBoxProps = {
   setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 let checkBoxPropDefaultVal: checkBoxProps
-let sortAtom: Recoil.recoilAtom<RescriptCore.Dict.t<sortOb>>
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>>
 let backgroundClass: string
 let useSortedObj: (
   string,
@@ -17,7 +17,7 @@ let useSortedObj: (
 )
 let sortArray: (array<'a>, string, Table.sortOrder) => array<'a>
 type pageDetails = {offset: int, resultsPerPage: int}
-let table_pageDetails: Recoil.recoilAtom<RescriptCore.Dict.t<pageDetails>>
+let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>>
 @react.component
 let make: (
   ~hideCustomisableColumnButton: bool=?,

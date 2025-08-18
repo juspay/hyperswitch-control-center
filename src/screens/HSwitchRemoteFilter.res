@@ -311,7 +311,7 @@ module RemoteTableFilters = {
       ->Dict.fromArray
 
     let remoteFilters = React.useMemo(() => {
-      filterData->initialFilters(getAllFilter, removeKeys, filterKeys, setfilterKeys)
+      filterData->initialFilters(getAllFilter, removeKeys, filterKeys, setfilterKeys, version)
     }, [getAllFilter])
 
     let initialDisplayFilters =
@@ -326,7 +326,7 @@ module RemoteTableFilters = {
         key="0"
         customLeftView
         defaultFilters
-        fixedFilters={initialFixedFilter()}
+        fixedFilters={initialFixedFilter(version)}
         requiredSearchFieldsList=[]
         localFilters={initialDisplayFilters}
         localOptions=[]
@@ -344,7 +344,7 @@ module RemoteTableFilters = {
         key="1"
         customLeftView
         defaultFilters
-        fixedFilters={initialFixedFilter()}
+        fixedFilters={initialFixedFilter(version)}
         requiredSearchFieldsList=[]
         localFilters=[]
         localOptions=[]

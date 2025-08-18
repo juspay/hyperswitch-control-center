@@ -52,7 +52,6 @@ Hyperswitch Control Center addresses these challenges by providing:
    - Needs detailed reporting and analytics
    - Values processor cost optimization
 3. **Technical Team/Developers**
-
    - Implements and maintains payment infrastructure
    - Needs easy integration and troubleshooting capabilities
    - Values clear documentation and APIs
@@ -101,19 +100,16 @@ Hyperswitch Control Center addresses these challenges by providing:
 Hyperswitch Control Center delivers:
 
 1. **Operational Excellence**:
-
    - Single interface for all payment operations
    - Streamlined workflows for common tasks
    - Reduced operational errors and overhead
 
 2. **Financial Benefits**:
-
    - Lower processing costs through optimized routing
    - Reduced development and maintenance costs
    - Better conversion rates and authorization success
 
 3. **Strategic Advantage**:
-
    - Flexibility to adapt payment stack without vendor lock-in
    - Data-driven insights for continuous improvement
    - Ability to quickly respond to processor issues or opportunities

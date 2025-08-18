@@ -7,6 +7,11 @@ type dashboardPageStateTypes = [
   | #HOME
 ]
 
+type workflowDrawerStateTypes =
+  | Closed
+  | Minimised(ExploreWorkflowsTypes.workflowTypes)
+  | FullWidth(ExploreWorkflowsTypes.workflowTypes)
+
 type integrationDetailsType = {
   pricing_plan: integration,
   connector_integration: integration,
@@ -31,6 +36,8 @@ type contextType = {
   setIsProdIntentCompleted: (option<bool> => option<bool>) => unit,
   showSideBar: bool,
   setShowSideBar: (bool => bool) => unit,
+  workflowDrawerState: workflowDrawerStateTypes,
+  setWorkflowDrawerState: (workflowDrawerStateTypes => workflowDrawerStateTypes) => unit,
 }
 
 type sidebarContextType = {
