@@ -73,6 +73,7 @@
     "apexcharts": "^4.0.0",
     "bs-fetch": "^0.6.2",
     "dayjs": "^1.10.4",
+    "DE-routing-playground": "https://github.com/spritianeja03/DE-routing-playground.git",
     "final-form": "^4.20.4",
     "framer-motion": "^10.12.16",
     "highcharts": "^9.3.0",

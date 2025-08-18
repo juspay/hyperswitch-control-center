@@ -66,6 +66,10 @@ module.exports = () => {
       new MiniCssExtractPlugin(),
       new CopyPlugin({
         patterns: [
+          {
+            from: "node_modules/DE-routing-playground/dist/style.css",
+            to: path.resolve(__dirname, "dist/hyperswitch/ext_libs/de-routing"),
+          },
           { from: "public/common" },
           {
             from: `public/hyperswitch`,
