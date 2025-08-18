@@ -1,4 +1,5 @@
 open InsightsUtils
+open NewAnalyticsUtils
 open LogicUtils
 open SuccessfulRefundsDistributionTypes
 

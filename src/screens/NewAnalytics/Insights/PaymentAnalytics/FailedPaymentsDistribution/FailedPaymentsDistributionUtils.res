@@ -33,7 +33,7 @@ let failedPaymentsDistributionMapper = (
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color=redColor,
+    ~color=NewAnalyticsUtils.redColor,
   )
   let title = {
     text: "",
@@ -50,6 +50,7 @@ let failedPaymentsDistributionMapper = (
 }
 
 open InsightsTypes
+open NewAnalyticsTypes
 
 let tableItemToObjMapper: Dict.t<JSON.t> => failedPaymentsDistributionObject = dict => {
   {

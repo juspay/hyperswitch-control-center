@@ -158,7 +158,7 @@ let make = () => {
     />
     <PageLoaderWrapper
       screenState
-      customUI={<InsightsHelper.NoData />}
+      customUI={<NewAnalyticsHelper.NoData />}
       customLoader={<Shimmer styleClass="w-full h-96" />}>
       <CustomExpandableTable
         title=" "

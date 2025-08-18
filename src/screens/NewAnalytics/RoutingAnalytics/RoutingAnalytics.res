@@ -47,16 +47,15 @@ let make = () => {
         ~id=Some("routing"),
       )
       let filterBody =
-        InsightsUtils.requestBody(
-          ~startTime,
-          ~endTime,
+        AnalyticsUtils.getFilterRequestBody(
+          ~metrics=Some([]),
+          ~delta=true,
           ~groupByNames=Some(tabNames),
-          ~metrics=[],
           ~filter=None,
-          ~delta=Some(true),
-        )
-        ->getArrayFromJson([])
-        ->getValueFromArray(0, JSON.Encode.null)
+          ~startDateTime=startTime,
+          ~endDateTime=endTime,
+        )->JSON.Encode.object
+
       let filterData = await updateDetails(analyticsfilterUrl, filterBody, Post)
       setFilterDataJson(_ => Some(filterData))
     } catch {
@@ -85,7 +84,7 @@ let make = () => {
     None
   }, (startTime, endTime, dimensions))
 
-  <PageLoaderWrapper screenState customUI={<InsightsHelper.NoData />}>
+  <PageLoaderWrapper screenState customUI={<NewAnalyticsHelper.NoData />}>
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading

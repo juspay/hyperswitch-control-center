@@ -110,7 +110,7 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-56 rounded-lg" />}
-    customUI={<InsightsHelper.NoData height="h-56 p-0 -m-0" />}>
+    customUI={<NewAnalyticsHelper.NoData height="h-56 p-0 -m-0" />}>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <RetryUpliftCard
         title={StaticRetries->getTitleForColumn}

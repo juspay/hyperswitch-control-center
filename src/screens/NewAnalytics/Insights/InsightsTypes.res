@@ -86,7 +86,6 @@ type chartEntity<'t, 'chartOption, 'data> = {
   getChatOptions: 't => 'chartOption,
 }
 
-type optionType = {label: string, value: string}
 
 type metricType =
   | Smart_Retry

@@ -132,7 +132,7 @@ module RoutingAnalyticsCard = {
 
     <PageLoaderWrapper
       screenState
-      customUI={<InsightsHelper.NoData height="h-32" />}
+      customUI={<NewAnalyticsHelper.NoData height="h-32" />}
       customLoader={<Shimmer styleClass="h-32 w-full rounded-xl" />}>
       <div
         className="flex flex-col gap-4 border rounded-xl p-4 bg-white shadow-xs border-nd_gray-200">

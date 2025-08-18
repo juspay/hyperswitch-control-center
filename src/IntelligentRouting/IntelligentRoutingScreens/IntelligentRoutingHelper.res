@@ -32,7 +32,7 @@ let displayDateRange = (~minDate, ~maxDate) => {
 
   let time = value => {
     let dateObj = getDateObj(value)
-    dateObj.format("HH:mm")->InsightsUtils.formatTime
+    dateObj.format("HH:mm")->NewAnalyticsUtils.formatTimeString
   }
 
   let diff = DateRangeUtils.getStartEndDiff(minDate, maxDate)
@@ -48,8 +48,8 @@ let displayDateRange = (~minDate, ~maxDate) => {
 
 let getDateTime = value => {
   let dateObj = value->DayJs.getDayJsForString
-  let _date = `${dateObj.month()->InsightsUtils.getMonthName} ${dateObj.format("DD")}`
-  let time = dateObj.format("HH:mm")->InsightsUtils.formatTime
+  let _date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
+  let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTimeString
   `${time}`
 }
 
