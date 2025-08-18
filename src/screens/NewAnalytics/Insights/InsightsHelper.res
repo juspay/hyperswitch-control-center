@@ -9,7 +9,6 @@ module Card = {
   }
 }
 
-
 module Shimmer = {
   @react.component
   let make = (~className="w-full h-96", ~layoutId) => {
@@ -52,7 +51,6 @@ module TabSwitch = {
     </div>
   }
 }
-
 
 module CustomDropDown = {
   open NewAnalyticsTypes

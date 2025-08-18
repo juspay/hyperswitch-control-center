@@ -1,4 +1,4 @@
-open RoutingAnalyticsTypes
+open OverallRoutingAnalyticsTypes
 type routingTrendsMetrics = [
   | #payment_success_rate
   | #payment_count
