@@ -158,7 +158,7 @@ let fillMissingDataPointsForConnectors = (
   groupedData
   ->Dict.toArray
   ->Array.forEach(((groupValue, groupData)) => {
-    let timeDict = NewAnalyticsUtils.extractTimeDict(
+    let timeDict = extractTimeDict(
       ~data=groupData,
       ~granularityEnabled,
       ~granularity,
@@ -169,7 +169,7 @@ let fillMissingDataPointsForConnectors = (
     let defaultValueWithGroup = defaultValue->getDictFromJsonObject->Dict.copy
     defaultValueWithGroup->Dict.set(groupByKey, groupValue->JSON.Encode.string)
 
-    let filledTimeDict = NewAnalyticsUtils.fillForMissingTimeRange(
+    let filledTimeDict = fillForMissingTimeRange(
       ~existingTimeDict=timeDict,
       ~timeKey,
       ~defaultValue=defaultValueWithGroup->JSON.Encode.object,
@@ -223,7 +223,7 @@ let genericRoutingMapper = (
   let isShowTime = dataArray->checkTimePresent(xKey)
   let categories = allTimeBuckets->Array.map(timeBucket => {
     let dateObj = timeBucket->DayJs.getDayJsForString
-    let date = `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
+    let date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
     if isShowTime {
       let time = dateObj.format("HH:mm")->formatTimeString
       `${date}, ${time}`
@@ -236,14 +236,8 @@ let genericRoutingMapper = (
     connectorGroups
     ->Dict.toArray
     ->Array.mapWithIndex(((connectorName, connectorData), index) => {
-      let color = index->NewAnalyticsUtils.getColor
-      NewAnalyticsUtils.getLineGraphObj(
-        ~array=connectorData,
-        ~key=yKey,
-        ~name=connectorName,
-        ~color,
-        ~isAmount=false,
-      )
+      let color = index->getColor
+      getLineGraphObj(~array=connectorData, ~key=yKey, ~name=connectorName, ~color, ~isAmount=false)
     })
 
   {

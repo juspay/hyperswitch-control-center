@@ -1,5 +1,3 @@
-// colors
-
 open InsightsTypes
 open HSwitchRemoteFilter
 open DateRangeUtils
