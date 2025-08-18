@@ -70,11 +70,11 @@ let paymentsSuccessRateMapper = (
 }
 
 open InsightsTypes
-let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string)}]
 
 let defaulGranularity = {
   label: "Hourly",
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 let getKeyForModule = (field, ~isSmartRetryEnabled) => {
