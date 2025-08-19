@@ -62,7 +62,7 @@ let make = () => {
     | list{"v2", "recon", "configuration"} =>
       <ReconConfigurationContainer setShowOnBoarding currentStep setCurrentStep />
     | list{"v2", "recon", "reports", ..._} => <ReconReportsContainer showOnBoarding />
-    | _ => React.null
+    | _ => <EmptyPage path="/v2/recon/overview" />
     }}
   </PageLoaderWrapper>
 }

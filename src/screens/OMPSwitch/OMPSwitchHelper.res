@@ -382,6 +382,8 @@ module MerchantDropdownItem = {
       | DynamicRouting => "intelligent-routing-home"
       | Orchestration(V2) => "orchestrator-home"
       | Recon(V1) => "recon-engine-v1"
+      | OnBoarding(_) => ""
+      | UnknownProduct => ""
       }
     }
 

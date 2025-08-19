@@ -159,7 +159,7 @@ let defaultMetric = {
 
 let defaulGranularity = {
   label: "Daily",
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 open InsightsTypes

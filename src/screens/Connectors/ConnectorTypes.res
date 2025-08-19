@@ -70,6 +70,7 @@ type processorTypes =
   | BITPAY
   | CRYPTOPAY
   | CASHTOCODE
+  | CHECKBOOK
   | PAYME
   | GLOBEPAY
   | POWERTRANZ
