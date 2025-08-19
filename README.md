@@ -163,7 +163,6 @@ Themes can now be customized in `ThemesProvider.res` by overriding the values in
 You can override these default values either by exporting them directly
 
 ```
-export default__theme__sidebar_color="#3b0764";
 export default__features__threeds_authenticator=true;
 export default__features__is_live_mode=true;
 
