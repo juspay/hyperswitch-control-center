@@ -15,6 +15,7 @@ let make = () => {
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
 
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
@@ -35,7 +36,6 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -48,33 +48,19 @@ let make = () => {
     | _ => ()
     }
   }
-  // set the product url based on the product type
-  let setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(
-      ~path=url.path,
-      ~query=url.search,
-      ~end=url.path->List.toArray->Array.length,
-    )
-    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl, ~isLiveMode)
-    RescriptReactRouter.replace(productUrl)
-    switch url.path->urlPath {
-    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))
-    | _ => ()
-    }
-  }
 
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
+      setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
-      setupProductUrl(~productType=merchantResponse.product_type)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -117,6 +103,11 @@ let make = () => {
   | _ => false
   }
 
+  let onAskPulseClick = () => {
+    mixpanelEvent(~eventName="ask_pulse_clicked")
+    RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))
+  }
+
   <>
     <div>
       {switch dashboardPageState {
@@ -152,8 +143,7 @@ let make = () => {
                             userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
                             merchantDetailsTypedValue.product_type == Orchestration(V1)}>
                             <div
-                              onClick={_ =>
-                                RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))}
+                              onClick={_ => onAskPulseClick()}
                               className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"
                               style={ReactDOM.Style.make(
                                 ~background="linear-gradient(90deg, transparent 0%, #3b82f6 25%, transparent 50%, #3b82f6 75%, transparent 100%)",
@@ -167,7 +157,7 @@ let make = () => {
                                 className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
                                 <Icon name="stars" size=20 customIconColor="text-blue-500" />
                                 <span className={`${body.md.semibold} text-blue-500`}>
-                                  {"Ask AI"->React.string}
+                                  {"Ask Pulse"->React.string}
                                 </span>
                               </div>
                               <style>
@@ -207,15 +197,11 @@ let make = () => {
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
-                        {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
-                        /* DEFAULT HOME */
+                        {switch (activeProduct, url.path->urlPath) {
+                        // /* DEFAULT HOME */
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
-
-                        | (_, list{"v2", "onboarding", ..._})
-                        | (_, list{"v1", "onboarding", ..._}) =>
-                          <DefaultOnboardingPage />
 
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
@@ -224,44 +210,28 @@ let make = () => {
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
 
+                        | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
 
-                        | (Recon(V1), list{"v1", "recon-engine", ..._}) => <ReconEngineApp />
+                        | (Recon(V1), _) => <ReconEngineApp />
 
                         /* RECON V2 PRODUCT */
 
-                        | (Recon(V2), list{"v2", "recon", ..._}) => <ReconApp />
+                        | (Recon(V2), _) => <ReconApp />
 
                         /* RECOVERY PRODUCT */
-                        | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
-
+                        | (Recovery, _) => <RevenueRecoveryApp />
                         /* VAULT PRODUCT */
-                        | (Vault, list{"v2", "vault", ..._}) => <VaultApp />
-
+                        | (Vault, _) => <VaultApp />
                         /* HYPERSENSE PRODUCT */
-                        | (CostObservability, list{"v2", "cost-observability", ..._}) =>
-                          <HypersenseApp />
-
-                        /* INTELLIGENT ROUTING PRODUCT */
-                        | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
-                          <IntelligentRoutingApp />
-
-                        /* ORCHESTRATOR V2 PRODUCT */
-                        | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
-                          <OrchestrationV2App />
-
-                        /* ORCHESTRATOR PRODUCT */
+                        | (CostObservability, _) => <HypersenseApp />
+                        | (DynamicRouting, _) => <IntelligentRoutingApp />
+                        | (Orchestration(V2), _) => <OrchestrationV2App />
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
-
-                        | _ =>
-                          <UnauthorizedPage
-                            productType=merchantDetailsTypedValue.product_type
-                            message="You don't have access to this module."
-                          />
+                        | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>
                     </div>

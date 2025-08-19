@@ -7,6 +7,6 @@ let make = () => {
   | list{"v2", "orchestration", "connectors", ..._} => <ConnectorContainerV2 />
   | list{"v2", "orchestration", "payments", ..._} => <TransactionContainerV2 />
   | list{"v2", "orchestration", "developer-api-keys", ..._} => <KeyManagement />
-  | _ => React.null
+  | _ => <EmptyPage path="/v2/orchestration/home" />
   }
 }

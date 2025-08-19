@@ -245,7 +245,8 @@ module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
     let showToast = ToastState.useShowToast()
-    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+    let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
 
     let onSwitchForUserAction = async () => {
       try {

@@ -3,6 +3,67 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.19.1
+
+### Bug Fixes
+
+- Resolve product switch ([#3452](https://github.com/juspay/hyperswitch-control-center/pull/3452)) ([`c5c1d65`](https://github.com/juspay/hyperswitch-control-center/commit/c5c1d65470dbaad74195a9ef5145f15f6dfcb259))
+
+**Full Changelog:** [`2025.08.19.0...2025.08.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.19.0...2025.08.19.1)
+
+- - -
+
+## 2025.08.19.0
+
+### Bug Fixes
+
+- Fix text box size issue for 13 inch screen ([#3447](https://github.com/juspay/hyperswitch-control-center/pull/3447)) ([`7dd07ff`](https://github.com/juspay/hyperswitch-control-center/commit/7dd07ffb47b273452e2c8748a9d70d2015ed875e))
+- Payout connector display name ([#3450](https://github.com/juspay/hyperswitch-control-center/pull/3450)) ([`c68405c`](https://github.com/juspay/hyperswitch-control-center/commit/c68405c251ab01b8dfaca75423d162cb3066a591))
+- Create merchant not visible in platform org ([#3443](https://github.com/juspay/hyperswitch-control-center/pull/3443)) ([`8edc6b1`](https://github.com/juspay/hyperswitch-control-center/commit/8edc6b11e455ac5286b66dd298a37a1b35fbf9b2))
+
+### Miscellaneous Tasks
+
+- Refactor missing point generation ([#3445](https://github.com/juspay/hyperswitch-control-center/pull/3445)) ([`743e301`](https://github.com/juspay/hyperswitch-control-center/commit/743e30114cd267f8803734118ca29e470cc1b7c7))
+- Routing analytics time distribution graph changes ([#3414](https://github.com/juspay/hyperswitch-control-center/pull/3414)) ([`dff67e5`](https://github.com/juspay/hyperswitch-control-center/commit/dff67e5659d4d814df6593e005aa137504860e99))
+
+**Full Changelog:** [`2025.08.14.0...2025.08.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.14.0...2025.08.19.0)
+
+- - -
+
+## 2025.08.14.0
+
+### Features
+
+- Add new connector `CheckBook` ([#3439](https://github.com/juspay/hyperswitch-control-center/pull/3439)) ([`776cb62`](https://github.com/juspay/hyperswitch-control-center/commit/776cb627d225c9b20fef7223e4e58cbf5def4123))
+
+### Refactors
+
+- Url routing ([#3340](https://github.com/juspay/hyperswitch-control-center/pull/3340)) ([`627eea7`](https://github.com/juspay/hyperswitch-control-center/commit/627eea7911cc47ae6b14f4def14056a3771796ef))
+
+### Miscellaneous Tasks
+
+- Rename data assistant to pulse ai and add mixpanel events ([#3440](https://github.com/juspay/hyperswitch-control-center/pull/3440)) ([`054c7d1`](https://github.com/juspay/hyperswitch-control-center/commit/054c7d1b7aa30a06fc1e611a489a01d5495a905f))
+- Fix product url ([`c36709f`](https://github.com/juspay/hyperswitch-control-center/commit/c36709f8328daf35635f045175067ef96eb5a9d3))
+
+**Full Changelog:** [`2025.08.13.0...2025.08.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.13.0...2025.08.14.0)
+
+- - -
+
+## 2025.08.13.0
+
+### Features
+
+- Add new connectors `AuthiPay`, `SilverFlow` and `Nordea` ([#3430](https://github.com/juspay/hyperswitch-control-center/pull/3430)) ([`a7ca4dc`](https://github.com/juspay/hyperswitch-control-center/commit/a7ca4dc2cd87974e650607f98f3b25bf266e3ea4))
+- Wasm changes for `AuthiPay`, `SilverFlow` and `Nordea` connectors ([#3432](https://github.com/juspay/hyperswitch-control-center/pull/3432)) ([`71ad7aa`](https://github.com/juspay/hyperswitch-control-center/commit/71ad7aa5d18e08e9cb6b0a4e89cb7231866791b3))
+
+### Miscellaneous Tasks
+
+- Folder restructure ([`4602752`](https://github.com/juspay/hyperswitch-control-center/commit/46027524120f12fb7a0bf6d9d0d1c1963ab986cc))
+
+**Full Changelog:** [`2025.08.12.0...2025.08.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.12.0...2025.08.13.0)
+
+- - -
+
 ## 2025.08.12.0
 
 ### Features
