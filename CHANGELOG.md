@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.19.2
+
+### Bug Fixes
+
+- Readme update to remove old theme context ([#3418](https://github.com/juspay/hyperswitch-control-center/pull/3418)) ([`a90127e`](https://github.com/juspay/hyperswitch-control-center/commit/a90127e5f28183a4380d54f0adca72e5413c01a9))
+- Recovery onboarding and switch merchant changes ([#3435](https://github.com/juspay/hyperswitch-control-center/pull/3435)) ([`71ec075`](https://github.com/juspay/hyperswitch-control-center/commit/71ec075f678143ce394fca958919630fcc8435ea))
+
+**Full Changelog:** [`2025.08.19.1...2025.08.19.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.19.1...2025.08.19.2)
+
+- - -
+
 ## 2025.08.19.1
 
 ### Bug Fixes
