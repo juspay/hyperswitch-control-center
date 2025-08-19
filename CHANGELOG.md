@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.19.1
+
+### Bug Fixes
+
+- Resolve product switch ([#3452](https://github.com/juspay/hyperswitch-control-center/pull/3452)) ([`c5c1d65`](https://github.com/juspay/hyperswitch-control-center/commit/c5c1d65470dbaad74195a9ef5145f15f6dfcb259))
+
+**Full Changelog:** [`2025.08.19.0...2025.08.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.19.0...2025.08.19.1)
+
+- - -
+
 ## 2025.08.19.0
 
 ### Bug Fixes
