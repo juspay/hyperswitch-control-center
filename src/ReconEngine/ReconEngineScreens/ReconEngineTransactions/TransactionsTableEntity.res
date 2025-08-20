@@ -41,7 +41,7 @@ let getHeading = (colType: transactionColType) => {
   | DebitAmount => Table.makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | DiscardedStatus => Table.makeHeaderInfo(~key="discarded_status", ~title="Discarded Status")
+  | DiscardedStatus => Table.makeHeaderInfo(~key="discarded_status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   }
 }
