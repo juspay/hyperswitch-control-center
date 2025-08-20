@@ -622,7 +622,6 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
   }
 }
 
-
 //// HOOKS
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
