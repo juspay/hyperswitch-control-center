@@ -5,6 +5,9 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   open LogicUtils
   open APIUtils
   open PageLoaderWrapper
+  let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
+  let showPopUp = PopUpState.useShowPopUp()
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -71,6 +74,8 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     data,
   )
   let {connector_name: connectorName} = connectorInfodict
+
+  let isConnectorDisabled = connectorInfodict.disabled
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -167,6 +172,41 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     ->Dict.keysToArray
     ->Array.filter(val => !Array.includes(["credit", "debit"], val))
 
+  let disableConnector = async isConnectorDisabled => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let connectorID = connectorInfodict.id
+      let disableConnectorPayload = getDisableConnectorPayload(
+        connectorInfodict.connector_type->connectorTypeTypedValueToStringMapper,
+        isConnectorDisabled,
+        ~merchantId=Some(merchantId),
+      )
+      let url = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=Some(connectorID))
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Put)
+      let _ = await fetchConnectorListResponse()
+      setInitialValues(_ => res)
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+    } catch {
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+    }
+  }
+
+  let onDisableConnector = _ => {
+    showPopUp({
+      popUpType: (Warning, WithIcon),
+      heading: "Confirm Action ? ",
+      description: `You are about to ${isConnectorDisabled
+          ? "Enable"
+          : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+      handleConfirm: {
+        text: "Confirm",
+        onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+      },
+      handleCancel: {text: "Cancel"},
+    })
+  }
+
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
       path=[
@@ -183,7 +223,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className={`flex flex-col gap-10 ${topPadding} `}>
-        <div>
+        <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row gap-4 items-center">
             <GatewayIcon
               gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
@@ -192,6 +232,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
               {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
             </p>
           </div>
+          <Button text={isConnectorDisabled ? "Enable" : "Disable"} onClick={onDisableConnector} />
         </div>
         <div className="flex flex-col gap-12">
           <div className="flex gap-10 max-w-3xl flex-wrap px-2">
@@ -231,12 +272,22 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                     />
                   </>
                 } else {
-                  <div
-                    className="flex gap-2 items-center cursor-pointer"
-                    onClick={_ => handleClick(Some(AuthenticationKeys))}>
-                    <Icon name="nd-edit" size=14 />
-                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                  </div>
+                  <>
+                    <RenderIf condition={isConnectorDisabled}>
+                      <div className="flex gap-2 items-center opacity-50" onClick={_ => ()}>
+                        <Icon name="nd-edit" size=14 />
+                        <a className="text-primary"> {"Edit"->React.string} </a>
+                      </div>
+                    </RenderIf>
+                    <RenderIf condition={!isConnectorDisabled}>
+                      <div
+                        className="flex gap-2 items-center cursor-pointer"
+                        onClick={_ => handleClick(Some(AuthenticationKeys))}>
+                        <Icon name="nd-edit" size=14 />
+                        <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                      </div>
+                    </RenderIf>
+                  </>
                 }}
               </div>
             </div>

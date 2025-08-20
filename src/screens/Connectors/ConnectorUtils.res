@@ -1391,11 +1391,17 @@ let generateInitialValuesDict = (
   dict->JSON.Encode.object
 }
 
-let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
-  [
-    ("connector_type", connectorType->JSON.Encode.string),
-    ("disabled", !previousConnectorState->JSON.Encode.bool),
-  ]->Dict.fromArray
+let getDisableConnectorPayload = (connectorType, previousConnectorState, ~merchantId=None) => {
+  let dict =
+    [
+      ("connector_type", connectorType->JSON.Encode.string),
+      ("disabled", !previousConnectorState->JSON.Encode.bool),
+    ]->Dict.fromArray
+  switch merchantId {
+  | Some(id) => dict->Dict.set("merchant_id", id->JSON.Encode.string)
+  | None => ()
+  }
+  dict
 }
 
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
