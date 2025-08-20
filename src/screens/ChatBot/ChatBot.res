@@ -377,7 +377,7 @@ let make = () => {
       <div className="flex items-center space-x-3">
         <Icon name="pulse-ai" size=40 />
         <div>
-          <h1 className={`${heading.sm.semibold} text-nd_gray-700 dark:text-nd_gray-100`}>
+          <h1 className={`${heading.sm.semibold} text-nd_gray7800 dark:text-nd_gray-100`}>
             {"Pulse AI"->React.string}
           </h1>
         </div>
