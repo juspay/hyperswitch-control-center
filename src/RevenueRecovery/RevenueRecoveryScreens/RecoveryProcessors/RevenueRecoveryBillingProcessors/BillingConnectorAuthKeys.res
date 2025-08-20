@@ -3,7 +3,7 @@ let make = (
   ~initialValues,
   ~setConnectorName,
   ~connector,
-  ~handleAuthKeySubmit,
+  ~onSubmit,
   ~validateMandatoryField,
   ~updatedInitialVal,
   ~connectorInfoDict,
@@ -11,7 +11,8 @@ let make = (
 ) => {
   open LogicUtils
   open ConnectProcessorsHelper
-
+  open RevenueRecoveryOnboardingUtils
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (arrow, setArrow) = React.useState(_ => false)
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -33,38 +34,33 @@ let make = (
     setArrow(prev => !prev)
   }
 
-  let options =
-    RevenueRecoveryOnboardingUtils.billingConnectorList->RevenueRecoveryOnboardingUtils.getOptions
+  let options = {
+    isLiveMode ? prodBillingConnectorList : billingConnectorList
+  }->getOptions
 
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
   let gatewaysBottomComponent = {
     open BillingProcessorsUtils
-    <>
+    <RenderIf condition={!isLiveMode}>
       <p
         className="text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white border-t px-5 pt-4">
         {"Available for Production"->React.string}
       </p>
       <div className="p-2">
-        <ReadOnlyOptionsList
-          list=RevenueRecoveryOnboardingUtils.billingConnectorProdList
-          headerText="Billing Platforms"
-        />
-        <ReadOnlyOptionsList
-          list=RevenueRecoveryOnboardingUtils.billingConnectorInHouseList headerText="In House"
-        />
+        <ReadOnlyOptionsList list=billingConnectorProdList headerText="Billing Platforms" />
+        <ReadOnlyOptionsList list=billingConnectorInHouseList headerText="In House" />
       </div>
-    </>
+    </RenderIf>
   }
 
-  open RevenueRecoveryOnboardingUtils
   <PageWrapper
     title="Choose your Billing Platform"
     subTitle="Select your subscription management platform to get started.">
     <div className="-m-1 mb-10 flex flex-col gap-7">
       <PageLoaderWrapper screenState>
-        <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
+        <Form onSubmit initialValues validate=validateMandatoryField>
           <p className="text-sm text-gray-700 font-semibold mb-1">
             {"Select a Platform"->React.string}
           </p>
@@ -97,7 +93,7 @@ let make = (
                 initialValues={updatedInitialVal}
                 showVertically=true
                 processorType=ConnectorTypes.BillingProcessor
-                updateAccountDetails=false
+                updateAccountDetails=isLiveMode
               />
               <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorMetadataV2

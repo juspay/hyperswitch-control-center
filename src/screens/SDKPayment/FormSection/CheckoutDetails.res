@@ -6,6 +6,10 @@ let make = (~getClientSecret) => {
   let {
     isGuestMode,
     setIsGuestMode,
+    showSetupFutureUsage,
+    setShowSetupFutureUsage,
+    sendAuthType,
+    setSendAuthType,
     initialValuesForCheckoutForm,
     setKeyForReRenderingSDK,
     setInitialValuesForCheckoutForm,
@@ -17,21 +21,29 @@ let make = (~getClientSecret) => {
   )
   let (showModal, setShowModal) = React.useState(() => false)
   let showToast = ToastState.useShowToast()
-  let paymentConnectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
+
   let onSubmit = async (values, _) => {
     try {
       setKeyForReRenderingSDK(_ => Date.now()->Float.toString)
       setInitialValuesForCheckoutForm(_ =>
-        getTypedPaymentData(values, ~showBillingAddress, ~isGuestMode)
+        getTypedPaymentData(
+          values,
+          ~showBillingAddress,
+          ~isGuestMode,
+          ~showSetupFutureUsage,
+          ~sendAuthType,
+        )
       )
       let typedValues = getTypedPaymentData(
         values,
         ~onlyEssential=true,
         ~showBillingAddress,
         ~isGuestMode,
+        ~showSetupFutureUsage,
+        ~sendAuthType,
       )
       let _ = await getClientSecret(~typedValues)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
@@ -44,7 +56,7 @@ let make = (~getClientSecret) => {
   }
 
   <Form
-    formClass="mt-5"
+    formClass="mt-4"
     initialValues={initialValuesForCheckoutForm->Identity.genericTypeToJson}
     onSubmit>
     <FieldRenderer
@@ -65,7 +77,14 @@ let make = (~getClientSecret) => {
       </span>
     </div>
     <RenderIf condition=showModal>
-      <EditCheckoutDetails showModal setShowModal />
+      <EditCheckoutDetails
+        showModal
+        setShowModal
+        showSetupFutureUsage
+        setShowSetupFutureUsage
+        sendAuthType
+        setSendAuthType
+      />
     </RenderIf>
     <SubmitButton
       text="Show preview"

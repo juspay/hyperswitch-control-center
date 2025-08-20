@@ -1,7 +1,11 @@
 open ProductTypes
 let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => {
   switch product->String.toLowerCase {
-  | "recon" => Recon
+  | "recon" =>
+    switch version {
+    | V1 => Recon(V1)
+    | V2 => Recon(V2)
+    }
   | "recovery" => Recovery
   | "vault" => Vault
   | "cost_observability" => CostObservability
@@ -16,40 +20,64 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
 
 let getProductDisplayName = product =>
   switch product {
-  | Recon => "Reconciliation"
+  | Recon(V2) => "Recon"
+  | Recon(V1) => "Reconcilliation Engine"
   | Recovery => "Revenue Recovery"
   | Orchestration(V1) => "Orchestrator"
   | Vault => "Vault"
   | CostObservability => "Cost Observability"
   | DynamicRouting => "Intelligent Routing"
   | Orchestration(V2) => "Orchestrator V2"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductRouteName = product =>
   switch product {
-  | Recon => "recon"
+  | Recon(V2)
+  | Recon(V1) => "recon"
   | Recovery => "recovery"
   | Vault => "vault"
   | CostObservability => "cost-observability"
   | DynamicRouting => "dynamic-routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductStringName = product =>
   switch product {
-  | Recon => "recon"
+  | Recon(V1)
+  | Recon(V2) => "recon"
   | Recovery => "recovery"
   | Vault => "vault"
   | CostObservability => "cost_observability"
   | DynamicRouting => "dynamic_routing"
   | Orchestration(V1) => "orchestration"
   | Orchestration(V2) => "orchestration"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
+  }
+
+let getProductStringDisplayName = product =>
+  switch product {
+  | Recon(V1)
+  | Recon(V2) => "recon"
+  | Recovery => "revenue_recovery"
+  | Vault => "vault"
+  | CostObservability => "cost_observability"
+  | DynamicRouting => "intelligent_routing"
+  | Orchestration(V1)
+  | Orchestration(V2) => "orchestration"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 
 let getProductVariantFromDisplayName = product => {
   switch product {
-  | "Reconciliation" => Recon
+  | "Reconcilliation Engine" => Recon(V1)
+  | "Recon" => Recon(V2)
   | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration(V1)
   | "Vault" => Vault
@@ -62,29 +90,37 @@ let getProductVariantFromDisplayName = product => {
 
 let productTypeIconMapper = productType => {
   switch productType {
-  | Recon => "recon-home"
+  | Orchestration(V1) => "orchestrator-home"
+  | Orchestration(V2) => "orchestrator-home"
   | Recovery => "recovery-home"
   | Vault => "vault-home"
-  | CostObservability => "cost-observability-home"
+  | CostObservability => "nd-piggy-bank"
   | DynamicRouting => "intelligent-routing-home"
-  | _ => "orchestrator-home"
+  | Recon(V1) => "recon-engine-v1"
+  | Recon(V2) => "recon-home"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~url) => {
+let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
   switch productType {
-  | Orchestration(V1) =>
-    if url->String.includes("v2") {
-      `/dashboard/home`
+  | Orchestration(V1) => `/dashboard/home`
+
+  | Recon(V2) => `/dashboard/v2/recon/overview`
+  | Recon(V1) => `/dashboard/v1/recon-engine/overview`
+  | Recovery =>
+    if isLiveMode {
+      "/dashboard/v2/recovery/invoices"
     } else {
-      url
+      "/dashboard/v2/recovery/overview"
     }
-  | Recon => `/dashboard/v2/recon/overview`
-  | Recovery => `/dashboard/v2/recovery/overview`
   | Vault
   | CostObservability
   | DynamicRouting
   | Orchestration(V2) =>
     `/dashboard/v2/${productType->getProductRouteName}/home`
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
   }
 }

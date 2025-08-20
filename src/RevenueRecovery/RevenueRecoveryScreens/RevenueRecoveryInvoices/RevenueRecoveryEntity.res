@@ -15,9 +15,9 @@ let getAttemptCell = (
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
-      color: switch attempt.status->HSwitchOrderUtils.refundStatusVariantMapper {
-      | Success => LabelGreen
-      | Failure => LabelRed
+      color: switch attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
+      | #CHARGED => LabelGreen
+      | #FAILURE => LabelRed
       | _ => LabelLightGray
       },
     })
@@ -25,6 +25,9 @@ let getAttemptCell = (
   | Error => Text(attempt.error)
   | AttemptTriggeredBy => Text(attempt.attempt_triggered_by->LogicUtils.snakeToTitle)
   | Created => Text(attempt.created)
+  | CardNetwork => Text(`${attempt.card_network} - ***** ${attempt.last4}`)
+  | DeclineCode => Text(attempt.network_decline_code)
+  | ErrorMessage => Text(attempt.network_error_message)
   }
 }
 
@@ -35,6 +38,9 @@ let getAttemptHeading = (attemptColType: RevenueRecoveryOrderTypes.attemptColTyp
   | Error => Table.makeHeaderInfo(~key="Error", ~title="Error Reason")
   | AttemptTriggeredBy => Table.makeHeaderInfo(~key="AttemptTriggeredBy", ~title="Attempted By")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
+  | CardNetwork => Table.makeHeaderInfo(~key="Card used", ~title="Card used")
+  | DeclineCode => Table.makeHeaderInfo(~key=" DeclineCode", ~title=" Decline Code")
+  | ErrorMessage => Table.makeHeaderInfo(~key="ErrorMessage", ~title="Error Message")
   }
 }
 
@@ -47,10 +53,50 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   ->getDictfromDict("revenue_recovery")
   ->getString("attempt_triggered_by", "Internal"),
   created: dict->getString("created_at", ""),
+  card_network: dict
+  ->getDictfromDict("payment_method_data")
+  ->getDictfromDict("card")
+  ->getString("card_issuer", ""),
+  last4: dict
+  ->getDictfromDict("payment_method_data")
+  ->getDictfromDict("card")
+  ->getString("last4", ""),
+  network_decline_code: dict
+  ->getDictfromDict("error")
+  ->getString("network_decline_code", ""),
+  network_error_message: dict
+  ->getDictfromDict("error")
+  ->getString("network_error_message", ""),
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
-  LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
+  open HSwitchOrderUtils
+  let errorObject = Dict.make()
+
+  let attemptsList = json->getArrayFromJson([])
+
+  attemptsList->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+
+    let errorDict = dict->getDictfromDict("error")
+
+    let networkDeclineCode = errorDict->getString("network_decline_code", "")
+    let networkErrorMessage = errorDict->getString("network_error_message", "")
+
+    if (
+      (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&
+        dict->getString("status", "")->paymentAttemptStatusVariantMapper != #CHARGED
+    ) {
+      dict->Dict.set("error", errorObject->JSON.Encode.object)
+    }
+
+    if errorObject->isEmptyDict {
+      errorObject->Dict.set("network_decline_code", networkDeclineCode->JSON.Encode.string)
+      errorObject->Dict.set("network_error_message", networkErrorMessage->JSON.Encode.string)
+    }
+
+    dict->attemptsItemToObjMapper
+  })
 }
 
 let allColumns: array<RevenueRecoveryOrderTypes.colType> = [
@@ -77,7 +123,7 @@ let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
+  let orderStatus = order.status->RevenueRecoveryOrderUtils.statusVariantMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -97,6 +143,7 @@ let getCell = (
       | Failed
       | Cancelled =>
         LabelRed
+      | Scheduled => LabelOrange
       | Processing
       | RequiresCustomerAction
       | RequiresConfirmation
@@ -154,7 +201,7 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
   let revenueRecoveryMetadata =
     dict
     ->getDictfromDict("feature_metadata")
-    ->getDictfromDict("payment_revenue_recovery_metadata")
+    ->getDictfromDict("revenue_recovery")
 
   attempts->Array.reverse
   {

@@ -1,5 +1,50 @@
 open AmountFilterTypes
 open LogicUtils
+
+let mapStringToamountFilterChild = key => {
+  switch key {
+  | "start_amount" => #start_amount
+  | "end_amount" => #end_amount
+  | "amount_option" => #amount_option
+  | _ => #unknownchild
+  }
+}
+let mapAmountFilterChildToString = key => {
+  switch key {
+  | #start_amount => "start_amount"
+  | #end_amount => "end_amount"
+  | #amount_option => "amount_option"
+  | #unknownchild => "unknownchild"
+  }
+}
+let mapStringToRange = val =>
+  switch val {
+  | "Greater than or Equal to" => GreaterThanOrEqualTo
+  | "Less than or Equal to" => LessThanOrEqualTo
+  | "Equal to" => EqualTo
+  | "In Between" => InBetween
+  | _ => UnknownRange(val)
+  }
+
+let mapRangeTypetoString = amountFilter => {
+  switch amountFilter {
+  | GreaterThanOrEqualTo => "Greater than or Equal to"
+  | LessThanOrEqualTo => "Less than or Equal to"
+  | EqualTo => "Equal to"
+  | InBetween => "In Between"
+  | UnknownRange(string) => string
+  }
+}
+
+let stringRangetoTypeAmount = str =>
+  switch str {
+  | "GreaterThanOrEqualTo" => GreaterThanOrEqualTo
+  | "LessThanOrEqualTo" => LessThanOrEqualTo
+  | "EqualTo" => EqualTo
+  | "InBetween" => InBetween
+  | _ => UnknownRange(str)
+  }
+
 let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
   GreaterThanOrEqualTo,
   LessThanOrEqualTo,
@@ -12,23 +57,25 @@ let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
     value: label,
   }
 })
+
 let encodeFloatOrDefault = val =>
   (val->getFloatFromJson(0.0) *. 100.0)->Float.toFixed->getFloatFromString(0.0)->JSON.Encode.float
+
 let validateAmount = dict => {
-  let sAmntK = dict->getFloat((#start_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
-  let eAmtK = dict->getFloat((#end_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
-  let key = (#amount_option: AmountFilterTypes.amountFilterChild :> string)
-  let amountOption = dict->getString(key, "")->AmountFilterTypes.stringRangetoTypeAmount
-  let haserror = switch amountOption {
+  let startAmountKey = dict->getFloat((#start_amount: amountFilterChild :> string), -1.0)
+  let endAmountKey = dict->getFloat((#end_amount: amountFilterChild :> string), -1.0)
+  let key = (#amount_option: amountFilterChild :> string)
+  let amountOption = dict->getString(key, "")->stringRangetoTypeAmount
+  switch amountOption {
   | GreaterThanOrEqualTo
   | EqualTo =>
-    sAmntK > 100000.0 || sAmntK < 0.0
-  | LessThanOrEqualTo => eAmtK > 100000.0 || eAmtK < 0.0
-  | InBetween => eAmtK <= sAmntK
+    startAmountKey > 100000.0 || startAmountKey < 0.0
+  | LessThanOrEqualTo => endAmountKey > 100000.0 || endAmountKey < 0.0
+  | InBetween => endAmountKey <= startAmountKey
   | _ => false
   }
-  haserror
 }
+
 let createAmountQuery = (~dict) => {
   let hasAmountError = validateAmount(dict)
   if !hasAmountError {
@@ -43,3 +90,19 @@ let createAmountQuery = (~dict) => {
   }
   dict
 }
+
+let startamountField = FormRenderer.makeFieldInfo(
+  ~label="",
+  ~name="start_amount",
+  ~placeholder="0",
+  ~customInput=InputFields.numericTextInput(~precision=2),
+  ~type_="number",
+)
+
+let endAmountField = FormRenderer.makeFieldInfo(
+  ~label="",
+  ~name="end_amount",
+  ~placeholder="0",
+  ~customInput=InputFields.numericTextInput(~precision=2),
+  ~type_="number",
+)

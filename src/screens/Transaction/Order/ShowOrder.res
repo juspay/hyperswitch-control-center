@@ -1,7 +1,7 @@
 open LogicUtils
 open OrderUtils
 open HSwitchOrderUtils
-open OrderTypes
+open PaymentInterfaceTypes
 
 type scrollIntoViewParams = {behavior: string, block: string, inline: string}
 @send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView"
@@ -173,7 +173,7 @@ module AttemptsSection = {
         <Details
           heading=String("Attempt Details")
           data
-          detailsFields=attemptDetailsField
+          detailsFields=OrderEntity.attemptDetailsField
           getHeading=getAttemptHeading
           getCell=getAttemptCell
           widthClass
@@ -414,7 +414,7 @@ module OrderActions = {
     })
     React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
-        orderData.amount_received /. 100.0 -.
+        orderData.amount_captured /. 100.0 -.
         amountRefunded.contents /. 100.0 -.
         requestedRefundAmount.contents /. 100.0
       )
@@ -469,7 +469,7 @@ module FraudRiskBannerDetails = {
       }
     }
 
-    let openPopUp = (~decision: frmStatus) => {
+    let openPopUp = (~decision: OrderTypes.frmStatus) => {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: `Confirm Action?`,
@@ -507,7 +507,7 @@ module FraudRiskBannerDetails = {
         ->React.array}
       </div>
       <RenderIf
-        condition={order.merchant_decision->String.length === 0 &&
+        condition={order.frm_merchant_decision->String.length === 0 &&
         order.frm_message.frm_status === "fraud" &&
         order.status->HSwitchOrderUtils.statusVariantMapper === Succeeded}>
         <div className="flex items-center gap-5 justify-end">
@@ -592,16 +592,20 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open OrderUIUtils
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
+  let (orderData, setOrderData) = React.useState(_ =>
+    Dict.make()->PaymentInterfaceUtils.mapDictToPaymentPayload
+  )
   let frmDetailsRef = React.useRef(Nullable.null)
   let fetchDetails = useGetMethod()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchOrderDetails = async url => {
+    open PaymentsInterface
     try {
       setScreenState(_ => Loading)
       let _ = await internalSwitch(
@@ -610,7 +614,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedProfileId=profileId,
       )
       let res = await fetchDetails(url)
-      let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
+      let order = switch version {
+      | V1 => mapJsonDictToCommonPaymentPayload(paymentInterfaceV1, res->getDictFromJsonObject)
+      | V2 => mapJsonDictToCommonPaymentPayload(paymentInterfaceV2, res->getDictFromJsonObject)
+      }
       setOrderData(_ => order)
       setScreenState(_ => Success)
     } catch {
@@ -630,12 +637,17 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   }
 
   React.useEffect(() => {
-    let accountUrl = getURL(
-      ~entityName=V1(ORDERS),
-      ~methodType=Get,
-      ~id=Some(id),
-      ~queryParamerters=Some("expand_attempts=true"),
-    )
+    let accountUrl = switch version {
+    | V1 =>
+      getURL(
+        ~entityName=V1(ORDERS),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParamerters=Some("expand_attempts=true"),
+      )
+    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    }
+
     fetchOrderDetails(accountUrl)->ignore
     None
   }, [id])
@@ -651,22 +663,40 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
-    !(id->isTestData) && status !== Succeeded && status !== Failed
+    !(id->isTestData) &&
+    status !== Succeeded &&
+    status !== Failed &&
+    status !== CancelledPostCapture
   }, [orderData])
 
   let refreshStatus = async () => {
     try {
-      let getRefreshStatusUrl = getURL(
-        ~entityName=V1(ORDERS),
-        ~methodType=Get,
-        ~id=Some(id),
-        ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
-      )
+      let getRefreshStatusUrl = switch version {
+      | V1 =>
+        getURL(
+          ~entityName=V1(ORDERS),
+          ~methodType=Get,
+          ~id=Some(id),
+          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+        )
+      | V2 =>
+        getURL(
+          ~entityName=V2(V2_ORDERS_LIST),
+          ~methodType=Get,
+          ~id=Some(id),
+          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+        )
+      }
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
       showToast(~message="Details Updated", ~toastType=ToastSuccess)
     } catch {
     | _ => ()
     }
+  }
+
+  let breadCrumbLink = switch version {
+  | V1 => "/payments"
+  | V2 => "/v2/orchestration/payments"
   }
 
   <div className="flex flex-col overflow-scroll gap-8">
@@ -675,7 +705,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="w-full">
           <PageUtils.PageHeading title="Payments" />
           <BreadCrumbNavigation
-            path=[{title: "Payments", link: "/payments"}]
+            path=[{title: "Payments", link: breadCrumbLink}]
             currentPageTitle=id
             cursorStyle="cursor-pointer"
           />
@@ -713,8 +743,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
+        // hide the logs section for V2 since the apis are failing
         <RenderIf
-          condition={featureFlagDetails.auditTrail &&
+          condition={version == V1 &&
+          featureFlagDetails.auditTrail &&
           userHasAccess(~groupAccess=AnalyticsView) === Access}>
           <RenderAccordian
             initialExpandedArray=[0]
@@ -723,7 +755,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                 title: "Events and logs",
                 renderContent: () => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
+                    <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
                   </LogsWrapper>
                 },
                 renderContentOnTop: None,

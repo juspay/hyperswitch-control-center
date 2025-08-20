@@ -16,8 +16,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
-  let typedConnectorValue = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let typedConnectorValue = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=connectorVariant,
   )
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
@@ -135,15 +134,16 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
           </div>
         </div>
         {
-          let keyExtractor = (index, gateway: JSON.t, isDragging) => {
+          let keyExtractor = (index, gateway: JSON.t, isDragging, _) => {
             let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
 
             let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
             let merchantConnectorId =
               gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
-            let connectorLabel = ConnectorTableUtils.getConnectorObjectFromListViaId(
+            let connectorLabel = ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
               typedConnectorValue,
               merchantConnectorId,
+              ~version=V1,
             ).connector_label
 
             <div

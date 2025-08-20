@@ -174,11 +174,12 @@ let useProfileSwitch = () => {
   }
 }
 
-let useInternalSwitch = () => {
+let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productTypes => unit>=?) => {
+  open HyperswitchAtom
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
-
+  let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
   async (
@@ -187,10 +188,12 @@ let useInternalSwitch = () => {
     ~expectedProfileId=None,
     ~version=UserInfoTypes.V1,
     ~changePath=false,
-    ~productType: option<ProductTypes.productTypes>=None,
-    ~landToHome=true,
   ) => {
     try {
+      switch setActiveProductValue {
+      | Some(fn) => fn(ProductTypes.UnknownProduct)
+      | None => ()
+      }
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,
@@ -219,11 +222,12 @@ let useInternalSwitch = () => {
         let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
         RescriptReactRouter.replace(currentUrl)
       }
-      if landToHome {
-        HyperSwitchAppUtils.setupProductUrl(~productType, ~url)
-      }
     } catch {
     | Exn.Error(e) => {
+        switch setActiveProductValue {
+        | Some(fn) => fn(product_type)
+        | None => ()
+        }
         let err = Exn.message(e)->Option.getOr("Failed to switch!")
         Exn.raiseError(err)
       }
@@ -255,4 +259,25 @@ let useOMPData = () => {
     }
 
   (getList, getNameForId)
+}
+
+let useOMPType = () => {
+  let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.merchantDetailsValueAtom,
+  )
+  let {organization_type} = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.organizationDetailsValueAtom,
+  )
+
+  let isCurrentMerchantPlatform = switch merchant_account_type {
+  | #platform => true
+  | _ => false
+  }
+
+  let isCurrentOrganizationPlatform = switch organization_type {
+  | #platform => true
+  | _ => false
+  }
+
+  (isCurrentMerchantPlatform, isCurrentOrganizationPlatform)
 }

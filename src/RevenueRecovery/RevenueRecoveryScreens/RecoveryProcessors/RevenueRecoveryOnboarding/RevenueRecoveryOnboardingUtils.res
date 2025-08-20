@@ -1,4 +1,3 @@
-open VerticalStepIndicatorTypes
 open RevenueRecoveryOnboardingTypes
 
 let getMainStepName = step => {
@@ -10,15 +9,12 @@ let getMainStepName = step => {
   }
 }
 
-let getStepName = step => {
+let getStepName = (step: revenueRecoverySubsections) => {
   switch step {
   | #selectProcessor => "Select a Processor"
   | #activePaymentMethods => "Active Payment Methods"
-  | #setupWebhookProcessor => "Setup Webhook"
   | #selectAPlatform => "Select a Platform"
-  | #configureRetries => "Configure Retries"
-  | #connectProcessor => "Connect Processor"
-  | #setupWebhookPlatform => "Setup Webhook"
+  | #processorSetUp => "Billing Processor Set-up"
   }
 }
 
@@ -31,62 +27,72 @@ let getIcon = step => {
   }
 }
 
-let sections = [
-  {
-    id: (#chooseDataSource: revenueRecoverySections :> string),
-    name: #chooseDataSource->getMainStepName,
-    icon: #chooseDataSource->getIcon,
-    subSections: None,
-  },
-  {
-    id: (#connectProcessor: revenueRecoverySections :> string),
-    name: #connectProcessor->getMainStepName,
-    icon: #connectProcessor->getIcon,
-    subSections: Some([
-      {
-        id: (#selectProcessor: revenueRecoverySubsections :> string),
-        name: #selectProcessor->getStepName,
-      },
-      {
-        id: (#setupWebhookProcessor: revenueRecoverySubsections :> string),
-        name: #setupWebhookProcessor->getStepName,
-      },
-    ]),
-  },
-  {
-    id: (#addAPlatform: revenueRecoverySections :> string),
-    name: #addAPlatform->getMainStepName,
-    icon: #addAPlatform->getIcon,
-    subSections: Some([
-      {
-        id: (#selectAPlatform: revenueRecoverySubsections :> string),
-        name: #selectAPlatform->getStepName,
-      },
-      {
-        id: (#configureRetries: revenueRecoverySubsections :> string),
-        name: #configureRetries->getStepName,
-      },
-      {
-        id: (#connectProcessor: revenueRecoverySubsections :> string),
-        name: #connectProcessor->getStepName,
-      },
-      {
-        id: (#setupWebhookPlatform: revenueRecoverySubsections :> string),
-        name: #setupWebhookPlatform->getStepName,
-      },
-    ]),
-  },
-  {
-    id: (#reviewDetails: revenueRecoverySections :> string),
-    name: #reviewDetails->getMainStepName,
-    icon: #reviewDetails->getIcon,
-    subSections: None,
-  },
-]
+open VerticalStepIndicatorTypes
+let getSections = isLiveMode => {
+  let platformSubsectionsDefaultSteps = [
+    {
+      id: (#selectAPlatform: revenueRecoverySubsections :> string),
+      name: #selectAPlatform->getStepName,
+    },
+  ]
 
-let defaultStep = {
-  sectionId: (#chooseDataSource: revenueRecoverySections :> string),
-  subSectionId: None,
+  if !isLiveMode {
+    platformSubsectionsDefaultSteps->Array.push({
+      id: (#processorSetUp: revenueRecoverySubsections :> string),
+      name: #processorSetUp->getStepName,
+    })
+  }
+
+  let defaultSteps = [
+    {
+      id: (#connectProcessor: revenueRecoverySections :> string),
+      name: #connectProcessor->getMainStepName,
+      icon: #connectProcessor->getIcon,
+      subSections: Some([
+        {
+          id: (#selectProcessor: revenueRecoverySubsections :> string),
+          name: #selectProcessor->getStepName,
+        },
+      ]),
+    },
+    {
+      id: (#addAPlatform: revenueRecoverySections :> string),
+      name: #addAPlatform->getMainStepName,
+      icon: #addAPlatform->getIcon,
+      subSections: Some(platformSubsectionsDefaultSteps),
+    },
+    {
+      id: (#reviewDetails: revenueRecoverySections :> string),
+      name: #reviewDetails->getMainStepName,
+      icon: #reviewDetails->getIcon,
+      subSections: None,
+    },
+  ]
+
+  if !isLiveMode {
+    defaultSteps->Array.unshift({
+      id: (#chooseDataSource: revenueRecoverySections :> string),
+      name: #chooseDataSource->getMainStepName,
+      icon: #chooseDataSource->getIcon,
+      subSections: None,
+    })
+  }
+
+  defaultSteps
+}
+
+let getDefaultStep = isLiveMode => {
+  if isLiveMode {
+    {
+      sectionId: (#connectProcessor: revenueRecoverySections :> string),
+      subSectionId: (#selectProcessor: revenueRecoverySubsections :> string)->Some,
+    }
+  } else {
+    {
+      sectionId: (#chooseDataSource: revenueRecoverySections :> string),
+      subSectionId: None,
+    }
+  }
 }
 
 let defaultStepBilling = {
@@ -95,23 +101,23 @@ let defaultStepBilling = {
 }
 
 open VerticalStepIndicatorUtils
-let getNextStep = (currentStep: step): option<step> => {
-  findNextStep(sections, currentStep)
+let getNextStep = (currentStep: step, isLiveMode): option<step> => {
+  findNextStep(getSections(isLiveMode), currentStep)
 }
 
-let getPreviousStep = (currentStep: step): option<step> => {
-  findPreviousStep(sections, currentStep)
+let getPreviousStep = (currentStep: step, isLiveMode): option<step> => {
+  findPreviousStep(getSections(isLiveMode), currentStep)
 }
 
-let onNextClick = (currentStep, setNextStep) => {
-  switch getNextStep(currentStep) {
+let onNextClick = (currentStep, setNextStep, isLiveMode) => {
+  switch getNextStep(currentStep, isLiveMode) {
   | Some(nextStep) => setNextStep(_ => nextStep)
   | None => ()
   }
 }
 
-let onPreviousClick = (currentStep, setNextStep) => {
-  switch getPreviousStep(currentStep) {
+let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
+  switch getPreviousStep(currentStep, isLiveMode) {
   | Some(previousStep) => setNextStep(_ => previousStep)
   | None => ()
   }
@@ -125,14 +131,11 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
   | "reviewDetails" | _ => #reviewDetails
   }
 
-  let subSection = switch subSectionId {
+  let subSection: revenueRecoverySubsections = switch subSectionId {
   | Some("selectProcessor") => #selectProcessor
   | Some("activePaymentMethods") => #activePaymentMethods
-  | Some("setupWebhookProcessor") => #setupWebhookProcessor
   | Some("selectAPlatform") => #selectAPlatform
-  | Some("configureRetries") => #configureRetries
-  | Some("connectProcessor") => #connectProcessor
-  | Some("setupWebhookPlatform") | _ => #setupWebhookPlatform
+  | Some("processorSetUp") | _ => #processorSetUp
   }
 
   (mainSection, subSection)
@@ -151,7 +154,12 @@ module PageWrapper = {
 }
 
 open ConnectorTypes
-let billingConnectorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
+let billingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CHARGEBEE),
+  BillingProcessor(CUSTOMBILLING),
+]
+
+let prodBillingConnectorList: array<connectorTypes> = [BillingProcessor(CUSTOMBILLING)]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   {
@@ -176,10 +184,6 @@ let billingConnectorInHouseList: array<BillingProcessorsUtils.optionType> = [
   {
     name: "Kill Bill",
     icon: "/assets/kill_bill-logo.png",
-  },
-  {
-    name: "Custom",
-    icon: "/assets/custom-logo.png",
   },
 ]
 
@@ -214,11 +218,8 @@ let getMixpanelEventName = currentStep => {
   switch currentStep->getSectionVariant {
   | (#connectProcessor, #selectProcessor) => "recovery_payment_processor"
   | (#connectProcessor, #activePaymentMethods) => "recovery_processor_active_payment_method"
-  | (#connectProcessor, #setupWebhookProcessor) => "recovery_processor_setup_webhook"
   | (#addAPlatform, #selectAPlatform) => "recovery_billing_processor"
-  | (#addAPlatform, #configureRetries) => "recovery_configure_retries"
-  | (#addAPlatform, #connectProcessor) => "recovery_connector_processor_billing"
-  | (#addAPlatform, #setupWebhookPlatform) => "recovery_billing_webhook_setup"
+  | (#addAPlatform, #processorSetUp) => "recovery_billing_processor_set_up"
   | _ => ""
   }
 }

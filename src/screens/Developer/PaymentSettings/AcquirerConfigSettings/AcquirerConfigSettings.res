@@ -48,10 +48,7 @@ module SettingsForm = {
       let valuesDict = values->getDictFromJsonObject
       let acquirerBinValue = valuesDict->getFloat("acquirer_bin", 0.0)
       if acquirerBinValue > 0.0 {
-        valuesDict->Dict.set(
-          "acquirer_bin",
-          acquirerBinValue->Float.toInt->Int.toString->JSON.Encode.string,
-        )
+        valuesDict->Dict.set("acquirer_bin", acquirerBinValue->Float.toString->JSON.Encode.string)
       }
       valuesDict
     }
@@ -147,14 +144,13 @@ module SettingsForm = {
                     <div>
                       <DesktopRow>
                         <FieldRendererWithStyles field={merchantName} />
-                        <FieldRendererWithStyles field={merchantCountryCode} />
-                      </DesktopRow>
-                      <DesktopRow>
                         <FieldRendererWithStyles field={acquirerBin} />
-                        <FieldRendererWithStyles field={acquirerAssignedMerchantId} />
                       </DesktopRow>
                       <DesktopRow>
+                        <FieldRendererWithStyles field={acquirerAssignedMerchantId} />
                         <FieldRendererWithStyles field={acquirerFraudRate} />
+                      </DesktopRow>
+                      <DesktopRow>
                         <FieldRendererWithStyles field={network} />
                       </DesktopRow>
                     </div>

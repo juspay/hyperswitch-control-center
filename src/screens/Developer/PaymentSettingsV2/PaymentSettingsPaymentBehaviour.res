@@ -126,8 +126,7 @@ module ClickToPaySection = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let connectorListAtom = ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
+    let connectorListAtom = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=AuthenticationProcessor,
     )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -136,8 +135,8 @@ module ClickToPaySection = {
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
     let dropDownOptions = connectorListAtom->Array.map((item): SelectBox.dropdownOption => {
       {
-        label: `${item.connector_label} - ${item.merchant_connector_id}`,
-        value: item.merchant_connector_id,
+        label: `${item.connector_label} - ${item.id}`,
+        value: item.id,
       }
     })
     <>

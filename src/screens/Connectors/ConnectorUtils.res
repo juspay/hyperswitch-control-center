@@ -57,6 +57,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BLUESNAP),
   Processors(BRAINTREE),
   Processors(CASHTOCODE),
+  Processors(CHECKBOOK),
   Processors(CHECKOUT),
   Processors(COINBASE),
   Processors(COINGATE),
@@ -109,6 +110,7 @@ let connectorList: array<connectorTypes> = [
   Processors(NOVALNET),
   Processors(DEUTSCHEBANK),
   Processors(NEXIXPAY),
+  Processors(NORDEA),
   Processors(JPMORGAN),
   Processors(XENDIT),
   Processors(INESPAY),
@@ -118,9 +120,17 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYSTACK),
   Processors(FACILITAPAY),
   Processors(ARCHIPEL),
+  Processors(AUTHIPAY),
   Processors(WORLDPAYVANTIV),
   Processors(BARCLAYCARD),
+  Processors(SILVERFLOW),
   Processors(TOKENIO),
+  Processors(PAYLOAD),
+  Processors(PAYTM),
+  Processors(PHONEPE),
+  Processors(FLEXITI),
+  Processors(BREADPAY),
+  Processors(BLUECODE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -458,6 +468,10 @@ let tokenioInfo = {
   description: "Token.io is a fintech company that provides open banking-based, account-to-account (A2A) payment infrastructure—essentially enabling “Pay by Bank” solutions for banks, fintechs, platforms, and payment service providers.",
 }
 
+let payloadInfo = {
+  description: "Payload is an embedded finance solution for modern platforms and businesses, automating inbound and outbound payments with an industry-leading platform and driving innovation into the future.",
+}
+
 // Dummy Connector Info
 let pretendpayInfo = {
   description: "Don't be fooled by the name - PretendPay is the real deal when it comes to testing your payments.",
@@ -594,8 +608,28 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let customBillingInfo = {
+  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+}
+
 let nexixpayInfo = {
   description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
+}
+
+let nordeaInfo = {
+  description: "Nordea is a leading Nordic universal bank - we are a strong and personal financial partner with financial solutions that best meet your needs so you can achieve your goals and realise your dreams.",
+}
+
+let authipayInfo = {
+  description: "Authipay is a convenient and cost-effective way to process payments online. It combines a payment gateway with merchant account services in one handy service. Request your demo today.",
+}
+
+let silverflowInfo = {
+  description: "Silverflow provides a direct connection to the card networks that is always up to date. Enabling PSPs, payfacs, merchants and acquirers to innovate.",
+}
+
+let checkbookInfo = {
+  description: "Checkbook offers businesses a versatile and embeddable way to scale their payouts. As a leading provider of both paper and digital options, we're uniquely positioned to enable the speed, flexibility, and cost savings of modern payments, with the familiarity and simplicity of paper checks.",
 }
 let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
@@ -640,6 +674,25 @@ let archipelInfo = {
 let worldpayVantivInfo = {
   description: "Worldpay Vantiv, also known as the Worldpay CNP API, is a robust XML-based interface used to process online (card-not-present) transactions such as e-commerce purchases, subscription billing, and digital payments.",
 }
+let paytmInfo = {
+  description: "Paytm is an Indian multinational fintech company specializing in digital payments and financial services. Initially known for its mobile wallet, it has expanded to include a payment bank, e-commerce, ticketing, and wealth management services.",
+}
+
+let phonepeInfo = {
+  description: "PhonePe is a digital payments and financial services platform built on the UPI system. It allows users to make instant payments, recharge mobiles, pay bills, and access financial services like investments and insurance.",
+}
+
+let flexitiInfo = {
+  description: "Flexiti is a comprehensive point-of-sale financing platform for modern retailers and businesses, automating consumer credit applications and payment processing with an industry-leading omni-channel solution and driving innovation into the future of retail financing.",
+}
+
+let breadpayInfo = {
+  description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
+}
+
+let bluecodeInfo = {
+  description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -683,6 +736,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PRETENDPAY => "pretendpay"
   | CRYPTOPAY => "cryptopay"
   | CASHTOCODE => "cashtocode"
+  | CHECKBOOK => "checkbook"
   | PAYME => "payme"
   | GLOBEPAY => "globepay"
   | POWERTRANZ => "powertranz"
@@ -713,6 +767,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | NOVALNET => "novalnet"
   | DEUTSCHEBANK => "deutschebank"
   | NEXIXPAY => "nexixpay"
+  | NORDEA => "nordea"
   | JPMORGAN => "jpmorgan"
   | XENDIT => "xendit"
   | INESPAY => "inespay"
@@ -722,9 +777,17 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYSTACK => "paystack"
   | FACILITAPAY => "facilitapay"
   | ARCHIPEL => "archipel"
+  | AUTHIPAY => "authipay"
   | WORLDPAYVANTIV => "worldpayvantiv"
   | BARCLAYCARD => "barclaycard"
+  | SILVERFLOW => "silverflow"
   | TOKENIO => "tokenio"
+  | PAYLOAD => "payload"
+  | PAYTM => "paytm"
+  | PHONEPE => "phonepe"
+  | FLEXITI => "flexiti"
+  | BREADPAY => "breadpay"
+  | BLUECODE => "bluecode"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -773,6 +836,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | CUSTOMBILLING => "custombilling"
   }
 }
 
@@ -837,6 +901,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "stripe_test" => Processors(STRIPE_TEST)
     | "paypal_test" => Processors(PAYPAL_TEST)
     | "cashtocode" => Processors(CASHTOCODE)
+    | "checkbook" => Processors(CHECKBOOK)
     | "payme" => Processors(PAYME)
     | "globepay" => Processors(GLOBEPAY)
     | "powertranz" => Processors(POWERTRANZ)
@@ -865,6 +930,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "novalnet" => Processors(NOVALNET)
     | "deutschebank" => Processors(DEUTSCHEBANK)
     | "nexixpay" => Processors(NEXIXPAY)
+    | "nordea" => Processors(NORDEA)
     | "jpmorgan" => Processors(JPMORGAN)
     | "xendit" => Processors(XENDIT)
     | "inespay" => Processors(INESPAY)
@@ -874,9 +940,17 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paystack" => Processors(PAYSTACK)
     | "facilitapay" => Processors(FACILITAPAY)
     | "archipel" => Processors(ARCHIPEL)
+    | "authipay" => Processors(AUTHIPAY)
     | "worldpayvantiv" => Processors(WORLDPAYVANTIV)
     | "barclaycard" => Processors(BARCLAYCARD)
+    | "silverflow" => Processors(SILVERFLOW)
     | "tokenio" => Processors(TOKENIO)
+    | "payload" => Processors(PAYLOAD)
+    | "paytm" => Processors(PAYTM)
+    | "phonepe" => Processors(PHONEPE)
+    | "flexiti" => Processors(FLEXITI)
+    | "breadpay" => Processors(BREADPAY)
+    | "bluecode" => Processors(BLUECODE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -920,6 +994,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -966,6 +1041,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BITPAY => bitPayInfo
   | CRYPTOPAY => cryptopayInfo
   | CASHTOCODE => cashToCodeInfo
+  | CHECKBOOK => checkbookInfo
   | PHONYPAY => phonypayInfo
   | FAUXPAY => fauxpayInfo
   | PRETENDPAY => pretendpayInfo
@@ -997,6 +1073,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | NOVALNET => novalnetInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | NEXIXPAY => nexixpayInfo
+  | NORDEA => nordeaInfo
   | JPMORGAN => jpmorganInfo
   | XENDIT => xenditInfo
   | INESPAY => inespayInfo
@@ -1006,9 +1083,17 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYSTACK => paystackInfo
   | FACILITAPAY => facilitapayInfo
   | ARCHIPEL => archipelInfo
+  | AUTHIPAY => authipayInfo
   | WORLDPAYVANTIV => worldpayVantivInfo
   | BARCLAYCARD => barclaycardInfo
+  | SILVERFLOW => silverflowInfo
+  | PAYLOAD => payloadInfo
   | TOKENIO => tokenioInfo
+  | PAYTM => paytmInfo
+  | PHONEPE => phonepeInfo
+  | FLEXITI => flexitiInfo
+  | BREADPAY => breadpayInfo
+  | BLUECODE => bluecodeInfo
   }
 }
 
@@ -1057,6 +1142,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | CUSTOMBILLING => customBillingInfo
   }
 }
 
@@ -1083,7 +1169,7 @@ let acceptedValues = dict => {
   values.list->Array.length > 0 ? Some(values) : None
 }
 
-let itemProviderMapper = dict => {
+let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType = dict => {
   open LogicUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1382,6 +1468,17 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
   result->Array.includes(true)
 }
 
+let checkPayloadFields = (dict, country, valuesFlattenJson) => {
+  open LogicUtils
+  let keys = dict->getDictfromDict(country)->Dict.keysToArray
+
+  keys->Array.every(field => {
+    let key = `connector_account_details.auth_key_map.${country}.${field}`
+    let value = valuesFlattenJson->getString(key, "")
+    value->String.trim->String.length > 0
+  })
+}
+
 let validateConnectorRequiredFields = (
   connector: connectorTypes,
   valuesFlattenJson,
@@ -1409,7 +1506,25 @@ let validateConnectorRequiredFields = (
       })
 
       Js.Vector.filterInPlace(val => val, vector)
+      if vector->Js.Vector.length === 0 {
+        Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
+      }
+    }
 
+  | Processors(PAYLOAD) => {
+      let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+
+      let indexLength = dict->Dict.keysToArray->Array.length
+      let vector = Js.Vector.make(indexLength, false)
+
+      dict
+      ->Dict.keysToArray
+      ->Array.forEachWithIndex((country, index) => {
+        let res = checkPayloadFields(dict, country, valuesFlattenJson)
+        vector->Js.Vector.set(index, res)
+      })
+
+      Js.Vector.filterInPlace(val => val, vector)
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
       }
@@ -1843,6 +1958,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PRETENDPAY => "Pretendpay"
   | CRYPTOPAY => "Cryptopay"
   | CASHTOCODE => "CashtoCode"
+  | CHECKBOOK => "Checkbook"
   | PAYME => "PayMe"
   | GLOBEPAY => "GlobePay"
   | POWERTRANZ => "Powertranz"
@@ -1872,6 +1988,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
   | NEXIXPAY => "Nexixpay"
+  | NORDEA => "Nordea"
   | JPMORGAN => "JP Morgan"
   | XENDIT => "Xendit"
   | INESPAY => "Inespay"
@@ -1881,9 +1998,17 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYSTACK => "Paystack"
   | FACILITAPAY => "Facilitapay"
   | ARCHIPEL => "ArchiPEL"
+  | AUTHIPAY => "Authipay"
   | WORLDPAYVANTIV => "Worldpay Vantiv"
   | BARCLAYCARD => "BarclayCard SmartPay Fuse"
+  | SILVERFLOW => "Silverflow"
+  | PAYLOAD => "Payload"
   | TOKENIO => "Token.io"
+  | PAYTM => "Paytm"
+  | PHONEPE => "PhonePe"
+  | FLEXITI => "Flexiti"
+  | BREADPAY => "Breadpay"
+  | BLUECODE => "Bluecode"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -1929,6 +2054,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
+  | CUSTOMBILLING => "Custom"
   }
 }
 

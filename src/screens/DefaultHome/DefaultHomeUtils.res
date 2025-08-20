@@ -32,7 +32,7 @@ module DefaultHomeCard = {
     let {activeProduct, onProductSelectClick} = React.useContext(
       ProductSelectionProvider.defaultContext,
     )
-    let url = RescriptReactRouter.useUrl()
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     <div
       className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
@@ -54,12 +54,7 @@ module DefaultHomeCard = {
           switch action {
           | InternalRoute =>
             if product === activeProduct {
-              let currentUrl = GlobalVars.extractModulePath(
-                ~path=url.path,
-                ~end=url.path->List.toArray->Array.length,
-              )
-
-              let productUrl = ProductUtils.getProductUrl(~productType=product, ~url=currentUrl)
+              let productUrl = ProductUtils.getProductUrl(~productType=product, ~isLiveMode)
               RescriptReactRouter.replace(productUrl)
             } else {
               onProductSelectClick(heading)
@@ -114,7 +109,7 @@ let defaultHomeCardsArray = {
       action: InternalRoute,
     },
     {
-      product: Recon,
+      product: Recon(V2),
       heading: "Recon",
       description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
       imgSrc: "/assets/DefaultHomeReconCard.svg",

@@ -1,13 +1,20 @@
 open FormRenderer
 open AcquirerConfigTypes
-
-let makeTextInputField = (~label, ~name, ~placeholder, ~isRequired=true) =>
+let makeAlphanumericInputField = (~label, ~name, ~placeholder) =>
   makeFieldInfo(
     ~label,
     ~name,
     ~placeholder,
-    ~customInput=InputFields.textInput(~autoComplete="off"),
-    ~isRequired,
+    ~customInput=(~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
+      let handleChange = event => {
+        let value = ReactEvent.Form.target(event)["value"]
+        let filteredValue = value->String.replaceRegExp(%re("/[^a-zA-Z0-9]/g"), "")
+        input.onChange(filteredValue->Identity.stringToFormReactEvent)
+      }
+
+      <TextInput input={...input, onChange: handleChange} placeholder autoComplete="off" />
+    },
+    ~isRequired=true,
   )
 
 let makeSelectInputField = (~label, ~name, ~placeholder, ~options) =>
@@ -19,32 +26,25 @@ let makeSelectInputField = (~label, ~name, ~placeholder, ~options) =>
     ~customInput=InputFields.selectInput(~options, ~buttonText=placeholder, ~deselectDisable=true),
   )
 
-let makeNumericInputField = (~label, ~name, ~placeholder, ~maxLength=6) =>
+let makeNumericInputField = (~label, ~name, ~placeholder, ~maxLength=10, ~precision=0) =>
   makeFieldInfo(
     ~label,
     ~name,
     ~placeholder,
-    ~customInput=InputFields.numericTextInput(~removeLeadingZeroes=true, ~maxLength),
+    ~customInput=InputFields.numericTextInput(~removeLeadingZeroes=true, ~maxLength, ~precision),
     ~isRequired=true,
   )
 
-let acquirerAssignedMerchantId = makeTextInputField(
+let acquirerAssignedMerchantId = makeAlphanumericInputField(
   ~label="Acquirer Assigned Merchant Id",
   ~name="acquirer_assigned_merchant_id",
   ~placeholder="Enter Acquirer Assigned Merchant Id",
 )
 
-let merchantName = makeTextInputField(
+let merchantName = makeAlphanumericInputField(
   ~label="Merchant Name",
   ~name="merchant_name",
   ~placeholder="Enter Merchant Name",
-)
-
-let merchantCountryCode = makeSelectInputField(
-  ~label="Merchant Country",
-  ~name="merchant_country_code",
-  ~placeholder="Select Merchant Country",
-  ~options=AcquirerConfigUtils.countryDropDownOptions,
 )
 
 let acquirerBin = makeNumericInputField(
@@ -58,6 +58,7 @@ let acquirerFraudRate = makeNumericInputField(
   ~label="Acquirer Fraud Rate (%)",
   ~name="acquirer_fraud_rate",
   ~placeholder="Enter Acquirer Fraud Rate",
+  ~precision=6,
 )
 
 let network = makeSelectInputField(
@@ -77,8 +78,6 @@ let getHeading = colType => {
       ~dataType=TextType,
     )
   | MerchantName => makeHeaderInfo(~key="merchant_name", ~title="Merchant Name", ~dataType=TextType)
-  | MerchantCountryCode =>
-    makeHeaderInfo(~key="merchant_country_code", ~title="Merchant Country Code", ~dataType=TextType)
   | Network => makeHeaderInfo(~key="network", ~title="Network", ~dataType=TextType)
   | AcquirerBin => makeHeaderInfo(~key="acquirer_bin", ~title="Acquirer BIN", ~dataType=TextType)
   | AcquirerFraudRate =>
@@ -90,7 +89,6 @@ let getHeading = colType => {
 let defaultColumns = [
   AcquirerAssignedMerchantId,
   MerchantName,
-  MerchantCountryCode,
   Network,
   AcquirerBin,
   AcquirerFraudRate,
@@ -101,7 +99,6 @@ let getCellWithEdit = (data, colType, onEdit) => {
   switch colType {
   | AcquirerAssignedMerchantId => Text(data.acquirer_assigned_merchant_id)
   | MerchantName => Text(data.merchant_name)
-  | MerchantCountryCode => Text(data.merchant_country_code)
   | Network => Text(data.network)
   | AcquirerBin => Text(data.acquirer_bin)
   | AcquirerFraudRate => Numeric(data.acquirer_fraud_rate, num => num->Float.toString ++ "%")

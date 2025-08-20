@@ -2,15 +2,11 @@ let setupProductUrl = (
   ~productType: option<ProductTypes.productTypes>,
   ~url: RescriptReactRouter.url,
 ) => {
-  let currentUrl = GlobalVars.extractModulePath(
-    ~path=url.path,
-    ~query=url.search,
-    ~end=url.path->List.toArray->Array.length,
-  )
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let productUrl = ProductUtils.getProductUrl(
     ~productType=productType->Option.getOr(ProductTypes.Orchestration(V1)),
-    ~url=currentUrl,
+    ~isLiveMode,
   )
   RescriptReactRouter.replace(productUrl)
 

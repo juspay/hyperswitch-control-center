@@ -9,22 +9,27 @@ let make = (
   ~getRowDetails,
   ~heading,
   ~title,
+  ~rowFontSize="text-sm",
+  ~rowFontStyle="font-fira-code",
+  ~rowFontColor="text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75",
+  ~totalRows,
+  ~isLastRowRounded=false,
+  ~rowComponentInCell=true,
+  ~customRowStyle="",
 ) => {
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
   let headingArray = []
+  let isLastRow = rowIndex === totalRows - 1
 
   heading->Array.forEach((item: TableUtils.header) => {
     headingArray->Array.push(item.title)->ignore
   })
-  let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75"
-  let fontStyle = "font-fira-code"
-  let fontSize = "text-sm"
   let borderRadius = "rounded-md"
 
   <>
     <DesktopView>
       <tr
-        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
+        className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${rowFontColor} ${rowFontStyle} transition duration-300 ease-in-out ${rowFontSize}}`}>
         {item
         ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {
@@ -44,18 +49,33 @@ let make = (
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
           let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
               ->Int.toString}`
+          let colsLen = item->Array.length
+          let isFirstCell = cellIndex === 0
+          let isLastCell = cellIndex === colsLen - 1
+
+          let roundedClass = if isLastRow && isLastRowRounded {
+            if isFirstCell {
+              "rounded-bl-xl"
+            } else if isLastCell {
+              "rounded-br-xl"
+            } else {
+              ""
+            }
+          } else {
+            ""
+          }
           <AddDataAttributes
             key={cellIndex->Int.toString} attributes=[("data-table-location", location)]>
             <td
               key={Int.toString(cellIndex)}
-              className={`h-full p-0 align-top ${borderClass} ${hCell} ${cursorI}`}
+              className={`h-full p-0 align-top ${borderClass} ${roundedClass} ${hCell} ${cursorI}`}
               onClick={_ => {
                 if cellIndex == 0 {
                   onExpandIconClick(isCurrentRowExpanded, rowIndex)
                 }
               }}>
               <div className={`h-full box-border px-4 ${paddingClass}`}>
-                <div className="flex flex-row gap-4 items-center">
+                <div className={`flex flex-row gap-4 items-center ${customRowStyle}`}>
                   <RenderIf condition={cellIndex === 0}>
                     <Icon name={isCurrentRowExpanded ? "caret-down" : "caret-right"} size=14 />
                   </RenderIf>
@@ -67,11 +87,16 @@ let make = (
         })
         ->React.array}
       </tr>
-      <RenderIf condition=isCurrentRowExpanded>
+      <RenderIf condition={isCurrentRowExpanded && rowComponentInCell}>
         <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
           <tr className="dark:border-jp-gray-dark_disable_border_color">
             <td colSpan=12 className=""> {getRowDetails(rowIndex)} </td>
           </tr>
+        </AddDataAttributes>
+      </RenderIf>
+      <RenderIf condition={isCurrentRowExpanded && !rowComponentInCell}>
+        <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
+          {getRowDetails(rowIndex)}
         </AddDataAttributes>
       </RenderIf>
     </DesktopView>

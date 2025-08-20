@@ -10,7 +10,7 @@ module ShowOrderDetails = {
     ~getCell,
     ~detailsFields,
     ~justifyClassName="justify-start",
-    ~widthClass="w-1/3",
+    ~widthClass="w-1/5",
     ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
     ~isButtonEnabled=false,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
@@ -63,11 +63,11 @@ module Attempts = {
     let (nextScheduleTime, setNextScheduleTime) = React.useState(_ => JSON.Encode.string(""))
 
     let getStyle = status => {
-      let orderStatus = status->HSwitchOrderUtils.refundStatusVariantMapper
+      let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
 
       switch orderStatus {
-      | Success => ("green-status", "nd-check")
-      | Failure => ("red-status", "nd-alert-triangle-outline")
+      | #CHARGED => ("green-status", "nd-check")
+      | #FAILURE => ("red-status", "nd-alert-triangle-outline")
       | _ => ("orange-status", "nd-calender")
       }
     }
@@ -115,6 +115,16 @@ module Attempts = {
 
       let dict = nextScheduleTime->getDictFromJsonObject
 
+      // Alternative: Simple conversion for your specific format
+      let convertScheduleTimeToUTC = (scheduleTime: string) => {
+        if scheduleTime->String.includes(" ") {
+          // "2025-08-15 19:24:18.375771" -> "2025-08-15T19:24:18.375Z"
+          scheduleTime->String.replace(" ", "T") ++ "Z"
+        } else {
+          scheduleTime
+        }
+      }
+
       <RenderIf
         condition={dict->Dict.keysToArray->Array.length > 0 &&
           dict->getString("status", "") != "finish"}>
@@ -125,7 +135,10 @@ module Attempts = {
             </div>
             <div className="w-full flex justify-end text-xs opacity-50">
               {<Table.DateCell
-                timestamp={dict->getString("schedule_time_for_payment", "")} isCard=true
+                timestamp={dict
+                ->getString("schedule_time_for_payment", "")
+                ->convertScheduleTimeToUTC}
+                isCard=true
               />}
             </div>
           </div>
@@ -199,7 +212,7 @@ module Attempts = {
                   data=item
                   getHeading=getAttemptHeading
                   getCell=getAttemptCell
-                  detailsFields=[AttemptTriggeredBy, Status, Error]
+                  detailsFields=[AttemptTriggeredBy, Status, CardNetwork, DeclineCode, ErrorMessage]
                 />
               </div>
             </div>
@@ -222,6 +235,36 @@ let make = (~id) => {
   )
   let showToast = ToastState.useShowToast()
 
+  let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {
+    try {
+      let processTrackerUrl = getURL(
+        ~entityName=V2(PROCESS_TRACKER),
+        ~methodType=Get,
+        ~id=Some(orderData.id),
+      )
+      let processTrackerData = await fetchDetails(processTrackerUrl, ~version=V2)
+
+      let processTrackerDataDict = processTrackerData->getDictFromJsonObject
+
+      // If we get a response, modify the payment object
+      let orderDetails = if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
+        // Create a modified order object with additional process tracker data
+        {
+          ...orderData,
+          status: "scheduled",
+        }
+      } else {
+        // Keep the order as-is if no response
+        orderData
+      }
+      setRevenueRecoveryData(_ => orderDetails)
+    } catch {
+    | Exn.Error(_) =>
+      // Keep the order as-is if there's an error
+      setRevenueRecoveryData(_ => orderData)
+    }
+  }
+
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
@@ -229,11 +272,17 @@ let make = (~id) => {
       let url = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
       let data = await fetchDetails(url, ~version=V2)
 
-      setRevenueRecoveryData(_ =>
+      let orderData =
         data
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
-      )
+
+      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
+        await getPTDetails(~orderData)
+      } else {
+        // Keep non-failed orders as-is
+        setRevenueRecoveryData(_ => orderData)
+      }
 
       setScreenState(_ => Success)
     } catch {

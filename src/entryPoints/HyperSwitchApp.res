@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchUtils
   open GlobalVars
   open APIUtils
-
+  open Typography
   open HyperswitchAtom
   open HyperswitchAppHelper
 
@@ -15,6 +15,7 @@ let make = () => {
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
 
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
@@ -24,7 +25,7 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -35,19 +36,16 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
   let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
   let exploredSidebars = SidebarHooks.useGetAllProductSections(
     ~isReconEnabled,
     ~products=exploredModules,
-    ~version,
   )
   let unexploredSidebars = SidebarHooks.useGetAllProductSections(
     ~isReconEnabled,
     ~products=unexploredModules,
-    ~version,
   )
 
   sessionExpired := false
@@ -59,26 +57,13 @@ let make = () => {
     | _ => ()
     }
   }
-  // set the product url based on the product type
-  let _setupProductUrl = (~productType: ProductTypes.productTypes) => {
-    let currentUrl = GlobalVars.extractModulePath(
-      ~path=url.path,
-      ~query=url.search,
-      ~end=url.path->List.toArray->Array.length,
-    )
-    let productUrl = ProductUtils.getProductUrl(~productType, ~url=currentUrl)
-    RescriptReactRouter.replace(productUrl)
-    switch url.path->urlPath {
-    | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/unauthorized"))
-    | _ => ()
-    }
-  }
 
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
+      setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
@@ -127,6 +112,11 @@ let make = () => {
   | _ => false
   }
 
+  let onAskPulseClick = () => {
+    mixpanelEvent(~eventName="ask_pulse_clicked")
+    RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))
+  }
+
   <>
     <div>
       {switch dashboardPageState {
@@ -152,6 +142,35 @@ let make = () => {
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
+                          <RenderIf
+                            condition={featureFlagDetails.devAiChatBot &&
+                            userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
+                            merchantDetailsTypedValue.product_type == Orchestration(V1)}>
+                            <div
+                              onClick={_ => onAskPulseClick()}
+                              className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"
+                              style={ReactDOM.Style.make(
+                                ~background="linear-gradient(90deg, transparent 0%, #3b82f6 25%, transparent 50%, #3b82f6 75%, transparent 100%)",
+                                ~backgroundSize="200% 100%",
+                                ~animation="sparkleBorder 5s linear infinite",
+                                ~borderRadius="15px",
+                                ~padding="1px",
+                                (),
+                              )}>
+                              <div
+                                className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
+                                <Icon name="stars" size=20 customIconColor="text-blue-500" />
+                                <span className={`${body.md.semibold} text-blue-500`}>
+                                  {"Ask Pulse"->React.string}
+                                </span>
+                              </div>
+                              <style>
+                                {React.string(
+                                  "@keyframes sparkleBorder { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }",
+                                )}
+                              </style>
+                            </div>
+                          </RenderIf>
                         </div>
                       </div>}
                       headerLeftActions={switch logoURL {
@@ -174,87 +193,50 @@ let make = () => {
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                     <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <HSwitchUtils.AlertBanner bannerText={maintenanceAlert} bannerType={Info} />
+                      <HSwitchUtils.AlertBanner
+                        bannerContent={<p> {maintenanceAlert->React.string} </p>} bannerType={Info}
+                      />
                     </RenderIf>
+                    <WorkflowSideDrawer />
                     <div
                       className="p-6 md:px-12 md:py-8 flex flex-col gap-10 max-w-fixedPageWidth min-h-full">
                       <ErrorBoundary>
-                        {switch url.path->urlPath {
+                        {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
-                        | list{"v2", "home"} => <DefaultHome />
-                        | list{"organization-chart"} => <OrganisationChart />
-                        | list{"v2", "onboarding", ..._} => <DefaultOnboardingPage />
+                        | (_, list{"v2", "home"}) => <DefaultHome />
 
-                        | list{"account-settings", "profile", ...remainingPath} =>
+                        | (_, list{"organization-chart"}) => <OrganisationChart />
+
+                        | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-                        | list{"unauthorized"} =>
+                        | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
-                        | list{"v2", "recon", ..._} => <ReconApp />
-                        | list{"v2", "recovery", ..._} => <RevenueRecoveryApp />
-                        | list{"v2", "vault", ..._} => <VaultApp />
-                        | list{"v2", "dynamic-routing", ..._} => <IntelligentRoutingApp />
-                        | list{"v2", "cost-observability", ..._} => <HypersenseApp />
-                        // | _ => <OrchestrationApp setScreenState />
-                        | _ => <OrchestrationApp setScreenState />
-                        // <UnauthorizedPage
-                        //   productType=merchantDetailsTypedValue.product_type
-                        //   message="You don't have access to this module."
-                        // />
+
+                        | (OnBoarding(_), _) => <DefaultOnboardingPage />
+                        /* RECON V1 PRODUCT */
+
+                        | (Recon(V1), _) => <ReconEngineApp />
+
+                        /* RECON V2 PRODUCT */
+
+                        | (Recon(V2), _) => <ReconApp />
+
+                        /* RECOVERY PRODUCT */
+                        | (Recovery, _) => <RevenueRecoveryApp />
+                        /* VAULT PRODUCT */
+                        | (Vault, _) => <VaultApp />
+                        /* HYPERSENSE PRODUCT */
+                        | (CostObservability, _) => <HypersenseApp />
+                        | (DynamicRouting, _) => <IntelligentRoutingApp />
+                        | (Orchestration(V2), _) => <OrchestrationV2App />
+                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+                        | (UnknownProduct, _) => React.null
                         }}
-                        // {switch (merchantDetailsTypedValue.product_type, url.path->urlPath) {
-                        // /* DEFAULT HOME */
-                        // | (_, list{"v2", "home"}) => <DefaultHome />
-
-                        // | (_, list{"organization-chart"}) => <OrganisationChart />
-
-                        // | (_, list{"v2", "onboarding", ..._}) => <DefaultOnboardingPage />
-
-                        // | (_, list{"account-settings", "profile", ...remainingPath}) =>
-                        //   <EntityScaffold
-                        //     entityName="profile setting"
-                        //     remainingPath
-                        //     renderList={() => <HSwitchProfileSettings />}
-                        //     renderShow={(_, _) => <ModifyTwoFaSettings />}
-                        //   />
-
-                        // | (_, list{"unauthorized"}) =>
-                        //   <UnauthorizedPage message="You don't have access to this module." />
-
-                        // /* RECON PRODUCT */
-                        // | (Recon, list{"v2", "recon", ..._}) => <ReconApp />
-
-                        // /* RECOVERY PRODUCT */
-                        // | (Recovery, list{"v2", "recovery", ..._}) => <RevenueRecoveryApp />
-
-                        // /* VAULT PRODUCT */
-                        // | (Vault, list{"v2", "vault", ..._}) => <VaultApp />
-
-                        // /* HYPERSENSE PRODUCT */
-                        // | (CostObservability, list{"v2", "cost-observability", ..._}) =>
-                        //   <HypersenseApp />
-
-                        // /* INTELLIGENT ROUTING PRODUCT */
-                        // | (DynamicRouting, list{"v2", "dynamic-routing", ..._}) =>
-                        //   <IntelligentRoutingApp />
-
-                        // /* ORCHESTRATOR V2 PRODUCT */
-                        // | (Orchestration(V2), list{"v2", "orchestration", ..._}) =>
-                        //   <OrchestrationV2App />
-
-                        // /* ORCHESTRATOR PRODUCT */
-                        // | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
-
-                        // | _ =>
-                        //   <UnauthorizedPage
-                        //     productType=merchantDetailsTypedValue.product_type
-                        //     message="You don't have access to this module."
-                        //   />
-                        // }}
                       </ErrorBoundary>
                     </div>
                   </div>

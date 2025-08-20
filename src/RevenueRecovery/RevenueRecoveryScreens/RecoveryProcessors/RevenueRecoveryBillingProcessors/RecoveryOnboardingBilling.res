@@ -15,7 +15,7 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()
@@ -26,10 +26,10 @@ let make = (
 
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
-
+  let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
-  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -46,27 +46,47 @@ let make = (
     )
     initialValuesToDict->Dict.set("connector_type", "billing_processor"->JSON.Encode.string)
     initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
-    initialValuesToDict->Dict.set(
-      "connector_account_details",
-      RevenueRecoveryData.connector_account_details,
-    )
-    initialValuesToDict->Dict.set(
-      "connector_webhook_details",
-      RevenueRecoveryData.connector_webhook_details,
-    )
-    initialValuesToDict->Dict.set(
-      "feature_metadata",
-      RevenueRecoveryData.feature_metadata(~id=connectorID),
-    )
-    initialValuesToDict->Dict.set("metadata", RevenueRecoveryData.metadata)
+
+    if !isLiveMode {
+      RevenueRecoveryData.fillDummyData(
+        ~connector,
+        ~initialValuesToDict,
+        ~merchantId,
+        ~connectorID,
+        ~connectorType=ConnectorTypes.BillingProcessor,
+      )
+    } else {
+      // TODO: need to be removed when we have file upload on live
+      let billingAccountReference = [(connectorID, connectorID->JSON.Encode.string)]->Dict.fromArray
+
+      let revenueRecovery =
+        [
+          ("billing_connector_retry_threshold", 0->JSON.Encode.int),
+          ("max_retry_count", 0->JSON.Encode.int),
+          ("billing_account_reference", billingAccountReference->JSON.Encode.object),
+        ]->Dict.fromArray
+
+      initialValuesToDict->Dict.set(
+        "feature_metadata",
+        [("revenue_recovery", revenueRecovery->JSON.Encode.object)]
+        ->Dict.fromArray
+        ->JSON.Encode.object,
+      )
+    }
+
     initialValuesToDict->JSON.Encode.object
   }, [connector, profileId])
 
   let handleAuthKeySubmit = async (values, _) => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     setInitialValues(_ => values)
-    onNextClick(currentStep, setNextStep)
+    onNextClick(currentStep, setNextStep, isLiveMode)
     Nullable.null
+  }
+
+  let handleClick = () => {
+    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
+    onNextClick(currentStep, setNextStep, isLiveMode)->ignore
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -80,7 +100,11 @@ let make = (
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
-      onNextClick(currentStep, setNextStep)
+
+      switch connector->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
+      | BillingProcessor(CUSTOMBILLING) => handleClick()
+      | _ => setShowModal(_ => true)
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -114,10 +138,7 @@ let make = (
       }
     }
   }, [connector])
-  let handleClick = () => {
-    mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep)->ignore
-  }
+
   let {
     connectorAccountFields,
     connectorMetaDataFields,
@@ -138,44 +159,46 @@ let make = (
 
     if (
       currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
-        (#addAPlatform, #configureRetries)
+        (#addAPlatform, #processorSetUp)
     ) {
       let billing_connector_retry_threshold =
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
 
-      if billing_connector_retry_threshold === 0 {
-        Dict.set(
-          errors,
-          "billing_connector_retry_threshold",
-          `Please enter start retry count`->JSON.Encode.string,
-        )
-      } else if billing_connector_retry_threshold > 15 {
-        Dict.set(
-          errors,
-          "billing_connector_retry_threshold",
-          `Start retry count should be less than 15`->JSON.Encode.string,
-        )
-      }
+      if !isLiveMode {
+        if billing_connector_retry_threshold === 0 {
+          Dict.set(
+            errors,
+            "billing_connector_retry_threshold",
+            `Please enter start retry count`->JSON.Encode.string,
+          )
+        } else if billing_connector_retry_threshold > 15 {
+          Dict.set(
+            errors,
+            "billing_connector_retry_threshold",
+            `Start retry count should be less than 15`->JSON.Encode.string,
+          )
+        }
 
-      if max_retry_count === 0 {
-        Dict.set(
-          errors,
-          "max_retry_count",
-          `Please enter max retry count count`->JSON.Encode.string,
-        )
-      } else if max_retry_count > 15 {
-        Dict.set(
-          errors,
-          "max_retry_count",
-          `Max retry count count should be less than 15`->JSON.Encode.string,
-        )
+        if max_retry_count === 0 {
+          Dict.set(
+            errors,
+            "max_retry_count",
+            `Please enter max retry count count`->JSON.Encode.string,
+          )
+        } else if max_retry_count > 15 {
+          Dict.set(
+            errors,
+            "max_retry_count",
+            `Max retry count count should be less than 15`->JSON.Encode.string,
+          )
+        }
       }
     }
 
     if (
       currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
-        (#addAPlatform, #connectProcessor)
+        (#addAPlatform, #processorSetUp)
     ) {
       let billing_account_reference =
         revenue_recovery->getObj("billing_account_reference", Dict.make())
@@ -200,6 +223,39 @@ let make = (
     )
   }
 
+  let modalBody = {
+    <>
+      <div className="p-2 m-2">
+        <div className="py-5 px-3 flex justify-between align-top">
+          <CardUtils.CardHeader
+            heading="Setup Subscription Webhook"
+            subHeading="Configure this endpoint in the subscription management system dashboard under webhook settings for us to pick up failed payments for recovery."
+            customSubHeadingStyle="w-full !max-w-none pr-10"
+          />
+        </div>
+        <div className="px-3 pb-5">
+          <ConnectorWebhookPreview
+            merchantId
+            connectorName=connectorInfoDict.id
+            textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrain-mono"
+            containerClass="flex flex-row items-center justify-between"
+            displayTextLength=38
+            hideLabel=true
+            showFullCopy=true
+          />
+          <Button
+            text="Next"
+            buttonType=Primary
+            onClick={_ => handleClick()}
+            customButtonStyle="w-full mt-8"
+          />
+        </div>
+      </div>
+    </>
+  }
+
+  let authKeysSubmit = isLiveMode ? onSubmit : handleAuthKeySubmit
+
   <div>
     <Form onSubmit initialValues>
       {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
@@ -208,24 +264,31 @@ let make = (
           initialValues
           setConnectorName
           connector
-          handleAuthKeySubmit
+          onSubmit=authKeysSubmit
           validateMandatoryField
           updatedInitialVal
           connectorInfoDict
           screenState
         />
-      | (#addAPlatform, #configureRetries) =>
-        <BillingProcessorsConfigureRetry initialValues handleAuthKeySubmit validateMandatoryField />
-      | (#addAPlatform, #connectProcessor) =>
-        <BillingProcessorsConnectProcessor
-          connector={paymentConnectorName}
-          initialValues
-          onSubmit
-          validateMandatoryField
-          connector_account_reference_id=connectorID
-        />
-      | (#addAPlatform, #setupWebhookPlatform) =>
-        <BillingProcessorsWebhooks initialValues merchantId onNextClick={_ => handleClick()} />
+      | (#addAPlatform, #processorSetUp) =>
+        <>
+          <BillingProcessorsSetUp
+            initialValues
+            validateMandatoryField
+            connector={paymentConnectorName}
+            onSubmit
+            connector_account_reference_id=connectorID
+          />
+          <Modal
+            showModal
+            closeOnOutsideClick=false
+            setShowModal
+            childClass="p-0"
+            borderBottom=true
+            modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+            modalBody
+          </Modal>
+        </>
       | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null
       }}

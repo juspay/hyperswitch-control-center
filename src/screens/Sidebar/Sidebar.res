@@ -213,7 +213,6 @@ module NestedSidebarItem = {
     ~isSectionExpanded,
     ~onItemClickCustom,
   ) => {
-    Js.log(product)
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -647,7 +646,7 @@ let make = (
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (expandedSections, setExpandedSections) = React.useState(_ => [])
   let {devModularityV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let allowProductToggle = exploredSidebars->Array.length > 1
+  let allowProductToggle = exploredSidebars->Array.length > 0
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -693,7 +692,7 @@ let make = (
     switch List.head(tail) {
     | Some(x) =>
       /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
-      if x === "v2" {
+      if x === "v2" || x === "v1" {
         `/${x}` ++ level2(tail)
       } else {
         `/${x}`
@@ -849,7 +848,7 @@ let make = (
             </div>
           </div>
           <div
-            className={`flex items-center justify-between px-4 py-3 border-t ${borderColor} ${hoverColor}`}>
+            className={`flex items-center justify-between px-1 py-3 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>
               <Popover className="relative inline-block text-left">
                 {popoverProps => <>
@@ -863,7 +862,7 @@ let make = (
                       `${openClasses} border-none`
                     }>
                     {_ => <>
-                      <div className="flex items-center justify-between gap-x-3">
+                      <div className="flex items-center justify-between gap-x-2">
                         <Icon name="nd-user" size=24 />
                         <div className="flex flex-col gap-0.5">
                           <div
@@ -875,7 +874,7 @@ let make = (
                             {roleId->LogicUtils.snakeToTitle->React.string}
                           </div>
                         </div>
-                        <div className={`flex flex-row`}>
+                        <div className="flex flex-row">
                           <Icon
                             name="nd-dropdown-menu"
                             size=18

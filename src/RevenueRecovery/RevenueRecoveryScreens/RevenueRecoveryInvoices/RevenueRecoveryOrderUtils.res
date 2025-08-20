@@ -168,3 +168,17 @@ let initialFixedFilter = () => [
     }: EntityType.initialFilters<'t>
   ),
 ]
+
+let statusVariantMapper: string => RevenueRecoveryOrderTypes.status = statusLabel =>
+  switch statusLabel->String.toUpperCase {
+  | "SUCCEEDED" => Succeeded
+  | "SCHEDULED" => Scheduled
+  | "FAILED" => Failed
+  | "CANCELLED" => Cancelled
+  | "PROCESSING" => Processing
+  | "REQUIRES_CUSTOMER_ACTION" => RequiresCustomerAction
+  | "REQUIRES_PAYMENT_METHOD" => RequiresPaymentMethod
+  | "REQUIRES_CONFIRMATION" => RequiresConfirmation
+  | "PARTIALLY_CAPTURED" => PartiallyCaptured
+  | _ => None
+  }

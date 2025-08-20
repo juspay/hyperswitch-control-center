@@ -254,6 +254,12 @@ let disputeAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View Dispute analytics", "")],
 })
+let routingAnalytics = SubLevelLink({
+  name: "Routing",
+  link: `/analytics-routing`,
+  access: Access,
+  searchOptions: [("View routing analytics", "")],
+})
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
@@ -274,6 +280,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
@@ -291,6 +298,9 @@ let analytics = (
 
   if performanceMonitorFlag {
     links->Array.push(performanceMonitor)
+  }
+  if routingAnalyticsFlag {
+    links->Array.push(routingAnalytics)
   }
 
   isAnalyticsEnabled
@@ -602,7 +612,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
     }
   | (true, false, true) =>
     Link({
-      name: "Recon And Settlement",
+      name: "Reconciliation",
       icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
       access: userHasResourceAccess(~resourceAccess=ReconToken),
@@ -610,4 +620,118 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
 
   | _ => emptyComponent
   }
+}
+
+
+//// HOOKS
+
+let useGetHsSidebarValues = (~isReconEnabled: bool) => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {
+    frm,
+    payOut,
+    recon,
+    default,
+    surcharge: isSurchargeEnabled,
+    isLiveMode,
+    threedsAuthenticator,
+    disputeAnalytics,
+    configurePmts,
+    complianceCertificate,
+    performanceMonitor: performanceMonitorFlag,
+    pmAuthenticationProcessor,
+    taxProcessor,
+    newAnalytics,
+    authenticationAnalytics,
+    devAltPaymentMethods,
+    devWebhooks,
+    threedsExemptionRules,
+    paymentSettingsV2,
+    routingAnalytics,
+  } = featureFlagDetails
+  let {
+    useIsFeatureEnabledForBlackListMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+  let isNewAnalyticsEnable =
+    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
+  let sidebar = [
+    default->home,
+    default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+      ~isTaxProcessor=taxProcessor,
+      ~userHasResourceAccess,
+    ),
+    default->analytics(
+      disputeAnalytics,
+      performanceMonitorFlag,
+      isNewAnalyticsEnable,
+      routingAnalytics,
+      ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~userHasResourceAccess,
+    ),
+    default->workflow(
+      isSurchargeEnabled,
+      threedsExemptionRules,
+      ~userHasResourceAccess,
+      ~isPayoutEnabled=payOut,
+      ~userEntity,
+    ),
+    devAltPaymentMethods->alternatePaymentMethods,
+    recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
+    default->developers(
+      ~isWebhooksEnabled=devWebhooks,
+      ~userHasResourceAccess,
+      ~checkUserEntity,
+      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
+    ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
+  ]
+
+  sidebar
+}
+
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let defaultSidebar = []
+
+  if featureFlagDetails.devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
+  let sidebarValuesForProduct = switch activeProduct {
+  | Orchestration(V1) => hsSidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
+  | Vault => VaultSidebarValues.vaultSidebars
+  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | Orchestration(V2) => orchestratorV2Sidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+  | OnBoarding(_) => []
+  | UnknownProduct => []
+  }
+  defaultSidebar->Array.concat(sidebarValuesForProduct)
 }
