@@ -9,7 +9,6 @@ let defaultColumns: array<entryColType> = [
   Amount,
   Currency,
   Status,
-  DiscardedStatus,
   Metadata,
   CreatedAt,
   EffectiveAt,
@@ -22,7 +21,6 @@ let allColumns: array<entryColType> = [
   Amount,
   Currency,
   Status,
-  DiscardedStatus,
   Metadata,
   CreatedAt,
   EffectiveAt,
@@ -36,29 +34,24 @@ let getHeading = (colType: entryColType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | DiscardedStatus => Table.makeHeaderInfo(~key="discarded_status", ~title="Status")
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
   }
 }
 
-let getStatusLabel = (statusString: option<string>): Table.cell => {
-  switch statusString {
-  | Some(status) =>
-    Table.Label({
-      title: status->getDisplayStatusName,
-      color: switch status->String.toLowerCase {
-      | "posted" => Table.LabelGreen
-      | "mismatched" => Table.LabelRed
-      | "expected" => Table.LabelBlue
-      | "archived" => Table.LabelGray
-      | "pending" => Table.LabelOrange
-      | _ => Table.LabelLightGray
-      },
-    })
-  | None => Text("N/A")
-  }
+let getStatusLabel = (statusString: string): Table.cell => {
+  Table.Label({
+    title: statusString->getDisplayStatusName,
+    color: switch statusString->String.toLowerCase {
+    | "posted" => Table.LabelGreen
+    | "mismatched" => Table.LabelRed
+    | "expected" => Table.LabelBlue
+    | "archived" => Table.LabelGray
+    | "pending" => Table.LabelOrange
+    | _ => Table.LabelLightGray
+    },
+  })
 }
 
 let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
@@ -68,8 +61,11 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   | TransactionId => Text(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
-  | Status => getStatusLabel(Some(entry.status))
-  | DiscardedStatus => getStatusLabel(entry.discarded_status)
+  | Status =>
+    switch entry.discarded_status {
+    | Some(status) => getStatusLabel(status)
+    | None => getStatusLabel(entry.status)
+    }
   | Metadata => CustomCell(<div> {"Here is the metadata: "->React.string} </div>, "")
   | CreatedAt => Text(entry.created_at)
   | EffectiveAt => Text(entry.effective_at)
