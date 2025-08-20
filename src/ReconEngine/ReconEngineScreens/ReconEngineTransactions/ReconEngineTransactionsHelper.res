@@ -85,11 +85,12 @@ module TransactionDetailInfo = {
     let isArchived =
       currentTransactionDetails.transaction_status->getTransactionTypeFromString == Archived
 
-    let detailsFields: array<transactionColType> = if isArchived {
-      [TransactionId, DiscardedStatus, Variance, CreatedAt]
-    } else {
-      [TransactionId, Status, Variance, CreatedAt]
-    }
+    let detailsFields: array<transactionColType> = [
+      TransactionId,
+      isArchived ? DiscardedStatus : Status,
+      Variance,
+      CreatedAt,
+    ]
 
     <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
       <RenderIf condition={isArchived}>
@@ -115,25 +116,29 @@ module EntryAuditTrailInfo = {
   @react.component
   let make = (~entryDetails) => {
     open EntriesTableEntity
+    open ReconEngineTransactionsUtils
 
-    let detailsFields = React.useMemo(() => {
-      let baseFields: array<entryColType> = [
-        EntryId,
-        EntryType,
-        Amount,
-        Currency,
-        TransactionId,
-        Status,
-      ]
-      let fieldsWithDiscardedStatus = switch entryDetails.discarded_status {
-      | Some(_) => Array.concat(baseFields, [DiscardedStatus])
-      | None => baseFields
-      }
-      Array.concat(fieldsWithDiscardedStatus, [CreatedAt, EffectiveAt])
-    }, [entryDetails.discarded_status])
+    let isArchived = entryDetails.status->getEntryTypeFromString == Archived
+
+    let detailsFields = [
+      EntryId,
+      EntryType,
+      Amount,
+      Currency,
+      TransactionId,
+      isArchived ? DiscardedStatus : Status,
+      CreatedAt,
+      EffectiveAt,
+    ]
 
     <div className="flex flex-col gap-4 mb-6 px-2">
-      <div className="w-full border border-nd_gray-150 rounded-lg p-2">
+      <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+        <RenderIf condition={isArchived}>
+          <p
+            className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
+            {"Archived"->React.string}
+          </p>
+        </RenderIf>
         <TransactionDetails
           data=entryDetails getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
         />
