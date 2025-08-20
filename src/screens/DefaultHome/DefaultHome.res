@@ -3,8 +3,6 @@ let make = () => {
   open PageUtils
   open DefaultHomeUtils
   open HyperswitchAtom
-  // let count = 0
-  // let merchantCount = 1
   let {devVaultV2Product, devRecoveryV2Product, devReconv2Product, devHypersenseV2Product} =
     featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div
