@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.19.2
+
+### Bug Fixes
+
+- Readme update to remove old theme context ([#3418](https://github.com/juspay/hyperswitch-control-center/pull/3418)) ([`a90127e`](https://github.com/juspay/hyperswitch-control-center/commit/a90127e5f28183a4380d54f0adca72e5413c01a9))
+- Recovery onboarding and switch merchant changes ([#3435](https://github.com/juspay/hyperswitch-control-center/pull/3435)) ([`71ec075`](https://github.com/juspay/hyperswitch-control-center/commit/71ec075f678143ce394fca958919630fcc8435ea))
+
+**Full Changelog:** [`2025.08.19.1...2025.08.19.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.19.1...2025.08.19.2)
+
+- - -
+
+## 2025.08.19.1
+
+### Bug Fixes
+
+- Resolve product switch ([#3452](https://github.com/juspay/hyperswitch-control-center/pull/3452)) ([`c5c1d65`](https://github.com/juspay/hyperswitch-control-center/commit/c5c1d65470dbaad74195a9ef5145f15f6dfcb259))
+
+**Full Changelog:** [`2025.08.19.0...2025.08.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.19.0...2025.08.19.1)
+
+- - -
+
+## 2025.08.19.0
+
+### Bug Fixes
+
+- Fix text box size issue for 13 inch screen ([#3447](https://github.com/juspay/hyperswitch-control-center/pull/3447)) ([`7dd07ff`](https://github.com/juspay/hyperswitch-control-center/commit/7dd07ffb47b273452e2c8748a9d70d2015ed875e))
+- Payout connector display name ([#3450](https://github.com/juspay/hyperswitch-control-center/pull/3450)) ([`c68405c`](https://github.com/juspay/hyperswitch-control-center/commit/c68405c251ab01b8dfaca75423d162cb3066a591))
+- Create merchant not visible in platform org ([#3443](https://github.com/juspay/hyperswitch-control-center/pull/3443)) ([`8edc6b1`](https://github.com/juspay/hyperswitch-control-center/commit/8edc6b11e455ac5286b66dd298a37a1b35fbf9b2))
+
+### Miscellaneous Tasks
+
+- Refactor missing point generation ([#3445](https://github.com/juspay/hyperswitch-control-center/pull/3445)) ([`743e301`](https://github.com/juspay/hyperswitch-control-center/commit/743e30114cd267f8803734118ca29e470cc1b7c7))
+- Routing analytics time distribution graph changes ([#3414](https://github.com/juspay/hyperswitch-control-center/pull/3414)) ([`dff67e5`](https://github.com/juspay/hyperswitch-control-center/commit/dff67e5659d4d814df6593e005aa137504860e99))
+
+**Full Changelog:** [`2025.08.14.0...2025.08.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.14.0...2025.08.19.0)
+
+- - -
+
 ## 2025.08.14.0
 
 ### Features
