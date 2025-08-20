@@ -1,5 +1,6 @@
 open InsightsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open InsightsPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils

@@ -3,9 +3,11 @@ let make = () => {
   open Typography
   open APIUtils
   open LogicUtils
-  open InsightsUtils
+
+  open NewAnalyticsUtils
   open RoutingAnalyticsTrendsTypes
   open RoutingAnalyticsTrendsUtils
+  open NewAnalyticsHelper
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
@@ -16,11 +18,10 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let (sharedData, setSharedData) = React.useState(_ => JSON.Encode.null)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularityTabState, setGranularityTabState) = React.useState(_ =>
     defaultGranularityOptionsObject
   )
-  let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
 
   let getMetricData = async (~granularityValue) => {
     try {
@@ -29,10 +30,7 @@ let make = () => {
       let body =
         [
           AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some([
-              (#payment_success_rate: routingTrendsMetrics :> string),
-              (#payment_count: routingTrendsMetrics :> string),
-            ]),
+            ~metrics=Some([(#payment_count: routingTrendsMetrics :> string)]),
             ~delta=false,
             ~groupByNames=Some([(#connector: routingTrendsMetrics :> string)]),
             ~startDateTime=startTimeVal,
@@ -50,12 +48,12 @@ let make = () => {
       } else {
         let processedModifiedData = fillMissingDataPointsForConnectors(
           ~data=responseData
-          ->modifyQueryDataForSucessGraph
+          ->modifyQueryDataForVolumeGraph
           ->sortQueryDataByDate,
           ~startDate=startTimeVal,
           ~endDate=endTimeVal,
           ~defaultValue={
-            "payment_success_rate": 0.0,
+            "payment_count": 0,
             "time_bucket": startTimeVal,
             "connector": "",
           }->Identity.genericTypeToJson,
@@ -63,7 +61,6 @@ let make = () => {
           ~isoStringToCustomTimeZone,
           ~granularityEnabled=featureFlag.granularity,
         )
-
         setSharedData(_ => processedModifiedData->Identity.genericTypeToJson)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
@@ -74,7 +71,7 @@ let make = () => {
 
   React.useEffect(_ => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      let defaultGranularity = InsightsUtils.getDefaultGranularity(
+      let defaultGranularity = getDefaultGranularity(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~granularity=featureFlag.granularity,
@@ -86,33 +83,32 @@ let make = () => {
   }, (startTimeVal, endTimeVal, filterValue))
 
   let params = {
-    InsightsTypes.data: sharedData,
+    data: sharedData,
+    yKey: (#payment_count: routingTrendsMetrics :> string),
     xKey: (#time_bucket: routingTrendsMetrics :> string),
-    yKey: (#payment_success_rate: routingTrendsMetrics :> string),
     comparison: DateRangeUtils.DisableComparison,
   }
-  let setGranularity = (option: InsightsTypes.optionType) => {
+  let setGranularity = (option: NewAnalyticsTypes.optionType) => {
     setGranularityTabState(_ => option)
     getMetricData(~granularityValue=option.value)->ignore
   }
-
   let options =
-    RoutingAnalyticsTrendsEntity.routingSuccessRateChartEntity.getObjects(
+    RoutingAnalyticsTrendsEntity.routingVolumeChartEntity.getObjects(
       ~params,
-    )->RoutingAnalyticsTrendsEntity.routingSuccessRateChartEntity.getChatOptions
+    )->RoutingAnalyticsTrendsEntity.routingVolumeChartEntity.getChatOptions
 
   <PageLoaderWrapper
     screenState
-    customUI={<InsightsHelper.NoData />}
+    customUI={<NoData height="h-72" />}
     customLoader={<Shimmer styleClass="w-full h-96" />}>
-    <div className="border border-nd_gray-200 rounded-xl ">
+    <div className="border border-nd_gray-200 rounded-xl w-full">
       <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
         <p className={`${body.md.semibold} text-nd_gray-800`}>
-          {"Success Over Time"->React.string}
+          {"Volume Over Time"->React.string}
         </p>
       </div>
       <div className="p-4">
-        <InsightsHelper.Tabs
+        <Tabs
           option={granularityTabState}
           setOption={setGranularity}
           options={granularityOptions}

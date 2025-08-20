@@ -1,5 +1,6 @@
 open InsightsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
 open InsightsPaymentAnalyticsUtils
@@ -92,6 +93,7 @@ let make = (
     ->getSmartRetryMetricType
 
   open InsightsUtils
+  open NewAnalyticsUtils
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,

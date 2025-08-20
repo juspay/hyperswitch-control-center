@@ -59,7 +59,7 @@ let refundsSuccessRateMapper = (
   }
 }
 
-open InsightsTypes
+open NewAnalyticsTypes
 let tabs = [{label: "Daily", value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string)}]
 
 let defaulGranularity = {

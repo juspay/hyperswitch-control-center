@@ -2,7 +2,8 @@
 let make = () => {
   open Typography
   open InsightsHelper
-  open InsightsTypes
+  open NewAnalyticsTypes
+
   let showPopUp = PopUpState.useShowPopUp()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)

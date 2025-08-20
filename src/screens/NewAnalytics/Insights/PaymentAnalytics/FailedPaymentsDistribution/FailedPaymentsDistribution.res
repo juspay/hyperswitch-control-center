@@ -4,6 +4,7 @@ open InsightsPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
 open InsightsPaymentAnalyticsUtils
+open NewAnalyticsHelper
 
 module TableModule = {
   @react.component

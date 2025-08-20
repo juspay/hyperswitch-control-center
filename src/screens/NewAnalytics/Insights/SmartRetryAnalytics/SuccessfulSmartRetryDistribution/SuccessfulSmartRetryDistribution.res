@@ -1,5 +1,6 @@
 open InsightsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open BarGraphTypes
 open InsightsSmartRetryAnalyticsEntity
 open SuccessfulSmartRetryDistributionUtils
