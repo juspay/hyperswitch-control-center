@@ -36,7 +36,7 @@ let getHeading = (colType: entryColType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | DiscardedStatus => Table.makeHeaderInfo(~key="discarded_status", ~title="Discarded Status")
+  | DiscardedStatus => Table.makeHeaderInfo(~key="discarded_status", ~title="Status")
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")

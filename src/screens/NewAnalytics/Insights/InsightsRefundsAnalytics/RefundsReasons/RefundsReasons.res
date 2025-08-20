@@ -121,7 +121,9 @@ let make = (~entity: moduleEntity) => {
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
-        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        screenState
+        customLoader={<Shimmer layoutId=entity.title />}
+        customUI={<NewAnalyticsHelper.NoData />}>
         <TableModule data={tableData} className="ml-6 mr-5 mt-6 mb-5" />
       </PageLoaderWrapper>
     </Card>

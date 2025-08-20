@@ -61,9 +61,7 @@ let make = (~id) => {
         message="Payment does not exists in out record" renderType=NotFound
       />}>
       <div className="flex flex-col gap-8">
-        <TransactionDetailInfo
-          currentTransactionDetails={currentExceptionsDetails} detailsFields=[TransactionId, Status]
-        />
+        <TransactionDetailInfo currentTransactionDetails={currentExceptionsDetails} />
         <AuditTrail allTransactionDetails={allExceptionDetails} />
       </div>
     </PageLoaderWrapper>

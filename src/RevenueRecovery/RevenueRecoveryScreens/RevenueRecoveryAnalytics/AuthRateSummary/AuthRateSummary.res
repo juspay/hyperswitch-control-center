@@ -70,7 +70,7 @@ let make = (
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-48 rounded-lg" />}
-    customUI={<InsightsHelper.NoData height="h-48 p-0 -m-0" />}>
+    customUI={<NewAnalyticsHelper.NoData height="h-48 p-0 -m-0" />}>
     <div className="rounded-xl border border-gray-200 p-4 w-full bg-white">
       <div className="flex items-center justify-start gap-3 mb-4">
         <p className={`${body.md.regular} text-gray-500`}>

@@ -2,6 +2,7 @@ open SmartRetryPaymentsProcessedTypes
 open InsightsUtils
 open LogicUtils
 open PaymentsProcessedTypes
+open NewAnalyticsUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -148,6 +149,7 @@ let getCell = (obj, colType): Table.cell => {
 }
 
 open InsightsTypes
+open NewAnalyticsTypes
 let dropDownOptions = [
   {label: "By Amount", value: Payment_Processed_Amount->getStringFromVariant},
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},

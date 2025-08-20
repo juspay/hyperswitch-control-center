@@ -142,7 +142,9 @@ let make = (
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
-        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        screenState
+        customLoader={<Shimmer layoutId=entity.title />}
+        customUI={<NewAnalyticsHelper.NoData />}>
         <SuccessfulRefundsDistributionHeader viewType setViewType />
         <div className="mb-5">
           {switch viewType {

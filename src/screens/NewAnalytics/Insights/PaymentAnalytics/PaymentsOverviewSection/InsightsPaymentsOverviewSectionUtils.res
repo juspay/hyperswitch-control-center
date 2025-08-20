@@ -76,7 +76,7 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
 
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currency) => {
   open LogicUtils
-  open InsightsUtils
+  open NewAnalyticsUtils
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant
 

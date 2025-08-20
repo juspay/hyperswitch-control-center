@@ -1,32 +1,9 @@
-// colors
-let redColor = "#BA3535"
-let blue = "#1059C1B2"
-let green = "#0EB025B2"
-let barGreenColor = "#7CC88F"
-let sankyBlue = "#E4EFFF"
-let sankyRed = "#F7E0E0"
-let sankyLightBlue = "#91B7EE"
-let sankyLightRed = "#EC6262"
-let coralRed = "#FF6B6B"
-let turquoise = "#4ECDC4"
-let skyBlue = "#45B7D1"
-let mintGreen = "#96CEB4"
-let lightYellow = "#FFEAA7"
-let plum = "#DDA0DD"
-let seafoam = "#98D8C8"
-let goldenYellow = "#F7DC6F"
-let lightPurple = "#BB8FCE"
-let lightBlue = "#85C1E9"
-let peach = "#F8C471"
-let lightGreen = "#82E0AA"
-let salmon = "#F1948A"
-let powderBlue = "#AED6F1"
-let lavender = "#D7BDE2"
-
 open InsightsTypes
 open HSwitchRemoteFilter
 open DateRangeUtils
 open InsightsContainerUtils
+open NewAnalyticsUtils
+
 let globalFilter: array<filters> = [#currency]
 let globalExcludeValue = [(#all_currencies: defaultFilters :> string)]
 
@@ -56,24 +33,6 @@ let requestBody = (
       ~mode,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
-}
-
-let getMonthName = month => {
-  switch month {
-  | 0 => "Jan"
-  | 1 => "Feb"
-  | 2 => "Mar"
-  | 3 => "Apr"
-  | 4 => "May"
-  | 5 => "Jun"
-  | 6 => "Jul"
-  | 7 => "Aug"
-  | 8 => "Sep"
-  | 9 => "Oct"
-  | 10 => "Nov"
-  | 11 => "Dec"
-  | _ => ""
-  }
 }
 
 let formatDateValue = (value: string, ~includeYear=false) => {
@@ -147,15 +106,6 @@ let filterQueryData = (query, key) => {
   })
 }
 
-let sortQueryDataByDate = query => {
-  query->Array.sort((a, b) => {
-    let valueA = a->getDictFromJsonObject->getString("time_bucket", "")
-    let valueB = b->getDictFromJsonObject->getString("time_bucket", "")
-    compareLogic(valueB, valueA)
-  })
-  query
-}
-
 let getMaxValue = (data: JSON.t, index: int, key: string) => {
   data
   ->getArrayFromJson([])
@@ -174,36 +124,6 @@ let isEmptyGraph = (data: JSON.t, key: string) => {
   Math.max(primaryMaxValue, secondaryMaxValue) == 0.0
 }
 
-let checkTimePresent = (options, key) => {
-  options->Array.reduce(false, (flag, item) => {
-    let value = item->getDictFromJsonObject->getString(key, "NA")
-    if value->isNonEmptyString && key == "time_bucket" {
-      let dateObj = value->DayJs.getDayJsForString
-      dateObj.format("HH") != "00" || flag
-    } else {
-      false
-    }
-  })
-}
-
-let formatTime = time => {
-  let hour =
-    time->String.split(":")->Array.get(0)->Option.getOr("00")->Int.fromString->Option.getOr(0)
-  let mimute =
-    time->String.split(":")->Array.get(1)->Option.getOr("00")->Int.fromString->Option.getOr(0)
-
-  let newHour = Int.mod(hour, 12)
-  let newHour = newHour == 0 ? 12 : newHour
-
-  let period = hour >= 12 ? "PM" : "AM"
-
-  if mimute > 0 {
-    `${newHour->Int.toString}:${mimute->Int.toString} ${period}`
-  } else {
-    `${newHour->Int.toString} ${period}`
-  }
-}
-
 let getCategories = (data: JSON.t, index: int, key: string) => {
   let options =
     data
@@ -220,7 +140,7 @@ let getCategories = (data: JSON.t, index: int, key: string) => {
       let dateObj = value->DayJs.getDayJsForString
       let date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
       if isShowTime {
-        let time = dateObj.format("HH:mm")->formatTime
+        let time = dateObj.format("HH:mm")->NewAnalyticsUtils.formatTimeString
         `${date}, ${time}`
       } else {
         date
@@ -312,61 +232,6 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
     </div>`
     }
   )->asTooltipPointFormatter
-}
-
-let getColor = index => {
-  [
-    blue,
-    green,
-    coralRed,
-    turquoise,
-    skyBlue,
-    mintGreen,
-    lightYellow,
-    plum,
-    seafoam,
-    goldenYellow,
-    lightPurple,
-    lightBlue,
-    peach,
-    lightGreen,
-    salmon,
-    powderBlue,
-    lavender,
-  ]
-  ->Array.get(index)
-  ->Option.getOr(blue)
-}
-
-let getAmountValue = (data, ~id) => {
-  switch data->getOptionFloat(id) {
-  | Some(value) => value /. 100.0
-  | _ => 0.0
-  }
-}
-
-let getLineGraphObj = (
-  ~array: array<JSON.t>,
-  ~key: string,
-  ~name: string,
-  ~color,
-  ~isAmount=false,
-): LineGraphTypes.dataObj => {
-  let data = array->Array.map(item => {
-    let dict = item->getDictFromJsonObject
-    if isAmount {
-      dict->getAmountValue(~id=key)
-    } else {
-      dict->getFloat(key, 0.0)
-    }
-  })
-  let dataObj: LineGraphTypes.dataObj = {
-    showInLegend: true,
-    name,
-    data,
-    color,
-  }
-  dataObj
 }
 
 let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
@@ -546,59 +411,6 @@ let generateFilterObject = (~globalFilters, ~localFilters=None) => {
   filters->JSON.Encode.object
 }
 
-let getGranularityLabel = option => {
-  switch option {
-  | #G_ONEDAY => "Day-wise"
-  | #G_ONEHOUR => "Hour-wise"
-  | #G_THIRTYMIN => "30min-wise"
-  | #G_FIFTEENMIN => "15min-wise"
-  }
-}
-
-let defaulGranularity = {
-  label: #G_ONEDAY->getGranularityLabel,
-  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
-}
-
-let getGranularityOptions = (~startTime, ~endTime) => {
-  let startingPoint = startTime->DayJs.getDayJsForString
-  let endingPoint = endTime->DayJs.getDayJsForString
-  let gap = endingPoint.diff(startingPoint.toString(), "hour") // diff between points
-
-  let options = if gap < 1 {
-    [#G_THIRTYMIN, #G_FIFTEENMIN]
-  } else if gap < 24 {
-    [#G_ONEHOUR, #G_THIRTYMIN, #G_FIFTEENMIN]
-  } else if gap < 168 {
-    [#G_ONEDAY, #G_ONEHOUR]
-  } else {
-    [#G_ONEDAY]
-  }
-
-  options->Array.map(option => {
-    label: option->getGranularityLabel,
-    value: (option: NewAnalyticsTypes.granularity :> string),
-  })
-}
-
-let getDefaultGranularity = (~startTime, ~endTime, ~granularity) => {
-  let options = getGranularityOptions(~startTime, ~endTime)
-  if granularity {
-    options->Array.get(options->Array.length - 1)->Option.getOr(defaulGranularity)
-  } else {
-    defaulGranularity
-  }
-}
-
-let getGranularityGap = option => {
-  switch option {
-  | "G_ONEHOUR" => 60
-  | "G_THIRTYMIN" => 30
-  | "G_FIFTEENMIN" => 15
-  | "G_ONEDAY" | _ => 1440
-  }
-}
-
 let fillMissingDataPoints = (
   ~data,
   ~startDate,
@@ -609,7 +421,7 @@ let fillMissingDataPoints = (
   ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
   ~granularityEnabled,
 ) => {
-  let existingTimeDict = NewAnalyticsUtils.extractTimeDict(
+  let existingTimeDict = extractTimeDict(
     ~data,
     ~granularity,
     ~granularityEnabled,
@@ -617,7 +429,7 @@ let fillMissingDataPoints = (
     ~timeKey,
   )
 
-  let dateTimeRange = NewAnalyticsUtils.fillForMissingTimeRange(
+  let dateTimeRange = fillForMissingTimeRange(
     ~existingTimeDict,
     ~defaultValue,
     ~timeKey,
