@@ -7,6 +7,7 @@ module RuleWiseStackedBarGraph = {
 
     let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
+    let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let getAllTransactionsData = async _ => {
@@ -21,12 +22,9 @@ module RuleWiseStackedBarGraph = {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
       }
     }
-    let (
-      postedCount,
-      mismatchedCount,
-      expectedCount,
-    ) = ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
-    let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
+    let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
+      ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
+    }, [allTransactionsData])
 
     let totalTransactions = postedCount + mismatchedCount + expectedCount
     let reconciliationPercentage =
@@ -34,11 +32,13 @@ module RuleWiseStackedBarGraph = {
         ? postedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
         : 0.0
 
-    let stackedBarGraphData = ReconEngineOverviewSummaryUtils.getSummaryStackedBarGraphData(
-      ~postedCount,
-      ~mismatchedCount,
-      ~expectedCount,
-    )
+    let stackedBarGraphData = React.useMemo(() => {
+      ReconEngineOverviewSummaryUtils.getSummaryStackedBarGraphData(
+        ~postedCount,
+        ~mismatchedCount,
+        ~expectedCount,
+      )
+    }, [postedCount, mismatchedCount, expectedCount])
 
     React.useEffect(() => {
       getAllTransactionsData()->ignore
