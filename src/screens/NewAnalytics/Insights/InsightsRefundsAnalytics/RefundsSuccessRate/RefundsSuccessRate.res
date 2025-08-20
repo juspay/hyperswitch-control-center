@@ -2,6 +2,7 @@ open InsightsTypes
 open InsightsHelper
 open LineGraphTypes
 open RefundsSuccessRateUtils
+open NewAnalyticsHelper
 
 module PaymentsSuccessRateHeader = {
   open InsightsUtils
@@ -51,6 +52,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open InsightsUtils
+  open NewAnalyticsUtils
   open InsightsContainerUtils
   let getURL = useGetURL()
   let fetchApi = AuthHooks.useApiFetcher()

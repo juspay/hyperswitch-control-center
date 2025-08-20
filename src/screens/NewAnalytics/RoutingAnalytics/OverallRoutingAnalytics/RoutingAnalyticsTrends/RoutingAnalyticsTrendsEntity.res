@@ -1,12 +1,10 @@
-open InsightsTypes
-
+open RoutingAnalyticsTrendsTypes
 let routingSuccessRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [],
   },
   title: "Routing Success Rate",
-  domain: #payments,
 }
 
 let routingSuccessRateChartEntity: chartEntity<
@@ -24,7 +22,6 @@ let routingVolumeEntity: moduleEntity = {
     metrics: [],
   },
   title: "Routing Volume",
-  domain: #payments,
 }
 
 let routingVolumeChartEntity: chartEntity<
