@@ -125,7 +125,7 @@ let defaultHomeCardsArray = {
     {
       product: CostObservability,
       heading: "Cost Observability",
-      description: "A comprehensive solution for monitoring and optimizing costs across all payment processes, providing insights and analytics to drive efficiency.",
+      description: "Unified view of payment processing costs across acquirers, payment methods, & regions. Track every cent, detect anomalies, audit against contracted rates, & forecast the impact of card network changes.",
       imgSrc: "/assets/DefaultHomeHypersenseCard.svg",
       action: InternalRoute,
     },
