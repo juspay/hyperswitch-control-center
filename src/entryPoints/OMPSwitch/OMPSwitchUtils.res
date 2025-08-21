@@ -112,21 +112,29 @@ let keyExtractorForMerchantid = item => {
   let dict = item->getDictFromJsonObject
   dict->getString("merchant_id", "")
 }
-
-let userSwitch = (dict, defaultValue: UserInfoTypes.userInfo) => {
+type switchDataFrom = URL(Dict.t<string>) | SESSION_STORE(Dict.t<JSON.t>)
+let userSwitch = (~switchdataFrom: switchDataFrom, ~defaultValue: UserInfoTypes.userInfo) => {
   open LogicUtils
-  {
-    orgId: dict
-    ->getvalFromDict("orgId")
-    ->Option.getOr(defaultValue.orgId),
-    merchantId: dict
-    ->getvalFromDict("merchantId")
-    ->Option.getOr(defaultValue.merchantId),
-    profileId: dict
-    ->getvalFromDict("profileId")
-    ->Option.getOr(defaultValue.profileId),
-    destination: dict
-    ->getvalFromDict("destination")
-    ->Option.getOr(""),
+  switch switchdataFrom {
+  | URL(dict) => {
+      orgId: dict
+      ->Dict.get("orgId")
+      ->Option.getOr(defaultValue.orgId),
+      merchantId: dict
+      ->Dict.get("merchantId")
+      ->Option.getOr(defaultValue.merchantId),
+      profileId: dict
+      ->Dict.get("profileId")
+      ->Option.getOr(defaultValue.profileId),
+      destination: dict
+      ->Dict.get("destination")
+      ->Option.getOr(""),
+    }
+  | SESSION_STORE(dict) => {
+      orgId: dict->getString("orgId", defaultValue.orgId),
+      merchantId: dict->getString("orgId", defaultValue.orgId),
+      profileId: dict->getString("orgId", defaultValue.orgId),
+      destination: dict->getString("orgId", defaultValue.orgId),
+    }
   }
 }

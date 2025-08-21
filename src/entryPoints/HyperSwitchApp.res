@@ -206,7 +206,7 @@ let make = () => {
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
                         | (_, list{"v2", "home"}) => <DefaultHome />
-                        | (_, list{"switch", "user"}) => <SwitchUser />
+                        // | (_, list{"switch", "user"}) => <SwitchUser />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
 

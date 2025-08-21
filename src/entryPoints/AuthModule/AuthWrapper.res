@@ -57,6 +57,13 @@ let make = (~children) => {
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
+  let handleSwitchUserQueryParam = () => {
+    switch url.path->HSwitchUtils.urlPath {
+    | list{"switch", "user"} => SessionStorage.sessionStorage.setItem("switch-user", url.search)
+    | _ => ()
+    }
+  }
+
   let getAuthDetails = () => {
     open LogicUtils
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
@@ -66,10 +73,9 @@ let make = (~children) => {
       setAuthStatus(PreLogin(preLoginInfo))
     } else if loggedInInfo.token->Option.isSome {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
-      SwitchUser.HandleSwitchUser.handleRedirect()
     } else {
       setAuthStatus(LoggedOut)
-      SwitchUser.HandleSwitchUser.handleQueryParam(url)
+      handleSwitchUserQueryParam()
     }
   }
 
