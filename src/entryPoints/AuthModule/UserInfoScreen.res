@@ -17,6 +17,8 @@ let make = (~onClick) => {
       removeItemFromLocalStorage(~key="PRE_LOGIN_INFO")
       removeItemFromLocalStorage(~key="email_token")
       removeItemFromLocalStorage(~key="code")
+      // AuthWrapper.HandleSwitchUser.handleRedirect()
+      SwitchUser.HandleSwitchUser.handleRedirect()
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {

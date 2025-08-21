@@ -126,6 +126,12 @@ let make = () => {
               </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
+                // <ErrorBoundary>
+                //   {switch url.path->urlPath {
+                //   | list{"switch", "user"} => <SwitchUser />
+                //   | _ => React.null
+                //   }}
+                // </ErrorBoundary>
                 <div
                   className="flex relative flex-col flex-1 bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">

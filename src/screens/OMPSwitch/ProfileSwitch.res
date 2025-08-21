@@ -243,10 +243,11 @@ let make = () => {
 
   let handleCopy = () => {
     let url = make(`${Window.Location.origin}/dashboard/switch/user`, `${Window.Location.origin}`)
+    let path = Window.Location.pathName->Js.String2.replaceByRe(Js.Re.fromString("/dashboard"), "")
     url->searchParams->append("orgId", orgId)
     url->searchParams->append("merchantId", merchantId)
     url->searchParams->append("profileId", profileId)
-    url->searchParams->append("destination", Window.Location.href)
+    url->searchParams->append("destination", path)
     Clipboard.writeText(url->href)
     showToast(~message="Link Copied to Clipboard!", ~toastType=ToastSuccess)
   }

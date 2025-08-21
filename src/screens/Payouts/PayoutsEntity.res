@@ -641,7 +641,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
 let getCellForAboutPayment = (payoutData, aboutPaymentColType): Table.cell => {
   switch aboutPaymentColType {
   | Connector =>
-    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=payoutData.connector  />, "")
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=payoutData.connector />, "")
   | ProfileId => DisplayCopyCell(payoutData.profile_id)
   | ProfileName => Text("")
   | PayoutMethod => Text(payoutData.payout_type)
