@@ -50,7 +50,7 @@ let failedSmartRetryDistributionMapper = (
   }
 }
 
-open InsightsTypes
+open NewAnalyticsTypes
 
 let tableItemToObjMapper: Dict.t<JSON.t> => failureSmartRetryDistributionObject = dict => {
   {

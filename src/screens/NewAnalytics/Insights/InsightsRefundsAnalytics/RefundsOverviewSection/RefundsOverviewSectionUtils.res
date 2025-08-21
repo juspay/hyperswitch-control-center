@@ -57,8 +57,8 @@ let getKey = (id, ~currency="") => {
 
 open InsightsTypes
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~currency) => {
-  open InsightsUtils
   open LogicUtils
+  open NewAnalyticsUtils
 
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant

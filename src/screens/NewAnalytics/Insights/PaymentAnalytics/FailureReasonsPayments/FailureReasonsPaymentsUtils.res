@@ -1,6 +1,6 @@
-open InsightsTypes
 open FailureReasonsPaymentsTypes
 open LogicUtils
+open NewAnalyticsTypes
 
 let getStringFromVariant = value => {
   switch value {

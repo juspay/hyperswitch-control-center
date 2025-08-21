@@ -2,7 +2,7 @@ open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
 open ExemptionGraphsTypes
-open InsightsUtils
+open NewAnalyticsUtils
 open NewAuthenticationAnalyticsEntity
 open Typography
 
@@ -158,7 +158,9 @@ let make = (~entity: moduleEntity) => {
   ))
 
   <PageLoaderWrapper
-    screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+    screenState
+    customLoader={<Shimmer layoutId=entity.title />}
+    customUI={<NewAnalyticsHelper.NoData />}>
     <div
       className={`${heading.md.semibold} bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75 my-4`}>
       {React.string(entity.title)}

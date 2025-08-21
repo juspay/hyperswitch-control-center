@@ -4,3 +4,4 @@ type granularity = [
   | #G_THIRTYMIN
   | #G_FIFTEENMIN
 ]
+type optionType = {label: string, value: string}

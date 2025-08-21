@@ -64,7 +64,7 @@ module ChatMessage = {
         <div className="flex space-x-3 w-full">
           <div
             className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
-            <Icon name="robot" size=16 customIconColor="text-white" />
+            <Icon name="pulse-ai" size=32 customIconColor="text-white" />
           </div>
           <div className="flex-1 space-y-2 min-w-0">
             <RenderIf condition={response.summary->isNonEmptyString}>
@@ -377,7 +377,7 @@ let make = () => {
       <div className="flex items-center space-x-3">
         <Icon name="pulse-ai" size=40 />
         <div>
-          <h1 className={`${heading.sm.semibold} text-nd_gray7800 dark:text-nd_gray-100`}>
+          <h1 className={`${heading.sm.semibold} text-nd_gray-700 dark:text-nd_gray-100`}>
             {"Pulse AI"->React.string}
           </h1>
         </div>
@@ -408,7 +408,7 @@ let make = () => {
       initialValues={JSON.Encode.null}
       onSubmit={(values, f) => onSubmit(values, f)}
       formClass="w-full">
-      <div className="fixed bottom-4 w-77-rem">
+      <div className="fixed bottom-4 left-64 right-4 max-w-3xl mx-auto px-2">
         <ChatBot loading onNewChat />
       </div>
     </Form>

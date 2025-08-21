@@ -80,7 +80,9 @@ let make = (
         title={entity.title} description={entity.description->Option.getOr("")}
       />
       <PageLoaderWrapper
-        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        screenState
+        customLoader={<Shimmer layoutId=entity.title />}
+        customUI={<NewAnalyticsHelper.NoData />}>
         <div className="my-10">
           <SankeyGraph options={options} className="mr-3" />
         </div>

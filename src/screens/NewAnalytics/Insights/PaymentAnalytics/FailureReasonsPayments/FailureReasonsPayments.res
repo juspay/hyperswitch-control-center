@@ -3,6 +3,7 @@ open FailureReasonsPaymentsTypes
 open InsightsPaymentAnalyticsEntity
 open FailureReasonsPaymentsUtils
 open InsightsHelper
+open NewAnalyticsHelper
 
 module TableModule = {
   @react.component

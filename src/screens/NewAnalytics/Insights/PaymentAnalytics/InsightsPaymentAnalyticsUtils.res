@@ -1,7 +1,7 @@
 open LogicUtils
 
 let getColor = index => {
-  open InsightsUtils
+  open NewAnalyticsUtils
   [blue, green]->Array.get(index)->Option.getOr(blue)
 }
 
