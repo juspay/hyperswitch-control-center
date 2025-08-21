@@ -19,7 +19,7 @@ module RuleWiseStackedBarGraph = {
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
     let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
@@ -45,7 +45,10 @@ module RuleWiseStackedBarGraph = {
       None
     }, [])
 
-    <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
+    <PageLoaderWrapper
+      screenState
+      customUI={<NewAnalyticsHelper.NoData height="h-44" message="No data available." />}
+      customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
       <div
         key={rule.rule_id}
         className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
