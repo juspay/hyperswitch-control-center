@@ -1,5 +1,8 @@
 open LogicUtils
 open ReconEngineOverviewTypes
+open ColumnGraphTypes
+open ColumnGraphUtils
+open ReconEngineTransactionsUtils
 
 let defaultAccount = {
   account_name: "",
@@ -71,6 +74,24 @@ let reconRuleItemToObjMapper = dict => {
   }
 }
 
+let getMonthAbbreviation = monthStr => {
+  switch monthStr {
+  | "01" => "Jan"
+  | "02" => "Feb"
+  | "03" => "Mar"
+  | "04" => "Apr"
+  | "05" => "May"
+  | "06" => "Jun"
+  | "07" => "Jul"
+  | "08" => "Aug"
+  | "09" => "Sep"
+  | "10" => "Oct"
+  | "11" => "Nov"
+  | "12" => "Dec"
+  | _ => "Jan"
+  }
+}
+
 let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: string): (
   string,
   string,
@@ -79,11 +100,15 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
     accountData
     ->Array.find(account => account.account_id === accountId)
     ->Option.getOr(defaultAccount)
-  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
+  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~sourceAccountName: string,
+  ~sourceAccountCurrency: string,
+  ~targetAccountName: string,
+  ~targetAccountCurrency: string,
 ) => {
   let (
     sourcePosted,
@@ -96,11 +121,10 @@ let calculateAccountAmounts = (
     (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected),
     transaction,
   ) => {
-    // Use pre-calculated credit_amount and debit_amount instead of iterating through entries
     let creditAmount = transaction.credit_amount.value
     let debitAmount = transaction.debit_amount.value
 
-    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    switch transaction.transaction_status->getTransactionTypeFromString {
     | Posted => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
@@ -133,87 +157,25 @@ let calculateAccountAmounts = (
   let totalTargetAmount = targetPosted +. targetMismatched
   let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
 
-  (totalSourceAmount, totalTargetAmount, targetExpected, variance)
+  [
+    {
+      "title": `Expectations from ${sourceAccountName}`,
+      "value": totalSourceAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
+    },
+    {
+      "title": `Received by ${targetAccountName}`,
+      "value": totalTargetAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
+    },
+    {
+      "title": "Net Variance",
+      "value": variance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
+    },
+    {
+      "title": `Missing in ${targetAccountName}`,
+      "value": targetExpected->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
+    },
+  ]
 }
-
-// Stacked Bar Graph Data
-let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
-  open StackedBarGraphTypes
-  {
-    categories: ["Transactions"],
-    data: [
-      {
-        name: "Matched",
-        data: [postedCount->Int.toFloat],
-        color: "#7AB891",
-      },
-      {
-        name: "Mismatched",
-        data: [mismatchedCount->Int.toFloat],
-        color: "#EA8A8F",
-      },
-      {
-        name: "Expected",
-        data: [expectedCount->Int.toFloat],
-        color: "#8BC2F3",
-      },
-    ],
-    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
-  }
-}
-
-// Line Graph Data
-let getOverviewLineGraphTooltipFormatter = (
-  @this
-  (this: LineGraphTypes.pointFormatter) => {
-    let title = `<div style="font-size: 16px; font-weight: bold;">Transaction Count</div>`
-
-    let getRowHtml = (~iconColor, ~name, ~value) => {
-      let valueString = value->Float.toString
-      `<div style="display: flex; align-items: center;">
-              <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-              <div style="margin-left: 8px;">${name}</div>
-              <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-          </div>`
-    }
-
-    let tableItems =
-      this.points
-      ->Array.map(point => {
-        getRowHtml(~iconColor=point.color, ~name=point.series.name, ~value=point.y)
-      })
-      ->Array.joinWith("")
-
-    let content = `
-            <div style=" 
-            padding:5px 12px;
-            display:flex;
-            flex-direction:column;
-            justify-content: space-between;
-            gap: 7px;">
-                ${title}
-                <div style="
-                  margin-top: 5px;
-                  display:flex;
-                  flex-direction:column;
-                  gap: 7px;">
-                  ${tableItems}
-                </div>
-          </div>`
-
-    `<div style="
-      padding: 10px;
-      width:fit-content;
-      border-radius: 7px;
-      background-color:#FFFFFF;
-      padding:10px;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-      border: 1px solid #E5E5E5;
-      position:relative;">
-          ${content}
-      </div>`
-  }
-)->LineGraphTypes.asTooltipPointFormatter
 
 let lineGraphYAxisFormatter = (
   @this
@@ -226,7 +188,7 @@ let calculateTransactionCounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    switch transaction.transaction_status->getTransactionTypeFromString {
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
@@ -235,115 +197,78 @@ let calculateTransactionCounts = (
   })
 }
 
-let processLineGraphData = (
+let processCountGraphData = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~graphColor: string,
 ) => {
-  let getCountFromDate = (groupedByDate, date, status) => {
-    groupedByDate
-    ->getObj(date, Dict.make())
-    ->getInt(status, 0)
-    ->Int.toFloat
-  }
-
-  let getMonthAbbreviation = monthStr => {
-    switch monthStr {
-    | "01" => "Jan"
-    | "02" => "Feb"
-    | "03" => "Mar"
-    | "04" => "Apr"
-    | "05" => "May"
-    | "06" => "Jun"
-    | "07" => "Jul"
-    | "08" => "Aug"
-    | "09" => "Sep"
-    | "10" => "Oct"
-    | "11" => "Nov"
-    | "12" => "Dec"
-    | _ => "Jan"
-    }
-  }
-
   let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
     let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
     let currentDateData = acc->getObj(dateStr, Dict.make())
-
-    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-    | Posted => {
-        let currentCount = currentDateData->getInt("posted", 0)
-        currentDateData->Dict.set("posted", (currentCount + 1)->JSON.Encode.int)
-      }
-    | Expected => {
-        let currentCount = currentDateData->getInt("expected", 0)
-        currentDateData->Dict.set("expected", (currentCount + 1)->JSON.Encode.int)
-      }
-    | Mismatched => {
-        let currentCount = currentDateData->getInt("mismatched", 0)
-        currentDateData->Dict.set("mismatched", (currentCount + 1)->JSON.Encode.int)
-      }
-    | Archived => {
-        let currentCount = currentDateData->getInt("archived", 0)
-        currentDateData->Dict.set("archived", (currentCount + 1)->JSON.Encode.int)
-      }
-    | _ => ()
-    }
-
+    let currentCount = currentDateData->getInt("count", 0)
+    currentDateData->Dict.set("count", (currentCount + 1)->JSON.Encode.int)
     acc->Dict.set(dateStr, currentDateData->JSON.Encode.object)
     acc
   })
 
-  let sortedDates = groupedByDate->Dict.keysToArray->Array.toSorted(String.compare)
-  let categories = sortedDates->Array.map(date => {
+  // Generate last 7 days including today
+  let today = Date.make()
+  let todayTime = today->Date.getTime
+  let last7Days = Array.make(~length=7, "")->Array.mapWithIndex((_, index) => {
+    let daysBack = Int.toFloat(6 - index)
+    let dateTime = todayTime -. daysBack *. 24.0 *. 60.0 *. 60.0 *. 1000.0
+    let date = dateTime->Js.Date.fromFloat
+    let year = date->Js.Date.getFullYear->Float.toString
+    let month = (date->Js.Date.getMonth +. 1.0)->Float.toString->String.padStart(2, "0")
+    let day = date->Js.Date.getDate->Float.toString->String.padStart(2, "0")
+    `${year}-${month}-${day}`
+  })
+
+  let getCountFromDate = (groupedByDate, date) => {
+    groupedByDate
+    ->getObj(date, Dict.make())
+    ->getInt("count", 0)
+    ->Int.toFloat
+  }
+
+  let countData = last7Days->Array.map(date => {
     let parts = date->String.split("-")
     let month = parts->getValueFromArray(1, "01")->getMonthAbbreviation
     let day = parts->getValueFromArray(2, "01")
-    `${month} ${day}`
+    let count = getCountFromDate(groupedByDate, date)
+
+    {
+      name: `${month} ${day}`,
+      y: count,
+      color: graphColor,
+    }
   })
 
-  let postedData = sortedDates->Array.map(date => getCountFromDate(groupedByDate, date, "posted"))
-  let expectedData =
-    sortedDates->Array.map(date => getCountFromDate(groupedByDate, date, "expected"))
+  countData
+}
 
-  let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
-    chartHeight: LineGraphTypes.DefaultHeight,
-    chartLeftSpacing: LineGraphTypes.DefaultLeftSpacing,
-    categories,
+let createColumnGraphCountPayload = (
+  ~countData: array<dataObj>,
+  ~title: string,
+  ~color: string,
+) => {
+  let columnGraphData: columnGraphPayload = {
     data: [
       {
-        showInLegend: true,
-        name: "Matched",
-        data: postedData,
-        color: "#7AB891",
-      },
-      {
-        showInLegend: true,
-        name: "Expected",
-        data: expectedData,
-        color: "#8BC2F3",
+        showInLegend: false,
+        name: title,
+        colorByPoint: true,
+        data: countData,
+        color,
       },
     ],
-    title: {
-      text: "",
-      align: "left",
-    },
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
-    yAxisMaxValue: None,
-    yAxisMinValue: None,
-    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(~statType=Default),
-    legend: {
-      useHTML: true,
-      labelFormatter: LineGraphUtils.valueFormatter,
-      align: "left",
-      verticalAlign: "top",
-      floating: false,
-      margin: 30,
-    },
+    title: {text: ""},
+    tooltipFormatter: columnGraphTooltipFormatter(~title, ~metricType=Default, ~currency=""),
+    yAxisFormatter: columnGraphYAxisFormatter(~statType=Volume, ~suffix=""),
   }
-
-  lineGraphOptions
+  columnGraphData
 }
 
 let initialDisplayFilters = () => {
-  open ReconEngineTransactionsTypes
   let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
   [
     (
