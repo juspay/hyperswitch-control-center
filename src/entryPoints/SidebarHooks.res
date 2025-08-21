@@ -105,6 +105,7 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
 
 let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
+  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   products->Array.map(productType => {
     let links = switch productType {
@@ -114,7 +115,7 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.p
     | Vault => VaultSidebarValues.vaultSidebars
     | CostObservability => HypersenseSidebarValues.hypersenseSidebars
     | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
-    | Orchestration(V2) => OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+    | Orchestration(V2) => orchestratorV2Sidebars
     | _ => orchestratorSidebars
     }
 
@@ -129,33 +130,8 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.p
 
 let useGetSidebarProductModules = (~isExplored) => {
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-  // let merchantListProducts = merchantList->Array.map(merchant => merchant.productType)
-  let merchantListProducts = merchantList->Array.reduce([], (acc, merchant) => {
-    switch merchant.productType {
-    | Some(productType) => {
-        let alreadyExists = acc->Array.some((existing: ProductTypes.productTypes) => {
-          switch (existing, productType) {
-          | (Orchestration(V1), Orchestration(V1)) => true
-          | (Orchestration(V2), Orchestration(V2)) => true
-          | (Recon(V1), Recon(V1)) => true
-          | (Recon(V2), Recon(V2)) => true
-          | (Recovery, Recovery) => true
-          | (Vault, Vault) => true
-          | (CostObservability, CostObservability) => true
-          | (DynamicRouting, DynamicRouting) => true
-          | _ => false
-          }
-        })
-        if alreadyExists {
-          acc
-        } else {
-          acc->Array.push(productType)->ignore
-          acc
-        }
-      }
-    | None => acc
-    }
-  })
+  let merchantListProducts =
+    merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)

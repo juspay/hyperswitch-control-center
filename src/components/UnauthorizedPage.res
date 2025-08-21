@@ -4,21 +4,8 @@ let make = (
   ~url="unauthorized",
   ~productType=ProductTypes.Orchestration(V1),
 ) => {
-  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-  let url = RescriptReactRouter.useUrl()
-
-  let showSidebar = () => {
-    setShowSideBar(_ => true)
-  }
-
-  React.useEffect(() => {
-    showSidebar()
-    HyperSwitchAppUtils.setupProductUrl(~productType=Some(activeProduct), ~url)
-    None
-  }, [])
 
   <NoDataFound message renderType={Locked}>
     <Button
