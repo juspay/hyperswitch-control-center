@@ -177,13 +177,6 @@ let calculateAccountAmounts = (
   ]
 }
 
-let lineGraphYAxisFormatter = (
-  @this
-  (this: LineGraphTypes.yAxisFormatter) => {
-    this.value->Int.toString
-  }
-)->LineGraphTypes.asTooltipPointFormatter
-
 let calculateTransactionCounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
@@ -195,6 +188,30 @@ let calculateTransactionCounts = (
     | _ => (posted, mismatched, expected)
     }
   })
+}
+
+let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
+  {
+    StackedBarGraphTypes.categories: ["Transactions"],
+    data: [
+      {
+        name: "Mismatched",
+        data: [mismatchedCount->Int.toFloat],
+        color: "#EA8A8F",
+      },
+      {
+        name: "Pending",
+        data: [expectedCount->Int.toFloat],
+        color: "#F3BE8B",
+      },
+      {
+        name: "Matched",
+        data: [postedCount->Int.toFloat],
+        color: "#7AB891",
+      },
+    ],
+    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
+  }
 }
 
 let processCountGraphData = (

@@ -23,9 +23,9 @@ let make = (~ruleId: string) => {
         ~filterValueJson=enhancedFilterValueJson,
       )
       let queryString = if baseQueryString->isNonEmptyString {
-        `${baseQueryString}&rule_id=${ruleId}&transaction_status=mismatched,expected`
+        `${baseQueryString}&rule_id=${ruleId}&transaction_status=mismatched`
       } else {
-        `rule_id=${ruleId}&transaction_status=mismatched,expected`
+        `rule_id=${ruleId}&transaction_status=mismatched`
       }
       let transactions = await getTransactions(~queryParamerters=Some(queryString))
       setTransactionsData(_ => transactions)
