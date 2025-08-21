@@ -3,6 +3,7 @@ type status =
   | Succeeded
   | Failed
   | Cancelled
+  | Expired
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod
@@ -68,6 +69,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
+  | "EXPIRED" => Expired
   | _ => None
   }
 
