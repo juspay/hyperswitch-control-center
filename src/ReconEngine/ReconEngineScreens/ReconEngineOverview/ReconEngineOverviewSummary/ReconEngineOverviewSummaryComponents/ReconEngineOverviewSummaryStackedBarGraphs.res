@@ -7,7 +7,7 @@ module RuleWiseStackedBarGraph = {
 
     let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
-    let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
+    let isMiniLaptopView = MatchMedia.useScreenSizeChecker(~screenSize="1600")
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let getAllTransactionsData = async _ => {
