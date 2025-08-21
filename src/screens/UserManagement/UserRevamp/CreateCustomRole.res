@@ -2,81 +2,26 @@ open LogicUtils
 open Typography
 open UserManagementUtils
 open UserManagementTypes
+open CreateCustomRoleUtils
 module RenderPermissionModule = {
   @react.component
   let make = (~moduleName, ~description, ~scopes) => {
-    let parentGroupsInput = ReactFinalForm.useField(`parent_groups`).input
-    let parentGroupsValue = parentGroupsInput.value->getArrayFromJson([])
-
-    let existingModule = parentGroupsValue->Array.find(group => {
-      group->getDictFromJsonObject->getString("name", "") === moduleName
-    })
-
-    let (selectedScopes, setSelectedScopes) = React.useState(_ => {
-      switch existingModule {
-      | Some(data) => data->getDictFromJsonObject->getStrArrayFromDict("scopes", [])
-      | None => []
-      }
-    })
+    let readField = ReactFinalForm.useField(`${moduleName}.read`)
+    let writeField = ReactFinalForm.useField(`${moduleName}.write`)
 
     let handleScopeChange = (scope: string, isSelected: bool) => {
-      let newScopes = if isSelected {
-        if !(selectedScopes->Array.includes(scope)) {
-          if scope === "write" {
-            let scopesToAdd = if selectedScopes->Array.includes("read") {
-              ["write"]
-            } else {
-              ["read", "write"]
-            }
-            Array.concat(selectedScopes, scopesToAdd)
-          } else {
-            Array.concat(selectedScopes, [scope])
-          }
-        } else {
-          selectedScopes
-        }
-      } else if scope === "read" {
-        selectedScopes->Array.filter(s => s !== "read" && s !== "write")
-      } else if scope === "write" {
-        selectedScopes->Array.filter(s => s !== "read" && s !== "write")
-      } else {
-        selectedScopes->Array.filter(s => s !== scope)
+      if scope === "write" && isSelected && !getBoolFromJson(readField.input.value, false) {
+        readField.input.onChange(true->Identity.anyTypeToReactEvent)
       }
-
-      setSelectedScopes(_ => newScopes)
-      let updatedGroups = if newScopes->Array.length > 0 {
-        let moduleConfig =
-          [
-            ("name", moduleName->JSON.Encode.string),
-            ("scopes", newScopes->Array.map(scope => scope->JSON.Encode.string)->JSON.Encode.array),
-          ]->getJsonFromArrayOfJson
-
-        if existingModule->Option.isSome {
-          parentGroupsValue->Array.map(group => {
-            let groupDict = group->getDictFromJsonObject
-            if getString(groupDict, "name", "") === moduleName {
-              moduleConfig
-            } else {
-              group
-            }
-          })
-        } else {
-          Array.concat(parentGroupsValue, [moduleConfig])
-        }
-      } else {
-        parentGroupsValue->Array.filter(group => {
-          group->getDictFromJsonObject->getString("name", "") !== moduleName
-        })
+      if scope === "read" && !isSelected {
+        writeField.input.onChange(false->Identity.anyTypeToReactEvent)
       }
-
-      parentGroupsInput.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
     }
-
-    let isReadSelected = selectedScopes->Array.includes("read")
-    let isWriteSelected = selectedScopes->Array.includes("write")
 
     let isReadAvailable = scopes->Array.includes("read")
     let isWriteAvailable = scopes->Array.includes("write")
+    let isReadSelected = getBoolFromJson(readField.input.value, false)
+    let isWriteSelected = getBoolFromJson(writeField.input.value, false)
 
     <div className="flex items-center py-4 px-6">
       <div className="flex-1">
@@ -87,7 +32,10 @@ module RenderPermissionModule = {
         <div className="w-20 flex justify-center">
           <CheckBoxIcon
             isSelected=isReadSelected
-            setIsSelected={scope => handleScopeChange("read", scope)}
+            setIsSelected={isSelected => {
+              handleScopeChange("read", isSelected)
+              readField.input.onChange(isSelected->Identity.anyTypeToReactEvent)
+            }}
             isDisabled={!isReadAvailable}
             size=Large
           />
@@ -95,7 +43,10 @@ module RenderPermissionModule = {
         <div className="w-24 flex justify-center">
           <CheckBoxIcon
             isSelected=isWriteSelected
-            setIsSelected={scope => handleScopeChange("write", scope)}
+            setIsSelected={isSelected => {
+              handleScopeChange("write", isSelected)
+              writeField.input.onChange(isSelected->Identity.anyTypeToReactEvent)
+            }}
             isDisabled={!isWriteAvailable}
             size=Large
           />
@@ -165,7 +116,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     [
       ("role_scope", "merchant"->JSON.Encode.string),
       ("role_name", ""->JSON.Encode.string),
-      ("parent_groups", []->JSON.Encode.array),
     ]->Dict.fromArray
 
   let (permissionModules, setPermissionModules) = React.useState(() => [])
@@ -177,13 +127,54 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let copiedJson = JSON.parseExn(JSON.stringify(values))
-      let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE_V2, ~methodType=Post)
+      let valuesDict = values->getDictFromJsonObject
+      let roleScope = getString(valuesDict, "role_scope", "")
+      let roleName = getString(valuesDict, "role_name", "")->String.trim->titleToSnake
+      let parentGroups =
+        permissionModules
+        ->Array.map(module_ => {
+          let moduleName = module_.name
+          let moduleData = Dict.get(valuesDict, moduleName)
 
-      let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
-      let roleNameValue =
-        body->getDictFromJsonObject->getString("role_name", "")->String.trim->titleToSnake
-      body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
+          switch moduleData {
+          | Some(moduleJson) => {
+              let moduleDict = moduleJson->getDictFromJsonObject
+              let readSelected = getBool(moduleDict, "read", false)
+              let writeSelected = getBool(moduleDict, "write", false)
+
+              let scopes = []
+              if readSelected {
+                scopes->Array.push("read")->ignore
+              }
+              if writeSelected {
+                scopes->Array.push("write")->ignore
+              }
+
+              if scopes->Array.length > 0 {
+                Some(
+                  [
+                    ("name", moduleName->JSON.Encode.string),
+                    ("scopes", scopes->Array.map(JSON.Encode.string)->JSON.Encode.array),
+                  ]->getJsonFromArrayOfJson,
+                )
+              } else {
+                None
+              }
+            }
+          | None => None
+          }
+        })
+        ->Array.filter(Option.isSome)
+        ->Array.map(Option.getExn)
+
+      let body =
+        [
+          ("role_name", roleName->JSON.Encode.string),
+          ("role_scope", roleScope->JSON.Encode.string),
+          ("parent_groups", parentGroups->JSON.Encode.array),
+        ]->getJsonFromArrayOfJson
+
+      let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE_V2, ~methodType=Post)
       let _ = await updateDetails(url, body, Post)
       setScreenState(_ => PageLoaderWrapper.Success)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/${baseUrl}`))
@@ -211,7 +202,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=merchant`), // Currently we create custom roles with merchant entity type by default
+        ~queryParamerters=Some(`entity_type=merchant`),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)
@@ -250,7 +241,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         <Form
           key="invite-user-management"
           initialValues={initalValue->JSON.Encode.object}
-          validate={values => values->UserManagementUtils.validateFormForRoles}
+          validate={values => validateCustomRoleForm(values, permissionModules)}
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
