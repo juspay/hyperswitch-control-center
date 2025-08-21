@@ -73,7 +73,9 @@ module RuleWiseStackedBarGraph = {
 @react.component
 let make = (~reconRulesList: array<ReconEngineOverviewTypes.reconRuleType>) => {
   let gridClass =
-    reconRulesList->Array.length <= 2 ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+    reconRulesList->Array.length <= 2
+      ? "lg:grid-cols-2 grid-cols-1"
+      : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
   <div className={`grid gap-6 ${gridClass}`}>
     {reconRulesList
