@@ -1,25 +1,25 @@
 open ReconEngineOverviewTypes
 open ReconEngineOverviewSummaryTypes
 
-module AmountTypeUtils = {
-  let getHeaderText = (amountType: amountType, currency: string) => {
-    switch amountType {
-    | Reconciled => `Reconciled Amount (${currency})`
-    | Pending => `Pending Amount (${currency})`
-    | Mismatched => `Mismatched Amount (${currency})`
-    }
+// Amount type utility functions and variables
+let getHeaderText = (amountType: amountType, currency: string) => {
+  switch amountType {
+  | Reconciled => `Reconciled Amount (${currency})`
+  | Pending => `Pending Amount (${currency})`
+  | Mismatched => `Mismatched Amount (${currency})`
   }
-  let getAmountPair = (amountType: amountType, data: accountType) => {
-    switch amountType {
-    | Reconciled => (data.posted_credits, data.posted_debits)
-    | Pending => (data.pending_credits, data.pending_debits)
-    | Mismatched => (data.mismatched_credits, data.mismatched_debits)
-    }
-  }
-
-  let getAllAmountTypes = () => [Reconciled, Pending, Mismatched]
-  let getAllSubHeaderTypes = () => [In, Out]
 }
+
+let getAmountPair = (amountType: amountType, data: accountType) => {
+  switch amountType {
+  | Reconciled => (data.posted_credits, data.posted_debits)
+  | Pending => (data.pending_credits, data.pending_debits)
+  | Mismatched => (data.mismatched_credits, data.mismatched_debits)
+  }
+}
+
+let allAmountTypes = [Reconciled, Pending, Mismatched]
+let allSubHeaderTypes = [In, Out]
 
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
