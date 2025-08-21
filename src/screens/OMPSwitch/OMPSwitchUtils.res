@@ -112,3 +112,21 @@ let keyExtractorForMerchantid = item => {
   let dict = item->getDictFromJsonObject
   dict->getString("merchant_id", "")
 }
+
+let userSwitch = (dict, defaultValue: UserInfoTypes.userInfo) => {
+  open LogicUtils
+  {
+    orgId: dict
+    ->getvalFromDict("orgId")
+    ->Option.getOr(defaultValue.orgId),
+    merchantId: dict
+    ->getvalFromDict("merchantId")
+    ->Option.getOr(defaultValue.merchantId),
+    profileId: dict
+    ->getvalFromDict("profileId")
+    ->Option.getOr(defaultValue.profileId),
+    destination: dict
+    ->getvalFromDict("destination")
+    ->Option.getOr(""),
+  }
+}

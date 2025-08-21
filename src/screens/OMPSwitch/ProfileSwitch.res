@@ -120,7 +120,23 @@ module NewProfileCreationModal = {
     </Modal>
   }
 }
+type t
+type searchParams
 
+// constructor
+@new external make: (string, string) => t = "URL"
+
+// methods
+@send external toString: t => string = "toString"
+
+// property access (important: @get, not @send)
+@get external searchParams: t => searchParams = "searchParams"
+
+// URLSearchParams methods
+@send external append: (searchParams, string, string) => unit = "append"
+@send external set: (searchParams, string, string) => unit = "set"
+@send external get: (searchParams, string) => string = "get"
+@get external href: t => string = "href"
 @react.component
 let make = () => {
   open APIUtils
@@ -132,7 +148,9 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
@@ -223,6 +241,16 @@ let make = () => {
   | V2 => React.null
   }
 
+  let handleCopy = () => {
+    let url = make(`${Window.Location.origin}/dashboard/switch/user`, `${Window.Location.origin}`)
+    url->searchParams->append("orgId", orgId)
+    url->searchParams->append("merchantId", merchantId)
+    url->searchParams->append("profileId", profileId)
+    url->searchParams->append("destination", Window.Location.href)
+    Clipboard.writeText(url->href)
+    showToast(~message="Link Copied to Clipboard!", ~toastType=ToastSuccess)
+  }
+
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -251,6 +279,7 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewProfileCreationModal setShowModal showModal getProfileList />
     </RenderIf>
+    <Button text={"Copy Link"} buttonType=Primary buttonSize={XSmall} onClick={_ => handleCopy()} />
     <LoaderModal
       showModal={showSwitchingProfile}
       setShowModal={setShowSwitchingProfile}
