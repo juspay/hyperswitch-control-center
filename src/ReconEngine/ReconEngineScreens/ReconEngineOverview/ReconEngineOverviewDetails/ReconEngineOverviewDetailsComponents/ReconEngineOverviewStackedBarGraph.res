@@ -42,11 +42,8 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
 
   <PageLoaderWrapper
     screenState
-    customLoader={<div className="h-full flex flex-col justify-center items-center">
-      <div className="animate-spin">
-        <Icon name="spinner" size=20 />
-      </div>
-    </div>}>
+    customUI={<NewAnalyticsHelper.NoData height="h-40" message="No data available" />}
+    customLoader={<Shimmer styleClass="w-full h-40 rounded-xl" />}>
     <div
       className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
       <p className={`text-nd_gray-400 ${body.sm.medium}`}> {"Total Transaction"->React.string} </p>
