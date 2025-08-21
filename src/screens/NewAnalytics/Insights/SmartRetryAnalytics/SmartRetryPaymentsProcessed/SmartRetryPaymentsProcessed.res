@@ -1,5 +1,7 @@
 open InsightsTypes
+open NewAnalyticsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open SmartRetryPaymentsProcessedUtils
 open InsightsSmartRetryAnalyticsEntity
 open PaymentsProcessedTypes
@@ -150,6 +152,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open InsightsUtils
+  open NewAnalyticsUtils
   open InsightsContainerUtils
   let getURL = useGetURL()
   let fetchApi = AuthHooks.useApiFetcher()

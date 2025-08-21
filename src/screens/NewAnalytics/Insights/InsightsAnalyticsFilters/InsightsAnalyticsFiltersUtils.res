@@ -1,5 +1,5 @@
 open InsightsTypes
-
+open NewAnalyticsTypes
 let defaultCurrency = {
   label: "All Currencies (Converted to USD*)",
   value: (#all_currencies: defaultFilters :> string),

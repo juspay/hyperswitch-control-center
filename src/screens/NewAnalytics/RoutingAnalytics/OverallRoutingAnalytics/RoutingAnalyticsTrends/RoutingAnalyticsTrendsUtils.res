@@ -1,7 +1,7 @@
 open RoutingAnalyticsTrendsTypes
-open InsightsUtils
 open LogicUtils
 open LogicUtilsTypes
+open NewAnalyticsUtils
 
 type routingMapperConfig = {
   title: string,
@@ -158,7 +158,7 @@ let fillMissingDataPointsForConnectors = (
   groupedData
   ->Dict.toArray
   ->Array.forEach(((groupValue, groupData)) => {
-    let timeDict = NewAnalyticsUtils.extractTimeDict(
+    let timeDict = extractTimeDict(
       ~data=groupData,
       ~granularityEnabled,
       ~granularity,
@@ -169,7 +169,7 @@ let fillMissingDataPointsForConnectors = (
     let defaultValueWithGroup = defaultValue->getDictFromJsonObject->Dict.copy
     defaultValueWithGroup->Dict.set(groupByKey, groupValue->JSON.Encode.string)
 
-    let filledTimeDict = NewAnalyticsUtils.fillForMissingTimeRange(
+    let filledTimeDict = fillForMissingTimeRange(
       ~existingTimeDict=timeDict,
       ~timeKey,
       ~defaultValue=defaultValueWithGroup->JSON.Encode.object,
@@ -186,8 +186,9 @@ let fillMissingDataPointsForConnectors = (
   })
   completeDataPoints
 }
+
 let genericRoutingMapper = (
-  ~params: InsightsTypes.getObjects<JSON.t>,
+  ~params: getObjects<JSON.t>,
   ~config: routingMapperConfig,
   ~tooltipValueFormatterType=Rate,
 ): LineGraphTypes.lineGraphPayload => {
@@ -219,12 +220,12 @@ let genericRoutingMapper = (
     })
     ->Array.filter(timeBucket => timeBucket->isNonEmptyString)
 
-  let isShowTime = dataArray->InsightsUtils.checkTimePresent(xKey)
+  let isShowTime = dataArray->checkTimePresent(xKey)
   let categories = allTimeBuckets->Array.map(timeBucket => {
     let dateObj = timeBucket->DayJs.getDayJsForString
     let date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
     if isShowTime {
-      let time = dateObj.format("HH:mm")->formatTime
+      let time = dateObj.format("HH:mm")->formatTimeString
       `${date}, ${time}`
     } else {
       date
@@ -235,14 +236,8 @@ let genericRoutingMapper = (
     connectorGroups
     ->Dict.toArray
     ->Array.mapWithIndex(((connectorName, connectorData), index) => {
-      let color = index->InsightsUtils.getColor
-      InsightsUtils.getLineGraphObj(
-        ~array=connectorData,
-        ~key=yKey,
-        ~name=connectorName,
-        ~color,
-        ~isAmount=false,
-      )
+      let color = index->getColor
+      getLineGraphObj(~array=connectorData, ~key=yKey, ~name=connectorName, ~color, ~isAmount=false)
     })
 
   {
@@ -280,9 +275,7 @@ let genericRoutingMapper = (
   }
 }
 
-let routingSuccessRateMapper = (
-  ~params: InsightsTypes.getObjects<JSON.t>,
-): LineGraphTypes.lineGraphPayload => {
+let routingSuccessRateMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGraphPayload => {
   genericRoutingMapper(
     ~params,
     ~config={
@@ -295,9 +288,7 @@ let routingSuccessRateMapper = (
   )
 }
 
-let routingVolumeMapper = (
-  ~params: InsightsTypes.getObjects<JSON.t>,
-): LineGraphTypes.lineGraphPayload => {
+let routingVolumeMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGraphPayload => {
   genericRoutingMapper(
     ~params,
     ~config={
@@ -310,7 +301,7 @@ let routingVolumeMapper = (
     ~tooltipValueFormatterType=Amount,
   )
 }
-let defaultGranularityOptionsObject: InsightsTypes.optionType = {
+let defaultGranularityOptionsObject: NewAnalyticsTypes.optionType = {
   label: "",
   value: "",
 }

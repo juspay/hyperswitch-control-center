@@ -21,11 +21,7 @@ let make = () => {
     }
 
     if total > 0 {
-      let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-
-      let orderData = orderDataDictArr->Array.map(RevenueRecoveryEntity.itemToObjMapper)
-
-      let list = orderData->Array.map(Nullable.make)
+      let list = data->Array.map(Nullable.make)
       setTotalCount(_ => total)
       setRevenueRecoveryData(_ => list)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -63,7 +59,46 @@ let make = () => {
       let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
       let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-      setData(total, data)
+      let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+      let orderData = orderDataDictArr->Array.map(RevenueRecoveryEntity.itemToObjMapper)
+
+      // Process failed payments to get additional information from process tracker
+      let processedOrderData = await Promise.all(
+        orderData->Array.map(async order => {
+          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
+            try {
+              let processTrackerUrl = getURL(
+                ~entityName=V2(PROCESS_TRACKER),
+                ~methodType=Get,
+                ~id=Some(order.id),
+              )
+              let processTrackerData = await fetchDetails(processTrackerUrl, ~version=V2)
+
+              let processTrackerDataDict = processTrackerData->getDictFromJsonObject
+
+              // If we get a response, modify the payment object
+              if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
+                // Create a modified order object with additional process tracker data
+                {
+                  ...order,
+                  status: "scheduled",
+                }
+              } else {
+                // Keep the order as-is if no response
+                order
+              }
+            } catch {
+            | Exn.Error(_) => // Keep the order as-is if there's an error
+              order
+            }
+          } else {
+            // Keep non-failed orders as-is
+            order
+          }
+        }),
+      )
+
+      setData(total, processedOrderData)
     } catch {
     | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
     }
