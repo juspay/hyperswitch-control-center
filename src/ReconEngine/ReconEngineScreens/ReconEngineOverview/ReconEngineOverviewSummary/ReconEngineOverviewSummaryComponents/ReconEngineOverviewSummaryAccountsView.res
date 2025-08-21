@@ -111,8 +111,9 @@ let make = () => {
               let isTotalRow = index === Array.length(accountsData)
               let rowBgClass = isTotalRow ? "bg-nd_gray-25" : "bg-white hover:bg-nd_gray-50"
               let nameText = isTotalRow ? "Total" : data.account_name
-              let nameTextStyle = isTotalRow ? body.md.semibold : body.md.medium
-              let nameTextColor = isTotalRow ? "text-nd_gray-600" : "text-nd_gray-500"
+              let textStyle = isTotalRow
+                ? `${body.md.semibold} text-nd_gray-600`
+                : `${body.md.medium} text-nd_gray-500`
               let borderClass = !isLastRow ? "border-b border-nd_br_gray-150" : ""
 
               <div
@@ -120,9 +121,7 @@ let make = () => {
                 className={`grid grid-cols-7 ${rowBgClass} transition duration-300 ease-in-out ${borderClass}`}>
                 <div
                   className="px-4 py-3 text-center flex items-center justify-center border-r border-nd_br_gray-150">
-                  <div className={`${nameTextStyle} ${nameTextColor}`}>
-                    {nameText->React.string}
-                  </div>
+                  <div className={`${textStyle}`}> {nameText->React.string} </div>
                 </div>
                 {allAmountTypes
                 ->Array.mapWithIndex((amountType, amountIndex) => {
