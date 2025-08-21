@@ -57,8 +57,12 @@ let make = (~ruleId: string) => {
   }, [filterValue])
 
   let volumeData = React.useMemo1(() => {
-    let countData = processCountGraphData(transactionsData, ~graphColor="#60A5FA")
-    createColumnGraphCountPayload(~countData, ~title="Reconciled Volume", ~color="#60A5FA")
+    let countData = processCountGraphData(transactionsData, ~graphColor=reconciledVolumeColor)
+    createColumnGraphCountPayload(
+      ~countData,
+      ~title="Reconciled Volume",
+      ~color=reconciledVolumeColor,
+    )
   }, [transactionsData])
 
   <div className="border rounded-xl border-nd_gray-200">

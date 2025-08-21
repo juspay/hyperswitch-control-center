@@ -190,6 +190,13 @@ let calculateTransactionCounts = (
   })
 }
 
+// Color constants for ReconEngine graphs
+let mismatchedColor = "#EA8A8F"
+let pendingColor = "#F3BE8B"
+let matchedColor = "#7AB891"
+let exceptionsVolumeColor = "#F87171"
+let reconciledVolumeColor = "#60A5FA"
+
 let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
   {
     StackedBarGraphTypes.categories: ["Transactions"],
@@ -197,17 +204,17 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
       {
         name: "Mismatched",
         data: [mismatchedCount->Int.toFloat],
-        color: "#EA8A8F",
+        color: mismatchedColor,
       },
       {
         name: "Pending",
         data: [expectedCount->Int.toFloat],
-        color: "#F3BE8B",
+        color: pendingColor,
       },
       {
         name: "Matched",
         data: [postedCount->Int.toFloat],
-        color: "#7AB891",
+        color: matchedColor,
       },
     ],
     labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
