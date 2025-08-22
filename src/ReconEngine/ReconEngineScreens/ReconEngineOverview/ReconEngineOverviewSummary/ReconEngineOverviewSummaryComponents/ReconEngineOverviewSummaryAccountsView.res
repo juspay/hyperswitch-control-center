@@ -1,5 +1,145 @@
 open Typography
 
+module AccountsHeader = {
+  open ReconEngineOverviewSummaryUtils
+  @react.component
+  let make = (~currency: string) => {
+    <div className="bg-nd_gray-25">
+      <div className="grid grid-cols-7 border-b border-nd_br_gray-150">
+        <div
+          className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-r border-nd_br_gray-150 row-span-2 flex items-center justify-center`}>
+          {"Accounts"->React.string}
+        </div>
+        {allAmountTypes
+        ->Array.mapWithIndex((amountType, index) => {
+          let isLast = index === Array.length(allAmountTypes) - 1
+          let borderClass = !isLast ? "border-r" : ""
+          let headerText = getHeaderText(amountType, currency)
+
+          <div
+            key={index->Int.toString}
+            className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-nd_br_gray-150 col-span-2 ${borderClass}`}>
+            {headerText->React.string}
+          </div>
+        })
+        ->React.array}
+      </div>
+      <div className="grid grid-cols-7">
+        <div className="border-r" />
+        {allAmountTypes
+        ->Array.mapWithIndex((_, amountTypeIndex) => {
+          allSubHeaderTypes->Array.mapWithIndex((subHeaderType, subIndex) => {
+            let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
+            let isLastAmountType = amountTypeIndex === Array.length(allAmountTypes) - 1
+            let subHeaderText = (subHeaderType :> string)
+            let borderClass = isLastSubHeader && !isLastAmountType ? " border-r" : ""
+
+            <div
+              key={subIndex->Int.toString}
+              className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-nd_br_gray-150${borderClass}`}>
+              {subHeaderText->React.string}
+            </div>
+          })
+        })
+        ->Array.flat
+        ->React.array}
+      </div>
+    </div>
+  }
+}
+
+module AmountCell = {
+  open ReconEngineOverviewSummaryTypes
+  open ReconEngineOverviewTypes
+  open LogicUtils
+
+  @react.component
+  let make = (
+    ~subHeaderType: subHeaderType,
+    ~creditAmount: balanceType,
+    ~debitAmount: balanceType,
+    ~borderClass: string,
+  ) => {
+    <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
+      <div className={`${body.md.medium} text-nd_gray-600`}>
+        {switch subHeaderType {
+        | In =>
+          `${creditAmount.value->valueFormatter(
+              AmountWithSuffix,
+            )} ${creditAmount.currency}`->React.string
+        | Out =>
+          `${debitAmount.value->valueFormatter(
+              AmountWithSuffix,
+            )} ${debitAmount.currency}`->React.string
+        }}
+      </div>
+    </div>
+  }
+}
+
+module AccountRow = {
+  open ReconEngineOverviewTypes
+  open ReconEngineOverviewSummaryUtils
+
+  @react.component
+  let make = (~data: accountType, ~index: int, ~isLastRow: bool, ~isTotalRow: bool) => {
+    let rowBgClass = isTotalRow ? "bg-nd_gray-25" : "bg-white hover:bg-nd_gray-50"
+    let nameText = isTotalRow ? "Total" : data.account_name
+    let textStyle = isTotalRow
+      ? `${body.md.semibold} text-nd_gray-600`
+      : `${body.md.medium} text-nd_gray-500`
+    let borderClass = !isLastRow ? "border-b border-nd_br_gray-150" : ""
+
+    <div
+      key={index->Int.toString}
+      className={`grid grid-cols-7 ${rowBgClass} transition duration-300 ease-in-out ${borderClass}`}>
+      <div
+        className="px-4 py-3 text-center flex items-center justify-center border-r border-nd_br_gray-150">
+        <div className={`${textStyle}`}> {nameText->React.string} </div>
+      </div>
+      {allAmountTypes
+      ->Array.mapWithIndex((amountType, amountIndex) => {
+        let (creditAmount, debitAmount) = getAmountPair(amountType, data)
+        let isLastAmount = amountIndex === Array.length(allAmountTypes) - 1
+
+        allSubHeaderTypes->Array.mapWithIndex((subHeaderType, subIndex) => {
+          let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
+          let shouldShowBorder = !(isLastAmount && isLastSubHeader)
+          let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
+
+          <AmountCell
+            key={`${amountIndex->Int.toString}-${subIndex->Int.toString}`}
+            subHeaderType
+            creditAmount
+            debitAmount
+            borderClass
+          />
+        })
+      })
+      ->Array.flat
+      ->React.array}
+    </div>
+  }
+}
+
+module AccountsList = {
+  open ReconEngineOverviewTypes
+
+  @react.component
+  let make = (~allRowsData: array<accountType>, ~accountsData: array<accountType>) => {
+    <div className="bg-white border-t border-nd_br_gray-150">
+      {allRowsData
+      ->Array.mapWithIndex((data, index) => {
+        let isLastRow = index === Array.length(allRowsData) - 1
+        let isTotalRow = index === Array.length(accountsData)
+
+        <AccountRow key={index->Int.toString} data index isLastRow isTotalRow />
+      })
+      ->React.array}
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   open LogicUtils
@@ -63,102 +203,8 @@ let make = () => {
       customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
       <div className="border border-nd_br_gray-150 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <div className="bg-nd_gray-25">
-            <div className="grid grid-cols-7 border-b border-nd_br_gray-150">
-              <div
-                className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-r border-nd_br_gray-150 row-span-2 flex items-center justify-center`}>
-                {"Accounts"->React.string}
-              </div>
-              {allAmountTypes
-              ->Array.mapWithIndex((amountType, index) => {
-                let isLast = index === Array.length(allAmountTypes) - 1
-                let borderClass = !isLast ? "border-r" : ""
-                let headerText = getHeaderText(amountType, currency)
-
-                <div
-                  key={index->Int.toString}
-                  className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-nd_br_gray-150 col-span-2 ${borderClass}`}>
-                  {headerText->React.string}
-                </div>
-              })
-              ->React.array}
-            </div>
-            <div className="grid grid-cols-7">
-              <div className="border-r" />
-              {allAmountTypes
-              ->Array.mapWithIndex((_, amountTypeIndex) => {
-                allSubHeaderTypes->Array.mapWithIndex((subHeaderType, subIndex) => {
-                  let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
-                  let isLastAmountType = amountTypeIndex === Array.length(allAmountTypes) - 1
-                  let subHeaderText = (subHeaderType :> string)
-                  let borderClass = isLastSubHeader && !isLastAmountType ? " border-r" : ""
-
-                  <div
-                    key={subIndex->Int.toString}
-                    className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-nd_br_gray-150${borderClass}`}>
-                    {subHeaderText->React.string}
-                  </div>
-                })
-              })
-              ->Array.flat
-              ->React.array}
-            </div>
-          </div>
-          <div className="bg-white border-t border-nd_br_gray-150">
-            {allRowsData
-            ->Array.mapWithIndex((data, index) => {
-              let isLastRow = index === Array.length(allRowsData) - 1
-              let isTotalRow = index === Array.length(accountsData)
-              let rowBgClass = isTotalRow ? "bg-nd_gray-25" : "bg-white hover:bg-nd_gray-50"
-              let nameText = isTotalRow ? "Total" : data.account_name
-              let textStyle = isTotalRow
-                ? `${body.md.semibold} text-nd_gray-600`
-                : `${body.md.medium} text-nd_gray-500`
-              let borderClass = !isLastRow ? "border-b border-nd_br_gray-150" : ""
-
-              <div
-                key={index->Int.toString}
-                className={`grid grid-cols-7 ${rowBgClass} transition duration-300 ease-in-out ${borderClass}`}>
-                <div
-                  className="px-4 py-3 text-center flex items-center justify-center border-r border-nd_br_gray-150">
-                  <div className={`${textStyle}`}> {nameText->React.string} </div>
-                </div>
-                {allAmountTypes
-                ->Array.mapWithIndex((amountType, amountIndex) => {
-                  let (creditAmount, debitAmount) = getAmountPair(amountType, data)
-                  let isLastAmount = amountIndex === Array.length(allAmountTypes) - 1
-
-                  allSubHeaderTypes->Array.mapWithIndex(
-                    (subHeaderType, subIndex) => {
-                      let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
-                      let shouldShowBorder = !(isLastAmount && isLastSubHeader)
-                      let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
-
-                      <div
-                        key={`${amountIndex->Int.toString}-${subIndex->Int.toString}`}
-                        className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
-                        <div className={`${body.md.medium} text-nd_gray-600`}>
-                          {switch subHeaderType {
-                          | In =>
-                            `${creditAmount.value->valueFormatter(
-                                AmountWithSuffix,
-                              )} ${creditAmount.currency}`->React.string
-                          | Out =>
-                            `${debitAmount.value->valueFormatter(
-                                AmountWithSuffix,
-                              )} ${debitAmount.currency}`->React.string
-                          }}
-                        </div>
-                      </div>
-                    },
-                  )
-                })
-                ->Array.flat
-                ->React.array}
-              </div>
-            })
-            ->React.array}
-          </div>
+          <AccountsHeader currency />
+          <AccountsList allRowsData accountsData />
         </div>
       </div>
     </PageLoaderWrapper>
