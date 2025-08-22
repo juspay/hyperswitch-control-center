@@ -121,7 +121,7 @@ module BillingConnectorDetails = {
               />
             </div>
             <div className="p-1">
-              <InsightsHelper.NoData height="h-56 -m-2" message="No API Keys Available" />
+              <NewAnalyticsHelper.NoData height="h-56 -m-2" message="No API Keys Available" />
             </div>
             <div className="flex justify-between pb-4 items-end mt-8">
               <p className={heading.sm.semibold}> {"Webhooks Url"->React.string} </p>

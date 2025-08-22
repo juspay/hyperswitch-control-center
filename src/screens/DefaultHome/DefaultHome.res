@@ -3,9 +3,7 @@ let make = () => {
   open PageUtils
   open DefaultHomeUtils
   open HyperswitchAtom
-  // let count = 0
-  // let merchantCount = 1
-  let {devVaultV2Product, devRecoveryV2Product, devReconv2Product} =
+  let {devVaultV2Product, devRecoveryV2Product, devReconv2Product, devHypersenseV2Product} =
     featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div
     className="flex flex-1 flex-col gap-6 md:gap-8 w-full h-screen items-center overflow-auto p-4">
@@ -67,6 +65,16 @@ let make = () => {
             </RenderIf>
           | Recon(_) =>
             <RenderIf condition=devReconv2Product>
+              <DefaultHomeCard
+                product=item.product
+                heading=item.heading
+                description=item.description
+                img=item.imgSrc
+                action=item.action
+              />
+            </RenderIf>
+          | CostObservability(_) =>
+            <RenderIf condition=devHypersenseV2Product>
               <DefaultHomeCard
                 product=item.product
                 heading=item.heading

@@ -2,6 +2,7 @@ open InsightsTypes
 open InsightsHelper
 open ExemptionGraphsUtils
 open InsightsUtils
+open NewAnalyticsUtils
 
 @react.component
 let make = (
@@ -162,7 +163,9 @@ let make = (
       title={entity.title} description={entity.description->Option.getOr("")}
     />
     <PageLoaderWrapper
-      screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+      screenState
+      customLoader={<Shimmer layoutId=entity.title />}
+      customUI={<NewAnalyticsHelper.NoData />}>
       <div className="mx-5">
         <LineGraph options className="mr-3" />
       </div>

@@ -46,7 +46,7 @@ module TabInfo = {
 
     let defaultBorderClass = "border-0"
 
-    let tabTextPadding = "px-6"
+    let tabTextPadding = "px-2"
     let backgroundStyle = backgroundStyle
 
     let tabDisabledStyle = "from-white to-white dark:from-jp-gray-950 dark:to-jp-gray-950 border-b-0 border-jp-gray-500 dark:border-jp-gray-960"
@@ -163,7 +163,7 @@ let make = (
   ~includeMargin=true,
   ~backgroundStyle="bg-gradient-to-b",
   ~tabView=Compress,
-  ~gapBetweenTabs="gap-1.5",
+  ~gapBetweenTabs="gap-5",
   ~borderSelectionStyle="",
   ~borderDefaultStyle="",
   ~showBottomBorder=true,

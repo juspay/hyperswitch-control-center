@@ -122,5 +122,12 @@ let defaultHomeCardsArray = {
       imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
       action: InternalRoute,
     },
+    {
+      product: CostObservability,
+      heading: "Cost Observability",
+      description: "Unified view of payment processing costs across acquirers, payment methods, & regions. Track every cent, detect anomalies, audit against contracted rates, & forecast the impact of card network changes.",
+      imgSrc: "/assets/DefaultHomeHypersenseCard.svg",
+      action: InternalRoute,
+    },
   ]
 }

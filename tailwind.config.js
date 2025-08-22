@@ -69,6 +69,7 @@ module.exports = {
         "890-px": "890px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
+        modalContentHeight: "calc(100vh - 140px)",
       },
       padding: {
         "10-px": "10px",

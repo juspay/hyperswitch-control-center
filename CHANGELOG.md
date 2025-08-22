@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.22.0
+
+### Features
+
+- Add Cost observability in Home page. ([#3438](https://github.com/juspay/hyperswitch-control-center/pull/3438)) ([`6977c44`](https://github.com/juspay/hyperswitch-control-center/commit/6977c44ee391bde3f5a58a023778d13454693c53))
+- Add rule wise stacked bar graphs in summary ([#3462](https://github.com/juspay/hyperswitch-control-center/pull/3462)) ([`daa3ac0`](https://github.com/juspay/hyperswitch-control-center/commit/daa3ac0499e5e3c7d3a3df99ebce3c5084936a4b))
+
+### Bug Fixes
+
+- Fix cypress tests ([#3464](https://github.com/juspay/hyperswitch-control-center/pull/3464)) ([`2711db3`](https://github.com/juspay/hyperswitch-control-center/commit/2711db3e5b37f3e07f7885e82e547e6d7feadd9f))
+
+### Refactors
+
+- Omp hook files ([#3465](https://github.com/juspay/hyperswitch-control-center/pull/3465)) ([`dcea80f`](https://github.com/juspay/hyperswitch-control-center/commit/dcea80f863e44038384c577df6f9bf58dc040723))
+
+**Full Changelog:** [`2025.08.21.0...2025.08.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.21.0...2025.08.22.0)
+
+- - -
+
+## 2025.08.21.0
+
+### Features
+
+- Enable refund reason field for `adyen` connector ([#3442](https://github.com/juspay/hyperswitch-control-center/pull/3442)) ([`17ab078`](https://github.com/juspay/hyperswitch-control-center/commit/17ab0783a1b86c2c907af19561b0c14c2eab0082))
+
+### Miscellaneous Tasks
+
+- Routing analytics folder structure change and util functions refactoring ([#3451](https://github.com/juspay/hyperswitch-control-center/pull/3451)) ([`ae4fdbd`](https://github.com/juspay/hyperswitch-control-center/commit/ae4fdbd5e7a6e469b08d34dd5e371fc03ccfb058))
+- Add archived tag for discarded transactions and entries in audit trail ([#3456](https://github.com/juspay/hyperswitch-control-center/pull/3456)) ([`c88e08b`](https://github.com/juspay/hyperswitch-control-center/commit/c88e08bb02a5ea1f92f3e030330bdcb218cf3289))
+
+**Full Changelog:** [`2025.08.19.2...2025.08.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.19.2...2025.08.21.0)
+
+- - -
+
 ## 2025.08.19.2
 
 ### Bug Fixes
