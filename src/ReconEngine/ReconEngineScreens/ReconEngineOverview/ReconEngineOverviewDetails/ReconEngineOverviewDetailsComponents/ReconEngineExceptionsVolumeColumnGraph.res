@@ -57,7 +57,12 @@ let make = (~ruleId: string) => {
   }, [filterValue])
 
   let volumeData = React.useMemo1(() => {
-    let countData = processCountGraphData(transactionsData, ~graphColor=exceptionsVolumeColor)
+    let countData = processCountGraphData(
+      transactionsData,
+      ~graphColor=exceptionsVolumeColor,
+      ~startDate=filterValueJson->getString(startTimeFilterKey, ""),
+      ~endDate=filterValueJson->getString(endTimeFilterKey, ""),
+    )
     createColumnGraphCountPayload(
       ~countData,
       ~title="Exceptions Volume",

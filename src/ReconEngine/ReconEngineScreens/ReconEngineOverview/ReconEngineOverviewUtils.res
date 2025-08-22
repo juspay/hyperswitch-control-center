@@ -224,41 +224,57 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
 let processCountGraphData = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
   ~graphColor: string,
+  ~startDate: string,
+  ~endDate: string,
+  ~granularity="G_ONEDAY",
 ) => {
   let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
-    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
-    let currentDateData = acc->getObj(dateStr, Dict.make())
+    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10)
+    let formattedDate = `${dateStr} 00:00:00`
+    let currentDateData = acc->getObj(formattedDate, Dict.make())
     let currentCount = currentDateData->getInt("count", 0)
     currentDateData->Dict.set("count", (currentCount + 1)->JSON.Encode.int)
-    acc->Dict.set(dateStr, currentDateData->JSON.Encode.object)
+    currentDateData->Dict.set("time_bucket", formattedDate->JSON.Encode.string)
+    acc->Dict.set(formattedDate, currentDateData->JSON.Encode.object)
     acc
   })
 
-  // Generate last 7 days including today
   let today = Date.make()
-  let todayTime = today->Date.getTime
-  let last7Days = Array.make(~length=7, "")->Array.mapWithIndex((_, index) => {
-    let daysBack = Int.toFloat(6 - index)
-    let dateTime = todayTime -. daysBack *. 24.0 *. 60.0 *. 60.0 *. 1000.0
-    let date = dateTime->Js.Date.fromFloat
-    let year = date->Js.Date.getFullYear->Float.toString
-    let month = (date->Js.Date.getMonth +. 1.0)->Float.toString->String.padStart(2, "0")
-    let day = date->Js.Date.getDate->Float.toString->String.padStart(2, "0")
-    `${year}-${month}-${day}`
-  })
-
-  let getCountFromDate = (groupedByDate, date) => {
-    groupedByDate
-    ->getObj(date, Dict.make())
-    ->getInt("count", 0)
-    ->Int.toFloat
+  let endDate = if endDate->isEmptyString {
+    today->Js.Date.toISOString
+  } else {
+    today->Js.Date.toISOString->String.slice(~start=0, ~end=10) ++ " 00:00:00"
   }
 
-  let countData = last7Days->Array.map(date => {
-    let parts = date->String.split("-")
+  let defaultValue = Dict.make()
+  defaultValue->Dict.set("count", 0->JSON.Encode.int)
+  defaultValue->Dict.set("time_bucket", ""->JSON.Encode.string)
+  let defaultValueJson = defaultValue->JSON.Encode.object
+
+  let filledData = NewAnalyticsUtils.fillForMissingTimeRange(
+    ~existingTimeDict=groupedByDate,
+    ~timeKey="time_bucket",
+    ~defaultValue=defaultValueJson,
+    ~startDate,
+    ~endDate,
+    ~granularity,
+  )
+
+  let sortedDates =
+    filledData
+    ->Dict.keysToArray
+    ->Array.toSorted(String.compare)
+
+  let countData = sortedDates->Array.map(dateTime => {
+    let dateStr = dateTime->String.slice(~start=0, ~end=10)
+    let parts = dateStr->String.split("-")
     let month = parts->getValueFromArray(1, "01")->getMonthAbbreviation
     let day = parts->getValueFromArray(2, "01")
-    let count = getCountFromDate(groupedByDate, date)
+    let count =
+      filledData
+      ->getObj(dateTime, Dict.make())
+      ->getInt("count", 0)
+      ->Int.toFloat
 
     {
       name: `${month} ${day}`,
