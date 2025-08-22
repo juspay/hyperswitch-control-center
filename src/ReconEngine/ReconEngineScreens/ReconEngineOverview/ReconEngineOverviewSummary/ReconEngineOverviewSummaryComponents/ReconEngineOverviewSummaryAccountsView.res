@@ -17,7 +17,7 @@ module AccountsHeader = {
           let headerText = getHeaderText(amountType, currency)
 
           <div
-            key={index->Int.toString}
+            key={amountType->getHeaderText(currency)}
             className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-nd_br_gray-150 col-span-2 ${borderClass}`}>
             {headerText->React.string}
           </div>
@@ -35,7 +35,7 @@ module AccountsHeader = {
             let borderClass = isLastSubHeader && !isLastAmountType ? " border-r" : ""
 
             <div
-              key={subIndex->Int.toString}
+              key={`${amountTypeIndex->Int.toString}-${subHeaderText}`}
               className={`${body.sm.semibold} px-4 py-3 text-center text-nd_gray-400 border-nd_br_gray-150${borderClass}`}>
               {subHeaderText->React.string}
             </div>
@@ -82,7 +82,7 @@ module AccountRow = {
   open ReconEngineOverviewSummaryUtils
 
   @react.component
-  let make = (~data: accountType, ~index: int, ~isLastRow: bool, ~isTotalRow: bool) => {
+  let make = (~data: accountType, ~isLastRow: bool, ~isTotalRow: bool) => {
     let rowBgClass = isTotalRow ? "bg-nd_gray-25" : "bg-white hover:bg-nd_gray-50"
     let nameText = isTotalRow ? "Total" : data.account_name
     let textStyle = isTotalRow
@@ -91,7 +91,6 @@ module AccountRow = {
     let borderClass = !isLastRow ? "border-b border-nd_br_gray-150" : ""
 
     <div
-      key={index->Int.toString}
       className={`grid grid-cols-7 ${rowBgClass} transition duration-300 ease-in-out ${borderClass}`}>
       <div
         className="px-4 py-3 text-center flex items-center justify-center border-r border-nd_br_gray-150">
@@ -106,14 +105,13 @@ module AccountRow = {
           let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
           let shouldShowBorder = !(isLastAmount && isLastSubHeader)
           let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
+          let key = `${isTotalRow
+              ? "total-amount-cell"
+              : data.account_id->String.length > 0
+              ? data.account_id->String.concat("-amount-cell")
+              : LogicUtils.randomString(~length=10)}`
 
-          <AmountCell
-            key={`${amountIndex->Int.toString}-${subIndex->Int.toString}`}
-            subHeaderType
-            creditAmount
-            debitAmount
-            borderClass
-          />
+          <AmountCell key subHeaderType creditAmount debitAmount borderClass />
         })
       })
       ->Array.flat
@@ -132,8 +130,13 @@ module AccountsList = {
       ->Array.mapWithIndex((data, index) => {
         let isLastRow = index === Array.length(allRowsData) - 1
         let isTotalRow = index === Array.length(accountsData)
+        let key = isTotalRow
+          ? "total-row"
+          : data.account_id->String.length > 0
+          ? data.account_id->String.concat("-account-row")
+          : LogicUtils.randomString(~length=10)
 
-        <AccountRow key={index->Int.toString} data index isLastRow isTotalRow />
+        <AccountRow key data isLastRow isTotalRow />
       })
       ->React.array}
     </div>
