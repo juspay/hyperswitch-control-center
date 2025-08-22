@@ -670,6 +670,7 @@ let make = (
   ~showVerticalScroll=false,
   ~showPagination=true,
   ~highlightSelectedRow=false,
+  ~freezeFirstColumn=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -932,6 +933,45 @@ let make = (
     `
   let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
   let verticalScroll = !showVerticalScroll ? "overflow-y-hidden" : ""
+  let frozenFirstColumnCss = freezeFirstColumn
+    ? `
+  .loadedTable th:first-child,
+  .loadedTable .tableHeader:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 20 !important;
+    background-color: rgb(249 250 251) !important;
+  }
+  .loadedTable .dark th:first-child,
+  .loadedTable .dark .tableHeader:first-child {
+    background-color: rgb(31 41 55) !important;
+  }
+  .loadedTable td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 10 !important;
+    background-color: white !important;
+  }
+  .loadedTable .dark td:first-child {
+    background-color: rgb(31 41 55) !important;
+  }
+  .loadedTable th:first-child::after,
+  .loadedTable td:first-child::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -1px;
+    bottom: 0;
+    width: 1px;
+    background: #e5e7eb;
+    pointer-events: none;
+  }
+  .loadedTable .dark th:first-child::after,
+  .loadedTable .dark td:first-child::after {
+    background: #374151;
+  }
+  `
+    : ""
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
@@ -949,6 +989,9 @@ let make = (
   >
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <style> {React.string(tableScrollbarCss)} </style>
+    <RenderIf condition={freezeFirstColumn}>
+      <style> {React.string(frozenFirstColumnCss)} </style>
+    </RenderIf>
     <div
       className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} ${verticalScroll} `}>
       nonFrozenTable

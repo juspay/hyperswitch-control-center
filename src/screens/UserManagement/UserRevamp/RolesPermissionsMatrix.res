@@ -32,27 +32,19 @@ module PermissionPill = {
 }
 
 @react.component
-let make = (
-  ~matrixData: matrixData,
-  ~rolesData: array<roleData>,
-  ~filteredRoles: array<roleData>,
-) => {
+let make = (~matrixData: matrixData, ~filteredRoles: array<roleData>) => {
   let headers = [
-    makeHeaderInfo(
-      ~key="module_permission",
-      ~title="Module Permission",
-      ~customWidth="min-w-25-rem",
-    ),
+    makeHeaderInfo(~key="module_permission", ~title="Module Permission", ~customWidth="min-w-80"),
     ...filteredRoles->Array.map(role => {
       makeHeaderInfo(~key=role.roleId, ~title=role.roleName, ~customWidth="min-w-40")
     }),
   ]
 
   let rows = matrixData.modules->Array.map(moduleName => {
-    let moduleDescription = getModuleDescription(moduleName, rolesData)
+    let moduleDescription = getModuleDescription(moduleName, matrixData.roles)
     let modulePermissions = matrixData.permissions->Dict.get(moduleName)->Option.getOr(Dict.make())
     let moduleCell = CustomCell(
-      <div className="flex flex-col w-80">
+      <div className="flex flex-col min-w-80">
         <span className={`${body.md.semibold}  text-nd_gray-600`}>
           {moduleName->React.string}
         </span>
@@ -71,36 +63,7 @@ let make = (
     [moduleCell, ...permissionCells]
   })
 
-  <div className="roles-matrix-container">
-    <style>
-      {React.string(`
-        .roles-matrix-container th:first-child,
-        .roles-matrix-container .tableHeader:first-child {
-          position: sticky !important;
-          left: 0 !important;
-          z-index: 20 !important;
-          background-color: rgb(249 250 251) !important;
-        }
-        .roles-matrix-container td:first-child,
-        .roles-matrix-container tbody tr td:first-child {
-          position: sticky !important;
-          left: 0 !important;
-          z-index: 10 !important;
-          background-color: inherit !important;
-        }
-        .roles-matrix-container th:first-child::after,
-        .roles-matrix-container td:first-child::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: -3px;
-          bottom: 0;
-          width: 2px;
-          background: linear-gradient(to right, rgba(0, 0, 0, 0.05), transparent);
-          pointer-events: none;
-        }
-      `)}
-    </style>
+  <div className="w-full overflow-hidden">
     <Table
       title="Roles Matrix"
       heading=headers
@@ -108,6 +71,8 @@ let make = (
       removeVerticalLines=true
       removeHorizontalLines=false
       showAutoScroll=true
+      fullWidth=true
+      freezeFirstColumn=true
     />
   </div>
 }

@@ -7,7 +7,6 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (rolesData, setRolesData) = React.useState(_ => [])
   let (matrixData, setMatrixData) = React.useState(_ => {
     modules: [],
     roles: [],
@@ -39,7 +38,6 @@ let make = () => {
       let rolesDataRaw =
         res->LogicUtils.getArrayDataFromJson(RolesMatrixUtils.itemToObjMapperForRoles)
       let processedMatrixData = processRolesData(rolesDataRaw)
-      setRolesData(_ => rolesDataRaw)
       setMatrixData(_ => processedMatrixData)
       setFilteredRoles(_ => processedMatrixData.roles)
       setUserModuleEntity(_ => userModuleEntity)
@@ -108,7 +106,7 @@ let make = () => {
           />
         </div>
       </div>
-      <RolesPermissionsMatrix matrixData rolesData filteredRoles />
+      <RolesPermissionsMatrix matrixData filteredRoles />
     </PageLoaderWrapper>
   </div>
 }
