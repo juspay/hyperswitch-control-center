@@ -542,9 +542,9 @@ module ProductTypeSectionItem = {
         <div className="flex items-center gap-2">
           <Icon size=14 name={section.icon} className={textColor} />
           <div
-            className={`text-sm whitespace-nowrap ${isActiveProduct
-                ? `${primaryTextColor}`
-                : `${secondaryTextColor}`} font-medium`}>
+            className={`whitespace-nowrap ${isActiveProduct
+                ? `${primaryTextColor} ${body.md.regular}`
+                : `${secondaryTextColor}`} ${body.md.medium}`}>
             {React.string(section.name)}
           </div>
         </div>
@@ -800,7 +800,7 @@ let make = (
               <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
                 <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                   <div
-                    className={`text-sm font-medium ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 px-3 py-1.5 ${isSidebarExpanded
+                    className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 px-3 py-1.5 ${isSidebarExpanded
                         ? ""
                         : "mx-1"} ${hoverColor}`}>
                     <SidebarOption
@@ -863,16 +863,16 @@ let make = (
             </div>
           </div>
           <div
-            className={`flex items-center justify-between px-1 py-3 border-t ${borderColor} ${hoverColor}`}>
+            className={`flex items-center justify-between px-4 py-3 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>
               <Popover className="relative inline-block text-left">
                 {popoverProps => <>
                   <Popover.Button
                     className={
                       let openClasses = if popoverProps["open"] {
-                        `group border rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                        `group border rounded-lg inline-flex items-center ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
                       } else {
-                        `text-opacity-90 group border rounded-lg inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+                        `text-opacity-90 group border rounded-lg inline-flex items-center ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
                       }
                       `${openClasses} border-none`
                     }>
