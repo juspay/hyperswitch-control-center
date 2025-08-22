@@ -85,12 +85,7 @@ module TransactionDetailInfo = {
     let isArchived =
       currentTransactionDetails.transaction_status->getTransactionTypeFromString == Archived
 
-    let detailsFields: array<transactionColType> = [
-      TransactionId,
-      isArchived ? DiscardedStatus : Status,
-      Variance,
-      CreatedAt,
-    ]
+    let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
 
     <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
       <RenderIf condition={isArchived}>
@@ -126,7 +121,7 @@ module EntryAuditTrailInfo = {
       Amount,
       Currency,
       TransactionId,
-      isArchived ? DiscardedStatus : Status,
+      Status,
       CreatedAt,
       EffectiveAt,
     ]
