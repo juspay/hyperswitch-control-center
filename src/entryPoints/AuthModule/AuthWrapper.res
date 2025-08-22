@@ -74,8 +74,8 @@ let make = (~children) => {
     } else if loggedInInfo.token->Option.isSome {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
     } else {
-      setAuthStatus(LoggedOut)
       handleSwitchUserQueryParam()
+      setAuthStatus(LoggedOut)
     }
   }
 

@@ -24,30 +24,30 @@ let make = (~children) => {
   // let val = url.search->LogicUtils.getDictFromUrlSearchParams->OMPSwitchUtils.userSwitch(userInfo)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
+  let showToast = ToastState.useShowToast()
   let clearUserSwitchParams = () => {
     SessionStorage.sessionStorage.removeItem("switch-user")
   }
   let getUserSwitchQueryParam = () => {
     SessionStorage.sessionStorage.getItem("switch-user")
     ->getValFromNullableValue("")
-    ->safeParse
-    ->getDictFromJsonObject
+    ->getDictFromUrlSearchParams
   }
   let getSwitchDetails = () => {
     let urlData = url.search->getDictFromUrlSearchParams
     let sessionData = getUserSwitchQueryParam()
 
     if urlData->isNonEmptyDict {
-      Some(userSwitch(~switchdataFrom=URL(urlData), ~defaultValue=userInfo))
+      Some(userSwitch(~switchData=urlData, ~defaultValue=userInfo))
     } else if sessionData->isNonEmptyDict {
-      Some(userSwitch(~switchdataFrom=SESSION_STORE(sessionData), ~defaultValue=userInfo))
+      Some(userSwitch(~switchData=sessionData, ~defaultValue=userInfo))
     } else {
       None
     }
   }
   let switchUser = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       let details = getSwitchDetails()
       switch details {
       | Some(data) => {
@@ -61,11 +61,11 @@ let make = (~children) => {
         }
       | None => ()
       }
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to switch", ~toastType=ToastError)
     }
     clearUserSwitchParams()
+    setScreenState(_ => PageLoaderWrapper.Success)
   }
   React.useEffect(() => {
     switchUser()->ignore
