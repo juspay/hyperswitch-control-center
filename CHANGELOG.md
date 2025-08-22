@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.22.0
+
+### Features
+
+- Add Cost observability in Home page. ([#3438](https://github.com/juspay/hyperswitch-control-center/pull/3438)) ([`6977c44`](https://github.com/juspay/hyperswitch-control-center/commit/6977c44ee391bde3f5a58a023778d13454693c53))
+- Add rule wise stacked bar graphs in summary ([#3462](https://github.com/juspay/hyperswitch-control-center/pull/3462)) ([`daa3ac0`](https://github.com/juspay/hyperswitch-control-center/commit/daa3ac0499e5e3c7d3a3df99ebce3c5084936a4b))
+
+### Bug Fixes
+
+- Fix cypress tests ([#3464](https://github.com/juspay/hyperswitch-control-center/pull/3464)) ([`2711db3`](https://github.com/juspay/hyperswitch-control-center/commit/2711db3e5b37f3e07f7885e82e547e6d7feadd9f))
+
+### Refactors
+
+- Omp hook files ([#3465](https://github.com/juspay/hyperswitch-control-center/pull/3465)) ([`dcea80f`](https://github.com/juspay/hyperswitch-control-center/commit/dcea80f863e44038384c577df6f9bf58dc040723))
+
+**Full Changelog:** [`2025.08.21.0...2025.08.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.21.0...2025.08.22.0)
+
+- - -
+
 ## 2025.08.21.0
 
 ### Features
