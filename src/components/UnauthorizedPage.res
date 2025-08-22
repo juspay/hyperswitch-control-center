@@ -4,8 +4,18 @@ let make = (
   ~url="unauthorized",
   ~productType=ProductTypes.Orchestration(V1),
 ) => {
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+
+  let showSidebar = () => {
+    setShowSideBar(_ => true)
+  }
+
+  React.useEffect(() => {
+    showSidebar()
+    None
+  }, [])
 
   <NoDataFound message renderType={Locked}>
     <Button

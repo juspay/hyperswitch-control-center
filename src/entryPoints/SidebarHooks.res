@@ -104,9 +104,11 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
 }
 
 let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars

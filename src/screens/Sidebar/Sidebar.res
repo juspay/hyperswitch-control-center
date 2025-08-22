@@ -256,9 +256,6 @@ module NestedSidebarItem = {
 
                     switch onItemClickCustom {
                     | Some(fn) =>
-                      // if activeProductVariant !== product {
-                      //   fn() //
-                      // }
                       switch (activeProductVariant, product) {
                       | (Orchestration(V1), Orchestration(V1)) => ()
                       | (Orchestration(V1), _) => fn()
@@ -509,6 +506,8 @@ module ProductTypeSectionItem = {
     ~isExploredModule: bool,
     ~allowProductToggle: bool,
   ) => {
+    open Typography
+
     let {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
@@ -599,7 +598,7 @@ module ProductTypeSectionItem = {
             | Heading(headingOptions) =>
               <div
                 key={Int.toString(index)}
-                className={`text-xs font-medium leading-20 text-[#5B6376] overflow-hidden border-l-2 rounded-lg border-transparent px-3 mx-1 mt-5 mb-3`}>
+                className={`${body.sm.medium} leading-20 text-nd_gray-600 overflow-hidden border-l-2 rounded-lg border-transparent px-3 mx-1 mt-5 mb-3`}>
                 {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
               </div>
             | CustomComponent(customComponentOptions) =>
@@ -617,13 +616,13 @@ module ProductTypeSectionItem = {
 
 @react.component
 let make = (
-  ~exploredSidebars: array<SidebarTypes.productTypeSection>,
-  ~unexploredSidebars: array<SidebarTypes.productTypeSection>,
   ~path,
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
+  ~isReconEnabled,
 ) => {
   open CommonAuthHooks
+  open Typography
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
@@ -639,6 +638,23 @@ let make = (
   let (expandedSections, setExpandedSections) = React.useState(_ => [])
   let {devModularityV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let hasMerchantData = React.useMemo(() => {
+    merchantList->Array.length > 0 &&
+      merchantList->Array.some(merchant => merchant.id->LogicUtils.isNonEmptyString)
+  }, [merchantList])
+
+  let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
+  let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
+  let exploredSidebars = SidebarHooks.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=hasMerchantData ? exploredModules : [],
+  )
+  let unexploredSidebars = SidebarHooks.useGetAllProductSections(
+    ~isReconEnabled,
+    ~products=hasMerchantData ? unexploredModules : [],
+  )
 
   let allowProductToggle = exploredSidebars->Array.length > 0
   React.useEffect(() => {
@@ -793,7 +809,7 @@ let make = (
                   </div>
                 </Link>
                 <div
-                  className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest leading-18`}>
+                  className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest leading-18`}>
                   {React.string("My Modules"->String.toUpperCase)}
                 </div>
               </RenderIf>
@@ -820,7 +836,7 @@ let make = (
               <RenderIf condition={unexploredSidebars->Array.length > 0}>
                 <hr className="mt-4" />
                 <div
-                  className={`text-xs font-semibold px-3 py-2 text-nd_gray-400 tracking-widest ${borderColor} leading-18`}>
+                  className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest ${borderColor} leading-18`}>
                   {React.string("Other Modules"->String.toUpperCase)}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -865,11 +881,11 @@ let make = (
                         <Icon name="nd-user" size=24 />
                         <div className="flex flex-col gap-0.5">
                           <div
-                            className={`w-[${profileMaxWidth}] text-sm font-medium text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
+                            className={`w-[${profileMaxWidth}] ${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
                           </div>
                           <div
-                            className={`w-[${profileMaxWidth}] text-sm font-medium leading-18 text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
+                            className={`w-[${profileMaxWidth}] ${body.md.medium} leading-18 text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
                             {roleId->LogicUtils.snakeToTitle->React.string}
                           </div>
                         </div>

@@ -38,23 +38,6 @@ let make = () => {
   }, [merchantDetailsTypedValue.merchant_id])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
 
-  let merchantList = Recoil.useRecoilValueFromAtom(merchantListAtom)
-  let hasMerchantData = React.useMemo(() => {
-    merchantList->Array.length > 0 &&
-      merchantList->Array.some(merchant => merchant.id->LogicUtils.isNonEmptyString)
-  }, [merchantList])
-
-  let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
-  let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
-  let exploredSidebars = SidebarHooks.useGetAllProductSections(
-    ~isReconEnabled,
-    ~products=hasMerchantData ? exploredModules : [],
-  )
-  let unexploredSidebars = SidebarHooks.useGetAllProductSections(
-    ~isReconEnabled,
-    ~products=hasMerchantData ? unexploredModules : [],
-  )
-
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -133,7 +116,7 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
-                <Sidebar path=url.path exploredSidebars unexploredSidebars />
+                <Sidebar path=url.path isReconEnabled />
               </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>

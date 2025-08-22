@@ -244,6 +244,7 @@ module ExceptionCards = {
 module ReconciliationOverview = {
   @react.component
   let make = () => {
+    open Typography
     open OMPSwitchTypes
     open ReconOnboardingUtils
     let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
@@ -314,7 +315,7 @@ module ReconciliationOverview = {
         <div className="flex flex-row gap-4 items-center">
           <div className="flex flex-row items-center gap-3">
             <Icon name="nd-alert-triangle" size=24 />
-            <p className="text-nd_gray-700 font-semibold leading-5 text-center text-sm">
+            <p className={`text-nd_gray-700 leading-5 text-center ${body.md.semibold}`}>
               {"150 Exceptions Found"->React.string}
             </p>
           </div>
@@ -322,7 +323,8 @@ module ReconciliationOverview = {
         <div
           className="flex items-center gap-1.5 cursor-pointer"
           onClick={_ => navigateToExceptions()}>
-          <p className={`${primaryNormal} font-semibold leading-6 text-center text-sm`}>
+          <p className={`${primaryNormal} leading-6 text-center ${body.md.semibold}`}>
+            {"View Exceptions"->React.string}
             {"View Details"->React.string}
           </p>
           <Icon name="nd-angle-right" size=16 className={primaryNormal} />

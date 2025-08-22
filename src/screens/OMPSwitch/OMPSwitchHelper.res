@@ -204,7 +204,7 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} ${primaryNormal}`}>
+          className={`flex items-center gap-2 px-3.5 py-3 ${customStyle} ${primaryNormal} ${body.md.medium}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>

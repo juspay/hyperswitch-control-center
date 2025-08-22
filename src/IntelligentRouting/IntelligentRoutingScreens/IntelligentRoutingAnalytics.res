@@ -269,6 +269,7 @@ module FileDropdownBaseComp = {
 module FileDropdownBottomComp = {
   @react.component
   let make = () => {
+    open Typography
     let {globalUIConfig: {button: {backgroundColor}, font: {textColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -284,7 +285,7 @@ module FileDropdownBottomComp = {
     <div className="flex flex-col items-center">
       <hr className="w-full" />
       <p
-        className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} cursor-pointer`}
+        className={`flex items-center gap-2 px-3.5 py-3 ${body.md.medium} ${customStyle} cursor-pointer`}
         onClick={_ => restartSimulation()}>
         <Icon name="nd-upload" size=15 customIconColor={textColor.primaryNormal} />
         {"Change File"->React.string}
