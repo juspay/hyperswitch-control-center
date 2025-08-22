@@ -226,7 +226,7 @@ let processCountGraphData = (
   ~graphColor: string,
   ~startDate: string,
   ~endDate: string,
-  ~granularity="G_ONEDAY",
+  ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 ) => {
   let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
     let dateStr = transaction.created_at->String.slice(~start=0, ~end=10)
