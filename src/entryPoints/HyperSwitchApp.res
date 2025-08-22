@@ -37,15 +37,22 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
+
+  let merchantList = Recoil.useRecoilValueFromAtom(merchantListAtom)
+  let hasMerchantData = React.useMemo(() => {
+    merchantList->Array.length > 0 &&
+      merchantList->Array.some(merchant => merchant.id->LogicUtils.isNonEmptyString)
+  }, [merchantList])
+
   let exploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=true)
   let unexploredModules = SidebarHooks.useGetSidebarProductModules(~isExplored=false)
   let exploredSidebars = SidebarHooks.useGetAllProductSections(
     ~isReconEnabled,
-    ~products=exploredModules,
+    ~products=hasMerchantData ? exploredModules : [],
   )
   let unexploredSidebars = SidebarHooks.useGetAllProductSections(
     ~isReconEnabled,
-    ~products=unexploredModules,
+    ~products=hasMerchantData ? unexploredModules : [],
   )
 
   sessionExpired := false

@@ -508,7 +508,6 @@ module ProductTypeSectionItem = {
     ~setOpenItem,
     ~isExploredModule: bool,
     ~allowProductToggle: bool,
-    ~expandedSections,
   ) => {
     let {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
@@ -522,13 +521,6 @@ module ProductTypeSectionItem = {
       activeProductDisplayName->ProductUtils.getProductVariantFromDisplayName
     let sectionProductVariant = section.name->ProductUtils.getProductVariantFromDisplayName
     let isActiveProduct = activeProductVariant === sectionProductVariant
-
-    React.useEffect(() => {
-      if isActiveProduct && isExploredModule && expandedSections->Array.length == 0 {
-        onToggle()
-      }
-      None
-    }, [activeProduct])
 
     let textColor = isActiveProduct ? `${primaryTextColor}` : `${secondaryTextColor}`
 
@@ -646,7 +638,16 @@ let make = (
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (expandedSections, setExpandedSections) = React.useState(_ => [])
   let {devModularityV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+
   let allowProductToggle = exploredSidebars->Array.length > 0
+  React.useEffect(() => {
+    let activeProductDisplayName = activeProduct->ProductUtils.getProductDisplayName
+    if !Array.includes(expandedSections, activeProductDisplayName) {
+      setExpandedSections(prev => [activeProductDisplayName, ...prev])
+    }
+    None
+  }, (activeProduct, exploredSidebars))
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -780,7 +781,7 @@ let make = (
             style={height: `calc(100vh - ${verticalOffset})`}>
             <style> {React.string(sidebarScrollbarCss)} </style>
             <div className="p-3 pt-0">
-              <RenderIf condition={devModularityV2}>
+              <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
                 <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                   <div
                     className={`text-sm font-medium ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 px-3 py-1.5 ${isSidebarExpanded
@@ -812,7 +813,6 @@ let make = (
                     setOpenItem
                     isExploredModule=true
                     allowProductToggle
-                    expandedSections
                   />
                 })
                 ->React.array}
@@ -839,7 +839,6 @@ let make = (
                       setOpenItem
                       isExploredModule=false
                       allowProductToggle
-                      expandedSections
                     />
                   })
                   ->React.array}
