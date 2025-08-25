@@ -1,5 +1,12 @@
 open LogicUtils
 open UserManagementTypes
+let getInitialValuesForForm = entityType =>
+  [
+    ("role_scope", "merchant"->JSON.Encode.string),
+    ("role_name", ""->JSON.Encode.string),
+    ("entity_type", entityType->JSON.Encode.string),
+  ]->Dict.fromArray
+
 let validateCustomRoleForm = (values, permissionModules) => {
   let valuesDict = values->getDictFromJsonObject
   let errors = Dict.make()

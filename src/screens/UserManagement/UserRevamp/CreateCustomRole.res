@@ -59,7 +59,7 @@ module RenderPermissionModule = {
 module NewCustomRoleInputFields = {
   open CommonAuthHooks
   @react.component
-  let make = () => {
+  let make = (~onEntityTypeChange) => {
     let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     <div className="flex flex-col gap-4">
       <div className={`${body.md.semibold} text-nd_gray-700`}> {"Role Details"->React.string} </div>
@@ -69,6 +69,11 @@ module NewCustomRoleInputFields = {
         />
         <FormRenderer.FieldRenderer
           field={userRole->roleScope}
+          fieldWrapperClass="w-fit"
+          labelClass="!text-black !-ml-[0.5px]"
+        />
+        <FormRenderer.FieldRenderer
+          field={entityType(userRole, ~onEntityTypeChange)}
           fieldWrapperClass="w-fit"
           labelClass="!text-black !-ml-[0.5px]"
         />
@@ -112,17 +117,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 
-  let initialValuesForForm =
-    [
-      ("role_scope", "merchant"->JSON.Encode.string),
-      ("role_name", ""->JSON.Encode.string),
-    ]->Dict.fromArray
-
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initalValue, setInitialValues) = React.useState(_ => initialValuesForForm)
+  let (currentEntityType, setCurrentEntityType) = React.useState(() => "merchant")
   let marginClass = isInviteUserFlow ? "mt-6" : ""
   let showToast = ToastState.useShowToast()
+  let initialValues = React.useMemo(() => {
+    getInitialValuesForForm(currentEntityType)->JSON.Encode.object
+  }, [currentEntityType])
 
   let onSubmit = async (values, _) => {
     try {
@@ -130,6 +132,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       let valuesDict = values->getDictFromJsonObject
       let roleScope = getString(valuesDict, "role_scope", "")
       let roleName = getString(valuesDict, "role_name", "")->String.trim->titleToSnake
+      let entityType = getString(valuesDict, "entity_type", "")
       let parentGroups =
         permissionModules
         ->Array.map(module_ => {
@@ -171,6 +174,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         [
           ("role_name", roleName->JSON.Encode.string),
           ("role_scope", roleScope->JSON.Encode.string),
+          ("entity_type", entityType->JSON.Encode.string),
           ("parent_groups", parentGroups->JSON.Encode.array),
         ]->getJsonFromArrayOfJson
 
@@ -184,7 +188,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "UR_35" {
-          setInitialValues(_ => values->getDictFromJsonObject)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
@@ -195,14 +198,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     Nullable.null
   }
 
-  let getPermissionModules = async () => {
+  let getPermissionModules = async entityType => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=merchant`),
+        ~queryParamerters=Some(`entity_type=${entityType}`),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)
@@ -213,9 +216,16 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     }
   }
 
+  let handleEntityTypeChange = entityType => {
+    if entityType !== currentEntityType {
+      setCurrentEntityType(_ => entityType)
+      getPermissionModules(entityType)->ignore
+    }
+  }
+
   React.useEffect(() => {
     if permissionModules->Array.length === 0 {
-      getPermissionModules()->ignore
+      getPermissionModules(currentEntityType)->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
@@ -239,12 +249,12 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 ${marginClass}`}>
       <PageLoaderWrapper screenState>
         <Form
-          key="invite-user-management"
-          initialValues={initalValue->JSON.Encode.object}
+          key={`invite-user-management-${currentEntityType}`}
+          initialValues
           validate={values => validateCustomRoleForm(values, permissionModules)}
           onSubmit
           formClass="flex flex-col gap-8">
-          <NewCustomRoleInputFields />
+          <NewCustomRoleInputFields onEntityTypeChange=handleEntityTypeChange />
           <div className="flex flex-col gap-6">
             <div className={`${body.md.semibold} text-nd_gray-700`}>
               {"Select Permission Level"->React.string}

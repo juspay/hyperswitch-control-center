@@ -31,6 +31,46 @@ let roleScope = userRole => {
   )
 }
 
+let entityType = (userRole, ~onEntityTypeChange=?) => {
+  let entityTypeArray = ["Merchant", "Profile"]->Array.map(item => {
+    let option: SelectBox.dropdownOption = {
+      label: item,
+      value: item->String.toLowerCase,
+    }
+    option
+  })
+
+  FormRenderer.makeFieldInfo(
+    ~label="Entity Type",
+    ~isRequired=true,
+    ~name="entity_type",
+    ~customInput=(~input, ~placeholder as _) =>
+      InputFields.selectInput(
+        ~deselectDisable=true,
+        ~options=entityTypeArray,
+        ~buttonText="Select Option",
+        ~disableSelect=userRole === "org_admin" || userRole === "tenant_admin" ? false : true,
+      )(
+        ~input={
+          ...input,
+          onChange: {
+            ev => {
+              input.onChange(ev)
+              switch onEntityTypeChange {
+              | Some(fn) => {
+                  let selectedValue = ev->Identity.formReactEventToString
+                  fn(selectedValue)
+                }
+              | None => ()
+              }
+            }
+          },
+        },
+        ~placeholder="",
+      ),
+  )
+}
+
 let validateEmptyValue = (key, errors) => {
   switch key {
   | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->JSON.Encode.string)
