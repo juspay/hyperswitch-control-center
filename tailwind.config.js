@@ -75,6 +75,9 @@ module.exports = {
       padding: {
         "10-px": "10px",
       },
+      minWidth: {
+        "25-rem": "25rem",
+      },
       maxHeight: {
         "15-rem": "15rem",
         "25-rem": "25rem",
