@@ -35,21 +35,18 @@ let processRolesData = (rolesData: array<roleData>): matrixData => {
     ->Array.map(group => group.name)
     ->removeDuplicate
 
-  let permissions = Dict.make()
-
-  allModules->Array.forEach(moduleName => {
-    let modulePermissions = Dict.make()
-
-    rolesData->Array.forEach(role => {
+  let permissions = allModules->Array.reduce(Dict.make(), (acc, moduleName) => {
+    let modulePermissions = rolesData->Array.reduce(Dict.make(), (moduleAcc, role) => {
       let parentGroup = role.parent_groups->Array.find(g => g.name === moduleName)
       let permissionLevel = switch parentGroup {
       | Some(group) => getPermissionLevel(group.scopes)
       | None => NoAccess
       }
-      modulePermissions->Dict.set(role.roleId, permissionLevel)
+      moduleAcc->Dict.set(role.roleId, permissionLevel)
+      moduleAcc
     })
-    //permission[moduleName][roleId] = permissionLevel
-    permissions->Dict.set(moduleName, modulePermissions)
+    acc->Dict.set(moduleName, modulePermissions)
+    acc
   })
 
   {
