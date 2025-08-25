@@ -37,6 +37,7 @@ type processorTypes =
   | KLARNA
   | GLOBALPAY
   | BLUESNAP
+  | AFFIRM
   | AIRWALLEX
   | WORLDPAY
   | WORLDPAYXML
