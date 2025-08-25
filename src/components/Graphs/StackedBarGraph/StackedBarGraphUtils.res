@@ -6,6 +6,7 @@ let getStackedBarGraphOptions = (
   stackedBarGraphOptions: stackedBarGraphPayload,
   ~yMax,
   ~labelItemDistance,
+  ~pointWidth=30,
 ) => {
   let {categories, data, labelFormatter} = stackedBarGraphOptions
 
@@ -66,7 +67,7 @@ let getStackedBarGraphOptions = (
           enabled: false,
         },
         borderWidth: 3,
-        pointWidth: 30,
+        pointWidth,
         borderRadius: 5,
       },
     },
