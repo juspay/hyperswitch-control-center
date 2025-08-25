@@ -20,7 +20,7 @@ let itemToObjMapperForRoles = dict => {
 
 let getPermissionLevel = (scopes: array<string>): permissionLevel => {
   if scopes->Array.includes("write") {
-    ViewAndEdit
+    Edit
   } else if scopes->Array.includes("read") {
     View
   } else {

@@ -15,7 +15,7 @@ module PermissionPill = {
     | _ => {
         let (icon, displayText) = switch permissionLevel {
         | View => (Some("eye-outlined"), "View")
-        | ViewAndEdit => (Some("new-edit"), "View & Edit")
+        | Edit => (Some("nd-edit-pencil"), "Edit")
         | NoAccess => (None, "No Access")
         }
         <div className={`${baseCss} ${pillCss}`}>

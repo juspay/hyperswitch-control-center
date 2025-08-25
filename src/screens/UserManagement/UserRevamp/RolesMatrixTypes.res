@@ -12,7 +12,7 @@ type roleData = {
   roleScope: string,
 }
 
-type permissionLevel = View | ViewAndEdit | NoAccess
+type permissionLevel = View | Edit | NoAccess
 
 type matrixData = {
   modules: array<string>,
