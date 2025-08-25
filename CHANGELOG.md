@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.25.0
+
+### Features
+
+- Add blackhawknetwork connector ([#3479](https://github.com/juspay/hyperswitch-control-center/pull/3479)) ([`0040aa5`](https://github.com/juspay/hyperswitch-control-center/commit/0040aa5cc7a1b1de453ce62259ca3022b8edb92f))
+
+### Miscellaneous Tasks
+
+- Remove sync for terminal payment intent status ([#3469](https://github.com/juspay/hyperswitch-control-center/pull/3469)) ([`8077dea`](https://github.com/juspay/hyperswitch-control-center/commit/8077dead936c1a48dc0606eedeb36d6ff6ddce58))
+
+**Full Changelog:** [`2025.08.22.0...2025.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.22.0...2025.08.25.0)
+
+- - -
+
 ## 2025.08.22.0
 
 ### Features
