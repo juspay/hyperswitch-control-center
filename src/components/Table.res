@@ -933,8 +933,8 @@ let make = (
     `
   let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
   let verticalScroll = !showVerticalScroll ? "overflow-y-hidden" : ""
-  let frozenFirstColumnCss = freezeFirstColumn
-    ? `
+  let frozenFirstColumnCss = if freezeFirstColumn {
+    `
   .loadedTable th:first-child,
   .loadedTable .tableHeader:first-child {
     position: sticky !important;
@@ -971,7 +971,9 @@ let make = (
     background: #374151;
   }
   `
-    : ""
+  } else {
+    ""
+  }
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
