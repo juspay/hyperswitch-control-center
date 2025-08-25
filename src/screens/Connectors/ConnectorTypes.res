@@ -119,6 +119,7 @@ type processorTypes =
   | FLEXITI
   | BREADPAY
   | BLUECODE
+  | BLACKHAWKNETWORK
 
 type payoutProcessorTypes =
   | ADYEN
