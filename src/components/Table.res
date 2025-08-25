@@ -936,13 +936,22 @@ let make = (
   let frozenFirstColumnCss = freezeFirstColumn
     ? `
   .loadedTable th:first-child,
-  .loadedTable td:first-child {
+  .loadedTable .tableHeader:first-child {
     position: sticky !important;
     left: 0 !important;
     z-index: 20 !important;
-    background-color: rgb(249 250 251) !important;
+    background-color: rgb(245 247 250) !important;
   }
   .loadedTable .dark th:first-child,
+  .loadedTable .dark .tableHeader:first-child {
+    background-color: rgb(31 41 55) !important;
+  }
+   .loadedTable td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 10 !important;
+    background-color: white !important;
+  } 
   .loadedTable .dark td:first-child {
     background-color: rgb(31 41 55) !important;
   }
