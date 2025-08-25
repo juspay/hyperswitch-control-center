@@ -3,6 +3,7 @@ open ReconEngineOverviewTypes
 open ColumnGraphTypes
 open ColumnGraphUtils
 open ReconEngineTransactionsUtils
+open NewAnalyticsUtils
 
 let defaultAccount = {
   account_name: "",
@@ -71,24 +72,6 @@ let reconRuleItemToObjMapper = dict => {
     targets: dict
     ->getArrayFromDict("targets", [])
     ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
-  }
-}
-
-let getMonthAbbreviation = monthStr => {
-  switch monthStr {
-  | "01" => "Jan"
-  | "02" => "Feb"
-  | "03" => "Mar"
-  | "04" => "Apr"
-  | "05" => "May"
-  | "06" => "Jun"
-  | "07" => "Jul"
-  | "08" => "Aug"
-  | "09" => "Sep"
-  | "10" => "Oct"
-  | "11" => "Nov"
-  | "12" => "Dec"
-  | _ => "Jan"
   }
 }
 
@@ -251,7 +234,7 @@ let processCountGraphData = (
   defaultValue->Dict.set("time_bucket", ""->JSON.Encode.string)
   let defaultValueJson = defaultValue->JSON.Encode.object
 
-  let filledData = NewAnalyticsUtils.fillForMissingTimeRange(
+  let filledData = fillForMissingTimeRange(
     ~existingTimeDict=groupedByDate,
     ~timeKey="time_bucket",
     ~defaultValue=defaultValueJson,
@@ -268,7 +251,9 @@ let processCountGraphData = (
   let countData = sortedDates->Array.map(dateTime => {
     let dateStr = dateTime->String.slice(~start=0, ~end=10)
     let parts = dateStr->String.split("-")
-    let month = parts->getValueFromArray(1, "01")->getMonthAbbreviation
+    let monthStr = parts->getValueFromArray(1, "01")
+    let monthNum = monthStr->Int.fromString->Option.getOr(1) - 1 // Convert to 0-11 range
+    let month = monthNum->getMonthName
     let day = parts->getValueFromArray(2, "01")
     let count =
       filledData
