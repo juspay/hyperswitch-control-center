@@ -41,10 +41,50 @@ let make = () => {
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {defaultHomeCardsArray
-        ->Array.map(item => {
-          switch item.product {
-          | Recovery =>
-            <RenderIf condition=devRecoveryV2Product>
+        ->Array.mapWithIndex((item, index) => {
+          <React.Fragment key={index->Int.toString}>
+            {switch item.product {
+            | Recovery =>
+              <RenderIf condition=devRecoveryV2Product>
+                <DefaultHomeCard
+                  product=item.product
+                  heading=item.heading
+                  description=item.description
+                  img=item.imgSrc
+                  action=item.action
+                />
+              </RenderIf>
+            | Vault =>
+              <RenderIf condition=devVaultV2Product>
+                <DefaultHomeCard
+                  product=item.product
+                  heading=item.heading
+                  description=item.description
+                  img=item.imgSrc
+                  action=item.action
+                />
+              </RenderIf>
+            | Recon(_) =>
+              <RenderIf condition=devReconv2Product>
+                <DefaultHomeCard
+                  product=item.product
+                  heading=item.heading
+                  description=item.description
+                  img=item.imgSrc
+                  action=item.action
+                />
+              </RenderIf>
+            | CostObservability =>
+              <RenderIf condition=devHypersenseV2Product>
+                <DefaultHomeCard
+                  product=item.product
+                  heading=item.heading
+                  description=item.description
+                  img=item.imgSrc
+                  action=item.action
+                />
+              </RenderIf>
+            | _ =>
               <DefaultHomeCard
                 product=item.product
                 heading=item.heading
@@ -52,46 +92,8 @@ let make = () => {
                 img=item.imgSrc
                 action=item.action
               />
-            </RenderIf>
-          | Vault =>
-            <RenderIf condition=devVaultV2Product>
-              <DefaultHomeCard
-                product=item.product
-                heading=item.heading
-                description=item.description
-                img=item.imgSrc
-                action=item.action
-              />
-            </RenderIf>
-          | Recon(_) =>
-            <RenderIf condition=devReconv2Product>
-              <DefaultHomeCard
-                product=item.product
-                heading=item.heading
-                description=item.description
-                img=item.imgSrc
-                action=item.action
-              />
-            </RenderIf>
-          | CostObservability =>
-            <RenderIf condition=devHypersenseV2Product>
-              <DefaultHomeCard
-                product=item.product
-                heading=item.heading
-                description=item.description
-                img=item.imgSrc
-                action=item.action
-              />
-            </RenderIf>
-          | _ =>
-            <DefaultHomeCard
-              product=item.product
-              heading=item.heading
-              description=item.description
-              img=item.imgSrc
-              action=item.action
-            />
-          }
+            }}
+          </React.Fragment>
         })
         ->React.array}
       </div>
