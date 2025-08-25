@@ -54,6 +54,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BAMBORA),
   Processors(BILLWERK),
   Processors(BITPAY),
+  Processors(BLACKHAWKNETWORK),
   Processors(BLUESNAP),
   Processors(BRAINTREE),
   Processors(CASHTOCODE),
@@ -694,6 +695,10 @@ let bluecodeInfo = {
   description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
 }
 
+let blackhawknetworkInfo = {
+  description: "Blackhawk Network Holdings, Inc. is an American financial technology company that specializes in branded payments, prepaid cards, gift cards, and incentive solutions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -788,6 +793,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
   | BLUECODE => "bluecode"
+  | BLACKHAWKNETWORK => "blackhawknetwork"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -951,6 +957,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
     | "bluecode" => Processors(BLUECODE)
+    | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1094,6 +1101,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
   | BLUECODE => bluecodeInfo
+  | BLACKHAWKNETWORK => blackhawknetworkInfo
   }
 }
 
@@ -2009,6 +2017,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
   | BLUECODE => "Bluecode"
+  | BLACKHAWKNETWORK => "BlackhawkNetwork"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
