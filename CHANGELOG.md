@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.26.0
+
+### Features
+
+- Add new connector `Affirm` ([#3483](https://github.com/juspay/hyperswitch-control-center/pull/3483)) ([`4120353`](https://github.com/juspay/hyperswitch-control-center/commit/41203539a53b7f3dd31efae9f0af736f18f3f11a))
+- Wasm changes for `Affirm` connector ([#3484](https://github.com/juspay/hyperswitch-control-center/pull/3484)) ([`5243c85`](https://github.com/juspay/hyperswitch-control-center/commit/5243c8573d905d3ec3dfb0efb7a821d6a6a5bbe3))
+- Roles Information module with parent group info apis ([#3467](https://github.com/juspay/hyperswitch-control-center/pull/3467)) ([`4a93f94`](https://github.com/juspay/hyperswitch-control-center/commit/4a93f94b27f15a28f8683213265ec6e5158111c3))
+
+### Bug Fixes
+
+- Home page product switch ([#3476](https://github.com/juspay/hyperswitch-control-center/pull/3476)) ([`e706702`](https://github.com/juspay/hyperswitch-control-center/commit/e706702a411d76e170a4ed56a2008c700f83e76e))
+
+### Miscellaneous Tasks
+
+- Add `RETURN` as default refund reason for adyen connector ([#3486](https://github.com/juspay/hyperswitch-control-center/pull/3486)) ([`6a069ae`](https://github.com/juspay/hyperswitch-control-center/commit/6a069ae3728859a1b1e42e5c55cbd8e950d0c17b))
+
+**Full Changelog:** [`2025.08.25.0...2025.08.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.25.0...2025.08.26.0)
+
+- - -
+
+## 2025.08.25.0
+
+### Features
+
+- Add blackhawknetwork connector ([#3479](https://github.com/juspay/hyperswitch-control-center/pull/3479)) ([`0040aa5`](https://github.com/juspay/hyperswitch-control-center/commit/0040aa5cc7a1b1de453ce62259ca3022b8edb92f))
+
+### Miscellaneous Tasks
+
+- Remove sync for terminal payment intent status ([#3469](https://github.com/juspay/hyperswitch-control-center/pull/3469)) ([`8077dea`](https://github.com/juspay/hyperswitch-control-center/commit/8077dead936c1a48dc0606eedeb36d6ff6ddce58))
+
+**Full Changelog:** [`2025.08.22.0...2025.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.22.0...2025.08.25.0)
+
+- - -
+
 ## 2025.08.22.0
 
 ### Features
