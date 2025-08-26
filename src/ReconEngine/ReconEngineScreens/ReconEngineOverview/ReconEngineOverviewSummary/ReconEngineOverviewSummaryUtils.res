@@ -1,3 +1,5 @@
+open ReconEngineOverviewUtils
+
 open ReconEngineOverviewTypes
 open ReconEngineOverviewSummaryTypes
 
@@ -33,17 +35,17 @@ let getSummaryStackedBarGraphData = (
       {
         name: "Mismatched",
         data: [mismatchedCount->Int.toFloat],
-        color: "#EA8A8F",
+        color: mismatchedColor,
       },
       {
         name: "Pending",
         data: [expectedCount->Int.toFloat],
-        color: "#F3BE8B",
+        color: pendingColor,
       },
       {
         name: "Matched",
         data: [postedCount->Int.toFloat],
-        color: "#7AB891",
+        color: matchedColor,
       },
     ],
     labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),

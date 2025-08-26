@@ -48,6 +48,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYPAL),
   Processors(ACI),
   Processors(ADYEN),
+  Processors(AFFIRM),
   Processors(AIRWALLEX),
   Processors(AUTHORIZEDOTNET),
   Processors(BANKOFAMERICA),
@@ -632,6 +633,10 @@ let silverflowInfo = {
 let checkbookInfo = {
   description: "Checkbook offers businesses a versatile and embeddable way to scale their payouts. As a leading provider of both paper and digital options, we're uniquely positioned to enable the speed, flexibility, and cost savings of modern payments, with the familiarity and simplicity of paper checks.",
 }
+
+let affirmInfo = {
+  description: "Affirm connector is a payment gateway integration that processes Affirm's buy now, pay later financing by managing payment authorization, capture, refunds, and transaction sync via Affirm's API.",
+}
 let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
@@ -702,6 +707,7 @@ let blackhawknetworkInfo = {
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
+  | AFFIRM => "affirm"
   | CHECKOUT => "checkout"
   | BRAINTREE => "braintree"
   | AUTHORIZEDOTNET => "authorizedotnet"
@@ -866,6 +872,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
+    | "affirm" => Processors(AFFIRM)
     | "checkout" => Processors(CHECKOUT)
     | "braintree" => Processors(BRAINTREE)
     | "authorizedotnet" => Processors(AUTHORIZEDOTNET)
@@ -1011,6 +1018,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
+  | AFFIRM => affirmInfo
   | GOCARDLESS => goCardLessInfo
   | CHECKOUT => checkoutInfo
   | BRAINTREE => braintreeInfo
@@ -1926,6 +1934,7 @@ let getConnectorPaymentMethodDetails = async (
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
+  | AFFIRM => "Affirm"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
   | BILLWERK => "Billwerk"
