@@ -301,7 +301,3 @@ let routingVolumeMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGrap
     ~tooltipValueFormatterType=Amount,
   )
 }
-let defaultGranularityOptionsObject: NewAnalyticsTypes.optionType = {
-  label: "",
-  value: "",
-}

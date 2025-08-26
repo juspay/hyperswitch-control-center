@@ -31,3 +31,7 @@ let customLegendFormatter = () => {
     }
   )->PieGraphTypes.asLegendPointFormatter
 }
+let defaultGranularityOptionsObject: NewAnalyticsTypes.optionType = {
+  label: "",
+  value: "",
+}

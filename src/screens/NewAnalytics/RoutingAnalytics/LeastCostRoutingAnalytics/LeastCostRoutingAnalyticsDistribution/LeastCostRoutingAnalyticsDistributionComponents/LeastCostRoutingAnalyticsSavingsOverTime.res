@@ -5,7 +5,6 @@ let make = () => {
   open APIUtils
   open LeastCostRoutingAnalyticsDistributionUtils
   open LeastCostRoutingAnalyticsDistributionTypes
-  open RoutingAnalyticsTrendsUtils
   open NewAnalyticsUtils
   open NewAnalyticsHelper
   open NewAnalyticsTypes
@@ -22,7 +21,7 @@ let make = () => {
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (granularityTabState, setGranularityTabState) = React.useState(_ =>
-    defaultGranularityOptionsObject
+    RoutingAnalyticsUtils.defaultGranularityOptionsObject
   )
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
 

@@ -8,6 +8,7 @@ let make = () => {
   open RoutingAnalyticsTrendsUtils
   open NewAnalyticsTypes
   open NewAnalyticsHelper
+  open RoutingAnalyticsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
