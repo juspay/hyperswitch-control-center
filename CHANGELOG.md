@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.08.26.1
+
+### Features
+
+- Add recon engine overview volume graphs ([#3471](https://github.com/juspay/hyperswitch-control-center/pull/3471)) ([`3ed252a`](https://github.com/juspay/hyperswitch-control-center/commit/3ed252a50645892c224ddf4c915d4f369b7e43e1))
+
+**Full Changelog:** [`2025.08.26.0...2025.08.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.26.0...2025.08.26.1)
+
+- - -
+
 ## 2025.08.26.0
 
 ### Features
