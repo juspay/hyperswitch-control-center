@@ -1,5 +1,9 @@
 open LogicUtils
 open ReconEngineOverviewTypes
+open ColumnGraphTypes
+open ColumnGraphUtils
+open ReconEngineTransactionsUtils
+open NewAnalyticsUtils
 
 let defaultAccount = {
   account_name: "",
@@ -79,11 +83,15 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
     accountData
     ->Array.find(account => account.account_id === accountId)
     ->Option.getOr(defaultAccount)
-  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
+  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~sourceAccountName: string,
+  ~sourceAccountCurrency: string,
+  ~targetAccountName: string,
+  ~targetAccountCurrency: string,
 ) => {
   let (
     sourcePosted,
@@ -96,11 +104,10 @@ let calculateAccountAmounts = (
     (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected),
     transaction,
   ) => {
-    // Use pre-calculated credit_amount and debit_amount instead of iterating through entries
     let creditAmount = transaction.credit_amount.value
     let debitAmount = transaction.debit_amount.value
 
-    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    switch transaction.transaction_status->getTransactionTypeFromString {
     | Posted => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
@@ -133,100 +140,31 @@ let calculateAccountAmounts = (
   let totalTargetAmount = targetPosted +. targetMismatched
   let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
 
-  (totalSourceAmount, totalTargetAmount, targetExpected, variance)
+  [
+    {
+      "title": `Expectations from ${sourceAccountName}`,
+      "value": totalSourceAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
+    },
+    {
+      "title": `Received by ${targetAccountName}`,
+      "value": totalTargetAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
+    },
+    {
+      "title": "Net Variance",
+      "value": variance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
+    },
+    {
+      "title": `Missing in ${targetAccountName}`,
+      "value": targetExpected->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
+    },
+  ]
 }
-
-// Stacked Bar Graph Data
-let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
-  open StackedBarGraphTypes
-  {
-    categories: ["Transactions"],
-    data: [
-      {
-        name: "Matched",
-        data: [postedCount->Int.toFloat],
-        color: "#7AB891",
-      },
-      {
-        name: "Mismatched",
-        data: [mismatchedCount->Int.toFloat],
-        color: "#EA8A8F",
-      },
-      {
-        name: "Expected",
-        data: [expectedCount->Int.toFloat],
-        color: "#8BC2F3",
-      },
-    ],
-    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
-  }
-}
-
-// Line Graph Data
-let getOverviewLineGraphTooltipFormatter = (
-  @this
-  (this: LineGraphTypes.pointFormatter) => {
-    let title = `<div style="font-size: 16px; font-weight: bold;">Transaction Count</div>`
-
-    let getRowHtml = (~iconColor, ~name, ~value) => {
-      let valueString = value->Float.toString
-      `<div style="display: flex; align-items: center;">
-              <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-              <div style="margin-left: 8px;">${name}</div>
-              <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
-          </div>`
-    }
-
-    let tableItems =
-      this.points
-      ->Array.map(point => {
-        getRowHtml(~iconColor=point.color, ~name=point.series.name, ~value=point.y)
-      })
-      ->Array.joinWith("")
-
-    let content = `
-            <div style=" 
-            padding:5px 12px;
-            display:flex;
-            flex-direction:column;
-            justify-content: space-between;
-            gap: 7px;">
-                ${title}
-                <div style="
-                  margin-top: 5px;
-                  display:flex;
-                  flex-direction:column;
-                  gap: 7px;">
-                  ${tableItems}
-                </div>
-          </div>`
-
-    `<div style="
-      padding: 10px;
-      width:fit-content;
-      border-radius: 7px;
-      background-color:#FFFFFF;
-      padding:10px;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-      border: 1px solid #E5E5E5;
-      position:relative;">
-          ${content}
-      </div>`
-  }
-)->LineGraphTypes.asTooltipPointFormatter
-
-let lineGraphYAxisFormatter = (
-  @this
-  (this: LineGraphTypes.yAxisFormatter) => {
-    this.value->Int.toString
-  }
-)->LineGraphTypes.asTooltipPointFormatter
 
 let calculateTransactionCounts = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    switch transaction.transaction_status->getTransactionTypeFromString {
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
@@ -235,115 +173,127 @@ let calculateTransactionCounts = (
   })
 }
 
-let processLineGraphData = (
+// Color constants for ReconEngine graphs
+let mismatchedColor = "#EA8A8F"
+let pendingColor = "#F3BE8B"
+let matchedColor = "#7AB891"
+let exceptionsVolumeColor = "#F87171"
+let reconciledVolumeColor = "#60A5FA"
+
+let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
+  {
+    StackedBarGraphTypes.categories: ["Transactions"],
+    data: [
+      {
+        name: "Mismatched",
+        data: [mismatchedCount->Int.toFloat],
+        color: mismatchedColor,
+      },
+      {
+        name: "Pending",
+        data: [expectedCount->Int.toFloat],
+        color: pendingColor,
+      },
+      {
+        name: "Matched",
+        data: [postedCount->Int.toFloat],
+        color: matchedColor,
+      },
+    ],
+    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
+  }
+}
+
+let processCountGraphData = (
   transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~graphColor: string,
+  ~startDate: string,
+  ~endDate: string,
+  ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 ) => {
-  let getCountFromDate = (groupedByDate, date, status) => {
-    groupedByDate
-    ->getObj(date, Dict.make())
-    ->getInt(status, 0)
-    ->Int.toFloat
-  }
-
-  let getMonthAbbreviation = monthStr => {
-    switch monthStr {
-    | "01" => "Jan"
-    | "02" => "Feb"
-    | "03" => "Mar"
-    | "04" => "Apr"
-    | "05" => "May"
-    | "06" => "Jun"
-    | "07" => "Jul"
-    | "08" => "Aug"
-    | "09" => "Sep"
-    | "10" => "Oct"
-    | "11" => "Nov"
-    | "12" => "Dec"
-    | _ => "Jan"
-    }
-  }
-
   let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
-    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10) // Extract YYYY-MM-DD
-    let currentDateData = acc->getObj(dateStr, Dict.make())
-
-    switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-    | Posted => {
-        let currentCount = currentDateData->getInt("posted", 0)
-        currentDateData->Dict.set("posted", (currentCount + 1)->JSON.Encode.int)
-      }
-    | Expected => {
-        let currentCount = currentDateData->getInt("expected", 0)
-        currentDateData->Dict.set("expected", (currentCount + 1)->JSON.Encode.int)
-      }
-    | Mismatched => {
-        let currentCount = currentDateData->getInt("mismatched", 0)
-        currentDateData->Dict.set("mismatched", (currentCount + 1)->JSON.Encode.int)
-      }
-    | Archived => {
-        let currentCount = currentDateData->getInt("archived", 0)
-        currentDateData->Dict.set("archived", (currentCount + 1)->JSON.Encode.int)
-      }
-    | _ => ()
-    }
-
-    acc->Dict.set(dateStr, currentDateData->JSON.Encode.object)
+    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10)
+    let formattedDate = `${dateStr} 00:00:00`
+    let currentDateData = acc->getObj(formattedDate, Dict.make())
+    let currentCount = currentDateData->getInt("count", 0)
+    currentDateData->Dict.set("count", (currentCount + 1)->JSON.Encode.int)
+    currentDateData->Dict.set("time_bucket", formattedDate->JSON.Encode.string)
+    acc->Dict.set(formattedDate, currentDateData->JSON.Encode.object)
     acc
   })
 
-  let sortedDates = groupedByDate->Dict.keysToArray->Array.toSorted(String.compare)
-  let categories = sortedDates->Array.map(date => {
-    let parts = date->String.split("-")
-    let month = parts->getValueFromArray(1, "01")->getMonthAbbreviation
-    let day = parts->getValueFromArray(2, "01")
-    `${month} ${day}`
-  })
-
-  let postedData = sortedDates->Array.map(date => getCountFromDate(groupedByDate, date, "posted"))
-  let expectedData =
-    sortedDates->Array.map(date => getCountFromDate(groupedByDate, date, "expected"))
-
-  let lineGraphOptions: LineGraphTypes.lineGraphPayload = {
-    chartHeight: LineGraphTypes.DefaultHeight,
-    chartLeftSpacing: LineGraphTypes.DefaultLeftSpacing,
-    categories,
-    data: [
-      {
-        showInLegend: true,
-        name: "Matched",
-        data: postedData,
-        color: "#7AB891",
-      },
-      {
-        showInLegend: true,
-        name: "Expected",
-        data: expectedData,
-        color: "#8BC2F3",
-      },
-    ],
-    title: {
-      text: "",
-      align: "left",
-    },
-    tooltipFormatter: getOverviewLineGraphTooltipFormatter,
-    yAxisMaxValue: None,
-    yAxisMinValue: None,
-    yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(~statType=Default),
-    legend: {
-      useHTML: true,
-      labelFormatter: LineGraphUtils.valueFormatter,
-      align: "left",
-      verticalAlign: "top",
-      floating: false,
-      margin: 30,
-    },
+  let today = Date.make()
+  let endDate = if endDate->isEmptyString {
+    today->Js.Date.toISOString
+  } else {
+    today->Js.Date.toISOString->String.slice(~start=0, ~end=10) ++ " 00:00:00"
   }
 
-  lineGraphOptions
+  let defaultValue = Dict.make()
+  defaultValue->Dict.set("count", 0->JSON.Encode.int)
+  defaultValue->Dict.set("time_bucket", ""->JSON.Encode.string)
+  let defaultValueJson = defaultValue->JSON.Encode.object
+
+  let filledData = fillForMissingTimeRange(
+    ~existingTimeDict=groupedByDate,
+    ~timeKey="time_bucket",
+    ~defaultValue=defaultValueJson,
+    ~startDate,
+    ~endDate,
+    ~granularity,
+  )
+
+  let sortedDates =
+    filledData
+    ->Dict.keysToArray
+    ->Array.toSorted(String.compare)
+
+  let countData = sortedDates->Array.map(dateTime => {
+    let dateStr = dateTime->String.slice(~start=0, ~end=10)
+    let parts = dateStr->String.split("-")
+    let monthStr = parts->getValueFromArray(1, "01")
+    let monthNum = monthStr->Int.fromString->Option.getOr(1) - 1 // Convert to 0-11 range
+    let month = monthNum->getMonthName
+    let day = parts->getValueFromArray(2, "01")
+    let count =
+      filledData
+      ->getObj(dateTime, Dict.make())
+      ->getInt("count", 0)
+      ->Int.toFloat
+
+    {
+      name: `${month} ${day}`,
+      y: count,
+      color: graphColor,
+    }
+  })
+
+  countData
+}
+
+let createColumnGraphCountPayload = (
+  ~countData: array<dataObj>,
+  ~title: string,
+  ~color: string,
+) => {
+  let columnGraphData: columnGraphPayload = {
+    data: [
+      {
+        showInLegend: false,
+        name: title,
+        colorByPoint: true,
+        data: countData,
+        color,
+      },
+    ],
+    title: {text: ""},
+    tooltipFormatter: columnGraphTooltipFormatter(~title, ~metricType=Default, ~currency=""),
+    yAxisFormatter: columnGraphYAxisFormatter(~statType=Volume, ~suffix=""),
+  }
+  columnGraphData
 }
 
 let initialDisplayFilters = () => {
-  open ReconEngineTransactionsTypes
   let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
   [
     (

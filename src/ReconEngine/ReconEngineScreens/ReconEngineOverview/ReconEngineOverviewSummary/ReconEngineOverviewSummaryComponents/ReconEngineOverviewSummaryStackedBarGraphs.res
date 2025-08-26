@@ -62,6 +62,7 @@ module RuleWiseStackedBarGraph = {
               stackedBarGraphData,
               ~yMax=totalTransactions,
               ~labelItemDistance={isMiniLaptopView ? 45 : 80},
+              ~pointWidth=12,
             )}
           />
         </div>
