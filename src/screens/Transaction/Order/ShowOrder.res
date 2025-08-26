@@ -666,6 +666,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     !(id->isTestData) &&
     status !== Succeeded &&
     status !== Failed &&
+    status !== Cancelled &&
+    status !== Expired &&
     status !== CancelledPostCapture
   }, [orderData])
 
