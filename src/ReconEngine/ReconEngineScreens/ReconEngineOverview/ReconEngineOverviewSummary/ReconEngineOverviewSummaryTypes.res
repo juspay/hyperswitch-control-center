@@ -51,14 +51,26 @@ type nodeData = {
   onNodeClick: option<unit => unit>,
 }
 
+type nodePositionType = {
+  x: float,
+  y: float,
+}
+
 type nodeType = {
   id: string,
   \"type": string,
   sourcePosition?: string,
   targetPosition?: string,
-  position: {"x": float, "y": float},
+  position: nodePositionType,
   data: nodeData,
 }
+
+type edgeStyleType = {
+  stroke: string,
+  strokeWidth: float,
+}
+
+type edgeMarkerType = {\"type": string}
 
 type edgeType = {
   id: string,
@@ -67,8 +79,8 @@ type edgeType = {
   \"type": string,
   animated?: bool,
   label?: string,
-  markerEnd?: {"type": string},
-  style?: {"stroke": string, "strokeWidth": float},
+  markerEnd?: edgeMarkerType,
+  style?: edgeStyleType,
 }
 
 type viewType =

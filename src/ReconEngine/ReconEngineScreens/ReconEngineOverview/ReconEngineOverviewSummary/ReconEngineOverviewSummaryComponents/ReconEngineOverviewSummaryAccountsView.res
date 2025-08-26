@@ -29,7 +29,8 @@ module AccountsHeader = {
         <div className="border-r" />
         {allAmountTypes
         ->Array.mapWithIndex((_, amountTypeIndex) => {
-          allSubHeaderTypes->Array.mapWithIndex((subHeaderType, subIndex) => {
+          allSubHeaderTypes
+          ->Array.mapWithIndex((subHeaderType, subIndex) => {
             let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
             let isLastAmountType = amountTypeIndex === Array.length(allAmountTypes) - 1
             let subHeaderText = (subHeaderType :> string)
@@ -41,8 +42,8 @@ module AccountsHeader = {
               {subHeaderText->React.string}
             </div>
           })
+          ->React.array
         })
-        ->Array.flat
         ->React.array}
       </div>
     </div>
@@ -100,7 +101,8 @@ module AccountRow = {
         let (creditAmount, debitAmount) = getAmountPair(amountType, data)
         let isLastAmount = amountIndex === Array.length(allAmountTypes) - 1
 
-        allSubHeaderTypes->Array.mapWithIndex((subHeaderType, subIndex) => {
+        allSubHeaderTypes
+        ->Array.mapWithIndex((subHeaderType, subIndex) => {
           let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
           let shouldShowBorder = !(isLastAmount && isLastSubHeader)
           let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
@@ -108,8 +110,8 @@ module AccountRow = {
 
           <AmountCell key subHeaderType creditAmount debitAmount borderClass />
         })
+        ->React.array
       })
-      ->Array.flat
       ->React.array}
     </div>
   }
@@ -155,15 +157,11 @@ let make = (~reconRulesList: array<reconRuleType>) => {
       )
       let res = await fetchDetails(url)
       let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
-
-      // Get transactions and calculate amounts from transactions
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
       )
-
-      // Convert transaction data to account-like data for table display
       let accountsWithTransactionAmounts = convertTransactionDataToAccountData(
         accountData,
         accountTransactionData,

@@ -20,18 +20,28 @@ type graphConfig = {
   ranksep: int,
 }
 
+type position = {
+  x: float,
+  y: float,
+}
+
+type nodeData = {
+  width: float,
+  height: float,
+}
+
 @send external setDefaultEdgeLabel: (dagreGraph, unit => {..}) => unit = "setDefaultEdgeLabel"
 @send external setGraph: (dagreGraph, graphConfig) => unit = "setGraph"
 @send external setEdge: (dagreGraph, string, string) => unit = "setEdge"
-@send external setNode: (dagreGraph, string, 'a) => unit = "setNode"
-@send external getNode: (dagreGraph, string) => 'a = "node"
+@send external setNode: (dagreGraph, string, nodeData) => unit = "setNode"
+@send external getNode: (dagreGraph, string) => position = "node"
 
 // Dagre layout function
 @module("@dagrejs/dagre") external layout: dagreGraph => unit = "layout"
 
 let createDagreGraph = () => {
   let graph = createGraph()
-  setDefaultEdgeLabel(graph, () => Js.Obj.empty())
+  setDefaultEdgeLabel(graph, () => JSON.Encode.object(Dict.make())->Obj.magic)
   graph
 }
 

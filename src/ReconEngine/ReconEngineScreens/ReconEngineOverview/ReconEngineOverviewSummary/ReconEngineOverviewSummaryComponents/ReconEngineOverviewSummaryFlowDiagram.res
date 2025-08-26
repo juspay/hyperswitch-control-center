@@ -2,10 +2,47 @@ open Typography
 open ReconEngineOverviewTypes
 open ReconEngineOverviewSummaryTypes
 
+module InOutComponent = {
+  @react.component
+  let make = (~statusItem) => {
+    open ReconEngineOverviewSummaryUtils
+
+    <div
+      key={getStatusText(statusItem.statusType)}
+      className="bg-nd_gray-25 border rounded-xl border-nd_gray-150 mt-2.5 p-2">
+      <div className="flex flex-row items-center">
+        <div className="flex flex-row items-center gap-1.5 flex-[1]">
+          <Icon name={getStatusIcon(statusItem.statusType)} size=12 />
+          <p className={`${body.sm.medium} text-nd_gray-500`}>
+            {getStatusText(statusItem.statusType)->React.string}
+          </p>
+        </div>
+        <div className="flex flex-row flex-[1] justify-between items-center">
+          <div className="flex flex-1 flex-col items-center justify-center">
+            <p className={`${body.md.semibold} text-nd_gray-600`}>
+              {statusItem.data.\"in"->React.string}
+            </p>
+            <p className={`${body.sm.medium} text-nd_gray-400`}>
+              {statusItem.data.inTxns->React.string}
+            </p>
+          </div>
+          <div className="flex flex-1 flex-col items-center justify-center">
+            <p className={`${body.md.semibold} text-nd_gray-600`}>
+              {statusItem.data.out->React.string}
+            </p>
+            <p className={`${body.sm.medium} text-nd_gray-400`}>
+              {statusItem.data.outTxns->React.string}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}
+
 module ReconNodeComponent = {
   @react.component
   let make = (~data: nodeData) => {
-    open ReconEngineOverviewSummaryUtils
     open ReactFlow
 
     let borderColor = data.selected ? "border-blue-500" : "border-nd_gray-200"
@@ -42,38 +79,7 @@ module ReconNodeComponent = {
       </div>
       <div className="flex flex-col">
         {data.statusData
-        ->Array.map(statusItem => {
-          <div
-            key={getStatusText(statusItem.statusType)}
-            className="bg-nd_gray-25 border rounded-xl border-nd_gray-150 mt-2.5 p-2">
-            <div className="flex flex-row items-center">
-              <div className="flex flex-row items-center gap-1.5 flex-[1]">
-                <Icon name={getStatusIcon(statusItem.statusType)} size=12 />
-                <p className={`${body.sm.medium} text-nd_gray-500`}>
-                  {getStatusText(statusItem.statusType)->React.string}
-                </p>
-              </div>
-              <div className="flex flex-row flex-[1] justify-between items-center">
-                <div className="flex flex-1 flex-col items-center justify-center">
-                  <p className={`${body.md.semibold} text-nd_gray-600`}>
-                    {statusItem.data.\"in"->React.string}
-                  </p>
-                  <p className={`${body.sm.medium} text-nd_gray-400`}>
-                    {statusItem.data.inTxns->React.string}
-                  </p>
-                </div>
-                <div className="flex flex-1 flex-col items-center justify-center">
-                  <p className={`${body.md.semibold} text-nd_gray-600`}>
-                    {statusItem.data.out->React.string}
-                  </p>
-                  <p className={`${body.sm.medium} text-nd_gray-400`}>
-                    {statusItem.data.outTxns->React.string}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        })
+        ->Array.map(statusItem => <InOutComponent statusItem />)
         ->React.array}
       </div>
     </div>
@@ -162,9 +168,9 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~onNodeClick=handleNodeClick,
       )
 
-      setNodes(_ => nodes)->ignore
-      setEdges(_ => edges)->ignore
       if nodes->Array.length > 0 && edges->Array.length > 0 {
+        setNodes(_ => nodes)->ignore
+        setEdges(_ => edges)->ignore
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -190,8 +196,10 @@ let make = (~reconRulesList: array<reconRuleType>) => {
           ~selectedNodeId,
           ~onNodeClick=handleNodeClick,
         )
-        setNodes(_ => nodes)->ignore
-        setEdges(_ => edges)->ignore
+        if nodes->Array.length > 0 && edges->Array.length > 0 {
+          setNodes(_ => nodes)->ignore
+          setEdges(_ => edges)->ignore
+        }
       }
     | None => ()
     }
