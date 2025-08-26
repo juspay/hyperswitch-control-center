@@ -74,7 +74,9 @@ module ReconNodeComponent = {
       </div>
       <div className="flex flex-col">
         {data.statusData
-        ->Array.map(statusItem => <InOutComponent statusItem />)
+        ->Array.map(statusItem =>
+          <InOutComponent statusItem key={LogicUtils.randomString(~length=10)} />
+        )
         ->React.array}
       </div>
     </div>
