@@ -32,3 +32,8 @@ type reconRuleType = {
   sources: array<accountRefType>,
   targets: array<accountRefType>,
 }
+
+type cardData = {
+  cardTitle: string,
+  cardValue: string,
+}

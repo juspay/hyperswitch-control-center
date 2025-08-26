@@ -75,10 +75,11 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     {cardData
     ->Array.map(card => {
       <PageLoaderWrapper
+        key={randomString(~length=10)}
         screenState
         customUI={<NewAnalyticsHelper.NoData height="h-28" message="No data available" />}
         customLoader={<Shimmer styleClass="w-full h-28 rounded-xl" />}>
-        <OverviewCard key={randomString(~length=10)} title={card["title"]} value={card["value"]} />
+        <OverviewCard title={card.cardTitle} value={card.cardValue} />
       </PageLoaderWrapper>
     })
     ->React.array}

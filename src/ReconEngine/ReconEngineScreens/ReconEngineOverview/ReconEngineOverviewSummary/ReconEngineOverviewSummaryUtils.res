@@ -2,9 +2,6 @@ open ReconEngineOverviewUtils
 open LogicUtils
 open ReconEngineOverviewTypes
 
-let highlightStrokeColor = "#3b82f6"
-let normalStrokeColor = "#6b7280"
-
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
   ~mismatchedCount: int,
@@ -197,67 +194,65 @@ let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
   ->getUniqueArray
 }
 
+let summarizeTransactions = (
+  ruleTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+): (int, int) => {
+  ruleTransactions->Array.reduce((0, 0), (
+    (postedCount, totalCount),
+    t: ReconEngineTransactionsTypes.transactionPayload,
+  ) => {
+    let txType = t.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
+    switch txType {
+    | Posted => (postedCount + 1, totalCount + 1)
+    | Archived => (postedCount, totalCount)
+    | _ => (postedCount, totalCount + 1)
+    }
+  })
+}
+let getPercentageLabel = (~postedCount, ~totalCount) =>
+  if totalCount > 0 {
+    let percentageValue = postedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+    `${percentageValue->LogicUtils.valueFormatter(Rate)} Reconciled`
+  } else {
+    "0% Reconciled"
+  }
+let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
+  let (postedCount, totalCount) = summarizeTransactions(ruleTransactions)
+  let label = getPercentageLabel(~postedCount, ~totalCount)
+  let sourceNodeId = `${source.account_id}-node`
+  let targetNodeId = `${target.account_id}-node`
+  let isHighlighted = switch selectedNodeId {
+  | Some(id) => id === sourceNodeId || id === targetNodeId
+  | None => false
+  }
+  {
+    id: `${source.account_id}-to-${target.account_id}`,
+    ReconEngineOverviewSummaryTypes.source: sourceNodeId,
+    target: targetNodeId,
+    edgeType: "smoothstep",
+    animated: isHighlighted,
+    markerEnd: {edgeMarkerType: ReactFlow.markerTypeArrowClosed},
+    label,
+    style: isHighlighted
+      ? {stroke: highlightStrokeColor, strokeWidth: 1.5}
+      : {stroke: normalStrokeColor, strokeWidth: 1.5},
+  }
+}
 let getEdges = (
   ~reconRulesList,
   ~allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
   ~selectedNodeId,
-) => {
+) =>
   reconRulesList->Array.flatMap(rule =>
     rule.sources->Array.flatMap(source =>
       rule.targets->Array.map(
         target => {
-          let ruleTransactions =
-            allTransactions->Array.filter(transaction => transaction.rule.rule_id === rule.rule_id)
-
-          let postedCount =
-            ruleTransactions
-            ->Array.filter(
-              transaction =>
-                transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString ===
-                  Posted,
-            )
-            ->Array.length
-
-          let totalCount =
-            ruleTransactions
-            ->Array.filter(
-              transaction =>
-                transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString !==
-                  Archived,
-            )
-            ->Array.length
-
-          let percentage = if totalCount > 0 {
-            let percentageValue = postedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
-            `${percentageValue->LogicUtils.valueFormatter(Rate)} Reconciled`
-          } else {
-            "0% Reconciled"
-          }
-
-          let sourceNodeId = `${source.account_id}-node`
-          let targetNodeId = `${target.account_id}-node`
-          let isHighlighted = switch selectedNodeId {
-          | Some(id) => id === sourceNodeId || id === targetNodeId
-          | None => false
-          }
-
-          {
-            id: `${source.account_id}-to-${target.account_id}`,
-            ReconEngineOverviewSummaryTypes.source: sourceNodeId,
-            target: targetNodeId,
-            edgeType: "smoothstep",
-            animated: isHighlighted,
-            markerEnd: {edgeMarkerType: ReactFlow.markerTypeArrowClosed},
-            label: percentage,
-            style: isHighlighted
-              ? {stroke: highlightStrokeColor, strokeWidth: 1.5}
-              : {stroke: normalStrokeColor, strokeWidth: 1.5},
-          }
+          let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
+          makeEdge(~source, ~target, ~ruleTransactions, ~selectedNodeId)
         },
       )
     )
   )
-}
 
 let getTransactionsData = (
   accountTransactionData: Dict.t<accountTransactionData>,
