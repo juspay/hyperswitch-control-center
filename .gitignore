@@ -15,7 +15,7 @@ lib/
 /public/env-config.js
 env-config.js
 yarn.lock
-package-lock.json
+#package-lock.json
 user_data.sh
 *.pem
 .bsb.lock
