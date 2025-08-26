@@ -80,10 +80,12 @@ let make = () => {
   }, (startTime, endTime, dimensions))
 
   <PageLoaderWrapper screenState customUI={<NewAnalyticsHelper.NoData />}>
-    <OverallRoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
-    <RoutingAnalyticsMetrics />
-    <RoutingAnalyticsDistribution />
-    <RoutingAnalyticsSummary />
-    <RoutingAnalyticsTrends />
+    <div className="flex flex-col gap-8">
+      <OverallRoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
+      <RoutingAnalyticsMetrics />
+      <RoutingAnalyticsDistribution />
+      <RoutingAnalyticsSummary />
+      <RoutingAnalyticsTrends />
+    </div>
   </PageLoaderWrapper>
 }

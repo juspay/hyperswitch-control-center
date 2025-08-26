@@ -1,13 +1,5 @@
 open LogicUtils
-
-let customLegendFormatter = () => {
-  (
-    @this
-    (this: PieGraphTypes.legendLabelFormatter) => {
-      this.name->snakeToTitle
-    }
-  )->PieGraphTypes.asLegendPointFormatter
-}
+open RoutingAnalyticsUtils
 
 let distributionPayloadMapper = (
   ~data: JSON.t,
