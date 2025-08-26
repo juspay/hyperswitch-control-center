@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-
   open Typography
 
   <div className="mt-4">
