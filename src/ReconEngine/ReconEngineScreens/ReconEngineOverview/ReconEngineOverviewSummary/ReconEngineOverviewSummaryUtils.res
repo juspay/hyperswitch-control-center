@@ -2,6 +2,9 @@ open ReconEngineOverviewUtils
 open LogicUtils
 open ReconEngineOverviewTypes
 
+let highlightStrokeColor = "#3b82f6"
+let normalStrokeColor = "#6b7280"
+
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
   ~mismatchedCount: int,
@@ -150,8 +153,8 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
     {
       statusType: Reconciled,
       data: {
-        \"in": formatAmountWithCurrency(transactionData.posted_confirmation_amount),
-        out: formatAmountWithCurrency(transactionData.posted_transaction_amount),
+        inAmount: formatAmountWithCurrency(transactionData.posted_confirmation_amount),
+        outAmount: formatAmountWithCurrency(transactionData.posted_transaction_amount),
         inTxns: `${transactionData.posted_confirmation_count->Int.toString} txns`,
         outTxns: `${transactionData.posted_transaction_count->Int.toString} txns`,
       },
@@ -159,8 +162,8 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
     {
       statusType: Pending,
       data: {
-        \"in": formatAmountWithCurrency(transactionData.pending_confirmation_amount),
-        out: formatAmountWithCurrency(transactionData.pending_transaction_amount),
+        inAmount: formatAmountWithCurrency(transactionData.pending_confirmation_amount),
+        outAmount: formatAmountWithCurrency(transactionData.pending_transaction_amount),
         inTxns: `${transactionData.pending_confirmation_count->Int.toString} txns`,
         outTxns: `${transactionData.pending_transaction_count->Int.toString} txns`,
       },
@@ -168,8 +171,8 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
     {
       statusType: Mismatched,
       data: {
-        \"in": formatAmountWithCurrency(transactionData.mismatched_confirmation_amount),
-        out: formatAmountWithCurrency(transactionData.mismatched_transaction_amount),
+        inAmount: formatAmountWithCurrency(transactionData.mismatched_confirmation_amount),
+        outAmount: formatAmountWithCurrency(transactionData.mismatched_transaction_amount),
         inTxns: `${transactionData.mismatched_confirmation_count->Int.toString} txns`,
         outTxns: `${transactionData.mismatched_transaction_count->Int.toString} txns`,
       },
@@ -194,53 +197,12 @@ let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
   ->getUniqueArray
 }
 
-let getTransactionsData = (
-  accountTransactionData: Dict.t<accountTransactionData>,
-  accountId: string,
-): accountTransactionData => {
-  accountTransactionData
-  ->getvalFromDict(accountId)
-  ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
-}
-
-let generateNodesAndEdgesWithTransactionAmounts = (
-  reconRulesList: array<reconRuleType>,
-  accountsData: array<accountType>,
-  accountTransactionData: Dict.t<accountTransactionData>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
-  ~selectedNodeId: option<string>,
-  ~onNodeClick: option<string => unit>=?,
+let getEdges = (
+  ~reconRulesList,
+  ~allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~selectedNodeId,
 ) => {
-  let allAccountIds = getAllAccountIds(reconRulesList)
-
-  let nodes = allAccountIds->Array.mapWithIndex((accountId, index) => {
-    let accountData = getAccountData(accountsData, accountId)
-    let transactionData = getTransactionsData(accountTransactionData, accountId)
-
-    let statusData = generateStatusDataWithTransactionAmounts(transactionData)
-    let nodeId = `${accountId}-node`
-    let isSelected = switch selectedNodeId {
-    | Some(id) => id === nodeId
-    | None => false
-    }
-
-    {
-      id: nodeId,
-      ReconEngineOverviewSummaryTypes.\"type": "reconNode",
-      position: {x: Int.toFloat(index * 100), y: 0.0},
-      data: {
-        label: accountData.account_name,
-        statusData,
-        selected: isSelected,
-        onNodeClick: switch onNodeClick {
-        | Some(clickHandler) => Some(() => clickHandler(nodeId))
-        | None => None
-        },
-      },
-    }
-  })
-
-  let edges = reconRulesList->Array.flatMap(rule =>
+  reconRulesList->Array.flatMap(rule =>
     rule.sources->Array.flatMap(source =>
       rule.targets->Array.map(
         target => {
@@ -283,18 +245,67 @@ let generateNodesAndEdgesWithTransactionAmounts = (
             id: `${source.account_id}-to-${target.account_id}`,
             ReconEngineOverviewSummaryTypes.source: sourceNodeId,
             target: targetNodeId,
-            \"type": "smoothstep",
+            edgeType: "smoothstep",
             animated: isHighlighted,
-            markerEnd: {\"type": ReactFlow.markerTypeArrowClosed},
+            markerEnd: {edgeMarkerType: ReactFlow.markerTypeArrowClosed},
             label: percentage,
             style: isHighlighted
-              ? {stroke: "#3b82f6", strokeWidth: 1.5}
-              : {stroke: "#6b7280", strokeWidth: 1.5},
+              ? {stroke: highlightStrokeColor, strokeWidth: 1.5}
+              : {stroke: normalStrokeColor, strokeWidth: 1.5},
           }
         },
       )
     )
   )
+}
+
+let getTransactionsData = (
+  accountTransactionData: Dict.t<accountTransactionData>,
+  accountId: string,
+): accountTransactionData => {
+  accountTransactionData
+  ->getvalFromDict(accountId)
+  ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
+}
+
+let generateNodesAndEdgesWithTransactionAmounts = (
+  reconRulesList: array<reconRuleType>,
+  accountsData: array<accountType>,
+  accountTransactionData: Dict.t<accountTransactionData>,
+  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~selectedNodeId: option<string>,
+  ~onNodeClick: option<string => unit>=?,
+) => {
+  let allAccountIds = getAllAccountIds(reconRulesList)
+
+  let nodes = allAccountIds->Array.mapWithIndex((accountId, index) => {
+    let accountData = getAccountData(accountsData, accountId)
+    let transactionData = getTransactionsData(accountTransactionData, accountId)
+
+    let statusData = generateStatusDataWithTransactionAmounts(transactionData)
+    let nodeId = `${accountId}-node`
+    let isSelected = switch selectedNodeId {
+    | Some(id) => id === nodeId
+    | None => false
+    }
+
+    {
+      id: nodeId,
+      ReconEngineOverviewSummaryTypes.nodeType: "reconNode",
+      position: {x: Int.toFloat(index * 100), y: 0.0},
+      data: {
+        label: accountData.account_name,
+        statusData,
+        selected: isSelected,
+        onNodeClick: switch onNodeClick {
+        | Some(clickHandler) => Some(() => clickHandler(nodeId))
+        | None => None
+        },
+      },
+    }
+  })
+
+  let edges = getEdges(~reconRulesList, ~allTransactions, ~selectedNodeId)
 
   getLayoutedElements(nodes, edges, "LR")
 }

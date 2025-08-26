@@ -57,8 +57,8 @@ module TransactionDetails = {
       <div
         className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
         {detailsFields
-        ->Array.mapWithIndex((colType, i) => {
-          <div className=widthClass key={i->Int.toString}>
+        ->Array.map(colType => {
+          <div className=widthClass key={LogicUtils.randomString(~length=10)}>
             <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
           </div>
         })

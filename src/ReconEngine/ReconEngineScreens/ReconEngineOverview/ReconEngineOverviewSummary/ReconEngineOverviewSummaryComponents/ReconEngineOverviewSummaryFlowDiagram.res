@@ -20,7 +20,7 @@ module InOutComponent = {
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.data.\"in"->React.string}
+              {statusItem.data.inAmount->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
               {statusItem.data.inTxns->React.string}
@@ -28,7 +28,7 @@ module InOutComponent = {
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.data.out->React.string}
+              {statusItem.data.outAmount->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
               {statusItem.data.outTxns->React.string}
@@ -62,11 +62,6 @@ module ReconNodeComponent = {
       <div className="flex flex-row items-center border-b pb-2.5">
         <div className="flex flex-row items-center gap-2 flex-[1]">
           <p className={`${body.md.semibold} text-nd_gray-800`}> {data.label->React.string} </p>
-          <Icon
-            name="nd-external-link-square"
-            className="text-nd_primary_blue-500 cursor-pointer"
-            size=16
-          />
         </div>
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 justify-center">
@@ -99,7 +94,7 @@ module FlowWithLayoutControls = {
       onEdgesChange={onEdgesChange}
       fitView={true}
       fitViewOptions={{"padding": 0.1}}
-      nodesDraggable={false}
+      nodesDraggable={true}
       nodesConnectable={false}
       elementsSelectable={true}
       panOnDrag={true}
@@ -110,7 +105,7 @@ module FlowWithLayoutControls = {
       maxZoom={1.5}
       proOptions={{"hideAttribution": true}}>
       <Background variant="dots" gap={20} size={1} />
-      <Controls showZoom={true} showFitView={true} showInteractive={false} />
+      <Controls showZoom={true} showFitView={true} showInteractive={true} />
     </ReactFlowComponent>
   }
 }

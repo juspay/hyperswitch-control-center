@@ -165,7 +165,7 @@ module MappingRules = {
             ),
           ]
 
-          <div key={index->Int.toString} className="flex items-center gap-4 py-2">
+          <div key={LogicUtils.randomString(~length=10)} className="flex items-center gap-4 py-2">
             <div className="flex-1 max-w-xs">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
@@ -442,8 +442,8 @@ module RuleDetailsContent = {
       <div className="rounded-lg p-6 border border-nd_gray-150">
         <div className="grid md:grid-cols-2 gap-8">
           {fields
-          ->Array.mapWithIndex(((label, value), index) => {
-            <FieldDisplay key={index->Int.toString} label value />
+          ->Array.map(((label, value)) => {
+            <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
           <StatusBadge isActive={rule.is_active} />

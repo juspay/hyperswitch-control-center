@@ -33,8 +33,8 @@ type subHeaderType =
   | Out
 
 type reconData = {
-  \"in": string,
-  out: string,
+  inAmount: string,
+  outAmount: string,
   inTxns: string,
   outTxns: string,
 }
@@ -58,7 +58,7 @@ type nodePositionType = {
 
 type nodeType = {
   id: string,
-  \"type": string,
+  @as("type") nodeType: string,
   sourcePosition?: string,
   targetPosition?: string,
   position: nodePositionType,
@@ -70,13 +70,13 @@ type edgeStyleType = {
   strokeWidth: float,
 }
 
-type edgeMarkerType = {\"type": string}
+type edgeMarkerType = {@as("type") edgeMarkerType: string}
 
 type edgeType = {
   id: string,
   source: string,
   target: string,
-  \"type": string,
+  @as("type") edgeType: string,
   animated?: bool,
   label?: string,
   markerEnd?: edgeMarkerType,

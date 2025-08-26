@@ -53,8 +53,8 @@ module HistoryDetails = {
     <div
       className={`flex ${customFlex} justify-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
       {detailsFields
-      ->Array.mapWithIndex((colType, i) => {
-        <div className=widthClass key={i->Int.toString}>
+      ->Array.map(colType => {
+        <div className=widthClass key={LogicUtils.randomString(~length=10)}>
           <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
         </div>
       })
@@ -112,8 +112,8 @@ module TransformationHistoryDetailsInfo = {
       <div
         className="flex flex-row flex-wrap gap-8 justify-start items-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border">
         {detailsFields
-        ->Array.mapWithIndex((colType, i) => {
-          <div className="flex-1 min-w-0" key={i->Int.toString}>
+        ->Array.map(colType => {
+          <div className="flex-1 min-w-0" key={LogicUtils.randomString(~length=10)}>
             <DisplayKeyValueParams
               heading={getTransformationHistoryHeading(colType)}
               value={getTransformationHistoryCell(transformationHistoryData, colType)}

@@ -190,7 +190,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         0,
         Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper,
       )
-    let allRows = Array.concat(accountsData, [totals])
+    let allRows = [...accountsData, totals]
     (allRows, account.currency)
   }, [accountsData])
 
