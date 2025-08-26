@@ -100,36 +100,36 @@ let aggregateSampleDataByGroupBy = (data: array<JSON.t>, groupByKey: string) => 
       switch aggregatedDict->Dict.get(groupValue) {
       | Some(existingItem) => {
           let existingDict = existingItem->getDictFromJsonObject
-          let newDict = Dict.make()
-          itemDict
-          ->Dict.toArray
-          ->Array.forEach(((key, value)) => {
-            newDict->Dict.set(key, value)
-          })
+          let updatedDict = existingDict->Dict.copy
           aggregatableFields->Array.forEach(field => {
             let existingValue = existingDict->getFloat(field, 0.0)
             let newValue = itemDict->getFloat(field, 0.0)
-            newDict->Dict.set(field, (existingValue +. newValue)->JSON.Encode.float)
+            updatedDict->Dict.set(field, (existingValue +. newValue)->JSON.Encode.float)
           })
-          let totalCount = newDict->getFloat("payment_count", 0.0)
-          let successCount = newDict->getFloat("payment_success_count", 0.0)
+
+          // Recalculate rates from aggregated values
+          let totalCount = updatedDict->getFloat("payment_count", 0.0)
+          let successCount = updatedDict->getFloat("payment_success_count", 0.0)
           let failedCount = totalCount -. successCount
 
           if totalCount > 0.0 {
             let successRate = successCount /. totalCount *. 100.0
             let failureRate = failedCount /. totalCount *. 100.0
-            [
+
+            let rateFields = [
               ("payment_success_rate", successRate),
               ("payment_failure_rate", failureRate),
               ("payments_success_rate_distribution", successRate),
               ("payments_failure_rate_distribution", failureRate),
               ("payments_success_rate_distribution_without_smart_retries", successRate),
               ("payments_failure_rate_distribution_without_smart_retries", failureRate),
-            ]->Array.forEach(((field, value)) => {
-              newDict->Dict.set(field, value->JSON.Encode.float)
+            ]
+
+            rateFields->Array.forEach(((field, value)) => {
+              updatedDict->Dict.set(field, value->JSON.Encode.float)
             })
           }
-          aggregatedDict->Dict.set(groupValue, newDict->JSON.Encode.object)
+          aggregatedDict->Dict.set(groupValue, updatedDict->JSON.Encode.object)
         }
       | None => aggregatedDict->Dict.set(groupValue, item)
       }
