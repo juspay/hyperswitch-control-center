@@ -113,19 +113,18 @@ let keyExtractorForMerchantid = item => {
   dict->getString("merchant_id", "")
 }
 
-let userSwitch = (~switchData, ~defaultValue: UserInfoTypes.userInfo) => {
-  {
-    orgId: switchData
-    ->Dict.get("orgId")
-    ->Option.getOr(defaultValue.orgId),
-    merchantId: switchData
-    ->Dict.get("merchantId")
-    ->Option.getOr(defaultValue.merchantId),
-    profileId: switchData
-    ->Dict.get("profileId")
-    ->Option.getOr(defaultValue.profileId),
-    path: switchData
-    ->Dict.get("path")
-    ->Option.getOr(""),
+let userSwitch = (~switchData) => {
+  let data = {
+    orgId: switchData->List.get(0),
+    merchantId: switchData->List.get(1),
+    profileId: switchData->List.get(2),
+    path: None,
+    query: None,
+  }
+  Js.log2(data, "SWITCH DATA")
+  if data.profileId->Option.isSome {
+    Some(data)
+  } else {
+    None
   }
 }

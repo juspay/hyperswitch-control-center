@@ -101,15 +101,22 @@ module PageHeading = {
       UserInfoProvider.defaultContext,
     )
     let handleCopy = () => {
-      let url = make(`${Window.Location.origin}/dashboard/switch/user`, `${Window.Location.origin}`)
-      let path =
-        Window.Location.pathName->Js.String2.replaceByRe(Js.Re.fromString("/dashboard"), "")
+      let url = make(
+        `${Window.Location.origin}/dashboard/${orgId}/${merchantId}/${profileId}/switch/user`,
+        `${Window.Location.origin}`,
+      )
       let queryParams = Window.Location.search
-      url->searchParams->append("orgId", orgId)
-      url->searchParams->append("merchantId", merchantId)
-      url->searchParams->append("profileId", profileId)
+      let path = `${Window.Location.pathName->Js.String2.replaceByRe(
+          Js.Re.fromString("/dashboard"),
+          "",
+        )}${queryParams}`
+      Js.log2(queryParams, "QUERYPARAMS")
+      // url->searchParams->append("orgId", orgId)
+
+      // url->searchParams->append("merchantId", merchantId)
+      // url->searchParams->append("profileId", profileId)
+
       url->searchParams->append("path", path)
-      url->searchParams->append("query", queryParams)
 
       Clipboard.writeText(url->href)
       showToast(~message="Link Copied to Clipboard!", ~toastType=ToastSuccess)

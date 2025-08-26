@@ -36,11 +36,17 @@ let make = (~children) => {
     let urlData = url.search->getDictFromUrlSearchParams
     let sessionData = getUserSwitchQueryParam()
 
-    if urlData->isNonEmptyDict {
-      Some(userSwitch(~switchData=urlData, ~defaultValue=userInfo))
-    } else if sessionData->isNonEmptyDict {
-      Some(userSwitch(~switchData=sessionData, ~defaultValue=userInfo))
+    let data = url.path->HSwitchUtils.urlPath
+
+    Js.log2(data->List.take(3), "DATA")
+
+    if data->List.length > 0 {
+      userSwitch(~switchData=data)
     } else {
+      // else if sessionData->isNonEmptyDict {
+      //   userSwitch(~switchData=sessionData)
+      // }
+
       None
     }
   }
@@ -49,15 +55,16 @@ let make = (~children) => {
     try {
       let details = getSwitchDetails()
       switch details {
-      | Some(data) => {
-          await internalSwitch(
-            ~expectedOrgId=Some(data.orgId),
-            ~expectedMerchantId=Some(data.merchantId),
-            ~expectedProfileId=Some(data.profileId),
-          )
-          let url = decodeURIComponent(data.path)
-          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
-        }
+      | Some(data) =>
+        Js.log2(data, "DATA")
+        // await internalSwitch(
+        //   ~expectedOrgId=Some(data.orgId),
+        //   ~expectedMerchantId=Some(data.merchantId),
+        //   ~expectedProfileId=Some(data.profileId),
+        // )
+        let url = decodeURIComponent(data.path->Option.getOr(""))
+        Js.log(url)
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
       | None => ()
       }
     } catch {
