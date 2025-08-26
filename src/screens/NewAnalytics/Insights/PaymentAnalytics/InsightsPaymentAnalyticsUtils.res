@@ -96,7 +96,7 @@ let aggregateSampleDataByGroupBy = (data: array<JSON.t>, groupByKey: string) => 
       itemDict->getString(groupByKey, "")
     }
 
-    if groupValue->isNonEmptyString && groupValue !== "," {
+    if groupValue->isNonEmptyString {
       switch aggregatedDict->Dict.get(groupValue) {
       | Some(existingItem) => {
           let existingDict = existingItem->getDictFromJsonObject
