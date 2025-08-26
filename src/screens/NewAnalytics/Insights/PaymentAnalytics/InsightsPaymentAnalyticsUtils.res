@@ -88,12 +88,10 @@ let aggregateSampleDataByGroupBy = (data: array<JSON.t>, groupByKey: string) => 
 
   data->Array.forEach(item => {
     let itemDict = item->getDictFromJsonObject
-    // Handle composite keys (e.g., "payment_method,payment_method_type")
-    let groupValue = if groupByKey->String.includes(",") {
-      groupByKey
-      ->String.split(",")
-      ->Array.map(key => itemDict->getString(key->String.trim, ""))
-      ->Array.joinWith(",")
+    let groupValue = if groupByKey === "payment_method,payment_method_type" {
+      let paymentMethod = itemDict->getString("payment_method", "")
+      let paymentMethodType = itemDict->getString("payment_method_type", "")
+      `${paymentMethod},${paymentMethodType}`
     } else {
       itemDict->getString(groupByKey, "")
     }
