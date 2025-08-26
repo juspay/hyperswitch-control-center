@@ -300,6 +300,8 @@ module UserOmpView = {
     ~views: array<UserManagementTypes.usersOmpViewType>,
     ~selectedEntity: UserManagementTypes.userModuleTypes,
     ~onChange,
+    ~customLabel="View data for:",
+    ~showEntityType=false,
   ) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
@@ -323,9 +325,20 @@ module UserOmpView = {
 
     let displayName = switch selectedEntity {
     | #Default => "All"
-    | _ => selectedEntity->getNameForId
+    | _ => {
+        let entityName = selectedEntity->getNameForId
+        if showEntityType {
+          let selectedView = views->Array.find(view => view.entity === selectedEntity)
+          switch selectedView {
+          | Some(view) => `${view.label} (${entityName})`
+          | None => entityName
+          }
+        } else {
+          entityName
+        }
+      }
     }
 
-    <OMPSwitchHelper.OMPViewsComp input options displayName />
+    <OMPSwitchHelper.OMPViewsComp input options displayName customLabel />
   }
 }
