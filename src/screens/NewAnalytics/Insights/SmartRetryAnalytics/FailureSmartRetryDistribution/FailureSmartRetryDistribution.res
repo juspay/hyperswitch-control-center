@@ -123,11 +123,10 @@ let make = (
         await updateDetails(url, body, Post)
       }
       let responseData = if isSampleDataEnabled {
-        let sampleData =
-          response
-          ->getDictFromJsonObject
-          ->getArrayFromDict("queryData", [])
-        sampleData->aggregateSampleDataByGroupBy(groupBy.value)
+        response
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->aggregateSampleDataByGroupBy(groupBy.value)
       } else {
         response->getDictFromJsonObject->getArrayFromDict("queryData", [])
       }
