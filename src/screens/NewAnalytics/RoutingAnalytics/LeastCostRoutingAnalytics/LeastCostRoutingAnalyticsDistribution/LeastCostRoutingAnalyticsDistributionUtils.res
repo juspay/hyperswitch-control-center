@@ -6,13 +6,7 @@ open LeastCostRoutingAnalyticsTypes
 
 let mapPieGraphData = filtereddata => {
   let cardNetworkGroupedData =
-    filtereddata
-    ->Array.filter(record =>
-      record
-      ->getDictFromJsonObject
-      ->getString((#card_network: requestPayloadMetrics :> string), "") !== ""
-    )
-    ->groupByField((#card_network: requestPayloadMetrics :> string))
+    filtereddata->groupByField((#card_network: requestPayloadMetrics :> string))
   let cardNetworkData: array<PieGraphTypes.pieGraphDataType> =
     cardNetworkGroupedData
     ->Dict.toArray
@@ -102,6 +96,7 @@ let fillMissingDataForSavingsGraph = (
     ~isoStringToCustomTimeZone,
     ~timeKey,
   )
+
   let dateTimeRange = fillForMissingTimeRange(
     ~existingTimeDict,
     ~defaultValue,
@@ -110,6 +105,7 @@ let fillMissingDataForSavingsGraph = (
     ~startDate,
     ~granularity,
   )
+
   dateTimeRange->Dict.valuesToArray
 }
 
@@ -274,6 +270,7 @@ let savingsChartOptions = (
 
 let modifySavingsQueryData = (~data) => {
   let dataDict = Dict.make()
+
   data->Array.forEach(item => {
     let valueDict = item->getDictFromJsonObject
     let time = valueDict->getString((#time_bucket: requestPayloadMetrics :> string), "")
@@ -285,6 +282,7 @@ let modifySavingsQueryData = (~data) => {
 
     let prevData = dataDict->getDictfromDict(time)
     let prevdataLength = prevData->Dict.keysToArray->Array.length
+
     if prevdataLength > 0 {
       let prevdebitRoutingSavings =
         prevData->getFloat(
@@ -304,6 +302,7 @@ let modifySavingsQueryData = (~data) => {
       dataDict->Dict.set(time, valueDict->JSON.Encode.object)
     }
   })
+
   dataDict->Dict.valuesToArray
 }
 

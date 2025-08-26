@@ -10,7 +10,7 @@ let make = () => {
   open NewAnalyticsTypes
   open LeastCostRoutingAnalyticsTypes
 
-  let (response, setReponse) = React.useState(_ => JSON.Encode.null)
+  let (response, setResponse) = React.useState(_ => JSON.Encode.null)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -43,6 +43,7 @@ let make = () => {
 
       let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+
       if responseData->Array.length == 0 {
         setScreenState(_ => PageLoaderWrapper.Custom)
       } else {
@@ -61,7 +62,7 @@ let make = () => {
           ~granularityEnabled=featureFlag.granularity,
         )
 
-        setReponse(_ => modifieddata->Identity.genericTypeToJson)
+        setResponse(_ => modifieddata->Identity.genericTypeToJson)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
@@ -87,6 +88,7 @@ let make = () => {
     xKey: (#time_bucket: requestPayloadMetrics :> string),
     yKey: (#debit_routing_savings_in_usd: requestPayloadMetrics :> string),
   }
+
   let chartOptions = {
     savingsChartOptions(
       ~params,
@@ -94,6 +96,7 @@ let make = () => {
       ~tooltipValueFormatterType=LogicUtilsTypes.Amount,
     )
   }
+
   let setGranularity = (option: optionType) => {
     setGranularityTabState(_ => option)
     getData(~granularityValue=option.value)->ignore

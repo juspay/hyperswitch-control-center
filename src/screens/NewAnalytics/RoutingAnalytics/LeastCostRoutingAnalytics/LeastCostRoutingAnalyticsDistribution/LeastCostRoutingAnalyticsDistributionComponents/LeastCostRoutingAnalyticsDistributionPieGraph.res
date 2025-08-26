@@ -6,7 +6,7 @@ let make = () => {
   open LeastCostRoutingAnalyticsTypes
   open LeastCostRoutingAnalyticsDistributionUtils
 
-  let (response, setReponse) = React.useState(_ => JSON.Encode.null)
+  let (response, setResponse) = React.useState(_ => JSON.Encode.null)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -33,7 +33,7 @@ let make = () => {
       let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
       if responseData->Array.length > 0 {
-        setReponse(_ => response)
+        setResponse(_ => response)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
