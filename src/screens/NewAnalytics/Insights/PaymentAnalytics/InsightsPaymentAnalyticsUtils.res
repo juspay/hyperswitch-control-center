@@ -73,3 +73,70 @@ let getEntityForSmartRetry = isEnabled => {
   | Default => ANALYTICS_PAYMENTS_V2
   }
 }
+
+let aggregateSampleDataByGroupBy = (data: array<JSON.t>, groupByKey: string) => {
+  let aggregatedDict = Dict.make()
+  let aggregatableFields = [
+    "payment_count",
+    "payment_success_count",
+    "payment_processed_amount",
+    "payment_processed_amount_in_usd",
+    "payment_processed_count",
+    "failure_reason_count",
+    "failure_reason_count_without_smart_retries",
+  ]
+
+  data->Array.forEach(item => {
+    let itemDict = item->getDictFromJsonObject
+    // Handle composite keys (e.g., "payment_method,payment_method_type")
+    let groupValue = if groupByKey->String.includes(",") {
+      groupByKey
+      ->String.split(",")
+      ->Array.map(key => itemDict->getString(key->String.trim, ""))
+      ->Array.joinWith(",")
+    } else {
+      itemDict->getString(groupByKey, "")
+    }
+
+    if groupValue->isNonEmptyString && groupValue !== "," {
+      switch aggregatedDict->Dict.get(groupValue) {
+      | Some(existingItem) => {
+          let existingDict = existingItem->getDictFromJsonObject
+          let newDict = Dict.make()
+          itemDict
+          ->Dict.toArray
+          ->Array.forEach(((key, value)) => {
+            newDict->Dict.set(key, value)
+          })
+          aggregatableFields->Array.forEach(field => {
+            let existingValue = existingDict->getFloat(field, 0.0)
+            let newValue = itemDict->getFloat(field, 0.0)
+            newDict->Dict.set(field, (existingValue +. newValue)->JSON.Encode.float)
+          })
+          let totalCount = newDict->getFloat("payment_count", 0.0)
+          let successCount = newDict->getFloat("payment_success_count", 0.0)
+          let failedCount = totalCount -. successCount
+
+          if totalCount > 0.0 {
+            let successRate = successCount /. totalCount *. 100.0
+            let failureRate = failedCount /. totalCount *. 100.0
+            [
+              ("payment_success_rate", successRate),
+              ("payment_failure_rate", failureRate),
+              ("payments_success_rate_distribution", successRate),
+              ("payments_failure_rate_distribution", failureRate),
+              ("payments_success_rate_distribution_without_smart_retries", successRate),
+              ("payments_failure_rate_distribution_without_smart_retries", failureRate),
+            ]->Array.forEach(((field, value)) => {
+              newDict->Dict.set(field, value->JSON.Encode.float)
+            })
+          }
+          aggregatedDict->Dict.set(groupValue, newDict->JSON.Encode.object)
+        }
+      | None => aggregatedDict->Dict.set(groupValue, item)
+      }
+    }
+  })
+
+  aggregatedDict->Dict.valuesToArray
+}
