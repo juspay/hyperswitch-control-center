@@ -21,7 +21,6 @@ let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
-  // let val = url.search->LogicUtils.getDictFromUrlSearchParams->OMPSwitchUtils.userSwitch(userInfo)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let showToast = ToastState.useShowToast()
@@ -56,7 +55,7 @@ let make = (~children) => {
             ~expectedMerchantId=Some(data.merchantId),
             ~expectedProfileId=Some(data.profileId),
           )
-          let url = decodeURIComponent(data.destination)
+          let url = decodeURIComponent(data.path)
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
         }
       | None => ()

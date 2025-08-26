@@ -30,5 +30,5 @@ type switchUser = {
   orgId: string,
   merchantId: string,
   profileId: string,
-  destination: string,
+  path: string,
 }

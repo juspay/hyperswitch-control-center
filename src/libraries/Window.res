@@ -161,6 +161,9 @@ module Location = {
   @val @scope(("window", "location"))
   external href: string = "href"
 
+  @val @scope(("window", "location"))
+  external search: string = "search"
+
   @set
   external setHref: (location, string) => unit = "href"
 }

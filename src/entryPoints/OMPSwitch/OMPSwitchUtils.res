@@ -124,8 +124,8 @@ let userSwitch = (~switchData, ~defaultValue: UserInfoTypes.userInfo) => {
     profileId: switchData
     ->Dict.get("profileId")
     ->Option.getOr(defaultValue.profileId),
-    destination: switchData
-    ->Dict.get("destination")
+    path: switchData
+    ->Dict.get("path")
     ->Option.getOr(""),
   }
 }
