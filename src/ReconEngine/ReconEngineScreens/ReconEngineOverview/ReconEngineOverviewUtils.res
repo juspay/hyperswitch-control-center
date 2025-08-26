@@ -27,18 +27,6 @@ let accountItemToObjMapper = dict => {
     initial_balance: dict
     ->getDictfromDict("initial_balance")
     ->getAmountPayload,
-    pending_balance: dict
-    ->getDictfromDict("pending_balance")
-    ->getAmountPayload,
-    posted_balance: dict
-    ->getDictfromDict("posted_balance")
-    ->getAmountPayload,
-    expected_balance: dict
-    ->getDictfromDict("expected_balance")
-    ->getAmountPayload,
-    mismatched_balance: dict
-    ->getDictfromDict("mismatched_balance")
-    ->getAmountPayload,
     posted_debits: dict
     ->getDictfromDict("posted_debits")
     ->getAmountPayload,

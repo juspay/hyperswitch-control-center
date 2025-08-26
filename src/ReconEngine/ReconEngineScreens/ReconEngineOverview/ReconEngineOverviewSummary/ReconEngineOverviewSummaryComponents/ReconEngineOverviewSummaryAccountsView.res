@@ -1,4 +1,5 @@
 open Typography
+open ReconEngineOverviewTypes
 
 module AccountsHeader = {
   open ReconEngineOverviewSummaryUtils
@@ -50,7 +51,6 @@ module AccountsHeader = {
 
 module AmountCell = {
   open ReconEngineOverviewSummaryTypes
-  open ReconEngineOverviewTypes
   open LogicUtils
 
   @react.component
@@ -64,11 +64,11 @@ module AmountCell = {
       <div className={`${body.md.medium} text-nd_gray-600`}>
         {switch subHeaderType {
         | In =>
-          `${creditAmount.value->valueFormatter(
+          `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${creditAmount.currency}`->React.string
         | Out =>
-          `${debitAmount.value->valueFormatter(
+          `${Math.abs(debitAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${debitAmount.currency}`->React.string
         }}
@@ -78,7 +78,6 @@ module AmountCell = {
 }
 
 module AccountRow = {
-  open ReconEngineOverviewTypes
   open ReconEngineOverviewSummaryUtils
 
   @react.component
@@ -105,11 +104,7 @@ module AccountRow = {
           let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
           let shouldShowBorder = !(isLastAmount && isLastSubHeader)
           let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
-          let key = `${isTotalRow
-              ? "total-amount-cell"
-              : data.account_id->String.length > 0
-              ? data.account_id->String.concat("-amount-cell")
-              : LogicUtils.randomString(~length=10)}`
+          let key = LogicUtils.randomString(~length=10)
 
           <AmountCell key subHeaderType creditAmount debitAmount borderClass />
         })
@@ -121,8 +116,6 @@ module AccountRow = {
 }
 
 module AccountsList = {
-  open ReconEngineOverviewTypes
-
   @react.component
   let make = (~allRowsData: array<accountType>, ~accountsData: array<accountType>) => {
     <div className="bg-white border-t border-nd_br_gray-150">
@@ -130,11 +123,7 @@ module AccountsList = {
       ->Array.mapWithIndex((data, index) => {
         let isLastRow = index === Array.length(allRowsData) - 1
         let isTotalRow = index === Array.length(accountsData)
-        let key = isTotalRow
-          ? "total-row"
-          : data.account_id->String.length > 0
-          ? data.account_id->String.concat("-account-row")
-          : LogicUtils.randomString(~length=10)
+        let key = LogicUtils.randomString(~length=10)
 
         <AccountRow key data isLastRow isTotalRow />
       })
@@ -144,7 +133,7 @@ module AccountsList = {
 }
 
 @react.component
-let make = () => {
+let make = (~reconRulesList: array<reconRuleType>) => {
   open LogicUtils
   open ReconEngineOverviewTypes
   open ReconEngineOverviewSummaryUtils
@@ -154,6 +143,7 @@ let make = () => {
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
 
   let getAccountsData = async _ => {
     try {
@@ -165,9 +155,22 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
-      setAccountsData(_ => accountData)
 
-      if accountData->Array.length > 0 {
+      // Get transactions and calculate amounts from transactions
+      let allTransactions = await getTransactions()
+      let accountTransactionData = processAllTransactionsWithAmounts(
+        reconRulesList,
+        allTransactions,
+      )
+
+      // Convert transaction data to account-like data for table display
+      let accountsWithTransactionAmounts = convertTransactionDataToAccountData(
+        accountData,
+        accountTransactionData,
+      )
+      setAccountsData(_ => accountsWithTransactionAmounts)
+
+      if accountsWithTransactionAmounts->Array.length > 0 {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -194,12 +197,6 @@ let make = () => {
   }, [accountsData])
 
   <div className="space-y-4">
-    <div className="flex flex-col gap-2">
-      <p className={`text-nd_gray-800 ${heading.sm.semibold}`}> {"Accounts View"->React.string} </p>
-      <p className={`text-nd_gray-500 ${body.md.medium} mb-4`}>
-        {"Quickly assess reconciliation health across your accounts, highlighting matched, pending and mismatched transactions."->React.string}
-      </p>
-    </div>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
