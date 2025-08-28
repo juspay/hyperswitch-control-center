@@ -98,23 +98,6 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 
   errors->JSON.Encode.object
 }
-let validateFormForRoles = values => {
-  let errors = Dict.make()
-  let valuesDict = values->getDictFromJsonObject
-  if valuesDict->getString("role_scope", "")->isEmptyString {
-    Dict.set(errors, "role_scope", "Role scope is required"->JSON.Encode.string)
-  }
-  if valuesDict->getString("role_name", "")->isEmptyString {
-    Dict.set(errors, "role_name", "Role name is required"->JSON.Encode.string)
-  }
-  if valuesDict->getString("role_name", "")->String.length > 64 {
-    Dict.set(errors, "role_name", "Role name should be less than 64 characters"->JSON.Encode.string)
-  }
-  if valuesDict->getArrayFromDict("parent_groups", [])->Array.length === 0 {
-    Dict.set(errors, "parent_groups", "Roles required"->JSON.Encode.string)
-  }
-  errors->JSON.Encode.object
-}
 
 let tabIndeToVariantMapper = index => {
   open UserManagementTypes
