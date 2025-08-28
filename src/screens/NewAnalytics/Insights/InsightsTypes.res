@@ -52,12 +52,6 @@ type metrics = [
   | #authentication_exemption_approved_count
   | #authentication_exemption_requested_count
 ]
-type granularity = [
-  | #G_ONEDAY
-  | #G_ONEHOUR
-  | #G_THIRTYMIN
-  | #G_FIFTEENMIN
-]
 
 type requestBodyConfig = {
   metrics: array<metrics>,
@@ -91,8 +85,6 @@ type chartEntity<'t, 'chartOption, 'data> = {
   getObjects: (~params: getObjects<'data>) => 't,
   getChatOptions: 't => 'chartOption,
 }
-
-type optionType = {label: string, value: string}
 
 type metricType =
   | Smart_Retry

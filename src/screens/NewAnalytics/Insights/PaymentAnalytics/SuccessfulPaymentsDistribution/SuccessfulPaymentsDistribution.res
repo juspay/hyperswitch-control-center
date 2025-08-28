@@ -1,5 +1,6 @@
 open InsightsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open InsightsPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils
@@ -112,6 +113,7 @@ let make = (
         ->getDictfromDict("paymentsRateDataWithConnectors")
         ->getArrayFromDict("queryData", [])
         ->filterQueryData(groupBy.value)
+        ->aggregateSampleDataByGroupBy(groupBy.value)
       } else {
         let url = getURL(
           ~entityName=V1(ANALYTICS_PAYMENTS),

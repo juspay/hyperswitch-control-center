@@ -1,9 +1,11 @@
 open InsightsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open BarGraphTypes
 open InsightsSmartRetryAnalyticsEntity
 open FailureSmartRetryDistributionUtils
 open FailureSmartRetryDistributionTypes
+open InsightsPaymentAnalyticsUtils
 
 module TableModule = {
   @react.component
@@ -120,7 +122,14 @@ let make = (
         )
         await updateDetails(url, body, Post)
       }
-      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let responseData = if isSampleDataEnabled {
+        response
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->aggregateSampleDataByGroupBy(groupBy.value)
+      } else {
+        response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      }
 
       if responseData->Array.length > 0 {
         setpaymentsDistribution(_ => responseData->JSON.Encode.array)

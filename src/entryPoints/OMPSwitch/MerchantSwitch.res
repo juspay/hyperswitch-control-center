@@ -153,10 +153,11 @@ let make = () => {
   open LogicUtils
   open OMPSwitchUtils
   open OMPSwitchHelper
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -174,7 +175,6 @@ let make = () => {
   } = React.useContext(ThemeProvider.themeContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {devModularityV2} = featureFlagDetails
-  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
 
   let getV2MerchantList = async () => {
     try {
@@ -223,9 +223,7 @@ let make = () => {
         ->Array.find(merchant => merchant.id == value)
         ->Option.getOr(ompDefaultValue(merchantId, ""))
       let version = merchantData.version->Option.getOr(UserInfoTypes.V1)
-      let productType = merchantData.productType->Option.getOr(Orchestration(V1))
       let _ = await internalSwitch(~expectedMerchantId=Some(value), ~version, ~changePath=true)
-      setActiveProductValue(productType)
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {

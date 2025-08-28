@@ -4,6 +4,7 @@ open InsightsPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
 open InsightsPaymentAnalyticsUtils
+open NewAnalyticsHelper
 
 module TableModule = {
   @react.component
@@ -134,6 +135,7 @@ let make = (
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
         ->filterQueryData(groupBy.value)
+        ->aggregateSampleDataByGroupBy(groupBy.value)
 
       if responseData->Array.length > 0 {
         setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)

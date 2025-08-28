@@ -148,7 +148,7 @@ let make = (~entity: moduleEntity) => {
     <PageLoaderWrapper
       screenState
       customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
-      customUI={<InsightsHelper.NoData height="h-64 p-0 -m-0" />}>
+      customUI={<NewAnalyticsHelper.NoData height="h-64 p-0 -m-0" />}>
       <Tabs
         initialIndex=0
         tabs={getTabs()}

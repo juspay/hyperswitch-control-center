@@ -1,5 +1,6 @@
 open RefundsProcessedTypes
 open InsightsUtils
+open NewAnalyticsUtils
 open LogicUtils
 
 let getStringFromVariant = value => {
@@ -144,13 +145,13 @@ let getCell = (obj, colType): Table.cell => {
   }
 }
 
-open InsightsTypes
+open NewAnalyticsTypes
 let dropDownOptions = [
   {label: "By Amount", value: Refund_Processed_Amount->getStringFromVariant},
   {label: "By Count", value: Refund_Processed_Count->getStringFromVariant},
 ]
 
-let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string)}]
 
 let defaultMetric = {
   label: "By Amount",
@@ -159,7 +160,7 @@ let defaultMetric = {
 
 let defaulGranularity = {
   label: "Daily",
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 let getKeyForModule = key => {

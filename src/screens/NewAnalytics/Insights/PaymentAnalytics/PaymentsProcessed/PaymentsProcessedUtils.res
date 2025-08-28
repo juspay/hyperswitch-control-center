@@ -86,7 +86,7 @@ let paymentsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
-  open InsightsUtils
+  open NewAnalyticsUtils
   {
     payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
@@ -146,7 +146,7 @@ let getCell = (obj, colType): Table.cell => {
   }
 }
 
-open InsightsTypes
+open NewAnalyticsTypes
 let dropDownOptions = [
   {label: "By Amount", value: Payment_Processed_Amount->getStringFromVariant},
   {label: "By Count", value: Payment_Processed_Count->getStringFromVariant},
@@ -159,7 +159,7 @@ let defaultMetric = {
 
 let defaulGranularity = {
   label: "Daily",
-  value: (#G_ONEDAY: granularity :> string),
+  value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }
 
 open InsightsTypes

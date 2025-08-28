@@ -70,6 +70,7 @@ let paymentsSuccessRateMapper = (
 }
 
 open InsightsTypes
+open NewAnalyticsTypes
 let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaulGranularity = {

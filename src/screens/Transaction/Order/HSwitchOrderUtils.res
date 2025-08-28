@@ -3,6 +3,7 @@ type status =
   | Succeeded
   | Failed
   | Cancelled
+  | Expired
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod
@@ -49,6 +50,14 @@ type stripeChargeType =
   | Direct
   | None
 
+@unboxed
+type adyenRefundReason =
+  | FRAUD
+  | CUSTOMERREQUEST
+  | RETURN
+  | DUPLICATE
+  | OTHER
+
 let statusVariantMapper: string => status = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
@@ -60,6 +69,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | "CANCELLED_POST_CAPTURE" => CancelledPostCapture
+  | "EXPIRED" => Expired
   | _ => None
   }
 
@@ -100,6 +110,17 @@ let refundStatusVariantMapper: string => refundStatus = statusLabel => {
   }
 }
 
+let adyenRefundReasonToDisplayName = reason =>
+  switch reason {
+  | FRAUD => "Fraud"
+  | CUSTOMERREQUEST => "Customer Request"
+  | RETURN => "Return"
+  | DUPLICATE => "Duplicate"
+  | OTHER => "Other"
+  }
+
+let allAdyenRefundReasons = [FRAUD, CUSTOMERREQUEST, RETURN, DUPLICATE, OTHER]
+
 let isTestData = id => id->String.includes("test_")
 
 let amountField = FormRenderer.makeFieldInfo(
@@ -116,6 +137,23 @@ let reasonField = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.textInput(),
   ~placeholder="Enter Refund Reason",
   ~isRequired=false,
+)
+
+let adyenReasonDropdownField = FormRenderer.makeFieldInfo(
+  ~name="reason",
+  ~label="Reason",
+  ~customInput=InputFields.selectInput(
+    ~options=allAdyenRefundReasons->Array.map((reason): SelectBox.dropdownOption => {
+      {
+        label: reason->adyenRefundReasonToDisplayName,
+        value: (reason :> string),
+      }
+    }),
+    ~buttonText="Select Reason",
+    ~searchable=false,
+  ),
+  ~placeholder="Select Reason",
+  ~isRequired=true,
 )
 
 let refundAddressField = FormRenderer.makeFieldInfo(
@@ -156,35 +194,43 @@ let getStripeChargeType = splitPaymentsDict => {
 }
 
 let initialValuesDict = (~isSplitPayment, ~order: PaymentInterfaceTypes.order) => {
+  let baseDict = Dict.make()
+
+  // Set default reason to "RETURN" only for ADYEN connector
+  switch order.connector->String.toLowerCase->ConnectorUtils.getConnectorNameTypeFromString {
+  | Processors(ADYEN) => Dict.set(baseDict, "reason", "RETURN"->JSON.Encode.string)
+  | _ => ()
+  }
+
   switch (isSplitPayment, order.split_payments->getStripeChargeType) {
   | (true, Direct) =>
-    Dict.fromArray([
-      (
-        "split_refunds",
-        Dict.fromArray([
-          (
-            "stripe_split_refund",
-            Dict.fromArray([("revert_platform_fee", false->JSON.Encode.bool)])->JSON.Encode.object,
-          ),
-        ])->JSON.Encode.object,
-      ),
-    ])
+    Dict.set(
+      baseDict,
+      "split_refunds",
+      Dict.fromArray([
+        (
+          "stripe_split_refund",
+          Dict.fromArray([("revert_platform_fee", false->JSON.Encode.bool)])->JSON.Encode.object,
+        ),
+      ])->JSON.Encode.object,
+    )
+    baseDict
   | (true, Destination) =>
-    Dict.fromArray([
-      (
-        "split_refunds",
-        Dict.fromArray([
-          (
-            "stripe_split_refund",
-            Dict.fromArray([
-              ("revert_platform_fee", false->JSON.Encode.bool),
-              ("revert_transfer", false->JSON.Encode.bool),
-            ])->JSON.Encode.object,
-          ),
-        ])->JSON.Encode.object,
-      ),
-    ])
-  | _ => Dict.make()
+    Dict.set(
+      baseDict,
+      "split_refunds",
+      Dict.fromArray([
+        (
+          "stripe_split_refund",
+          Dict.fromArray([
+            ("revert_platform_fee", false->JSON.Encode.bool),
+            ("revert_transfer", false->JSON.Encode.bool),
+          ])->JSON.Encode.object,
+        ),
+      ])->JSON.Encode.object,
+    )
+    baseDict
+  | _ => baseDict
   }
 }
 

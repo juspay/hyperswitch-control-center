@@ -21,7 +21,7 @@ let failedRefundsDistributionMapper = (
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color=redColor,
+    ~color=NewAnalyticsUtils.redColor,
   )
   let title = {
     text: "",

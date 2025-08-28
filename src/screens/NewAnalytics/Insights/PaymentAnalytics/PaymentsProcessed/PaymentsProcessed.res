@@ -1,5 +1,7 @@
 open InsightsTypes
+open NewAnalyticsTypes
 open InsightsHelper
+open NewAnalyticsHelper
 open InsightsPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open InsightsPaymentAnalyticsUtils
@@ -158,6 +160,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open InsightsUtils
+  open NewAnalyticsUtils
   open InsightsContainerUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
