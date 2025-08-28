@@ -251,7 +251,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         <Form
           key={`invite-user-management-${currentEntityType}`}
           initialValues
-          validate={values => validateCustomRoleForm(values, ~permissionModules, ~isV2=true, ())}
+          validate={values => validateCustomRoleForm(values, ~permissionModules, ~isV2=true)}
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields onEntityTypeChange=handleEntityTypeChange />

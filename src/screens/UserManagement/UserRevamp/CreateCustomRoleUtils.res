@@ -8,7 +8,7 @@ let getInitialValuesForForm = entityType =>
     ("entity_type", entityType->JSON.Encode.string),
   ]->Dict.fromArray
 
-let validateCustomRoleForm = (values, ~permissionModules=[], ~isV2=false, ()) => {
+let validateCustomRoleForm = (values, ~permissionModules=[], ~isV2=false) => {
   let errors = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   if valuesDict->getString("role_scope", "")->isEmptyString {

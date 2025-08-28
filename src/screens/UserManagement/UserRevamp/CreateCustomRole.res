@@ -65,7 +65,7 @@ module NewCustomRoleInputFields = {
 let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~breadCrumbHeader) => {
   open APIUtils
   open LogicUtils
-
+  open CreateCustomRoleUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -138,7 +138,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [permissionInfo])
+  }, [])
 
   <div className="flex flex-col overflow-y-scroll h-full">
     <RenderIf condition={isInviteUserFlow}>
@@ -159,7 +159,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         <Form
           key="invite-user-management"
           initialValues={initalValue->JSON.Encode.object}
-          validate={values => CreateCustomRoleUtils.validateCustomRoleForm(values, ~isV2=false, ())}
+          validate={values => validateCustomRoleForm(values, ~isV2=false)}
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
