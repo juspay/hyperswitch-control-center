@@ -58,8 +58,7 @@ let make = () => {
           {"Routing Logic Distribution"->React.string}
         </p>
       </div>
-      <div
-        className="flex border rounded-xl border-t-0 border-nd_gray-200 h-14-rem rounded-t-none">
+      <div className="flex border rounded-xl border-t-0 border-nd_gray-200 h-14-rem rounded-t-none">
         <PieGraph
           options={RoutingAnalyticsDistributionUtils.chartOptions(
             response,
