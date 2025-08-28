@@ -8,13 +8,13 @@ module InOutComponent = {
     open ReconEngineOverviewSummaryUtils
 
     <div
-      key={getStatusText(statusItem.statusType)}
+      key={(statusItem.statusType :> string)}
       className="bg-nd_gray-25 border rounded-xl border-nd_gray-150 mt-2.5 p-2">
       <div className="flex flex-row items-center">
         <div className="flex flex-row items-center gap-1.5 flex-[1]">
           <Icon name={getStatusIcon(statusItem.statusType)} size=12 />
           <p className={`${body.sm.medium} text-nd_gray-500`}>
-            {getStatusText(statusItem.statusType)->React.string}
+            {(statusItem.statusType :> string)->React.string}
           </p>
         </div>
         <div className="flex flex-row flex-[1] justify-between items-center">

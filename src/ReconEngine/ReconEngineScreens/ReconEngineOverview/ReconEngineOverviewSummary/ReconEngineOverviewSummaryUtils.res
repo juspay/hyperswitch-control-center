@@ -498,13 +498,5 @@ let getStatusIcon = (statusType: amountType) => {
   }
 }
 
-let getStatusText = (statusType: amountType) => {
-  switch statusType {
-  | Reconciled => "Reconciled"
-  | Pending => "Pending"
-  | Mismatched => "Mismatch"
-  }
-}
-
 let allAmountTypes = [Reconciled, Pending, Mismatched]
 let allSubHeaderTypes = [In, Out]

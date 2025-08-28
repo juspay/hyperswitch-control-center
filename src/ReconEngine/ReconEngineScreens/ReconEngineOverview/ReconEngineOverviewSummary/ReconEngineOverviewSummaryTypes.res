@@ -1,3 +1,4 @@
+@unboxed
 type amountType =
   | Reconciled
   | Pending

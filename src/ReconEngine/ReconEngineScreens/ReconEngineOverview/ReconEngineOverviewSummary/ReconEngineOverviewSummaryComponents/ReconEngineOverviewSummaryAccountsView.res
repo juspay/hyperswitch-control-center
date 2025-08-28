@@ -166,9 +166,9 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         accountData,
         accountTransactionData,
       )
-      setAccountsData(_ => accountsWithTransactionAmounts)
 
       if accountsWithTransactionAmounts->Array.length > 0 {
+        setAccountsData(_ => accountsWithTransactionAmounts)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
