@@ -260,10 +260,11 @@ module TriggerRules = {
         </div>
         <div className="flex-1 flex flex-col gap-2">
           <label className={`${labelCss}`}> {"Value"->React.string} </label>
-          {InputFields.textInput(~isDisabled=true, ~inputStyle="rounded-lg")(
-            ~input=valueInput,
-            ~placeholder="Enter trigger value",
-          )}
+          {InputFields.textInput(
+            ~isDisabled=true,
+            ~inputStyle="rounded-lg",
+            ~customDashboardClass="h-8 text-sm font-normal",
+          )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
       </div>
     </div>
