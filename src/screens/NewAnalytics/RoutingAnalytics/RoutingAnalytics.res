@@ -77,11 +77,7 @@ let make = () => {
       initialIndex={tabIndex}
       tabs
       onTitleClick={tabId => setTabIndex(_ => tabId)}
-      disableIndicationArrow=true
-      showBorder=true
       includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       textStyle="text-blue-600"
       selectTabBottomBorderColor="bg-blue-600"
     />
