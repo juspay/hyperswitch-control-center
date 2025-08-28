@@ -69,7 +69,7 @@ class HomePage {
   }
 
   get sign_out() {
-    return cy.get('[id="neglectTopbarTheme"]').first().children().eq(1);
+    return cy.contains("Sign out");
   }
 }
 

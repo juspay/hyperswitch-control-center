@@ -64,7 +64,6 @@ type entryPayload = {
 type transactionColType =
   | TransactionId
   | Status
-  | DiscardedStatus
   | Variance
   | CreditAccount
   | DebitAccount
@@ -79,7 +78,6 @@ type entryColType =
   | Amount
   | Currency
   | Status
-  | DiscardedStatus
   | Metadata
   | CreatedAt
   | EffectiveAt

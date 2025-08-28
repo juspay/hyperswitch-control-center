@@ -41,26 +41,21 @@ let getHeading = (colType: transactionColType) => {
   | DebitAmount => Table.makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | DiscardedStatus => Table.makeHeaderInfo(~key="discarded_status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   }
 }
 
-let getStatusLabel = (statusString: option<string>): Table.cell => {
-  switch statusString {
-  | Some(status) =>
-    Table.Label({
-      title: status->getDisplayStatusName,
-      color: switch status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-      | Posted => Table.LabelGreen
-      | Mismatched => Table.LabelRed
-      | Expected => Table.LabelBlue
-      | Archived => Table.LabelGray
-      | _ => Table.LabelLightGray
-      },
-    })
-  | None => Text("N/A")
-  }
+let getStatusLabel = (statusString: string): Table.cell => {
+  Table.Label({
+    title: statusString->getDisplayStatusName,
+    color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    | Posted => Table.LabelGreen
+    | Mismatched => Table.LabelRed
+    | Expected => Table.LabelYellow
+    | Archived => Table.LabelGray
+    | _ => Table.LabelLightGray
+    },
+  })
 }
 
 let getCell = (transaction: transactionPayload, colType: transactionColType): Table.cell => {
@@ -92,8 +87,11 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
         ~suffix=transaction.credit_amount.currency,
       ),
     )
-  | Status => getStatusLabel(Some(transaction.transaction_status))
-  | DiscardedStatus => getStatusLabel(transaction.discarded_status)
+  | Status =>
+    switch transaction.discarded_status {
+    | Some(status) => getStatusLabel(status)
+    | None => getStatusLabel(transaction.transaction_status)
+    }
   | CreatedAt => EllipsisText(transaction.created_at, "")
   }
 }
