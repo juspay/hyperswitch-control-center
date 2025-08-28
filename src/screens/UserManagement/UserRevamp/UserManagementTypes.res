@@ -114,3 +114,9 @@ type usersOmpViewType = {
   label: string,
   entity: userModuleTypes,
 }
+
+type parentGroupInfo = {
+  name: string,
+  description: string,
+  scopes: array<string>,
+}
