@@ -27,7 +27,7 @@ let make = () => {
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~groupByNames=Some([(#card_network: requestPayloadMetrics :> string)]),
-            ~filter=Some(filterDict->JSON.Encode.object),
+            ~filter=Some(filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)

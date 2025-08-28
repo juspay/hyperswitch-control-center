@@ -1,5 +1,4 @@
 open LogicUtils
-open RoutingAnalyticsUtils
 
 let distributionPayloadMapper = (
   ~data: JSON.t,
@@ -43,7 +42,7 @@ let distributionPayloadMapper = (
       ~title=tooltipTitle,
       ~valueFormatterType=Amount,
     ),
-    legendFormatter: customLegendFormatter(),
+    legendFormatter: RoutingAnalyticsUtils.customLegendFormatter(),
     startAngle: 0,
     endAngle: 360,
     legend: {

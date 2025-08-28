@@ -37,7 +37,7 @@ let make = () => {
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~granularity=Some(granularityValue),
-            ~filter=Some(filterDict->JSON.Encode.object),
+            ~filter=Some(filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
