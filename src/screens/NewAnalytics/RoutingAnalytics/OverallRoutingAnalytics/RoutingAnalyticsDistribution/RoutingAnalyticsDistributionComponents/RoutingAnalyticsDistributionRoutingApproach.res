@@ -54,12 +54,12 @@ let make = () => {
     customLoader={<Shimmer styleClass="w-full h-72 rounded-xl" />}>
     <div className="flex flex-col">
       <div className="border rounded-xl py-2 px-4 border-nd_gray-200 rounded-b-none bg-nd_gray-25">
-        <p className={`text-nd_gray-600  px-3 py-[10px] ${body.md.semibold}`}>
+        <p className={`text-nd_gray-600 px-3 py-10-px ${body.md.semibold}`}>
           {"Routing Logic Distribution"->React.string}
         </p>
       </div>
       <div
-        className="flex border rounded-xl border-t-0 border-nd_gray-200 h-[14rem] rounded-t-none">
+        className="flex border rounded-xl border-t-0 border-nd_gray-200 h-14-rem rounded-t-none">
         <PieGraph
           options={RoutingAnalyticsDistributionUtils.chartOptions(
             response,
