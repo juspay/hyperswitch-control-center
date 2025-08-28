@@ -42,7 +42,7 @@ let getTransformationHistoryHeading = colType => {
 
 let getStatusLabel = (statusString: string): Table.cell => {
   Table.Label({
-    title: statusString,
+    title: statusString->String.toUpperCase,
     color: switch statusString->statusMapper {
     | Pending => Table.LabelGray
     | Processing => Table.LabelOrange

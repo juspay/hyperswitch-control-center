@@ -47,3 +47,15 @@ type optionObj = {
 type topic =
   | String(string)
   | ReactElement(React.element)
+
+type status =
+  | Succeeded
+  | Scheduled
+  | Failed
+  | Cancelled
+  | Processing
+  | RequiresCustomerAction
+  | RequiresPaymentMethod
+  | RequiresConfirmation
+  | PartiallyCaptured
+  | None

@@ -12,7 +12,7 @@ let make = () => {
         <FilterContext key="recon-engine-transactions" index="recon-engine-transactions">
           <ReconEngineTransactions />
         </FilterContext>}
-      renderShow={(id, _) => <ReconEngineTransactionsDetail id />}
+      renderShow={(id, _) => <ReconEngineTransactionsDetails id />}
     />
   | _ => React.null
   }

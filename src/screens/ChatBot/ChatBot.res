@@ -4,6 +4,12 @@ module ChatBot = {
   @react.component
   let make = (~loading, ~onNewChat) => {
     let form = ReactFinalForm.useForm()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+
+    let onSubmit = () => {
+      mixpanelEvent(~eventName="ask_pulse_chat_message_send_button_clicked")
+      form.submit()->ignore
+    }
 
     <div className="">
       <FormRenderer.FieldRenderer
@@ -28,7 +34,7 @@ module ChatBot = {
                   buttonSize=Small
                   buttonState={loading ? Loading : Normal}
                   customButtonStyle="!rounded-lg !w-6 !h-6 !p-0 !min-w-0 flex items-center justify-center"
-                  onClick={_ => form.submit()->ignore}
+                  onClick={_ => onSubmit()}
                   rightIcon={loading ? NoIcon : FontAwesome("paper-plane")}
                 />
               </div>
@@ -58,7 +64,7 @@ module ChatMessage = {
         <div className="flex space-x-3 w-full">
           <div
             className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
-            <Icon name="robot" size=16 customIconColor="text-white" />
+            <Icon name="pulse-ai" size=32 customIconColor="text-white" />
           </div>
           <div className="flex-1 space-y-2 min-w-0">
             <RenderIf condition={response.summary->isNonEmptyString}>
@@ -185,7 +191,7 @@ module EmptyState = {
             <div
               key={index->Int.toString}
               className="group bg-white dark:bg-nd_gray-800 rounded-xl p-4 border border-nd_gray-200 dark:border-nd_gray-600 cursor-pointer hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10 hover:shadow-md transition-all duration-200"
-              onClick={_ => onQuestionClick(messageText)}>
+              onClick={_ => onQuestionClick(messageText, index)}>
               <div className="flex items-start space-x-3">
                 <div
                   className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-200">
@@ -225,6 +231,7 @@ let make = () => {
   let (loading, setLoading) = React.useState(_ => false)
   let (chat, setChat) = React.useState(_ => [])
   let chatContainerRef = React.useRef(Nullable.null)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let generateNewSession = () => {
     let sessionKey = "chatbot_session_id"
@@ -260,6 +267,7 @@ let make = () => {
     if message->String.trim->isEmptyString {
       ()
     } else {
+      mixpanelEvent(~eventName="ask_pulse_chat_message_sent")
       setChat(_ =>
         [
           ...chat,
@@ -352,25 +360,25 @@ let make = () => {
     }
   }
 
-  let onQuestionClick = (question: string) => {
+  let onQuestionClick = (question: string, questionIndex: int) => {
+    let eventName = `ask_pulse_q${(questionIndex + 1)->Int.toString}_clicked`
+    mixpanelEvent(~eventName)
     submitMessage(question)->ignore
   }
 
   let onNewChat = () => {
+    mixpanelEvent(~eventName="ask_pulse_new_chat_clicked")
     setChat(_ => [])
     generateNewSession()
   }
 
   <div className="relative flex flex-col h-85-vh justify-between">
-    <div className="px-6 py-4">
+    <div className="px-6 py-2">
       <div className="flex items-center space-x-3">
-        <div
-          className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-          <Icon name="robot" size=20 customIconColor="text-white" />
-        </div>
+        <Icon name="pulse-ai" size=40 />
         <div>
-          <h1 className={`${heading.md.bold} text-nd_gray-800 dark:text-nd_gray-100`}>
-            {"Data Assistant"->React.string}
+          <h1 className={`${heading.sm.semibold} text-nd_gray-700 dark:text-nd_gray-100`}>
+            {"Pulse AI"->React.string}
           </h1>
         </div>
       </div>
@@ -400,7 +408,7 @@ let make = () => {
       initialValues={JSON.Encode.null}
       onSubmit={(values, f) => onSubmit(values, f)}
       formClass="w-full">
-      <div className="fixed bottom-4 w-77-rem">
+      <div className="fixed bottom-4 left-64 right-4 max-w-3xl mx-auto px-2">
         <ChatBot loading onNewChat />
       </div>
     </Form>

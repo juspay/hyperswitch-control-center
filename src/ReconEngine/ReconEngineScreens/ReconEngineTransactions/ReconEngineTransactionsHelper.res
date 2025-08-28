@@ -70,12 +70,37 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails, ~detailsFields) => {
+  let make = (~currentTransactionDetails: ReconEngineTransactionsTypes.transactionPayload) => {
     open TransactionsTableEntity
+    open ReconEngineTransactionsUtils
+    open ReconEngineTransactionsTypes
 
-    <div className="w-full border border-nd_gray-150 rounded-lg p-2">
+    let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
+    let widthClass = if isMiniLaptopView {
+      "md:w-1/3 w-1/2"
+    } else {
+      "w-1/4"
+    }
+
+    let isArchived =
+      currentTransactionDetails.transaction_status->getTransactionTypeFromString == Archived
+
+    let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
+
+    <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+      <RenderIf condition={isArchived}>
+        <p
+          className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
+          {"Archived"->React.string}
+        </p>
+      </RenderIf>
       <TransactionDetails
-        data=currentTransactionDetails getHeading getCell detailsFields isButtonEnabled=true
+        data=currentTransactionDetails
+        getHeading
+        getCell
+        detailsFields
+        isButtonEnabled=true
+        widthClass
       />
     </div>
   }
@@ -86,25 +111,29 @@ module EntryAuditTrailInfo = {
   @react.component
   let make = (~entryDetails) => {
     open EntriesTableEntity
+    open ReconEngineTransactionsUtils
 
-    let detailsFields = React.useMemo(() => {
-      let baseFields: array<entryColType> = [
-        EntryId,
-        EntryType,
-        Amount,
-        Currency,
-        TransactionId,
-        Status,
-      ]
-      let fieldsWithDiscardedStatus = switch entryDetails.discarded_status {
-      | Some(_) => Array.concat(baseFields, [DiscardedStatus])
-      | None => baseFields
-      }
-      Array.concat(fieldsWithDiscardedStatus, [CreatedAt, EffectiveAt])
-    }, [entryDetails.discarded_status])
+    let isArchived = entryDetails.status->getEntryTypeFromString == Archived
+
+    let detailsFields = [
+      EntryId,
+      EntryType,
+      Amount,
+      Currency,
+      TransactionId,
+      Status,
+      CreatedAt,
+      EffectiveAt,
+    ]
 
     <div className="flex flex-col gap-4 mb-6 px-2">
-      <div className="w-full border border-nd_gray-150 rounded-lg p-2">
+      <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+        <RenderIf condition={isArchived}>
+          <p
+            className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
+            {"Archived"->React.string}
+          </p>
+        </RenderIf>
         <TransactionDetails
           data=entryDetails getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
         />
@@ -124,6 +153,7 @@ module AuditTrail = {
   let make = (~allTransactionDetails) => {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
+    open ReconEngineTransactionsTypes
     open LogicUtils
     open APIUtils
 
@@ -166,15 +196,10 @@ module AuditTrail = {
       }
     }
 
-    let sections = allTransactionDetails->Array.map(transaction => {
+    let sections = allTransactionDetails->Array.map((transaction: transactionPayload) => {
       let customComponent = {
         id: transaction.version->Int.toString,
-        customComponent: Some(
-          <TransactionDetailInfo
-            currentTransactionDetails=transaction
-            detailsFields=[TransactionId, Status, DiscardedStatus, Variance, CreatedAt]
-          />,
-        ),
+        customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
@@ -227,8 +252,8 @@ module AuditTrail = {
         setShowModal
         showModal
         closeOnOutsideClick=true
-        modalClass="flex flex-col w-1/3 h-screen float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-        childClass="mb-6 mx-2 h-full flex flex-col justify-between"
+        modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+        childClass="relative h-full"
         customModalHeading=modalHeading>
         <PageLoaderWrapper
           screenState
@@ -237,29 +262,34 @@ module AuditTrail = {
               <Icon name="spinner" size=20 />
             </div>
           </div>}>
-          <div className="flex flex-col gap-4 overflow-y-auto h-840-px">
-            <RenderIf condition={Array.length(tabs) > 0}>
-              <Tabs
-                tabs
-                showBorder=true
-                includeMargin=false
-                defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center px-6 ${body.md.semibold}`}
-                selectTabBottomBorderColor="bg-primary"
-                customBottomBorderColor="mb-6"
+          <div className="h-full relative">
+            <div className="overflow-y-auto px-2 h-modalContentHeight pb-5">
+              <RenderIf condition={Array.length(tabs) > 0}>
+                <Tabs
+                  tabs
+                  showBorder=true
+                  includeMargin=false
+                  defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center px-6 ${body.md.semibold}`}
+                  selectTabBottomBorderColor="bg-primary"
+                  customBottomBorderColor="mb-6"
+                />
+              </RenderIf>
+              <RenderIf condition={Array.length(tabs) === 0}>
+                <div className="text-center text-nd_gray-500 py-8">
+                  {"No entries found"->React.string}
+                </div>
+              </RenderIf>
+            </div>
+            <div
+              className="absolute bottom-0 left-0 right-0 h-20 bg-white dark:bg-jp-gray-lightgray_background p-4 flex items-center">
+              <Button
+                customButtonStyle="!w-full"
+                buttonType=Button.Primary
+                onClick={_ => setShowModal(_ => false)}
+                text="OK"
               />
-            </RenderIf>
-            <RenderIf condition={Array.length(tabs) === 0}>
-              <div className="text-center text-nd_gray-500 py-8">
-                {"No entries found"->React.string}
-              </div>
-            </RenderIf>
+            </div>
           </div>
-          <Button
-            customButtonStyle="!w-full"
-            buttonType=Button.Primary
-            onClick={_ => setShowModal(_ => false)}
-            text="OK"
-          />
         </PageLoaderWrapper>
       </Modal>
       <AuditTrailStepIndicator sections />
