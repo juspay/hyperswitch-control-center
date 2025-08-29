@@ -7,8 +7,8 @@ open NewAnalyticsUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
-let pendingColor = "#F3BE8B"
-let matchedColor = "#7AB891"
+let expectedColor = "#8BC2F3"
+let postedColor = "#7AB891"
 let exceptionsVolumeColor = "#F39B8B"
 let reconciledVolumeColor = "#8BC2F3"
 
@@ -194,14 +194,14 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
         color: mismatchedColor,
       },
       {
-        name: "Pending",
+        name: "Expected",
         data: [expectedCount->Int.toFloat],
-        color: pendingColor,
+        color: expectedColor,
       },
       {
-        name: "Matched",
+        name: "Posted",
         data: [postedCount->Int.toFloat],
-        color: matchedColor,
+        color: postedColor,
       },
     ],
     labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),

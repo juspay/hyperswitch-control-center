@@ -20,7 +20,7 @@ module IngestionConfigDetails = {
             {"Last Sync"->React.string}
           </span>
           <span className={`${body.md.semibold} text-nd_gray-800`}>
-            {lastSyncedAt->Option.getOr("N/A")->React.string}
+            <TableUtils.DateCell timestamp={lastSyncedAt->Option.getOr("N/A")} textAlign={Left} />
           </span>
         </div>
         {keyValuePairs

@@ -58,14 +58,17 @@ let make = () => {
       let res = await fetchDetails(stagingUrl)
       let stagingList = res->LogicUtils.getArrayDataFromJson(processingItemToObjMapper)
 
-      let stagingDataList = stagingList->Array.map(Nullable.make)
-      setStagingData(_ => stagingDataList)
-      setFilteredStagingData(_ => stagingDataList)
+      setStagingData(_ => stagingList)
+      setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
+
+  let accountOptions = React.useMemo(() => {
+    getStagingAccountOptions(stagingData)
+  }, [stagingData])
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
@@ -92,7 +95,7 @@ let make = () => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={initialDisplayFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -131,7 +134,7 @@ let make = () => {
         enableEqualWidthCol=false
         showAutoScroll=true
         filters={<TableSearchFilter
-          data={stagingData}
+          data={stagingData->Array.map(Nullable.make)}
           filterLogic
           placeholder="Search Staging Entry ID or Status"
           customSearchBarWrapperWidth="w-full lg:w-1/3"

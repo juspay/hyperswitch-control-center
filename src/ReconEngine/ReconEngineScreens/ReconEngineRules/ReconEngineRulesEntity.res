@@ -1,9 +1,9 @@
 open ReconEngineRulesTypes
 open LogicUtils
 
-let defaultColumns: array<ruleColType> = [RuleId, RuleName, RuleDescription, Status, Priority]
+let defaultColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleDescription, Status]
 
-let allColumns: array<ruleColType> = [RuleId, RuleName, RuleDescription, Status, Priority]
+let allColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleDescription, Status]
 
 let operatorMapper = dict => {
   {
@@ -88,16 +88,17 @@ let ruleItemToObjMapper = dict => {
 
 let getHeading = (colType: ruleColType) => {
   switch colType {
+  | Priority => Table.makeHeaderInfo(~key="priority", ~title="Priority")
   | RuleId => Table.makeHeaderInfo(~key="rule_id", ~title="Rule ID")
   | RuleName => Table.makeHeaderInfo(~key="rule_name", ~title="Rule Name")
   | RuleDescription => Table.makeHeaderInfo(~key="rule_description", ~title="Description")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | Priority => Table.makeHeaderInfo(~key="priority", ~title="Priority")
   }
 }
 
 let getCell = (rule: rulePayload, colType: ruleColType): Table.cell => {
   switch colType {
+  | Priority => Text(rule.priority->Int.toString)
   | RuleId => Text(rule.rule_id)
   | RuleName => Text(rule.rule_name)
   | RuleDescription => EllipsisText(rule.rule_description, "max-w-xs")
@@ -106,7 +107,6 @@ let getCell = (rule: rulePayload, colType: ruleColType): Table.cell => {
       title: rule.is_active ? "ACTIVE" : "INACTIVE",
       color: rule.is_active ? LabelGreen : LabelGray,
     })
-  | Priority => Text(rule.priority->Int.toString)
   }
 }
 

@@ -9,8 +9,14 @@ type processedEntryType = {
   created_at: string,
 }
 
+type accountType = {
+  account_id: string,
+  account_name: string,
+}
+
 type processingEntryType = {
   staging_entry_id: string,
+  account: accountType,
   entry_type: string,
   amount: float,
   currency: string,

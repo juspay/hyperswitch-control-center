@@ -1,6 +1,5 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
-open ReconEngineUtils
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -30,6 +29,7 @@ let getHeading = (colType: entryColType) => {
   switch colType {
   | EntryId => Table.makeHeaderInfo(~key="entry_id", ~title="Entry ID")
   | EntryType => Table.makeHeaderInfo(~key="entry_type", ~title="Entry Type")
+  | AccountName => Table.makeHeaderInfo(~key="account", ~title="Account")
   | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
@@ -42,7 +42,7 @@ let getHeading = (colType: entryColType) => {
 
 let getStatusLabel = (statusString: string): Table.cell => {
   Table.Label({
-    title: statusString->getDisplayStatusName,
+    title: statusString->String.toUpperCase,
     color: switch statusString->String.toLowerCase {
     | "posted" => Table.LabelGreen
     | "mismatched" => Table.LabelRed
@@ -58,17 +58,18 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => Text(entry.entry_id)
   | EntryType => Text(entry.entry_type)
+  | AccountName => Text(entry.account_name)
   | TransactionId => Text(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
   | Status =>
     switch entry.discarded_status {
-    | Some(status) => getStatusLabel(status)
+    | Some(discardedStatus) => getStatusLabel(discardedStatus)
     | None => getStatusLabel(entry.status)
     }
-  | Metadata => CustomCell(<div> {"Here is the metadata: "->React.string} </div>, "")
-  | CreatedAt => Text(entry.created_at)
-  | EffectiveAt => Text(entry.effective_at)
+  | Metadata => Text(entry.metadata->JSON.stringify)
+  | CreatedAt => Date(entry.created_at)
+  | EffectiveAt => Date(entry.effective_at)
   }
 }
 
