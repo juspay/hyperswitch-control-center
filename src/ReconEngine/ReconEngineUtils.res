@@ -83,11 +83,3 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
     }
   })
 }
-
-let getDisplayStatusName = (status: string) => {
-  switch status->String.toLowerCase {
-  | "posted" => "Matched"->String.toUpperCase
-  | "expected" => "Pending"->String.toUpperCase
-  | _ => status->String.toUpperCase
-  }
-}

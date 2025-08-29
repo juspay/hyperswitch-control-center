@@ -6,6 +6,14 @@ let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
 
+let getFilteredMetadataFromEntries = metadata => {
+  metadata
+  ->getDictFromJsonObject
+  ->Dict.toArray
+  ->Array.filter(((key, _value)) => key !== "amount" && key !== "currency")
+  ->Dict.fromArray
+}
+
 let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),
@@ -76,6 +84,7 @@ let getAllEntryPayload = dict => {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
     transaction_id: dict->getString("transaction_id", ""),
+    account_name: dict->getDictfromDict("account")->getString("account_name", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
@@ -93,11 +102,11 @@ let getArrayOfEntriesListPayloadType = json => {
 }
 
 let getTransactionsList: JSON.t => array<transactionPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, getAllTransactionPayload)
+  getArrayDataFromJson(json, getAllTransactionPayload)
 }
 
 let getEntriesList: JSON.t => array<entryPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, getAllEntryPayload)
+  getArrayDataFromJson(json, getAllEntryPayload)
 }
 
 let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {

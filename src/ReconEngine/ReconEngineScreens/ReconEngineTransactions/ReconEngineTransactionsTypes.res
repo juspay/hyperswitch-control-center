@@ -51,6 +51,7 @@ type entryStatus =
 type entryPayload = {
   entry_id: string,
   entry_type: string,
+  account_name: string,
   transaction_id: string,
   amount: float,
   currency: string,
@@ -74,6 +75,7 @@ type transactionColType =
 type entryColType =
   | EntryId
   | EntryType
+  | AccountName
   | TransactionId
   | Amount
   | Currency
