@@ -165,7 +165,7 @@ module MappingRules = {
             ),
           ]
 
-          <div key={index->Int.toString} className="flex items-center gap-4 py-2">
+          <div key={LogicUtils.randomString(~length=10)} className="flex items-center gap-4 py-2">
             <div className="flex-1 max-w-xs">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
@@ -260,10 +260,11 @@ module TriggerRules = {
         </div>
         <div className="flex-1 flex flex-col gap-2">
           <label className={`${labelCss}`}> {"Value"->React.string} </label>
-          {InputFields.textInput(~isDisabled=true, ~inputStyle="rounded-lg")(
-            ~input=valueInput,
-            ~placeholder="Enter trigger value",
-          )}
+          {InputFields.textInput(
+            ~isDisabled=true,
+            ~inputStyle="rounded-lg",
+            ~customDashboardClass="h-8 text-sm font-normal",
+          )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
       </div>
     </div>
@@ -442,8 +443,8 @@ module RuleDetailsContent = {
       <div className="rounded-lg p-6 border border-nd_gray-150">
         <div className="grid md:grid-cols-2 gap-8">
           {fields
-          ->Array.mapWithIndex(((label, value), index) => {
-            <FieldDisplay key={index->Int.toString} label value />
+          ->Array.map(((label, value)) => {
+            <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
           <StatusBadge isActive={rule.is_active} />

@@ -73,12 +73,13 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
 
   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {cardData
-    ->Array.mapWithIndex((card, index) => {
+    ->Array.map(card => {
       <PageLoaderWrapper
+        key={randomString(~length=10)}
         screenState
         customUI={<NewAnalyticsHelper.NoData height="h-28" message="No data available" />}
         customLoader={<Shimmer styleClass="w-full h-28 rounded-xl" />}>
-        <OverviewCard key={index->Int.toString} title={card["title"]} value={card["value"]} />
+        <OverviewCard title={card.cardTitle} value={card.cardValue} />
       </PageLoaderWrapper>
     })
     ->React.array}
