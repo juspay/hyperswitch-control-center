@@ -306,4 +306,5 @@ let make: (
   ~showVerticalScroll: bool=?,
   ~showPagination: bool=?,
   ~highlightSelectedRow: bool=?,
+  ~freezeFirstColumn: bool=?,
 ) => React.element

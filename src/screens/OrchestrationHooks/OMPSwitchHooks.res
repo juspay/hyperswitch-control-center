@@ -140,7 +140,7 @@ let useMerchantSwitch = () => {
   }
 }
 
-let useProfileSwitch = () => {
+let useProfileSwitch = (~setActiveProductValue, ~currentProduct: ProductTypes.productTypes) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -163,6 +163,10 @@ let useProfileSwitch = () => {
         showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
+        switch setActiveProductValue {
+        | Some(fn) => fn(currentProduct)
+        | None => ()
+        }
         defaultValue
       }
     } catch {
@@ -178,8 +182,8 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   open HyperswitchAtom
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
-  let profileSwitch = useProfileSwitch()
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let profileSwitch = useProfileSwitch(~setActiveProductValue, ~currentProduct=product_type)
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
   async (
