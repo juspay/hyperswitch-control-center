@@ -169,9 +169,7 @@ let make = () => {
   let (arrow, setArrow) = React.useState(_ => false)
   let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
-    globalUIConfig: {
-      sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
-    },
+    globalUIConfig: {sidebarColor: {backgroundColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {devModularityV2} = featureFlagDetails
@@ -250,7 +248,7 @@ let make = () => {
 
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`
   let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
-  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass} -ml-3`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -305,13 +303,13 @@ let make = () => {
       baseComponent={<ListBaseComp
         user=#Merchant heading="Merchant" subHeading arrow isPlatform=isCurrentMerchantPlatform
       />}
-      baseComponentCustomStyle={`!border-none`}
+      baseComponentCustomStyle="!border-none"
       bottomComponent={<AddNewOMPButton
         user=#Merchant
         setShowModal
-        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
+        customStyle={`${backgroundColor.sidebarSecondary} ${borderColor} !border-none`}
         addItemBtnStyle
-        customHRTagStyle={`${borderColor}`}
+        customHRTagStyle={borderColor}
       />}
       toggleChevronState
       customScrollStyle
