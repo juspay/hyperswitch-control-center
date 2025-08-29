@@ -118,7 +118,7 @@ let make = (
               />
             </div>
           </RenderIf>
-          <div className={`flex-1 text-center`}>
+          <div className="flex-1 text-center">
             <AddDataAttributes attributes=[("data-calendar-date", monthAndYear)]>
               <div
                 className="font-medium text-sm md:text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
