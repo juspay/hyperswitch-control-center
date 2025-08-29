@@ -29,7 +29,7 @@ let getHeading = (colType: entryColType) => {
   switch colType {
   | EntryId => Table.makeHeaderInfo(~key="entry_id", ~title="Entry ID")
   | EntryType => Table.makeHeaderInfo(~key="entry_type", ~title="Entry Type")
-  | AccountName => Table.makeHeaderInfo(~key="account_name", ~title="Account Name")
+  | AccountName => Table.makeHeaderInfo(~key="account", ~title="Account")
   | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")

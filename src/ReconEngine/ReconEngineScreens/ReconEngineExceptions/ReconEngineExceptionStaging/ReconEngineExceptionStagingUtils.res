@@ -53,8 +53,8 @@ let initialDisplayFilters = (~accountOptions) => {
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="account_name",
-          ~name="account_name",
+          ~label="account",
+          ~name="account_id",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=accountOptions,
             ~buttonText="Select Account",

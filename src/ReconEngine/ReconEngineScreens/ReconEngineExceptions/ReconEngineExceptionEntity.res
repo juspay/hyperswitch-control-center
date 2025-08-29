@@ -24,7 +24,7 @@ let getProcessingHeading = colType => {
   switch colType {
   | StagingEntryId => Table.makeHeaderInfo(~key="staging_entry_id", ~title="Staging Entry ID")
   | EntryType => Table.makeHeaderInfo(~key="entry_type", ~title="Entry Type")
-  | AccountName => Table.makeHeaderInfo(~key="account_name", ~title="Account Name")
+  | AccountName => Table.makeHeaderInfo(~key="account", ~title="Account")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
