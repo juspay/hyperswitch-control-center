@@ -103,11 +103,10 @@ let make = (
       )
 
       let iconClass = "inline-block text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25 cursor-pointer"
-      let monthTextAlignCss = showLeft ? "text-right" : "text-left"
       <div key={Int.toString(i)}>
         <div className="flex flex-row items-center p-3">
           <RenderIf condition=showLeft>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2.5">
               <Icon
                 name="angle-double-left"
                 className=iconClass
@@ -119,7 +118,7 @@ let make = (
               />
             </div>
           </RenderIf>
-          <div className={`flex-1 ${monthTextAlignCss}`}>
+          <div className={`flex-1 text-center`}>
             <AddDataAttributes attributes=[("data-calendar-date", monthAndYear)]>
               <div
                 className="font-medium text-sm md:text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
@@ -128,7 +127,7 @@ let make = (
             </AddDataAttributes>
           </div>
           <RenderIf condition=showRight>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2.5">
               <Icon
                 name="chevron-right" className=iconClass onClick={_ => handleChangeMonthBy(1)}
               />
