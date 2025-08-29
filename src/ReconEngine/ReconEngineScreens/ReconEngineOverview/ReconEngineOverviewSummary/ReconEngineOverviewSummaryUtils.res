@@ -16,14 +16,14 @@ let getSummaryStackedBarGraphData = (
         color: mismatchedColor,
       },
       {
-        name: "Pending",
+        name: "Expected",
         data: [expectedCount->Int.toFloat],
-        color: pendingColor,
+        color: expectedColor,
       },
       {
-        name: "Matched",
+        name: "Posted",
         data: [postedCount->Int.toFloat],
-        color: matchedColor,
+        color: postedColor,
       },
     ],
     labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
