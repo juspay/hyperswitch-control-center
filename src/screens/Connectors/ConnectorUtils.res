@@ -67,6 +67,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(DATATRANS),
   Processors(DLOCAL),
+  Processors(DWOLLA),
   Processors(ELAVON),
   Processors(FISERV),
   Processors(FISERVIPG),
@@ -704,6 +705,10 @@ let blackhawknetworkInfo = {
   description: "Blackhawk Network Holdings, Inc. is an American financial technology company that specializes in branded payments, prepaid cards, gift cards, and incentive solutions.",
 }
 
+let dwollaInfo = {
+  description: "Dwolla offers a white labeled product experience powered by an API that enables you to embed account-to-account payments into a web or mobile application.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -800,6 +805,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BREADPAY => "breadpay"
   | BLUECODE => "bluecode"
   | BLACKHAWKNETWORK => "blackhawknetwork"
+  | DWOLLA => "dwolla"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -965,6 +971,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "breadpay" => Processors(BREADPAY)
     | "bluecode" => Processors(BLUECODE)
     | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
+    | "dwolla" => Processors(DWOLLA)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1110,6 +1117,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BREADPAY => breadpayInfo
   | BLUECODE => bluecodeInfo
   | BLACKHAWKNETWORK => blackhawknetworkInfo
+  | DWOLLA => dwollaInfo
   }
 }
 
@@ -2027,6 +2035,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BREADPAY => "Breadpay"
   | BLUECODE => "Bluecode"
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
+  | DWOLLA => "Dwolla"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
