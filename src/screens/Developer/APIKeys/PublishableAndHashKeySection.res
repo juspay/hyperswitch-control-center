@@ -32,12 +32,15 @@ let make = () => {
   }, [])
 
   let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getOr("")
+  let heading = `Publishable Key ${paymentResponsHashKey->String.length !== 0
+      ? "Payment Response Hash Key"
+      : ""}`
 
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
     <div className="mt-10">
       <h2
         className="font-bold text-xl pb-3 text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-        {"Publishable Key and Payment Response Hash Key"->React.string}
+        {heading->React.string}
       </h2>
       <div
         className="px-2 py-4 border border-jp-gray-500 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-lightgray_background rounded-md">
