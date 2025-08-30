@@ -3,12 +3,7 @@ module TopFilterUI = {
   let make = (~filterDataJson, ~tabNames) => {
     open HSAnalyticsUtils
 
-    let mixpanelEvent = MixpanelHook.useSendEvent()
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-
-    let dateDropDownTriggerMixpanelCallback = () => {
-      mixpanelEvent(~eventName="routing_analytics_date_filter_opened")
-    }
 
     let (initialFilters, popupFilterFields, key) = switch filterDataJson {
     | Some(filterData) => (
@@ -25,10 +20,7 @@ module TopFilterUI = {
         initialFilters
         options=[]
         popupFilterFields
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
+        initialFixedFilters={[]}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames
         key

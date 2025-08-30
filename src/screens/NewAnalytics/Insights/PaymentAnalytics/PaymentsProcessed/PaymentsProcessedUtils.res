@@ -135,11 +135,10 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open InsightsUtils
   switch colType {
   | Payment_Processed_Amount => Text(obj.payment_processed_amount->valueFormatter(Amount))
   | Payment_Processed_Count => Text(obj.payment_processed_count->Int.toString)
-  | Time_Bucket => Text(obj.time_bucket->formatDateValue(~includeYear=true))
+  | Time_Bucket => Text(obj.time_bucket->NewAnalyticsUtils.formatDateValue(~includeYear=true))
   | Total_Payment_Processed_Amount
   | Total_Payment_Processed_Count =>
     Text("")

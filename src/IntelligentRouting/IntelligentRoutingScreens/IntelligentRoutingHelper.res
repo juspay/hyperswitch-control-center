@@ -28,7 +28,7 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
 let displayDateRange = (~minDate, ~maxDate) => {
   let getDateObj = value => value->DayJs.getDayJsForString
   let date = value => {
-    InsightsUtils.formatDateValue(value, ~includeYear=true)
+    formatDateValue(value, ~includeYear=true)
   }
 
   let time = value => {

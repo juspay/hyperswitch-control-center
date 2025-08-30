@@ -20,7 +20,7 @@ let make = () => {
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularityTabState, setGranularityTabState) = React.useState(_ =>
-    defaultGranularityOptionsObject
+    RoutingAnalyticsUtils.defaultGranularityOptionsObject
   )
 
   let getMetricData = async (~granularityValue) => {
