@@ -462,6 +462,7 @@ module.exports = {
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
+        "104-px": "104px",
       },
     },
   },

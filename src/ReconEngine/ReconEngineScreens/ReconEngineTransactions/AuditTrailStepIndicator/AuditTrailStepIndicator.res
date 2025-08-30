@@ -7,7 +7,8 @@ let make = (~sections: array<section>) => {
       <div className="flex flex-col gap-y-12">
         {sections
         ->Array.mapWithIndex((section, sectionIndex) => {
-          <div key={sectionIndex->Int.toString} className="flex flex-row gap-8 items-start">
+          <div
+            key={LogicUtils.randomString(~length=10)} className="flex flex-row gap-8 items-start">
             <div key={section.id} className="flex gap-x-3 items-center relative z-10">
               <div className="flex items-center justify-center rounded-full w-8 h-8 border">
                 {section.id->React.string}
