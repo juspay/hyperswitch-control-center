@@ -1,27 +1,8 @@
-type t
-type searchParams
-
-// constructor
-@new external make: (string, string) => t = "URL"
-
-// methods
-@send external toString: t => string = "toString"
-
-// property access (important: @get, not @send)
-@get external searchParams: t => searchParams = "searchParams"
-
-// URLSearchParams methods
-@send external append: (searchParams, string, string) => unit = "append"
-@send external set: (searchParams, string, string) => unit = "set"
-@send external get: (searchParams, string) => string = "get"
-@get external href: t => string = "href"
-
 module DialogBox = {
   @react.component
   let make = (~isOpen: bool, ~onClose: unit => unit) => {
     open Typography
 
-    // Escape key handler
     let handleKeyUp = ev => {
       open ReactEvent.Keyboard
       let key = ev->key
@@ -101,8 +82,8 @@ module PageHeading = {
       UserInfoProvider.defaultContext,
     )
     let handleCopy = () => {
-      let url = make(
-        `${Window.Location.origin}/dashboard/${orgId}/${merchantId}/${profileId}/switch/user`,
+      let url = Window.URL.make(
+        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/switch/user`,
         `${Window.Location.origin}`,
       )
       let queryParams = Window.Location.search
@@ -110,15 +91,9 @@ module PageHeading = {
           Js.Re.fromString("/dashboard"),
           "",
         )}${queryParams}`
-      Js.log2(queryParams, "QUERYPARAMS")
-      // url->searchParams->append("orgId", orgId)
+      url->Window.URL.searchParams->Window.URL.append("path", path)
 
-      // url->searchParams->append("merchantId", merchantId)
-      // url->searchParams->append("profileId", profileId)
-
-      url->searchParams->append("path", path)
-
-      Clipboard.writeText(url->href)
+      Clipboard.writeText(url->Window.URL.href)
       showToast(~message="Link Copied to Clipboard!", ~toastType=ToastSuccess)
       setShowShareDialog(_ => true)
     }

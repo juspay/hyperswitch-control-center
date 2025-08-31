@@ -113,15 +113,13 @@ let keyExtractorForMerchantid = item => {
   dict->getString("merchant_id", "")
 }
 
-let userSwitch = (~switchData) => {
+let userSwitch = (~ompData: array<string>, ~path) => {
   let data = {
-    orgId: switchData->List.get(0),
-    merchantId: switchData->List.get(1),
-    profileId: switchData->List.get(2),
-    path: None,
-    query: None,
+    orgId: ompData->Array.get(0),
+    merchantId: ompData->Array.get(1),
+    profileId: ompData->Array.get(2),
+    path,
   }
-  Js.log2(data, "SWITCH DATA")
   if data.profileId->Option.isSome {
     Some(data)
   } else {

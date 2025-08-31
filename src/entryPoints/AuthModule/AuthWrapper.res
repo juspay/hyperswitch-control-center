@@ -56,10 +56,17 @@ let make = (~children) => {
     AuthInfoProvider.authStatusContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-
+  Js.log(url)
   let handleSwitchUserQueryParam = () => {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"switch", "user"} => SessionStorage.sessionStorage.setItem("switch-user", url.search)
+    | list{orgId, merchantId, profileId, "switch", "user"} => {
+        let omp =
+          [orgId->JSON.Encode.string, merchantId->JSON.Encode.string, profileId->JSON.Encode.string]
+          ->JSON.Encode.array
+          ->JSON.stringify
+        SessionStorage.sessionStorage.setItem("switch-user-query", url.search)
+        SessionStorage.sessionStorage.setItem("switch-user-omp", omp)
+      }
     | _ => ()
     }
   }
