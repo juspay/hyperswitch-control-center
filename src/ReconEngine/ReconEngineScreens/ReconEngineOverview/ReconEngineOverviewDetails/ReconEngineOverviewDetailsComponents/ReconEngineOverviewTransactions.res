@@ -43,7 +43,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
       setFilteredReports(_ => transactionsListData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -95,11 +95,8 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     <div className="flex-shrink-0"> {topFilterUi} </div>
     <PageLoaderWrapper
       screenState
-      customLoader={<div className="h-full flex flex-col justify-center items-center">
-        <div className="animate-spin">
-          <Icon name="spinner" size=20 />
-        </div>
-      </div>}>
+      customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available" />}
+      customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
         actualData={filteredTransactionsData}
