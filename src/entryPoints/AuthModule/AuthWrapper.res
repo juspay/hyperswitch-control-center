@@ -56,12 +56,12 @@ let make = (~children) => {
     AuthInfoProvider.authStatusContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  Js.log(url)
   let handleSwitchUserQueryParam = () => {
     switch url.path->HSwitchUtils.urlPath {
     | list{orgId, merchantId, profileId, "switch", "user"} => {
         let omp =
-          [orgId->JSON.Encode.string, merchantId->JSON.Encode.string, profileId->JSON.Encode.string]
+          [orgId, merchantId, profileId]
+          ->Array.map(val => val->JSON.Encode.string)
           ->JSON.Encode.array
           ->JSON.stringify
         SessionStorage.sessionStorage.setItem("switch-user-query", url.search)
