@@ -525,10 +525,6 @@ let isEmptyDict = dict => {
   dict->Dict.keysToArray->Array.length === 0
 }
 
-let isNonEmptyDict = dict => {
-  dict->Dict.keysToArray->Array.length !== 0
-}
-
 let isNullJson = val => {
   val == JSON.Encode.null || checkEmptyJson(val)
 }
