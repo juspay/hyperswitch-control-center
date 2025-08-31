@@ -65,6 +65,7 @@ let make = (~children) => {
     setScreenState(_ => PageLoaderWrapper.Success)
   }
   React.useEffect(() => {
+    // condition can be removed once after omp in all the URL
     switch url.path->HSwitchUtils.urlPath {
     | list{orgId, merchantId, profileId, "switch", "user"} =>
       switchUser(~ompData=[orgId, merchantId, profileId])->ignore
