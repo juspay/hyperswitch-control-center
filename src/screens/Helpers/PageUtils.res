@@ -75,6 +75,7 @@ module PageHeading = {
     ~leftIcon=None,
     ~customTagComponent=?,
     ~customTitleSectionStyles="",
+    ~showPermLink=true,
   ) => {
     let (showShareDialog, setShowShareDialog) = React.useState(_ => false)
     let {userInfo: {orgId, merchantId, profileId}} = React.useContext(
@@ -101,13 +102,15 @@ module PageHeading = {
       }}
       <div className={`flex items-center gap-4 ${customTitleSectionStyles}`}>
         <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
-        <HelperComponents.CopyTextCustomComp
-          copyValue={Some(buildPermLink())}
-          displayValue=Some("")
-          customeIcon="nd-permalink"
-          customParentClass="mt-1"
-          customOnCopyClick={() => setShowShareDialog(_ => true)}
-        />
+        <RenderIf condition=showPermLink>
+          <HelperComponents.CopyTextCustomComp
+            copyValue={Some(buildPermLink())}
+            displayValue=Some("")
+            customeIcon="nd-permalink"
+            customParentClass="mt-1"
+            customOnCopyClick={() => setShowShareDialog(_ => true)}
+          />
+        </RenderIf>
         <RenderIf condition=isTag>
           <div
             className={`text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 ${customTagStyle}`}>
