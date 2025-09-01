@@ -4,6 +4,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open LeastCostRoutingAnalyticsTypes
+  open LeastCostRoutingAnalyticsDistributionUtils
 
   let (response, setResponse) = React.useState(_ => JSON.Encode.null)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -26,7 +27,7 @@ let make = () => {
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~groupByNames=Some([(#card_network: requestPayloadMetrics :> string)]),
-            ~filter=Some(LeastCostRoutingAnalyticsUtils.filterDict->JSON.Encode.object),
+            ~filter=Some(filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
