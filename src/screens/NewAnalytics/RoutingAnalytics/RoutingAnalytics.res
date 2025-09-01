@@ -1,12 +1,41 @@
 @react.component
 let make = () => {
   open Typography
+  open HSAnalyticsUtils
 
+  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
+  let dateDropDownTriggerMixpanelCallback = () => {
+    mixpanelEvent(~eventName="routing_analytics_date_filter_opened")
+  }
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~origin="analytics",
+    (),
+  )
+
+  React.useEffect(() => {
+    setInitialFilters()
+    None
+  }, [])
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Overall Routing",
+      renderContent: () => <OverallRoutingAnalytics />,
+    },
+    {
+      title: "Least Cost Routing",
+      renderContent: () => <LeastCostRoutingAnalytics />,
+    },
+  ]
   <div className="flex flex-col gap-8">
     <div className="flex items-center justify-between ">
       <PageUtils.PageHeading
@@ -15,8 +44,8 @@ let make = () => {
         customHeadingStyle={`${body.lg.semibold} !text-nd_gray-800`}
         customSubTitleStyle={`${body.lg.medium} !text-nd_gray-400 !opacity-100 !mt-1`}
       />
-      <div className="mr-4">
-        <Portal to="RoutingAnalyticsOMPView">
+      <div className="flex gap-2 item-center mx-4">
+        <div className="mt-4">
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
             selectedEntity={analyticsEntity}
@@ -24,9 +53,33 @@ let make = () => {
             entityMapper=UserInfoUtils.analyticsEntityMapper
             disabledDisplayName="Hyperswitch_test"
           />
-        </Portal>
+        </div>
+        <DynamicFilter
+          title="RoutingAnalytics"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          tabNames=[]
+          key="0"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          showCustomFilter=false
+          refreshFilters=false
+        />
       </div>
     </div>
-    <OverallRoutingAnalytics />
+    <Tabs
+      initialIndex={tabIndex}
+      tabs
+      onTitleClick={tabId => setTabIndex(_ => tabId)}
+      includeMargin=false
+      textStyle="text-blue-600"
+      selectTabBottomBorderColor="bg-blue-600"
+    />
   </div>
 }
