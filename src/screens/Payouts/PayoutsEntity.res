@@ -1,5 +1,4 @@
 open LogicUtils
-open ConnectorTypes
 
 let concatValueOfGivenKeysOfDict = (dict, keys) => {
   Array.reduceWithIndex(keys, "", (acc, key, i) => {
