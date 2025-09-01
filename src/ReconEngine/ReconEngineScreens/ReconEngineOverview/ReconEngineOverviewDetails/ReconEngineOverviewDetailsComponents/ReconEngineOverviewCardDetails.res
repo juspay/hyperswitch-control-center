@@ -29,7 +29,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -50,47 +50,38 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     )
   }, (allTransactionsData, ruleDetails.rule_id))
 
-  let (
-    sourcePostedAmount,
-    targetPostedAmount,
-    missingInTargetAmount,
-    netVariance,
-  ) = React.useMemo(() => {
-    calculateAccountAmounts(ruleTransactionsData)
-  }, [ruleTransactionsData])
+  let cardData = React.useMemo(() => {
+    calculateAccountAmounts(
+      ruleTransactionsData,
+      ~sourceAccountName,
+      ~sourceAccountCurrency,
+      ~targetAccountName,
+      ~targetAccountCurrency,
+    )
+  }, (
+    ruleTransactionsData,
+    sourceAccountName,
+    sourceAccountCurrency,
+    targetAccountName,
+    targetAccountCurrency,
+  ))
 
   React.useEffect(() => {
     getTransactionsAndAccountData()->ignore
     None
   }, [])
 
-  <PageLoaderWrapper
-    screenState
-    customLoader={<div className="h-full flex flex-col justify-center items-center">
-      <div className="animate-spin">
-        <Icon name="spinner" size=20 />
-      </div>
-    </div>}>
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <OverviewCard
-        title={`Expected from ${sourceAccountName}`}
-        value={sourcePostedAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency)}
-      />
-      <OverviewCard
-        title={`Received by ${targetAccountName}`}
-        value={targetPostedAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency)}
-      />
-      <OverviewCard
-        title="Variance"
-        value={netVariance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency)}
-      />
-      <OverviewCard
-        title={`Missing in ${targetAccountName}`}
-        value={missingInTargetAmount->valueFormatter(
-          AmountWithSuffix,
-          ~suffix=targetAccountCurrency,
-        )}
-      />
-    </div>
-  </PageLoaderWrapper>
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {cardData
+    ->Array.map(card => {
+      <PageLoaderWrapper
+        key={randomString(~length=10)}
+        screenState
+        customUI={<NewAnalyticsHelper.NoData height="h-28" message="No data available" />}
+        customLoader={<Shimmer styleClass="w-full h-28 rounded-xl" />}>
+        <OverviewCard title={card.cardTitle} value={card.cardValue} />
+      </PageLoaderWrapper>
+    })
+    ->React.array}
+  </div>
 }

@@ -51,7 +51,7 @@ let getStatusLabel = (statusString: string): Table.cell => {
     color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
     | Posted => Table.LabelGreen
     | Mismatched => Table.LabelRed
-    | Expected => Table.LabelBlue
+    | Expected => Table.LabelOrange
     | Archived => Table.LabelGray
     | _ => Table.LabelLightGray
     },
