@@ -2,6 +2,15 @@ open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
+let entriesMetadataKeyToString = key => {
+  switch key {
+  | Amount => "amount"
+  | Currency => "currency"
+  }
+}
+
+let entriesMetadataExcludedKeys = [Amount, Currency]->Array.map(entriesMetadataKeyToString)
+
 let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
 }
@@ -10,7 +19,9 @@ let getFilteredMetadataFromEntries = metadata => {
   metadata
   ->getDictFromJsonObject
   ->Dict.toArray
-  ->Array.filter(((key, _value)) => key !== "amount" && key !== "currency")
+  ->Array.filter(((key, _value)) => {
+    !Array.includes(entriesMetadataExcludedKeys, key)
+  })
   ->Dict.fromArray
 }
 

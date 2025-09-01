@@ -83,3 +83,5 @@ type entryColType =
   | Metadata
   | CreatedAt
   | EffectiveAt
+
+type entriesMetadataKeysToExclude = Amount | Currency

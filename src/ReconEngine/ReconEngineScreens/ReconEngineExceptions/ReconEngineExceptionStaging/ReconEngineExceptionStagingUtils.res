@@ -7,11 +7,7 @@ let getStagingAccountOptions = (stagingData: array<processingEntryType>) => {
   let uniqueAccounts = allAccounts->Array.reduce([], (acc, account) => {
     let exists =
       acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
-    if exists {
-      acc
-    } else {
-      [...acc, account]
-    }
+    exists ? acc : [...acc, account]
   })
 
   uniqueAccounts->Array.map(account => {
