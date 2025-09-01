@@ -42,10 +42,9 @@ module LeastCostAnalyticsBasicMetricsCard = {
           response
           ->getDictFromJsonObject
           ->getArrayFromDict("queryData", [])
+          ->basicsMetricsMapper
 
-        let summedValues = responseObj->basicsMetricsMapper
-
-        setMetricsDataResponse(_ => summedValues)
+        setMetricsDataResponse(_ => responseObj)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -68,8 +67,8 @@ module LeastCostAnalyticsBasicMetricsCard = {
           className="flex flex-col border rounded-xl p-4 bg-white shadow-xs border-nd_gray-200 gap-6 2xl:gap-2">
           <p className={`${body.md.medium} text-nd_gray-400`}> {"Total Savings"->React.string} </p>
           <p className={`${heading.md.semibold} text-nd_gray-800`}>
-            {`$ ${(metricsDataResponse.debit_routing_savings_in_usd /. 100.0)
-                ->Float.toString} `->React.string}
+            {`${(metricsDataResponse.debit_routing_savings_in_usd /. 100.0)
+                ->valueFormatter(AmountWithSuffix, ~currency="$")} `->React.string}
           </p>
         </div>
       </PageLoaderWrapper>

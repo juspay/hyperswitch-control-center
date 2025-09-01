@@ -25,8 +25,8 @@ let calculateRegulatedPercentages = (queryData: array<metricsQueryDataResponse>)
   let totalCount = regulatedCount + unregulatedCount
 
   if totalCount > 0 {
-    let regulatedPercentage = regulatedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
-    let unregulatedPercentage = unregulatedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
+    let regulatedPercentage = calculateTrafficPercentage(regulatedCount, totalCount)
+    let unregulatedPercentage = calculateTrafficPercentage(unregulatedCount, totalCount)
     (regulatedPercentage, unregulatedPercentage)
   } else {
     (0.0, 0.0)
