@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.01.0
+
+### Features
+
+- Recon engine overview summary accounts view ([#3475](https://github.com/juspay/hyperswitch-control-center/pull/3475)) ([`e8b0e09`](https://github.com/juspay/hyperswitch-control-center/commit/e8b0e094487e78b7c836ad541d930d555394612e))
+
+### Bug Fixes
+
+- Remove unnecessary hr for orgsidebar ([#3492](https://github.com/juspay/hyperswitch-control-center/pull/3492)) ([`28c399e`](https://github.com/juspay/hyperswitch-control-center/commit/28c399ee6113cbb3d260de2dc3a33d88d8d71691))
+
+**Full Changelog:** [`2025.08.26.2...2025.09.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.26.2...2025.09.01.0)
+
+- - -
+
 ## 2025.08.26.2
 
 ### Bug Fixes
