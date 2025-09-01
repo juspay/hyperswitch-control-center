@@ -47,6 +47,7 @@ let make = (~children) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let details = getSwitchDetails(~ompData)
+      Js.log2(details, "DETAILS")
       switch details {
       | Some(data) =>
         await internalSwitch(
@@ -66,7 +67,7 @@ let make = (~children) => {
   }
   React.useEffect(() => {
     // condition can be removed once after omp in all the URL
-    switch url.path->HSwitchUtils.urlPath {
+    switch url.path {
     | list{orgId, merchantId, profileId, "switch", "user"} =>
       switchUser(~ompData=[orgId, merchantId, profileId])->ignore
     | _ => setScreenState(_ => PageLoaderWrapper.Success)
