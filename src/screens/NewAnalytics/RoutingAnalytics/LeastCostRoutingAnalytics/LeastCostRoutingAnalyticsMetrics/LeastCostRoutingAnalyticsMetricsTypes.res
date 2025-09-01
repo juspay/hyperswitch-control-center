@@ -8,5 +8,3 @@ type metricsQueryDataResponse = {
   debit_routing_savings_in_usd: float,
   is_issuer_regulated: option<bool>,
 }
-
-type metricsDataResponse = {queryData: array<metricsQueryDataResponse>}
