@@ -44,6 +44,7 @@ module.exports = {
         "8-rem": "8rem",
         "9.5-rem": "9.5rem",
         "12.5-rem": "12.5rem",
+        "14-rem": "14rem",
         "22-rem": "22rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
@@ -65,6 +66,7 @@ module.exports = {
         "120-px": "120px",
         "130-px": "130px",
         "195-px": "195px",
+        "344-px": "344px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
@@ -74,6 +76,9 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+      },
+      minWidth: {
+        "25-rem": "25rem",
       },
       maxHeight: {
         "15-rem": "15rem",
@@ -457,6 +462,7 @@ module.exports = {
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
+        "104-px": "104px",
       },
     },
   },

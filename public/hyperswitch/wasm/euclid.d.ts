@@ -82,7 +82,6 @@ export interface InitOutput {
   readonly getThreeDsKeys: (a: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
   readonly getThreeDsDecisionRuleKeys: (a: number) => void;
-  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: bigint, b: bigint) => bigint;
   readonly getDescriptionCategory: (a: number) => void;
@@ -99,6 +98,7 @@ export interface InitOutput {
   readonly getValidWebhookStatus: (a: number, b: number, c: number) => void;
   readonly ring_core_0_17_14__bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
+  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: (a: number) => void;

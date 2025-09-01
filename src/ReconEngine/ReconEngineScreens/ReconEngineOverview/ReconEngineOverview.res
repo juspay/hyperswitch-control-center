@@ -31,12 +31,16 @@ let make = () => {
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    reconRulesList->Array.map(ruleDetails => {
+    [
       {
+        title: "Overview",
+        renderContent: () => <ReconEngineOverviewSummary reconRulesList />,
+      },
+      ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
         renderContent: () => <ReconEngineOverviewDetails ruleDetails />,
-      }
-    })
+      }),
+    ]
   }, [reconRulesList])
 
   React.useEffect(() => {
@@ -46,10 +50,7 @@ let make = () => {
 
   <div className="flex flex-col gap-6 w-full">
     <PageUtils.PageHeading
-      title="Overview"
-      subTitle="Monitor your accounts and transactions with recon rules."
-      customSubTitleStyle={body.lg.medium}
-      customTitleStyle={`${heading.lg.semibold} py-0`}
+      title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
     />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
@@ -68,7 +69,6 @@ let make = () => {
           includeMargin=false
           defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
           selectTabBottomBorderColor="bg-primary"
-          customBottomBorderColor="mb-6"
         />
       </RenderIf>
     </PageLoaderWrapper>

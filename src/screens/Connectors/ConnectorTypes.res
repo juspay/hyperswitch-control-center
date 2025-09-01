@@ -37,6 +37,7 @@ type processorTypes =
   | KLARNA
   | GLOBALPAY
   | BLUESNAP
+  | AFFIRM
   | AIRWALLEX
   | WORLDPAY
   | WORLDPAYXML
@@ -119,6 +120,8 @@ type processorTypes =
   | FLEXITI
   | BREADPAY
   | BLUECODE
+  | BLACKHAWKNETWORK
+  | DWOLLA
 
 type payoutProcessorTypes =
   | ADYEN

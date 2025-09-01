@@ -37,7 +37,7 @@ let make = () => {
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~granularity=Some(granularityValue),
-            ~filter=Some(filterDict->JSON.Encode.object),
+            ~filter=Some(filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
@@ -108,7 +108,7 @@ let make = () => {
     customLoader={<Shimmer styleClass="w-full  h-22-rem rounded-xl" />}>
     <div className="flex flex-col">
       <div className="border rounded-xl py-2 px-4 border-nd_gray-200 rounded-b-none bg-nd_gray-25">
-        <p className={`text-nd_gray-600  px-3 py-[10px] ${body.md.semibold}`}>
+        <p className={`text-nd_gray-600 px-3 py-10-px ${body.md.semibold}`}>
           {"Savings over time"->React.string}
         </p>
       </div>

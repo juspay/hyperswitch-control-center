@@ -84,7 +84,7 @@ let tabIndeToVariantMapper = index => {
   }
 }
 
-let getUserManagementViewValues = (~checkUserEntity) => {
+let getUserManagementViewValues = (~checkUserEntity, ~showDefault=true) => {
   open UserManagementTypes
 
   let org = {
@@ -104,12 +104,18 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     entity: #Default,
   }
 
-  if checkUserEntity([#Organization, #Tenant]) {
-    [default, org, merchant, profile]
+  let baseViews = if checkUserEntity([#Organization, #Tenant]) {
+    [org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
-    [default, merchant, profile]
+    [merchant, profile]
   } else {
-    [default]
+    [profile]
+  }
+
+  if showDefault {
+    [default, ...baseViews]
+  } else {
+    baseViews
   }
 }
 
