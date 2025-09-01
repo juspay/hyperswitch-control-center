@@ -26,7 +26,7 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
-
+  
   let tabs: array<Tabs.tab> = [
     {
       title: "Overall Routing",
@@ -37,7 +37,6 @@ let make = () => {
       renderContent: () => <LeastCostRoutingAnalytics />,
     },
   ]
-
   <div className="flex flex-col gap-8">
     <div className="flex flex-col 2xl:flex-row gap-2">
       <PageUtils.PageHeading
@@ -81,11 +80,7 @@ let make = () => {
       initialIndex={tabIndex}
       tabs
       onTitleClick={tabId => setTabIndex(_ => tabId)}
-      disableIndicationArrow=true
-      showBorder=true
       includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       textStyle="text-blue-600"
       selectTabBottomBorderColor="bg-blue-600"
     />
