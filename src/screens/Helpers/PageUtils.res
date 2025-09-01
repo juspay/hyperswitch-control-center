@@ -76,12 +76,11 @@ module PageHeading = {
     ~customTagComponent=?,
     ~customTitleSectionStyles="",
   ) => {
-    let showToast = ToastState.useShowToast()
     let (showShareDialog, setShowShareDialog) = React.useState(_ => false)
     let {userInfo: {orgId, merchantId, profileId}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
-    let handleCopy = () => {
+    let buildPermLink = () => {
       let url = Window.URL.make(
         `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/switch/user`,
         `${Window.Location.origin}`,
@@ -92,10 +91,7 @@ module PageHeading = {
           "",
         )}${queryParams}`
       url->Window.URL.searchParams->Window.URL.append("path", path)
-
-      Clipboard.writeText(url->Window.URL.href)
-      showToast(~message="Link Copied to Clipboard!", ~toastType=ToastSuccess)
-      setShowShareDialog(_ => true)
+      url->Window.URL.href
     }
     let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
     <div className={`${customHeadingStyle}`}>
@@ -105,9 +101,13 @@ module PageHeading = {
       }}
       <div className={`flex items-center gap-4 ${customTitleSectionStyles}`}>
         <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
-        <div onClick={_ => handleCopy()} className="cursor-pointer flex mt-2">
-          <Icon name="nd-permalink" />
-        </div>
+        <HelperComponents.CopyTextCustomComp
+          copyValue={Some(buildPermLink())}
+          displayValue=Some("")
+          customeIcon="nd-permalink"
+          customParentClass="mt-1"
+          customOnCopyClick={() => setShowShareDialog(_ => true)}
+        />
         <RenderIf condition=isTag>
           <div
             className={`text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 ${customTagStyle}`}>

@@ -190,7 +190,7 @@ let make = () => {
       </RenderIf>
     }}
     <RenderIf condition={connectorListFromRecoil->Array.length == 0}>
-      <HelperComponents.BluredTableComponent
+      <BluredTableComponent
         infoText={"Connect to a payment processor to make your first payment"}
         buttonText={"Connect a connector"}
         moduleName=""

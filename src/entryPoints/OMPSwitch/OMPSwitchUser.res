@@ -32,22 +32,17 @@ let make = (~children) => {
     let path = url.search->getDictFromUrlSearchParams->Dict.get("path")
     userSwitch(~ompData, ~path)
   }
+
   let getSwitchDetails = (~ompData: array<string>) => {
-    let switchDataFromURL = getOMPDetailsFromUrl(~ompData)
-    let switchDataFromSessionStore = getOMPDetailsFromSessionStore()
-    if switchDataFromURL->Option.isSome {
-      switchDataFromURL
-    } else if switchDataFromSessionStore->Option.isSome {
-      switchDataFromSessionStore
-    } else {
-      None
+    switch getOMPDetailsFromUrl(~ompData) {
+    | Some(data) => Some(data)
+    | None => getOMPDetailsFromSessionStore()
     }
   }
   let switchUser = async (~ompData) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let details = getSwitchDetails(~ompData)
-      Js.log2(details, "DETAILS")
       switch details {
       | Some(data) =>
         await internalSwitch(

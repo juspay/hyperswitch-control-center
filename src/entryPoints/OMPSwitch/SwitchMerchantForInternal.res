@@ -1,4 +1,3 @@
-// type optionType = {label: string, value: string}
 @react.component
 let make = () => {
   open Typography
