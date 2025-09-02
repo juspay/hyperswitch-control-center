@@ -65,7 +65,7 @@ let make = () => {
   let handleClick = () => {
     mixpanelEvent(~eventName="recovery_start_exploring")
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(defaultPath)
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=defaultPath))
   }
 
   <PageWrapper

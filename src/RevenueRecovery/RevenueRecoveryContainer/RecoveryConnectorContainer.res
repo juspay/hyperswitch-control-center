@@ -9,6 +9,7 @@ let make = () => {
   )
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let {merchantId, profileId} = getUserInfoData()
+  let defaultPath = RecoveryConnectorContainerUtils.useGetDefaultPath()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -81,7 +82,7 @@ let make = () => {
         <RevenueRecoveryOnboardingLanding createMerchant=false />
       }
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <EmptyPage path="/v2/recovery/overview" />
+    | _ => <EmptyPage path=defaultPath />
     }}
   </PageLoaderWrapper>
 }
