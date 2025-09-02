@@ -148,7 +148,7 @@ let useMerchantSwitch = (~setActiveProductValue) => {
   }
 }
 
-let useProfileSwitch = (~setActiveProductValue) => {
+let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -161,10 +161,6 @@ let useProfileSwitch = (~setActiveProductValue) => {
     try {
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
-        switch setActiveProductValue {
-        | Some(fn) => fn(ProductTypes.UnknownProduct)
-        | None => ()
-        }
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
@@ -191,7 +187,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   let orgSwitch = useOrgSwitch(~setActiveProductValue)
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let profileSwitch = useProfileSwitch(~setActiveProductValue)
+  let profileSwitch = useProfileSwitch()
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
   async (
