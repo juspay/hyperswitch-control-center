@@ -201,9 +201,10 @@ module RemoteTableFilters = {
     let defaultDate = getDateFilteredObject(~range=30)
 
     let (start_time, end_time) = React.useMemo(() => {
-      let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
-      let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
-      (start_time, end_time)
+      (
+        filterValueJson->getString(startTimeFilterKey, defaultDate.start_time),
+        filterValueJson->getString(endTimeFilterKey, defaultDate.end_time),
+      )
     }, (filterValue, startTimeFilterKey, endTimeFilterKey))
 
     let fetchDetails = useGetMethod()
@@ -224,7 +225,7 @@ module RemoteTableFilters = {
         | _ => await fetchDetails(filterUrl)
         }
 
-        let editedResponse = switch entityName {
+        let filterDataResponse = switch entityName {
         | V1(PAYOUTS_FILTERS) => {
             let connectorArray =
               response->getDictFromJsonObject->getStrArrayFromDict("connector", [])
@@ -242,13 +243,13 @@ module RemoteTableFilters = {
                 }
               })
             })
-            let editedResponse = {
+            let filteredResponse = {
               response
               ->getDictFromJsonObject
               ->Dict.set("connector", filteredConnectorKeys->getJsonFromArrayOfString)
               response
             }
-            editedResponse
+            filteredResponse
           }
         | _ => {
             let connectorArray =
@@ -270,17 +271,17 @@ module RemoteTableFilters = {
               })
             })
             let newConnectorDict = filteredConnectorKeys->Dict.fromArray
-            let editedResponse = {
+            let filteredResponse = {
               response
               ->getDictFromJsonObject
               ->Dict.set("connector", newConnectorDict->Identity.genericTypeToJson)
               response
             }
-            editedResponse
+            filteredResponse
           }
         }
 
-        setFilterDataJson(_ => Some(editedResponse))
+        setFilterDataJson(_ => Some(filterDataResponse))
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
