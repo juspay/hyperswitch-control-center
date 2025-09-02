@@ -27,6 +27,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     force_3ds_challenge,
     is_debit_routing_enabled,
     merchant_category_code,
+    always_request_extended_authorization,
   } = profileRecord
 
   let profileInfo =
@@ -82,7 +83,10 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
   profileInfo->setOptionString("merchant_category_code", merchant_category_code)
-
+  profileInfo->setOptionBool(
+    "always_request_extended_authorization",
+    always_request_extended_authorization,
+  )
   profileInfo->setOptionDict(
     "outgoing_webhook_custom_http_headers",
     outgoing_webhook_custom_http_headers,
@@ -269,6 +273,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionString(
     "merchant_category_code",
     valuesDict->getOptionString("merchant_category_code"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_request_extended_authorization",
+    valuesDict->getOptionBool("always_request_extended_authorization"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -603,6 +611,7 @@ let defaultValueForBusinessProfile = {
   is_debit_routing_enabled: None,
   acquirer_configs: None,
   merchant_category_code: None,
+  always_request_extended_authorization: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

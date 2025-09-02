@@ -70,6 +70,9 @@ let businessProfileTypeMapper = values => {
     ),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
+    always_request_extended_authorization: jsonDict->getOptionBool(
+      "always_request_extended_authorization",
+    ),
   }
 }
 
