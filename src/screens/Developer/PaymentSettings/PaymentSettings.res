@@ -708,6 +708,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
                       ),
+                      ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
+                      ~toolTipPosition=Right,
                     )}
                   />
                 </DesktopRow>
