@@ -5,24 +5,16 @@ open ColumnGraphUtils
 open ReconEngineTransactionsUtils
 open NewAnalyticsUtils
 
-let defaultAccount = {
-  account_name: "",
-  account_id: "",
-  currency: "",
-  profile_id: "",
-  initial_balance: {
-    value: 0.0,
-    currency: "",
-  },
-  pending_balance: {
-    value: 0.0,
-    currency: "",
-  },
-  posted_balance: {
-    value: 0.0,
-    currency: "",
-  },
-}
+// Color constants for ReconEngine graphs
+let mismatchedColor = "#EA8A8F"
+let pendingColor = "#F3BE8B"
+let matchedColor = "#7AB891"
+let exceptionsVolumeColor = "#F39B8B"
+let reconciledVolumeColor = "#8BC2F3"
+
+// Flow diagram colors
+let highlightStrokeColor = "#3b82f6"
+let normalStrokeColor = "#6b7280"
 
 let defaultAccountDetails = {
   id: "",
@@ -40,16 +32,35 @@ let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
+    account_type: dict->getString("account_type", ""),
     profile_id: dict->getString("profile_id", ""),
     currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
     initial_balance: dict
     ->getDictfromDict("initial_balance")
     ->getAmountPayload,
-    pending_balance: dict
-    ->getDictfromDict("pending_balance")
+    posted_debits: dict
+    ->getDictfromDict("posted_debits")
     ->getAmountPayload,
-    posted_balance: dict
-    ->getDictfromDict("posted_balance")
+    posted_credits: dict
+    ->getDictfromDict("posted_credits")
+    ->getAmountPayload,
+    pending_debits: dict
+    ->getDictfromDict("pending_debits")
+    ->getAmountPayload,
+    pending_credits: dict
+    ->getDictfromDict("pending_credits")
+    ->getAmountPayload,
+    expected_debits: dict
+    ->getDictfromDict("expected_debits")
+    ->getAmountPayload,
+    expected_credits: dict
+    ->getDictfromDict("expected_credits")
+    ->getAmountPayload,
+    mismatched_debits: dict
+    ->getDictfromDict("mismatched_debits")
+    ->getAmountPayload,
+    mismatched_credits: dict
+    ->getDictfromDict("mismatched_credits")
     ->getAmountPayload,
   }
 }
@@ -82,8 +93,8 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   let account =
     accountData
     ->Array.find(account => account.account_id === accountId)
-    ->Option.getOr(defaultAccount)
-  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
+    ->Option.getOr(Dict.make()->accountItemToObjMapper)
+  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (
@@ -142,20 +153,20 @@ let calculateAccountAmounts = (
 
   [
     {
-      "title": `Expectations from ${sourceAccountName}`,
-      "value": totalSourceAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
+      cardTitle: `Expectations from ${sourceAccountName}`,
+      cardValue: totalSourceAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
     },
     {
-      "title": `Received by ${targetAccountName}`,
-      "value": totalTargetAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
+      cardTitle: `Received by ${targetAccountName}`,
+      cardValue: totalTargetAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
     },
     {
-      "title": "Net Variance",
-      "value": variance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
+      cardTitle: "Net Variance",
+      cardValue: variance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
     },
     {
-      "title": `Missing in ${targetAccountName}`,
-      "value": targetExpected->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
+      cardTitle: `Missing in ${targetAccountName}`,
+      cardValue: targetExpected->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
     },
   ]
 }
@@ -172,13 +183,6 @@ let calculateTransactionCounts = (
     }
   })
 }
-
-// Color constants for ReconEngine graphs
-let mismatchedColor = "#EA8A8F"
-let pendingColor = "#F3BE8B"
-let matchedColor = "#7AB891"
-let exceptionsVolumeColor = "#F87171"
-let reconciledVolumeColor = "#60A5FA"
 
 let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
   {
