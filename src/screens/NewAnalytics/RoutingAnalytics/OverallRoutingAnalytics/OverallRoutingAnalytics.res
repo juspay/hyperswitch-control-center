@@ -12,6 +12,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (dimensions, setDimensions) = React.useState(_ => [])
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+  let (isFilterLoaded, setIsFilterLoaded) = React.useState(_ => false)
 
   let startTime = filterValueJson->getString("startTime", "")
   let endTime = filterValueJson->getString("endTime", "")
@@ -19,6 +20,7 @@ let make = () => {
   let loadInfo = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      setIsFilterLoaded(_ => false)
       let infoUrl = getURL(~entityName=V1(ANALYTICS_ROUTING), ~methodType=Get, ~id=Some("routing"))
       let infoDetails = await fetchDetails(infoUrl)
 
@@ -53,6 +55,7 @@ let make = () => {
 
       let filterData = await updateDetails(analyticsfilterUrl, filterBody, Post)
       setFilterDataJson(_ => Some(filterData))
+      setIsFilterLoaded(_ => true)
     } catch {
     | _ => setFilterDataJson(_ => None)
     }
@@ -80,10 +83,17 @@ let make = () => {
   }, (startTime, endTime, dimensions))
 
   <PageLoaderWrapper screenState customUI={<NewAnalyticsHelper.NoData />}>
-    <OverallRoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
-    <RoutingAnalyticsMetrics />
-    <RoutingAnalyticsDistribution />
-    <RoutingAnalyticsSummary />
-    <RoutingAnalyticsTrends />
+    <div className="flex flex-col gap-8">
+      <RenderIf condition={!isFilterLoaded}>
+        <Shimmer styleClass="h-10 w-32 rounded-lg border mb-2 mt-4" />
+      </RenderIf>
+      <RenderIf condition={isFilterLoaded}>
+        <OverallRoutingAnalyticsHelper.TopFilterUI filterDataJson tabNames />
+      </RenderIf>
+      <RoutingAnalyticsMetrics />
+      <RoutingAnalyticsDistribution />
+      <RoutingAnalyticsSummary />
+      <RoutingAnalyticsTrends />
+    </div>
   </PageLoaderWrapper>
 }
