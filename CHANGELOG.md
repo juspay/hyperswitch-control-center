@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.02.0
+
+### Features
+
+- Added new connector dwolla ([#3495](https://github.com/juspay/hyperswitch-control-center/pull/3495)) ([`2dac878`](https://github.com/juspay/hyperswitch-control-center/commit/2dac8787d02abf8b9afe10fa0955389d9a73a6cc))
+- Added distribution graphs in least cost routing analytics ([#3487](https://github.com/juspay/hyperswitch-control-center/pull/3487)) ([`3c80b68`](https://github.com/juspay/hyperswitch-control-center/commit/3c80b689a61708c52d27354dc8cd6f875348d9af))
+
+### Bug Fixes
+
+- Payout details bugfix ([#3504](https://github.com/juspay/hyperswitch-control-center/pull/3504)) ([`cfd0cd1`](https://github.com/juspay/hyperswitch-control-center/commit/cfd0cd14142f01e13737346c6d8e02d89a55a62b))
+- Calendar arrow movement changes ([#3493](https://github.com/juspay/hyperswitch-control-center/pull/3493)) ([`3e0c79c`](https://github.com/juspay/hyperswitch-control-center/commit/3e0c79c8d1e4432da387c50fe2ee9f7b008fab75))
+
+### Miscellaneous Tasks
+
+- Updated wasm for dwolla connector ([#3496](https://github.com/juspay/hyperswitch-control-center/pull/3496)) ([`5549cdf`](https://github.com/juspay/hyperswitch-control-center/commit/5549cdf67968786e1ee85b135806569bc1deb0f5))
+
+**Full Changelog:** [`2025.09.01.0...2025.09.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.01.0...2025.09.02.0)
+
+- - -
+
 ## 2025.09.01.0
 
 ### Features
