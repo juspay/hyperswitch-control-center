@@ -8111,7 +8111,7 @@ License)
       stroke="#525866" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 
-  <symbol width="12" height="12" viewBox="0 0 12 12" fill="none" id="nd-permalink">
+  <symbol viewBox="0 0 12 12" fill="none" id="nd-permalink">
     <path d="M7.41411 4.58566L4.58568 7.41409M5.05709 2.22864L5.52849 1.75723C6.83024 0.455485 8.94079 0.455485 10.2425 1.75723C11.5443 3.05898 11.5443 5.16953 10.2425 6.47128L9.77113 6.94268M2.22866 5.05706L1.75726 5.52847C0.455508 6.83022 0.455508 8.94077 1.75726 10.2425C3.059 11.5443 5.16955 11.5443 6.4713 10.2425L6.94271 9.77111" stroke="#717784" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
 

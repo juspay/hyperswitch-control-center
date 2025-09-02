@@ -107,7 +107,8 @@ module PageHeading = {
             copyValue={Some(buildPermLink())}
             displayValue=Some("")
             customIcon="nd-permalink"
-            customParentClass="mt-1"
+            customParentClass=""
+            customIconCss=""
             customOnCopyClick={() => setShowShareDialog(_ => true)}
           />
         </RenderIf>
