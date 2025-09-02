@@ -4,6 +4,7 @@ type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
 
 type admin = TenantAdmin | NonTenantAdmin
 
+type scope = Read | Write
 @unboxed
 type groupAccessType =
   | OperationsView

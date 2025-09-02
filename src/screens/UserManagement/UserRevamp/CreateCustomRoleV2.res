@@ -3,23 +3,31 @@ open Typography
 open UserManagementUtils
 open UserManagementTypes
 open CreateCustomRoleUtils
+
 module RenderPermissionModule = {
   @react.component
   let make = (~moduleName, ~description, ~scopes) => {
     let readField = ReactFinalForm.useField(`${moduleName}.read`)
     let writeField = ReactFinalForm.useField(`${moduleName}.write`)
 
-    let handleScopeChange = (scope: string, isSelected: bool) => {
-      if scope === "write" && isSelected && !getBoolFromJson(readField.input.value, false) {
+    let handleScopeChange = (scope: scope, isSelected: bool) => {
+      switch (scope, isSelected) {
+      | (Write, true) if !getBoolFromJson(readField.input.value, false) =>
         readField.input.onChange(true->Identity.anyTypeToReactEvent)
-      }
-      if scope === "read" && !isSelected {
-        writeField.input.onChange(false->Identity.anyTypeToReactEvent)
+      | (Read, false) => writeField.input.onChange(false->Identity.anyTypeToReactEvent)
+      | _ => ()
       }
     }
 
-    let isReadAvailable = scopes->Array.includes("read")
-    let isWriteAvailable = scopes->Array.includes("write")
+    let scopeToString = scope => {
+      switch scope {
+      | Read => "read"
+      | Write => "write"
+      }
+    }
+
+    let isReadAvailable = scopes->Array.some(scope => scope === Read->scopeToString)
+    let isWriteAvailable = scopes->Array.some(scope => scope === Write->scopeToString)
     let isReadSelected = getBoolFromJson(readField.input.value, false)
     let isWriteSelected = getBoolFromJson(writeField.input.value, false)
 
@@ -33,7 +41,7 @@ module RenderPermissionModule = {
           <CheckBoxIcon
             isSelected=isReadSelected
             setIsSelected={isSelected => {
-              handleScopeChange("read", isSelected)
+              handleScopeChange(Read, isSelected)
               readField.input.onChange(isSelected->Identity.anyTypeToReactEvent)
             }}
             isDisabled={!isReadAvailable}
@@ -44,7 +52,7 @@ module RenderPermissionModule = {
           <CheckBoxIcon
             isSelected=isWriteSelected
             setIsSelected={isSelected => {
-              handleScopeChange("write", isSelected)
+              handleScopeChange(Write, isSelected)
               writeField.input.onChange(isSelected->Identity.anyTypeToReactEvent)
             }}
             isDisabled={!isWriteAvailable}
@@ -73,7 +81,7 @@ module NewCustomRoleInputFields = {
           labelClass="!text-black !-ml-[0.5px]"
         />
         <FormRenderer.FieldRenderer
-          field={entityType(userRole, ~onEntityTypeChange)}
+          field={entityType(~onEntityTypeChange)}
           fieldWrapperClass="w-fit"
           labelClass="!text-black !-ml-[0.5px]"
         />
@@ -91,7 +99,7 @@ module PermissionTableWrapper = {
         <div className="flex-1"> {"Module"->React.string} </div>
         <div className="flex gap-8">
           <div className="w-20 text-center"> {"View"->React.string} </div>
-          <div className="w-24 text-center"> {"View & Edit"->React.string} </div>
+          <div className="w-24 text-center"> {"Edit"->React.string} </div>
         </div>
       </div>
       <div className="divide-y divide-nd_gray-150">
@@ -130,9 +138,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
-      let roleScope = getString(valuesDict, "role_scope", "")
       let roleName = getString(valuesDict, "role_name", "")->String.trim->titleToSnake
-      let entityType = getString(valuesDict, "entity_type", "")
+      valuesDict->Dict.set("role_name", roleName->JSON.Encode.string)
       let parentGroups =
         permissionModules
         ->Array.map(module_ => {
@@ -169,17 +176,11 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         })
         ->Array.filter(Option.isSome)
         ->Array.map(Option.getExn)
-
-      let body =
-        [
-          ("role_name", roleName->JSON.Encode.string),
-          ("role_scope", roleScope->JSON.Encode.string),
-          ("entity_type", entityType->JSON.Encode.string),
-          ("parent_groups", parentGroups->JSON.Encode.array),
-        ]->getJsonFromArrayOfJson
+      valuesDict->Dict.set("parent_groups", parentGroups->JSON.Encode.array)
 
       let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE_V2, ~methodType=Post)
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
+      showToast(~message="Custom role created successfully", ~toastType=ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/${baseUrl}`))
     } catch {
@@ -187,11 +188,15 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        if errorCode === "UR_35" {
-          setScreenState(_ => PageLoaderWrapper.Success)
-        } else {
-          showToast(~message=errorMessage, ~toastType=ToastError)
-          setScreenState(_ => PageLoaderWrapper.Error(err))
+        switch errorCode->CommonAuthUtils.errorSubCodeMapper {
+        | UR_35 => {
+            showToast(~message="Custom role created successfully", ~toastType=ToastSuccess)
+            setScreenState(_ => PageLoaderWrapper.Success)
+          }
+        | _ => {
+            showToast(~message=errorMessage, ~toastType=ToastError)
+            setScreenState(_ => PageLoaderWrapper.Error(err))
+          }
         }
       }
     }
@@ -264,6 +269,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
           <div className="flex justify-end">
             <FormRenderer.SubmitButton text="Create role" loadingText="Loading..." />
           </div>
+          // <FormValuesSpy />
         </Form>
       </PageLoaderWrapper>
     </div>

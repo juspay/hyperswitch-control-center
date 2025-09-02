@@ -31,11 +31,14 @@ let roleScope = userRole => {
   )
 }
 
-let entityType = (userRole, ~onEntityTypeChange=?) => {
-  let entityTypeArray = ["Merchant", "Profile"]->Array.map(item => {
+let entityType = (~onEntityTypeChange=?) => {
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let entityTypeVariants: array<UserInfoTypes.entity> = [#Merchant, #Profile]
+  let entityTypeArray = entityTypeVariants->Array.map(entityVariant => {
+    let entityString = (entityVariant :> string)->String.toLowerCase
     let option: SelectBox.dropdownOption = {
-      label: item,
-      value: item->String.toLowerCase,
+      label: entityString->LogicUtils.snakeToTitle,
+      value: entityString,
     }
     option
   })
@@ -49,7 +52,7 @@ let entityType = (userRole, ~onEntityTypeChange=?) => {
         ~deselectDisable=true,
         ~options=entityTypeArray,
         ~buttonText="Select Option",
-        ~disableSelect=userRole === "org_admin" || userRole === "tenant_admin" ? false : true,
+        ~disableSelect=userHasAccess(~groupAccess=UsersManage) === NoAccess,
       )(
         ~input={
           ...input,
