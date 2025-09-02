@@ -21,7 +21,7 @@ let make = () => {
   let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => connectorName)
   let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => connectorID)
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
-  let defaultPath = RecoveryConnectorContainerUtils.useGetDefaultPath()
+  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   React.useEffect(() => {
     setShowSideBar(_ => false)

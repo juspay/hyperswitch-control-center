@@ -9,7 +9,7 @@ let make = () => {
   )
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let {merchantId, profileId} = getUserInfoData()
-  let defaultPath = RecoveryConnectorContainerUtils.useGetDefaultPath()
+  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
