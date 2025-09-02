@@ -194,12 +194,22 @@ let getAttemptCell = (attemptData, colType): Table.cell => {
     )
   | Currency => Text(attemptData.currency)
   | Connector =>
-    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attemptData.connector />, "")
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=attemptData.connector connectorType=PayoutProcessor
+      />,
+      "",
+    )
   | ErrorCode => Text(attemptData.error_code)
   | Error_message => Text(attemptData.error_message)
   | PaymentMethod => Text(attemptData.payment_method)
   | PayoutMethodType => Text(attemptData.payout_method_type)
-  | ConnectorTransactionId => DisplayCopyCell(attemptData.connector_transaction_id)
+  | ConnectorTransactionId =>
+    if attemptData.connector_transaction_id->isNonEmptyString {
+      DisplayCopyCell(attemptData.connector_transaction_id)
+    } else {
+      Text("NA")
+    }
   | CancellationReason => Text(attemptData.cancellation_reason)
   | UnifiedCode => Text(attemptData.unified_code)
   | UnifiedMessage => Text(attemptData.unified_message)
@@ -278,8 +288,7 @@ type aboutPayoutColType =
   | Connector
   | ProfileId
   | ProfileName
-  | PayoutMethodType
-  | PayoutMethod
+  | PayoutType
   | CardBrand
   | ConnectorLabel
   | AuthenticationType
@@ -565,13 +574,17 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ClientSecret => Text(order.client_secret)
   | ErrorMessage => Text(order.error_message)
   | ConnectorTransactionID =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_transaction_id)
-      />,
-      "",
-    )
+    if order.connector_transaction_id->isNonEmptyString {
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap"
+          displayValue=Some(order.connector_transaction_id)
+        />,
+        "",
+      )
+    } else {
+      Text("NA")
+    }
   }
 }
 
@@ -600,8 +613,7 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
-  | PayoutMethod => Table.makeHeaderInfo(~key="payout_method", ~title="Payout Method")
-  | PayoutMethodType => Table.makeHeaderInfo(~key="payout_method_type", ~title="Payout Method Type")
+  | PayoutType => Table.makeHeaderInfo(~key="payout_type", ~title="Payout Type")
   | AuthenticationType => Table.makeHeaderInfo(~key="authentication_type", ~title="Auth Type")
   | CaptureMethod => Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method")
   | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
@@ -649,8 +661,7 @@ let getCellForAboutPayment = (payoutData, aboutPaymentColType): Table.cell => {
     )
   | ProfileId => DisplayCopyCell(payoutData.profile_id)
   | ProfileName => Text("")
-  | PayoutMethod => Text(payoutData.payout_type)
-  | PayoutMethodType => Text(payoutData.payout_type)
+  | PayoutType => Text(payoutData.payout_type)
   | CardBrand => Text("")
   | ConnectorLabel => Text(payoutData.connector)
   | AuthenticationType => Text("")

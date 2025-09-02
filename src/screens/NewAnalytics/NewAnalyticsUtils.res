@@ -282,3 +282,33 @@ let getLineGraphObj = (
   }
   dataObj
 }
+
+let formatDateValue = (value: string, ~includeYear=false) => {
+  let dateObj = value->DayJs.getDayJsForString
+
+  if includeYear {
+    `${dateObj.month()->getMonthName} ${dateObj.format("DD")} ${dateObj.year()->Int.toString} `
+  } else {
+    `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+  }
+}
+let getLabelName = (~key, ~index, ~points) => {
+  let getDateObject = (array, index) => {
+    array
+    ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
+    ->getDictFromJsonObject
+    ->getString(key, "")
+  }
+
+  if key === "time_bucket" {
+    let pointsArray = points->getArrayFromJson([])
+    let startPoint = pointsArray->getDateObject(0)
+    let endPoint = pointsArray->getDateObject(pointsArray->Array.length - 1)
+
+    let startDate = startPoint->formatDateValue
+    let endDate = endPoint->formatDateValue
+    `${startDate} - ${endDate}`
+  } else {
+    `Series ${(index + 1)->Int.toString}`
+  }
+}
