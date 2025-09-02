@@ -3,8 +3,9 @@ let make = () => {
   open LogicUtils
   open APIUtils
   open Typography
+  open PageLoaderWrapper
 
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => Success)
   let (offset, setOffset) = React.useState(_ => 0)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -18,13 +19,13 @@ let make = () => {
     unregulated_transaction_percentage: 0.0,
     debit_routing_savings: 0.0,
   }
-  let (response, setResponse) = React.useState(_ => [defaultSummaryMain])
+  let (tableData, setTableData) = React.useState(_ => [defaultSummaryMain])
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
   let getData = async () => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      setScreenState(_ => Loading)
       let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
       let body =
         [
@@ -48,11 +49,11 @@ let make = () => {
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseData->Array.length == 0 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
+        setScreenState(_ => Custom)
       } else {
         let typedData = response->LeastCostRoutingAnalyticsSummaryTableUtils.mapToTableData
-        setResponse(_ => typedData)
-        setScreenState(_ => PageLoaderWrapper.Success)
+        setTableData(_ => typedData)
+        setScreenState(_ => Success)
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
@@ -78,14 +79,14 @@ let make = () => {
       customUI={<NewAnalyticsHelper.NoData height="h-72" />}
       customLoader={<Shimmer styleClass="w-full h-22-rem rounded-xl" />}>
       <LoadedTable
-        actualData={response->Array.map(Nullable.make)}
-        totalResults={response->Array.length}
+        actualData={tableData->Array.map(Nullable.make)}
+        totalResults={tableData->Array.length}
         offset
         resultsPerPage={10}
         title=" "
         setOffset
         entity={LeastCostRoutingAnalyticsSummaryTableEntity.summaryEntity()}
-        currrentFetchCount={response->Array.length}
+        currrentFetchCount={tableData->Array.length}
       />
     </PageLoaderWrapper>
   </div>
