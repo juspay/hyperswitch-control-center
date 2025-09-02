@@ -3,9 +3,7 @@ open Typography
 module LeastCostAnalyticsBasicMetricsCard = {
   open APIUtils
   open LogicUtils
-  open LeastCostRoutingAnalyticsMetricsTypes
   open LeastCostRoutingAnalyticsMetricsUtils
-  open LeastCostRoutingAnalyticsTypes
 
   @react.component
   let make = () => {
@@ -28,7 +26,9 @@ module LeastCostAnalyticsBasicMetricsCard = {
         let body =
           [
             AnalyticsUtils.getFilterRequestBody(
-              ~metrics=Some([(#sessionized_debit_routing: requestPayloadMetrics :> string)]),
+              ~metrics=Some([
+                (#sessionized_debit_routing: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
+              ]),
               ~delta=true,
               ~startDateTime=startTimeVal,
               ~endDateTime=endTimeVal,
@@ -94,7 +94,6 @@ module LeastCostAnalyticsRegulationMetricsCard = {
   open APIUtils
   open LogicUtils
   open LeastCostRoutingAnalyticsMetricsUtils
-  open LeastCostRoutingAnalyticsTypes
 
   @react.component
   let make = () => {
@@ -117,12 +116,16 @@ module LeastCostAnalyticsRegulationMetricsCard = {
         let body =
           [
             AnalyticsUtils.getFilterRequestBody(
-              ~metrics=Some([(#sessionized_debit_routing: requestPayloadMetrics :> string)]),
+              ~metrics=Some([
+                (#sessionized_debit_routing: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
+              ]),
               ~delta=true,
               ~startDateTime=startTimeVal,
               ~endDateTime=endTimeVal,
               ~filter=Some(LeastCostRoutingAnalyticsUtils.filterDict),
-              ~groupByNames=Some([(#is_issuer_regulated: requestPayloadMetrics :> string)]),
+              ~groupByNames=Some([
+                (#is_issuer_regulated: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
+              ]),
             )->JSON.Encode.object,
           ]->JSON.Encode.array
 
