@@ -26,6 +26,7 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Overall Routing",
@@ -36,6 +37,7 @@ let make = () => {
       renderContent: () => <LeastCostRoutingAnalytics />,
     },
   ]
+
   <div className="flex flex-col gap-8">
     <div className="flex items-center justify-between ">
       <PageUtils.PageHeading
