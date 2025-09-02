@@ -2,9 +2,6 @@
 let make = () => {
   open LogicUtils
   open APIUtils
-  open LeastCostRoutingAnalyticsDistributionUtils
-  open LeastCostRoutingAnalyticsTypes
-  open LeastCostRoutingAnalyticsSummaryTableTypes
   open Typography
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -12,7 +9,7 @@ let make = () => {
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let defaultSummaryMain = {
+  let defaultSummaryMain: LeastCostRoutingAnalyticsSummaryTableTypes.summaryMain = {
     signature_network: "",
     card_network: "",
     traffic_percentage: 0.0,
@@ -32,21 +29,22 @@ let make = () => {
       let body =
         [
           AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some([(#sessionized_debit_routing: requestPayloadMetrics :> string)]),
+            ~metrics=Some([
+              (#sessionized_debit_routing: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
+            ]),
             ~delta=false,
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~groupByNames=Some([
-              (#card_network: requestPayloadMetrics :> string),
+              (#card_network: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
               "signature_network",
               "is_issuer_regulated",
             ]),
-            ~filter=Some(filterDict),
+            ~filter=Some(LeastCostRoutingAnalyticsUtils.filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
       let response = await updateDetails(url, body, Post)
-      Js.log2("response>>", response)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
       if responseData->Array.length == 0 {

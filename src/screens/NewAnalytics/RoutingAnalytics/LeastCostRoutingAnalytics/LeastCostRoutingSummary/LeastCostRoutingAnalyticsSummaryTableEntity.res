@@ -1,7 +1,6 @@
-open LeastCostRoutingAnalyticsSummaryTableTypes
 open LogicUtils
 
-let summaryCols = [
+let summaryCols: array<LeastCostRoutingAnalyticsSummaryTableTypes.summaryColType> = [
   SignatureBrand,
   CardNetwork,
   TrafficPercentage,
@@ -11,7 +10,9 @@ let summaryCols = [
   DebitRoutingSavings,
 ]
 
-let getSummaryMainHeading = colType => {
+let getSummaryMainHeading = (
+  colType: LeastCostRoutingAnalyticsSummaryTableTypes.summaryColType,
+) => {
   switch colType {
   | SignatureBrand => Table.makeHeaderInfo(~key="signature_brand", ~title="Signature Brand")
   | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network")
@@ -37,7 +38,10 @@ let getSummaryMainHeading = colType => {
   }
 }
 
-let getSummaryMainCell = (summaryMain, colType): Table.cell => {
+let getSummaryMainCell = (
+  summaryMain: LeastCostRoutingAnalyticsSummaryTableTypes.summaryMain,
+  colType: LeastCostRoutingAnalyticsSummaryTableTypes.summaryColType,
+): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
     shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }

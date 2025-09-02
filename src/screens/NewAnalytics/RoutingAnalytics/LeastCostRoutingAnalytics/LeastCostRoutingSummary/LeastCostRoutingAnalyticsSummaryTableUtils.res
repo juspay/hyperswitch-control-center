@@ -1,6 +1,5 @@
 open LogicUtils
 open RoutingAnalyticsUtils
-open LeastCostRoutingAnalyticsSummaryTableTypes
 
 let sumIsRegulatedTransactions = (records: array<JSON.t>) => {
   records->Array.reduce(0, (acc, record) => {
@@ -53,7 +52,7 @@ let mapToTableData = data => {
 
   groupedData
   ->Dict.toArray
-  ->Array.map(((compositeKey, record)) => {
+  ->Array.map(((compositeKey, record)): LeastCostRoutingAnalyticsSummaryTableTypes.summaryMain => {
     let recordsJson = record->getArrayFromJson([])
     let signatureBrand = compositeKey->String.split("-")->getValueFromArray(0, "Unknown")
     let cardNetwork = compositeKey->String.split("-")->getValueFromArray(1, "Unknown")
