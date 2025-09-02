@@ -378,12 +378,12 @@ module RuleSchemaComponents = {
         contentExpandCss="p-0"
         titleStyle={`${accordianTitleCss}`}
       />
-      // Trigger Rules Section
+      // Filters Section
       <Accordion
         initialExpandedArray=[0]
         accordion={[
           {
-            title: "Trigger Rules",
+            title: "Filters",
             renderContent: () => <TriggerRules rule />,
             renderContentOnTop: None,
           },
@@ -393,12 +393,12 @@ module RuleSchemaComponents = {
         contentExpandCss="p-0"
         titleStyle={`${accordianTitleCss}`}
       />
-      // Search Identifier Section
+      // Identifiers Section
       <Accordion
         initialExpandedArray=[0]
         accordion={[
           {
-            title: "Search Identifier",
+            title: "Identifiers",
             renderContent: () => <SearchIdentifier rule />,
             renderContentOnTop: None,
           },
@@ -408,12 +408,12 @@ module RuleSchemaComponents = {
         contentExpandCss="p-0"
         titleStyle={`${accordianTitleCss}`}
       />
-      // Mapping Rules Section
+      // Rules Section
       <Accordion
         initialExpandedArray=[0]
         accordion={[
           {
-            title: "Mapping Rules",
+            title: "Rules",
             renderContent: () => <MappingRules rule />,
             renderContentOnTop: None,
           },
@@ -431,8 +431,8 @@ module RuleDetailsContent = {
   @react.component
   let make = (~rule: rulePayload) => {
     let fields = [
-      ("ID", rule.rule_id),
       ("Rule Name", rule.rule_name),
+      ("ID", rule.rule_id),
       (
         "Description",
         rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
@@ -450,17 +450,7 @@ module RuleDetailsContent = {
           <StatusBadge isActive={rule.is_active} />
         </div>
       </div>
-      <div>
-        <div className="flex flex-col gap-1 mb-6">
-          <span className={`${body.lg.semibold} text-nd_gray-800`}>
-            {"Rule Schema"->React.string}
-          </span>
-          <p className={`${body.md.medium} text-nd_gray-400`}>
-            {"Configure the source and target accounts and matching rules for this reconciliation rule."->React.string}
-          </p>
-        </div>
-        <RuleSchemaComponents rule />
-      </div>
+      <RuleSchemaComponents rule />
     </div>
   }
 }

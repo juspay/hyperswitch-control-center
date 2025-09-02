@@ -161,6 +161,9 @@ module Location = {
   @val @scope(("window", "location"))
   external href: string = "href"
 
+  @val @scope(("window", "location"))
+  external search: string = "search"
+
   @set
   external setHref: (location, string) => unit = "href"
 }
@@ -273,3 +276,12 @@ external validateExtract: (Js.TypedArray2.Uint8Array.t, JSON.t, JSON.t) => JSON.
 
 @val @scope("window")
 external getDefaultConfig: unit => JSON.t = "getDefaultConfig"
+
+module URL = {
+  type t
+  type searchParams
+  @new external make: (string, string) => t = "URL"
+  @get external searchParams: t => searchParams = "searchParams"
+  @send external append: (searchParams, string, string) => unit = "append"
+  @get external href: t => string = "href"
+}
