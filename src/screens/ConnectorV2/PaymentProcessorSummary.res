@@ -42,7 +42,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
         ~id=Some(connectorID),
       )
       let json = await fetchDetails(connectorUrl, ~version=V2)
-      setInitialValues(_ => json->removeFieldsFromRespose)
+      setInitialValues(_ => json->removeFieldsFromRespose) /// removed these fields
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
@@ -207,6 +207,12 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     })
   }
 
+  let disabledEditButton =
+    <div className="flex gap-2 items-center opacity-50">
+      <Icon name="nd-edit" size=14 />
+      <a className="text-primary"> {"Edit"->React.string} </a>
+    </div>
+
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
       path=[
@@ -273,12 +279,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                   </>
                 } else {
                   <>
-                    <RenderIf condition={isConnectorDisabled}>
-                      <div className="flex gap-2 items-center opacity-50" onClick={_ => ()}>
-                        <Icon name="nd-edit" size=14 />
-                        <a className="text-primary"> {"Edit"->React.string} </a>
-                      </div>
-                    </RenderIf>
+                    <RenderIf condition={isConnectorDisabled}> {disabledEditButton} </RenderIf>
                     <RenderIf condition={!isConnectorDisabled}>
                       <div
                         className="flex gap-2 items-center cursor-pointer"
@@ -320,12 +321,17 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                     />
                   </>
                 } else {
-                  <div
-                    className="flex gap-2 items-center cursor-pointer"
-                    onClick={_ => handleClick(Some(Metadata))}>
-                    <Icon name="nd-edit" size=14 />
-                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                  </div>
+                  <>
+                    <RenderIf condition={isConnectorDisabled}> {disabledEditButton} </RenderIf>
+                    <RenderIf condition={!isConnectorDisabled}>
+                      <div
+                        className="flex gap-2 items-center cursor-pointer"
+                        onClick={_ => handleClick(Some(Metadata))}>
+                        <Icon name="nd-edit" size=14 />
+                        <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                      </div>
+                    </RenderIf>
+                  </>
                 }}
               </div>
             </div>
@@ -367,12 +373,17 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
                   />
                 </>
               } else {
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={_ => handleClick(Some(PMTs))}>
-                  <Icon name="nd-edit" size=14 />
-                  <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
-                </div>
+                <>
+                  <RenderIf condition={isConnectorDisabled}> {disabledEditButton} </RenderIf>
+                  <RenderIf condition={!isConnectorDisabled}>
+                    <div
+                      className="flex gap-2 items-center cursor-pointer"
+                      onClick={_ => handleClick(Some(PMTs))}>
+                      <Icon name="nd-edit" size=14 />
+                      <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                    </div>
+                  </RenderIf>
+                </>
               }}
             </div>
           </div>

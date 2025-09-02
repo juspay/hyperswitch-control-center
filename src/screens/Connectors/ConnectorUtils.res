@@ -1174,7 +1174,7 @@ let getPaymentMethodEnabled: JSON.t => array<paymentMethodEnabled> = json => {
   open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }
-
+//
 let connectorIgnoredField = [
   "business_country",
   "business_label",
@@ -1194,7 +1194,7 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
 ]
-
+//
 let verifyConnectorIgnoreField = [
   "business_country",
   "business_label",
