@@ -1,44 +1,43 @@
 @react.component
 let make = () => {
+  open LogicUtils
   open Typography
   open APIUtils
-  open LogicUtils
+  open LeastCostRoutingAnalyticsDistributionUtils
+  open LeastCostRoutingAnalyticsDistributionTypes
   open NewAnalyticsUtils
-  open RoutingAnalyticsTrendsTypes
-  open RoutingAnalyticsTrendsUtils
-  open NewAnalyticsTypes
   open NewAnalyticsHelper
-  open RoutingAnalyticsUtils
+  open NewAnalyticsTypes
+  open LeastCostRoutingAnalyticsTypes
 
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let (response, setResponse) = React.useState(_ => JSON.Encode.null)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let (sharedData, setSharedData) = React.useState(_ => JSON.Encode.null)
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (granularityTabState, setGranularityTabState) = React.useState(_ =>
-    defaultGranularityOptionsObject
+    RoutingAnalyticsUtils.defaultGranularityOptionsObject
   )
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
 
-  let getMetricData = async (~granularityValue) => {
+  let getData = async (~granularityValue) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(ANALYTICS_ROUTING), ~methodType=Post, ~id=Some("routing"))
+      let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
       let body =
         [
           AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some([(#payment_success_rate: routingTrendsMetrics :> string)]),
+            ~metrics=Some([(#sessionized_debit_routing: requestPayloadMetrics :> string)]),
             ~delta=false,
-            ~groupByNames=Some([(#connector: routingTrendsMetrics :> string)]),
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~granularity=Some(granularityValue),
-            ~filter=Some(filterValueJson->JSON.Encode.object),
+            ~filter=Some(filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
@@ -48,27 +47,26 @@ let make = () => {
       if responseData->Array.length == 0 {
         setScreenState(_ => PageLoaderWrapper.Custom)
       } else {
-        let processedModifiedData = fillMissingDataPointsForConnectors(
-          ~data=responseData
-          ->modifyQueryDataForSucessGraph
-          ->sortQueryDataByDate,
+        let editedData = modifySavingsQueryData(~data=responseData)->sortQueryDataByDate
+        let modifieddata = fillMissingDataForSavingsGraph(
+          ~data=editedData,
           ~startDate=startTimeVal,
           ~endDate=endTimeVal,
           ~defaultValue={
-            "payment_success_rate": 0.0,
+            "debit_routing_savings_in_usd": 0,
             "time_bucket": startTimeVal,
-            "connector": "",
           }->Identity.genericTypeToJson,
+          ~timeKey="time_bucket",
           ~granularity=granularityValue,
           ~isoStringToCustomTimeZone,
           ~granularityEnabled=featureFlag.granularity,
         )
 
-        setSharedData(_ => processedModifiedData->Identity.genericTypeToJson)
+        setResponse(_ => modifieddata->Identity.genericTypeToJson)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Unable to fetch."))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
     }
   }
 
@@ -80,43 +78,49 @@ let make = () => {
         ~granularity=featureFlag.granularity,
       )
       setGranularityTabState(_ => defaultGranularity)
-      getMetricData(~granularityValue=defaultGranularity.value)->ignore
+      getData(~granularityValue=defaultGranularity.value)->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, filterValue))
+  }, (startTimeVal, endTimeVal))
 
   let params = {
-    data: sharedData,
-    xKey: (#time_bucket: routingTrendsMetrics :> string),
-    yKey: (#payment_success_rate: routingTrendsMetrics :> string),
-    comparison: DateRangeUtils.DisableComparison,
+    data: response,
+    xKey: (#time_bucket: requestPayloadMetrics :> string),
+    yKey: (#debit_routing_savings_in_usd: requestPayloadMetrics :> string),
   }
+
+  let chartOptions = {
+    savingsChartOptions(
+      ~params,
+      ~config=savingsTimeConfig,
+      ~tooltipValueFormatterType=LogicUtilsTypes.Amount,
+    )
+  }
+
   let setGranularity = (option: optionType) => {
     setGranularityTabState(_ => option)
-    getMetricData(~granularityValue=option.value)->ignore
+    getData(~granularityValue=option.value)->ignore
   }
 
-  let options =
-    RoutingAnalyticsTrendsEntity.routingSuccessRateChartEntity.getObjects(
-      ~params,
-    )->RoutingAnalyticsTrendsEntity.routingSuccessRateChartEntity.getChatOptions
-
   <PageLoaderWrapper
-    screenState customUI={<NoData />} customLoader={<Shimmer styleClass="w-full h-96" />}>
-    <div className="border border-nd_gray-200 rounded-xl ">
-      <div className="bg-nd_gray-25 px-6 py-4 border-b border-nd_gray-200 rounded-t-xl">
-        <p className={`${body.md.semibold} text-nd_gray-800`}>
-          {"Success Over Time"->React.string}
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-72" />}
+    customLoader={<Shimmer styleClass="w-full  h-22-rem rounded-xl" />}>
+    <div className="flex flex-col">
+      <div className="border rounded-xl py-2 px-4 border-nd_gray-200 rounded-b-none bg-nd_gray-25">
+        <p className={`text-nd_gray-600 px-3 py-10-px ${body.md.semibold}`}>
+          {"Savings over time"->React.string}
         </p>
       </div>
-      <div className="p-4">
+      <div
+        className="border rounded-xl border-t-0 border-nd_gray-200 h-22-rem rounded-t-none pt-2 px-2">
         <Tabs
           option={granularityTabState}
           setOption={setGranularity}
           options={granularityOptions}
           showSingleTab=false
         />
-        <LineGraph options />
+        <LineGraph options={chartOptions} />
       </div>
     </div>
   </PageLoaderWrapper>

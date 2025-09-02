@@ -60,7 +60,7 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   | IngestionHistoryId => Text(data.ingestion_history_id)
   | Status => getStatusLabel(data.status)
   | UploadType => Text(data.upload_type)
-  | UploadedAt => Text(data.created_at)
+  | UploadedAt => Date(data.created_at)
   }
 }
 
@@ -68,8 +68,8 @@ let getTransformationHistoryCell = (data: transformationHistoryType, colType): T
   switch colType {
   | TransformationName => Text(data.transformation_name)
   | Status => getStatusLabel(data.status)
-  | CreatedAt => Text(data.created_at)
-  | ProcessedAt => Text(data.processed_at)
+  | CreatedAt => Date(data.created_at)
+  | ProcessedAt => Date(data.processed_at)
   }
 }
 

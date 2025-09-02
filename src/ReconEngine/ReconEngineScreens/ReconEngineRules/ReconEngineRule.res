@@ -47,7 +47,7 @@ let make = () => {
           actualData={rulesData->Array.map(Nullable.make)}
           entity={rulesTableEntity(`v1/recon-engine/rules`, ~authorization=Access)}
           resultsPerPage
-          showSerialNumber=true
+          showSerialNumber=false
           totalResults={rulesData->Array.length}
           offset
           setOffset
