@@ -176,8 +176,7 @@ module PayoutInfo = {
               ProfileName,
               Connector,
               ConnectorLabel,
-              PayoutMethodType,
-              PayoutMethod,
+              PayoutType,
               CardNetwork,
             ]
           />

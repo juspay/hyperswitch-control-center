@@ -50,24 +50,24 @@ module HistoryDetails = {
     ~customFlex="flex-wrap",
     ~accountData=Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper,
   ) => {
-    <FormRenderer.DesktopRow>
-      <div
-        className={`flex ${customFlex} justify-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
-        {detailsFields
-        ->Array.mapWithIndex((colType, i) => {
-          <div className=widthClass key={i->Int.toString}>
-            <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
-          </div>
-        })
-        ->React.array}
-        <RenderIf condition={accountData.account_name->LogicUtils.isNonEmptyString}>
+    <div
+      className={`flex ${customFlex} justify-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+      {detailsFields
+      ->Array.map(colType => {
+        <div className=widthClass key={LogicUtils.randomString(~length=10)}>
+          <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
+        </div>
+      })
+      ->React.array}
+      <RenderIf condition={accountData.account_name->LogicUtils.isNonEmptyString}>
+        <div className=widthClass>
           <DisplayKeyValueParams
             heading={Table.makeHeaderInfo(~key="account_name", ~title="Account Name")}
             value={Text(accountData.account_name)}
           />
-        </RenderIf>
-      </div>
-    </FormRenderer.DesktopRow>
+        </div>
+      </RenderIf>
+    </div>
   }
 }
 
@@ -77,12 +77,13 @@ module IngestionHistoryDetailsInfo = {
 
   @react.component
   let make = (~ingestionHistoryData: ingestionHistoryType, ~detailsFields) => {
-    <div className="w-full border border-nd_gray-150 rounded-lg p-2 mt-2">
+    <div className="w-full border border-nd_gray-150 rounded-lg px-4 py-2 mt-2">
       <HistoryDetails
         data=ingestionHistoryData
         getHeading=getIngestionHistoryHeading
         getCell=getIngestionHistoryCell
         detailsFields
+        widthClass="lg:w-1/4 md:w-1/3 w-1/2"
       />
     </div>
   }
@@ -107,30 +108,45 @@ module TransformationHistoryDetailsInfo = {
       )
     }
 
-    <div className="flex flex-row border border-nd_gray-150 rounded-lg items-center p-3">
-      <div className="flex-[8]">
-        <HistoryDetails
-          data=transformationHistoryData
-          getHeading=getTransformationHistoryHeading
-          getCell=getTransformationHistoryCell
-          detailsFields
-          widthClass=""
-          customFlex="flex-row lg:gap-32 md:gap-16 gap-16"
-          accountData
-        />
+    <div className="border border-nd_gray-150 rounded-lg p-3">
+      <div
+        className="flex flex-row flex-wrap gap-8 justify-start items-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border">
+        {detailsFields
+        ->Array.map(colType => {
+          <div className="flex-1 min-w-0" key={LogicUtils.randomString(~length=10)}>
+            <DisplayKeyValueParams
+              heading={getTransformationHistoryHeading(colType)}
+              value={getTransformationHistoryCell(transformationHistoryData, colType)}
+            />
+          </div>
+        })
+        ->React.array}
+        <RenderIf condition={accountData.account_name->LogicUtils.isNonEmptyString}>
+          <div className="flex-1 min-w-0">
+            <DisplayKeyValueParams
+              heading={Table.makeHeaderInfo(~key="account_name", ~title="Account Name")}
+              value={Text(accountData.account_name)}
+            />
+          </div>
+        </RenderIf>
+        <RenderIf condition={transformationHistoryData.status->statusMapper == Processed}>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col gap-2">
+              <div className="h-4" />
+              <div className="text-left">
+                <Button
+                  text="View"
+                  buttonType=Secondary
+                  buttonState=Normal
+                  buttonSize=Small
+                  customButtonStyle="!w-fit"
+                  onClick={_ => onClick()}
+                />
+              </div>
+            </div>
+          </div>
+        </RenderIf>
       </div>
-      <RenderIf condition={transformationHistoryData.status->statusMapper == Processed}>
-        <div className="flex-[1]">
-          <Button
-            text="View"
-            buttonType=Secondary
-            buttonState=Normal
-            buttonSize=Small
-            customButtonStyle="!w-fit"
-            onClick={_ => onClick()}
-          />
-        </div>
-      </RenderIf>
     </div>
   }
 }

@@ -25,3 +25,10 @@ type ompList = {
 type adminType = [#tenant_admin | #org_admin | #merchant_admin | #non_admin]
 
 type addOrgFormFields = OrgName | MerchantName
+
+type switchUser = {
+  orgId: option<string>,
+  merchantId: option<string>,
+  profileId: option<string>,
+  path: option<string>,
+}

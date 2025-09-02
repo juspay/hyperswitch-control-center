@@ -8,6 +8,7 @@ let make = () => {
   open RoutingAnalyticsTrendsUtils
   open NewAnalyticsTypes
   open NewAnalyticsHelper
+  open RoutingAnalyticsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
@@ -31,10 +32,7 @@ let make = () => {
       let body =
         [
           AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some([
-              (#payment_success_rate: routingTrendsMetrics :> string),
-              (#payment_count: routingTrendsMetrics :> string),
-            ]),
+            ~metrics=Some([(#payment_success_rate: routingTrendsMetrics :> string)]),
             ~delta=false,
             ~groupByNames=Some([(#connector: routingTrendsMetrics :> string)]),
             ~startDateTime=startTimeVal,

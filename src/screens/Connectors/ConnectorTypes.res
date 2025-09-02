@@ -121,6 +121,7 @@ type processorTypes =
   | BREADPAY
   | BLUECODE
   | BLACKHAWKNETWORK
+  | DWOLLA
 
 type payoutProcessorTypes =
   | ADYEN
