@@ -28,21 +28,26 @@ let make = (~children) => {
     }
   }
 
-  let getOMPDetailsFromUrl = (~ompData: array<string>) => {
+  let getOMPDetailsFromUrl = () => {
     let path = url.search->getDictFromUrlSearchParams->Dict.get("path")
-    userSwitch(~ompData, ~path)
+    // condition can be removed once after omp in all the URL
+    switch url.path {
+    | list{orgId, merchantId, profileId, "switch", "user"} =>
+      userSwitch(~ompData=[orgId, merchantId, profileId], ~path)
+    | _ => None
+    }
   }
 
-  let getSwitchDetails = (~ompData: array<string>) => {
-    switch getOMPDetailsFromUrl(~ompData) {
+  let getSwitchDetails = () => {
+    switch getOMPDetailsFromUrl() {
     | Some(data) => Some(data)
     | None => getOMPDetailsFromSessionStore()
     }
   }
-  let switchUser = async (~ompData) => {
+  let switchUser = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let details = getSwitchDetails(~ompData)
+      let details = getSwitchDetails()
       switch details {
       | Some(data) =>
         await internalSwitch(
@@ -61,12 +66,7 @@ let make = (~children) => {
     setScreenState(_ => PageLoaderWrapper.Success)
   }
   React.useEffect(() => {
-    // condition can be removed once after omp in all the URL
-    switch url.path {
-    | list{orgId, merchantId, profileId, "switch", "user"} =>
-      switchUser(~ompData=[orgId, merchantId, profileId])->ignore
-    | _ => setScreenState(_ => PageLoaderWrapper.Success)
-    }
+    switchUser()->ignore
     None
   }, [])
   <PageLoaderWrapper

@@ -57,7 +57,7 @@ let make = (~children) => {
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let handleSwitchUserQueryParam = () => {
-    switch url.path->HSwitchUtils.urlPath {
+    switch url.path {
     | list{orgId, merchantId, profileId, "switch", "user"} => {
         let omp =
           [orgId, merchantId, profileId]
