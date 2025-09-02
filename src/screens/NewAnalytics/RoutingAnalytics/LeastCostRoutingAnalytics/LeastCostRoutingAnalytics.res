@@ -1,9 +1,7 @@
 @react.component
 let make = () => {
-  let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  <RenderIf condition={debitRouting}>
+  <div className="flex flex-col gap-6">
     <LeastCostRoutingAnalyticsDistribution />
     <LeastCostRoutingAnalyticsSummaryTable />
-  </RenderIf>
+  </div>
 }

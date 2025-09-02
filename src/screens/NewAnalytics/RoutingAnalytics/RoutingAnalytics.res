@@ -8,6 +8,8 @@ let make = () => {
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let featureFlagAtom = HyperswitchAtom.featureFlagAtom
+  let {isLiveMode, debitRouting} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
@@ -27,16 +29,25 @@ let make = () => {
     None
   }, [])
 
-  let tabs: array<Tabs.tab> = [
-    {
-      title: "Overall Routing",
-      renderContent: () => <OverallRoutingAnalytics />,
-    },
-    {
-      title: "Least Cost Routing",
-      renderContent: () => <LeastCostRoutingAnalytics />,
-    },
-  ]
+  let tabs: array<Tabs.tab> = if isLiveMode && !debitRouting {
+    [
+      {
+        title: "Overall Routing",
+        renderContent: () => <OverallRoutingAnalytics />,
+      },
+    ]
+  } else {
+    [
+      {
+        title: "Overall Routing",
+        renderContent: () => <OverallRoutingAnalytics />,
+      },
+      {
+        title: "Least Cost Routing",
+        renderContent: () => <LeastCostRoutingAnalytics />,
+      },
+    ]
+  }
 
   <div className="flex flex-col gap-8">
     <div className="flex items-center justify-between ">
