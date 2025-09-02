@@ -56,20 +56,6 @@ let make = (~children) => {
     AuthInfoProvider.authStatusContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let handleSwitchUserQueryParam = () => {
-    switch url.path {
-    | list{orgId, merchantId, profileId, "switch", "user"} => {
-        let omp =
-          [orgId, merchantId, profileId]
-          ->Array.map(val => val->JSON.Encode.string)
-          ->JSON.Encode.array
-          ->JSON.stringify
-        SessionStorage.sessionStorage.setItem("switch-user-query", url.search)
-        SessionStorage.sessionStorage.setItem("switch-user-omp", omp)
-      }
-    | _ => ()
-    }
-  }
 
   let getAuthDetails = () => {
     open LogicUtils
@@ -81,7 +67,7 @@ let make = (~children) => {
     } else if loggedInInfo.token->Option.isSome {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
     } else {
-      handleSwitchUserQueryParam()
+      CommonAuthUtils.handleSwitchUserQueryParam(~url)
       setAuthStatus(LoggedOut)
     }
   }
