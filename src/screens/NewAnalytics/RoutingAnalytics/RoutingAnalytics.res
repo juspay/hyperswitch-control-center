@@ -60,7 +60,7 @@ let make = () => {
             initialFilters=[]
             options=[]
             popupFilterFields=[]
-            initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+            initialFixedFilters={initialFixedFilterFields(
               null,
               ~events=dateDropDownTriggerMixpanelCallback,
             )}
@@ -68,7 +68,7 @@ let make = () => {
             tabNames=[]
             key="0"
             updateUrlWith=updateExistingKeys
-            filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+            filterFieldsPortalName={filterFieldsPortalName}
             showCustomFilter=false
             refreshFilters=false
           />
