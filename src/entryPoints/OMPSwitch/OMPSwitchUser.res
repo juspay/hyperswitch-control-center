@@ -21,7 +21,7 @@ let make = (~children) => {
     | Some(data) => {
         let path =
           getSwitchUserData(~name="switch-user-query")->getDictFromUrlSearchParams->Dict.get("path")
-        let data = data->getArrayFromJson([])->Array.map(json => json->JSON.stringify)
+        let data = data->getArrayFromJson([])->Array.map(json => json->getStringFromJson(""))
         userSwitch(~ompData=data, ~path)
       }
     | None => None
