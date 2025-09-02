@@ -7,7 +7,7 @@ module CopyTextCustomComp = {
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
     ~customIconCss="h-7 opacity-70",
-    ~customeIcon="nd-copy",
+    ~customIcon="nd-copy",
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -31,7 +31,7 @@ module CopyTextCustomComp = {
       <div className=customParentClass>
         <div className=customTextCss> {val->React.string} </div>
         <Icon
-          name={customeIcon}
+          name={customIcon}
           onClick={ev => {
             onCopyClick(ev)
           }}

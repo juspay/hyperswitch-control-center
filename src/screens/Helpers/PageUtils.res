@@ -106,7 +106,7 @@ module PageHeading = {
           <HelperComponents.CopyTextCustomComp
             copyValue={Some(buildPermLink())}
             displayValue=Some("")
-            customeIcon="nd-permalink"
+            customIcon="nd-permalink"
             customParentClass="mt-1"
             customOnCopyClick={() => setShowShareDialog(_ => true)}
           />
