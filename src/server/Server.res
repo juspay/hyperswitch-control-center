@@ -101,7 +101,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   } else if path->String.includes("/config/theme") && request.method === "GET" {
     let path = env->Dict.get("themeConfigPath")->Option.getOr("dist/server/config/theme.json")
     Promise.make((resolve, _reject) => {
-      configHandler(request, response, true, domain, path)
+      themeConfigHandler(request, response, true, path)
       ()->(resolve(_))
     })
   } else if path === "/health" && request.method === "GET" {
