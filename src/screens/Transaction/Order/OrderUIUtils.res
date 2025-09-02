@@ -165,7 +165,7 @@ module NoData = {
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    <HelperComponents.BluredTableComponent
+    <BluredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
             ? "There are no payments as of now."

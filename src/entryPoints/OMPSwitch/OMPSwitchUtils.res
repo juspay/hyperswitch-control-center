@@ -112,3 +112,17 @@ let keyExtractorForMerchantid = item => {
   let dict = item->getDictFromJsonObject
   dict->getString("merchant_id", "")
 }
+
+let userSwitch = (~ompData: array<string>, ~path) => {
+  let data = {
+    orgId: ompData->Array.get(0),
+    merchantId: ompData->Array.get(1),
+    profileId: ompData->Array.get(2),
+    path,
+  }
+  if data.profileId->Option.isSome {
+    Some(data)
+  } else {
+    None
+  }
+}
