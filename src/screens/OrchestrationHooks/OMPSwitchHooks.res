@@ -49,7 +49,7 @@ let useUserInfo = () => {
   {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }
 
-let useOrgSwitch = () => {
+let useOrgSwitch = (~setActiveProductValue) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -61,6 +61,10 @@ let useOrgSwitch = () => {
   async (~expectedOrgId, ~currentOrgId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedOrgId !== currentOrgId {
+        switch setActiveProductValue {
+        | Some(fn) => fn(ProductTypes.UnknownProduct)
+        | None => ()
+        }
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_ORG, ~methodType=Post)
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
@@ -85,7 +89,7 @@ let useOrgSwitch = () => {
   }
 }
 
-let useMerchantSwitch = () => {
+let useMerchantSwitch = (~setActiveProductValue) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -97,6 +101,10 @@ let useMerchantSwitch = () => {
   async (~expectedMerchantId, ~currentMerchantId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedMerchantId !== currentMerchantId {
+        switch setActiveProductValue {
+        | Some(fn) => fn(ProductTypes.UnknownProduct)
+        | None => ()
+        }
         let body =
           [
             ("merchant_id", expectedMerchantId->JSON.Encode.string),
@@ -140,7 +148,7 @@ let useMerchantSwitch = () => {
   }
 }
 
-let useProfileSwitch = (~setActiveProductValue, ~currentProduct: ProductTypes.productTypes) => {
+let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -163,10 +171,6 @@ let useProfileSwitch = (~setActiveProductValue, ~currentProduct: ProductTypes.pr
         showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
-        switch setActiveProductValue {
-        | Some(fn) => fn(currentProduct)
-        | None => ()
-        }
         defaultValue
       }
     } catch {
@@ -180,10 +184,10 @@ let useProfileSwitch = (~setActiveProductValue, ~currentProduct: ProductTypes.pr
 
 let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productTypes => unit>=?) => {
   open HyperswitchAtom
-  let orgSwitch = useOrgSwitch()
-  let merchSwitch = useMerchantSwitch()
+  let orgSwitch = useOrgSwitch(~setActiveProductValue)
+  let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let profileSwitch = useProfileSwitch(~setActiveProductValue, ~currentProduct=product_type)
+  let profileSwitch = useProfileSwitch()
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
   async (
@@ -194,10 +198,6 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
     ~changePath=false,
   ) => {
     try {
-      switch setActiveProductValue {
-      | Some(fn) => fn(ProductTypes.UnknownProduct)
-      | None => ()
-      }
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
         ~currentOrgId=userInfo.orgId,
