@@ -46,6 +46,6 @@ let getPageFromIndex = (index): RoutingAnalyticsTypes.analyticsPagesRoutes => {
 let getPageIndex = (url: RescriptReactRouter.url) => {
   switch url.path->HSwitchUtils.urlPath {
   | list{"analytics-routing", "least-cost-routing"} => 1
-  | list{"analytics-routing", "overall-routing"} | _ => 0
+  | list{"analytics-routing"} | _ => 0
   }
 }

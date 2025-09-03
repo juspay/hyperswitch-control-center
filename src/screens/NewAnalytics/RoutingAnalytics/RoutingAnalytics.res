@@ -31,11 +31,11 @@ let make = () => {
     None
   }, [])
 
-  React.useEffect(() => {
-    let url = (getPageFromIndex(tabIndex) :> string)
+  let handleTabChange = tabId => {
+    setTabIndex(_ => tabId)
+    let url = (getPageFromIndex(tabId) :> string)
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
-    None
-  }, [tabIndex])
+  }
 
   let tabs: array<Tabs.tab> = if isLiveMode && !debitRouting {
     [
@@ -97,9 +97,9 @@ let make = () => {
       </div>
     </div>
     <Tabs
-      initialIndex={url->getPageIndex}
+      initialIndex={tabIndex}
       tabs
-      onTitleClick={tabId => setTabIndex(_ => tabId)}
+      onTitleClick={tabId => handleTabChange(tabId)}
       includeMargin=false
       textStyle="text-blue-600"
       selectTabBottomBorderColor="bg-blue-600"
