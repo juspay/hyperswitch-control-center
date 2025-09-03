@@ -35,3 +35,17 @@ let defaultGranularityOptionsObject: NewAnalyticsTypes.optionType = {
   label: "",
   value: "",
 }
+
+let getPageFromIndex = (index): RoutingAnalyticsTypes.analyticsPagesRoutes => {
+  switch index {
+  | 1 => LeastCostRoutingAnalytics
+  | _ => OverallRoutingAnalytics
+  }
+}
+
+let getPageIndex = (url: RescriptReactRouter.url) => {
+  switch url.path->HSwitchUtils.urlPath {
+  | list{"analytics-routing", "least-cost-routing"} => 1
+  | list{"analytics-routing", "overall-routing"} | _ => 0
+  }
+}

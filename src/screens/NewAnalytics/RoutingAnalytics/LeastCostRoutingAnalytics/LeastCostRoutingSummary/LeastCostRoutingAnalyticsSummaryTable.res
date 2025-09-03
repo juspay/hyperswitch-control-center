@@ -6,7 +6,7 @@ let make = () => {
   open PageLoaderWrapper
   open LeastCostRoutingAnalyticsTypes
 
-  let (screenState, setScreenState) = React.useState(_ => Success)
+  let (screenState, setScreenState) = React.useState(_ => Loading)
   let (offset, setOffset) = React.useState(_ => 0)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -60,7 +60,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getData()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getData()->ignore
+    }
     None
   }, (startTimeVal, endTimeVal))
 

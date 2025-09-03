@@ -2,12 +2,14 @@
 let make = () => {
   open Typography
   open HSAnalyticsUtils
+  open RoutingAnalyticsUtils
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let url = RescriptReactRouter.useUrl()
   let featureFlagAtom = HyperswitchAtom.featureFlagAtom
   let {isLiveMode, debitRouting} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -15,7 +17,7 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="routing_analytics_date_filter_opened")
   }
-  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -28,6 +30,12 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
+
+  React.useEffect(() => {
+    let url = (getPageFromIndex(tabIndex) :> string)
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
+    None
+  }, [tabIndex])
 
   let tabs: array<Tabs.tab> = if isLiveMode && !debitRouting {
     [
@@ -89,7 +97,7 @@ let make = () => {
       </div>
     </div>
     <Tabs
-      initialIndex={tabIndex}
+      initialIndex={url->getPageIndex}
       tabs
       onTitleClick={tabId => setTabIndex(_ => tabId)}
       includeMargin=false
