@@ -183,14 +183,12 @@ For users following the [Quickstart guide](https://github.com/juspay/hyperswitch
 
 The theme configuration supports the following customization options:
 
-| Category       | Options                                                               | Description                                 |
-| -------------- | --------------------------------------------------------------------- | ------------------------------------------- |
-| **Colors**     | `primary`, `secondary`, `background`                                  | Main brand colors and background            |
-| **Sidebar**    | `primary`, `textColor`, `textColorPrimary`                            | Sidebar styling and text colors             |
-| **Typography** | `fontFamily`, `fontSize`, `headingFontSize`, `textColor`, `linkColor` | Font settings and text styling              |
-| **Buttons**    | `primary`, `secondary`                                                | Button colors and hover states              |
-| **Layout**     | `borders`, `spacing`                                                  | Border radius, padding, and margin settings |
-| **Branding**   | `logoUrl`, `faviconUrl`                                               | Custom logo and favicon URLs                |
+| Category     | Options                                    | Description                      |
+| ------------ | ------------------------------------------ | -------------------------------- |
+| **Colors**   | `primary`, `secondary`, `background`       | Main brand colors and background |
+| **Sidebar**  | `primary`, `textColor`, `textColorPrimary` | Sidebar styling and text colors  |
+| **Buttons**  | `primary`, `secondary`                     | Button colors and hover states   |
+| **Branding** | `logoUrl`, `faviconUrl`                    | Custom logo and favicon URLs     |
 
 ### Examples
 

@@ -288,7 +288,9 @@ let make = (~children) => {
             ~forceCookies=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
-        } else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+        } // this need to be removed once all the exisitng user started consuming theme from the cdn
+        // else if condition for backward compatibility
+        else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
           let domainValue = domain->Option.getOr("")
           let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
           let themeResponse = await fetchApi(
