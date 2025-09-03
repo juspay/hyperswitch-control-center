@@ -185,7 +185,7 @@ The theme configuration supports the following customization options:
 
 | Category     | Options                                    | Description                      |
 | ------------ | ------------------------------------------ | -------------------------------- |
-| **Colors**   | `primary`, `secondary`, `background`       | Main brand colors and background |
+| **Colors**   | `primary`, `secondary`                     | Main brand colors and background |
 | **Sidebar**  | `primary`, `textColor`, `textColorPrimary` | Sidebar styling and text colors  |
 | **Buttons**  | `primary`, `secondary`                     | Button colors and hover states   |
 | **Branding** | `logoUrl`, `faviconUrl`                    | Custom logo and favicon URLs     |
