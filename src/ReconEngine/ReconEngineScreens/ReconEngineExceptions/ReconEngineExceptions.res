@@ -26,28 +26,21 @@ let make = () => {
     ]
   }, [])
 
-  <div className="flex flex-col gap-6">
-    <div className="flex flex-row justify-between items-center gap-4">
+  <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-row justify-between items-center">
+      <PageUtils.PageHeading
+        title="Exceptions" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+      />
       <div className="flex-shrink-0">
-        <PageUtils.PageHeading
-          title="Exceptions"
-          subTitle="View your exceptions and their details"
-          customSubTitleStyle={body.lg.medium}
-          customTitleStyle={`${heading.lg.semibold} py-0`}
+        <Button
+          text="Generate Report"
+          buttonType=Primary
+          buttonSize=Large
+          buttonState=Disabled
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
+          }}
         />
-      </div>
-      <div className="flex flex-row items-center gap-4">
-        <div className="flex-shrink-0 mt-2">
-          <Button
-            text="Generate Report"
-            buttonType=Primary
-            buttonSize=Large
-            buttonState=Disabled
-            onClick={_ => {
-              mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
-            }}
-          />
-        </div>
       </div>
     </div>
     <div className="flex flex-col gap-2">

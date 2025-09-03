@@ -487,7 +487,7 @@ let make = (~id) => {
   }, [])
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-8 p-6">
+    <div className="flex flex-col gap-6">
       <BreadCrumbNavigation
         path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
         currentPageTitle=id
