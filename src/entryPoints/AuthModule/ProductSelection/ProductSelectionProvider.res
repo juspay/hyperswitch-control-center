@@ -123,7 +123,7 @@ let make = (~children) => {
         showModal
         setShowModal
         action={actionVariant}
-        selectedProduct={selectedProduct->Option.getOr(Vault)}
+        selectedProduct={selectedProduct->Option.getOr(UnknownProduct)}
         setActiveProductValue
       />
     | None => React.null

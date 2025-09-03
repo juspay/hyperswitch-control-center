@@ -1,4 +1,5 @@
 open Typography
+open LogicUtils
 
 module DisplayKeyValueParams = {
   @react.component
@@ -57,8 +58,8 @@ module TransactionDetails = {
       <div
         className={`flex ${customFlex} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border `}>
         {detailsFields
-        ->Array.mapWithIndex((colType, i) => {
-          <div className=widthClass key={i->Int.toString}>
+        ->Array.map(colType => {
+          <div className=widthClass key={LogicUtils.randomString(~length=10)}>
             <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
           </div>
         })
@@ -118,6 +119,7 @@ module EntryAuditTrailInfo = {
     let detailsFields = [
       EntryId,
       EntryType,
+      AccountName,
       Amount,
       Currency,
       TransactionId,
@@ -125,6 +127,11 @@ module EntryAuditTrailInfo = {
       CreatedAt,
       EffectiveAt,
     ]
+
+    let (hasMetadata, filteredMetadata) = React.useMemo(() => {
+      let filteredMetadata = entryDetails.metadata->getFilteredMetadataFromEntries
+      (filteredMetadata->Dict.keysToArray->Array.length > 0, filteredMetadata)
+    }, [entryDetails.metadata])
 
     <div className="flex flex-col gap-4 mb-6 px-2">
       <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
@@ -138,12 +145,14 @@ module EntryAuditTrailInfo = {
           data=entryDetails getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Metadata"->React.string} </p>
-        <div className="w-full border border-nd_gray-150 rounded-lg p-2 bg-nd_gray-50">
-          <PrettyPrintJson jsonToDisplay={entryDetails.metadata->Js.Json.stringify} />
+      <RenderIf condition={hasMetadata}>
+        <div className="flex flex-col gap-2">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Metadata"->React.string} </p>
+          <div className="w-full border border-nd_gray-150 rounded-lg p-2 bg-nd_gray-50">
+            <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
+          </div>
         </div>
-      </div>
+      </RenderIf>
     </div>
   }
 }
@@ -154,7 +163,6 @@ module AuditTrail = {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
     open ReconEngineTransactionsTypes
-    open LogicUtils
     open APIUtils
 
     let getURL = useGetURL()
@@ -185,9 +193,15 @@ module AuditTrail = {
         let res = await fetchDetails(url)
         let entriesList = res->getArrayDataFromJson(getAllEntryPayload)
         let entriesDataArray = openedTransaction.entries->Array.map(entry => {
-          entriesList
-          ->Array.find(e => entry.entry_id == e.entry_id)
-          ->Option.getOr(Dict.make()->getAllEntryPayload)
+          let foundEntry =
+            entriesList
+            ->Array.find(e => entry.entry_id == e.entry_id)
+            ->Option.getOr(Dict.make()->getAllEntryPayload)
+
+          {
+            ...foundEntry,
+            account_name: entry.account.account_name,
+          }
         })
         setEntriesList(_ => entriesDataArray)
         setScreenState(_ => PageLoaderWrapper.Success)

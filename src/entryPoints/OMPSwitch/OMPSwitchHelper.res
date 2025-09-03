@@ -215,7 +215,7 @@ module AddNewOMPButton = {
 
 module OMPViewBaseComp = {
   @react.component
-  let make = (~displayName, ~arrow, ~disabled) => {
+  let make = (~displayName, ~arrow, ~disabled, ~customLabel="View data for:") => {
     let arrowClass = arrow
       ? "rotate-180 transition duration-[250ms] opacity-70"
       : "rotate-0 transition duration-[250ms] opacity-70"
@@ -241,7 +241,7 @@ module OMPViewBaseComp = {
         <div className="text-left flex items-center gap-1 p-2">
           <Icon name="settings-new" size=18 className={textClass} />
           <p className={`sm:block hidden fs-10 ${textClass} overflow-scroll text-nowrap`}>
-            {`View data for:`->React.string}
+            {customLabel->React.string}
           </p>
           <span className={displayNameClass}> {truncatedDisplayName} </span>
           <Icon className={`${arrowClass} ml-1`} name="angle-up" size=15 />
@@ -273,6 +273,7 @@ module OMPViewsComp = {
     ~displayName,
     ~entityMapper=UserInfoUtils.entityMapper,
     ~disabled=false,
+    ~customLabel="View data for:",
   ) => {
     let (arrow, setArrow) = React.useState(_ => false)
 
@@ -296,7 +297,7 @@ module OMPViewsComp = {
         addButton=false
         customStyle="md:rounded"
         searchable=false
-        baseComponent={<OMPViewBaseComp displayName arrow disabled />}
+        baseComponent={<OMPViewBaseComp displayName arrow disabled customLabel />}
         baseComponentCustomStyle="bg-white rounded-lg"
         optionClass="font-inter text-fs-14 font-normal leading-5"
         selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"

@@ -72,20 +72,11 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
 > => {
   statusList->Array.map(status => {
     let value: string = (status :> string)->String.toLowerCase
-    let label = switch status {
-    | Posted => "Matched"
-    | _ => (status :> string)->capitalizeString
-    }
+    let label = (status :> string)->capitalizeString
+
     {
       FilterSelectBox.label,
       value,
     }
   })
-}
-
-let getDisplayStatusName = (status: string) => {
-  switch status->String.toLowerCase {
-  | "posted" => "Matched"->String.toUpperCase
-  | _ => status->String.toUpperCase
-  }
 }

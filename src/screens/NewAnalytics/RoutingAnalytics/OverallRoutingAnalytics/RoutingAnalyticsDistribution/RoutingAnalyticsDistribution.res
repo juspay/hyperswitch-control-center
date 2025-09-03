@@ -2,7 +2,7 @@
 let make = () => {
   open Typography
 
-  <div className="mt-4">
+  <div>
     <PageUtils.PageHeading
       title="Routing Distribution"
       subTitle="Get insights into the distribution of routing decisions across different processors and routing logics."

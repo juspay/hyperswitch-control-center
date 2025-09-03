@@ -48,12 +48,14 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYPAL),
   Processors(ACI),
   Processors(ADYEN),
+  Processors(AFFIRM),
   Processors(AIRWALLEX),
   Processors(AUTHORIZEDOTNET),
   Processors(BANKOFAMERICA),
   Processors(BAMBORA),
   Processors(BILLWERK),
   Processors(BITPAY),
+  Processors(BLACKHAWKNETWORK),
   Processors(BLUESNAP),
   Processors(BRAINTREE),
   Processors(CASHTOCODE),
@@ -65,6 +67,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(DATATRANS),
   Processors(DLOCAL),
+  Processors(DWOLLA),
   Processors(ELAVON),
   Processors(FISERV),
   Processors(FISERVIPG),
@@ -631,6 +634,10 @@ let silverflowInfo = {
 let checkbookInfo = {
   description: "Checkbook offers businesses a versatile and embeddable way to scale their payouts. As a leading provider of both paper and digital options, we're uniquely positioned to enable the speed, flexibility, and cost savings of modern payments, with the familiarity and simplicity of paper checks.",
 }
+
+let affirmInfo = {
+  description: "Affirm connector is a payment gateway integration that processes Affirm's buy now, pay later financing by managing payment authorization, capture, refunds, and transaction sync via Affirm's API.",
+}
 let nomupayInfo = {
   description: "A payment processing and software provider, that offers solutions such as e-commerce solutions, subscription billing services, payment gateways, and merchant accounts, to businesses of all sizes.",
 }
@@ -694,9 +701,18 @@ let bluecodeInfo = {
   description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
 }
 
+let blackhawknetworkInfo = {
+  description: "Blackhawk Network Holdings, Inc. is an American financial technology company that specializes in branded payments, prepaid cards, gift cards, and incentive solutions.",
+}
+
+let dwollaInfo = {
+  description: "Dwolla offers a white labeled product experience powered by an API that enables you to embed account-to-account payments into a web or mobile application.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
+  | AFFIRM => "affirm"
   | CHECKOUT => "checkout"
   | BRAINTREE => "braintree"
   | AUTHORIZEDOTNET => "authorizedotnet"
@@ -788,6 +804,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
   | BLUECODE => "bluecode"
+  | BLACKHAWKNETWORK => "blackhawknetwork"
+  | DWOLLA => "dwolla"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -860,6 +878,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
+    | "affirm" => Processors(AFFIRM)
     | "checkout" => Processors(CHECKOUT)
     | "braintree" => Processors(BRAINTREE)
     | "authorizedotnet" => Processors(AUTHORIZEDOTNET)
@@ -951,6 +970,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
     | "bluecode" => Processors(BLUECODE)
+    | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
+    | "dwolla" => Processors(DWOLLA)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1004,6 +1025,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
+  | AFFIRM => affirmInfo
   | GOCARDLESS => goCardLessInfo
   | CHECKOUT => checkoutInfo
   | BRAINTREE => braintreeInfo
@@ -1094,6 +1116,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
   | BLUECODE => bluecodeInfo
+  | BLACKHAWKNETWORK => blackhawknetworkInfo
+  | DWOLLA => dwollaInfo
   }
 }
 
@@ -1918,6 +1942,7 @@ let getConnectorPaymentMethodDetails = async (
 let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   switch connector {
   | ADYEN => "Adyen"
+  | AFFIRM => "Affirm"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
   | BILLWERK => "Billwerk"
@@ -2009,6 +2034,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
   | BLUECODE => "Bluecode"
+  | BLACKHAWKNETWORK => "BlackhawkNetwork"
+  | DWOLLA => "Dwolla"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

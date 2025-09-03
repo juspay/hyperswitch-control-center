@@ -3,6 +3,114 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.03.0
+
+### Features
+
+- Allow user to share permalinks and switch ([#3472](https://github.com/juspay/hyperswitch-control-center/pull/3472)) ([`e92c36d`](https://github.com/juspay/hyperswitch-control-center/commit/e92c36d012f78f8c43c952e6eaa8557cb0027113))
+- Added metrics cards for least cost routing analytics ([#3503](https://github.com/juspay/hyperswitch-control-center/pull/3503)) ([`cb8fcde`](https://github.com/juspay/hyperswitch-control-center/commit/cb8fcdef7cb59e6eec735d18c3b94765783573f7))
+
+### Bug Fixes
+
+- Recovery prod default route fix ([#3510](https://github.com/juspay/hyperswitch-control-center/pull/3510)) ([`c7f6ec9`](https://github.com/juspay/hyperswitch-control-center/commit/c7f6ec98feacd1bf00040a1da910edf6738611a8))
+- User logout when product switch from recon engine to orchestrator ([#3508](https://github.com/juspay/hyperswitch-control-center/pull/3508)) ([`cce4792`](https://github.com/juspay/hyperswitch-control-center/commit/cce47920abcbd33be264478a9f01bad3b463bf07))
+
+### Miscellaneous Tasks
+
+- Recon engine date format and add account in the entries ([#3500](https://github.com/juspay/hyperswitch-control-center/pull/3500)) ([`f519a29`](https://github.com/juspay/hyperswitch-control-center/commit/f519a294e13d1395635b87387ebfe23446fd4851))
+
+**Full Changelog:** [`2025.09.02.0...2025.09.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.02.0...2025.09.03.0)
+
+- - -
+
+## 2025.09.02.0
+
+### Features
+
+- Added new connector dwolla ([#3495](https://github.com/juspay/hyperswitch-control-center/pull/3495)) ([`2dac878`](https://github.com/juspay/hyperswitch-control-center/commit/2dac8787d02abf8b9afe10fa0955389d9a73a6cc))
+- Added distribution graphs in least cost routing analytics ([#3487](https://github.com/juspay/hyperswitch-control-center/pull/3487)) ([`3c80b68`](https://github.com/juspay/hyperswitch-control-center/commit/3c80b689a61708c52d27354dc8cd6f875348d9af))
+
+### Bug Fixes
+
+- Payout details bugfix ([#3504](https://github.com/juspay/hyperswitch-control-center/pull/3504)) ([`cfd0cd1`](https://github.com/juspay/hyperswitch-control-center/commit/cfd0cd14142f01e13737346c6d8e02d89a55a62b))
+- Calendar arrow movement changes ([#3493](https://github.com/juspay/hyperswitch-control-center/pull/3493)) ([`3e0c79c`](https://github.com/juspay/hyperswitch-control-center/commit/3e0c79c8d1e4432da387c50fe2ee9f7b008fab75))
+
+### Miscellaneous Tasks
+
+- Updated wasm for dwolla connector ([#3496](https://github.com/juspay/hyperswitch-control-center/pull/3496)) ([`5549cdf`](https://github.com/juspay/hyperswitch-control-center/commit/5549cdf67968786e1ee85b135806569bc1deb0f5))
+
+**Full Changelog:** [`2025.09.01.0...2025.09.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.01.0...2025.09.02.0)
+
+- - -
+
+## 2025.09.01.0
+
+### Features
+
+- Recon engine overview summary accounts view ([#3475](https://github.com/juspay/hyperswitch-control-center/pull/3475)) ([`e8b0e09`](https://github.com/juspay/hyperswitch-control-center/commit/e8b0e094487e78b7c836ad541d930d555394612e))
+
+### Bug Fixes
+
+- Remove unnecessary hr for orgsidebar ([#3492](https://github.com/juspay/hyperswitch-control-center/pull/3492)) ([`28c399e`](https://github.com/juspay/hyperswitch-control-center/commit/28c399ee6113cbb3d260de2dc3a33d88d8d71691))
+
+**Full Changelog:** [`2025.08.26.2...2025.09.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.26.2...2025.09.01.0)
+
+- - -
+
+## 2025.08.26.2
+
+### Bug Fixes
+
+- Sample analytics group by bugfix ([#3490](https://github.com/juspay/hyperswitch-control-center/pull/3490)) ([`9e64097`](https://github.com/juspay/hyperswitch-control-center/commit/9e640977e3ceec1d0a2d4d8daf63895854e57f88))
+
+**Full Changelog:** [`2025.08.26.1...2025.08.26.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.26.1...2025.08.26.2)
+
+- - -
+
+## 2025.08.26.1
+
+### Features
+
+- Add recon engine overview volume graphs ([#3471](https://github.com/juspay/hyperswitch-control-center/pull/3471)) ([`3ed252a`](https://github.com/juspay/hyperswitch-control-center/commit/3ed252a50645892c224ddf4c915d4f369b7e43e1))
+
+**Full Changelog:** [`2025.08.26.0...2025.08.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.26.0...2025.08.26.1)
+
+- - -
+
+## 2025.08.26.0
+
+### Features
+
+- Add new connector `Affirm` ([#3483](https://github.com/juspay/hyperswitch-control-center/pull/3483)) ([`4120353`](https://github.com/juspay/hyperswitch-control-center/commit/41203539a53b7f3dd31efae9f0af736f18f3f11a))
+- Wasm changes for `Affirm` connector ([#3484](https://github.com/juspay/hyperswitch-control-center/pull/3484)) ([`5243c85`](https://github.com/juspay/hyperswitch-control-center/commit/5243c8573d905d3ec3dfb0efb7a821d6a6a5bbe3))
+- Roles Information module with parent group info apis ([#3467](https://github.com/juspay/hyperswitch-control-center/pull/3467)) ([`4a93f94`](https://github.com/juspay/hyperswitch-control-center/commit/4a93f94b27f15a28f8683213265ec6e5158111c3))
+
+### Bug Fixes
+
+- Home page product switch ([#3476](https://github.com/juspay/hyperswitch-control-center/pull/3476)) ([`e706702`](https://github.com/juspay/hyperswitch-control-center/commit/e706702a411d76e170a4ed56a2008c700f83e76e))
+
+### Miscellaneous Tasks
+
+- Add `RETURN` as default refund reason for adyen connector ([#3486](https://github.com/juspay/hyperswitch-control-center/pull/3486)) ([`6a069ae`](https://github.com/juspay/hyperswitch-control-center/commit/6a069ae3728859a1b1e42e5c55cbd8e950d0c17b))
+
+**Full Changelog:** [`2025.08.25.0...2025.08.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.25.0...2025.08.26.0)
+
+- - -
+
+## 2025.08.25.0
+
+### Features
+
+- Add blackhawknetwork connector ([#3479](https://github.com/juspay/hyperswitch-control-center/pull/3479)) ([`0040aa5`](https://github.com/juspay/hyperswitch-control-center/commit/0040aa5cc7a1b1de453ce62259ca3022b8edb92f))
+
+### Miscellaneous Tasks
+
+- Remove sync for terminal payment intent status ([#3469](https://github.com/juspay/hyperswitch-control-center/pull/3469)) ([`8077dea`](https://github.com/juspay/hyperswitch-control-center/commit/8077dead936c1a48dc0606eedeb36d6ff6ddce58))
+
+**Full Changelog:** [`2025.08.22.0...2025.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.08.22.0...2025.08.25.0)
+
+- - -
+
 ## 2025.08.22.0
 
 ### Features

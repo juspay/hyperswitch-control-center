@@ -452,6 +452,7 @@ let make = () => {
   let handleIdUnderEdit = (selectedEditId: option<int>) => {
     setUnderEdit(_ => selectedEditId)
   }
+  let hasPlatformOrg = platformOrgList->Array.length > 0
 
   <div className={`${backgroundColor.sidebarNormal}  p-2 pt-3 border-r w-14 ${borderColor}`}>
     <div className="flex flex-col gap-5 pt-2 px-2 items-center justify-center ">
@@ -463,14 +464,14 @@ let make = () => {
           onClick={_ => setShowAllOrgs(_ => false)}
         />
       </RenderIf>
-      <RenderIf condition={platformOrgList->Array.length > 0}>
+      <RenderIf condition={hasPlatformOrg}>
         <OrgTileGroup
           customHeading={<div
             className="text-nd_gray-400 uppercase leading-12 text-fs-8 font-bold flex flex-col items-center">
             <div> {"Platform"->React.string} </div>
             <div> {"Org"->React.string} </div>
           </div>}
-          hasPlatformOrg={platformOrgList->Array.length > 0}
+          hasPlatformOrg
           orgList=platformOrgList
           orgSwitch
           currentlyEditingId
@@ -478,12 +479,12 @@ let make = () => {
         />
       </RenderIf>
       <RenderIf condition={standardOrgList->Array.length > 0}>
-        <RenderIf condition={platformOrgList->Array.length > 0}>
+        <RenderIf condition={hasPlatformOrg}>
           <hr className="w-full" />
         </RenderIf>
         <OrgTileGroup
           heading="Org"
-          hasPlatformOrg={platformOrgList->Array.length > 0}
+          hasPlatformOrg
           orgList=standardOrgList
           orgSwitch
           currentlyEditingId

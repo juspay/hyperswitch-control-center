@@ -1,6 +1,5 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
-open ReconEngineUtils
 open LogicUtils
 
 let defaultColumns: array<transactionColType> = [
@@ -47,7 +46,7 @@ let getHeading = (colType: transactionColType) => {
 
 let getStatusLabel = (statusString: string): Table.cell => {
   Table.Label({
-    title: statusString->getDisplayStatusName,
+    title: statusString->String.toUpperCase,
     color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
     | Posted => Table.LabelGreen
     | Mismatched => Table.LabelRed
@@ -92,7 +91,7 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
     | Some(status) => getStatusLabel(status)
     | None => getStatusLabel(transaction.transaction_status)
     }
-  | CreatedAt => EllipsisText(transaction.created_at, "")
+  | CreatedAt => Date(transaction.created_at)
   }
 }
 
