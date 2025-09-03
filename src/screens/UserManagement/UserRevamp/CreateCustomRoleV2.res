@@ -6,17 +6,34 @@ open CreateCustomRoleUtils
 
 module RenderPermissionModule = {
   @react.component
-  let make = (~moduleName, ~description, ~scopes) => {
-    let readField = ReactFinalForm.useField(`${moduleName}.read`)
-    let writeField = ReactFinalForm.useField(`${moduleName}.write`)
+  let make = (~moduleName, ~description, ~scopes, ~moduleIndex) => {
+    let parentGroupsField = ReactFinalForm.useField("parent_groups")
 
-    let handleScopeChange = (scope: scope, isSelected: bool) => {
-      switch (scope, isSelected) {
-      | (Write, true) if !getBoolFromJson(readField.input.value, false) =>
-        readField.input.onChange(true->Identity.anyTypeToReactEvent)
-      | (Read, false) => writeField.input.onChange(false->Identity.anyTypeToReactEvent)
-      | _ => ()
+    let getCurrentScopes = () => {
+      let allGroups = parentGroupsField.input.value->getArrayFromJson([])
+      let currentGroup = allGroups[moduleIndex]
+
+      switch currentGroup {
+      | Some(groupJson) => {
+          let groupDict = groupJson->getDictFromJsonObject
+          getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+        }
+      | None => []
       }
+    }
+
+    let updateScopes = newScopes => {
+      let allGroups = parentGroupsField.input.value->getArrayFromJson([])
+      let updatedGroups = allGroups->Array.mapWithIndex((group, index) => {
+        if index === moduleIndex {
+          let groupDict = group->getDictFromJsonObject
+          groupDict->Dict.set("scopes", newScopes->JSON.Encode.array)
+          groupDict->JSON.Encode.object
+        } else {
+          group
+        }
+      })
+      parentGroupsField.input.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let scopeToString = scope => {
@@ -26,10 +43,40 @@ module RenderPermissionModule = {
       }
     }
 
+    let handleScopeChange = (scope, isSelected: bool) => {
+      let currentScopes = getCurrentScopes()
+      let scopeString = scope->scopeToString
+
+      let newScopes = if isSelected && !{currentScopes->Array.includes(scopeString)} {
+        currentScopes->Array.concat([scopeString])
+      } else if !isSelected && currentScopes->Array.includes(scopeString) {
+        currentScopes->Array.filter(s => s !== scopeString)
+      } else {
+        currentScopes
+      }
+
+      let finalScopes = if (
+        isSelected && scope === Write && !{currentScopes->Array.includes("read")}
+      ) {
+        newScopes->Array.concat(["read"])
+      } else {
+        newScopes
+      }
+
+      let finalScopes2 = if !isSelected && scope === Read && finalScopes->Array.includes("write") {
+        finalScopes->Array.filter(s => s !== "write")
+      } else {
+        finalScopes
+      }
+
+      updateScopes(finalScopes2->Array.map(JSON.Encode.string))
+    }
+
     let isReadAvailable = scopes->Array.some(scope => scope === Read->scopeToString)
     let isWriteAvailable = scopes->Array.some(scope => scope === Write->scopeToString)
-    let isReadSelected = getBoolFromJson(readField.input.value, false)
-    let isWriteSelected = getBoolFromJson(writeField.input.value, false)
+    let currentScopes = getCurrentScopes()
+    let isReadSelected = currentScopes->Array.includes("read")
+    let isWriteSelected = currentScopes->Array.includes("write")
 
     <div className="flex items-center py-4 px-6">
       <div className="flex-1">
@@ -42,7 +89,6 @@ module RenderPermissionModule = {
             isSelected=isReadSelected
             setIsSelected={isSelected => {
               handleScopeChange(Read, isSelected)
-              readField.input.onChange(isSelected->Identity.anyTypeToReactEvent)
             }}
             isDisabled={!isReadAvailable}
             size=Large
@@ -53,7 +99,6 @@ module RenderPermissionModule = {
             isSelected=isWriteSelected
             setIsSelected={isSelected => {
               handleScopeChange(Write, isSelected)
-              writeField.input.onChange(isSelected->Identity.anyTypeToReactEvent)
             }}
             isDisabled={!isWriteAvailable}
             size=Large
@@ -110,6 +155,7 @@ module PermissionTableWrapper = {
             moduleName={moduleData.name}
             description={moduleData.description}
             scopes={moduleData.scopes}
+            moduleIndex=index
           />
         })
         ->React.array}
@@ -131,8 +177,16 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   let marginClass = isInviteUserFlow ? "mt-6" : ""
   let showToast = ToastState.useShowToast()
   let initialValues = React.useMemo(() => {
-    getInitialValuesForForm(currentEntityType)->JSON.Encode.object
-  }, [currentEntityType])
+    let baseValues = getInitialValuesForForm(currentEntityType)
+    let parentGroupsInitial = permissionModules->Array.map(module_ => {
+      [
+        ("name", module_.name->JSON.Encode.string),
+        ("scopes", []->JSON.Encode.array), // Empty scopes array initially
+      ]->getJsonFromArrayOfJson
+    })
+    baseValues->Dict.set("parent_groups", parentGroupsInitial->JSON.Encode.array)
+    baseValues->JSON.Encode.object
+  }, (currentEntityType, permissionModules))
 
   let onSubmit = async (values, _) => {
     try {
@@ -141,41 +195,13 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       let roleName = getString(valuesDict, "role_name", "")->String.trim->titleToSnake
       valuesDict->Dict.set("role_name", roleName->JSON.Encode.string)
       let parentGroups =
-        permissionModules
-        ->Array.map(module_ => {
-          let moduleName = module_.name
-          let moduleData = Dict.get(valuesDict, moduleName)
-
-          switch moduleData {
-          | Some(moduleJson) => {
-              let moduleDict = moduleJson->getDictFromJsonObject
-              let readSelected = getBool(moduleDict, "read", false)
-              let writeSelected = getBool(moduleDict, "write", false)
-
-              let scopes = []
-              if readSelected {
-                scopes->Array.push("read")->ignore
-              }
-              if writeSelected {
-                scopes->Array.push("write")->ignore
-              }
-
-              if scopes->Array.length > 0 {
-                Some(
-                  [
-                    ("name", moduleName->JSON.Encode.string),
-                    ("scopes", scopes->Array.map(JSON.Encode.string)->JSON.Encode.array),
-                  ]->getJsonFromArrayOfJson,
-                )
-              } else {
-                None
-              }
-            }
-          | None => None
-          }
+        valuesDict
+        ->getArrayFromDict("parent_groups", [])
+        ->Array.filter(groupJson => {
+          let groupDict = groupJson->getDictFromJsonObject
+          let scopes = getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+          scopes->Array.length > 0
         })
-        ->Array.filter(Option.isSome)
-        ->Array.map(Option.getExn)
       valuesDict->Dict.set("parent_groups", parentGroups->JSON.Encode.array)
 
       let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE_V2, ~methodType=Post)
@@ -269,7 +295,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
           <div className="flex justify-end">
             <FormRenderer.SubmitButton text="Create role" loadingText="Loading..." />
           </div>
-          // <FormValuesSpy />
+          <FormValuesSpy />
         </Form>
       </PageLoaderWrapper>
     </div>

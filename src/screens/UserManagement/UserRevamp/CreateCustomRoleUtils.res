@@ -22,19 +22,11 @@ let validateCustomRoleForm = (values, ~permissionModules=[], ~isV2=false) => {
   }
 
   if isV2 && permissionModules->Array.length > 0 {
-    let hasPermissions = permissionModules->Array.some(module_ => {
-      let moduleName = module_.name
-      let moduleData = Dict.get(valuesDict, moduleName)
-
-      switch moduleData {
-      | Some(moduleJson) => {
-          let moduleDict = moduleJson->getDictFromJsonObject
-          let readSelected = getBool(moduleDict, "read", false)
-          let writeSelected = getBool(moduleDict, "write", false)
-          readSelected || writeSelected
-        }
-      | None => false
-      }
+    let parentGroups = valuesDict->getArrayFromDict("parent_groups", [])
+    let hasPermissions = parentGroups->Array.some(groupJson => {
+      let groupDict = groupJson->getDictFromJsonObject
+      let scopes = getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+      scopes->Array.length > 0
     })
 
     if !hasPermissions {
