@@ -1,6 +1,13 @@
 open LogicUtils
 open UserManagementTypes
 
+let updateScope = (scopes: array<string>, action: scopeAction, targetScope: string) => {
+  switch action {
+  | Add => scopes->Array.includes(targetScope) ? scopes : scopes->Array.concat([targetScope])
+  | Remove => scopes->Array.filter(s => s !== targetScope)
+  }
+}
+
 let getInitialValuesForForm = entityType =>
   [
     ("role_scope", "merchant"->JSON.Encode.string),

@@ -46,30 +46,15 @@ module RenderPermissionModule = {
     let handleScopeChange = (scope, isSelected: bool) => {
       let currentScopes = getCurrentScopes()
       let scopeString = scope->scopeToString
+      let newScopes = updateScope(currentScopes, isSelected ? Add : Remove, scopeString)
 
-      let newScopes = if isSelected && !{currentScopes->Array.includes(scopeString)} {
-        currentScopes->Array.concat([scopeString])
-      } else if !isSelected && currentScopes->Array.includes(scopeString) {
-        currentScopes->Array.filter(s => s !== scopeString)
-      } else {
-        currentScopes
+      let finalScopes = switch (scope, isSelected) {
+      | (Write, true) => updateScope(newScopes, Add, "read")
+      | (Read, false) => updateScope(newScopes, Remove, "write")
+      | _ => newScopes
       }
 
-      let finalScopes = if (
-        isSelected && scope === Write && !{currentScopes->Array.includes("read")}
-      ) {
-        newScopes->Array.concat(["read"])
-      } else {
-        newScopes
-      }
-
-      let finalScopes2 = if !isSelected && scope === Read && finalScopes->Array.includes("write") {
-        finalScopes->Array.filter(s => s !== "write")
-      } else {
-        finalScopes
-      }
-
-      updateScopes(finalScopes2->Array.map(JSON.Encode.string))
+      updateScopes(finalScopes->Array.map(JSON.Encode.string))
     }
 
     let isReadAvailable = scopes->Array.some(scope => scope === Read->scopeToString)
