@@ -4,6 +4,7 @@ let make = () => {
   open APIUtils
   open Typography
   open PageLoaderWrapper
+  open LeastCostRoutingAnalyticsTypes
 
   let (screenState, setScreenState) = React.useState(_ => Success)
   let (offset, setOffset) = React.useState(_ => 0)
@@ -30,14 +31,12 @@ let make = () => {
       let body =
         [
           AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some([
-              (#sessionized_debit_routing: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
-            ]),
+            ~metrics=Some([(#sessionized_debit_routing: requestPayloadMetrics :> string)]),
             ~delta=false,
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~groupByNames=Some([
-              (#card_network: LeastCostRoutingAnalyticsTypes.requestPayloadMetrics :> string),
+              (#card_network: requestPayloadMetrics :> string),
               "signature_network",
               "is_issuer_regulated",
             ]),
@@ -87,6 +86,7 @@ let make = () => {
         setOffset
         entity={LeastCostRoutingAnalyticsSummaryTableEntity.summaryEntity()}
         currrentFetchCount={tableData->Array.length}
+        showAutoScroll=true
       />
     </PageLoaderWrapper>
   </div>
