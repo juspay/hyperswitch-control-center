@@ -1,6 +1,7 @@
 open SidebarValues
 open SidebarTypes
 open FeatureFlagUtils
+open ProductTypes
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -100,6 +101,14 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
     products->Array.push(ProductTypes.DynamicRouting)->ignore
   }
 
+  if featureFlagDetails.devOrchestrationV2Product {
+    products->Array.push(ProductTypes.Orchestration(V2))->ignore
+  }
+
+  if featureFlagDetails.devReconEngineV1 {
+    products->Array.push(ProductTypes.Recon(V1))->ignore
+  }
+
   products
 }
 
@@ -135,6 +144,23 @@ let useGetSidebarProductModules = (~isExplored) => {
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
 
+  let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (acc, product) => {
+    let alreadyExists = acc->Array.some(existingProduct => {
+      switch (existingProduct, product) {
+      | (Orchestration(V1), Orchestration(V1)) => true
+      | (Orchestration(V2), Orchestration(V2)) => true
+      | (Recon(V1), Recon(V1)) => true
+      | (Recon(V2), Recon(V2)) => true
+      | (Recovery, Recovery) => true
+      | (Vault, Vault) => true
+      | (CostObservability, CostObservability) => true
+      | (DynamicRouting, DynamicRouting) => true
+      | (UnknownProduct, UnknownProduct) => true
+      | _ => false
+      }
+    })
+    alreadyExists ? acc : acc->Array.concat([product])
+  })
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
   let filteredProducts = allProducts->Array.filter(productType => {
