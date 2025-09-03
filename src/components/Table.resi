@@ -167,6 +167,8 @@ module TableRow: {
     ~highlightSelectedRow: bool=?,
     ~selectedIndex: int,
     ~setSelectedIndex: ('a => int) => unit,
+    ~areLastCellsRounded: bool=?,
+    ~isLastRow: bool=?,
   ) => React.element
 }
 module SortAction: {
