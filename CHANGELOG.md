@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.03.0
+
+### Features
+
+- Allow user to share permalinks and switch ([#3472](https://github.com/juspay/hyperswitch-control-center/pull/3472)) ([`e92c36d`](https://github.com/juspay/hyperswitch-control-center/commit/e92c36d012f78f8c43c952e6eaa8557cb0027113))
+- Added metrics cards for least cost routing analytics ([#3503](https://github.com/juspay/hyperswitch-control-center/pull/3503)) ([`cb8fcde`](https://github.com/juspay/hyperswitch-control-center/commit/cb8fcdef7cb59e6eec735d18c3b94765783573f7))
+
+### Bug Fixes
+
+- Recovery prod default route fix ([#3510](https://github.com/juspay/hyperswitch-control-center/pull/3510)) ([`c7f6ec9`](https://github.com/juspay/hyperswitch-control-center/commit/c7f6ec98feacd1bf00040a1da910edf6738611a8))
+- User logout when product switch from recon engine to orchestrator ([#3508](https://github.com/juspay/hyperswitch-control-center/pull/3508)) ([`cce4792`](https://github.com/juspay/hyperswitch-control-center/commit/cce47920abcbd33be264478a9f01bad3b463bf07))
+
+### Miscellaneous Tasks
+
+- Recon engine date format and add account in the entries ([#3500](https://github.com/juspay/hyperswitch-control-center/pull/3500)) ([`f519a29`](https://github.com/juspay/hyperswitch-control-center/commit/f519a294e13d1395635b87387ebfe23446fd4851))
+
+**Full Changelog:** [`2025.09.02.0...2025.09.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.02.0...2025.09.03.0)
+
+- - -
+
 ## 2025.09.02.0
 
 ### Features
