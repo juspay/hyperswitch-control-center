@@ -147,16 +147,7 @@ let useGetSidebarProductModules = (~isExplored) => {
   let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (acc, product) => {
     let alreadyExists = acc->Array.some(existingProduct => {
       switch (existingProduct, product) {
-      | (Orchestration(V1), Orchestration(V1)) => true
-      | (Orchestration(V2), Orchestration(V2)) => true
-      | (Recon(V1), Recon(V1)) => true
-      | (Recon(V2), Recon(V2)) => true
-      | (Recovery, Recovery) => true
-      | (Vault, Vault) => true
-      | (CostObservability, CostObservability) => true
-      | (DynamicRouting, DynamicRouting) => true
-      | (UnknownProduct, UnknownProduct) => true
-      | _ => false
+      | (a, b) => a == b ? true : false
       }
     })
     alreadyExists ? acc : acc->Array.concat([product])
@@ -164,17 +155,9 @@ let useGetSidebarProductModules = (~isExplored) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
   let filteredProducts = allProducts->Array.filter(productType => {
-    let hasProduct = merchantListProducts->Array.some(merchantProductType => {
+    let hasProduct = uniqueMerchantListProducts->Array.some(merchantProductType => {
       switch (merchantProductType, productType) {
-      | (Orchestration(V1), Orchestration(V1)) => true
-      | (Orchestration(V2), Orchestration(V2)) => true
-      | (Recon(V1), Recon(V1)) => true
-      | (Recon(V2), Recon(V2)) => true
-      | (Recovery, Recovery) => true
-      | (Vault, Vault) => true
-      | (CostObservability, CostObservability) => true
-      | (DynamicRouting, DynamicRouting) => true
-      | _ => false
+      | (a, b) => a == b ? true : false
       }
     })
     isExplored ? hasProduct : !hasProduct

@@ -570,12 +570,12 @@ module ProductTypeSectionItem = {
                   isSidebarExpanded
                 />
               }
-            | Section(section) => <RenderIf
-                condition={section.showSection} key={Int.toString(index)}>
+            | Section(thisSection) =>
+              <RenderIf condition={thisSection.showSection} key={Int.toString(index)}>
                 <SidebarNestedSection
                   product=sectionProductVariant
                   key={Int.toString(index)}
-                  section
+                  section=thisSection
                   linkSelectionCheck
                   firstPart
                   isSideBarExpanded={isSidebarExpanded}
