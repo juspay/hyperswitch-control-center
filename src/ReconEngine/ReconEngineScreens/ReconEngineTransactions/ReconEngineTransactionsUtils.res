@@ -189,7 +189,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="source_account",
-          ~name="credit_account",
+          ~name="source_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=creditAccountOptions,
             ~buttonText="Select Source Account",
@@ -208,7 +208,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="target_account",
-          ~name="debit_account",
+          ~name="target_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
             ~buttonText="Select Target Account",
