@@ -56,6 +56,7 @@ let make = (~children) => {
     AuthInfoProvider.authStatusContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+
   let getAuthDetails = () => {
     open LogicUtils
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
@@ -66,6 +67,7 @@ let make = (~children) => {
     } else if loggedInInfo.token->Option.isSome {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
     } else {
+      CommonAuthUtils.handleSwitchUserQueryParam(~url)
       setAuthStatus(LoggedOut)
     }
   }
