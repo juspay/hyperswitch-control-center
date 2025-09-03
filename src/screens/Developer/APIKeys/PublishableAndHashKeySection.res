@@ -32,8 +32,8 @@ let make = () => {
   }, [])
 
   let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getOr("")
-  let heading = `Publishable Key ${paymentResponsHashKey->String.length !== 0
-      ? "Payment Response Hash Key"
+  let heading = `Publishable Key ${paymentResponsHashKey->LogicUtils.isNonEmptyString
+      ? "and Payment Response Hash Key"
       : ""}`
 
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
