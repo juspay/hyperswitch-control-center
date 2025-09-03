@@ -86,7 +86,7 @@ module SidebarSubOption = {
 module SidebarItem = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration(V1),
+    ~product,
     ~tabInfo,
     ~isSelected,
     ~isSidebarExpanded,
@@ -130,14 +130,8 @@ module SidebarItem = {
           setOpenItem(prev => {prev == name ? "" : name})
 
           switch (activeProductVariant, product) {
-          | (Orchestration(V1), Orchestration(V1)) => ()
-          | (Orchestration(V1), _) => onItemClickCustom()
-          | _ =>
-            if activeProductVariant !== product {
-              onItemClickCustom()
-            } else {
-              ()
-            }
+          | (a, b) if a == b => ()
+          | _ => onItemClickCustom()
           }
         }
         <RenderIf condition={access !== NoAccess}>
@@ -206,7 +200,7 @@ module SidebarItem = {
 module NestedSidebarItem = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration(V1),
+    ~product,
     ~tabInfo,
     ~isSelected,
     ~isSideBarExpanded,
@@ -257,12 +251,8 @@ module NestedSidebarItem = {
                     switch onItemClickCustom {
                     | Some(fn) =>
                       switch (activeProductVariant, product) {
-                      | (Orchestration(V1), Orchestration(V1)) => ()
-                      | (Orchestration(V1), _) => fn()
-                      | _ =>
-                        if activeProductVariant !== product {
-                          fn()
-                        }
+                      | (a, b) if a == b => ()
+                      | _ => fn()
                       }
                     | None => ()
                     }
@@ -292,7 +282,7 @@ module NestedSidebarItem = {
 module NestedSectionItem = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration(V1),
+    ~product,
     ~section: sectionType,
     ~isSectionExpanded,
     ~textColor,
@@ -370,7 +360,7 @@ module NestedSectionItem = {
 module SidebarNestedSection = {
   @react.component
   let make = (
-    ~product=ProductTypes.Orchestration(V1),
+    ~product,
     ~section: sectionType,
     ~linkSelectionCheck,
     ~firstPart,
@@ -580,10 +570,10 @@ module ProductTypeSectionItem = {
                   isSidebarExpanded
                 />
               }
-            | Section(section) =>
-              <RenderIf condition={section.showSection} key={Int.toString(index)}>
+            | Section(section) => <RenderIf
+                condition={section.showSection} key={Int.toString(index)}>
                 <SidebarNestedSection
-                  product={section.name->ProductUtils.getProductVariantFromDisplayName}
+                  product=sectionProductVariant
                   key={Int.toString(index)}
                   section
                   linkSelectionCheck

@@ -73,7 +73,7 @@ let make = () => {
                 action=item.action
               />
             </RenderIf>
-          | CostObservability(_) =>
+          | CostObservability =>
             <RenderIf condition=devHypersenseV2Product>
               <DefaultHomeCard
                 product=item.product
