@@ -6,18 +6,10 @@ let sumTransactions = (records: array<JSON.t>, ~forRegulated) => {
     let recordDict = record->getDictFromJsonObject
     let debitRoutedTransactionCount = recordDict->getInt("debit_routed_transaction_count", 0)
     let isIssuerRegulated = recordDict->getBool("is_issuer_regulated", false)
-    if forRegulated {
-      acc + if isIssuerRegulated {
-        debitRoutedTransactionCount
-      } else {
-        0
-      }
-    } else {
-      acc + if !isIssuerRegulated {
-        debitRoutedTransactionCount
-      } else {
-        0
-      }
+    acc +
+    switch (forRegulated, isIssuerRegulated) {
+    | (true, true) | (false, false) => debitRoutedTransactionCount
+    | _ => 0
     }
   })
 }
@@ -36,6 +28,7 @@ let groupBySignatureAndCardNetwork = data => {
     acc
   })
 }
+
 let createTableRow = (
   compositeKey,
   record,
