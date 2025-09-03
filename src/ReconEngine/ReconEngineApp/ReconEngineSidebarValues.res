@@ -64,7 +64,7 @@ let sources = {
   SubLevelLink({
     name: "Sources",
     link: "/v1/recon-engine/accounts/sources",
-    searchOptions: [("", "")],
+    searchOptions: [],
     access: Access,
   })
 }
@@ -73,7 +73,7 @@ let transformation = {
   SubLevelLink({
     name: "Transformation",
     link: "/v1/recon-engine/accounts/transformation",
-    searchOptions: [("", "")],
+    searchOptions: [],
     access: Access,
   })
 }
@@ -82,7 +82,7 @@ let transformedEntries = {
   SubLevelLink({
     name: "Transformed Entries",
     link: "/v1/recon-engine/accounts/transformed-entries",
-    searchOptions: [("", "")],
+    searchOptions: [],
     access: Access,
   })
 }
