@@ -60,14 +60,50 @@ let reconConnection = {
   })
 }
 
+let sources = {
+  SubLevelLink({
+    name: "Sources",
+    link: "/v1/recon-engine/accounts/sources",
+    searchOptions: [],
+    access: Access,
+  })
+}
+
+let transformation = {
+  SubLevelLink({
+    name: "Transformation",
+    link: "/v1/recon-engine/accounts/transformation",
+    searchOptions: [],
+    access: Access,
+  })
+}
+
+let transformedEntries = {
+  SubLevelLink({
+    name: "Transformed Entries",
+    link: "/v1/recon-engine/accounts/transformed-entries",
+    searchOptions: [],
+    access: Access,
+  })
+}
+
+let reconAccounts = {
+  Section({
+    name: "Accounts",
+    icon: "nd-connectors",
+    showSection: true,
+    links: [sources, transformation, transformedEntries],
+    selectedIcon: "nd-connectors-fill",
+  })
+}
+
 let reconEngineSidebars = {
   let sidebar = [
     reconOverview,
     reconTransactions,
     reconExceptions,
-    reconQueue,
     reconRuleCreation,
-    reconConnection,
+    reconAccounts,
   ]
   sidebar
 }
