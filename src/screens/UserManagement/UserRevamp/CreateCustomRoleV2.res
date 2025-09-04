@@ -8,8 +8,10 @@ module RenderPermissionModule = {
   @react.component
   let make = (~moduleName, ~description, ~scopes, ~moduleIndex) => {
     let parentGroupsField = ReactFinalForm.useField("parent_groups")
-    let isReadAvailable = scopes->Array.some(scope => scope === Read->scopeToString)
-    let isWriteAvailable = scopes->Array.some(scope => scope === Write->scopeToString)
+    let isReadAvailable =
+      scopes->Array.some(scope => scope === (Read :> string)->String.toLowerCase)
+    let isWriteAvailable =
+      scopes->Array.some(scope => scope === (Write :> string)->String.toLowerCase)
     let currentScopes = getCurrentScopes(~moduleIndex, ~field=parentGroupsField)
     let isReadSelected = currentScopes->Array.includes("read")
     let isWriteSelected = currentScopes->Array.includes("write")

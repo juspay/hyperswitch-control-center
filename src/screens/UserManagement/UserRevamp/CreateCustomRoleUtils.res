@@ -79,21 +79,14 @@ let updateScopes = (newScopes, moduleIndex, field: ReactFinalForm.fieldRenderPro
   field.input.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
 }
 
-let scopeToString = scope => {
-  switch scope {
-  | Read => "read"
-  | Write => "write"
-  }
-}
-
 let handleScopeChange = (
-  scope,
+  scope: groupScopeType,
   isSelected: bool,
   ~moduleIndex,
   ~field: ReactFinalForm.fieldRenderProps,
 ) => {
   let currentScopes = getCurrentScopes(~moduleIndex, ~field)
-  let scopeString = scope->scopeToString
+  let scopeString = (scope :> string)->String.toLowerCase
   let newScopes = updateScope(currentScopes, isSelected ? Add : Remove, scopeString)
 
   let finalScopes = switch (scope, isSelected) {
