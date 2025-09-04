@@ -151,7 +151,7 @@ let make = () => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         switch errorCode->CommonAuthUtils.errorSubCodeMapper {
         | UR_35 => {
-            showToast(~message="Custom role created successfully", ~toastType=ToastSuccess)
+            showToast(~message=errorMessage, ~toastType=ToastWarning)
             setScreenState(_ => PageLoaderWrapper.Success)
           }
         | _ => {
@@ -167,7 +167,7 @@ let make = () => {
   let getPermissionModules = async (entityType: UserInfoTypes.entity) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let entityTypeString = (entityType :> string)
+      let entityTypeString = (entityType :> string)->String.toLowerCase
       let url = getURL(
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
