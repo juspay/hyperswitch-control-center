@@ -2,15 +2,12 @@ open Typography
 
 @react.component
 let make = (~config: ReconEngineConnectionType.connectionType) => {
-  open APIUtils
-  open LogicUtils
   open TableUtils
   open ReconEngineFileManagementUtils
   open ReconEngineAccountsSourcesUtils
   open ReconEngineAccountsSourcesHelper
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getIngestionHistory = ReconEngineIngestionHistoryHook.useGetIngestionHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryList, setIngestionHistoryList) = React.useState(_ => [
     Dict.make()->ingestionHistoryItemToObjMapper,
@@ -19,14 +16,9 @@ let make = (~config: ReconEngineConnectionType.connectionType) => {
   let fetchIngestionHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#INGESTION_HISTORY,
+      let ingestionHistoryList = await getIngestionHistory(
         ~queryParamerters=Some(`ingestion_id=${config.ingestion_id}`),
       )
-      let res = await fetchDetails(stagingUrl)
-      let ingestionHistoryList = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
       if ingestionHistoryList->Array.length > 0 {
         setIngestionHistoryList(_ => ingestionHistoryList)
         setScreenState(_ => PageLoaderWrapper.Success)

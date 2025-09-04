@@ -2,14 +2,11 @@ open Typography
 
 @react.component
 let make = (~account: ReconEngineOverviewTypes.accountType) => {
-  open APIUtils
   open TableUtils
-  open LogicUtils
   open ReconEngineFileManagementUtils
   open ReconEngineAccountsSourcesUtils
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getIngestionHistory = ReconEngineIngestionHistoryHook.useGetIngestionHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let (ingestionHistoryList, setIngestionHistoryList) = React.useState(_ => [
@@ -19,14 +16,9 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   let fetchIngestionHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#INGESTION_HISTORY,
+      let ingestionHistoryList = await getIngestionHistory(
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
-      let res = await fetchDetails(stagingUrl)
-      let ingestionHistoryList = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
       setIngestionHistoryList(_ => ingestionHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
