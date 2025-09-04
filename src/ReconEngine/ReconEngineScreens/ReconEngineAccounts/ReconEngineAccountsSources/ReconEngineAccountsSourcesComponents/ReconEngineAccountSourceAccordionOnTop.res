@@ -6,7 +6,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   open ReconEngineFileManagementUtils
   open ReconEngineAccountsSourcesUtils
 
-  let getIngestionHistory = ReconEngineIngestionHistoryHook.useGetIngestionHistory()
+  let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let (ingestionHistoryList, setIngestionHistoryList) = React.useState(_ => [

@@ -3,7 +3,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
   open ReconEngineFileManagementUtils
   open LogicUtils
 
-  let getIngestionHistory = ReconEngineIngestionHistoryHook.useGetIngestionHistory()
+  let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [])
   let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")

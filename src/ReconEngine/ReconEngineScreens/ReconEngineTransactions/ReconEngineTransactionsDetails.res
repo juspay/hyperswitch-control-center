@@ -15,7 +15,7 @@ let make = (~id) => {
   let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)

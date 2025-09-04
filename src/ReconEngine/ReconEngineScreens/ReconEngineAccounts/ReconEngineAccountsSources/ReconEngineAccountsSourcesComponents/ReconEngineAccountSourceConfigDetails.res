@@ -7,7 +7,7 @@ let make = (~config: ReconEngineConnectionType.connectionType) => {
   open ReconEngineAccountsSourcesUtils
   open ReconEngineAccountsSourcesHelper
 
-  let getIngestionHistory = ReconEngineIngestionHistoryHook.useGetIngestionHistory()
+  let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryList, setIngestionHistoryList) = React.useState(_ => [
     Dict.make()->ingestionHistoryItemToObjMapper,
