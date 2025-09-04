@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
 const config = import("./src/server/config.mjs");
+const themeConfig = import("./src/server/theme.mjs");
 
 let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
@@ -63,6 +64,19 @@ let configMiddleware = (req, res, next) => {
     config
       .then((result) => {
         result.merchantConfigHandler(req, res, false, domain);
+      })
+      .catch((error) => {
+        console.log(error, "error");
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Internal Server Error");
+      });
+    return;
+  }
+
+  if (req.path.includes("/config/theme") && req.method == "GET") {
+    themeConfig
+      .then((result) => {
+        result.themeConfigHandler(req, res, false);
       })
       .catch((error) => {
         console.log(error, "error");

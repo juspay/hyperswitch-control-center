@@ -2,6 +2,7 @@
 FROM node:18 AS base
 WORKDIR /usr/src/app
 COPY . .
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 RUN npm i
 RUN npm run build:prod
