@@ -43,7 +43,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getData()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getData()->ignore
+    }
     None
   }, (startTimeVal, endTimeVal))
 
@@ -57,7 +59,8 @@ let make = () => {
           {"Volume Distribution"->React.string}
         </p>
       </div>
-      <div className="border rounded-xl border-t-0 border-nd_gray-200 h-22-rem rounded-t-none">
+      <div
+        className="flex border rounded-xl border-t-0 border-nd_gray-200 h-22-rem rounded-t-none items-center ">
         <PieGraph
           options={LeastCostRoutingAnalyticsDistributionUtils.chartOptions(
             response,

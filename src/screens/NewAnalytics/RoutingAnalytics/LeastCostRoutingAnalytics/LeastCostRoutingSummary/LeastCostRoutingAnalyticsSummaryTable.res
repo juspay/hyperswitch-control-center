@@ -6,7 +6,7 @@ let make = () => {
   open PageLoaderWrapper
   open LeastCostRoutingAnalyticsTypes
 
-  let (screenState, setScreenState) = React.useState(_ => Success)
+  let (screenState, setScreenState) = React.useState(_ => Loading)
   let (offset, setOffset) = React.useState(_ => 0)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -60,7 +60,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getData()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getData()->ignore
+    }
     None
   }, (startTimeVal, endTimeVal))
 
@@ -72,6 +74,7 @@ let make = () => {
       customHeadingStyle="flex flex-col mb-6"
       customTitleStyle={`!${body.lg.semibold} text-nd_gray-800`}
       customSubTitleStyle={`${body.md.medium} text-nd_gray-400 !opacity-100 !mt-1`}
+      showPermLink=false
     />
     <PageLoaderWrapper
       screenState

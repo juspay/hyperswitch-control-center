@@ -49,7 +49,7 @@ let make = (~setScreenState) => {
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
-    | list{"analytics-routing"} =>
+    | list{"analytics-routing", ..._} =>
       <AnalyticsContainer />
 
     | list{"new-analytics"}
