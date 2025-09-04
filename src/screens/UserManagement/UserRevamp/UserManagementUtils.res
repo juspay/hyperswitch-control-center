@@ -1,5 +1,6 @@
 open UserManagementTypes
 open LogicUtils
+open UserInfoTypes
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 let createCustomRole = FormRenderer.makeFieldInfo(
@@ -31,7 +32,7 @@ let roleScope = userRole => {
   )
 }
 
-let entityType = (~onEntityTypeChange=?) => {
+let entityTypeField = (~onEntityTypeChange: option<entity => unit>=?) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let entityTypeVariants: array<UserInfoTypes.entity> = [#Merchant, #Profile]
   let entityTypeArray = entityTypeVariants->Array.map(entityVariant => {
@@ -62,7 +63,8 @@ let entityType = (~onEntityTypeChange=?) => {
               switch onEntityTypeChange {
               | Some(fn) => {
                   let selectedValue = ev->Identity.formReactEventToString
-                  fn(selectedValue)
+                  let entityVariant = selectedValue->UserInfoUtils.entityMapper
+                  fn(entityVariant)
                 }
               | None => ()
               }

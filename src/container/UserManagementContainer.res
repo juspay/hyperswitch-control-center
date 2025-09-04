@@ -54,7 +54,7 @@ let make = () => {
     | list{"users", "create-custom-role"} =>
       <AccessControl authorization={userHasAccess(~groupAccess=UsersManage)}>
         {devRolesV2
-          ? <CreateCustomRoleV2 baseUrl="users" breadCrumbHeader="Team management" />
+          ? <CreateCustomRoleV2 />
           : <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />}
       </AccessControl>
     | list{"users", ...remainingPath} =>

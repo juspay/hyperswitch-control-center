@@ -8,11 +8,11 @@ let updateScope = (scopes: array<string>, action: scopeAction, targetScope: stri
   }
 }
 
-let getInitialValuesForForm = entityType =>
+let getInitialValuesForForm = (entityType: UserInfoTypes.entity) =>
   [
     ("role_scope", "merchant"->JSON.Encode.string),
     ("role_name", ""->JSON.Encode.string),
-    ("entity_type", entityType->JSON.Encode.string),
+    ("entity_type", (entityType :> string)->JSON.Encode.string),
   ]->Dict.fromArray
 
 let validateCustomRoleForm = (values, ~permissionModules=[], ~isV2=false) => {

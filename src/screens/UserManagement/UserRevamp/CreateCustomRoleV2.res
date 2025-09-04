@@ -62,7 +62,7 @@ module NewCustomRoleInputFields = {
           labelClass="!text-black !-ml-[0.5px]"
         />
         <FormRenderer.FieldRenderer
-          field={entityType(~onEntityTypeChange)}
+          field={entityTypeField(~onEntityTypeChange)}
           fieldWrapperClass="w-fit"
           labelClass="!text-black !-ml-[0.5px]"
         />
@@ -101,7 +101,7 @@ module PermissionTableWrapper = {
 }
 
 @react.component
-let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~breadCrumbHeader) => {
+let make = () => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -109,8 +109,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
 
   let (permissionModules, setPermissionModules) = React.useState(() => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (currentEntityType, setCurrentEntityType) = React.useState(() => "merchant")
-  let marginClass = isInviteUserFlow ? "mt-6" : ""
+  let (currentEntityType, setCurrentEntityType) = React.useState(() => #Merchant)
   let showToast = ToastState.useShowToast()
   let initialValues = React.useMemo(() => {
     let baseValues = getInitialValuesForForm(currentEntityType)
@@ -144,7 +143,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       let _ = await updateDetails(url, valuesDict->JSON.Encode.object, Post)
       showToast(~message="Custom role created successfully", ~toastType=ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/${baseUrl}`))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/users`))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -165,14 +164,15 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
     Nullable.null
   }
 
-  let getPermissionModules = async entityType => {
+  let getPermissionModules = async (entityType: UserInfoTypes.entity) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let entityTypeString = (entityType :> string)
       let url = getURL(
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=${entityType}`),
+        ~queryParamerters=Some(`entity_type=${entityTypeString}`),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)
@@ -200,23 +200,19 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   }, [permissionModules])
 
   <div className="flex flex-col overflow-y-scroll h-full">
-    <RenderIf condition={isInviteUserFlow}>
-      <div className="flex flex-col gap-2">
-        <PageUtils.PageHeading
-          title="Create Custom Role"
-          subTitle="Adjust permissions to create roles that match your requirement"
-        />
-        <BreadCrumbNavigation
-          path=[{title: breadCrumbHeader, link: `/${baseUrl}`}]
-          currentPageTitle="Create Custom Role"
-        />
-      </div>
-    </RenderIf>
-    <div
-      className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 ${marginClass}`}>
+    <div className="flex flex-col gap-2">
+      <PageUtils.PageHeading
+        title="Create Custom Role"
+        subTitle="Adjust permissions to create roles that match your requirement"
+      />
+      <BreadCrumbNavigation
+        path=[{title: "Team management", link: `/users`}] currentPageTitle="Create Custom Role"
+      />
+    </div>
+    <div className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 mt-6`}>
       <PageLoaderWrapper screenState>
         <Form
-          key={`invite-user-management-${currentEntityType}`}
+          key={`create-user-role-${(currentEntityType :> string)}`}
           initialValues
           validate={values => validateCustomRoleForm(values, ~permissionModules, ~isV2=true)}
           onSubmit
