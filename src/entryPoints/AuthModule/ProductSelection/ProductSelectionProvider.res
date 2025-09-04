@@ -85,12 +85,9 @@ let make = (~children) => {
   let onProductSelectClick = product => {
     let productVariant = product->ProductUtils.getProductVariantFromDisplayName
     setSelectedProduct(_ => Some(product->ProductUtils.getProductVariantFromDisplayName))
-
     let midsWithProductValue = merchantList->Array.filter(mid => {
       mid.productType->Option.mapOr(false, productVaule => {
         switch (productVaule, productVariant) {
-        | (Orchestration(v1), Orchestration(v2)) => v1 == v2
-        | (Recon(v1), Recon(v2)) => v1 == v2
         | (produceValue, productVariant) => produceValue == productVariant ? true : false
         }
       })
