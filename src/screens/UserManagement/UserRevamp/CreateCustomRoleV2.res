@@ -8,11 +8,51 @@ module RenderPermissionModule = {
   @react.component
   let make = (~moduleName, ~description, ~scopes, ~moduleIndex) => {
     let parentGroupsField = ReactFinalForm.useField("parent_groups")
+    let getCurrentScopes = () => {
+      let allGroups = parentGroupsField.input.value->getArrayFromJson([])
+      let currentGroup = allGroups[moduleIndex]
+
+      switch currentGroup {
+      | Some(groupJson) => {
+          let groupDict = groupJson->getDictFromJsonObject
+          getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+        }
+      | None => []
+      }
+    }
+
+    let updateScopes = newScopes => {
+      let allGroups = parentGroupsField.input.value->getArrayFromJson([])
+      let updatedGroups = allGroups->Array.mapWithIndex((group, index) => {
+        if index === moduleIndex {
+          let groupDict = group->getDictFromJsonObject
+          groupDict->Dict.set("scopes", newScopes->JSON.Encode.array)
+          groupDict->JSON.Encode.object
+        } else {
+          group
+        }
+      })
+      parentGroupsField.input.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
+    }
+
+    let handleScopeChange = (scope: groupScopeType, isSelected: bool) => {
+      let currentScopes = getCurrentScopes()
+      let scopeString = (scope :> string)->String.toLowerCase
+      let newScopes = updateScope(currentScopes, isSelected ? Add : Remove, scopeString)
+
+      let finalScopes = switch (scope, isSelected) {
+      | (Write, true) => updateScope(newScopes, Add, "read")
+      | (Read, false) => updateScope(newScopes, Remove, "write")
+      | _ => newScopes
+      }
+      updateScopes(finalScopes->Array.map(JSON.Encode.string))
+    }
+
     let isReadAvailable =
       scopes->Array.some(scope => scope === (Read :> string)->String.toLowerCase)
     let isWriteAvailable =
       scopes->Array.some(scope => scope === (Write :> string)->String.toLowerCase)
-    let currentScopes = getCurrentScopes(~moduleIndex, ~field=parentGroupsField)
+    let currentScopes = getCurrentScopes()
     let isReadSelected = currentScopes->Array.includes("read")
     let isWriteSelected = currentScopes->Array.includes("write")
 
@@ -26,7 +66,7 @@ module RenderPermissionModule = {
           <CheckBoxIcon
             isSelected=isReadSelected
             setIsSelected={isSelected => {
-              handleScopeChange(Read, isSelected, ~moduleIndex, ~field=parentGroupsField)
+              handleScopeChange(Read, isSelected)
             }}
             isDisabled={!isReadAvailable}
             size=Large
@@ -36,7 +76,7 @@ module RenderPermissionModule = {
           <CheckBoxIcon
             isSelected=isWriteSelected
             setIsSelected={isSelected => {
-              handleScopeChange(Write, isSelected, ~moduleIndex, ~field=parentGroupsField)
+              handleScopeChange(Write, isSelected)
             }}
             isDisabled={!isWriteAvailable}
             size=Large
