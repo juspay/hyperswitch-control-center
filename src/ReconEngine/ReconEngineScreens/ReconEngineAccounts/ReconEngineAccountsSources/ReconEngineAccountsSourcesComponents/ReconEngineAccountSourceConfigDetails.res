@@ -47,20 +47,8 @@ let make = (~config: ReconEngineConnectionType.connectionType) => {
     ReconEngineAccountsSourcesUtils.getSourceConfigData(~config, ~ingestionHistoryList)
   }, (config, ingestionHistoryList))
 
-  let (label, labelColor) = React.useMemo(() => {
-    let total = ingestionHistoryList->Array.length->Int.toFloat
-    let processed =
-      ingestionHistoryList
-      ->Array.filter(item => item.status->statusMapper == Processed)
-      ->Array.length
-      ->Int.toFloat
-    let percentage = valueFormatter(processed *. 100.0 /. total, Rate)
-
-    if percentage->Float.fromString >= Some(90.0) {
-      ("Healthy", LabelGreen)
-    } else {
-      ("Attention Required", LabelRed)
-    }
+  let (_percentage, label, labelColor) = React.useMemo(() => {
+    getHealthyStatus(~ingestionHistoryList)
   }, [ingestionHistoryList])
 
   <PageLoaderWrapper

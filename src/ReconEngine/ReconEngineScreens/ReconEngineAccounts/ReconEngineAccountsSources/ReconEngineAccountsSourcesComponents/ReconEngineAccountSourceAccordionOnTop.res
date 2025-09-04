@@ -6,6 +6,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   open TableUtils
   open LogicUtils
   open ReconEngineFileManagementUtils
+  open ReconEngineAccountsSourcesUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -29,26 +30,12 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
       setIngestionHistoryList(_ => ingestionHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
-  let (processedPercentage, labelColor) = React.useMemo(() => {
-    let total = ingestionHistoryList->Array.length->Int.toFloat
-    let processed =
-      ingestionHistoryList
-      ->Array.filter(item => item.status->statusMapper == Processed)
-      ->Array.length
-      ->Int.toFloat
-    let percentage = valueFormatter(processed *. 100.0 /. total, Rate)
-    (
-      percentage,
-      if percentage->Float.fromString >= Some(90.0) {
-        LabelGreen
-      } else {
-        LabelRed
-      },
-    )
+  let (percentage, _label, labelColor) = React.useMemo(() => {
+    getHealthyStatus(~ingestionHistoryList)
   }, [ingestionHistoryList])
 
   React.useEffect(() => {
@@ -63,7 +50,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-5 w-10 rounded-lg" />}>
       <Table.TableCell
         cell={Label({
-          title: `${processedPercentage} Files Processed`,
+          title: `${percentage} Files Processed`,
           color: labelColor,
         })}
         textAlign=Table.Left
