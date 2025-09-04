@@ -229,7 +229,6 @@ let make = () => {
           <div className="flex justify-end">
             <FormRenderer.SubmitButton text="Create role" loadingText="Loading..." />
           </div>
-          <FormValuesSpy />
         </Form>
       </PageLoaderWrapper>
     </div>
