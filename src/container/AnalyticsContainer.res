@@ -45,7 +45,9 @@ let make = () => {
           <PerformanceMonitor domain="payments" />
         </FilterContext>
       </AccessControl>
-    | list{"analytics-routing"} =>
+    | list{"analytics-routing"}
+    | list{"analytics-routing", "overall-routing"}
+    | list{"analytics-routing", "least-cost-routing"} =>
       <AccessControl
         isEnabled={routingAnalytics} authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="RoutingAnalytics" index="RoutingAnalytics">

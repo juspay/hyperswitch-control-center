@@ -57,6 +57,7 @@ let payloadMapper = (~data: JSON.t, ~tooltipTitle): PieGraphTypes.pieGraphPayloa
       align: "right",
       verticalAlign: "middle",
       enabled: true,
+      layout: "vertical",
     },
   }
 }
@@ -74,7 +75,7 @@ let chartOptions = (data, ~tooltipTitle) => {
     plotOptions: {
       pie: {
         ...defaultOptions.plotOptions.pie,
-        center: ["40%", "65%"],
+        center: ["40%", "50%"],
       },
     },
   }
@@ -114,13 +115,14 @@ let fillMissingDataForSavingsGraph = (
 let getSavingsTimeGraphTooltipFormatter = (
   ~title: string,
   ~valueFormatterType=LogicUtilsTypes.Rate,
+  ~currency="",
 ) =>
   (
     @this
     (this: LineGraphTypes.pointFormatter) => {
       let titleHtml = `<div style="font-size: 14px; font-weight: bold;">${title}</div>`
       let getRowHtml = (~iconColor, ~name, ~value) => {
-        let valueString = value->valueFormatter(valueFormatterType)
+        let valueString = value->valueFormatter(valueFormatterType, ~currency)
         `<div style="display: flex; align-items: center;">
               <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
               <div style="margin-left: 8px;font-size: 12px;">${name->snakeToTitle}</div>
@@ -225,6 +227,7 @@ let savingsTimeMapper = (
     tooltipFormatter: getSavingsTimeGraphTooltipFormatter(
       ~title=config.tooltipTitle,
       ~valueFormatterType=tooltipValueFormatterType,
+      ~currency="all_currencies",
     ),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=config.statType,
