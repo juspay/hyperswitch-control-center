@@ -66,15 +66,6 @@ let make = () => {
         customSubTitleStyle={`${body.lg.medium} !text-nd_gray-400 !opacity-100 !mt-1`}
       />
       <div className="flex items-center 2xl:ml-4">
-        <div className="mt-2">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-            selectedEntity={analyticsEntity}
-            onChange={updateAnalytcisEntity}
-            entityMapper=UserInfoUtils.analyticsEntityMapper
-            disabledDisplayName="Hyperswitch_test"
-          />
-        </div>
         <div className="-mr-2">
           <DynamicFilter
             title="RoutingAnalytics"
@@ -92,6 +83,15 @@ let make = () => {
             filterFieldsPortalName={filterFieldsPortalName}
             showCustomFilter=false
             refreshFilters=false
+          />
+        </div>
+        <div className="mt-2">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+            disabledDisplayName="Hyperswitch_test"
           />
         </div>
       </div>
