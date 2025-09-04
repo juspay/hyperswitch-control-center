@@ -116,17 +116,12 @@ let make = () => {
     None
   }, [filterValue])
 
-  <div className="flex flex-col gap-4">
-    <div className="flex flex-row justify-between items-center gap-3">
+  <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-row justify-between items-center">
+      <PageUtils.PageHeading
+        title="Transactions" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+      />
       <div className="flex-shrink-0">
-        <PageUtils.PageHeading
-          title="Transactions"
-          subTitle="View your transactions and their details"
-          customSubTitleStyle={body.lg.medium}
-          customTitleStyle={`${heading.lg.semibold} py-0`}
-        />
-      </div>
-      <div className="flex-shrink-0 mt-2">
         <Button
           text="Generate Report"
           buttonType=Primary

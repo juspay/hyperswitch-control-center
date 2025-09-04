@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.04.0
+
+### Features
+
+- Added summary table for least cost routing analytics ([#3509](https://github.com/juspay/hyperswitch-control-center/pull/3509)) ([`a45145f`](https://github.com/juspay/hyperswitch-control-center/commit/a45145ffe12fc23b4352bcb65149225533ecb7f9))
+- Recon engine accounts section folder setup ([#3519](https://github.com/juspay/hyperswitch-control-center/pull/3519)) ([`f2f0adc`](https://github.com/juspay/hyperswitch-control-center/commit/f2f0adc74be507b56debe436fac631a147ebadbe))
+
+### Bug Fixes
+
+- Filter bugs when time range is changed ([#3413](https://github.com/juspay/hyperswitch-control-center/pull/3413)) ([`d4d7d70`](https://github.com/juspay/hyperswitch-control-center/commit/d4d7d70bacd7e38c029855a9c0a886300bef5bd0))
+
+### Miscellaneous Tasks
+
+- Recon engine remove subtitles and arrange the page heading ([#3517](https://github.com/juspay/hyperswitch-control-center/pull/3517)) ([`958194e`](https://github.com/juspay/hyperswitch-control-center/commit/958194e351fa91dd2ccfcc6511365ab046ee0c77))
+
+**Full Changelog:** [`2025.09.03.0...2025.09.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.03.0...2025.09.04.0)
+
+- - -
+
 ## 2025.09.03.0
 
 ### Features

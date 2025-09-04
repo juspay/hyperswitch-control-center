@@ -1,4 +1,5 @@
 open Typography
+open PageLoaderWrapper
 
 module LeastCostAnalyticsBasicMetricsCard = {
   open APIUtils
@@ -10,7 +11,7 @@ module LeastCostAnalyticsBasicMetricsCard = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (screenState, setScreenState) = React.useState(_ => Loading)
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let (metricsDataResponse, setMetricsDataResponse) = React.useState(_ =>
@@ -19,7 +20,7 @@ module LeastCostAnalyticsBasicMetricsCard = {
 
     let getData = async () => {
       try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
+        setScreenState(_ => Loading)
 
         let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
 
@@ -45,9 +46,9 @@ module LeastCostAnalyticsBasicMetricsCard = {
           ->basicsMetricsMapper
 
         setMetricsDataResponse(_ => responseObj)
-        setScreenState(_ => PageLoaderWrapper.Success)
+        setScreenState(_ => Success)
       } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
       }
     }
 
@@ -100,7 +101,7 @@ module LeastCostAnalyticsRegulationMetricsCard = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (screenState, setScreenState) = React.useState(_ => Loading)
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let (metricsDataResponse, setMetricsDataResponse) = React.useState(_ => [
@@ -109,7 +110,7 @@ module LeastCostAnalyticsRegulationMetricsCard = {
 
     let getData = async () => {
       try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
+        setScreenState(_ => Loading)
 
         let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
 
@@ -137,9 +138,9 @@ module LeastCostAnalyticsRegulationMetricsCard = {
           ->Array.map(item => item->getDictFromJsonObject->metricsQueryDataItemToObjMapper)
 
         setMetricsDataResponse(_ => responseObj)
-        setScreenState(_ => PageLoaderWrapper.Success)
+        setScreenState(_ => Success)
       } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching data"))
       }
     }
 
