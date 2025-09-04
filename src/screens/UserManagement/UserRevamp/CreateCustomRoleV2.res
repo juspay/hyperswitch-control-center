@@ -52,6 +52,7 @@ module NewCustomRoleInputFields = {
   @react.component
   let make = (~onEntityTypeChange) => {
     let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <div className="flex flex-col gap-4">
       <div className={`${body.md.semibold} text-nd_gray-700`}> {"Role Details"->React.string} </div>
       <div className="flex flex-row gap-6 w-full">
@@ -64,7 +65,7 @@ module NewCustomRoleInputFields = {
           labelClass="!text-black !-ml-[0.5px]"
         />
         <FormRenderer.FieldRenderer
-          field={entityTypeField(~onEntityTypeChange)}
+          field={entityTypeField(~onEntityTypeChange, ~userHasAccess)}
           fieldWrapperClass="w-fit"
           labelClass="!text-black !-ml-[0.5px]"
         />

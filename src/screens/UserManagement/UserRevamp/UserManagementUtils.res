@@ -1,6 +1,7 @@
 open UserManagementTypes
 open LogicUtils
 open UserInfoTypes
+open CommonAuthTypes
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 let createCustomRole = FormRenderer.makeFieldInfo(
@@ -32,8 +33,7 @@ let roleScope = userRole => {
   )
 }
 
-let entityTypeField = (~onEntityTypeChange: option<entity => unit>=?) => {
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+let entityTypeField = (~onEntityTypeChange: option<entity => unit>=?, ~userHasAccess) => {
   let entityTypeVariants: array<UserInfoTypes.entity> = [#Merchant, #Profile]
   let entityTypeArray = entityTypeVariants->Array.map(entityVariant => {
     let entityString = (entityVariant :> string)->String.toLowerCase
