@@ -70,6 +70,7 @@ let businessProfileTypeMapper = values => {
     ),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
+    is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
   }
 }
 
