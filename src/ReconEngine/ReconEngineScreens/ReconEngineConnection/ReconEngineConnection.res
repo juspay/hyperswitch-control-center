@@ -44,12 +44,9 @@ let make = () => {
     })
   }, [accountData])
 
-  <div className="flex flex-col gap-6 w-full">
+  <div className="flex flex-col gap-4 w-full">
     <PageUtils.PageHeading
-      title="Connections"
-      subTitle="Manage and monitor ingestion configurations for your accounts."
-      customSubTitleStyle={body.lg.medium}
-      customTitleStyle={`${heading.lg.semibold} py-0`}
+      title="Connections" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
     />
     <PageLoaderWrapper screenState>
       <RenderIf condition={accountData->Array.length == 0}>
