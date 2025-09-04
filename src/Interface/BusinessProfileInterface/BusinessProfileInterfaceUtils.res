@@ -46,6 +46,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
       ->JSON.Encode.object,
     ),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
+    is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
   }
 }
 let mapJsonToBusinessProfileV2 = (values): profileEntity => {
@@ -92,5 +93,6 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
       ->JSON.Encode.object,
     ),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
+    is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
   }
 }
