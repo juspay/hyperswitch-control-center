@@ -81,6 +81,7 @@ module PageHeading = {
     let {userInfo: {orgId, merchantId, profileId}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let buildPermLink = () => {
       let url = Window.URL.make(
         `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/switch/user`,
@@ -94,6 +95,11 @@ module PageHeading = {
       url->Window.URL.searchParams->Window.URL.append("path", path)
       url->Window.URL.href
     }
+    let handleDeepLinkClick = () => {
+      setShowShareDialog(_ => true)
+      mixpanelEvent(~eventName="copy_deep_link")
+    }
+
     let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
     <div className={`${customHeadingStyle}`}>
       {switch leftIcon {
@@ -109,7 +115,7 @@ module PageHeading = {
             customIcon="nd-permalink"
             customParentClass=""
             customIconCss=""
-            customOnCopyClick={() => setShowShareDialog(_ => true)}
+            customOnCopyClick={() => handleDeepLinkClick()}
           />
         </RenderIf>
         <RenderIf condition=isTag>

@@ -85,6 +85,7 @@ module TableRow = {
     ~highlightSelectedRow=false,
     ~selectedIndex,
     ~setSelectedIndex,
+    ~areLastCellsRounded=false,
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
@@ -160,6 +161,20 @@ module TableRow = {
         onDoubleClick>
         {item
         ->Array.mapWithIndex((obj: cell, cellIndex) => {
+          let isFirstCell = cellIndex === 0
+          let isLastCell = cellIndex === item->Array.length - 1
+
+          let lastCellsRounded = areLastCellsRounded
+            ? {
+                if isFirstCell {
+                  "rounded-bl-xl"
+                } else if isLastCell {
+                  "rounded-br-xl"
+                } else {
+                  ""
+                }
+              }
+            : ""
           let isLast = cellIndex === colsLen - 1
           let showBorderTop = switch obj {
           | Text(x) => x !== "-"
@@ -213,7 +228,7 @@ module TableRow = {
             key={cellIndex->Int.toString} attributes=[("data-table-location", location)]>
             <td
               key={Int.toString(cellIndex)}
-              className={`${tableRowBorderClass} ${customColorCell}`}
+              className={`${tableRowBorderClass} ${customColorCell} ${lastCellsRounded}`}
               style={width: fixedWidthClass}
               onClick={_ => {
                 if collapseTableRow && cellIndex == 0 {
