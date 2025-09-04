@@ -86,7 +86,6 @@ module TableRow = {
     ~selectedIndex,
     ~setSelectedIndex,
     ~areLastCellsRounded=false,
-    ~isLastRow=?,
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
@@ -152,7 +151,6 @@ module TableRow = {
     } else {
       `group rounded-md ${cursorClass} ${bgColor} ${fontSize} ${fontWeight} ${rowCustomClass} ${textColor} ${hoverClass} transition duration-300 ease-in-out`
     }
-    let isLastRow = isLastRow->Option.getOr(false)
     <>
       <tr
         ref={rowRef->ReactDOM.Ref.domRef}
@@ -167,14 +165,14 @@ module TableRow = {
           let isLastCell = cellIndex === item->Array.length - 1
 
           let lastCellsRounded = areLastCellsRounded
-            ? if !isLastRow {
-                ""
-              } else if isFirstCell {
-                "rounded-bl-xl"
-              } else if isLastCell {
-                "rounded-br-xl"
-              } else {
-                ""
+            ? {
+                if isFirstCell {
+                  "rounded-bl-xl"
+                } else if isLastCell {
+                  "rounded-br-xl"
+                } else {
+                  ""
+                }
               }
             : ""
           let isLast = cellIndex === colsLen - 1

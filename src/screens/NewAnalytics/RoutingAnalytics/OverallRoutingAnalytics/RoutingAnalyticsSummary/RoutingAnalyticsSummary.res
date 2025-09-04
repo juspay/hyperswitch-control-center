@@ -37,8 +37,7 @@ module RowDetailsComponent = {
             highlightText=""
             rowCustomClass={`!bg-nd_gray-25 !text-nd_gray-700 ${body.md.medium}`}
             alignCellContent={`!px-4 !py-3`}
-            areLastCellsRounded=true
-            isLastRow
+            areLastCellsRounded=isLastRow
           />
         })
         ->React.array
