@@ -1,5 +1,5 @@
-open ReconEngineAccountsSourcesTypes
 open ReconEngineFileManagementUtils
+open ReconEngineAccountsSourcesTypes
 
 let sourceConfigLabelToString = (label: sourceConfigLabel): string => {
   switch label {
@@ -7,6 +7,14 @@ let sourceConfigLabelToString = (label: sourceConfigLabel): string => {
   | FailedFiles => "Failed Files"
   | LastSync => "Last Sync"
   | Status => "Status"
+  }
+}
+
+let getStatusVariantFromString = (status: string): status => {
+  switch status {
+  | "Active" => Active
+  | "Inactive" => Inactive
+  | _ => UnknownStatus
   }
 }
 

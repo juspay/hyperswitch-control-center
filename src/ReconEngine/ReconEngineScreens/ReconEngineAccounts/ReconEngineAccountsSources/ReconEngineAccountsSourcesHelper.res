@@ -18,29 +18,44 @@ module SourceConfigItem = {
         </span>
       | #status =>
         <div className="flex items-center space-x-2">
-          {data.value === "Active"
-            ? <div className="flex items-center space-x-2">
-                <span className="relative flex h-2 w-2">
-                  <span
-                    className="absolute inline-flex h-full w-full rounded-full bg-nd_green-300n opacity-75"
-                  />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-nd_green-300" />
-                </span>
-                <span className={`${body.md.medium} text-nd_gray-600 ml-2`}>
-                  {data.value->React.string}
-                </span>
-              </div>
-            : <div className="flex items-center space-x-2">
-                <span className="relative flex h-2 w-2">
-                  <span
-                    className="absolute inline-flex h-full w-full rounded-full bg-nd_red-400 opacity-75"
-                  />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-nd_red-400" />
-                </span>
-                <span className={`${body.md.medium} text-nd_gray-600 ml-2`}>
-                  {data.value->React.string}
-                </span>
-              </div>}
+          {switch data.value->getStatusVariantFromString {
+          | Active =>
+            <div className="flex items-center space-x-2">
+              <span className="relative flex h-2 w-2">
+                <span
+                  className="absolute inline-flex h-full w-full rounded-full bg-nd_green-300 opacity-75"
+                />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-nd_green-300" />
+              </span>
+              <span className={`${body.md.medium} text-nd_gray-600 ml-2`}>
+                {data.value->React.string}
+              </span>
+            </div>
+          | Inactive =>
+            <div className="flex items-center space-x-2">
+              <span className="relative flex h-2 w-2">
+                <span
+                  className="absolute inline-flex h-full w-full rounded-full bg-nd_red-400 opacity-75"
+                />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-nd_red-400" />
+              </span>
+              <span className={`${body.md.medium} text-nd_gray-600 ml-2`}>
+                {data.value->React.string}
+              </span>
+            </div>
+          | UnknownStatus =>
+            <div className="flex items-center space-x-2">
+              <span className="relative flex h-2 w-2">
+                <span
+                  className="absolute inline-flex h-full w-full rounded-full bg-nd_gray-400 opacity-75"
+                />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-nd_gray-400" />
+              </span>
+              <span className={`${body.md.medium} text-nd_gray-600 ml-2`}>
+                {data.value->React.string}
+              </span>
+            </div>
+          }}
         </div>
       }}
     </div>

@@ -4,6 +4,11 @@ type sourceConfigLabel =
   | LastSync
   | Status
 
+type status =
+  | Active
+  | Inactive
+  | UnknownStatus
+
 type sourceConfigDataType = {
   label: sourceConfigLabel,
   value: string,
