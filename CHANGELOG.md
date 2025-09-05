@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.05.0
+
+### Features
+
+- Added network tokenization toggle in profile settings ([#3522](https://github.com/juspay/hyperswitch-control-center/pull/3522)) ([`03f0801`](https://github.com/juspay/hyperswitch-control-center/commit/03f080108826c3ef9a223e6109dc3161aab50397))
+
+### Bug Fixes
+
+- Fixed least cost routing analytics distribution bugs ([#3518](https://github.com/juspay/hyperswitch-control-center/pull/3518)) ([`9193727`](https://github.com/juspay/hyperswitch-control-center/commit/9193727055668d8c9eb35765ab159619c95a0b7f))
+
+**Full Changelog:** [`2025.09.04.0...2025.09.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.04.0...2025.09.05.0)
+
+- - -
+
 ## 2025.09.04.0
 
 ### Features
