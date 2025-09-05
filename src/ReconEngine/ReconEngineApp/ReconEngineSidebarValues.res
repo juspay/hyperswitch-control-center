@@ -30,7 +30,7 @@ let reconExceptions = {
   })
 }
 
-let reconQueue = {
+let reconFileManagement = {
   Link({
     name: "File Management",
     link: `/v1/recon-engine/file-management`,
@@ -63,7 +63,7 @@ let reconConnection = {
 let sources = {
   SubLevelLink({
     name: "Sources",
-    link: "/v1/recon-engine/accounts/sources",
+    link: "/v1/recon-engine/sources",
     searchOptions: [],
     access: Access,
   })
@@ -72,7 +72,7 @@ let sources = {
 let transformation = {
   SubLevelLink({
     name: "Transformation",
-    link: "/v1/recon-engine/accounts/transformation",
+    link: "/v1/recon-engine/transformation",
     searchOptions: [],
     access: Access,
   })
@@ -81,7 +81,7 @@ let transformation = {
 let transformedEntries = {
   SubLevelLink({
     name: "Transformed Entries",
-    link: "/v1/recon-engine/accounts/transformed-entries",
+    link: "/v1/recon-engine/transformed-entries",
     searchOptions: [],
     access: Access,
   })
@@ -103,6 +103,7 @@ let reconEngineSidebars = {
     reconTransactions,
     reconExceptions,
     reconRuleCreation,
+    reconFileManagement,
     reconAccounts,
   ]
   sidebar

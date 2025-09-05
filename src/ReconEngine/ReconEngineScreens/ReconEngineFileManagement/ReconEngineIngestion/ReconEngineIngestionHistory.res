@@ -1,11 +1,9 @@
 @react.component
 let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
-  open APIUtils
   open ReconEngineFileManagementUtils
   open LogicUtils
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [])
   let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -45,17 +43,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
         ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
           `&account_id=${account.account_id}`,
         )
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#INGESTION_HISTORY,
-        ~queryParamerters=Some(queryString),
-      )
-
-      let res = await fetchDetails(stagingUrl)
-      let ingestionHistoryList =
-        res->LogicUtils.getArrayDataFromJson(ingestionHistoryItemToObjMapper)
-
+      let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
       setIngestionHistoryData(_ => ingestionHistoryData)
       setFilteredHistoryData(_ => ingestionHistoryData)

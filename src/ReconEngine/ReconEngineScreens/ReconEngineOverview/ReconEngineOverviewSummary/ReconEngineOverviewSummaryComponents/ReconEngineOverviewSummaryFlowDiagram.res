@@ -124,7 +124,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   let (allData, setAllData) = React.useState(_ => None)
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
 
