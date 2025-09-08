@@ -48,6 +48,7 @@ let getStatusLabel = (statusString: string): Table.cell => {
     | Processing => Table.LabelOrange
     | Processed => Table.LabelGreen
     | Failed => Table.LabelRed
+    | Discarded => Table.LabelGray
     | StatusNone => Table.LabelLightGray
     },
   })
@@ -84,7 +85,7 @@ let ingestionHistoryTableEntity = (path: string, ~authorization: CommonAuthTypes
     ~getShowLink={
       connec => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.ingestion_history_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.id}`),
           ~authorization,
         )
       }

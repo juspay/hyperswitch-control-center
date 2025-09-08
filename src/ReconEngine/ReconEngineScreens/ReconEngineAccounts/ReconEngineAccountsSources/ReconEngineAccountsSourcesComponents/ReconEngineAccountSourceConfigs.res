@@ -18,7 +18,8 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
-      let configs = res->getArrayDataFromJson(ReconEngineConnectionType.connectionTypeToObjMapper)
+      let configs =
+        res->getArrayDataFromJson(ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper)
       setConfigData(_ => configs)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -35,10 +36,12 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-52" message="No data available." />}
     customLoader={<Shimmer styleClass="h-52 w-full rounded-b-lg" />}>
-    <div className="grid grid-cols-3 gap-6 items-center justify-between w-full p-6">
+    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 items-center w-full p-6">
       {configData
-      ->Array.map(config => {
-        <ReconEngineAccountSourceConfigDetails key=config.ingestion_id config={config} />
+      ->Array.mapWithIndex((config, index) => {
+        <ReconEngineAccountSourceConfigDetails
+          key=config.ingestion_id config={config} tabIndex={index->Int.toString}
+        />
       })
       ->React.array}
     </div>

@@ -99,11 +99,12 @@ module TransformationHistoryDetailsInfo = {
     ~transformationHistoryData: transformationHistoryType,
     ~detailsFields,
     ~accountData: ReconEngineOverviewTypes.accountType,
+    ~ingestionHistoryData: ingestionHistoryType,
   ) => {
     let onClick = () => {
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/file-management/${transformationHistoryData.ingestion_history_id}/transformation-history/${transformationHistoryData.transformation_history_id}`,
+          ~url=`/v1/recon-engine/file-management/${ingestionHistoryData.id}/transformation-history/${transformationHistoryData.transformation_history_id}`,
         ),
       )
     }

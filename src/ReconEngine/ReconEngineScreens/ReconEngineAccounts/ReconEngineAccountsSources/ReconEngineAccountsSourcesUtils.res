@@ -35,14 +35,22 @@ let getFailedCount = (
   ->Array.length
 }
 
+let getTotalCount = (
+  ~ingestionHistoryList: array<ReconEngineFileManagementTypes.ingestionHistoryType>,
+): int => {
+  ingestionHistoryList
+  ->Array.filter(item => item.status->statusMapper !== Discarded)
+  ->Array.length
+}
+
 let getHealthyStatus = (
   ~ingestionHistoryList: array<ReconEngineFileManagementTypes.ingestionHistoryType>,
 ): (string, string, TableUtils.labelColor) => {
-  let total = ingestionHistoryList->Array.length->Int.toFloat
+  let total = getTotalCount(~ingestionHistoryList)->Int.toFloat
   let processed = getProcessedCount(~ingestionHistoryList)->Int.toFloat
   let percentage = total > 0.0 ? valueFormatter(processed *. 100.0 /. total, Rate) : "0%"
 
-  if percentage->Float.fromString >= Some(90.0) {
+  if percentage->Float.fromString >= Some(90.0) || total == 0.0 {
     (percentage, "Healthy", TableUtils.LabelGreen)
   } else {
     (percentage, "Unhealthy", TableUtils.LabelRed)
@@ -50,7 +58,7 @@ let getHealthyStatus = (
 }
 
 let getSourceConfigData = (
-  ~config: ReconEngineConnectionType.connectionType,
+  ~config: ReconEngineFileManagementTypes.ingestionConfigType,
   ~ingestionHistoryList: array<ReconEngineFileManagementTypes.ingestionHistoryType>,
 ): array<sourceConfigDataType> => {
   let sourceConfigData: array<sourceConfigDataType> = [

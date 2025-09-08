@@ -14,6 +14,9 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
   let (accountData, setAccountData) = React.useState(_ =>
     Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
   )
+  let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
+    Dict.make()->ingestionHistoryItemToObjMapper
+  )
 
   let fetchTransformationHistoryData = async () => {
     try {
@@ -26,19 +29,33 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
           `ingestion_history_id=${selectedIngestionHistory.ingestion_history_id}`,
         ),
       )
-      let res = await fetchDetails(transformationHistoryUrl)
-      let transformationHistoryList =
-        res->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+      let ingestionHistoryUrl = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#INGESTION_HISTORY,
+        ~id=Some(selectedIngestionHistory.id),
+      )
       let accountUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#ACCOUNTS_LIST,
         ~id=Some(selectedIngestionHistory.account_id),
       )
-      let res = await fetchDetails(accountUrl)
-      let accountData = res->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
+      let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
+      let transformationHistoryList =
+        transformationHistoryRes->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+
+      let accountRes = await fetchDetails(accountUrl)
+      let accountData =
+        accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
       setAccountData(_ => accountData)
       setTransformationHistoryData(_ => transformationHistoryList)
+
+      let ingestionHistoryRes = await fetchDetails(ingestionHistoryUrl)
+      let ingestionHistoryData =
+        ingestionHistoryRes->getDictFromJsonObject->ingestionHistoryItemToObjMapper
+      setIngestionHistoryData(_ => ingestionHistoryData)
+
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -82,6 +99,7 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
               transformationHistoryData=transformationHistory
               detailsFields=[TransformationName, Status, ProcessedAt]
               accountData
+              ingestionHistoryData
             />
           </>
         })
