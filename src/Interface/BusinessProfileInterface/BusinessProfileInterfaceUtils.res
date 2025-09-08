@@ -47,6 +47,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     ),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
     is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
+    always_request_extended_authorization: jsonDict->getOptionBool(
+      "always_request_extended_authorization",
+    ),
   }
 }
 let mapJsonToBusinessProfileV2 = (values): profileEntity => {
@@ -94,5 +97,8 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     ),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
     is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
+    always_request_extended_authorization: jsonDict->getOptionBool(
+      "always_request_extended_authorization",
+    ),
   }
 }
