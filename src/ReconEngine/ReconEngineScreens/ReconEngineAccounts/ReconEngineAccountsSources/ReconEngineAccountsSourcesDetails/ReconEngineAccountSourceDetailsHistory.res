@@ -80,10 +80,18 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
   let fetchIngestionHistoryData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          `&ingestion_id=${config.ingestion_id}&status=processed`,
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      if statusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          ["pending", "processed", "processing", "failed"]->getJsonFromArrayOfString,
         )
+      }
+      let queryString =
+        ReconEngineUtils.buildQueryStringFromFilters(
+          ~filterValueJson=enhancedFilterValueJson,
+        )->String.concat(`&ingestion_id=${config.ingestion_id}`)
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
       setIngestionHistoryData(_ => ingestionHistoryData)
