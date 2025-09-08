@@ -37,12 +37,20 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
   }, ~wait=200)
 
   let fetchIngestionHistoryData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          `&account_id=${account.account_id}&status=processed`,
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      if statusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          ["pending", "processed", "processing", "failed"]->getJsonFromArrayOfString,
         )
+      }
+      let queryString =
+        ReconEngineUtils.buildQueryStringFromFilters(
+          ~filterValueJson=enhancedFilterValueJson,
+        )->String.concat(`&account_id=${account.account_id}`)
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
       setIngestionHistoryData(_ => ingestionHistoryData)
