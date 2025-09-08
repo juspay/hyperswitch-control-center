@@ -1,20 +1,24 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
-  open ReconEngineFileManagementUtils
+let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
   open LogicUtils
+  open ReconEngineFileManagementUtils
+
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
-  let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [])
-  let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
-  let (searchText, setSearchText) = React.useState(_ => "")
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (offset, setOffset) = React.useState(_ => 0)
+  let (searchText, setSearchText) = React.useState(_ => "")
+  let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [])
+  let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
+
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-  let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="recon_engine_ingestion_history_date_filter_opened")
   }
@@ -36,12 +40,49 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
     setFilteredHistoryData(_ => filteredList)
   }, ~wait=200)
 
+  let topFilterUi = {
+    <div className="flex flex-row">
+      <DynamicFilter
+        title="ReconEngineAccountsSourcesHistoryFilters"
+        initialFilters={initialIngestionDisplayFilters()}
+        options=[]
+        popupFilterFields=[]
+        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+          null,
+          ~events=dateDropDownTriggerMixpanelCallback,
+        )}
+        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        tabNames=filterKeys
+        key="ReconEngineAccountsSourcesHistoryFilters"
+        updateUrlWith=updateExistingKeys
+        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        showCustomFilter=false
+        refreshFilters=false
+        setOffset
+      />
+    </div>
+  }
+
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~range=180,
+    ~origin="recon_engine_accounts_sources_ingestion_history",
+    (),
+  )
+
+  React.useEffect(() => {
+    setInitialFilters()
+    None
+  }, [])
+
   let fetchIngestionHistoryData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let queryString =
         ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          `&account_id=${account.account_id}&status=processed`,
+          `&ingestion_id=${config.ingestion_id}&status=processed`,
         )
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
@@ -53,49 +94,12 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
     }
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_ingestion_history",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
-
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
       fetchIngestionHistoryData()->ignore
     }
     None
-  }, (filterValue, showModal))
-
-  let topFilterUi = {
-    <div className="flex flex-row">
-      <DynamicFilter
-        title="ReconEngineIngestionHistoryFilters"
-        initialFilters={initialIngestionDisplayFilters()}
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames=filterKeys
-        key="ReconEngineIngestionHistoryFilters"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-        setOffset
-      />
-    </div>
-  }
+  }, (config, filterValue))
 
   <div className="flex flex-col gap-4 my-4">
     <div className="flex-shrink-0"> {topFilterUi} </div>

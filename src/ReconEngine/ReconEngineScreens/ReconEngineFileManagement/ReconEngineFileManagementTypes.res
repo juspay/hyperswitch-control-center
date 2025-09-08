@@ -3,6 +3,7 @@ type status =
   | Processing
   | Processed
   | Failed
+  | Discarded
   | StatusNone
 
 type transformationProcessedData = {
@@ -23,24 +24,27 @@ type transformationData = {
 }
 
 type ingestionHistoryType = {
+  id: string,
   ingestion_id: string,
-  ingestion_name: string,
   ingestion_history_id: string,
   file_name: string,
   account_id: string,
   status: string,
   upload_type: string,
   created_at: string,
+  ingestion_name: string,
+  version: int,
+  discarded_at: string,
+  discarded_at_status: string,
 }
-
-type ingestionDataType = {ingestion_type: string}
 
 type ingestionConfigType = {
   ingestion_id: string,
+  account_id: string,
   is_active: bool,
   name: string,
   last_synced_at: string,
-  data: ingestionDataType,
+  data: JSON.t,
 }
 
 type transformationHistoryType = {

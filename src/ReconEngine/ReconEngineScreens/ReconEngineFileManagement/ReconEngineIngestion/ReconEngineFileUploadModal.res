@@ -64,10 +64,11 @@ let make = (~showModal, ~setShowModal) => {
         res->LogicUtils.getArrayDataFromJson(
           ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper,
         )
-      let manualIngestionConfig =
-        ingestionConfigData->Array.filter(ingestionConfigType =>
-          ingestionConfigType.data.ingestion_type == "manual"
-        )
+      let manualIngestionConfig = ingestionConfigData->Array.filter(ingestionConfigType =>
+        ingestionConfigType.data
+        ->getDictFromJsonObject
+        ->getString("ingestion_type", "") == "manual"
+      )
       setIngestionConfigData(_ => manualIngestionConfig)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
