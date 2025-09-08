@@ -13,7 +13,7 @@ let make = (~id) => {
   let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
     Dict.make()->getAllTransactionPayload,
   ])
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getExceptionDetails = async _ => {
     try {
