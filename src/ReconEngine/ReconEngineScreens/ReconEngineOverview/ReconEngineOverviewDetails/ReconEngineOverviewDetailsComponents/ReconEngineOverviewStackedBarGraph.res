@@ -6,7 +6,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getAllTransactionsData = async _ => {
     try {

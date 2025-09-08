@@ -5,7 +5,7 @@ module RuleWiseStackedBarGraph = {
   let make = (~rule: ReconEngineOverviewTypes.reconRuleType) => {
     open LogicUtils
 
-    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+    let getTransactions = ReconEngineHooks.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
     let isMiniLaptopView = MatchMedia.useScreenSizeChecker(~screenSize="1600")
 
