@@ -7,4 +7,5 @@ type requestPayloadMetrics = [
   | #debit_routing
   | #debit_routing_savings_in_usd
   | #debit_routed_transaction_count
+  | #is_issuer_regulated
 ]

@@ -103,7 +103,7 @@ module FlowWithLayoutControls = {
       zoomOnScroll={true}
       zoomOnPinch={true}
       zoomOnDoubleClick={true}
-      minZoom={0.75}
+      minZoom={0.5}
       maxZoom={1.5}
       proOptions={{"hideAttribution": true}}>
       <Background variant="dots" gap={20} size={1} />

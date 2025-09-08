@@ -92,7 +92,7 @@ let make = () => {
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
-    <HelperComponents.BluredTableComponent
+    <BluredTableComponent
       infoText="No connectors configured yet. Try connecting a connector."
       buttonText="Take me to connectors"
       onClickElement={React.null}

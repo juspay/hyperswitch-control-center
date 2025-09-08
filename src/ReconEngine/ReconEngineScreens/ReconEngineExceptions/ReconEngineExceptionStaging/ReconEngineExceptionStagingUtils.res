@@ -1,6 +1,24 @@
 open ReconEngineExceptionTypes
+open LogicUtils
 
-let initialDisplayFilters = () => {
+let getStagingAccountOptions = (stagingData: array<processingEntryType>) => {
+  let allAccounts = stagingData->Array.map(entry => entry.account)
+
+  let uniqueAccounts = allAccounts->Array.reduce([], (acc, account) => {
+    let exists =
+      acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
+    exists ? acc : [...acc, account]
+  })
+
+  uniqueAccounts->Array.map(account => {
+    {
+      FilterSelectBox.label: account.account_name,
+      value: account.account_id,
+    }
+  })
+}
+
+let initialDisplayFilters = (~accountOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
@@ -17,6 +35,25 @@ let initialDisplayFilters = () => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=entryTypeOptions,
             ~buttonText="Select Entry Type",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="account",
+          ~name="account_id",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=accountOptions,
+            ~buttonText="Select Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -50,10 +87,19 @@ let initialDisplayFilters = () => {
   ]
 }
 
+let getAccountTypeMapper = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+  }
+}
+
 let processingItemToObjMapper = dict => {
-  open LogicUtils
   {
     staging_entry_id: dict->getString("staging_entry_id", ""),
+    account: dict
+    ->getDictfromDict("account")
+    ->getAccountTypeMapper,
     entry_type: dict->getString("entry_type", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),

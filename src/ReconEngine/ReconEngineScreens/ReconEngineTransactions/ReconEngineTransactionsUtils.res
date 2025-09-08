@@ -2,8 +2,27 @@ open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsTypes
 
+let entriesMetadataKeyToString = key => {
+  switch key {
+  | Amount => "amount"
+  | Currency => "currency"
+  }
+}
+
+let entriesMetadataExcludedKeys = [Amount, Currency]->Array.map(entriesMetadataKeyToString)
+
 let getArrayDictFromRes = res => {
   res->getDictFromJsonObject->getArrayFromDict("data", [])
+}
+
+let getFilteredMetadataFromEntries = metadata => {
+  metadata
+  ->getDictFromJsonObject
+  ->Dict.toArray
+  ->Array.filter(((key, _value)) => {
+    !Array.includes(entriesMetadataExcludedKeys, key)
+  })
+  ->Dict.fromArray
 }
 
 let getAmountPayload = dict => {
@@ -76,6 +95,7 @@ let getAllEntryPayload = dict => {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
     transaction_id: dict->getString("transaction_id", ""),
+    account_name: dict->getDictfromDict("account")->getString("account_name", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
@@ -93,11 +113,11 @@ let getArrayOfEntriesListPayloadType = json => {
 }
 
 let getTransactionsList: JSON.t => array<transactionPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, getAllTransactionPayload)
+  getArrayDataFromJson(json, getAllTransactionPayload)
 }
 
 let getEntriesList: JSON.t => array<entryPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, getAllEntryPayload)
+  getArrayDataFromJson(json, getAllEntryPayload)
 }
 
 let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {
@@ -169,7 +189,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="source_account",
-          ~name="credit_account",
+          ~name="source_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=creditAccountOptions,
             ~buttonText="Select Source Account",
@@ -188,7 +208,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="target_account",
-          ~name="debit_account",
+          ~name="target_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
             ~buttonText="Select Target Account",

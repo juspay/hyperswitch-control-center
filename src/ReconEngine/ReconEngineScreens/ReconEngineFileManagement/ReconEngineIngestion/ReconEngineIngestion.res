@@ -46,13 +46,12 @@ let make = () => {
     })
   }, (accountData, showModal))
 
-  <div className="flex flex-col w-full gap-6">
+  <div className="flex flex-col w-full gap-4">
     <div className="flex flex-row justify-between">
       <PageUtils.PageHeading
         title="File Management"
-        subTitle="Manage your files for the Recon Engine"
-        customSubTitleStyle={body.lg.medium}
-        customTitleStyle={`${heading.lg.semibold} py-0`}
+        customTitleStyle={`${heading.lg.semibold}`}
+        customHeadingStyle="py-0"
       />
       <Button
         text="Upload File"
@@ -61,7 +60,6 @@ let make = () => {
         onClick={_ => {
           setShowModal(_ => true)
         }}
-        customButtonStyle="!my-3"
         buttonSize=Medium
       />
     </div>

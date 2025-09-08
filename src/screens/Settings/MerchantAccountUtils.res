@@ -27,6 +27,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     force_3ds_challenge,
     is_debit_routing_enabled,
     merchant_category_code,
+    is_network_tokenization_enabled,
     always_request_extended_authorization,
   } = profileRecord
 
@@ -83,6 +84,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
   profileInfo->setOptionString("merchant_category_code", merchant_category_code)
+  profileInfo->setOptionBool("is_network_tokenization_enabled", is_network_tokenization_enabled)
   profileInfo->setOptionBool(
     "always_request_extended_authorization",
     always_request_extended_authorization,
@@ -273,6 +275,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionString(
     "merchant_category_code",
     valuesDict->getOptionString("merchant_category_code"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_network_tokenization_enabled",
+    valuesDict->getOptionBool("is_network_tokenization_enabled"),
   )
   profileDetailsDict->setOptionBool(
     "always_request_extended_authorization",
@@ -611,6 +617,7 @@ let defaultValueForBusinessProfile = {
   is_debit_routing_enabled: None,
   acquirer_configs: None,
   merchant_category_code: None,
+  is_network_tokenization_enabled: None,
   always_request_extended_authorization: None,
 }
 
