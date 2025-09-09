@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.09.0
+
+### Features
+
+- Customize default theme ([#3505](https://github.com/juspay/hyperswitch-control-center/pull/3505)) ([`d855652`](https://github.com/juspay/hyperswitch-control-center/commit/d855652e5bdf7aa8014b38d3c36deb625aba8ecf))
+- Added Extended Authorization toggle in profile settings page ([#3512](https://github.com/juspay/hyperswitch-control-center/pull/3512)) ([`051d50f`](https://github.com/juspay/hyperswitch-control-center/commit/051d50f504006f5b6e857df7162c01aa780b754c))
+- Recon engine accounts source page ([#3524](https://github.com/juspay/hyperswitch-control-center/pull/3524)) ([`d03d6b8`](https://github.com/juspay/hyperswitch-control-center/commit/d03d6b852b19343af80e05754399c31a3c78eff9))
+- Recon engine accounts source details page ([#3529](https://github.com/juspay/hyperswitch-control-center/pull/3529)) ([`583adb8`](https://github.com/juspay/hyperswitch-control-center/commit/583adb818f66740c0b585fc716e9f4defa08d57a))
+
+### Miscellaneous Tasks
+
+- Refactored overall routing summary table component ([#3515](https://github.com/juspay/hyperswitch-control-center/pull/3515)) ([`0f07885`](https://github.com/juspay/hyperswitch-control-center/commit/0f07885044ae8720093dc4c4817064c54a96fbe9))
+
+**Full Changelog:** [`2025.09.05.0...2025.09.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.05.0...2025.09.09.0)
+
+- - -
+
 ## 2025.09.05.0
 
 ### Features
