@@ -54,6 +54,7 @@ let make = (~children) => {
           ~expectedOrgId=data.orgId,
           ~expectedMerchantId=data.merchantId,
           ~expectedProfileId=data.profileId,
+          ~version=data.version,
         )
         let url = decodeURIComponent(data.path->Option.getOr(""))
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))

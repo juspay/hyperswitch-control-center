@@ -58,7 +58,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
   },
   urls: {
     faviconUrl: Some("/HyperswitchFavicon.png"),
-    logoUrl: Some(""),
+    logoUrl: Some("/assets/Dark/hyperswitchLogoIconWithText.svg"),
   },
 }
 
@@ -301,7 +301,7 @@ let make = (~children) => {
           )
           await themeResponse->(res => res->Fetch.Response.json)
         } else {
-          let url = `${GlobalVars.getHostUrl}/config/theme`
+          let url = `${GlobalVars.getHostUrlWithBasePath}/config/theme`
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,

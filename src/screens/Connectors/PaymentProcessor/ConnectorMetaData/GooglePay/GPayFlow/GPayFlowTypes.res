@@ -40,7 +40,7 @@ type googlePayMetadata = {
 
 // Type definitions for Google Pay Connector Wallet Details
 
-type googlePayIntegrationType = [#payment_gateway | #direct]
+type googlePayIntegrationType = [#payment_gateway | #direct | #decryption]
 type googlePayIntegrationSteps = Landing | Configure
 
 type tokenizationSpecificationParameters = {

@@ -78,13 +78,13 @@ module PageHeading = {
     ~showPermLink=true,
   ) => {
     let (showShareDialog, setShowShareDialog) = React.useState(_ => false)
-    let {userInfo: {orgId, merchantId, profileId}} = React.useContext(
+    let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let buildPermLink = () => {
       let url = Window.URL.make(
-        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/switch/user`,
+        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/${(version :> string)}/switch/user`,
         `${Window.Location.origin}`,
       )
       let queryParams = Window.Location.search

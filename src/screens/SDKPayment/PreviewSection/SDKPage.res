@@ -50,7 +50,7 @@ let make = () => {
   ]
 
   <>
-    <PageUtils.PageHeading title="Setup Checkout" customHeadingStyle="my-5" />
+    <PageUtils.PageHeading title="Setup Checkout" showPermLink=false customHeadingStyle="my-5" />
     <div className="flex">
       <div className="w-1/2 flex flex-col gap-6">
         <Tabs

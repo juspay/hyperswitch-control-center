@@ -8,13 +8,16 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       <GooglePayZen connector update onCloseClickCustomFun setShowWalletConfigurationModal />
     | Processors(CYBERSOURCE) =>
       <>
-        <RenderIf condition={!featureFlag.googlePayDecryptionFlow}>
+        <RenderIf condition={!featureFlag.googlePayDirectFlow}>
           <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
         </RenderIf>
-        <RenderIf condition={featureFlag.googlePayDecryptionFlow}>
+        <RenderIf condition={featureFlag.googlePayDirectFlow}>
           <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
         </RenderIf>
       </>
+    | Processors(NUVEI)
+    | Processors(WORLDPAYVANTIV) =>
+      <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
     | _ => <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
     }}
   </>

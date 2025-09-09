@@ -101,6 +101,7 @@ let make = () => {
       customTagComponent
       customTitleSectionStyles="!justify-between"
       customHeadingStyle=""
+      showPermLink=false
     />
     <RenderIf condition=showBillingAddress>
       <BillingAddress />
