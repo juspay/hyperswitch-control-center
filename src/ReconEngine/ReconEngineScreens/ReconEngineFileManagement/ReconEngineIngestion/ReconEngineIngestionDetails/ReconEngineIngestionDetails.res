@@ -17,13 +17,13 @@ let make = (~id) => {
   let fetchIngestionHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let stagingUrl = getURL(
+      let ingestionHistoryUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_HISTORY,
         ~id=Some(id),
       )
-      let res = await fetchDetails(stagingUrl)
+      let res = await fetchDetails(ingestionHistoryUrl)
       let ingestionHistoryData = res->getDictFromJsonObject->ingestionHistoryItemToObjMapper
       setIngestionHistoryData(_ => ingestionHistoryData)
       setScreenState(_ => PageLoaderWrapper.Success)

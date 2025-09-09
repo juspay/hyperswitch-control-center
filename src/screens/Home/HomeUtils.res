@@ -168,6 +168,7 @@ module DevResources = {
         subTitle="Couple of things developers need in handy can be found right here."
         customTitleStyle="!text-fs-20 !font-semibold"
         customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium !mt-1"
+        showPermLink=false
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
         <RenderIf condition={!checkUserEntity([#Profile])}>

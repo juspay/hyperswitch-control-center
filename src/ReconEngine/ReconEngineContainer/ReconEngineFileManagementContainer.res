@@ -7,14 +7,14 @@ let make = () => {
       "v1",
       "recon-engine",
       "file-management",
-      _ingestionHistoryId,
+      ingestionHistoryId,
       "transformation-history",
       id,
     } =>
     <FilterContext
       key={`recon-engine-transformation-history-details-${id}`}
       index={`recon-engine-transformation-history-details-${id}`}>
-      <ReconEngineTransformationDetails transformationHistoryId=id />
+      <ReconEngineTransformationDetails transformationHistoryId=id ingestionHistoryId />
     </FilterContext>
   | list{"v1", "recon-engine", "file-management", ...remainingPath} =>
     <EntityScaffold

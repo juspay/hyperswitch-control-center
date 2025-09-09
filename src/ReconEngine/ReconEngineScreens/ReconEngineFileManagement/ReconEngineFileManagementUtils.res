@@ -44,6 +44,7 @@ let statusMapper = statusStr => {
   | "processing" => Processing
   | "processed" => Processed
   | "failed" => Failed
+  | "discarded" => Discarded
   | _ => StatusNone
   }
 }
@@ -53,6 +54,7 @@ let getStatusStringFromVariant = status => {
   | Pending => "pending"
   | Processing => "processing"
   | Processed => "processed"
+  | Discarded => "discarded"
   | Failed => "failed"
   | StatusNone => "unknown"
   }
@@ -60,14 +62,18 @@ let getStatusStringFromVariant = status => {
 
 let ingestionHistoryItemToObjMapper = (dict): ingestionHistoryType => {
   {
+    id: dict->getString("id", ""),
     ingestion_id: dict->getString("ingestion_id", ""),
-    ingestion_name: dict->getString("ingestion_name", ""),
     ingestion_history_id: dict->getString("ingestion_history_id", ""),
     file_name: dict->getString("file_name", "N/A"),
     account_id: dict->getString("account_id", ""),
     status: dict->getString("status", ""),
     upload_type: dict->getString("upload_type", ""),
     created_at: dict->getString("created_at", ""),
+    ingestion_name: dict->getString("ingestion_name", ""),
+    version: dict->getInt("version", 0),
+    discarded_at: dict->getString("discarded_at", ""),
+    discarded_at_status: dict->getString("discarded_at_status", ""),
   }
 }
 
@@ -99,21 +105,13 @@ let transformationHistoryItemToObjMapper = (dict): transformationHistoryType => 
   }
 }
 
-let ingestionDataTypeMapper = (dict): ingestionDataType => {
-  {
-    ingestion_type: dict->getString("ingestion_type", ""),
-  }
-}
-
 let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
   {
     ingestion_id: dict->getString("ingestion_id", ""),
+    account_id: dict->getString("account_id", ""),
     is_active: dict->getBool("is_active", false),
     name: dict->getString("name", ""),
     last_synced_at: dict->getString("last_synced_at", ""),
-    data: dict
-    ->getJsonObjectFromDict("data")
-    ->getDictFromJsonObject
-    ->ingestionDataTypeMapper,
+    data: dict->getJsonObjectFromDict("data"),
   }
 }

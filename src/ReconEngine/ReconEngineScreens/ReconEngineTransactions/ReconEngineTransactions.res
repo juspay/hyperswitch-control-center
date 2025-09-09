@@ -22,7 +22,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
