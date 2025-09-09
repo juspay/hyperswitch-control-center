@@ -36,7 +36,7 @@ type applePayIntegrationType = [#manual | #simplified | #decrypted]
 type applePayConfig = [
   | #manual(manual)
   | #simplified(simplified)
-  | #decrypted(RescriptCore.Dict.t<Core__JSON.t>)
+  | #decrypted
 ]
 type applePayIntegrationSteps = Landing | Configure | Verify
 type simplifiedApplePayIntegartionTypes = EnterUrl | DownloadFile | HostUrl
