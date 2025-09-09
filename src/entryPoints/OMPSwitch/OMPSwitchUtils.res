@@ -118,7 +118,7 @@ let userSwitch = (~ompData: array<string>, ~path) => {
     orgId: ompData->Array.get(0),
     merchantId: ompData->Array.get(1),
     profileId: ompData->Array.get(2),
-    version: ompData->Array.get(3)->Option.getOr("")->UserInfoUtils.versionMapper,
+    version: ompData->LogicUtils.getValueFromArray(3, "")->UserInfoUtils.versionMapper,
     path,
   }
   if data.profileId->Option.isSome {
