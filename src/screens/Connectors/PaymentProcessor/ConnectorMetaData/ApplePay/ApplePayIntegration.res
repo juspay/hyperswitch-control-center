@@ -71,7 +71,7 @@ module Verified = {
                       name={"arrow-right"}
                       size={15}
                     />
-                  | _ => React.null
+                  | #decrypted => React.null
                   }}
                 </div>
               </div>
