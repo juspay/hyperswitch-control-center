@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.09.2
+
+### Bug Fixes
+
+- Theme config ([`5075b4a`](https://github.com/juspay/hyperswitch-control-center/commit/5075b4a8c2a028c48ce5bb5523688587263d33b0))
+- Theme config ([`6b3b9a0`](https://github.com/juspay/hyperswitch-control-center/commit/6b3b9a01d7bcb9c8cf23962e5f705f07fd811b7e))
+- Permalink config ([`f452703`](https://github.com/juspay/hyperswitch-control-center/commit/f4527035e475c6604d42185b8afe380977e000c9))
+
+**Full Changelog:** [`2025.09.09.1...2025.09.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.09.1...2025.09.09.2)
+
+- - -
+
 ## 2025.09.09.1
 
 ### Features
