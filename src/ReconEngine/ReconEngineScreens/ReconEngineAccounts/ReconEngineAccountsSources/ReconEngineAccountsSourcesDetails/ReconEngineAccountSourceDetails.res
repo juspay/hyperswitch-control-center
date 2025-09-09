@@ -68,7 +68,7 @@ let make = (~accountId) => {
 
   let getActiveTabIndex = () => {
     let params = url.search->getDictFromUrlSearchParams
-    let tabIndexParam = params->Dict.get("tabIndex")->Option.getOr("0")
+    let tabIndexParam = params->Dict.get("ingestionConfigTabIndex")->Option.getOr("0")
     setTabIndex(_ => tabIndexParam)
   }
 

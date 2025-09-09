@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => {
   open LogicUtils
   open APIUtils
   open ReconEngineExceptionStagingUtils
@@ -42,11 +42,11 @@ let make = () => {
   }, ~wait=200)
 
   let fetchStagingData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let queryString =
         ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          "&status=needs_manual_review",
+          `&transformation_history_id=${selectedTransformationHistoryId}`,
         )
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
@@ -60,15 +60,17 @@ let make = () => {
 
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
+      let isNeedsManualReviewPresent =
+        stagingList->Array.some(entry => entry.status === "needs_manual_review")
+      switch onNeedsManualReviewPresent {
+      | Some(callback) => callback(isNeedsManualReviewPresent)
+      | None => ()
+      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
-
-  let accountOptions = React.useMemo(() => {
-    getStagingAccountOptions(stagingData)
-  }, [stagingData])
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
@@ -95,7 +97,7 @@ let make = () => {
     <div className="flex flex-row">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
+        initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -113,10 +115,12 @@ let make = () => {
       />
     </div>
   }
-
-  <div className="flex flex-col gap-4 my-4">
-    <div className="flex-shrink-0"> {topFilterUi} </div>
-    <PageLoaderWrapper screenState>
+  <PageLoaderWrapper
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
+    customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
+    <div className="flex flex-col gap-4 my-4 px-6">
+      <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
         title="Staging Entries"
         hideTitle=true
@@ -143,6 +147,6 @@ let make = () => {
           setSearchVal=setSearchText
         />}
       />
-    </PageLoaderWrapper>
-  </div>
+    </div>
+  </PageLoaderWrapper>
 }

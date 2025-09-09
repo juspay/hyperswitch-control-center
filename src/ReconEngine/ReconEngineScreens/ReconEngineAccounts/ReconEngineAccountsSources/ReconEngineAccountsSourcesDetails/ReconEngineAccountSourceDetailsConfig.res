@@ -3,7 +3,11 @@ open FormDataUtils
 open Typography
 
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
+let make = (
+  ~config: ReconEngineFileManagementTypes.ingestionConfigType,
+  ~isUploading,
+  ~setIsUploading,
+) => {
   let dataDict = config.data->getDictFromJsonObject
   let ingestionType = dataDict->getString("ingestion_type", "")
   let allKeyValuePairs = getKeyValuePairsFromDict(dataDict)
@@ -14,7 +18,6 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let getURL = APIUtils.useGetURL()
   let updateDetails = APIUtils.useUpdateMethod()
-  let (isUploading, setIsUploading) = React.useState(_ => false)
 
   let handleFileUpload = async ev => {
     try {
