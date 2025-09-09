@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~transformationHistoryId) => {
+let make = (~transformationHistoryId, ~ingestionHistoryId) => {
   open LogicUtils
   open APIUtils
   open ReconEngineFileManagementUtils
@@ -51,8 +51,8 @@ let make = (~transformationHistoryId) => {
         path=[
           {title: "File Management", link: `/v1/recon-engine/file-management`},
           {
-            title: transformationHistoryData.ingestion_history_id,
-            link: `/v1/recon-engine/file-management/${transformationHistoryData.ingestion_history_id}`,
+            title: ingestionHistoryId,
+            link: `/v1/recon-engine/file-management/${ingestionHistoryId}`,
           },
         ]
         currentPageTitle=transformationHistoryId

@@ -145,7 +145,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getAccountsData = async _ => {
     try {

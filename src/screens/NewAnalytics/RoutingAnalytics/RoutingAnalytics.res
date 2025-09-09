@@ -2,12 +2,14 @@
 let make = () => {
   open Typography
   open HSAnalyticsUtils
+  open RoutingAnalyticsUtils
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let url = RescriptReactRouter.useUrl()
   let featureFlagAtom = HyperswitchAtom.featureFlagAtom
   let {isLiveMode, debitRouting} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -15,7 +17,7 @@ let make = () => {
   let dateDropDownTriggerMixpanelCallback = () => {
     mixpanelEvent(~eventName="routing_analytics_date_filter_opened")
   }
-  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -28,6 +30,12 @@ let make = () => {
     setInitialFilters()
     None
   }, [])
+
+  let handleTabChange = tabId => {
+    setTabIndex(_ => tabId)
+    let url = (getPageFromIndex(tabId) :> string)
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
+  }
 
   let tabs: array<Tabs.tab> = if isLiveMode && !debitRouting {
     [
@@ -58,15 +66,6 @@ let make = () => {
         customSubTitleStyle={`${body.lg.medium} !text-nd_gray-400 !opacity-100 !mt-1`}
       />
       <div className="flex items-center 2xl:ml-4">
-        <div className="mt-2">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-            selectedEntity={analyticsEntity}
-            onChange={updateAnalytcisEntity}
-            entityMapper=UserInfoUtils.analyticsEntityMapper
-            disabledDisplayName="Hyperswitch_test"
-          />
-        </div>
         <div className="-mr-2">
           <DynamicFilter
             title="RoutingAnalytics"
@@ -86,12 +85,21 @@ let make = () => {
             refreshFilters=false
           />
         </div>
+        <div className="mt-2">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+            disabledDisplayName="Hyperswitch_test"
+          />
+        </div>
       </div>
     </div>
     <Tabs
       initialIndex={tabIndex}
       tabs
-      onTitleClick={tabId => setTabIndex(_ => tabId)}
+      onTitleClick={tabId => handleTabChange(tabId)}
       includeMargin=false
       textStyle="text-blue-600"
       selectTabBottomBorderColor="bg-blue-600"
