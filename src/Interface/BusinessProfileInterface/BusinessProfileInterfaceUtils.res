@@ -50,6 +50,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     always_request_extended_authorization: jsonDict->getOptionBool(
       "always_request_extended_authorization",
     ),
+    is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
   }
 }
 let mapJsonToBusinessProfileV2 = (values): profileEntity => {
@@ -100,5 +101,6 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     always_request_extended_authorization: jsonDict->getOptionBool(
       "always_request_extended_authorization",
     ),
+    is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
   }
 }

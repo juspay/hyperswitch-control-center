@@ -175,6 +175,7 @@ type profileEntity = {
   merchant_category_code: option<string>,
   is_network_tokenization_enabled: option<bool>,
   always_request_extended_authorization: option<bool>,
+  is_manual_retry_enabled: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp

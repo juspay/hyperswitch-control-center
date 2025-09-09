@@ -29,6 +29,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     merchant_category_code,
     is_network_tokenization_enabled,
     always_request_extended_authorization,
+    is_manual_retry_enabled,
   } = profileRecord
 
   let profileInfo =
@@ -85,6 +86,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
   profileInfo->setOptionString("merchant_category_code", merchant_category_code)
   profileInfo->setOptionBool("is_network_tokenization_enabled", is_network_tokenization_enabled)
+  profileInfo->setOptionBool("is_manual_retry_enabled", is_manual_retry_enabled)
   profileInfo->setOptionBool(
     "always_request_extended_authorization",
     always_request_extended_authorization,
@@ -279,6 +281,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "is_network_tokenization_enabled",
     valuesDict->getOptionBool("is_network_tokenization_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_manual_retry_enabled",
+    valuesDict->getOptionBool("is_manual_retry_enabled"),
   )
   profileDetailsDict->setOptionBool(
     "always_request_extended_authorization",
@@ -619,6 +625,7 @@ let defaultValueForBusinessProfile = {
   merchant_category_code: None,
   is_network_tokenization_enabled: None,
   always_request_extended_authorization: None,
+  is_manual_retry_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
