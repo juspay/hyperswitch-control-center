@@ -48,6 +48,7 @@ let getStatusLabel = (statusString: string): Table.cell => {
     | Processing => Table.LabelOrange
     | Processed => Table.LabelGreen
     | Failed => Table.LabelRed
+    | Discarded => Table.LabelGray
     | StatusNone => Table.LabelLightGray
     },
   })
@@ -60,7 +61,7 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   | IngestionHistoryId => Text(data.ingestion_history_id)
   | Status => getStatusLabel(data.status)
   | UploadType => Text(data.upload_type)
-  | UploadedAt => Text(data.created_at)
+  | UploadedAt => Date(data.created_at)
   }
 }
 
@@ -68,8 +69,8 @@ let getTransformationHistoryCell = (data: transformationHistoryType, colType): T
   switch colType {
   | TransformationName => Text(data.transformation_name)
   | Status => getStatusLabel(data.status)
-  | CreatedAt => Text(data.created_at)
-  | ProcessedAt => Text(data.processed_at)
+  | CreatedAt => Date(data.created_at)
+  | ProcessedAt => Date(data.processed_at)
   }
 }
 
@@ -84,7 +85,7 @@ let ingestionHistoryTableEntity = (path: string, ~authorization: CommonAuthTypes
     ~getShowLink={
       connec => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.ingestion_history_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.id}`),
           ~authorization,
         )
       }

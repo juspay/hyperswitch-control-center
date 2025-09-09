@@ -154,9 +154,68 @@ Enabling `branding` feature flag enables customization of branding elements like
 
 ---
 
-## Themes
+## Theme Configuration
 
-Themes can now be customized in `ThemesProvider.res` by overriding the values in `newDefaultConfig`. This allows you to update default colors, sidebar styles, button designs, and URLs for the logo and favicon.
+The Hyperswitch Control Center supports comprehensive theme customization to match your brand identity. You can customize colors, typography, buttons, logos, and layout elements through a simple JSON configuration file.
+
+### Local Development
+
+For developers running the control center locally:
+
+1. Navigate to `config/theme.json` in your project directory
+2. Edit the theme configuration according to your brand requirements
+3. Restart the development server to see your changes:
+   ```bash
+   npm run start
+   ```
+
+### Docker/Quickstart Users
+
+For users following the [Quickstart guide](https://github.com/juspay/hyperswitch?tab=readme-ov-file#-local-setup-via-docker-):
+
+1. Update the `dashboard_theme.json` file in your config folder
+2. Re-run the quickstart command to apply the changes:
+   ```bash
+   docker compose up -d
+   ```
+
+### Configuration Options
+
+The theme configuration supports the following customization options:
+
+| Category     | Options                                    | Description                      |
+| ------------ | ------------------------------------------ | -------------------------------- |
+| **Colors**   | `primary`,                                 | Main brand colors and background |
+| **Sidebar**  | `primary`, `textColor`, `textColorPrimary` | Sidebar styling and text colors  |
+| **Buttons**  | `primary`, `secondary`                     | Button colors and hover states   |
+| **Branding** | `logoUrl`, `faviconUrl`                    | Custom logo and favicon URLs     |
+
+### Examples
+
+#### Brand Color Customization
+
+```json
+{
+  "settings": {
+    "colors": {
+      "primary": "#FF6B35"
+    }
+  }
+}
+```
+
+#### Logo and Favicon Setup
+
+```json
+{
+  "urls": {
+    "logoUrl": "https://your-domain.com/logo.png",
+    "faviconUrl": "https://your-domain.com/favicon.ico"
+  }
+}
+```
+
+For a complete theme configuration template, refer to `config/theme.json` in the repository.
 
 ## Enable the features on Run time by overriding the default value
 

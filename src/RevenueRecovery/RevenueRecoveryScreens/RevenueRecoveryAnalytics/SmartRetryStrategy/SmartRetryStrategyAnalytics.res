@@ -100,10 +100,12 @@ let make = (~entity: moduleEntity) => {
             <div className="grid grid-cols-2 gap-5">
               {groupSRData
               ->getSmartRetryGraphOptions
-              ->Array.map(item => {
+              ->Array.mapWithIndex((item, index) => {
                 let (title, options, description) = item
 
-                <div className="rounded-xl border border-gray-200 w-full bg-white">
+                <div
+                  key={index->Int.toString}
+                  className="rounded-xl border border-gray-200 w-full bg-white">
                   <div
                     className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl flex justify-between">
                     <h2 className="font-medium text-gray-800"> {title->React.string} </h2>

@@ -76,7 +76,7 @@ type betaEndpoint = {
 let useApiFetcher = () => {
   open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-
+  let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
   React.useCallback(
     (
@@ -150,6 +150,7 @@ let useApiFetcher = () => {
               switch authStatus {
               | LoggedIn(_) =>
                 let _ = CommonAuthUtils.clearLocalStorage()
+                let _ = CommonAuthUtils.handleSwitchUserQueryParam(~url)
                 setAuthStateToLogout()
                 AuthUtils.redirectToLogin()
                 resolve(resp)

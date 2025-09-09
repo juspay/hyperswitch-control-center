@@ -197,3 +197,18 @@ module ToggleLiveTestMode = {
     </>
   }
 }
+
+let handleSwitchUserQueryParam = (~url: RescriptReactRouter.url) => {
+  switch url.path {
+  | list{orgId, merchantId, profileId, "switch", "user"} => {
+      let omp =
+        [orgId, merchantId, profileId]
+        ->Array.map(val => val->JSON.Encode.string)
+        ->JSON.Encode.array
+        ->JSON.stringify
+      SessionStorage.sessionStorage.setItem("switch-user-query", url.search)
+      SessionStorage.sessionStorage.setItem("switch-user-omp", omp)
+    }
+  | _ => ()
+  }
+}

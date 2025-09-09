@@ -697,6 +697,36 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="is_network_tokenization_enabled",
+                      ~label="Network Tokenization",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                    )}
+                  />
+                </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="always_request_extended_authorization",
+                      ~label="Extended Authorization",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                      ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
+                      ~toolTipPosition=Right,
+                    )}
+                  />
+                </DesktopRow>
                 <ClickToPaySection />
                 <AutoRetries setCheckMaxAutoRetry />
                 <RenderIf condition={featureFlagDetails.debitRouting}>

@@ -48,7 +48,7 @@ let make = () => {
     None
   }, [])
 
-  <div className="flex flex-col gap-6 w-full">
+  <div className="flex flex-col gap-4 w-full">
     <PageUtils.PageHeading
       title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
     />

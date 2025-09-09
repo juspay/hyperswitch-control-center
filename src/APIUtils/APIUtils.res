@@ -965,9 +965,13 @@ let useGetURL = () => {
         | #INGESTION_CONFIG =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
-            | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
-            | None => `${reconBaseURL}/ingestions/config`
+            switch id {
+            | Some(ingestionId) => `${reconBaseURL}/ingestions/config/${ingestionId}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
+              | None => `${reconBaseURL}/ingestions/config`
+              }
             }
           | _ => ""
           }
