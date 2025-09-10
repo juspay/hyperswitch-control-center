@@ -41,36 +41,36 @@ let allColumns: array<hierarchicalColType> = [
 
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
-  | Date => Table.makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24")
-  | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | EntryId => Table.makeHeaderInfo(~key="entry_id", ~title="Entry ID")
-  | Account => Table.makeHeaderInfo(~key="account", ~title="Account")
-  | EntryStatus => Table.makeHeaderInfo(~key="entry_status", ~title="Entry Status")
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
-  | DebitAmount => Table.makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
-  | CreditAmount => Table.makeHeaderInfo(~key="credit_amount", ~title="Credit Amount")
+  | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24")
+  | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
+  | Status => makeHeaderInfo(~key="status", ~title="Status")
+  | EntryId => makeHeaderInfo(~key="entry_id", ~title="Entry ID")
+  | Account => makeHeaderInfo(~key="account", ~title="Account")
+  | EntryStatus => makeHeaderInfo(~key="entry_status", ~title="Entry Status")
+  | Currency => makeHeaderInfo(~key="currency", ~title="Currency")
+  | DebitAmount => makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
+  | CreditAmount => makeHeaderInfo(~key="credit_amount", ~title="Credit Amount")
   }
 }
 
-let getStatusLabel = (statusString: string): Table.cell => {
-  Table.Label({
+let getStatusLabel = (statusString: string): cell => {
+  Label({
     title: statusString->String.toUpperCase,
     color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-    | Posted => Table.LabelGreen
-    | Mismatched => Table.LabelRed
-    | Expected => Table.LabelBlue
-    | Archived => Table.LabelGray
-    | _ => Table.LabelLightGray
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | _ => LabelLightGray
     },
   })
 }
 
-let getCell = (transaction: transactionPayload, colType: hierarchicalColType): Table.cell => {
+let getCell = (transaction: transactionPayload, colType: hierarchicalColType): cell => {
   let hierarchicalContainerClassName = "-mx-8 border-r-gray-400 divide-y divide-gray-200"
   switch colType {
   | Date => DateWithoutTime(transaction.created_at)
-  | TransactionId => Table.Text(transaction.transaction_id)
+  | TransactionId => Text(transaction.transaction_id)
   | Status =>
     switch transaction.discarded_status {
     | Some(status) => getStatusLabel(status)
@@ -87,7 +87,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         })
         ->React.array}
       </div>
-    Table.CustomCell(entryIdContent, "")
+    CustomCell(entryIdContent, "")
   | Account =>
     let accountContent =
       <div className=hierarchicalContainerClassName>
@@ -97,7 +97,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         })
         ->React.array}
       </div>
-    Table.CustomCell(accountContent, "")
+    CustomCell(accountContent, "")
   | EntryStatus =>
     let entryStatusContent =
       <div className=hierarchicalContainerClassName>
@@ -107,7 +107,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         })
         ->React.array}
       </div>
-    Table.CustomCell(entryStatusContent, "")
+    CustomCell(entryStatusContent, "")
   | Currency =>
     let currencyContent =
       <div className=hierarchicalContainerClassName>
@@ -117,7 +117,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         })
         ->React.array}
       </div>
-    Table.CustomCell(currencyContent, "")
+    CustomCell(currencyContent, "")
   | DebitAmount =>
     let debitAmountContent =
       <div className=hierarchicalContainerClassName>
@@ -131,7 +131,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         })
         ->React.array}
       </div>
-    Table.CustomCell(debitAmountContent, "")
+    CustomCell(debitAmountContent, "")
   | CreditAmount =>
     let creditAmountContent =
       <div className=hierarchicalContainerClassName>
@@ -145,7 +145,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         })
         ->React.array}
       </div>
-    Table.CustomCell(creditAmountContent, "")
+    CustomCell(creditAmountContent, "")
   }
 }
 
