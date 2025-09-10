@@ -15,7 +15,6 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let (resultsPerPage, _setResultsPerPage) = React.useState(_ => 10)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let mixpanelEvent = MixpanelHook.useSendEvent()
