@@ -10,7 +10,7 @@ let entriesMetadataKeyToString = key => {
 }
 
 let getEntryTypeVariantFromString = (entryType: string): entryType => {
-  switch entryType {
+  switch entryType->String.toLowerCase {
   | "debit" => Debit
   | "credit" => Credit
   | _ => UnknownType
