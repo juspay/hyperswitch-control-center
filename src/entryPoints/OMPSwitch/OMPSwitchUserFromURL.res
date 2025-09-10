@@ -32,8 +32,8 @@ let make = (~children) => {
     let path = url.search->getDictFromUrlSearchParams->Dict.get("path")
     // condition can be removed once after omp in all the URL
     switch url.path {
-    | list{orgId, merchantId, profileId, "switch", "user"} =>
-      userSwitch(~ompData=[orgId, merchantId, profileId], ~path)
+    | list{orgId, merchantId, profileId, version, "switch", "user"} =>
+      userSwitch(~ompData=[orgId, merchantId, profileId, version], ~path)
     | _ => None
     }
   }
@@ -54,6 +54,7 @@ let make = (~children) => {
           ~expectedOrgId=data.orgId,
           ~expectedMerchantId=data.merchantId,
           ~expectedProfileId=data.profileId,
+          ~version=data.version,
         )
         let url = decodeURIComponent(data.path->Option.getOr(""))
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))

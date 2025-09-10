@@ -3,6 +3,48 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.10.1
+
+### Features
+
+- Recovery webhooks url input ([#3541](https://github.com/juspay/hyperswitch-control-center/pull/3541)) ([`b7e8f05`](https://github.com/juspay/hyperswitch-control-center/commit/b7e8f052e30e2621cbab39f627c7cb8d231a4da7))
+
+**Full Changelog:** [`2025.09.10.0...2025.09.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.10.0...2025.09.10.1)
+
+- - -
+
+## 2025.09.10.0
+
+**Full Changelog:** [`2025.09.09.2...2025.09.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.09.2...2025.09.10.0)
+
+- - -
+
+## 2025.09.09.2
+
+### Bug Fixes
+
+- Theme config ([`5075b4a`](https://github.com/juspay/hyperswitch-control-center/commit/5075b4a8c2a028c48ce5bb5523688587263d33b0))
+- Theme config ([`6b3b9a0`](https://github.com/juspay/hyperswitch-control-center/commit/6b3b9a01d7bcb9c8cf23962e5f705f07fd811b7e))
+- Permalink config ([`f452703`](https://github.com/juspay/hyperswitch-control-center/commit/f4527035e475c6604d42185b8afe380977e000c9))
+
+**Full Changelog:** [`2025.09.09.1...2025.09.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.09.1...2025.09.09.2)
+
+- - -
+
+## 2025.09.09.1
+
+### Features
+
+- Added decrypted flow for Nuvei and worldpayvantiv connectors in… ([#3532](https://github.com/juspay/hyperswitch-control-center/pull/3532)) ([`5b989e0`](https://github.com/juspay/hyperswitch-control-center/commit/5b989e031527c995e0b47c1bf9ee48d4f7d351e4))
+
+### Bug Fixes
+
+- Permalink and theme ([#3535](https://github.com/juspay/hyperswitch-control-center/pull/3535)) ([`94bbe1b`](https://github.com/juspay/hyperswitch-control-center/commit/94bbe1bbfab9ad167d4ab2ce5ceb8024af38c443))
+
+**Full Changelog:** [`2025.09.09.0...2025.09.09.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.09.0...2025.09.09.1)
+
+- - -
+
 ## 2025.09.09.0
 
 ### Features

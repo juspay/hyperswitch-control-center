@@ -68,6 +68,7 @@ let make = () => {
         <PageUtils.PageHeading
           title={isReconEnabled ? "Reconciliation" : "Activate Reconciliation"}
           subTitle=subTitleText
+          showPermLink=false
         />
         {if isReconEnabled {
           <div

@@ -82,6 +82,7 @@ let applePayCombined = (dict, applePayIntegrationType) => {
   let data: applePayConfig = switch applePayIntegrationType {
   | #manual => #manual(dict->manual)
   | #simplified => #simplified(dict->simplified)
+  | #decrypted => #decrypted
   }
 
   let dict = Dict.make()
@@ -93,6 +94,7 @@ let applePayCombined = (dict, applePayIntegrationType) => {
       (#simplified: applePayIntegrationType :> string),
       data->Identity.genericTypeToJson,
     )
+  | #decrypted => ()
   }
 
   dict

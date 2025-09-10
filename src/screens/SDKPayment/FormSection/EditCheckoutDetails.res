@@ -91,6 +91,7 @@ let make = (
         size=30
         onClick={_ => setShowModal(_ => false)}
       />}
+      showPermLink={false}
     />}>
     <div className="flex flex-col gap-5">
       <FieldRenderer field=enterEmailField fieldWrapperClass="!w-full" />
