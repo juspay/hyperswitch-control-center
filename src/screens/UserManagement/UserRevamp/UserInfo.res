@@ -169,7 +169,7 @@ module UserDetails = {
 
     <div className="flex flex-col bg-white rounded-xl border p-6 gap-12">
       <div className="flex gap-4">
-        <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-16 w-16" />
+        <img alt="user_icon" src={`/assets/icons/user_icon.svg`} className="h-16 w-16" />
         <div>
           <p className=h2OptionalStyle> {userEmail->getNameFromEmail->React.string} </p>
           <p className="text-grey-600 opacity-40"> {userEmail->React.string} </p>

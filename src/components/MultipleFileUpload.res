@@ -254,8 +254,8 @@ let make = (
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
             {switch fileName->String.split(".")->Array.pop->Option.getOr("") {
-            | "pdf" => <img alt="pdf" src={`/icons/paIcons/pdfIcon.svg`} />
-            | "csv" => <img alt="csv" src={`/icons/paIcons/csvIcon.svg`} />
+            | "pdf" => <img alt="pdf" src={`/assets/icons/paIcons/pdfIcon.svg`} />
+            | "csv" => <img alt="csv" src={`/assets/icons/paIcons/csvIcon.svg`} />
             | _ => React.null
             }}
             <div

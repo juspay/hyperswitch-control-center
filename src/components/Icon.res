@@ -15,7 +15,7 @@ let make = (
   let useUrl =
     <use
       className={`fill-current ${customIconColor}`}
-      xlinkHref={`${urlPrefix}/icons/solid.svg#${name}`}
+      xlinkHref={`${urlPrefix}/assets/icons/solid.svg#${name}`}
     />
 
   let otherClasses = switch className {

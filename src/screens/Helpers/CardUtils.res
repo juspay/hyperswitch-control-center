@@ -10,7 +10,7 @@ module CardHeader = {
     <div className="md:flex gap-3">
       {switch leftIcon {
       | Some(icon) =>
-        <img alt="image" className="h-6 inline-block align-top" src={`/icons/${icon}.svg`} />
+        <img alt="image" className="h-6 inline-block align-top" src={`/assets/icons/${icon}.svg`} />
       | None => React.null
       }}
       <div className="w-full">
