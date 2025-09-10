@@ -1,22 +1,35 @@
 open ReconEngineFileManagementTypes
 open ReconEngineFileManagementUtils
+open ReconEngineFileManagementHelper
+open LogicUtils
+
+type ingestionConfigColType =
+  | SourceConfigName
+  | ConfigurationType
+  | IngestionId
+  | LastSyncAt
 
 type ingestionHistoryColType =
   | FileName
   | IngestionName
   | IngestionHistoryId
   | Status
-  | UploadType
-  | UploadedAt
+  | IngestionType
+  | ReceivedAt
+  | Actions
 
 type transformationHistoryColType =
+  | TransformationId
+  | TransformationHistoryId
   | TransformationName
   | Status
   | CreatedAt
-  | ProcessedAt
+  | TransformedAt
+  | TransformationStats
+  | TransformationComments
 
-let ingestionHistoryDefaultColumns = [FileName, IngestionName, Status, UploadType, UploadedAt]
-let transformationHistoryDefaultColumns = [TransformationName, Status, CreatedAt, ProcessedAt]
+let ingestionHistoryDefaultColumns = [FileName, IngestionName, Status, IngestionType, ReceivedAt]
+let transformationHistoryDefaultColumns = [TransformationName, Status, CreatedAt, TransformedAt]
 
 let getIngestionHistoryHeading = colType => {
   switch colType {
@@ -25,24 +38,42 @@ let getIngestionHistoryHeading = colType => {
   | IngestionHistoryId =>
     Table.makeHeaderInfo(~key="ingestion_history_id", ~title="Ingestion History ID")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
-  | UploadType => Table.makeHeaderInfo(~key="upload_type", ~title="Upload Type")
-  | UploadedAt => Table.makeHeaderInfo(~key="uploaded_at", ~title="Uploaded At")
+  | IngestionType => Table.makeHeaderInfo(~key="ingestion_type", ~title="Ingestion Type")
+  | ReceivedAt => Table.makeHeaderInfo(~key="received_at", ~title="Received At")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
+  }
+}
+
+let getIngestionConfigHeading = colType => {
+  switch colType {
+  | SourceConfigName => Table.makeHeaderInfo(~key="source_config_name", ~title="Source Config Name")
+  | ConfigurationType =>
+    Table.makeHeaderInfo(~key="configuration_type", ~title="Configuration Type")
+  | IngestionId => Table.makeHeaderInfo(~key="ingestion_id", ~title="Ingestion ID")
+  | LastSyncAt => Table.makeHeaderInfo(~key="last_sync", ~title="Last Sync")
   }
 }
 
 let getTransformationHistoryHeading = colType => {
   switch colType {
+  | TransformationId => Table.makeHeaderInfo(~key="transformation_id", ~title="Transformation ID")
+  | TransformationHistoryId =>
+    Table.makeHeaderInfo(~key="transformation_history_id", ~title="Transformation History ID")
   | TransformationName =>
     Table.makeHeaderInfo(~key="transformation_name", ~title="Transformation Name")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
-  | ProcessedAt => Table.makeHeaderInfo(~key="processed_at", ~title="Processed At")
+  | TransformedAt => Table.makeHeaderInfo(~key="transformed_at", ~title="Transformed At")
+  | TransformationStats =>
+    Table.makeHeaderInfo(~key="transformation_stats", ~title="Processed / Ignored / Error")
+  | TransformationComments =>
+    Table.makeHeaderInfo(~key="transformation_comments", ~title="Comments")
   }
 }
 
 let getStatusLabel = (statusString: string): Table.cell => {
   Table.Label({
-    title: statusString->String.toUpperCase,
+    title: statusString->snakeToTitle,
     color: switch statusString->statusMapper {
     | Pending => Table.LabelGray
     | Processing => Table.LabelOrange
@@ -60,17 +91,37 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   | IngestionName => Text(data.ingestion_name)
   | IngestionHistoryId => Text(data.ingestion_history_id)
   | Status => getStatusLabel(data.status)
-  | UploadType => Text(data.upload_type)
-  | UploadedAt => Date(data.created_at)
+  | IngestionType => Text(data.upload_type)
+  | ReceivedAt => Date(data.created_at)
+  | Actions => CustomCell(<IngestionHistoryActionsComponent />, "")
   }
 }
 
-let getTransformationHistoryCell = (data: transformationHistoryType, colType): Table.cell => {
+let getIngestionConfigCell = (data: ingestionConfigType, colType): Table.cell => {
   switch colType {
-  | TransformationName => Text(data.transformation_name)
-  | Status => getStatusLabel(data.status)
-  | CreatedAt => Date(data.created_at)
-  | ProcessedAt => Date(data.processed_at)
+  | SourceConfigName => Text(data.name)
+  | ConfigurationType =>
+    Text(data.data->getDictFromJsonObject->getString("ingestion_type", "")->String.toUpperCase)
+  | IngestionId => Text(data.ingestion_id)
+  | LastSyncAt => Date(data.last_synced_at)
+  }
+}
+
+let getTransformationHistoryCell = (
+  transformationHistoryData: transformationHistoryType,
+  colType,
+): Table.cell => {
+  switch colType {
+  | TransformationId => Text(transformationHistoryData.transformation_id)
+  | TransformationHistoryId => Text(transformationHistoryData.transformation_history_id)
+  | TransformationName => Text(transformationHistoryData.transformation_name)
+  | Status => getStatusLabel(transformationHistoryData.status)
+  | CreatedAt => Date(transformationHistoryData.created_at)
+  | TransformedAt => Date(transformationHistoryData.processed_at)
+  | TransformationStats =>
+    CustomCell(<TransformationStats stats={transformationHistoryData.data} />, "")
+  | TransformationComments =>
+    EllipsisText(transformationHistoryData.data.errors->Array.joinWith(", "), "max-w-xl")
   }
 }
 

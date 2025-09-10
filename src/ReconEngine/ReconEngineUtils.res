@@ -81,3 +81,11 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
     }
   })
 }
+
+let getStagingEntryStatusOptions = (): array<FilterSelectBox.dropdownOption> => {
+  [
+    {label: "Pending", value: "pending"},
+    {label: "Processed", value: "processed"},
+    {label: "Needs Manual Review", value: "needs_manual_review"},
+  ]
+}
