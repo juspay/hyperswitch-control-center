@@ -166,7 +166,9 @@ module HierarchicalEntryRenderer = {
     ~entryClassName: string="",
   ) => {
     let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-    <div className={`px-8 ${paddingCss} text-sm text-gray-900`}> {fieldValue->React.string} </div>
+    <div key={randomString(~length=10)} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
+      {fieldValue->React.string}
+    </div>
   }
 }
 
