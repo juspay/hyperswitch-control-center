@@ -31,7 +31,7 @@ module PageFooterSection = {
         <div id="footer" className="flex items-center gap-2">
           {"An open-source initiative by "->React.string}
           <a href="https://juspay.in/" target="__blank">
-            <img alt="juspay-logo" src={`/icons/juspay-logo-dark.svg`} className="h-3" />
+            <img alt="juspay-logo" src={`/assets/icons/juspay-logo-dark.svg`} className="h-3" />
           </a>
         </div>
       </AddDataAttributes>

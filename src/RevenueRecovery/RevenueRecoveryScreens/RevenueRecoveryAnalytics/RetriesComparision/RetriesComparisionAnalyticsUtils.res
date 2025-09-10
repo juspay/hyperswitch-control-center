@@ -109,8 +109,8 @@ let smartRetriesComparisionMapper = (
     this => {
       open LineScatterGraphTypes
       let icon = switch this.name {
-      | "Static Retries attempts" => "/icons/static-retry.svg"
-      | "Smart Retries attempts" => "/icons/smart-retry.svg"
+      | "Static Retries attempts" => "/assets/icons/static-retry.svg"
+      | "Smart Retries attempts" => "/assets/icons/smart-retry.svg"
       | _ => ""
       }
 

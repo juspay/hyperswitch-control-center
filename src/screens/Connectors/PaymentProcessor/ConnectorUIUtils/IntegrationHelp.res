@@ -12,12 +12,12 @@ module Render = {
             {React.string(" tab (top-right of the dashboard) and navigate to ")}
             <span className="font-bold"> {React.string("\"API Keys\"")} </span>
             {React.string(" section")}
-            <a href={`/icons/stripe_apikey.png`} target="_blank">
+            <a href={`/assets/icons/stripe_apikey.png`} target="_blank">
               <img
                 alt="stripe-api-key"
                 className="m-4 border rounded-lg border-gray-200"
                 style={maxWidth: "94%"}
-                src={`/icons/stripe_apikey.png`}
+                src={`/assets/icons/stripe_apikey.png`}
               />
             </a>
           </li>
@@ -56,12 +56,12 @@ module Render = {
             </li>
           </ul>
         </div>
-        <a href={`/icons/stripe_helper.png`} target="_blank">
+        <a href={`/assets/icons/stripe_helper.png`} target="_blank">
           <img
             alt="stripe-helper"
             className="m-4 border rounded-lg border-gray-200"
             style={maxWidth: "94%"}
-            src={`/icons/stripe_helper.png`}
+            src={`/assets/icons/stripe_helper.png`}
           />
         </a>
       </div>
@@ -72,11 +72,11 @@ module Render = {
             {React.string("In your Adyen Dashboard, Click on the ")}
             <span className="font-bold"> {React.string("\"Developers\"")} </span>
             {React.string(" tab and navigate to API credentials.")}
-            <a href={`/icons/adyen_apikey.png`} target="_blank">
+            <a href={`/assets/icons/adyen_apikey.png`} target="_blank">
               <img
                 alt="adyen-api-key"
                 className="m-4 border rounded-lg border-gray-200"
-                src={`/icons/adyen_apikey.png`}
+                src={`/assets/icons/adyen_apikey.png`}
               />
             </a>
           </li>
@@ -91,11 +91,11 @@ module Render = {
           {React.string("For making card payment via Adyen, you need to enable full card payments.
               You would have to contact the Adyen customer support and ask them to enable it for you for testing payments.")}
         </div>
-        <a href={`/icons/adyen_merchantID.png`} target="_blank">
+        <a href={`/assets/icons/adyen_merchantID.png`} target="_blank">
           <img
             alt="adyen-merchant-id"
             className="m-8 border rounded-lg border-gray-200 w-3/4"
-            src={`/icons/adyen_merchantID.png`}
+            src={`/assets/icons/adyen_merchantID.png`}
           />
         </a>
         <div className="flex flex-col items-center text-sm text-gray-400">
@@ -150,12 +150,12 @@ module Render = {
             {React.string(
               "Copy the ClientID, Client Secret of the App name used under the REST API apps",
             )}
-            <a href={`/icons/paypal_apikey.png`} target="_blank">
+            <a href={`/assets/icons/paypal_apikey.png`} target="_blank">
               <img
                 alt="paypal-api-key"
                 className="m-4 border rounded-lg border-gray-200"
                 style={maxWidth: "94%"}
-                src={`/icons/paypal_apikey.png`}
+                src={`/assets/icons/paypal_apikey.png`}
               />
             </a>
           </li>

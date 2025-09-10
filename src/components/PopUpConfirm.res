@@ -139,9 +139,9 @@ let make = (
             <RenderIf condition=showIcon>
               {switch popUpType {
               | Warning =>
-                <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
+                <img className=imageStyle src={`${appPrefix}/assets/icons/warning.svg`} alt="warning" />
               | Danger =>
-                <img className=imageStyle src={`${appPrefix}/icons/error.svg`} alt="danger" />
+                <img className=imageStyle src={`${appPrefix}/assets/icons/error.svg`} alt="danger" />
               | Success => <Icon className=iconStyle size=40 name="check-circle" />
               | Primary => <Icon className=iconStyle size=40 name="info-circle" />
               | Secondary => <Icon className=iconStyle size=40 name="info-circle" />
