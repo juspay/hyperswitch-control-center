@@ -57,7 +57,7 @@ let getStatusLabel = (statusString: string): Table.cell => {
 let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => Text(entry.entry_id)
-  | EntryType => Text(entry.entry_type)
+  | EntryType => Text((entry.entry_type :> string))
   | AccountName => Text(entry.account_name)
   | TransactionId => Text(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
