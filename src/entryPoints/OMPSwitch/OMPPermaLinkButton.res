@@ -34,7 +34,7 @@ let make = (~permaLinkFor=?) => {
   | _ => None
   }
   <ToolTip
-    description="This link keeps the Org → Merchant → Profile context and opens the same page."
+    description="Copy link to this exact view for this current Organization -> Merchant -> Profile hierarchy"
     toolTipFor={<HelperComponents.CopyTextCustomComp
       copyValue={Some(permaLink)}
       displayValue=Some("")
