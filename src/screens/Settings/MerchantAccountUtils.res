@@ -30,6 +30,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     is_network_tokenization_enabled,
     always_request_extended_authorization,
     is_manual_retry_enabled,
+    always_enable_overcapture,
   } = profileRecord
 
   let profileInfo =
@@ -91,6 +92,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "always_request_extended_authorization",
     always_request_extended_authorization,
   )
+  profileInfo->setOptionBool("always_enable_overcapture", always_enable_overcapture)
   profileInfo->setOptionDict(
     "outgoing_webhook_custom_http_headers",
     outgoing_webhook_custom_http_headers,
@@ -303,6 +305,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "is_click_to_pay_enabled",
     valuesDict->getOptionBool("is_click_to_pay_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_enable_overcapture",
+    valuesDict->getOptionBool("always_enable_overcapture"),
   )
 
   let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
@@ -626,6 +632,7 @@ let defaultValueForBusinessProfile = {
   is_network_tokenization_enabled: None,
   always_request_extended_authorization: None,
   is_manual_retry_enabled: None,
+  always_enable_overcapture: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
