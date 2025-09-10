@@ -23,8 +23,8 @@ let make = () => {
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
-      getEntryTypeAccountOptions(exceptionData, ~entryType="credit"),
-      getEntryTypeAccountOptions(exceptionData, ~entryType="debit"),
+      getEntryTypeAccountOptions(exceptionData, ~entryType=Credit),
+      getEntryTypeAccountOptions(exceptionData, ~entryType=Debit),
     )
   }, [exceptionData])
 

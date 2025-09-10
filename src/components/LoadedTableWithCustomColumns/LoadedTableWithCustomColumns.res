@@ -68,6 +68,7 @@ let make = (
   ~hideCustomisableColumnButton=false,
   ~customizeColumnButtonIcon="customise-columns",
   ~isDraggable=false,
+  ~customSeparation=?,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -158,5 +159,6 @@ let make = (
     remoteSortEnabled
     showAutoScroll
     hideCustomisableColumnButton
+    ?customSeparation
   />
 }

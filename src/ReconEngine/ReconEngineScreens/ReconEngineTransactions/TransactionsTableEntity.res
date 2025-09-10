@@ -60,8 +60,8 @@ let getStatusLabel = (statusString: string): Table.cell => {
 let getCell = (transaction: transactionPayload, colType: transactionColType): Table.cell => {
   switch colType {
   | TransactionId => EllipsisText(transaction.transaction_id, "")
-  | CreditAccount => Text(getAccounts(transaction.entries, "credit"))
-  | DebitAccount => Text(getAccounts(transaction.entries, "debit"))
+  | CreditAccount => Text(getAccounts(transaction.entries, Credit))
+  | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>
     Text(
       valueFormatter(
