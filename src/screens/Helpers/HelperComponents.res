@@ -1,3 +1,5 @@
+
+
 module CopyTextCustomComp = {
   @react.component
   let make = (
@@ -9,6 +11,7 @@ module CopyTextCustomComp = {
     ~customIconCss="h-7 opacity-70",
     ~customIcon="nd-copy",
     ~customIconSize=15,
+    ~customComponent=None,
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -29,16 +32,16 @@ module CopyTextCustomComp = {
 
     switch displayValue {
     | Some(val) =>
-      <div className=customParentClass>
+      <div
+        className={`${customParentClass} cursor-pointer`}
+        onClick={ev => {
+          onCopyClick(ev)
+        }}>
         <div className=customTextCss> {val->React.string} </div>
-        <Icon
-          size={customIconSize}
-          name={customIcon}
-          onClick={ev => {
-            onCopyClick(ev)
-          }}
-          className={`${customIconCss} cursor-pointer`}
-        />
+        {switch customComponent {
+        | Some(element) => element
+        | None => <Icon size={customIconSize} name={customIcon} className={`${customIconCss} `} />
+        }}
       </div>
     | None => "NA"->React.string
     }

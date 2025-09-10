@@ -15,51 +15,35 @@ module BuildPermaLinkUrl = {
   }
 }
 
-// Reusable PermaLink Button Component
-module PermaLinkButton = {
-  @react.component
-  let make = (~buildPermLink, ~onCopyClick=() => ()) => {
-    <>
-      <ToolTip
-        description="This link encodes the current Organization → Merchant → Profile context and will send recipients to the same page and navigation hierarchy"
-        toolTipFor={<HelperComponents.CopyTextCustomComp
-          copyValue={Some(buildPermLink())}
-          displayValue=Some("")
-          customIcon="nd-permalink"
-          customParentClass=""
-          customIconCss=""
-          customOnCopyClick={() => onCopyClick()}
-        />}
-        toolTipPosition=ToolTip.Top
-      />
-    </>
-  }
-}
-
-type permaLinkHook = {
-  buildPermLink: unit => string,
-  permaLinkButton: React.element,
-}
-
-let usePermaLink = () => {
+@react.component
+let make = (~permaLinkFor=?) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-
   let handleDeepLinkClick = () => {
     mixpanelEvent(~eventName="copy_deep_link")
   }
-
-  let buildPermLink = React.useCallback(() => {
+  let permaLink = React.useMemo(() => {
     let version = (version :> string)
     BuildPermaLinkUrl.buildPermaLinkUrl(~orgId, ~merchantId, ~profileId, ~version)
   }, [orgId, merchantId, profileId])
 
-  let permaLinkButton = <PermaLinkButton buildPermLink onCopyClick=handleDeepLinkClick />
-
-  {
-    buildPermLink,
-    permaLinkButton,
+  let customComponent = switch permaLinkFor {
+  | Some(comp) => Some(comp)
+  | _ => None
   }
+  <ToolTip
+    description="This link keeps the Org → Merchant → Profile context and opens the same page."
+    toolTipFor={<HelperComponents.CopyTextCustomComp
+      copyValue={Some(permaLink)}
+      displayValue=Some("")
+      customIcon="nd-permalink"
+      customParentClass=""
+      customIconCss=""
+      customOnCopyClick={() => handleDeepLinkClick()}
+      customComponent={customComponent}
+    />}
+    toolTipPosition=ToolTip.Top
+  />
 }
