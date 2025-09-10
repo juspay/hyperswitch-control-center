@@ -47,12 +47,21 @@ let getAccountPayload = dict => {
 }
 
 let getTransactionsEntryPayload = dict => {
+  let getOptionalDict = (dict, key) => {
+    switch dict->Dict.get(key) {
+    | Some(value) => Some(value->getDictFromJsonObject)
+    | None => None
+    }
+  }
+
   {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
     account: dict
     ->getDictfromDict("account")
     ->getAccountPayload,
+    amount: dict->getOptionalDict("amount")->Option.map(getAmountPayload),
+    status: dict->getOptionString("status"),
   }
 }
 

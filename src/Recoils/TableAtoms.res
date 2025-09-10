@@ -34,3 +34,8 @@ let reconTransactionsDefaultCols = Recoil.atom(
   "reconTransactionsDefaultCols",
   TransactionsTableEntity.defaultColumns,
 )
+
+let transactionsHierarchicalDefaultCols = Recoil.atom(
+  "transactionsHierarchicalDefaultCols",
+  HierarchicalTransactionsLoadedTableEntity.defaultColumns,
+)

@@ -119,4 +119,5 @@ let make: (
   ~remoteSortEnabled: bool=?,
   ~showAutoScroll: bool=?,
   ~highlightSelectedRow: bool=?,
+  ~customSeparation: array<(int, int)>=?,
 ) => React.element
