@@ -131,6 +131,21 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | BUSINESS_PROFILE =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
+    | Post =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+    | _ => `v2/profiles`
+    }
   }
 }
 
