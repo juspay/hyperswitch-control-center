@@ -139,7 +139,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
           `v1/recon-engine/transactions`,
           ~authorization=Access,
         )}
-        resultsPerPage
+        resultsPerPage=6
         offset
         setOffset
         currrentFetchCount={filteredTransactionsData->Array.length}

@@ -1,5 +1,6 @@
 open ReconEngineTransactionsTypes
 open ReconEngineTransactionsUtils
+open ReconEngineTransactionsHelper
 
 open Table
 
@@ -52,107 +53,95 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
+let getStatusLabel = (statusString: string): Table.cell => {
+  Table.Label({
+    title: statusString->String.toUpperCase,
+    color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    | Posted => Table.LabelGreen
+    | Mismatched => Table.LabelRed
+    | Expected => Table.LabelBlue
+    | Archived => Table.LabelGray
+    | _ => Table.LabelLightGray
+    },
+  })
+}
+
 let getCell = (transaction: transactionPayload, colType: hierarchicalColType): Table.cell => {
+  let hierarchicalContainerClassName = "-mx-8 border-r-gray-400 divide-y divide-gray-200"
   switch colType {
   | Date => DateWithoutTime(transaction.created_at)
   | TransactionId => Table.Text(transaction.transaction_id)
   | Status =>
-    let transactionStatus = switch transaction.discarded_status {
-    | Some(status) => status
-    | None => transaction.transaction_status
+    switch transaction.discarded_status {
+    | Some(status) => getStatusLabel(status)
+    | None => getStatusLabel(transaction.transaction_status)
     }
-    let statusColor = switch transactionStatus->String.toLowerCase {
-    | "posted" => Table.LabelGreen
-    | "mismatched" => Table.LabelRed
-    | "expected" => Table.LabelBlue
-    | "archived" => Table.LabelGray
-    | _ => Table.LabelLightGray
-    }
-    Table.Label({title: transactionStatus->String.toUpperCase, color: statusColor})
   | EntryId =>
     let entryIdContent =
-      <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
+      <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-          <div
-            key={entry.entry_id}
-            className={`px-8 ${paddingCss} text-sm text-gray-900 w-36 truncate whitespace-nowrap`}>
-            {entry.entry_id->React.string}
-          </div>
+          <HierarchicalEntryRenderer
+            fieldValue=entry.entry_id index entryClassName="w-36 truncate whitespace-nowrap"
+          />
         })
         ->React.array}
       </div>
     Table.CustomCell(entryIdContent, "")
   | Account =>
     let accountContent =
-      <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
+      <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-          <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
-            {entry.account.account_name->React.string}
-          </div>
+          <HierarchicalEntryRenderer fieldValue=entry.account.account_name index />
         })
         ->React.array}
       </div>
     Table.CustomCell(accountContent, "")
   | EntryStatus =>
     let entryStatusContent =
-      <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
+      <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-          <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
-            {entry.status->LogicUtils.capitalizeString->React.string}
-          </div>
+          <HierarchicalEntryRenderer fieldValue={entry.status->LogicUtils.capitalizeString} index />
         })
         ->React.array}
       </div>
     Table.CustomCell(entryStatusContent, "")
   | Currency =>
     let currencyContent =
-      <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
+      <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-          <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-500`}>
-            {entry.amount.currency->React.string}
-          </div>
+          <HierarchicalEntryRenderer fieldValue=entry.amount.currency index />
         })
         ->React.array}
       </div>
     Table.CustomCell(currencyContent, "")
   | DebitAmount =>
     let debitAmountContent =
-      <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
+      <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let amount = switch entry.entry_type {
           | "debit" => entry.amount.value->Float.toString
           | _ => "-"
           }
-          <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
-            {amount->React.string}
-          </div>
+          <HierarchicalEntryRenderer fieldValue=amount index />
         })
         ->React.array}
       </div>
     Table.CustomCell(debitAmountContent, "")
   | CreditAmount =>
     let creditAmountContent =
-      <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
+      <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let amount = switch entry.entry_type {
           | "credit" => entry.amount.value->Float.toString
           | _ => "-"
           }
-          <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
-            {amount->React.string}
-          </div>
+          <HierarchicalEntryRenderer fieldValue=amount index />
         })
         ->React.array}
       </div>

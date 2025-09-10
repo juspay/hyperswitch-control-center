@@ -157,6 +157,19 @@ module EntryAuditTrailInfo = {
   }
 }
 
+module HierarchicalEntryRenderer = {
+  @react.component
+  let make = (
+    ~fieldValue: string,
+    ~containerClassName: string="",
+    ~index: int,
+    ~entryClassName: string="",
+  ) => {
+    let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
+    <div className={`px-8 ${paddingCss} text-sm text-gray-900`}> {fieldValue->React.string} </div>
+  }
+}
+
 module AuditTrail = {
   @react.component
   let make = (~allTransactionDetails) => {
