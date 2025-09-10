@@ -59,9 +59,9 @@ module ReconNodeComponent = {
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
-      <div className="absolute -top-0.5 -left-0.5">
+      <div className="absolute -top-0 -left-0">
         <div
-          className={`${body.xs.medium} text-nd_gray-600 bg-nd_gray-100 px-3 py-1 rounded-tl-lg border border-nd_gray-200 rounded-br-lg `}>
+          className={`${body.xs.medium} text-nd_gray-600 bg-nd_gray-100 px-3 py-1 rounded-tl-xl border border-t-0 border-l-0 border-nd_gray-200 rounded-br-xl `}>
           {`${data.accountType->LogicUtils.capitalizeString} Account`->React.string}
         </div>
       </div>
