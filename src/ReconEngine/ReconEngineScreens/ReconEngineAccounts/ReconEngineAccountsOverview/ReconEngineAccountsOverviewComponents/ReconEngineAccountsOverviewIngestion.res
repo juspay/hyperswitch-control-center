@@ -4,6 +4,7 @@ let make = (~ingestionId) => {
   open LogicUtils
   open APIUtils
   open ReconEngineFileManagementUtils
+  open ReconEngineFileManagementTypes
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -41,6 +42,21 @@ let make = (~ingestionId) => {
     LastSyncAt,
   ]
 
+  let getIngestionButtonActions = [
+    {
+      buttonType: ViewFile,
+      onClick: _ => (),
+    },
+    {
+      buttonType: Download,
+      onClick: _ => (),
+    },
+    {
+      buttonType: Timeline,
+      onClick: _ => (),
+    },
+  ]
+
   React.useEffect(() => {
     fetchIngestionHistoryData()->ignore
     None
@@ -66,9 +82,17 @@ let make = (~ingestionId) => {
         ->React.array}
       </div>
       <div className="flex flex-row gap-4">
-        <Button buttonType=Secondary text="View File" customButtonStyle="!w-fit" />
-        <Button buttonType=Secondary text="Download" customButtonStyle="!w-fit" />
-        <Button buttonType=Secondary text="Timeline" customButtonStyle="!w-fit" />
+        {getIngestionButtonActions
+        ->Array.mapWithIndex((action, index) =>
+          <Button
+            key={index->Int.toString}
+            buttonType=Secondary
+            text={(action.buttonType :> string)}
+            onClick={action.onClick}
+            customButtonStyle="!w-fit"
+          />
+        )
+        ->React.array}
       </div>
     </div>
   </PageLoaderWrapper>

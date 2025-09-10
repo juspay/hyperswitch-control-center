@@ -1,12 +1,35 @@
 open ReconEngineFileManagementTypes
+open Typography
 
 module IngestionHistoryActionsComponent = {
   @react.component
   let make = () => {
+    let ingestionHistoryIconActions = [
+      {
+        iconType: ViewIcon,
+        onClick: _ => (),
+      },
+      {
+        iconType: DownloadIcon,
+        onClick: _ => (),
+      },
+      {
+        iconType: ChartIcon,
+        onClick: _ => (),
+      },
+    ]
+
     <div className="flex flex-row gap-4">
-      <Icon name="nd-eye-on" size=16 />
-      <Icon name="nd-download-down" size=16 />
-      <Icon name="nd-graph-chart-gantt" size=16 />
+      {ingestionHistoryIconActions
+      ->Array.mapWithIndex((action, index) =>
+        <Icon
+          key={index->Int.toString}
+          name={(action.iconType :> string)}
+          size=16
+          onClick={action.onClick}
+        />
+      )
+      ->React.array}
     </div>
   }
 }
@@ -14,18 +37,22 @@ module IngestionHistoryActionsComponent = {
 module TransformationStats = {
   @react.component
   let make = (~stats: transformationData) => {
+    let statValues = [
+      stats.transformed_count->Int.toString,
+      stats.ignored_count->Int.toString,
+      stats.errors->Array.length->Int.toString,
+    ]
+
     <div className="flex flex-row items-center gap-2">
-      <p className={`${Typography.body.md.semibold} text-nd_gray-600`}>
-        {stats.transformed_count->Int.toString->React.string}
-      </p>
-      <span className="text-nd_gray-600"> {"/"->React.string} </span>
-      <p className={`${Typography.body.md.semibold} text-nd_gray-600`}>
-        {stats.ignored_count->Int.toString->React.string}
-      </p>
-      <span className="text-nd_gray-600"> {"/"->React.string} </span>
-      <p className={`${Typography.body.md.semibold} text-nd_gray-600`}>
-        {stats.errors->Array.length->Int.toString->React.string}
-      </p>
+      {statValues
+      ->Array.mapWithIndex((value, index) => {
+        let isLast = index === Array.length(statValues) - 1
+        <React.Fragment key={index->Int.toString}>
+          <p className={`${body.md.semibold} text-nd_gray-600`}> {value->React.string} </p>
+          {!isLast ? <span className="text-nd_gray-600"> {"/"->React.string} </span> : React.null}
+        </React.Fragment>
+      })
+      ->React.array}
     </div>
   }
 }
