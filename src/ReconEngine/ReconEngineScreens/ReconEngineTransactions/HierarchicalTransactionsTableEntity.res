@@ -103,12 +103,8 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
           let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-          let entryStatus = switch entry.status {
-          | Some(s) => s
-          | None => "NA"
-          }
           <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
-            {entryStatus->React.string}
+            {entry.status->LogicUtils.capitalizeString->React.string}
           </div>
         })
         ->React.array}
@@ -120,12 +116,8 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
           let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-          let currency = switch entry.amount {
-          | Some(amt) => amt.currency
-          | None => "AUD"
-          }
           <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-500`}>
-            {currency->React.string}
+            {entry.amount.currency->React.string}
           </div>
         })
         ->React.array}
@@ -138,11 +130,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         ->Array.mapWithIndex((entry, index) => {
           let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let amount = switch entry.entry_type {
-          | "debit" =>
-            switch entry.amount {
-            | Some(amt) => amt.value->Float.toString
-            | None => "-"
-            }
+          | "debit" => entry.amount.value->Float.toString
           | _ => "-"
           }
           <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
@@ -159,11 +147,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
         ->Array.mapWithIndex((entry, index) => {
           let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let amount = switch entry.entry_type {
-          | "credit" =>
-            switch entry.amount {
-            | Some(amt) => amt.value->Float.toString
-            | None => "-"
-            }
+          | "credit" => entry.amount.value->Float.toString
           | _ => "-"
           }
           <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>

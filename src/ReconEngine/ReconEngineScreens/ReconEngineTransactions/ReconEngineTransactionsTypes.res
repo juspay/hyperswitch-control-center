@@ -17,8 +17,8 @@ type transactionEntryType = {
   entry_id: string,
   entry_type: string,
   account: accountType,
-  amount: option<amountType>,
-  status: option<string>,
+  amount: amountType,
+  status: string,
 }
 
 type transactionPayload = {

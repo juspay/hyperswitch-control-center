@@ -28,7 +28,7 @@ let getFilteredMetadataFromEntries = metadata => {
 let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),
-    currency: dict->getString("currency", ""),
+    currency: dict->getString("currency", "NA"),
   }
 }
 
@@ -47,21 +47,14 @@ let getAccountPayload = dict => {
 }
 
 let getTransactionsEntryPayload = dict => {
-  let getOptionalDict = (dict, key) => {
-    switch dict->Dict.get(key) {
-    | Some(value) => Some(value->getDictFromJsonObject)
-    | None => None
-    }
-  }
-
   {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", ""),
     account: dict
     ->getDictfromDict("account")
     ->getAccountPayload,
-    amount: dict->getOptionalDict("amount")->Option.map(getAmountPayload),
-    status: dict->getOptionString("status"),
+    amount: dict->getDictfromDict("amount")->getAmountPayload,
+    status: dict->getString("status", "NA"),
   }
 }
 
