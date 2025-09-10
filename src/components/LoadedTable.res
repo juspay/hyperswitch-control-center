@@ -233,6 +233,7 @@ let make = (
   ~remoteSortEnabled=false,
   ~showAutoScroll=false,
   ~highlightSelectedRow=false,
+  ~customSeparation=?,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -835,6 +836,7 @@ let make = (
                 showAutoScroll
                 showPagination
                 highlightSelectedRow
+                ?customSeparation
               />
             switch tableLocalFilter {
             | true =>
