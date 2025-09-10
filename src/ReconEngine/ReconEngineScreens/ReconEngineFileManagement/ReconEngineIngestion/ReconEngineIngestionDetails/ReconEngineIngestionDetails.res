@@ -53,7 +53,7 @@ let make = (~id) => {
     />
     <PageLoaderWrapper screenState>
       <IngestionHistoryDetailsInfo
-        ingestionHistoryData detailsFields=[IngestionHistoryId, Status, UploadType, UploadedAt]
+        ingestionHistoryData detailsFields=[IngestionHistoryId, Status, IngestionType, ReceivedAt]
       />
       <ReconEngineTransformationHistory selectedIngestionHistory=ingestionHistoryData />
     </PageLoaderWrapper>

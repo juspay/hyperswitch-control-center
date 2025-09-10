@@ -97,7 +97,7 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
           <>
             <TransformationHistoryDetailsInfo
               transformationHistoryData=transformationHistory
-              detailsFields=[TransformationName, Status, ProcessedAt]
+              detailsFields=[TransformationName, Status, TransformedAt]
               accountData
               ingestionHistoryData
             />

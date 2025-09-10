@@ -45,7 +45,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~tabInd
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
     <Link
       to_={GlobalVars.appendDashboardPath(
-        ~url=`/v1/recon-engine/sources/${config.account_id}?tabIndex=${tabIndex}`,
+        ~url=`/v1/recon-engine/sources/${config.account_id}?ingestionConfigTabIndex=${tabIndex}`,
       )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
