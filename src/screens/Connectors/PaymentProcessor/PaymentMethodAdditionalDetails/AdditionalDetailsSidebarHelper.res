@@ -1,19 +1,23 @@
 module Heading = {
   @react.component
   let make = (~title: string, ~iconName: string) => {
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {isLiveMode} = featureFlagDetails
     <>
       <div className="flex gap-3 p-2 m-2">
         <Icon name=iconName size=56 />
         <div>
           <div className="flex items-center gap-4">
             <div className="leading-tight   font-semibold text-fs-18"> {title->React.string} </div>
-            <div
-              className={`flex items-center gap-1 text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 bg-orange-600/80 border-orange-500`}>
-              <div>
-                <Icon name={"ellipse-black"} size=4 />
+            <RenderIf condition={!isLiveMode}>
+              <div
+                className={`flex items-center gap-1 text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 bg-orange-600/80 border-orange-500`}>
+                <div>
+                  <Icon name={"ellipse-black"} size=4 />
+                </div>
+                <div> {"Test Mode"->React.string} </div>
               </div>
-              <div> {"Test Mode"->React.string} </div>
-            </div>
+            </RenderIf>
           </div>
           <div className={` mt-2 text-sm text-hyperswitch_black opacity-50  font-normal`}>
             {"Choose Configuration Method"->React.string}

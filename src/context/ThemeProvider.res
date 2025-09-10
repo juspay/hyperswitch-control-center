@@ -301,11 +301,11 @@ let make = (~children) => {
           )
           await themeResponse->(res => res->Fetch.Response.json)
         } else {
-          let url = `${GlobalVars.getHostUrl}/config/theme`
+          let url = `${GlobalVars.getHostUrlWithBasePath}/config/theme`
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
-            ~xFeatureRoute=true,
+            ~xFeatureRoute=false,
             ~forceCookies=false,
           )
           await themeResponse->(res => res->Fetch.Response.json)
