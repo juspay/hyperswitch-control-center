@@ -71,10 +71,10 @@ module ReconNodeComponent = {
         </div>
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 justify-center">
-            <p className={`${body.xs.medium} text-nd_gray-400`}> {"IN"->React.string} </p>
+            <p className={`${body.xs.medium} text-nd_gray-400`}> {"DEBIT"->React.string} </p>
           </div>
           <div className="flex flex-1 justify-center">
-            <p className={`${body.xs.medium} text-nd_gray-400`}> {"OUT"->React.string} </p>
+            <p className={`${body.xs.medium} text-nd_gray-400`}> {"CREDIT"->React.string} </p>
           </div>
         </div>
       </div>
