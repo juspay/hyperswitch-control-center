@@ -46,6 +46,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
       getEntryTypeAccountOptions(configuredTransactions, ~entryType="debit"),
     )
   }, [configuredTransactions])
+
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
@@ -80,6 +81,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
           ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
         )
       }
+
       let sourceQueryString =
         ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
         "&credit_account=" ++
