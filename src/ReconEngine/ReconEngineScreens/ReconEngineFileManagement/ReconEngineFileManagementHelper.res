@@ -37,19 +37,19 @@ module IngestionHistoryActionsComponent = {
 module TransformationStats = {
   @react.component
   let make = (~stats: transformationData) => {
-    let statValues = [
-      stats.transformed_count->Int.toString,
-      stats.ignored_count->Int.toString,
-      stats.errors->Array.length->Int.toString,
-    ]
+    let statValues = [stats.transformed_count, stats.ignored_count, stats.errors->Array.length]
 
     <div className="flex flex-row items-center gap-2">
       {statValues
-      ->Array.mapWithIndex((value, index) => {
+      ->Array.mapWithIndex((stat, index) => {
         let isLast = index === Array.length(statValues) - 1
         <React.Fragment key={index->Int.toString}>
-          <p className={`${body.md.semibold} text-nd_gray-600`}> {value->React.string} </p>
-          {!isLast ? <span className="text-nd_gray-600"> {"/"->React.string} </span> : React.null}
+          <p className={`${body.md.semibold} text-nd_gray-600`}>
+            {stat->Int.toString->React.string}
+          </p>
+          <RenderIf condition={!isLast}>
+            <span className="text-nd_gray-600"> {"/"->React.string} </span>
+          </RenderIf>
         </React.Fragment>
       })
       ->React.array}
