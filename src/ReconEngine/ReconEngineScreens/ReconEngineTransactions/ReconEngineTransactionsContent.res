@@ -23,11 +23,6 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
   }
 
-  let entity = hierarchicalTransactionsLoadedTableEntity(
-    "recon_engine_transactions",
-    ~authorization=Access,
-  )
-
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -129,8 +124,8 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   }, [filterValue])
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
+    <div className="flex flex-col gap-4 relative">
+      <div className="flex justify-between items-center absolute right-0 -top-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
       </div>
       <LoadedTableWithCustomColumns
@@ -138,10 +133,13 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         hideTitle=true
         actualData=filteredTransactionsData
         totalResults={filteredTransactionsData->Array.length}
+        entity={HierarchicalTransactionsLoadedTableEntity.hierarchicalTransactionsLoadedTableEntity(
+          `v1/recon-engine/transactions`,
+          ~authorization=Access,
+        )}
         resultsPerPage
         offset
         setOffset
-        entity
         currrentFetchCount={filteredTransactionsData->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
         defaultColumns
