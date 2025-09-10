@@ -59,7 +59,13 @@ module ReconNodeComponent = {
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
-      <div className="flex flex-row items-center border-b pb-2.5">
+      <div className="absolute -top-0.5 -left-0.5">
+        <div
+          className={`${body.xs.medium} text-nd_gray-600 bg-nd_gray-100 px-3 py-1 rounded-tl-lg border border-nd_gray-200 rounded-br-lg `}>
+          {`${data.accountType->LogicUtils.capitalizeString} Account`->React.string}
+        </div>
+      </div>
+      <div className="flex flex-row items-center border-b pb-2.5 pt-6">
         <div className="flex flex-row items-center gap-2 flex-[1]">
           <p className={`${body.md.semibold} text-nd_gray-800`}> {data.label->React.string} </p>
         </div>
