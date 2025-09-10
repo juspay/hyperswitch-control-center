@@ -4,7 +4,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   open ReconEngineTransactionsTypes
   open ReconEngineTransactionsUtils
   open ReconEngineUtils
-  open HierarchicalTransactionsLoadedTableEntity
+  open HierarchicalTransactionsTableEntity
 
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
@@ -133,7 +133,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         hideTitle=true
         actualData=filteredTransactionsData
         totalResults={filteredTransactionsData->Array.length}
-        entity={HierarchicalTransactionsLoadedTableEntity.hierarchicalTransactionsLoadedTableEntity(
+        entity={HierarchicalTransactionsTableEntity.hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/transactions`,
           ~authorization=Access,
         )}

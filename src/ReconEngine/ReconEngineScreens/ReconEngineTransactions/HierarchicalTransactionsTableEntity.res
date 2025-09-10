@@ -74,8 +74,10 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
       <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-2" : "pt-2"
-          <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
+          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
+          <div
+            key={entry.entry_id}
+            className={`px-8 ${paddingCss} text-sm text-gray-900 w-36 truncate whitespace-nowrap`}>
             {entry.entry_id->React.string}
           </div>
         })
@@ -87,7 +89,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
       <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-2" : "pt-2"
+          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           <div key={entry.entry_id} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
             {entry.account.account_name->React.string}
           </div>
@@ -100,7 +102,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
       <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-2" : "pt-2"
+          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let entryStatus = switch entry.status {
           | Some(s) => s
           | None => "NA"
@@ -117,7 +119,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
       <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-2" : "pt-2"
+          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let currency = switch entry.amount {
           | Some(amt) => amt.currency
           | None => "AUD"
@@ -134,7 +136,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
       <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-2" : "pt-2"
+          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let amount = switch entry.entry_type {
           | "debit" =>
             switch entry.amount {
@@ -155,7 +157,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): T
       <div className="-mx-8 border-r-gray-400 divide-y divide-gray-200">
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
-          let paddingCss = Int.mod(index, 2) == 0 ? "pb-2" : "pt-2"
+          let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
           let amount = switch entry.entry_type {
           | "credit" =>
             switch entry.amount {
