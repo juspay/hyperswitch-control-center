@@ -4,6 +4,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     <ReconEngineOverviewCardDetails ruleDetails />
     <ReconEngineOverviewStackedBarGraph ruleDetails />
     <ReconEngineOverviewColumnGraphs ruleDetails />
+    <ReconEngineOverviewAccountDetails ruleDetails />
     <ReconEngineOverviewTransactions ruleDetails />
   </div>
 }
