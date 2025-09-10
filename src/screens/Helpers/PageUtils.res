@@ -24,7 +24,6 @@ module PageHeading = {
         <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
         <RenderIf condition=showPermLink>
           <OMPPermaLinkButton />
-          React.null
         </RenderIf>
         <RenderIf condition=isTag>
           <div

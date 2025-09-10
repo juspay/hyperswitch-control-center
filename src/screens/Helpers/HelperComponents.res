@@ -1,5 +1,3 @@
-
-
 module CopyTextCustomComp = {
   @react.component
   let make = (
