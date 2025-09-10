@@ -12,10 +12,14 @@ type accountType = {
   account_id: string,
   account_name: string,
 }
+type entryType =
+  | Debit
+  | Credit
+  | UnknownType
 
 type transactionEntryType = {
   entry_id: string,
-  entry_type: string,
+  entry_type: entryType,
   account: accountType,
   amount: amountType,
   status: string,
@@ -52,7 +56,7 @@ type entryStatus =
 
 type entryPayload = {
   entry_id: string,
-  entry_type: string,
+  entry_type: entryType,
   account_name: string,
   transaction_id: string,
   amount: float,

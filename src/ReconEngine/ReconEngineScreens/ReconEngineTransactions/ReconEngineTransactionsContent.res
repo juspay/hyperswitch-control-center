@@ -41,8 +41,8 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
-      getEntryTypeAccountOptions(configuredTransactions, ~entryType="credit"),
-      getEntryTypeAccountOptions(configuredTransactions, ~entryType="debit"),
+      getEntryTypeAccountOptions(configuredTransactions, ~entryType=Credit),
+      getEntryTypeAccountOptions(configuredTransactions, ~entryType=Debit),
     )
   }, [configuredTransactions])
 

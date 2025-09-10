@@ -124,7 +124,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
           let amount = switch entry.entry_type {
-          | "debit" => entry.amount.value->Float.toString
+          | Debit => entry.amount.value->Float.toString
           | _ => "-"
           }
           <HierarchicalEntryRenderer fieldValue=amount index />
@@ -138,7 +138,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
         {transaction.entries
         ->Array.mapWithIndex((entry, index) => {
           let amount = switch entry.entry_type {
-          | "credit" => entry.amount.value->Float.toString
+          | Credit => entry.amount.value->Float.toString
           | _ => "-"
           }
           <HierarchicalEntryRenderer fieldValue=amount index />
