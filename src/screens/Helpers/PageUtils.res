@@ -77,28 +77,7 @@ module PageHeading = {
     ~customTitleSectionStyles="",
     ~showPermLink=true,
   ) => {
-    // let (showShareDialog, setShowShareDialog) = React.useState(_ => false)
-    let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
-      UserInfoProvider.defaultContext,
-    )
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-    let buildPermLink = () => {
-      let url = Window.URL.make(
-        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/${(version :> string)}/switch/user`,
-        `${Window.Location.origin}`,
-      )
-      let queryParams = Window.Location.search
-      let path = `${Window.Location.pathName->Js.String2.replaceByRe(
-          Js.Re.fromString("/dashboard"),
-          "",
-        )}${queryParams}`
-      url->Window.URL.searchParams->Window.URL.append("path", path)
-      url->Window.URL.href
-    }
-    let handleDeepLinkClick = () => {
-      // setShowShareDialog(_ => true)
-      mixpanelEvent(~eventName="copy_deep_link")
-    }
+    let {permaLinkButton} = PermaLinkHook.usePermaLink()
 
     let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
     <div className={`${customHeadingStyle}`}>
@@ -108,16 +87,7 @@ module PageHeading = {
       }}
       <div className={`flex items-center gap-4 ${customTitleSectionStyles}`}>
         <div className={`${headerTextStyle} ${customTitleStyle}`}> {title->React.string} </div>
-        <RenderIf condition=showPermLink>
-          <HelperComponents.CopyTextCustomComp
-            copyValue={Some(buildPermLink())}
-            displayValue=Some("")
-            customIcon="nd-permalink"
-            customParentClass=""
-            customIconCss=""
-            customOnCopyClick={() => handleDeepLinkClick()}
-          />
-        </RenderIf>
+        <RenderIf condition=showPermLink> {permaLinkButton} </RenderIf>
         <RenderIf condition=isTag>
           <div
             className={`text-sm text-grey-700 font-semibold border  rounded-full px-2 py-1 ${customTagStyle}`}>
@@ -135,7 +105,6 @@ module PageHeading = {
         </RenderIf>
       | None => React.null
       }}
-      // <DialogBox isOpen=showShareDialog onClose={() => setShowShareDialog(_ => false)} />
     </div>
   }
 }
