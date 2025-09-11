@@ -78,10 +78,12 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   }, [url.search])
 
   let initialExpandedArray = React.useMemo(() => {
-    switch (transformationConfigTabIndex, stagingEntryId) {
-    | (_, Some(_)) => [2]
-    | (Some(_), None) => [1]
-    | (None, None) => [0]
+    if Option.isSome(stagingEntryId) {
+      2
+    } else if Option.isSome(transformationConfigTabIndex) {
+      1
+    } else {
+      0
     }
   }, transformationConfigTabIndex)
 
@@ -104,7 +106,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
           customHeadingStyle="py-0"
         />
         <Accordion
-          initialExpandedArray
+          initialExpandedArray={initialExpandedArray->Array.make(~length=1)}
           accordion={ReconEngineAccountsOverviewHelper.getAccordionConfig(
             ~ingestionHistoryData,
             ~transformationStatus,
