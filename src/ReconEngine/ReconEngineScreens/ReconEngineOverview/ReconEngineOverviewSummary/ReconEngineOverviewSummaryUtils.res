@@ -501,4 +501,4 @@ let getStatusIcon = (statusType: amountType) => {
 }
 
 let allAmountTypes = [Reconciled, Pending, Mismatched]
-let allSubHeaderTypes = [In, Out]
+let allSubHeaderTypes = [Debit, Credit]

@@ -235,3 +235,13 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     ),
   ]
 }
+
+let getTransactionStatusLabel = (status: string): string => {
+  switch status->getTransactionTypeFromString {
+  | Mismatched => "bg-nd_red-50 text-nd_red-600"
+  | Posted => "bg-nd_green-50 text-nd_green-600"
+  | Expected => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
+  | Archived => "bg-nd_gray-150 text-nd_gray-600"
+  | _ => "bg-nd_gray-50 text-nd_gray_600"
+  }
+}
