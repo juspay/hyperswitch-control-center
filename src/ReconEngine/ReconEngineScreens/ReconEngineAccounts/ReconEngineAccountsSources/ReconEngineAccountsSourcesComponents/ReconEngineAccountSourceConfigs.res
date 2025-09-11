@@ -6,7 +6,9 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (configData, setConfigData) = React.useState(_ => [])
+  let (configData, setConfigData) = React.useState(_ => [
+    Dict.make()->ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper,
+  ])
 
   let getIngestionConfig = async () => {
     try {
@@ -20,8 +22,13 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
       let res = await fetchDetails(url)
       let configs =
         res->getArrayDataFromJson(ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper)
-      setConfigData(_ => configs)
-      setScreenState(_ => PageLoaderWrapper.Success)
+
+      if configs->Array.length > 0 {
+        setConfigData(_ => configs)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
