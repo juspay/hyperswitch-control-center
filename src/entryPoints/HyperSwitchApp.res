@@ -26,6 +26,7 @@ let make = () => {
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -57,6 +58,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
+      let _ = await fetchMerchantList()
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
