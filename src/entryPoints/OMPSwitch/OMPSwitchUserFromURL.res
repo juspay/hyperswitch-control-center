@@ -7,6 +7,7 @@ let make = (~children) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let clearUserSwitchParams = () => {
     SessionStorage.sessionStorage.removeItem("switch-user-omp")
     SessionStorage.sessionStorage.removeItem("switch-user-query")
@@ -56,6 +57,7 @@ let make = (~children) => {
           ~expectedProfileId=data.profileId,
           ~version=data.version,
         )
+        mixpanelEvent(~eventName="switched_using_deep_link")
         let url = decodeURIComponent(data.path->Option.getOr(""))
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url))
       | None => ()

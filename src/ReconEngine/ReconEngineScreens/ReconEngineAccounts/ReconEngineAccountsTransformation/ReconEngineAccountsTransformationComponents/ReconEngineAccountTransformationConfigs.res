@@ -40,8 +40,10 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     customLoader={<Shimmer styleClass="h-52 w-full rounded-b-lg" />}>
     <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 items-center w-full p-6">
       {configData
-      ->Array.mapWithIndex((config, _index) => {
-        <ReconEngineAccountTransformationConfigDetails key=config.ingestion_id config={config} />
+      ->Array.mapWithIndex((config, index) => {
+        <ReconEngineAccountTransformationConfigDetails
+          key=config.ingestion_id config={config} tabIndex={index->Int.toString}
+        />
       })
       ->React.array}
     </div>

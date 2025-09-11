@@ -1,7 +1,10 @@
 open Typography
 
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) => {
+let make = (
+  ~config: ReconEngineFileManagementTypes.transformationConfigType,
+  ~tabIndex: string,
+) => {
   open APIUtils
   open LogicUtils
   open ReconEngineFileManagementUtils
@@ -16,7 +19,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
     Dict.make()->transformationHistoryItemToObjMapper,
   ])
 
-  let fetchIngestionHistoryData = async () => {
+  let fetchTransformationHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let transformationHistoryUrl = getURL(
@@ -37,7 +40,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
   }
 
   React.useEffect(() => {
-    fetchIngestionHistoryData()->ignore
+    fetchTransformationHistoryData()->ignore
     None
   }, [config.ingestion_id])
 
@@ -53,11 +56,16 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-44" message="No data available." />}
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
-    <div
+    <Link
+      to_={GlobalVars.appendDashboardPath(
+        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationConfigTabIndex=${tabIndex}`,
+      )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
-        className="flex md:flex-row items-center justify-between w-full border-b pb-2 border-nd_gray-150">
-        <p className={`${body.md.semibold} text-nd_gray-800`}> {config.name->React.string} </p>
+        className="flex md:flex-row items-center justify-between gap-4 w-full border-b pb-2 border-nd_gray-150">
+        <p className={`${body.md.semibold} text-nd_gray-800 truncate`}>
+          {config.name->React.string}
+        </p>
         <Table.TableCell
           cell={Label({
             title: label,
@@ -67,13 +75,13 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
           labelMargin="!py-0"
         />
       </div>
-      <div className="mt-4 grid xl:grid-cols-2 grid-cols-1 items-start gap-y-8 gap-x-20">
+      <div className="mt-4 grid xl:grid-cols-2 grid-cols-1 items-start gap-y-8 gap-x-12">
         {transformationConfigItems
         ->Array.map(item => {
           <TransformationConfigItem key={(item.label :> string)} data={item} />
         })
         ->React.array}
       </div>
-    </div>
+    </Link>
   </PageLoaderWrapper>
 }
