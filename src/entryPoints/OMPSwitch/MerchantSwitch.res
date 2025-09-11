@@ -205,7 +205,6 @@ let make = () => {
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
-
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
