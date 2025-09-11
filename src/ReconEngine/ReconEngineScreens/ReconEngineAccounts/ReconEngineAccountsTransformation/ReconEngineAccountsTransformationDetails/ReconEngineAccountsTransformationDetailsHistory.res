@@ -8,7 +8,9 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  let {updateExistingKeys, filterValue, filterKeys} = React.useContext(FilterContext.filterContext)
+  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
+    FilterContext.filterContext,
+  )
   let (transformationHistoryList, setTransformationHistoryList) = React.useState(_ => [])
   let (filteredHistoryData, setFilteredHistoryData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -81,11 +83,16 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
   let fetchTransformationHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      let queryString =
+        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
+          `&transformation_id=${config.id}`,
+        )
+
       let transformationHistoryUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=Some(`transformation_id=${config.id}`),
+        ~queryParamerters=Some(queryString),
       )
       let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
       let transformationHistoryList =
