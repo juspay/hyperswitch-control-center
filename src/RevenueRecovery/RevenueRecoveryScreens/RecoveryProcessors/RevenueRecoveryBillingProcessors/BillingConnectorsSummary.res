@@ -53,7 +53,6 @@ module WebhooksConfiguration = {
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Success)
       }
-      Nullable.null
     }
 
     React.useEffect(() => {
@@ -255,9 +254,10 @@ module BillingConnectorDetails = {
           <div className="px-2">
             <KeyManagementHelper.ApiKeysTable
               dataNotFoundComponent={<div className="p-1">
-                <NewAnalyticsHelper.NoData
-                  height="h-56 -my-1 -mx-2 p-2" message="No API Keys Available"
-                />
+                <div
+                  className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+                  {"No API Keys Available"->React.string}
+                </div>
               </div>}
             />
             <div className="mt-5">
