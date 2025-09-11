@@ -13,6 +13,7 @@ let make = (
   open ReconEngineFileManagementUtils
 
   let getURL = useGetURL()
+  let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -71,34 +72,53 @@ let make = (
     TransformationComments,
   ]
 
+  let getActiveTabIndex = React.useMemo(() => {
+    let urlTransformationHistoryId =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->getvalFromDict("transformationHistoryId")
+
+    switch urlTransformationHistoryId {
+    | Some(historyId) =>
+      transformationHistoryData->Array.findIndex(config =>
+        config.transformation_history_id === historyId
+      )
+    | None => 0
+    }
+  }, (url.search, transformationHistoryData))
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     transformationHistoryData->Array.map(config => {
-      title: config.transformation_name,
-      onTabSelection: {
-        _ => setSelectedTransformationHistoryId(_ => config.transformation_history_id)
-      },
-      renderContent: () => {
-        <div className="flex flex-col gap-4 py-4 px-2">
-          <div className="grid grid-cols-4 gap-4 justify-items-start">
-            {detailsFields
-            ->Array.map(
-              colType => {
-                <DisplayKeyValueParams
-                  key={LogicUtils.randomString(~length=10)}
-                  heading={ReconEngineFileManagementEntity.getTransformationHistoryHeading(colType)}
-                  value={ReconEngineFileManagementEntity.getTransformationHistoryCell(
-                    config,
-                    colType,
-                  )}
-                />
-              },
-            )
-            ->React.array}
+      {
+        title: config.transformation_name,
+        onTabSelection: {
+          _ => setSelectedTransformationHistoryId(_ => config.transformation_history_id)
+        },
+        renderContent: () => {
+          <div className="flex flex-col gap-4 py-4 px-2">
+            <div className="grid grid-cols-4 gap-4 justify-items-start">
+              {detailsFields
+              ->Array.map(
+                colType => {
+                  <DisplayKeyValueParams
+                    key={LogicUtils.randomString(~length=10)}
+                    heading={ReconEngineFileManagementEntity.getTransformationHistoryHeading(
+                      colType,
+                    )}
+                    value={ReconEngineFileManagementEntity.getTransformationHistoryCell(
+                      config,
+                      colType,
+                    )}
+                  />
+                },
+              )
+              ->React.array}
+            </div>
+            <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
           </div>
-          <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
-        </div>
-      },
+        },
+      }
     })
   }, [transformationHistoryData])
 
@@ -108,7 +128,7 @@ let make = (
     customLoader={<Shimmer styleClass="h-80 w-full rounded-b-xl" />}>
     <div className="flex flex-col px-6 py-3">
       <Tabs
-        initialIndex={transformationConfigTabIndex->Option.getOr("0")->getIntFromString(0)}
+        initialIndex={getActiveTabIndex}
         tabs
         showBorder=true
         includeMargin=false

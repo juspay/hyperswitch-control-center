@@ -63,7 +63,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     let transformationConfigTabIndex =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("transformationConfigTabIndex")
+      ->getvalFromDict("transformationHistoryId")
     let stagingEntryId =
       url.search
       ->getDictFromUrlSearchParams

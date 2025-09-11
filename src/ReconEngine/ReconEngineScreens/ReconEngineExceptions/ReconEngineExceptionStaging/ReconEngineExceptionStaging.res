@@ -28,6 +28,17 @@ let make = (
     mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
   }
 
+  let filterDataBySearchText = (data: array<processingEntryType>, searchText: string) => {
+    if searchText->isNonEmptyString {
+      data->Array.filter((obj: processingEntryType) => {
+        isContainingStringLowercase(obj.staging_entry_id, searchText) ||
+        isContainingStringLowercase(obj.status, searchText)
+      })
+    } else {
+      data
+    }
+  }
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -53,31 +64,22 @@ let make = (
           ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
             `&transformation_history_id=${selectedTransformationHistoryId}`,
           )
-
-        let stagingUrl = switch stagingEntryId {
-        | Some(stagingEntryId) =>
-          getURL(
-            ~entityName=V1(HYPERSWITCH_RECON),
-            ~methodType=Get,
-            ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-            ~id=Some(stagingEntryId),
-          )
-        | None =>
-          getURL(
-            ~entityName=V1(HYPERSWITCH_RECON),
-            ~methodType=Get,
-            ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-            ~queryParamerters=Some(queryString),
-          )
-        }
+        let stagingUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+          ~queryParamerters=Some(queryString),
+        )
         let res = await fetchDetails(stagingUrl)
-        let stagingList = switch stagingEntryId {
-        | Some(_) => [res->getDictFromJsonObject->processingItemToObjMapper]
-        | None => res->getArrayDataFromJson(processingItemToObjMapper)
+        let stagingList = res->getArrayDataFromJson(processingItemToObjMapper)
+        let initialSearchText = stagingEntryId->Option.getOr("")
+        let filteredList = filterDataBySearchText(stagingList, initialSearchText)
+        if stagingEntryId->Option.isSome {
+          setSearchText(_ => initialSearchText)
         }
 
         setStagingData(_ => stagingList)
-        setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
+        setFilteredStagingData(_ => filteredList->Array.map(Nullable.make))
         let isNeedsManualReviewPresent =
           stagingList->Array.some(entry => entry.status === "needs_manual_review")
         switch onNeedsManualReviewPresent {
@@ -139,10 +141,8 @@ let make = (
     customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
     customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
     <div className="flex flex-col gap-4 my-4 px-6 pb-16">
-      <RenderIf condition={stagingEntryId->Option.isNone}>
-        <div className="flex-shrink-0"> {topFilterUi} </div>
-        <ReconEngineAccountsTransformedEntriesOverviewCards />
-      </RenderIf>
+      <ReconEngineAccountsTransformedEntriesOverviewCards />
+      <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
         title="Staging Entries"
         hideTitle=true
@@ -159,17 +159,15 @@ let make = (
         loadedTableParentClass="flex flex-col"
         enableEqualWidthCol=false
         showAutoScroll=true
-        filters={<RenderIf condition={stagingEntryId->Option.isNone}>
-          <TableSearchFilter
-            data={stagingData->Array.map(Nullable.make)}
-            filterLogic
-            placeholder="Search Staging Entry ID or Status"
-            customSearchBarWrapperWidth="w-full lg:w-1/3"
-            customInputBoxWidth="w-full rounded-xl"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />
-        </RenderIf>}
+        filters={<TableSearchFilter
+          data={stagingData->Array.map(Nullable.make)}
+          filterLogic
+          placeholder="Search Staging Entry ID or Status"
+          customSearchBarWrapperWidth="w-full lg:w-1/3"
+          customInputBoxWidth="w-full rounded-xl"
+          searchVal=searchText
+          setSearchVal=setSearchText
+        />}
       />
     </div>
   </PageLoaderWrapper>
