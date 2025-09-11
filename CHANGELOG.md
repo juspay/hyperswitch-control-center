@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.11.1
+
+### Features
+
+- Added manual retries and always enable overcapture toggles in payment settings ([#3540](https://github.com/juspay/hyperswitch-control-center/pull/3540)) ([`045236c`](https://github.com/juspay/hyperswitch-control-center/commit/045236ce1d0ead49d7ef3987c44f15b6e7d74185))
+- Overview Screen changes ([#3563](https://github.com/juspay/hyperswitch-control-center/pull/3563)) ([`8dc4d36`](https://github.com/juspay/hyperswitch-control-center/commit/8dc4d36316eda14ff105be451a01dbf00fbe3bce))
+- Recon engine accounts transformation page ([#3562](https://github.com/juspay/hyperswitch-control-center/pull/3562)) ([`8a51c03`](https://github.com/juspay/hyperswitch-control-center/commit/8a51c03df0084d7629b61a2f73a633b3e69e52bc))
+- Exceptions screens recon engine ([#3569](https://github.com/juspay/hyperswitch-control-center/pull/3569)) ([`e8065c6`](https://github.com/juspay/hyperswitch-control-center/commit/e8065c66c41353d7d9810ca9d492a7feb2eaf3d4))
+- Overview Transactions Table entity ([#3570](https://github.com/juspay/hyperswitch-control-center/pull/3570)) ([`ba97d9f`](https://github.com/juspay/hyperswitch-control-center/commit/ba97d9f5340cfd4aea2dbf44f0e10a163a255ca4))
+- Recon engine accounts transformation details page ([#3575](https://github.com/juspay/hyperswitch-control-center/pull/3575)) ([`ffb69bd`](https://github.com/juspay/hyperswitch-control-center/commit/ffb69bdeb53ab1893d897880433fabcf911d213b))
+- Added new connector paysafe ([#3579](https://github.com/juspay/hyperswitch-control-center/pull/3579)) ([`f3db350`](https://github.com/juspay/hyperswitch-control-center/commit/f3db35078fd2892dae67d66fc708983acae9453d))
+- Recovery enable api-key creation and response key hash key field display in the summary page ([#3578](https://github.com/juspay/hyperswitch-control-center/pull/3578)) ([`7031843`](https://github.com/juspay/hyperswitch-control-center/commit/70318431602954ec9dd1b90082a35b841ef7bf24))
+- Recon engine accounts transformed entries page ([#3584](https://github.com/juspay/hyperswitch-control-center/pull/3584)) ([`4434d7c`](https://github.com/juspay/hyperswitch-control-center/commit/4434d7cf559600055eadf597304f23915280cc69))
+- Recon engine entries sidescreen changes ([#3585](https://github.com/juspay/hyperswitch-control-center/pull/3585)) ([`e53d6f5`](https://github.com/juspay/hyperswitch-control-center/commit/e53d6f5690ad5bda31fc1e6ae7388bfd9c9e1980))
+
+### Bug Fixes
+
+- Conditional heading for hash key ([#3494](https://github.com/juspay/hyperswitch-control-center/pull/3494)) ([`3c9eb0b`](https://github.com/juspay/hyperswitch-control-center/commit/3c9eb0b9604626333bda8ee9def5a304781acf08))
+
+### Refactors
+
+- Permalink usage ([#3566](https://github.com/juspay/hyperswitch-control-center/pull/3566)) ([`58daff1`](https://github.com/juspay/hyperswitch-control-center/commit/58daff1756b889b8ed8ae6c49d0db5489a1d59c2))
+
+### Miscellaneous Tasks
+
+- Updated wasm for paysafe connector ([#3580](https://github.com/juspay/hyperswitch-control-center/pull/3580)) ([`d9b34c9`](https://github.com/juspay/hyperswitch-control-center/commit/d9b34c90660d14cc753a9d95edb72a8406ac87c6))
+- Added info icon to webhook url ([#3576](https://github.com/juspay/hyperswitch-control-center/pull/3576)) ([`2537fad`](https://github.com/juspay/hyperswitch-control-center/commit/2537fadf577ee1684601da31a18340f4cf88f52b))
+
+**Full Changelog:** [`2025.09.11.0...2025.09.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.11.0...2025.09.11.1)
+
+- - -
+
 ## 2025.09.11.0
 
 ### Features
