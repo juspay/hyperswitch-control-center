@@ -253,21 +253,13 @@ module BillingConnectorDetails = {
         {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
         | BillingProcessor(CUSTOMBILLING) =>
           <div className="px-2">
-            <div className="flex justify-between pb-4 items-end">
-              <p className={heading.sm.semibold}> {"API Keys"->React.string} </p>
-              <Button
-                text="Add API Key"
-                onClick={_ => ()}
-                buttonType={Secondary}
-                buttonSize={Small}
-                buttonState={Disabled}
-              />
-            </div>
-            <div className="p-1">
-              <NewAnalyticsHelper.NoData
-                height="h-56 -my-1 -mx-2 p-2" message="No API Keys Available"
-              />
-            </div>
+            <KeyManagementHelper.ApiKeysTable
+              dataNotFoundComponent={<div className="p-1">
+                <NewAnalyticsHelper.NoData
+                  height="h-56 -my-1 -mx-2 p-2" message="No API Keys Available"
+                />
+              </div>}
+            />
             <div className="mt-5">
               <WebhooksConfiguration />
             </div>
