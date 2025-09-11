@@ -30,8 +30,8 @@ type accountTransactionData = {
 
 @unboxed
 type subHeaderType =
-  | In
-  | Out
+  | Debit
+  | Credit
 
 type reconData = {
   inAmount: string,

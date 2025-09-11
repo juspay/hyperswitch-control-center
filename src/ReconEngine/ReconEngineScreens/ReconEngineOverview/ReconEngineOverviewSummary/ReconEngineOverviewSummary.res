@@ -14,9 +14,6 @@ let make = (~reconRulesList) => {
         <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
           {"Accounts View"->React.string}
         </p>
-        <p className={`text-nd_gray-500 ${body.md.medium}`}>
-          {"Quickly assess reconciliation health across your accounts, highlighting matched, pending and mismatched transactions"->React.string}
-        </p>
       </div>
       <TabSwitch viewType setViewType />
     </div>

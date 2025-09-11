@@ -163,7 +163,7 @@ module EntryAuditTrailInfo = {
       reconciledEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
-    <div className="flex flex-col gap-4 mb-6 px-2 h-full mt-6">
+    <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
       <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
@@ -208,7 +208,7 @@ module EntryAuditTrailInfo = {
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
             {"Reconciled with"->React.string}
           </p>
-          <div className="overflow-hidden ">
+          <div className="overflow-visible">
             <CustomExpandableTable
               title="Reconciled Entries"
               tableClass="border rounded-xl overflow-y-auto"
@@ -365,7 +365,7 @@ module AuditTrail = {
             </div>
           </div>}>
           <div className="h-full relative">
-            <div className="px-2 h-modalContentHeight pb-5">
+            <div className="absolute inset-0 overflow-y-auto px-2 pb-20">
               <RenderIf condition={entriesList->Array.length > 0}>
                 <EntryAuditTrailInfo entriesList />
               </RenderIf>
@@ -376,7 +376,7 @@ module AuditTrail = {
               </RenderIf>
             </div>
             <div
-              className="absolute bottom-0 left-0 right-0 h-20 bg-white dark:bg-jp-gray-lightgray_background p-4 flex items-center">
+              className="absolute bottom-0 left-0 right-0 bg-white dark:bg-jp-gray-lightgray_background p-4 border-t border-nd_gray-150">
               <Button
                 customButtonStyle="!w-full"
                 buttonType=Button.Primary
