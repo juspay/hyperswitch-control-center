@@ -81,7 +81,9 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer fieldValue=entry.entry_id />
+          <HierarchicalEntryRenderer
+            fieldValue=entry.entry_id key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -91,7 +93,9 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer fieldValue=entry.account.account_name />
+          <HierarchicalEntryRenderer
+            fieldValue=entry.account.account_name key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -101,7 +105,10 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer fieldValue={entry.status->LogicUtils.capitalizeString} />
+          <HierarchicalEntryRenderer
+            fieldValue={entry.status->LogicUtils.capitalizeString}
+            key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -111,7 +118,9 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer fieldValue=entry.amount.currency />
+          <HierarchicalEntryRenderer
+            fieldValue=entry.amount.currency key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -125,7 +134,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
           | Debit => entry.amount.value->Float.toString
           | _ => "-"
           }
-          <HierarchicalEntryRenderer fieldValue=amount />
+          <HierarchicalEntryRenderer fieldValue=amount key={LogicUtils.randomString(~length=10)} />
         })
         ->React.array}
       </div>
@@ -139,7 +148,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
           | Credit => entry.amount.value->Float.toString
           | _ => "-"
           }
-          <HierarchicalEntryRenderer fieldValue=amount />
+          <HierarchicalEntryRenderer fieldValue=amount key={LogicUtils.randomString(~length=10)} />
         })
         ->React.array}
       </div>
