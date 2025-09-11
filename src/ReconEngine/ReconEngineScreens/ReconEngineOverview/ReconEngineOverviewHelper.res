@@ -31,33 +31,33 @@ module AccountDetailCard = {
       `${count->Int.toString} Txns`
     }
 
-    let (
-      reconciledAmount,
-      reconciledCount,
-      mismatchAmount,
-      mismatchCount,
-      pendingAmount,
-      pendingCount,
-      pendingLabel,
-    ) = if isSource {
+    let (reconciledAmount, mismatchAmount, pendingAmount, pendingLabel) = if isSource {
       (
         formatAmount(transactionData.posted_transaction_amount),
-        formatCount(transactionData.posted_transaction_count),
         formatAmount(transactionData.mismatched_transaction_amount),
-        formatCount(transactionData.mismatched_transaction_count),
         formatAmount(transactionData.pending_transaction_amount),
-        formatCount(transactionData.pending_transaction_count),
         "Pending",
       )
     } else {
       (
         formatAmount(transactionData.posted_confirmation_amount),
-        formatCount(transactionData.posted_confirmation_count),
         formatAmount(transactionData.mismatched_confirmation_amount),
-        formatCount(transactionData.mismatched_confirmation_count),
         formatAmount(transactionData.pending_confirmation_amount),
-        formatCount(transactionData.pending_confirmation_count),
         "Expected",
+      )
+    }
+
+    let (reconciledCount, mismatchCount, pendingCount) = if isSource {
+      (
+        formatCount(transactionData.posted_transaction_count),
+        formatCount(transactionData.mismatched_transaction_count),
+        formatCount(transactionData.pending_transaction_count),
+      )
+    } else {
+      (
+        formatCount(transactionData.posted_confirmation_count),
+        formatCount(transactionData.mismatched_confirmation_count),
+        formatCount(transactionData.pending_confirmation_count),
       )
     }
 
