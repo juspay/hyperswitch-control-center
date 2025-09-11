@@ -90,35 +90,31 @@ let make = (
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     transformationHistoryData->Array.map(config => {
-      {
-        title: config.transformation_name,
-        onTabSelection: {
-          _ => setSelectedTransformationHistoryId(_ => config.transformation_history_id)
-        },
-        renderContent: () => {
-          <div className="flex flex-col gap-4 py-4 px-2">
-            <div className="grid grid-cols-4 gap-4 justify-items-start">
-              {detailsFields
-              ->Array.map(
-                colType => {
-                  <DisplayKeyValueParams
-                    key={LogicUtils.randomString(~length=10)}
-                    heading={ReconEngineFileManagementEntity.getTransformationHistoryHeading(
-                      colType,
-                    )}
-                    value={ReconEngineFileManagementEntity.getTransformationHistoryCell(
-                      config,
-                      colType,
-                    )}
-                  />
-                },
-              )
-              ->React.array}
-            </div>
-            <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
+      title: config.transformation_name,
+      onTabSelection: {
+        _ => setSelectedTransformationHistoryId(_ => config.transformation_history_id)
+      },
+      renderContent: () => {
+        <div className="flex flex-col gap-4 py-4 px-2">
+          <div className="grid grid-cols-4 gap-4 justify-items-start">
+            {detailsFields
+            ->Array.map(
+              colType => {
+                <DisplayKeyValueParams
+                  key={LogicUtils.randomString(~length=10)}
+                  heading={ReconEngineFileManagementEntity.getTransformationHistoryHeading(colType)}
+                  value={ReconEngineFileManagementEntity.getTransformationHistoryCell(
+                    config,
+                    colType,
+                  )}
+                />
+              },
+            )
+            ->React.array}
           </div>
-        },
-      }
+          <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
+        </div>
+      },
     })
   }, [transformationHistoryData])
 
