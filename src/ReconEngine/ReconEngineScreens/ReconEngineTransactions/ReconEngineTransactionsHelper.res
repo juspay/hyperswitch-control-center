@@ -136,14 +136,14 @@ module EntryAuditTrailInfo = {
     }
 
     let getRowDetails = (rowIndex: int) => {
-      if rowIndex < reconciledEntries->Array.length {
-        let entry =
-          reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->getAllEntryPayload)
-        let (hasEntryMetadata, filteredEntryMetadata) = React.useMemo(() => {
-          let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-          (filteredEntryMetadata->Dict.keysToArray->Array.length > 0, filteredEntryMetadata)
-        }, [entry.metadata])
+      let entry =
+        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->getAllEntryPayload)
+      let (hasEntryMetadata, filteredEntryMetadata) = React.useMemo(() => {
+        let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
+        (filteredEntryMetadata->Dict.keysToArray->Array.length > 0, filteredEntryMetadata)
+      }, [entry.metadata])
 
+      <RenderIf condition={rowIndex < reconciledEntries->Array.length}>
         <RenderIf condition={hasEntryMetadata}>
           <div className="p-4">
             <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
@@ -153,9 +153,7 @@ module EntryAuditTrailInfo = {
             </div>
           </div>
         </RenderIf>
-      } else {
-        React.null
-      }
+      </RenderIf>
     }
 
     let heading = detailsFields->Array.map(getHeading)
