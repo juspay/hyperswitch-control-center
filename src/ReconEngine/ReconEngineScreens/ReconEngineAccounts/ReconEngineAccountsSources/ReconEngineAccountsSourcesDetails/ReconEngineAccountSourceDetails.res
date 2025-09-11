@@ -17,7 +17,7 @@ let make = (~accountId) => {
   let (accountData, setAccountData) = React.useState(_ =>
     Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
   )
-  let (tabIndex, setTabIndex) = React.useState(_ => "0")
+  let (tabIndex, setTabIndex) = React.useState(_ => None)
 
   let getIngestionDetails = async () => {
     try {
@@ -67,8 +67,10 @@ let make = (~accountId) => {
   }, [])
 
   let getActiveTabIndex = () => {
-    let params = url.search->getDictFromUrlSearchParams
-    let tabIndexParam = params->Dict.get("tabIndex")->Option.getOr("0")
+    let tabIndexParam =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->getvalFromDict("ingestionConfigTabIndex")
     setTabIndex(_ => tabIndexParam)
   }
 
@@ -123,7 +125,7 @@ let make = (~accountId) => {
             tabs
             showBorder=true
             includeMargin=false
-            initialIndex={tabIndex->Int.fromString->Option.getOr(0)}
+            initialIndex={tabIndex->Option.getOr("0")->getIntFromString(0)}
             defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
             selectTabBottomBorderColor="bg-primary"
           />

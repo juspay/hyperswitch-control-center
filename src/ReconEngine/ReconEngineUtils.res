@@ -3,7 +3,7 @@ open ReconEngineTransactionsTypes
 
 let getAccountOptionsFromTransactions = (
   transactions: array<transactionPayload>,
-  entryType: string,
+  entryType: entryType,
 ): array<FilterSelectBox.dropdownOption> => {
   let allAccounts =
     transactions
@@ -29,9 +29,10 @@ let getAccountOptionsFromTransactions = (
   })
 }
 
-let getEntryTypeAccountOptions = (transactions: array<transactionPayload>, ~entryType): array<
-  FilterSelectBox.dropdownOption,
-> => {
+let getEntryTypeAccountOptions = (
+  transactions: array<transactionPayload>,
+  ~entryType: entryType,
+): array<FilterSelectBox.dropdownOption> => {
   getAccountOptionsFromTransactions(transactions, entryType)
 }
 
@@ -79,4 +80,12 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
       value,
     }
   })
+}
+
+let getStagingEntryStatusOptions = (): array<FilterSelectBox.dropdownOption> => {
+  [
+    {label: "Pending", value: "pending"},
+    {label: "Processed", value: "processed"},
+    {label: "Needs Manual Review", value: "needs_manual_review"},
+  ]
 }

@@ -68,7 +68,9 @@ let make = () => {
       </div>
       <div className="w-full mt-5 ml-10 max-h-[80vh] overflow-auto">
         <PageUtils.PageHeading
-          title="Preview" customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
+          title="Preview"
+          showPermLink=false
+          customTitleStyle="!font-medium !text-xl !text-nd_gray-600"
         />
         <SDKPayment key={keyForReRenderingSDK} />
       </div>

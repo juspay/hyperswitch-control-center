@@ -3,6 +3,49 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.11.0
+
+### Features
+
+- Recon engine transactions ([#3547](https://github.com/juspay/hyperswitch-control-center/pull/3547)) ([`b82a156`](https://github.com/juspay/hyperswitch-control-center/commit/b82a156dae890396b9633b267cf51e739d45cd29))
+- Recon engine accounts overview screen ([#3546](https://github.com/juspay/hyperswitch-control-center/pull/3546)) ([`b109003`](https://github.com/juspay/hyperswitch-control-center/commit/b10900360ec06f675f1d830867ecf758bc73b0d2))
+
+### Bug Fixes
+
+- Fixed custom date range dropdown in routing analytics ([#3537](https://github.com/juspay/hyperswitch-control-center/pull/3537)) ([`934e1ed`](https://github.com/juspay/hyperswitch-control-center/commit/934e1ed018af467dbb838a50b04f90ff208c6319))
+
+**Full Changelog:** [`2025.09.10.1...2025.09.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.10.1...2025.09.11.0)
+
+- - -
+
+## 2025.09.10.1
+
+### Features
+
+- Recovery webhooks url input ([#3541](https://github.com/juspay/hyperswitch-control-center/pull/3541)) ([`b7e8f05`](https://github.com/juspay/hyperswitch-control-center/commit/b7e8f052e30e2621cbab39f627c7cb8d231a4da7))
+
+**Full Changelog:** [`2025.09.10.0...2025.09.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.10.0...2025.09.10.1)
+
+- - -
+
+## 2025.09.10.0
+
+**Full Changelog:** [`2025.09.09.2...2025.09.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.09.2...2025.09.10.0)
+
+- - -
+
+## 2025.09.09.2
+
+### Bug Fixes
+
+- Theme config ([`5075b4a`](https://github.com/juspay/hyperswitch-control-center/commit/5075b4a8c2a028c48ce5bb5523688587263d33b0))
+- Theme config ([`6b3b9a0`](https://github.com/juspay/hyperswitch-control-center/commit/6b3b9a01d7bcb9c8cf23962e5f705f07fd811b7e))
+- Permalink config ([`f452703`](https://github.com/juspay/hyperswitch-control-center/commit/f4527035e475c6604d42185b8afe380977e000c9))
+
+**Full Changelog:** [`2025.09.09.1...2025.09.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.09.1...2025.09.09.2)
+
+- - -
+
 ## 2025.09.09.1
 
 ### Features

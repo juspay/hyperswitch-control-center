@@ -1,5 +1,5 @@
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
+let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~isUploading) => {
   open LogicUtils
   open ReconEngineFileManagementUtils
 
@@ -107,7 +107,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
       fetchIngestionHistoryData()->ignore
     }
     None
-  }, (config, filterValue))
+  }, (config, filterValue, isUploading))
 
   <div className="flex flex-col gap-4 my-4">
     <div className="flex-shrink-0"> {topFilterUi} </div>
@@ -116,8 +116,8 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
         title="Ingestion History"
         hideTitle=true
         actualData={filteredHistoryData}
-        entity={ReconEngineFileManagementEntity.ingestionHistoryTableEntity(
-          `v1/recon-engine/file-management`,
+        entity={ReconEngineAccountSourcesHistoryTableEntity.ingestionHistoryTableEntity(
+          `v1/recon-engine/sources/ingestion-history`,
           ~authorization=Access,
         )}
         resultsPerPage=10
