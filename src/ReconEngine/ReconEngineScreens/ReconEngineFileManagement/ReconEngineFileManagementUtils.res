@@ -127,5 +127,6 @@ let transformationConfigItemToObjMapper = (dict): transformationConfigType => {
     is_active: dict->getBool("is_active", false),
     created_at: dict->getString("created_at", ""),
     last_transformed_at: dict->getString("last_transformed_at", ""),
+    last_modified_at: dict->getString("last_modified_at", ""),
   }
 }

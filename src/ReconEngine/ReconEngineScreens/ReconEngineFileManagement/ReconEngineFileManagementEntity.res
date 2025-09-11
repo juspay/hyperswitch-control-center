@@ -9,6 +9,12 @@ type ingestionConfigColType =
   | IngestionId
   | LastSyncAt
 
+type transformationConfigColType =
+  | TransformationId
+  | IngestionId
+  | Status
+  | LastModifiedAt
+
 type ingestionHistoryColType =
   | FileName
   | IngestionName
@@ -27,6 +33,11 @@ type transformationHistoryColType =
   | TransformedAt
   | TransformationStats
   | TransformationComments
+  | TotalRecords
+  | ProcessedCount
+  | IgnoredCount
+  | ErrorCount
+  | Actions
 
 let ingestionHistoryDefaultColumns = [FileName, IngestionName, Status, IngestionType, ReceivedAt]
 let transformationHistoryDefaultColumns = [TransformationName, Status, CreatedAt, TransformedAt]
@@ -54,6 +65,15 @@ let getIngestionConfigHeading = colType => {
   }
 }
 
+let getTransformationConfigHeading = (colType: transformationConfigColType) => {
+  switch colType {
+  | TransformationId => Table.makeHeaderInfo(~key="transformation_id", ~title="Transformation ID")
+  | IngestionId => Table.makeHeaderInfo(~key="ingestion_id", ~title="Ingestion ID")
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
+  | LastModifiedAt => Table.makeHeaderInfo(~key="last_modified", ~title="Last Modified")
+  }
+}
+
 let getTransformationHistoryHeading = colType => {
   switch colType {
   | TransformationId => Table.makeHeaderInfo(~key="transformation_id", ~title="Transformation ID")
@@ -68,6 +88,11 @@ let getTransformationHistoryHeading = colType => {
     Table.makeHeaderInfo(~key="transformation_stats", ~title="Processed / Ignored / Error")
   | TransformationComments =>
     Table.makeHeaderInfo(~key="transformation_comments", ~title="Comments")
+  | TotalRecords => Table.makeHeaderInfo(~key="total_records", ~title="Total Records")
+  | ProcessedCount => Table.makeHeaderInfo(~key="processed_count", ~title="Processed Count")
+  | IgnoredCount => Table.makeHeaderInfo(~key="ignored_count", ~title="Ignored Count")
+  | ErrorCount => Table.makeHeaderInfo(~key="error_count", ~title="Error Count")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 
@@ -107,12 +132,32 @@ let getIngestionConfigCell = (data: ingestionConfigType, colType): Table.cell =>
   }
 }
 
+let getTransformationConfigCell = (
+  data: transformationConfigType,
+  colType: transformationConfigColType,
+): Table.cell => {
+  switch colType {
+  | TransformationId => Text(data.id)
+  | IngestionId => Text(data.ingestion_id)
+  | Status =>
+    Label({
+      title: data.is_active ? "Active" : "Inactive",
+      color: if data.is_active {
+        LabelGreen
+      } else {
+        LabelRed
+      },
+    })
+  | LastModifiedAt => Date(data.last_modified_at)
+  }
+}
+
 let getTransformationHistoryCell = (
   transformationHistoryData: transformationHistoryType,
   colType,
 ): Table.cell => {
   switch colType {
-  | TransformationId => Text(transformationHistoryData.transformation_id)
+  | TransformationId => EllipsisText(transformationHistoryData.transformation_id, "")
   | TransformationHistoryId => Text(transformationHistoryData.transformation_history_id)
   | TransformationName => Text(transformationHistoryData.transformation_name)
   | Status => getStatusLabel(transformationHistoryData.status)
@@ -122,6 +167,11 @@ let getTransformationHistoryCell = (
     CustomCell(<TransformationStats stats={transformationHistoryData.data} />, "")
   | TransformationComments =>
     EllipsisText(transformationHistoryData.data.errors->Array.joinWith(", "), "max-w-xl")
+  | TotalRecords => Text(transformationHistoryData.data.total_count->Int.toString)
+  | ProcessedCount => Text(transformationHistoryData.data.transformed_count->Int.toString)
+  | IgnoredCount => Text(transformationHistoryData.data.ignored_count->Int.toString)
+  | ErrorCount => Text(transformationHistoryData.data.errors->Array.length->Int.toString)
+  | Actions => CustomCell(<TransformationHistoryActionsComponent />, "")
   }
 }
 

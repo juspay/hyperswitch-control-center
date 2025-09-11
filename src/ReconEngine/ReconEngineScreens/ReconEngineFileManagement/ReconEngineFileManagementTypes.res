@@ -56,6 +56,7 @@ type transformationConfigType = {
   config: JSON.t,
   is_active: bool,
   created_at: string,
+  last_modified_at: string,
   last_transformed_at: string,
 }
 

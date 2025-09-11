@@ -5,6 +5,7 @@ let make = (
   ~ingestionHistoryId: string,
   ~setSelectedTransformationHistoryId: (string => string) => unit,
   ~onTransformationStatusChange: option<bool => unit>=?,
+  ~transformationConfigTabIndex: option<string>,
 ) => {
   open ReconEngineIngestionHelper
   open APIUtils
@@ -40,9 +41,13 @@ let make = (
 
         switch transformationHistoryList->getNonEmptyArray {
         | Some(arr) => {
-            let firstItem =
-              arr->getValueFromArray(0, Dict.make()->transformationHistoryItemToObjMapper)
-            setSelectedTransformationHistoryId(_ => firstItem.transformation_history_id)
+            let selectedIndex = transformationConfigTabIndex->Option.getOr("0")->getIntFromString(0)
+            let selectedItem =
+              arr->getValueFromArray(
+                selectedIndex,
+                Dict.make()->transformationHistoryItemToObjMapper,
+              )
+            setSelectedTransformationHistoryId(_ => selectedItem.transformation_history_id)
           }
         | None => ()
         }
@@ -56,7 +61,7 @@ let make = (
   React.useEffect(() => {
     fetchTransformationHistory()->ignore
     None
-  }, [ingestionHistoryId])
+  }, (ingestionHistoryId, transformationConfigTabIndex))
 
   let detailsFields: array<ReconEngineFileManagementEntity.transformationHistoryColType> = [
     TransformationName,
@@ -96,12 +101,14 @@ let make = (
       },
     })
   }, [transformationHistoryData])
+
   <PageLoaderWrapper
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-80" message="No data available." />}
     customLoader={<Shimmer styleClass="h-80 w-full rounded-b-xl" />}>
     <div className="flex flex-col px-6 py-3">
       <Tabs
+        initialIndex={transformationConfigTabIndex->Option.getOr("0")->getIntFromString(0)}
         tabs
         showBorder=true
         includeMargin=false

@@ -11,21 +11,21 @@ let make = (~accountId) => {
   let url = RescriptReactRouter.useUrl()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (ingestionConfigs, setIngestionConfigs) = React.useState(_ => [
-    Dict.make()->ingestionConfigItemToObjMapper,
+  let (transformationConfigs, setTransformationConfigs) = React.useState(_ => [
+    Dict.make()->transformationConfigItemToObjMapper,
   ])
   let (accountData, setAccountData) = React.useState(_ =>
     Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
   )
   let (tabIndex, setTabIndex) = React.useState(_ => None)
 
-  let getIngestionDetails = async () => {
+  let getTransformationDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let ingestionConfigUrl = getURL(
+      let transformationConfigUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
-        ~hyperswitchReconType=#INGESTION_CONFIG,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
         ~queryParamerters=Some(`account_id=${accountId}`),
       )
       let accountUrl = getURL(
@@ -34,14 +34,14 @@ let make = (~accountId) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
         ~id=Some(accountId),
       )
-      let ingestionConfigsRes = await fetchDetails(ingestionConfigUrl)
+      let transformationConfigsRes = await fetchDetails(transformationConfigUrl)
       let accountRes = await fetchDetails(accountUrl)
-      let ingestionConfigs =
-        ingestionConfigsRes->getArrayDataFromJson(ingestionConfigItemToObjMapper)
+      let transformationConfigs =
+        transformationConfigsRes->getArrayDataFromJson(transformationConfigItemToObjMapper)
       let accountData =
         accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
       setAccountData(_ => accountData)
-      setIngestionConfigs(_ => ingestionConfigs)
+      setTransformationConfigs(_ => transformationConfigs)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -50,29 +50,30 @@ let make = (~accountId) => {
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    ingestionConfigs->Array.map(config => {
+    transformationConfigs->Array.map(config => {
       title: config.name,
       onTabSelection: {_ => ()},
       renderContent: () =>
         <FilterContext
-          key="recon-engine-accounts-sources-details" index="recon-engine-accounts-sources-details">
-          <ReconEngineAccountSourceTabDetails config />
+          key="recon-engine-accounts-transformation-details"
+          index="recon-engine-accounts-transformation-details">
+          <ReconEngineAccountsTransformationTabDetails config />
         </FilterContext>,
     })
-  }, [ingestionConfigs])
-
-  React.useEffect(() => {
-    getIngestionDetails()->ignore
-    None
-  }, [])
+  }, [transformationConfigs])
 
   let getActiveTabIndex = () => {
     let tabIndexParam =
       url.search
       ->getDictFromUrlSearchParams
-      ->getvalFromDict("ingestionConfigTabIndex")
+      ->getvalFromDict("transformationConfigTabIndex")
     setTabIndex(_ => tabIndexParam)
   }
+
+  React.useEffect(() => {
+    getTransformationDetails()->ignore
+    None
+  }, [])
 
   React.useEffect(() => {
     getActiveTabIndex()
@@ -82,7 +83,7 @@ let make = (~accountId) => {
   <div className="flex flex-col gap-6 w-full">
     <div className="flex flex-row items-center justify-between">
       <BreadCrumbNavigation
-        path=[{title: "Sources", link: `/v1/recon-engine/sources`}]
+        path=[{title: "Transformation", link: `/v1/recon-engine/transformation`}]
         currentPageTitle=accountData.account_name
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"
@@ -91,18 +92,32 @@ let make = (~accountId) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <ToolTip
-        toolTipPosition=Bottom
-        description="This feature is available in prod"
-        toolTipFor={<Button
-          text="Add New Source"
-          customButtonStyle="!cursor-not-allowed"
-          buttonState=Normal
-          buttonType=Primary
-          onClick={_ => ()}
-          buttonSize=Large
-        />}
-      />
+      <div className="flex flex-row items-center gap-4">
+        <ToolTip
+          toolTipPosition=Bottom
+          description="This feature is available in prod"
+          toolTipFor={<Button
+            text="View Mapping"
+            customButtonStyle="!cursor-not-allowed"
+            buttonState=Normal
+            buttonType=Secondary
+            onClick={_ => ()}
+            buttonSize=Large
+          />}
+        />
+        <ToolTip
+          toolTipPosition=Bottom
+          description="This feature is available in prod"
+          toolTipFor={<Button
+            text="Add New Transformation"
+            customButtonStyle="!cursor-not-allowed"
+            buttonState=Normal
+            buttonType=Primary
+            onClick={_ => ()}
+            buttonSize=Large
+          />}
+        />
+      </div>
     </div>
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading
@@ -111,7 +126,7 @@ let make = (~accountId) => {
         customHeadingStyle="py-0"
       />
       <PageLoaderWrapper screenState>
-        <RenderIf condition={ingestionConfigs->Array.length == 0}>
+        <RenderIf condition={transformationConfigs->Array.length == 0}>
           <div className="my-4">
             <NoDataFound
               message="No ingestion configs found. Please create a config to view the details."
@@ -120,7 +135,7 @@ let make = (~accountId) => {
             />
           </div>
         </RenderIf>
-        <RenderIf condition={ingestionConfigs->Array.length > 0}>
+        <RenderIf condition={transformationConfigs->Array.length > 0}>
           <Tabs
             tabs
             showBorder=true
