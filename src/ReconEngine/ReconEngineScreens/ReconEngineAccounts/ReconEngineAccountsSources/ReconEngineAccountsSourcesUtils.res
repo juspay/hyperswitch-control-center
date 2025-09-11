@@ -11,14 +11,6 @@ let sourceConfigLabelToString = (label: sourceConfigLabel): string => {
   }
 }
 
-let getStatusVariantFromString = (status: string): status => {
-  switch status {
-  | "Active" => Active
-  | "Inactive" => Inactive
-  | _ => UnknownStatus
-  }
-}
-
 let getProcessedCount = (
   ~ingestionHistoryList: array<ReconEngineFileManagementTypes.ingestionHistoryType>,
 ): int => {
