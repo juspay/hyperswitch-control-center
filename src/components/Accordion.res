@@ -86,6 +86,7 @@ module AccordionInfo = {
     ~contentExpandCss="",
     ~titleStyle="",
     ~accordionHeaderTextClass="",
+    ~expandedTitleStyle="",
   ) => {
     let (isExpanded, setIsExpanded) = React.useState(() => expanded)
 
@@ -98,7 +99,14 @@ module AccordionInfo = {
       }
       setIsExpanded(prevExpanded => !prevExpanded)
     }
+    let titleStyleFull = React.useMemo(() => {
+      isExpanded ? `${titleStyle} ${expandedTitleStyle}` : titleStyle
+    }, [isExpanded])
 
+    React.useEffect(() => {
+      Js.log2("titleStyle", titleStyleFull)
+      None
+    }, [titleStyleFull])
     let contentClasses = if isExpanded {
       `flex-wrap bg-white dark:bg-jp-gray-lightgray_background text-lg ${contentExpandCss}`
     } else {
@@ -115,7 +123,7 @@ module AccordionInfo = {
       className={`overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 ${accordianTopContainerCss}  `}>
       <div
         onClick={handleClick}
-        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyle} ${accordianBottomContainerCss}`}>
+        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyleFull} ${accordianBottomContainerCss}`}>
         {if arrowPosition == Left {
           <Icon name="nd-angle-down" size=12 className={iconRotateAngle} />
         } else {
@@ -154,6 +162,7 @@ let make = (
   ~gapClass="",
   ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
   ~accordionHeaderTextClass="",
+  ~expandedTitleStyle="",
 ) => {
   <div className={`w-full ${gapClass}`}>
     {accordion
@@ -169,6 +178,7 @@ let make = (
         expanded={initialExpandedArray->Array.includes(i)}
         titleStyle
         accordionHeaderTextClass
+        expandedTitleStyle
       />
     })
     ->React.array}
