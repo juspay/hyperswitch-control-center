@@ -99,14 +99,8 @@ module AccordionInfo = {
       }
       setIsExpanded(prevExpanded => !prevExpanded)
     }
-    let titleStyleFull = React.useMemo(() => {
-      isExpanded ? `${titleStyle} ${expandedTitleStyle}` : titleStyle
-    }, [isExpanded])
+    let titleStyleFull = isExpanded ? `${titleStyle} ${expandedTitleStyle}` : titleStyle
 
-    React.useEffect(() => {
-      Js.log2("titleStyle", titleStyleFull)
-      None
-    }, [titleStyleFull])
     let contentClasses = if isExpanded {
       `flex-wrap bg-white dark:bg-jp-gray-lightgray_background text-lg ${contentExpandCss}`
     } else {
