@@ -75,19 +75,15 @@ module TransactionDetailInfo = {
     open TransactionsTableEntity
     open ReconEngineTransactionsUtils
     open ReconEngineTransactionsTypes
-
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
     let widthClass = if isMiniLaptopView {
       "md:w-1/3 w-1/2"
     } else {
       "w-1/4"
     }
-
     let isArchived =
       currentTransactionDetails.transaction_status->getTransactionTypeFromString == Archived
-
     let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
-
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
@@ -110,34 +106,26 @@ module TransactionDetailInfo = {
 module EntryAuditTrailInfo = {
   open ReconEngineTransactionsTypes
   @react.component
-  let make = (~entryDetails, ~allEntries: array<entryPayload>=[]) => {
+  let make = (~entriesList: array<entryPayload>=[]) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
+    let mainEntry = React.useMemo(() => {
+      entriesList->Array.get(0)->Option.getOr(Dict.make()->getAllEntryPayload)
+    }, [entriesList])
 
-    let isArchived = entryDetails.status->getEntryTypeFromString == Archived
+    let reconciledEntries = React.useMemo(() => {
+      entriesList->Array.slice(~start=1, ~end=entriesList->Array.length)
+    }, [entriesList])
 
-    let detailsFields = [
-      EntryId,
-      EntryType,
-      AccountName,
-      Amount,
-      Currency,
-      TransactionId,
-      Status,
-      CreatedAt,
-      EffectiveAt,
-    ]
+    let isArchived = mainEntry.status->getEntryTypeFromString == Archived
 
     let (hasMetadata, filteredMetadata) = React.useMemo(() => {
-      let filteredMetadata = entryDetails.metadata->getFilteredMetadataFromEntries
+      let filteredMetadata = mainEntry.metadata->getFilteredMetadataFromEntries
       (filteredMetadata->Dict.keysToArray->Array.length > 0, filteredMetadata)
-    }, [entryDetails.metadata])
+    }, [mainEntry.metadata])
 
     let (isMetadataExpanded, setIsMetadataExpanded) = React.useState(_ => false)
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
-    let reconciledEntries = React.useMemo(() => {
-      allEntries->Array.filter(entry => entry.entry_id != entryDetails.entry_id)
-    }, (allEntries, entryDetails.entry_id))
 
     let onExpandIconClick = (isExpanded, rowIndex) => {
       if isExpanded {
@@ -170,12 +158,12 @@ module EntryAuditTrailInfo = {
       }
     }
 
-    let heading = reconciledColumns->Array.map(getHeading)
+    let heading = detailsFields->Array.map(getHeading)
     let rows =
       reconciledEntries->Array.map(entry =>
-        reconciledColumns->Array.map(colType => getCell(entry, colType))
+        detailsFields->Array.map(colType => getCell(entry, colType))
       )
-    <div className="flex flex-col gap-4 mb-6 px-2 h-full">
+    <div className="flex flex-col gap-4 mb-6 px-2 h-full mt-6">
       <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
@@ -185,12 +173,7 @@ module EntryAuditTrailInfo = {
         </RenderIf>
         <div className="flex flex-col">
           <TransactionDetails
-            data=entryDetails
-            getHeading
-            getCell
-            widthClass="w-1/2"
-            detailsFields
-            isButtonEnabled=true
+            data=mainEntry getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
           />
           <RenderIf condition={hasMetadata}>
             <div className="flex flex-col">
@@ -344,8 +327,12 @@ module AuditTrail = {
       <div className="flex justify-between border-b">
         <div className="flex gap-4 items-center m-6">
           <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
-            {"More Details"->React.string}
+            {openedTransaction.transaction_id->React.string}
           </p>
+          <div
+            className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
+            {openedTransaction.transaction_status->String.toUpperCase->React.string}
+          </div>
         </div>
         <Icon
           name="modal-close-icon"
@@ -355,16 +342,6 @@ module AuditTrail = {
         />
       </div>
     }
-
-    let tabs: array<Tabs.tab> = React.useMemo(() => {
-      open Tabs
-      entriesList->Array.map(entryDetails => {
-        {
-          title: entryDetails.entry_id,
-          renderContent: () => <EntryAuditTrailInfo entryDetails allEntries=entriesList />,
-        }
-      })
-    }, [entriesList])
 
     <div>
       <div className="mb-6">
@@ -389,17 +366,10 @@ module AuditTrail = {
           </div>}>
           <div className="h-full relative">
             <div className="px-2 h-modalContentHeight pb-5">
-              <RenderIf condition={Array.length(tabs) > 0}>
-                <Tabs
-                  tabs
-                  showBorder=true
-                  includeMargin=false
-                  defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center px-6 ${body.md.semibold}`}
-                  selectTabBottomBorderColor="bg-primary"
-                  customBottomBorderColor="mb-6"
-                />
+              <RenderIf condition={entriesList->Array.length > 0}>
+                <EntryAuditTrailInfo entriesList />
               </RenderIf>
-              <RenderIf condition={Array.length(tabs) === 0}>
+              <RenderIf condition={entriesList->Array.length === 0}>
                 <div className="text-center text-nd_gray-500 py-8">
                   {"No entries found"->React.string}
                 </div>

@@ -25,14 +25,14 @@ let allColumns: array<entryColType> = [
   EffectiveAt,
 ]
 
-let reconciledColumns = [
+let detailsFields = [
   EntryId,
   EntryType,
+  AccountName,
   Amount,
   Currency,
-  AccountName,
-  Status,
   TransactionId,
+  Status,
   CreatedAt,
   EffectiveAt,
 ]
