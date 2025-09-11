@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.11.0
+
+### Features
+
+- Recon engine transactions ([#3547](https://github.com/juspay/hyperswitch-control-center/pull/3547)) ([`b82a156`](https://github.com/juspay/hyperswitch-control-center/commit/b82a156dae890396b9633b267cf51e739d45cd29))
+- Recon engine accounts overview screen ([#3546](https://github.com/juspay/hyperswitch-control-center/pull/3546)) ([`b109003`](https://github.com/juspay/hyperswitch-control-center/commit/b10900360ec06f675f1d830867ecf758bc73b0d2))
+
+### Bug Fixes
+
+- Fixed custom date range dropdown in routing analytics ([#3537](https://github.com/juspay/hyperswitch-control-center/pull/3537)) ([`934e1ed`](https://github.com/juspay/hyperswitch-control-center/commit/934e1ed018af467dbb838a50b04f90ff208c6319))
+
+**Full Changelog:** [`2025.09.10.1...2025.09.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.10.1...2025.09.11.0)
+
+- - -
+
 ## 2025.09.10.1
 
 ### Features
