@@ -48,8 +48,9 @@ let make = (
   )
 
   let len = values->Array.length
-  let buttonText =
-    submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
+  let buttonText = isDraggable
+    ? "Save"
+    : submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
   React.useEffect(() => {
     if !showModal {
