@@ -210,12 +210,6 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   }, [selectedNodeId])
 
   <div className="border rounded-xl border-nd_gray-200">
-    <div
-      className="flex flex-row justify-between items-center p-4 bg-nd_gray-25 rounded-t-xl border-b border-nd_gray-200">
-      <div className={`text-nd_gray-600 ${body.md.semibold}`}>
-        {"Reconciliation Flow"->React.string}
-      </div>
-    </div>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}

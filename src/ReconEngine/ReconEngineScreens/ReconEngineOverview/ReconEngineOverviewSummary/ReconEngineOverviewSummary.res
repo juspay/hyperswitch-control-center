@@ -12,7 +12,7 @@ let make = (~reconRulesList) => {
     <div className="flex flex-row justify-between items-center">
       <div className="flex flex-col gap-2">
         <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
-          {"Accounts View"->React.string}
+          {"Account Balance Breakdown"->React.string}
         </p>
       </div>
       <TabSwitch viewType setViewType />
