@@ -172,6 +172,7 @@ let webhookUrl = FormRenderer.makeFieldInfo(
   ~placeholder="Enter Webhook URL",
   ~customInput=InputFields.textInput(~autoComplete="off"),
   ~isRequired=false,
+  ~description="To activate this feature, your webhook URL needs manual whitelisting. Reach out to our team for assistance",
 )
 
 let returnUrl = FormRenderer.makeFieldInfo(
