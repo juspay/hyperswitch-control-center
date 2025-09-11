@@ -212,12 +212,17 @@ let getTransactionDate = (transaction: ReconEngineTransactionsTypes.transactionP
   transaction.effective_at->String.slice(~start=0, ~end=10)
 
 let findDateRange = transactions => {
-  transactions
-  ->Array.map(getTransactionDate)
-  ->Array.reduce(("", ""), ((earliest, latest), currentDate) => (
-    earliest === "" || currentDate < earliest ? currentDate : earliest,
-    latest === "" || currentDate > latest ? currentDate : latest,
-  ))
+  transactions->Array.reduce(None, (acc, transaction) => {
+    let date = getTransactionDate(transaction)
+    switch acc {
+    | Some((min, max)) => {
+        let earliestDate = date < min ? date : min
+        let latestDate = date > max ? date : max
+        Some((earliestDate, latestDate))
+      }
+    | None => Some((date, date))
+    }
+  })
 }
 
 let calculateSevenDayWindow = (earliestDate, latestDate) => {
@@ -255,7 +260,11 @@ let processCountGraphData = (
   ~graphColor: string,
   ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 ) => {
-  let (earliestDate, latestDate) = findDateRange(transactionsData)
+  let (earliestDate, latestDate) = switch findDateRange(transactionsData) {
+  | Some((earliest, latest)) => (earliest, latest)
+  | None => ("", "")
+  }
+
   let (windowStartDate, windowEndDate) = calculateSevenDayWindow(earliestDate, latestDate)
 
   let filteredTransactions = filterTransactionsByDateRange(

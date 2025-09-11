@@ -79,8 +79,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
 
   let initialExpandedArray = React.useMemo(() => {
     switch (transformationConfigTabIndex, stagingEntryId) {
-    | (Some(_), Some(_)) => [2]
-    | (None, Some(_)) => [2]
+    | (_, Some(_)) => [2]
     | (Some(_), None) => [1]
     | (None, None) => [0]
     }
