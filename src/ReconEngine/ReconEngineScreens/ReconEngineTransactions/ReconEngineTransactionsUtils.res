@@ -90,6 +90,7 @@ let getAllTransactionPayload = (dict): transactionPayload => {
     discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
+    effective_at: dict->getString("effective_at", ""),
   }
 }
 
