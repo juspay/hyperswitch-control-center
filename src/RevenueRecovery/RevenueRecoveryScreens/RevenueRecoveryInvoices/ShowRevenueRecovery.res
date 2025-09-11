@@ -246,8 +246,12 @@ let make = (~id) => {
 
       let processTrackerDataDict = processTrackerData->getDictFromJsonObject
 
+      let status = processTrackerDataDict->getString("status", "")
+
       // If we get a response, modify the payment object
-      let orderDetails = if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
+      let orderDetails = if (
+        processTrackerDataDict->Dict.keysToArray->Array.length > 0 && status != "finish"
+      ) {
         // Create a modified order object with additional process tracker data
         {
           ...orderData,
