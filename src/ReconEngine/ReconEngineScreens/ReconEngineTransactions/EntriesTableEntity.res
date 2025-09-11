@@ -25,6 +25,18 @@ let allColumns: array<entryColType> = [
   EffectiveAt,
 ]
 
+let reconciledColumns = [
+  EntryId,
+  EntryType,
+  Amount,
+  Currency,
+  AccountName,
+  Status,
+  TransactionId,
+  CreatedAt,
+  EffectiveAt,
+]
+
 let getHeading = (colType: entryColType) => {
   switch colType {
   | EntryId => Table.makeHeaderInfo(~key="entry_id", ~title="Entry ID")
@@ -56,7 +68,7 @@ let getStatusLabel = (statusString: string): Table.cell => {
 
 let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   switch colType {
-  | EntryId => Text(entry.entry_id)
+  | EntryId => EllipsisText(entry.entry_id, "w-fit")
   | EntryType => Text((entry.entry_type :> string))
   | AccountName => Text(entry.account_name)
   | TransactionId => Text(entry.transaction_id)

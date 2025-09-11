@@ -88,7 +88,7 @@ module TransactionDetailInfo = {
 
     let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
 
-    <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+    <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
           className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
@@ -110,7 +110,7 @@ module TransactionDetailInfo = {
 module EntryAuditTrailInfo = {
   open ReconEngineTransactionsTypes
   @react.component
-  let make = (~entryDetails) => {
+  let make = (~entryDetails, ~allEntries: array<entryPayload>=[]) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
 
@@ -133,23 +133,119 @@ module EntryAuditTrailInfo = {
       (filteredMetadata->Dict.keysToArray->Array.length > 0, filteredMetadata)
     }, [entryDetails.metadata])
 
-    <div className="flex flex-col gap-4 mb-6 px-2">
-      <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+    let (isMetadataExpanded, setIsMetadataExpanded) = React.useState(_ => false)
+    let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
+    let reconciledEntries = React.useMemo(() => {
+      allEntries->Array.filter(entry => entry.entry_id != entryDetails.entry_id)
+    }, (allEntries, entryDetails.entry_id))
+
+    let onExpandIconClick = (isExpanded, rowIndex) => {
+      if isExpanded {
+        setExpandedRowIndexArray(prev => prev->Array.filter(index => index !== rowIndex))
+      } else {
+        setExpandedRowIndexArray(prev => prev->Array.concat([rowIndex]))
+      }
+    }
+
+    let getRowDetails = (rowIndex: int) => {
+      if rowIndex < reconciledEntries->Array.length {
+        let entry =
+          reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->getAllEntryPayload)
+        let (hasEntryMetadata, filteredEntryMetadata) = React.useMemo(() => {
+          let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
+          (filteredEntryMetadata->Dict.keysToArray->Array.length > 0, filteredEntryMetadata)
+        }, [entry.metadata])
+
+        <RenderIf condition={hasEntryMetadata}>
+          <div className="p-4">
+            <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+              <PrettyPrintJson
+                jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
+              />
+            </div>
+          </div>
+        </RenderIf>
+      } else {
+        React.null
+      }
+    }
+
+    let heading = reconciledColumns->Array.map(getHeading)
+    let rows =
+      reconciledEntries->Array.map(entry =>
+        reconciledColumns->Array.map(colType => getCell(entry, colType))
+      )
+    <div className="flex flex-col gap-4 mb-6 px-2 h-full">
+      <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
             className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
             {"Archived"->React.string}
           </p>
         </RenderIf>
-        <TransactionDetails
-          data=entryDetails getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
-        />
+        <div className="flex flex-col">
+          <TransactionDetails
+            data=entryDetails
+            getHeading
+            getCell
+            widthClass="w-1/2"
+            detailsFields
+            isButtonEnabled=true
+          />
+          <RenderIf condition={hasMetadata}>
+            <div className="flex flex-col">
+              <div
+                className="flex flex-row items-center cursor-pointer hover:text-primary transition-colors m"
+                onClick={_ => setIsMetadataExpanded(prev => !prev)}>
+                <p className={`text-primary ${body.lg.semibold}`}>
+                  {"Show metadata"->React.string}
+                </p>
+                <Icon
+                  name={isMetadataExpanded ? "caret-up" : "caret-down"}
+                  size=16
+                  className="text-nd_gray-600"
+                />
+              </div>
+              <RenderIf condition={isMetadataExpanded}>
+                <div className="p-4">
+                  <div
+                    className="w-full bg-nd_gray-50 rounded-lg overflow-y-scroll !max-h-60 py-2 px-6 border ">
+                    <PrettyPrintJson
+                      jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify}
+                    />
+                  </div>
+                </div>
+              </RenderIf>
+            </div>
+          </RenderIf>
+        </div>
       </div>
-      <RenderIf condition={hasMetadata}>
-        <div className="flex flex-col gap-2">
-          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Metadata"->React.string} </p>
-          <div className="w-full border border-nd_gray-150 rounded-lg p-2 bg-nd_gray-50">
-            <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
+      <RenderIf condition={reconciledEntries->Array.length > 0}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
+            {"Reconciled with"->React.string}
+          </p>
+          <div className="overflow-hidden ">
+            <CustomExpandableTable
+              title="Reconciled Entries"
+              tableClass="border rounded-xl overflow-y-auto"
+              borderClass=" "
+              firstColRoundedHeadingClass="rounded-tl-xl"
+              lastColRoundedHeadingClass="rounded-tr-xl"
+              headingBgColor="bg-nd_gray-25"
+              headingFontWeight="font-semibold"
+              headingFontColor="text-nd_gray-400"
+              rowFontColor="text-nd_gray-600"
+              customRowStyle="text-sm"
+              rowFontStyle="font-medium"
+              heading
+              rows
+              onExpandIconClick
+              expandedRowIndexArray
+              getRowDetails
+              showSerial=false
+              showScrollBar=true
+            />
           </div>
         </div>
       </RenderIf>
@@ -265,7 +361,7 @@ module AuditTrail = {
       entriesList->Array.map(entryDetails => {
         {
           title: entryDetails.entry_id,
-          renderContent: () => <EntryAuditTrailInfo entryDetails />,
+          renderContent: () => <EntryAuditTrailInfo entryDetails allEntries=entriesList />,
         }
       })
     }, [entriesList])
@@ -292,7 +388,7 @@ module AuditTrail = {
             </div>
           </div>}>
           <div className="h-full relative">
-            <div className="overflow-y-auto px-2 h-modalContentHeight pb-5">
+            <div className="px-2 h-modalContentHeight pb-5">
               <RenderIf condition={Array.length(tabs) > 0}>
                 <Tabs
                   tabs
