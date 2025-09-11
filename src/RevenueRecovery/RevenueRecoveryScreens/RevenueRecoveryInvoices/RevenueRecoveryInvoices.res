@@ -2,6 +2,8 @@
 let make = () => {
   open LogicUtils
   open APIUtils
+  open RevenueRecoveryTypes
+  open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -79,11 +81,14 @@ let make = () => {
               let status = processTrackerDataDict->getString("status", "")
 
               // If we get a response, modify the payment object
-              if processTrackerDataDict->Dict.keysToArray->Array.length > 0 && status != "finish" {
+              if (
+                processTrackerDataDict->Dict.keysToArray->Array.length > 0 &&
+                  status != Finish->schedulerStatusStringMapper
+              ) {
                 // Create a modified order object with additional process tracker data
                 {
                   ...order,
-                  status: "scheduled",
+                  status: Scheduled->schedulerStatusStringMapper,
                 }
               } else {
                 // Keep the order as-is if no response
