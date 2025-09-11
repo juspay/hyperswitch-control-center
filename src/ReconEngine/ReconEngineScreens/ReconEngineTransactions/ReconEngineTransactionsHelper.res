@@ -138,10 +138,8 @@ module EntryAuditTrailInfo = {
     let getRowDetails = (rowIndex: int) => {
       let entry =
         reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->getAllEntryPayload)
-      let (hasEntryMetadata, filteredEntryMetadata) = React.useMemo(() => {
-        let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-        (filteredEntryMetadata->Dict.keysToArray->Array.length > 0, filteredEntryMetadata)
-      }, [entry.metadata])
+      let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
+      let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
       <RenderIf condition={rowIndex < reconciledEntries->Array.length}>
         <RenderIf condition={hasEntryMetadata}>
