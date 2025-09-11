@@ -1004,6 +1004,20 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSFORMATION_CONFIG =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
+              | None => `${reconBaseURL}/transformations/configs`
+              }
+            }
+          | _ => ""
+          }
 
         | #NONE => ""
         }

@@ -37,6 +37,7 @@ type transactionPayload = {
   discarded_status: option<string>,
   version: int,
   created_at: string,
+  effective_at: string,
 }
 
 type transactionStatus =

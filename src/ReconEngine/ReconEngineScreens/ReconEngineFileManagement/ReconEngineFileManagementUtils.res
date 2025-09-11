@@ -115,3 +115,17 @@ let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
     data: dict->getJsonObjectFromDict("data"),
   }
 }
+
+let transformationConfigItemToObjMapper = (dict): transformationConfigType => {
+  {
+    id: dict->getString("id", ""),
+    profile_id: dict->getString("profile_id", ""),
+    ingestion_id: dict->getString("ingestion_id", ""),
+    account_id: dict->getString("account_id", ""),
+    name: dict->getString("name", ""),
+    config: dict->getJsonObjectFromDict("config"),
+    is_active: dict->getBool("is_active", false),
+    created_at: dict->getString("created_at", ""),
+    last_transformed_at: dict->getString("last_transformed_at", ""),
+  }
+}

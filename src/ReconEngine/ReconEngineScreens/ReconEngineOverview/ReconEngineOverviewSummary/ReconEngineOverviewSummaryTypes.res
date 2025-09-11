@@ -47,6 +47,7 @@ type reconStatusData = {
 
 type nodeData = {
   label: string,
+  accountType: string,
   statusData: array<reconStatusData>,
   selected: bool,
   onNodeClick: option<unit => unit>,

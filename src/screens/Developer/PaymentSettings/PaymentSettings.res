@@ -425,6 +425,7 @@ module AutoRetries = {
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
             ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~description="Automatically re-attempts a failed payment using the same payment method details. Our system will continue retrying the transaction on a defined routed list until it is successful or all attempts have been exhausted.",
           )}
         />
       </DesktopRow>
@@ -727,8 +728,39 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="always_enable_overcapture",
+                      ~label="Always Enable Overcapture",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                      ~description="Allow capturing more than the originally authorized amount within connector limits",
+                      ~toolTipPosition=Right,
+                    )}
+                  />
+                </DesktopRow>
                 <ClickToPaySection />
                 <AutoRetries setCheckMaxAutoRetry />
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between sitems-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="is_manual_retry_enabled",
+                      ~label="Manual Retries",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                      ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
+                    )}
+                  />
+                </DesktopRow>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
                   <MerchantCategoryCode />
                 </RenderIf>
