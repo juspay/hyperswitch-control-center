@@ -142,5 +142,8 @@ let make = () => {
         </div>
       </DesktopRow>
     </Form>
+    <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
+      <AcquirerConfigSettingsRevamp />
+    </RenderIf>
   </PageLoaderWrapper>
 }

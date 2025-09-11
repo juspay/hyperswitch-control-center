@@ -16,6 +16,10 @@ let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => 
     is_connector_agnostic_mit_enabled,
     is_click_to_pay_enabled,
     authentication_product_ids,
+    always_request_extended_authorization,
+    is_network_tokenization_enabled,
+    is_manual_retry_enabled,
+    always_enable_overcapture,
   } = profileRecord
   let webhookDict = Dict.make()
 
@@ -46,6 +50,13 @@ let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => 
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
+  profileInfo->setOptionBool(
+    "always_request_extended_authorization",
+    always_request_extended_authorization,
+  )
+  profileInfo->setOptionBool("is_network_tokenization_enabled", is_network_tokenization_enabled)
+  profileInfo->setOptionBool("is_manual_retry_enabled", is_manual_retry_enabled)
+  profileInfo->setOptionBool("always_enable_overcapture", always_enable_overcapture)
 
   profileInfo
 }
