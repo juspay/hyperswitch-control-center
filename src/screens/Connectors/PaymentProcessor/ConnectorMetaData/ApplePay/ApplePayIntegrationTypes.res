@@ -32,8 +32,12 @@ type simplified = {
   payment_request_data: paymentRequestData,
 }
 
-type applePayIntegrationType = [#manual | #simplified]
-type applePayConfig = [#manual(manual) | #simplified(simplified)]
+type applePayIntegrationType = [#manual | #simplified | #decrypted]
+type applePayConfig = [
+  | #manual(manual)
+  | #simplified(simplified)
+  | #decrypted
+]
 type applePayIntegrationSteps = Landing | Configure | Verify
 type simplifiedApplePayIntegartionTypes = EnterUrl | DownloadFile | HostUrl
 

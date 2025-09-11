@@ -197,6 +197,7 @@ let make = () => {
             title="Authenticate Processor"
             subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
             customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+            showPermLink=false
           />
           <PageLoaderWrapper screenState>
             <Form onSubmit={handleAuthKeySubmit} initialValues validate=validateMandatoryField>
@@ -222,6 +223,7 @@ let make = () => {
             title="Payment Methods"
             subTitle="Configure your PaymentMethods."
             customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+            showPermLink=false
           />
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
@@ -244,6 +246,7 @@ let make = () => {
             title="Setup Webhook"
             subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
             customSubTitleStyle="font-medium text-nd_gray-700"
+            showPermLink=false
           />
           <ConnectorWebhookPreview
             merchantId

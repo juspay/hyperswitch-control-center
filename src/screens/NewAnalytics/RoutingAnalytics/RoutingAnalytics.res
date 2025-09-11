@@ -57,43 +57,38 @@ let make = () => {
     ]
   }
 
-  <div className="flex flex-col gap-8">
-    <div className="flex flex-col 2xl:flex-row gap-2">
-      <PageUtils.PageHeading
-        title="Routing Analytics"
-        subTitle="Get a comprehensive view of how your payment routing strategies are performing across different processors and routing logics."
-        customHeadingStyle={`${body.lg.semibold} !text-nd_gray-800`}
-        customSubTitleStyle={`${body.lg.medium} !text-nd_gray-400 !opacity-100 !mt-1`}
-      />
-      <div className="flex items-center 2xl:ml-4">
-        <div className="-mr-2">
-          <DynamicFilter
-            title="RoutingAnalytics"
-            initialFilters=[]
-            options=[]
-            popupFilterFields=[]
-            initialFixedFilters={initialFixedFilterFields(
-              null,
-              ~events=dateDropDownTriggerMixpanelCallback,
-            )}
-            defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-            tabNames=[]
-            key="0"
-            updateUrlWith=updateExistingKeys
-            filterFieldsPortalName={filterFieldsPortalName}
-            showCustomFilter=false
-            refreshFilters=false
-          />
-        </div>
-        <div className="mt-2">
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-            selectedEntity={analyticsEntity}
-            onChange={updateAnalytcisEntity}
-            entityMapper=UserInfoUtils.analyticsEntityMapper
-            disabledDisplayName="Hyperswitch_test"
-          />
-        </div>
+  <div className="flex flex-col gap-2">
+    <PageUtils.PageHeading
+      title="Routing Analytics" customHeadingStyle={`${body.lg.semibold} !text-nd_gray-800`}
+    />
+    <div className="flex flex-row justify-end items-center 2xl:ml-4">
+      <div className="2xl:-mr-2 -ml-6">
+        <DynamicFilter
+          title="RoutingAnalytics"
+          initialFilters=[]
+          options=[]
+          popupFilterFields=[]
+          initialFixedFilters={initialFixedFilterFields(
+            null,
+            ~events=dateDropDownTriggerMixpanelCallback,
+          )}
+          defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+          tabNames=[]
+          key="0"
+          updateUrlWith=updateExistingKeys
+          filterFieldsPortalName={filterFieldsPortalName}
+          showCustomFilter=false
+          refreshFilters=false
+        />
+      </div>
+      <div className="mt-2">
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          selectedEntity={analyticsEntity}
+          onChange={updateAnalytcisEntity}
+          entityMapper=UserInfoUtils.analyticsEntityMapper
+          disabledDisplayName="Hyperswitch_test"
+        />
       </div>
     </div>
     <Tabs

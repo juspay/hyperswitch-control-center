@@ -320,8 +320,8 @@ let processAllTransactionsWithAmounts = (
   })
 
   allTransactions->Array.forEach((transaction: ReconEngineTransactionsTypes.transactionPayload) => {
-    let creditEntries = transaction.entries->Array.filter(entry => entry.entry_type === "credit")
-    let debitEntries = transaction.entries->Array.filter(entry => entry.entry_type === "debit")
+    let creditEntries = transaction.entries->Array.filter(entry => entry.entry_type === Credit)
+    let debitEntries = transaction.entries->Array.filter(entry => entry.entry_type === Debit)
 
     let transactionStatus =
       transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString

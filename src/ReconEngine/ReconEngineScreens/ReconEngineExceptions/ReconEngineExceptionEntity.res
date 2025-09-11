@@ -1,4 +1,5 @@
 open ReconEngineExceptionTypes
+open LogicUtils
 
 type processingColType =
   | StagingEntryId
@@ -32,6 +33,20 @@ let getProcessingHeading = colType => {
   }
 }
 
+let getStatusLabel = (status): Table.cell => {
+  Label({
+    title: status->snakeToTitle,
+    color: switch status->String.toLowerCase {
+    | "pending" => LabelBlue
+    | "processed" => LabelGreen
+    | "needs_manual_review"
+    | "attention_required" =>
+      LabelOrange
+    | _ => LabelGray
+    },
+  })
+}
+
 let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   switch colType {
   | StagingEntryId => Text(data.staging_entry_id)
@@ -39,16 +54,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   | AccountName => Text(data.account.account_name)
   | Amount => Numeric(data.amount, amount => {amount->Float.toString})
   | Currency => Text(data.currency)
-  | Status =>
-    Label({
-      title: data.status->String.toUpperCase,
-      color: switch data.status->String.toLowerCase {
-      | "pending" => LabelBlue
-      | "processed" => LabelGreen
-      | "needs_manual_review" => LabelOrange
-      | _ => LabelGray
-      },
-    })
+  | Status => getStatusLabel(data.status)
   | EffectiveAt => Date(data.effective_at)
   }
 }

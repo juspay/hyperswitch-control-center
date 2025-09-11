@@ -26,7 +26,7 @@ let make = (
 
   <div className="relative flex flex-col gap-8">
     <div className="flex items-center justify-between ">
-      <PageUtils.PageHeading title=moduleName subTitle />
+      <PageUtils.PageHeading title=moduleName subTitle showPermLink=false />
       <div> {headerRightButton} </div>
     </div>
     <div className="blur bg-white p-8">

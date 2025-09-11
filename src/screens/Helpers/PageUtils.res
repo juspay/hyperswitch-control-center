@@ -77,14 +77,14 @@ module PageHeading = {
     ~customTitleSectionStyles="",
     ~showPermLink=true,
   ) => {
-    let (showShareDialog, setShowShareDialog) = React.useState(_ => false)
-    let {userInfo: {orgId, merchantId, profileId}} = React.useContext(
+    // let (showShareDialog, setShowShareDialog) = React.useState(_ => false)
+    let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let buildPermLink = () => {
       let url = Window.URL.make(
-        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/switch/user`,
+        `${Window.Location.origin}/${orgId}/${merchantId}/${profileId}/${(version :> string)}/switch/user`,
         `${Window.Location.origin}`,
       )
       let queryParams = Window.Location.search
@@ -96,7 +96,7 @@ module PageHeading = {
       url->Window.URL.href
     }
     let handleDeepLinkClick = () => {
-      setShowShareDialog(_ => true)
+      // setShowShareDialog(_ => true)
       mixpanelEvent(~eventName="copy_deep_link")
     }
 
@@ -135,7 +135,7 @@ module PageHeading = {
         </RenderIf>
       | None => React.null
       }}
-      <DialogBox isOpen=showShareDialog onClose={() => setShowShareDialog(_ => false)} />
+      // <DialogBox isOpen=showShareDialog onClose={() => setShowShareDialog(_ => false)} />
     </div>
   }
 }

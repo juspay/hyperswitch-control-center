@@ -669,16 +669,18 @@ module TableCell = {
         />
       </AddDataAttributes>
     | Text(x) | DropDown(x) => {
-        let x = x->isEmptyString ? "NA" : x
+        let x = x->isEmptyString ? "N/A" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 
-    | EllipsisText(text, width) =>
-      <AddDataAttributes attributes=[("data-testid", text->String.toLowerCase)]>
-        <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
-      </AddDataAttributes>
+    | EllipsisText(text, width) => {
+        let text = text->isEmptyString ? "N/A" : text
+        <AddDataAttributes attributes=[("data-testid", text->String.toLowerCase)]>
+          <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
+        </AddDataAttributes>
+      }
     | TrimmedText(text, width) => <TrimmedText text width highlightText hideShowMore />
     | Currency(amount, currency) =>
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
