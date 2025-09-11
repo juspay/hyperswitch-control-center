@@ -21,5 +21,9 @@ type processingEntryType = {
   amount: float,
   currency: string,
   status: string,
+  processing_mode: string,
+  metadata: Js.Json.t,
+  transformation_id: string,
+  transformation_history_id: string,
   effective_at: string,
 }

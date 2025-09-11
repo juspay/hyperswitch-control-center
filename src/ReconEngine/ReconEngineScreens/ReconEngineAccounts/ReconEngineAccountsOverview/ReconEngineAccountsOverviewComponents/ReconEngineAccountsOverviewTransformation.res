@@ -13,6 +13,7 @@ let make = (
   open ReconEngineFileManagementUtils
 
   let getURL = useGetURL()
+  let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -71,6 +72,21 @@ let make = (
     TransformationComments,
   ]
 
+  let getActiveTabIndex = React.useMemo(() => {
+    let urlTransformationHistoryId =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->getvalFromDict("transformationHistoryId")
+
+    switch urlTransformationHistoryId {
+    | Some(historyId) =>
+      transformationHistoryData->Array.findIndex(config =>
+        config.transformation_history_id === historyId
+      )
+    | None => 0
+    }
+  }, (url.search, transformationHistoryData))
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     transformationHistoryData->Array.map(config => {
@@ -108,7 +124,7 @@ let make = (
     customLoader={<Shimmer styleClass="h-80 w-full rounded-b-xl" />}>
     <div className="flex flex-col px-6 py-3">
       <Tabs
-        initialIndex={transformationConfigTabIndex->Option.getOr("0")->getIntFromString(0)}
+        initialIndex={getActiveTabIndex}
         tabs
         showBorder=true
         includeMargin=false

@@ -80,9 +80,9 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
     let entryIdContent =
       <div className=hierarchicalContainerClassName>
         {transaction.entries
-        ->Array.mapWithIndex((entry, index) => {
+        ->Array.map(entry => {
           <HierarchicalEntryRenderer
-            fieldValue=entry.entry_id index entryClassName="w-36 truncate whitespace-nowrap"
+            fieldValue=entry.entry_id key={LogicUtils.randomString(~length=10)}
           />
         })
         ->React.array}
@@ -92,8 +92,10 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
     let accountContent =
       <div className=hierarchicalContainerClassName>
         {transaction.entries
-        ->Array.mapWithIndex((entry, index) => {
-          <HierarchicalEntryRenderer fieldValue=entry.account.account_name index />
+        ->Array.map(entry => {
+          <HierarchicalEntryRenderer
+            fieldValue=entry.account.account_name key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -102,8 +104,11 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
     let entryStatusContent =
       <div className=hierarchicalContainerClassName>
         {transaction.entries
-        ->Array.mapWithIndex((entry, index) => {
-          <HierarchicalEntryRenderer fieldValue={entry.status->LogicUtils.capitalizeString} index />
+        ->Array.map(entry => {
+          <HierarchicalEntryRenderer
+            fieldValue={entry.status->LogicUtils.capitalizeString}
+            key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -112,8 +117,10 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
     let currencyContent =
       <div className=hierarchicalContainerClassName>
         {transaction.entries
-        ->Array.mapWithIndex((entry, index) => {
-          <HierarchicalEntryRenderer fieldValue=entry.amount.currency index />
+        ->Array.map(entry => {
+          <HierarchicalEntryRenderer
+            fieldValue=entry.amount.currency key={LogicUtils.randomString(~length=10)}
+          />
         })
         ->React.array}
       </div>
@@ -122,12 +129,12 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
     let debitAmountContent =
       <div className=hierarchicalContainerClassName>
         {transaction.entries
-        ->Array.mapWithIndex((entry, index) => {
+        ->Array.map(entry => {
           let amount = switch entry.entry_type {
           | Debit => entry.amount.value->Float.toString
           | _ => "-"
           }
-          <HierarchicalEntryRenderer fieldValue=amount index />
+          <HierarchicalEntryRenderer fieldValue=amount key={LogicUtils.randomString(~length=10)} />
         })
         ->React.array}
       </div>
@@ -136,12 +143,12 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
     let creditAmountContent =
       <div className=hierarchicalContainerClassName>
         {transaction.entries
-        ->Array.mapWithIndex((entry, index) => {
+        ->Array.map(entry => {
           let amount = switch entry.entry_type {
           | Credit => entry.amount.value->Float.toString
           | _ => "-"
           }
-          <HierarchicalEntryRenderer fieldValue=amount index />
+          <HierarchicalEntryRenderer fieldValue=amount key={LogicUtils.randomString(~length=10)} />
         })
         ->React.array}
       </div>

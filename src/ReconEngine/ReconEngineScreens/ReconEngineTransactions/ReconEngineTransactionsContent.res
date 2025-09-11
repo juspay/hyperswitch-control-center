@@ -47,7 +47,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   }, [configuredTransactions])
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineTransactionsFilters"
         initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
@@ -124,11 +124,9 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     None
   }, [filterValue])
 
-  <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between items-center absolute right-0 -top-4">
-        <div className="flex-shrink-0"> {topFilterUi} </div>
-      </div>
+  <div className="flex flex-col gap-4">
+    <PageLoaderWrapper screenState>
+      <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTableWithCustomColumns
         title="Transactions"
         hideTitle=true
@@ -162,6 +160,6 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
           customInputBoxWidth="w-full rounded-xl"
         />}
       />
-    </div>
-  </PageLoaderWrapper>
+    </PageLoaderWrapper>
+  </div>
 }
