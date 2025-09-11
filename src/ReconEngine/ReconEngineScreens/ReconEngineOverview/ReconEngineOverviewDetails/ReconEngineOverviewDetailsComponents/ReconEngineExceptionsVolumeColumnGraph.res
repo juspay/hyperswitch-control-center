@@ -39,7 +39,7 @@ let make = (~ruleId: string) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~range=7,
+    ~range=180,
     ~origin="recon_engine_exceptions_graph",
     (),
   )
@@ -57,12 +57,7 @@ let make = (~ruleId: string) => {
   }, [filterValue])
 
   let volumeData = React.useMemo1(() => {
-    let countData = processCountGraphData(
-      transactionsData,
-      ~graphColor=exceptionsVolumeColor,
-      ~startDate=filterValueJson->getString(startTimeFilterKey, ""),
-      ~endDate=filterValueJson->getString(endTimeFilterKey, ""),
-    )
+    let countData = processCountGraphData(transactionsData, ~graphColor=exceptionsVolumeColor)
     createColumnGraphCountPayload(
       ~countData,
       ~title="Exceptions Volume",

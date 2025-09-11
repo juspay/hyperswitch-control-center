@@ -1,5 +1,9 @@
 @react.component
-let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => {
+let make = (
+  ~selectedTransformationHistoryId,
+  ~onNeedsManualReviewPresent=?,
+  ~stagingEntryId: option<string>,
+) => {
   open LogicUtils
   open APIUtils
   open ReconEngineExceptionStagingUtils
@@ -49,15 +53,28 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
           ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
             `&transformation_history_id=${selectedTransformationHistoryId}`,
           )
-        let stagingUrl = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-          ~queryParamerters=Some(queryString),
-        )
 
+        let stagingUrl = switch stagingEntryId {
+        | Some(stagingEntryId) =>
+          getURL(
+            ~entityName=V1(HYPERSWITCH_RECON),
+            ~methodType=Get,
+            ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+            ~id=Some(stagingEntryId),
+          )
+        | None =>
+          getURL(
+            ~entityName=V1(HYPERSWITCH_RECON),
+            ~methodType=Get,
+            ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+            ~queryParamerters=Some(queryString),
+          )
+        }
         let res = await fetchDetails(stagingUrl)
-        let stagingList = res->LogicUtils.getArrayDataFromJson(processingItemToObjMapper)
+        let stagingList = switch stagingEntryId {
+        | Some(_) => [res->getDictFromJsonObject->processingItemToObjMapper]
+        | None => res->getArrayDataFromJson(processingItemToObjMapper)
+        }
 
         setStagingData(_ => stagingList)
         setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
@@ -93,10 +110,10 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
       fetchStagingData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, stagingEntryId))
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
         initialFilters={initialDisplayFilters()}
@@ -122,7 +139,10 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
     customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
     customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
     <div className="flex flex-col gap-4 my-4 px-6 pb-16">
-      <div className="flex-shrink-0"> {topFilterUi} </div>
+      <RenderIf condition={stagingEntryId->Option.isNone}>
+        <div className="flex-shrink-0"> {topFilterUi} </div>
+        <ReconEngineAccountsTransformedEntriesOverviewCards />
+      </RenderIf>
       <LoadedTable
         title="Staging Entries"
         hideTitle=true
@@ -139,15 +159,17 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
         loadedTableParentClass="flex flex-col"
         enableEqualWidthCol=false
         showAutoScroll=true
-        filters={<TableSearchFilter
-          data={stagingData->Array.map(Nullable.make)}
-          filterLogic
-          placeholder="Search Staging Entry ID or Status"
-          customSearchBarWrapperWidth="w-full lg:w-1/3"
-          customInputBoxWidth="w-full rounded-xl"
-          searchVal=searchText
-          setSearchVal=setSearchText
-        />}
+        filters={<RenderIf condition={stagingEntryId->Option.isNone}>
+          <TableSearchFilter
+            data={stagingData->Array.map(Nullable.make)}
+            filterLogic
+            placeholder="Search Staging Entry ID or Status"
+            customSearchBarWrapperWidth="w-full lg:w-1/3"
+            customInputBoxWidth="w-full rounded-xl"
+            searchVal=searchText
+            setSearchVal=setSearchText
+          />
+        </RenderIf>}
       />
     </div>
   </PageLoaderWrapper>

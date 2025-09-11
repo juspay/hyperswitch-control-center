@@ -26,6 +26,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   let (transformationStatus, setTransformationStatus) = React.useState(_ => #Loading)
   let (manualReviewStatus, setManualReviewStatus) = React.useState(_ => #Loading)
   let (transformationConfigTabIndex, setTransformationConfigTabIndex) = React.useState(_ => None)
+  let (stagingEntryId, setStagingEntryId) = React.useState(_ => None)
 
   let fetchIngestionHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -59,11 +60,16 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   }, [])
 
   let getActiveTabIndex = () => {
-    let tabIndexParam =
+    let transformationConfigTabIndex =
       url.search
       ->getDictFromUrlSearchParams
       ->getvalFromDict("transformationConfigTabIndex")
-    setTransformationConfigTabIndex(_ => tabIndexParam)
+    let stagingEntryId =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->getvalFromDict("stagingEntryId")
+    setTransformationConfigTabIndex(_ => transformationConfigTabIndex)
+    setStagingEntryId(_ => stagingEntryId)
   }
 
   React.useEffect(() => {
@@ -72,9 +78,11 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   }, [url.search])
 
   let initialExpandedArray = React.useMemo(() => {
-    switch transformationConfigTabIndex {
-    | Some(_) => [1]
-    | None => [0]
+    switch (transformationConfigTabIndex, stagingEntryId) {
+    | (Some(_), Some(_)) => [2]
+    | (None, Some(_)) => [2]
+    | (Some(_), None) => [1]
+    | (None, None) => [0]
     }
   }, transformationConfigTabIndex)
 
@@ -107,10 +115,11 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
             ~manualReviewStatus,
             ~setManualReviewStatus,
             ~transformationConfigTabIndex,
+            ~stagingEntryId,
           )}
           accordianTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"
-          accordianBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl"
-          contentExpandCss={`!${body.md.semibold} !rounded-b-xl`}
+          accordianBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl !overflow-scroll"
+          contentExpandCss={`!${body.md.semibold} !rounded-b-xl !overflow-scroll`}
           titleStyle={`${body.lg.semibold} !text-nd_gray-800`}
           gapClass="flex flex-col gap-8"
         />

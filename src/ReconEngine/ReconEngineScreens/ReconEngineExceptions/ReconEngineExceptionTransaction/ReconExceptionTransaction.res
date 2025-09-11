@@ -94,7 +94,7 @@ let make = (~ruleId: string) => {
   }, [filterValue])
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
         initialFilters={ReconExceptionTransactionUtils.initialDisplayFilters(
@@ -120,43 +120,41 @@ let make = (~ruleId: string) => {
     </div>
   }
 
-  <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between items-center absolute right-0 -top-4">
-        <div className="flex-shrink-0"> {topFilterUi} </div>
-      </div>
-    </div>
-    <LoadedTableWithCustomColumns
-      title="Exception Entries - Expected & Mismatched"
-      actualData={filteredExceptionData}
-      entity={hierarchicalTransactionsLoadedTableEntity(
-        `v1/recon-engine/exceptions`,
-        ~authorization=userHasAccess(~groupAccess=UsersManage),
-      )}
-      resultsPerPage=6
-      filters={<TableSearchFilter
-        data={exceptionData->Array.map(Nullable.make)}
-        filterLogic
-        placeholder="Search Transaction ID or Status"
-        customSearchBarWrapperWidth="w-full lg:w-1/3"
-        customInputBoxWidth="w-full rounded-xl"
-        searchVal=searchText
-        setSearchVal=setSearchText
-      />}
-      totalResults={filteredExceptionData->Array.length}
-      offset
-      setOffset
-      currrentFetchCount={exceptionData->Array.length}
-      customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-      defaultColumns={defaultColumns}
-      showSerialNumberInCustomizeColumns=false
-      sortingBasedOnDisabled=false
-      hideTitle=true
-      remoteSortEnabled=true
-      customizeColumnButtonIcon="nd-filter-horizontal"
-      hideRightTitleElement=true
-      showAutoScroll=true
-      customSeparation=[(2, 3)]
-    />
-  </PageLoaderWrapper>
+  <div className="flex flex-col gap-4">
+    <PageLoaderWrapper screenState>
+      <div className="flex-shrink-0"> {topFilterUi} </div>
+      <LoadedTableWithCustomColumns
+        title="Exception Entries - Expected & Mismatched"
+        actualData={filteredExceptionData}
+        entity={hierarchicalTransactionsLoadedTableEntity(
+          `v1/recon-engine/exceptions`,
+          ~authorization=userHasAccess(~groupAccess=UsersManage),
+        )}
+        resultsPerPage=6
+        filters={<TableSearchFilter
+          data={exceptionData->Array.map(Nullable.make)}
+          filterLogic
+          placeholder="Search Transaction ID or Status"
+          customSearchBarWrapperWidth="w-full lg:w-1/3"
+          customInputBoxWidth="w-full rounded-xl"
+          searchVal=searchText
+          setSearchVal=setSearchText
+        />}
+        totalResults={filteredExceptionData->Array.length}
+        offset
+        setOffset
+        currrentFetchCount={exceptionData->Array.length}
+        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
+        defaultColumns={defaultColumns}
+        showSerialNumberInCustomizeColumns=false
+        sortingBasedOnDisabled=false
+        hideTitle=true
+        remoteSortEnabled=true
+        customizeColumnButtonIcon="nd-filter-horizontal"
+        hideRightTitleElement=true
+        showAutoScroll=true
+        customSeparation=[(2, 3)]
+      />
+    </PageLoaderWrapper>
+  </div>
 }

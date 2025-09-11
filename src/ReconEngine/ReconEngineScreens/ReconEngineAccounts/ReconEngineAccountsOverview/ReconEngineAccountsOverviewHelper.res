@@ -88,6 +88,7 @@ let getAccordionConfig = (
   ~manualReviewStatus,
   ~setManualReviewStatus,
   ~transformationConfigTabIndex,
+  ~stagingEntryId,
 ): array<Accordion.accordion> => {
   [
     {
@@ -118,6 +119,7 @@ let getAccordionConfig = (
             selectedTransformationHistoryId
             onNeedsManualReviewPresent={isPresent =>
               setManualReviewStatus(_ => isPresent ? #AttentionRequired : #Processed)}
+            stagingEntryId
           />
         </FilterContext>
       },

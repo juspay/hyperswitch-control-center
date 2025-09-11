@@ -159,14 +159,10 @@ module EntryAuditTrailInfo = {
 
 module HierarchicalEntryRenderer = {
   @react.component
-  let make = (
-    ~fieldValue: string,
-    ~containerClassName: string="",
-    ~index: int,
-    ~entryClassName: string="",
-  ) => {
-    let paddingCss = Int.mod(index, 2) == 0 ? "pb-4" : "pt-4"
-    <div key={randomString(~length=10)} className={`px-8 ${paddingCss} text-sm text-gray-900`}>
+  let make = (~fieldValue: string, ~containerClassName: string="", ~entryClassName: string="") => {
+    <div
+      key={randomString(~length=10)}
+      className={`px-8 py-3.5 text-sm text-gray-900 w-48 truncate whitespace-nowrap ${entryClassName}`}>
       {fieldValue->React.string}
     </div>
   }

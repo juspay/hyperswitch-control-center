@@ -22,8 +22,12 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         res->getArrayDataFromJson(
           ReconEngineFileManagementUtils.transformationConfigItemToObjMapper,
         )
-      setConfigData(_ => configs)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if configs->Array.length > 0 {
+        setConfigData(_ => configs)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
