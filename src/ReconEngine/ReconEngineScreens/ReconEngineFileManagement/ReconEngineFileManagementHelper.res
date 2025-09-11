@@ -56,3 +56,12 @@ module TransformationStats = {
     </div>
   }
 }
+
+module TransformationHistoryActionsComponent = {
+  @react.component
+  let make = () => {
+    <div className="flex flex-row gap-4">
+      <Icon name="nd-alert-triangle-outline" size=16 onClick={_ => ()} />
+    </div>
+  }
+}
