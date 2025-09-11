@@ -227,6 +227,7 @@ module Attempts = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -246,12 +247,17 @@ let make = (~id) => {
 
       let processTrackerDataDict = processTrackerData->getDictFromJsonObject
 
+      let status = processTrackerDataDict->getString("status", "")
+
       // If we get a response, modify the payment object
-      let orderDetails = if processTrackerDataDict->Dict.keysToArray->Array.length > 0 {
+      let orderDetails = if (
+        processTrackerDataDict->Dict.keysToArray->Array.length > 0 &&
+          status != Finish->schedulerStatusStringMapper
+      ) {
         // Create a modified order object with additional process tracker data
         {
           ...orderData,
-          status: "scheduled",
+          status: Scheduled->schedulerStatusStringMapper,
         }
       } else {
         // Keep the order as-is if no response

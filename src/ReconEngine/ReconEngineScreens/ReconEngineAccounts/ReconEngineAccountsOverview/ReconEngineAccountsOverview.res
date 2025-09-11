@@ -1,13 +1,17 @@
 open Typography
 
 @react.component
-let make = (~id) => {
+let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   open LogicUtils
   open APIUtils
   open ReconEngineFileManagementUtils
+  open ReconEngineAccountsOverviewUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let url = RescriptReactRouter.useUrl()
+  let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
     Dict.make()->ingestionHistoryItemToObjMapper
@@ -21,32 +25,28 @@ let make = (~id) => {
 
   let (transformationStatus, setTransformationStatus) = React.useState(_ => #Loading)
   let (manualReviewStatus, setManualReviewStatus) = React.useState(_ => #Loading)
+  let (transformationConfigTabIndex, setTransformationConfigTabIndex) = React.useState(_ => None)
 
   let fetchIngestionHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let ingestionHistoryUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#INGESTION_HISTORY,
-        ~id=Some(id),
+      let ingestionHistoryList = await getIngestionHistory(
+        ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
       )
-      let ingestionHistoryRes = await fetchDetails(ingestionHistoryUrl)
-      let ingestionHistoryData =
-        ingestionHistoryRes->getDictFromJsonObject->ingestionHistoryItemToObjMapper
-      setIngestionHistoryData(_ => ingestionHistoryData)
-
+      ingestionHistoryList->Array.sort(sortByDescendingVersion)
+      let latestIngestionHistory =
+        ingestionHistoryList->getValueFromArray(0, Dict.make()->ingestionHistoryItemToObjMapper)
+      setIngestionHistoryData(_ => latestIngestionHistory)
       let accountUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#ACCOUNTS_LIST,
-        ~id=Some(ingestionHistoryData.account_id),
+        ~id=Some(latestIngestionHistory.account_id),
       )
       let accountRes = await fetchDetails(accountUrl)
       let accountData =
         accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
       setAccountData(_ => accountData)
-
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -58,10 +58,30 @@ let make = (~id) => {
     None
   }, [])
 
+  let getActiveTabIndex = () => {
+    let tabIndexParam =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->getvalFromDict("transformationConfigTabIndex")
+    setTransformationConfigTabIndex(_ => tabIndexParam)
+  }
+
+  React.useEffect(() => {
+    getActiveTabIndex()
+    None
+  }, [url.search])
+
+  let initialExpandedArray = React.useMemo(() => {
+    switch transformationConfigTabIndex {
+    | Some(_) => [1]
+    | None => [0]
+    }
+  }, transformationConfigTabIndex)
+
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">
       <BreadCrumbNavigation
-        path=[{title: "Ingestion", link: `/v1/recon-engine/sources/${accountData.account_id}`}]
+        path={breadCrumbNavigationPath}
         currentPageTitle=accountData.account_name
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"
@@ -70,14 +90,14 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <div className="flex flex-col gap-10 mb-12">
+      <div className="flex flex-col gap-10">
         <PageUtils.PageHeading
           title=ingestionHistoryData.file_name
           customTitleStyle={`${heading.lg.semibold}`}
           customHeadingStyle="py-0"
         />
         <Accordion
-          initialExpandedArray=[0]
+          initialExpandedArray
           accordion={ReconEngineAccountsOverviewHelper.getAccordionConfig(
             ~ingestionHistoryData,
             ~transformationStatus,
@@ -86,8 +106,9 @@ let make = (~id) => {
             ~setSelectedTransformationHistoryId,
             ~manualReviewStatus,
             ~setManualReviewStatus,
+            ~transformationConfigTabIndex,
           )}
-          accordianTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-visible"
+          accordianTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"
           accordianBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl"
           contentExpandCss={`!${body.md.semibold} !rounded-b-xl`}
           titleStyle={`${body.lg.semibold} !text-nd_gray-800`}
