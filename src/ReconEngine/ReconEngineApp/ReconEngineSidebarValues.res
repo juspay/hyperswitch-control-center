@@ -89,7 +89,7 @@ let transformedEntries = {
 
 let reconAccounts = {
   Section({
-    name: "Accounts",
+    name: "Data",
     icon: "nd-connectors",
     showSection: true,
     links: [sources, transformation, transformedEntries],
