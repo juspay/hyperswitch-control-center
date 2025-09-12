@@ -88,6 +88,7 @@ let connectorList: array<connectorTypes> = [
   Processors(OPENNODE),
   Processors(PAYME),
   Processors(PAYU),
+  Processors(PEACHPAYMENTS),
   Processors(POWERTRANZ),
   Processors(PROPHETPAY),
   Processors(RAPYD),
@@ -714,6 +715,10 @@ let dwollaInfo = {
   description: "Dwolla offers a white labeled product experience powered by an API that enables you to embed account-to-account payments into a web or mobile application.",
 }
 
+let peachpaymentsInfo = {
+  description: "The secure African payment gateway with easy integrations, 365-day support, and advanced orchestration.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -812,6 +817,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BLACKHAWKNETWORK => "blackhawknetwork"
   | DWOLLA => "dwolla"
   | PAYSAFE => "paysafe"
+  | PEACHPAYMENTS => "peachpayments"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -979,6 +985,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
+    | "peachpayments" => Processors(PEACHPAYMENTS)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1126,6 +1133,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | BLACKHAWKNETWORK => blackhawknetworkInfo
   | DWOLLA => dwollaInfo
   | PAYSAFE => paysafeInfo
+  | PEACHPAYMENTS => peachpaymentsInfo
   }
 }
 
@@ -2045,6 +2053,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
+  | PEACHPAYMENTS => "PeachPayments"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
