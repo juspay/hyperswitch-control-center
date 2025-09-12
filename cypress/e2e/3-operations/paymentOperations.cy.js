@@ -162,7 +162,7 @@ describe("Payment Operations", () => {
           cy.get(`[data-table-location="Orders_tr1_td8"]`).contains(
             response.body.payment_method_type,
           );
-          cy.get(`[data-table-location="Orders_tr1_td9"]`).contains("NA");
+          cy.get(`[data-table-location="Orders_tr1_td9"]`).contains("N/A");
           cy.get(`[data-table-location="Orders_tr1_td10"]`).contains(
             response.body.connector_transaction_id,
           );
@@ -269,17 +269,13 @@ describe("Payment Operations", () => {
       cy.wrap($el).click();
     });
 
-    cy.contains("button", `${columnSize} Columns Selected`).should(
-      "be.visible",
-    );
+    cy.get('[data-button-text="Save"]').contains("Save").should("be.visible");
 
     columns.optional.forEach((column) => {
       cy.get(`[data-dropdown-value="${column}"]`).click();
     });
 
-    cy.contains("button", `${requiredColumnsSize} Columns Selected`).should(
-      "be.visible",
-    );
+    cy.get('[data-button-text="Save"]').contains("Save").should("be.visible");
 
     cy.get(
       '[data-component="modal:Table Columns"] [data-icon="modal-close-icon"]',
@@ -430,7 +426,7 @@ describe("Payment Operations", () => {
       cy.wrap($el).click();
     });
 
-    cy.contains("button", `${columnSize} Columns Selected`).click();
+    cy.get('[data-button-text="Save"]').contains("Save").should("be.visible");
 
     cy.get("table thead tr th").each(($el, index) => {
       cy.wrap($el).should("have.text", expectedColumns[index]);
