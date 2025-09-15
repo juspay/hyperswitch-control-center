@@ -75,7 +75,7 @@ let make = (
           labelMargin="!py-0"
         />
       </div>
-      <div className="mt-4 grid xl:grid-cols-2 grid-cols-1 items-start gap-y-8 gap-x-12">
+      <div className="mt-4 grid xl:grid-cols-2 grid-cols-1 items-start gap-y-8 gap-x-20">
         {transformationConfigItems
         ->Array.map(item => {
           <TransformationConfigItem key={(item.label :> string)} data={item} />
