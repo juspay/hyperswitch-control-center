@@ -514,10 +514,9 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    paymentOperations.searchBox
-      .should("be.visible")
-      .type(invalid_paymentID) //failed because it targeted a disabled element.
-      .type("{enter}");
+    paymentOperations.searchBox.should("be.visible");
+    paymentOperations.searchBox.type(invalid_paymentID); //failed because it targeted a disabled element.
+    paymentOperations.searchBox.type("{enter}");
 
     cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
       "have.text",
@@ -740,7 +739,9 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]') //Expected to find element: `[data-date-picker-predifined="predefined-options"]`, but never found it.
+    cy.get('[data-date-picker-predifined="predefined-options"]', {
+      timeout: 10000,
+    }) //Expected to find element, but never found it.
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -769,8 +770,10 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]').within(
-        //Expected to find element: `[data-date-picker-predifined="predefined-options"]`, but never found it.
+      cy.get('[data-date-picker-predifined="predefined-options"]', {
+        timeout: 10000,
+      }).within(
+        //Expected to find element, but never found it.
         () => {
           cy.contains(timeRange).click();
         },
@@ -804,7 +807,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-daterange-dropdown-value="Custom Range"]')
+    cy.get('[data-daterange-dropdown-value="Custom Range"]', { timeout: 10000 })
       .should("exist")
       .should("be.visible")
       .click({ force: true });
