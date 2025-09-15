@@ -123,6 +123,7 @@ type processorTypes =
   | BLACKHAWKNETWORK
   | DWOLLA
   | PAYSAFE
+  | PEACHPAYMENTS
 
 type payoutProcessorTypes =
   | ADYEN
