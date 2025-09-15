@@ -1,5 +1,5 @@
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
+let make = (~config: ReconEngineTypes.ingestionConfigType) => {
   let (isUploading, setIsUploading) = React.useState(_ => false)
 
   <>

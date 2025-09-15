@@ -1,9 +1,9 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType) => {
+let make = (~account: ReconEngineTypes.accountType) => {
   open LogicUtils
   open ReconEngineTransactionsTypes
   open ReconEngineTransactionsUtils
-  open ReconEngineUtils
+  open ReconEngineFilterUtils
   open HierarchicalTransactionsTableEntity
 
   let getTransactions = ReconEngineHooks.useGetTransactions()
@@ -82,12 +82,12 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
       }
 
       let sourceQueryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
+        buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
         "&credit_account=" ++
         account.account_id
 
       let targetQueryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
+        buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
         "&debit_account=" ++
         account.account_id
 

@@ -1,7 +1,7 @@
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~isUploading) => {
+let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
   open LogicUtils
-  open ReconEngineFileManagementUtils
+  open ReconEngineAccountsSourcesUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -26,7 +26,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~isUplo
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineFileManagementTypes.ingestionHistoryType>) => {
+      arr->Array.filter((obj: Nullable.t<ReconEngineTypes.ingestionHistoryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.status, searchText) ||
@@ -89,7 +89,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~isUplo
         )
       }
       let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(
+        ReconEngineFilterUtils.buildQueryStringFromFilters(
           ~filterValueJson=enhancedFilterValueJson,
         )->String.concat(`&ingestion_id=${config.ingestion_id}`)
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))

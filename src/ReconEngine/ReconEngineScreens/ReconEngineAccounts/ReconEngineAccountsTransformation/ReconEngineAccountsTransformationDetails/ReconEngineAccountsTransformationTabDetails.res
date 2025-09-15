@@ -1,5 +1,5 @@
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) => {
+let make = (~config: ReconEngineTypes.transformationConfigType) => {
   <>
     <ReconEngineAccountsTransformationDetailsConfig config={config} />
     <ReconEngineAccountsTransformationDetailsHistory config={config} />

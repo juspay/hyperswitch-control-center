@@ -3,11 +3,7 @@ open FormDataUtils
 open Typography
 
 @react.component
-let make = (
-  ~config: ReconEngineFileManagementTypes.ingestionConfigType,
-  ~isUploading,
-  ~setIsUploading,
-) => {
+let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsUploading) => {
   let dataDict = config.data->getDictFromJsonObject
   let ingestionType = dataDict->getString("ingestion_type", "")
   let allKeyValuePairs = getKeyValuePairsFromDict(dataDict)

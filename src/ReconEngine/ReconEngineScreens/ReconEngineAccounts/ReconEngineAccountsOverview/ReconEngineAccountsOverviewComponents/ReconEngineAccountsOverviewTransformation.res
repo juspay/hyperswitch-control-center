@@ -7,10 +7,10 @@ let make = (
   ~onTransformationStatusChange: option<bool => unit>=?,
   ~transformationConfigTabIndex: option<string>,
 ) => {
-  open ReconEngineIngestionHelper
+  open ReconEngineAccountsSourcesHelper
   open APIUtils
   open LogicUtils
-  open ReconEngineFileManagementUtils
+  open ReconEngineAccountsOverviewUtils
 
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
@@ -30,7 +30,9 @@ let make = (
         )
         let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
         let transformationHistoryList =
-          transformationHistoryRes->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+          transformationHistoryRes->getArrayDataFromJson(
+            getAccountsOverviewTransformationHistoryPayloadFromDict,
+          )
         setTransformationHistoryData(_ => transformationHistoryList)
 
         let allProcessed =
@@ -46,7 +48,7 @@ let make = (
             let selectedItem =
               arr->getValueFromArray(
                 selectedIndex,
-                Dict.make()->transformationHistoryItemToObjMapper,
+                Dict.make()->getAccountsOverviewTransformationHistoryPayloadFromDict,
               )
             setSelectedTransformationHistoryId(_ => selectedItem.transformation_history_id)
           }
@@ -64,7 +66,7 @@ let make = (
     None
   }, (ingestionHistoryId, transformationConfigTabIndex))
 
-  let detailsFields: array<ReconEngineFileManagementEntity.transformationHistoryColType> = [
+  let detailsFields: array<ReconEngineAccountsSourcesEntity.transformationHistoryColType> = [
     TransformationName,
     TransformationHistoryId,
     TransformationStats,
@@ -102,8 +104,10 @@ let make = (
               colType => {
                 <DisplayKeyValueParams
                   key={LogicUtils.randomString(~length=10)}
-                  heading={ReconEngineFileManagementEntity.getTransformationHistoryHeading(colType)}
-                  value={ReconEngineFileManagementEntity.getTransformationHistoryCell(
+                  heading={ReconEngineAccountsSourcesEntity.getTransformationHistoryHeading(
+                    colType,
+                  )}
+                  value={ReconEngineAccountsSourcesEntity.getTransformationHistoryCell(
                     config,
                     colType,
                   )}

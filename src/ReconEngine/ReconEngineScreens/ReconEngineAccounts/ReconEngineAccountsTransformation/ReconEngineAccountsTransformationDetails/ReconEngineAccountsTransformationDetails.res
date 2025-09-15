@@ -4,7 +4,8 @@ open Typography
 let make = (~accountId) => {
   open APIUtils
   open LogicUtils
-  open ReconEngineFileManagementUtils
+  open ReconEngineAccountsTransformationUtils
+  open ReconEngineAccountsUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -12,11 +13,9 @@ let make = (~accountId) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (transformationConfigs, setTransformationConfigs) = React.useState(_ => [
-    Dict.make()->transformationConfigItemToObjMapper,
+    Dict.make()->getTransformationConfigPayloadFromDict,
   ])
-  let (accountData, setAccountData) = React.useState(_ =>
-    Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
-  )
+  let (accountData, setAccountData) = React.useState(_ => Dict.make()->getAccountPayloadFromDict)
   let (tabIndex, setTabIndex) = React.useState(_ => None)
 
   let getTransformationDetails = async () => {
@@ -37,9 +36,8 @@ let make = (~accountId) => {
       let transformationConfigsRes = await fetchDetails(transformationConfigUrl)
       let accountRes = await fetchDetails(accountUrl)
       let transformationConfigs =
-        transformationConfigsRes->getArrayDataFromJson(transformationConfigItemToObjMapper)
-      let accountData =
-        accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
+        transformationConfigsRes->getArrayDataFromJson(getTransformationConfigPayloadFromDict)
+      let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
       setAccountData(_ => accountData)
       setTransformationConfigs(_ => transformationConfigs)
       setScreenState(_ => PageLoaderWrapper.Success)
