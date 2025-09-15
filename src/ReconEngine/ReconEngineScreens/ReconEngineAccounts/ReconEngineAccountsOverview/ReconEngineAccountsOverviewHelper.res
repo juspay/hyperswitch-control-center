@@ -1,6 +1,6 @@
 open Typography
-open ReconEngineFileManagementUtils
-open ReconEngineFileManagementTypes
+open ReconEngineTypes
+open ReconEngineAccountsUtils
 
 module SourceIngestionHeader = {
   @react.component
@@ -9,7 +9,7 @@ module SourceIngestionHeader = {
       <p className={`${body.lg.semibold} text-nd_gray-800`}>
         {"Source & Ingestion Config"->React.string}
       </p>
-      {switch ingestionHistoryData.status->statusMapper {
+      {switch ingestionHistoryData.status->getIngestionAndTransformationStatusVariantFromString {
       | Processed =>
         <Table.TableCell
           cell={ReconEngineExceptionEntity.getStatusLabel(ingestionHistoryData.status)}

@@ -1,5 +1,4 @@
 open Typography
-open ReconEngineTypes
 open ReconEngineOverviewSummaryTypes
 
 module InOutComponent = {
@@ -119,7 +118,7 @@ module FlowWithLayoutControls = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
   open APIUtils
   open LogicUtils

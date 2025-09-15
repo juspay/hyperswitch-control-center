@@ -1,24 +1,34 @@
-open ReconEngineFileManagementUtils
 open ReconEngineAccountsTransformationTypes
 open LogicUtils
+open ReconEngineAccountsUtils
+open ReconEngineTypes
+open ReconEngineUtils
 
-let getTotalCount = (
-  ~transformationHistoryList: array<ReconEngineFileManagementTypes.transformationHistoryType>,
-): int => {
+let getTransformationConfigPayloadFromDict = dict => {
+  dict->transformationConfigItemToObjMapper
+}
+
+let getTransformationHistoryPayloadFromDict = dict => {
+  dict->transformationHistoryItemToObjMapper
+}
+
+let getTotalCount = (~transformationHistoryList: array<transformationHistoryType>): int => {
   transformationHistoryList->Array.length
 }
 
-let getProcessedCount = (
-  ~transformationHistoryList: array<ReconEngineFileManagementTypes.transformationHistoryType>,
-): int => {
+let getProcessedCount = (~transformationHistoryList: array<transformationHistoryType>): int => {
   transformationHistoryList
-  ->Array.filter(item => item.status->statusMapper == Processed)
+  ->Array.filter(item =>
+    item.status->getIngestionAndTransformationStatusVariantFromString == Processed
+  )
   ->Array.length
 }
 
-let getHealthyStatus = (
-  ~transformationHistoryList: array<ReconEngineFileManagementTypes.transformationHistoryType>,
-): (string, string, TableUtils.labelColor) => {
+let getHealthyStatus = (~transformationHistoryList: array<transformationHistoryType>): (
+  string,
+  string,
+  TableUtils.labelColor,
+) => {
   let total = getTotalCount(~transformationHistoryList)->Int.toFloat
   let processed = getProcessedCount(~transformationHistoryList)->Int.toFloat
   let percentage = total > 0.0 ? valueFormatter(processed *. 100.0 /. total, Rate) : "0%"
@@ -30,9 +40,9 @@ let getHealthyStatus = (
   }
 }
 
-let getTransformationConfigData = (
-  ~config: ReconEngineFileManagementTypes.transformationConfigType,
-): array<transformationConfigDataType> => {
+let getTransformationConfigData = (~config: transformationConfigType): array<
+  transformationConfigDataType,
+> => {
   let sourceConfigData: array<transformationConfigDataType> = [
     {
       label: TransformationId,
@@ -57,4 +67,43 @@ let getTransformationConfigData = (
   ]
 
   sourceConfigData
+}
+
+let getStatusOptions = (statusList: array<ingestionTransformationStatusType>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  statusList->Array.map(status => {
+    let value: string = (status :> string)->String.toLowerCase
+    let label = (status :> string)->capitalizeString
+    {
+      FilterSelectBox.label,
+      value,
+    }
+  })
+}
+
+let initialIngestionDisplayFilters = () => {
+  let statusOptions = getStatusOptions([Pending, Processing, Processed, Failed])
+
+  [
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="status",
+          ~name="status",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=statusOptions,
+            ~buttonText="Select Status",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
 }

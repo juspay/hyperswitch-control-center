@@ -4,8 +4,8 @@ open Typography
 let make = (~accountId) => {
   open APIUtils
   open LogicUtils
-  open ReconEngineFileManagementUtils
   open ReconEngineAccountsUtils
+  open ReconEngineAccountsSourcesUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -13,7 +13,7 @@ let make = (~accountId) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionConfigs, setIngestionConfigs) = React.useState(_ => [
-    Dict.make()->ingestionConfigItemToObjMapper,
+    Dict.make()->getIngestionConfigPayloadFromDict,
   ])
   let (accountData, setAccountData) = React.useState(_ => Dict.make()->getAccountPayloadFromDict)
   let (tabIndex, setTabIndex) = React.useState(_ => None)
@@ -36,7 +36,7 @@ let make = (~accountId) => {
       let ingestionConfigsRes = await fetchDetails(ingestionConfigUrl)
       let accountRes = await fetchDetails(accountUrl)
       let ingestionConfigs =
-        ingestionConfigsRes->getArrayDataFromJson(ingestionConfigItemToObjMapper)
+        ingestionConfigsRes->getArrayDataFromJson(getIngestionConfigPayloadFromDict)
       let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
       setAccountData(_ => accountData)
       setIngestionConfigs(_ => ingestionConfigs)

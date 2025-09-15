@@ -1,13 +1,9 @@
 open Typography
 
 @react.component
-let make = (
-  ~config: ReconEngineFileManagementTypes.transformationConfigType,
-  ~tabIndex: string,
-) => {
+let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: string) => {
   open APIUtils
   open LogicUtils
-  open ReconEngineFileManagementUtils
   open ReconEngineAccountsTransformationUtils
   open ReconEngineAccountsTransformationHelper
 
@@ -16,7 +12,7 @@ let make = (
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (transformationHistoryList, setTransformationHistoryList) = React.useState(_ => [
-    Dict.make()->transformationHistoryItemToObjMapper,
+    Dict.make()->getTransformationHistoryPayloadFromDict,
   ])
 
   let fetchTransformationHistoryData = async () => {
@@ -30,7 +26,7 @@ let make = (
       )
       let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
       let transformationHistoryList =
-        transformationHistoryRes->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+        transformationHistoryRes->getArrayDataFromJson(getTransformationHistoryPayloadFromDict)
 
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)

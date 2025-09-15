@@ -1,8 +1,8 @@
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) => {
+let make = (~config: ReconEngineTypes.transformationConfigType) => {
   open LogicUtils
   open APIUtils
-  open ReconEngineFileManagementUtils
+  open ReconEngineAccountsTransformationUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
@@ -27,9 +27,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((
-        obj: Nullable.t<ReconEngineFileManagementTypes.transformationHistoryType>,
-      ) => {
+      arr->Array.filter((obj: Nullable.t<ReconEngineTypes.transformationHistoryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.status, searchText) ||
@@ -46,7 +44,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
   let topFilterUi = {
     <div className="flex flex-row">
       <DynamicFilter
-        title="ReconEngineAccountsSourcesHistoryFilters"
+        title="ReconEngineAccountsTransformationHistoryFilters"
         initialFilters={initialIngestionDisplayFilters()}
         options=[]
         popupFilterFields=[]
@@ -56,7 +54,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
         )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
-        key="ReconEngineAccountsSourcesHistoryFilters"
+        key="ReconEngineAccountsTransformationHistoryFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
@@ -96,7 +94,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
       )
       let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
       let transformationHistoryList =
-        transformationHistoryRes->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+        transformationHistoryRes->getArrayDataFromJson(getTransformationHistoryPayloadFromDict)
 
       let transformationHistoryData = transformationHistoryList->Array.map(Nullable.make)
       setTransformationHistoryList(_ => transformationHistoryData)

@@ -18,10 +18,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
-      let configs =
-        res->getArrayDataFromJson(
-          ReconEngineFileManagementUtils.transformationConfigItemToObjMapper,
-        )
+      let configs = res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
       if configs->Array.length > 0 {
         setConfigData(_ => configs)
         setScreenState(_ => PageLoaderWrapper.Success)
