@@ -6,14 +6,13 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
   open APIUtils
   open ReconEngineFileManagementUtils
   open ReconEngineIngestionHelper
+  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ => [])
-  let (accountData, setAccountData) = React.useState(_ =>
-    Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
-  )
+  let (accountData, setAccountData) = React.useState(_ => Dict.make()->accountItemToObjMapper)
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
     Dict.make()->ingestionHistoryItemToObjMapper
   )
@@ -46,8 +45,7 @@ let make = (~selectedIngestionHistory: ReconEngineFileManagementTypes.ingestionH
         transformationHistoryRes->getArrayDataFromJson(transformationHistoryItemToObjMapper)
 
       let accountRes = await fetchDetails(accountUrl)
-      let accountData =
-        accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
+      let accountData = accountRes->getDictFromJsonObject->accountItemToObjMapper
       setAccountData(_ => accountData)
       setTransformationHistoryData(_ => transformationHistoryList)
 

@@ -89,7 +89,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~isUplo
         )
       }
       let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(
+        ReconEngineFilterUtils.buildQueryStringFromFilters(
           ~filterValueJson=enhancedFilterValueJson,
         )->String.concat(`&ingestion_id=${config.ingestion_id}`)
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))

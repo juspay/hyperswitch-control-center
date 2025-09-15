@@ -1,5 +1,5 @@
 open Typography
-open ReconEngineOverviewTypes
+open ReconEngineTypes
 open ReconEngineOverviewSummaryTypes
 
 module InOutComponent = {
@@ -152,7 +152,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      let accountData = res->getArrayDataFromJson(ReconEngineUtils.accountItemToObjMapper)
 
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(

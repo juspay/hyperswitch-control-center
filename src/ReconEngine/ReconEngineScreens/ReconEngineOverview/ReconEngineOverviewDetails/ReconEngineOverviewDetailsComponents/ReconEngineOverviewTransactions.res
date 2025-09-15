@@ -1,5 +1,5 @@
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open LogicUtils
   open HierarchicalTransactionsTableEntity
 
@@ -30,7 +30,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
           ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
         )
       }
-      let baseQueryString = ReconEngineUtils.buildQueryStringFromFilters(
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
       let queryString = if baseQueryString->isNonEmptyString {

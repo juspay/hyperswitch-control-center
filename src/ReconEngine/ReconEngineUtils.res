@@ -1,91 +1,67 @@
+open ReconEngineTypes
 open LogicUtils
-open ReconEngineTransactionsTypes
 
-let getAccountOptionsFromTransactions = (
-  transactions: array<transactionPayload>,
-  entryType: entryType,
-): array<FilterSelectBox.dropdownOption> => {
-  let allAccounts =
-    transactions
-    ->Array.flatMap(transaction => transaction.entries)
-    ->Array.filter(entry => entry.entry_type === entryType)
-    ->Array.map(entry => entry.account)
-
-  let uniqueAccounts = allAccounts->Array.reduce([], (acc, account) => {
-    let exists =
-      acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
-    if exists {
-      acc
-    } else {
-      Array.concat(acc, [account])
-    }
-  })
-
-  uniqueAccounts->Array.map(account => {
-    {
-      FilterSelectBox.label: account.account_name,
-      value: account.account_id,
-    }
-  })
+let getAmountPayload = dict => {
+  {
+    value: dict->getFloat("value", 0.0),
+    currency: dict->getString("currency", ""),
+  }
 }
 
-let getEntryTypeAccountOptions = (
-  transactions: array<transactionPayload>,
-  ~entryType: entryType,
-): array<FilterSelectBox.dropdownOption> => {
-  getAccountOptionsFromTransactions(transactions, entryType)
+let accountItemToObjMapper = dict => {
+  {
+    account_name: dict->getString("account_name", ""),
+    account_id: dict->getString("account_id", ""),
+    account_type: dict->getString("account_type", ""),
+    profile_id: dict->getString("profile_id", ""),
+    currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
+    initial_balance: dict
+    ->getDictfromDict("initial_balance")
+    ->getAmountPayload,
+    posted_debits: dict
+    ->getDictfromDict("posted_debits")
+    ->getAmountPayload,
+    posted_credits: dict
+    ->getDictfromDict("posted_credits")
+    ->getAmountPayload,
+    pending_debits: dict
+    ->getDictfromDict("pending_debits")
+    ->getAmountPayload,
+    pending_credits: dict
+    ->getDictfromDict("pending_credits")
+    ->getAmountPayload,
+    expected_debits: dict
+    ->getDictfromDict("expected_debits")
+    ->getAmountPayload,
+    expected_credits: dict
+    ->getDictfromDict("expected_credits")
+    ->getAmountPayload,
+    mismatched_debits: dict
+    ->getDictfromDict("mismatched_debits")
+    ->getAmountPayload,
+    mismatched_credits: dict
+    ->getDictfromDict("mismatched_credits")
+    ->getAmountPayload,
+  }
 }
 
-let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
-  let queryParts = []
-
-  filterValueJson
-  ->Dict.toArray
-  ->Array.forEach(((key, value)) => {
-    let apiKey = switch key {
-    | "startTime" => "start_time"
-    | "endTime" => "end_time"
-    | _ => key
-    }
-
-    switch value->JSON.Classify.classify {
-    | String(str) =>
-      if str->isNonEmptyString {
-        queryParts->Array.push(`${apiKey}=${str}`)
-      }
-    | Number(num) => queryParts->Array.push(`${apiKey}=${num->Float.toString}`)
-    | Array(arr) => {
-        let arrayValues = arr->Array.map(item => item->getStringFromJson(""))->Array.joinWith(",")
-        if arrayValues->isNonEmptyString {
-          queryParts->Array.push(`${apiKey}=${arrayValues}`)
-        }
-      }
-    | Bool(bool) => queryParts->Array.push(`${apiKey}=${bool->getStringFromBool}`)
-    | _ => ()
-    }
-  })
-
-  queryParts->Array.joinWith("&")
+let accountRefItemToObjMapper = dict => {
+  {
+    id: dict->getString("id", ""),
+    account_id: dict->getString("account_id", ""),
+  }
 }
 
-let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
-  FilterSelectBox.dropdownOption,
-> => {
-  statusList->Array.map(status => {
-    let value: string = (status :> string)->String.toLowerCase
-    let label = (status :> string)->capitalizeString
-
-    {
-      FilterSelectBox.label,
-      value,
-    }
-  })
-}
-
-let getStagingEntryStatusOptions = (): array<FilterSelectBox.dropdownOption> => {
-  [
-    {label: "Pending", value: "pending"},
-    {label: "Processed", value: "processed"},
-    {label: "Needs Manual Review", value: "needs_manual_review"},
-  ]
+let reconRuleItemToObjMapper = dict => {
+  {
+    rule_id: dict->getString("rule_id", ""),
+    rule_name: dict->getString("rule_name", ""),
+    rule_description: dict->getString("rule_description", ""),
+    sources: dict
+    ->getArrayFromDict("sources", [])
+    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
+    targets: dict
+    ->getArrayFromDict("targets", [])
+    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
+  }
 }

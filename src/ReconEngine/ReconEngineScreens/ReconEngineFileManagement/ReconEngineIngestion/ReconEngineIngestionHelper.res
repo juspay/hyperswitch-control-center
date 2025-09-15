@@ -48,7 +48,7 @@ module HistoryDetails = {
     ~detailsFields,
     ~widthClass="w-1/5",
     ~customFlex="flex-wrap",
-    ~accountData=Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper,
+    ~accountData=Dict.make()->ReconEngineUtils.accountItemToObjMapper,
   ) => {
     <div
       className={`flex ${customFlex} justify-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -98,7 +98,7 @@ module TransformationHistoryDetailsInfo = {
   let make = (
     ~transformationHistoryData: transformationHistoryType,
     ~detailsFields,
-    ~accountData: ReconEngineOverviewTypes.accountType,
+    ~accountData: ReconEngineTypes.accountType,
     ~ingestionHistoryData: ingestionHistoryType,
   ) => {
     let onClick = () => {

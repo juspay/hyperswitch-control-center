@@ -1,6 +1,7 @@
 open ReconEngineOverviewUtils
 open LogicUtils
-open ReconEngineOverviewTypes
+open ReconEngineTypes
+open ReconEngineUtils
 
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
@@ -31,7 +32,7 @@ let getSummaryStackedBarGraphData = (
 }
 
 let calculateTotals = (data: array<accountType>) => {
-  data->Array.reduce(Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper, (acc, item) => {
+  data->Array.reduce(Dict.make()->accountItemToObjMapper, (acc, item) => {
     {
       ...acc,
       posted_credits: {
@@ -180,7 +181,7 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
 let getAccountData = (accountData: array<accountType>, accountId: string): accountType => {
   accountData
   ->Array.find(account => account.account_id === accountId)
-  ->Option.getOr(Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper)
+  ->Option.getOr(Dict.make()->accountItemToObjMapper)
 }
 
 let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {

@@ -2,10 +2,9 @@ open Typography
 
 @react.component
 let make = () => {
-  open ReconEngineOverviewUtils
-  open ReconEngineOverviewTypes
   open APIUtils
   open LogicUtils
+  open ReconEngineUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])

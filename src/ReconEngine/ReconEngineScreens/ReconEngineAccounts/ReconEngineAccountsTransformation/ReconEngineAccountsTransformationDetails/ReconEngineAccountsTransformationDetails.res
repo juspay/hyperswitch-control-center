@@ -5,6 +5,7 @@ let make = (~accountId) => {
   open APIUtils
   open LogicUtils
   open ReconEngineFileManagementUtils
+  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -14,9 +15,7 @@ let make = (~accountId) => {
   let (transformationConfigs, setTransformationConfigs) = React.useState(_ => [
     Dict.make()->transformationConfigItemToObjMapper,
   ])
-  let (accountData, setAccountData) = React.useState(_ =>
-    Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
-  )
+  let (accountData, setAccountData) = React.useState(_ => Dict.make()->accountItemToObjMapper)
   let (tabIndex, setTabIndex) = React.useState(_ => None)
 
   let getTransformationDetails = async () => {
@@ -38,8 +37,7 @@ let make = (~accountId) => {
       let accountRes = await fetchDetails(accountUrl)
       let transformationConfigs =
         transformationConfigsRes->getArrayDataFromJson(transformationConfigItemToObjMapper)
-      let accountData =
-        accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
+      let accountData = accountRes->getDictFromJsonObject->accountItemToObjMapper
       setAccountData(_ => accountData)
       setTransformationConfigs(_ => transformationConfigs)
       setScreenState(_ => PageLoaderWrapper.Success)

@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open LogicUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])

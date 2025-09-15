@@ -1,12 +1,12 @@
-open ReconEngineOverviewTypes
-open ReconEngineOverviewSummaryUtils
-open ReconEngineOverviewUtils
-open ReconEngineOverviewHelper
-open APIUtils
-open LogicUtils
-
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+  open ReconEngineTypes
+  open ReconEngineOverviewSummaryUtils
+  open ReconEngineOverviewHelper
+  open APIUtils
+  open LogicUtils
+  open ReconEngineUtils
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
@@ -41,8 +41,8 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   }, [])
 
   let (sourceAccountData, targetAccountData) = React.useMemo(() => {
-    let source = ruleDetails.sources->getValueFromArray(0, defaultAccountDetails)
-    let target = ruleDetails.targets->getValueFromArray(0, defaultAccountDetails)
+    let source = ruleDetails.sources->getValueFromArray(0, Dict.make()->accountRefItemToObjMapper)
+    let target = ruleDetails.targets->getValueFromArray(0, Dict.make()->accountRefItemToObjMapper)
 
     let sourceAccount = getAccountData(accountData, source.account_id)
     let targetAccount = getAccountData(accountData, target.account_id)

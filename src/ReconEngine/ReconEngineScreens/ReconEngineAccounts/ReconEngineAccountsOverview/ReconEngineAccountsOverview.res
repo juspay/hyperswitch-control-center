@@ -6,6 +6,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   open APIUtils
   open ReconEngineFileManagementUtils
   open ReconEngineAccountsOverviewUtils
+  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -16,9 +17,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
     Dict.make()->ingestionHistoryItemToObjMapper
   )
-  let (accountData, setAccountData) = React.useState(_ =>
-    Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper
-  )
+  let (accountData, setAccountData) = React.useState(_ => Dict.make()->accountItemToObjMapper)
   let (selectedTransformationHistoryId, setSelectedTransformationHistoryId) = React.useState(_ =>
     ""
   )
@@ -45,8 +44,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
         ~id=Some(latestIngestionHistory.account_id),
       )
       let accountRes = await fetchDetails(accountUrl)
-      let accountData =
-        accountRes->getDictFromJsonObject->ReconEngineOverviewUtils.accountItemToObjMapper
+      let accountData = accountRes->getDictFromJsonObject->accountItemToObjMapper
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

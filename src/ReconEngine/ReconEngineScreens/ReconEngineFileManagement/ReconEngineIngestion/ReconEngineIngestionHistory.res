@@ -1,5 +1,5 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
+let make = (~account: ReconEngineTypes.accountType, ~showModal) => {
   open ReconEngineFileManagementUtils
   open LogicUtils
 
@@ -48,7 +48,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType, ~showModal) => {
         )
       }
       let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(
+        ReconEngineFilterUtils.buildQueryStringFromFilters(
           ~filterValueJson=enhancedFilterValueJson,
         )->String.concat(`&account_id=${account.account_id}`)
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))

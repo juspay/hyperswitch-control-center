@@ -84,7 +84,7 @@ let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) =>
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
+        ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
           `&transformation_id=${config.id}`,
         )
 

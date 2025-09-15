@@ -1,5 +1,5 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType) => {
+let make = (~account: ReconEngineTypes.accountType) => {
   open APIUtils
   open LogicUtils
 

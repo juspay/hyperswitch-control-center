@@ -19,7 +19,7 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       let accountData =
-        res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+        res->LogicUtils.getArrayDataFromJson(ReconEngineUtils.accountItemToObjMapper)
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

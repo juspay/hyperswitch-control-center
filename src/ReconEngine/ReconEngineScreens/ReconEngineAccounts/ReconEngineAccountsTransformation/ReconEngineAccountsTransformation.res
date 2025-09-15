@@ -19,7 +19,7 @@ let make = () => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      let accountData = res->getArrayDataFromJson(ReconEngineUtils.accountItemToObjMapper)
 
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
