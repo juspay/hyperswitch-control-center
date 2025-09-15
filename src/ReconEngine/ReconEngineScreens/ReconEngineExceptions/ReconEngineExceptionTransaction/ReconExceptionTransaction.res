@@ -1,7 +1,7 @@
 @react.component
 let make = (~ruleId: string) => {
   open LogicUtils
-  open ReconEngineUtils
+  open ReconEngineFilterUtils
   open ReconEngineTransactionsTypes
   open HierarchicalTransactionsTableEntity
   let (exceptionData, setExceptionData) = React.useState(_ => [])
@@ -58,9 +58,7 @@ let make = (~ruleId: string) => {
         )
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
-      )
+      let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
       let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)

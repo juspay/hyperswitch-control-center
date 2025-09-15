@@ -27,7 +27,7 @@ let make = (~transformationHistoryId) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
+        ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
           `&transformation_history_id=${transformationHistoryId}`,
         )
       let stagingUrl = getURL(

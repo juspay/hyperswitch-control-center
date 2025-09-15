@@ -1,8 +1,10 @@
+open Typography
+
 @react.component
 let make = () => {
   open APIUtils
   open LogicUtils
-  open Typography
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -18,7 +20,8 @@ let make = () => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      let accountData =
+        res->getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

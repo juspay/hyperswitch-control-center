@@ -1,5 +1,7 @@
 open Typography
 open LogicUtils
+open ReconEngineTypes
+
 module AmountRow = {
   @react.component
   let make = (~label: string, ~amount: string, ~count: string) => {
@@ -23,7 +25,7 @@ module AccountDetailCard = {
     ~isSource: bool,
     ~transactionData: ReconEngineOverviewSummaryTypes.accountTransactionData,
   ) => {
-    let formatAmount = (balance: ReconEngineOverviewTypes.balanceType): string => {
+    let formatAmount = (balance: balanceType): string => {
       `${Math.abs(balance.value)->valueFormatter(Amount)} ${balance.currency}`
     }
 

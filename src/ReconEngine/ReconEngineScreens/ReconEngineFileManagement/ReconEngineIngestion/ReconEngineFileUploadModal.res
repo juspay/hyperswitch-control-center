@@ -42,7 +42,7 @@ let make = (~showModal, ~setShowModal) => {
       )
       let res = await fetchDetails(url)
       let accountData =
-        res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+        res->LogicUtils.getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
       setAccountData(_ => accountData)
       setScreenState(_ => Success)
     } catch {

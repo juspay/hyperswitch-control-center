@@ -1,6 +1,6 @@
 open ReconEngineExceptionTypes
 open LogicUtils
-open ReconEngineUtils
+open ReconEngineFilterUtils
 
 let getStagingAccountOptions = (stagingData: array<processingEntryType>) => {
   let allAccounts = stagingData->Array.map(entry => entry.account)

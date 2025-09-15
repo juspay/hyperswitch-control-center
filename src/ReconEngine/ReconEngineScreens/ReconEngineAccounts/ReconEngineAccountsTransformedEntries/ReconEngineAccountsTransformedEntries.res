@@ -54,7 +54,7 @@ let make = () => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,

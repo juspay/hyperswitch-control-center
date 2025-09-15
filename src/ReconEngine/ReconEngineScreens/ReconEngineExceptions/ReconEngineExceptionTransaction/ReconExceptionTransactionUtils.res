@@ -1,4 +1,4 @@
-open ReconEngineUtils
+open ReconEngineFilterUtils
 open ReconEngineTransactionsTypes
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
