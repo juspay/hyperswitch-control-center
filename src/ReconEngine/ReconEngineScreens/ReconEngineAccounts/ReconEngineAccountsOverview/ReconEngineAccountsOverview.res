@@ -4,7 +4,6 @@ open Typography
 let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   open LogicUtils
   open APIUtils
-  open ReconEngineFileManagementUtils
   open ReconEngineAccountsOverviewUtils
   open ReconEngineAccountsUtils
 
@@ -15,7 +14,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
-    Dict.make()->ingestionHistoryItemToObjMapper
+    Dict.make()->getAccountsOverviewIngestionHistoryPayloadFromDict
   )
   let (accountData, setAccountData) = React.useState(_ => Dict.make()->getAccountPayloadFromDict)
   let (selectedTransformationHistoryId, setSelectedTransformationHistoryId) = React.useState(_ =>
@@ -35,7 +34,10 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
       )
       ingestionHistoryList->Array.sort(sortByDescendingVersion)
       let latestIngestionHistory =
-        ingestionHistoryList->getValueFromArray(0, Dict.make()->ingestionHistoryItemToObjMapper)
+        ingestionHistoryList->getValueFromArray(
+          0,
+          Dict.make()->getAccountsOverviewIngestionHistoryPayloadFromDict,
+        )
       setIngestionHistoryData(_ => latestIngestionHistory)
       let accountUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),

@@ -1,16 +1,15 @@
 open Typography
 
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~tabIndex: string) => {
+let make = (~config: ReconEngineTypes.ingestionConfigType, ~tabIndex: string) => {
   open TableUtils
-  open ReconEngineFileManagementUtils
   open ReconEngineAccountsSourcesUtils
   open ReconEngineAccountsSourcesHelper
 
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryList, setIngestionHistoryList) = React.useState(_ => [
-    Dict.make()->ingestionHistoryItemToObjMapper,
+    Dict.make()->getIngestionHistoryPayloadFromDict,
   ])
 
   let fetchIngestionHistoryData = async () => {

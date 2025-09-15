@@ -1,7 +1,5 @@
 open ReconEngineOverviewUtils
 open LogicUtils
-open ReconEngineTypes
-open ReconEngineAccountsUtils
 
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
@@ -31,8 +29,8 @@ let getSummaryStackedBarGraphData = (
   }
 }
 
-let calculateTotals = (data: array<accountType>) => {
-  data->Array.reduce(Dict.make()->getAccountPayloadFromDict, (acc, item) => {
+let calculateTotals = (data: array<ReconEngineTypes.accountType>) => {
+  data->Array.reduce(Dict.make()->getOverviewAccountPayloadFromDict, (acc, item) => {
     {
       ...acc,
       posted_credits: {
@@ -143,7 +141,7 @@ let accountTransactionDataToObjMapper = dict => {
 }
 
 let generateStatusDataWithTransactionAmounts = (transactionData: accountTransactionData) => {
-  let formatAmountWithCurrency = (balance: balanceType): string => {
+  let formatAmountWithCurrency = (balance: ReconEngineTypes.balanceType): string => {
     `${Math.abs(balance.value)->valueFormatter(Amount)} ${balance.currency}`
   }
 
@@ -178,13 +176,16 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
   ]
 }
 
-let getAccountData = (accountData: array<accountType>, accountId: string): accountType => {
+let getAccountData = (
+  accountData: array<ReconEngineTypes.accountType>,
+  accountId: string,
+): ReconEngineTypes.accountType => {
   accountData
   ->Array.find(account => account.account_id === accountId)
-  ->Option.getOr(Dict.make()->getAccountPayloadFromDict)
+  ->Option.getOr(Dict.make()->getOverviewAccountPayloadFromDict)
 }
 
-let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
+let getAllAccountIds = (reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   reconRulesList
   ->Array.flatMap(rule =>
     Array.concat(
@@ -217,7 +218,12 @@ let getPercentageLabel = (~postedCount, ~totalCount) =>
   } else {
     "0% Reconciled"
   }
-let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
+let makeEdge = (
+  ~source: ReconEngineTypes.accountRefType,
+  ~target: ReconEngineTypes.accountRefType,
+  ~ruleTransactions,
+  ~selectedNodeId,
+) => {
   let (postedCount, totalCount) = summarizeTransactions(ruleTransactions)
   let label = getPercentageLabel(~postedCount, ~totalCount)
   let sourceNodeId = `${source.account_id}-node`
@@ -240,7 +246,7 @@ let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
   }
 }
 let getEdges = (
-  ~reconRulesList,
+  ~reconRulesList: array<ReconEngineTypes.reconRuleType>,
   ~allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
   ~selectedNodeId,
 ) =>
@@ -265,8 +271,8 @@ let getTransactionsData = (
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (
-  reconRulesList: array<reconRuleType>,
-  accountsData: array<accountType>,
+  reconRulesList: array<ReconEngineTypes.reconRuleType>,
+  accountsData: array<ReconEngineTypes.accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
   allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
   ~selectedNodeId: option<string>,
@@ -309,7 +315,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
 }
 
 let processAllTransactionsWithAmounts = (
-  reconRulesList: array<reconRuleType>,
+  reconRulesList: array<ReconEngineTypes.reconRuleType>,
   allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
 ) => {
   let accountTransactionData = Dict.make()
@@ -415,7 +421,7 @@ let getHeaderText = (amountType: amountType, currency: string) => {
   }
 }
 
-let getAmountPair = (amountType: amountType, data: accountType) => {
+let getAmountPair = (amountType: amountType, data: ReconEngineTypes.accountType) => {
   switch amountType {
   | Reconciled => (data.posted_debits, data.posted_credits)
   | Pending => (data.pending_debits, data.pending_credits)
@@ -424,7 +430,7 @@ let getAmountPair = (amountType: amountType, data: accountType) => {
 }
 
 let convertTransactionDataToAccountData = (
-  accountsData: array<accountType>,
+  accountsData: array<ReconEngineTypes.accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
 ) => {
   accountsData->Array.map(account => {

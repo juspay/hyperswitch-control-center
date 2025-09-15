@@ -5,7 +5,6 @@ let make = (~account: ReconEngineTypes.accountType) => {
   open TableUtils
   open APIUtils
   open LogicUtils
-  open ReconEngineFileManagementUtils
   open ReconEngineAccountsTransformationUtils
 
   let getURL = useGetURL()
@@ -13,7 +12,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (transformationHistoryList, setTransformationHistoryList) = React.useState(_ => [
-    Dict.make()->transformationHistoryItemToObjMapper,
+    Dict.make()->getTransformationHistoryPayloadFromDict,
   ])
 
   let fetchTransformationHistoryData = async () => {
@@ -27,7 +26,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
       )
       let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
       let transformationHistoryList =
-        transformationHistoryRes->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+        transformationHistoryRes->getArrayDataFromJson(getTransformationHistoryPayloadFromDict)
 
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)

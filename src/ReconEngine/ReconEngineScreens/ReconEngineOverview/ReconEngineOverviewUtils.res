@@ -2,10 +2,10 @@ open LogicUtils
 open ReconEngineOverviewTypes
 open ReconEngineTypes
 open ReconEngineAccountsUtils
-open ColumnGraphTypes
 open ColumnGraphUtils
 open ReconEngineTransactionsUtils
 open NewAnalyticsUtils
+open ReconEngineUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
@@ -17,6 +17,10 @@ let reconciledVolumeColor = "#8BC2F3"
 // Flow diagram colors
 let highlightStrokeColor = "#3b82f6"
 let normalStrokeColor = "#6b7280"
+
+let getOverviewAccountPayloadFromDict: Dict.t<JSON.t> => accountType = dict => {
+  dict->accountItemToObjMapper
+}
 
 let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: string): (
   string,
@@ -241,7 +245,7 @@ let processCountGraphData = (
       ->Int.toFloat
 
     {
-      name: `${month} ${day}`,
+      ColumnGraphTypes.name: `${month} ${day}`,
       y: count,
       color: graphColor,
     }
@@ -249,11 +253,11 @@ let processCountGraphData = (
 }
 
 let createColumnGraphCountPayload = (
-  ~countData: array<dataObj>,
+  ~countData: array<ColumnGraphTypes.dataObj>,
   ~title: string,
   ~color: string,
 ) => {
-  let columnGraphData: columnGraphPayload = {
+  let columnGraphData: ColumnGraphTypes.columnGraphPayload = {
     data: [
       {
         showInLegend: false,

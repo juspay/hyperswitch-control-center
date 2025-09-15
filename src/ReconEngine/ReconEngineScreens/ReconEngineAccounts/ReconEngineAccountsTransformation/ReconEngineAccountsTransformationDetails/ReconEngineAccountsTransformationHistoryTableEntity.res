@@ -1,7 +1,7 @@
-open ReconEngineFileManagementTypes
-open ReconEngineFileManagementEntity
+open ReconEngineTypes
+open ReconEngineAccountsSourcesEntity
 
-let defaultColumns: array<ReconEngineFileManagementEntity.transformationHistoryColType> = [
+let defaultColumns: array<ReconEngineAccountsSourcesEntity.transformationHistoryColType> = [
   TransformationHistoryId,
   TotalRecords,
   ProcessedCount,

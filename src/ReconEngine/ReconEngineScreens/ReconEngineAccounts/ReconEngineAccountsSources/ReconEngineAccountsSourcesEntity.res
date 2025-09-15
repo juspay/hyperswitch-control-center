@@ -1,7 +1,7 @@
-open ReconEngineFileManagementTypes
-open ReconEngineFileManagementUtils
-open ReconEngineFileManagementHelper
+open ReconEngineAccountsUtils
 open LogicUtils
+open ReconEngineTypes
+open ReconEngineAccountsSourcesHelper
 
 type ingestionConfigColType =
   | SourceConfigName
@@ -99,7 +99,7 @@ let getTransformationHistoryHeading = colType => {
 let getStatusLabel = (statusString: string): Table.cell => {
   Table.Label({
     title: statusString->snakeToTitle,
-    color: switch statusString->statusMapper {
+    color: switch statusString->getIngestionAndTransformationStatusVariantFromString {
     | Pending => Table.LabelGray
     | Processing => Table.LabelOrange
     | Processed => Table.LabelGreen

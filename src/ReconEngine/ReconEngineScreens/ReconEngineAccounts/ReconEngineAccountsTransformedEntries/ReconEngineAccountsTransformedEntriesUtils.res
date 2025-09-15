@@ -1,6 +1,11 @@
 open ReconEngineFilterUtils
 open ReconEngineAccountsTransformedEntriesTypes
 open LogicUtils
+open ReconEngineUtils
+
+let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
+  dict->transformationHistoryItemToObjMapper
+}
 
 let getTotalNeedsManualReviewEntries = (
   stagingEntries: array<ReconEngineExceptionTypes.processingEntryType>,
