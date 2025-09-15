@@ -516,7 +516,7 @@ describe("Payment Operations", () => {
 
     paymentOperations.searchBox
       .should("be.visible")
-      .type(invalid_paymentID)
+      .type(invalid_paymentID) //failed because it targeted a disabled element.
       .type("{enter}");
 
     cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
@@ -722,7 +722,6 @@ describe("Payment Operations", () => {
   });
 
   it("should verify all time range filters are displayed in date selector dropdown", () => {
-    // fails in CI
     const timeRangeFilters = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -741,7 +740,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]')
+    cy.get('[data-date-picker-predifined="predefined-options"]') //Expected to find element: `[data-date-picker-predifined="predefined-options"]`, but never found it.
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -771,6 +770,7 @@ describe("Payment Operations", () => {
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
       cy.get('[data-date-picker-predifined="predefined-options"]').within(
+        //Expected to find element: `[data-date-picker-predifined="predefined-options"]`, but never found it.
         () => {
           cy.contains(timeRange).click();
         },
@@ -783,7 +783,6 @@ describe("Payment Operations", () => {
   });
 
   it("should verify applied custom timerange is displayed correctly", () => {
-    //fails in CI
     const now = new Date();
     const today = now.getDate();
     const previousMonth = new Date(

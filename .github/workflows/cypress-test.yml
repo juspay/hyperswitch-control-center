@@ -50,6 +50,7 @@ jobs:
           CYPRESS_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           CYPRESS_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
         with:
+          browser: chrome
           install: false
           build: npm run build:test
           start: npm run test:start
