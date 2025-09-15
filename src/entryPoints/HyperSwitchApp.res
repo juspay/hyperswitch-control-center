@@ -60,7 +60,9 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
-      let _ = await fetchMerchantList()
+      if !isInternalUser {
+        let _ = await fetchMerchantList()
+      }
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)

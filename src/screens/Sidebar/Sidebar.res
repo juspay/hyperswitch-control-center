@@ -628,7 +628,8 @@ let make = (
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (expandedSections, setExpandedSections) = React.useState(_ => [])
-  let {devModularityV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {devModularityV2, devSidebarV2} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {activeProduct, onProductSelectClick} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
@@ -674,7 +675,7 @@ let make = (
     | false => "248px"
     }
   }
-  let profileMaxWidth = "150px"
+  let profileMaxWidth = "160px"
 
   let level3 = tail => {
     switch List.tail(tail) {
@@ -790,17 +791,11 @@ let make = (
           <RenderIf condition={!isInternalUser}>
             <SidebarSwitch isSidebarExpanded />
           </RenderIf>
-          <RenderIf condition={!devModularityV2}>
+          <RenderIf condition={!devSidebarV2 || isInternalUser}>
             <div
               className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
-              <div
-                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
-                {React.string(
-                  activeProduct->ProductUtils.getProductDisplayName->String.toUpperCase,
-                )}
-              </div>
               <div className="p-2.5 pt-0">
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
@@ -847,7 +842,7 @@ let make = (
                   | Heading(headingOptions) =>
                     <div
                       key={Int.toString(index)}
-                      className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${isSidebarExpanded
+                      className={`text-xs font-medium leading-5 text-nd_gray-600 overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${isSidebarExpanded
                           ? "mx-2"
                           : "mx-1"} mt-5 mb-3`}>
                       {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
@@ -890,7 +885,7 @@ let make = (
               </RenderIf>
             </div>
           </RenderIf>
-          <RenderIf condition={devModularityV2}>
+          <RenderIf condition={devSidebarV2 && !isInternalUser}>
             <div
               className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
               style={height: `calc(100vh - ${verticalOffset})`}>
@@ -983,13 +978,13 @@ let make = (
                     {_ => <>
                       <div className="flex items-center justify-between gap-x-2">
                         <Icon name="nd-user" size=24 />
-                        <div className="flex flex-col gap-0.5">
+                        <div className={`flex flex-col gap-0.5 max-w-[${profileMaxWidth}]`}>
                           <div
-                            className={`w-[${profileMaxWidth}] ${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
+                            className={`${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
                           </div>
                           <div
-                            className={`w-[${profileMaxWidth}] ${body.md.medium} leading-18 text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
+                            className={`${body.md.medium} leading-18 text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
                             {roleId->LogicUtils.snakeToTitle->React.string}
                           </div>
                         </div>
