@@ -7,31 +7,33 @@ let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
   dict->transformationHistoryItemToObjMapper
 }
 
+let getProcessingEntryPayloadFromDict = dict => {
+  dict->processingItemToObjMapper
+}
+
 let getTotalNeedsManualReviewEntries = (
-  stagingEntries: array<ReconEngineExceptionTypes.processingEntryType>,
+  stagingEntries: array<ReconEngineTypes.processingEntryType>,
 ): float => {
   stagingEntries
-  ->Array.filter(entry => entry.status == "needs_manual_review")
+  ->Array.filter(entry => entry.status == NeedsManualReview)
   ->Array.length
   ->Int.toFloat
 }
 
 let getTotalProcessedEntries = (
-  stagingEntries: array<ReconEngineExceptionTypes.processingEntryType>,
+  stagingEntries: array<ReconEngineTypes.processingEntryType>,
 ): float => {
   stagingEntries
-  ->Array.filter(entry => entry.status == "processed")
+  ->Array.filter(entry => entry.status == Processed)
   ->Array.length
   ->Int.toFloat
 }
 
-let getTotalEntries = (
-  stagingEntries: array<ReconEngineExceptionTypes.processingEntryType>,
-): float => {
-  stagingEntries->Array.length->Int.toFloat
+let getTotalEntries = (stagingEntries: array<ReconEngineTypes.processingEntryType>): float => {
+  stagingEntries->Array.filter(entry => entry.status != Archived)->Array.length->Int.toFloat
 }
 
-let cardDetails = (~stagingData: array<ReconEngineExceptionTypes.processingEntryType>) => {
+let cardDetails = (~stagingData: array<ReconEngineTypes.processingEntryType>) => {
   [
     {
       title: "Total Records",
@@ -55,28 +57,13 @@ let cardDetails = (~stagingData: array<ReconEngineExceptionTypes.processingEntry
   ]
 }
 
-let getAccountOptionsFromStagingData = (
-  stagingEntries: array<ReconEngineExceptionTypes.processingEntryType>,
-): array<FilterSelectBox.dropdownOption> => {
-  stagingEntries
-  ->Array.reduce(Dict.make(), (acc, entry) => {
-    acc->Dict.set(entry.account.account_id, entry.account)
-    acc
-  })
-  ->Dict.valuesToArray
-  ->Array.map(account => {
-    FilterSelectBox.label: account.account_name,
-    value: account.account_id,
-  })
-}
-
 let initialDisplayFilters = (~accountOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
 
-  let statusOptions = getStagingEntryStatusOptions()
+  let statusOptions = getStagingEntryStatusOptions([Processed, Pending, NeedsManualReview])
 
   [
     (

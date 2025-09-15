@@ -30,7 +30,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
       arr->Array.filter((obj: Nullable.t<ReconEngineTypes.transformationHistoryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.status, searchText) ||
+          isContainingStringLowercase((obj.status :> string), searchText) ||
           isContainingStringLowercase(obj.transformation_history_id, searchText)
         | None => false
         }

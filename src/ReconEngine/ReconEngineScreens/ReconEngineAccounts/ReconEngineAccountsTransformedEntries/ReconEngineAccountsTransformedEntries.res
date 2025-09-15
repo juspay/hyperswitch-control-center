@@ -5,7 +5,8 @@ let make = () => {
   open LogicUtils
   open APIUtils
   open ReconEngineAccountsTransformedEntriesUtils
-  open ReconEngineExceptionTypes
+  open ReconEngineTypes
+  open ReconEngineFilterUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -30,7 +31,7 @@ let make = () => {
   }
 
   let accountOptions = React.useMemo(() => {
-    getAccountOptionsFromStagingData(stagingData)
+    getAccountOptionsFromStagingEntries(stagingData)
   }, [stagingData])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
@@ -40,7 +41,7 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase((obj.status :> string), searchText)
         | None => false
         }
       })
@@ -53,7 +54,17 @@ let make = () => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      if statusFilter->Array.length == 0 {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
+        )
+      }
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=enhancedFilterValueJson,
+      )
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
@@ -63,7 +74,7 @@ let make = () => {
       let res = await fetchDetails(stagingUrl)
       let stagingList =
         res->LogicUtils.getArrayDataFromJson(
-          ReconEngineExceptionStagingUtils.processingItemToObjMapper,
+          ReconEngineAccountsTransformedEntriesUtils.getProcessingEntryPayloadFromDict,
         )
 
       setStagingData(_ => stagingList)
