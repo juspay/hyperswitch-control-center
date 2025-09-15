@@ -139,7 +139,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   open LogicUtils
   open ReconEngineOverviewSummaryUtils
   open APIUtils
-  open ReconEngineUtils
+  open ReconEngineAccountsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
@@ -156,7 +156,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(accountItemToObjMapper)
+      let accountData = res->getArrayDataFromJson(getAccountPayloadFromDict)
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
@@ -185,7 +185,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
 
   let (allRowsData, currency) = React.useMemo(() => {
     let totals = calculateTotals(accountsData)
-    let account = accountsData->getValueFromArray(0, Dict.make()->accountItemToObjMapper)
+    let account = accountsData->getValueFromArray(0, Dict.make()->getAccountPayloadFromDict)
     let allRows = [...accountsData, totals]
     (allRows, account.currency)
   }, [accountsData])

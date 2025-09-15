@@ -48,7 +48,7 @@ module HistoryDetails = {
     ~detailsFields,
     ~widthClass="w-1/5",
     ~customFlex="flex-wrap",
-    ~accountData=Dict.make()->ReconEngineUtils.accountItemToObjMapper,
+    ~accountData=Dict.make()->ReconEngineAccountsUtils.getAccountPayloadFromDict,
   ) => {
     <div
       className={`flex ${customFlex} justify-start dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>

@@ -1,4 +1,6 @@
 open ReconEngineAccountsTypes
+open ReconEngineTypes
+open ReconEngineUtils
 
 let getStatusVariantFromString = (status: string): status => {
   switch status {
@@ -6,4 +8,12 @@ let getStatusVariantFromString = (status: string): status => {
   | "Inactive" => Inactive
   | _ => UnknownStatus
   }
+}
+
+let getAccountPayloadFromDict: Dict.t<JSON.t> => accountType = dict => {
+  dict->accountItemToObjMapper
+}
+
+let getAccountRefPayloadFromDict: Dict.t<JSON.t> => accountRefType = dict => {
+  dict->accountRefItemToObjMapper
 }

@@ -1,7 +1,7 @@
 open LogicUtils
 open ReconEngineOverviewTypes
 open ReconEngineTypes
-open ReconEngineUtils
+open ReconEngineAccountsUtils
 open ColumnGraphTypes
 open ColumnGraphUtils
 open ReconEngineTransactionsUtils
@@ -25,7 +25,7 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   let account =
     accountData
     ->Array.find(account => account.account_id === accountId)
-    ->Option.getOr(Dict.make()->accountItemToObjMapper)
+    ->Option.getOr(Dict.make()->getAccountPayloadFromDict)
   (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
 }
 

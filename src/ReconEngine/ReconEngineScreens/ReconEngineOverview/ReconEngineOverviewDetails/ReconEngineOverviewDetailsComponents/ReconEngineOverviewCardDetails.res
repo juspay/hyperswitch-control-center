@@ -4,7 +4,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open ReconEngineOverviewUtils
   open ReconEngineOverviewHelper
   open APIUtils
-  open ReconEngineUtils
+  open ReconEngineAccountsUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -22,7 +22,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(accountItemToObjMapper)
+      let accountData = res->getArrayDataFromJson(getAccountPayloadFromDict)
       setAccountData(_ => accountData)
       let transactionsData = await getTransactions(
         ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
@@ -38,8 +38,10 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     (sourceAccountName, sourceAccountCurrency),
     (targetAccountName, targetAccountCurrency),
   ) = React.useMemo(() => {
-    let source = ruleDetails.sources->getValueFromArray(0, Dict.make()->accountRefItemToObjMapper)
-    let target = ruleDetails.targets->getValueFromArray(0, Dict.make()->accountRefItemToObjMapper)
+    let source =
+      ruleDetails.sources->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
+    let target =
+      ruleDetails.targets->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
     let sourceInfo = getAccountNameAndCurrency(accountData, source.account_id)
     let targetInfo = getAccountNameAndCurrency(accountData, target.account_id)
     (sourceInfo, targetInfo)

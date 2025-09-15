@@ -152,7 +152,8 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineUtils.accountItemToObjMapper)
+      let accountData =
+        res->getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
 
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(

@@ -288,7 +288,7 @@ module SourceTargetAccount = {
         )
         let res = await fetchDetails(url)
         let accountData =
-          res->LogicUtils.getArrayDataFromJson(ReconEngineUtils.accountItemToObjMapper)
+          res->LogicUtils.getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
         setAccountData(_ => accountData)
       } catch {
       | _ => ()

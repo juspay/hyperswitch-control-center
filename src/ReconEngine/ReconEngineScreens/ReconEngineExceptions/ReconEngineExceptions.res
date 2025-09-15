@@ -4,7 +4,7 @@ open Typography
 let make = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineUtils
+  open ReconEngineRulesUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -21,7 +21,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(reconRuleItemToObjMapper)
+      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
