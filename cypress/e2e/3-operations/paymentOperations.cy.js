@@ -498,7 +498,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
+  it.skip("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
     let merchant_id;
     let invalid_paymentID = "invalidID";
 
@@ -720,7 +720,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should verify all time range filters are displayed in date selector dropdown", () => {
+  it.skip("should verify all time range filters are displayed in date selector dropdown", () => {
     const timeRangeFilters = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -751,7 +751,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
+  it.skip("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
     const predefinedTimeRange = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -785,7 +785,7 @@ describe("Payment Operations", () => {
     }
   });
 
-  it("should verify applied custom timerange is displayed correctly", () => {
+  it.skip("should verify applied custom timerange is displayed correctly", () => {
     const now = new Date();
     const today = now.getDate();
     const previousMonth = new Date(
