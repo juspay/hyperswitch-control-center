@@ -950,7 +950,11 @@ let useGetURL = () => {
           | Get =>
             switch queryParamerters {
             | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
-            | None => `${reconBaseURL}/staging_entries`
+            | None =>
+              switch id {
+              | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
+              | None => `${reconBaseURL}/staging_entries`
+              }
             }
           | _ => ""
           }
@@ -1000,6 +1004,20 @@ let useGetURL = () => {
               | Some(transformationHistoryId) =>
                 `${reconBaseURL}/transformations/history/${transformationHistoryId}`
               | None => `${reconBaseURL}/transformations/history`
+              }
+            }
+          | _ => ""
+          }
+        | #TRANSFORMATION_CONFIG =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
+              | None => `${reconBaseURL}/transformations/configs`
               }
             }
           | _ => ""

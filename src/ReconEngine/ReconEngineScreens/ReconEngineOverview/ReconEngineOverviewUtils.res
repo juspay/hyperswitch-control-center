@@ -208,30 +208,75 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
   }
 }
 
-let processCountGraphData = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
-  ~graphColor: string,
-  ~startDate: string,
-  ~endDate: string,
-  ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
-) => {
-  let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
-    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10)
+let getTransactionDate = (transaction: ReconEngineTransactionsTypes.transactionPayload) =>
+  transaction.effective_at->String.slice(~start=0, ~end=10)
+
+let findDateRange = transactions => {
+  transactions->Array.reduce(None, (acc, transaction) => {
+    let date = getTransactionDate(transaction)
+    switch acc {
+    | Some((min, max)) => {
+        let earliestDate = date < min ? date : min
+        let latestDate = date > max ? date : max
+        Some((earliestDate, latestDate))
+      }
+    | None => Some((date, date))
+    }
+  })
+}
+
+let calculateSevenDayWindow = (earliestDate, latestDate) => {
+  let earliestDayJs = earliestDate->DayJs.getDayJsForString
+  let sevenDaysLater = earliestDayJs.add(7, "day")
+  let calculatedEndDate = sevenDaysLater.format("YYYY-MM-DD")
+
+  let actualEndDate = calculatedEndDate <= latestDate ? calculatedEndDate : latestDate
+  (earliestDate, actualEndDate)
+}
+
+let filterTransactionsByDateRange = (transactions, startDate, endDate) => {
+  transactions->Array.filter(transaction => {
+    let transactionDate = getTransactionDate(transaction)
+    transactionDate >= startDate && transactionDate <= endDate
+  })
+}
+
+let groupTransactionsByDate = transactions => {
+  transactions->Array.reduce(Dict.make(), (acc, transaction) => {
+    let dateStr = getTransactionDate(transaction)
     let formattedDate = `${dateStr} 00:00:00`
     let currentDateData = acc->getObj(formattedDate, Dict.make())
     let currentCount = currentDateData->getInt("count", 0)
+
     currentDateData->Dict.set("count", (currentCount + 1)->JSON.Encode.int)
     currentDateData->Dict.set("time_bucket", formattedDate->JSON.Encode.string)
     acc->Dict.set(formattedDate, currentDateData->JSON.Encode.object)
     acc
   })
+}
 
-  let today = Date.make()
-  let endDate = if endDate->isEmptyString {
-    today->Js.Date.toISOString
-  } else {
-    today->Js.Date.toISOString->String.slice(~start=0, ~end=10) ++ " 00:00:00"
+let processCountGraphData = (
+  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~graphColor: string,
+  ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
+) => {
+  let (earliestDate, latestDate) = switch findDateRange(transactionsData) {
+  | Some((earliest, latest)) => (earliest, latest)
+  | None => ("", "")
   }
+
+  let (windowStartDate, windowEndDate) = calculateSevenDayWindow(earliestDate, latestDate)
+
+  let filteredTransactions = filterTransactionsByDateRange(
+    transactionsData,
+    windowStartDate,
+    windowEndDate,
+  )
+
+  let groupedByDate = groupTransactionsByDate(filteredTransactions)
+
+  let actualStartDateTime = `${windowStartDate} 00:00:00`
+  let actualEndDateTime = `${windowEndDate} 23:59:59`
 
   let defaultValue = Dict.make()
   defaultValue->Dict.set("count", 0->JSON.Encode.int)
@@ -242,17 +287,15 @@ let processCountGraphData = (
     ~existingTimeDict=groupedByDate,
     ~timeKey="time_bucket",
     ~defaultValue=defaultValueJson,
-    ~startDate,
-    ~endDate,
+    ~startDate=actualStartDateTime,
+    ~endDate=actualEndDateTime,
     ~granularity,
   )
 
-  let sortedDates =
-    filledData
-    ->Dict.keysToArray
-    ->Array.toSorted(String.compare)
-
-  let countData = sortedDates->Array.map(dateTime => {
+  filledData
+  ->Dict.keysToArray
+  ->Array.toSorted(String.compare)
+  ->Array.map(dateTime => {
     let dateStr = dateTime->String.slice(~start=0, ~end=10)
     let parts = dateStr->String.split("-")
     let monthStr = parts->getValueFromArray(1, "01")
@@ -271,8 +314,6 @@ let processCountGraphData = (
       color: graphColor,
     }
   })
-
-  countData
 }
 
 let createColumnGraphCountPayload = (

@@ -39,7 +39,7 @@ let make = (~ruleId: string) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~range=7,
+    ~range=180,
     ~origin="recon_engine_reconciled_graph",
     (),
   )
@@ -57,12 +57,7 @@ let make = (~ruleId: string) => {
   }, [filterValue])
 
   let volumeData = React.useMemo1(() => {
-    let countData = processCountGraphData(
-      transactionsData,
-      ~graphColor=reconciledVolumeColor,
-      ~startDate=filterValueJson->getString(startTimeFilterKey, ""),
-      ~endDate=filterValueJson->getString(endTimeFilterKey, ""),
-    )
+    let countData = processCountGraphData(transactionsData, ~graphColor=reconciledVolumeColor)
     createColumnGraphCountPayload(
       ~countData,
       ~title="Reconciled Volume",

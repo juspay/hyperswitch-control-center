@@ -59,16 +59,22 @@ module ReconNodeComponent = {
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
-      <div className="flex flex-row items-center border-b pb-2.5">
+      <div className="absolute -top-0 -left-0">
+        <div
+          className={`${body.xs.medium} text-nd_gray-600 bg-nd_gray-100 px-3 py-1 rounded-tl-xl border border-t-0 border-l-0 border-nd_gray-200 rounded-br-xl `}>
+          {`${data.accountType->LogicUtils.capitalizeString} Account`->React.string}
+        </div>
+      </div>
+      <div className="flex flex-row items-center border-b pb-2.5 pt-6">
         <div className="flex flex-row items-center gap-2 flex-[1]">
           <p className={`${body.md.semibold} text-nd_gray-800`}> {data.label->React.string} </p>
         </div>
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 justify-center">
-            <p className={`${body.xs.medium} text-nd_gray-400`}> {"IN"->React.string} </p>
+            <p className={`${body.xs.medium} text-nd_gray-400`}> {"DEBIT"->React.string} </p>
           </div>
           <div className="flex flex-1 justify-center">
-            <p className={`${body.xs.medium} text-nd_gray-400`}> {"OUT"->React.string} </p>
+            <p className={`${body.xs.medium} text-nd_gray-400`}> {"CREDIT"->React.string} </p>
           </div>
         </div>
       </div>
@@ -204,12 +210,6 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   }, [selectedNodeId])
 
   <div className="border rounded-xl border-nd_gray-200">
-    <div
-      className="flex flex-row justify-between items-center p-4 bg-nd_gray-25 rounded-t-xl border-b border-nd_gray-200">
-      <div className={`text-nd_gray-600 ${body.md.semibold}`}>
-        {"Reconciliation Flow"->React.string}
-      </div>
-    </div>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}

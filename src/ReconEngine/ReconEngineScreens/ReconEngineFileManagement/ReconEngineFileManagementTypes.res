@@ -47,6 +47,19 @@ type ingestionConfigType = {
   data: JSON.t,
 }
 
+type transformationConfigType = {
+  id: string,
+  profile_id: string,
+  ingestion_id: string,
+  account_id: string,
+  name: string,
+  config: JSON.t,
+  is_active: bool,
+  created_at: string,
+  last_modified_at: string,
+  last_transformed_at: string,
+}
+
 type transformationHistoryType = {
   transformation_history_id: string,
   transformation_id: string,

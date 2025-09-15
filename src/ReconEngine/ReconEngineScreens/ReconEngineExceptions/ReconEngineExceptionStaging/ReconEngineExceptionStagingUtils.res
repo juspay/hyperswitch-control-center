@@ -78,7 +78,7 @@ let getAccountTypeMapper = dict => {
   }
 }
 
-let processingItemToObjMapper = dict => {
+let processingItemToObjMapper = (dict): processingEntryType => {
   {
     staging_entry_id: dict->getString("staging_entry_id", ""),
     account: dict
@@ -89,5 +89,9 @@ let processingItemToObjMapper = dict => {
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
     effective_at: dict->getString("effective_at", ""),
+    processing_mode: dict->getString("processing_mode", ""),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    transformation_id: dict->getString("transformation_id", ""),
+    transformation_history_id: dict->getString("transformation_history_id", ""),
   }
 }

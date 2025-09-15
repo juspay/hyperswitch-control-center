@@ -29,7 +29,7 @@ module Landing = {
             onClick={_ => setGooglePayIntegrationType(_ => #decryption)}>
             <Card heading="Decrypted Flow" isSelected={googlePayIntegrationType == #decryption}>
               <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-                {"Instantly enable Apple Pay with no information or configuration needed."->React.string}
+                {"Instantly enable Google Pay with no information or configuration needed."->React.string}
               </div>
               <div className="flex gap-2 mt-4">
                 <CustomTag

@@ -30,8 +30,8 @@ type accountTransactionData = {
 
 @unboxed
 type subHeaderType =
-  | In
-  | Out
+  | Debit
+  | Credit
 
 type reconData = {
   inAmount: string,
@@ -47,6 +47,7 @@ type reconStatusData = {
 
 type nodeData = {
   label: string,
+  accountType: string,
   statusData: array<reconStatusData>,
   selected: bool,
   onNodeClick: option<unit => unit>,

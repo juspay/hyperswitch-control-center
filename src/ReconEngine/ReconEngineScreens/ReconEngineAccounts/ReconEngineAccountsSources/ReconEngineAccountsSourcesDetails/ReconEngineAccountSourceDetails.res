@@ -82,7 +82,7 @@ let make = (~accountId) => {
   <div className="flex flex-col gap-6 w-full">
     <div className="flex flex-row items-center justify-between">
       <BreadCrumbNavigation
-        path=[{title: "Ingestion", link: `/v1/recon-engine/sources`}]
+        path=[{title: "Sources", link: `/v1/recon-engine/sources`}]
         currentPageTitle=accountData.account_name
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"

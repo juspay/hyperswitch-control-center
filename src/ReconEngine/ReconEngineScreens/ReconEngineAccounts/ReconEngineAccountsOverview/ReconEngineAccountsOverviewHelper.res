@@ -87,6 +87,8 @@ let getAccordionConfig = (
   ~setSelectedTransformationHistoryId,
   ~manualReviewStatus,
   ~setManualReviewStatus,
+  ~transformationConfigTabIndex,
+  ~stagingEntryId,
 ): array<Accordion.accordion> => {
   [
     {
@@ -103,6 +105,7 @@ let getAccordionConfig = (
           setSelectedTransformationHistoryId
           onTransformationStatusChange={isProcessed =>
             setTransformationStatus(_ => isProcessed ? #Processed : #AttentionRequired)}
+          transformationConfigTabIndex
         />,
       renderContentOnTop: Some(() => <TransformationHeader transformationStatus />),
     },
@@ -116,6 +119,7 @@ let getAccordionConfig = (
             selectedTransformationHistoryId
             onNeedsManualReviewPresent={isPresent =>
               setManualReviewStatus(_ => isPresent ? #AttentionRequired : #Processed)}
+            stagingEntryId
           />
         </FilterContext>
       },

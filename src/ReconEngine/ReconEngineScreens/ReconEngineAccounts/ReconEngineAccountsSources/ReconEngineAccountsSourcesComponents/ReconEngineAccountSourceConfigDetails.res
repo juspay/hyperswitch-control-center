@@ -60,7 +60,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~tabInd
           labelMargin="!py-0"
         />
       </div>
-      <div className="mt-4 grid grid-cols-[auto,1fr] items-start gap-y-4 gap-x-20">
+      <div className="mt-4 grid xl:grid-cols-2 grid-cols-1 items-start gap-y-5 gap-x-32">
         {sourceConfigItems
         ->Array.map(item => {
           <SourceConfigItem key={item.label->sourceConfigLabelToString} data={item} />

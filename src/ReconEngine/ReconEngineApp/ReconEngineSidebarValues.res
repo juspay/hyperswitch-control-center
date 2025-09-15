@@ -103,7 +103,6 @@ let reconEngineSidebars = {
     reconTransactions,
     reconExceptions,
     reconRuleCreation,
-    reconFileManagement,
     reconAccounts,
   ]
   sidebar

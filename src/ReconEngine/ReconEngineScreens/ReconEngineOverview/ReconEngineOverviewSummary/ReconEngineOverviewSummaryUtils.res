@@ -278,6 +278,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
     let transactionData = getTransactionsData(accountTransactionData, accountId)
 
     let statusData = generateStatusDataWithTransactionAmounts(transactionData)
+    let accountType = accountData.account_type
     let nodeId = `${accountId}-node`
     let isSelected = switch selectedNodeId {
     | Some(id) => id === nodeId
@@ -290,6 +291,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
       position: {x: Int.toFloat(index * 100), y: 0.0},
       data: {
         label: accountData.account_name,
+        accountType,
         statusData,
         selected: isSelected,
         onNodeClick: switch onNodeClick {
@@ -499,4 +501,4 @@ let getStatusIcon = (statusType: amountType) => {
 }
 
 let allAmountTypes = [Reconciled, Pending, Mismatched]
-let allSubHeaderTypes = [In, Out]
+let allSubHeaderTypes = [Debit, Credit]
