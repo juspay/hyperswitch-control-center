@@ -12,7 +12,9 @@ module TransformationConfigItem = {
       </span>
       {switch data.valueType {
       | #text =>
-        <span className={`${body.md.medium} text-nd_gray-600`}> {data.value->React.string} </span>
+        <span className={`${body.md.medium} text-nd_gray-600 whitespace-nowrap`}>
+          {data.value->React.string}
+        </span>
       | #date =>
         <span className={`${body.md.medium} text-nd_gray-600`}>
           <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
