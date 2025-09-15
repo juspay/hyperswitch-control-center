@@ -38,6 +38,8 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
+  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
 
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
@@ -118,7 +120,12 @@ let make = () => {
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
-                <Sidebar path=url.path isReconEnabled />
+                <Sidebar
+                  path=url.path
+                  isReconEnabled
+                  sidebars={hyperSwitchAppSidebars}
+                  productSiebars=productSidebars
+                />
               </RenderIf>
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>

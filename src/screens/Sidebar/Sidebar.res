@@ -610,6 +610,8 @@ let make = (
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
   ~isReconEnabled,
+  ~sidebars,
+  ~productSiebars: array<topLevelItem>,
 ) => {
   open CommonAuthHooks
   open Typography
@@ -627,7 +629,9 @@ let make = (
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (expandedSections, setExpandedSections) = React.useState(_ => [])
   let {devModularityV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+  let {activeProduct, onProductSelectClick} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
 
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let hasMerchantData = React.useMemo(() => {
@@ -752,6 +756,10 @@ let make = (
     })
   }
 
+  let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
+    onProductSelectClick(valueSelected.name)
+  }
+
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
@@ -782,55 +790,134 @@ let make = (
           <RenderIf condition={!isInternalUser}>
             <SidebarSwitch isSidebarExpanded />
           </RenderIf>
-          <div
-            className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
-            style={height: `calc(100vh - ${verticalOffset})`}>
-            <style> {React.string(sidebarScrollbarCss)} </style>
-            <div className="p-3 pt-0">
-              <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
-                <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
-                  <div
-                    className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 px-3 py-1.5 ${isSidebarExpanded
-                        ? ""
-                        : "mx-1"} ${hoverColor}`}>
-                    <SidebarOption
-                      name="Home" icon="nd-home" isSidebarExpanded isSelected={false} showIcon=true
-                    />
-                  </div>
-                </Link>
-                <div
-                  className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest leading-18`}>
-                  {React.string("My Modules"->String.toUpperCase)}
-                </div>
-              </RenderIf>
-              <div className="my-2 flex flex-col gap-2">
-                {exploredSidebars
-                ->Array.mapWithIndex((section, index) => {
-                  let isExpanded = Array.includes(expandedSections, section.name)
-                  <ProductTypeSectionItem
-                    key={Int.toString(index)}
-                    section
-                    isExpanded
-                    onToggle={_ => toggleSection(section.name)}
-                    isSidebarExpanded
-                    linkSelectionCheck
-                    firstPart
-                    openItem
-                    setOpenItem
-                    isExploredModule=true
-                    allowProductToggle
-                  />
+          <RenderIf condition={!devModularityV2}>
+            <div
+              className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
+              style={height: `calc(100vh - ${verticalOffset})`}>
+              <style> {React.string(sidebarScrollbarCss)} </style>
+              <div
+                className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
+                {React.string(
+                  activeProduct->ProductUtils.getProductDisplayName->String.toUpperCase,
+                )}
+              </div>
+              <div className="p-2.5 pt-0">
+                {sidebars
+                ->Array.mapWithIndex((tabInfo, index) => {
+                  switch tabInfo {
+                  | RemoteLink(record)
+                  | Link(record) => {
+                      let isSelected = linkSelectionCheck(firstPart, record.link)
+                      <SidebarItem
+                        product={activeProduct}
+                        key={Int.toString(index)}
+                        tabInfo
+                        isSelected
+                        isSidebarExpanded
+                        setOpenItem
+                      />
+                    }
+
+                  | LinkWithTag(record) => {
+                      let isSelected = linkSelectionCheck(firstPart, record.link)
+                      <SidebarItem
+                        product={activeProduct}
+                        key={Int.toString(index)}
+                        tabInfo
+                        isSelected
+                        isSidebarExpanded
+                      />
+                    }
+
+                  | Section(section) =>
+                    <RenderIf condition={section.showSection} key={Int.toString(index)}>
+                      <SidebarNestedSection
+                        product={activeProduct}
+                        key={Int.toString(index)}
+                        section
+                        linkSelectionCheck
+                        firstPart
+                        isSideBarExpanded={isSidebarExpanded}
+                        openItem
+                        setOpenItem
+                        isSectionAutoCollapseEnabled=true
+                        onItemClickCustom=None
+                      />
+                    </RenderIf>
+                  | Heading(headingOptions) =>
+                    <div
+                      key={Int.toString(index)}
+                      className={`text-xs font-medium leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${isSidebarExpanded
+                          ? "mx-2"
+                          : "mx-1"} mt-5 mb-3`}>
+                      {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
+                    </div>
+
+                  | CustomComponent(customComponentOptions) =>
+                    <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
+                      customComponentOptions.component
+                    </RenderIf>
+                  }
                 })
                 ->React.array}
               </div>
-              <RenderIf condition={unexploredSidebars->Array.length > 0}>
-                <hr className="mt-4" />
-                <div
-                  className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest ${borderColor} leading-18`}>
-                  {React.string("Other Modules"->String.toUpperCase)}
+              <RenderIf condition={productSiebars->Array.length > 0}>
+                <div className={"p-2.5"}>
+                  <div
+                    className={`text-xs font-semibold px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest`}>
+                    {React.string("Other modular services"->String.toUpperCase)}
+                  </div>
+                  {productSiebars
+                  ->Array.mapWithIndex((tabInfo, index) => {
+                    switch tabInfo {
+                    | Link(record) => {
+                        let isSelected = linkSelectionCheck(firstPart, record.link)
+                        <SidebarItem
+                          product={record.name->ProductUtils.getProductVariantFromDisplayName} ///
+                          key={Int.toString(index)}
+                          tabInfo
+                          isSelected
+                          isSidebarExpanded
+                          setOpenItem
+                          onItemClickCustom={_ => onItemClickCustom(record)}
+                        />
+                      }
+                    | _ => React.null
+                    }
+                  })
+                  ->React.array}
                 </div>
-                <div className="flex flex-col gap-2">
-                  {unexploredSidebars
+              </RenderIf>
+            </div>
+          </RenderIf>
+          <RenderIf condition={devModularityV2}>
+            <div
+              className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
+              style={height: `calc(100vh - ${verticalOffset})`}>
+              <style> {React.string(sidebarScrollbarCss)} </style>
+              <div className="p-3 pt-0">
+                <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
+                  <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
+                    <div
+                      className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 px-3 py-1.5 ${isSidebarExpanded
+                          ? ""
+                          : "mx-1"} ${hoverColor}`}>
+                      <SidebarOption
+                        name="Home"
+                        icon="nd-home"
+                        isSidebarExpanded
+                        isSelected={false}
+                        showIcon=true
+                      />
+                    </div>
+                  </Link>
+                  <div
+                    className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest leading-18`}>
+                    {React.string("My Modules"->String.toUpperCase)}
+                  </div>
+                </RenderIf>
+                <div className="my-2 flex flex-col gap-2">
+                  {exploredSidebars
                   ->Array.mapWithIndex((section, index) => {
                     let isExpanded = Array.includes(expandedSections, section.name)
                     <ProductTypeSectionItem
@@ -843,15 +930,42 @@ let make = (
                       firstPart
                       openItem
                       setOpenItem
-                      isExploredModule=false
+                      isExploredModule=true
                       allowProductToggle
                     />
                   })
                   ->React.array}
                 </div>
-              </RenderIf>
+                <RenderIf condition={unexploredSidebars->Array.length > 0}>
+                  <hr className="mt-4" />
+                  <div
+                    className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest ${borderColor} leading-18`}>
+                    {React.string("Other Modules"->String.toUpperCase)}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {unexploredSidebars
+                    ->Array.mapWithIndex((section, index) => {
+                      let isExpanded = Array.includes(expandedSections, section.name)
+                      <ProductTypeSectionItem
+                        key={Int.toString(index)}
+                        section
+                        isExpanded
+                        onToggle={_ => toggleSection(section.name)}
+                        isSidebarExpanded
+                        linkSelectionCheck
+                        firstPart
+                        openItem
+                        setOpenItem
+                        isExploredModule=false
+                        allowProductToggle
+                      />
+                    })
+                    ->React.array}
+                  </div>
+                </RenderIf>
+              </div>
             </div>
-          </div>
+          </RenderIf>
           <div
             className={`flex items-center justify-between px-4 py-3 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>

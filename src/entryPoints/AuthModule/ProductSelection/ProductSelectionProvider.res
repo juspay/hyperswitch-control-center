@@ -72,6 +72,7 @@ let make = (~children) => {
 
   let setSwitchToMerchant = (merchantDetails, product) => {
     setShowModal(_ => true)
+    setActiveProduct(_ => UnknownProduct)
     setAction(_ => Some(SwitchToMerchant(merchantDetails)))
     setSelectedProduct(_ => Some(product))
   }

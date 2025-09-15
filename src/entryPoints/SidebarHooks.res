@@ -165,3 +165,41 @@ let useGetSidebarProductModules = (~isExplored) => {
 
   filteredProducts
 }
+
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
+  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let defaultSidebar = []
+
+  if featureFlagDetails.devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  }
+
+  let sidebarValuesForProduct = switch activeProduct {
+  | Orchestration(V1) => hsSidebars
+  | Recon(V2) => ReconSidebarValues.reconSidebars
+  | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
+  | Vault => VaultSidebarValues.vaultSidebars
+  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
+  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
+  | Orchestration(V2) => orchestratorV2Sidebars
+  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
+  | OnBoarding(_) => []
+  | UnknownProduct => []
+  }
+  defaultSidebar->Array.concat(sidebarValuesForProduct)
+}
