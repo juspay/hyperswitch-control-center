@@ -1,28 +1,20 @@
 @react.component
 let make = () => {
-  open APIUtils
   open LogicUtils
   open ReconEngineAccountsTransformedEntriesHelper
   open ReconEngineAccountsTransformedEntriesUtils
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (stagingData, setStagingData) = React.useState(_ => [
     Dict.make()->getProcessingEntryPayloadFromDict,
   ])
+  let getProcessingEntries = useGetProcessingEntries()
 
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-      )
-      let res = await fetchDetails(stagingUrl)
-      let stagingList = res->LogicUtils.getArrayDataFromJson(getProcessingEntryPayloadFromDict)
+      let stagingList = await getProcessingEntries()
 
       setStagingData(_ => stagingList)
       setScreenState(_ => PageLoaderWrapper.Success)

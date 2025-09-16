@@ -2,24 +2,16 @@ open Typography
 
 @react.component
 let make = () => {
-  open APIUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData =
-        res->LogicUtils.getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
+
+      let accountData = await getAccounts()
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

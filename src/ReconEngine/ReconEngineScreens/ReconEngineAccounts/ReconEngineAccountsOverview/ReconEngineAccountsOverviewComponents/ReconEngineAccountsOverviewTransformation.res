@@ -7,14 +7,13 @@ let make = (
   ~onTransformationStatusChange: option<bool => unit>=?,
   ~transformationConfigTabIndex: option<string>,
 ) => {
+  open ReconEngineHooks
   open ReconEngineAccountsSourcesHelper
-  open APIUtils
   open LogicUtils
   open ReconEngineAccountsOverviewUtils
 
-  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let fetchDetails = useGetMethod()
+  let getTransformationHistory = useGetTransformationHistory()
   let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -22,17 +21,9 @@ let make = (
     if ingestionHistoryId->isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
-        let transformationHistoryUrl = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+        let transformationHistoryList = await getTransformationHistory(
           ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
         )
-        let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
-        let transformationHistoryList =
-          transformationHistoryRes->getArrayDataFromJson(
-            getAccountsOverviewTransformationHistoryPayloadFromDict,
-          )
         setTransformationHistoryData(_ => transformationHistoryList)
 
         let allProcessed =

@@ -7,7 +7,9 @@ let make = () => {
   open ReconEngineAccountsTransformedEntriesUtils
   open ReconEngineTypes
   open ReconEngineFilterUtils
+  open ReconEngineHooks
 
+  let getGetProcessingEntries = useGetProcessingEntries()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -65,18 +67,8 @@ let make = () => {
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=Some(queryString),
-      )
-      let res = await fetchDetails(stagingUrl)
-      let stagingList =
-        res->LogicUtils.getArrayDataFromJson(
-          ReconEngineAccountsTransformedEntriesUtils.getProcessingEntryPayloadFromDict,
-        )
 
+      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
