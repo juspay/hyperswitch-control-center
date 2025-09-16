@@ -136,7 +136,7 @@ module ControlCenter = {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let liveModeStyles = isLiveMode ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
-      <CardLayout width="" customStyle="flex-1 rounded-xl gap-4">
+      <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4">
           <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
           <CardHeader
