@@ -5,7 +5,7 @@ let make = (
   ~ingestionHistoryId: string,
   ~setSelectedTransformationHistoryId: (string => string) => unit,
   ~onTransformationStatusChange: option<bool => unit>=?,
-  ~transformationConfigTabIndex: option<string>,
+  ~transformationHistoryId,
 ) => {
   open ReconEngineAccountsSourcesHelper
   open APIUtils
@@ -44,7 +44,7 @@ let make = (
 
         switch transformationHistoryList->getNonEmptyArray {
         | Some(arr) => {
-            let selectedIndex = transformationConfigTabIndex->Option.getOr("0")->getIntFromString(0)
+            let selectedIndex = transformationHistoryId->Option.getOr("0")->getIntFromString(0)
             let selectedItem =
               arr->getValueFromArray(
                 selectedIndex,
@@ -64,7 +64,7 @@ let make = (
   React.useEffect(() => {
     fetchTransformationHistory()->ignore
     None
-  }, (ingestionHistoryId, transformationConfigTabIndex))
+  }, (ingestionHistoryId, transformationHistoryId))
 
   let detailsFields: array<ReconEngineAccountsSourcesEntity.transformationHistoryColType> = [
     TransformationName,
