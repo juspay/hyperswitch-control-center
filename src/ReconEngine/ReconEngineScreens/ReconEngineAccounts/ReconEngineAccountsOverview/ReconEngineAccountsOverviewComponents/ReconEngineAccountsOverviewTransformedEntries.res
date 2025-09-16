@@ -6,8 +6,9 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open ReconEngineExceptionStagingUtils
-  open ReconEngineExceptionTypes
+  open ReconEngineAccountsTransformedEntriesUtils
+  open ReconEngineFilterUtils
+  open ReconEngineTypes
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -32,7 +33,7 @@ let make = (
     if searchText->isNonEmptyString {
       data->Array.filter((obj: processingEntryType) => {
         isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-        isContainingStringLowercase(obj.status, searchText)
+        isContainingStringLowercase((obj.status :> string), searchText)
       })
     } else {
       data
@@ -46,7 +47,7 @@ let make = (
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase((obj.status :> string), searchText)
         | None => false
         }
       })
@@ -60,10 +61,18 @@ let make = (
     if selectedTransformationHistoryId->isNonEmptyString {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let queryString =
-          ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-            `&transformation_history_id=${selectedTransformationHistoryId}`,
+        let enhancedFilterValueJson = Dict.copy(filterValueJson)
+        let statusFilter = filterValueJson->getArrayFromDict("status", [])
+        if statusFilter->Array.length == 0 {
+          enhancedFilterValueJson->Dict.set(
+            "status",
+            ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
           )
+        }
+        let queryString =
+          ReconEngineFilterUtils.buildQueryStringFromFilters(
+            ~filterValueJson=enhancedFilterValueJson,
+          )->String.concat(`&transformation_history_id=${selectedTransformationHistoryId}`)
         let stagingUrl = getURL(
           ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Get,
@@ -71,7 +80,7 @@ let make = (
           ~queryParamerters=Some(queryString),
         )
         let res = await fetchDetails(stagingUrl)
-        let stagingList = res->getArrayDataFromJson(processingItemToObjMapper)
+        let stagingList = res->getArrayDataFromJson(getProcessingEntryPayloadFromDict)
         let initialSearchText = stagingEntryId->Option.getOr("")
         let filteredList = filterDataBySearchText(stagingList, initialSearchText)
         if stagingEntryId->Option.isSome {
@@ -81,7 +90,7 @@ let make = (
         setStagingData(_ => stagingList)
         setFilteredStagingData(_ => filteredList->Array.map(Nullable.make))
         let isNeedsManualReviewPresent =
-          stagingList->Array.some(entry => entry.status === "needs_manual_review")
+          stagingList->Array.some(entry => entry.status === NeedsManualReview)
         switch onNeedsManualReviewPresent {
         | Some(callback) => callback(isNeedsManualReviewPresent)
         | None => ()
@@ -107,6 +116,10 @@ let make = (
     None
   }, [])
 
+  let accountOptions = React.useMemo(() => {
+    getAccountOptionsFromStagingEntries(stagingData)
+  }, [stagingData])
+
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
       fetchStagingData()->ignore
@@ -118,7 +131,7 @@ let make = (
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={initialDisplayFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(

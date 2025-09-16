@@ -9,7 +9,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (stagingData, setStagingData) = React.useState(_ => [
-    Dict.make()->ReconEngineExceptionStagingUtils.processingItemToObjMapper,
+    Dict.make()->getProcessingEntryPayloadFromDict,
   ])
 
   let fetchStagingData = async () => {
@@ -22,10 +22,7 @@ let make = () => {
         ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
       )
       let res = await fetchDetails(stagingUrl)
-      let stagingList =
-        res->LogicUtils.getArrayDataFromJson(
-          ReconEngineExceptionStagingUtils.processingItemToObjMapper,
-        )
+      let stagingList = res->LogicUtils.getArrayDataFromJson(getProcessingEntryPayloadFromDict)
 
       setStagingData(_ => stagingList)
       setScreenState(_ => PageLoaderWrapper.Success)

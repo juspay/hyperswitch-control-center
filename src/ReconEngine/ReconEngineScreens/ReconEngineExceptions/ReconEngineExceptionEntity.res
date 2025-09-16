@@ -1,4 +1,4 @@
-open ReconEngineExceptionTypes
+open ReconEngineTypes
 open LogicUtils
 
 type processingColType =
@@ -33,15 +33,13 @@ let getProcessingHeading = colType => {
   }
 }
 
-let getStatusLabel = (status): Table.cell => {
+let getStatusLabel = (status: processingEntryStatus): Table.cell => {
   Label({
-    title: status->snakeToTitle,
-    color: switch status->String.toLowerCase {
-    | "pending" => LabelBlue
-    | "processed" => LabelGreen
-    | "needs_manual_review"
-    | "attention_required" =>
-      LabelOrange
+    title: (status :> string)->camelCaseToTitle,
+    color: switch status {
+    | Pending => LabelBlue
+    | Processed => LabelGreen
+    | NeedsManualReview => LabelOrange
     | _ => LabelGray
     },
   })

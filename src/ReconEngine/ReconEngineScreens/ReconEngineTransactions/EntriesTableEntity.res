@@ -1,5 +1,16 @@
-open ReconEngineTransactionsTypes
-open ReconEngineTransactionsUtils
+open ReconEngineTypes
+
+type entryColType =
+  | EntryId
+  | EntryType
+  | AccountName
+  | TransactionId
+  | Amount
+  | Currency
+  | Status
+  | Metadata
+  | CreatedAt
+  | EffectiveAt
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -52,21 +63,21 @@ let getHeading = (colType: entryColType) => {
   }
 }
 
-let getStatusLabel = (statusString: string): Table.cell => {
+let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
   Table.Label({
-    title: statusString->String.toUpperCase,
-    color: switch statusString->String.toLowerCase {
-    | "posted" => Table.LabelGreen
-    | "mismatched" => Table.LabelRed
-    | "expected" => Table.LabelBlue
-    | "archived" => Table.LabelGray
-    | "pending" => Table.LabelOrange
+    title: (entryStatus :> string)->String.toUpperCase,
+    color: switch entryStatus {
+    | Posted => Table.LabelGreen
+    | Mismatched => Table.LabelRed
+    | Expected => Table.LabelBlue
+    | Archived => Table.LabelGray
+    | Pending => Table.LabelOrange
     | _ => Table.LabelLightGray
     },
   })
 }
 
-let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
+let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => EllipsisText(entry.entry_id, "w-fit")
   | EntryType => Text((entry.entry_type :> string))
@@ -76,7 +87,8 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
   | Currency => Text(entry.currency)
   | Status =>
     switch entry.discarded_status {
-    | Some(discardedStatus) => getStatusLabel(discardedStatus)
+    | Some(discardedStatus) =>
+      getStatusLabel(discardedStatus->ReconEngineUtils.getEntryStatusVariantFromString)
     | None => getStatusLabel(entry.status)
     }
   | Metadata => Text(entry.metadata->JSON.stringify)
@@ -88,7 +100,7 @@ let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
 let entriesEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getEntriesList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
