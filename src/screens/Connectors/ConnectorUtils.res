@@ -4,7 +4,7 @@ type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
+let stepsArr = [IntegFields, PaymentMethods, CustomMetaData, SummaryAndTest]
 
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
@@ -14,6 +14,7 @@ let getStepName = step => {
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
+  | CustomMetaData => "MetaData"
   | AutomaticFlow => "AutomaticFlow"
   }
 }
@@ -1581,10 +1582,13 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
   let keys =
     connectorMetaDataFields
     ->Dict.keysToArray
     ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
+  Js.log(keys)
+  Js.log(connectorMetaDataFields->Dict.keysToArray)
 
   {
     keys->Array.forEach(field => {
@@ -1663,6 +1667,7 @@ let getConnectorFields = connectorDetails => {
   | _ => connectorAccountDict->getDictFromJsonObject->getDictfromDict(bodyType)
   }
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
+
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")

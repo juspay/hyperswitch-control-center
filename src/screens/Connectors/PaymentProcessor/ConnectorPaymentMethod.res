@@ -63,12 +63,12 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           connectorIgnoredField,
         )
 
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
-      let response = await updateAPIHook(connectorUrl, body, Post)
-      let _ = await fetchConnectorList()
-      setInitialValues(_ => response)
-      setScreenState(_ => Success)
-      setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+      // let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
+      // let response = await updateAPIHook(connectorUrl, body, Post)
+      // let _ = await fetchConnectorList()
+      // setInitialValues(_ => response)
+      // setScreenState(_ => Success)
+      setCurrentStep(_ => ConnectorTypes.CustomMetaData)
       showToast(
         ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
         ~toastType=ToastSuccess,
