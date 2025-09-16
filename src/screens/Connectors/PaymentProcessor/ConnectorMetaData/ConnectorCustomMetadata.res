@@ -25,7 +25,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
 
   {
     switch connector->getConnectorNameTypeFromString {
-    | Processors(PAYSAFE) => <PaySafe connectorMetaDataFields initialValues />
+    | Processors(PAYSAFE) => <PaySafe connectorMetaDataFields initialValues connector setInitialValues/>
     | _ => React.null
     }
   }
