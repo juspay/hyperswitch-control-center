@@ -154,7 +154,9 @@ let make = (
     customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
     customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
     <div className="flex flex-col gap-4 my-4 px-6 pb-16">
-      <ReconEngineAccountsTransformedEntriesOverviewCards />
+      <ReconEngineAccountsTransformedEntriesOverviewCards
+        selectedTransformationHistoryId=Some(selectedTransformationHistoryId)
+      />
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
         title="Staging Entries"
