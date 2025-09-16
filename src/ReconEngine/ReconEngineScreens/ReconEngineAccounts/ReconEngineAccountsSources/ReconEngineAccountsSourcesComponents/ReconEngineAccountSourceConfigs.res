@@ -1,12 +1,14 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType) => {
+let make = (~account: ReconEngineTypes.accountType) => {
   open APIUtils
   open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (configData, setConfigData) = React.useState(_ => [])
+  let (configData, setConfigData) = React.useState(_ => [
+    Dict.make()->ReconEngineUtils.ingestionConfigItemToObjMapper,
+  ])
 
   let getIngestionConfig = async () => {
     try {
@@ -18,10 +20,14 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
-      let configs =
-        res->getArrayDataFromJson(ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper)
-      setConfigData(_ => configs)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      let configs = res->getArrayDataFromJson(ReconEngineUtils.ingestionConfigItemToObjMapper)
+
+      if configs->Array.length > 0 {
+        setConfigData(_ => configs)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }

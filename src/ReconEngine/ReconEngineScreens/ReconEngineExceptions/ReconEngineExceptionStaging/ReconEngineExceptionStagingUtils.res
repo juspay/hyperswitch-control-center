@@ -1,5 +1,6 @@
 open ReconEngineExceptionTypes
 open LogicUtils
+open ReconEngineFilterUtils
 
 let getStagingAccountOptions = (stagingData: array<processingEntryType>) => {
   let allAccounts = stagingData->Array.map(entry => entry.account)
@@ -18,13 +19,13 @@ let getStagingAccountOptions = (stagingData: array<processingEntryType>) => {
   })
 }
 
-let initialDisplayFilters = (~accountOptions) => {
+let initialDisplayFilters = () => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
 
-  let currencyOptions: array<FilterSelectBox.dropdownOption> = [{label: "AUD", value: "AUD"}]
+  let statusOptions = getStagingEntryStatusOptions()
 
   [
     (
@@ -40,6 +41,7 @@ let initialDisplayFilters = (~accountOptions) => {
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -49,35 +51,17 @@ let initialDisplayFilters = (~accountOptions) => {
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="account",
-          ~name="account_id",
+          ~label="status",
+          ~name="status",
           ~customInput=InputFields.filterMultiSelectInput(
-            ~options=accountOptions,
-            ~buttonText="Select Account",
+            ~options=statusOptions,
+            ~buttonText="Select Status",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
             ~showNameAsToolTip=true,
             ~customButtonStyle="bg-none",
-            (),
-          ),
-        ),
-        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
-      }: EntityType.initialFilters<'t>
-    ),
-    (
-      {
-        field: FormRenderer.makeFieldInfo(
-          ~label="currency",
-          ~name="currency",
-          ~customInput=InputFields.filterMultiSelectInput(
-            ~options=currencyOptions,
-            ~buttonText="Select Currency",
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
             (),
           ),
         ),
@@ -94,7 +78,7 @@ let getAccountTypeMapper = dict => {
   }
 }
 
-let processingItemToObjMapper = dict => {
+let processingItemToObjMapper = (dict): processingEntryType => {
   {
     staging_entry_id: dict->getString("staging_entry_id", ""),
     account: dict
@@ -105,5 +89,9 @@ let processingItemToObjMapper = dict => {
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
     status: dict->getString("status", ""),
     effective_at: dict->getString("effective_at", ""),
+    processing_mode: dict->getString("processing_mode", ""),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    transformation_id: dict->getString("transformation_id", ""),
+    transformation_history_id: dict->getString("transformation_history_id", ""),
   }
 }

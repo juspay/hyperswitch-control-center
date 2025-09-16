@@ -1,16 +1,15 @@
 open Typography
 
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~tabIndex: string) => {
+let make = (~config: ReconEngineTypes.ingestionConfigType, ~tabIndex: string) => {
   open TableUtils
-  open ReconEngineFileManagementUtils
   open ReconEngineAccountsSourcesUtils
   open ReconEngineAccountsSourcesHelper
 
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryList, setIngestionHistoryList) = React.useState(_ => [
-    Dict.make()->ingestionHistoryItemToObjMapper,
+    Dict.make()->getIngestionHistoryPayloadFromDict,
   ])
 
   let fetchIngestionHistoryData = async () => {
@@ -45,7 +44,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~tabInd
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
     <Link
       to_={GlobalVars.appendDashboardPath(
-        ~url=`/v1/recon-engine/sources/${config.account_id}?tabIndex=${tabIndex}`,
+        ~url=`/v1/recon-engine/sources/${config.account_id}?ingestionConfigTabIndex=${tabIndex}`,
       )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
@@ -60,7 +59,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType, ~tabInd
           labelMargin="!py-0"
         />
       </div>
-      <div className="mt-4 grid grid-cols-2 items-center justify-items-between gap-x-32 gap-y-4">
+      <div className="mt-4 grid xl:grid-cols-2 grid-cols-1 items-start gap-y-5 gap-x-32">
         {sourceConfigItems
         ->Array.map(item => {
           <SourceConfigItem key={item.label->sourceConfigLabelToString} data={item} />

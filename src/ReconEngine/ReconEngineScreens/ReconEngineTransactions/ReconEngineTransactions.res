@@ -2,119 +2,48 @@ open Typography
 
 @react.component
 let make = () => {
-  open ReconEngineTransactionsUtils
-  open LogicUtils
-  open ReconEngineUtils
-  open ReconEngineTransactionsTypes
-
+  open APIUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
-  }
-  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
-    FilterContext.filterContext,
-  )
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-  let (configuredTransactions, setConfiguredTransactions) = React.useState(_ => [])
-  let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (searchText, setSearchText) = React.useState(_ => "")
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+  let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getTransactions = ReconEngineHooks.useGetTransactions()
 
-  let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
-    (
-      getEntryTypeAccountOptions(configuredTransactions, ~entryType="credit"),
-      getEntryTypeAccountOptions(configuredTransactions, ~entryType="debit"),
-    )
-  }, [configuredTransactions])
-
-  let topFilterUi = {
-    <div className="flex flex-row">
-      <DynamicFilter
-        title="ReconEngineTransactionsFilters"
-        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        tabNames=filterKeys
-        key="ReconEngineTransactionsFilters"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-        setOffset
-      />
-    </div>
-  }
-
-  let filterLogic = ReactDebounce.useDebounced(ob => {
-    let (searchText, arr) = ob
-    let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
-        switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.transaction_status, searchText)
-        | None => false
-        }
-      })
-    } else {
-      arr
-    }
-    setFilteredReports(_ => filteredList)
-  }, ~wait=200)
-
-  let fetchTransactionsData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
+  let getAccountsData = async _ => {
     try {
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
-      if statusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set(
-          "transaction_status",
-          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
-        )
-      }
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
-      let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
-      let transactionListData = transactionsList
-      setConfiguredTransactions(_ => transactionListData)
-      setFilteredReports(_ => transactionListData->Array.map(Nullable.make))
+      let res = await fetchDetails(url)
+      let accountData =
+        res->LogicUtils.getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
+      setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_transactions",
-    (),
-  )
-
   React.useEffect(() => {
-    setInitialFilters()
+    getAccountsData()->ignore
     None
   }, [])
 
-  React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
-      fetchTransactionsData()->ignore
-    }
-    None
-  }, [filterValue])
+  let tabs: array<Tabs.tab> = React.useMemo(() => {
+    open Tabs
+    accountData->Array.map(account => {
+      {
+        title: account.account_name,
+        renderContent: () =>
+          <FilterContext key="recon-engine-transaction" index="recon-engine-transaction">
+            <ReconEngineTransactionsContent account />
+          </FilterContext>,
+      }
+    })
+  }, [accountData])
 
   <div className="flex flex-col gap-4 w-full">
     <div className="flex flex-row justify-between items-center">
@@ -133,39 +62,26 @@ let make = () => {
         />
       </div>
     </div>
-    <div className="flex-shrink-0"> {topFilterUi} </div>
     <PageLoaderWrapper screenState>
-      <LoadedTableWithCustomColumns
-        title="All Transactions"
-        actualData={filteredTransactionsData}
-        entity={TransactionsTableEntity.transactionsEntity(
-          `v1/recon-engine/transactions`,
-          ~authorization=Access,
-        )}
-        resultsPerPage=10
-        filters={<TableSearchFilter
-          data={configuredTransactions->Array.map(Nullable.make)}
-          filterLogic
-          placeholder="Search Transaction Id or Status"
-          searchVal=searchText
-          setSearchVal=setSearchText
-          customSearchBarWrapperWidth="w-full lg:w-1/3"
-          customInputBoxWidth="w-full rounded-xl"
-        />}
-        totalResults={filteredTransactionsData->Array.length}
-        offset
-        setOffset
-        currrentFetchCount={configuredTransactions->Array.length}
-        customColumnMapper=TableAtoms.reconTransactionsDefaultCols
-        defaultColumns={TransactionsTableEntity.defaultColumns}
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        hideTitle=true
-        remoteSortEnabled=true
-        customizeColumnButtonIcon="nd-filter-horizontal"
-        hideRightTitleElement=true
-        showAutoScroll=true
-      />
+      <RenderIf condition={accountData->Array.length == 0}>
+        <div className="my-4">
+          <NoDataFound
+            message="No recon rules found. Please create a recon rule to view the transactions."
+            renderType={Painting}
+            customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
+          />
+        </div>
+      </RenderIf>
+      <RenderIf condition={accountData->Array.length > 0}>
+        <Tabs
+          tabs
+          showBorder=true
+          includeMargin=false
+          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center !text-red-500 ${body.lg.semibold}`}
+          selectTabBottomBorderColor="bg-primary"
+          customBottomBorderColor="bg-nd_gray-150 mb-4"
+        />
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

@@ -1,7 +1,7 @@
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
+let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
   open LogicUtils
-  open ReconEngineFileManagementUtils
+  open ReconEngineAccountsSourcesUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -26,7 +26,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<ReconEngineFileManagementTypes.ingestionHistoryType>) => {
+      arr->Array.filter((obj: Nullable.t<ReconEngineTypes.ingestionHistoryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.status, searchText) ||
@@ -89,7 +89,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
         )
       }
       let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(
+        ReconEngineFilterUtils.buildQueryStringFromFilters(
           ~filterValueJson=enhancedFilterValueJson,
         )->String.concat(`&ingestion_id=${config.ingestion_id}`)
       let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
@@ -107,7 +107,7 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
       fetchIngestionHistoryData()->ignore
     }
     None
-  }, (config, filterValue))
+  }, (config, filterValue, isUploading))
 
   <div className="flex flex-col gap-4 my-4">
     <div className="flex-shrink-0"> {topFilterUi} </div>
@@ -116,8 +116,8 @@ let make = (~config: ReconEngineFileManagementTypes.ingestionConfigType) => {
         title="Ingestion History"
         hideTitle=true
         actualData={filteredHistoryData}
-        entity={ReconEngineFileManagementEntity.ingestionHistoryTableEntity(
-          `v1/recon-engine/file-management`,
+        entity={ReconEngineAccountSourcesHistoryTableEntity.ingestionHistoryTableEntity(
+          `v1/recon-engine/sources/ingestion-history`,
           ~authorization=Access,
         )}
         resultsPerPage=10

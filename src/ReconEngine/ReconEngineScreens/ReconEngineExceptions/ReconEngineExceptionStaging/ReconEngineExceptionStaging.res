@@ -1,5 +1,9 @@
 @react.component
-let make = () => {
+let make = (
+  ~selectedTransformationHistoryId,
+  ~onNeedsManualReviewPresent=?,
+  ~stagingEntryId: option<string>,
+) => {
   open LogicUtils
   open APIUtils
   open ReconEngineExceptionStagingUtils
@@ -24,6 +28,17 @@ let make = () => {
     mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
   }
 
+  let filterDataBySearchText = (data: array<processingEntryType>, searchText: string) => {
+    if searchText->isNonEmptyString {
+      data->Array.filter((obj: processingEntryType) => {
+        isContainingStringLowercase(obj.staging_entry_id, searchText) ||
+        isContainingStringLowercase(obj.status, searchText)
+      })
+    } else {
+      data
+    }
+  }
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -42,33 +57,41 @@ let make = () => {
   }, ~wait=200)
 
   let fetchStagingData = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    try {
-      let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          "&status=needs_manual_review",
+    if selectedTransformationHistoryId->isNonEmptyString {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let queryString =
+          ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
+            `&transformation_history_id=${selectedTransformationHistoryId}`,
+          )
+        let stagingUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+          ~queryParamerters=Some(queryString),
         )
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=Some(queryString),
-      )
+        let res = await fetchDetails(stagingUrl)
+        let stagingList = res->getArrayDataFromJson(processingItemToObjMapper)
+        let initialSearchText = stagingEntryId->Option.getOr("")
+        let filteredList = filterDataBySearchText(stagingList, initialSearchText)
+        if stagingEntryId->Option.isSome {
+          setSearchText(_ => initialSearchText)
+        }
 
-      let res = await fetchDetails(stagingUrl)
-      let stagingList = res->LogicUtils.getArrayDataFromJson(processingItemToObjMapper)
-
-      setStagingData(_ => stagingList)
-      setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+        setStagingData(_ => stagingList)
+        setFilteredStagingData(_ => filteredList->Array.map(Nullable.make))
+        let isNeedsManualReviewPresent =
+          stagingList->Array.some(entry => entry.status === "needs_manual_review")
+        switch onNeedsManualReviewPresent {
+        | Some(callback) => callback(isNeedsManualReviewPresent)
+        | None => ()
+        }
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+      }
     }
   }
-
-  let accountOptions = React.useMemo(() => {
-    getStagingAccountOptions(stagingData)
-  }, [stagingData])
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
@@ -89,13 +112,13 @@ let make = () => {
       fetchStagingData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, stagingEntryId))
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters(~accountOptions)}
+        initialFilters={initialDisplayFilters()}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -113,10 +136,13 @@ let make = () => {
       />
     </div>
   }
-
-  <div className="flex flex-col gap-4 my-4">
-    <div className="flex-shrink-0"> {topFilterUi} </div>
-    <PageLoaderWrapper screenState>
+  <PageLoaderWrapper
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
+    customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
+    <div className="flex flex-col gap-4 my-4 px-6 pb-16">
+      <ReconEngineAccountsTransformedEntriesOverviewCards />
+      <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
         title="Staging Entries"
         hideTitle=true
@@ -143,6 +169,6 @@ let make = () => {
           setSearchVal=setSearchText
         />}
       />
-    </PageLoaderWrapper>
-  </div>
+    </div>
+  </PageLoaderWrapper>
 }

@@ -1,5 +1,5 @@
 open LogicUtils
-open ReconEngineUtils
+open ReconEngineFilterUtils
 open ReconEngineTransactionsTypes
 
 let entriesMetadataKeyToString = key => {
@@ -9,6 +9,13 @@ let entriesMetadataKeyToString = key => {
   }
 }
 
+let getEntryTypeVariantFromString = (entryType: string): entryType => {
+  switch entryType->String.toLowerCase {
+  | "debit" => Debit
+  | "credit" => Credit
+  | _ => UnknownType
+  }
+}
 let entriesMetadataExcludedKeys = [Amount, Currency]->Array.map(entriesMetadataKeyToString)
 
 let getArrayDictFromRes = res => {
@@ -28,7 +35,7 @@ let getFilteredMetadataFromEntries = metadata => {
 let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),
-    currency: dict->getString("currency", ""),
+    currency: dict->getString("currency", "NA"),
   }
 }
 
@@ -49,10 +56,12 @@ let getAccountPayload = dict => {
 let getTransactionsEntryPayload = dict => {
   {
     entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
+    entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
     account: dict
     ->getDictfromDict("account")
     ->getAccountPayload,
+    amount: dict->getDictfromDict("amount")->getAmountPayload,
+    status: dict->getString("status", "NA"),
   }
 }
 
@@ -81,6 +90,7 @@ let getAllTransactionPayload = (dict): transactionPayload => {
     discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
+    effective_at: dict->getString("effective_at", ""),
   }
 }
 
@@ -93,7 +103,7 @@ let getArrayOfTransactionsListPayloadType = json => {
 let getAllEntryPayload = dict => {
   {
     entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
+    entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
     transaction_id: dict->getString("transaction_id", ""),
     account_name: dict->getDictfromDict("account")->getString("account_name", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
@@ -124,7 +134,7 @@ let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {
   compareLogic(c1.version, c2.version)
 }
 
-let getAccounts = (entries: array<transactionEntryType>, entryType: string): string => {
+let getAccounts = (entries: array<transactionEntryType>, entryType: entryType): string => {
   let accounts =
     entries
     ->Array.filter(entry => entry.entry_type === entryType)
@@ -224,4 +234,14 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       }: EntityType.initialFilters<'t>
     ),
   ]
+}
+
+let getTransactionStatusLabel = (status: string): string => {
+  switch status->getTransactionTypeFromString {
+  | Mismatched => "bg-nd_red-50 text-nd_red-600"
+  | Posted => "bg-nd_green-50 text-nd_green-600"
+  | Expected => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
+  | Archived => "bg-nd_gray-150 text-nd_gray-600"
+  | _ => "bg-nd_gray-50 text-nd_gray_600"
+  }
 }

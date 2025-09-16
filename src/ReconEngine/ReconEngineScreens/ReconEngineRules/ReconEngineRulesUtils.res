@@ -1,4 +1,7 @@
 open LogicUtils
+open ReconEngineTypes
+open ReconEngineUtils
+
 let getFieldDisplayName = (field: string): string => {
   if field->String.startsWith("metadata.") {
     field->String.replace("metadata.", "")->getTitle
@@ -19,4 +22,8 @@ let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
 let createDropdownOption = (~label, ~value) => {
   SelectBox.label,
   value,
+}
+
+let getRulePayloadFromDict: Dict.t<JSON.t> => reconRuleType = dict => {
+  dict->reconRuleItemToObjMapper
 }

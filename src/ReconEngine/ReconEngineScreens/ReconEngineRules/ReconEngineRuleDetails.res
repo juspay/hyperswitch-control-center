@@ -264,6 +264,7 @@ module TriggerRules = {
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
             ~customDashboardClass="h-8 text-sm font-normal",
+            ~onDisabledStyle=`!bg-gray-200 border-none !text-gray-900 ${body.md.semibold}`,
           )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
       </div>
@@ -287,7 +288,7 @@ module SourceTargetAccount = {
         )
         let res = await fetchDetails(url)
         let accountData =
-          res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+          res->LogicUtils.getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
         setAccountData(_ => accountData)
       } catch {
       | _ => ()
@@ -498,7 +499,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
+      <PageUtils.PageHeading title="Configure Rule" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>

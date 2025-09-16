@@ -101,6 +101,7 @@ type v2entityNameType =
   | MERCHANT_ACCOUNT
   | PROCESS_TRACKER
   | API_KEYS
+  | BUSINESS_PROFILE
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
@@ -118,6 +119,7 @@ type hyperswitchReconType = [
   | #INGESTION_HISTORY
   | #INGESTION_CONFIG
   | #TRANSFORMATION_HISTORY
+  | #TRANSFORMATION_CONFIG
   | #NONE
 ]
 
