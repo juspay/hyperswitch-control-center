@@ -4,8 +4,6 @@ type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-let stepsArr = [IntegFields, PaymentMethods, CustomMetaData, SummaryAndTest]
-
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
@@ -2215,3 +2213,10 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
     ThreeDsAuthenticator
   | _ => Processor
   }
+
+let stepsArr = (~connector) => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetaData, SummaryAndTest]
+  | _ => [IntegFields, PaymentMethods, SummaryAndTest]
+  }
+}

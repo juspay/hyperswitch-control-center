@@ -228,7 +228,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorCurrentStepIndicator currentStep stepsArr={stepsArr(~connector)} />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
