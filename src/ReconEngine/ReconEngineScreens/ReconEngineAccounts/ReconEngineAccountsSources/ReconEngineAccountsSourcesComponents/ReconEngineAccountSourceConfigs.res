@@ -1,5 +1,5 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType) => {
+let make = (~account: ReconEngineTypes.accountType) => {
   open APIUtils
   open LogicUtils
 
@@ -7,7 +7,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configData, setConfigData) = React.useState(_ => [
-    Dict.make()->ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper,
+    Dict.make()->ReconEngineUtils.ingestionConfigItemToObjMapper,
   ])
 
   let getIngestionConfig = async () => {
@@ -20,8 +20,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
-      let configs =
-        res->getArrayDataFromJson(ReconEngineFileManagementUtils.ingestionConfigItemToObjMapper)
+      let configs = res->getArrayDataFromJson(ReconEngineUtils.ingestionConfigItemToObjMapper)
 
       if configs->Array.length > 0 {
         setConfigData(_ => configs)

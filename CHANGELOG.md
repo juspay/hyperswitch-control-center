@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.16.0
+
+### Features
+
+- Added new connector peachpayments ([#3592](https://github.com/juspay/hyperswitch-control-center/pull/3592)) ([`e62dadd`](https://github.com/juspay/hyperswitch-control-center/commit/e62dadd5b1b4ca12464b141fe9a83aee2e6461e7))
+
+### Bug Fixes
+
+- Reconciliation engine naming and style changes ([#3590](https://github.com/juspay/hyperswitch-control-center/pull/3590)) ([`5fa841d`](https://github.com/juspay/hyperswitch-control-center/commit/5fa841d8d245f2065b70490bd8fc85366f287505))
+
+### Refactors
+
+- Move recon engine `account` and `rule` types from `ReconEngineOverviewTypes` to `ReconEngineTypes` ([#3597](https://github.com/juspay/hyperswitch-control-center/pull/3597)) ([`8e2a564`](https://github.com/juspay/hyperswitch-control-center/commit/8e2a564f94952b938e37ed33b0b5c6ef0545ee2f))
+- Recon engine `ingestion` and `transformation` types ([#3601](https://github.com/juspay/hyperswitch-control-center/pull/3601)) ([`a67af3b`](https://github.com/juspay/hyperswitch-control-center/commit/a67af3b55368159fa8da2c2a35acc37fe26bd060))
+
+### Miscellaneous Tasks
+
+- Updated wasm for peachpayments connector ([#3593](https://github.com/juspay/hyperswitch-control-center/pull/3593)) ([`719bf92`](https://github.com/juspay/hyperswitch-control-center/commit/719bf92728e4b80e1c7e39cf5953772aebfb803c))
+
+**Full Changelog:** [`2025.09.11.1...2025.09.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.11.1...2025.09.16.0)
+
+- - -
+
 ## 2025.09.11.1
 
 ### Features

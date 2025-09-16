@@ -1,5 +1,5 @@
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <FilterContext index="recon_reconciled_graph">
       <ReconEngineReconciledVolumeColumnGraph ruleId={ruleDetails.rule_id} />

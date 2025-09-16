@@ -1,5 +1,4 @@
-open ReconEngineFileManagementTypes
-open ReconEngineFileManagementEntity
+open ReconEngineAccountsSourcesEntity
 
 let defaultColumns = [IngestionHistoryId, FileName, IngestionType, ReceivedAt, Status, Actions]
 

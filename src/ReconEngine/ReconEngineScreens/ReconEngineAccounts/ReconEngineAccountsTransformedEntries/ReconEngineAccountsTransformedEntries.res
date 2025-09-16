@@ -6,7 +6,6 @@ let make = () => {
   open APIUtils
   open ReconEngineAccountsTransformedEntriesUtils
   open ReconEngineExceptionTypes
-  open ReconEngineFileManagementUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -54,7 +53,7 @@ let make = () => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
@@ -131,7 +130,7 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       let transformationHistoryData =
-        res->getDictFromJsonObject->transformationHistoryItemToObjMapper
+        res->getDictFromJsonObject->getTransformedEntriesTransformationHistoryPayloadFromDict
 
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(

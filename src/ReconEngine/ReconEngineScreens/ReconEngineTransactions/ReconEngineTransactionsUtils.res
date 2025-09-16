@@ -1,5 +1,5 @@
 open LogicUtils
-open ReconEngineUtils
+open ReconEngineFilterUtils
 open ReconEngineTransactionsTypes
 
 let entriesMetadataKeyToString = key => {

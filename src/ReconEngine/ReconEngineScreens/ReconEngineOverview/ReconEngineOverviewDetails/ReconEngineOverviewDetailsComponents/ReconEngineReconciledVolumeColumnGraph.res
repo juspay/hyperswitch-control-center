@@ -19,7 +19,7 @@ let make = (~ruleId: string) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let baseQueryString = ReconEngineUtils.buildQueryStringFromFilters(
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
       let queryString = if baseQueryString->isNonEmptyString {

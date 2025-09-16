@@ -1,5 +1,4 @@
 open Typography
-open ReconEngineOverviewTypes
 open ReconEngineOverviewSummaryTypes
 
 module InOutComponent = {
@@ -119,7 +118,7 @@ module FlowWithLayoutControls = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
   open APIUtils
   open LogicUtils
@@ -152,7 +151,8 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      let accountData =
+        res->getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
 
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(

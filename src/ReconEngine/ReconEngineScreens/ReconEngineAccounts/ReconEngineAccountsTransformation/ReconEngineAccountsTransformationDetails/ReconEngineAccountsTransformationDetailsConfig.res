@@ -1,9 +1,9 @@
 open Typography
 
 @react.component
-let make = (~config: ReconEngineFileManagementTypes.transformationConfigType) => {
-  open ReconEngineIngestionHelper
-  open ReconEngineFileManagementEntity
+let make = (~config: ReconEngineTypes.transformationConfigType) => {
+  open ReconEngineAccountsSourcesHelper
+  open ReconEngineAccountsSourcesEntity
 
   let detailsFields: array<transformationConfigColType> = [
     TransformationId,

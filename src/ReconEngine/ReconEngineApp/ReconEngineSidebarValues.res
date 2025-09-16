@@ -30,16 +30,6 @@ let reconExceptions = {
   })
 }
 
-let reconFileManagement = {
-  Link({
-    name: "File Management",
-    link: `/v1/recon-engine/file-management`,
-    access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
-  })
-}
-
 let reconRuleCreation = {
   Link({
     name: "Rules Library",
@@ -47,16 +37,6 @@ let reconRuleCreation = {
     access: Access,
     icon: "nd-reports",
     selectedIcon: "nd-reports-fill",
-  })
-}
-
-let reconConnection = {
-  Link({
-    name: "Connections",
-    link: `/v1/recon-engine/connection`,
-    access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
   })
 }
 
@@ -89,7 +69,7 @@ let transformedEntries = {
 
 let reconAccounts = {
   Section({
-    name: "Accounts",
+    name: "Data",
     icon: "nd-connectors",
     showSection: true,
     links: [sources, transformation, transformedEntries],
