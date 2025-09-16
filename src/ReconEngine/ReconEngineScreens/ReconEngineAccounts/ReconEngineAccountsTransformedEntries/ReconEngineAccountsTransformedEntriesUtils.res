@@ -2,6 +2,7 @@ open ReconEngineFilterUtils
 open ReconEngineAccountsTransformedEntriesTypes
 open LogicUtils
 open ReconEngineUtils
+open ReconEngineTypes
 
 let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
   dict->transformationHistoryItemToObjMapper
@@ -11,29 +12,25 @@ let getProcessingEntryPayloadFromDict = dict => {
   dict->processingItemToObjMapper
 }
 
-let getTotalNeedsManualReviewEntries = (
-  stagingEntries: array<ReconEngineTypes.processingEntryType>,
-): float => {
+let getTotalNeedsManualReviewEntries = (stagingEntries: array<processingEntryType>): float => {
   stagingEntries
   ->Array.filter(entry => entry.status == NeedsManualReview)
   ->Array.length
   ->Int.toFloat
 }
 
-let getTotalProcessedEntries = (
-  stagingEntries: array<ReconEngineTypes.processingEntryType>,
-): float => {
+let getTotalProcessedEntries = (stagingEntries: array<processingEntryType>): float => {
   stagingEntries
   ->Array.filter(entry => entry.status == Processed)
   ->Array.length
   ->Int.toFloat
 }
 
-let getTotalEntries = (stagingEntries: array<ReconEngineTypes.processingEntryType>): float => {
+let getTotalEntries = (stagingEntries: array<processingEntryType>): float => {
   stagingEntries->Array.filter(entry => entry.status != Archived)->Array.length->Int.toFloat
 }
 
-let cardDetails = (~stagingData: array<ReconEngineTypes.processingEntryType>) => {
+let cardDetails = (~stagingData: array<processingEntryType>) => {
   [
     {
       title: "Total Records",
