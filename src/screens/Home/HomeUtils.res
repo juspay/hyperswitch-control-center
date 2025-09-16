@@ -37,15 +37,17 @@ module MerchantAuthInfo = {
     let merchantDetailsValue = MerchantDetailsHook.useMerchantDetailsValue()
 
     <div className="flex flex-col gap-2">
-      <div className="font-semibold text-dark_black md:text-base text-sm">
-        {"Merchant ID"->React.string}
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
-          {merchantDetailsValue.merchant_id->React.string}
+      <div>
+        <div className="font-semibold text-dark_black md:text-base text-sm">
+          {"Merchant ID"->React.string}
         </div>
-        <div onClick={_ => handleCopy(merchantDetailsValue.merchant_id)}>
-          <Icon name="nd-copy" size=16 />
+        <div className="flex items-center gap-2">
+          <div className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
+            {merchantDetailsValue.merchant_id->React.string}
+          </div>
+          <div onClick={_ => handleCopy(merchantDetailsValue.merchant_id)}>
+            <Icon name="nd-copy" size=16 />
+          </div>
         </div>
       </div>
       <div>
@@ -134,21 +136,23 @@ module ControlCenter = {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let liveModeStyles = isLiveMode ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
-      <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
-        <div className="flex flex-col gap-4 max-w-[38rem]">
+      <CardLayout width="" customStyle="flex-1 rounded-xl gap-4">
+        <div className="flex flex-col gap-4">
           <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
           <CardHeader
             heading="Integrate a Processor"
             subHeading="Give a headstart by connecting with more than 20+ gateways, payment methods, and networks."
           />
-          <Button
-            text="Connect Processors"
-            buttonType={Primary}
-            buttonSize={Medium}
-            onClick={_ => {
-              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
-            }}
-          />
+          <div className="2xl:mt-0 mt-8">
+            <Button
+              text="Connect Processors"
+              buttonType={Primary}
+              buttonSize={Medium}
+              onClick={_ => {
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+              }}
+            />
+          </div>
         </div>
       </CardLayout>
       <RenderIf condition={!isLiveMode}>
