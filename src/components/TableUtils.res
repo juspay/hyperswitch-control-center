@@ -38,6 +38,7 @@ type labelColor =
   | LabelOrange
   | LabelYellow
   | LabelLightGray
+  | LabelPurple
 
 type filterDataType =
   | Float(float, float)
@@ -234,6 +235,7 @@ module LabelCell = {
     | LabelOrange => `bg-nd_orange-50 ${bgOpacity} dark:bg-opacity-50`
     | LabelYellow => "bg-nd_yellow-100"
     | LabelLightGray => "bg-nd_gray-50"
+    | LabelPurple => "bg-nd_gray-50"
     }
 
     let textColor = switch labelColor {
@@ -244,6 +246,7 @@ module LabelCell = {
     | LabelGray => "text-nd_gray-600"
     | LabelLightGray => "text-nd_gray_600"
     | LabelBlue => "text-nd_primary_blue-600"
+    | LabelPurple => "text-nd_primary_blue-600"
     }
 
     let mobileTextColor = switch labelColor {
@@ -257,11 +260,11 @@ module LabelCell = {
 
     let fontStyle = "font-inter-style"
 
-    <div className="flex">
+    <div className="inline-flex justify-center items-center gap-1.5">
       <div className="flex-initial ">
-        <div className={`rounded ${borderColor}`}>
+        <div className={`rounded-[6px] ${borderColor}`}>
           <div
-            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5`}>
+            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-14 font-semibold px-2.5 py-1`}>
             <AddDataAttributes attributes=[("data-label", text)]>
               <div> {highlightedText(text, highlightText)} </div>
             </AddDataAttributes>
@@ -289,6 +292,7 @@ module NewLabelCell = {
     | LabelOrange => "bg-orange-950 dark:bg-opacity-50"
     | LabelYellow => "bg-blue-table_yellow"
     | LabelLightGray => "bg-nd_gray-50"
+    | LabelPurple => "bg-nd_gray-50"
     }
     let bgColor = switch labelColor {
     | LabelGreen => "bg-[#ECFDF3]"
@@ -333,6 +337,7 @@ module ColoredTextCell = {
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
     | LabelLightGray => "text-nd_gray-600"
+    | LabelPurple => "bg-nd_gray-50"
     }
 
     <div className="flex">
