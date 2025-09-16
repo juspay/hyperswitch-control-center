@@ -81,10 +81,12 @@ let make = (
       ->getvalFromDict("transformationHistoryId")
 
     switch urlTransformationHistoryId {
-    | Some(historyId) =>
-      transformationHistoryData->Array.findIndex(config =>
-        config.transformation_history_id === historyId
-      )
+    | Some(historyId) => {
+        setSelectedTransformationHistoryId(_ => historyId)
+        transformationHistoryData->Array.findIndex(config =>
+          config.transformation_history_id === historyId
+        )
+      }
     | None => 0
     }
   }, (url.search, transformationHistoryData))
