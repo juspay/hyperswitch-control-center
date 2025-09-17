@@ -57,18 +57,17 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         connector,
         payment_methods_enabled: paymentMethodsEnabled,
       }
-      let body =
-        constructConnectorRequestBody(obj, values)->ignoreFields(
-          connectorID->Option.getOr(""),
-          connectorIgnoredField,
-        )
-
+      let body = constructConnectorRequestBody(obj, values)
       if connector->getConnectorNameTypeFromString == Processors(PAYSAFE) {
         setInitialValues(_ => body)
         setCurrentStep(_ => ConnectorTypes.CustomMetaData)
       } else {
         let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
-        let response = await updateAPIHook(connectorUrl, body, Post)
+        let response = await updateAPIHook(
+          connectorUrl,
+          body->ignoreFields(connectorID->Option.getOr(""), connectorIgnoredField),
+          Post,
+        )
         let _ = await fetchConnectorList()
         setInitialValues(_ => response)
         setScreenState(_ => Success)

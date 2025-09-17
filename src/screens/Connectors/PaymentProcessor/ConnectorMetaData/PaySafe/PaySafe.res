@@ -164,49 +164,28 @@ module AccountId = {
 }
 
 @react.component
-let make = (~connectorMetaDataFields, ~initialValues, ~connector, ~setInitialValues) => {
+let make = (~connectorMetaDataFields) => {
   open LogicUtils
-  open ConnectorUtils
   let accountIdDict = connectorMetaDataFields->getDictfromDict("account_id")
   let accountIdKeys = accountIdDict->Dict.keysToArray
-  let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    setInitialValues(_ => values)
-    Nullable.null
-  }
-  <div>
-    <Form onSubmit initialValues={initialValues}>
-      <div className="flex flex-col">
-        <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
-          <div className="flex gap-2 items-center">
-            <GatewayIcon gateway={connector->String.toUpperCase} />
-            <h2 className="text-xl font-semibold">
-              {connector->getDisplayNameForConnector->React.string}
-            </h2>
-          </div>
-          <div className="self-center">
-            <FormRenderer.SubmitButton text="Proceed" />
-          </div>
-        </div>
-        {accountIdKeys
-        ->Array.mapWithIndex((account, index) => {
-          <div className="p-1" key={randomString(~length=10)}>
-            <RenderAccordian
-              initialExpandedArray={index == 0 ? [0] : []}
-              accordion=[
-                {
-                  title: account->snakeToTitle,
-                  renderContent: () => {
-                    <AccountId accountIdDict account />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]
-            />
-          </div>
-        })
-        ->React.array}
-        // <FormValuesSpy />
+
+  {
+    accountIdKeys
+    ->Array.map(account => {
+      <div className="p-1" key={randomString(~length=10)}>
+        <RenderAccordian
+          accordion=[
+            {
+              title: account->snakeToTitle,
+              renderContent: () => {
+                <AccountId accountIdDict account />
+              },
+              renderContentOnTop: None,
+            },
+          ]
+        />
       </div>
-    </Form>
-  </div>
+    })
+    ->React.array
+  }
 }

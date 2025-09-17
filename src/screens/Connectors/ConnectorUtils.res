@@ -1585,8 +1585,6 @@ let validateConnectorRequiredFields = (
     connectorMetaDataFields
     ->Dict.keysToArray
     ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
-  Js.log(keys)
-  Js.log(connectorMetaDataFields->Dict.keysToArray)
 
   {
     keys->Array.forEach(field => {
@@ -1953,6 +1951,7 @@ let getConnectorPaymentMethodDetails = async (
   } catch {
   | Exn.Error(e) => {
       let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Js.log2(err, "ERR")
       Exn.raiseError(err)
     }
   }

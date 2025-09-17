@@ -24,3 +24,11 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
 
   getField(~inputType, ~name=formName, ~connectorMetaDataFields)
 }
+
+let validateMetadataRequiredFields = (~connector: ConnectorTypes.connectorTypes, ~values) => {
+  let error = switch connector {
+  | Processors(PAYSAFE) => PaySafeUtils.payConnectorValidation(~values)
+  | _ => Dict.make()
+  }
+  error
+}
