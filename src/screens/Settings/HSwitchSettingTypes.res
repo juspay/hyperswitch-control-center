@@ -150,6 +150,23 @@ type personalSettings = {
   isApiCall?: bool,
 }
 
+type style_configs = {
+  theme: string,
+  logo: string,
+  seller_name: string,
+  sdk_layout: string,
+  display_sdk_only: bool,
+  enabled_saved_payment_method: bool,
+  hide_card_nickname_field: bool,
+  show_card_form_by_default: bool,
+  payment_button_text: string,
+  sdk_ui_rules: JSON.t,
+  allowed_domains: array<string>,
+  payment_link_ui_rules: JSON.t,
+  domain_name: string,
+  branding_visibility: bool,
+}
+
 type payment_link_config = {
   theme: string,
   logo: string,
