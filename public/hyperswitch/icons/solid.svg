@@ -7425,6 +7425,10 @@ License)
       stroke-linejoin="round" />
   </symbol>
 
+  <symbol id="nd-multiple-cross" viewBox="0 0 14 14" fill="none">
+    <path d="M5 8.99951L7 6.99951M7 6.99951L9 4.99951M7 6.99951L5 4.99951M7 6.99951L9 8.99951M6.9999 13.0994C3.63097 13.0994 0.899902 10.3684 0.899902 6.99941C0.899902 3.63048 3.63097 0.899414 6.9999 0.899414C10.3688 0.899414 13.0999 3.63048 13.0999 6.99941C13.0999 10.3684 10.3688 13.0994 6.9999 13.0994Z" stroke="currentColor" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
   <symbol id="nd-check" viewBox="0 0 16 16" fill="none">
     <path
       d="M3.66669 8.33333L6.67791 11.8165L6.94514 11.3492C8.3779 8.84389 10.3607 6.69653 12.7441 5.06902L13.3334 4.66666"
