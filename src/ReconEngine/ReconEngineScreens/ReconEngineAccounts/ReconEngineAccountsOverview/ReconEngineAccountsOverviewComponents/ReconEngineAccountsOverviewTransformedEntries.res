@@ -1,9 +1,14 @@
 @react.component
-let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => {
+let make = (
+  ~selectedTransformationHistoryId,
+  ~onNeedsManualReviewPresent=?,
+  ~stagingEntryId: option<string>,
+) => {
   open LogicUtils
   open APIUtils
-  open ReconEngineExceptionStagingUtils
-  open ReconEngineExceptionTypes
+  open ReconEngineAccountsTransformedEntriesUtils
+  open ReconEngineFilterUtils
+  open ReconEngineTypes
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -24,6 +29,17 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
     mixpanelEvent(~eventName="recon_engine_exception_staging_date_filter_opened")
   }
 
+  let filterDataBySearchText = (data: array<processingEntryType>, searchText: string) => {
+    if searchText->isNonEmptyString {
+      data->Array.filter((obj: processingEntryType) => {
+        isContainingStringLowercase(obj.staging_entry_id, searchText) ||
+        isContainingStringLowercase((obj.status :> string), searchText)
+      })
+    } else {
+      data
+    }
+  }
+
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
@@ -31,7 +47,7 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase((obj.status :> string), searchText)
         | None => false
         }
       })
@@ -42,33 +58,47 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
   }, ~wait=200)
 
   let fetchStagingData = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          `&transformation_history_id=${selectedTransformationHistoryId}`,
+    if selectedTransformationHistoryId->isNonEmptyString {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let enhancedFilterValueJson = Dict.copy(filterValueJson)
+        let statusFilter = filterValueJson->getArrayFromDict("status", [])
+        if statusFilter->Array.length == 0 {
+          enhancedFilterValueJson->Dict.set(
+            "status",
+            ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
+          )
+        }
+        let queryString =
+          ReconEngineFilterUtils.buildQueryStringFromFilters(
+            ~filterValueJson=enhancedFilterValueJson,
+          )->String.concat(`&transformation_history_id=${selectedTransformationHistoryId}`)
+        let stagingUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+          ~queryParamerters=Some(queryString),
         )
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=Some(queryString),
-      )
+        let res = await fetchDetails(stagingUrl)
+        let stagingList = res->getArrayDataFromJson(getProcessingEntryPayloadFromDict)
+        let initialSearchText = stagingEntryId->Option.getOr("")
+        let filteredList = filterDataBySearchText(stagingList, initialSearchText)
+        if stagingEntryId->Option.isSome {
+          setSearchText(_ => initialSearchText)
+        }
 
-      let res = await fetchDetails(stagingUrl)
-      let stagingList = res->LogicUtils.getArrayDataFromJson(processingItemToObjMapper)
-
-      setStagingData(_ => stagingList)
-      setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
-      let isNeedsManualReviewPresent =
-        stagingList->Array.some(entry => entry.status === "needs_manual_review")
-      switch onNeedsManualReviewPresent {
-      | Some(callback) => callback(isNeedsManualReviewPresent)
-      | None => ()
+        setStagingData(_ => stagingList)
+        setFilteredStagingData(_ => filteredList->Array.map(Nullable.make))
+        let isNeedsManualReviewPresent =
+          stagingList->Array.some(entry => entry.status === NeedsManualReview)
+        switch onNeedsManualReviewPresent {
+        | Some(callback) => callback(isNeedsManualReviewPresent)
+        | None => ()
+        }
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
       }
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
 
@@ -86,18 +116,22 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
     None
   }, [])
 
+  let accountOptions = React.useMemo(() => {
+    getAccountOptionsFromStagingEntries(stagingData)
+  }, [stagingData])
+
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
       fetchStagingData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, stagingEntryId))
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionStagingFilters"
-        initialFilters={initialDisplayFilters()}
+        initialFilters={initialDisplayFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
@@ -119,7 +153,8 @@ let make = (~selectedTransformationHistoryId, ~onNeedsManualReviewPresent=?) => 
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
     customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
-    <div className="flex flex-col gap-4 my-4 px-6">
+    <div className="flex flex-col gap-4 my-4 px-6 pb-16">
+      <ReconEngineAccountsTransformedEntriesOverviewCards />
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
         title="Staging Entries"

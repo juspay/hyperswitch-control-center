@@ -1,5 +1,5 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType) => {
+let make = (~account: ReconEngineTypes.accountType) => {
   open APIUtils
   open LogicUtils
 
@@ -18,12 +18,13 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
-      let configs =
-        res->getArrayDataFromJson(
-          ReconEngineFileManagementUtils.transformationConfigItemToObjMapper,
-        )
-      setConfigData(_ => configs)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      let configs = res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
+      if configs->Array.length > 0 {
+        setConfigData(_ => configs)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
@@ -40,8 +41,10 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     customLoader={<Shimmer styleClass="h-52 w-full rounded-b-lg" />}>
     <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 items-center w-full p-6">
       {configData
-      ->Array.mapWithIndex((config, _index) => {
-        <ReconEngineAccountTransformationConfigDetails key=config.ingestion_id config={config} />
+      ->Array.mapWithIndex((config, index) => {
+        <ReconEngineAccountTransformationConfigDetails
+          key=config.ingestion_id config={config} tabIndex={index->Int.toString}
+        />
       })
       ->React.array}
     </div>

@@ -950,7 +950,11 @@ let useGetURL = () => {
           | Get =>
             switch queryParamerters {
             | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
-            | None => `${reconBaseURL}/staging_entries`
+            | None =>
+              switch id {
+              | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
+              | None => `${reconBaseURL}/staging_entries`
+              }
             }
           | _ => ""
           }

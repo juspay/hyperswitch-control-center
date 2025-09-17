@@ -19,7 +19,7 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       let accountData =
-        res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+        res->LogicUtils.getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -79,7 +79,7 @@ let make = () => {
           includeMargin=false
           defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center !text-red-500 ${body.lg.semibold}`}
           selectTabBottomBorderColor="bg-primary"
-          customBottomBorderColor="bg-nd_gray-150 mb-8"
+          customBottomBorderColor="bg-nd_gray-150 mb-4"
         />
       </RenderIf>
     </PageLoaderWrapper>

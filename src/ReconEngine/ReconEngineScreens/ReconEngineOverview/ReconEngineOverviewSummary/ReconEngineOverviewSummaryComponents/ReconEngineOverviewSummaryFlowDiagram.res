@@ -1,5 +1,4 @@
 open Typography
-open ReconEngineOverviewTypes
 open ReconEngineOverviewSummaryTypes
 
 module InOutComponent = {
@@ -119,7 +118,7 @@ module FlowWithLayoutControls = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
   open APIUtils
   open LogicUtils
@@ -152,7 +151,8 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      let accountData =
+        res->getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
 
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
@@ -210,12 +210,6 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   }, [selectedNodeId])
 
   <div className="border rounded-xl border-nd_gray-200">
-    <div
-      className="flex flex-row justify-between items-center p-4 bg-nd_gray-25 rounded-t-xl border-b border-nd_gray-200">
-      <div className={`text-nd_gray-600 ${body.md.semibold}`}>
-        {"Reconciliation Flow"->React.string}
-      </div>
-    </div>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}

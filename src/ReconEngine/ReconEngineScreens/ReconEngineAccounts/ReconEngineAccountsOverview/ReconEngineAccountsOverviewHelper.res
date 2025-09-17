@@ -1,6 +1,5 @@
 open Typography
-open ReconEngineFileManagementUtils
-open ReconEngineFileManagementTypes
+open ReconEngineTypes
 
 module SourceIngestionHeader = {
   @react.component
@@ -9,16 +8,19 @@ module SourceIngestionHeader = {
       <p className={`${body.lg.semibold} text-nd_gray-800`}>
         {"Source & Ingestion Config"->React.string}
       </p>
-      {switch ingestionHistoryData.status->statusMapper {
+      {switch ingestionHistoryData.status {
       | Processed =>
         <Table.TableCell
-          cell={ReconEngineExceptionEntity.getStatusLabel(ingestionHistoryData.status)}
+          cell={ReconEngineAccountsUtils.getStatusLabel(ingestionHistoryData.status)}
           textAlign=Table.Left
           labelMargin="!py-0"
         />
       | _ =>
         <Table.TableCell
-          cell={ReconEngineExceptionEntity.getStatusLabel("attention_required")}
+          cell={Label({
+            title: "Attention Required",
+            color: LabelOrange,
+          })}
           textAlign=Table.Left
           labelMargin="!py-0"
         />
@@ -38,13 +40,16 @@ module TransformationHeader = {
       | #Loading => <Shimmer styleClass="h-5 w-24 rounded-lg" />
       | #Processed =>
         <Table.TableCell
-          cell={ReconEngineExceptionEntity.getStatusLabel("processed")}
+          cell={ReconEngineExceptionEntity.getStatusLabel(Processed)}
           textAlign=Table.Left
           labelMargin="!py-0"
         />
       | #AttentionRequired =>
         <Table.TableCell
-          cell={ReconEngineExceptionEntity.getStatusLabel("attention_required")}
+          cell={Label({
+            title: "Attention Required",
+            color: LabelOrange,
+          })}
           textAlign=Table.Left
           labelMargin="!py-0"
         />
@@ -64,13 +69,16 @@ module StagingEntryHeader = {
       | #Loading => <Shimmer styleClass="h-5 w-24 rounded-lg" />
       | #AttentionRequired =>
         <Table.TableCell
-          cell={ReconEngineExceptionEntity.getStatusLabel("attention_required")}
+          cell={Label({
+            title: "Attention Required",
+            color: LabelOrange,
+          })}
           textAlign=Table.Left
           labelMargin="!py-0"
         />
       | #Processed =>
         <Table.TableCell
-          cell={ReconEngineExceptionEntity.getStatusLabel("processed")}
+          cell={ReconEngineExceptionEntity.getStatusLabel(Processed)}
           textAlign=Table.Left
           labelMargin="!py-0"
         />
@@ -87,6 +95,8 @@ let getAccordionConfig = (
   ~setSelectedTransformationHistoryId,
   ~manualReviewStatus,
   ~setManualReviewStatus,
+  ~transformationConfigTabIndex,
+  ~stagingEntryId,
 ): array<Accordion.accordion> => {
   [
     {
@@ -103,6 +113,7 @@ let getAccordionConfig = (
           setSelectedTransformationHistoryId
           onTransformationStatusChange={isProcessed =>
             setTransformationStatus(_ => isProcessed ? #Processed : #AttentionRequired)}
+          transformationConfigTabIndex
         />,
       renderContentOnTop: Some(() => <TransformationHeader transformationStatus />),
     },
@@ -112,10 +123,11 @@ let getAccordionConfig = (
         <FilterContext
           key={`recon-engine-accounts-sources-staging-${selectedTransformationHistoryId}`}
           index="recon-engine-accounts-sources-staging">
-          <ReconEngineExceptionStaging
+          <ReconEngineAccountsOverviewTransformedEntries
             selectedTransformationHistoryId
             onNeedsManualReviewPresent={isPresent =>
               setManualReviewStatus(_ => isPresent ? #AttentionRequired : #Processed)}
+            stagingEntryId
           />
         </FilterContext>
       },

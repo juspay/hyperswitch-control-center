@@ -2,10 +2,9 @@ open Typography
 
 @react.component
 let make = () => {
-  open ReconEngineOverviewUtils
-  open ReconEngineOverviewTypes
   open APIUtils
   open LogicUtils
+  open ReconEngineRulesUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -22,7 +21,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(reconRuleItemToObjMapper)
+      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -83,7 +82,7 @@ let make = () => {
           includeMargin=false
           defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center !text-red-500 ${body.lg.semibold}`}
           selectTabBottomBorderColor="bg-primary"
-          customBottomBorderColor="bg-nd_gray-150 mb-8"
+          customBottomBorderColor="bg-nd_gray-150 mb-4"
         />
       </RenderIf>
     </PageLoaderWrapper>

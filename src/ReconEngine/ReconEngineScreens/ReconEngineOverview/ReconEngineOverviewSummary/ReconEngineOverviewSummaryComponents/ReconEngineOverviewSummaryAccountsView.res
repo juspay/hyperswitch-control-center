@@ -1,5 +1,5 @@
 open Typography
-open ReconEngineOverviewTypes
+open ReconEngineTypes
 
 module AccountsHeader = {
   open ReconEngineOverviewSummaryUtils
@@ -51,24 +51,23 @@ module AccountsHeader = {
 }
 
 module AmountCell = {
-  open ReconEngineOverviewSummaryTypes
   open LogicUtils
 
   @react.component
   let make = (
-    ~subHeaderType: subHeaderType,
+    ~subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType,
     ~creditAmount: balanceType,
     ~debitAmount: balanceType,
     ~borderClass: string,
   ) => {
     <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
       <div className={`${body.md.medium} text-nd_gray-600`}>
-        {switch subHeaderType {
-        | In =>
+        {switch (subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType) {
+        | Debit =>
           `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${creditAmount.currency}`->React.string
-        | Out =>
+        | Credit =>
           `${Math.abs(debitAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${debitAmount.currency}`->React.string
@@ -137,9 +136,9 @@ module AccountsList = {
 @react.component
 let make = (~reconRulesList: array<reconRuleType>) => {
   open LogicUtils
-  open ReconEngineOverviewTypes
   open ReconEngineOverviewSummaryUtils
   open APIUtils
+  open ReconEngineAccountsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
@@ -156,7 +155,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
         ~hyperswitchReconType=#ACCOUNTS_LIST,
       )
       let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+      let accountData = res->getArrayDataFromJson(getAccountPayloadFromDict)
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
@@ -185,11 +184,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
 
   let (allRowsData, currency) = React.useMemo(() => {
     let totals = calculateTotals(accountsData)
-    let account =
-      accountsData->getValueFromArray(
-        0,
-        Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper,
-      )
+    let account = accountsData->getValueFromArray(0, Dict.make()->getAccountPayloadFromDict)
     let allRows = [...accountsData, totals]
     (allRows, account.currency)
   }, [accountsData])

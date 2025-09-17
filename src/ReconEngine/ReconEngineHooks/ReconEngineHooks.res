@@ -1,7 +1,7 @@
 let useGetIngestionHistory = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineFileManagementUtils
+  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -25,7 +25,7 @@ let useGetIngestionHistory = () => {
 let useGetTransactions = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineTransactionsUtils
+  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -39,7 +39,7 @@ let useGetTransactions = () => {
         ~queryParamerters,
       )
       let res = await fetchDetails(url)
-      res->getArrayDataFromJson(getAllTransactionPayload)
+      res->getArrayDataFromJson(transactionItemToObjMapper)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

@@ -1,16 +1,16 @@
 @react.component
 let make = (~ingestionId) => {
-  open ReconEngineIngestionHelper
+  open ReconEngineAccountsSourcesTypes
   open LogicUtils
   open APIUtils
-  open ReconEngineFileManagementUtils
-  open ReconEngineFileManagementTypes
+  open ReconEngineAccountsSourcesHelper
+  open ReconEngineAccountsSourcesUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
-    Dict.make()->ingestionConfigItemToObjMapper
+    Dict.make()->getIngestionConfigPayloadFromDict
   )
 
   let fetchIngestionHistoryData = async () => {
@@ -26,7 +26,7 @@ let make = (~ingestionId) => {
       let ingestionConfigData =
         ingestionConfigRes
         ->getDictFromJsonObject
-        ->ingestionConfigItemToObjMapper
+        ->getIngestionConfigPayloadFromDict
       setIngestionConfigData(_ => ingestionConfigData)
 
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -35,7 +35,7 @@ let make = (~ingestionId) => {
     }
   }
 
-  let detailsFields: array<ReconEngineFileManagementEntity.ingestionConfigColType> = [
+  let detailsFields: array<ReconEngineAccountsSourcesEntity.ingestionConfigColType> = [
     SourceConfigName,
     ConfigurationType,
     IngestionId,
@@ -72,8 +72,8 @@ let make = (~ingestionId) => {
         ->Array.map(colType => {
           <DisplayKeyValueParams
             key={LogicUtils.randomString(~length=10)}
-            heading={ReconEngineFileManagementEntity.getIngestionConfigHeading(colType)}
-            value={ReconEngineFileManagementEntity.getIngestionConfigCell(
+            heading={ReconEngineAccountsSourcesEntity.getIngestionConfigHeading(colType)}
+            value={ReconEngineAccountsSourcesEntity.getIngestionConfigCell(
               ingestionConfigData,
               colType,
             )}

@@ -1,9 +1,9 @@
 @react.component
-let make = (~account: ReconEngineOverviewTypes.accountType) => {
+let make = (~account: ReconEngineTypes.accountType) => {
   open LogicUtils
-  open ReconEngineTransactionsTypes
+  open ReconEngineTypes
   open ReconEngineTransactionsUtils
-  open ReconEngineUtils
+  open ReconEngineFilterUtils
   open HierarchicalTransactionsTableEntity
 
   let getTransactions = ReconEngineHooks.useGetTransactions()
@@ -25,11 +25,11 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.transaction_status, searchText)
+          isContainingStringLowercase((obj.transaction_status :> string), searchText)
         | None => false
         }
       })
@@ -47,7 +47,7 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
   }, [configuredTransactions])
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineTransactionsFilters"
         initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
@@ -82,12 +82,12 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
       }
 
       let sourceQueryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
+        buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
         "&credit_account=" ++
         account.account_id
 
       let targetQueryString =
-        ReconEngineUtils.buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
+        buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson) ++
         "&debit_account=" ++
         account.account_id
 
@@ -124,11 +124,9 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
     None
   }, [filterValue])
 
-  <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between items-center absolute right-0 -top-4">
-        <div className="flex-shrink-0"> {topFilterUi} </div>
-      </div>
+  <div className="flex flex-col gap-4">
+    <PageLoaderWrapper screenState>
+      <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTableWithCustomColumns
         title="Transactions"
         hideTitle=true
@@ -162,6 +160,6 @@ let make = (~account: ReconEngineOverviewTypes.accountType) => {
           customInputBoxWidth="w-full rounded-xl"
         />}
       />
-    </div>
-  </PageLoaderWrapper>
+    </PageLoaderWrapper>
+  </div>
 }

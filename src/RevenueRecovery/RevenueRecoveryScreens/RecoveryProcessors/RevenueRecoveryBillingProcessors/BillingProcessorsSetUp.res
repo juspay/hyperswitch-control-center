@@ -36,6 +36,7 @@ let make = (
   ~initialValues,
   ~validateMandatoryField,
   ~connector,
+  ~billingConnector,
   ~onSubmit,
   ~connector_account_reference_id,
 ) => {
@@ -106,45 +107,50 @@ let make = (
               </div>
             </div>
           </div>
-          <div className="border-t w-full my-2" />
-          <div className="mb-10 flex flex-col gap-7">
-            <div>
-              <div className={heading.sm.semibold}>
-                {"Set Up Payment Processor Reference"->React.string}
+          <RenderIf
+            condition={billingConnector->ConnectorUtils.getConnectorNameTypeFromString(
+              ~connectorType=BillingProcessor,
+            ) != BillingProcessor(CUSTOMBILLING)}>
+            <div className="border-t w-full my-2" />
+            <div className="flex flex-col gap-7">
+              <div>
+                <div className={heading.sm.semibold}>
+                  {"Set Up Payment Processor Reference"->React.string}
+                </div>
+                <div className={`${heading.xs.medium} font-medium leading-5 opacity-50 mt-2`}>
+                  {"Enter the same processor ID used in your subscription platform."->React.string}
+                </div>
               </div>
-              <div className={`${heading.xs.medium} font-medium leading-5 opacity-50 mt-2`}>
-                {"Enter the same processor ID used in your subscription platform."->React.string}
+              <div className="mb-10 flex flex-col gap-6 mt-2">
+                <div>
+                  <div className="text-nd_gray-700 font-medium mb-3">
+                    {"Selected processor"->React.string}
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <GatewayIcon gateway={connector->String.toUpperCase} className="w-10" />
+                    <h1 className={`${body.lg.semibold} text-gray-600`}>
+                      {connectorName->React.string}
+                    </h1>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-nd_gray-700 font-medium">
+                    {"Processor Reference ID"->React.string}
+                    <span className="text-red-900 ml-0.5 mb-0.5"> {"*"->React.string} </span>
+                  </div>
+                  <div className="-m-1 -mt-3">
+                    <ConnectorConnect connector_account_reference_id />
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="mb-10 flex flex-col gap-6 mt-2">
-              <div>
-                <div className="text-nd_gray-700 font-medium mb-3">
-                  {"Selected processor"->React.string}
-                </div>
-                <div className="flex gap-4 items-center">
-                  <GatewayIcon gateway={connector->String.toUpperCase} className="w-10" />
-                  <h1 className={`${body.lg.semibold} text-gray-600`}>
-                    {connectorName->React.string}
-                  </h1>
-                </div>
-              </div>
-              <div>
-                <div className="text-nd_gray-700 font-medium">
-                  {"Processor Reference ID"->React.string}
-                  <span className="text-red-900 ml-0.5 mb-0.5"> {"*"->React.string} </span>
-                </div>
-                <div className="-m-1 -mt-3">
-                  <ConnectorConnect connector_account_reference_id />
-                </div>
-              </div>
-            </div>
-            <FormRenderer.SubmitButton
-              text="Next"
-              buttonSize={Small}
-              customSumbitButtonStyle="!w-full mt-3"
-              tooltipForWidthClass="w-full"
-            />
-          </div>
+          </RenderIf>
+          <FormRenderer.SubmitButton
+            text="Next"
+            buttonSize={Small}
+            customSumbitButtonStyle="!w-full"
+            tooltipForWidthClass="w-full"
+          />
         </div>
       </Form>
     </PageWrapper>

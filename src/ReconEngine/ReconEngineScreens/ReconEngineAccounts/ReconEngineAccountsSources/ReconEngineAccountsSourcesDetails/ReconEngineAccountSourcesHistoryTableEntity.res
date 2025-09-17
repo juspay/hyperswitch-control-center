@@ -1,5 +1,4 @@
-open ReconEngineFileManagementTypes
-open ReconEngineFileManagementEntity
+open ReconEngineAccountsSourcesEntity
 
 let defaultColumns = [IngestionHistoryId, FileName, IngestionType, ReceivedAt, Status, Actions]
 
@@ -14,7 +13,7 @@ let ingestionHistoryTableEntity = (path: string, ~authorization: CommonAuthTypes
     ~getShowLink={
       connec => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.ingestion_history_id}`),
           ~authorization,
         )
       }

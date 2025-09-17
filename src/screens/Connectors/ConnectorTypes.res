@@ -122,6 +122,8 @@ type processorTypes =
   | BLUECODE
   | BLACKHAWKNETWORK
   | DWOLLA
+  | PAYSAFE
+  | PEACHPAYMENTS
 
 type payoutProcessorTypes =
   | ADYEN

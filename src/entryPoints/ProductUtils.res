@@ -21,7 +21,7 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
 let getProductDisplayName = product =>
   switch product {
   | Recon(V2) => "Recon"
-  | Recon(V1) => "Reconcilliation Engine"
+  | Recon(V1) => "Reconciliation"
   | Recovery => "Revenue Recovery"
   | Orchestration(V1) => "Orchestrator"
   | Vault => "Vault"
@@ -76,7 +76,7 @@ let getProductStringDisplayName = product =>
 
 let getProductVariantFromDisplayName = product => {
   switch product {
-  | "Reconcilliation Engine" => Recon(V1)
+  | "Reconciliation" => Recon(V1)
   | "Recon" => Recon(V2)
   | "Revenue Recovery" => Recovery
   | "Orchestrator" => Orchestration(V1)
@@ -91,7 +91,6 @@ let getProductVariantFromDisplayName = product => {
 let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
   switch productType {
   | Orchestration(V1) => `/dashboard/home`
-
   | Recon(V2) => `/dashboard/v2/recon/overview`
   | Recon(V1) => `/dashboard/v1/recon-engine/overview`
   | Recovery =>
