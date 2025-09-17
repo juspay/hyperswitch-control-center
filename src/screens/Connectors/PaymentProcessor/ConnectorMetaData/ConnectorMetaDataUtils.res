@@ -26,9 +26,8 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
 }
 
 let validateMetadataRequiredFields = (~connector: ConnectorTypes.connectorTypes, ~values) => {
-  let error = switch connector {
+  switch connector {
   | Processors(PAYSAFE) => PaySafeUtils.payConnectorValidation(~values)
   | _ => Dict.make()
   }
-  error
 }

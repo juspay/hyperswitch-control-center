@@ -31,7 +31,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       }
     }
   }, [connector])
-  let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+  let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
