@@ -123,6 +123,14 @@ let make = () => {
           />
         </FilterContext>
       </AccessControl>
+    | list{"payment-link-theme"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.paymentLinkThemeConfigurator}
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <SDKProvider>
+          <PaymentLinkThemeConfigurator />
+        </SDKProvider>
+      </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
