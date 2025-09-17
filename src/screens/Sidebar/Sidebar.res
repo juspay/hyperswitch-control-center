@@ -901,7 +901,7 @@ let make = (
                         name="Home"
                         icon="nd-home"
                         isSidebarExpanded
-                        isSelected={false}
+                        isSelected={linkSelectionCheck(firstPart, "/v2/home")}
                         showIcon=true
                       />
                     </div>
