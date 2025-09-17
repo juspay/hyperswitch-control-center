@@ -134,7 +134,7 @@ module AccountIdMethod = {
         {configDict
         ->Dict.keysToArray
         ->Array.map(config => {
-          <AccountCheckBox config configDict account currency />
+          <AccountCheckBox key={randomString(~length=10)} config configDict account currency />
         })
         ->React.array}
       </div>
@@ -155,7 +155,7 @@ module AccountId = {
         {currencyDict
         ->Dict.keysToArray
         ->Array.map(currency => {
-          <AccountIdMethod currency currencyDict account />
+          <AccountIdMethod key={randomString(~length=10)} currency currencyDict account />
         })
         ->React.array}
       </div>
