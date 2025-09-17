@@ -16,7 +16,10 @@ let make = (~accountId) => {
     Dict.make()->getTransformationConfigPayloadFromDict,
   ])
   let (accountData, setAccountData) = React.useState(_ => Dict.make()->getAccountPayloadFromDict)
-  let (tabIndex, setTabIndex) = React.useState(_ => None)
+  let (showModal, setShowModal) = React.useState(_ => false)
+  let (selectedTransformation, setSelectedTransformation) = React.useState(_ =>
+    Dict.make()->getTransformationConfigPayloadFromDict
+  )
 
   let getTransformationDetails = async () => {
     try {
@@ -38,6 +41,20 @@ let make = (~accountId) => {
       let transformationConfigs =
         transformationConfigsRes->getArrayDataFromJson(getTransformationConfigPayloadFromDict)
       let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
+
+      switch url.search->getTransformationIdFromUrl {
+      | Some(id) => {
+          let transformation = transformationConfigs->Array.find(config => config.id === id)
+          setSelectedTransformation(_ =>
+            switch transformation {
+            | Some(config) => config
+            | None => Dict.make()->getTransformationConfigPayloadFromDict
+            }
+          )
+        }
+      | None => ()
+      }
+
       setAccountData(_ => accountData)
       setTransformationConfigs(_ => transformationConfigs)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -50,7 +67,16 @@ let make = (~accountId) => {
     open Tabs
     transformationConfigs->Array.map(config => {
       title: config.name,
-      onTabSelection: {_ => ()},
+      onTabSelection: {
+        _ => {
+          setSelectedTransformation(_ => config)
+          RescriptReactRouter.push(
+            GlobalVars.appendDashboardPath(
+              ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.id}`,
+            ),
+          )
+        }
+      },
       renderContent: () =>
         <FilterContext
           key="recon-engine-accounts-transformation-details"
@@ -60,23 +86,18 @@ let make = (~accountId) => {
     })
   }, [transformationConfigs])
 
-  let getActiveTabIndex = () => {
-    let tabIndexParam =
-      url.search
-      ->getDictFromUrlSearchParams
-      ->getvalFromDict("transformationConfigTabIndex")
-    setTabIndex(_ => tabIndexParam)
-  }
+  let getActiveTabIndex = React.useMemo(() => {
+    switch url.search->getTransformationIdFromUrl {
+    | Some(transformationId) =>
+      transformationConfigs->Array.findIndex(config => config.id === transformationId)
+    | None => 0
+    }
+  }, (url.search, transformationConfigs))
 
   React.useEffect(() => {
     getTransformationDetails()->ignore
     None
-  }, [])
-
-  React.useEffect(() => {
-    getActiveTabIndex()
-    None
-  }, [url.search])
+  }, [url.search, accountId])
 
   <div className="flex flex-col gap-6 w-full">
     <div className="flex flex-row items-center justify-between">
@@ -91,17 +112,12 @@ let make = (~accountId) => {
         childGapClass="gap-2"
       />
       <div className="flex flex-row items-center gap-4">
-        <ToolTip
-          toolTipPosition=Bottom
-          description="This feature is available in prod"
-          toolTipFor={<Button
-            text="View Mapping"
-            customButtonStyle="!cursor-not-allowed"
-            buttonState=Normal
-            buttonType=Secondary
-            onClick={_ => ()}
-            buttonSize=Large
-          />}
+        <Button
+          text="View Mapping"
+          buttonState=Normal
+          buttonType=Secondary
+          onClick={_ => setShowModal(_ => true)}
+          buttonSize=Large
         />
         <ToolTip
           toolTipPosition=Bottom
@@ -138,12 +154,17 @@ let make = (~accountId) => {
             tabs
             showBorder=true
             includeMargin=false
-            initialIndex={tabIndex->Option.getOr("0")->getIntFromString(0)}
+            initialIndex={getActiveTabIndex}
             defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
             selectTabBottomBorderColor="bg-primary"
           />
         </RenderIf>
       </PageLoaderWrapper>
     </div>
+    <RenderIf condition=showModal>
+      <ReconEngineAccountsTransformationDetailsMappers
+        showModal setShowModal selectedTransformation
+      />
+    </RenderIf>
   </div>
 }
