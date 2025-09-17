@@ -145,7 +145,7 @@ let make = () => {
 
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?stagingEntryId=${transformedEntry.staging_entry_id}`,
+          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?transformationHistoryId=${transformedEntry.transformation_history_id}&stagingEntryId=${transformedEntry.staging_entry_id}`,
         ),
       )
     } catch {
