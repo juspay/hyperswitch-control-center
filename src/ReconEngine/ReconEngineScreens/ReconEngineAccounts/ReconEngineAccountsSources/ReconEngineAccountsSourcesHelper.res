@@ -145,24 +145,6 @@ module TransformationHistoryActionsComponent = {
   let make = (~transformationHistoryData: transformationHistoryType) => {
     let (showModal, setShowModal) = React.useState(_ => false)
 
-    let modalHeading = {
-      <div className="flex justify-between border-b">
-        <div className="flex gap-4 items-center m-6">
-          <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
-            {`View Errors (${transformationHistoryData.data.errors
-              ->Array.length
-              ->Int.toString})`->React.string}
-          </p>
-        </div>
-        <Icon
-          name="modal-close-icon"
-          className="cursor-pointer mr-4"
-          size=30
-          onClick={_ => setShowModal(_ => false)}
-        />
-      </div>
-    }
-
     let onClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       setShowModal(_ => true)
@@ -198,12 +180,18 @@ module TransformationHistoryActionsComponent = {
         setShowModal
         showModal
         closeOnOutsideClick=true
+        modalHeading={`View Errors (${transformationHistoryData.data.errors
+          ->Array.length
+          ->Int.toString})`}
+        modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
         alignModal="justify-center items-center"
         modalClass="flex flex-col justify-start h-400-px w-2/5 !overflow-y-scroll !bg-white dark:!bg-jp-gray-lightgray_background"
-        childClass="relative h-full"
-        customModalHeading=modalHeading>
+        childClass="relative h-full">
         <div className="h-full relative">
           <div className="absolute inset-0 overflow-scroll px-8 py-4 modal-scrollbar mb-20">
+            <RenderIf condition={transformationHistoryData.data.errors->Array.length === 0}>
+              <NewAnalyticsHelper.NoData message="No Errors Found" height="h-40" />
+            </RenderIf>
             <div className="flex flex-col gap-4">
               {transformationHistoryData.data.errors
               ->Array.map(error =>
