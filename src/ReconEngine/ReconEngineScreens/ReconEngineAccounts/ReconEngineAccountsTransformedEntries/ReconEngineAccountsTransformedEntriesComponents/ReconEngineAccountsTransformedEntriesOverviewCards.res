@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~selectedTransformationHistoryId: option<string>) => {
   open LogicUtils
   open ReconEngineAccountsTransformedEntriesHelper
   open ReconEngineAccountsTransformedEntriesUtils
@@ -14,7 +14,11 @@ let make = () => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let stagingList = await getProcessingEntries()
+      let queryParams = switch selectedTransformationHistoryId {
+      | Some(id) => Some(`transformation_history_id=${id}`)
+      | None => None
+      }
+      let stagingList = await getProcessingEntries(~queryParamerters=queryParams)
 
       setStagingData(_ => stagingList)
       setScreenState(_ => PageLoaderWrapper.Success)

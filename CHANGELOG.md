@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.17.0
+
+### Refactors
+
+- Recon engine `transactions` and `staging entries` types ([#3603](https://github.com/juspay/hyperswitch-control-center/pull/3603)) ([`63afc6e`](https://github.com/juspay/hyperswitch-control-center/commit/63afc6e5a97b25ba4fd496937ec2ab33bfe0629c))
+
+### Miscellaneous Tasks
+
+- Moved acquirer config settings and new toggles in new payment … ([#3573](https://github.com/juspay/hyperswitch-control-center/pull/3573)) ([`605c16d`](https://github.com/juspay/hyperswitch-control-center/commit/605c16dd5499dea74ad56dcbe151cf02111c168a))
+
+**Full Changelog:** [`2025.09.16.0...2025.09.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.16.0...2025.09.17.0)
+
+- - -
+
 ## 2025.09.16.0
 
 ### Features

@@ -63,7 +63,9 @@ module StagingEntryHeader = {
   let make = (~manualReviewStatus) => {
     <div className="flex flex-row items-center justify-between w-full px-6">
       <div className="flex flex-row items-center gap-2">
-        <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Staging Entry"->React.string} </p>
+        <p className={`${body.lg.semibold} text-nd_gray-800`}>
+          {"Transformed Entries"->React.string}
+        </p>
       </div>
       {switch manualReviewStatus {
       | #Loading => <Shimmer styleClass="h-5 w-24 rounded-lg" />
@@ -118,7 +120,7 @@ let getAccordionConfig = (
       renderContentOnTop: Some(() => <TransformationHeader transformationStatus />),
     },
     {
-      title: "Staging Entry",
+      title: "Transformed Entries",
       renderContent: () => {
         <FilterContext
           key={`recon-engine-accounts-sources-staging-${selectedTransformationHistoryId}`}

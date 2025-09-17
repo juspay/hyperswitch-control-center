@@ -153,7 +153,7 @@ let make = () => {
         customHeadingStyle="py-0"
       />
     </div>
-    <ReconEngineAccountsTransformedEntriesOverviewCards />
+    <ReconEngineAccountsTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
