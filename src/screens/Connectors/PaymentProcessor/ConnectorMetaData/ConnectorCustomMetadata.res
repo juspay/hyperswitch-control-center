@@ -25,7 +25,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       }
     } catch {
     | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
         Dict.make()->JSON.Encode.object

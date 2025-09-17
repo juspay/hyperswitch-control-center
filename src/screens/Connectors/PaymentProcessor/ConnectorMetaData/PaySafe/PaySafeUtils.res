@@ -10,6 +10,5 @@ let payConnectorValidation = (~values) => {
   ) {
     Dict.set(error, "account_id", `Please select at least one country`->JSON.Encode.string)
   }
-  Js.log2(values, "VALUES")
   error
 }

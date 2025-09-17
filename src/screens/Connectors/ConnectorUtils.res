@@ -1951,7 +1951,6 @@ let getConnectorPaymentMethodDetails = async (
   } catch {
   | Exn.Error(e) => {
       let err = Exn.message(e)->Option.getOr("Something went wrong")
-      Js.log2(err, "ERR")
       Exn.raiseError(err)
     }
   }
