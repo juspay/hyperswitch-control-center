@@ -27,6 +27,7 @@ type resourcesTypes = {
 let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
+  open Typography
   @react.component
   let make = () => {
     let showToast = ToastState.useShowToast()
@@ -37,12 +38,10 @@ module MerchantAuthInfo = {
     let merchantDetailsValue = MerchantDetailsHook.useMerchantDetailsValue()
 
     <div className="flex flex-col gap-2">
-      <div>
-        <div className="font-semibold text-dark_black md:text-base text-sm">
-          {"Merchant ID"->React.string}
-        </div>
+      <div className="flex flex-col gap-2">
+        <div className={`${body.md.medium} text-nd_gray-400`}> {"Merchant ID"->React.string} </div>
         <div className="flex items-center gap-2">
-          <div className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
+          <div className={`${body.lg.medium} text-nd_gray-600`} style={overflowWrap: "anywhere"}>
             {merchantDetailsValue.merchant_id->React.string}
           </div>
           <div onClick={_ => handleCopy(merchantDetailsValue.merchant_id)}>
@@ -50,12 +49,12 @@ module MerchantAuthInfo = {
           </div>
         </div>
       </div>
-      <div>
-        <div className="font-semibold text-dark_black md:text-base text-sm">
+      <div className="flex flex-col gap-2">
+        <div className={`${body.md.medium} text-nd_gray-400`}>
           {"Publishable Key"->React.string}
         </div>
         <div className="flex items-center gap-2">
-          <div className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
+          <div className={`${body.lg.medium} text-nd_gray-600`} style={overflowWrap: "anywhere"}>
             {merchantDetailsValue.publishable_key->React.string}
           </div>
           <div onClick={_ => handleCopy(merchantDetailsValue.publishable_key)}>
@@ -111,21 +110,21 @@ module CheckoutCard = {
           "Test your payment connector by initiating a transaction and visualize the user checkout experience",
         )
 
-    <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4  ">
-      <div className="flex flex-col gap-4  ">
+    <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
+      <div className="flex flex-col gap-4 ">
         <img alt="sdk" src="/assets/SDK.png" />
         <CardHeader heading=title subHeading=description />
-        <ACLButton
-          text="Try It Out"
-          authorization={hasAllGroupsAccess([
-            userHasAccess(~groupAccess=OperationsManage),
-            userHasAccess(~groupAccess=ConnectorsManage),
-          ])}
-          buttonType={Primary}
-          buttonSize={Medium}
-          onClick={handleOnClick}
-        />
       </div>
+      <ACLButton
+        text="Try It Out"
+        authorization={hasAllGroupsAccess([
+          userHasAccess(~groupAccess=OperationsManage),
+          userHasAccess(~groupAccess=ConnectorsManage),
+        ])}
+        buttonType={Primary}
+        buttonSize={Medium}
+        onClick={handleOnClick}
+      />
     </CardLayout>
   }
 }
@@ -143,17 +142,15 @@ module ControlCenter = {
             heading="Integrate a Processor"
             subHeading="Give a headstart by connecting with more than 20+ gateways, payment methods, and networks."
           />
-          <div className="2xl:mt-0 mt-8">
-            <Button
-              text="Connect Processors"
-              buttonType={Primary}
-              buttonSize={Medium}
-              onClick={_ => {
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
-              }}
-            />
-          </div>
         </div>
+        <Button
+          text="Connect Processors"
+          buttonType={Primary}
+          buttonSize={Medium}
+          onClick={_ => {
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+          }}
+        />
       </CardLayout>
       <RenderIf condition={!isLiveMode}>
         <CheckoutCard />
@@ -162,6 +159,7 @@ module ControlCenter = {
   }
 }
 module DevResources = {
+  open Typography
   @react.component
   let make = () => {
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
@@ -170,54 +168,52 @@ module DevResources = {
       <PageHeading
         title="Developer resources"
         subTitle="Couple of things developers need in handy can be found right here."
-        customTitleStyle="!text-fs-20 !font-semibold"
+        customTitleStyle={`!${heading.md.semibold}`}
         customSubTitleStyle="!text-fs-16 !text-nd_gray-400 !opacity-100 font-medium !mt-1"
         showPermLink=false
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
         <RenderIf condition={!checkUserEntity([#Profile])}>
-          <CardLayout width="" customStyle={"flex-1 rounded-xl p-6"}>
+          <CardLayout width="" customStyle={"flex-1 rounded-xl p-6 gap-6"}>
             <div className="flex flex-col gap-7 ">
               <CardHeader
                 heading="Credentials and Keys"
                 subHeading="Your secret credentials to start integrating"
-                customHeadingStyle="!text-fs-18 !font-semibold"
+                customHeadingStyle={`!${heading.sm.semibold}`}
                 customSubHeadingStyle="!text-fs-14 !text-nd_gray-400 !opacity-100 !-mt-0.5"
               />
               <MerchantAuthInfo />
-              <Button
-                text="Go to API keys"
-                buttonType={Secondary}
-                buttonSize={Medium}
-                onClick={_ => {
-                  mixpanelEvent(~eventName="redirect_to_api_keys")
-                  RescriptReactRouter.push(
-                    GlobalVars.appendDashboardPath(~url="/developer-api-keys"),
-                  )
-                }}
-              />
             </div>
+            <Button
+              text="Go to API keys"
+              buttonType={Secondary}
+              buttonSize={Medium}
+              onClick={_ => {
+                mixpanelEvent(~eventName="redirect_to_api_keys")
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/developer-api-keys"))
+              }}
+            />
           </CardLayout>
         </RenderIf>
-        <CardLayout width="" customStyle="flex-1 rounded-xl p-6">
+        <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
           <div className="flex flex-col gap-4 ">
             <CardHeader
               heading="Developer docs"
               subHeading="Everything you need to know to get the SDK up and running resides in here."
-              customHeadingStyle="!text-fs-18 !font-semibold"
+              customHeadingStyle={`!${heading.sm.semibold}`}
               customSubHeadingStyle="!text-fs-14 !text-nd_gray-400 !opacity-100 !-mt-0.5"
             />
             <img alt="devdocs" src="/assets/DevDocs.png" />
-            <Button
-              text="Visit"
-              buttonType={Secondary}
-              buttonSize={Medium}
-              onClick={_ => {
-                mixpanelEvent(~eventName=`dev_docs`)
-                "https://hyperswitch.io/docs"->Window._open
-              }}
-            />
           </div>
+          <Button
+            text="Visit"
+            buttonType={Secondary}
+            buttonSize={Medium}
+            onClick={_ => {
+              mixpanelEvent(~eventName=`dev_docs`)
+              "https://hyperswitch.io/docs"->Window._open
+            }}
+          />
         </CardLayout>
       </div>
     </div>
