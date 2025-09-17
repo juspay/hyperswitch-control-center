@@ -231,22 +231,20 @@ module LabelCell = {
     | LabelGreen => `bg-nd_green-50 ${bgOpacity} dark:bg-opacity-50`
     | LabelRed => `bg-nd_red-50 ${bgOpacity} dark:bg-opacity-50`
     | LabelBlue => `bg-nd_primary_blue-50 bg-opacity-50`
-    | LabelGray => "bg-nd_gray-150"
+    | LabelGray => "bg-nd_gray-50"
     | LabelOrange => `bg-nd_orange-50 ${bgOpacity} dark:bg-opacity-50`
-    | LabelYellow => "bg-nd_yellow-100"
-    | LabelLightGray => "bg-nd_gray-50"
     | LabelPurple => "bg-nd_gray-50"
+    | _ => "bg-white"
     }
 
     let textColor = switch labelColor {
     | LabelGreen => "text-nd_green-600"
     | LabelRed => "text-nd_red-600"
     | LabelOrange => "text-nd_orange-600"
-    | LabelYellow => "text-nd_yellow-800"
-    | LabelGray => "text-nd_gray-600"
-    | LabelLightGray => "text-nd_gray_600"
-    | LabelBlue => "text-nd_primary_blue-600"
-    | LabelPurple => "text-nd_primary_blue-600"
+    | LabelGray => "text-nd_gray-950"
+    | LabelBlue => "text-nd_primary_blue-800"
+    | LabelPurple => "text-nd_purple-500"
+    | _ => "text-white"
     }
 
     let mobileTextColor = switch labelColor {
