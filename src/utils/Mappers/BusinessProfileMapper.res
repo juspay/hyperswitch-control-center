@@ -24,6 +24,31 @@ let constructAuthConnectorObject = authConnectorDict => {
   }
   authConnectorDetails
 }
+let paymentLinkConfigMapper = paymentLinkConfigDict => {
+  open LogicUtils
+  {
+    theme: paymentLinkConfigDict->getString("theme", ""),
+    logo: paymentLinkConfigDict->getString("logo", ""),
+    seller_name: paymentLinkConfigDict->getString("seller_name", ""),
+    sdk_layout: paymentLinkConfigDict->getString("sdk_layout", ""),
+    display_sdk_only: paymentLinkConfigDict->getBool("display_sdk_only", false),
+    enabled_saved_payment_method: paymentLinkConfigDict->getBool(
+      "enabled_saved_payment_method",
+      false,
+    ),
+    hide_card_nickname_field: paymentLinkConfigDict->getBool("hide_card_nickname_field", false),
+    show_card_form_by_default: paymentLinkConfigDict->getBool("show_card_form_by_default", false),
+    payment_button_text: paymentLinkConfigDict->getString("payment_button_text", ""),
+    sdk_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
+    allowed_domains: paymentLinkConfigDict->getStrArrayFromDict("allowed_domains", []),
+    payment_link_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
+    business_specific_configs: paymentLinkConfigDict->getJsonObjectFromDict(
+      "business_specific_configs",
+    ),
+    domain_name: paymentLinkConfigDict->getString("domain_name", ""),
+    branding_visibility: paymentLinkConfigDict->getBool("branding_visibility", false),
+  }
+}
 
 let businessProfileTypeMapper = values => {
   open LogicUtils
@@ -32,6 +57,7 @@ let businessProfileTypeMapper = values => {
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
 
   {
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -76,6 +102,9 @@ let businessProfileTypeMapper = values => {
     ),
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    payment_link_config: paymentLinkConfig->isEmptyDict
+      ? None
+      : Some(paymentLinkConfig->paymentLinkConfigMapper),
   }
 }
 

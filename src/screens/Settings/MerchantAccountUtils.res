@@ -633,6 +633,7 @@ let defaultValueForBusinessProfile = {
   always_request_extended_authorization: None,
   is_manual_retry_enabled: None,
   always_enable_overcapture: None,
+  payment_link_config: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

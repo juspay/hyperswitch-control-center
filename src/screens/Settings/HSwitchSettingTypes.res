@@ -150,6 +150,24 @@ type personalSettings = {
   isApiCall?: bool,
 }
 
+type payment_link_config = {
+  theme: string,
+  logo: string,
+  seller_name: string,
+  sdk_layout: string,
+  display_sdk_only: bool,
+  enabled_saved_payment_method: bool,
+  hide_card_nickname_field: bool,
+  show_card_form_by_default: bool,
+  payment_button_text: string,
+  sdk_ui_rules: JSON.t,
+  allowed_domains: array<string>,
+  payment_link_ui_rules: JSON.t,
+  business_specific_configs: JSON.t,
+  domain_name: string,
+  branding_visibility: bool,
+}
+
 type profileEntity = {
   merchant_id: string,
   profile_id: string,
@@ -177,6 +195,7 @@ type profileEntity = {
   always_request_extended_authorization: option<bool>,
   is_manual_retry_enabled: option<bool>,
   always_enable_overcapture: option<bool>,
+  payment_link_config: option<payment_link_config>,
 }
 
 type twoFaType = RecoveryCode | Totp
