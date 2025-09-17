@@ -285,3 +285,12 @@ module URL = {
   @send external append: (searchParams, string, string) => unit = "append"
   @get external href: t => string = "href"
 }
+
+@val @scope("window")
+external paymentLinkWasmInit: 'a => Promise.t<JSON.t> = "paymentLinkInit"
+
+@val @scope("window")
+external validatePaymentLinkConfig: string => string = "validate_payment_link_config"
+
+@val @scope("window")
+external generatePaymentLinkPreview: string => string = "generate_payment_link_preview"
