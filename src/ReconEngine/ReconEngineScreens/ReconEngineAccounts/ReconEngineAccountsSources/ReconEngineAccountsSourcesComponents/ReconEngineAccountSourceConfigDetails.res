@@ -48,8 +48,10 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~tabIndex: string) =>
       )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
-        className="flex md:flex-row items-center justify-between w-full border-b pb-2 border-nd_gray-150">
-        <p className={`${body.md.semibold} text-nd_gray-800`}> {config.name->React.string} </p>
+        className="flex md:flex-row items-center justify-between gap-4 w-full border-b pb-2 border-nd_gray-150">
+        <p className={`${body.md.semibold} text-nd_gray-800 truncate`}>
+          {config.name->React.string}
+        </p>
         <Table.TableCell
           cell={Label({
             title: label,

@@ -120,16 +120,13 @@ module FlowWithLayoutControls = {
 @react.component
 let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
-  open APIUtils
-  open LogicUtils
   open ReactFlow
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
   let (allData, setAllData) = React.useState(_ => None)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
 
@@ -145,15 +142,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData =
-        res->getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
-
+      let accountData = await getAccounts()
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
