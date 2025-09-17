@@ -65,20 +65,6 @@ module ColumnMappingDisplay = {
 
 @react.component
 let make = (~showModal, ~setShowModal, ~selectedTransformation: transformationConfigType) => {
-  let modalHeading = {
-    <div className="flex justify-between border-b">
-      <div className="flex gap-4 items-center m-6">
-        <p className={`text-nd_gray-800 ${heading.sm.semibold}`}> {"Mappers"->React.string} </p>
-      </div>
-      <Icon
-        name="modal-close-icon"
-        className="cursor-pointer mr-4"
-        size=30
-        onClick={_ => setShowModal(_ => false)}
-      />
-    </div>
-  }
-
   let columnMapping = React.useMemo(() => {
     selectedTransformation.config->getDictFromJsonObject->getDictfromDict("column_mapping")
   }, [selectedTransformation])
@@ -87,9 +73,10 @@ let make = (~showModal, ~setShowModal, ~selectedTransformation: transformationCo
     setShowModal
     showModal
     closeOnOutsideClick=true
+    modalHeading="Mappers"
+    modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
     modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white"
-    childClass="relative h-full"
-    customModalHeading=modalHeading>
+    childClass="relative h-full">
     <div className="h-full relative">
       <div className="absolute inset-0 overflow-y-auto py-2">
         {if columnMapping->isEmptyDict {
