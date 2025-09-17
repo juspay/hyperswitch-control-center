@@ -1,0 +1,3 @@
+type steps =
+  | Checkout
+  | Configurator
