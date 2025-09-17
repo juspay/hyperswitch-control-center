@@ -1,16 +1,15 @@
 @react.component
 let make = (~selectedTransformationHistoryId: option<string>) => {
-  open APIUtils
   open LogicUtils
   open ReconEngineAccountsTransformedEntriesHelper
   open ReconEngineAccountsTransformedEntriesUtils
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (stagingData, setStagingData) = React.useState(_ => [
     Dict.make()->getProcessingEntryPayloadFromDict,
   ])
+  let getProcessingEntries = useGetProcessingEntries()
 
   let fetchStagingData = async () => {
     try {
@@ -19,14 +18,7 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
       | Some(id) => Some(`transformation_history_id=${id}`)
       | None => None
       }
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=queryParams,
-      )
-      let res = await fetchDetails(stagingUrl)
-      let stagingList = res->LogicUtils.getArrayDataFromJson(getProcessingEntryPayloadFromDict)
+      let stagingList = await getProcessingEntries(~queryParamerters=queryParams)
 
       setStagingData(_ => stagingList)
       setScreenState(_ => PageLoaderWrapper.Success)

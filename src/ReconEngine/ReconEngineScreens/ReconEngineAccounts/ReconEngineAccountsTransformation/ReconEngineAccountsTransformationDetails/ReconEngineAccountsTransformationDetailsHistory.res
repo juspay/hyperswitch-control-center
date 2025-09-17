@@ -1,12 +1,11 @@
 @react.component
 let make = (~config: ReconEngineTypes.transformationConfigType) => {
   open LogicUtils
-  open APIUtils
   open ReconEngineAccountsTransformationUtils
+  open ReconEngineHooks
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getTransformationHistory = useGetTransformationHistory()
 
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
@@ -85,17 +84,9 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
         ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
           `&transformation_id=${config.id}`,
         )
-
-      let transformationHistoryUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+      let transformationHistoryList = await getTransformationHistory(
         ~queryParamerters=Some(queryString),
       )
-      let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
-      let transformationHistoryList =
-        transformationHistoryRes->getArrayDataFromJson(getTransformationHistoryPayloadFromDict)
-
       let transformationHistoryData = transformationHistoryList->Array.map(Nullable.make)
       setTransformationHistoryList(_ => transformationHistoryData)
       setFilteredHistoryData(_ => transformationHistoryData)
