@@ -1663,7 +1663,6 @@ let getConnectorFields = connectorDetails => {
   | _ => connectorAccountDict->getDictFromJsonObject->getDictfromDict(bodyType)
   }
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
-
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
