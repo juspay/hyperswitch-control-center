@@ -7,7 +7,9 @@ let make = () => {
   open ReconEngineAccountsTransformedEntriesUtils
   open ReconEngineTypes
   open ReconEngineFilterUtils
+  open ReconEngineHooks
 
+  let getGetProcessingEntries = useGetProcessingEntries()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -65,18 +67,8 @@ let make = () => {
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=Some(queryString),
-      )
-      let res = await fetchDetails(stagingUrl)
-      let stagingList =
-        res->LogicUtils.getArrayDataFromJson(
-          ReconEngineAccountsTransformedEntriesUtils.getProcessingEntryPayloadFromDict,
-        )
 
+      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
@@ -145,7 +137,7 @@ let make = () => {
 
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?stagingEntryId=${transformedEntry.staging_entry_id}`,
+          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?transformationHistoryId=${transformedEntry.transformation_history_id}&stagingEntryId=${transformedEntry.staging_entry_id}`,
         ),
       )
     } catch {
@@ -161,7 +153,7 @@ let make = () => {
         customHeadingStyle="py-0"
       />
     </div>
-    <ReconEngineAccountsTransformedEntriesOverviewCards />
+    <ReconEngineAccountsTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>

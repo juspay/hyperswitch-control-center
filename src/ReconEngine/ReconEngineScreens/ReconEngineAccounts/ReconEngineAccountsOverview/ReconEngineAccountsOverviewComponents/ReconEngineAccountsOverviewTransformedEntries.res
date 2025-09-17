@@ -5,13 +5,12 @@ let make = (
   ~stagingEntryId: option<string>,
 ) => {
   open LogicUtils
-  open APIUtils
   open ReconEngineAccountsTransformedEntriesUtils
   open ReconEngineFilterUtils
   open ReconEngineTypes
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getGetProcessingEntries = useGetProcessingEntries()
   let (stagingData, setStagingData) = React.useState(_ => [])
   let (filteredStagingData, setFilteredStagingData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -73,14 +72,8 @@ let make = (
           ReconEngineFilterUtils.buildQueryStringFromFilters(
             ~filterValueJson=enhancedFilterValueJson,
           )->String.concat(`&transformation_history_id=${selectedTransformationHistoryId}`)
-        let stagingUrl = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-          ~queryParamerters=Some(queryString),
-        )
-        let res = await fetchDetails(stagingUrl)
-        let stagingList = res->getArrayDataFromJson(getProcessingEntryPayloadFromDict)
+
+        let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
         let initialSearchText = stagingEntryId->Option.getOr("")
         let filteredList = filterDataBySearchText(stagingList, initialSearchText)
         if stagingEntryId->Option.isSome {
@@ -154,7 +147,9 @@ let make = (
     customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available." />}
     customLoader={<Shimmer styleClass="h-96 w-full rounded-b-xl" />}>
     <div className="flex flex-col gap-4 my-4 px-6 pb-16">
-      <ReconEngineAccountsTransformedEntriesOverviewCards />
+      <ReconEngineAccountsTransformedEntriesOverviewCards
+        selectedTransformationHistoryId=Some(selectedTransformationHistoryId)
+      />
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
         title="Staging Entries"

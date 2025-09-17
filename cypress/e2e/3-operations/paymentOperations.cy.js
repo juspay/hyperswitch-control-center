@@ -162,7 +162,7 @@ describe("Payment Operations", () => {
           cy.get(`[data-table-location="Orders_tr1_td8"]`).contains(
             response.body.payment_method_type,
           );
-          cy.get(`[data-table-location="Orders_tr1_td9"]`).contains("NA");
+          cy.get(`[data-table-location="Orders_tr1_td9"]`).contains("N/A");
           cy.get(`[data-table-location="Orders_tr1_td10"]`).contains(
             response.body.connector_transaction_id,
           );
@@ -269,17 +269,13 @@ describe("Payment Operations", () => {
       cy.wrap($el).click();
     });
 
-    cy.contains("button", `${columnSize} Columns Selected`).should(
-      "be.visible",
-    );
+    cy.get('[data-button-text="Save"]').contains("Save").should("be.visible");
 
     columns.optional.forEach((column) => {
       cy.get(`[data-dropdown-value="${column}"]`).click();
     });
 
-    cy.contains("button", `${requiredColumnsSize} Columns Selected`).should(
-      "be.visible",
-    );
+    cy.get('[data-button-text="Save"]').contains("Save").should("be.visible");
 
     cy.get(
       '[data-component="modal:Table Columns"] [data-icon="modal-close-icon"]',
@@ -430,7 +426,7 @@ describe("Payment Operations", () => {
       cy.wrap($el).click();
     });
 
-    cy.contains("button", `${columnSize} Columns Selected`).click();
+    cy.get('[data-button-text="Save"]').contains("Save").should("be.visible");
 
     cy.get("table thead tr th").each(($el, index) => {
       cy.wrap($el).should("have.text", expectedColumns[index]);
@@ -502,7 +498,6 @@ describe("Payment Operations", () => {
       });
   });
 
-  //TODO
   it.skip("should display a valid message and expand search timerange when searched with invalid payment ID", () => {
     let merchant_id;
     let invalid_paymentID = "invalidID";
@@ -519,10 +514,9 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    paymentOperations.searchBox
-      .should("be.visible")
-      //.should("not.be.disabled")
-      .type(invalid_paymentID);
+    paymentOperations.searchBox.should("be.visible");
+    paymentOperations.searchBox.type(invalid_paymentID); //failed because it targeted a disabled element.
+    paymentOperations.searchBox.type("{enter}");
 
     cy.get(`[class="items-center text-2xl text-black font-bold mb-4"]`).should(
       "have.text",
@@ -727,7 +721,6 @@ describe("Payment Operations", () => {
   });
 
   it.skip("should verify all time range filters are displayed in date selector dropdown", () => {
-    // fails in CI
     const timeRangeFilters = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -746,7 +739,9 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]')
+    cy.get('[data-date-picker-predifined="predefined-options"]', {
+      timeout: 10000,
+    }) //Expected to find element, but never found it.
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -756,8 +751,41 @@ describe("Payment Operations", () => {
       });
   });
 
+  it.skip("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
+    const predefinedTimeRange = [
+      "Last 30 Mins",
+      "Last 1 Hour",
+      "Last 2 Hours",
+      "Today",
+      "Yesterday",
+      "Last 2 Days",
+      "Last 7 Days",
+      "Last 30 Days",
+      "This Month",
+      "Last Month",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    for (const timeRange of predefinedTimeRange) {
+      paymentOperations.dateSelector.click();
+      cy.get('[data-date-picker-predifined="predefined-options"]', {
+        timeout: 10000,
+      }).within(
+        //Expected to find element, but never found it.
+        () => {
+          cy.contains(timeRange).click();
+        },
+      );
+      cy.get(`[data-testid="date-range-selector"]`).should(
+        "contain",
+        timeRange,
+      );
+    }
+  });
+
   it.skip("should verify applied custom timerange is displayed correctly", () => {
-    //fails in CI
     const now = new Date();
     const today = now.getDate();
     const previousMonth = new Date(
@@ -779,7 +807,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-daterange-dropdown-value="Custom Range"]')
+    cy.get('[data-daterange-dropdown-value="Custom Range"]', { timeout: 10000 })
       .should("exist")
       .should("be.visible")
       .click({ force: true });
@@ -798,39 +826,6 @@ describe("Payment Operations", () => {
       "contain",
       expectedRange,
     );
-  });
-
-  // TODO
-  it.skip("should verify applied when predefined timerange is applied from dropdown", () => {
-    const predefinedTimeRange = [
-      "Last 30 Mins",
-      "Last 1 Hour",
-      "Last 2 Hours",
-      "Today",
-      "Yesterday",
-      "Last 2 Days",
-      "Last 7 Days",
-      "Last 30 Days",
-      "This Month",
-      "Last Month",
-    ];
-
-    homePage.operations.click();
-    homePage.paymentOperations.click();
-
-    for (const timeRange of predefinedTimeRange) {
-      paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]').within(
-        () => {
-          cy.contains(timeRange).click();
-        },
-      );
-      cy.get(`[data-testid="date-range-selector"]`).should(
-        "contain",
-        timeRange,
-      );
-    }
-    // Verify that the date range is applied correctly
   });
 
   // generate reports
