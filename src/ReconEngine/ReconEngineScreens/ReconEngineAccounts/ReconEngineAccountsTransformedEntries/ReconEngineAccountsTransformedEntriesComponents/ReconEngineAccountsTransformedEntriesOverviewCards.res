@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~selectedTransformationHistoryId: option<string>) => {
   open APIUtils
   open LogicUtils
   open ReconEngineAccountsTransformedEntriesHelper
@@ -15,11 +15,15 @@ let make = () => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-
+      let queryParams = switch selectedTransformationHistoryId {
+      | Some(id) => Some(`transformation_history_id=${id}`)
+      | None => None
+      }
       let stagingUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+        ~queryParamerters=queryParams,
       )
       let res = await fetchDetails(stagingUrl)
       let stagingList = res->LogicUtils.getArrayDataFromJson(getProcessingEntryPayloadFromDict)
