@@ -156,6 +156,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
+  Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
   Processors(PAYPAL),
