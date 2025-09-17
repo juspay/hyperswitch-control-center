@@ -12,8 +12,8 @@ let make = () => {
   )
 
   let subtitle = switch currentStep {
-  | Checkout => "Step 1: Configure details for your payment link"
-  | Configurator => "Step 2: Configure & Preview"
+  | Checkout => "Edit details for your payment link"
+  | Configurator => "Configure and Preview payment link theme"
   }
 
   React.useEffect(() => {
@@ -56,7 +56,7 @@ let make = () => {
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Payment Link Theme Configuration" subTitle={subtitle} />
       <RenderIf condition={currentStep == Configurator}>
-        <Button text="Restart Flow" onClick={_ => onRestartClick()} />
+        <Button text="Edit details" onClick={_ => onRestartClick()} />
       </RenderIf>
     </div>
     {switch currentStep {
