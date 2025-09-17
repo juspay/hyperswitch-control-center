@@ -196,21 +196,22 @@ let getAllAccountIds = (reconRulesList: array<ReconEngineTypes.reconRuleType>) =
   ->getUniqueArray
 }
 
-let summarizeTransactions = (
-  ruleTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
-): (int, int) => {
+let summarizeTransactions = (ruleTransactions: array<ReconEngineTypes.transactionType>): (
+  int,
+  int,
+) => {
   ruleTransactions->Array.reduce((0, 0), (
     (postedCount, totalCount),
-    t: ReconEngineTransactionsTypes.transactionPayload,
+    t: ReconEngineTypes.transactionType,
   ) => {
-    let txType = t.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
-    switch txType {
+    switch t.transaction_status {
     | Posted => (postedCount + 1, totalCount + 1)
     | Archived => (postedCount, totalCount)
     | _ => (postedCount, totalCount + 1)
     }
   })
 }
+
 let getPercentageLabel = (~postedCount, ~totalCount) =>
   if totalCount > 0 {
     let percentageValue = postedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
@@ -219,8 +220,8 @@ let getPercentageLabel = (~postedCount, ~totalCount) =>
     "0% Reconciled"
   }
 let makeEdge = (
-  ~source: ReconEngineTypes.accountRefType,
-  ~target: ReconEngineTypes.accountRefType,
+  ~source: ReconEngineTypes.reconRuleAccountRefType,
+  ~target: ReconEngineTypes.reconRuleAccountRefType,
   ~ruleTransactions,
   ~selectedNodeId,
 ) => {
@@ -247,7 +248,7 @@ let makeEdge = (
 }
 let getEdges = (
   ~reconRulesList: array<ReconEngineTypes.reconRuleType>,
-  ~allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~allTransactions: array<ReconEngineTypes.transactionType>,
   ~selectedNodeId,
 ) =>
   reconRulesList->Array.flatMap(rule =>
@@ -274,7 +275,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
   reconRulesList: array<ReconEngineTypes.reconRuleType>,
   accountsData: array<ReconEngineTypes.accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  allTransactions: array<ReconEngineTypes.transactionType>,
   ~selectedNodeId: option<string>,
   ~onNodeClick: option<string => unit>=?,
 ) => {
@@ -316,7 +317,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
 
 let processAllTransactionsWithAmounts = (
   reconRulesList: array<ReconEngineTypes.reconRuleType>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  allTransactions: array<ReconEngineTypes.transactionType>,
 ) => {
   let accountTransactionData = Dict.make()
 
@@ -326,18 +327,15 @@ let processAllTransactionsWithAmounts = (
     accountTransactionData->Dict.set(accountId, Dict.make()->accountTransactionDataToObjMapper)
   })
 
-  allTransactions->Array.forEach((transaction: ReconEngineTransactionsTypes.transactionPayload) => {
+  allTransactions->Array.forEach((transaction: ReconEngineTypes.transactionType) => {
     let creditEntries = transaction.entries->Array.filter(entry => entry.entry_type === Credit)
     let debitEntries = transaction.entries->Array.filter(entry => entry.entry_type === Debit)
-
-    let transactionStatus =
-      transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
 
     debitEntries->Array.forEach(entry => {
       let accountId = entry.account.account_id
       switch accountTransactionData->getvalFromDict(accountId) {
       | Some(accountData) =>
-        let updatedData = switch transactionStatus {
+        let updatedData = switch transaction.transaction_status {
         | Posted => {
             ...accountData,
             posted_confirmation_count: accountData.posted_confirmation_count + 1,
@@ -375,7 +373,7 @@ let processAllTransactionsWithAmounts = (
       let accountId = entry.account.account_id
       switch accountTransactionData->getvalFromDict(accountId) {
       | Some(accountData) =>
-        let updatedData = switch transactionStatus {
+        let updatedData = switch transaction.transaction_status {
         | Posted => {
             ...accountData,
             posted_transaction_count: accountData.posted_transaction_count + 1,

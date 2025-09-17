@@ -36,7 +36,7 @@ let make = (
         setTransformationHistoryData(_ => transformationHistoryList)
 
         let allProcessed =
-          transformationHistoryList->Array.every(entry => entry.status === "processed")
+          transformationHistoryList->Array.every(entry => entry.status === Processed)
         switch onTransformationStatusChange {
         | Some(callback) => callback(allProcessed)
         | None => ()

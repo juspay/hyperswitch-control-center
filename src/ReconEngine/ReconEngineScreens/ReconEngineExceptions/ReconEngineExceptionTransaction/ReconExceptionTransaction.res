@@ -2,8 +2,9 @@
 let make = (~ruleId: string) => {
   open LogicUtils
   open ReconEngineFilterUtils
-  open ReconEngineTransactionsTypes
+  open ReconEngineTypes
   open HierarchicalTransactionsTableEntity
+
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -32,11 +33,11 @@ let make = (~ruleId: string) => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.transaction_status, searchText)
+          isContainingStringLowercase((obj.transaction_status :> string), searchText)
         | None => false
         }
       })

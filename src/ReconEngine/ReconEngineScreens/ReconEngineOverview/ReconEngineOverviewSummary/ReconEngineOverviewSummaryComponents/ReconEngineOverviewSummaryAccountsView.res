@@ -51,19 +51,18 @@ module AccountsHeader = {
 }
 
 module AmountCell = {
-  open ReconEngineOverviewSummaryTypes
   open LogicUtils
 
   @react.component
   let make = (
-    ~subHeaderType: subHeaderType,
+    ~subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType,
     ~creditAmount: balanceType,
     ~debitAmount: balanceType,
     ~borderClass: string,
   ) => {
     <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
       <div className={`${body.md.medium} text-nd_gray-600`}>
-        {switch subHeaderType {
+        {switch (subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType) {
         | Debit =>
           `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
