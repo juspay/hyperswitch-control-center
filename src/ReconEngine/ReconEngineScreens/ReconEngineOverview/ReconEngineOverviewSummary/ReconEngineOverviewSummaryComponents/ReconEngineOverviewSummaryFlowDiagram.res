@@ -6,12 +6,14 @@ module InOutComponent = {
   let make = (~statusItem) => {
     open ReconEngineOverviewSummaryUtils
 
+    let (iconName, iconColor) = getStatusIcon(statusItem.statusType)
+
     <div
       key={(statusItem.statusType :> string)}
       className="bg-nd_gray-25 border rounded-xl border-nd_gray-150 mt-2.5 p-2">
       <div className="flex flex-row items-center">
         <div className="flex flex-row items-center gap-1.5 flex-[1]">
-          <Icon name={getStatusIcon(statusItem.statusType)} size=12 />
+          <Icon name={iconName} className={iconColor} size=12 />
           <p className={`${body.sm.medium} text-nd_gray-500`}>
             {(statusItem.statusType :> string)->React.string}
           </p>

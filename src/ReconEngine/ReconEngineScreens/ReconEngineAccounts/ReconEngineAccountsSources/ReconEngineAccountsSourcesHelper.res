@@ -35,45 +35,16 @@ module SourceConfigItem = {
       | #text =>
         <span className={`${body.md.medium} text-nd_gray-600`}> {data.value->React.string} </span>
       | #date =>
-        <span className={`${body.md.medium} text-nd_gray-600`}>
-          <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
-        </span>
+        if data.value->LogicUtils.isNonEmptyString {
+          <span className={`${body.md.medium} text-nd_gray-600`}>
+            <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
+          </span>
+        } else {
+          <span className={`${body.md.medium} text-nd_gray-600`}> {"-"->React.string} </span>
+        }
       | #status =>
         <StatusIndicator status={data.value->getStatusVariantFromString} value={data.value} />
       }}
-    </div>
-  }
-}
-
-module IngestionHistoryActionsComponent = {
-  @react.component
-  let make = () => {
-    let ingestionHistoryIconActions = [
-      {
-        iconType: ViewIcon,
-        onClick: _ => (),
-      },
-      {
-        iconType: DownloadIcon,
-        onClick: _ => (),
-      },
-      {
-        iconType: ChartIcon,
-        onClick: _ => (),
-      },
-    ]
-
-    <div className="flex flex-row gap-4">
-      {ingestionHistoryIconActions
-      ->Array.mapWithIndex((action, index) =>
-        <Icon
-          key={index->Int.toString}
-          name={(action.iconType :> string)}
-          size=16
-          onClick={action.onClick}
-        />
-      )
-      ->React.array}
     </div>
   }
 }

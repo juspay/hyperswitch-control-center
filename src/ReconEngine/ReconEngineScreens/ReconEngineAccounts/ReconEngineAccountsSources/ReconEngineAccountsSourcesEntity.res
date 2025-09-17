@@ -103,7 +103,7 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   | Status => ReconEngineAccountsUtils.getStatusLabel(data.status)
   | IngestionType => Text(data.upload_type)
   | ReceivedAt => Date(data.created_at)
-  | Actions => CustomCell(<IngestionHistoryActionsComponent />, "")
+  | Actions => CustomCell(<ReconEngineAccountSourceDetailsActions ingestionHistory={data} />, "")
   }
 }
 

@@ -16,9 +16,13 @@ module TransformationConfigItem = {
           {data.value->React.string}
         </span>
       | #date =>
-        <span className={`${body.md.medium} text-nd_gray-600`}>
-          <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
-        </span>
+        if data.value->LogicUtils.isNonEmptyString {
+          <span className={`${body.md.medium} text-nd_gray-600`}>
+            <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
+          </span>
+        } else {
+          <span className={`${body.md.medium} text-nd_gray-600`}> {"-"->React.string} </span>
+        }
       | #status =>
         <StatusIndicator status={data.value->getStatusVariantFromString} value={data.value} />
       }}

@@ -31,7 +31,7 @@ module DisplayKeyValueParams = {
               textAlign=Table.Left
               fontBold=true
               customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
+              labelMargin="!py-0"
             />
           </div>
         </div>
