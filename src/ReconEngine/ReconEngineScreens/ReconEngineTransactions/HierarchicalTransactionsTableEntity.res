@@ -1,7 +1,5 @@
-open ReconEngineTransactionsTypes
-open ReconEngineTransactionsUtils
+open ReconEngineTypes
 open ReconEngineTransactionsHelper
-
 open Table
 
 type hierarchicalColType =
@@ -53,10 +51,10 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
-let getStatusLabel = (statusString: string): cell => {
+let getStatusLabel = (transactionStatus: transactionStatus): cell => {
   Label({
-    title: statusString->String.toUpperCase,
-    color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
+    title: (transactionStatus :> string)->String.toUpperCase,
+    color: switch transactionStatus {
     | Posted => LabelGreen
     | Mismatched => LabelRed
     | Expected => LabelBlue
@@ -66,14 +64,15 @@ let getStatusLabel = (statusString: string): cell => {
   })
 }
 
-let getCell = (transaction: transactionPayload, colType: hierarchicalColType): cell => {
+let getCell = (transaction: transactionType, colType: hierarchicalColType): cell => {
   let hierarchicalContainerClassName = "-mx-8 border-r-gray-400 divide-y divide-gray-200"
   switch colType {
   | Date => DateWithoutTime(transaction.created_at)
   | TransactionId => Text(transaction.transaction_id)
   | Status =>
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status)
+    | Some(discardedStatus) =>
+      getStatusLabel(discardedStatus->ReconEngineUtils.getTransactionStatusVariantFromString)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | EntryId =>
@@ -106,7 +105,7 @@ let getCell = (transaction: transactionPayload, colType: hierarchicalColType): c
         {transaction.entries
         ->Array.map(entry => {
           <HierarchicalEntryRenderer
-            fieldValue={entry.status->LogicUtils.capitalizeString}
+            fieldValue={(entry.status :> string)->LogicUtils.capitalizeString}
             key={LogicUtils.randomString(~length=10)}
           />
         })
@@ -162,7 +161,7 @@ let hierarchicalTransactionsLoadedTableEntity = (
 ) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getTransactionsList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~allColumns,
     ~getHeading,

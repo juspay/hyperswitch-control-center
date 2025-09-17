@@ -51,19 +51,18 @@ module AccountsHeader = {
 }
 
 module AmountCell = {
-  open ReconEngineOverviewSummaryTypes
   open LogicUtils
 
   @react.component
   let make = (
-    ~subHeaderType: subHeaderType,
+    ~subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType,
     ~creditAmount: balanceType,
     ~debitAmount: balanceType,
     ~borderClass: string,
   ) => {
     <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
       <div className={`${body.md.medium} text-nd_gray-600`}>
-        {switch subHeaderType {
+        {switch (subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType) {
         | Debit =>
           `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
@@ -138,25 +137,17 @@ module AccountsList = {
 let make = (~reconRulesList: array<reconRuleType>) => {
   open LogicUtils
   open ReconEngineOverviewSummaryUtils
-  open APIUtils
   open ReconEngineAccountsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(getAccountPayloadFromDict)
+      let accountData = await getAccounts()
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,

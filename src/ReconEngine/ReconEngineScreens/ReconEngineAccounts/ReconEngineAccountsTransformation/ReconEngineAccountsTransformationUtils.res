@@ -1,6 +1,5 @@
 open ReconEngineAccountsTransformationTypes
 open LogicUtils
-open ReconEngineAccountsUtils
 open ReconEngineTypes
 open ReconEngineUtils
 
@@ -18,9 +17,7 @@ let getTotalCount = (~transformationHistoryList: array<transformationHistoryType
 
 let getProcessedCount = (~transformationHistoryList: array<transformationHistoryType>): int => {
   transformationHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString == Processed
-  )
+  ->Array.filter(item => item.status == Processed)
   ->Array.length
 }
 

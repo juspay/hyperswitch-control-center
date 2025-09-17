@@ -1,5 +1,4 @@
 open ReconEngineFilterUtils
-open ReconEngineTransactionsTypes
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getTransactionStatusOptions([Mismatched, Expected])

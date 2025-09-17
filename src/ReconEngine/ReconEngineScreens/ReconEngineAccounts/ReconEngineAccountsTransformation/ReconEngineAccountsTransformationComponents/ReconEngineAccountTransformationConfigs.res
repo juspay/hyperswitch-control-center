@@ -39,7 +39,8 @@ let make = (~account: ReconEngineTypes.accountType) => {
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-52" message="No data available." />}
     customLoader={<Shimmer styleClass="h-52 w-full rounded-b-lg" />}>
-    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 items-center w-full p-6">
+    <div
+      className="grid 2xl:grid-cols-3 xl:grid-cols-2 md:grid-cols-1 gap-6 items-center w-full p-6">
       {configData
       ->Array.mapWithIndex((config, index) => {
         <ReconEngineAccountTransformationConfigDetails

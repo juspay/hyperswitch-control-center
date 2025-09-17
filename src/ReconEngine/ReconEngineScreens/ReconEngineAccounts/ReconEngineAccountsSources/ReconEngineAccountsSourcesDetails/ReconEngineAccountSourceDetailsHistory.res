@@ -29,7 +29,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
       arr->Array.filter((obj: Nullable.t<ReconEngineTypes.ingestionHistoryType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.status, searchText) ||
+          isContainingStringLowercase((obj.status :> string), searchText) ||
           isContainingStringLowercase(obj.upload_type, searchText)
         | None => false
         }

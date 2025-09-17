@@ -5,8 +5,11 @@ let make = () => {
   open LogicUtils
   open APIUtils
   open ReconEngineAccountsTransformedEntriesUtils
-  open ReconEngineExceptionTypes
+  open ReconEngineTypes
+  open ReconEngineFilterUtils
+  open ReconEngineHooks
 
+  let getGetProcessingEntries = useGetProcessingEntries()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
@@ -30,7 +33,7 @@ let make = () => {
   }
 
   let accountOptions = React.useMemo(() => {
-    getAccountOptionsFromStagingData(stagingData)
+    getAccountOptionsFromStagingEntries(stagingData)
   }, [stagingData])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
@@ -40,7 +43,7 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase(obj.status, searchText)
+          isContainingStringLowercase((obj.status :> string), searchText)
         | None => false
         }
       })
@@ -53,19 +56,19 @@ let make = () => {
   let fetchStagingData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
-      let stagingUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters=Some(queryString),
-      )
-      let res = await fetchDetails(stagingUrl)
-      let stagingList =
-        res->LogicUtils.getArrayDataFromJson(
-          ReconEngineExceptionStagingUtils.processingItemToObjMapper,
+      let enhancedFilterValueJson = Dict.copy(filterValueJson)
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      if statusFilter->Array.length == 0 {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
         )
+      }
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=enhancedFilterValueJson,
+      )
 
+      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
@@ -134,7 +137,7 @@ let make = () => {
 
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?stagingEntryId=${transformedEntry.staging_entry_id}`,
+          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?transformationHistoryId=${transformedEntry.transformation_history_id}&stagingEntryId=${transformedEntry.staging_entry_id}`,
         ),
       )
     } catch {
@@ -150,7 +153,7 @@ let make = () => {
         customHeadingStyle="py-0"
       />
     </div>
-    <ReconEngineAccountsTransformedEntriesOverviewCards />
+    <ReconEngineAccountsTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
