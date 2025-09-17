@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.17.1
+
+### Features
+
+- Enable Nexixpay in PROD ([#3614](https://github.com/juspay/hyperswitch-control-center/pull/3614)) ([`8056197`](https://github.com/juspay/hyperswitch-control-center/commit/80561974344a148c34a53645c49eae9bd339f74e))
+
+### Bug Fixes
+
+- Fix cypress tests ([#3594](https://github.com/juspay/hyperswitch-control-center/pull/3594)) ([`305af15`](https://github.com/juspay/hyperswitch-control-center/commit/305af15708bd6f360ea784618de70b29fecb3c9f))
+- Recon engine data overview `transformed_entries` list with `transformation_history` ([#3609](https://github.com/juspay/hyperswitch-control-center/pull/3609)) ([`6fccf01`](https://github.com/juspay/hyperswitch-control-center/commit/6fccf01c48822d7a7a3da028c5121f6d5db082df))
+
+### Refactors
+
+- Add recon engine hooks for `accounts`, `processing_entries` and `transformation_history` ([#3607](https://github.com/juspay/hyperswitch-control-center/pull/3607)) ([`e835c2d`](https://github.com/juspay/hyperswitch-control-center/commit/e835c2d442cf7a5c0011c1a5094aa01e59bcf572))
+
+### Miscellaneous Tasks
+
+- Count the `staging_entries` based on the `transformation_history_id` ([#3612](https://github.com/juspay/hyperswitch-control-center/pull/3612)) ([`4f0c4fe`](https://github.com/juspay/hyperswitch-control-center/commit/4f0c4fed8eb876a769bb43f4ff029434ba866d94))
+
+**Full Changelog:** [`2025.09.17.0...2025.09.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.17.0...2025.09.17.1)
+
+- - -
+
 ## 2025.09.17.0
 
 ### Refactors
