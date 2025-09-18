@@ -4,10 +4,12 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   open LogicUtils
   open ConnectorUtils
   let url = RescriptReactRouter.useUrl()
-  let connectorID = switch url.path->HSwitchUtils.urlPath {
-  | list{"connectors", mcaId} => mcaId == "new" ? None : Some(mcaId)
-  | _ => None
+  // id required in case of update flow
+  let connectorID = switch HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "") {
+  | "new" => None
+  | id => Some(id)
   }
+
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchConnectorList = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
