@@ -233,7 +233,7 @@ module LabelCell = {
     | LabelBlue => `bg-nd_primary_blue-50 bg-opacity-50`
     | LabelGray => "bg-nd_gray-50"
     | LabelOrange => `bg-nd_orange-50 ${bgOpacity} dark:bg-opacity-50`
-    | LabelPurple => "bg-nd_gray-50"
+    | LabelPurple => "bg-nd_purple-50"
     | _ => "bg-white"
     }
 
@@ -260,7 +260,7 @@ module LabelCell = {
 
     <div className="inline-flex justify-center items-center gap-1.5">
       <div className="flex-initial ">
-        <div className={`rounded-[6px] ${borderColor}`}>
+        <div className={`rounded-md ${borderColor}`}>
           <div
             className={`${labelMargin} ${fontStyle} ${textColor} text-fs-14 font-semibold px-2.5 py-1`}>
             <AddDataAttributes attributes=[("data-label", text)]>
@@ -316,7 +316,7 @@ module NewLabelCell = {
     <div className="flex">
       <div className="flex-initial ">
         <div
-          className={`flex flex-row px-2 py-0.5 ${bgColor} rounded-[16px] text-fs-10 font-bold ${textColor}`}>
+          className={`flex flex-row px-2 py-0.5 ${bgColor} rounded-[16px] ${Typography.body.md.semibold} ${textColor}`}>
           <Icon className={`${dotColor} mr-2`} name="circle_unfilled" size=6 />
           <div className={`${textColor} font-medium text-xs`}> {React.string(text)} </div>
         </div>
@@ -335,7 +335,7 @@ module ColoredTextCell = {
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
     | LabelLightGray => "text-nd_gray-600"
-    | LabelPurple => "bg-nd_gray-50"
+    | LabelPurple => "bg-nd_purple-500"
     }
 
     <div className="flex">

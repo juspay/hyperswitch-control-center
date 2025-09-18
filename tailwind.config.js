@@ -415,6 +415,7 @@ module.exports = {
         },
         nd_purple: {
           500: "#AD46FF",
+          50: "#FAF5FF",
         },
         nd_primary_blue: {
           25: "#F6FAFE",
