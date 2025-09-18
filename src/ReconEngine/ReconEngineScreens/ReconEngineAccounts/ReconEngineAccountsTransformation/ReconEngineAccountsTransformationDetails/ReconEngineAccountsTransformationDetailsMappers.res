@@ -64,7 +64,48 @@ module ColumnMappingDisplay = {
 }
 
 @react.component
-let make = (~showModal, ~setShowModal, ~selectedTransformation: transformationConfigType) => {
+let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
+  open APIUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Custom)
+  let (selectedTransformation, setSelectedTransformation) = React.useState(_ =>
+    Dict.make()->getTransformationConfigPayloadFromDict
+  )
+
+  let fetchTransformationConfigDetails = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let transformationConfigUrl = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
+        ~id=Some(selectedTransformationId),
+      )
+      let transformationConfigsRes = await fetchDetails(transformationConfigUrl)
+      let transformationConfig =
+        transformationConfigsRes->getDictFromJsonObject->getTransformationConfigPayloadFromDict
+
+      if transformationConfig.transformation_id->isNonEmptyString {
+        setSelectedTransformation(_ => transformationConfig)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+
+  React.useEffect(() => {
+    if showModal && selectedTransformationId->isNonEmptyString {
+      fetchTransformationConfigDetails()->ignore
+    }
+    None
+  }, [selectedTransformationId])
+
   let columnMapping = React.useMemo(() => {
     selectedTransformation.config->getDictFromJsonObject->getDictfromDict("column_mapping")
   }, [selectedTransformation])
@@ -77,22 +118,31 @@ let make = (~showModal, ~setShowModal, ~selectedTransformation: transformationCo
     modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
     modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white"
     childClass="relative h-full">
-    <div className="h-full relative">
-      <div className="absolute inset-0 overflow-y-auto py-2">
-        {if columnMapping->isEmptyDict {
-          <NewAnalyticsHelper.NoData height="h-52" message="No data available." />
-        } else {
-          <ColumnMappingDisplay columnMapping />
-        }}
+    <PageLoaderWrapper
+      screenState
+      customUI={<NewAnalyticsHelper.NoData message="No data available." />}
+      customLoader={<div className="h-full flex flex-col justify-center items-center">
+        <div className="animate-spin mb-1">
+          <Icon name="spinner" size=20 />
+        </div>
+      </div>}>
+      <div className="h-full relative">
+        <div className="absolute inset-0 overflow-y-auto py-2">
+          {if columnMapping->isEmptyDict {
+            <NewAnalyticsHelper.NoData height="h-52" message="No data available." />
+          } else {
+            <ColumnMappingDisplay columnMapping />
+          }}
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
+          <Button
+            customButtonStyle="!w-full"
+            buttonType=Button.Primary
+            onClick={_ => setShowModal(_ => false)}
+            text="OK"
+          />
+        </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
-        <Button
-          customButtonStyle="!w-full"
-          buttonType=Button.Primary
-          onClick={_ => setShowModal(_ => false)}
-          text="OK"
-        />
-      </div>
-    </div>
+    </PageLoaderWrapper>
   </Modal>
 }
