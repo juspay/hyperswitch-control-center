@@ -1,5 +1,5 @@
 type steps =
-  IntegFields | PaymentMethods | CustomMetaData | SummaryAndTest | Preview | AutomaticFlow
+  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,

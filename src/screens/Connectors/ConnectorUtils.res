@@ -12,7 +12,7 @@ let getStepName = step => {
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
-  | CustomMetaData => "MetaData"
+  | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
   }
 }
@@ -2214,7 +2214,7 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
-  | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetaData, SummaryAndTest]
+  | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }

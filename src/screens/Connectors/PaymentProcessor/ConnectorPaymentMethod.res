@@ -65,7 +65,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       let body = constructConnectorRequestBody(obj, values)
       if connector->getConnectorNameTypeFromString == Processors(PAYSAFE) {
         setInitialValues(_ => body)
-        setCurrentStep(_ => ConnectorTypes.CustomMetaData)
+        setCurrentStep(_ => ConnectorTypes.CustomMetadata)
       } else {
         let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
         let response = await updateAPIHook(

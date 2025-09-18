@@ -256,7 +256,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
-        | CustomMetaData =>
+        | CustomMetadata =>
           <ConnectorCustomMetadata
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
