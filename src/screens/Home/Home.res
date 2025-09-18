@@ -27,13 +27,5 @@ let make = (~setAppScreenState) => {
       </RenderIf>
       <DevResources />
     </div>
-
-    <div className="p-8 space-y-4">
-      <TableUtils.LabelCell labelColor=LabelGreen text="PROCESSING" />
-      <TableUtils.LabelCell labelColor=LabelRed text="PROCESSING" />
-      <TableUtils.LabelCell labelColor=LabelOrange text="PROCESSING" />
-      <TableUtils.LabelCell labelColor=LabelBlue text="PROCESSING" />
-      <TableUtils.LabelCell labelColor=LabelPurple text="PROCESSING" />
-    </div>
   </>
 }
