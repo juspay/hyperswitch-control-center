@@ -8,6 +8,10 @@ let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
   dict->transformationHistoryItemToObjMapper
 }
 
+let getTransformedEntriesIngestionHistoryPayloadFromDict = dict => {
+  dict->ingestionHistoryItemToObjMapper
+}
+
 let getProcessingEntryPayloadFromDict = dict => {
   dict->processingItemToObjMapper
 }
@@ -53,6 +57,49 @@ let cardDetails = (~stagingData: array<processingEntryType>) => {
     },
   ]
 }
+
+let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~entry) => [
+  {
+    lineageSectionTitle: "Source",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "File Name",
+        lineageFieldValue: ingestionHistoryData.file_name,
+        lineageFileCopyable: false,
+      },
+      {
+        lineageFieldLabel: "Ingestion Id",
+        lineageFieldValue: ingestionHistoryData.ingestion_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+  {
+    lineageSectionTitle: "Transformation",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "Transformation Name",
+        lineageFieldValue: transformationHistoryData.transformation_name,
+        lineageFileCopyable: false,
+      },
+      {
+        lineageFieldLabel: "Transformation ID",
+        lineageFieldValue: transformationHistoryData.transformation_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+  {
+    lineageSectionTitle: "Staging Entry",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "Staging Entry Id",
+        lineageFieldValue: entry.staging_entry_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+]
 
 let initialDisplayFilters = (~accountOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
