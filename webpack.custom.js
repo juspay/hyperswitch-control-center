@@ -9,7 +9,7 @@ const serverConfig = require("./webpack.server");
 let customBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
-    app: `./src/entryPoints/HyperSwitchEntry.res.js`,
+    app: `./src/entry-points/HyperSwitchEntry.res.js`,
   };
   return {
     mode: "production",
