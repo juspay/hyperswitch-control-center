@@ -31,3 +31,28 @@ type iconAction = {
   @as("type") iconType: iconActionType,
   onClick: ReactEvent.Mouse.t => unit,
 }
+
+type timelineIconConfig = {
+  name: string,
+  color: string,
+}
+
+type timelineContainerConfig = {
+  borderColor: string,
+  backgroundColor: string,
+}
+
+type timelineConfig = {
+  statusText: string,
+  icon: timelineIconConfig,
+  container: timelineContainerConfig,
+}
+
+type fileTimelineState =
+  | FileAccepted
+  | FileProcessed
+  | FileUploaded
+  | FileProcessing
+  | FileReceived
+  | FileRejected
+  | UnknownState
