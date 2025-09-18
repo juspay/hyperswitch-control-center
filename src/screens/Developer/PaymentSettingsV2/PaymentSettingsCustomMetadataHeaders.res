@@ -53,17 +53,13 @@ module MetadataAuthenticationInput = {
       },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
-        let isValid = if value->String.length <= 2 {
+        let regexForProfileName = "^[a-zA-Z0-9_\\-!#$%&'*+.^`|~]+$"
+        let isValid = if value->isEmptyString {
           true
-        } else if (
-          value->isEmptyString ||
-          value->String.length > 64 ||
-          !RegExp.test(RegExp.fromString(regexForProfileName), value)
-        ) {
+        } else if value->String.length > 64 {
           false
         } else {
-          true
+          RegExp.test(RegExp.fromString(regexForProfileName), value)
         }
         if value->String.length <= 0 {
           form.change(keyField, JSON.Encode.null)
