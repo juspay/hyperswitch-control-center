@@ -5,6 +5,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   open PageLoaderWrapper
   open LogicUtils
   let getURL = useGetURL()
+  let url = RescriptReactRouter.useUrl()
   let _showAdvancedConfiguration = false
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorList = ConnectorListHook.useFetchConnectorList()
@@ -13,7 +14,11 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   )
   let (_metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let showToast = ToastState.useShowToast()
-  let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
+  // id required in case of update flow
+  let connectorID = switch HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "") {
+  | "new" => None
+  | id => Some(id)
+  }
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
 
