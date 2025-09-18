@@ -49,10 +49,12 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
     {
       buttonType: ViewFile,
       onClick: _ => (),
+      showTooltip: true,
     },
     {
       buttonType: Download,
       onClick: _ => (),
+      showTooltip: true,
     },
     {
       buttonType: Timeline,
@@ -60,6 +62,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
         ev->ReactEvent.Mouse.stopPropagation
         setShowModal(_ => true)
       },
+      showTooltip: false,
     },
   ]
 
@@ -89,15 +92,17 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
       </div>
       <div className="flex flex-row gap-4">
         {getIngestionButtonActions
-        ->Array.mapWithIndex((action, index) =>
+        ->Array.mapWithIndex((action, index) => {
           <Button
             key={index->Int.toString}
             buttonType=Secondary
             text={(action.buttonType :> string)}
             onClick={action.onClick}
             customButtonStyle="!w-fit"
+            tooltipText="This feature is available in prod"
+            showTooltip=action.showTooltip
           />
-        )
+        })
         ->React.array}
       </div>
       <ReconEngineAccountSourceFileTimeline

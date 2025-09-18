@@ -227,14 +227,28 @@ module IngestionHistoryActionsComponent = {
         showModal setShowModal ingestionHistoryId=ingestionHistory.ingestion_history_id
       />
       {ingestionHistoryIconActions
-      ->Array.mapWithIndex((action, index) =>
-        <Icon
-          key={index->Int.toString}
-          name={(action.iconType :> string)}
-          size=16
-          onClick={action.onClick}
-        />
-      )
+      ->Array.mapWithIndex((action, index) => {
+        let iconComponent =
+          <Icon
+            key={index->Int.toString}
+            name={(action.iconType :> string)}
+            size=16
+            onClick={action.onClick}
+          />
+
+        switch action.iconType {
+        | ChartIcon => iconComponent
+        | _ =>
+          <ToolTip
+            key={index->Int.toString}
+            description="This feature is available in prod"
+            toolTipFor={iconComponent}
+            contentAlign=Default
+            justifyClass="justify-start"
+            toolTipPosition=ToolTip.Top
+          />
+        }
+      })
       ->React.array}
     </div>
   }

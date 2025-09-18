@@ -19,6 +19,7 @@ type buttonActionType =
 type buttonAction = {
   @as("type") buttonType: buttonActionType,
   onClick: ReactEvent.Mouse.t => unit,
+  showTooltip: bool,
 }
 
 @unboxed
