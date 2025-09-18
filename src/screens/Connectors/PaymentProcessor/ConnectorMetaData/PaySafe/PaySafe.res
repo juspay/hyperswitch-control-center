@@ -65,10 +65,7 @@ module AccountCheckBox = {
     let checkIsSelected = () => {
       let flatten = formState.values->JsonFlattenUtils.flattenObject(true)
       let name = `metadata.account_id.${account}.${currency}.${config}`
-      switch flatten->Dict.get(name) {
-      | Some(_) => true
-      | None => false
-      }
+      flatten->Dict.get(name)->Option.isSome
     }
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <>
