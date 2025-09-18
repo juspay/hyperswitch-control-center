@@ -3,26 +3,18 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open LogicUtils
   open ReconEngineOverviewUtils
   open ReconEngineOverviewHelper
-  open APIUtils
   open ReconEngineAccountsUtils
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getTransactionsAndAccountData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(getAccountPayloadFromDict)
+      let accountData = await getAccounts()
       setAccountData(_ => accountData)
       let transactionsData = await getTransactions(
         ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),

@@ -3,7 +3,6 @@ open ReconEngineOverviewTypes
 open ReconEngineTypes
 open ReconEngineAccountsUtils
 open ColumnGraphUtils
-open ReconEngineTransactionsUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
 
@@ -34,7 +33,7 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
 }
 
 let calculateAccountAmounts = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  transactionsData: array<ReconEngineTypes.transactionType>,
   ~sourceAccountName: string,
   ~sourceAccountCurrency: string,
   ~targetAccountName: string,
@@ -54,7 +53,7 @@ let calculateAccountAmounts = (
     let creditAmount = transaction.credit_amount.value
     let debitAmount = transaction.debit_amount.value
 
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status {
     | Posted => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
@@ -107,11 +106,9 @@ let calculateAccountAmounts = (
   ]
 }
 
-let calculateTransactionCounts = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
-) => {
+let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status {
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
@@ -144,7 +141,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
   }
 }
 
-let getTransactionDate = (transaction: ReconEngineTransactionsTypes.transactionPayload) =>
+let getTransactionDate = (transaction: ReconEngineTypes.transactionType) =>
   transaction.effective_at->String.slice(~start=0, ~end=10)
 
 let findDateRange = transactions => {
@@ -192,7 +189,7 @@ let groupTransactionsByDate = transactions => {
 }
 
 let processCountGraphData = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  transactionsData: array<ReconEngineTypes.transactionType>,
   ~graphColor: string,
   ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 ) => {

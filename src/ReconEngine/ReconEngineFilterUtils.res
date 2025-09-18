@@ -1,9 +1,9 @@
 open LogicUtils
-open ReconEngineTransactionsTypes
+open ReconEngineTypes
 
 let getAccountOptionsFromTransactions = (
-  transactions: array<transactionPayload>,
-  entryType: entryType,
+  transactions: array<transactionType>,
+  entryType: entryDirectionType,
 ): array<FilterSelectBox.dropdownOption> => {
   let allAccounts =
     transactions
@@ -11,7 +11,7 @@ let getAccountOptionsFromTransactions = (
     ->Array.filter(entry => entry.entry_type === entryType)
     ->Array.map(entry => entry.account)
 
-  let uniqueAccounts = allAccounts->Array.reduce([], (acc, account) => {
+  let uniqueAccounts = allAccounts->Array.reduce([], (acc: array<accountType>, account) => {
     let exists =
       acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
     if exists {
@@ -30,8 +30,8 @@ let getAccountOptionsFromTransactions = (
 }
 
 let getEntryTypeAccountOptions = (
-  transactions: array<transactionPayload>,
-  ~entryType: entryType,
+  transactions: array<transactionType>,
+  ~entryType: entryDirectionType,
 ): array<FilterSelectBox.dropdownOption> => {
   getAccountOptionsFromTransactions(transactions, entryType)
 }
@@ -72,7 +72,7 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let value: string = (status :> string)->String.toLowerCase
+    let value: string = (status :> string)->camelToSnake
     let label = (status :> string)->capitalizeString
 
     {
@@ -82,10 +82,33 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
   })
 }
 
-let getStagingEntryStatusOptions = (): array<FilterSelectBox.dropdownOption> => {
-  [
-    {label: "Pending", value: "pending"},
-    {label: "Processed", value: "processed"},
-    {label: "Needs Manual Review", value: "needs_manual_review"},
-  ]
+let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): array<
+  FilterSelectBox.dropdownOption,
+> => {
+  statusList->Array.map(status => {
+    let value: string = (status :> string)->camelToSnake
+    let label = (status :> string)->camelCaseToTitle
+
+    {
+      FilterSelectBox.label,
+      value,
+    }
+  })
+}
+
+let getAccountOptionsFromStagingEntries = (stagingData: array<processingEntryType>) => {
+  let allAccounts = stagingData->Array.map(entry => entry.account)
+
+  let uniqueAccounts = allAccounts->Array.reduce([], (acc: array<accountRefType>, account) => {
+    let exists =
+      acc->Array.some(existingAccount => existingAccount.account_id === account.account_id)
+    exists ? acc : [...acc, account]
+  })
+
+  uniqueAccounts->Array.map(account => {
+    {
+      FilterSelectBox.label: account.account_name,
+      value: account.account_id,
+    }
+  })
 }

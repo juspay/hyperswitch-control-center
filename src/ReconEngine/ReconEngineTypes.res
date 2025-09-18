@@ -21,6 +21,11 @@ type accountType = {
 }
 
 type accountRefType = {
+  account_id: string,
+  account_name: string,
+}
+
+type reconRuleAccountRefType = {
   id: string,
   account_id: string,
 }
@@ -29,8 +34,8 @@ type reconRuleType = {
   rule_id: string,
   rule_name: string,
   rule_description: string,
-  sources: array<accountRefType>,
-  targets: array<accountRefType>,
+  sources: array<reconRuleAccountRefType>,
+  targets: array<reconRuleAccountRefType>,
 }
 
 type ingestionTransformationStatusType =
@@ -39,7 +44,7 @@ type ingestionTransformationStatusType =
   | Processed
   | Failed
   | Discarded
-  | StatusNone
+  | UnknownIngestionTransformationStatus
 
 type transformationData = {
   transformation_result: string,
@@ -56,7 +61,7 @@ type ingestionHistoryType = {
   ingestion_history_id: string,
   file_name: string,
   account_id: string,
-  status: string,
+  status: ingestionTransformationStatusType,
   upload_type: string,
   created_at: string,
   ingestion_name: string,
@@ -93,8 +98,102 @@ type transformationHistoryType = {
   transformation_name: string,
   ingestion_history_id: string,
   account_id: string,
-  status: string,
+  status: ingestionTransformationStatusType,
   data: transformationData,
   processed_at: string,
+  created_at: string,
+}
+
+type ruleType = {
+  rule_id: string,
+  rule_name: string,
+}
+
+type transactionStatus =
+  | Posted
+  | Mismatched
+  | Expected
+  | Archived
+  | UnknownTransactionStatus
+
+type entryDirectionType =
+  | Debit
+  | Credit
+  | UnknownEntryDirectionType
+
+type entryStatus =
+  | Posted
+  | Mismatched
+  | Expected
+  | Archived
+  | Pending
+  | UnknownEntryStatus
+
+type transactionEntryType = {
+  entry_id: string,
+  entry_type: entryDirectionType,
+  account: accountType,
+  amount: balanceType,
+  status: entryStatus,
+}
+
+type transactionType = {
+  id: string,
+  transaction_id: string,
+  entries: array<transactionEntryType>,
+  profile_id: string,
+  credit_amount: balanceType,
+  debit_amount: balanceType,
+  rule: ruleType,
+  transaction_status: transactionStatus,
+  discarded_status: option<string>,
+  version: int,
+  created_at: string,
+  effective_at: string,
+}
+
+type entryType = {
+  entry_id: string,
+  entry_type: entryDirectionType,
+  account_name: string,
+  transaction_id: string,
+  amount: float,
+  currency: string,
+  status: entryStatus,
+  discarded_status: option<string>,
+  metadata: Js.Json.t,
+  created_at: string,
+  effective_at: string,
+}
+
+type processingEntryStatus =
+  | Pending
+  | Processed
+  | NeedsManualReview
+  | Archived
+  | UnknownProcessingEntryStatus
+
+type processingEntryType = {
+  staging_entry_id: string,
+  account: accountRefType,
+  entry_type: string,
+  amount: float,
+  currency: string,
+  status: processingEntryStatus,
+  processing_mode: string,
+  metadata: Js.Json.t,
+  transformation_id: string,
+  transformation_history_id: string,
+  effective_at: string,
+}
+
+type processedEntryType = {
+  entry_id: string,
+  entry_type: string,
+  amount: float,
+  currency: string,
+  status: string,
+  expected: string,
+  effective_at: string,
   created_at: string,
 }

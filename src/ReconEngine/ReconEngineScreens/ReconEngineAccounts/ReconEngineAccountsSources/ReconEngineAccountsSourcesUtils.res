@@ -1,4 +1,3 @@
-open ReconEngineAccountsUtils
 open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
@@ -24,25 +23,19 @@ let sourceConfigLabelToString = (
 
 let getProcessedCount = (~ingestionHistoryList: array<ingestionHistoryType>): int => {
   ingestionHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString == Processed
-  )
+  ->Array.filter(item => item.status == Processed)
   ->Array.length
 }
 
 let getFailedCount = (~ingestionHistoryList: array<ingestionHistoryType>): int => {
   ingestionHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString == Failed
-  )
+  ->Array.filter(item => item.status == Failed)
   ->Array.length
 }
 
 let getTotalCount = (~ingestionHistoryList: array<ingestionHistoryType>): int => {
   ingestionHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString !== Discarded
-  )
+  ->Array.filter(item => item.status !== Discarded)
   ->Array.length
 }
 

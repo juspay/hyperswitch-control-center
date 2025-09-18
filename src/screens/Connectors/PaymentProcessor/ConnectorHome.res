@@ -228,7 +228,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorCurrentStepIndicator currentStep stepsArr={stepsArr(~connector)} />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
@@ -254,6 +254,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
         | PaymentMethods =>
           <ConnectorPaymentMethod
+            setCurrentStep connector setInitialValues initialValues isUpdateFlow
+          />
+        | CustomMetadata =>
+          <ConnectorCustomMetadata
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest
