@@ -156,7 +156,7 @@ let getTransformationHistoryCell = (
   | ProcessedCount => Text(transformationHistoryData.data.transformed_count->Int.toString)
   | IgnoredCount => Text(transformationHistoryData.data.ignored_count->Int.toString)
   | ErrorCount => Text(transformationHistoryData.data.errors->Array.length->Int.toString)
-  | Actions => CustomCell(<TransformationHistoryActionsComponent />, "")
+  | Actions => CustomCell(<TransformationHistoryActionsComponent transformationHistoryData />, "")
   }
 }
 

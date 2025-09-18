@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: string) => {
+let make = (~config: ReconEngineTypes.transformationConfigType) => {
   open ReconEngineAccountsTransformationUtils
   open ReconEngineAccountsTransformationHelper
   open ReconEngineHooks
@@ -32,7 +32,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: strin
 
   let transformationConfigItems = React.useMemo(() => {
     ReconEngineAccountsTransformationUtils.getTransformationConfigData(~config)
-  }, config)
+  }, [config])
 
   let (_percentage, label, labelColor) = React.useMemo(() => {
     getHealthyStatus(~transformationHistoryList)
@@ -44,7 +44,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: strin
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
     <Link
       to_={GlobalVars.appendDashboardPath(
-        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationConfigTabIndex=${tabIndex}`,
+        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.id}`,
       )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
