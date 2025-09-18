@@ -17,10 +17,7 @@ let make = (
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let body =
         [
-          (
-            "Feedback",
-            HSwitchUtils.getBodyForFeedBack(~email, ~values, ~modalType)->JSON.Encode.object,
-          ),
+          ("Feedback", getBodyForFeedBack(~email, ~values, ~modalType)->JSON.Encode.object),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       let successMessage = switch modalType {
