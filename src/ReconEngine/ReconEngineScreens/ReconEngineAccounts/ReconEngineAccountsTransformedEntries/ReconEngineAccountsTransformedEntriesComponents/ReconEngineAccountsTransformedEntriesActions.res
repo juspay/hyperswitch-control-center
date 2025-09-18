@@ -37,7 +37,7 @@ module LineageField = {
         <HelperComponents.CopyTextCustomComp
           customParentClass="flex flex-row items-center gap-x-2"
           displayValue=Some(value)
-          customTextCss={`${body.lg.medium} text-nd_gray-600`}
+          customTextCss={`${body.lg.medium} text-nd_gray-600 truncate`}
           copyValue={Some(value)}
           customIconCss=""
         />
