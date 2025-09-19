@@ -3,12 +3,10 @@ open Typography
 @react.component
 let make = (~account: ReconEngineTypes.accountType) => {
   open TableUtils
-  open APIUtils
-  open LogicUtils
   open ReconEngineAccountsTransformationUtils
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let getTransformationHistory = useGetTransformationHistory()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (transformationHistoryList, setTransformationHistoryList) = React.useState(_ => [
@@ -18,16 +16,9 @@ let make = (~account: ReconEngineTypes.accountType) => {
   let fetchTransformationHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let transformationHistoryUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+      let transformationHistoryList = await getTransformationHistory(
         ~queryParamerters=Some(`account_id=${account.account_id}`),
       )
-      let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
-      let transformationHistoryList =
-        transformationHistoryRes->getArrayDataFromJson(getTransformationHistoryPayloadFromDict)
-
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

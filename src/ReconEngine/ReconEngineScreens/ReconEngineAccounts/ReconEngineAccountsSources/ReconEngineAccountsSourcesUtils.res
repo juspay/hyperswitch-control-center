@@ -1,4 +1,3 @@
-open ReconEngineAccountsUtils
 open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
@@ -9,6 +8,10 @@ let getIngestionConfigPayloadFromDict = dict => {
 
 let getIngestionHistoryPayloadFromDict = dict => {
   dict->ingestionHistoryItemToObjMapper
+}
+
+let sortByVersion = (c1: ingestionHistoryType, c2: ingestionHistoryType) => {
+  compareLogic(c2.version, c1.version)
 }
 
 let sourceConfigLabelToString = (
@@ -24,25 +27,19 @@ let sourceConfigLabelToString = (
 
 let getProcessedCount = (~ingestionHistoryList: array<ingestionHistoryType>): int => {
   ingestionHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString == Processed
-  )
+  ->Array.filter(item => item.status == Processed)
   ->Array.length
 }
 
 let getFailedCount = (~ingestionHistoryList: array<ingestionHistoryType>): int => {
   ingestionHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString == Failed
-  )
+  ->Array.filter(item => item.status == Failed)
   ->Array.length
 }
 
 let getTotalCount = (~ingestionHistoryList: array<ingestionHistoryType>): int => {
   ingestionHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString !== Discarded
-  )
+  ->Array.filter(item => item.status !== Discarded)
   ->Array.length
 }
 
@@ -129,4 +126,82 @@ let initialIngestionDisplayFilters = () => {
       }: EntityType.initialFilters<'t>
     ),
   ]
+}
+
+let getFileTimelineState = (
+  status: ingestionTransformationStatusType,
+  discardedStatus: option<string>,
+): ReconEngineAccountsSourcesTypes.fileTimelineState => {
+  switch (status, discardedStatus) {
+  | (Discarded, Some("pending")) => FileAccepted
+  | (Discarded, Some("processing")) => FileProcessed
+  | (Processed, _) => FileUploaded
+  | (Processing, _) => FileProcessing
+  | (Pending, _) => FileReceived
+  | (Failed, _) => FileRejected
+  | _ => UnknownState
+  }
+}
+
+let getTimelineConfig = (
+  state: ReconEngineAccountsSourcesTypes.fileTimelineState,
+): ReconEngineAccountsSourcesTypes.timelineConfig => {
+  switch state {
+  | FileAccepted => {
+      statusText: "File Accepted",
+      icon: {name: "nd-check-circle", color: "text-green-500"},
+      container: {
+        borderColor: "border-nd_green-200",
+        backgroundColor: "bg-nd_green-100",
+      },
+    }
+  | FileProcessed => {
+      statusText: "File Processed",
+      icon: {name: "nd-check-circle", color: "text-green-500"},
+      container: {
+        borderColor: "border-nd_green-200",
+        backgroundColor: "bg-nd_green-100",
+      },
+    }
+  | FileUploaded => {
+      statusText: "File Uploaded",
+      icon: {name: "nd-check-circle", color: "text-green-500"},
+      container: {
+        borderColor: "border-nd_green-200",
+        backgroundColor: "bg-nd_green-100",
+      },
+    }
+  | FileProcessing => {
+      statusText: "File Processing",
+      icon: {name: "nd-loading", color: "text-nd_primary_blue-500"},
+      container: {
+        borderColor: "border-nd_primary_blue-100",
+        backgroundColor: "bg-nd_primary_blue-50",
+      },
+    }
+  | FileReceived => {
+      statusText: "File Received",
+      icon: {name: "nd-hour-glass-outline", color: "text-nd_gray-500"},
+      container: {
+        borderColor: "border-nd_gray-200",
+        backgroundColor: "bg-nd_gray-100",
+      },
+    }
+  | FileRejected => {
+      statusText: "File Rejected",
+      icon: {name: "nd-multiple-cross", color: "text-nd_red-500"},
+      container: {
+        borderColor: "border-nd_red-100",
+        backgroundColor: "bg-nd_red-50",
+      },
+    }
+  | UnknownState => {
+      statusText: "Unknown",
+      icon: {name: "help", color: "text-nd_gray-400"},
+      container: {
+        borderColor: "border-nd_gray-200",
+        backgroundColor: "bg-nd_gray-100",
+      },
+    }
+  }
 }

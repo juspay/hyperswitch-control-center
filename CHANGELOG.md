@@ -3,6 +3,60 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.19.0
+
+### Features
+
+- Recon engine accounts transformation mappers ([#3619](https://github.com/juspay/hyperswitch-control-center/pull/3619)) ([`9d08583`](https://github.com/juspay/hyperswitch-control-center/commit/9d085831c7f8df471db6367caba18a3168c8883e))
+- Recon engine accounts transformation error actions ([#3622](https://github.com/juspay/hyperswitch-control-center/pull/3622)) ([`bd5511b`](https://github.com/juspay/hyperswitch-control-center/commit/bd5511b4f6cfe433e192a0168f32971cbf613e0f))
+- Capture paysafe metadata config ([#3620](https://github.com/juspay/hyperswitch-control-center/pull/3620)) ([`eba9089`](https://github.com/juspay/hyperswitch-control-center/commit/eba90893d15fb8de366c731d24ed99071df5e2be))
+- Recon engine accounts sources file timeline ([#3616](https://github.com/juspay/hyperswitch-control-center/pull/3616)) ([`471e28b`](https://github.com/juspay/hyperswitch-control-center/commit/471e28be414dd22bb233966ca3b0770f6ec1602e))
+
+### Bug Fixes
+
+- Special characters not allowed in custom headers and custom metad… ([#3605](https://github.com/juspay/hyperswitch-control-center/pull/3605)) ([`26aee46`](https://github.com/juspay/hyperswitch-control-center/commit/26aee46908fb5f46cedf4e7c10e97b26d31a09fc))
+
+**Full Changelog:** [`2025.09.17.1...2025.09.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.17.1...2025.09.19.0)
+
+- - -
+
+## 2025.09.17.1
+
+### Features
+
+- Enable Nexixpay in PROD ([#3614](https://github.com/juspay/hyperswitch-control-center/pull/3614)) ([`8056197`](https://github.com/juspay/hyperswitch-control-center/commit/80561974344a148c34a53645c49eae9bd339f74e))
+
+### Bug Fixes
+
+- Fix cypress tests ([#3594](https://github.com/juspay/hyperswitch-control-center/pull/3594)) ([`305af15`](https://github.com/juspay/hyperswitch-control-center/commit/305af15708bd6f360ea784618de70b29fecb3c9f))
+- Recon engine data overview `transformed_entries` list with `transformation_history` ([#3609](https://github.com/juspay/hyperswitch-control-center/pull/3609)) ([`6fccf01`](https://github.com/juspay/hyperswitch-control-center/commit/6fccf01c48822d7a7a3da028c5121f6d5db082df))
+
+### Refactors
+
+- Add recon engine hooks for `accounts`, `processing_entries` and `transformation_history` ([#3607](https://github.com/juspay/hyperswitch-control-center/pull/3607)) ([`e835c2d`](https://github.com/juspay/hyperswitch-control-center/commit/e835c2d442cf7a5c0011c1a5094aa01e59bcf572))
+
+### Miscellaneous Tasks
+
+- Count the `staging_entries` based on the `transformation_history_id` ([#3612](https://github.com/juspay/hyperswitch-control-center/pull/3612)) ([`4f0c4fe`](https://github.com/juspay/hyperswitch-control-center/commit/4f0c4fed8eb876a769bb43f4ff029434ba866d94))
+
+**Full Changelog:** [`2025.09.17.0...2025.09.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.17.0...2025.09.17.1)
+
+- - -
+
+## 2025.09.17.0
+
+### Refactors
+
+- Recon engine `transactions` and `staging entries` types ([#3603](https://github.com/juspay/hyperswitch-control-center/pull/3603)) ([`63afc6e`](https://github.com/juspay/hyperswitch-control-center/commit/63afc6e5a97b25ba4fd496937ec2ab33bfe0629c))
+
+### Miscellaneous Tasks
+
+- Moved acquirer config settings and new toggles in new payment … ([#3573](https://github.com/juspay/hyperswitch-control-center/pull/3573)) ([`605c16d`](https://github.com/juspay/hyperswitch-control-center/commit/605c16dd5499dea74ad56dcbe151cf02111c168a))
+
+**Full Changelog:** [`2025.09.16.0...2025.09.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.16.0...2025.09.17.0)
+
+- - -
+
 ## 2025.09.16.0
 
 ### Features

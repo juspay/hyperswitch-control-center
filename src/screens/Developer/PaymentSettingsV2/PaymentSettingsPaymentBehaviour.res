@@ -101,6 +101,7 @@ module AutoRetries = {
               ~boolCustomClass="rounded-lg",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
+            ~description="Automatically re-attempts a failed payment using the same payment method details. Our system will continue retrying the transaction on a defined routed list until it is successful or all attempts have been exhausted.",
           )}
         />
       </DesktopRow>
@@ -306,9 +307,78 @@ let make = () => {
         />
       </DesktopRow>
       <hr />
+      <DesktopRow itemWrapperClass="mx-1">
+        <FieldRenderer
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+          field={makeFieldInfo(
+            ~name="is_network_tokenization_enabled",
+            ~label="Network Tokenization",
+            ~customInput=InputFields.boolInput(
+              ~isDisabled=false,
+              ~boolCustomClass="rounded-lg",
+              ~toggleEnableColor="bg-nd_primary_blue-450",
+            ),
+          )}
+        />
+      </DesktopRow>
+      <hr />
+      <DesktopRow itemWrapperClass="mx-1">
+        <FieldRenderer
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+          field={makeFieldInfo(
+            ~name="always_request_extended_authorization",
+            ~label="Extended Authorization",
+            ~customInput=InputFields.boolInput(
+              ~isDisabled=false,
+              ~boolCustomClass="rounded-lg",
+              ~toggleEnableColor="bg-nd_primary_blue-450",
+            ),
+            ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
+            ~toolTipPosition=Right,
+          )}
+        />
+      </DesktopRow>
+      <hr />
+      <DesktopRow itemWrapperClass="mx-1">
+        <FieldRenderer
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+          field={makeFieldInfo(
+            ~name="always_enable_overcapture",
+            ~label="Always Enable Overcapture",
+            ~customInput=InputFields.boolInput(
+              ~isDisabled=false,
+              ~boolCustomClass="rounded-lg",
+              ~toggleEnableColor="bg-nd_primary_blue-450",
+            ),
+            ~description="Allow capturing more than the originally authorized amount within connector limits",
+            ~toolTipPosition=Right,
+          )}
+        />
+      </DesktopRow>
+      <hr />
       <ClickToPaySection />
       <hr />
       <AutoRetries />
+      <hr />
+      <DesktopRow itemWrapperClass="mx-1">
+        <FieldRenderer
+          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          fieldWrapperClass="w-full flex justify-between sitems-center border-gray-200 py-8"
+          field={makeFieldInfo(
+            ~name="is_manual_retry_enabled",
+            ~label="Manual Retries",
+            ~customInput=InputFields.boolInput(
+              ~isDisabled=false,
+              ~boolCustomClass="rounded-lg",
+              ~toggleEnableColor="bg-nd_primary_blue-450",
+            ),
+            ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
+          )}
+        />
+      </DesktopRow>
       <hr />
       <ReturnUrl />
       <WebHook />

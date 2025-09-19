@@ -6,12 +6,14 @@ module InOutComponent = {
   let make = (~statusItem) => {
     open ReconEngineOverviewSummaryUtils
 
+    let (iconName, iconColor) = getStatusIcon(statusItem.statusType)
+
     <div
       key={(statusItem.statusType :> string)}
       className="bg-nd_gray-25 border rounded-xl border-nd_gray-150 mt-2.5 p-2">
       <div className="flex flex-row items-center">
         <div className="flex flex-row items-center gap-1.5 flex-[1]">
-          <Icon name={getStatusIcon(statusItem.statusType)} size=12 />
+          <Icon name={iconName} className={iconColor} size=12 />
           <p className={`${body.sm.medium} text-nd_gray-500`}>
             {(statusItem.statusType :> string)->React.string}
           </p>
@@ -120,16 +122,13 @@ module FlowWithLayoutControls = {
 @react.component
 let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
-  open APIUtils
-  open LogicUtils
   open ReactFlow
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
   let (allData, setAllData) = React.useState(_ => None)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
 
@@ -145,15 +144,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData =
-        res->getArrayDataFromJson(ReconEngineAccountsUtils.getAccountPayloadFromDict)
-
+      let accountData = await getAccounts()
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
