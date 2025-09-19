@@ -16,6 +16,8 @@ let make = (
   let getTransformationHistory = useGetTransformationHistory()
   let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (showModal, setShowModal) = React.useState(_ => false)
+  let (selectedTransformationId, setSelectedTransformationId) = React.useState(_ => "")
 
   let fetchTransformationHistory = async () => {
     if ingestionHistoryId->isNonEmptyString {
@@ -82,6 +84,11 @@ let make = (
     }
   }, (url.search, transformationHistoryData))
 
+  let onViewMappersClick = (~transformationId: string) => {
+    setSelectedTransformationId(_ => transformationId)
+    setShowModal(_ => true)
+  }
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     transformationHistoryData->Array.map(config => {
@@ -109,7 +116,12 @@ let make = (
             )
             ->React.array}
           </div>
-          <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
+          <Button
+            buttonType=Secondary
+            text="View Mappers"
+            customButtonStyle="!w-fit"
+            onClick={_ => onViewMappersClick(~transformationId=config.transformation_id)->ignore}
+          />
         </div>
       },
     })
@@ -129,5 +141,8 @@ let make = (
         selectTabBottomBorderColor="bg-primary"
       />
     </div>
+    <ReconEngineAccountsTransformationDetailsMappers
+      showModal setShowModal selectedTransformationId
+    />
   </PageLoaderWrapper>
 }
