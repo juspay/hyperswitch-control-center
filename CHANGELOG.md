@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.19.0
+
+### Features
+
+- Recon engine accounts transformation mappers ([#3619](https://github.com/juspay/hyperswitch-control-center/pull/3619)) ([`9d08583`](https://github.com/juspay/hyperswitch-control-center/commit/9d085831c7f8df471db6367caba18a3168c8883e))
+- Recon engine accounts transformation error actions ([#3622](https://github.com/juspay/hyperswitch-control-center/pull/3622)) ([`bd5511b`](https://github.com/juspay/hyperswitch-control-center/commit/bd5511b4f6cfe433e192a0168f32971cbf613e0f))
+- Capture paysafe metadata config ([#3620](https://github.com/juspay/hyperswitch-control-center/pull/3620)) ([`eba9089`](https://github.com/juspay/hyperswitch-control-center/commit/eba90893d15fb8de366c731d24ed99071df5e2be))
+- Recon engine accounts sources file timeline ([#3616](https://github.com/juspay/hyperswitch-control-center/pull/3616)) ([`471e28b`](https://github.com/juspay/hyperswitch-control-center/commit/471e28be414dd22bb233966ca3b0770f6ec1602e))
+
+### Bug Fixes
+
+- Special characters not allowed in custom headers and custom metad… ([#3605](https://github.com/juspay/hyperswitch-control-center/pull/3605)) ([`26aee46`](https://github.com/juspay/hyperswitch-control-center/commit/26aee46908fb5f46cedf4e7c10e97b26d31a09fc))
+
+**Full Changelog:** [`2025.09.17.1...2025.09.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.17.1...2025.09.19.0)
+
+- - -
+
 ## 2025.09.17.1
 
 ### Features
