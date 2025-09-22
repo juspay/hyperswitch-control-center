@@ -2,6 +2,8 @@ type steps =
   | Checkout
   | Configurator
 
+type background_image = {url: string}
+
 type paymentLinkWasmPayload = {
   amount: string,
   currency: string,
@@ -20,7 +22,7 @@ type paymentLinkWasmPayload = {
   hide_card_nickname_field: bool,
   show_card_form_by_default: bool,
   locale: option<string>,
-  background_image: option<string>,
+  background_image: option<background_image>,
   details_layout: option<string>,
   branding_visibility: option<bool>,
   payment_button_text: option<string>,
