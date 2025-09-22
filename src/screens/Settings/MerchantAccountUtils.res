@@ -630,9 +630,8 @@ let getValueFromBusinessProfile = businessProfileValue => {
   businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
-let businessProfileNameDropDownOption = arrBusinessProfile =>
+let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
   arrBusinessProfile->Array.map(ele => {
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let obj: SelectBox.dropdownOption = {
       label: {`${ele.profile_name} (${profileId})`},
       value: profileId,

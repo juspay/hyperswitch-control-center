@@ -111,7 +111,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
           profile={profile}
-          options={[businessProfileRecoilVal]->businessProfileNameDropDownOption}
+          options={businessProfileNameDropDownOption([businessProfileRecoilVal], ~profileId)}
           label="Profile"
         />
       </div>

@@ -217,12 +217,12 @@ let filterItemObjMapper = (
 let initialFilters = (
   configuredConnectors: array<PaymentMethodConfigTypes.paymentMethodConfiguration>,
   businessProfiles,
+  ~profileId,
 ): array<EntityType.initialFilters<'t>> => {
   open FormRenderer
   open LogicUtils
 
   open HSwitchSettingTypes
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let businessProfileNameDropDownOption = arrBusinessProfile =>
     arrBusinessProfile->Array.map(ele => {
       let obj: FilterSelectBox.dropdownOption = {

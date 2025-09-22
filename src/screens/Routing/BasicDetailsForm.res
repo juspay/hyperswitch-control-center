@@ -148,7 +148,7 @@ let make = (
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(profileId)}
-                options={[businessProfileRecoilVal]->businessProfileNameDropDownOption}
+                options={businessProfileNameDropDownOption([businessProfileRecoilVal], ~profileId)}
                 label="Profile"
                 routingType
               />

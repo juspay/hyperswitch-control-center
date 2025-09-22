@@ -305,9 +305,10 @@ let make = (
               <BasicDetailsForm.BusinessProfileInp
                 setProfile={setProfile}
                 profile={profile}
-                options={[
-                  businessProfileValues,
-                ]->MerchantAccountUtils.businessProfileNameDropDownOption}
+                options={MerchantAccountUtils.businessProfileNameDropDownOption(
+                  [businessProfileValues],
+                  ~profileId,
+                )}
                 label="Profile"
               />
             </div>
