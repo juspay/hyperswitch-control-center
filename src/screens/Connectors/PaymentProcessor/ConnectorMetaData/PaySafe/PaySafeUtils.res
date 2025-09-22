@@ -8,7 +8,7 @@ let payConnectorValidation = (~values) => {
     ->getDictfromDict("account_id")
     ->isEmptyDict
   ) {
-    Dict.set(error, "account_id", `Please select atleast one country`->JSON.Encode.string)
+    Dict.set(error, "account_id", `Please select atleast one currency`->JSON.Encode.string)
   }
   error
 }
