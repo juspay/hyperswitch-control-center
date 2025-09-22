@@ -137,7 +137,7 @@ let ingestionHistoryItemToObjMapper = (dict): ingestionHistoryType => {
     ingestion_name: dict->getString("ingestion_name", ""),
     version: dict->getInt("version", 0),
     discarded_at: dict->getString("discarded_at", ""),
-    discarded_at_status: dict->getString("discarded_at_status", ""),
+    discarded_status: dict->getString("discarded_status", ""),
   }
 }
 

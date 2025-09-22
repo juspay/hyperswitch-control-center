@@ -67,7 +67,7 @@ type ingestionHistoryType = {
   ingestion_name: string,
   version: int,
   discarded_at: string,
-  discarded_at_status: string,
+  discarded_status: string,
 }
 
 type ingestionConfigType = {

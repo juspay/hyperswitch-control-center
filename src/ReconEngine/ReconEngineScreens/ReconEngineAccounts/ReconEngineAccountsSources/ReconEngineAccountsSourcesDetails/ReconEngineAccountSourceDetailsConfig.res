@@ -167,9 +167,13 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
         ->React.array}
         <div>
           <p className={`${body.md.medium} text-nd_gray-400`}> {"Last Sync"->React.string} </p>
-          <p className={`${body.lg.medium} text-nd_gray-600 mt-2`}>
-            <TableUtils.DateCell timestamp={config.last_synced_at} textAlign=Left />
-          </p>
+          {if config.last_synced_at->LogicUtils.isNonEmptyString {
+            <p className={`${body.lg.medium} text-nd_gray-600 mt-2`}>
+              <TableUtils.DateCell timestamp={config.last_synced_at} textAlign=Left />
+            </p>
+          } else {
+            <span className={`${body.md.medium} text-nd_gray-600 mt-2`}> {"-"->React.string} </span>
+          }}
         </div>
         <ToolTip
           toolTipPosition=Bottom

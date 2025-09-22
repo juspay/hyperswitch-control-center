@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.22.0
+
+### Features
+
+- Recon engine `transformed_entries` metadata and lineage view ([#3631](https://github.com/juspay/hyperswitch-control-center/pull/3631)) ([`f3ec676`](https://github.com/juspay/hyperswitch-control-center/commit/f3ec67697a2a39f15b0ba301730f8131fd6408eb))
+
+### Miscellaneous Tasks
+
+- Fix WASM for Peachpayments ([#3637](https://github.com/juspay/hyperswitch-control-center/pull/3637)) ([`8b9ebd8`](https://github.com/juspay/hyperswitch-control-center/commit/8b9ebd855f17f437401999876440b07cfffb1e0b))
+- Update paysafe error message ([`c0a7122`](https://github.com/juspay/hyperswitch-control-center/commit/c0a7122993da7a4738f69fa156a9e85404506741))
+
+**Full Changelog:** [`2025.09.19.0...2025.09.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.19.0...2025.09.22.0)
+
+- - -
+
+## 2025.09.19.0
+
+### Features
+
+- Recon engine accounts transformation mappers ([#3619](https://github.com/juspay/hyperswitch-control-center/pull/3619)) ([`9d08583`](https://github.com/juspay/hyperswitch-control-center/commit/9d085831c7f8df471db6367caba18a3168c8883e))
+- Recon engine accounts transformation error actions ([#3622](https://github.com/juspay/hyperswitch-control-center/pull/3622)) ([`bd5511b`](https://github.com/juspay/hyperswitch-control-center/commit/bd5511b4f6cfe433e192a0168f32971cbf613e0f))
+- Capture paysafe metadata config ([#3620](https://github.com/juspay/hyperswitch-control-center/pull/3620)) ([`eba9089`](https://github.com/juspay/hyperswitch-control-center/commit/eba90893d15fb8de366c731d24ed99071df5e2be))
+- Recon engine accounts sources file timeline ([#3616](https://github.com/juspay/hyperswitch-control-center/pull/3616)) ([`471e28b`](https://github.com/juspay/hyperswitch-control-center/commit/471e28be414dd22bb233966ca3b0770f6ec1602e))
+
+### Bug Fixes
+
+- Special characters not allowed in custom headers and custom metad… ([#3605](https://github.com/juspay/hyperswitch-control-center/pull/3605)) ([`26aee46`](https://github.com/juspay/hyperswitch-control-center/commit/26aee46908fb5f46cedf4e7c10e97b26d31a09fc))
+
+**Full Changelog:** [`2025.09.17.1...2025.09.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.17.1...2025.09.19.0)
+
+- - -
+
 ## 2025.09.17.1
 
 ### Features
