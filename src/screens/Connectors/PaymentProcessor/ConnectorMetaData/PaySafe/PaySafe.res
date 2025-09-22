@@ -30,7 +30,7 @@ module AccountIdCurrencyFields = {
           }}
         />
         <Button
-          text="Processed"
+          text="Proceed"
           buttonType={Primary}
           onClick={_ => {
             setShowAccountConfigModal(_ => false)
