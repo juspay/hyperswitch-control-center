@@ -6,8 +6,6 @@ let parseKey = api_key => {
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   open LogicUtils
   let {
-    merchant_id,
-    profile_id,
     profile_name,
     webhook_details,
     return_url,
@@ -33,12 +31,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     always_enable_overcapture,
   } = profileRecord
 
-  let profileInfo =
-    [
-      ("merchant_id", merchant_id->JSON.Encode.string),
-      ("profile_id", profile_id->JSON.Encode.string),
-      ("profile_name", profile_name->JSON.Encode.string),
-    ]->Dict.fromArray
+  let profileInfo = [("profile_name", profile_name->JSON.Encode.string)]->Dict.fromArray
   profileInfo->setDictNull("return_url", return_url)
   profileInfo->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
@@ -595,8 +588,6 @@ let validateMerchantAccountForm = (
 }
 
 let defaultValueForBusinessProfile = {
-  merchant_id: "",
-  profile_id: "",
   profile_name: "",
   return_url: None,
   payment_response_hash_key: None,
@@ -641,9 +632,10 @@ let getValueFromBusinessProfile = businessProfileValue => {
 
 let businessProfileNameDropDownOption = arrBusinessProfile =>
   arrBusinessProfile->Array.map(ele => {
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let obj: SelectBox.dropdownOption = {
-      label: {`${ele.profile_name} (${ele.profile_id})`},
-      value: ele.profile_id,
+      label: {`${ele.profile_name} (${profileId})`},
+      value: profileId,
     }
     obj
   })

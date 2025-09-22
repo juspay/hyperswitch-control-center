@@ -3,6 +3,7 @@ module AdvanceSettings = {
   let make = (~isUpdateFlow, ~frmName, ~renderCountrySelector) => {
     let (isFRMSettings, setIsFRMSettings) = React.useState(_ => isUpdateFlow)
     let form = ReactFinalForm.useForm()
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let inputLabel: ReactFinalForm.fieldRenderPropsInput = {
       name: `input`,
@@ -16,15 +17,12 @@ module AdvanceSettings = {
       checked: true,
     }
 
-    let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-
     React.useEffect(() => {
       if !isUpdateFlow {
-        form.change("profile_id", businessProfileRecoilVal.profile_id->JSON.Encode.string)
+        form.change("profile_id", profileId->JSON.Encode.string)
       }
       None
-    }, [businessProfileRecoilVal.profile_id])
+    }, [profileId])
     <>
       <div className="flex gap-2 items-center p-2">
         <BoolInput input={inputLabel} isDisabled={isUpdateFlow} boolCustomClass="rounded-full" />

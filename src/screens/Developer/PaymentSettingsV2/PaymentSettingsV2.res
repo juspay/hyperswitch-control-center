@@ -33,6 +33,7 @@ let make = () => {
   let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(
     ~interface=BusinessProfileInterface.businessProfileInterfaceV1,
   )
+  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
@@ -71,14 +72,10 @@ let make = () => {
         <InfoViewForWebhooks
           heading="Profile Name" subHeading=businessProfileRecoilVal.profile_name
         />
-        <InfoViewForWebhooks
-          heading="Profile ID" subHeading=businessProfileRecoilVal.profile_id isCopy=true
-        />
+        <InfoViewForWebhooks heading="Profile ID" subHeading=profileId isCopy=true />
       </div>
       <div className="flex ">
-        <InfoViewForWebhooks
-          heading="Merchant ID" subHeading={businessProfileRecoilVal.merchant_id}
-        />
+        <InfoViewForWebhooks heading="Merchant ID" subHeading=merchantId />
         <InfoViewForWebhooks
           heading="Payment Response Hash Key"
           subHeading={truncatedHashKey}

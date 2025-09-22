@@ -19,10 +19,11 @@ let useFetchBusinessProfiles = () => {
   }
 }
 
-let useGetBusinessProflile = profileId => {
+let useGetBusinessProflile = profileIdVal => {
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   HyperswitchAtom.businessProfilesAtom
   ->Recoil.useRecoilValueFromAtom
-  ->Array.find(profile => profile.profile_id == profileId)
+  ->Array.find(_ => profileId == profileIdVal)
   ->Option.getOr(MerchantAccountUtils.defaultValueForBusinessProfile)
 }
 
@@ -58,9 +59,7 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
 let useUpdateBusinessProfile = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let profileId = (
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  ).profile_id
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
 
   async (~body) => {
