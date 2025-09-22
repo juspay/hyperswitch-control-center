@@ -57,67 +57,74 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   paymentLinkConfigNew
 }
 
-let generateWasmPayload = (~paymentResult, ~publishableKey, ~initialValues) => {
+let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
   open PaymentLinkThemeConfiguratorTypes
   open LogicUtils
 
-  let paymentResultDict = paymentResult->getDictFromJsonObject
-  let clientSecret = paymentResultDict->getString("client_secret", "")
-  let paymentId = paymentResultDict->getString("payment_id", "")
-  let amount = paymentResultDict->getInt("amount", 0)->Int.toString
-  let currency = paymentResultDict->getString("currency", "USD")
-  let status = paymentResultDict->getString("status", "incomplete")
+  // Js.log2("paymentDetails", paymentDetails)
+  // Js.log2("formValues", formValues)
 
-  let initialValuesDict = initialValues->getDictFromJsonObject
+  let paymentDetailsDict = paymentDetails->getDictFromJsonObject
+  let formValuesDict = formValues->getDictFromJsonObject
 
-  let getInitialValue = key => initialValuesDict->getString(key, "")
+  let getStringFromDict = (dict, key, default) => dict->getString(key, default)
+
+  let backgroundImage = getStringFromDict(formValuesDict, "background_image", "")
+  let backgroundImageObj = if backgroundImage->LogicUtils.isNonEmptyString {
+    Some({url: backgroundImage})
+  } else {
+    None
+  }
 
   {
-    amount,
-    currency,
     pub_key: publishableKey,
-    client_secret: clientSecret,
-    payment_id: paymentId,
-    session_expiry: getInitialValue("session_expiry"),
-    merchant_logo: getInitialValue("logo"),
-    return_url: getInitialValue("return_url")->isEmptyString
-      ? "https://google.com"
-      : getInitialValue("return_url"),
-    merchant_name: getInitialValue("seller_name"),
-    max_items_visible_after_collapse: initialValuesDict->getInt(
-      "max_items_visible_after_collapse",
-      3,
-    ),
-    theme: getInitialValue("theme"),
-    sdk_layout: getInitialValue("sdk_layout")->isEmptyString
-      ? "accordion"
-      : getInitialValue("sdk_layout"),
-    display_sdk_only: initialValuesDict->getBool("display_sdk_only", false),
-    hide_card_nickname_field: initialValuesDict->getBool("hide_card_nickname_field", false),
-    show_card_form_by_default: initialValuesDict->getBool("show_card_form_by_default", false),
-    status,
-    enable_button_only_on_form_ready: initialValuesDict->getBool(
+    amount: paymentDetailsDict->getInt("amount", 0)->Int.toString,
+    currency: getStringFromDict(paymentDetailsDict, "currency", "USD"),
+    client_secret: getStringFromDict(paymentDetailsDict, "client_secret", ""),
+    payment_id: getStringFromDict(paymentDetailsDict, "payment_id", ""),
+    status: getStringFromDict(paymentDetailsDict, "status", "incomplete"),
+    session_expiry: getStringFromDict(paymentDetailsDict, "expires_on", ""),
+    merchant_logo: getStringFromDict(formValuesDict, "logo", ""),
+    return_url: getStringFromDict(formValuesDict, "return_url", "https://google.com"),
+    merchant_name: getStringFromDict(formValuesDict, "seller_name", "Seller Name"),
+    max_items_visible_after_collapse: formValuesDict->getInt("max_items_visible_after_collapse", 3),
+    theme: getStringFromDict(formValuesDict, "theme", ""),
+    sdk_layout: getStringFromDict(formValuesDict, "sdk_layout", "accordion"),
+    display_sdk_only: formValuesDict->getBool("display_sdk_only", false),
+    hide_card_nickname_field: formValuesDict->getBool("hide_card_nickname_field", false),
+    show_card_form_by_default: formValuesDict->getBool("show_card_form_by_default", true),
+    enable_button_only_on_form_ready: formValuesDict->getBool(
       "enable_button_only_on_form_ready",
-      false,
+      true,
     ),
-    merchant_description: None,
-    locale: None,
-    background_image: None,
-    details_layout: None,
-    branding_visibility: None,
-    payment_button_text: None,
-    skip_status_screen: None,
-    custom_message_for_card_terms: None,
-    payment_button_colour: None,
-    payment_button_text_colour: None,
-    background_colour: None,
+    payment_button_text: Some(getStringFromDict(formValuesDict, "payment_button_text", "")),
+    merchant_description: Some(getStringFromDict(formValuesDict, "merchant_description", "")),
+    locale: Some("en"),
+    background_image: backgroundImageObj,
+    details_layout: Some(getStringFromDict(formValuesDict, "details_layout", "")),
+    branding_visibility: Some(formValuesDict->getBool("branding_visibility", false)),
+    skip_status_screen: Some(formValuesDict->getBool("skip_status_screen", false)),
+    custom_message_for_card_terms: Some(
+      getStringFromDict(formValuesDict, "custom_message_for_card_terms", ""),
+    ),
+    payment_button_colour: Some(getStringFromDict(formValuesDict, "payment_button_colour", "")),
+    payment_button_text_colour: Some(
+      getStringFromDict(formValuesDict, "payment_button_text_colour", ""),
+    ),
+    background_colour: Some(getStringFromDict(formValuesDict, "background_colour", "#FFFFFF")),
     sdk_ui_rules: None,
-    payment_form_header_text: None,
-    payment_form_label_type: None,
-    show_card_terms: None,
-    is_setup_mandate_flow: None,
-    capture_method: None,
-    setup_future_usage_applied: None,
-    color_icon_card_cvc_error: None,
+    payment_form_header_text: Some(
+      getStringFromDict(formValuesDict, "payment_form_header_text", ""),
+    ),
+    payment_form_label_type: Some(getStringFromDict(formValuesDict, "payment_form_label_type", "")),
+    show_card_terms: Some(getStringFromDict(formValuesDict, "show_card_terms", "")),
+    is_setup_mandate_flow: Some(formValuesDict->getBool("is_setup_mandate_flow", false)),
+    capture_method: Some(getStringFromDict(paymentDetailsDict, "capture_method", "")),
+    setup_future_usage_applied: Some(
+      getStringFromDict(paymentDetailsDict, "setup_future_usage_applied", ""),
+    ),
+    color_icon_card_cvc_error: Some(
+      getStringFromDict(formValuesDict, "color_icon_card_cvc_error", ""),
+    ),
   }
 }

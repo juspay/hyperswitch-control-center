@@ -44,10 +44,11 @@ module ConfiguratorForm = {
         setPreviewError(_ => None)
 
         let configs = PaymentLinkThemeConfiguratorUtils.generateWasmPayload(
-          ~paymentResult,
+          ~paymentDetails=paymentResult,
           ~publishableKey,
-          ~initialValues=values,
+          ~formValues=values,
         )
+        // Js.log2("WASM configs", configs)
 
         let validationResult = Window.validatePaymentLinkConfig(
           JSON.stringify(configs->Identity.genericTypeToJson),
@@ -71,6 +72,8 @@ module ConfiguratorForm = {
           let response = Window.generatePaymentLinkPreview(
             JSON.stringify(configs->Identity.genericTypeToJson),
           )
+
+          // Js.log2("WASM response", response)
           setPreviewHtml(_ => response)
           setPreviewLoading(_ => false)
         }
@@ -141,6 +144,8 @@ module ConfiguratorForm = {
       }
     }
 
+    // Js.log2("Initial Values", initialValues)
+
     <RenderIf condition={selectedStyleId->LogicUtils.isNonEmptyString}>
       <div className="bg-white rounded-lg border border-nd_gray-300 p-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
@@ -153,13 +158,28 @@ module ConfiguratorForm = {
                 <AutoSubmitter autoApply=true submit={(values, _) => onSubmit(values, true)} />
                 <FieldRenderer
                   field={makeThemeField(
-                    ~defaultValue=initialValues->getDictFromJsonObject->getString("theme", ""),
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("theme", "#FFFFFF"),
+                  )}
+                  fieldWrapperClass="!w-full"
+                />
+                <FieldRenderer
+                  field={makeBackgroundColorField(
+                    ~defaultValue=initialValues
+                    ->getDictFromJsonObject
+                    ->getString("background_color", "#FFFFFF"),
                   )}
                   fieldWrapperClass="!w-full"
                 />
                 <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer
+                  field={makeMaxItemsVisibleAfterCollapseField()} fieldWrapperClass="!w-full"
+                />
                 <div className="flex flex-row">
                   <FieldRenderer field={makeDisplaySdkOnlyField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer
@@ -172,20 +192,32 @@ module ConfiguratorForm = {
                     field={makeShowCardFormByDefaultField()} fieldWrapperClass="!w-full"
                   />
                 </div>
+                <div className="flex flex-row">
+                  <FieldRenderer
+                    field={makeBrandingVisibilityField()} fieldWrapperClass="!w-full"
+                  />
+                  <FieldRenderer field={makeSkipStatusScreenField()} fieldWrapperClass="!w-full" />
+                </div>
+                <div className="flex flex-row">
+                  <FieldRenderer
+                    field={makeIsSetupMandateFlowField()} fieldWrapperClass="!w-full"
+                  />
+                </div>
                 <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
                 <div className="flex justify-between pt-4">
                   <SubmitButton
                     text="Save Configuration" buttonType={Primary} buttonSize={Medium}
                   />
                 </div>
+                // <FormValuesSpy />
               </Form>
             </div>
           </div>
           <div className="w-full">
             <div className="sticky top-4 w-full">
-              <div className="bg-nd_gray-50 rounded-lg border border-nd_gray-300 p-6 h-full">
-                <div className="flex items-center justify-between mb-6">
-                  <h4 className="text-md font-semibold text-nd_gray-600">
+              <div className="bg-nd_gray-50 rounded-lg border border-nd_gray-300 p-4 h-full">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-md font-semibold text-nd_gray-600 mb-2">
                     {"Live Preview"->React.string}
                   </h4>
                   {previewLoading
@@ -197,7 +229,7 @@ module ConfiguratorForm = {
                       </div>
                     : React.null}
                 </div>
-                <div className=" rounded-lg w-full h-[500px] flex flex-col bg-white">
+                <div className=" rounded-lg w-full h-[600px] flex flex-col bg-white">
                   {switch (previewLoading, previewError, previewHtml) {
                   | (true, _, _) =>
                     <div className="flex items-center justify-center h-full w-full">
