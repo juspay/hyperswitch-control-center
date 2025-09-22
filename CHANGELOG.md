@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.22.0
+
+### Features
+
+- Recon engine `transformed_entries` metadata and lineage view ([#3631](https://github.com/juspay/hyperswitch-control-center/pull/3631)) ([`f3ec676`](https://github.com/juspay/hyperswitch-control-center/commit/f3ec67697a2a39f15b0ba301730f8131fd6408eb))
+
+### Miscellaneous Tasks
+
+- Fix WASM for Peachpayments ([#3637](https://github.com/juspay/hyperswitch-control-center/pull/3637)) ([`8b9ebd8`](https://github.com/juspay/hyperswitch-control-center/commit/8b9ebd855f17f437401999876440b07cfffb1e0b))
+- Update paysafe error message ([`c0a7122`](https://github.com/juspay/hyperswitch-control-center/commit/c0a7122993da7a4738f69fa156a9e85404506741))
+
+**Full Changelog:** [`2025.09.19.0...2025.09.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.19.0...2025.09.22.0)
+
+- - -
+
 ## 2025.09.19.0
 
 ### Features
