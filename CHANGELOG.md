@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.23.0
+
+### Bug Fixes
+
+- Orchestrator overview page ui bugs ([#3610](https://github.com/juspay/hyperswitch-control-center/pull/3610)) ([`81c7d44`](https://github.com/juspay/hyperswitch-control-center/commit/81c7d445566bc6b9f24e0c27db916e4e0bfc89e0))
+
+### Miscellaneous Tasks
+
+- Update paysafe button name ([`fe05430`](https://github.com/juspay/hyperswitch-control-center/commit/fe05430ff50fcb4fe4ff0060563df3ee052c0b1b))
+- Update paysafe button name ([`5a70d94`](https://github.com/juspay/hyperswitch-control-center/commit/5a70d94b6d78d525704cc84f6b72ab87e310548b))
+
+**Full Changelog:** [`2025.09.22.0...2025.09.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.22.0...2025.09.23.0)
+
+- - -
+
+## 2025.09.22.0
+
+### Features
+
+- Recon engine `transformed_entries` metadata and lineage view ([#3631](https://github.com/juspay/hyperswitch-control-center/pull/3631)) ([`f3ec676`](https://github.com/juspay/hyperswitch-control-center/commit/f3ec67697a2a39f15b0ba301730f8131fd6408eb))
+
+### Miscellaneous Tasks
+
+- Fix WASM for Peachpayments ([#3637](https://github.com/juspay/hyperswitch-control-center/pull/3637)) ([`8b9ebd8`](https://github.com/juspay/hyperswitch-control-center/commit/8b9ebd855f17f437401999876440b07cfffb1e0b))
+- Update paysafe error message ([`c0a7122`](https://github.com/juspay/hyperswitch-control-center/commit/c0a7122993da7a4738f69fa156a9e85404506741))
+
+**Full Changelog:** [`2025.09.19.0...2025.09.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.19.0...2025.09.22.0)
+
+- - -
+
 ## 2025.09.19.0
 
 ### Features
