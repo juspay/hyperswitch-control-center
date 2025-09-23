@@ -80,9 +80,11 @@ let make = (
       let dict = values->getDictFromJsonObject
 
       let decisionEngineConfigDict = Dict.make()
-      let decisionEngineConfigValues =
-        dict->getDictfromDict("decision_engine_configs")->JSON.Encode.object
-      decisionEngineConfigDict->Dict.set("decision_engine_configs", decisionEngineConfigValues)
+      if isActivate {
+        let decisionEngineConfigValues =
+          dict->getDictfromDict("decision_engine_configs")->JSON.Encode.object
+        decisionEngineConfigDict->Dict.set("decision_engine_configs", decisionEngineConfigValues)
+      }
 
       let queryParamerters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
       let url = getURL(
