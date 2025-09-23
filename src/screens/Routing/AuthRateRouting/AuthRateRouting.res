@@ -16,7 +16,8 @@ let make = (
   let showToast = ToastState.useShowToast()
   let businessProfileValues =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileValues.profile_id)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ => initialValues)
   let (pageState, setPageState) = React.useState(() => RoutingTypes.Create)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -304,9 +305,10 @@ let make = (
               <BasicDetailsForm.BusinessProfileInp
                 setProfile={setProfile}
                 profile={profile}
-                options={[
-                  businessProfileValues,
-                ]->MerchantAccountUtils.businessProfileNameDropDownOption}
+                options={MerchantAccountUtils.businessProfileNameDropDownOption(
+                  [businessProfileValues],
+                  ~profileId,
+                )}
                 label="Profile"
               />
             </div>

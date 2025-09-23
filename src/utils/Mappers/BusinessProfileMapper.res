@@ -34,8 +34,6 @@ let businessProfileTypeMapper = values => {
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
 
   {
-    merchant_id: jsonDict->getString("merchant_id", ""),
-    profile_id: jsonDict->getString("profile_id", ""),
     profile_name: jsonDict->getString("profile_name", ""),
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),

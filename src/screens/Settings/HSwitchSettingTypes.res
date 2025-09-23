@@ -151,8 +151,6 @@ type personalSettings = {
 }
 
 type profileEntity = {
-  merchant_id: string,
-  profile_id: string,
   profile_name: string,
   return_url: option<string>,
   payment_response_hash_key: option<string>,

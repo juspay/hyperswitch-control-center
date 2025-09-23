@@ -544,7 +544,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -585,13 +585,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   }
 
   React.useEffect(() => {
-    if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
+    if profileId->LogicUtils.isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
+  }, [profileId, businessProfileRecoilVal.profile_name])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
@@ -626,14 +626,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
-                  <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
-                  />
+                  <InfoViewForWebhooks heading="Profile ID" subHeading=profileId isCopy=true />
                 </div>
                 <div className="flex items-center">
-                  <InfoViewForWebhooks
-                    heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
-                  />
+                  <InfoViewForWebhooks heading="Merchant ID" subHeading=merchantId />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
                     subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
