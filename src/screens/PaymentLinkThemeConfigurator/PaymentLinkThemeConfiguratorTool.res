@@ -145,9 +145,10 @@ module ConfiguratorForm = {
     }
 
     // Js.log2("Initial Values", initialValues)
+    let defaultThemeColor = initialValues->getDictFromJsonObject->getString("theme", "#FFFFFF")
 
     <RenderIf condition={selectedStyleId->LogicUtils.isNonEmptyString}>
-      <div className="bg-white rounded-lg border border-nd_gray-300 p-6">
+      <div className="bg-white rounded-lg">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
           <div className="w-full">
             <div className="space-y-4">
@@ -156,27 +157,13 @@ module ConfiguratorForm = {
                 initialValues
                 onSubmit={(values, _) => onSubmit(values, false)}>
                 <AutoSubmitter autoApply=true submit={(values, _) => onSubmit(values, true)} />
-                <FieldRenderer
-                  field={makeThemeField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("theme", "#FFFFFF"),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer
-                  field={makeBackgroundColorField(
-                    ~defaultValue=initialValues
-                    ->getDictFromJsonObject
-                    ->getString("background_color", "#FFFFFF"),
-                  )}
-                  fieldWrapperClass="!w-full"
-                />
+                <FieldRenderer field={makeBackgroundImageField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
+                <FieldRenderer
+                  field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
+                />
                 <FieldRenderer
                   field={makeMaxItemsVisibleAfterCollapseField()} fieldWrapperClass="!w-full"
                 />
@@ -202,8 +189,54 @@ module ConfiguratorForm = {
                   <FieldRenderer
                     field={makeIsSetupMandateFlowField()} fieldWrapperClass="!w-full"
                   />
+                  <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
                 </div>
-                <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
+                <div className="flex flex-row gap-4">
+                  <FieldRenderer
+                    field={makeThemeField(
+                      ~defaultValue=initialValues
+                      ->getDictFromJsonObject
+                      ->getString("theme", "#FFFFFF"),
+                    )}
+                    fieldWrapperClass="!w-full"
+                  />
+                  <FieldRenderer
+                    field={makeBackgroundColorField(
+                      ~defaultValue=initialValues
+                      ->getDictFromJsonObject
+                      ->getString("background_color", "#FFFFFF"),
+                    )}
+                    fieldWrapperClass="!w-full"
+                  />
+                </div>
+                <div className="flex flex-row gap-4">
+                  <FieldRenderer
+                    field={makePaymentButtonColorField(
+                      ~defaultValue=initialValues
+                      ->getDictFromJsonObject
+                      ->getString("payment_button_colour", defaultThemeColor),
+                    )}
+                    fieldWrapperClass="!w-full"
+                  />
+                  <FieldRenderer
+                    field={makePaymentButtonTextColorField(
+                      ~defaultValue=initialValues
+                      ->getDictFromJsonObject
+                      ->getString("payment_button_text_colour", "#FFFFFF"),
+                    )}
+                    fieldWrapperClass="!w-full"
+                  />
+                </div>
+                <div className="flex flex-row gap-4">
+                  <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
+                  <FieldRenderer
+                    field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full"
+                  />
+                </div>
+                <div className="flex flex-row gap-4">
+                  <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
+                  <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+                </div>
                 <div className="flex justify-between pt-4">
                   <SubmitButton
                     text="Save Configuration" buttonType={Primary} buttonSize={Medium}
@@ -215,7 +248,7 @@ module ConfiguratorForm = {
           </div>
           <div className="w-full">
             <div className="sticky top-4 w-full">
-              <div className="bg-nd_gray-50 rounded-lg border border-nd_gray-300 p-4 h-full">
+              <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-4 h-full">
                 <div className="flex items-center justify-between">
                   <h4 className="text-md font-semibold text-nd_gray-600 mb-2">
                     {"Live Preview"->React.string}
@@ -229,7 +262,7 @@ module ConfiguratorForm = {
                       </div>
                     : React.null}
                 </div>
-                <div className=" rounded-lg w-full h-[600px] flex flex-col bg-white">
+                <div className=" rounded-lg w-full h-[700px] flex flex-col bg-white">
                   {switch (previewLoading, previewError, previewHtml) {
                   | (true, _, _) =>
                     <div className="flex items-center justify-center h-full w-full">
@@ -449,22 +482,24 @@ module StyleIdSelection = {
       value: selectedStyleId->JSON.Encode.string,
       checked: true,
     }
-
-    <SelectBox.BaseDropdown
-      allowMultiSelect=false
-      buttonText="Select Style ID"
-      input
-      deselectDisable=true
-      options={availableStyles}
-      hideMultiSelectButtons=true
-      marginTop="mt-12"
-      dropdownCustomWidth="w-fit"
-      searchable=true
-      searchInputPlaceHolder="Search Style ID"
-      buttonType=SecondaryFilled
-      customButtonStyle="!w-32"
-      bottomComponent={<CreateNewStyleID setSelectedStyleId />}
-    />
+    <div>
+      <div className="text-nd_gray-700 text-sm py-2"> {"Select Style ID"->React.string} </div>
+      <SelectBox.BaseDropdown
+        allowMultiSelect=false
+        buttonText="Select Style ID"
+        input
+        deselectDisable=true
+        options={availableStyles}
+        hideMultiSelectButtons=true
+        marginTop="mt-12"
+        dropdownCustomWidth="w-fit"
+        searchable=true
+        searchInputPlaceHolder="Search Style ID"
+        buttonType=SecondaryFilled
+        customButtonStyle="!w-32"
+        bottomComponent={<CreateNewStyleID setSelectedStyleId />}
+      />
+    </div>
   }
 }
 
