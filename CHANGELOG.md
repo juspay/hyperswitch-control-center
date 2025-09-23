@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.23.0
+
+### Bug Fixes
+
+- Orchestrator overview page ui bugs ([#3610](https://github.com/juspay/hyperswitch-control-center/pull/3610)) ([`81c7d44`](https://github.com/juspay/hyperswitch-control-center/commit/81c7d445566bc6b9f24e0c27db916e4e0bfc89e0))
+
+### Miscellaneous Tasks
+
+- Update paysafe button name ([`fe05430`](https://github.com/juspay/hyperswitch-control-center/commit/fe05430ff50fcb4fe4ff0060563df3ee052c0b1b))
+- Update paysafe button name ([`5a70d94`](https://github.com/juspay/hyperswitch-control-center/commit/5a70d94b6d78d525704cc84f6b72ab87e310548b))
+
+**Full Changelog:** [`2025.09.22.0...2025.09.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.22.0...2025.09.23.0)
+
+- - -
+
 ## 2025.09.22.0
 
 ### Features
