@@ -475,22 +475,12 @@ let useGetURL = () => {
         | _ => ""
         }
       | ACTIVE_ROUTING => `routing/active`
-      | ENABLE_AUTH_RATE_ROUTING =>
+      | CREATE_AUTH_RATE_ROUTING =>
         switch methodType {
         | Post =>
           switch queryParamerters {
           | Some(param) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/toggle?${param}`
-          | None => ""
-          }
-        | _ => ""
-        }
-      | SET_CONFIG_AUTH_RATE_ROUTING =>
-        switch methodType {
-        | Patch =>
-          switch id {
-          | Some(id) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/config/${id}`
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/create?${param}`
           | None => ""
           }
         | _ => ""
