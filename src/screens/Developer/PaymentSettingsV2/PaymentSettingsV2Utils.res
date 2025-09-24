@@ -331,19 +331,16 @@ let getCustomHeadersPayload = valuesDict => {
 }
 let removeEmptyValues = (~dict, ~key) => {
   open LogicUtils
-  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let finalDict = Dict.make()
   let formValues = dict->getDictfromDict(key)
   let _ =
     dict
     ->getDictfromDict(key)
     ->Dict.keysToArray
     ->Array.forEach(val => {
-      outGoingWebHookCustomHttpHeaders->setOptionString(
-        val,
-        formValues->getString(val, "")->getNonEmptyString,
-      )
+      finalDict->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
     })
-  outGoingWebHookCustomHttpHeaders
+  finalDict
 }
 let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
   open LogicUtils
