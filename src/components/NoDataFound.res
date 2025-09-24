@@ -10,6 +10,7 @@ let make = (
   ~customBorderClass="",
   ~customMessageCss="",
   ~handleClick=?,
+  ~customContainerClass="",
 ) => {
   let prefix = LogicUtils.useUrlPrefix()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -24,7 +25,7 @@ let make = (
     }
     isMobileView ? "" : marginPaddingClass
   }
-  let containerClass = `flex flex-col ${marginPaddingClass} container mx-auto items-center`
+  let containerClass = `flex flex-col ${marginPaddingClass} container mx-auto items-center ${customContainerClass}`
   let msgCss = isMobileView
     ? `text-l text-center mt-4 ${customMessageCss}`
     : `px-3 text-2xl mt-32 ${customMessageCss}`
