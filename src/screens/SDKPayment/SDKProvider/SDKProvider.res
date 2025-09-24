@@ -21,9 +21,7 @@ let defaultValue = {
   setErrorMessage: _ => (),
   isGuestMode: false,
   setIsGuestMode: _ => (),
-  initialValuesForCheckoutForm: SDKPaymentUtils.initialValueForForm(
-    BusinessProfileMapper.businessProfileTypeMapper(JSON.Encode.null),
-  ),
+  initialValuesForCheckoutForm: SDKPaymentUtils.initialValueForForm(~profileId=""),
   setInitialValuesForCheckoutForm: _ => (),
   clientSecretStatus: IntialPreview,
   setClientSecretStatus: _ => (),
@@ -39,10 +37,6 @@ module Provider = {
 let make = (~children) => {
   open ReactHyperJs
 
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
-  )
-
   let (showBillingAddress, setShowBillingAddress) = React.useState(_ => true)
   let (isSameAsBilling, setIsSameAsBilling) = React.useState(() => true)
   let (sdkThemeInitialValues, setSdkThemeInitialValues) = React.useState(_ =>
@@ -55,17 +49,14 @@ let make = (~children) => {
   let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => IntialPreview)
   let (showSetupFutureUsage, setShowSetupFutureUsage) = React.useState(_ => false)
   let (sendAuthType, setSendAuthType) = React.useState(_ => true)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (isGuestMode, setIsGuestMode) = React.useState(_ => false)
 
   let (initialValuesForCheckoutForm, setInitialValuesForCheckoutForm) = React.useState(_ =>
-    SDKPaymentUtils.initialValueForForm(
-      ~showSetupFutureUsage,
-      ~sendAuthType,
-      businessProfileRecoilVal,
-    )
+    SDKPaymentUtils.initialValueForForm(~showSetupFutureUsage, ~sendAuthType, ~profileId)
   )
 
   <Provider
