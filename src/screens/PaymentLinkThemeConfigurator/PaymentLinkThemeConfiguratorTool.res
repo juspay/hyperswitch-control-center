@@ -5,7 +5,9 @@ module ConfiguratorForm = {
     open LogicUtils
     open PaymentLinkThemeConfiguratorUtils
     open PaymentLinkThemeConfiguratorHelper
+    let showToast = ToastState.useShowToast()
     let (wasmInitialized, setWasmInitialized) = React.useState(_ => false)
+    let (initialValues, setInitialValues) = React.useState(_ => initialValues)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
     let (previewError, setPreviewError) = React.useState(_ => None)
@@ -99,6 +101,7 @@ module ConfiguratorForm = {
 
     let onSubmit = async (values, isAutoSubmit) => {
       debouncedGeneratePreview(values)
+      setInitialValues(_ => values)
 
       if !isAutoSubmit {
         let body = constructBusinessProfileBodyFromJson(
@@ -109,6 +112,11 @@ module ConfiguratorForm = {
         let dict = Dict.make()
         dict->Dict.set("payment_link_config", body->Identity.genericTypeToJson)
         let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
+        showToast(
+          ~toastType=ToastSuccess,
+          ~message="Configuration Saved Successfully!",
+          ~autoClose=true,
+        )
       }
 
       Nullable.null
@@ -116,9 +124,9 @@ module ConfiguratorForm = {
 
     module AutoSubmitter = {
       @react.component
-      let make = (~autoApply, ~submit) => {
+      let make = (~submit) => {
         let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-          ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
+          ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
         )
         let form = ReactFinalForm.useForm()
         let values = formState.values
@@ -134,8 +142,8 @@ module ConfiguratorForm = {
         }, [])
 
         React.useEffect(() => {
-          if formState.dirty && autoApply {
-            submit(formState.values, 0)->ignore
+          if formState.dirty {
+            submit(formState.values, false)->ignore
           }
           None
         }, [values])
@@ -156,7 +164,7 @@ module ConfiguratorForm = {
                 formClass="space-y-4"
                 initialValues
                 onSubmit={(values, _) => onSubmit(values, false)}>
-                <AutoSubmitter autoApply=true submit={(values, _) => onSubmit(values, true)} />
+                <AutoSubmitter submit={(values, _) => onSubmit(values, true)} />
                 <FieldRenderer field={makeBackgroundImageField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />

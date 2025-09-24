@@ -190,11 +190,18 @@ let makeBackgroundColorField = (~defaultValue) => {
 }
 
 let makeDetailsLayoutField = () => {
+  let layoutOptions = ["layout1", "layout2"]->SelectBox.makeOptions
+
   makeFieldInfo(
     ~label="Details Layout",
     ~name="details_layout",
-    ~customInput=InputFields.textInput(),
-    ~placeholder="Enter details layout",
+    ~customInput=InputFields.selectInput(
+      ~options=layoutOptions,
+      ~buttonText="Select Details Layout",
+      ~deselectDisable=true,
+      ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
+      ~fullLength=true,
+    ),
     ~isRequired=false,
   )
 }
