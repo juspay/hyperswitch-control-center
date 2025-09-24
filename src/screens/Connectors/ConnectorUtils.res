@@ -135,6 +135,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BREADPAY),
   Processors(BLUECODE),
   Processors(PAYSAFE),
+  Processors(GIGADAT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -719,6 +720,10 @@ let peachpaymentsInfo = {
   description: "The secure African payment gateway with easy integrations, 365-day support, and advanced orchestration.",
 }
 
+let gigadatInfo = {
+  description: "Gigadat Solutions Inc. is a Canadian fintech leader specializing in secure, real-time online banking payment solutions tailored for the evolving needs of e-merchants, consumers, and financial institutions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -818,6 +823,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | DWOLLA => "dwolla"
   | PAYSAFE => "paysafe"
   | PEACHPAYMENTS => "peachpayments"
+  | GIGADAT => "gigadat"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -986,6 +992,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
+    | "gigadat" => Processors(GIGADAT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1134,6 +1141,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | DWOLLA => dwollaInfo
   | PAYSAFE => paysafeInfo
   | PEACHPAYMENTS => peachpaymentsInfo
+  | GIGADAT => gigadatInfo
   }
 }
 
@@ -2055,6 +2063,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
   | PEACHPAYMENTS => "PeachPayments"
+  | GIGADAT => "Gigadat"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

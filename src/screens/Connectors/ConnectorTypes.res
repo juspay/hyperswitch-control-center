@@ -125,6 +125,7 @@ type processorTypes =
   | DWOLLA
   | PAYSAFE
   | PEACHPAYMENTS
+  | GIGADAT
 
 type payoutProcessorTypes =
   | ADYEN
