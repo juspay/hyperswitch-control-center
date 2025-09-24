@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.24.0
+
+### Refactors
+
+- Removed profile_id and merchant-id from profileEntity ([#3640](https://github.com/juspay/hyperswitch-control-center/pull/3640)) ([`f25735b`](https://github.com/juspay/hyperswitch-control-center/commit/f25735b48a4eb8cc15dfceb3ddca227877a3514e))
+
+**Full Changelog:** [`2025.09.23.0...2025.09.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.23.0...2025.09.24.0)
+
+- - -
+
 ## 2025.09.23.0
 
 ### Bug Fixes
