@@ -188,39 +188,40 @@ module WebHookAuthenticationHeaders = {
 @react.component
 let make = () => {
   open APIUtils
-  open LogicUtils
+
   open FormRenderer
-  open PaymentSettingsV2Utils
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let interface = switch version {
+  | V1 => BusinessProfileInterface.businessProfileInterfaceV1
+  | V2 => BusinessProfileInterface.businessProfileInterfaceV2
+  }
+  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(~interface)
 
   let (initialValues, setInitialValues) = React.useState(_ =>
-    businessProfileRecoilVal->parseCustomHeadersFromEntity->JSON.Encode.object
+    businessProfileRecoilVal->Identity.genericTypeToJson
   )
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->getCustomHeadersPayload->JSON.Encode.object
-      let _ = await updateDetails(url, body, Post)
+      let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setAllowEdit(_ => false)
       setInitialValues(_ =>
-        response
-        ->BusinessProfileMapper.businessProfileTypeMapper
-        ->parseCustomHeadersFromEntity
-        ->JSON.Encode.object
+        BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
+          BusinessProfileInterface.businessProfileInterfaceV1,
+          response,
+        )->Identity.genericTypeToJson
       )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

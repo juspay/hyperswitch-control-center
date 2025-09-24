@@ -149,7 +149,7 @@ let validationFieldsReverseMapperV2 = value => {
 let validateMerchantAccountFormV2 = (
   ~values: JSON.t,
   ~isLiveMode,
-  ~businessProfileRecoilVal: profileEntity,
+  ~businessProfileRecoilVal: commonProfileEntity,
 ) => {
   open LogicUtils
   let errors = Dict.make()
@@ -187,11 +187,10 @@ let validateMerchantAccountFormV2 = (
       | _ => ()
       }
     | AuthenticationConnectorDetails =>
-      let initiallyConnectedAuthConnectorsLength =
-        businessProfileRecoilVal.authentication_connector_details.authentication_connectors->Option.mapOr(
-          0,
-          arr => {arr->Array.length},
-        )
+      let initiallyConnectedAuthConnectorsLength = switch businessProfileRecoilVal.authentication_connector_details {
+      | None => 0
+      | Some(val) => val.authentication_connectors->Option.mapOr(0, arr => {arr->Array.length})
+      }
 
       let authenticationConnectorDetailsDict =
         valuesDict->getDictfromDict("authentication_connector_details")
@@ -253,6 +252,7 @@ let validateMerchantAccountFormV2 = (
 
   errors->JSON.Encode.object
 }
+
 let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profileEntity) => {
   open LogicUtils
   let {
@@ -263,18 +263,17 @@ let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profile
 
   let threeDsInfo = Dict.make()
   let authConnectorDetails = Dict.make()
-  authConnectorDetails->setOptionArray(
-    "authentication_connectors",
-    authentication_connector_details.authentication_connectors,
-  )
-  authConnectorDetails->setOptionString(
-    "three_ds_requestor_url",
-    authentication_connector_details.three_ds_requestor_url,
-  )
-  authConnectorDetails->setOptionString(
-    "three_ds_requestor_app_url",
-    authentication_connector_details.three_ds_requestor_app_url,
-  )
+  switch authentication_connector_details {
+  | Some(val) =>
+    authConnectorDetails->setOptionArray("authentication_connectors", val.authentication_connectors)
+    authConnectorDetails->setOptionString("three_ds_requestor_url", val.three_ds_requestor_url)
+    authConnectorDetails->setOptionString(
+      "three_ds_requestor_app_url",
+      val.three_ds_requestor_app_url,
+    )
+  | None => ()
+  }
+
   threeDsInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
   threeDsInfo->setOptionBool("is_debit_routing_enabled", is_debit_routing_enabled)
 
@@ -330,7 +329,22 @@ let getCustomHeadersPayload = valuesDict => {
   )
   customHeaderDict
 }
-
+let removeEmptyValues = (~dict, ~key) => {
+  open LogicUtils
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = dict->getDictfromDict(key)
+  let _ =
+    dict
+    ->getDictfromDict(key)
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+  outGoingWebHookCustomHttpHeaders
+}
 let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
   open LogicUtils
 
@@ -358,4 +372,63 @@ let getMetdataKeyValuePayload = valuesDict => {
     })
   customHeaderDict->setOptionDict("metadata", Some(customMetadataVal))
   customHeaderDict
+}
+
+let commonTypeJsonToV1ForRequest: JSON.t => profileEntity = json => {
+  open LogicUtils
+  let dict = json->getDictFromJsonObject
+  let outgoingWebhookdict = removeEmptyValues(~dict, ~key="outgoing_webhook_custom_http_headers")
+  let metadataDict = removeEmptyValues(~dict, ~key="metadata")
+  let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
+
+  {
+    profile_name: dict->getString("profile_name", ""),
+    collect_billing_details_from_wallet_connector: dict->getOptionBool(
+      "collect_billing_details_from_wallet_connector",
+    ),
+    always_collect_billing_details_from_wallet_connector: dict->getOptionBool(
+      "always_collect_billing_details_from_wallet_connector",
+    ),
+    is_connector_agnostic_mit_enabled: dict->getOptionBool("is_connector_agnostic_mit_enabled"),
+    force_3ds_challenge: dict->getOptionBool("force_3ds_challenge"),
+    is_debit_routing_enabled: dict->getOptionBool("is_debit_routing_enabled"),
+    outgoing_webhook_custom_http_headers: Some(outgoingWebhookdict),
+    metadata: Some(metadataDict),
+    is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
+    max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
+    is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
+    acquirer_configs: None,
+    authentication_product_ids: Some(dict->getJsonObjectFromDict("authentication_product_ids")),
+    merchant_category_code: dict->getOptionString("merchant_category_code"),
+    is_network_tokenization_enabled: dict->getOptionBool("is_network_tokenization_enabled"),
+    always_request_extended_authorization: dict->getOptionBool(
+      "always_request_extended_authorization",
+    ),
+    is_manual_retry_enabled: dict->getOptionBool("is_manual_retry_enabled"),
+    always_enable_overcapture: dict->getOptionBool("always_enable_overcapture"),
+    return_url: dict->getOptionString("return_url"),
+    payment_response_hash_key: dict->getOptionString("payment_response_hash_key"),
+    webhook_details: {
+      webhook_version: dict->getOptionString("webhook_version"),
+      webhook_username: dict->getOptionString("webhook_username"),
+      webhook_password: dict->getOptionString("webhook_password"),
+      webhook_url: dict->getOptionString("webhook_url"),
+      payment_created_enabled: dict->getOptionBool("payment_created_enabled"),
+      payment_succeeded_enabled: dict->getOptionBool("payment_succeeded_enabled"),
+      payment_failed_enabled: dict->getOptionBool("payment_failed_enabled"),
+    },
+    collect_shipping_details_from_wallet_connector: dict->getOptionBool(
+      "collect_shipping_details_from_wallet_connector",
+    ),
+    always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
+      "always_collect_shipping_details_from_wallet_connector",
+    ),
+    authentication_connector_details: if authenticationConnectorDetails->isEmptyDict {
+      None
+    } else {
+      Some(
+        authenticationConnectorDetails->BusinessProfileInterfaceUtils.constructAuthConnectorObject,
+      )
+    },
+  }
 }

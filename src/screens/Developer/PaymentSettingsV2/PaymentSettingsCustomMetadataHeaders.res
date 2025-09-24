@@ -193,9 +193,7 @@ module MetadataHeaders = {
 @react.component
 let make = () => {
   open APIUtils
-  open LogicUtils
   open FormRenderer
-  open PaymentSettingsV2Utils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -204,21 +202,19 @@ let make = () => {
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(
+    ~interface=BusinessProfileInterface.businessProfileInterfaceV1,
+  )
   let (initialValues, setInitialValues) = React.useState(_ =>
-    businessProfileRecoilVal
-    ->parseMetadataCustomHeadersFromEntity
-    ->JSON.Encode.object
+    businessProfileRecoilVal->Identity.genericTypeToJson
   )
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->getMetdataKeyValuePayload->JSON.Encode.object
-      let _ = await updateDetails(url, body, Post)
+      let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       setInitialValues(_ => response)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)

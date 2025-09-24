@@ -227,15 +227,22 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+  let interface = switch version {
+  | V1 => BusinessProfileInterface.businessProfileInterfaceV1
+  | V2 => BusinessProfileInterface.businessProfileInterfaceV2
+  }
+  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(~interface)
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, values, Post)
+      let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
@@ -250,9 +257,7 @@ let make = () => {
   }
   <PageLoaderWrapper screenState>
     <Form
-      initialValues={businessProfileRecoilVal
-      ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
-      ->Identity.genericTypeToJson}
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       onSubmit
       validate={values => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(

@@ -48,8 +48,9 @@ let useUpdateBusinessProfile = () => {
     }
   }
 }
+
 let useBusinessProfileMapper = (~interface) => {
   let value = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfileFromIdAtomInterface)
-  let data = BusinessProfileInterface.mapJsonToBusinessProfile(interface, value)
+  let data = BusinessProfileInterface.mapJsonDictToCommonProfilePayload(interface, value)
   data
 }
