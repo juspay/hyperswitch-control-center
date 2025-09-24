@@ -1,16 +1,15 @@
-type formFields =
-  MinAggregateSize | DefaultSuccessRate | MaxAggregateSize | MaxTotalCount | SplitPercentage
+type formFields = BucketSize | ExplorationPercent | RolloutPercent
 
 type currentBlockThreshold = {max_total_count: int}
 
-type routingConfig = {
-  min_aggregates_size: int,
-  default_success_rate: int,
-  max_aggregates_size: int,
-  current_block_threshold: currentBlockThreshold,
+type decisionEngineConfigs = {
+  defaultBucketSize: int,
+  defaultHedgingPercent: int,
 }
 
-type routingConfigFormFields = {
-  config: routingConfig,
+type payloadConfig = {decision_engine_configs: decisionEngineConfigs}
+
+type decisionEngineFormFields = {
+  decision_engine_configs: decisionEngineConfigs,
   split_percentage: int,
 }
