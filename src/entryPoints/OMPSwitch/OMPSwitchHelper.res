@@ -585,7 +585,7 @@ module ProfileDropdownItem = {
           ~id=Some(profileId),
         )
         let res = await updateDetails(accountUrl, body, Post)
-        setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+        setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
       } catch {

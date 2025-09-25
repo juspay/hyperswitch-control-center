@@ -16,7 +16,7 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
       let url = getURL(~entityName, ~methodType=Get, ~id=profileId)
       let res = await fetchDetails(url, ~version)
       //Todo: remove this once we start using businessProfileInterface
-      setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
       let commonTypedData = switch version {
       | V1 =>
         BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
@@ -51,7 +51,7 @@ let useUpdateBusinessProfile = () => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let res = await updateDetails(url, body, Post)
-      setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
       res
     } catch {
     | Exn.Error(e) => {
