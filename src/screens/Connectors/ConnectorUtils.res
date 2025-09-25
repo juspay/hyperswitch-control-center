@@ -34,6 +34,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
   ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
+  ThreeDsAuthenticator(CARDINAL),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -135,6 +136,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BREADPAY),
   Processors(BLUECODE),
   Processors(PAYSAFE),
+  Processors(GIGADAT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -534,7 +536,9 @@ let clickToPayInfo = {
 let clickToPayVisaInfo = {
   description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
 }
-
+let cardinalInfo = {
+  description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Cardinal.",
+}
 let juspayThreeDsServerInfo = {
   description: "Juspay's cost-effective 3DS platform, ensures security, compliance, and seamless checkout—reducing fraud, boosting conversions, and enhancing customer trust with frictionless authentication.",
 }
@@ -719,6 +723,10 @@ let peachpaymentsInfo = {
   description: "The secure African payment gateway with easy integrations, 365-day support, and advanced orchestration.",
 }
 
+let gigadatInfo = {
+  description: "Gigadat Solutions Inc. is a Canadian fintech leader specializing in secure, real-time online banking payment solutions tailored for the evolving needs of e-merchants, consumers, and financial institutions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -818,6 +826,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | DWOLLA => "dwolla"
   | PAYSAFE => "paysafe"
   | PEACHPAYMENTS => "peachpayments"
+  | GIGADAT => "gigadat"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -839,6 +848,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   | JUSPAYTHREEDSSERVER => "juspaythreedsserver"
   | CLICK_TO_PAY_VISA => "ctp_visa"
+  | CARDINAL => "cardinal"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -986,6 +996,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
+    | "gigadat" => Processors(GIGADAT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1007,6 +1018,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | "juspaythreedsserver" => ThreeDsAuthenticator(JUSPAYTHREEDSSERVER)
     | "ctp_visa" => ThreeDsAuthenticator(CLICK_TO_PAY_VISA)
+    | "cardinal" => ThreeDsAuthenticator(CARDINAL)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -1134,6 +1146,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | DWOLLA => dwollaInfo
   | PAYSAFE => paysafeInfo
   | PEACHPAYMENTS => peachpaymentsInfo
+  | GIGADAT => gigadatInfo
   }
 }
 
@@ -1157,6 +1170,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   | JUSPAYTHREEDSSERVER => juspayThreeDsServerInfo
   | CLICK_TO_PAY_VISA => clickToPayVisaInfo
+  | CARDINAL => cardinalInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -2055,6 +2069,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
   | PEACHPAYMENTS => "PeachPayments"
+  | GIGADAT => "Gigadat"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2076,6 +2091,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   | CLICK_TO_PAY_MASTERCARD => "Mastercard Unified Click to Pay"
   | JUSPAYTHREEDSSERVER => "Juspay 3DS Server"
   | CLICK_TO_PAY_VISA => "Visa Unified Click to Pay"
+  | CARDINAL => "Cardinal"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
