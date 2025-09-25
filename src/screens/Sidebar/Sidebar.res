@@ -143,7 +143,7 @@ module SidebarItem = {
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
-                className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${hoverColor}`}>
+                className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${hoverColor} ${selectedClass}`}>
                 <SidebarOption name icon isSidebarExpanded isSelected />
               </div>
             </AddDataAttributes>
@@ -761,6 +761,8 @@ let make = (
     onProductSelectClick(valueSelected.name)
   }
 
+  let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
+
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
@@ -894,14 +896,14 @@ let make = (
                 <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
                   <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                     <div
-                      className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 px-3 py-1.5 ${isSidebarExpanded
-                          ? ""
-                          : "mx-1"} ${hoverColor}`}>
+                      className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
+                          ? "!bg-sidebar-hoverColor"
+                          : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
                       <SidebarOption
                         name="Home"
                         icon="nd-home"
                         isSidebarExpanded
-                        isSelected={linkSelectionCheck(firstPart, "/v2/home")}
+                        isSelected={isHomeSelected}
                         showIcon=true
                       />
                     </div>
