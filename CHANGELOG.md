@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.25.0
+
+### Miscellaneous Tasks
+
+- Updated api contracts for auth rate based routing ([#3644](https://github.com/juspay/hyperswitch-control-center/pull/3644)) ([`9efee70`](https://github.com/juspay/hyperswitch-control-center/commit/9efee70bd018133e9044be8c05be5772a3e5b3ad))
+
+**Full Changelog:** [`2025.09.24.0...2025.09.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.24.0...2025.09.25.0)
+
+- - -
+
 ## 2025.09.24.0
 
 ### Refactors
