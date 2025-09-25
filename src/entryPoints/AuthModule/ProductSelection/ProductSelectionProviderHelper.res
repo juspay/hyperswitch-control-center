@@ -139,7 +139,7 @@ module SelectMerchantBody = {
           <span className={`${body.md.medium} text-nd_gray-400  mx-4 mt-4`}>
             {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
           </span>
-          <div className="py-4 max-w-12">
+          <div className="py-4">
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer
                 fieldWrapperClass="w-full"

@@ -69,12 +69,9 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
-  let interface = switch version {
-  | V1 => BusinessProfileInterface.businessProfileInterfaceV1
-  | V2 => BusinessProfileInterface.businessProfileInterfaceV2
-  }
-  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(~interface)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)

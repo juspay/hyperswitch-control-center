@@ -198,11 +198,9 @@ let make = () => {
   let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let interface = switch version {
-  | V1 => BusinessProfileInterface.businessProfileInterfaceV1
-  | V2 => BusinessProfileInterface.businessProfileInterfaceV2
-  }
-  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(~interface)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
 
   let (initialValues, setInitialValues) = React.useState(_ =>
     businessProfileRecoilVal->Identity.genericTypeToJson
@@ -217,12 +215,19 @@ let make = () => {
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setAllowEdit(_ => false)
-      setInitialValues(_ =>
+      let updatedInitialValues = switch version {
+      | V1 =>
         BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
           BusinessProfileInterface.businessProfileInterfaceV1,
           response,
         )->Identity.genericTypeToJson
-      )
+      | V2 =>
+        BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
+          BusinessProfileInterface.businessProfileInterfaceV2,
+          response,
+        )->Identity.genericTypeToJson
+      }
+      setInitialValues(_ => updatedInitialValues)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {

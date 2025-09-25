@@ -196,17 +196,15 @@ let make = () => {
   open FormRenderer
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let interface = switch version {
-  | V1 => BusinessProfileInterface.businessProfileInterfaceV1
-  | V2 => BusinessProfileInterface.businessProfileInterfaceV2
-  }
-  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(~interface)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
   let (initialValues, setInitialValues) = React.useState(_ =>
     businessProfileRecoilVal->Identity.genericTypeToJson
   )
@@ -218,7 +216,7 @@ let make = () => {
       let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
       let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-      setInitialValues(_ => response)
+      setInitialValues(_ => response->Identity.genericTypeToJson)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       setAllowEdit(_ => false)
