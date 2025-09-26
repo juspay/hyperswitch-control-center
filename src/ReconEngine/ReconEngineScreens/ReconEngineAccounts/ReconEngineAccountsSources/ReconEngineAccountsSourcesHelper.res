@@ -196,3 +196,60 @@ module TransformationHistoryActionsComponent = {
     </div>
   }
 }
+
+module IngestionHistoryActionsComponent = {
+  @react.component
+  let make = (~ingestionHistory: ingestionHistoryType) => {
+    open ReconEngineAccountsSourcesTypes
+
+    let (showModal, setShowModal) = React.useState(_ => false)
+
+    let ingestionHistoryIconActions = [
+      {
+        iconType: ViewIcon,
+        onClick: _ => (),
+      },
+      {
+        iconType: DownloadIcon,
+        onClick: _ => (),
+      },
+      {
+        iconType: ChartIcon,
+        onClick: ev => {
+          ev->ReactEvent.Mouse.stopPropagation
+          setShowModal(_ => true)
+        },
+      },
+    ]
+
+    <div className="flex flex-row gap-4">
+      <ReconEngineAccountSourceFileTimeline
+        showModal setShowModal ingestionHistoryId=ingestionHistory.ingestion_history_id
+      />
+      {ingestionHistoryIconActions
+      ->Array.mapWithIndex((action, index) => {
+        let iconComponent =
+          <Icon
+            key={index->Int.toString}
+            name={(action.iconType :> string)}
+            size=16
+            onClick={action.onClick}
+          />
+
+        switch action.iconType {
+        | ChartIcon => iconComponent
+        | _ =>
+          <ToolTip
+            key={index->Int.toString}
+            description="This feature is available in prod"
+            toolTipFor={iconComponent}
+            contentAlign=Default
+            justifyClass="justify-start"
+            toolTipPosition=ToolTip.Top
+          />
+        }
+      })
+      ->React.array}
+    </div>
+  }
+}
