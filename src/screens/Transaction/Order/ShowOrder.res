@@ -252,15 +252,18 @@ module Refunds = {
       }
     }
 
-    <CustomExpandableTable
-      title="Refunds"
-      heading
-      rows
-      onExpandIconClick
-      expandedRowIndexArray
-      getRowDetails
-      showSerial=true
-    />
+    <div className="flex flex-col gap-4">
+      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Refunds"->React.string} </p>
+      <CustomExpandableTable
+        title="Refunds"
+        heading
+        rows
+        onExpandIconClick
+        expandedRowIndexArray
+        getRowDetails
+        showSerial=true
+      />
+    </div>
   }
 }
 
@@ -770,18 +773,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </div>
         <RenderIf condition={isRefundDataAvailable}>
           <div className="overflow-scroll">
-            <RenderAccordian
-              initialExpandedArray={isRefundDataAvailable ? [0] : []}
-              accordion={[
-                {
-                  title: "Refunds",
-                  renderContent: () => {
-                    <Refunds refundData={orderData.refunds} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
+            <Refunds refundData={orderData.refunds} />
           </div>
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
