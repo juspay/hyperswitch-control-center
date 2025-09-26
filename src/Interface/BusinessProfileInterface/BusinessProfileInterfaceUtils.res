@@ -2,28 +2,21 @@ open HSwitchSettingTypes
 open LogicUtils
 
 let constructWebhookDetailsObject = webhookDetailsDict => {
-  let webhookDetails = {
-    webhook_version: webhookDetailsDict->getOptionString("webhook_version"),
-    webhook_username: webhookDetailsDict->getOptionString("webhook_username"),
-    webhook_password: webhookDetailsDict->getOptionString("webhook_password"),
-    webhook_url: webhookDetailsDict->getOptionString("webhook_url"),
-    payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
-    payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
-    payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
-  }
-  webhookDetails
+  webhook_version: webhookDetailsDict->getOptionString("webhook_version"),
+  webhook_username: webhookDetailsDict->getOptionString("webhook_username"),
+  webhook_password: webhookDetailsDict->getOptionString("webhook_password"),
+  webhook_url: webhookDetailsDict->getOptionString("webhook_url"),
+  payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
+  payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
+  payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
 }
 
 let constructAuthConnectorObject = authConnectorDict => {
-  let authConnectorDetails = {
-    authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
-      "authentication_connectors",
-    ),
-    three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
-    three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
-  }
-
-  authConnectorDetails
+  authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
+    "authentication_connectors",
+  ),
+  three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
+  three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
 }
 
 let mapJsonToBusinessProfileV1 = (values): profileEntity => {
@@ -37,11 +30,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
-    authentication_connector_details: if authenticationConnectorDetails->isEmptyDict {
-      None
-    } else {
-      Some(authenticationConnectorDetails->constructAuthConnectorObject)
-    },
+    authentication_connector_details: !{authenticationConnectorDetails->isEmptyDict}
+      ? Some(authenticationConnectorDetails->constructAuthConnectorObject)
+      : None,
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
       "collect_shipping_details_from_wallet_connector",
     ),
@@ -92,11 +83,9 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
-    authentication_connector_details: if authenticationConnectorDetails->isEmptyDict {
-      None
-    } else {
-      Some(authenticationConnectorDetails->constructAuthConnectorObject)
-    },
+    authentication_connector_details: !{authenticationConnectorDetails->isEmptyDict}
+      ? Some(authenticationConnectorDetails->constructAuthConnectorObject)
+      : None,
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
       "collect_shipping_details_from_wallet_connector",
     ),
@@ -206,20 +195,18 @@ let mapV2toCommonType: HSwitchSettingTypes.profileEntity => HSwitchSettingTypes.
 
 let mapJsontoCommonType: JSON.t => HSwitchSettingTypes.commonProfileEntity = input => {
   let jsonDict = input->getDictFromJsonObject
+  let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
+  let outgoingWebhookdict = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   {
     profile_name: jsonDict->getString("profile_name", ""),
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: jsonDict->getDictfromDict("webhook_details")->constructWebhookDetailsObject,
-    authentication_connector_details: switch jsonDict
-    ->getDictfromDict("authentication_connector_details")
-    ->isEmptyDict {
-    | true => None
-    | false =>
-      Some(
-        jsonDict->getDictfromDict("authentication_connector_details")->constructAuthConnectorObject,
-      )
-    },
+    authentication_connector_details: !{
+      authConnectorDetails->isEmptyDict
+    }
+      ? Some(authConnectorDetails->constructAuthConnectorObject)
+      : None,
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
       "collect_shipping_details_from_wallet_connector",
     ),
@@ -239,18 +226,14 @@ let mapJsontoCommonType: JSON.t => HSwitchSettingTypes.commonProfileEntity = inp
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
-    outgoing_webhook_custom_http_headers: switch jsonDict
-    ->getDictfromDict("outgoing_webhook_custom_http_headers")
-    ->isEmptyDict {
-    | true => None
-    | false => Some(jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers"))
-    },
+    outgoing_webhook_custom_http_headers: !{outgoingWebhookdict->isEmptyDict}
+      ? Some(outgoingWebhookdict)
+      : None,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
-    metadata: switch jsonDict->getDictfromDict("metadata")->isEmptyDict {
-    | true => None
-    | false => Some(jsonDict->getDictfromDict("metadata"))
-    },
+    metadata: !{jsonDict->getDictfromDict("metadata")->isEmptyDict}
+      ? Some(jsonDict->getDictfromDict("metadata"))
+      : None,
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),

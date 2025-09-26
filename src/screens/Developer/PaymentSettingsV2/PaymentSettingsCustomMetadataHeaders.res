@@ -241,6 +241,7 @@ let make = () => {
           />
         </div>
       </DesktopRow>
+      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }

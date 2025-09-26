@@ -238,19 +238,18 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let entityName = switch version {
-      | V1 => V1(BUSINESS_PROFILE)
-      | V2 => V2(BUSINESS_PROFILE)
+      let (entityName, body) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest->Identity.genericTypeToJson,
+        )
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
+        )
       }
 
       let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
-      let body = switch version {
-      | V1 =>
-        values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest->Identity.genericTypeToJson
-      | V2 =>
-        values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson
-      }
-
       let _ = await updateDetails(url, body, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 

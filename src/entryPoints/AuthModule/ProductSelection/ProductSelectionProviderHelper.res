@@ -85,7 +85,8 @@ module SelectMerchantBody = {
         ~deselectDisable=true,
         ~customButtonStyle="pr-4 pl-2",
         ~fullLength=true,
-        ~textStyle="!max-w-400 overflow-hidden",
+        ~textStyle="!max-w-400 truncate",
+        ~dropdownCustomWidth="w-full",
       ),
       ~isRequired=true,
     )

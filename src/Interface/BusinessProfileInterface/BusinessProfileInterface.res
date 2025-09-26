@@ -1,12 +1,12 @@
 open HSwitchSettingTypes
 open BusinessProfileInterfaceUtils
 
-let mapJsonToV1type: JSON.t => HSwitchSettingTypes.profileEntity = input => {
-  mapJsonToBusinessProfileV1(input)
+let mapJsonToV1type: JSON.t => HSwitchSettingTypes.profileEntity = jsonInput => {
+  mapJsonToBusinessProfileV1(jsonInput)
 }
 
-let mapJsonToV2type: JSON.t => HSwitchSettingTypes.profileEntity = input => {
-  mapJsonToBusinessProfileV2(input)
+let mapJsonToV2type: JSON.t => HSwitchSettingTypes.profileEntity = jsonInput => {
+  mapJsonToBusinessProfileV2(jsonInput)
 }
 
 module type BusinessProfileInterface = {
@@ -21,8 +21,8 @@ module V1: BusinessProfileInterface
   type mapperInput = JSON.t
   type commonProfileDict = commonProfileEntity
 
-  let mapDictToCommonProfilePayload = (dict: mapperInput): commonProfileDict =>
-    mapJsonToV1type(dict)->mapV1toCommonType
+  let mapDictToCommonProfilePayload = (json: mapperInput): commonProfileDict =>
+    mapJsonToV1type(json)->mapV1toCommonType
 }
 
 module V2: BusinessProfileInterface
@@ -31,8 +31,8 @@ module V2: BusinessProfileInterface
   type mapperInput = JSON.t
   type commonProfileDict = commonProfileEntity
 
-  let mapDictToCommonProfilePayload = (dict: mapperInput): commonProfileDict =>
-    mapJsonToV2type(dict)->mapV2toCommonType
+  let mapDictToCommonProfilePayload = (json: mapperInput): commonProfileDict =>
+    mapJsonToV2type(json)->mapV2toCommonType
 }
 
 type businessProfileFCM<'a, 'b> = module(BusinessProfileInterface with

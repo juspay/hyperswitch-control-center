@@ -1,8 +1,8 @@
 open PaymentSettingsV2Types
 open HSwitchSettingTypes
+open LogicUtils
 
 let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => {
-  open LogicUtils
   let {
     profile_name,
     webhook_details,
@@ -64,7 +64,7 @@ let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => 
 let validateEmptyArray = (key, errors, arrayValue) => {
   switch (key: validationFieldsV2) {
   | AuthenticationConnectors(_) =>
-    let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
+    let newDict = errors->getDictfromDict("authentication_connector_details")
 
     if arrayValue->Array.length === 0 {
       Dict.set(
@@ -84,7 +84,7 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
       : RegExp.test(%re("/^(http|https):\/\//i"), value)
 
-    let newDict = errors->LogicUtils.getDictfromDict("webhook_details")
+    let newDict = errors->getDictfromDict("webhook_details")
     if !regexUrl {
       errors->Dict.set("webhook_details", JSON.Encode.null)
       Dict.set(newDict, "webhook_url", "Please Enter Valid Webhook URL"->JSON.Encode.string)
@@ -104,7 +104,7 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       let regexUrl = isLiveMode
         ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
         : RegExp.test(%re("/^(http|https):\/\//i"), value)
-      let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
+      let newDict = errors->getDictfromDict("authentication_connector_details")
       if !regexUrl {
         errors->Dict.set("authentication_connector_details", JSON.Encode.null)
         Dict.set(
@@ -122,7 +122,7 @@ let validateCustom = (key, errors, value, isLiveMode) => {
 
     let deepLinkValid = RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
     if !(httpUrlValid || deepLinkValid) {
-      let newDict = errors->LogicUtils.getDictfromDict("authentication_connector_details")
+      let newDict = errors->getDictfromDict("authentication_connector_details")
       errors->Dict.set("authentication_connector_details", JSON.Encode.null)
       Dict.set(
         newDict,
@@ -151,7 +151,6 @@ let validateMerchantAccountFormV2 = (
   ~isLiveMode,
   ~businessProfileRecoilVal: commonProfileEntity,
 ) => {
-  open LogicUtils
   let errors = Dict.make()
 
   let valuesDict = values->getDictFromJsonObject
@@ -176,68 +175,71 @@ let validateMerchantAccountFormV2 = (
         }
       }
 
-    | WebhookDetails =>
-      let value =
-        valuesDict
-        ->getDictfromDict("webhook_details")
-        ->getString("webhook_url", "")
-        ->getNonEmptyString
-      switch value {
-      | Some(str) => key->validationFieldsReverseMapperV2->validateCustom(errors, str, isLiveMode)
-      | _ => ()
+    | WebhookDetails => {
+        let value =
+          valuesDict
+          ->getDictfromDict("webhook_details")
+          ->getString("webhook_url", "")
+          ->getNonEmptyString
+        switch value {
+        | Some(str) => key->validationFieldsReverseMapperV2->validateCustom(errors, str, isLiveMode)
+        | _ => ()
+        }
       }
-    | AuthenticationConnectorDetails =>
-      let initiallyConnectedAuthConnectorsLength = switch businessProfileRecoilVal.authentication_connector_details {
-      | None => 0
-      | Some(val) => val.authentication_connectors->Option.mapOr(0, arr => {arr->Array.length})
-      }
+    | AuthenticationConnectorDetails => {
+        let authConnectorDetailsDict = businessProfileRecoilVal.authentication_connector_details
+        let initiallyConnectedAuthConnectorsLength = switch authConnectorDetailsDict {
+        | Some(val) => val.authentication_connectors->Option.mapOr(0, arr => arr->Array.length)
+        | None => 0
+        }
 
-      let authenticationConnectorDetailsDict =
-        valuesDict->getDictfromDict("authentication_connector_details")
-      let threedsArray =
-        authenticationConnectorDetailsDict
-        ->getArrayFromDict("authentication_connectors", [])
-        ->getNonEmptyArray
-      let threeDsArrayVal = threedsArray->Option.mapOr([], arr => arr)
-      let threedsUrl =
-        authenticationConnectorDetailsDict
-        ->getString("three_ds_requestor_url", "")
-        ->getNonEmptyString
-      let threedsAppUrl =
-        authenticationConnectorDetailsDict
-        ->getString("three_ds_requestor_app_url", "")
-        ->getNonEmptyString
+        let authenticationConnectorDetailsDict =
+          valuesDict->getDictfromDict("authentication_connector_details")
+        let threedsArray =
+          authenticationConnectorDetailsDict
+          ->getArrayFromDict("authentication_connectors", [])
+          ->getNonEmptyArray
+        let threeDsArrayVal = threedsArray->Option.mapOr([], arr => arr)
+        let threedsUrl =
+          authenticationConnectorDetailsDict
+          ->getString("three_ds_requestor_url", "")
+          ->getNonEmptyString
+        let threedsAppUrl =
+          authenticationConnectorDetailsDict
+          ->getString("three_ds_requestor_app_url", "")
+          ->getNonEmptyString
 
-      if initiallyConnectedAuthConnectorsLength > 0 {
-        let url = authenticationConnectorDetailsDict->getString("three_ds_requestor_url", "")
-        AuthenticationConnectors(threeDsArrayVal)->validateEmptyArray(errors, threeDsArrayVal)
-        ThreeDsRequestorUrl->validateCustom(errors, url, isLiveMode)
-      }
-      switch threedsArray {
-      | Some(valArr) => {
+        if initiallyConnectedAuthConnectorsLength > 0 {
           let url = authenticationConnectorDetailsDict->getString("three_ds_requestor_url", "")
-          AuthenticationConnectors(valArr)->validateEmptyArray(errors, valArr)
+          AuthenticationConnectors(threeDsArrayVal)->validateEmptyArray(errors, threeDsArrayVal)
           ThreeDsRequestorUrl->validateCustom(errors, url, isLiveMode)
         }
-      | _ => ()
-      }
-      switch threedsUrl {
-      | Some(str) => {
-          let arr =
-            authenticationConnectorDetailsDict->getArrayFromDict("authentication_connectors", [])
-          AuthenticationConnectors(arr)->validateEmptyArray(errors, arr)
-          ThreeDsRequestorUrl->validateCustom(errors, str, isLiveMode)
+        switch threedsArray {
+        | Some(valArr) => {
+            let url = authenticationConnectorDetailsDict->getString("three_ds_requestor_url", "")
+            AuthenticationConnectors(valArr)->validateEmptyArray(errors, valArr)
+            ThreeDsRequestorUrl->validateCustom(errors, url, isLiveMode)
+          }
+        | _ => ()
         }
-      | _ => ()
-      }
-      switch threedsAppUrl {
-      | Some(str) => {
-          let arr =
-            authenticationConnectorDetailsDict->getArrayFromDict("authentication_connectors", [])
-          AuthenticationConnectors(arr)->validateEmptyArray(errors, arr)
-          ThreeDsRequestorAppUrl->validateCustom(errors, str, isLiveMode)
+        switch threedsUrl {
+        | Some(str) => {
+            let arr =
+              authenticationConnectorDetailsDict->getArrayFromDict("authentication_connectors", [])
+            AuthenticationConnectors(arr)->validateEmptyArray(errors, arr)
+            ThreeDsRequestorUrl->validateCustom(errors, str, isLiveMode)
+          }
+        | _ => ()
         }
-      | _ => ()
+        switch threedsAppUrl {
+        | Some(str) => {
+            let arr =
+              authenticationConnectorDetailsDict->getArrayFromDict("authentication_connectors", [])
+            AuthenticationConnectors(arr)->validateEmptyArray(errors, arr)
+            ThreeDsRequestorAppUrl->validateCustom(errors, str, isLiveMode)
+          }
+        | _ => ()
+        }
       }
 
     | _ => {
@@ -254,7 +256,6 @@ let validateMerchantAccountFormV2 = (
 }
 
 let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profileEntity) => {
-  open LogicUtils
   let {
     authentication_connector_details,
     force_3ds_challenge,
@@ -285,7 +286,6 @@ let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profile
 }
 
 let isAuthConnectorArrayEmpty = values => {
-  open LogicUtils
   values
   ->getDictFromJsonObject
   ->getDictfromDict("authentication_connector_details")
@@ -294,8 +294,6 @@ let isAuthConnectorArrayEmpty = values => {
 }
 
 let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
-  open LogicUtils
-
   let customHeaderDict = Dict.make()
 
   switch profileRecord.outgoing_webhook_custom_http_headers {
@@ -308,7 +306,6 @@ let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
 }
 
 let getCustomHeadersPayload = valuesDict => {
-  open LogicUtils
   let customHeaderDict = Dict.make()
   let outGoingWebHookCustomHttpHeaders = Dict.make()
   let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
@@ -330,7 +327,6 @@ let getCustomHeadersPayload = valuesDict => {
   customHeaderDict
 }
 let removeEmptyValues = (~dict, ~key) => {
-  open LogicUtils
   let finalDict = Dict.make()
   let formValues = dict->getDictfromDict(key)
   let _ =
@@ -343,8 +339,6 @@ let removeEmptyValues = (~dict, ~key) => {
   finalDict
 }
 let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
-  open LogicUtils
-
   let customHeaderDict = Dict.make()
 
   switch profileRecord.metadata {
@@ -355,7 +349,6 @@ let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
   customHeaderDict
 }
 let getMetdataKeyValuePayload = valuesDict => {
-  open LogicUtils
   let customHeaderDict = Dict.make()
   let customMetadataVal = Dict.make()
   let formValues = valuesDict->getDictfromDict("metadata")
@@ -372,7 +365,6 @@ let getMetdataKeyValuePayload = valuesDict => {
 }
 
 let commonTypeJsonToV1ForRequest: JSON.t => profileEntity = json => {
-  open LogicUtils
   let dict = json->getDictFromJsonObject
   let outgoingWebhookdict = removeEmptyValues(~dict, ~key="outgoing_webhook_custom_http_headers")
   let metadataDict = removeEmptyValues(~dict, ~key="metadata")
@@ -420,18 +412,15 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntity = json => {
     always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
       "always_collect_shipping_details_from_wallet_connector",
     ),
-    authentication_connector_details: if authenticationConnectorDetails->isEmptyDict {
-      None
-    } else {
-      Some(
-        authenticationConnectorDetails->BusinessProfileInterfaceUtils.constructAuthConnectorObject,
-      )
-    },
+    authentication_connector_details: authenticationConnectorDetails->isEmptyDict
+      ? None
+      : Some(
+          authenticationConnectorDetails->BusinessProfileInterfaceUtils.constructAuthConnectorObject,
+        ),
   }
 }
 
 let commonTypeJsonToV2ForRequest: JSON.t => profileEntity = json => {
-  open LogicUtils
   let dict = json->getDictFromJsonObject
   let outgoingWebhookdict = removeEmptyValues(~dict, ~key="outgoing_webhook_custom_http_headers")
   let metadataDict = removeEmptyValues(~dict, ~key="metadata")
@@ -479,12 +468,10 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntity = json => {
     always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
       "always_collect_shipping_details_from_wallet_connector",
     ),
-    authentication_connector_details: if authenticationConnectorDetails->isEmptyDict {
-      None
-    } else {
-      Some(
-        authenticationConnectorDetails->BusinessProfileInterfaceUtils.constructAuthConnectorObject,
-      )
-    },
+    authentication_connector_details: !{authenticationConnectorDetails->isEmptyDict}
+      ? Some(
+          authenticationConnectorDetails->BusinessProfileInterfaceUtils.constructAuthConnectorObject,
+        )
+      : None,
   }
 }
