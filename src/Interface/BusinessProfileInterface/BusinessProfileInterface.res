@@ -1,43 +1,51 @@
 open HSwitchSettingTypes
 open BusinessProfileInterfaceUtils
 
+let mapJsonToV1type: JSON.t => HSwitchSettingTypes.profileEntity = jsonInput => {
+  mapJsonToBusinessProfileV1(jsonInput)
+}
+
+let mapJsonToV2type: JSON.t => HSwitchSettingTypes.profileEntity = jsonInput => {
+  mapJsonToBusinessProfileV2(jsonInput)
+}
+
 module type BusinessProfileInterface = {
   type mapperInput
-  type mapperOutput
-
-  let mapJsonToBusinessProfile: mapperInput => mapperOutput
+  type commonProfileDict
+  let mapDictToCommonProfilePayload: mapperInput => commonProfileDict
 }
 
 module V1: BusinessProfileInterface
   with type mapperInput = JSON.t
-  and type mapperOutput = profileEntity = {
+  and type commonProfileDict = commonProfileEntity = {
   type mapperInput = JSON.t
-  type mapperOutput = profileEntity
+  type commonProfileDict = commonProfileEntity
 
-  let mapJsonToBusinessProfile = (value: mapperInput): mapperOutput =>
-    mapJsonToBusinessProfileV1(value)
+  let mapDictToCommonProfilePayload = (json: mapperInput): commonProfileDict =>
+    mapJsonToV1type(json)->mapV1toCommonType
 }
 
 module V2: BusinessProfileInterface
   with type mapperInput = JSON.t
-  and type mapperOutput = profileEntity = {
+  and type commonProfileDict = commonProfileEntity = {
   type mapperInput = JSON.t
-  type mapperOutput = profileEntity
+  type commonProfileDict = commonProfileEntity
 
-  let mapJsonToBusinessProfile = (value: mapperInput): mapperOutput =>
-    mapJsonToBusinessProfileV2(value)
+  let mapDictToCommonProfilePayload = (json: mapperInput): commonProfileDict =>
+    mapJsonToV2type(json)->mapV2toCommonType
 }
 
 type businessProfileFCM<'a, 'b> = module(BusinessProfileInterface with
   type mapperInput = 'a
-  and type mapperOutput = 'b
+  and type commonProfileDict = 'b
 )
-let businessProfileInterfaceV1: businessProfileFCM<JSON.t, profileEntity> = module(V1)
-let businessProfileInterfaceV2: businessProfileFCM<JSON.t, profileEntity> = module(V2)
-let mapJsonToBusinessProfile = (
+let businessProfileInterfaceV1: businessProfileFCM<JSON.t, commonProfileEntity> = module(V1)
+let businessProfileInterfaceV2: businessProfileFCM<JSON.t, commonProfileEntity> = module(V2)
+
+let mapJsonDictToCommonProfilePayload = (
   type a b,
-  module(L: BusinessProfileInterface with type mapperInput = a and type mapperOutput = b),
+  module(L: BusinessProfileInterface with type mapperInput = a and type commonProfileDict = b),
   inp: a,
 ): b => {
-  L.mapJsonToBusinessProfile(inp)
+  L.mapDictToCommonProfilePayload(inp)
 }

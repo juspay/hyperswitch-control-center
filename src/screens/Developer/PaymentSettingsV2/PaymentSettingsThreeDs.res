@@ -69,8 +69,9 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -81,7 +82,8 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, values, Post)
+      let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
@@ -97,9 +99,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <Form
       onSubmit
-      initialValues={businessProfileRecoilVal
-      ->PaymentSettingsV2Utils.parseBusinessProfileForThreeDS
-      ->Identity.genericTypeToJson}
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       validate={values => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
           ~values,
