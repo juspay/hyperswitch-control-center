@@ -26,6 +26,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
   PayoutProcessor(NOMUPAY),
+  PayoutProcessor(GIGADAT),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -839,6 +840,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | STRIPE => "stripe"
   | WISE => "wise"
   | NOMUPAY => "nomupay"
+  | GIGADAT => "gigadat"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1009,6 +1011,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
     | "nomupay" => PayoutProcessor(NOMUPAY)
+    | "gigadat" => PayoutProcessor(GIGADAT)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1160,6 +1163,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | STRIPE => stripeInfo
   | WISE => wiseInfo
   | NOMUPAY => nomupayInfo
+  | GIGADAT => gigadatInfo
   }
 }
 
@@ -2082,6 +2086,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | STRIPE => "Stripe"
   | WISE => "Wise"
   | NOMUPAY => "Nomupay"
+  | GIGADAT => "Gigadat"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
