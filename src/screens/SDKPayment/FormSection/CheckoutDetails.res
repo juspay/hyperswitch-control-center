@@ -3,6 +3,7 @@ let make = (~getClientSecret) => {
   open FormRenderer
   open SDKPaymentHelper
   open SDKPaymentUtils
+  open Typography
   let {
     isGuestMode,
     setIsGuestMode,
@@ -16,6 +17,9 @@ let make = (~getClientSecret) => {
     showBillingAddress,
     setPaymentStatus,
   } = React.useContext(SDKProvider.defaultContext)
+  let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
   let (showModal, setShowModal) = React.useState(() => false)
   let showToast = ToastState.useShowToast()
   let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -68,7 +72,7 @@ let make = (~getClientSecret) => {
     />
     <div className="mt-4">
       <span
-        className="text-nd_primary_blue-500 text-sm font-medium cursor-pointer"
+        className={`${primaryNormal} ${body.md.medium} cursor-pointer`}
         onClick={_ => setShowModal(_ => true)}>
         {"Edit Checkout Details"->React.string}
       </span>
