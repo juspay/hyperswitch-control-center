@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.26.0
+
+### Features
+
+- Add new connector Gigadat ([#3647](https://github.com/juspay/hyperswitch-control-center/pull/3647)) ([`ece068b`](https://github.com/juspay/hyperswitch-control-center/commit/ece068b29c0b742a33bfcc94cdcb8d84a9e9eb58))
+- Wasm update gigadat ([#3651](https://github.com/juspay/hyperswitch-control-center/pull/3651)) ([`dc79b93`](https://github.com/juspay/hyperswitch-control-center/commit/dc79b93e6ebb41f5f2835c72ee0cb0118518dfcc))
+
+**Full Changelog:** [`2025.09.25.1...2025.09.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.25.1...2025.09.26.0)
+
+- - -
+
 ## 2025.09.25.1
 
 ### Features
