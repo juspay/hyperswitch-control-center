@@ -8,6 +8,7 @@ let useGetData = () => {
       string,
       JSON.t,
       Fetch.requestMethod,
+      ~fieldsToIgnore: array<string>=?,
       ~bodyFormData: Fetch.formData=?,
       ~headers: Dict.t<'a>=?,
       ~contentType: AuthHooks.contentType=?,
