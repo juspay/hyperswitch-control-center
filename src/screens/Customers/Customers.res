@@ -75,7 +75,9 @@ let make = () => {
   <>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
     <div className="relative">
-      <div className="absolute top-0 left-0 z-10"> {searchComponent} </div>
+      <RenderIf condition={totalCount > 0}>
+        <div className="absolute top-0 left-0 z-10"> {searchComponent} </div>
+      </RenderIf>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           title="Customers"
