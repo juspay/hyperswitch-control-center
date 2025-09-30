@@ -11,13 +11,13 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (totalCount, setTotalCount) = React.useState(_ => 100)
+  let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (customerId, setcustomerId) = React.useState(_ => "")
-  let limit = 50
-
+  let limit = 100
   let getCustomersList = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      open LogicUtils
       let customersUrl = getURL(
         ~entityName=V1(CUSTOMERS),
         ~methodType=Get,
@@ -27,15 +27,15 @@ let make = () => {
       )
 
       let response = await fetchDetails(customersUrl)
-      let data = response->JSON.Decode.array->Option.getOr([])
-
+      let data = response->getArrayFromJson([])
+      let total = data->Array.length
       let arr = Array.make(~length=offset, Dict.make())
 
-      if totalCount <= offset {
+      if total <= offset {
         setOffset(_ => 0)
       }
 
-      if totalCount > 0 {
+      if total > 0 {
         let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
         let customersData =
@@ -45,8 +45,9 @@ let make = () => {
           ->Array.map(Nullable.make)
 
         setCustomersData(_ => customersData)
+        setTotalCount(_ => total)
         setScreenState(_ => PageLoaderWrapper.Success)
-      } else if totalCount == 0 {
+      } else if total == 0 {
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
@@ -56,7 +57,7 @@ let make = () => {
     }
   }
 
-  let customUI = <NoDataFound customCssClass="my-6" message="No results found" />
+  let customUI = <NoDataFound message="No results found" renderType={Painting} />
 
   React.useEffect(() => {
     getCustomersList()->ignore
@@ -73,27 +74,29 @@ let make = () => {
 
   <>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
-    {searchComponent}
-    <PageLoaderWrapper screenState customUI>
-      <LoadedTableWithCustomColumns
-        title="Customers"
-        hideTitle=true
-        actualData=customersData
-        entity={customersEntity}
-        resultsPerPage=10
-        showSerialNumber=true
-        totalResults=totalCount
-        offset
-        setOffset
-        currrentFetchCount={customersData->Array.length}
-        defaultColumns={defaultColumns}
-        customColumnMapper={TableAtoms.customersMapDefaultCols}
-        showSerialNumberInCustomizeColumns=true
-        showResultsPerPageSelector=true
-        sortingBasedOnDisabled=false
-        showAutoScroll=true
-        isDraggable=true
-      />
-    </PageLoaderWrapper>
+    <div className="relative">
+      <div className="absolute top-0 left-0 z-10"> {searchComponent} </div>
+      <PageLoaderWrapper screenState customUI>
+        <LoadedTableWithCustomColumns
+          title="Customers"
+          hideTitle=true
+          actualData=customersData
+          entity={customersEntity}
+          resultsPerPage=20
+          showSerialNumber=true
+          totalResults=totalCount
+          offset
+          setOffset
+          currrentFetchCount={customersData->Array.length}
+          defaultColumns={defaultColumns}
+          customColumnMapper={TableAtoms.customersMapDefaultCols}
+          showSerialNumberInCustomizeColumns=true
+          showResultsPerPageSelector=false
+          sortingBasedOnDisabled=false
+          showAutoScroll=true
+          isDraggable=true
+        />
+      </PageLoaderWrapper>
+    </div>
   </>
 }
