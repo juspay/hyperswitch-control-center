@@ -43,7 +43,9 @@ let make = (~account: ReconEngineTypes.accountType) => {
       className="grid 2xl:grid-cols-3 xl:grid-cols-2 md:grid-cols-1 gap-6 items-center w-full p-6">
       {configData
       ->Array.map(config => {
-        <ReconEngineAccountTransformationConfigDetails key=config.id config={config} />
+        <ReconEngineAccountTransformationConfigDetails
+          key=config.transformation_id config={config}
+        />
       })
       ->React.array}
     </div>
