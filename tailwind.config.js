@@ -68,6 +68,7 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "344-px": "344px",
+        "400-px": "400px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
@@ -102,6 +103,7 @@ module.exports = {
         extended: "2px",
       },
       width: {
+        "1-px": "1px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
@@ -442,8 +444,10 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          100: "#FDD4CD",
           200: "#FCB5AA",
           400: "#EC5941",
+          500: "#DD2B0E",
           600: "#C91C00",
         },
         nd_orange: {

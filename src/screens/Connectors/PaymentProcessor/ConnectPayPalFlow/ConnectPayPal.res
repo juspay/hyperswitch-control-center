@@ -241,6 +241,7 @@ let make = (
   let showPopUp = PopUpState.useShowPopUp()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,
@@ -257,9 +258,6 @@ let make = (
   let selectedConnector =
     connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
 
-  let activeBusinessProfile =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     if !isUpdateFlow {
@@ -270,10 +268,7 @@ let make = (
         ->getString("connector_label", "paypal_default")
         ->JSON.Encode.string,
       )
-      initialValuesToDict->Dict.set(
-        "profile_id",
-        activeBusinessProfile.profile_id->JSON.Encode.string,
-      )
+      initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
 
       setInitialValues(_ => initialValuesToDict->JSON.Encode.object)
       initialValuesToDict->JSON.Encode.object

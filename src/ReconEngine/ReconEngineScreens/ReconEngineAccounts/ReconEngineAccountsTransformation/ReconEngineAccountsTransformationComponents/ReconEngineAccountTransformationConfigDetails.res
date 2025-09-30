@@ -1,15 +1,12 @@
 open Typography
 
 @react.component
-let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: string) => {
-  open APIUtils
-  open LogicUtils
+let make = (~config: ReconEngineTypes.transformationConfigType) => {
   open ReconEngineAccountsTransformationUtils
   open ReconEngineAccountsTransformationHelper
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-
+  let getTransformationHistory = useGetTransformationHistory()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (transformationHistoryList, setTransformationHistoryList) = React.useState(_ => [
     Dict.make()->getTransformationHistoryPayloadFromDict,
@@ -18,16 +15,9 @@ let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: strin
   let fetchTransformationHistoryData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let transformationHistoryUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+      let transformationHistoryList = await getTransformationHistory(
         ~queryParamerters=Some(`transformation_id=${config.id}`),
       )
-      let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
-      let transformationHistoryList =
-        transformationHistoryRes->getArrayDataFromJson(getTransformationHistoryPayloadFromDict)
-
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -42,7 +32,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: strin
 
   let transformationConfigItems = React.useMemo(() => {
     ReconEngineAccountsTransformationUtils.getTransformationConfigData(~config)
-  }, config)
+  }, [config])
 
   let (_percentage, label, labelColor) = React.useMemo(() => {
     getHealthyStatus(~transformationHistoryList)
@@ -54,7 +44,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType, ~tabIndex: strin
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
     <Link
       to_={GlobalVars.appendDashboardPath(
-        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationConfigTabIndex=${tabIndex}`,
+        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.id}`,
       )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div

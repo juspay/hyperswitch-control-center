@@ -23,7 +23,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
 
   let (transformationStatus, setTransformationStatus) = React.useState(_ => #Loading)
   let (manualReviewStatus, setManualReviewStatus) = React.useState(_ => #Loading)
-  let (transformationConfigTabIndex, setTransformationConfigTabIndex) = React.useState(_ => None)
+  let (transformationHistoryId, setTransformationHistoryId) = React.useState(_ => None)
   let (stagingEntryId, setStagingEntryId) = React.useState(_ => None)
 
   let fetchIngestionHistoryData = async () => {
@@ -60,7 +60,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   }, [])
 
   let getActiveTabIndex = () => {
-    let transformationConfigTabIndex =
+    let transformationHistoryId =
       url.search
       ->getDictFromUrlSearchParams
       ->getvalFromDict("transformationHistoryId")
@@ -68,7 +68,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
       url.search
       ->getDictFromUrlSearchParams
       ->getvalFromDict("stagingEntryId")
-    setTransformationConfigTabIndex(_ => transformationConfigTabIndex)
+    setTransformationHistoryId(_ => transformationHistoryId)
     setStagingEntryId(_ => stagingEntryId)
   }
 
@@ -80,12 +80,12 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   let initialExpandedArray = React.useMemo(() => {
     if Option.isSome(stagingEntryId) {
       2
-    } else if Option.isSome(transformationConfigTabIndex) {
+    } else if Option.isSome(transformationHistoryId) {
       1
     } else {
       0
     }
-  }, transformationConfigTabIndex)
+  }, transformationHistoryId)
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">
@@ -115,7 +115,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
             ~setSelectedTransformationHistoryId,
             ~manualReviewStatus,
             ~setManualReviewStatus,
-            ~transformationConfigTabIndex,
+            ~transformationHistoryId,
             ~stagingEntryId,
           )}
           accordianTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"

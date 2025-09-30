@@ -1,75 +1,51 @@
 open AuthRateRoutingTypes
 open LogicUtils
 
-let allFormFields = [
-  MinAggregateSize,
-  DefaultSuccessRate,
-  MaxAggregateSize,
-  MaxTotalCount,
-  SplitPercentage,
-]
+let allFormFields = [BucketSize, ExplorationPercent, RolloutPercent]
 
-let requiredFormFields = [MinAggregateSize, DefaultSuccessRate, MaxAggregateSize, MaxTotalCount]
+let requiredFormFields = [BucketSize, ExplorationPercent, RolloutPercent]
 
 let getFormFieldKey = (field: formFields) => {
   switch field {
-  | MinAggregateSize => "min_aggregates_size"
-  | DefaultSuccessRate => "default_success_rate"
-  | MaxAggregateSize => "max_aggregates_size"
-  | MaxTotalCount => "max_total_count"
-  | SplitPercentage => "split_percentage"
+  | BucketSize => "defaultBucketSize"
+  | ExplorationPercent => "defaultHedgingPercent"
+  | RolloutPercent => "split_percentage"
   }
 }
 
 let getFormFieldName = (field: formFields) => {
   switch field {
-  | MinAggregateSize => "config.min_aggregates_size"
-  | DefaultSuccessRate => "config.default_success_rate"
-  | MaxAggregateSize => "config.max_aggregates_size"
-  | MaxTotalCount => "config.current_block_threshold.max_total_count"
-  | SplitPercentage => "split_percentage"
+  | BucketSize => "decision_engine_configs.defaultBucketSize"
+  | ExplorationPercent => "decision_engine_configs.defaultHedgingPercent"
+  | RolloutPercent => "split_percentage"
   }
 }
 
 let getFormFieldLabel = (field: formFields) => {
   switch field {
-  | MinAggregateSize => "Min aggregate size"
-  | DefaultSuccessRate => "Default success rate"
-  | MaxAggregateSize => "Max aggregate size"
-  | MaxTotalCount => "Max total count"
-  | SplitPercentage => "Rollout traffic percentage"
+  | BucketSize => "Bucket size"
+  | ExplorationPercent => "Exploration percentage"
+  | RolloutPercent => "Rollout percentage"
   }
 }
 
 let defaultConfigsValue = {
-  config: {
-    min_aggregates_size: 5,
-    default_success_rate: 100,
-    max_aggregates_size: 8,
-    current_block_threshold: {
-      max_total_count: 5,
-    },
+  decision_engine_configs: {
+    defaultBucketSize: 200,
+    defaultHedgingPercent: 5,
   },
   split_percentage: 100,
 }
 
 let initialValues = defaultConfigsValue->Identity.genericTypeToJson
 
-let getCurrentBlockThreshold = dict => {
-  let maxTotalCount = dict->getDictfromDict("current_block_threshold")->getInt("max_total_count", 0)
-  {
-    max_total_count: maxTotalCount,
-  }
-}
-
-let configMapper = dict => {
-  let config = dict->getDictfromDict("algorithm")->getDictfromDict("config")
+let decisionEngineConfigMapper = dict => {
+  let decisionEngineConfig =
+    dict->getDictfromDict("algorithm")->getDictfromDict("decision_engine_configs")
 
   {
-    min_aggregates_size: config->getInt("min_aggregates_size", 0),
-    default_success_rate: config->getInt("default_success_rate", 0),
-    max_aggregates_size: config->getInt("max_aggregates_size", 0),
-    current_block_threshold: getCurrentBlockThreshold(config),
+    defaultBucketSize: decisionEngineConfig->getInt("defaultBucketSize", 0),
+    defaultHedgingPercent: decisionEngineConfig->getInt("defaultHedgingPercent", 0),
   }
 }
 
@@ -77,7 +53,7 @@ let formFieldsMapper = (json, split_percentage) => {
   let dict = json->getDictFromJsonObject
 
   {
-    config: configMapper(dict),
+    decision_engine_configs: decisionEngineConfigMapper(dict),
     split_percentage: dict->getInt("split_percentage", split_percentage),
   }
 }

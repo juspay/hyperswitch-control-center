@@ -8,10 +8,10 @@ let make = (~id) => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentExceptionsDetails, setCurrentExceptionDetails) = React.useState(_ =>
-    Dict.make()->getAllTransactionPayload
+    Dict.make()->getTransactionsPayloadFromDict
   )
   let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
-    Dict.make()->getAllTransactionPayload,
+    Dict.make()->getTransactionsPayloadFromDict,
   ])
   let getTransactions = ReconEngineHooks.useGetTransactions()
 
@@ -24,7 +24,7 @@ let make = (~id) => {
         ~id=Some(id),
       )
       let res = await fetchDetails(currentExceptionUrl)
-      let currentException = res->getDictFromJsonObject->getAllTransactionPayload
+      let currentException = res->getDictFromJsonObject->getTransactionsPayloadFromDict
       let exceptionsList = await getTransactions(
         ~queryParamerters=Some(`transaction_id=${currentException.transaction_id}`),
       )

@@ -1,7 +1,7 @@
 @react.component
 let make = (~account: ReconEngineTypes.accountType) => {
   open LogicUtils
-  open ReconEngineTransactionsTypes
+  open ReconEngineTypes
   open ReconEngineTransactionsUtils
   open ReconEngineFilterUtils
   open HierarchicalTransactionsTableEntity
@@ -25,11 +25,11 @@ let make = (~account: ReconEngineTypes.accountType) => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.transaction_status, searchText)
+          isContainingStringLowercase((obj.transaction_status :> string), searchText)
         | None => false
         }
       })
