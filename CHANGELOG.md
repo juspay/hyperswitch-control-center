@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.09.30.0
+
+### Bug Fixes
+
+- Date format, refund details table font, clickable link to customer ([#3654](https://github.com/juspay/hyperswitch-control-center/pull/3654)) ([`959467b`](https://github.com/juspay/hyperswitch-control-center/commit/959467b7d340248aba13c6450a05f6e8e3bcf2f9))
+
+**Full Changelog:** [`2025.09.26.0...2025.09.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.26.0...2025.09.30.0)
+
+- - -
+
 ## 2025.09.26.0
 
 ### Features
