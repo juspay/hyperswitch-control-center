@@ -133,7 +133,14 @@ let getAuthenticationCell = (orderDetais: order, colType: authenticationColType)
   }
 }
 
-let refundColumns: array<refundsColType> = [RefundId, PaymentId, Amount, RefundStatus, Created, LastUpdated]
+let refundColumns: array<refundsColType> = [
+  RefundId,
+  PaymentId,
+  Amount,
+  RefundStatus,
+  Created,
+  LastUpdated,
+]
 
 let attemptsColumns: array<attemptColType> = [
   Status,
