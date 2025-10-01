@@ -138,6 +138,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BLUECODE),
   Processors(PAYSAFE),
   Processors(GIGADAT),
+  Processors(FINIX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -728,6 +729,10 @@ let gigadatInfo = {
   description: "Gigadat Solutions Inc. is a Canadian fintech leader specializing in secure, real-time online banking payment solutions tailored for the evolving needs of e-merchants, consumers, and financial institutions.",
 }
 
+let finixInfo = {
+  description: "Discover reliable, end-to-end payments technology for businesses of all types, industries, and sizes. With a single integration for omnichannel payments acceptance Finix offers hundreds of configurable ways for you to create the best payments solution for your business.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -828,6 +833,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYSAFE => "paysafe"
   | PEACHPAYMENTS => "peachpayments"
   | GIGADAT => "gigadat"
+  | FINIX => "finix"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -999,6 +1005,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
     | "gigadat" => Processors(GIGADAT)
+    | "finix" => Processors(FINIX)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1150,6 +1157,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYSAFE => paysafeInfo
   | PEACHPAYMENTS => peachpaymentsInfo
   | GIGADAT => gigadatInfo
+  | FINIX => finixInfo
   }
 }
 
@@ -2074,6 +2082,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYSAFE => "Paysafe"
   | PEACHPAYMENTS => "PeachPayments"
   | GIGADAT => "Gigadat"
+  | FINIX => "Finix"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
