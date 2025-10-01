@@ -30,7 +30,11 @@ module AccountIdCurrencyFields = {
           }}
         />
         <Button
+<<<<<<< HEAD
           text="Proceed"
+=======
+          text="Enable"
+>>>>>>> 4bda21a5 (feat: capture paysafe metadata config (#3620))
           buttonType={Primary}
           onClick={_ => {
             setShowAccountConfigModal(_ => false)
