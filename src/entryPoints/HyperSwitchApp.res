@@ -26,6 +26,7 @@ let make = () => {
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -37,8 +38,9 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
+
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -58,6 +60,9 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
+      if !isInternalUser {
+        let _ = await fetchMerchantList()
+      }
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
@@ -118,9 +123,9 @@ let make = () => {
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path={url.path}
+                  path=url.path
+                  isReconEnabled
                   sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
                   productSiebars=productSidebars
                 />
               </RenderIf>
