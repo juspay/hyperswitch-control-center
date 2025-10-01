@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.01.0
+
+### Features
+
+- Added nuvei as a payout connector ([#3667](https://github.com/juspay/hyperswitch-control-center/pull/3667)) ([`5e37dfb`](https://github.com/juspay/hyperswitch-control-center/commit/5e37dfbcd88e6a0fc3fc549ac4ef14a7d45f4aac))
+
+**Full Changelog:** [`2025.09.30.0...2025.10.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.30.0...2025.10.01.0)
+
+- - -
+
 ## 2025.09.30.0
 
 ### Bug Fixes
