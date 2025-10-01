@@ -216,6 +216,34 @@ module ReturnUrl = {
   }
 }
 
+module MerchantCategoryCode = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let merchantCodeWithNameArray = React.useMemo(() => {
+      try {
+        Window.getMerchantCategoryCodeWithName()
+      } catch {
+      | Exn.Error(e) =>
+        let _ = Exn.message(e)->Option.getOr("Error fetching merchant category codes")
+        []
+      }
+    }, [])
+
+    let errorClass = "text-sm leading-4 font-medium text-start ml-1"
+
+    <DesktopRow itemWrapperClass="mx-1">
+      <FieldRenderer
+        field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
+        errorClass
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl py-8 "
+      />
+    </DesktopRow>
+  }
+}
+
 @react.component
 let make = () => {
   open APIUtils
@@ -241,13 +269,16 @@ let make = () => {
       let (entityName, body) = switch version {
       | V1 => (
           V1(BUSINESS_PROFILE),
-          values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest->Identity.genericTypeToJson,
+          values
+          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+          ->Identity.genericTypeToJson,
         )
       | V2 => (
           V2(BUSINESS_PROFILE),
           values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
         )
       }
+      Js.log2("requestBody>>", body)
 
       let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
       let _ = await updateDetails(url, body, Post)
@@ -371,6 +402,10 @@ let make = () => {
           )}
         />
       </DesktopRow>
+      <hr />
+      <RenderIf condition={featureFlagDetails.debitRouting}>
+        <MerchantCategoryCode />
+      </RenderIf>
       <hr />
       <ClickToPaySection />
       <hr />

@@ -584,6 +584,8 @@ let validateMerchantAccountForm = (
 }
 
 let defaultValueForBusinessProfile = {
+  profile_id: "",
+  merchant_id: "",
   profile_name: "",
   return_url: None,
   payment_response_hash_key: None,

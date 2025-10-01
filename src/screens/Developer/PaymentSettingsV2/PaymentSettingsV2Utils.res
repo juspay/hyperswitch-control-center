@@ -364,58 +364,112 @@ let getMetdataKeyValuePayload = valuesDict => {
   customHeaderDict
 }
 
-let commonTypeJsonToV1ForRequest: JSON.t => profileEntity = json => {
+let convertOptionalBoolToOptionalJson = optBool => {
+  switch optBool {
+  | Some(value) => Some(value->JSON.Encode.bool)
+  | None => Some(JSON.Encode.null)
+  }
+}
+
+let convertOptionalStringToOptionalJson = optString => {
+  let ans = switch optString {
+  | Some(value) => value->JSON.Encode.string
+  | None => JSON.Encode.null
+  }
+  Some(ans)
+}
+
+let convertOptionalIntToOptionalJson = optInt => {
+  switch optInt {
+  | Some(value) => Some(value->JSON.Encode.int)
+  | None => Some(JSON.Encode.null)
+  }
+}
+
+let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest = webhookDetailsDict => {
+  webhook_url: webhookDetailsDict
+  ->getOptionString("webhook_url")
+  ->convertOptionalStringToOptionalJson,
+}
+
+let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType = json => {
   let dict = json->getDictFromJsonObject
   let outgoingWebhookdict = removeEmptyValues(~dict, ~key="outgoing_webhook_custom_http_headers")
   let metadataDict = removeEmptyValues(~dict, ~key="metadata")
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
+  let webhookDetails = dict->getDictfromDict("webhook_details")
+  let authProductIds = dict->getDictfromDict("authentication_product_ids")
 
   {
     profile_name: dict->getString("profile_name", ""),
-    collect_billing_details_from_wallet_connector: dict->getOptionBool(
-      "collect_billing_details_from_wallet_connector",
-    ),
-    always_collect_billing_details_from_wallet_connector: dict->getOptionBool(
-      "always_collect_billing_details_from_wallet_connector",
-    ),
-    is_connector_agnostic_mit_enabled: dict->getOptionBool("is_connector_agnostic_mit_enabled"),
-    force_3ds_challenge: dict->getOptionBool("force_3ds_challenge"),
-    is_debit_routing_enabled: dict->getOptionBool("is_debit_routing_enabled"),
-    outgoing_webhook_custom_http_headers: Some(outgoingWebhookdict),
-    metadata: Some(metadataDict),
-    is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
-    max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
-    is_click_to_pay_enabled: dict->getOptionBool("is_click_to_pay_enabled"),
-    acquirer_configs: None,
-    authentication_product_ids: Some(dict->getJsonObjectFromDict("authentication_product_ids")),
-    merchant_category_code: dict->getOptionString("merchant_category_code"),
-    is_network_tokenization_enabled: dict->getOptionBool("is_network_tokenization_enabled"),
-    always_request_extended_authorization: dict->getOptionBool(
-      "always_request_extended_authorization",
-    ),
-    is_manual_retry_enabled: dict->getOptionBool("is_manual_retry_enabled"),
-    always_enable_overcapture: dict->getOptionBool("always_enable_overcapture"),
-    return_url: dict->getOptionString("return_url"),
-    payment_response_hash_key: dict->getOptionString("payment_response_hash_key"),
-    webhook_details: {
-      webhook_version: dict->getOptionString("webhook_version"),
-      webhook_username: dict->getOptionString("webhook_username"),
-      webhook_password: dict->getOptionString("webhook_password"),
-      webhook_url: dict->getOptionString("webhook_url"),
-      payment_created_enabled: dict->getOptionBool("payment_created_enabled"),
-      payment_succeeded_enabled: dict->getOptionBool("payment_succeeded_enabled"),
-      payment_failed_enabled: dict->getOptionBool("payment_failed_enabled"),
-    },
-    collect_shipping_details_from_wallet_connector: dict->getOptionBool(
-      "collect_shipping_details_from_wallet_connector",
-    ),
-    always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
-      "always_collect_shipping_details_from_wallet_connector",
-    ),
+    collect_billing_details_from_wallet_connector: dict
+    ->getOptionBool("collect_billing_details_from_wallet_connector")
+    ->convertOptionalBoolToOptionalJson,
+    always_collect_billing_details_from_wallet_connector: dict
+    ->getOptionBool("always_collect_billing_details_from_wallet_connector")
+    ->convertOptionalBoolToOptionalJson,
+    is_connector_agnostic_mit_enabled: dict
+    ->getOptionBool("is_connector_agnostic_mit_enabled")
+    ->convertOptionalBoolToOptionalJson,
+    force_3ds_challenge: dict
+    ->getOptionBool("force_3ds_challenge")
+    ->convertOptionalBoolToOptionalJson,
+    is_debit_routing_enabled: dict
+    ->getOptionBool("is_debit_routing_enabled")
+    ->convertOptionalBoolToOptionalJson,
+    outgoing_webhook_custom_http_headers: !{outgoingWebhookdict->isEmptyDict}
+      ? Some(outgoingWebhookdict->JSON.Encode.object)
+      : Some(JSON.Encode.null),
+    metadata: !{metadataDict->isEmptyDict}
+      ? Some(metadataDict->JSON.Encode.object)
+      : Some(JSON.Encode.null),
+    is_auto_retries_enabled: dict
+    ->getOptionBool("is_auto_retries_enabled")
+    ->convertOptionalBoolToOptionalJson,
+    max_auto_retries_enabled: dict
+    ->getOptionInt("max_auto_retries_enabled")
+    ->convertOptionalIntToOptionalJson,
+    is_click_to_pay_enabled: dict
+    ->getOptionBool("is_click_to_pay_enabled")
+    ->convertOptionalBoolToOptionalJson,
+    authentication_product_ids: !{authProductIds->isEmptyDict}
+      ? Some(authProductIds->JSON.Encode.object)
+      : Some(JSON.Encode.null),
+    merchant_category_code: dict
+    ->getOptionString("merchant_category_code")
+    ->convertOptionalStringToOptionalJson,
+    is_network_tokenization_enabled: dict
+    ->getOptionBool("is_network_tokenization_enabled")
+    ->convertOptionalBoolToOptionalJson,
+    always_request_extended_authorization: dict
+    ->getOptionBool("always_request_extended_authorization")
+    ->convertOptionalBoolToOptionalJson,
+    is_manual_retry_enabled: dict
+    ->getOptionBool("is_manual_retry_enabled")
+    ->convertOptionalBoolToOptionalJson,
+    return_url: dict->getOptionString("return_url")->convertOptionalStringToOptionalJson,
+    webhook_details: !{webhookDetails->isEmptyDict}
+      ? Some(
+          webhookDetails
+          ->constructWebhookDetailsRequestObject
+          ->Identity.genericTypeToJson,
+        )
+      : Some(JSON.Encode.null),
+    collect_shipping_details_from_wallet_connector: dict
+    ->getOptionBool("collect_shipping_details_from_wallet_connector")
+    ->convertOptionalBoolToOptionalJson,
+    always_enable_overcapture: dict
+    ->getOptionBool("always_enable_overcapture")
+    ->convertOptionalBoolToOptionalJson,
+    always_collect_shipping_details_from_wallet_connector: dict
+    ->getOptionBool("always_collect_shipping_details_from_wallet_connector")
+    ->convertOptionalBoolToOptionalJson,
     authentication_connector_details: authenticationConnectorDetails->isEmptyDict
-      ? None
+      ? Some(JSON.Encode.null)
       : Some(
-          authenticationConnectorDetails->BusinessProfileInterfaceUtils.constructAuthConnectorObject,
+          authenticationConnectorDetails
+          ->BusinessProfileInterfaceUtils.constructAuthConnectorObject
+          ->Identity.genericTypeToJson,
         ),
   }
 }
@@ -427,6 +481,8 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntity = json => {
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
 
   {
+    profile_id: dict->getString("profile_id", ""),
+    merchant_id: dict->getString("merchant_id", ""),
     profile_name: dict->getString("profile_name", ""),
     collect_billing_details_from_wallet_connector: dict->getOptionBool(
       "collect_billing_details_from_wallet_connector",
