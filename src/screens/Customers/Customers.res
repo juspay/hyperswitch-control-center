@@ -14,55 +14,65 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (customerId, setcustomerId) = React.useState(_ => "")
   let limit = 100
-  let getCustomersList = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    try {
-      open LogicUtils
-      let customersUrl = getURL(
-        ~entityName=V1(CUSTOMERS),
-        ~methodType=Get,
-        ~queryParamerters=Some(
-          `limit=${limit->Int.toString}&offset=${offset->Int.toString}&customer_id=${customerId->String.trim}`,
-        ),
-      )
+  let getCustomersList = (~offsetOverride=?) => {
+    let actualOffset = offsetOverride->Option.getOr(offset)
+    async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        open LogicUtils
+        let customersUrl = getURL(
+          ~entityName=V1(CUSTOMERS),
+          ~methodType=Get,
+          ~queryParamerters=Some(
+            `limit=${limit->Int.toString}&offset=${actualOffset->Int.toString}&customer_id=${customerId->String.trim}`,
+          ),
+        )
 
-      let response = await fetchDetails(customersUrl)
-      let data = response->getArrayFromJson([])
-      let total = data->Array.length
-      let arr = Array.make(~length=offset, Dict.make())
+        let response = await fetchDetails(customersUrl)
+        let data = response->getArrayFromJson([])
+        let total = data->Array.length
+        let arr = Array.make(~length=actualOffset, Dict.make())
 
-      if total <= offset {
-        setOffset(_ => 0)
+        if total <= actualOffset {
+          setOffset(_ => 0)
+        }
+
+        if total > 0 {
+          let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
+
+          let customersData =
+            arr
+            ->Array.concat(dataArr)
+            ->Array.map(itemToObjMapper)
+            ->Array.map(Nullable.make)
+
+          setCustomersData(_ => customersData)
+          setTotalCount(_ => total)
+          setScreenState(_ => PageLoaderWrapper.Success)
+        } else if total == 0 {
+          setScreenState(_ => PageLoaderWrapper.Custom)
+        }
+      } catch {
+      | Exn.Error(e) =>
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
       }
-
-      if total > 0 {
-        let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
-
-        let customersData =
-          arr
-          ->Array.concat(dataArr)
-          ->Array.map(itemToObjMapper)
-          ->Array.map(Nullable.make)
-
-        setCustomersData(_ => customersData)
-        setTotalCount(_ => total)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } else if total == 0 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
 
   let customUI = <NoDataFound message="No results found" renderType={Painting} />
 
   React.useEffect(() => {
+    //On search changes fetch with offset=0
+    setOffset(_ => 0)
+    getCustomersList(~offsetOverride=0)()->ignore
+    None
+  }, [customerId->String.trim])
+
+  React.useEffect(() => {
     getCustomersList()->ignore
     None
-  }, [offset->Int.toString, customerId->String.trim])
+  }, [offset->Int.toString])
 
   let searchComponent = React.useMemo(
     () =>
