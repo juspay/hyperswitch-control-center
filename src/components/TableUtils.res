@@ -1,3 +1,5 @@
+open Typography
+
 let regex = searchString => {
   RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
@@ -262,7 +264,8 @@ module LabelCell = {
       <div className="flex-initial ">
         <div className={`rounded-md ${borderColor}`}>
           <div
-            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-14 font-semibold px-2.5 py-1`}>
+            // className={`${labelMargin} ${fontStyle} ${textColor} text-fs-14 font-semibold px-2.5 py-1`}>
+            className={`${labelMargin} ${body.md.semibold} ${textColor} px-2.5 py-1`}>
             <AddDataAttributes attributes=[("data-label", text)]>
               <div> {highlightedText(text, highlightText)} </div>
             </AddDataAttributes>
@@ -293,7 +296,7 @@ module NewLabelCell = {
     | LabelPurple => "bg-nd_gray-50"
     }
     let bgColor = switch labelColor {
-    | LabelGreen => "bg-[#ECFDF3]"
+    | LabelGreen => "bg-nd_green-50"
     | LabelYellow => "bg-[#FFF9E2]"
     | LabelRed => "bg-[#FEECEB]"
     | _ => "bg-[#FFF9E2]"
@@ -316,7 +319,7 @@ module NewLabelCell = {
     <div className="flex">
       <div className="flex-initial ">
         <div
-          className={`flex flex-row px-2 py-0.5 ${bgColor} rounded-[16px] ${Typography.body.md.semibold} ${textColor}`}>
+          className={`flex flex-row px-2 py-0.5 ${bgColor} rounded-[16px] ${body.md.semibold} ${textColor}`}>
           <Icon className={`${dotColor} mr-2`} name="circle_unfilled" size=6 />
           <div className={`${textColor} font-medium text-xs`}> {React.string(text)} </div>
         </div>
