@@ -38,10 +38,17 @@ let make = () => {
       let dataLen = data->Array.length
       let searchTotal = searchValue->LogicUtils.isNonEmptyString ? dataLen : 100
       setTotal(_ => searchTotal)
-      if searchTotal <= offset {
-        setOffset(_ => 0)
-      }
-      if searchTotal > 0 && dataLen > 0 {
+
+      if searchTotal <= offset && offset > 0 {
+        let newOffset = offset - limit
+        let safeOffset = if newOffset > 0 {
+          newOffset
+        } else {
+          0
+        }
+        setOffset(_ => safeOffset)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else if searchTotal > 0 && dataLen > 0 {
         let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
         let customersData =
@@ -53,7 +60,13 @@ let make = () => {
         setCustomersData(_ => customersData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else if dataLen == 0 {
-        setScreenState(_ => PageLoaderWrapper.Custom)
+        if searchValue->LogicUtils.isNonEmptyString {
+          setScreenState(_ => PageLoaderWrapper.Success)
+        } else if offset == 0 {
+          setScreenState(_ => PageLoaderWrapper.Custom)
+        } else {
+          setScreenState(_ => PageLoaderWrapper.Success)
+        }
       }
     } catch {
     | Exn.Error(e) =>
