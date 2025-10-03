@@ -126,6 +126,7 @@ type processorTypes =
   | PAYSAFE
   | PEACHPAYMENTS
   | GIGADAT
+  | TESOURO
 
 type payoutProcessorTypes =
   | ADYEN
