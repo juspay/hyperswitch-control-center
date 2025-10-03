@@ -60,6 +60,7 @@ let make = () => {
   open APIUtils
   open HSwitchUtils
   open FormRenderer
+  open APIUtilsTypes
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
@@ -72,7 +73,7 @@ let make = () => {
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let isBusinessProfileHasThreeds =
@@ -81,8 +82,19 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+      let (entityName, body) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          values
+          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+          ->Identity.genericTypeToJson,
+        )
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
+        )
+      }
+      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
       let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 

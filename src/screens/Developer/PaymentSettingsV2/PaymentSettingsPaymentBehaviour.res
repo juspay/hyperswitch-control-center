@@ -278,7 +278,6 @@ let make = () => {
           values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
         )
       }
-      Js.log2("requestBody>>", body)
 
       let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
       let _ = await updateDetails(url, body, Post)

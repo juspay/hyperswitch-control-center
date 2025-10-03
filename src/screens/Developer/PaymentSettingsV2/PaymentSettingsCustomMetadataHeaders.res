@@ -193,10 +193,11 @@ module MetadataHeaders = {
 @react.component
 let make = () => {
   open APIUtils
+  open APIUtilsTypes
   open FormRenderer
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
@@ -212,8 +213,19 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = values->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+      let (entityName, body) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          values
+          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+          ->Identity.genericTypeToJson,
+        )
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
+        )
+      }
+      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
       let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       setInitialValues(_ => response->Identity.genericTypeToJson)
@@ -241,7 +253,6 @@ let make = () => {
           />
         </div>
       </DesktopRow>
-      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
