@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open CustomersEntity
   open HSwitchRemoteFilter
+  open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -19,13 +20,17 @@ let make = () => {
     async () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
-        open LogicUtils
+        let trimmedCustomerId = customerId->String.trim
+        let baseParams = `limit=${limit->Int.toString}&offset=${actualOffset->Int.toString}`
+        let queryParams = if trimmedCustomerId == "" {
+          baseParams
+        } else {
+          `${baseParams}&customer_id=${trimmedCustomerId}`
+        }
         let customersUrl = getURL(
           ~entityName=V1(CUSTOMERS),
           ~methodType=Get,
-          ~queryParamerters=Some(
-            `limit=${limit->Int.toString}&offset=${actualOffset->Int.toString}&customer_id=${customerId->String.trim}`,
-          ),
+          ~queryParamerters=Some(queryParams),
         )
 
         let response = await fetchDetails(customersUrl)
@@ -74,6 +79,7 @@ let make = () => {
     None
   }, [offset->Int.toString])
 
+  // Temporary use of SearchBarFilter until customer filter API is available
   let searchComponent = React.useMemo(
     () =>
       <SearchBarFilter
