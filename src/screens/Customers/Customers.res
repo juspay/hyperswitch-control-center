@@ -60,9 +60,7 @@ let make = () => {
         setCustomersData(_ => customersData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else if dataLen == 0 {
-        if searchValue->LogicUtils.isNonEmptyString {
-          setScreenState(_ => PageLoaderWrapper.Success)
-        } else if offset == 0 {
+        if offset == 0 {
           setScreenState(_ => PageLoaderWrapper.Custom)
         } else {
           setScreenState(_ => PageLoaderWrapper.Success)
