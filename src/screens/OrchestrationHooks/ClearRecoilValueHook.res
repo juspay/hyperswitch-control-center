@@ -13,12 +13,14 @@ let useClearRecoilValue = () => {
   let setMerchantListRecoilAtom = merchantListAtom->Recoil.useSetRecoilState
   let setProfileListRecoilAtom = profileListAtom->Recoil.useSetRecoilState
   let setModuleListListRecoilAtom = moduleListRecoil->Recoil.useSetRecoilState
+  //Todo: remove id atom once we start using businessProfileInterface
   let setBusinessProfileRecoil = businessProfileFromIdAtom->Recoil.useSetRecoilState
   let setBusinessProfileInterfaceRecoil =
     businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
 
   let clearRecoilValue = () => {
     setMerchantDetailsValue(_ => JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails)
+    //Todo: remove id atom once we start using businessProfileInterface
     setBusinessProfileRecoil(_ =>
       JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1
     )
