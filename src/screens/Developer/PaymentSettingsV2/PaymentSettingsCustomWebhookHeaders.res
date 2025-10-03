@@ -188,40 +188,57 @@ module WebHookAuthenticationHeaders = {
 @react.component
 let make = () => {
   open APIUtils
-  open LogicUtils
+  open APIUtilsTypes
   open FormRenderer
-  open PaymentSettingsV2Utils
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
 
   let (initialValues, setInitialValues) = React.useState(_ =>
-    businessProfileRecoilVal->parseCustomHeadersFromEntity->JSON.Encode.object
+    businessProfileRecoilVal->Identity.genericTypeToJson
   )
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let valuesDict = values->getDictFromJsonObject
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->getCustomHeadersPayload->JSON.Encode.object
-      let _ = await updateDetails(url, body, Post)
+      let (entityName, body) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          values
+          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+          ->Identity.genericTypeToJson,
+        )
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
+        )
+      }
+      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setAllowEdit(_ => false)
-      setInitialValues(_ =>
-        response
-        ->BusinessProfileMapper.businessProfileTypeMapper
-        ->parseCustomHeadersFromEntity
-        ->JSON.Encode.object
-      )
+      let updatedInitialValues = switch version {
+      | V1 =>
+        BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
+          BusinessProfileInterface.businessProfileInterfaceV1,
+          response,
+        )->Identity.genericTypeToJson
+      | V2 =>
+        BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
+          BusinessProfileInterface.businessProfileInterfaceV2,
+          response,
+        )->Identity.genericTypeToJson
+      }
+      setInitialValues(_ => updatedInitialValues)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {

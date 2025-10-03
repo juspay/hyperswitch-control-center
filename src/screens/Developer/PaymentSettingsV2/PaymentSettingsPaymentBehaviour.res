@@ -216,26 +216,71 @@ module ReturnUrl = {
   }
 }
 
+module MerchantCategoryCode = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let merchantCodeWithNameArray = React.useMemo(() => {
+      try {
+        Window.getMerchantCategoryCodeWithName()
+      } catch {
+      | Exn.Error(e) =>
+        let _ = Exn.message(e)->Option.getOr("Error fetching merchant category codes")
+        []
+      }
+    }, [])
+
+    let errorClass = "text-sm leading-4 font-medium text-start ml-1"
+
+    <DesktopRow itemWrapperClass="mx-1">
+      <FieldRenderer
+        field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
+        errorClass
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl py-8 "
+      />
+    </DesktopRow>
+  }
+}
+
 @react.component
 let make = () => {
   open APIUtils
   open FormRenderer
+  open APIUtilsTypes
 
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, values, Post)
+      let (entityName, body) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          values
+          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+          ->Identity.genericTypeToJson,
+        )
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
+        )
+      }
+
+      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
+      let _ = await updateDetails(url, body, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
@@ -250,9 +295,7 @@ let make = () => {
   }
   <PageLoaderWrapper screenState>
     <Form
-      initialValues={businessProfileRecoilVal
-      ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
-      ->Identity.genericTypeToJson}
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       onSubmit
       validate={values => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
@@ -358,6 +401,10 @@ let make = () => {
           )}
         />
       </DesktopRow>
+      <hr />
+      <RenderIf condition={featureFlagDetails.debitRouting}>
+        <MerchantCategoryCode />
+      </RenderIf>
       <hr />
       <ClickToPaySection />
       <hr />

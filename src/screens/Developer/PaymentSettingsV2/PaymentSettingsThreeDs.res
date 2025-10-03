@@ -60,6 +60,7 @@ let make = () => {
   open APIUtils
   open HSwitchUtils
   open FormRenderer
+  open APIUtilsTypes
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
@@ -69,9 +70,10 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let isBusinessProfileHasThreeds =
@@ -80,8 +82,20 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, values, Post)
+      let (entityName, body) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          values
+          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
+          ->Identity.genericTypeToJson,
+        )
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
+        )
+      }
+      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
@@ -97,9 +111,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <Form
       onSubmit
-      initialValues={businessProfileRecoilVal
-      ->PaymentSettingsV2Utils.parseBusinessProfileForThreeDS
-      ->Identity.genericTypeToJson}
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       validate={values => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
           ~values,
