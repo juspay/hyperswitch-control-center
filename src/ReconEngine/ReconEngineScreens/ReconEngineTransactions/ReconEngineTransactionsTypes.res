@@ -1,1 +1,0 @@
-type entriesMetadataKeysToExclude = Amount | Currency
