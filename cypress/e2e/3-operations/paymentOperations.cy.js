@@ -101,7 +101,7 @@ describe("Payment Operations", () => {
             .eq(1)
             .should("have.text", "Succeeded1");
 
-           // Search box
+          // Search box
           paymentOperations.searchBox.should(
             "have.attr",
             "placeholder",
