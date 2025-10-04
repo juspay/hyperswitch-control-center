@@ -19,13 +19,13 @@ describe("Payment Operations", () => {
     homePage.operations.click();
     homePage.paymentOperations.click();
 
-    // Header
+    //Header
     cy.get(`[class="text-fs-28 font-semibold leading-10 "]`).should(
       "contain",
       "Payment Operations",
     );
 
-    // Transaction view
+    //Transaction view
     paymentOperations.transactionView
       .children()
       .eq(0)
@@ -47,14 +47,14 @@ describe("Payment Operations", () => {
       .eq(4)
       .should("have.text", "Cancelled0");
 
-    // Search box
+    //Search box
     paymentOperations.searchBox.should(
       "have.attr",
       "placeholder",
       "Search for payment ID",
     );
 
-    // Date selector, View dropdown, Add filters
+    //Date selector, View dropdown, Add filters
     paymentOperations.dateSelector.should("be.visible");
     paymentOperations.viewDropdown.should("be.visible");
     paymentOperations.addFilters.should("be.visible");
@@ -85,13 +85,13 @@ describe("Payment Operations", () => {
           homePage.operations.click();
           homePage.paymentOperations.click();
 
-          // Header
+          //Header
           cy.get(`[class="text-fs-28 font-semibold leading-10 "]`).should(
             "contain",
             "Payment Operations",
           );
 
-          // Transaction view
+          //Transaction view
           paymentOperations.transactionView
             .children()
             .eq(0)
@@ -102,7 +102,7 @@ describe("Payment Operations", () => {
             .eq(1)
             .should("have.text", "Succeeded1");
 
-          // Search box
+          //Search box
           paymentOperations.searchBox.should(
             "have.attr",
             "placeholder",
