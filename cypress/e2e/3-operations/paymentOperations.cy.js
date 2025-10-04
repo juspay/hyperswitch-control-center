@@ -828,11 +828,148 @@ describe("Payment Operations", () => {
     );
   });
 
-  // generate reports
+  // Generate Payment Reports
+  it("should generate payment reports and verify email sent popup", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then(() => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
 
-  // Views
+          // Click on Generate Reports button
+          paymentOperations.generateReports.should("be.visible").click();
 
-  // Verify "Open in new tab" button for payment ID
+          // Verify "Generate Payment Reports" popup appears
+          cy.get('[data-component="modal:Generate Payment Reports"]', {
+            timeout: 10000,
+          }).should("exist");
 
-  // Payment details page
+          // Select time range and click Generate
+          cy.get('[data-testid="date-range-selector"]')
+            .should("be.visible")
+            .click();
+
+          // Select "Last 7 Days" time range
+          cy.contains("Last 7 Days").should("be.visible").click();
+
+          // Click Generate button
+          cy.get('[data-button-text="Generate"]').should("be.visible").click();
+
+          // Verify "Email sent" or success message appears
+          cy.contains(/email sent|successfully/i, { timeout: 10000 }).should(
+            "be.visible",
+          );
+
+          // Note: Actual email verification would require access to mail server
+          // which would typically be done through the MAIL_URL environment variable
+          // cy.visit(Cypress.env("MAIL_URL"));
+          // cy.get("div.messages").should("contain", "Payment Report");
+        });
+      });
+  });
+
+  // Verify "Copy to Clipboard" Button for Payment ID
+  it("should copy payment ID to clipboard and search successfully", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then(() => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          // Wait for the table to load
+          cy.get('[data-table-location="Orders_tr1_td2"]', {
+            timeout: 10000,
+          }).should("exist");
+
+          // Click on the Copy button beside a payment ID
+          paymentOperations.paymentIdCopyButton
+            .first()
+            .should("be.visible")
+            .click({ force: true });
+
+          // Verify payment ID is copied to clipboard
+          cy.window()
+            .its("navigator.clipboard")
+            .then((clip) => clip.readText())
+            .then((copiedText) => {
+              // Verify the copied text is not empty and looks like a payment ID
+              expect(copiedText).to.not.be.empty;
+              expect(copiedText).to.match(/^pay_/);
+
+              // Paste the copied ID in the payment search box
+              paymentOperations.searchBox.clear().type(copiedText);
+
+              // Hit Enter to search
+              paymentOperations.searchBox.type("{enter}");
+
+              // Wait for search results
+              cy.wait(2000);
+
+              // Expand the payment ID to see full text
+              cy.get('[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]', {
+                timeout: 10000,
+              }).click();
+
+              // Verify the resulting entry contains the same payment ID
+              cy.get('[data-table-location="Orders_tr1_td2"]').should(
+                "contain",
+                copiedText,
+              );
+            });
+        });
+      });
+  });
+
+  // Verify "Open in New Tab" Button for Payment ID
+  it("should open payment page in new tab when clicking open in new tab button", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then((response) => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          // Wait for the table to load
+          cy.get('[data-table-location="Orders_tr1_td2"]', {
+            timeout: 10000,
+          }).should("exist");
+
+          // Get the payment ID from the response
+          const paymentId = response.body.payment_id;
+
+          // Click on the "Open in new tab" button beside a payment ID
+          // The button should open the payment details page in a new tab
+          paymentOperations.paymentIdOpenNewTabButton
+            .first()
+            .should("be.visible")
+            .invoke("removeAttr", "target") // Remove target="_blank" to open in same tab for testing
+            .click({ force: true });
+
+          // Verify the URL contains the payment ID
+          cy.url({ timeout: 10000 }).should("include", `/payments/${paymentId}`);
+
+          // Verify the payment details page is loaded
+          cy.contains("Payment Details", { timeout: 10000 }).should(
+            "be.visible",
+          );
+
+          // Verify the payment ID is displayed on the page
+          cy.contains(paymentId).should("be.visible");
+        });
+      });
+  });
 });
