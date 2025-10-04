@@ -86,26 +86,33 @@ describe("Payment Operations", () => {
             "Payment Operations",
           );
 
+          //Header
           paymentOperations.transactionView
             .children()
             .eq(0)
             .should("have.text", "All1");
+
+          //Transaction view
           paymentOperations.transactionView
             .children()
             .eq(1)
             .should("have.text", "Succeeded1");
 
+          //Search box
           paymentOperations.searchBox.should(
             "have.attr",
             "placeholder",
             "Search for payment ID",
           );
 
+
+        // Add filters, Date selector, View dropdown, Column button
           paymentOperations.addFilters.should("be.visible");
           paymentOperations.dateSelector.should("be.visible");
           paymentOperations.viewDropdown.should("be.visible");
           paymentOperations.columnButton.should("be.visible");
 
+          // Table headers
           const expectedHeaders = [
             "S.No",
             "Payment ID",
@@ -127,6 +134,7 @@ describe("Payment Operations", () => {
             cy.wrap($el).should("have.text", expectedHeaders[index]);
           });
 
+          // Payment details in table row
           cy.get(`[data-table-location="Orders_tr1_td1"]`).contains("1");
           cy.get(`[data-table-location="Orders_tr1_td2"]`)
             .contains("...")
