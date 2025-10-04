@@ -32,6 +32,18 @@ class PaymentOperations {
   get paymentIdCopyButton() {
     return cy.get(`[class="fill-current cursor-pointer opacity-70 h-7 py-1"]`);
   }
+
+  get paymentIdOpenNewTabButton() {
+    return cy.get(`[data-icon="open-in-new-tab"]`);
+  }
+
+  get generateReportsTimeRangeDropdown() {
+    return cy.get(`[data-testid="generate-reports-time-range"]`);
+  }
+
+  get generateReportsGenerateButton() {
+    return cy.get(`[data-button-text="Generate"]`);
+  }
 }
 
 export default PaymentOperations;
