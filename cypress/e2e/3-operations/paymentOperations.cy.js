@@ -25,7 +25,7 @@ describe("Payment Operations", () => {
       "Payment Operations",
     );
 
-    //Transaction view
+    // Transaction view
     paymentOperations.transactionView
       .children()
       .eq(0)
@@ -47,7 +47,7 @@ describe("Payment Operations", () => {
       .eq(4)
       .should("have.text", "Cancelled0");
 
-    //Search box
+    // Search box
     paymentOperations.searchBox.should(
       "have.attr",
       "placeholder",
@@ -91,24 +91,21 @@ describe("Payment Operations", () => {
             "Payment Operations",
           );
 
-          //Transaction view
+          // Transaction view
           paymentOperations.transactionView
             .children()
             .eq(0)
             .should("have.text", "All1");
-
           paymentOperations.transactionView
             .children()
             .eq(1)
             .should("have.text", "Succeeded1");
-
-          //Search box
+          // Search box
           paymentOperations.searchBox.should(
             "have.attr",
             "placeholder",
             "Search for payment ID",
           );
-
 
         // Add filters, Date selector, View dropdown, Column button
           paymentOperations.addFilters.should("be.visible");
