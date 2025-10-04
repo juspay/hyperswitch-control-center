@@ -100,14 +100,15 @@ describe("Payment Operations", () => {
             .children()
             .eq(1)
             .should("have.text", "Succeeded1");
-          // Search box
+          
+            // Search box
           paymentOperations.searchBox.should(
             "have.attr",
             "placeholder",
             "Search for payment ID",
           );
 
-        // Add filters, Date selector, View dropdown, Column button
+          // Add filters, Date selector, View dropdown, Column button
           paymentOperations.addFilters.should("be.visible");
           paymentOperations.dateSelector.should("be.visible");
           paymentOperations.viewDropdown.should("be.visible");
@@ -182,6 +183,7 @@ describe("Payment Operations", () => {
       });
   });
 
+  // Columns
   it("should display all default columns and allow selecting/deselecting columns", () => {
     const columns = {
       expected: [
