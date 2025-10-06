@@ -139,6 +139,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BLUECODE),
   Processors(PAYSAFE),
   Processors(GIGADAT),
+  Processors(LOONIO),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -729,6 +730,10 @@ let gigadatInfo = {
   description: "Gigadat Solutions Inc. is a Canadian fintech leader specializing in secure, real-time online banking payment solutions tailored for the evolving needs of e-merchants, consumers, and financial institutions.",
 }
 
+let loonioInfo = {
+  description: "Loonio is a payment processing platform that provides APIs for deposits and payouts via methods like Interac, PIX, EFT, and credit cards, with webhook support and transaction sync for real-time and manual status tracking.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -829,6 +834,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYSAFE => "paysafe"
   | PEACHPAYMENTS => "peachpayments"
   | GIGADAT => "gigadat"
+  | LOONIO => "loonio"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1001,6 +1007,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
     | "gigadat" => Processors(GIGADAT)
+    | "loonio" => Processors(LOONIO)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1153,6 +1160,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYSAFE => paysafeInfo
   | PEACHPAYMENTS => peachpaymentsInfo
   | GIGADAT => gigadatInfo
+  | LOONIO => loonioInfo
   }
 }
 
@@ -2078,6 +2086,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYSAFE => "Paysafe"
   | PEACHPAYMENTS => "PeachPayments"
   | GIGADAT => "Gigadat"
+  | LOONIO => "Loonio"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
