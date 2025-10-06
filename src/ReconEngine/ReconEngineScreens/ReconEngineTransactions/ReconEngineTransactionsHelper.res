@@ -31,7 +31,7 @@ module DisplayKeyValueParams = {
               textAlign=Table.Left
               fontBold=true
               customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
+              labelMargin="!py-0"
             />
           </div>
         </div>
@@ -71,10 +71,8 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails: ReconEngineTransactionsTypes.transactionPayload) => {
+  let make = (~currentTransactionDetails: ReconEngineTypes.transactionType) => {
     open TransactionsTableEntity
-    open ReconEngineTransactionsUtils
-    open ReconEngineTransactionsTypes
 
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
     let widthClass = if isMiniLaptopView {
@@ -82,13 +80,9 @@ module TransactionDetailInfo = {
     } else {
       "w-1/4"
     }
-
-    let isArchived =
-      currentTransactionDetails.transaction_status->getTransactionTypeFromString == Archived
-
+    let isArchived = currentTransactionDetails.transaction_status == Archived
     let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
-
-    <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+    <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
           className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
@@ -108,51 +102,144 @@ module TransactionDetailInfo = {
 }
 
 module EntryAuditTrailInfo = {
-  open ReconEngineTransactionsTypes
+  open ReconEngineTypes
+
   @react.component
-  let make = (~entryDetails) => {
+  let make = (~entriesList: array<entryType>=[]) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
+    open ReconEngineUtils
 
-    let isArchived = entryDetails.status->getEntryTypeFromString == Archived
+    let mainEntry = React.useMemo(() => {
+      entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+    }, [entriesList])
 
-    let detailsFields = [
-      EntryId,
-      EntryType,
-      AccountName,
-      Amount,
-      Currency,
-      TransactionId,
-      Status,
-      CreatedAt,
-      EffectiveAt,
-    ]
+    let reconciledEntries = React.useMemo(() => {
+      entriesList->Array.slice(~start=1, ~end=entriesList->Array.length)
+    }, [entriesList])
+
+    let isArchived = mainEntry.status == Archived
 
     let (hasMetadata, filteredMetadata) = React.useMemo(() => {
-      let filteredMetadata = entryDetails.metadata->getFilteredMetadataFromEntries
+      let filteredMetadata = mainEntry.metadata->getFilteredMetadataFromEntries
       (filteredMetadata->Dict.keysToArray->Array.length > 0, filteredMetadata)
-    }, [entryDetails.metadata])
+    }, [mainEntry.metadata])
 
-    <div className="flex flex-col gap-4 mb-6 px-2">
-      <div className="w-full border border-nd_gray-150 rounded-lg p-2 relative">
+    let (isMetadataExpanded, setIsMetadataExpanded) = React.useState(_ => false)
+    let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
+
+    let onExpandIconClick = (isExpanded, rowIndex) => {
+      if isExpanded {
+        setExpandedRowIndexArray(prev => prev->Array.filter(index => index !== rowIndex))
+      } else {
+        setExpandedRowIndexArray(prev => prev->Array.concat([rowIndex]))
+      }
+    }
+
+    let getRowDetails = (rowIndex: int) => {
+      let entry =
+        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->entryItemToObjMapper)
+      let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
+      let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
+
+      <RenderIf condition={rowIndex < reconciledEntries->Array.length}>
+        <RenderIf condition={hasEntryMetadata}>
+          <div className="p-4">
+            <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+              <PrettyPrintJson
+                jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
+              />
+            </div>
+          </div>
+        </RenderIf>
+      </RenderIf>
+    }
+
+    let heading = detailsFields->Array.map(getHeading)
+    let rows =
+      reconciledEntries->Array.map(entry =>
+        detailsFields->Array.map(colType => getCell(entry, colType))
+      )
+    <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
+      <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
             className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
             {"Archived"->React.string}
           </p>
         </RenderIf>
-        <TransactionDetails
-          data=entryDetails getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
-        />
+        <div className="flex flex-col">
+          <TransactionDetails
+            data=mainEntry getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
+          />
+          <RenderIf condition={hasMetadata}>
+            <div className="flex flex-col">
+              <div
+                className="flex flex-row items-center cursor-pointer hover:text-primary transition-colors m"
+                onClick={_ => setIsMetadataExpanded(prev => !prev)}>
+                <p className={`text-primary ${body.lg.semibold}`}>
+                  {"Show metadata"->React.string}
+                </p>
+                <Icon
+                  name={isMetadataExpanded ? "caret-up" : "caret-down"}
+                  size=16
+                  className="text-nd_gray-600"
+                />
+              </div>
+              <RenderIf condition={isMetadataExpanded}>
+                <div className="p-4">
+                  <div
+                    className="w-full bg-nd_gray-50 rounded-lg overflow-y-scroll !max-h-60 py-2 px-6 border ">
+                    <PrettyPrintJson
+                      jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify}
+                    />
+                  </div>
+                </div>
+              </RenderIf>
+            </div>
+          </RenderIf>
+        </div>
       </div>
-      <RenderIf condition={hasMetadata}>
-        <div className="flex flex-col gap-2">
-          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Metadata"->React.string} </p>
-          <div className="w-full border border-nd_gray-150 rounded-lg p-2 bg-nd_gray-50">
-            <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
+      <RenderIf condition={reconciledEntries->Array.length > 0}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
+            {"Reconciled with"->React.string}
+          </p>
+          <div className="overflow-visible">
+            <CustomExpandableTable
+              title="Reconciled Entries"
+              tableClass="border rounded-xl overflow-y-auto"
+              borderClass=" "
+              firstColRoundedHeadingClass="rounded-tl-xl"
+              lastColRoundedHeadingClass="rounded-tr-xl"
+              headingBgColor="bg-nd_gray-25"
+              headingFontWeight="font-semibold"
+              headingFontColor="text-nd_gray-400"
+              rowFontColor="text-nd_gray-600"
+              customRowStyle="text-sm"
+              rowFontStyle="font-medium"
+              heading
+              rows
+              onExpandIconClick
+              expandedRowIndexArray
+              getRowDetails
+              showSerial=false
+              showScrollBar=true
+            />
           </div>
         </div>
       </RenderIf>
+    </div>
+  }
+}
+
+module HierarchicalEntryRenderer = {
+  @react.component
+  let make = (~fieldValue: string, ~containerClassName: string="", ~entryClassName: string="") => {
+    <div
+      key={randomString(~length=10)}
+      className={`px-8 py-3.5 text-sm text-gray-900 w-48 truncate whitespace-nowrap ${entryClassName}`}>
+      {fieldValue->React.string}
     </div>
   }
 }
@@ -162,7 +249,7 @@ module AuditTrail = {
   let make = (~allTransactionDetails) => {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
-    open ReconEngineTransactionsTypes
+    open ReconEngineTypes
     open APIUtils
 
     let getURL = useGetURL()
@@ -170,9 +257,11 @@ module AuditTrail = {
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (openedTransaction, setOpenedTransaction) = React.useState(_ =>
-      Dict.make()->getAllTransactionPayload
+      Dict.make()->getTransactionsPayloadFromDict
     )
-    let (entriesList, setEntriesList) = React.useState(_ => [Dict.make()->getAllEntryPayload])
+    let (entriesList, setEntriesList) = React.useState(_ => [
+      Dict.make()->transactionsEntryItemToObjMapperFromDict,
+    ])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     React.useMemo(() => {
@@ -191,12 +280,12 @@ module AuditTrail = {
           ~id=Some(openedTransaction.transaction_id),
         )
         let res = await fetchDetails(url)
-        let entriesList = res->getArrayDataFromJson(getAllEntryPayload)
+        let entriesList = res->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
         let entriesDataArray = openedTransaction.entries->Array.map(entry => {
           let foundEntry =
             entriesList
             ->Array.find(e => entry.entry_id == e.entry_id)
-            ->Option.getOr(Dict.make()->getAllEntryPayload)
+            ->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
 
           {
             ...foundEntry,
@@ -210,7 +299,7 @@ module AuditTrail = {
       }
     }
 
-    let sections = allTransactionDetails->Array.map((transaction: transactionPayload) => {
+    let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
       let customComponent = {
         id: transaction.version->Int.toString,
         customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
@@ -233,8 +322,12 @@ module AuditTrail = {
       <div className="flex justify-between border-b">
         <div className="flex gap-4 items-center m-6">
           <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
-            {"More Details"->React.string}
+            {openedTransaction.transaction_id->React.string}
           </p>
+          <div
+            className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
+            {(openedTransaction.transaction_status :> string)->React.string}
+          </div>
         </div>
         <Icon
           name="modal-close-icon"
@@ -244,16 +337,6 @@ module AuditTrail = {
         />
       </div>
     }
-
-    let tabs: array<Tabs.tab> = React.useMemo(() => {
-      open Tabs
-      entriesList->Array.map(entryDetails => {
-        {
-          title: entryDetails.entry_id,
-          renderContent: () => <EntryAuditTrailInfo entryDetails />,
-        }
-      })
-    }, [entriesList])
 
     <div>
       <div className="mb-6">
@@ -277,25 +360,18 @@ module AuditTrail = {
             </div>
           </div>}>
           <div className="h-full relative">
-            <div className="overflow-y-auto px-2 h-modalContentHeight pb-5">
-              <RenderIf condition={Array.length(tabs) > 0}>
-                <Tabs
-                  tabs
-                  showBorder=true
-                  includeMargin=false
-                  defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center px-6 ${body.md.semibold}`}
-                  selectTabBottomBorderColor="bg-primary"
-                  customBottomBorderColor="mb-6"
-                />
+            <div className="absolute inset-0 overflow-y-auto px-2 pb-20">
+              <RenderIf condition={entriesList->Array.length > 0}>
+                <EntryAuditTrailInfo entriesList />
               </RenderIf>
-              <RenderIf condition={Array.length(tabs) === 0}>
+              <RenderIf condition={entriesList->Array.length === 0}>
                 <div className="text-center text-nd_gray-500 py-8">
                   {"No entries found"->React.string}
                 </div>
               </RenderIf>
             </div>
             <div
-              className="absolute bottom-0 left-0 right-0 h-20 bg-white dark:bg-jp-gray-lightgray_background p-4 flex items-center">
+              className="absolute bottom-0 left-0 right-0 bg-white dark:bg-jp-gray-lightgray_background p-4 border-t border-nd_gray-150">
               <Button
                 customButtonStyle="!w-full"
                 buttonType=Button.Primary

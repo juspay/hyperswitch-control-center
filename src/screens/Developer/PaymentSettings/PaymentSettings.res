@@ -425,6 +425,7 @@ module AutoRetries = {
             ~name="is_auto_retries_enabled",
             ~label="Auto Retries",
             ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+            ~description="Automatically re-attempts a failed payment using the same payment method details. Our system will continue retrying the transaction on a defined routed list until it is successful or all attempts have been exhausted.",
           )}
         />
       </DesktopRow>
@@ -543,7 +544,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -584,13 +585,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   }
 
   React.useEffect(() => {
-    if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
+    if profileId->LogicUtils.isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
+  }, [profileId, businessProfileRecoilVal.profile_name])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
@@ -625,14 +626,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
-                  <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
-                  />
+                  <InfoViewForWebhooks heading="Profile ID" subHeading=profileId isCopy=true />
                 </div>
                 <div className="flex items-center">
-                  <InfoViewForWebhooks
-                    heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
-                  />
+                  <InfoViewForWebhooks heading="Merchant ID" subHeading=merchantId />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
                     subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
@@ -697,8 +694,69 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="is_network_tokenization_enabled",
+                      ~label="Network Tokenization",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                    )}
+                  />
+                </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="always_request_extended_authorization",
+                      ~label="Extended Authorization",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                      ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
+                      ~toolTipPosition=Right,
+                    )}
+                  />
+                </DesktopRow>
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="always_enable_overcapture",
+                      ~label="Always Enable Overcapture",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                      ~description="Allow capturing more than the originally authorized amount within connector limits",
+                      ~toolTipPosition=Right,
+                    )}
+                  />
+                </DesktopRow>
                 <ClickToPaySection />
                 <AutoRetries setCheckMaxAutoRetry />
+                <DesktopRow>
+                  <FieldRenderer
+                    labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                    fieldWrapperClass="w-full flex justify-between sitems-center border-t border-gray-200 pt-8"
+                    field={makeFieldInfo(
+                      ~name="is_manual_retry_enabled",
+                      ~label="Manual Retries",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                      ),
+                      ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
+                    )}
+                  />
+                </DesktopRow>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
                   <MerchantCategoryCode />
                 </RenderIf>

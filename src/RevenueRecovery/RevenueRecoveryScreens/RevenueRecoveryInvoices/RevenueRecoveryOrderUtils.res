@@ -169,8 +169,7 @@ let initialFixedFilter = () => [
   ),
 ]
 
-open RevenueRecoveryOrderTypes
-let statusVariantMapper: string => status = statusLabel =>
+let statusVariantMapper: string => RevenueRecoveryOrderTypes.status = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
   | "SCHEDULED" => Scheduled
@@ -182,4 +181,16 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
   | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | _ => None
+  }
+
+let schedulerStatusVariantMapper: string => RevenueRecoveryTypes.schedulerStatusType = statusLabel =>
+  switch statusLabel->String.toUpperCase {
+  | "finish" => Finish
+  | "scheduled" | _ => Scheduled
+  }
+
+let schedulerStatusStringMapper: RevenueRecoveryTypes.schedulerStatusType => string = statusLabel =>
+  switch statusLabel {
+  | Finish => "finish"
+  | Scheduled => "scheduled"
   }

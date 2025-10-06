@@ -1,6 +1,5 @@
 open ReconEngineOverviewUtils
 open LogicUtils
-open ReconEngineOverviewTypes
 
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
@@ -30,8 +29,8 @@ let getSummaryStackedBarGraphData = (
   }
 }
 
-let calculateTotals = (data: array<accountType>) => {
-  data->Array.reduce(Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper, (acc, item) => {
+let calculateTotals = (data: array<ReconEngineTypes.accountType>) => {
+  data->Array.reduce(Dict.make()->getOverviewAccountPayloadFromDict, (acc, item) => {
     {
       ...acc,
       posted_credits: {
@@ -142,7 +141,7 @@ let accountTransactionDataToObjMapper = dict => {
 }
 
 let generateStatusDataWithTransactionAmounts = (transactionData: accountTransactionData) => {
-  let formatAmountWithCurrency = (balance: balanceType): string => {
+  let formatAmountWithCurrency = (balance: ReconEngineTypes.balanceType): string => {
     `${Math.abs(balance.value)->valueFormatter(Amount)} ${balance.currency}`
   }
 
@@ -177,13 +176,16 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
   ]
 }
 
-let getAccountData = (accountData: array<accountType>, accountId: string): accountType => {
+let getAccountData = (
+  accountData: array<ReconEngineTypes.accountType>,
+  accountId: string,
+): ReconEngineTypes.accountType => {
   accountData
   ->Array.find(account => account.account_id === accountId)
-  ->Option.getOr(Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper)
+  ->Option.getOr(Dict.make()->getOverviewAccountPayloadFromDict)
 }
 
-let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
+let getAllAccountIds = (reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   reconRulesList
   ->Array.flatMap(rule =>
     Array.concat(
@@ -194,21 +196,22 @@ let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
   ->getUniqueArray
 }
 
-let summarizeTransactions = (
-  ruleTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
-): (int, int) => {
+let summarizeTransactions = (ruleTransactions: array<ReconEngineTypes.transactionType>): (
+  int,
+  int,
+) => {
   ruleTransactions->Array.reduce((0, 0), (
     (postedCount, totalCount),
-    t: ReconEngineTransactionsTypes.transactionPayload,
+    t: ReconEngineTypes.transactionType,
   ) => {
-    let txType = t.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
-    switch txType {
+    switch t.transaction_status {
     | Posted => (postedCount + 1, totalCount + 1)
     | Archived => (postedCount, totalCount)
     | _ => (postedCount, totalCount + 1)
     }
   })
 }
+
 let getPercentageLabel = (~postedCount, ~totalCount) =>
   if totalCount > 0 {
     let percentageValue = postedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
@@ -216,7 +219,12 @@ let getPercentageLabel = (~postedCount, ~totalCount) =>
   } else {
     "0% Reconciled"
   }
-let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
+let makeEdge = (
+  ~source: ReconEngineTypes.reconRuleAccountRefType,
+  ~target: ReconEngineTypes.reconRuleAccountRefType,
+  ~ruleTransactions,
+  ~selectedNodeId,
+) => {
   let (postedCount, totalCount) = summarizeTransactions(ruleTransactions)
   let label = getPercentageLabel(~postedCount, ~totalCount)
   let sourceNodeId = `${source.account_id}-node`
@@ -239,8 +247,8 @@ let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
   }
 }
 let getEdges = (
-  ~reconRulesList,
-  ~allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~reconRulesList: array<ReconEngineTypes.reconRuleType>,
+  ~allTransactions: array<ReconEngineTypes.transactionType>,
   ~selectedNodeId,
 ) =>
   reconRulesList->Array.flatMap(rule =>
@@ -264,10 +272,10 @@ let getTransactionsData = (
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (
-  reconRulesList: array<reconRuleType>,
-  accountsData: array<accountType>,
+  reconRulesList: array<ReconEngineTypes.reconRuleType>,
+  accountsData: array<ReconEngineTypes.accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  allTransactions: array<ReconEngineTypes.transactionType>,
   ~selectedNodeId: option<string>,
   ~onNodeClick: option<string => unit>=?,
 ) => {
@@ -278,6 +286,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
     let transactionData = getTransactionsData(accountTransactionData, accountId)
 
     let statusData = generateStatusDataWithTransactionAmounts(transactionData)
+    let accountType = accountData.account_type
     let nodeId = `${accountId}-node`
     let isSelected = switch selectedNodeId {
     | Some(id) => id === nodeId
@@ -290,6 +299,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
       position: {x: Int.toFloat(index * 100), y: 0.0},
       data: {
         label: accountData.account_name,
+        accountType,
         statusData,
         selected: isSelected,
         onNodeClick: switch onNodeClick {
@@ -306,8 +316,8 @@ let generateNodesAndEdgesWithTransactionAmounts = (
 }
 
 let processAllTransactionsWithAmounts = (
-  reconRulesList: array<reconRuleType>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  reconRulesList: array<ReconEngineTypes.reconRuleType>,
+  allTransactions: array<ReconEngineTypes.transactionType>,
 ) => {
   let accountTransactionData = Dict.make()
 
@@ -317,18 +327,15 @@ let processAllTransactionsWithAmounts = (
     accountTransactionData->Dict.set(accountId, Dict.make()->accountTransactionDataToObjMapper)
   })
 
-  allTransactions->Array.forEach((transaction: ReconEngineTransactionsTypes.transactionPayload) => {
-    let creditEntries = transaction.entries->Array.filter(entry => entry.entry_type === "credit")
-    let debitEntries = transaction.entries->Array.filter(entry => entry.entry_type === "debit")
-
-    let transactionStatus =
-      transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
+  allTransactions->Array.forEach((transaction: ReconEngineTypes.transactionType) => {
+    let creditEntries = transaction.entries->Array.filter(entry => entry.entry_type === Credit)
+    let debitEntries = transaction.entries->Array.filter(entry => entry.entry_type === Debit)
 
     debitEntries->Array.forEach(entry => {
       let accountId = entry.account.account_id
       switch accountTransactionData->getvalFromDict(accountId) {
       | Some(accountData) =>
-        let updatedData = switch transactionStatus {
+        let updatedData = switch transaction.transaction_status {
         | Posted => {
             ...accountData,
             posted_confirmation_count: accountData.posted_confirmation_count + 1,
@@ -366,7 +373,7 @@ let processAllTransactionsWithAmounts = (
       let accountId = entry.account.account_id
       switch accountTransactionData->getvalFromDict(accountId) {
       | Some(accountData) =>
-        let updatedData = switch transactionStatus {
+        let updatedData = switch transaction.transaction_status {
         | Posted => {
             ...accountData,
             posted_transaction_count: accountData.posted_transaction_count + 1,
@@ -412,7 +419,7 @@ let getHeaderText = (amountType: amountType, currency: string) => {
   }
 }
 
-let getAmountPair = (amountType: amountType, data: accountType) => {
+let getAmountPair = (amountType: amountType, data: ReconEngineTypes.accountType) => {
   switch amountType {
   | Reconciled => (data.posted_debits, data.posted_credits)
   | Pending => (data.pending_debits, data.pending_credits)
@@ -421,7 +428,7 @@ let getAmountPair = (amountType: amountType, data: accountType) => {
 }
 
 let convertTransactionDataToAccountData = (
-  accountsData: array<accountType>,
+  accountsData: array<ReconEngineTypes.accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
 ) => {
   accountsData->Array.map(account => {
@@ -492,11 +499,11 @@ let calculateTotalsFromTransactionAmounts = (
 
 let getStatusIcon = (statusType: amountType) => {
   switch statusType {
-  | Reconciled => "nd-check-circle-outline"
-  | Pending => "nd-hour-glass-outline"
-  | Mismatched => "nd-alert-triangle-outline"
+  | Reconciled => ("nd-check-circle-outline", "text-green-500")
+  | Pending => ("nd-hour-glass-outline", "text-yellow-500")
+  | Mismatched => ("nd-alert-triangle-outline", "text-red-500")
   }
 }
 
 let allAmountTypes = [Reconciled, Pending, Mismatched]
-let allSubHeaderTypes = [In, Out]
+let allSubHeaderTypes = [Debit, Credit]

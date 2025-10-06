@@ -1,11 +1,12 @@
 open Typography
+open ReconEngineTypes
 
 module RuleWiseStackedBarGraph = {
   @react.component
-  let make = (~rule: ReconEngineOverviewTypes.reconRuleType) => {
+  let make = (~rule: ReconEngineTypes.reconRuleType) => {
     open LogicUtils
 
-    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+    let getTransactions = ReconEngineHooks.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
     let isMiniLaptopView = MatchMedia.useScreenSizeChecker(~screenSize="1600")
 
@@ -72,7 +73,7 @@ module RuleWiseStackedBarGraph = {
 }
 
 @react.component
-let make = (~reconRulesList: array<ReconEngineOverviewTypes.reconRuleType>) => {
+let make = (~reconRulesList: array<reconRuleType>) => {
   <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
     {reconRulesList
     ->Array.map(rule => <RuleWiseStackedBarGraph rule key={rule.rule_id} />)

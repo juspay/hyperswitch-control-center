@@ -10,12 +10,12 @@ let make = (~id) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
-    Dict.make()->getAllTransactionPayload
+    Dict.make()->getTransactionsPayloadFromDict
   )
   let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
-    Dict.make()->getAllTransactionPayload,
+    Dict.make()->getTransactionsPayloadFromDict,
   ])
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -27,7 +27,7 @@ let make = (~id) => {
         ~id=Some(id),
       )
       let res = await fetchDetails(currentTransactionUrl)
-      let currentTransaction = res->getDictFromJsonObject->getAllTransactionPayload
+      let currentTransaction = res->getDictFromJsonObject->getTransactionsPayloadFromDict
 
       let transactionsList = await getTransactions(
         ~queryParamerters=Some(`transaction_id=${currentTransaction.transaction_id}`),

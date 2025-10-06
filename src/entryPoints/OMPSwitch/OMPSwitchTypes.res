@@ -30,5 +30,6 @@ type switchUser = {
   orgId: option<string>,
   merchantId: option<string>,
   profileId: option<string>,
+  version: UserInfoTypes.version,
   path: option<string>,
 }

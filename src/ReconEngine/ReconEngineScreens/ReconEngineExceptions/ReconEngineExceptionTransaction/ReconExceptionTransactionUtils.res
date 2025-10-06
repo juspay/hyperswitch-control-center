@@ -1,5 +1,4 @@
-open ReconEngineUtils
-open ReconEngineTransactionsTypes
+open ReconEngineFilterUtils
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getTransactionStatusOptions([Mismatched, Expected])
@@ -26,8 +25,8 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="credit_account",
-          ~name="credit_account",
+          ~label="source_account",
+          ~name="source_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=creditAccountOptions,
             ~buttonText="Select Source Account",
@@ -45,8 +44,8 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="debit_account",
-          ~name="debit_account",
+          ~label="target_account",
+          ~name="target_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
             ~buttonText="Select Target Account",

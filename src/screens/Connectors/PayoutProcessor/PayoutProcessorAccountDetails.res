@@ -20,6 +20,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let connectorTypeFromName =
     connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -65,10 +66,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
           "connector_label",
           `${connector}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
         )
-        initialValuesToDict->Dict.set(
-          "profile_id",
-          businessProfileRecoilVal.profile_id->JSON.Encode.string,
-        )
+        initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
       }
     }
     if (
@@ -82,7 +80,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     } else {
       initialValues
     }
-  }, [connector, businessProfileRecoilVal.profile_id])
+  }, [connector, profileId])
 
   let onSubmitMain = async values => {
     open ConnectorTypes

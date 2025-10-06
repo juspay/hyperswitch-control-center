@@ -1,5 +1,4 @@
 open Typography
-open ReconEngineOverviewTypes
 open ReconEngineOverviewSummaryTypes
 
 module InOutComponent = {
@@ -7,12 +6,14 @@ module InOutComponent = {
   let make = (~statusItem) => {
     open ReconEngineOverviewSummaryUtils
 
+    let (iconName, iconColor) = getStatusIcon(statusItem.statusType)
+
     <div
       key={(statusItem.statusType :> string)}
       className="bg-nd_gray-25 border rounded-xl border-nd_gray-150 mt-2.5 p-2">
       <div className="flex flex-row items-center">
         <div className="flex flex-row items-center gap-1.5 flex-[1]">
-          <Icon name={getStatusIcon(statusItem.statusType)} size=12 />
+          <Icon name={iconName} className={iconColor} size=12 />
           <p className={`${body.sm.medium} text-nd_gray-500`}>
             {(statusItem.statusType :> string)->React.string}
           </p>
@@ -59,16 +60,22 @@ module ReconNodeComponent = {
       onClick={_ => onClick()}>
       <HandleComponent \"type"="target" position={positionLeft} />
       <HandleComponent \"type"="source" position={positionRight} />
-      <div className="flex flex-row items-center border-b pb-2.5">
+      <div className="absolute -top-0 -left-0">
+        <div
+          className={`${body.xs.medium} text-nd_gray-600 bg-nd_gray-100 px-3 py-1 rounded-tl-xl border border-t-0 border-l-0 border-nd_gray-200 rounded-br-xl `}>
+          {`${data.accountType->LogicUtils.capitalizeString} Account`->React.string}
+        </div>
+      </div>
+      <div className="flex flex-row items-center border-b pb-2.5 pt-6">
         <div className="flex flex-row items-center gap-2 flex-[1]">
           <p className={`${body.md.semibold} text-nd_gray-800`}> {data.label->React.string} </p>
         </div>
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 justify-center">
-            <p className={`${body.xs.medium} text-nd_gray-400`}> {"IN"->React.string} </p>
+            <p className={`${body.xs.medium} text-nd_gray-400`}> {"DEBIT"->React.string} </p>
           </div>
           <div className="flex flex-1 justify-center">
-            <p className={`${body.xs.medium} text-nd_gray-400`}> {"OUT"->React.string} </p>
+            <p className={`${body.xs.medium} text-nd_gray-400`}> {"CREDIT"->React.string} </p>
           </div>
         </div>
       </div>
@@ -103,7 +110,7 @@ module FlowWithLayoutControls = {
       zoomOnScroll={true}
       zoomOnPinch={true}
       zoomOnDoubleClick={true}
-      minZoom={0.75}
+      minZoom={0.5}
       maxZoom={1.5}
       proOptions={{"hideAttribution": true}}>
       <Background variant="dots" gap={20} size={1} />
@@ -113,18 +120,15 @@ module FlowWithLayoutControls = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
-  open APIUtils
-  open LogicUtils
   open ReactFlow
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
   let (allData, setAllData) = React.useState(_ => None)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
 
@@ -140,14 +144,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
-
+      let accountData = await getAccounts()
       let allTransactions = await getTransactions()
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
@@ -204,12 +201,6 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   }, [selectedNodeId])
 
   <div className="border rounded-xl border-nd_gray-200">
-    <div
-      className="flex flex-row justify-between items-center p-4 bg-nd_gray-25 rounded-t-xl border-b border-nd_gray-200">
-      <div className={`text-nd_gray-600 ${body.md.semibold}`}>
-        {"Reconciliation Flow"->React.string}
-      </div>
-    </div>
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}

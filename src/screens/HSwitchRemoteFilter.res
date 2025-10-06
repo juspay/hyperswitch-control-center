@@ -199,8 +199,14 @@ module RemoteTableFilters = {
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
     let defaultDate = getDateFilteredObject(~range=30)
-    let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
-    let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+
+    let (start_time, end_time) = React.useMemo(() => {
+      (
+        filterValueJson->getString(startTimeFilterKey, defaultDate.start_time),
+        filterValueJson->getString(endTimeFilterKey, defaultDate.end_time),
+      )
+    }, (filterValue, startTimeFilterKey, endTimeFilterKey))
+
     let fetchDetails = useGetMethod()
 
     let fetchAllFilters = async () => {
@@ -219,31 +225,63 @@ module RemoteTableFilters = {
         | _ => await fetchDetails(filterUrl)
         }
 
-        let connectorArray =
-          response->getDictFromJsonObject->getDictfromDict("connector")->Dict.toArray
+        let filterDataResponse = switch entityName {
+        | V1(PAYOUTS_FILTERS) => {
+            let connectorArray =
+              response->getDictFromJsonObject->getStrArrayFromDict("connector", [])
 
-        let filteredConnectorKeys = connectorArray->Array.filter(key => {
-          let (name, _) = key
-
-          connectorTypes->Array.some(item => {
-            let list = item->connectorTypeToListMapper
-            let typedName = name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
-            switch item {
-            | Processor =>
-              list->Array.some(item => typedName == item) ||
-                dummyConnectorList(true)->Array.some(item => typedName == item)
-            | _ => list->Array.some(item => typedName == item)
+            let filteredConnectorKeys = connectorArray->Array.filter(name => {
+              connectorTypes->Array.some(item => {
+                let list = item->connectorTypeToListMapper
+                let typedName =
+                  name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
+                switch item {
+                | Processor =>
+                  list->Array.some(item => typedName == item) ||
+                    dummyConnectorList(true)->Array.some(item => typedName == item)
+                | _ => list->Array.some(item => typedName == item)
+                }
+              })
+            })
+            let filteredResponse = {
+              response
+              ->getDictFromJsonObject
+              ->Dict.set("connector", filteredConnectorKeys->getJsonFromArrayOfString)
+              response
             }
-          })
-        })
-        let newConnectorDict = filteredConnectorKeys->Dict.fromArray
-        let editedResponse = {
-          response
-          ->getDictFromJsonObject
-          ->Dict.set("connector", newConnectorDict->Identity.genericTypeToJson)
-          response
+            filteredResponse
+          }
+        | _ => {
+            let connectorArray =
+              response->getDictFromJsonObject->getDictfromDict("connector")->Dict.toArray
+
+            let filteredConnectorKeys = connectorArray->Array.filter(key => {
+              let (name, _) = key
+
+              connectorTypes->Array.some(item => {
+                let list = item->connectorTypeToListMapper
+                let typedName =
+                  name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=item)
+                switch item {
+                | Processor =>
+                  list->Array.some(item => typedName == item) ||
+                    dummyConnectorList(true)->Array.some(item => typedName == item)
+                | _ => list->Array.some(item => typedName == item)
+                }
+              })
+            })
+            let newConnectorDict = filteredConnectorKeys->Dict.fromArray
+            let filteredResponse = {
+              response
+              ->getDictFromJsonObject
+              ->Dict.set("connector", newConnectorDict->Identity.genericTypeToJson)
+              response
+            }
+            filteredResponse
+          }
         }
-        setFilterDataJson(_ => Some(editedResponse))
+
+        setFilterDataJson(_ => Some(filterDataResponse))
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
@@ -252,7 +290,7 @@ module RemoteTableFilters = {
     React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    }, [transactionEntity])
+    }, (start_time, end_time, transactionEntity))
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 

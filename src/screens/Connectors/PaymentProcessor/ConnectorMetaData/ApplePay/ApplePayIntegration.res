@@ -71,6 +71,7 @@ module Verified = {
                       name={"arrow-right"}
                       size={15}
                     />
+                  | #decrypted => React.null
                   }}
                 </div>
               </div>
@@ -107,9 +108,19 @@ module Landing = {
     ~closeModal,
     ~setApplePayIntegrationSteps,
     ~setApplePayIntegrationType,
+    ~update,
   ) => {
     open ApplePayIntegrationTypes
     open AdditionalDetailsSidebarHelper
+
+    let handleConfirmClick = () => {
+      if appleIntegrationType === #decrypted {
+        update(JSON.Encode.null)->ignore
+        closeModal()
+      } else {
+        setApplePayIntegrationSteps(_ => Configure)
+      }
+    }
     <>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
@@ -128,6 +139,22 @@ module Landing = {
                 tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
               />
               <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+            </div>
+          </Card>
+        </div>
+      | Processors(NUVEI)
+      | Processors(WORLDPAYVANTIV) =>
+        <div
+          className="p-6 m-2 cursor-pointer"
+          onClick={_ => setApplePayIntegrationType(_ => #decrypted)}>
+          <Card heading="Decrypted Flow" isSelected={appleIntegrationType === #decrypted}>
+            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              {"Instantly enable Apple Pay with no information or configuration needed."->React.string}
+            </div>
+            <div className="flex gap-2 mt-4">
+              <CustomTag
+                tagText="No Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
+              />
             </div>
           </Card>
         </div>
@@ -155,11 +182,7 @@ module Landing = {
             closeModal()
           }}
         />
-        <Button
-          onClick={_ => setApplePayIntegrationSteps(_ => Configure)}
-          text="Continue"
-          buttonType={Primary}
-        />
+        <Button onClick={_ => handleConfirmClick()} text="Continue" buttonType={Primary} />
       </div>
     </>
   }
@@ -239,6 +262,9 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE) =>
         setApplePayIntegrationType(_ => #simplified)
+      | Processors(NUVEI)
+      | Processors(WORLDPAYVANTIV) =>
+        setApplePayIntegrationType(_ => #decrypted)
 
       | _ => setApplePayIntegrationType(_ => #manual)
       }
@@ -270,6 +296,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
             setApplePayIntegrationSteps
             appleIntegrationType
             setApplePayIntegrationType
+            update
           />
         | Configure =>
           switch appleIntegrationType {
@@ -288,6 +315,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               setApplePayIntegrationSteps
               setVefifiedDomainList
             />
+          | #decrypted => React.null
           }
         | Verify =>
           <Verified

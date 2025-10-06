@@ -4,7 +4,6 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open LeastCostRoutingAnalyticsTypes
-  open LeastCostRoutingAnalyticsDistributionUtils
 
   let (response, setResponse) = React.useState(_ => JSON.Encode.null)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -27,7 +26,7 @@ let make = () => {
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~groupByNames=Some([(#card_network: requestPayloadMetrics :> string)]),
-            ~filter=Some(filterDict),
+            ~filter=Some(LeastCostRoutingAnalyticsUtils.filterDict),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
       let response = await updateDetails(url, body, Post)
@@ -44,7 +43,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getData()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getData()->ignore
+    }
     None
   }, (startTimeVal, endTimeVal))
 
@@ -58,7 +59,8 @@ let make = () => {
           {"Volume Distribution"->React.string}
         </p>
       </div>
-      <div className="border rounded-xl border-t-0 border-nd_gray-200 h-22-rem rounded-t-none">
+      <div
+        className="flex border rounded-xl border-t-0 border-nd_gray-200 h-22-rem rounded-t-none items-center ">
         <PieGraph
           options={LeastCostRoutingAnalyticsDistributionUtils.chartOptions(
             response,

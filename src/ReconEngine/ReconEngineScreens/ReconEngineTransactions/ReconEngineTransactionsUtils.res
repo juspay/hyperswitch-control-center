@@ -1,6 +1,8 @@
 open LogicUtils
-open ReconEngineUtils
+open ReconEngineFilterUtils
+open ReconEngineTypes
 open ReconEngineTransactionsTypes
+open ReconEngineUtils
 
 let entriesMetadataKeyToString = key => {
   switch key {
@@ -10,10 +12,6 @@ let entriesMetadataKeyToString = key => {
 }
 
 let entriesMetadataExcludedKeys = [Amount, Currency]->Array.map(entriesMetadataKeyToString)
-
-let getArrayDictFromRes = res => {
-  res->getDictFromJsonObject->getArrayFromDict("data", [])
-}
 
 let getFilteredMetadataFromEntries = metadata => {
   metadata
@@ -25,106 +23,23 @@ let getFilteredMetadataFromEntries = metadata => {
   ->Dict.fromArray
 }
 
-let getAmountPayload = dict => {
-  {
-    value: dict->getFloat("value", 0.0),
-    currency: dict->getString("currency", ""),
-  }
-}
-
-let getRulePayload = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-  }
-}
-
-let getAccountPayload = dict => {
-  {
-    account_id: dict->getString("account_id", ""),
-    account_name: dict->getString("account_name", ""),
-  }
-}
-
-let getTransactionsEntryPayload = dict => {
-  {
-    entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
-    account: dict
-    ->getDictfromDict("account")
-    ->getAccountPayload,
-  }
-}
-
-let getArrayOfTransactionsEntriesListPayloadType = json => {
-  json->Array.map(entriesJson => {
-    entriesJson->getDictFromJsonObject->getTransactionsEntryPayload
-  })
-}
-
 let getHeadersForCSV = () => {
   "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
 }
 
-let getAllTransactionPayload = (dict): transactionPayload => {
-  {
-    id: dict->getString("id", ""),
-    transaction_id: dict->getString("transaction_id", ""),
-    profile_id: dict->getString("profile_id", ""),
-    entries: dict
-    ->getArrayFromDict("entries", [])
-    ->getArrayOfTransactionsEntriesListPayloadType,
-    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
-    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
-    rule: dict->getDictfromDict("rule")->getRulePayload,
-    transaction_status: dict->getString("transaction_status", ""),
-    discarded_status: dict->getOptionString("discarded_status"),
-    version: dict->getInt("version", 0),
-    created_at: dict->getString("created_at", ""),
-  }
+let getTransactionsPayloadFromDict = dict => {
+  dict->transactionItemToObjMapper
 }
 
-let getArrayOfTransactionsListPayloadType = json => {
-  json->Array.map(transactionJson => {
-    transactionJson->getDictFromJsonObject->getAllTransactionPayload
-  })
+let transactionsEntryItemToObjMapperFromDict = dict => {
+  dict->entryItemToObjMapper
 }
 
-let getAllEntryPayload = dict => {
-  {
-    entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
-    transaction_id: dict->getString("transaction_id", ""),
-    account_name: dict->getDictfromDict("account")->getString("account_name", ""),
-    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
-    currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: dict->getString("status", ""),
-    discarded_status: dict->getOptionString("discarded_status"),
-    metadata: dict->getJsonObjectFromDict("metadata"),
-    created_at: dict->getString("created_at", ""),
-    effective_at: dict->getString("effective_at", ""),
-  }
-}
-
-let getArrayOfEntriesListPayloadType = json => {
-  json->Array.map(entriesJson => {
-    entriesJson->getDictFromJsonObject->getAllEntryPayload
-  })
-}
-
-let getTransactionsList: JSON.t => array<transactionPayload> = json => {
-  getArrayDataFromJson(json, getAllTransactionPayload)
-}
-
-let getEntriesList: JSON.t => array<entryPayload> = json => {
-  getArrayDataFromJson(json, getAllEntryPayload)
-}
-
-let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {
+let sortByVersion = (c1: transactionType, c2: transactionType) => {
   compareLogic(c1.version, c2.version)
 }
 
-let getAccounts = (entries: array<transactionEntryType>, entryType: string): string => {
+let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirectionType): string => {
   let accounts =
     entries
     ->Array.filter(entry => entry.entry_type === entryType)
@@ -139,27 +54,6 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   })
 
   uniqueAccounts->Array.joinWith(", ")
-}
-
-let getTransactionTypeFromString = (status: string): transactionStatus => {
-  switch status {
-  | "posted" => Posted
-  | "mismatched" => Mismatched
-  | "expected" => Expected
-  | "archived" => Archived
-  | _ => UnknownTransactionStatus
-  }
-}
-
-let getEntryTypeFromString = (entryType: string): entryStatus => {
-  switch entryType {
-  | "posted" => Posted
-  | "mismatched" => Mismatched
-  | "expected" => Expected
-  | "archived" => Archived
-  | "pending" => Pending
-  | _ => UnknownEntry
-  }
 }
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
@@ -189,7 +83,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="source_account",
-          ~name="credit_account",
+          ~name="source_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=creditAccountOptions,
             ~buttonText="Select Source Account",
@@ -208,7 +102,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="target_account",
-          ~name="debit_account",
+          ~name="target_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
             ~buttonText="Select Target Account",
@@ -224,4 +118,14 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       }: EntityType.initialFilters<'t>
     ),
   ]
+}
+
+let getTransactionStatusLabel = (status: transactionStatus): string => {
+  switch status {
+  | Mismatched => "bg-nd_red-50 text-nd_red-600"
+  | Posted => "bg-nd_green-50 text-nd_green-600"
+  | Expected => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
+  | Archived => "bg-nd_gray-150 text-nd_gray-600"
+  | _ => "bg-nd_gray-50 text-nd_gray_600"
+  }
 }

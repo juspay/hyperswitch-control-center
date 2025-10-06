@@ -6,8 +6,6 @@ let parseKey = api_key => {
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   open LogicUtils
   let {
-    merchant_id,
-    profile_id,
     profile_name,
     webhook_details,
     return_url,
@@ -27,14 +25,13 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     force_3ds_challenge,
     is_debit_routing_enabled,
     merchant_category_code,
+    is_network_tokenization_enabled,
+    always_request_extended_authorization,
+    is_manual_retry_enabled,
+    always_enable_overcapture,
   } = profileRecord
 
-  let profileInfo =
-    [
-      ("merchant_id", merchant_id->JSON.Encode.string),
-      ("profile_id", profile_id->JSON.Encode.string),
-      ("profile_name", profile_name->JSON.Encode.string),
-    ]->Dict.fromArray
+  let profileInfo = [("profile_name", profile_name->JSON.Encode.string)]->Dict.fromArray
   profileInfo->setDictNull("return_url", return_url)
   profileInfo->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
@@ -82,7 +79,13 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
   profileInfo->setOptionString("merchant_category_code", merchant_category_code)
-
+  profileInfo->setOptionBool("is_network_tokenization_enabled", is_network_tokenization_enabled)
+  profileInfo->setOptionBool("is_manual_retry_enabled", is_manual_retry_enabled)
+  profileInfo->setOptionBool(
+    "always_request_extended_authorization",
+    always_request_extended_authorization,
+  )
+  profileInfo->setOptionBool("always_enable_overcapture", always_enable_overcapture)
   profileInfo->setOptionDict(
     "outgoing_webhook_custom_http_headers",
     outgoing_webhook_custom_http_headers,
@@ -270,6 +273,18 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "merchant_category_code",
     valuesDict->getOptionString("merchant_category_code"),
   )
+  profileDetailsDict->setOptionBool(
+    "is_network_tokenization_enabled",
+    valuesDict->getOptionBool("is_network_tokenization_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_manual_retry_enabled",
+    valuesDict->getOptionBool("is_manual_retry_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_request_extended_authorization",
+    valuesDict->getOptionBool("always_request_extended_authorization"),
+  )
 
   profileDetailsDict->setOptionDict(
     "webhook_details",
@@ -283,6 +298,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "is_click_to_pay_enabled",
     valuesDict->getOptionBool("is_click_to_pay_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_enable_overcapture",
+    valuesDict->getOptionBool("always_enable_overcapture"),
   )
 
   let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
@@ -569,8 +588,6 @@ let validateMerchantAccountForm = (
 }
 
 let defaultValueForBusinessProfile = {
-  merchant_id: "",
-  profile_id: "",
   profile_name: "",
   return_url: None,
   payment_response_hash_key: None,
@@ -603,17 +620,21 @@ let defaultValueForBusinessProfile = {
   is_debit_routing_enabled: None,
   acquirer_configs: None,
   merchant_category_code: None,
+  is_network_tokenization_enabled: None,
+  always_request_extended_authorization: None,
+  is_manual_retry_enabled: None,
+  always_enable_overcapture: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
   businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
-let businessProfileNameDropDownOption = arrBusinessProfile =>
+let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
   arrBusinessProfile->Array.map(ele => {
     let obj: SelectBox.dropdownOption = {
-      label: {`${ele.profile_name} (${ele.profile_id})`},
-      value: ele.profile_id,
+      label: {`${ele.profile_name} (${profileId})`},
+      value: profileId,
     }
     obj
   })

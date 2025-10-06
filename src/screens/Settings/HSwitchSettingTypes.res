@@ -151,8 +151,6 @@ type personalSettings = {
 }
 
 type profileEntity = {
-  merchant_id: string,
-  profile_id: string,
   profile_name: string,
   return_url: option<string>,
   payment_response_hash_key: option<string>,
@@ -173,6 +171,10 @@ type profileEntity = {
   is_debit_routing_enabled: option<bool>,
   acquirer_configs: option<array<JSON.t>>,
   merchant_category_code: option<string>,
+  is_network_tokenization_enabled: option<bool>,
+  always_request_extended_authorization: option<bool>,
+  is_manual_retry_enabled: option<bool>,
+  always_enable_overcapture: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp

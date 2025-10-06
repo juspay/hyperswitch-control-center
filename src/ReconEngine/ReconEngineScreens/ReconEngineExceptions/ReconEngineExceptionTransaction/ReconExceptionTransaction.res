@@ -1,8 +1,10 @@
 @react.component
-let make = () => {
+let make = (~ruleId: string) => {
   open LogicUtils
-  open ReconEngineUtils
-  open ReconEngineTransactionsTypes
+  open ReconEngineFilterUtils
+  open ReconEngineTypes
+  open HierarchicalTransactionsTableEntity
+
   let (exceptionData, setExceptionData) = React.useState(_ => [])
   let (filteredExceptionData, setFilteredExceptionData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -10,7 +12,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
@@ -23,19 +25,19 @@ let make = () => {
 
   let (creditAccountOptions, debitAccountOptions) = React.useMemo(() => {
     (
-      getEntryTypeAccountOptions(exceptionData, ~entryType="credit"),
-      getEntryTypeAccountOptions(exceptionData, ~entryType="debit"),
+      getEntryTypeAccountOptions(exceptionData, ~entryType=Credit),
+      getEntryTypeAccountOptions(exceptionData, ~entryType=Debit),
     )
   }, [exceptionData])
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
-      arr->Array.filter((obj: Nullable.t<transactionPayload>) => {
+      arr->Array.filter((obj: Nullable.t<transactionType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase(obj.transaction_status, searchText)
+          isContainingStringLowercase((obj.transaction_status :> string), searchText)
         | None => false
         }
       })
@@ -56,9 +58,8 @@ let make = () => {
           ["expected", "mismatched"]->getJsonFromArrayOfString,
         )
       }
-      let queryString = ReconEngineUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
-      )
+      enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
+      let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
       let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
@@ -92,7 +93,7 @@ let make = () => {
   }, [filterValue])
 
   let topFilterUi = {
-    <div className="flex flex-row">
+    <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
         initialFilters={ReconExceptionTransactionUtils.initialDisplayFilters(
@@ -118,17 +119,17 @@ let make = () => {
     </div>
   }
 
-  <div className="flex flex-col gap-4 my-4">
-    <div className="flex-shrink-0"> {topFilterUi} </div>
+  <div className="flex flex-col gap-4">
     <PageLoaderWrapper screenState>
+      <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTableWithCustomColumns
         title="Exception Entries - Expected & Mismatched"
         actualData={filteredExceptionData}
-        entity={TransactionsTableEntity.transactionsEntity(
+        entity={hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/exceptions`,
           ~authorization=userHasAccess(~groupAccess=UsersManage),
         )}
-        resultsPerPage=10
+        resultsPerPage=6
         filters={<TableSearchFilter
           data={exceptionData->Array.map(Nullable.make)}
           filterLogic
@@ -142,8 +143,8 @@ let make = () => {
         offset
         setOffset
         currrentFetchCount={exceptionData->Array.length}
-        customColumnMapper=TableAtoms.reconTransactionsDefaultCols
-        defaultColumns={TransactionsTableEntity.defaultColumns}
+        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
+        defaultColumns={defaultColumns}
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
         hideTitle=true
@@ -151,6 +152,7 @@ let make = () => {
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
+        customSeparation=[(2, 3)]
       />
     </PageLoaderWrapper>
   </div>

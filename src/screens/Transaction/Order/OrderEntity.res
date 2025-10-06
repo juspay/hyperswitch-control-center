@@ -39,8 +39,8 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
     })
   | PaymentId => Text(refunds.payment_id)
   | ErrorMessage => Text(refunds.error_message)
-  | LastUpdated => Text(refunds.updated_at)
-  | Created => Text(refunds.created_at)
+  | LastUpdated => Date(refunds.updated_at)
+  | Created => Date(refunds.created_at)
   }
 }
 
@@ -133,7 +133,14 @@ let getAuthenticationCell = (orderDetais: order, colType: authenticationColType)
   }
 }
 
-let refundColumns: array<refundsColType> = [Created, LastUpdated, Amount, PaymentId, RefundStatus]
+let refundColumns: array<refundsColType> = [
+  RefundId,
+  PaymentId,
+  Amount,
+  RefundStatus,
+  Created,
+  LastUpdated,
+]
 
 let attemptsColumns: array<attemptColType> = [
   Status,
@@ -586,7 +593,15 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
   | Phone => Text(order.phone->Option.getOr(""))
   | Email => Text(order.email->Option.getOr(""))
-  | CustomerId => Text(order.customer_id)
+  | CustomerId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/customers/${order.customer_id}`}
+        displayValue=order.customer_id
+        copyValue=Some(order.customer_id)
+      />,
+      "",
+    )
   | Description => Text(order.description)
   | ShippingAddress => Text(order.shipping)
   | ShippingPhone => Text(order.shippingPhone)
