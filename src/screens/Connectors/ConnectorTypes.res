@@ -137,6 +137,7 @@ type payoutProcessorTypes =
   | WISE
   | NOMUPAY
   | NUVEI
+  | GIGADAT
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
