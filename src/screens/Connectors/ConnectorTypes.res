@@ -126,6 +126,7 @@ type processorTypes =
   | PAYSAFE
   | PEACHPAYMENTS
   | GIGADAT
+  | LOONIO
 
 type payoutProcessorTypes =
   | ADYEN
@@ -137,6 +138,7 @@ type payoutProcessorTypes =
   | WISE
   | NOMUPAY
   | NUVEI
+  | GIGADAT
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
