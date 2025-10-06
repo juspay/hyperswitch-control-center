@@ -140,6 +140,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYSAFE),
   Processors(GIGADAT),
   Processors(LOONIO),
+  Processors(TESOURO),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -733,6 +734,9 @@ let gigadatInfo = {
 let loonioInfo = {
   description: "Loonio is a payment processing platform that provides APIs for deposits and payouts via methods like Interac, PIX, EFT, and credit cards, with webhook support and transaction sync for real-time and manual status tracking.",
 }
+let tesouroInfo = {
+  description: "Tesouro is a Miami-based fintech company that provides a cloud-native payment gateway platform, offering APIs and streamlined data inflows to connect software companies, banks, and payment facilitators for seamless payment processing.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -835,6 +839,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PEACHPAYMENTS => "peachpayments"
   | GIGADAT => "gigadat"
   | LOONIO => "loonio"
+  | TESOURO => "tesouro"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1008,6 +1013,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "peachpayments" => Processors(PEACHPAYMENTS)
     | "gigadat" => Processors(GIGADAT)
     | "loonio" => Processors(LOONIO)
+    | "tesouro" => Processors(TESOURO)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1161,6 +1167,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PEACHPAYMENTS => peachpaymentsInfo
   | GIGADAT => gigadatInfo
   | LOONIO => loonioInfo
+  | TESOURO => tesouroInfo
   }
 }
 
@@ -2087,6 +2094,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PEACHPAYMENTS => "PeachPayments"
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
+  | TESOURO => "Tesouro"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

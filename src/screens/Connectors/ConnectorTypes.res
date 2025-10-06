@@ -127,6 +127,7 @@ type processorTypes =
   | PEACHPAYMENTS
   | GIGADAT
   | LOONIO
+  | TESOURO
 
 type payoutProcessorTypes =
   | ADYEN
