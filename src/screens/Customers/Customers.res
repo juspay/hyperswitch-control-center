@@ -84,7 +84,8 @@ let make = () => {
 
   let handleKeyDown = e => {
     let keyPressed = e->ReactEvent.Keyboard.key
-    if keyPressed == "Enter" {
+    let keyCode = e->ReactEvent.Keyboard.keyCode
+    if keyPressed == "Enter" && keyCode == 13 {
       getCustomersList(searchText)->ignore
     }
   }
