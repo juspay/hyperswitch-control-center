@@ -3,6 +3,7 @@ module CopyTextCustomComp = {
   let make = (
     ~displayValue=None,
     ~copyValue=None,
+    ~showEmptyAsNA=false, // new prop
     ~customTextCss="",
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
@@ -29,8 +30,17 @@ module CopyTextCustomComp = {
     }
 
     switch displayValue {
-    | Some(val) =>
-      <div
+    
+    // Updated handling of displayValue for empty string
+    let valueToShow = switch displayValue {
+  | Some(val) =>
+    if val == "" {
+      if showNA { "NA" } else { "" }
+    } else { val }
+  | None => "NA"
+}
+
+
         className={`${customParentClass} cursor-pointer`}
         onClick={ev => {
           onCopyClick(ev)

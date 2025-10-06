@@ -2,6 +2,18 @@ let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0
 
+let isEmptyStringOrNone = optStr =>
+  switch optStr {
+  | None => true
+  | Some(str) => str->isEmptyString
+  }
+
+let isNonEmptyStringOrSome = optStr =>
+  switch optStr {
+  | None => false
+  | Some(str) => str->isNonEmptyString
+  }
+
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
   | Get => "GET"
