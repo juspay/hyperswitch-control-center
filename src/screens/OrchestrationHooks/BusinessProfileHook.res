@@ -19,13 +19,13 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
       setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
       let commonTypedData = switch version {
       | V1 =>
-        BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
+        BusinessProfileInterface.mapJsonToCommonType(
           BusinessProfileInterface.businessProfileInterfaceV1,
           res,
         )
 
       | V2 =>
-        BusinessProfileInterface.mapJsonDictToCommonProfilePayload(
+        BusinessProfileInterface.mapJsonToCommonType(
           BusinessProfileInterface.businessProfileInterfaceV2,
           res,
         )
@@ -41,17 +41,50 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
   }
 }
 
-let useUpdateBusinessProfile = () => {
+let useUpdateBusinessProfile = (~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+  let setBusinessProfileRecoil =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
 
-  async (~body) => {
+  async (~body, ~shouldTransform=false) => {
     try {
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let res = await updateDetails(url, body, Post)
-      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
+      let (entityName, transformedBody) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          BusinessProfileInterface.mapJsonToRequestType(
+            BusinessProfileInterface.businessProfileInterfaceV1,
+            body,
+          )->Identity.genericTypeToJson,
+        )
+
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          BusinessProfileInterface.mapJsonToRequestType(
+            BusinessProfileInterface.businessProfileInterfaceV2,
+            body,
+          )->Identity.genericTypeToJson,
+        )
+      }
+      let finalBody = shouldTransform ? transformedBody : body
+
+      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
+      let res = await updateDetails(url, finalBody, Post)
+      let commonTypedData = switch version {
+      | V1 =>
+        BusinessProfileInterface.mapJsonToCommonType(
+          BusinessProfileInterface.businessProfileInterfaceV1,
+          res,
+        )
+
+      | V2 =>
+        BusinessProfileInterface.mapJsonToCommonType(
+          BusinessProfileInterface.businessProfileInterfaceV2,
+          res,
+        )
+      }
+      setBusinessProfileRecoil(_ => commonTypedData)
       res
     } catch {
     | Exn.Error(e) => {

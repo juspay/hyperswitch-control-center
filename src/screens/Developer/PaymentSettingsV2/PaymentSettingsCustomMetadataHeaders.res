@@ -192,16 +192,11 @@ module MetadataHeaders = {
 
 @react.component
 let make = () => {
-  open APIUtils
-  open APIUtilsTypes
   open FormRenderer
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -209,26 +204,26 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     businessProfileRecoilVal->Identity.genericTypeToJson
   )
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let (entityName, body) = switch version {
-      | V1 => (
-          V1(BUSINESS_PROFILE),
-          values
-          ->PaymentSettingsV2Utils.commonTypeJsonToV1ForRequest
-          ->Identity.genericTypeToJson,
-        )
-      | V2 => (
-          V2(BUSINESS_PROFILE),
-          values->PaymentSettingsV2Utils.commonTypeJsonToV2ForRequest->Identity.genericTypeToJson,
-        )
+      let response = await updateBusinessProfile(~body=values, ~shouldTransform=true)
+      let updatedInitialValues = switch version {
+      | V1 =>
+        BusinessProfileInterface.mapJsonToCommonType(
+          BusinessProfileInterface.businessProfileInterfaceV1,
+          response,
+        )->Identity.genericTypeToJson
+      | V2 =>
+        BusinessProfileInterface.mapJsonToCommonType(
+          BusinessProfileInterface.businessProfileInterfaceV2,
+          response,
+        )->Identity.genericTypeToJson
       }
-      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
-      let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-      setInitialValues(_ => response->Identity.genericTypeToJson)
+
+      setInitialValues(_ => updatedInitialValues)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       setAllowEdit(_ => false)
