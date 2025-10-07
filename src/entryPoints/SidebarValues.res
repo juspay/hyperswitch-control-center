@@ -449,21 +449,7 @@ let complianceCertificateSection = {
   })
 }
 
-let paymentLinkTheme = {
-  SubLevelLink({
-    name: "Payment Link Theme",
-    link: `/payment-link-theme`,
-    access: Access,
-    searchOptions: [("Configure payment link theme", "")],
-  })
-}
-
-let settings = (
-  ~isConfigurePmtsEnabled,
-  ~userHasResourceAccess,
-  ~complianceCertificate,
-  ~paymentLinkThemeConfigurator,
-) => {
+let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
@@ -472,10 +458,6 @@ let settings = (
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
-  }
-
-  if paymentLinkThemeConfigurator {
-    settingsLinkArray->Array.push(paymentLinkTheme)->ignore
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
@@ -524,12 +506,22 @@ let webhooks = userHasResourceAccess => {
   })
 }
 
+let paymentLinkTheme = {
+  SubLevelLink({
+    name: "Payment Link Theme",
+    link: `/payment-link-theme`,
+    access: Access,
+    searchOptions: [("Configure payment link theme", "")],
+  })
+}
+
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~isPaymentSettingsV2Enabled,
+  ~paymentLinkThemeConfigurator,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
@@ -538,15 +530,17 @@ let developers = (
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
-  if isWebhooksEnabled {
-    defaultDevelopersOptions->Array.push(webhooks)
-  }
   if isPaymentSettingsV2Enabled {
     defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
-
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
+  }
+  if isWebhooksEnabled {
+    defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if paymentLinkThemeConfigurator {
+    defaultDevelopersOptions->Array.push(paymentLinkTheme)
   }
 
   isDevelopersEnabled
@@ -725,13 +719,9 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~userHasResourceAccess,
       ~checkUserEntity,
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
-    ),
-    settings(
-      ~isConfigurePmtsEnabled=configurePmts,
-      ~userHasResourceAccess,
-      ~complianceCertificate,
       ~paymentLinkThemeConfigurator,
     ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
   sidebar
