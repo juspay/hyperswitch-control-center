@@ -97,7 +97,7 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
       "enable_button_only_on_form_ready",
       true,
     ),
-    payment_button_text: Some(getStringFromDict(formValuesDict, "payment_button_text", "")),
+    payment_button_text: Some(getStringFromDict(formValuesDict, "payment_button_text", "Pay Now")),
     merchant_description: Some(getStringFromDict(formValuesDict, "merchant_description", "")),
     locale: Some("en"),
     background_image: backgroundImageObj,

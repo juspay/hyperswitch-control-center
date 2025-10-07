@@ -157,7 +157,7 @@ module ConfiguratorForm = {
 
     <RenderIf condition={selectedStyleId->LogicUtils.isNonEmptyString}>
       <div className="bg-white rounded-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
           <div className="w-full">
             <div className="space-y-4">
               <Form
@@ -231,6 +231,16 @@ module ConfiguratorForm = {
                       ~defaultValue=initialValues
                       ->getDictFromJsonObject
                       ->getString("payment_button_text_colour", "#FFFFFF"),
+                    )}
+                    fieldWrapperClass="!w-full"
+                  />
+                </div>
+                <div className="flex flex-row gap-4">
+                  <FieldRenderer
+                    field={makeColorIconCardCvcErrorField(
+                      ~defaultValue=initialValues
+                      ->getDictFromJsonObject
+                      ->getString("color_icon_card_cvc_error", defaultThemeColor),
                     )}
                     fieldWrapperClass="!w-full"
                   />

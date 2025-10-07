@@ -168,6 +168,8 @@ type style_configs = {
 }
 
 type payment_link_config = {
+  domain_name: string,
+  allowed_domains: array<string>,
   theme: string,
   logo: string,
   seller_name: string,
@@ -178,10 +180,8 @@ type payment_link_config = {
   show_card_form_by_default: bool,
   payment_button_text: string,
   sdk_ui_rules: JSON.t,
-  allowed_domains: array<string>,
   payment_link_ui_rules: JSON.t,
   business_specific_configs: JSON.t,
-  domain_name: string,
   branding_visibility: bool,
 }
 

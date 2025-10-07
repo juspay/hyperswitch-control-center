@@ -24,6 +24,7 @@ let constructAuthConnectorObject = authConnectorDict => {
   }
   authConnectorDetails
 }
+
 let paymentLinkConfigMapper = paymentLinkConfigDict => {
   open LogicUtils
   {
