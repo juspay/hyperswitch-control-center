@@ -135,14 +135,19 @@ let validateCustom = (key, errors, value, isLiveMode) => {
 
     let deepLinkValid = RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*:\/\//i"), value)
     if !(httpUrlValid || deepLinkValid) {
-      let newDict = errors->getDictfromDict("authentication_connector_details")
+      let authConnectorDetailsErrorDict =
+        errors->getDictfromDict("authentication_connector_details")
       errors->Dict.set("authentication_connector_details", JSON.Encode.null)
       Dict.set(
-        newDict,
+        authConnectorDetailsErrorDict,
         "three_ds_requestor_app_url",
         "Please enter a valid URL or Mobile Deeplink"->JSON.Encode.string,
       )
-      Dict.set(errors, "authentication_connector_details", newDict->JSON.Encode.object)
+      Dict.set(
+        errors,
+        "authentication_connector_details",
+        authConnectorDetailsErrorDict->JSON.Encode.object,
+      )
     }
 
   | _ => ()
