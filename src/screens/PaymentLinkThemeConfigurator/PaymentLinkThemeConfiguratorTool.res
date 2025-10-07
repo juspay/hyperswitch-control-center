@@ -462,10 +462,31 @@ module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
     open LogicUtils
-    let (availableStyles, setAvailableStyles) = React.useState(_ => [])
-    let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
       HyperswitchAtom.businessProfileFromIdAtom,
     )
+    let (availableStyles, setAvailableStyles) = React.useState(_ => [])
+    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+    let showToast = ToastState.useShowToast()
+
+    let fetchBusinessProfile = async () => {
+      try {
+        let businessProfileResponse = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+        setBusinessProfileRecoilVal(_ =>
+          businessProfileResponse->BusinessProfileMapper.businessProfileTypeMapper
+        )
+      } catch {
+      | _ =>
+        showToast(~toastType=ToastError, ~message="Failed to update style ids", ~autoClose=true)
+      }
+    }
+
+    React.useEffect(() => {
+      fetchBusinessProfile()->ignore
+      None
+    }, [])
+
     React.useEffect(() => {
       let defaultPaymentLinkConfigValues = switch businessProfileRecoilVal.payment_link_config {
       | Some(config) => config
