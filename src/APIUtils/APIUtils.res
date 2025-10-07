@@ -1444,12 +1444,23 @@ let useUpdateMethod = (~showErrorToast=true) => {
     url,
     body,
     method,
+    ~fieldsToIgnore=?,
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
     ~version=UserInfoTypes.V1,
   ) => {
     try {
+      let modifiedBodyDict = switch fieldsToIgnore {
+      | Some(array) => {
+          let bodyDict = body->getDictFromJsonObject
+          array->Array.forEach(item => Dict.delete(bodyDict, item))
+          bodyDict->JSON.Encode.object
+        }
+
+      | None => body
+      }
+      let body = modifiedBodyDict
       let res = await fetchApi(
         url,
         ~method_=method,
