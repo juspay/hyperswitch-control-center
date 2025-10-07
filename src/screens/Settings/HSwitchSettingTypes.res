@@ -116,6 +116,10 @@ type validationFields =
   | UnknownValidateFields(string)
   | MaxAutoRetries
 
+type domainValidationFields =
+  | DomainName
+  | AllowedDomains
+
 type formStateType = Preview | Edit
 type fieldType = {
   placeholder: string,
@@ -150,6 +154,24 @@ type personalSettings = {
   isApiCall?: bool,
 }
 
+type payment_link_config = {
+  domain_name: string,
+  allowed_domains: JSON.t,
+  theme: string,
+  logo: string,
+  seller_name: string,
+  sdk_layout: string,
+  display_sdk_only: bool,
+  enabled_saved_payment_method: bool,
+  hide_card_nickname_field: bool,
+  show_card_form_by_default: bool,
+  payment_button_text: string,
+  sdk_ui_rules: JSON.t,
+  payment_link_ui_rules: JSON.t,
+  business_specific_configs: JSON.t,
+  branding_visibility: bool,
+}
+
 type profileEntity = {
   profile_name: string,
   return_url: option<string>,
@@ -175,6 +197,7 @@ type profileEntity = {
   always_request_extended_authorization: option<bool>,
   is_manual_retry_enabled: option<bool>,
   always_enable_overcapture: option<bool>,
+  payment_link_config: option<payment_link_config>,
 }
 
 type twoFaType = RecoveryCode | Totp

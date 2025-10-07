@@ -1,7 +1,7 @@
 open HSwitchSettingTypes
+open LogicUtils
 
 let constructWebhookDetailsObject = webhookDetailsDict => {
-  open LogicUtils
   let webhookDetails = {
     webhook_version: webhookDetailsDict->getOptionString("webhook_version"),
     webhook_username: webhookDetailsDict->getOptionString("webhook_username"),
@@ -14,7 +14,6 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   webhookDetails
 }
 let constructAuthConnectorObject = authConnectorDict => {
-  open LogicUtils
   let authConnectorDetails = {
     authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
       "authentication_connectors",
@@ -25,13 +24,38 @@ let constructAuthConnectorObject = authConnectorDict => {
   authConnectorDetails
 }
 
+let paymentLinkConfigMapper = paymentLinkConfigDict => {
+  {
+    theme: paymentLinkConfigDict->getString("theme", ""),
+    logo: paymentLinkConfigDict->getString("logo", ""),
+    seller_name: paymentLinkConfigDict->getString("seller_name", ""),
+    sdk_layout: paymentLinkConfigDict->getString("sdk_layout", ""),
+    display_sdk_only: paymentLinkConfigDict->getBool("display_sdk_only", false),
+    enabled_saved_payment_method: paymentLinkConfigDict->getBool(
+      "enabled_saved_payment_method",
+      false,
+    ),
+    hide_card_nickname_field: paymentLinkConfigDict->getBool("hide_card_nickname_field", false),
+    show_card_form_by_default: paymentLinkConfigDict->getBool("show_card_form_by_default", false),
+    payment_button_text: paymentLinkConfigDict->getString("payment_button_text", ""),
+    sdk_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
+    domain_name: paymentLinkConfigDict->getString("domain_name", ""),
+    allowed_domains: paymentLinkConfigDict->getJsonObjectFromDict("allowed_domains"),
+    payment_link_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
+    business_specific_configs: paymentLinkConfigDict->getJsonObjectFromDict(
+      "business_specific_configs",
+    ),
+    branding_visibility: paymentLinkConfigDict->getBool("branding_visibility", false),
+  }
+}
+
 let businessProfileTypeMapper = values => {
-  open LogicUtils
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
 
   {
     profile_name: jsonDict->getString("profile_name", ""),
@@ -74,6 +98,9 @@ let businessProfileTypeMapper = values => {
     ),
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    payment_link_config: paymentLinkConfig->isEmptyDict
+      ? None
+      : Some(paymentLinkConfig->paymentLinkConfigMapper),
   }
 }
 
@@ -82,6 +109,5 @@ let convertObjectToType = value => {
 }
 
 let getArrayOfBusinessProfile = businessProfileValue => {
-  open LogicUtils
   businessProfileValue->getArrayFromJson([])->convertObjectToType
 }

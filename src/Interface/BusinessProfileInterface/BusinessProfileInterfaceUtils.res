@@ -8,6 +8,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
 
   {
     profile_name: jsonDict->getString("profile_name", ""),
@@ -50,6 +51,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     ),
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    payment_link_config: paymentLinkConfig->isEmptyDict
+      ? None
+      : Some(paymentLinkConfig->paymentLinkConfigMapper),
   }
 }
 let mapJsonToBusinessProfileV2 = (values): profileEntity => {
@@ -58,6 +62,7 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
 
   {
     profile_name: jsonDict->getString("profile_name", ""),
@@ -100,5 +105,8 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     ),
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    payment_link_config: paymentLinkConfig->isEmptyDict
+      ? None
+      : Some(paymentLinkConfig->paymentLinkConfigMapper),
   }
 }

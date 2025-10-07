@@ -236,6 +236,24 @@ let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
+let domainName = isDisabled =>
+  FormRenderer.makeFieldInfo(
+    ~label="Domain Name",
+    ~name="payment_link_config.domain_name",
+    ~placeholder="Enter Domain Name",
+    ~customInput=InputFields.textInput(~autoComplete="off", ~isDisabled),
+    ~description="This domain name will be used to generate payment links.",
+  )
+
+let allowedDomains = isDisabled =>
+  FormRenderer.makeFieldInfo(
+    ~label="Allowed Domain",
+    ~name="payment_link_config.allowed_domains",
+    ~placeholder="Enter Allowed Domain",
+    ~customInput=InputFields.textInput(~autoComplete="off", ~isDisabled),
+    ~description="The allowed domains will be able to embed payment links.",
+  )
+
 module ErrorUI = {
   @react.component
   let make = (~text) => {

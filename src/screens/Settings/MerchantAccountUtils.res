@@ -1,10 +1,11 @@
 open HSwitchSettingTypes
+open LogicUtils
+
 let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
-  open LogicUtils
   let {
     profile_name,
     webhook_details,
@@ -29,9 +30,31 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     always_request_extended_authorization,
     is_manual_retry_enabled,
     always_enable_overcapture,
+    payment_link_config,
   } = profileRecord
 
   let profileInfo = [("profile_name", profile_name->JSON.Encode.string)]->Dict.fromArray
+
+  // converting allowed domains from array of string to comma separated string
+  let paymentLinkConfig = switch payment_link_config {
+  | Some(config) => config
+  | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
+  }
+  let allowedDomains = paymentLinkConfig.allowed_domains->JSON.Decode.array->Option.getOr([])
+  let allowedDomainsString =
+    allowedDomains
+    ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
+    ->Array.joinWith(",")
+
+  let paymentLinkConfigUpdated = {
+    ...paymentLinkConfig,
+    allowed_domains: allowedDomainsString->JSON.Encode.string,
+  }
+
+  profileInfo->setOptionDict(
+    "payment_link_config",
+    Some(paymentLinkConfigUpdated->Identity.genericTypeToDictOfJson),
+  )
   profileInfo->setDictNull("return_url", return_url)
   profileInfo->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
@@ -95,7 +118,6 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
 }
 
 let parseMerchantJson = (merchantDict: merchantPayload) => {
-  open LogicUtils
   let {merchant_details, merchant_name, publishable_key, primary_business_details} = merchantDict
   let primary_business_details = primary_business_details->Array.map(detail => {
     let {country, business} = detail
@@ -136,8 +158,31 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   merchantInfo
 }
 
+let getPaymentLinkDomainPayload = (values: JSON.t) => {
+  let paymentLinkDomainDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
+  let paymentLinkConfigTyped = BusinessProfileMapper.paymentLinkConfigMapper(paymentLinkConfig)
+
+  let paymentLinkConfigUpdated = {
+    ...paymentLinkConfigTyped,
+    domain_name: paymentLinkConfig->getString("domain_name", ""),
+    allowed_domains: paymentLinkConfig
+    ->getString("allowed_domains", "")
+    ->String.split(",")
+    ->Array.map(domain => domain->String.trim->JSON.Encode.string)
+    ->JSON.Encode.array,
+  }
+
+  paymentLinkDomainDict->setOptionDict(
+    "payment_link_config",
+    Some(paymentLinkConfigUpdated->Identity.genericTypeToDictOfJson),
+  )
+
+  paymentLinkDomainDict
+}
+
 let getCustomHeadersPayload = (values: JSON.t) => {
-  open LogicUtils
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let outGoingWebHookCustomHttpHeaders = Dict.make()
@@ -161,7 +206,6 @@ let getCustomHeadersPayload = (values: JSON.t) => {
 }
 
 let getMetdataKeyValuePayload = (values: JSON.t) => {
-  open LogicUtils
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let customMetadataVal = Dict.make()
@@ -179,7 +223,6 @@ let getMetdataKeyValuePayload = (values: JSON.t) => {
 }
 
 let getBusinessProfilePayload = (values: JSON.t) => {
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
   webhookSettingsValue->setOptionString(
@@ -313,7 +356,6 @@ let getBusinessProfilePayload = (values: JSON.t) => {
 }
 
 let getSettingsPayload = (values: JSON.t, merchantId) => {
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let addressDetailsValue = Dict.make()
   addressDetailsValue->setOptionString("line1", valuesDict->getOptionString("line1"))
@@ -416,8 +458,21 @@ let validationFieldsMapper = key => {
   }
 }
 
+let domainNameValidationFieldsMapper = key => {
+  switch key {
+  | DomainName => "domain_name"
+  | AllowedDomains => "allowed_domains"
+  }
+}
+
+let domainNameValidationErrorMapper = key => {
+  switch key {
+  | DomainName => "Please enter valid URL"->JSON.Encode.string
+  | AllowedDomains => "Please enter allowed domains"->JSON.Encode.string
+  }
+}
+
 let checkValueChange = (~initialDict, ~valuesDict) => {
-  open LogicUtils
   let initialKeys = Dict.keysToArray(initialDict)
   let updatedKeys = Dict.keysToArray(valuesDict)
   let key =
@@ -530,7 +585,6 @@ let validateMerchantAccountForm = (
   ~isLiveMode,
 ) => {
   // Need to refactor
-  open LogicUtils
   let errors = Dict.make()
 
   let valuesDict = values->getDictFromJsonObject
@@ -587,6 +641,50 @@ let validateMerchantAccountForm = (
   errors->JSON.Encode.object
 }
 
+let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
+  let errors = Dict.make()
+  let paymentLinkConfigDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
+
+  let singleDomain =
+    "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)*" ++
+    "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)" ++ "(?::\\d{4})?"
+
+  let domainNameRegex = Js.Re.fromString("^" ++ singleDomain ++ "$")
+  let allowedDomainsRegex = Js.Re.fromString("^" ++ singleDomain ++ "(?:," ++ singleDomain ++ ")*$")
+
+  let getRegex = field =>
+    switch field {
+    | DomainName => domainNameRegex
+    | AllowedDomains => allowedDomainsRegex
+    }
+
+  let isValidField = (field, regex) => {
+    RegExp.test(regex, field)
+  }
+
+  fieldsToValidate->Array.forEach(key => {
+    switch key {
+    | DomainName
+    | AllowedDomains =>
+      let fieldValue =
+        getString(paymentLinkConfig, key->domainNameValidationFieldsMapper, "")
+
+      if !isValidField(fieldValue, getRegex(key)) {
+        Dict.set(
+          paymentLinkConfigDict,
+          key->domainNameValidationFieldsMapper,
+          key->domainNameValidationErrorMapper,
+        )
+      }
+    }
+  })
+
+  Dict.set(errors, "payment_link_config", paymentLinkConfigDict->JSON.Encode.object)
+  errors->JSON.Encode.object
+}
+
 let defaultValueForBusinessProfile = {
   profile_name: "",
   return_url: None,
@@ -624,6 +722,7 @@ let defaultValueForBusinessProfile = {
   always_request_extended_authorization: None,
   is_manual_retry_enabled: None,
   always_enable_overcapture: None,
+  payment_link_config: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
