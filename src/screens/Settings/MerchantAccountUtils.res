@@ -668,8 +668,7 @@ let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
     switch key {
     | DomainName
     | AllowedDomains =>
-      let fieldValue =
-        getString(paymentLinkConfig, key->domainNameValidationFieldsMapper, "")
+      let fieldValue = getString(paymentLinkConfig, key->domainNameValidationFieldsMapper, "")
 
       if !isValidField(fieldValue, getRegex(key)) {
         Dict.set(
