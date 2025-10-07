@@ -207,20 +207,13 @@ let make = () => {
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
   let onSubmit = async (values, _) => {
+    open BusinessProfileInterface
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = await updateBusinessProfile(~body=values, ~shouldTransform=true)
       let updatedInitialValues = switch version {
-      | V1 =>
-        BusinessProfileInterface.mapJsonToCommonType(
-          BusinessProfileInterface.businessProfileInterfaceV1,
-          response,
-        )->Identity.genericTypeToJson
-      | V2 =>
-        BusinessProfileInterface.mapJsonToCommonType(
-          BusinessProfileInterface.businessProfileInterfaceV2,
-          response,
-        )->Identity.genericTypeToJson
+      | V1 => mapJsonToCommonType(businessProfileInterfaceV1, response)->Identity.genericTypeToJson
+      | V2 => mapJsonToCommonType(businessProfileInterfaceV2, response)->Identity.genericTypeToJson
       }
 
       setInitialValues(_ => updatedInitialValues)

@@ -19,6 +19,33 @@ let constructAuthConnectorObject = authConnectorDict => {
   three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
 }
 
+let convertOptionalBoolToOptionalJson = optBool => {
+  switch optBool {
+  | Some(value) => Some(value->JSON.Encode.bool)
+  | None => Some(JSON.Encode.null)
+  }
+}
+
+let convertOptionalStringToOptionalJson = optString => {
+  switch optString {
+  | Some(value) => Some(value->JSON.Encode.string)
+  | None => Some(JSON.Encode.null)
+  }
+}
+
+let convertOptionalIntToOptionalJson = optInt => {
+  switch optInt {
+  | Some(value) => Some(value->JSON.Encode.int)
+  | None => Some(JSON.Encode.null)
+  }
+}
+
+let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest = webhookDetailsDict => {
+  webhook_url: webhookDetailsDict
+  ->getOptionString("webhook_url")
+  ->convertOptionalStringToOptionalJson,
+}
+
 let mapJsonToBusinessProfileV1 = (values): profileEntity => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
@@ -33,7 +60,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
-    authentication_connector_details: !{authenticationConnectorDetails->isEmptyDict}
+    authentication_connector_details: !(authenticationConnectorDetails->isEmptyDict)
       ? Some(authenticationConnectorDetails->constructAuthConnectorObject)
       : None,
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
@@ -54,7 +81,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity => {
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
-    metadata: metadataKeyValue->isEmptyDict ? None : Some(metadataKeyValue),
+    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
@@ -88,7 +115,7 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
-    authentication_connector_details: !{authenticationConnectorDetails->isEmptyDict}
+    authentication_connector_details: !(authenticationConnectorDetails->isEmptyDict)
       ? Some(authenticationConnectorDetails->constructAuthConnectorObject)
       : None,
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
@@ -109,7 +136,7 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity => {
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
-    metadata: metadataKeyValue->isEmptyDict ? None : Some(metadataKeyValue),
+    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
@@ -156,7 +183,7 @@ let mapV1toCommonType: HSwitchSettingTypes.profileEntity => HSwitchSettingTypes.
     is_network_tokenization_enabled: profileEntity.is_network_tokenization_enabled,
     always_request_extended_authorization: profileEntity.always_request_extended_authorization,
     always_enable_overcapture: profileEntity.always_enable_overcapture,
-    is_manual_retry_enabled: None,
+    is_manual_retry_enabled: profileEntity.is_manual_retry_enabled,
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
   }
@@ -206,6 +233,7 @@ let mapJsontoCommonType: JSON.t => HSwitchSettingTypes.commonProfileEntity = inp
   let jsonDict = input->getDictFromJsonObject
   let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookdict = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+  let metadataKeyValue = jsonDict->getDictfromDict("metadata")
   {
     profile_id: jsonDict->getString("profile_id", ""),
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -213,9 +241,7 @@ let mapJsontoCommonType: JSON.t => HSwitchSettingTypes.commonProfileEntity = inp
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: jsonDict->getDictfromDict("webhook_details")->constructWebhookDetailsObject,
-    authentication_connector_details: !{
-      authConnectorDetails->isEmptyDict
-    }
+    authentication_connector_details: !(authConnectorDetails->isEmptyDict)
       ? Some(authConnectorDetails->constructAuthConnectorObject)
       : None,
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
@@ -237,14 +263,12 @@ let mapJsontoCommonType: JSON.t => HSwitchSettingTypes.commonProfileEntity = inp
       ->getDictfromDict("authentication_product_ids")
       ->JSON.Encode.object,
     ),
-    outgoing_webhook_custom_http_headers: !{outgoingWebhookdict->isEmptyDict}
+    outgoing_webhook_custom_http_headers: !(outgoingWebhookdict->isEmptyDict)
       ? Some(outgoingWebhookdict)
       : None,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
-    metadata: !{jsonDict->getDictfromDict("metadata")->isEmptyDict}
-      ? Some(jsonDict->getDictfromDict("metadata"))
-      : None,
+    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
@@ -262,33 +286,6 @@ let mapJsontoCommonType: JSON.t => HSwitchSettingTypes.commonProfileEntity = inp
       "collect_billing_details_from_wallet_connector_if_required",
     ),
   }
-}
-let convertOptionalBoolToOptionalJson = optBool => {
-  switch optBool {
-  | Some(value) => Some(value->JSON.Encode.bool)
-  | None => Some(JSON.Encode.null)
-  }
-}
-
-let convertOptionalStringToOptionalJson = optString => {
-  let ans = switch optString {
-  | Some(value) => value->JSON.Encode.string
-  | None => JSON.Encode.null
-  }
-  Some(ans)
-}
-
-let convertOptionalIntToOptionalJson = optInt => {
-  switch optInt {
-  | Some(value) => Some(value->JSON.Encode.int)
-  | None => Some(JSON.Encode.null)
-  }
-}
-
-let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest = webhookDetailsDict => {
-  webhook_url: webhookDetailsDict
-  ->getOptionString("webhook_url")
-  ->convertOptionalStringToOptionalJson,
 }
 
 let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType = json => {
@@ -319,10 +316,10 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType = json => {
     is_debit_routing_enabled: dict
     ->getOptionBool("is_debit_routing_enabled")
     ->convertOptionalBoolToOptionalJson,
-    outgoing_webhook_custom_http_headers: !{outgoingWebhookdict->isEmptyDict}
+    outgoing_webhook_custom_http_headers: !(outgoingWebhookdict->isEmptyDict)
       ? Some(outgoingWebhookdict->JSON.Encode.object)
       : Some(JSON.Encode.null),
-    metadata: !{metadataDict->isEmptyDict}
+    metadata: !(metadataDict->isEmptyDict)
       ? Some(metadataDict->JSON.Encode.object)
       : Some(JSON.Encode.null),
     is_auto_retries_enabled: dict
@@ -334,7 +331,7 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType = json => {
     is_click_to_pay_enabled: dict
     ->getOptionBool("is_click_to_pay_enabled")
     ->convertOptionalBoolToOptionalJson,
-    authentication_product_ids: !{authProductIds->isEmptyDict}
+    authentication_product_ids: !(authProductIds->isEmptyDict)
       ? Some(authProductIds->JSON.Encode.object)
       : Some(JSON.Encode.null),
     merchant_category_code: dict
@@ -366,13 +363,13 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType = json => {
     always_collect_shipping_details_from_wallet_connector: dict
     ->getOptionBool("always_collect_shipping_details_from_wallet_connector")
     ->convertOptionalBoolToOptionalJson,
-    authentication_connector_details: authenticationConnectorDetails->isEmptyDict
-      ? Some(JSON.Encode.null)
-      : Some(
+    authentication_connector_details: !(authenticationConnectorDetails->isEmptyDict)
+      ? Some(
           authenticationConnectorDetails
           ->constructAuthConnectorObject
           ->Identity.genericTypeToJson,
-        ),
+        )
+      : Some(JSON.Encode.null),
   }
 }
 
@@ -429,7 +426,7 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntity = json => {
     always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
       "always_collect_shipping_details_from_wallet_connector",
     ),
-    authentication_connector_details: !{authenticationConnectorDetails->isEmptyDict}
+    authentication_connector_details: !(authenticationConnectorDetails->isEmptyDict)
       ? Some(authenticationConnectorDetails->constructAuthConnectorObject)
       : None,
   }

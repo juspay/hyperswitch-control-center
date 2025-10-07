@@ -64,15 +64,19 @@ let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => 
 let validateEmptyArray = (key, errors, arrayValue) => {
   switch (key: validationFieldsV2) {
   | AuthenticationConnectors(_) =>
-    let newDict = errors->getDictfromDict("authentication_connector_details")
+    let authConnectorErrorDict = errors->getDictfromDict("authentication_connector_details")
 
     if arrayValue->Array.length === 0 {
       Dict.set(
-        newDict,
+        authConnectorErrorDict,
         "authentication_connectors",
         "Please select authentication connector"->JSON.Encode.string,
       )
-      Dict.set(errors, "authentication_connector_details", newDict->JSON.Encode.object)
+      Dict.set(
+        errors,
+        "authentication_connector_details",
+        authConnectorErrorDict->JSON.Encode.object,
+      )
     }
   | _ => ()
   }
@@ -84,11 +88,15 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
       : RegExp.test(%re("/^(http|https):\/\//i"), value)
 
-    let newDict = errors->getDictfromDict("webhook_details")
+    let webhookErrorDict = errors->getDictfromDict("webhook_details")
     if !regexUrl {
       errors->Dict.set("webhook_details", JSON.Encode.null)
-      Dict.set(newDict, "webhook_url", "Please Enter Valid Webhook URL"->JSON.Encode.string)
-      Dict.set(errors, "webhook_details", newDict->JSON.Encode.object)
+      Dict.set(
+        webhookErrorDict,
+        "webhook_url",
+        "Please Enter Valid Webhook URL"->JSON.Encode.string,
+      )
+      Dict.set(errors, "webhook_details", webhookErrorDict->JSON.Encode.object)
     }
 
   | ReturnUrl => {
@@ -104,15 +112,20 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       let regexUrl = isLiveMode
         ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
         : RegExp.test(%re("/^(http|https):\/\//i"), value)
-      let newDict = errors->getDictfromDict("authentication_connector_details")
+      let authConnectorDetailsErrorDict =
+        errors->getDictfromDict("authentication_connector_details")
       if !regexUrl {
         errors->Dict.set("authentication_connector_details", JSON.Encode.null)
         Dict.set(
-          newDict,
+          authConnectorDetailsErrorDict,
           "three_ds_requestor_url",
           "Please Enter Valid Threeds URL"->JSON.Encode.string,
         )
-        Dict.set(errors, "authentication_connector_details", newDict->JSON.Encode.object)
+        Dict.set(
+          errors,
+          "authentication_connector_details",
+          authConnectorDetailsErrorDict->JSON.Encode.object,
+        )
       }
     }
   | ThreeDsRequestorAppUrl =>
