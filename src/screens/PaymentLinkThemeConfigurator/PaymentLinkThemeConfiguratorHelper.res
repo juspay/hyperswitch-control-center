@@ -227,7 +227,7 @@ let makeShowCardTermsField = () => {
 
 let makeColorIconCardCvcErrorField = (~defaultValue) => {
   makeFieldInfo(
-   ~label="Color Icon Card CVC Error",
+    ~label="Color Icon Card CVC Error",
     ~name="color_icon_card_cvc_error",
     ~placeholder="",
     ~isRequired=false,
