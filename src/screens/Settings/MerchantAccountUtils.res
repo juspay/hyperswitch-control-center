@@ -647,12 +647,12 @@ let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
   let valuesDict = values->getDictFromJsonObject
   let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
 
-  let singleDomain =
-    "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)*" ++
-    "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)" ++ "(?::\\d{4})?"
-
-  let domainNameRegex = Js.Re.fromString("^" ++ singleDomain ++ "$")
-  let allowedDomainsRegex = Js.Re.fromString("^" ++ singleDomain ++ "(?:," ++ singleDomain ++ ")*$")
+  let domainNameRegex = Js.Re.fromString(
+    "^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?::\\d{4})?$",
+  )
+  let allowedDomainsRegex = Js.Re.fromString(
+    "^(?:(?:https?:\/\/)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?::\\d{1,5})?)(?:,(?:https?:\/\/)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?::\\d{1,5})?)*$",
+  )
 
   let getRegex = field =>
     switch field {

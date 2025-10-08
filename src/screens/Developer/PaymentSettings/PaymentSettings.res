@@ -415,10 +415,7 @@ module PaymentLinkDomain = {
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       validate={values =>
-        MerchantAccountUtils.validatePaymentLinkDomainForm(
-          ~values,
-          ~fieldsToValidate=[DomainName, AllowedDomains],
-        )}
+        validatePaymentLinkDomainForm(~values, ~fieldsToValidate=[DomainName, AllowedDomains])}
       render={({handleSubmit}) => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 h-full w-full py-6 px-4">
           <PaymentLinkDomainFields setAllowEdit allowEdit />
@@ -776,7 +773,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
-              MerchantAccountUtils.validateMerchantAccountForm(
+              validateMerchantAccountForm(
                 ~values,
                 ~fieldsToValidate={fieldsToValidate()},
                 ~isLiveMode=featureFlagDetails.isLiveMode,
