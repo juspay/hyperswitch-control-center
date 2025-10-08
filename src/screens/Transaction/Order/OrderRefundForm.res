@@ -33,17 +33,24 @@ let make = (
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {
-      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess)
+      | Succeeded =>
+        showToast(~message="Refund successful", ~toastType=ToastSuccess)
+        setShowModal(_ => false)
       | Failed =>
         showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
+        setShowModal(_ => false)
       | _ =>
         showToast(
           ~message="Processing your refund. Please check refund status",
           ~toastType=ToastInfo,
         )
+        setShowModal(_ => false)
       }
     } catch {
-    | _ => setShowModal(_ => true)
+    | _ => {
+        showToast(~message="Refund failed", ~toastType=ToastError)
+        setShowModal(_ => false)
+      }
     }
   }
 
