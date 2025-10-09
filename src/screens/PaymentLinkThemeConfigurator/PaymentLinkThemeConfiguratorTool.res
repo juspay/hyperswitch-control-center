@@ -1,10 +1,12 @@
+open LogicUtils
+open PaymentLinkThemeConfiguratorUtils
+
 module ConfiguratorForm = {
   @react.component
   let make = (~initialValues, ~selectedStyleId) => {
     open FormRenderer
-    open LogicUtils
-    open PaymentLinkThemeConfiguratorUtils
     open PaymentLinkThemeConfiguratorHelper
+
     let showToast = ToastState.useShowToast()
     let (wasmInitialized, setWasmInitialized) = React.useState(_ => false)
     let (initialValues, setInitialValues) = React.useState(_ => initialValues)
@@ -45,7 +47,7 @@ module ConfiguratorForm = {
         setPreviewLoading(_ => true)
         setPreviewError(_ => None)
 
-        let configs = PaymentLinkThemeConfiguratorUtils.generateWasmPayload(
+        let configs = generateWasmPayload(
           ~paymentDetails=paymentResult,
           ~publishableKey,
           ~formValues=values,
@@ -56,9 +58,9 @@ module ConfiguratorForm = {
           JSON.stringify(configs->Identity.genericTypeToJson),
         )
         let validationJson = JSON.parseExn(validationResult)
-        let validationDict = validationJson->LogicUtils.getDictFromJsonObject
-        let isValid = validationDict->LogicUtils.getBool("valid", false)
-        let errors = validationDict->LogicUtils.getArrayFromDict("errors", [])
+        let validationDict = validationJson->getDictFromJsonObject
+        let isValid = validationDict->getBool("valid", false)
+        let errors = validationDict->getArrayFromDict("errors", [])
 
         if !isValid {
           let errorMessages = errors->Array.map(error => {
@@ -155,7 +157,7 @@ module ConfiguratorForm = {
     // Js.log2("Initial Values", initialValues)
     let defaultThemeColor = initialValues->getDictFromJsonObject->getString("theme", "#FFFFFF")
 
-    <RenderIf condition={selectedStyleId->LogicUtils.isNonEmptyString}>
+    <RenderIf condition={selectedStyleId->isNonEmptyString}>
       <div className="bg-white rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
           <div className="w-full">
@@ -339,7 +341,7 @@ module ConfiguratorForm = {
 module CreateNewStyleID = {
   @react.component
   let make = (~setSelectedStyleId) => {
-    open LogicUtils
+    open FormRenderer
     let (showModal, setShowModal) = React.useState(() => false)
     let (initialValues, _setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
@@ -353,7 +355,7 @@ module CreateNewStyleID = {
     let customPadding = ""
     let addItemBtnStyle = ""
 
-    let styleIdField = FormRenderer.makeFieldInfo(
+    let styleIdField = makeFieldInfo(
       ~label="Style ID",
       ~name="style_id",
       ~customInput=(~input, ~placeholder as _) =>
@@ -380,16 +382,39 @@ module CreateNewStyleID = {
         setSelectedStyleId(_ => styleId)
       }
       let config = businessProfileRecoilVal.payment_link_config
-      let body = PaymentLinkThemeConfiguratorUtils.constructBusinessProfileBody(
-        ~paymentLinkConfig=config,
-        ~styleID=styleId,
-      )
+      let body = constructBusinessProfileBody(~paymentLinkConfig=config, ~styleID=styleId)
 
       let dict = Dict.make()
       dict->Dict.set("payment_link_config", body->Identity.genericTypeToJson)
       let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
 
       Nullable.null
+    }
+
+    let validateForm = (values: JSON.t) => {
+      let errors = Dict.make()
+
+      let styleId = values->getDictFromJsonObject->getString("style_id", "")->String.trim
+      let regexForStyleId = "^([a-zA-Z0-9_\\s-]+)$"
+
+      let isDefault = styleId == getDefaultStyleLabelValue(Default)
+      let errorMessage = if styleId->isEmptyString {
+        "Style ID name cannot be empty"
+      } else if styleId->String.length > 32 {
+        "Style ID name cannot exceed 32 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForStyleId), styleId) {
+        "Style ID name should not contain special characters"
+      } else if isDefault {
+        "Style ID with this name already exists in this organization"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "style_id", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
     }
 
     let modalBody = {
@@ -405,22 +430,26 @@ module CreateNewStyleID = {
           </div>
         </div>
         <hr />
-        <Form key="new-style-id-creation" onSubmit={createNewStyleID} initialValues>
+        <Form
+          key="new-style-id-creation"
+          onSubmit={createNewStyleID}
+          initialValues
+          validate={validateForm}>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
-              <FormRenderer.DesktopRow>
-                <FormRenderer.FieldRenderer
+              <DesktopRow>
+                <FieldRenderer
                   fieldWrapperClass="w-full"
                   field={styleIdField}
                   showErrorOnChange=true
                   errorClass={ProdVerifyModalUtils.errorClass}
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />
-              </FormRenderer.DesktopRow>
+              </DesktopRow>
             </div>
             <hr className="mt-4" />
             <div className="flex justify-end w-full p-3">
-              <FormRenderer.SubmitButton text="Create Style ID" buttonSize=Small />
+              <SubmitButton text="Create Style ID" buttonSize=Small />
             </div>
           </div>
         </Form>
@@ -461,7 +490,6 @@ module CreateNewStyleID = {
 module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
-    open LogicUtils
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
       HyperswitchAtom.businessProfileFromIdAtom,
@@ -496,8 +524,8 @@ module StyleIdSelection = {
       let stylesDict = defaultPaymentLinkConfigValues.business_specific_configs
       let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
 
-      setAvailableStyles(_ =>
-        styles->Array.map(
+      setAvailableStyles(_ => {
+        let stylesList = styles->Array.map(
           styleId => {
             let dropdownOption: SelectBox.dropdownOption = {
               label: styleId,
@@ -506,7 +534,12 @@ module StyleIdSelection = {
             dropdownOption
           },
         )
-      )
+        stylesList->Array.unshift({
+          label: getDefaultStyleLabelValue(Default),
+          value: getDefaultStyleLabelValue(Default),
+        })
+        stylesList
+      })
       None
     }, [businessProfileRecoilVal])
 
@@ -544,7 +577,6 @@ module StyleIdSelection = {
 
 @react.component
 let make = () => {
-  open LogicUtils
   let (selectedStyleId, setSelectedStyleId) = React.useState(() => "")
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtom,
@@ -555,13 +587,19 @@ let make = () => {
     | Some(config) => config
     | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
     }
-    let businessSpecificConfigs = paymentLinkConfig.business_specific_configs
-    let businessSpecificConfigsDict = businessSpecificConfigs->getDictFromJsonObject
-    let styleConfig = businessSpecificConfigsDict->Dict.get(selectedStyleId)
 
-    switch styleConfig {
-    | Some(config) => config
-    | None => Dict.make()->JSON.Encode.object
+    switch selectedStyleId->selectedStyleVariant {
+    | Default =>
+      paymentLinkConfig
+      ->getDefaultStylesValue
+      ->Identity.genericTypeToJson
+    | Custom => {
+        let businessSpecificConfigsDict =
+          paymentLinkConfig.business_specific_configs->getDictFromJsonObject
+        businessSpecificConfigsDict
+        ->Dict.get(selectedStyleId)
+        ->Option.getOr(Dict.make()->JSON.Encode.object)
+      }
     }
   }
 

@@ -1,12 +1,22 @@
-let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
-  open LogicUtils
+open LogicUtils
+open PaymentLinkThemeConfiguratorTypes
 
-  let paymentLinkConfig = switch paymentLinkConfig {
-  | Some(config) => config
-  | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
+let selectedStyleVariant = styleID => {
+  switch styleID {
+  | "default" => Default
+  | _ => Custom
   }
+}
 
-  let sytleIdConfig: HSwitchSettingTypes.style_configs = {
+let getDefaultStyleLabelValue = styleVariant => {
+  switch styleVariant {
+  | Default => "default"
+  | _ => ""
+  }
+}
+
+let getDefaultStylesValue: HSwitchSettingTypes.payment_link_config => HSwitchSettingTypes.style_configs = paymentLinkConfig => {
+  {
     theme: paymentLinkConfig.theme,
     logo: paymentLinkConfig.logo,
     seller_name: paymentLinkConfig.seller_name,
@@ -22,55 +32,68 @@ let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
     domain_name: paymentLinkConfig.domain_name,
     branding_visibility: paymentLinkConfig.branding_visibility,
   }
-
-  let businessSpecificConfigs = paymentLinkConfig.business_specific_configs
-  let businessSpecificConfigsDict = businessSpecificConfigs->getDictFromJsonObject
-  let newConfigs = Dict.copy(businessSpecificConfigsDict)
-  newConfigs->Dict.set(styleID, sytleIdConfig->Identity.genericTypeToJson)
-
-  let paymentLinkConfigNew = {
-    ...paymentLinkConfig,
-    business_specific_configs: newConfigs->JSON.Encode.object,
-  }
-
-  paymentLinkConfigNew
 }
 
-let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID) => {
-  open LogicUtils
+let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
+  open BusinessProfileMapper
 
   let paymentLinkConfig = switch paymentLinkConfig {
   | Some(config) => config
-  | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
+  | None => paymentLinkConfigMapper(Dict.make())
   }
+
+  let defaultStyles = paymentLinkConfig->getDefaultStylesValue
 
   let businessSpecificConfigs = paymentLinkConfig.business_specific_configs
   let businessSpecificConfigsDict = businessSpecificConfigs->getDictFromJsonObject
-  let newConfigs = Dict.copy(businessSpecificConfigsDict)
-  newConfigs->Dict.set(styleID, json)
+  let updatedBusinessSpecificDict = Dict.copy(businessSpecificConfigsDict)
+  updatedBusinessSpecificDict->Dict.set(styleID, defaultStyles->Identity.genericTypeToJson)
 
-  let paymentLinkConfigNew = {
+  {
     ...paymentLinkConfig,
-    business_specific_configs: newConfigs->JSON.Encode.object,
+    business_specific_configs: updatedBusinessSpecificDict->JSON.Encode.object,
+  }
+}
+
+let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID) => {
+  open BusinessProfileMapper
+
+  let paymentLinkConfig = switch paymentLinkConfig {
+  | Some(config) => config
+  | None => paymentLinkConfigMapper(Dict.make())
   }
 
-  paymentLinkConfigNew
+  switch styleID->selectedStyleVariant {
+  | Default => {
+      let styleConfig = json->getDictFromJsonObject->styleConfigMapper
+
+      {
+        ...styleConfig,
+        business_specific_configs: paymentLinkConfig.business_specific_configs,
+      }
+    }
+  | Custom => {
+      let businessSpecificConfigs = paymentLinkConfig.business_specific_configs
+      let businessSpecificConfigsDict = businessSpecificConfigs->getDictFromJsonObject
+      let updatedBusinessSpecificDict = Dict.copy(businessSpecificConfigsDict)
+      updatedBusinessSpecificDict->Dict.set(styleID, json)
+
+      {
+        ...paymentLinkConfig,
+        business_specific_configs: updatedBusinessSpecificDict->JSON.Encode.object,
+      }
+    }
+  }
 }
 
 let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
-  open PaymentLinkThemeConfiguratorTypes
-  open LogicUtils
-
-  // Js.log2("paymentDetails", paymentDetails)
-  // Js.log2("formValues", formValues)
-
   let paymentDetailsDict = paymentDetails->getDictFromJsonObject
   let formValuesDict = formValues->getDictFromJsonObject
 
   let getStringFromDict = (dict, key, default) => dict->getString(key, default)
 
   let backgroundImage = getStringFromDict(formValuesDict, "background_image", "")
-  let backgroundImageObj = if backgroundImage->LogicUtils.isNonEmptyString {
+  let backgroundImageObj = if backgroundImage->isNonEmptyString {
     Some({url: backgroundImage})
   } else {
     None
@@ -78,7 +101,7 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
 
   {
     pub_key: publishableKey,
-    amount: paymentDetailsDict->getInt("amount", 0)->Int.toString,
+    amount: (paymentDetailsDict->getInt("amount", 0) / 100)->Int.toString,
     currency: getStringFromDict(paymentDetailsDict, "currency", "USD"),
     client_secret: getStringFromDict(paymentDetailsDict, "client_secret", ""),
     payment_id: getStringFromDict(paymentDetailsDict, "payment_id", ""),
@@ -88,7 +111,7 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
     return_url: getStringFromDict(formValuesDict, "return_url", "https://google.com"),
     merchant_name: getStringFromDict(formValuesDict, "seller_name", "Seller Name"),
     max_items_visible_after_collapse: formValuesDict->getInt("max_items_visible_after_collapse", 3),
-    theme: getStringFromDict(formValuesDict, "theme", ""),
+    theme: getStringFromDict(formValuesDict, "theme", "#FFFFFF"),
     sdk_layout: getStringFromDict(formValuesDict, "sdk_layout", "accordion"),
     display_sdk_only: formValuesDict->getBool("display_sdk_only", false),
     hide_card_nickname_field: formValuesDict->getBool("hide_card_nickname_field", false),
@@ -107,9 +130,11 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
     custom_message_for_card_terms: Some(
       getStringFromDict(formValuesDict, "custom_message_for_card_terms", ""),
     ),
-    payment_button_colour: Some(getStringFromDict(formValuesDict, "payment_button_colour", "")),
+    payment_button_colour: Some(
+      getStringFromDict(formValuesDict, "payment_button_colour", "#FFFFFF"),
+    ),
     payment_button_text_colour: Some(
-      getStringFromDict(formValuesDict, "payment_button_text_colour", ""),
+      getStringFromDict(formValuesDict, "payment_button_text_colour", "#000000"),
     ),
     background_colour: Some(getStringFromDict(formValuesDict, "background_colour", "#FFFFFF")),
     sdk_ui_rules: None,
@@ -124,7 +149,7 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
       getStringFromDict(paymentDetailsDict, "setup_future_usage_applied", ""),
     ),
     color_icon_card_cvc_error: Some(
-      getStringFromDict(formValuesDict, "color_icon_card_cvc_error", ""),
+      getStringFromDict(formValuesDict, "color_icon_card_cvc_error", "#FFFFFF"),
     ),
   }
 }

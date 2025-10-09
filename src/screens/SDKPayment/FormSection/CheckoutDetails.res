@@ -16,6 +16,8 @@ let make = (~getClientSecret, ~customNavigationPath=?, ~onShowPreview=_ => ()) =
     showBillingAddress,
     setPaymentStatus,
   } = React.useContext(SDKProvider.defaultContext)
+  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (showModal, setShowModal) = React.useState(() => false)
   let showToast = ToastState.useShowToast()
   let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -91,7 +93,8 @@ let make = (~getClientSecret, ~customNavigationPath=?, ~onShowPreview=_ => ()) =
     <SubmitButton
       text="Show preview"
       disabledParamter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
-        paymentConnectorList->Array.length == 0}
+      paymentConnectorList->Array.length == 0 ||
+      isInternalUser}
       customSumbitButtonStyle="!mt-5 !w-full"
     />
   </Form>

@@ -1,7 +1,7 @@
 open HSwitchSettingTypes
+open LogicUtils
 
 let constructWebhookDetailsObject = webhookDetailsDict => {
-  open LogicUtils
   let webhookDetails = {
     webhook_version: webhookDetailsDict->getOptionString("webhook_version"),
     webhook_username: webhookDetailsDict->getOptionString("webhook_username"),
@@ -13,8 +13,8 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   }
   webhookDetails
 }
+
 let constructAuthConnectorObject = authConnectorDict => {
-  open LogicUtils
   let authConnectorDetails = {
     authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
       "authentication_connectors",
@@ -25,8 +25,27 @@ let constructAuthConnectorObject = authConnectorDict => {
   authConnectorDetails
 }
 
+let styleConfigMapper = styleConfigDict => {
+  {
+    theme: styleConfigDict->getString("theme", ""),
+    logo: styleConfigDict->getString("logo", ""),
+    seller_name: styleConfigDict->getString("seller_name", ""),
+    sdk_layout: styleConfigDict->getString("sdk_layout", ""),
+    display_sdk_only: styleConfigDict->getBool("display_sdk_only", false),
+    enabled_saved_payment_method: styleConfigDict->getBool("enabled_saved_payment_method", false),
+    hide_card_nickname_field: styleConfigDict->getBool("hide_card_nickname_field", false),
+    show_card_form_by_default: styleConfigDict->getBool("show_card_form_by_default", false),
+    payment_button_text: styleConfigDict->getString("payment_button_text", ""),
+    sdk_ui_rules: styleConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
+    allowed_domains: styleConfigDict->getStrArrayFromDict("allowed_domains", []),
+    payment_link_ui_rules: styleConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
+    business_specific_configs: styleConfigDict->getJsonObjectFromDict("business_specific_configs"),
+    domain_name: styleConfigDict->getString("domain_name", ""),
+    branding_visibility: styleConfigDict->getBool("branding_visibility", false),
+  }
+}
+
 let paymentLinkConfigMapper = paymentLinkConfigDict => {
-  open LogicUtils
   {
     theme: paymentLinkConfigDict->getString("theme", ""),
     logo: paymentLinkConfigDict->getString("logo", ""),
@@ -52,7 +71,6 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
 }
 
 let businessProfileTypeMapper = values => {
-  open LogicUtils
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
@@ -114,6 +132,5 @@ let convertObjectToType = value => {
 }
 
 let getArrayOfBusinessProfile = businessProfileValue => {
-  open LogicUtils
   businessProfileValue->getArrayFromJson([])->convertObjectToType
 }

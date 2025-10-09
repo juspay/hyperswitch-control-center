@@ -2,6 +2,10 @@ type steps =
   | Checkout
   | Configurator
 
+type styleType =
+  | Default
+  | Custom
+
 type background_image = {url: string}
 
 type paymentLinkWasmPayload = {
