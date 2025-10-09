@@ -15,49 +15,63 @@ module ColumnMappingDisplay = {
         (key, displayKey, displayValue)
       })
 
-    <div className="p-6 w-full">
-      <div className="flex flex-col gap-4">
-        {mappingItems
-        ->Array.map(((key, label, value)) => {
-          let sourceFieldInput = createFormInput(~name=`mapping_source_${key}`, ~value=label)
-          let targetFieldInput = createFormInput(~name=`mapping_target_${key}`, ~value)
+    <div className="flex flex-col gap-3 py-3">
+      <div className="flex items-center gap-4 px-6">
+        <div className="flex-1 mx-2.5">
+          <p className={`${body.lg.medium} text-nd_gray-800`}> {"File column"->React.string} </p>
+        </div>
+        <div />
+        <div className="flex-1 mx-2.5">
+          <p className={`${body.lg.medium} text-nd_gray-800`}> {"System column"->React.string} </p>
+        </div>
+      </div>
+      <div className="px-6 w-full">
+        <div className="flex flex-col gap-y-4">
+          {mappingItems
+          ->Array.map(((key, label, value)) => {
+            let sourceFieldInput = createFormInput(~name=`mapping_source_${key}`, ~value=label)
+            let targetFieldInput = createFormInput(~name=`mapping_target_${key}`, ~value)
 
-          let sourceFieldOptions = [createDropdownOption(~label, ~value=label)]
-          let targetFieldOptions = [
-            createDropdownOption(~label=value->isNonEmptyString ? value : "Not configured", ~value),
-          ]
+            let sourceFieldOptions = [createDropdownOption(~label, ~value=label)]
+            let targetFieldOptions = [
+              createDropdownOption(
+                ~label=value->isNonEmptyString ? value : "Not configured",
+                ~value,
+              ),
+            ]
 
-          <div key className="flex items-center gap-4 p-3 border rounded-lg border-nd_gray-150">
-            <div className="flex-1">
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText={label}
-                input=sourceFieldInput
-                options=sourceFieldOptions
-                hideMultiSelectButtons=true
-                deselectDisable=true
-                disableSelect=true
-                fullLength=true
-              />
+            <div key className="flex items-center gap-4 p-3 border rounded-lg border-nd_gray-150">
+              <div className="flex-1">
+                <SelectBox.BaseDropdown
+                  allowMultiSelect=false
+                  buttonText={value->isNonEmptyString ? value : "Not configured"}
+                  input=targetFieldInput
+                  options=targetFieldOptions
+                  hideMultiSelectButtons=true
+                  deselectDisable=true
+                  disableSelect=true
+                  fullLength=true
+                />
+              </div>
+              <div className="flex items-center">
+                <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+              </div>
+              <div className="flex-1">
+                <SelectBox.BaseDropdown
+                  allowMultiSelect=false
+                  buttonText={label}
+                  input=sourceFieldInput
+                  options=sourceFieldOptions
+                  hideMultiSelectButtons=true
+                  deselectDisable=true
+                  disableSelect=true
+                  fullLength=true
+                />
+              </div>
             </div>
-            <div className="flex items-center">
-              <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
-            </div>
-            <div className="flex-1">
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText={value->isNonEmptyString ? value : "Not configured"}
-                input=targetFieldInput
-                options=targetFieldOptions
-                hideMultiSelectButtons=true
-                deselectDisable=true
-                disableSelect=true
-                fullLength=true
-              />
-            </div>
-          </div>
-        })
-        ->React.array}
+          })
+          ->React.array}
+        </div>
       </div>
     </div>
   }
@@ -74,6 +88,7 @@ let make = (~showModal, ~setShowModal, ~selectedTransformation: transformationCo
     showModal
     closeOnOutsideClick=true
     modalHeading="Mappers"
+    modalHeadingDescription="Map columns from your file to the corresponding required system columns"
     modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
     modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white"
     childClass="relative h-full">

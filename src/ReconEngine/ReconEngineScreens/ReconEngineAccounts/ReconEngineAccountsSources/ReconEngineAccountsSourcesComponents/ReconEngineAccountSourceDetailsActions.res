@@ -55,10 +55,12 @@ let make = (~ingestionHistory: ingestionHistoryType) => {
     {
       iconType: ViewIcon,
       onClick: _ => (),
+      disabled: true,
     },
     {
       iconType: DownloadIcon,
       onClick: _ => (),
+      disabled: true,
     },
     {
       iconType: ChartIcon,
@@ -66,6 +68,7 @@ let make = (~ingestionHistory: ingestionHistoryType) => {
         ev->ReactEvent.Mouse.stopPropagation
         setShowModal(_ => true)
       },
+      disabled: false,
     },
   ]
 
@@ -139,6 +142,7 @@ let make = (~ingestionHistory: ingestionHistoryType) => {
       <Icon
         key={index->Int.toString}
         name={(action.iconType :> string)}
+        className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
         size=16
         onClick={action.onClick}
       />

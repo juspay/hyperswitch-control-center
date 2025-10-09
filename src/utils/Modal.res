@@ -1,4 +1,5 @@
 open ModalUtils
+open Typography
 
 type modalData = {
   heading: string,
@@ -49,9 +50,9 @@ module ModalHeading = {
     let justifyClass = centerHeading ? "justify-center" : "justify-between"
     let headerTextClass = isMobileView ? "text-fs-18 font-semibold" : headerTextClass
 
-    let descriptionStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm "
+    let descriptionStyle = `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg`
 
-    let subInfoStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm empty:hidden"
+    let subInfoStyle = `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg empty:hidden`
 
     <div
       className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
