@@ -94,42 +94,41 @@ let make = () => {
     getCustomersList(searchText)->ignore
     None
   }, [offset])
-
-  <PageLoaderWrapper screenState customUI>
-    <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
-    <div className="relative">
-      <div className="absolute top-10 left-0">
-        //temporary fix for search input offset
-        <SearchInput
-          onChange=handleSearch
-          inputText=searchText
-          placeholder="Search by Customer ID"
-          onKeyDown=handleKeyDown
-          widthClass="w-80"
-          autoFocus=false
-        />
-      </div>
-      <div className="pt-16">
-        <LoadedTableWithCustomColumns
-          title="Customers"
-          hideTitle=true
-          actualData=customersData
-          entity={customersEntity}
-          resultsPerPage=20
-          showSerialNumber=true
-          totalResults=total
-          offset
-          setOffset
-          currrentFetchCount={customersData->Array.length}
-          defaultColumns={defaultColumns}
-          customColumnMapper={TableAtoms.customersMapDefaultCols}
-          showSerialNumberInCustomizeColumns=false
-          showResultsPerPageSelector=false
-          sortingBasedOnDisabled=false
-          showAutoScroll=true
-          isDraggable=true
-        />
-      </div>
+  <div>
+    <PageUtils.PageHeading
+      title="Customers" subTitle="View all customers" customHeadingStyle="mb-8"
+    />
+    <div>
+      //temporary fix for search input offset
+      <SearchInput
+        onChange=handleSearch
+        inputText=searchText
+        placeholder="Search by Customer ID"
+        onKeyDown=handleKeyDown
+        widthClass="w-80"
+        autoFocus=false
+      />
     </div>
-  </PageLoaderWrapper>
+    <PageLoaderWrapper screenState customUI>
+      <LoadedTableWithCustomColumns
+        title="Customers"
+        hideTitle=true
+        actualData=customersData
+        entity={customersEntity}
+        resultsPerPage=20
+        showSerialNumber=true
+        totalResults=total
+        offset
+        setOffset
+        currrentFetchCount={customersData->Array.length}
+        defaultColumns={defaultColumns}
+        customColumnMapper={TableAtoms.customersMapDefaultCols}
+        showSerialNumberInCustomizeColumns=false
+        showResultsPerPageSelector=false
+        sortingBasedOnDisabled=false
+        showAutoScroll=true
+        isDraggable=true
+      />
+    </PageLoaderWrapper>
+  </div>
 }
