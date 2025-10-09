@@ -109,7 +109,9 @@ let make = (
             )
             ->React.array}
           </div>
-          <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
+          <Button
+            buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" buttonState=Disabled
+          />
         </div>
       },
     })
