@@ -13,7 +13,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
