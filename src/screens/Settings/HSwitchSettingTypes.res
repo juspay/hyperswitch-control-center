@@ -168,21 +168,8 @@ type style_configs = {
 }
 
 type payment_link_config = {
-  domain_name: string,
-  allowed_domains: array<string>,
-  theme: string,
-  logo: string,
-  seller_name: string,
-  sdk_layout: string,
-  display_sdk_only: bool,
-  enabled_saved_payment_method: bool,
-  hide_card_nickname_field: bool,
-  show_card_form_by_default: bool,
-  payment_button_text: string,
-  sdk_ui_rules: JSON.t,
-  payment_link_ui_rules: JSON.t,
+  ...style_configs,
   business_specific_configs: JSON.t,
-  branding_visibility: bool,
 }
 
 type profileEntity = {

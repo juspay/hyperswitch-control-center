@@ -47,26 +47,10 @@ let styleConfigMapper = styleConfigDict => {
 
 let paymentLinkConfigMapper = paymentLinkConfigDict => {
   {
-    theme: paymentLinkConfigDict->getString("theme", ""),
-    logo: paymentLinkConfigDict->getString("logo", ""),
-    seller_name: paymentLinkConfigDict->getString("seller_name", ""),
-    sdk_layout: paymentLinkConfigDict->getString("sdk_layout", ""),
-    display_sdk_only: paymentLinkConfigDict->getBool("display_sdk_only", false),
-    enabled_saved_payment_method: paymentLinkConfigDict->getBool(
-      "enabled_saved_payment_method",
-      false,
-    ),
-    hide_card_nickname_field: paymentLinkConfigDict->getBool("hide_card_nickname_field", false),
-    show_card_form_by_default: paymentLinkConfigDict->getBool("show_card_form_by_default", false),
-    payment_button_text: paymentLinkConfigDict->getString("payment_button_text", ""),
-    sdk_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
-    allowed_domains: paymentLinkConfigDict->getStrArrayFromDict("allowed_domains", []),
-    payment_link_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
+    ...styleConfigMapper(paymentLinkConfigDict),
     business_specific_configs: paymentLinkConfigDict->getJsonObjectFromDict(
       "business_specific_configs",
     ),
-    domain_name: paymentLinkConfigDict->getString("domain_name", ""),
-    branding_visibility: paymentLinkConfigDict->getBool("branding_visibility", false),
   }
 }
 
