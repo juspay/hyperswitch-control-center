@@ -22,7 +22,7 @@ let useClearRecoilValue = () => {
     setMerchantDetailsValue(_ => JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails)
     //Todo: remove id atom once we start using businessProfileInterface
     setBusinessProfileRecoil(_ =>
-      JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1
+      JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
     )
     setBusinessProfileInterfaceRecoil(_ =>
       JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType

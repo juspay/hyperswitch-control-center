@@ -1,8 +1,9 @@
 open PaymentSettingsV2Types
-open HSwitchSettingTypes
 open LogicUtils
 
-let parseBusinessProfileForPaymentBehaviour = (profileRecord: profileEntity) => {
+let parseBusinessProfileForPaymentBehaviour = (
+  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+) => {
   let {
     profile_name,
     webhook_details,
@@ -167,7 +168,7 @@ let validationFieldsReverseMapperV2 = value => {
 let validateMerchantAccountFormV2 = (
   ~values: JSON.t,
   ~isLiveMode,
-  ~businessProfileRecoilVal: commonProfileEntity,
+  ~businessProfileRecoilVal: BusinessProfileInterfaceTypes.commonProfileEntity,
 ) => {
   let errors = Dict.make()
 
@@ -206,10 +207,10 @@ let validateMerchantAccountFormV2 = (
       }
     | AuthenticationConnectorDetails => {
         let authConnectorDetailsDict = businessProfileRecoilVal.authentication_connector_details
-        let initiallyConnectedAuthConnectorsLength = switch authConnectorDetailsDict {
-        | Some(val) => val.authentication_connectors->Option.mapOr(0, arr => arr->Array.length)
-        | None => 0
-        }
+        let initiallyConnectedAuthConnectorsLength =
+          authConnectorDetailsDict->Option.mapOr(0, val =>
+            val.authentication_connectors->Option.mapOr(0, arr => arr->Array.length)
+          )
 
         let authenticationConnectorDetailsDict =
           valuesDict->getDictfromDict("authentication_connector_details")
@@ -273,7 +274,9 @@ let validateMerchantAccountFormV2 = (
   errors->JSON.Encode.object
 }
 
-let parseBusinessProfileForThreeDS = (profileRecord: HSwitchSettingTypes.profileEntity) => {
+let parseBusinessProfileForThreeDS = (
+  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+) => {
   let {
     authentication_connector_details,
     force_3ds_challenge,
@@ -311,18 +314,6 @@ let isAuthConnectorArrayEmpty = values => {
   ->Array.length === 0
 }
 
-let parseCustomHeadersFromEntity = (profileRecord: profileEntity) => {
-  let customHeaderDict = Dict.make()
-
-  switch profileRecord.outgoing_webhook_custom_http_headers {
-  | Some(headers) =>
-    customHeaderDict->setOptionDict("outgoing_webhook_custom_http_headers", Some(headers))
-  | None => ()
-  }
-
-  customHeaderDict
-}
-
 let getCustomHeadersPayload = valuesDict => {
   let customHeaderDict = Dict.make()
   let outGoingWebHookCustomHttpHeaders = Dict.make()
@@ -355,16 +346,6 @@ let removeEmptyValues = (~dict, ~key) => {
       finalDict->setOptionString(val, formValues->getString(val, "")->getNonEmptyString)
     })
   finalDict
-}
-let parseMetadataCustomHeadersFromEntity = (profileRecord: profileEntity) => {
-  let customHeaderDict = Dict.make()
-
-  switch profileRecord.metadata {
-  | Some(headers) => customHeaderDict->setOptionDict("metadata", Some(headers))
-  | None => ()
-  }
-
-  customHeaderDict
 }
 let getMetdataKeyValuePayload = valuesDict => {
   let customHeaderDict = Dict.make()

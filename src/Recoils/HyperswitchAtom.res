@@ -23,7 +23,7 @@ let connectorListAtom: Recoil.recoilAtom<
 //Todo: remove this once we start using businessProfileInterface
 let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
-  JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1,
+  JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
 )
 //Todo:remove this after businessProfileInterface is stable
 let businessProfileFromIdAtomInterface = Recoil.atom(
