@@ -26,6 +26,8 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
   PayoutProcessor(NOMUPAY),
+  PayoutProcessor(NUVEI),
+  PayoutProcessor(GIGADAT),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -134,9 +136,11 @@ let connectorList: array<connectorTypes> = [
   Processors(PHONEPE),
   Processors(FLEXITI),
   Processors(BREADPAY),
-  Processors(BLUECODE),
+  Processors(CALIDA),
   Processors(PAYSAFE),
   Processors(GIGADAT),
+  Processors(LOONIO),
+  Processors(TESOURO),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -707,8 +711,8 @@ let breadpayInfo = {
   description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
 }
 
-let bluecodeInfo = {
-  description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
+let calidaInfo = {
+  description: "Calida Financial is a licensed e-money institution based in Malta and they provide customized financial infrastructure and payment solutions across the EU and EEA. As part of The Payments Group, it focuses on embedded finance, prepaid services, and next-generation digital payment products.",
 }
 
 let blackhawknetworkInfo = {
@@ -725,6 +729,13 @@ let peachpaymentsInfo = {
 
 let gigadatInfo = {
   description: "Gigadat Solutions Inc. is a Canadian fintech leader specializing in secure, real-time online banking payment solutions tailored for the evolving needs of e-merchants, consumers, and financial institutions.",
+}
+
+let loonioInfo = {
+  description: "Loonio is a payment processing platform that provides APIs for deposits and payouts via methods like Interac, PIX, EFT, and credit cards, with webhook support and transaction sync for real-time and manual status tracking.",
+}
+let tesouroInfo = {
+  description: "Tesouro is a Miami-based fintech company that provides a cloud-native payment gateway platform, offering APIs and streamlined data inflows to connect software companies, banks, and payment facilitators for seamless payment processing.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
@@ -821,12 +832,14 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PHONEPE => "phonepe"
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
-  | BLUECODE => "bluecode"
+  | CALIDA => "calida"
   | BLACKHAWKNETWORK => "blackhawknetwork"
   | DWOLLA => "dwolla"
   | PAYSAFE => "paysafe"
   | PEACHPAYMENTS => "peachpayments"
   | GIGADAT => "gigadat"
+  | LOONIO => "loonio"
+  | TESOURO => "tesouro"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -839,6 +852,8 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | STRIPE => "stripe"
   | WISE => "wise"
   | NOMUPAY => "nomupay"
+  | NUVEI => "nuvei"
+  | GIGADAT => "gigadat"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -991,12 +1006,14 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "phonepe" => Processors(PHONEPE)
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
-    | "bluecode" => Processors(BLUECODE)
+    | "calida" => Processors(CALIDA)
     | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
     | "gigadat" => Processors(GIGADAT)
+    | "loonio" => Processors(LOONIO)
+    | "tesouro" => Processors(TESOURO)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1009,6 +1026,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
     | "nomupay" => PayoutProcessor(NOMUPAY)
+    | "nuvei" => PayoutProcessor(NUVEI)
+    | "gigadat" => PayoutProcessor(GIGADAT)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1141,12 +1160,14 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PHONEPE => phonepeInfo
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
-  | BLUECODE => bluecodeInfo
+  | CALIDA => calidaInfo
   | BLACKHAWKNETWORK => blackhawknetworkInfo
   | DWOLLA => dwollaInfo
   | PAYSAFE => paysafeInfo
   | PEACHPAYMENTS => peachpaymentsInfo
   | GIGADAT => gigadatInfo
+  | LOONIO => loonioInfo
+  | TESOURO => tesouroInfo
   }
 }
 
@@ -1160,6 +1181,8 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | STRIPE => stripeInfo
   | WISE => wiseInfo
   | NOMUPAY => nomupayInfo
+  | NUVEI => nuveiInfo
+  | GIGADAT => gigadatInfo
   }
 }
 
@@ -2064,12 +2087,14 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PHONEPE => "PhonePe"
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
-  | BLUECODE => "Bluecode"
+  | CALIDA => "Calida Financial"
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
   | PEACHPAYMENTS => "PeachPayments"
   | GIGADAT => "Gigadat"
+  | LOONIO => "Loonio"
+  | TESOURO => "Tesouro"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2082,6 +2107,8 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | STRIPE => "Stripe"
   | WISE => "Wise"
   | NOMUPAY => "Nomupay"
+  | NUVEI => "Nuvei"
+  | GIGADAT => "Gigadat"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

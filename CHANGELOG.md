@@ -3,6 +3,48 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.09.0
+
+### Features
+
+- Wasm changes for new connector `calida` ([#3688](https://github.com/juspay/hyperswitch-control-center/pull/3688)) ([`d8d29b7`](https://github.com/juspay/hyperswitch-control-center/commit/d8d29b71fc515fa7b30913fcb564e713bc8b9830))
+- Add new connector `calida` ([#3690](https://github.com/juspay/hyperswitch-control-center/pull/3690)) ([`f701dcf`](https://github.com/juspay/hyperswitch-control-center/commit/f701dcfcaa213b9c004541af5fad0e2a12759dd5))
+
+### Bug Fixes
+
+- Refund popup modal should close on failed refund API response ([#3663](https://github.com/juspay/hyperswitch-control-center/pull/3663)) ([`31333c1`](https://github.com/juspay/hyperswitch-control-center/commit/31333c1fff6d92cf861291f2998d09b8f72e1329))
+
+**Full Changelog:** [`2025.10.06.0...2025.10.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.06.0...2025.10.09.0)
+
+- - -
+
+## 2025.10.06.0
+
+### Features
+
+- Gigadat payout connector ([#3653](https://github.com/juspay/hyperswitch-control-center/pull/3653)) ([`2538efe`](https://github.com/juspay/hyperswitch-control-center/commit/2538efeb0e34cc5dd7d9966074e77b95a5705e8b))
+- Loonio connector addition ([#3664](https://github.com/juspay/hyperswitch-control-center/pull/3664)) ([`34766b5`](https://github.com/juspay/hyperswitch-control-center/commit/34766b574b385fb47f935ed5d766845c2bd51150))
+- Wasm changes for payout gigadat ([#3657](https://github.com/juspay/hyperswitch-control-center/pull/3657)) ([`c88c437`](https://github.com/juspay/hyperswitch-control-center/commit/c88c43735a972fcfcadcd69a795ec60d77c8afee))
+- Added tesouro connector ([#3673](https://github.com/juspay/hyperswitch-control-center/pull/3673)) ([`0fda850`](https://github.com/juspay/hyperswitch-control-center/commit/0fda8501e2ecbad26f64f90eda267d6725b8cc67))
+
+### Miscellaneous Tasks
+
+- Updated wasm for tesouro connector ([#3674](https://github.com/juspay/hyperswitch-control-center/pull/3674)) ([`c19ee51`](https://github.com/juspay/hyperswitch-control-center/commit/c19ee51bb41de781d625167a86b21d4240431019))
+
+**Full Changelog:** [`2025.10.01.0...2025.10.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.01.0...2025.10.06.0)
+
+- - -
+
+## 2025.10.01.0
+
+### Features
+
+- Added nuvei as a payout connector ([#3667](https://github.com/juspay/hyperswitch-control-center/pull/3667)) ([`5e37dfb`](https://github.com/juspay/hyperswitch-control-center/commit/5e37dfbcd88e6a0fc3fc549ac4ef14a7d45f4aac))
+
+**Full Changelog:** [`2025.09.30.0...2025.10.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.09.30.0...2025.10.01.0)
+
+- - -
+
 ## 2025.09.30.0
 
 ### Bug Fixes
