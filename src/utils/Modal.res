@@ -49,9 +49,9 @@ module ModalHeading = {
     let justifyClass = centerHeading ? "justify-center" : "justify-between"
     let headerTextClass = isMobileView ? "text-fs-18 font-semibold" : headerTextClass
 
-    let descriptionStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm "
+    let descriptionStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-md"
 
-    let subInfoStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-sm empty:hidden"
+    let subInfoStyle = "text-md font-medium leading-7 opacity-50 mt-1 w-full max-w-md empty:hidden"
 
     <div
       className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
