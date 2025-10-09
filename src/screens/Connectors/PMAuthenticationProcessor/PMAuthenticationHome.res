@@ -67,7 +67,7 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"pm-authentication-processor", "new"} => false

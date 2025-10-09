@@ -9,7 +9,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profile, setProfile) = React.useState(_ => profileId)
   let showToast = ToastState.useShowToast()

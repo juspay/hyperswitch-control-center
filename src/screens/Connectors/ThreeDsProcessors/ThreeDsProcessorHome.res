@@ -64,7 +64,7 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {

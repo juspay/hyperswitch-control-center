@@ -4,7 +4,7 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ => [])

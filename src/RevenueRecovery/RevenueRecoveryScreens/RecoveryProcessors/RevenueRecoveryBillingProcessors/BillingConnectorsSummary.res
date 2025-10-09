@@ -16,7 +16,7 @@ module WebhooksConfiguration = {
     )
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let (isEditMode, setIsEditMode) = React.useState(_ => false)
     let (merchantBusinessProfileInfo, setMerchantBusinessProfileInfo) = React.useState(() =>
@@ -77,9 +77,7 @@ module WebhooksConfiguration = {
 
     <PageLoaderWrapper screenState sectionHeight="h-28">
       <Form
-        initialValues={businessProfileRecoilVal
-        ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
-        ->Identity.genericTypeToJson}
+        initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
         onSubmit
         validate={values => {
           MerchantAccountUtils.validateMerchantAccountForm(

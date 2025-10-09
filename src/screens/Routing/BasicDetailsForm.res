@@ -79,7 +79,7 @@ let make = (
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
   React.useEffect(() => {

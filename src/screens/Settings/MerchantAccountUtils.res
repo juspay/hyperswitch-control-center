@@ -628,7 +628,10 @@ let getValueFromBusinessProfile = businessProfileValue => {
   businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
-let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
+let businessProfileNameDropDownOption = (
+  arrBusinessProfile: array<commonProfileEntity>,
+  ~profileId,
+) =>
   arrBusinessProfile->Array.map(ele => {
     let obj: SelectBox.dropdownOption = {
       label: {`${ele.profile_name} (${profileId})`},
