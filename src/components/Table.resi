@@ -8,6 +8,7 @@ type labelColor = TableUtils.labelColor =
   | LabelOrange
   | LabelYellow
   | LabelLightGray
+  | LabelPurple
 type filterDataType = TableUtils.filterDataType = Float(float, float) | String | DateTime
 type disableField = TableUtils.disableField = {key: string, values: array<string>}
 type customiseColumnConfig = TableUtils.customiseColumnConfig = {
