@@ -103,8 +103,7 @@ let getAccordionConfig = (
   [
     {
       title: "Source & Ingestion Config",
-      renderContent: () =>
-        <ReconEngineAccountsOverviewIngestion ingestionId=ingestionHistoryData.ingestion_id />,
+      renderContent: () => <ReconEngineAccountsOverviewIngestion ingestionHistoryData />,
       renderContentOnTop: Some(() => <SourceIngestionHeader ingestionHistoryData />),
     },
     {
