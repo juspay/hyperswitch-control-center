@@ -49,12 +49,12 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
     {
       buttonType: ViewFile,
       onClick: _ => (),
-      showTooltip: true,
+      disabled: true,
     },
     {
       buttonType: Download,
       onClick: _ => (),
-      showTooltip: true,
+      disabled: true,
     },
     {
       buttonType: Timeline,
@@ -62,7 +62,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
         ev->ReactEvent.Mouse.stopPropagation
         setShowModal(_ => true)
       },
-      showTooltip: false,
+      disabled: false,
     },
   ]
 
@@ -96,11 +96,10 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
           <Button
             key={index->Int.toString}
             buttonType=Secondary
+            buttonState={action.disabled ? Disabled : Normal}
             text={(action.buttonType :> string)}
             onClick={action.onClick}
             customButtonStyle="!w-fit"
-            tooltipText="This feature is available in prod"
-            showTooltip=action.showTooltip
           />
         })
         ->React.array}

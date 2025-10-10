@@ -120,7 +120,7 @@ type processorTypes =
   | PHONEPE
   | FLEXITI
   | BREADPAY
-  | BLUECODE
+  | CALIDA
   | BLACKHAWKNETWORK
   | DWOLLA
   | PAYSAFE

@@ -120,17 +120,13 @@ let make = (~accountId) => {
           onClick={_ => setShowModal(_ => true)}
           buttonSize=Large
         />
-        <ToolTip
-          toolTipPosition=Bottom
-          description="This feature is available in prod"
-          toolTipFor={<Button
-            text="Add New Transformation"
-            customButtonStyle="!cursor-not-allowed"
-            buttonState=Normal
-            buttonType=Primary
-            onClick={_ => ()}
-            buttonSize=Large
-          />}
+        <Button
+          text="Add New Transformation"
+          customButtonStyle="!cursor-not-allowed"
+          buttonState=Disabled
+          buttonType=Primary
+          onClick={_ => ()}
+          buttonSize=Large
         />
       </div>
     </div>

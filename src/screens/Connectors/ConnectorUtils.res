@@ -136,7 +136,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PHONEPE),
   Processors(FLEXITI),
   Processors(BREADPAY),
-  Processors(BLUECODE),
+  Processors(CALIDA),
   Processors(PAYSAFE),
   Processors(GIGADAT),
   Processors(LOONIO),
@@ -711,8 +711,8 @@ let breadpayInfo = {
   description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
 }
 
-let bluecodeInfo = {
-  description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
+let calidaInfo = {
+  description: "Calida Financial is a licensed e-money institution based in Malta and they provide customized financial infrastructure and payment solutions across the EU and EEA. As part of The Payments Group, it focuses on embedded finance, prepaid services, and next-generation digital payment products.",
 }
 
 let blackhawknetworkInfo = {
@@ -832,7 +832,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PHONEPE => "phonepe"
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
-  | BLUECODE => "bluecode"
+  | CALIDA => "calida"
   | BLACKHAWKNETWORK => "blackhawknetwork"
   | DWOLLA => "dwolla"
   | PAYSAFE => "paysafe"
@@ -1006,7 +1006,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "phonepe" => Processors(PHONEPE)
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
-    | "bluecode" => Processors(BLUECODE)
+    | "calida" => Processors(CALIDA)
     | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
@@ -1160,7 +1160,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PHONEPE => phonepeInfo
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
-  | BLUECODE => bluecodeInfo
+  | CALIDA => calidaInfo
   | BLACKHAWKNETWORK => blackhawknetworkInfo
   | DWOLLA => dwollaInfo
   | PAYSAFE => paysafeInfo
@@ -2087,7 +2087,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PHONEPE => "PhonePe"
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
-  | BLUECODE => "Bluecode"
+  | CALIDA => "Calida Financial"
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"

@@ -208,10 +208,12 @@ module IngestionHistoryActionsComponent = {
       {
         iconType: ViewIcon,
         onClick: _ => (),
+        disabled: true,
       },
       {
         iconType: DownloadIcon,
         onClick: _ => (),
+        disabled: true,
       },
       {
         iconType: ChartIcon,
@@ -219,6 +221,7 @@ module IngestionHistoryActionsComponent = {
           ev->ReactEvent.Mouse.stopPropagation
           setShowModal(_ => true)
         },
+        disabled: false,
       },
     ]
 
@@ -228,26 +231,13 @@ module IngestionHistoryActionsComponent = {
       />
       {ingestionHistoryIconActions
       ->Array.mapWithIndex((action, index) => {
-        let iconComponent =
-          <Icon
-            key={index->Int.toString}
-            name={(action.iconType :> string)}
-            size=16
-            onClick={action.onClick}
-          />
-
-        switch action.iconType {
-        | ChartIcon => iconComponent
-        | _ =>
-          <ToolTip
-            key={index->Int.toString}
-            description="This feature is available in prod"
-            toolTipFor={iconComponent}
-            contentAlign=Default
-            justifyClass="justify-start"
-            toolTipPosition=ToolTip.Top
-          />
-        }
+        <Icon
+          key={index->Int.toString}
+          name={(action.iconType :> string)}
+          size=16
+          onClick={action.onClick}
+          className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        />
       })
       ->React.array}
     </div>
