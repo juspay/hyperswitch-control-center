@@ -3,6 +3,7 @@ module CopyTextCustomComp = {
   let make = (
     ~displayValue=None,
     ~copyValue=None,
+    ~showEmptyAsNA=false,
     ~customTextCss="",
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
@@ -11,6 +12,7 @@ module CopyTextCustomComp = {
     ~customIconSize=15,
     ~customComponent=None,
   ) => {
+    open LogicUtils
     let showToast = ToastState.useShowToast()
 
     let copyVal = switch copyValue {
@@ -21,6 +23,7 @@ module CopyTextCustomComp = {
       | None => ""
       }
     }
+
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(copyVal)
@@ -28,21 +31,29 @@ module CopyTextCustomComp = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    switch displayValue {
-    | Some(val) =>
-      <div
-        className={`${customParentClass} cursor-pointer`}
-        onClick={ev => {
-          onCopyClick(ev)
-        }}>
-        <div className=customTextCss> {val->React.string} </div>
-        {switch customComponent {
+    let valueToShow = switch displayValue {
+      | Some(val) =>
+        if showEmptyAsNA && val->isNonEmptyString == false {
+          "NA"
+        } else {
+          val
+        }
+      | None => "NA"
+    }
+
+    <div
+      className={`${customParentClass} cursor-pointer`}
+      onClick={ev => {
+        onCopyClick(ev)
+      }}>
+      <div className=customTextCss> {valueToShow->React.string} </div>
+      {
+        switch customComponent {
         | Some(element) => element
         | None => <Icon size={customIconSize} name={customIcon} className={`${customIconCss} `} />
-        }}
-      </div>
-    | None => "NA"->React.string
-    }
+        }
+      }
+    </div>
   }
 }
 
