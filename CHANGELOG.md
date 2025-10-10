@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.10.0
+
+### Features
+
+- Implement disabled states for Recon Engine action buttons ([#3698](https://github.com/juspay/hyperswitch-control-center/pull/3698)) ([`c13b92b`](https://github.com/juspay/hyperswitch-control-center/commit/c13b92b0b99edb653dff8294e49ef115ca9c74c9))
+
+### Bug Fixes
+
+- Resend invite api auth id query issue ([#3686](https://github.com/juspay/hyperswitch-control-center/pull/3686)) ([`19e1b76`](https://github.com/juspay/hyperswitch-control-center/commit/19e1b76cf826988a48f21faf56df35f621d41561))
+
+**Full Changelog:** [`2025.10.09.1...2025.10.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.09.1...2025.10.10.0)
+
+- - -
+
 ## 2025.10.09.1
 
 ### Features
