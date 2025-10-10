@@ -94,21 +94,19 @@ let make = () => {
     getCustomersList(searchText)->ignore
     None
   }, [offset])
-  <div>
+  <>
     <PageUtils.PageHeading
       title="Customers" subTitle="View all customers" customHeadingStyle="mb-8"
     />
-    <div>
-      //temporary fix for search input offset
-      <SearchInput
-        onChange=handleSearch
-        inputText=searchText
-        placeholder="Search by Customer ID"
-        onKeyDown=handleKeyDown
-        widthClass="w-80"
-        autoFocus=false
-      />
-    </div>
+    //temporary fix for search input offset
+    <SearchInput
+      onChange=handleSearch
+      inputText=searchText
+      placeholder="Search by Customer ID"
+      onKeyDown=handleKeyDown
+      widthClass="w-80"
+      autoFocus=false
+    />
     <PageLoaderWrapper screenState customUI>
       <LoadedTableWithCustomColumns
         title="Customers"
@@ -130,5 +128,5 @@ let make = () => {
         isDraggable=true
       />
     </PageLoaderWrapper>
-  </div>
+  </>
 }
