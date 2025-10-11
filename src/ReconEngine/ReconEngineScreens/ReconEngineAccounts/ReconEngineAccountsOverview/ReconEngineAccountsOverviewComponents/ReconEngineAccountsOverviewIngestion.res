@@ -46,14 +46,17 @@ let make = (~ingestionId) => {
     {
       buttonType: ViewFile,
       onClick: _ => (),
+      disabled: true,
     },
     {
       buttonType: Download,
       onClick: _ => (),
+      disabled: true,
     },
     {
       buttonType: Timeline,
       onClick: _ => (),
+      disabled: true,
     },
   ]
 
@@ -87,6 +90,7 @@ let make = (~ingestionId) => {
           <Button
             key={index->Int.toString}
             buttonType=Secondary
+            buttonState={action.disabled ? Disabled : Normal}
             text={(action.buttonType :> string)}
             onClick={action.onClick}
             customButtonStyle="!w-fit"
