@@ -61,12 +61,11 @@ module NewCustomRoleInputFields = {
     </div>
   }
 }
-
 @react.component
 let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~breadCrumbHeader) => {
   open APIUtils
   open LogicUtils
-
+  open CreateCustomRoleUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -86,7 +85,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
   let showToast = ToastState.useShowToast()
   let onSubmit = async (values, _) => {
     try {
-      // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
       let copiedJson = JSON.parseExn(JSON.stringify(values))
       let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post)
@@ -161,7 +159,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         <Form
           key="invite-user-management"
           initialValues={initalValue->JSON.Encode.object}
-          validate={values => values->UserManagementUtils.validateFormForRoles}
+          validate={values => validateCustomRoleForm(values, ~isV2=false)}
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
