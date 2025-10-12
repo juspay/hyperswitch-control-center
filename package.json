@@ -23,7 +23,8 @@
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
     "local:cy:open": "cypress open",
     "lint:hooks": "eslint src/ --max-warnings 0",
-    "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
+    "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "add-connector": "node scripts/addConnector.js"
   },
   "husky": {
     "hooks": {
