@@ -89,17 +89,13 @@ let make = (~accountId) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <ToolTip
-        toolTipPosition=Bottom
-        description="This feature is available in prod"
-        toolTipFor={<Button
-          text="Add New Source"
-          customButtonStyle="!cursor-not-allowed"
-          buttonState=Normal
-          buttonType=Primary
-          onClick={_ => ()}
-          buttonSize=Large
-        />}
+      <Button
+        text="Add New Source"
+        customButtonStyle="!cursor-not-allowed"
+        buttonState=Disabled
+        buttonType=Primary
+        onClick={_ => ()}
+        buttonSize=Large
       />
     </div>
     <div className="flex flex-col gap-2">
