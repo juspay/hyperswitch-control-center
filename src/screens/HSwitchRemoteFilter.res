@@ -290,7 +290,7 @@ module RemoteTableFilters = {
     React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    }, (start_time, end_time, transactionEntity))
+    }, [transactionEntity])
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
