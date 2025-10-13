@@ -44,7 +44,7 @@ let convertOptionalIntToOptionalJson = optInt => {
 }
 
 let convertDictToOptionalJson = dict => {
-  !{dict->isEmptyDict} ? Some(dict->JSON.Encode.object) : Some(JSON.Encode.null)
+  !(dict->isEmptyDict) ? Some(dict->JSON.Encode.object) : Some(JSON.Encode.null)
 }
 
 let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
