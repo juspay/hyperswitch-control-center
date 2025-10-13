@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.13.0
+
+### Miscellaneous Tasks
+
+- Remove feature available in prod tooltip in recon engine ([#3703](https://github.com/juspay/hyperswitch-control-center/pull/3703)) ([`e7c25da`](https://github.com/juspay/hyperswitch-control-center/commit/e7c25daf109ac58ae266dfab5f959e6131622827))
+
+**Full Changelog:** [`2025.10.10.0...2025.10.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.10.0...2025.10.13.0)
+
+- - -
+
 ## 2025.10.10.0
 
 ### Features
