@@ -93,11 +93,13 @@ let getHeading = colType => {
 }
 
 let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(refundData.currency)
   switch colType {
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(refundData.amount /. 100.0)->Float.toString} currency={refundData.currency}
+        amount={(refundData.amount /. conversionFactor)->Float.toString}
+        currency={refundData.currency}
       />,
       "",
     )

@@ -28,6 +28,12 @@ module ShowOrderDetails = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
+
+    let amountToDisplay = CurrencyUtils.convertCurrencyFromLowestDenomination(
+      ~amount=data.amount,
+      ~currency=data.currency,
+    )
+
     <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
       {switch sectionTitle {
       | Some(title) =>
@@ -40,7 +46,7 @@ module ShowOrderDetails = {
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
             <div className="md:text-5xl font-bold">
-              {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
+              {`${amountToDisplay->Float.toString} ${data.currency} `->React.string}
             </div>
             <ToolTip
               description="Original amount that was authorized for the payment"
@@ -407,6 +413,9 @@ module OrderActions = {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
 
+    let conversionFactor =
+      CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
+
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
     let _ = refundData->Array.map(ele => {
@@ -418,9 +427,9 @@ module OrderActions = {
     })
     React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
-        orderData.amount_captured /. 100.0 -.
-        amountRefunded.contents /. 100.0 -.
-        requestedRefundAmount.contents /. 100.0
+        orderData.amount_captured /. conversionFactor -.
+        amountRefunded.contents /. conversionFactor -.
+        requestedRefundAmount.contents /. conversionFactor
       )
 
       None

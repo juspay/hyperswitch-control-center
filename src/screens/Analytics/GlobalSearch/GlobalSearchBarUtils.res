@@ -118,8 +118,9 @@ let getLocalMatchedResults = (searchText, tabs) => {
 
 let getElements = (hits, section) => {
   let getAmount = (value, amountKey, currencyKey) => {
-    let amount = (value->getFloat(amountKey, 0.0) /. 100.0)->Belt.Float.toString
     let currency = value->getString(currencyKey, "")
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+    let amount = (value->getFloat(amountKey, 0.0) /. conversionFactor)->Belt.Float.toString
     `${amount} ${currency}`
   }
 
