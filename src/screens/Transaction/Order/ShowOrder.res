@@ -2,6 +2,7 @@ open LogicUtils
 open OrderUtils
 open HSwitchOrderUtils
 open PaymentInterfaceTypes
+open Typography
 
 type scrollIntoViewParams = {behavior: string, block: string, inline: string}
 @send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView"
@@ -252,15 +253,18 @@ module Refunds = {
       }
     }
 
-    <CustomExpandableTable
-      title="Refunds"
-      heading
-      rows
-      onExpandIconClick
-      expandedRowIndexArray
-      getRowDetails
-      showSerial=true
-    />
+    <div className="flex flex-col gap-4">
+      <p className={`${body.lg.bold} text-nd_gray-900`}> {"Refunds"->React.string} </p>
+      <CustomExpandableTable
+        title="Refunds"
+        heading
+        rows
+        onExpandIconClick
+        expandedRowIndexArray
+        getRowDetails
+        showSerial=true
+      />
+    </div>
   }
 }
 
@@ -323,7 +327,7 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
+      <p className={`${body.lg.bold} text-nd_gray-900`}> {"Payment Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
         heading
@@ -770,18 +774,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </div>
         <RenderIf condition={isRefundDataAvailable}>
           <div className="overflow-scroll">
-            <RenderAccordian
-              initialExpandedArray={isRefundDataAvailable ? [0] : []}
-              accordion={[
-                {
-                  title: "Refunds",
-                  renderContent: () => {
-                    <Refunds refundData={orderData.refunds} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
+            <Refunds refundData={orderData.refunds} />
           </div>
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
