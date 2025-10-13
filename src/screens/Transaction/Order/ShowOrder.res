@@ -413,8 +413,7 @@ module OrderActions = {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
 
-    let conversionFactor =
-      CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
 
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
