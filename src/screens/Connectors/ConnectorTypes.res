@@ -140,6 +140,7 @@ type payoutProcessorTypes =
   | NOMUPAY
   | NUVEI
   | GIGADAT
+  | LOONIO
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
