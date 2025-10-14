@@ -285,10 +285,15 @@ let make = () => {
       name: item.name,
       customComponent,
     }
-
-    switch item.productType {
-    | Some(pt) => {...baseItem, productType: pt}
+    
+    let withType: OMPSwitchTypes.ompListTypesCustom = switch item.type_ {
+    | Some(t) => {...baseItem, type_: t}
     | None => baseItem
+    }
+    
+    switch item.productType {
+    | Some(pt) => {...withType, productType: pt}
+    | None => withType
     }
   })
 

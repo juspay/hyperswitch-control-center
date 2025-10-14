@@ -685,9 +685,9 @@ let generateDropdownOptionsCustomComponent: (
         />,
       ),
       optGroup: {
-        switch item.productType {
-        | Some(productType) => productType->ProductUtils.getProductDisplayName->String.toUpperCase
-        | None => "OTHER"
+        switch item.type_ {
+        | Some(val) => val->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+        | None => ""
         }
       },
     }
