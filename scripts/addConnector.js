@@ -428,7 +428,7 @@ function runPrettier() {
       },
     );
   } catch (error) {
-    console.warn("Warning: Prettier formatting failed");
+    console.warn("Formatter is failing, please try to run npm run re:format");
   }
 }
 
