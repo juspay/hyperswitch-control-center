@@ -3,6 +3,46 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.14.1
+
+### Features
+
+- Finix connector addition ([#3669](https://github.com/juspay/hyperswitch-control-center/pull/3669)) ([`994e01c`](https://github.com/juspay/hyperswitch-control-center/commit/994e01cc99a7a3784c6f512bed23fbcf298419de))
+
+### Bug Fixes
+
+- Currency populating in `braintree` and `worldpayvantiv` ([#3718](https://github.com/juspay/hyperswitch-control-center/pull/3718)) ([`80ece56`](https://github.com/juspay/hyperswitch-control-center/commit/80ece5637d51f47f9a2d6044579706fc3146a107))
+- Currency conversion issue ([#3714](https://github.com/juspay/hyperswitch-control-center/pull/3714)) ([`e7d68b1`](https://github.com/juspay/hyperswitch-control-center/commit/e7d68b14b616a9c0965edae3ee2d7e7f04f6eb7a))
+
+**Full Changelog:** [`2025.10.14.0...2025.10.14.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.14.0...2025.10.14.1)
+
+- - -
+
+## 2025.10.14.0
+
+### Features
+
+- Loonio payouts connector addition ([#3719](https://github.com/juspay/hyperswitch-control-center/pull/3719)) ([`27980aa`](https://github.com/juspay/hyperswitch-control-center/commit/27980aab71b4e77c453b6fe4eb7db3fe2464df75))
+- Loonio wasm addition ([#3720](https://github.com/juspay/hyperswitch-control-center/pull/3720)) ([`a1c6b94`](https://github.com/juspay/hyperswitch-control-center/commit/a1c6b9426b6dd7438e6754f161eec8d5cbbc3eb7))
+
+### Bug Fixes
+
+- Search placement for customer ([#3700](https://github.com/juspay/hyperswitch-control-center/pull/3700)) ([`3c7e25b`](https://github.com/juspay/hyperswitch-control-center/commit/3c7e25bb4e2ddd98c7705026d297677994a53ed8))
+
+**Full Changelog:** [`2025.10.13.0...2025.10.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.13.0...2025.10.14.0)
+
+- - -
+
+## 2025.10.13.0
+
+### Miscellaneous Tasks
+
+- Remove feature available in prod tooltip in recon engine ([#3703](https://github.com/juspay/hyperswitch-control-center/pull/3703)) ([`e7c25da`](https://github.com/juspay/hyperswitch-control-center/commit/e7c25daf109ac58ae266dfab5f959e6131622827))
+
+**Full Changelog:** [`2025.10.10.0...2025.10.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.10.0...2025.10.13.0)
+
+- - -
+
 ## 2025.10.10.0
 
 ### Features

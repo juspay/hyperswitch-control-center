@@ -7,7 +7,7 @@ let connectorMetaDataNameMapper = name => {
 let getField = (~inputType: CommonConnectorTypes.inputType, ~name, ~connectorMetaDataFields) => {
   open CommonConnectorHelper
   switch (inputType, name) {
-  | (Select, "merchant_config_currency") => currencyField(~name)
+  | (Select, "metadata.merchant_config_currency") => currencyField(~name)
   | (Text, _) => textInput(~field={connectorMetaDataFields}, ~formName=name)
   | (Number, _) => numberInput(~field={connectorMetaDataFields}, ~formName=name)
   | (Select, _) =>
