@@ -322,6 +322,7 @@ let getHeading = colType => {
 }
 
 let getCell = (paymentObj, colType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(paymentObj.currency)
   switch colType {
   | PaymentId =>
     CustomCell(
@@ -362,7 +363,8 @@ let getCell = (paymentObj, colType): Table.cell => {
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(paymentObj.amount /. 100.0)->Float.toString} currency={paymentObj.currency}
+        amount={(paymentObj.amount /. conversionFactor)->Float.toString}
+        currency={paymentObj.currency}
       />,
       "",
     )
@@ -370,7 +372,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | AmountCaptured =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(paymentObj.amount_captured /. 100.0)->Float.toString}
+        amount={(paymentObj.amount_captured /. conversionFactor)->Float.toString}
         currency={paymentObj.currency}
       />,
       "",

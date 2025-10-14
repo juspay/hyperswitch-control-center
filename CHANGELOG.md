@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.14.0
+
+### Features
+
+- Loonio payouts connector addition ([#3719](https://github.com/juspay/hyperswitch-control-center/pull/3719)) ([`27980aa`](https://github.com/juspay/hyperswitch-control-center/commit/27980aab71b4e77c453b6fe4eb7db3fe2464df75))
+- Loonio wasm addition ([#3720](https://github.com/juspay/hyperswitch-control-center/pull/3720)) ([`a1c6b94`](https://github.com/juspay/hyperswitch-control-center/commit/a1c6b9426b6dd7438e6754f161eec8d5cbbc3eb7))
+
+### Bug Fixes
+
+- Search placement for customer ([#3700](https://github.com/juspay/hyperswitch-control-center/pull/3700)) ([`3c7e25b`](https://github.com/juspay/hyperswitch-control-center/commit/3c7e25bb4e2ddd98c7705026d297677994a53ed8))
+
+**Full Changelog:** [`2025.10.13.0...2025.10.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.13.0...2025.10.14.0)
+
+- - -
+
 ## 2025.10.13.0
 
 ### Miscellaneous Tasks

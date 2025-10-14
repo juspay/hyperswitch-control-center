@@ -54,12 +54,14 @@ let make = (
     }
   }
 
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
+
   let onSubmit = (values, _) => {
     open Promise
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
+    Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
     updateRefundDetails(body->JSON.Encode.object)->ignore
@@ -194,13 +196,13 @@ let make = (
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded")}
-              value={Currency(amountRefunded.contents /. 100.0, order.currency)}
+              value={Currency(amountRefunded.contents /. conversionFactor, order.currency)}
             />
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount")}
-              value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
+              value={Currency(requestedRefundAmount.contents /. conversionFactor, order.currency)}
             />
           </FormRenderer.DesktopRow>
         </div>
