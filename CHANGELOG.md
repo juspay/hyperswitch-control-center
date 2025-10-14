@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.14.1
+
+### Features
+
+- Finix connector addition ([#3669](https://github.com/juspay/hyperswitch-control-center/pull/3669)) ([`994e01c`](https://github.com/juspay/hyperswitch-control-center/commit/994e01cc99a7a3784c6f512bed23fbcf298419de))
+
+### Bug Fixes
+
+- Currency populating in `braintree` and `worldpayvantiv` ([#3718](https://github.com/juspay/hyperswitch-control-center/pull/3718)) ([`80ece56`](https://github.com/juspay/hyperswitch-control-center/commit/80ece5637d51f47f9a2d6044579706fc3146a107))
+- Currency conversion issue ([#3714](https://github.com/juspay/hyperswitch-control-center/pull/3714)) ([`e7d68b1`](https://github.com/juspay/hyperswitch-control-center/commit/e7d68b14b616a9c0965edae3ee2d7e7f04f6eb7a))
+
+**Full Changelog:** [`2025.10.14.0...2025.10.14.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.14.0...2025.10.14.1)
+
+- - -
+
 ## 2025.10.14.0
 
 ### Features
