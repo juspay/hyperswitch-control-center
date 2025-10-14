@@ -82,7 +82,23 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
     })
   | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
-  | AttemptId => DisplayCopyCell(attempt.attempt_id)
+  | AttemptId =>
+  CustomCell(
+    {
+      let displayVal =
+        switch attempt.attempt_id->isNonEmptyString {
+        | true => Some(attempt.attempt_id)
+        | false => None
+        }
+
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=displayVal
+        showEmptyAsNA=true
+      />
+    },
+    "",
+  )
   | ErrorMessage => Text(attempt.error_message)
   | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
   | CaptureMethod => Text(attempt.capture_method)
@@ -525,7 +541,13 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
     )
   | LastUpdated => Date(order.last_updated->Option.getOr(""))
   | PaymentId => DisplayCopyCell(order.payment_id)
-  | Currency => Text(order.currency)
+  | Currency =>
+  {
+    switch order.currency->isNonEmptyString {
+    | true => Text(order.currency)
+    | false => Text("N/A")
+    }
+  }
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
@@ -692,7 +714,13 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
-  | MandateId => Text(order.mandate_id->Option.getOr(""))
+  | MandateId =>
+  {
+    switch order.mandate_id->Option.getOr("")->isNonEmptyString {
+    | true => Text(order.mandate_id->Option.getOr(""))
+    | false => Text("N/A")
+    }
+  }
   | MandateData => Text(order.mandate_data->Option.getOr(""))
   | SetupFutureUsage => Text(order.setup_future_usage)
   | OffSession => Text(order.customer_present)
