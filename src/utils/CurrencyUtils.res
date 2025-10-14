@@ -385,6 +385,8 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "BZD" => BZD
   | "CAD" => CAD
   | "CHF" => CHF
+  | "CLF" => CLF
+  | "CLP" => CLP
   | "COP" => COP
   | "CRC" => CRC
   | "CUP" => CUP
@@ -400,6 +402,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "GHS" => GHS
   | "GIP" => GIP
   | "GMD" => GMD
+  | "GNF" => GNF
   | "GTQ" => GTQ
   | "GYD" => GYD
   | "HKD" => HKD
@@ -409,12 +412,15 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "IDR" => IDR
   | "ILS" => ILS
   | "INR" => INR
+  | "IQD" => IQD
+  | "IRR" => IRR
   | "JMD" => JMD
   | "JOD" => JOD
   | "JPY" => JPY
   | "KES" => KES
   | "KGS" => KGS
   | "KHR" => KHR
+  | "KMF" => KMF
   | "KRW" => KRW
   | "KWD" => KWD
   | "KYD" => KYD
@@ -424,8 +430,10 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "LKR" => LKR
   | "LRD" => LRD
   | "LSL" => LSL
+  | "LYD" => LYD
   | "MAD" => MAD
   | "MDL" => MDL
+  | "MGA" => MGA
   | "MKD" => MKD
   | "MMK" => MMK
   | "MNT" => MNT
@@ -447,10 +455,12 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "PHP" => PHP
   | "PKR" => PKR
   | "PLN" => PLN
+  | "PYG" => PYG
   | "QAR" => QAR
   | "RON" => RON
   | "CNY" => CNY
   | "RUB" => RUB
+  | "RWF" => RWF
   | "SAR" => SAR
   | "SCR" => SCR
   | "SEK" => SEK
@@ -461,10 +471,18 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "SVC" => SVC
   | "SZL" => SZL
   | "THB" => THB
+  | "TND" => TND
   | "TRY" => TRY
   | "TTD" => TTD
   | "TWD" => TWD
   | "TZS" => TZS
+  | "UGX" => UGX
+  | "USD" => USD
+  | "VND" => VND
+  | "VUV" => VUV
+  | "XAF" => XAF
+  | "XOF" => XOF
+  | "XPF" => XPF
   | _ => USD
   }
 }
