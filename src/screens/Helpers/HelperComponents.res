@@ -32,13 +32,13 @@ module CopyTextCustomComp = {
     }
 
     let valueToShow = switch displayValue {
-      | Some(val) =>
-        if showEmptyAsNA && val->isNonEmptyString == false {
-          "NA"
-        } else {
-          val
-        }
-      | None => "NA"
+    | Some(val) =>
+      if showEmptyAsNA && val->isNonEmptyString == false {
+        "NA"
+      } else {
+        val
+      }
+    | None => "NA"
     }
 
     <div
@@ -47,12 +47,10 @@ module CopyTextCustomComp = {
         onCopyClick(ev)
       }}>
       <div className=customTextCss> {valueToShow->React.string} </div>
-      {
-        switch customComponent {
-        | Some(element) => element
-        | None => <Icon size={customIconSize} name={customIcon} className={`${customIconCss} `} />
-        }
-      }
+      {switch customComponent {
+      | Some(element) => element
+      | None => <Icon size={customIconSize} name={customIcon} className={`${customIconCss} `} />
+      }}
     </div>
   }
 }
