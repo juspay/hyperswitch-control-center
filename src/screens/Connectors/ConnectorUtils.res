@@ -142,6 +142,7 @@ let connectorList: array<connectorTypes> = [
   Processors(GIGADAT),
   Processors(LOONIO),
   Processors(TESOURO),
+  Processors(FINIX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -739,6 +740,10 @@ let tesouroInfo = {
   description: "Tesouro is a Miami-based fintech company that provides a cloud-native payment gateway platform, offering APIs and streamlined data inflows to connect software companies, banks, and payment facilitators for seamless payment processing.",
 }
 
+let finixInfo = {
+  description: "Discover reliable, end-to-end payments technology for businesses of all types, industries, and sizes. With a single integration for omnichannel payments acceptance Finix offers hundreds of configurable ways for you to create the best payments solution for your business.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -841,6 +846,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | GIGADAT => "gigadat"
   | LOONIO => "loonio"
   | TESOURO => "tesouro"
+  | FINIX => "finix"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1016,6 +1022,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "gigadat" => Processors(GIGADAT)
     | "loonio" => Processors(LOONIO)
     | "tesouro" => Processors(TESOURO)
+    | "finix" => Processors(FINIX)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1171,6 +1178,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | GIGADAT => gigadatInfo
   | LOONIO => loonioInfo
   | TESOURO => tesouroInfo
+  | FINIX => finixInfo
   }
 }
 
@@ -2099,6 +2107,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
   | TESOURO => "Tesouro"
+  | FINIX => "Finix"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
