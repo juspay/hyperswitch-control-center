@@ -74,15 +74,23 @@ let apiKeys = userHasResourceAccess => {
     searchOptions: [("View API Keys", ""), ("Create API Key", "")],
   })
 }
+let paymentSettings = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Settings",
+    link: `v2/orchestration/payment-settings`,
+    access: userHasResourceAccess(~resourceAccess=Account),
+  })
+}
 
 let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
-
+  let paymentSettings = paymentSettings(userHasResourceAccess)
   let defaultDevelopersOptions = []
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
   }
+  defaultDevelopersOptions->Array.push(paymentSettings)
 
   isDevelopersEnabled
     ? Section({

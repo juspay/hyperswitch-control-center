@@ -42,4 +42,5 @@ type commonProfileEntity = {
   always_enable_overcapture: option<bool>,
   collect_billing_details_from_wallet_connector_if_required: option<bool>,
   collect_shipping_details_from_wallet_connector_if_required: option<bool>,
+  split_txns_enabled: option<string>,
 }
