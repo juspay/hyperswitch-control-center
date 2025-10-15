@@ -138,7 +138,6 @@ module WebhooksConfiguration = {
             </div>
           </RenderIf>
         </div>
-        <FormValuesSpy />
       </Form>
     </PageLoaderWrapper>
   }
