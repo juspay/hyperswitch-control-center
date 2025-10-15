@@ -828,11 +828,125 @@ describe("Payment Operations", () => {
     );
   });
 
-  // generate reports
+  // Generate Payment Reports
+  it("should generate payment reports and verify email sent popup", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then(() => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
 
-  // Views
+          paymentOperations.generateReports.should("be.visible").click();
+          paymentOperations.generateReports.should("be.visible").click();
 
-  // Verify "Open in new tab" button for payment ID
+          cy.get('[data-component="modal:Generate Payment Reports"]', {
+            timeout: 10000,
+          }).should("exist");
 
-  // Payment details page
+          cy.get('[data-testid="date-range-selector"]')
+            .should("be.visible")
+            .click();
+
+          cy.contains("Last 7 Days").should("be.visible").click();
+
+          cy.get('[data-button-text="Generate"]').should("be.visible").click();
+
+          cy.contains(/email sent|successfully/i, { timeout: 10000 }).should(
+            "be.visible",
+          );
+
+          // cy.visit(Cypress.env("MAIL_URL"));
+          // cy.get("div.messages").should("contain", "Payment Report");
+        });
+      });
+  });
+
+  // Verify "Copy to Clipboard" Button for Payment ID
+  it("should copy payment ID to clipboard and search successfully", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then(() => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          cy.get('[data-table-location="Orders_tr1_td2"]', {
+            timeout: 10000,
+          }).should("exist");
+
+          paymentOperations.paymentIdCopyButton
+            .first()
+            .should("be.visible")
+            .click({ force: true });
+
+          cy.window()
+            .its("navigator.clipboard")
+            .then((clip) => clip.readText())
+            .then((copiedText) => {
+              expect(copiedText).to.not.be.empty;
+              expect(copiedText).to.match(/^pay_/);
+
+              paymentOperations.searchBox.clear().type(copiedText);
+
+              paymentOperations.searchBox.type("{enter}");
+
+              cy.wait(2000);
+
+              cy.get('[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]', {
+                timeout: 10000,
+              }).click();
+
+              cy.get('[data-table-location="Orders_tr1_td2"]').should(
+                "contain",
+                copiedText,
+              );
+            });
+        });
+      });
+  });
+
+  // Verify "Open in New Tab" Button for Payment ID
+  it("should open payment page in new tab when clicking open in new tab button", () => {
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then((response) => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          cy.get('[data-table-location="Orders_tr1_td2"]', {
+            timeout: 10000,
+          }).should("exist");
+
+          const paymentId = response.body.payment_id;
+
+          paymentOperations.paymentIdOpenNewTabButton
+            .first()
+            .should("be.visible")
+            .invoke("removeAttr", "target")
+            .click({ force: true });
+
+          cy.url({ timeout: 10000 }).should("include", `/payments/${paymentId}`);
+
+          cy.contains("Payment Details", { timeout: 10000 }).should(
+            "be.visible",
+          );
+
+          cy.contains(paymentId).should("be.visible");
+        });
+      });
+  });
 });
