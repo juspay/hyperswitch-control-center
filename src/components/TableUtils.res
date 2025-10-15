@@ -367,12 +367,7 @@ module MoneyCell = {
     let amountSplitArr = amountStr->String.split(".")
 
     let integerPart = amountSplitArr->Array.get(0)->Option.getOr("0")
-    let decimal = amountSplitArr[1]->Option.getOr("")
-    let decimal = if String.length(decimal) < precisionDigits {
-      decimal ++ String.make(precisionDigits - String.length(decimal))
-    } else {
-      decimal
-    }
+    let decimalPart = amountSplitArr[1]->Option.getOr("")
 
     let formattedInteger = if integerPart->String.includes("e") {
       integerPart
@@ -383,7 +378,7 @@ module MoneyCell = {
     }
 
     let formattedAmount = if precisionDigits > 0 {
-      `${formattedInteger}.${decimal}`
+      `${formattedInteger}.${decimalPart}`
     } else {
       formattedInteger
     }
