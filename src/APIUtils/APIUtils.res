@@ -144,6 +144,12 @@ let getV2Url = (
       | Some(id) => `v2/profiles/${id}`
       | None => `v2/profiles`
       }
+    | Put =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
     | _ => `v2/profiles`
     }
   }

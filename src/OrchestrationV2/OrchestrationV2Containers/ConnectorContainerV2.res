@@ -3,10 +3,12 @@ let make = () => {
   open HSwitchUtils
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess, _} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(~version=V2)
   let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
@@ -20,6 +22,7 @@ let make = () => {
       ) {
         setConnectorList(_ => [])
         let _ = await fetchConnectorListResponse()
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -47,6 +50,7 @@ let make = () => {
             />}
         />
       </AccessControl>
+    | list{"v2", "orchestration", "payment-settings", ..._} => <PaymentSettingsV2 />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
