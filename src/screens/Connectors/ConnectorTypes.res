@@ -120,12 +120,14 @@ type processorTypes =
   | PHONEPE
   | FLEXITI
   | BREADPAY
-  | BLUECODE
+  | CALIDA
   | BLACKHAWKNETWORK
   | DWOLLA
   | PAYSAFE
   | PEACHPAYMENTS
   | GIGADAT
+  | LOONIO
+  | TESOURO
 
 type payoutProcessorTypes =
   | ADYEN
@@ -136,6 +138,8 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
   | NOMUPAY
+  | NUVEI
+  | GIGADAT
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO

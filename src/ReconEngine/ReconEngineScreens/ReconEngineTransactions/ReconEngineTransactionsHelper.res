@@ -114,8 +114,20 @@ module EntryAuditTrailInfo = {
       entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
 
+    let expectedEntries = React.useMemo(() => {
+      entriesList
+      ->Array.slice(~start=1, ~end=entriesList->Array.length)
+      ->Array.filter(entry =>
+        entry.status == Expected || entry.discarded_status == Some("expected")
+      )
+    }, [entriesList])
+
     let reconciledEntries = React.useMemo(() => {
-      entriesList->Array.slice(~start=1, ~end=entriesList->Array.length)
+      entriesList
+      ->Array.slice(~start=1, ~end=entriesList->Array.length)
+      ->Array.filter(entry =>
+        entry.status != Expected && entry.discarded_status != Some("expected")
+      )
     }, [entriesList])
 
     let isArchived = mainEntry.status == Archived
@@ -156,8 +168,12 @@ module EntryAuditTrailInfo = {
     }
 
     let heading = detailsFields->Array.map(getHeading)
-    let rows =
+    let reconciledRows =
       reconciledEntries->Array.map(entry =>
+        detailsFields->Array.map(colType => getCell(entry, colType))
+      )
+    let expectedRows =
+      expectedEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
     <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
@@ -200,6 +216,33 @@ module EntryAuditTrailInfo = {
           </RenderIf>
         </div>
       </div>
+      <RenderIf condition={expectedEntries->Array.length > 0}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Expectations"->React.string} </p>
+          <div className="overflow-visible">
+            <CustomExpandableTable
+              title="Expected Entries"
+              tableClass="border rounded-xl overflow-y-auto"
+              borderClass=" "
+              firstColRoundedHeadingClass="rounded-tl-xl"
+              lastColRoundedHeadingClass="rounded-tr-xl"
+              headingBgColor="bg-nd_gray-25"
+              headingFontWeight="font-semibold"
+              headingFontColor="text-nd_gray-400"
+              rowFontColor="text-nd_gray-600"
+              customRowStyle="text-sm"
+              rowFontStyle="font-medium"
+              heading
+              rows=expectedRows
+              onExpandIconClick
+              expandedRowIndexArray
+              getRowDetails
+              showSerial=false
+              showScrollBar=true
+            />
+          </div>
+        </div>
+      </RenderIf>
       <RenderIf condition={reconciledEntries->Array.length > 0}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
@@ -219,7 +262,7 @@ module EntryAuditTrailInfo = {
               customRowStyle="text-sm"
               rowFontStyle="font-medium"
               heading
-              rows
+              rows=reconciledRows
               onExpandIconClick
               expandedRowIndexArray
               getRowDetails
