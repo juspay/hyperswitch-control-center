@@ -361,13 +361,14 @@ module Numeric = {
 }
 
 module MoneyCell = {
+  open LogicUtils
   let getAmountValue = (amount: float, currency: string) => {
     let precisionDigits = CurrencyUtils.getAmountPrecisionDigits(currency)
     let amountStr = amount->Float.toFixedWithPrecision(~digits=precisionDigits)
     let amountSplitArr = amountStr->String.split(".")
 
-    let integerPart = amountSplitArr->Array.get(0)->Option.getOr("0")
-    let decimalPart = amountSplitArr[1]->Option.getOr("")
+    let integerPart = amountSplitArr->getValueFromArray(0, "0")
+    let decimalPart = amountSplitArr->getValueFromArray(1, "")
 
     let formattedInteger = if integerPart->String.includes("e") {
       integerPart
