@@ -135,6 +135,7 @@ module ConfigureTotpScreen = {
     let showToast = ToastState.useShowToast()
     let (otp, setOtp) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+    let (hasOtpError, setHasOtpError) = React.useState(_ => false)
 
     let verifyTOTP = async () => {
       open LogicUtils
@@ -164,7 +165,8 @@ module ConfigureTotpScreen = {
             errorHandling()
           }
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_37 {
-            showToast(~message=errorMessage, ~toastType=ToastError)
+            showToast(~message="Incorrect code, please try again", ~toastType=ToastError)
+            setHasOtpError(_ => true)
           }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
@@ -203,6 +205,13 @@ module ConfigureTotpScreen = {
       )
     }, [otp])
 
+    React.useEffect(() => {
+      if hasOtpError && otp->String.length > 0 {
+        setHasOtpError(_ => false)
+      }
+      None
+    }, [otp])
+
     <div
       className={`bg-white ${twoFaStatus === TWO_FA_SET
           ? "h-20-rem"
@@ -215,7 +224,7 @@ module ConfigureTotpScreen = {
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
-          <TwoFaElements.TotpInput otp setOtp />
+          <TwoFaElements.TotpInput otp setOtp hasError={hasOtpError} />
           <RenderIf condition={twoFaStatus === TWO_FA_SET && !showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
