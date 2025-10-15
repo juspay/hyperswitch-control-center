@@ -362,8 +362,9 @@ module Numeric = {
 
 module MoneyCell = {
   open LogicUtils
+  open CurrencyUtils
   let getAmountValue = (amount: float, currency: string) => {
-    let precisionDigits = CurrencyUtils.getAmountPrecisionDigits(currency)
+    let precisionDigits = getAmountPrecisionDigits(currency)
     let amountStr = amount->Float.toFixedWithPrecision(~digits=precisionDigits)
     let amountSplitArr = amountStr->String.split(".")
 
@@ -372,7 +373,7 @@ module MoneyCell = {
 
     let formattedInteger = if integerPart->String.includes("e") {
       integerPart
-    } else if currency === "INR" {
+    } else if currency->getCurrencyCodeFromString === INR {
       integerPart->String.replaceRegExp(%re("/(\\d)(?=(?:(\\d\\d)+\\d(?!\\d))+(?!\\d))/g"), "$1,")
     } else {
       integerPart->String.replaceRegExp(%re("/(\\d)(?=(\\d{3})+(?!\\d))/g"), "$1,")
