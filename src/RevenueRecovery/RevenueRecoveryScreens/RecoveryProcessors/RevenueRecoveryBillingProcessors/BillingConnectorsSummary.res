@@ -16,7 +16,7 @@ module WebhooksConfiguration = {
     )
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let (isEditMode, setIsEditMode) = React.useState(_ => false)
     let (merchantBusinessProfileInfo, setMerchantBusinessProfileInfo) = React.useState(() =>
@@ -82,10 +82,10 @@ module WebhooksConfiguration = {
         ->Identity.genericTypeToJson}
         onSubmit
         validate={values => {
-          MerchantAccountUtils.validateMerchantAccountForm(
+          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
             ~values,
             ~isLiveMode=featureFlagDetails.isLiveMode,
-            ~fieldsToValidate={[WebhookUrl]},
+            ~businessProfileRecoilVal,
           )
         }}>
         <div className="flex flex-col gap-5">
@@ -138,6 +138,7 @@ module WebhooksConfiguration = {
             </div>
           </RenderIf>
         </div>
+        <FormValuesSpy />
       </Form>
     </PageLoaderWrapper>
   }

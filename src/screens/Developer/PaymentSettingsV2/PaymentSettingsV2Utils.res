@@ -2,7 +2,7 @@ open PaymentSettingsV2Types
 open LogicUtils
 
 let parseBusinessProfileForPaymentBehaviour = (
-  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+  profileRecord: BusinessProfileInterfaceTypes.commonProfileEntity,
 ) => {
   let {
     profile_name,
