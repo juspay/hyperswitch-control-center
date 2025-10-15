@@ -4,7 +4,20 @@ let enterAmountField = (initialValues: SDKPaymentTypes.paymentType) => {
   FormRenderer.makeFieldInfo(~label="Enter amount", ~name="amount", ~customInput=(
     ~input,
     ~placeholder as _,
-  ) =>
+  ) => {
+    open LogicUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
+    )
+    let dict = formState.values->getDictFromJsonObject
+    let countryCurrency = dict->getString("country_currency", "US-USD")->String.split("-")
+    let currency = countryCurrency->getValueFromArray(1, "US")
+
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+
+    let majorUnit = initialValues.amount /. conversionFactor
+    let minorUnit = amt => amt *. conversionFactor
+
     InputFields.numericTextInput(
       ~isDisabled=false,
       ~customStyle="w-full border-nd_gray-200 rounded-lg",
@@ -12,20 +25,21 @@ let enterAmountField = (initialValues: SDKPaymentTypes.paymentType) => {
     )(
       ~input={
         ...input,
-        value: (initialValues.amount /. 100.00)->Float.toString->JSON.Encode.string,
+        value: majorUnit
+        ->Float.toString
+        ->JSON.Encode.string,
         onChange: {
           ev => {
-            let eventValueToFloat =
-              ev->Identity.formReactEventToString->LogicUtils.getFloatFromString(0.00)
+            let eventValueToFloat = ev->Identity.formReactEventToString->getFloatFromString(0.00)
             let valInCents =
-              (eventValueToFloat *. 100.00)->Float.toString->Identity.stringToFormReactEvent
+              minorUnit(eventValueToFloat)->Float.toString->Identity.stringToFormReactEvent
             input.onChange(valInCents)
           }
         },
       },
       ~placeholder="Enter amount",
     )
-  )
+  })
 }
 
 let enterPrimaryColorValue = defaultValue =>
