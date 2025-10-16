@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.15.1
+
+### Miscellaneous Tasks
+
+- Updated decimal logic based on currency ([#3728](https://github.com/juspay/hyperswitch-control-center/pull/3728)) ([`23be8dd`](https://github.com/juspay/hyperswitch-control-center/commit/23be8dd5fe6a261cb0eda1666b06aacaf3552056))
+
+**Full Changelog:** [`2025.10.15.0...2025.10.15.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.15.0...2025.10.15.1)
+
+- - -
+
+## 2025.10.15.0
+
+### Miscellaneous Tasks
+
+- Added new currencies in currency code mapper ([#3723](https://github.com/juspay/hyperswitch-control-center/pull/3723)) ([`f27ba59`](https://github.com/juspay/hyperswitch-control-center/commit/f27ba59fc82bb960fd56c1cbac5c5038c0f9f45d))
+
+**Full Changelog:** [`2025.10.14.1...2025.10.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.14.1...2025.10.15.0)
+
+- - -
+
 ## 2025.10.14.1
 
 ### Features
