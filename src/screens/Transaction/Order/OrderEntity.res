@@ -83,19 +83,20 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
   | AttemptId =>
-    CustomCell(
-      {
-        let displayVal = switch attempt.attempt_id->isNonEmptyString {
-        | true => Some(attempt.attempt_id)
-        | false => None
-        }
+  let displayVal =
+    switch attempt.attempt_id->isNonEmptyString {
+    | true => Some(attempt.attempt_id)
+    | false => None
+    }
 
-        <HelperComponents.CopyTextCustomComp
-          customTextCss="w-36 truncate whitespace-nowrap" displayValue=displayVal showEmptyAsNA=true
-        />
-      },
-      "",
-    )
+  CustomCell(
+    <HelperComponents.CopyTextCustomComp
+      customTextCss="w-36 truncate whitespace-nowrap"
+      displayValue=displayVal
+      showEmptyAsNA=true
+    />,
+    "",
+  )
   | ErrorMessage => Text(attempt.error_message)
   | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
   | CaptureMethod => Text(attempt.capture_method)

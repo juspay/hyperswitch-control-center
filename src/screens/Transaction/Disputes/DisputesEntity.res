@@ -110,19 +110,17 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
       "",
     )
   | AttemptId =>
+  if disputesData.attempt_id->isNonEmptyString {
     CustomCell(
-      {
-        let displayVal = switch disputesData.attempt_id->isNonEmptyString {
-        | true => Some(disputesData.attempt_id)
-        | false => None
-        }
-
-        <HelperComponents.CopyTextCustomComp
-          customTextCss="w-36 truncate whitespace-nowrap" displayValue=displayVal showEmptyAsNA=true
-        />
-      },
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(disputesData.attempt_id)
+      />,
       "",
     )
+  } else {
+    Text("NA")
+  }
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStatus =>
