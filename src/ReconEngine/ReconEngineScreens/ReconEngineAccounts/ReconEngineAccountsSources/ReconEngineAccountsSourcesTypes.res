@@ -19,6 +19,7 @@ type buttonActionType =
 type buttonAction = {
   @as("type") buttonType: buttonActionType,
   onClick: ReactEvent.Mouse.t => unit,
+  disabled: bool,
 }
 
 @unboxed
@@ -30,6 +31,7 @@ type iconActionType =
 type iconAction = {
   @as("type") iconType: iconActionType,
   onClick: ReactEvent.Mouse.t => unit,
+  disabled: bool,
 }
 
 type timelineIconConfig = {

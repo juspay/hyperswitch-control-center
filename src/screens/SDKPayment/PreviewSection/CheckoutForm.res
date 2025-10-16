@@ -108,6 +108,8 @@ let make = () => {
     }
   }
 
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+
   <div>
     {switch paymentStatus {
     | LOADING => <Loader />
@@ -116,7 +118,7 @@ let make = () => {
         <div className="w-full">
           <PaymentElement id="payment-element" options={paymentElementOptions} />
           <Button
-            text={`Pay ${currency} ${(amount /. 100.00)->Float.toString}`}
+            text={`Pay ${currency} ${(amount /. conversionFactor)->Float.toString}`}
             loadingText="Please wait..."
             buttonState=btnState
             buttonType={Primary}

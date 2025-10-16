@@ -1118,7 +1118,11 @@ let useGetURL = () => {
         | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
         // INVITATION INSIDE DASHBOARD
-        | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+        | #RESEND_INVITE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/user/resend_invite?${params}`
+          | None => `${userUrl}/user/resend_invite`
+          }
         | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
         | #INVITE_MULTIPLE =>
           switch queryParamerters {
