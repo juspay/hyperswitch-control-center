@@ -143,6 +143,7 @@ let connectorList: array<connectorTypes> = [
   Processors(LOONIO),
   Processors(TESOURO),
   Processors(FINIX),
+  Processors(AMAZONPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -744,6 +745,10 @@ let finixInfo = {
   description: "Discover reliable, end-to-end payments technology for businesses of all types, industries, and sizes. With a single integration for omnichannel payments acceptance Finix offers hundreds of configurable ways for you to create the best payments solution for your business.",
 }
 
+let amazonpayinfo = {
+  description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience."
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -847,6 +852,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | LOONIO => "loonio"
   | TESOURO => "tesouro"
   | FINIX => "finix"
+  | AMAZONPAY => "amazonpay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1023,6 +1029,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "loonio" => Processors(LOONIO)
     | "tesouro" => Processors(TESOURO)
     | "finix" => Processors(FINIX)
+    | "amazonpay" => Processors(AMAZONPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1179,6 +1186,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | LOONIO => loonioInfo
   | TESOURO => tesouroInfo
   | FINIX => finixInfo
+  | AMAZONPAY => amazonpayinfo
   }
 }
 
@@ -2108,6 +2116,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | LOONIO => "Loonio"
   | TESOURO => "Tesouro"
   | FINIX => "Finix"
+  | AMAZONPAY => "Amazon Pay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
