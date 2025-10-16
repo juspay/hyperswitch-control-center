@@ -11,7 +11,7 @@ let make = () => {
   let (customersData, setCustomersData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
   let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {filterValueJson, filterValue, updateExistingKeys} = React.useContext(
+  let {filterValueJson, filterValue, updateExistingKeys, reset} = React.useContext(
     FilterContext.filterContext,
   )
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
@@ -172,7 +172,6 @@ let make = () => {
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith=updateExistingKeys
       clearFilters={() => {
-        let {reset} = FilterContext.filterContext->React.useContext
         reset()
       }}
       title="Customers"
