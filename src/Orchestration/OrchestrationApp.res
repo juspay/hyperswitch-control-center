@@ -68,13 +68,15 @@ let make = (~setScreenState) => {
       <AccessControl
         authorization={userHasAccess(~groupAccess=OperationsView)}
         isEnabled={[#Tenant, #Organization, #Merchant]->checkUserEntity}>
-        <EntityScaffold
-          entityName="Customers"
-          remainingPath
-          access=Access
-          renderList={() => <Customers />}
-          renderShow={(id, _) => <ShowCustomers id />}
-        />
+        <FilterContext key="Customers" index="Customers">
+          <EntityScaffold
+            entityName="Customers"
+            remainingPath
+            access=Access
+            renderList={() => featureFlagDetails.devCustomer ? <CustomerV2 /> : <Customers />}
+            renderShow={(id, _) => <ShowCustomers id />}
+          />
+        </FilterContext>
       </AccessControl>
     | list{"users", ..._} => <UserManagementContainer />
     | list{"developer-api-keys"} =>
