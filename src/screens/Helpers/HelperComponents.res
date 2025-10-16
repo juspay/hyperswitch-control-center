@@ -32,7 +32,7 @@ module CopyTextCustomComp = {
 
     switch displayValue {
     | Some(val) =>
-    <div
+      <div
         className={`${customParentClass} cursor-pointer`}
         onClick={ev => {
           onCopyClick(ev)
