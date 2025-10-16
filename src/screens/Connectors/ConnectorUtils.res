@@ -152,6 +152,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(BLUESNAP),
   Processors(BAMBORA),
   Processors(BRAINTREE),
+  Processors(CALIDA),
   Processors(CHECKOUT),
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
