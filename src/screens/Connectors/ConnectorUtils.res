@@ -746,7 +746,7 @@ let finixInfo = {
 }
 
 let amazonpayinfo = {
-  description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience."
+  description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
