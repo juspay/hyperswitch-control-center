@@ -7,6 +7,7 @@ module Verified = {
     ~setApplePayIntegrationSteps,
     ~setShowWalletConfigurationModal,
     ~update,
+    ~connector,
   ) => {
     open ApplePayIntegrationHelper
     open ApplePayIntegrationTypes
@@ -22,9 +23,11 @@ module Verified = {
         ->getDictFromJsonObject
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
+
       let applePayData = ApplePayIntegrationUtils.applePay(
         data,
         ~applePayIntegrationType=Some(appleIntegrationType),
+        ~connector,
         (),
       )
       switch applePayData {
@@ -286,7 +289,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       <Heading title="Apple Pay" iconName="applepay" />
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(ZEN) =>
-        <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal />
+        <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal connector />
       | _ =>
         switch applePayIntegrationStep {
         | Landing =>
@@ -314,6 +317,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               merchantBusinessCountry
               setApplePayIntegrationSteps
               setVefifiedDomainList
+              connector
             />
           | #decrypted => React.null
           }
@@ -325,6 +329,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
             setApplePayIntegrationSteps
             appleIntegrationType
             update
+            connector
           />
         }
       }}
