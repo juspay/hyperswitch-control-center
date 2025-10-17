@@ -1,4 +1,6 @@
 open ReconEngineFilterUtils
+open ReconEngineTypes
+open LogicUtils
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getTransactionStatusOptions([Mismatched, Expected])
@@ -61,4 +63,40 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       }: EntityType.initialFilters<'t>
     ),
   ]
+}
+
+let getSumOfAmountWithCurrency = (entries: array<entryType>): (float, string) => {
+  let totalAmount = entries->Array.reduce(0.0, (acc, entry) => acc +. entry.amount)
+  let currency = switch entries->Array.get(0) {
+  | Some(entry) => entry.currency
+  | None => ""
+  }
+  (totalAmount, currency)
+}
+
+let getMismatchAmountDisplay = (mismatchData: Js.Json.t): (string, float, string) => {
+  let dataDict = mismatchData->getDictFromJsonObject->getJsonObjectFromDict("Mismatched")
+  let mismatchType = dataDict->getDictFromJsonObject->Dict.keysToArray->getValueFromArray(0, "")
+  let mismatchTypeDict = dataDict->getDictFromJsonObject->getJsonObjectFromDict(mismatchType)
+
+  let expectedAmount =
+    mismatchTypeDict
+    ->getDictFromJsonObject
+    ->getDictfromDict("expected_amount")
+    ->getFloat("value", 0.0)
+
+  let actualAmount =
+    mismatchTypeDict
+    ->getDictFromJsonObject
+    ->getDictfromDict("actual_amount")
+    ->getFloat("value", 0.0)
+
+  let currency =
+    mismatchTypeDict
+    ->getDictFromJsonObject
+    ->getDictfromDict("expected_amount")
+    ->getString("currency", "USD")
+
+  let mismatchAmount = Math.abs(expectedAmount -. actualAmount)
+  (mismatchType->camelCaseToTitle, mismatchAmount, currency)
 }
