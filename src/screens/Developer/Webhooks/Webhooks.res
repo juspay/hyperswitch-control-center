@@ -39,7 +39,6 @@ let make = () => {
       </RenderIf>
     </NoDataFound>
 
-
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -55,7 +54,7 @@ let make = () => {
   let setData = (~total, ~data) => {
     let shouldAddOffset = searchText->isEmptyString
     let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
-    
+
     if total <= offset && shouldAddOffset {
       setOffset(_ => 0)
     }
@@ -127,7 +126,7 @@ let make = () => {
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
       customLeftView={<HSwitchRemoteFilter.SearchBarFilter
-        placeholder="Search for object ID" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for object ID or Event ID" setSearchVal=setSearchText searchVal=searchText
       />}
       clearFilters={() => reset()}
     />
