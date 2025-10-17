@@ -11,7 +11,7 @@ let make = () => {
   let (customersData, setCustomersData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
   let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {filterValueJson, filterValue, updateExistingKeys, reset} = React.useContext(
+  let {filterValueJson, updateExistingKeys, reset} = React.useContext(
     FilterContext.filterContext,
   )
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
@@ -37,38 +37,35 @@ let make = () => {
 
       let sanitizedSearchValue = searchValue->sanitizeSearchInput
 
-      let localFilterValue = if sanitizedSearchValue->isNonEmptyString {
-        let searchDict = Dict.make()
-        searchDict->Dict.set("customer_id", sanitizedSearchValue->JSON.Encode.string)
-        searchDict
-      } else {
+        let localFilterValue = if sanitizedSearchValue->isNonEmptyString {
+          let searchDict = Dict.make()
+          searchDict->setOptionString("customer_id", Some(sanitizedSearchValue))
+          searchDict
+        } else {
         let listDict = Dict.make()
         filterValueJson
         ->Dict.toArray
         ->Array.forEach(((key, value)) => {
-          listDict->Dict.set(key, value)
+          if key !== "customer_id" {
+            listDict->Dict.set(key, value)
+          }
         })
-        listDict->Dict.delete("customer_id")
-        listDict->Dict.set("limit", limit->Int.toFloat->JSON.Encode.float)
-        listDict->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+        listDict->setOptionInt("limit", Some(limit))
+        listDict->setOptionInt("offset", Some(offset))
         listDict
       }
 
       let queryParams =
         localFilterValue
         ->Dict.toArray
-        ->Array.map(item => {
-          let (key, value) = item
-          let value = switch value->JSON.Classify.classify {
+        ->Array.map(((key, value)) => {
+          let valueStr = switch value->JSON.Classify.classify {
           | String(str) => str
           | Number(num) => num->Float.toString
-          | Array(arr) => {
-              let valueString = arr->getStrArrayFromJsonArray->Array.joinWith(",")
-              valueString
-            }
+          | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
           | _ => ""
           }
-          `${key}=${value}`
+          `${key}=${valueStr}`
         })
         ->Array.joinWith("&")
 
@@ -85,65 +82,31 @@ let make = () => {
 
         let res = await fetchDetails(customersUrl)
 
-        switch res->JSON.Classify.classify {
-        | Object(_) => {
-            let jsonObj = res->getDictFromJsonObject
-            let data =
-              jsonObj
-              ->Dict.get("data")
-              ->Option.flatMap(JSON.Decode.array)
-              ->Option.getOr([])
+        let jsonObj = res->getDictFromJsonObject
+        let data = jsonObj->getArrayFromDict("data", [])
+        let totalCount = jsonObj->getInt("total_count", 0)
 
-            let totalCount =
-              jsonObj
-              ->Dict.get("total_count")
-              ->Option.flatMap(JSON.Decode.float)
-              ->Option.getOr(0.0)
-              ->Float.toInt
+        let dataLen = data->Array.length
+        let searchTotal = sanitizedSearchValue->isNonEmptyString ? dataLen : totalCount
+        setTotal(_ => searchTotal)
 
-            let dataLen = data->Array.length
-            let searchTotal =
-              sanitizedSearchValue->LogicUtils.isNonEmptyString ? dataLen : totalCount
-            setTotal(_ => searchTotal)
+        if searchTotal > 0 && dataLen > 0 {
+          let displayOffset = sanitizedSearchValue->isNonEmptyString ? 0 : offset
+          let arr = Array.make(~length=displayOffset, Dict.make())
+          let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
-            if searchTotal > 0 && dataLen > 0 {
-              let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
+          let customersData =
+            arr
+            ->Array.concat(dataArr)
+            ->Array.map(itemToObjMapper)
+            ->Array.map(Nullable.make)
 
-              let displayOffset = if sanitizedSearchValue->isNonEmptyString {
-                0
-              } else {
-                offset
-              }
-              let arr = Array.make(~length=displayOffset, Dict.make())
-
-              let customersData =
-                arr
-                ->Array.concat(dataArr)
-                ->Array.map(itemToObjMapper)
-                ->Array.map(Nullable.make)
-
-              setCustomersData(_ => customersData)
-              setScreenState(_ => PageLoaderWrapper.Success)
-            } else if dataLen == 0 {
-              setScreenState(_ => PageLoaderWrapper.Custom)
-            } else if searchTotal <= offset && offset > 0 {
-              let newOffset = offset - limit
-              let safeOffset = if newOffset > 0 {
-                newOffset
-              } else {
-                0
-              }
-              setOffset(_ => safeOffset)
-              setScreenState(_ => PageLoaderWrapper.Success)
-            }
-          }
-        | _ => if sanitizedSearchValue->isNonEmptyString {
-            setTotal(_ => 0)
-            setCustomersData(_ => [])
-            setScreenState(_ => PageLoaderWrapper.Custom)
-          } else {
-            setScreenState(_ => PageLoaderWrapper.Error("Invalid response format"))
-          }
+          setCustomersData(_ => customersData)
+          setScreenState(_ => PageLoaderWrapper.Success)
+        } else {
+          setTotal(_ => 0)
+          setCustomersData(_ => [])
+          setScreenState(_ => PageLoaderWrapper.Custom)
         }
       }
     } catch {

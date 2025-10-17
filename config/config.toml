@@ -20,7 +20,7 @@ is_live_mode=false
 feedback=false
 x_feature_route=false
 compliance_certificate=false
-force_cookies=false
+force_cookies=true
 audit_trail=true
 granularity=false
 maintenance_alert=""
@@ -71,11 +71,11 @@ dev_hypersense_v2_product=false
 dev_intelligent_routing_v2=false
 dev_orchestration_v2_product=false
 dev_debit_routing=false
-dev_webhooks=true
+dev_webhooks=false
 dev_recon_engine_v1=false
 dev_ai_chat_bot=false
 dev_roles_v2=false
-dev_customer=true
+dev_customer=false
 [default.merchant_config]
 [default.merchant_config.whitelist]
 [default.merchant_config.whitelist.dev_recon_engine_v1]
