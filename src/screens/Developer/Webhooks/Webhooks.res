@@ -2,6 +2,7 @@
 let make = () => {
   open APIUtils
   open WebhooksUtils
+  open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -19,8 +20,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
-
-  let isWebhookUrlConfigured = webhookURL->LogicUtils.isNonEmptyString
+  let isWebhookUrlConfigured = webhookURL->isNonEmptyString
 
   let message = isWebhookUrlConfigured
     ? "No data found, try searching with different filters or try refreshing using the button below"
@@ -39,15 +39,6 @@ let make = () => {
       </RenderIf>
     </NoDataFound>
 
-  React.useEffect(() => {
-    if filterValueJson->Dict.keysToArray->Array.length != 0 {
-      setOffset(_ => 0)
-    }
-    None
-  }, [filterValue])
-
-  let initialDisplayFilters =
-    []->Array.filter((item: EntityType.initialFilters<'t>) => item.localFilter->Option.isSome)
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
@@ -62,38 +53,37 @@ let make = () => {
   )
 
   let setData = (~total, ~data) => {
-    let arr = Array.make(~length=offset, Dict.make())
-    if total <= offset {
+    let shouldAddOffset = searchText->isEmptyString
+    let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
+    
+    if total <= offset && shouldAddOffset {
       setOffset(_ => 0)
     }
 
     if total > 0 {
       let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-      let webhookData =
-        arr
-        ->Array.concat(webhookDictArr)
-        ->Array.map(itemToObjectMapper)
-
-      let list = webhookData
+      let webhookData = arr->Array.concat(webhookDictArr)->Array.map(itemToObjectMapper)
       setTotalCount(_ => total)
-      setWebhooksData(_ => list)
+      setWebhooksData(_ => webhookData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } else {
+      setTotalCount(_ => 0)
+      setWebhooksData(_ => [])
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
   let fetchWebhooks = async () => {
-    open LogicUtils
-    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
       let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
       let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->Dict.set("object_id", searchText->JSON.Encode.string)
+        payload->setOptionString("object_id", Some(searchText))
+        payload->setOptionString("event_id", Some(searchText))
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -128,7 +118,7 @@ let make = () => {
       defaultFilters={""->JSON.Encode.string}
       fixedFilters={initialFixedFilter()}
       requiredSearchFieldsList=[]
-      localFilters={initialDisplayFilters}
+      localFilters=[]
       localOptions=[]
       remoteOptions=[]
       remoteFilters=[]
