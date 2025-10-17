@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.17.0
+
+### Features
+
+- Enable `calida` connector in prod ([#3691](https://github.com/juspay/hyperswitch-control-center/pull/3691)) ([`b970617`](https://github.com/juspay/hyperswitch-control-center/commit/b970617e6dcfbe1129b345a6d9fa05d71e2c28db))
+
+**Full Changelog:** [`2025.10.15.1...2025.10.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.15.1...2025.10.17.0)
+
+- - -
+
 ## 2025.10.15.1
 
 ### Miscellaneous Tasks
