@@ -27,11 +27,10 @@ module InfoViewForWebhooks = {
 }
 @react.component
 let make = () => {
-  open HSwitchSettingTypes
   open Typography
 
-  let businessProfileRecoilVal = BusinessProfileHook.useBusinessProfileMapper(
-    ~interface=BusinessProfileInterface.businessProfileInterfaceV1,
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 

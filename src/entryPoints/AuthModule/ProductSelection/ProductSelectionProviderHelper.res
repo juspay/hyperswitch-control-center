@@ -83,8 +83,10 @@ module SelectMerchantBody = {
         ~options=dropDownOptions,
         ~buttonText="Select Field",
         ~deselectDisable=true,
-        ~customButtonStyle="!w-full pr-4 pl-2",
+        ~customButtonStyle="pr-4 pl-2",
         ~fullLength=true,
+        ~textStyle="!max-w-400 truncate",
+        ~dropdownCustomWidth="w-full",
       ),
       ~isRequired=true,
     )
