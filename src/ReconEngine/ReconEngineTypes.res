@@ -155,6 +155,7 @@ type transactionType = {
 type entryType = {
   entry_id: string,
   entry_type: entryDirectionType,
+  account_id: string,
   account_name: string,
   transaction_id: string,
   amount: float,
@@ -162,6 +163,8 @@ type entryType = {
   status: entryStatus,
   discarded_status: option<string>,
   metadata: Js.Json.t,
+  data: Js.Json.t,
+  version: int,
   created_at: string,
   effective_at: string,
 }

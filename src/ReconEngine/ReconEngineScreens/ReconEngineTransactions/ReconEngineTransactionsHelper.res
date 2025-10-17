@@ -381,13 +381,7 @@ module AuditTrail = {
       </div>
     }
 
-    <div>
-      <div className="mb-6">
-        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Audit Trail"->React.string} </p>
-        <p className={`text-nd_gray-500 ${body.md.medium}`}>
-          {"This section shows the audit trail of the transaction, including all changes made to it."->React.string}
-        </p>
-      </div>
+    <div className="mt-2">
       <Modal
         setShowModal
         showModal
