@@ -347,6 +347,45 @@ For a detailed list of changes made in each version, please refer to the [CHANGE
 
 We welcome contributions from the community! If you would like to contribute to Hyperswitch, please follow our contribution guidelines.
 
+---
+
+## Spell Checker
+
+We use [`typos`](https://github.com/crate-ci/typos) to automatically detect and fix spelling mistakes across the codebase, documentation, and configuration files.
+
+### Running Locally
+
+To check for typos across the entire project before committing your changes, run:
+
+```bash
+typos .
+```
+
+To check only a specific folder, for example src/APIUtils, run:
+
+```bash
+typos ./src/APIUtils
+```
+
+If you don’t have typos installed, you can install it via Cargo (requires Rust):
+
+```
+cargo install typos-cli
+```
+Alternatively, you can download a precompiled binary from the[releases page](https://github.com/crate-ci/typos/releases).
+
+### Auto-fixing Typos
+
+To automatically fix common typos:
+
+```
+typos --write-changes .
+```
+
+### Ignoring Words, Files, and Folders
+
+You can configure typos to ignore specific words, files, or folders by modifying the `.typos.toml` file.
+
 ### Commit Conventions
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for our commit messages. Each commit message should have a structured format:
