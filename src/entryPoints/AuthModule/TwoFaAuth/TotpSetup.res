@@ -73,7 +73,7 @@ module EnterAccessCode = {
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
       </div>
-      <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
+      <div className="px-12 py-8 flex flex-col gap-8 justify-between flex-1">
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
           <RenderIf condition={!showOnlyRc}>
@@ -219,7 +219,7 @@ module ConfigureTotpScreen = {
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
       </div>
-      <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
+      <div className="px-12 py-8 flex flex-col gap-8 justify-between flex-1">
         <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </RenderIf>
