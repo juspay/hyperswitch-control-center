@@ -2,11 +2,15 @@
 let make = () => {
   open APIUtils
   open CustomersEntity
-  open CustomerUtils
   open HSwitchRemoteFilter
   open LogicUtils
+  open HSAnalyticsUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let (startTimeFilterKey, endTimeFilterKey) = (startTimeFilterKey, endTimeFilterKey)
+  let initialFixedFilter = _ => initialFixedFilterFields(JSON.Encode.null)
+  let buildQueryStringFromFilters = ReconEngineFilterUtils.buildQueryStringFromFilters
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -24,22 +28,13 @@ let make = () => {
   let (lastFilterState, setLastFilterState) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->JSON.stringify
   )
-
-  let sanitizeSearchInput = searchValue => {
-    searchValue
-    ->String.trim
-    ->String.replaceRegExp(%re("/[^a-zA-Z0-9_-]/g"), "")
-  }
-
   let getCustomersList = async searchValue => {
     try {
       setScreenState(_ => Loading)
 
-      let sanitizedSearchValue = searchValue->sanitizeSearchInput
-
-        let localFilterValue = if sanitizedSearchValue->isNonEmptyString {
+        let localFilterValue = if searchValue->isNonEmptyString {
           let searchDict = Dict.make()
-          searchDict->setOptionString("customer_id", Some(sanitizedSearchValue))
+          searchDict->setOptionString("customer_id", Some(searchValue))
           searchDict
         } else {
         let listDict = Dict.make()
@@ -55,19 +50,7 @@ let make = () => {
         listDict
       }
 
-      let queryParams =
-        localFilterValue
-        ->Dict.toArray
-        ->Array.map(((key, value)) => {
-          let valueStr = switch value->JSON.Classify.classify {
-          | String(str) => str
-          | Number(num) => num->Float.toString
-          | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
-          | _ => ""
-          }
-          `${key}=${valueStr}`
-        })
-        ->Array.joinWith("&")
+      let queryParams = buildQueryStringFromFilters(~filterValueJson=localFilterValue)
 
       if queryParams === lastApiCallParams {
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -87,11 +70,11 @@ let make = () => {
         let totalCount = jsonObj->getInt("total_count", 0)
 
         let dataLen = data->Array.length
-        let searchTotal = sanitizedSearchValue->isNonEmptyString ? dataLen : totalCount
+        let searchTotal = searchValue->isNonEmptyString ? dataLen : totalCount
         setTotal(_ => searchTotal)
 
         if searchTotal > 0 && dataLen > 0 {
-          let displayOffset = sanitizedSearchValue->isNonEmptyString ? 0 : offset
+          let displayOffset = searchValue->isNonEmptyString ? 0 : offset
           let arr = Array.make(~length=displayOffset, Dict.make())
           let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
@@ -117,28 +100,6 @@ let make = () => {
   }
 
   let customUI = <NoDataFound message="No results found" renderType={Painting} />
-
-  let filtersUI =
-    <Filter
-      customLeftView={<SearchBarFilter
-        placeholder="Search for Customer ID" setSearchVal=setSearchText searchVal=searchText
-      />}
-      defaultFilters={""->JSON.Encode.string}
-      fixedFilters={initialFixedFilter(version)}
-      requiredSearchFieldsList=[]
-      localFilters=[]
-      localOptions=[]
-      remoteOptions=[]
-      remoteFilters=[]
-      autoApply=false
-      submitInputOnEnter=false
-      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-      updateUrlWith=updateExistingKeys
-      clearFilters={() => {
-        reset()
-      }}
-      title="Customers"
-    />
 
   React.useEffect(() => {
     let currentFilterState = {
@@ -168,7 +129,28 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
-    <div className="flex-1"> {filtersUI} </div>
+    <div className="flex-1"> 
+      <Filter
+        customLeftView={<SearchBarFilter
+          placeholder="Search for Customer ID" setSearchVal=setSearchText searchVal=searchText
+        />}
+        defaultFilters={""->JSON.Encode.string}
+        fixedFilters={initialFixedFilter(version)}
+        requiredSearchFieldsList=[]
+        localFilters=[]
+        localOptions=[]
+        remoteOptions=[]
+        remoteFilters=[]
+        autoApply=false
+        submitInputOnEnter=false
+        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        updateUrlWith=updateExistingKeys
+        clearFilters={() => {
+          reset()
+        }}
+        title="Customers"
+      />
+    </div>
     <PageLoaderWrapper screenState customUI>
       <div className="relative">
         <div className="pt-0">

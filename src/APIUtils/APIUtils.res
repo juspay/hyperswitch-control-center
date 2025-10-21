@@ -25,6 +25,7 @@ let getV2Url = (
   | CUSTOMERS_COUNT =>
     switch (methodType, id) {
     | (Get, None) => "v2/customers/list_with_count"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
     | _ => ""
     }
   | V2_CONNECTOR =>
