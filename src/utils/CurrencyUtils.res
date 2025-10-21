@@ -376,6 +376,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "BBD" => BBD
   | "BDT" => BDT
   | "BHD" => BHD
+  | "BIF" => BIF
   | "BMD" => BMD
   | "BND" => BND
   | "BOB" => BOB
@@ -391,6 +392,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "CRC" => CRC
   | "CUP" => CUP
   | "CZK" => CZK
+  | "DJF" => DJF
   | "DKK" => DKK
   | "DOP" => DOP
   | "DZD" => DZD
@@ -809,6 +811,42 @@ let getCurrencyConversionFactor = currency => {
   | _ => 100
   }
   conversionFactor->Int.toFloat
+}
+
+let getAmountPrecisionDigits = currency => {
+  let currencyCode = getCurrencyCodeFromString(currency)
+  switch (currencyCode: currencyCode) {
+  // Zero-decimal currencies
+  | JPY
+  | KRW
+  | BIF
+  | CLP
+  | DJF
+  | GNF
+  | IQD
+  | IRR
+  | KMF
+  | MGA
+  | PYG
+  | RWF
+  | UGX
+  | VND
+  | VUV
+  | XAF
+  | XOF
+  | XPF => 0
+  // Three-decimal currencies
+  | BHD
+  | JOD
+  | KWD
+  | OMR
+  | LYD
+  | TND => 3
+  // Four-decimal currencies
+  | CLF => 4
+  // Two-decimal currencies (default)
+  | _ => 2
+  }
 }
 
 let convertCurrencyFromLowestDenomination = (~amount: float, ~currency: string) => {
