@@ -5,7 +5,7 @@ module InputFieldForOtp = {
   let make = (~inputRef, ~value, ~index, ~handleChange, ~handleFocus, ~hasError=false) => {
     let inputClass = `text-center h-full w-full border ${hasError
         ? "border-red-500 focus:border-red-500"
-        : "border-jp-2-light-gray-600 focus:border-primary"} rounded-lg outline-none focus:shadow-focusBoxShadow text-2xl overflow-hidden`
+        : "border-jp-2-light-gray-600 focus:border-primary focus:shadow-focusBoxShadow"} rounded-lg outline-none text-2xl overflow-hidden`
 
     let onChange = ev => {
       let currValue = {ev->ReactEvent.Form.target}["value"]

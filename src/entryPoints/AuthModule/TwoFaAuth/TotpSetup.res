@@ -178,7 +178,7 @@ module ConfigureTotpScreen = {
       terminateTwoFactorAuth(~skip_2fa=true)->ignore
     }
 
-    let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enable 2FA"
+    let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enter Code"
     let modalHeaderText =
       twoFaStatus === TWO_FA_SET ? "Enter TOTP Code" : "Enable Two Factor Authentication"
 
@@ -212,14 +212,14 @@ module ConfigureTotpScreen = {
       None
     }, [otp])
 
-    <div
+    <div 
       className={`bg-white ${twoFaStatus === TWO_FA_SET
-          ? "h-20-rem"
-          : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
-      <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
+              ? "h-20-rem"
+              : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
+      <div className="p-5 border-b-1.5 border-gray-150 flex justify-between items-center">
+        <p className="px-4 text-2xl text-fs-20 font-semibold leading-8"> {modalHeaderText->React.string} </p>
       </div>
-      <div className="px-12 py-8 flex flex-col gap-8 justify-between flex-1">
+      <div className="px-8 py-2 flex flex-col gap-8 justify-end flex-1">
         <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </RenderIf>
@@ -236,6 +236,8 @@ module ConfigureTotpScreen = {
             </p>
           </RenderIf>
         </div>
+      </div>
+      <div className="p-9 border-t-1.5 border-gray-150 flex justify-end items-center">
         <div className="flex justify-end gap-4">
           <RenderIf condition={isSkippable}>
             <Button
@@ -253,13 +255,8 @@ module ConfigureTotpScreen = {
             customButtonStyle="group"
             buttonState={otp->String.length === 6 ? buttonState : Disabled}
             onClick={_ => verifyTOTP()->ignore}
-            rightIcon={CustomIcon(
-              <Icon
-                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
-              />,
-            )}
           />
-        </div>
+        </div>  
       </div>
     </div>
   }
