@@ -66,7 +66,9 @@ module TotpInput = {
       <OtpInput value={otp} setValue={setOtp} hasError={hasError} />
       <div className="h-10 flex items-center justify-center">
         <RenderIf condition={hasError}>
-          <p className="text-red-500 text-fs-14 font-medium"> {"Each time you set up, a new QR code is generated. Use the code from the latest QR shown to complete setup."->React.string} </p>
+          <p className="text-red-500 text-fs-14 font-medium">
+            {"Each time you set up, a new QR code is generated. Use the code from the latest QR shown to complete setup."->React.string}
+          </p>
         </RenderIf>
       </div>
     </div>
