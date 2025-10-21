@@ -15,9 +15,7 @@ let make = () => {
   let (customersData, setCustomersData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
   let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {filterValueJson, updateExistingKeys, reset} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {filterValueJson, updateExistingKeys, reset} = React.useContext(FilterContext.filterContext)
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
@@ -32,11 +30,11 @@ let make = () => {
     try {
       setScreenState(_ => Loading)
 
-        let localFilterValue = if searchValue->isNonEmptyString {
-          let searchDict = Dict.make()
-          searchDict->setOptionString("customer_id", Some(searchValue))
-          searchDict
-        } else {
+      let localFilterValue = if searchValue->isNonEmptyString {
+        let searchDict = Dict.make()
+        searchDict->setOptionString("customer_id", Some(searchValue))
+        searchDict
+      } else {
         let listDict = Dict.make()
         filterValueJson
         ->Dict.toArray
@@ -129,7 +127,7 @@ let make = () => {
 
   <div>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
-    <div className="flex-1"> 
+    <div className="flex-1">
       <Filter
         customLeftView={<SearchBarFilter
           placeholder="Search for Customer ID" setSearchVal=setSearchText searchVal=searchText
