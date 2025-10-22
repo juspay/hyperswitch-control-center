@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.17.1
+
+### Features
+
+- Add worldpay payout connector ([#3736](https://github.com/juspay/hyperswitch-control-center/pull/3736)) ([`59c4ff6`](https://github.com/juspay/hyperswitch-control-center/commit/59c4ff6ed42cd17d63ca7ff51c060da0ce7da11d))
+
+### Miscellaneous Tasks
+
+- Wasm changes for worldpay ([#3738](https://github.com/juspay/hyperswitch-control-center/pull/3738)) ([`c54b613`](https://github.com/juspay/hyperswitch-control-center/commit/c54b6133e3a907702e5b9569e20262a2495b63e1))
+
+**Full Changelog:** [`2025.10.17.0...2025.10.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.17.0...2025.10.17.1)
+
+- - -
+
+## 2025.10.17.0
+
+### Features
+
+- Enable `calida` connector in prod ([#3691](https://github.com/juspay/hyperswitch-control-center/pull/3691)) ([`b970617`](https://github.com/juspay/hyperswitch-control-center/commit/b970617e6dcfbe1129b345a6d9fa05d71e2c28db))
+
+**Full Changelog:** [`2025.10.15.1...2025.10.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.15.1...2025.10.17.0)
+
+- - -
+
 ## 2025.10.15.1
 
 ### Miscellaneous Tasks
