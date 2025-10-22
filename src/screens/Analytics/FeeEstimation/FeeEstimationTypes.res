@@ -72,3 +72,8 @@ type transactionTableEntity = {
   totalConstIncurred: float,
   cardBrand: string,
 }
+
+type breakdownCard = {
+  title: string,
+  value: float,
+}
