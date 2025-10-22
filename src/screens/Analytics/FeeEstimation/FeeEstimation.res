@@ -299,28 +299,43 @@ module AppliedFeesBreakdown = {
   open FeeEstimationTypes
   @react.component
   let make = (~appliedFeesData: breakdownItem) => {
-    let heading = feesBreakdownColumns->Array.map(getFeeBreakdownHeading)
-    let rows = feesBreakdownColumns->Array.map(item => {
-      appliedFeesData.estimateSchemeBreakdown->Array.map(colType =>
-        getFeeBreakdownCell(colType, item)
-      )
-    })
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
+    let heading = feesBreakdownColumns->Array.map(getFeeBreakdownHeading)
+    let rows = [
+      [
+        Table.Text("Interchange fees"),
+        Table.CustomCell(
+          <p>
+            {`${appliedFeesData.estimateInterchangeVariableRate->Float.toString} % + $ ${appliedFeesData.estimateInterchangeFixedRate->Float.toString}`->React.string}
+          </p>,
+          "",
+        ),
+        Table.Text(appliedFeesData.estimateInterchangeCost->Float.toString),
+      ],
+      [
+        Table.Text("Scheme fees"),
+        Table.Text("Charged differently"),
+        Table.Text(appliedFeesData.estimateSchemeTotalCost->Float.toString),
+      ],
+    ]
 
     let collapseClick = idx => {
       let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
         let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
-
         array
       })
     }
+
     let onExpandClick = idx => {
-      setExpandedRowIndexArray(_ => {
-        [idx]
-      })
+      if idx > 0 {
+        setExpandedRowIndexArray(_ => {
+          [idx]
+        })
+      }
     }
+
     let onExpandIconClick = (isCurrentRowExpanded, rowIndex) => {
       if isCurrentRowExpanded {
         collapseClick(rowIndex)
@@ -328,29 +343,55 @@ module AppliedFeesBreakdown = {
         onExpandClick(rowIndex)
       }
     }
-    let attemptsData = appliedFeesData.estimateSchemeBreakdown->Array.toSorted((a, b) => {
-      let rowValue_a = a.cost
-      let rowValue_b = b.cost
 
-      rowValue_a <= rowValue_b ? 1. : -1.
-    })
-    let getRowDetails = rowIndex => {
-      switch attemptsData[rowIndex] {
-      | Some(data) => <div> {data.feeName->React.string} </div>
-      | None => React.null
-      }
+    let rowsSchemeBreakdown =
+      <React.Fragment>
+        {appliedFeesData.estimateSchemeBreakdown
+        ->Array.mapWithIndex((item, index) => {
+          <tr
+            key={item.feeName ++ index->Int.toString}
+            className="group h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75 font-fira-code transition duration-300 ease-in-out text-sm}">
+            {feesBreakdownColumns
+            ->Array.map(colType => {
+              <td
+                key={(colType :> string)}
+                className="h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 px-4 py-3">
+                {switch colType {
+                | FeeType =>
+                  let feeName = item.feeName->LogicUtils.snakeToTitle
+                  <div className="flex items-center gap-2">
+                    <Icon name="info" size=14 />
+                    <span> {feeName->React.string} </span>
+                  </div>
+                | Rate =>
+                  <p>
+                    {`${item.variableRate->Float.toString} % ${item.cost->Float.toString}`->React.string}
+                  </p>
+                | TotalCost =>
+                  <p> {`$ ${LogicUtils.valueFormatter(item.cost, Amount)}`->React.string} </p>
+                }}
+              </td>
+            })
+            ->React.array}
+          </tr>
+        })
+        ->React.array}
+      </React.Fragment>
+
+    let getRowDetails = _ => {
+      rowsSchemeBreakdown
     }
-    <div>
-      <CustomExpandableTable
-        title="Refunds"
-        heading
-        rows
-        onExpandIconClick
-        expandedRowIndexArray
-        getRowDetails
-        showSerial=true
-      />
-    </div>
+
+    <CustomExpandableTable
+      title="Refunds"
+      heading
+      rows
+      onExpandIconClick
+      expandedRowIndexArray
+      getRowDetails
+      showSerial=false
+      rowComponentInCell=false
+    />
   }
 }
 
