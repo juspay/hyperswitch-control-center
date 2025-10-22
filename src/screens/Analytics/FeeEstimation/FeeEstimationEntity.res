@@ -241,13 +241,12 @@ let getFeeBreakdownCell = (
 ): Table.cell => {
   switch refundsColType {
   | FeeType =>
-    CustomCell(
-      // <CurrencyCell
-      //   amount={(refunds.amount /. conversionFactor)->Float.toString} currency={refunds.currency}
-      // />,
-      <div />,
-      "",
-    )
+    let feeName = refunds.feeName->LogicUtils.snakeToTitle
+    if refunds.feeName->String.includes("interchange") {
+      CustomCell(<p className="!cursor-not-allowed"> {`${feeName}`->React.string} </p>, "")
+    } else {
+      Text(feeName)
+    }
   | Rate =>
     CustomCell(
       <div>
