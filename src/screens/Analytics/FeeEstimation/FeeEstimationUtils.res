@@ -49,7 +49,7 @@ let feeEstimationMapper: Dict.t<JSON.t> => transactionViewfeeEstimate = dict => 
   }
 }
 
-let totalCostIncurredMapper: Dict.t<JSON.t> => overviewFeeEstimate = dict => {
+let overviewDataMapper: Dict.t<JSON.t> => overviewFeeEstimate = dict => {
   let fee_breakdown_based_on_geolocation: Dict.t<JSON.t> => array<
     feeBreakdownGeoLocation,
   > = dict => {
@@ -117,3 +117,4 @@ let totalCostIncurredMapper: Dict.t<JSON.t> => overviewFeeEstimate = dict => {
     overviewBreakdown: overviewBreakdownMapper(dict),
   }
 }
+

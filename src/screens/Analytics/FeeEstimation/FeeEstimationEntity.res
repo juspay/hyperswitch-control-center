@@ -94,7 +94,7 @@ let getTableCell = () => {
       )
     | CardBrand =>
       Table.CustomCell(
-        <div className="flex items-center gap-2">
+        <div className="flex items-center !justify-between gap-2">
           <GatewayIcon
             gateway={feeEstimationData.cardBrand->String.toUpperCase}
             className="w-6 h-6 p-1 px-0.5 rounded-md bg-nd_gray-25 border border-nd_br_gray-150"
@@ -136,19 +136,22 @@ let getOverviewTableCell = () => {
         "",
       )
     | TotalTransactions =>
-      // Label({
-      //   title: feeEstimationData.funding_source->LogicUtils.camelCaseToTitle,
-      //   color: switch feeEstimationData.funding_source {
-      //   | "credit" => LabelOrange
-      //   | _ => LabelBlue
-      //   },
-      // })
       Table.CustomCell(
-        <div>
-          <p className="text-sm text-nd_gray-600 font-medium">
-            {feeEstimationData.transactionCount->Int.toString->React.string}
-          </p>
-        </div>,
+        <Table.TableCell
+          cell={CustomCell(
+            <div>
+              <p className="text-sm text-nd_gray-600 font-medium">
+                {LogicUtils.valueFormatter(
+                  feeEstimationData.transactionCount->Int.toFloat,
+                  Amount,
+                )->React.string}
+              </p>
+            </div>,
+            "",
+          )}
+          textAlign=Table.Left
+          labelMargin="!py-0"
+        />,
         "",
       )
     | TotalCostIncurred =>
@@ -237,9 +240,9 @@ let getFeeBreakdownHeading = (feesBreakdownData: feesBreakdown) => {
 
 let getFeeBreakdownCell = (
   refunds: FeeEstimationTypes.schemeFee,
-  refundsColType: feesBreakdown,
+  feeBreakdownColType: feesBreakdown,
 ): Table.cell => {
-  switch refundsColType {
+  switch feeBreakdownColType {
   | FeeType =>
     let feeName = refunds.feeName->LogicUtils.snakeToTitle
     if refunds.feeName->String.includes("interchange") {
@@ -257,27 +260,6 @@ let getFeeBreakdownCell = (
       "",
     )
   | TotalCost => Text(refunds.cost->Float.toString)
-  // | Currency => Text(refunds.currency)
-  // | RefundStatus =>
-  //   Label({
-  //     title: refunds.status->String.toUpperCase,
-  //     color: switch refunds.status->HSwitchOrderUtils.statusVariantMapper {
-  //     | Succeeded
-  //     | PartiallyCaptured =>
-  //       LabelGreen
-  //     | Failed => LabelRed
-  //     | Processing => LabelOrange
-  //     | Cancelled => LabelRed
-  //     | RequiresCustomerAction
-  //     | RequiresPaymentMethod =>
-  //       LabelBlue
-  //     | _ => LabelLightGray
-  //     },
-  //   })
-  // | PaymentId => Text(refunds.payment_id)
-  // | ErrorMessage => Text(refunds.error_message)
-  // | LastUpdated => Date(refunds.updated_at)
-  // | Created => Date(refunds.created_at)
   }
 }
 
