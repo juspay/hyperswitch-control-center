@@ -17,6 +17,12 @@ let make = () => {
           <PaymentAnalytics />
         </FilterContext>
       </AccessControl>
+    | list{"analytics-fee-estimation"} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+        <FilterContext key="FeeEstimationAnalytics" index="FeeEstimationAnalytics">
+          <FeeEstimation />
+        </FilterContext>
+      </AccessControl>
     | list{"analytics-refunds"} =>
       <AccessControl authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
