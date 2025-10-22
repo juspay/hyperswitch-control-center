@@ -1,3 +1,5 @@
+open Typography
+
 let regex = searchString => {
   RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
@@ -38,6 +40,7 @@ type labelColor =
   | LabelOrange
   | LabelYellow
   | LabelLightGray
+  | LabelPurple
 
 type filterDataType =
   | Float(float, float)
@@ -230,20 +233,20 @@ module LabelCell = {
     | LabelGreen => `bg-nd_green-50 ${bgOpacity} dark:bg-opacity-50`
     | LabelRed => `bg-nd_red-50 ${bgOpacity} dark:bg-opacity-50`
     | LabelBlue => `bg-nd_primary_blue-50 bg-opacity-50`
-    | LabelGray => "bg-nd_gray-150"
+    | LabelGray => "bg-nd_gray-50"
     | LabelOrange => `bg-nd_orange-50 ${bgOpacity} dark:bg-opacity-50`
-    | LabelYellow => "bg-nd_yellow-100"
-    | LabelLightGray => "bg-nd_gray-50"
+    | LabelPurple => "bg-nd_purple-50"
+    | _ => "bg-white"
     }
 
     let textColor = switch labelColor {
     | LabelGreen => "text-nd_green-600"
     | LabelRed => "text-nd_red-600"
     | LabelOrange => "text-nd_orange-600"
-    | LabelYellow => "text-nd_yellow-800"
-    | LabelGray => "text-nd_gray-600"
-    | LabelLightGray => "text-nd_gray_600"
-    | LabelBlue => "text-nd_primary_blue-600"
+    | LabelGray => "text-nd_gray-950"
+    | LabelBlue => "text-nd_primary_blue-800"
+    | LabelPurple => "text-nd_purple-500"
+    | _ => "text-white"
     }
 
     let mobileTextColor = switch labelColor {
@@ -257,11 +260,12 @@ module LabelCell = {
 
     let fontStyle = "font-inter-style"
 
-    <div className="flex">
+    <div className="inline-flex justify-center items-center gap-1.5">
       <div className="flex-initial ">
-        <div className={`rounded ${borderColor}`}>
+        <div className={`rounded-md ${borderColor}`}>
           <div
-            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5`}>
+            // className={`${labelMargin} ${fontStyle} ${textColor} text-fs-14 font-semibold px-2.5 py-1`}>
+            className={`${labelMargin} ${body.md.semibold} ${textColor} px-2.5 py-1`}>
             <AddDataAttributes attributes=[("data-label", text)]>
               <div> {highlightedText(text, highlightText)} </div>
             </AddDataAttributes>
@@ -289,9 +293,10 @@ module NewLabelCell = {
     | LabelOrange => "bg-orange-950 dark:bg-opacity-50"
     | LabelYellow => "bg-blue-table_yellow"
     | LabelLightGray => "bg-nd_gray-50"
+    | LabelPurple => "bg-nd_gray-50"
     }
     let bgColor = switch labelColor {
-    | LabelGreen => "bg-[#ECFDF3]"
+    | LabelGreen => "bg-nd_green-50"
     | LabelYellow => "bg-[#FFF9E2]"
     | LabelRed => "bg-[#FEECEB]"
     | _ => "bg-[#FFF9E2]"
@@ -314,7 +319,7 @@ module NewLabelCell = {
     <div className="flex">
       <div className="flex-initial ">
         <div
-          className={`flex flex-row px-2 py-0.5 ${bgColor} rounded-[16px] text-fs-10 font-bold ${textColor}`}>
+          className={`flex flex-row px-2 py-0.5 ${bgColor} rounded-[16px] ${body.md.semibold} ${textColor}`}>
           <Icon className={`${dotColor} mr-2`} name="circle_unfilled" size=6 />
           <div className={`${textColor} font-medium text-xs`}> {React.string(text)} </div>
         </div>
@@ -333,6 +338,7 @@ module ColoredTextCell = {
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
     | LabelLightGray => "text-nd_gray-600"
+    | LabelPurple => "bg-nd_purple-500"
     }
 
     <div className="flex">
