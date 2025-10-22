@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.5",
-    "@headlessui/react": "^2.2.9",
+    "@headlessui/react": "2.2.9",
     "@iarna/toml": "^2.2.5",
     "@juspay-tech/hyper-js": "^2.0.4",
     "@juspay-tech/react-hyper-js": "^1.2.4",
