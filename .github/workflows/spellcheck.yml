@@ -1,0 +1,26 @@
+name: Spell Check
+
+on:
+  push:
+    branches:
+      - main
+  merge_group:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  typos:
+    name: Spell check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.AUTO_RELEASE_PAT || github.token }}
+
+      - name: Spell check
+        uses: crate-ci/typos@master
