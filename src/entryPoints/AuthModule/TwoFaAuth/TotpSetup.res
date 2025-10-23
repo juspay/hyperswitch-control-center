@@ -103,11 +103,6 @@ module EnterAccessCode = {
             buttonSize=Small
             buttonState={recoveryCode->String.length < 9 ? Disabled : buttonState}
             customButtonStyle="group"
-            rightIcon={CustomIcon(
-              <Icon
-                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
-              />,
-            )}
             onClick={_ => verifyAccessCode()->ignore}
           />
         </div>
@@ -160,7 +155,6 @@ module ConfigureTotpScreen = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Something went wrong")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
             errorHandling()
           }
@@ -224,7 +218,7 @@ module ConfigureTotpScreen = {
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
-          <TwoFaElements.TotpInput otp setOtp hasError={hasOtpError} />
+          <TwoFaElements.TotpInput otp setOtp hasError={hasOtpError} isLoginFlow={twoFaStatus === TWO_FA_SET} />
           <RenderIf condition={twoFaStatus === TWO_FA_SET && !showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
