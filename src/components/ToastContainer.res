@@ -86,6 +86,30 @@ module Toast = {
   }
 }
 
+module CustomToastWrapper = {
+  @react.component
+  let make = (~toastProps: ToastState.toastProps, ~hideToast, ~toastDuration) => {
+    React.useEffect1(() => {
+      let duration = if toastDuration == 0 {
+        5000
+      } else {
+        toastDuration
+      }
+      let timeout = setTimeout(() => {
+        hideToast(toastProps.toastKey)
+      }, duration)
+
+      Some(
+        () => {
+          clearTimeout(timeout)
+        },
+      )
+    }, [toastProps.toastKey])
+
+    toastProps.toastElement
+  }
+}
+
 @react.component
 let make = (~children) => {
   let (openToasts, setOpenToasts) = Recoil.useRecoilState(ToastState.openToasts)
@@ -109,7 +133,12 @@ let make = (~children) => {
         {openToasts
         ->Array.map(toastProps => {
           if toastProps.toastElement != React.null {
-            toastProps.toastElement
+            <CustomToastWrapper
+              key={toastProps.toastKey}
+              toastProps
+              hideToast
+              toastDuration={toastProps.toastDuration}
+            />
           } else {
             <Toast
               key={toastProps.toastKey}

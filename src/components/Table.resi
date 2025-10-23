@@ -81,6 +81,11 @@ type header = TableUtils.header = {
   hideOnShrink: option<bool>,
   customWidth: option<string>,
 }
+type tableSection = TableUtils.tableSection = {
+  titleElement: React.element,
+  rows: array<array<cell>>,
+  rowData: array<RescriptCore.JSON.t>,
+}
 let makeHeaderInfo: (
   ~key: string,
   ~title: string,

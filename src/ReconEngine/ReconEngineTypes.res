@@ -38,6 +38,14 @@ type reconRuleType = {
   targets: array<reconRuleAccountRefType>,
 }
 
+@unboxed
+type mismatchType =
+  | @as("amount_mismatch") AmountMismatch
+  | @as("balance_direction_mismatch") BalanceDirectionMismatch
+  | @as("currency_mismatch") CurrencyMismatch
+  | @as("metadata_mismatch") MetadataMismatch
+  | @as("unknown") UnknownMismatchType
+
 type ingestionTransformationStatusType =
   | Pending
   | Processing
@@ -114,20 +122,25 @@ type transactionStatus =
   | Mismatched
   | Expected
   | Archived
+  | Void
+  | PartiallyReconciled
   | UnknownTransactionStatus
 
+@unboxed
 type entryDirectionType =
-  | Debit
-  | Credit
+  | @as("debit") Debit
+  | @as("credit") Credit
   | UnknownEntryDirectionType
 
+@unboxed
 type entryStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | Pending
-  | UnknownEntryStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("pending") Pending
+  | @as("void") Void
+  | @as("unknown") UnknownEntryStatus
 
 type transactionEntryType = {
   entry_id: string,
@@ -174,6 +187,7 @@ type processingEntryStatus =
   | Processed
   | NeedsManualReview
   | Archived
+  | Void
   | UnknownProcessingEntryStatus
 
 type processingEntryType = {

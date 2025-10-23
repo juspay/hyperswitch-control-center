@@ -77,7 +77,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+          ["expected", "mismatched", "posted", "void"]->getJsonFromArrayOfString,
         )
       }
 

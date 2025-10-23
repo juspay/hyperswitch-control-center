@@ -7,17 +7,20 @@ let getTransactionStatusVariantFromString = (status: string): transactionStatus 
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
+  | "void" => Void
+  | "partially_reconciled" => PartiallyReconciled
   | _ => UnknownTransactionStatus
   }
 }
 
 let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
-  switch entryType {
+  switch entryType->String.toLowerCase {
   | "posted" => Posted
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
   | "pending" => Pending
+  | "void" => Void
   | _ => UnknownEntryStatus
   }
 }
@@ -28,7 +31,18 @@ let getProcessingEntryStatusVariantFromString = (status: string): processingEntr
   | "processed" => Processed
   | "archived" => Archived
   | "needs_manual_review" => NeedsManualReview
+  | "void" => Void
   | _ => UnknownProcessingEntryStatus
+  }
+}
+
+let getMismatchTypeVariantFromString = (mismatchType: string): mismatchType => {
+  switch mismatchType->String.toLowerCase {
+  | "amount_mismatch" => AmountMismatch
+  | "balance_direction_mismatch" => BalanceDirectionMismatch
+  | "currency_mismatch" => CurrencyMismatch
+  | "metadata_mismatch" => MetadataMismatch
+  | _ => UnknownMismatchType
   }
 }
 
