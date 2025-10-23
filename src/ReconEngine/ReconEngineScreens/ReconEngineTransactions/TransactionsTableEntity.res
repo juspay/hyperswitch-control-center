@@ -1,6 +1,17 @@
-open ReconEngineTransactionsTypes
+open ReconEngineTypes
+open ReconEngineUtils
 open ReconEngineTransactionsUtils
 open LogicUtils
+
+type transactionColType =
+  | TransactionId
+  | CreditAccount
+  | DebitAccount
+  | CreditAmount
+  | DebitAmount
+  | Variance
+  | Status
+  | CreatedAt
 
 let defaultColumns: array<transactionColType> = [
   TransactionId,
@@ -44,20 +55,20 @@ let getHeading = (colType: transactionColType) => {
   }
 }
 
-let getStatusLabel = (statusString: string): Table.cell => {
+let getStatusLabel = (statusString: transactionStatus): Table.cell => {
   Table.Label({
-    title: statusString->String.toUpperCase,
-    color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-    | Posted => Table.LabelGreen
-    | Mismatched => Table.LabelRed
-    | Expected => Table.LabelBlue
-    | Archived => Table.LabelGray
-    | _ => Table.LabelLightGray
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | _ => LabelLightGray
     },
   })
 }
 
-let getCell = (transaction: transactionPayload, colType: transactionColType): Table.cell => {
+let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
   switch colType {
   | TransactionId => EllipsisText(transaction.transaction_id, "")
   | CreditAccount => Text(getAccounts(transaction.entries, Credit))
@@ -88,7 +99,7 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
     )
   | Status =>
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status)
+    | Some(status) => getStatusLabel(status->getTransactionStatusVariantFromString)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | CreatedAt => Date(transaction.created_at)
@@ -98,7 +109,7 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
 let transactionsEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getTransactionsList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~allColumns,
     ~getHeading,

@@ -5,6 +5,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   open PageLoaderWrapper
   open LogicUtils
   let getURL = useGetURL()
+  let url = RescriptReactRouter.useUrl()
   let _showAdvancedConfiguration = false
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorList = ConnectorListHook.useFetchConnectorList()
@@ -13,7 +14,11 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   )
   let (_metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let showToast = ToastState.useShowToast()
-  let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
+  // id required in case of update flow
+  let connectorID = switch HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "") {
+  | "new" => None
+  | id => Some(id)
+  }
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
 
@@ -57,22 +62,26 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         connector,
         payment_methods_enabled: paymentMethodsEnabled,
       }
-      let body =
-        constructConnectorRequestBody(obj, values)->ignoreFields(
-          connectorID->Option.getOr(""),
-          connectorIgnoredField,
+      let body = constructConnectorRequestBody(obj, values)
+      if connector->getConnectorNameTypeFromString == Processors(PAYSAFE) {
+        setInitialValues(_ => body)
+        setCurrentStep(_ => ConnectorTypes.CustomMetadata)
+      } else {
+        let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
+        let response = await updateAPIHook(
+          connectorUrl,
+          body->ignoreFields(connectorID->Option.getOr(""), connectorIgnoredField),
+          Post,
         )
-
-      let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
-      let response = await updateAPIHook(connectorUrl, body, Post)
-      let _ = await fetchConnectorList()
-      setInitialValues(_ => response)
-      setScreenState(_ => Success)
-      setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
-      showToast(
-        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
-        ~toastType=ToastSuccess,
-      )
+        let _ = await fetchConnectorList()
+        setInitialValues(_ => response)
+        setScreenState(_ => Success)
+        setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+        showToast(
+          ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+          ~toastType=ToastSuccess,
+        )
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")

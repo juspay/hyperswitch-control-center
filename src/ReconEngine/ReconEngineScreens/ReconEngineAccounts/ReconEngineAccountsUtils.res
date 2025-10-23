@@ -14,28 +14,46 @@ let getAccountPayloadFromDict: Dict.t<JSON.t> => accountType = dict => {
   dict->accountItemToObjMapper
 }
 
-let getAccountRefPayloadFromDict: Dict.t<JSON.t> => accountRefType = dict => {
-  dict->accountRefItemToObjMapper
+let getAccountRefPayloadFromDict: Dict.t<JSON.t> => reconRuleAccountRefType = dict => {
+  dict->ruleAccountRefItemToObjMapper
 }
 
-let getIngestionAndTransformationStatusVariantFromString = statusStr => {
+let getIngestionAndTransformationStatusVariantFromString = (
+  statusStr
+): ingestionTransformationStatusType => {
   switch statusStr {
   | "pending" => Pending
   | "processing" => Processing
   | "processed" => Processed
   | "failed" => Failed
   | "discarded" => Discarded
-  | _ => StatusNone
+  | _ => UnknownIngestionTransformationStatus
   }
 }
 
-let getIngestionAndTransformationStatusStringFromVariant = status => {
+let getStatusLabel = (statusString: ingestionTransformationStatusType): Table.cell => {
+  Table.Label({
+    title: (statusString :> string),
+    color: switch statusString {
+    | Pending => LabelYellow
+    | Processing => LabelOrange
+    | Processed => LabelGreen
+    | Failed => LabelRed
+    | Discarded => LabelGray
+    | UnknownIngestionTransformationStatus => LabelLightGray
+    },
+  })
+}
+
+let getIngestionAndTransformationStatusStringFromVariant = (
+  status: ingestionTransformationStatusType,
+) => {
   switch status {
   | Pending => "pending"
   | Processing => "processing"
   | Processed => "processed"
   | Discarded => "discarded"
   | Failed => "failed"
-  | StatusNone => "unknown"
+  | UnknownIngestionTransformationStatus => "unknown"
   }
 }

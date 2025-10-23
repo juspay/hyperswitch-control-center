@@ -9,25 +9,17 @@ module AuthorizationAndCaptureSettings = {
     ~setInitialValuesForCheckoutForm,
     ~sendAuthType,
     ~setSendAuthType,
-    ~businessProfileRecoilVal,
   ) => {
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let handleIsSelectedForFuture = (val, setFunc) => {
       setInitialValuesForCheckoutForm(_ => {
-        SDKPaymentUtils.initialValueForForm(
-          ~showSetupFutureUsage=val,
-          ~sendAuthType,
-          businessProfileRecoilVal,
-        )
+        SDKPaymentUtils.initialValueForForm(~showSetupFutureUsage=val, ~sendAuthType, ~profileId)
       })
       setFunc(_ => val)
     }
     let handleIsSelectedForThreeDs = (val, setFunc) => {
       setInitialValuesForCheckoutForm(_ => {
-        SDKPaymentUtils.initialValueForForm(
-          ~sendAuthType=val,
-          ~showSetupFutureUsage,
-          businessProfileRecoilVal,
-        )
+        SDKPaymentUtils.initialValueForForm(~sendAuthType=val, ~showSetupFutureUsage, ~profileId)
       })
       setFunc(_ => val)
     }
@@ -72,9 +64,6 @@ let make = (
   ~setSendAuthType,
 ) => {
   let {setInitialValuesForCheckoutForm} = React.useContext(SDKProvider.defaultContext)
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
-  )
   <Modal
     setShowModal
     showModal
@@ -107,7 +96,6 @@ let make = (
                 setInitialValuesForCheckoutForm
                 sendAuthType
                 setSendAuthType
-                businessProfileRecoilVal
               />
             },
             renderContentOnTop: None,

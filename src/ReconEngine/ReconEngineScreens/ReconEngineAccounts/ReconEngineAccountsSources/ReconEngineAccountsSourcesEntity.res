@@ -1,4 +1,3 @@
-open ReconEngineAccountsUtils
 open LogicUtils
 open ReconEngineTypes
 open ReconEngineAccountsSourcesHelper
@@ -96,29 +95,19 @@ let getTransformationHistoryHeading = colType => {
   }
 }
 
-let getStatusLabel = (statusString: string): Table.cell => {
-  Table.Label({
-    title: statusString->snakeToTitle,
-    color: switch statusString->getIngestionAndTransformationStatusVariantFromString {
-    | Pending => Table.LabelGray
-    | Processing => Table.LabelOrange
-    | Processed => Table.LabelGreen
-    | Failed => Table.LabelRed
-    | Discarded => Table.LabelGray
-    | StatusNone => Table.LabelLightGray
-    },
-  })
-}
-
 let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell => {
   switch colType {
   | FileName => Text(data.file_name)
   | IngestionName => Text(data.ingestion_name)
   | IngestionHistoryId => Text(data.ingestion_history_id)
-  | Status => getStatusLabel(data.status)
+  | Status => ReconEngineAccountsUtils.getStatusLabel(data.status)
   | IngestionType => Text(data.upload_type)
   | ReceivedAt => Date(data.created_at)
-  | Actions => CustomCell(<IngestionHistoryActionsComponent />, "")
+  | Actions =>
+    CustomCell(
+      <ReconEngineAccountsSourcesHelper.IngestionHistoryActionsComponent ingestionHistory={data} />,
+      "",
+    )
   }
 }
 
@@ -137,7 +126,7 @@ let getTransformationConfigCell = (
   colType: transformationConfigColType,
 ): Table.cell => {
   switch colType {
-  | TransformationId => Text(data.id)
+  | TransformationId => Text(data.transformation_id)
   | IngestionId => Text(data.ingestion_id)
   | Status =>
     Label({
@@ -160,7 +149,7 @@ let getTransformationHistoryCell = (
   | TransformationId => EllipsisText(transformationHistoryData.transformation_id, "")
   | TransformationHistoryId => Text(transformationHistoryData.transformation_history_id)
   | TransformationName => Text(transformationHistoryData.transformation_name)
-  | Status => getStatusLabel(transformationHistoryData.status)
+  | Status => ReconEngineAccountsUtils.getStatusLabel(transformationHistoryData.status)
   | CreatedAt => Date(transformationHistoryData.created_at)
   | TransformedAt => Date(transformationHistoryData.processed_at)
   | TransformationStats =>
@@ -171,7 +160,7 @@ let getTransformationHistoryCell = (
   | ProcessedCount => Text(transformationHistoryData.data.transformed_count->Int.toString)
   | IgnoredCount => Text(transformationHistoryData.data.ignored_count->Int.toString)
   | ErrorCount => Text(transformationHistoryData.data.errors->Array.length->Int.toString)
-  | Actions => CustomCell(<TransformationHistoryActionsComponent />, "")
+  | Actions => CustomCell(<TransformationHistoryActionsComponent transformationHistoryData />, "")
   }
 }
 

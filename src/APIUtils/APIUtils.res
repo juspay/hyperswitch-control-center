@@ -22,6 +22,12 @@ let getV2Url = (
     | (Get, Some(customerId)) => `v2/customers/${customerId}`
     | _ => ""
     }
+  | CUSTOMERS_COUNT =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list_with_count"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
   | V2_CONNECTOR =>
     switch methodType {
     | Get =>
@@ -212,6 +218,19 @@ let useGetURL = () => {
             switch queryParamerters {
             | Some(queryParams) => `customers/list?${queryParams}`
             | None => `customers/list?limit=500`
+            }
+          }
+        | _ => ""
+        }
+      | CUSTOMERS_COUNT =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(customerId) => `customers/${customerId}`
+          | None =>
+            switch queryParamerters {
+            | Some(queryParams) => `customers/list_with_count?${queryParams}`
+            | None => `customers/list_with_count`
             }
           }
         | _ => ""
@@ -475,22 +494,12 @@ let useGetURL = () => {
         | _ => ""
         }
       | ACTIVE_ROUTING => `routing/active`
-      | ENABLE_AUTH_RATE_ROUTING =>
+      | CREATE_AUTH_RATE_ROUTING =>
         switch methodType {
         | Post =>
           switch queryParamerters {
           | Some(param) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/toggle?${param}`
-          | None => ""
-          }
-        | _ => ""
-        }
-      | SET_CONFIG_AUTH_RATE_ROUTING =>
-        switch methodType {
-        | Patch =>
-          switch id {
-          | Some(id) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/config/${id}`
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/create?${param}`
           | None => ""
           }
         | _ => ""
@@ -1110,7 +1119,11 @@ let useGetURL = () => {
         | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
         // INVITATION INSIDE DASHBOARD
-        | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+        | #RESEND_INVITE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/user/resend_invite?${params}`
+          | None => `${userUrl}/user/resend_invite`
+          }
         | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
         | #INVITE_MULTIPLE =>
           switch queryParamerters {

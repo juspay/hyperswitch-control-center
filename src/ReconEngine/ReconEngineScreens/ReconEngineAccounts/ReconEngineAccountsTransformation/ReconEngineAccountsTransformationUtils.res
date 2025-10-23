@@ -1,6 +1,5 @@
 open ReconEngineAccountsTransformationTypes
 open LogicUtils
-open ReconEngineAccountsUtils
 open ReconEngineTypes
 open ReconEngineUtils
 
@@ -18,10 +17,28 @@ let getTotalCount = (~transformationHistoryList: array<transformationHistoryType
 
 let getProcessedCount = (~transformationHistoryList: array<transformationHistoryType>): int => {
   transformationHistoryList
-  ->Array.filter(item =>
-    item.status->getIngestionAndTransformationStatusVariantFromString == Processed
-  )
+  ->Array.filter(item => item.status == Processed)
   ->Array.length
+}
+
+let getTransformationIdFromUrl = urlSearch => {
+  urlSearch
+  ->getDictFromUrlSearchParams
+  ->getvalFromDict("transformationId")
+}
+
+let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
+  name,
+  onBlur: _ => (),
+  onChange: _ => (),
+  onFocus: _ => (),
+  value: value->JSON.Encode.string,
+  checked: true,
+}
+
+let createDropdownOption = (~label, ~value) => {
+  SelectBox.label,
+  value,
 }
 
 let getHealthyStatus = (~transformationHistoryList: array<transformationHistoryType>): (
@@ -46,7 +63,7 @@ let getTransformationConfigData = (~config: transformationConfigType): array<
   let sourceConfigData: array<transformationConfigDataType> = [
     {
       label: TransformationId,
-      value: config.id,
+      value: config.transformation_id,
       valueType: #text,
     },
     {

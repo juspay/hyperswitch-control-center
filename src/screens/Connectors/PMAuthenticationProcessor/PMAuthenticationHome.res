@@ -58,6 +58,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -164,17 +165,14 @@ let make = () => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
 
     if !isUpdateFlow {
-      initialValuesToDict->Dict.set(
-        "profile_id",
-        businessProfileRecoilVal.profile_id->JSON.Encode.string,
-      )
+      initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
       initialValuesToDict->Dict.set(
         "connector_label",
         `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
     }
     None
-  }, [connectorName, businessProfileRecoilVal.profile_id])
+  }, [connectorName, profileId])
 
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {

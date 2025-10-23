@@ -1,4 +1,5 @@
-type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview | AutomaticFlow
+type steps =
+  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -119,11 +120,15 @@ type processorTypes =
   | PHONEPE
   | FLEXITI
   | BREADPAY
-  | BLUECODE
+  | CALIDA
   | BLACKHAWKNETWORK
   | DWOLLA
   | PAYSAFE
   | PEACHPAYMENTS
+  | GIGADAT
+  | LOONIO
+  | TESOURO
+  | FINIX
 
 type payoutProcessorTypes =
   | ADYEN
@@ -134,9 +139,18 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
   | NOMUPAY
+  | NUVEI
+  | GIGADAT
+  | LOONIO
+  | WORLDPAY
 
 type threeDsAuthenticatorTypes =
-  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER | CLICK_TO_PAY_VISA
+  | THREEDSECUREIO
+  | NETCETERA
+  | CLICK_TO_PAY_MASTERCARD
+  | JUSPAYTHREEDSSERVER
+  | CLICK_TO_PAY_VISA
+  | CARDINAL
 
 type frmTypes =
   | Signifyd

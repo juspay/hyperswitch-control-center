@@ -31,7 +31,7 @@ module DisplayKeyValueParams = {
               textAlign=Table.Left
               fontBold=true
               customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
+              labelMargin="!py-0"
             />
           </div>
         </div>
@@ -71,18 +71,16 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails: ReconEngineTransactionsTypes.transactionPayload) => {
+  let make = (~currentTransactionDetails: ReconEngineTypes.transactionType) => {
     open TransactionsTableEntity
-    open ReconEngineTransactionsUtils
-    open ReconEngineTransactionsTypes
+
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
     let widthClass = if isMiniLaptopView {
       "md:w-1/3 w-1/2"
     } else {
       "w-1/4"
     }
-    let isArchived =
-      currentTransactionDetails.transaction_status->getTransactionTypeFromString == Archived
+    let isArchived = currentTransactionDetails.transaction_status == Archived
     let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
@@ -104,20 +102,35 @@ module TransactionDetailInfo = {
 }
 
 module EntryAuditTrailInfo = {
-  open ReconEngineTransactionsTypes
+  open ReconEngineTypes
+
   @react.component
-  let make = (~entriesList: array<entryPayload>=[]) => {
+  let make = (~entriesList: array<entryType>=[]) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
+    open ReconEngineUtils
+
     let mainEntry = React.useMemo(() => {
-      entriesList->Array.get(0)->Option.getOr(Dict.make()->getAllEntryPayload)
+      entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+    }, [entriesList])
+
+    let expectedEntries = React.useMemo(() => {
+      entriesList
+      ->Array.slice(~start=1, ~end=entriesList->Array.length)
+      ->Array.filter(entry =>
+        entry.status == Expected || entry.discarded_status == Some("expected")
+      )
     }, [entriesList])
 
     let reconciledEntries = React.useMemo(() => {
-      entriesList->Array.slice(~start=1, ~end=entriesList->Array.length)
+      entriesList
+      ->Array.slice(~start=1, ~end=entriesList->Array.length)
+      ->Array.filter(entry =>
+        entry.status != Expected && entry.discarded_status != Some("expected")
+      )
     }, [entriesList])
 
-    let isArchived = mainEntry.status->getEntryTypeFromString == Archived
+    let isArchived = mainEntry.status == Archived
 
     let (hasMetadata, filteredMetadata) = React.useMemo(() => {
       let filteredMetadata = mainEntry.metadata->getFilteredMetadataFromEntries
@@ -137,7 +150,7 @@ module EntryAuditTrailInfo = {
 
     let getRowDetails = (rowIndex: int) => {
       let entry =
-        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->getAllEntryPayload)
+        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
       let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
@@ -155,8 +168,12 @@ module EntryAuditTrailInfo = {
     }
 
     let heading = detailsFields->Array.map(getHeading)
-    let rows =
+    let reconciledRows =
       reconciledEntries->Array.map(entry =>
+        detailsFields->Array.map(colType => getCell(entry, colType))
+      )
+    let expectedRows =
+      expectedEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
     <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
@@ -199,6 +216,33 @@ module EntryAuditTrailInfo = {
           </RenderIf>
         </div>
       </div>
+      <RenderIf condition={expectedEntries->Array.length > 0}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Expectations"->React.string} </p>
+          <div className="overflow-visible">
+            <CustomExpandableTable
+              title="Expected Entries"
+              tableClass="border rounded-xl overflow-y-auto"
+              borderClass=" "
+              firstColRoundedHeadingClass="rounded-tl-xl"
+              lastColRoundedHeadingClass="rounded-tr-xl"
+              headingBgColor="bg-nd_gray-25"
+              headingFontWeight="font-semibold"
+              headingFontColor="text-nd_gray-400"
+              rowFontColor="text-nd_gray-600"
+              customRowStyle="text-sm"
+              rowFontStyle="font-medium"
+              heading
+              rows=expectedRows
+              onExpandIconClick
+              expandedRowIndexArray
+              getRowDetails
+              showSerial=false
+              showScrollBar=true
+            />
+          </div>
+        </div>
+      </RenderIf>
       <RenderIf condition={reconciledEntries->Array.length > 0}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
@@ -218,7 +262,7 @@ module EntryAuditTrailInfo = {
               customRowStyle="text-sm"
               rowFontStyle="font-medium"
               heading
-              rows
+              rows=reconciledRows
               onExpandIconClick
               expandedRowIndexArray
               getRowDetails
@@ -248,7 +292,7 @@ module AuditTrail = {
   let make = (~allTransactionDetails) => {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
-    open ReconEngineTransactionsTypes
+    open ReconEngineTypes
     open APIUtils
 
     let getURL = useGetURL()
@@ -256,9 +300,11 @@ module AuditTrail = {
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (openedTransaction, setOpenedTransaction) = React.useState(_ =>
-      Dict.make()->getAllTransactionPayload
+      Dict.make()->getTransactionsPayloadFromDict
     )
-    let (entriesList, setEntriesList) = React.useState(_ => [Dict.make()->getAllEntryPayload])
+    let (entriesList, setEntriesList) = React.useState(_ => [
+      Dict.make()->transactionsEntryItemToObjMapperFromDict,
+    ])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     React.useMemo(() => {
@@ -277,12 +323,12 @@ module AuditTrail = {
           ~id=Some(openedTransaction.transaction_id),
         )
         let res = await fetchDetails(url)
-        let entriesList = res->getArrayDataFromJson(getAllEntryPayload)
+        let entriesList = res->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
         let entriesDataArray = openedTransaction.entries->Array.map(entry => {
           let foundEntry =
             entriesList
             ->Array.find(e => entry.entry_id == e.entry_id)
-            ->Option.getOr(Dict.make()->getAllEntryPayload)
+            ->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
 
           {
             ...foundEntry,
@@ -296,7 +342,7 @@ module AuditTrail = {
       }
     }
 
-    let sections = allTransactionDetails->Array.map((transaction: transactionPayload) => {
+    let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
       let customComponent = {
         id: transaction.version->Int.toString,
         customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
@@ -323,7 +369,7 @@ module AuditTrail = {
           </p>
           <div
             className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {openedTransaction.transaction_status->String.toUpperCase->React.string}
+            {(openedTransaction.transaction_status :> string)->React.string}
           </div>
         </div>
         <Icon

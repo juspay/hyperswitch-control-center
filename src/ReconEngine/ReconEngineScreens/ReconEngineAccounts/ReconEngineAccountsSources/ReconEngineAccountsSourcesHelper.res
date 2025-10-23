@@ -35,45 +35,16 @@ module SourceConfigItem = {
       | #text =>
         <span className={`${body.md.medium} text-nd_gray-600`}> {data.value->React.string} </span>
       | #date =>
-        <span className={`${body.md.medium} text-nd_gray-600`}>
-          <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
-        </span>
+        if data.value->LogicUtils.isNonEmptyString {
+          <span className={`${body.md.medium} text-nd_gray-600`}>
+            <TableUtils.DateCell timestamp={data.value} textAlign={Left} />
+          </span>
+        } else {
+          <span className={`${body.md.medium} text-nd_gray-600`}> {"-"->React.string} </span>
+        }
       | #status =>
         <StatusIndicator status={data.value->getStatusVariantFromString} value={data.value} />
       }}
-    </div>
-  }
-}
-
-module IngestionHistoryActionsComponent = {
-  @react.component
-  let make = () => {
-    let ingestionHistoryIconActions = [
-      {
-        iconType: ViewIcon,
-        onClick: _ => (),
-      },
-      {
-        iconType: DownloadIcon,
-        onClick: _ => (),
-      },
-      {
-        iconType: ChartIcon,
-        onClick: _ => (),
-      },
-    ]
-
-    <div className="flex flex-row gap-4">
-      {ingestionHistoryIconActions
-      ->Array.mapWithIndex((action, index) =>
-        <Icon
-          key={index->Int.toString}
-          name={(action.iconType :> string)}
-          size=16
-          onClick={action.onClick}
-        />
-      )
-      ->React.array}
     </div>
   }
 }
@@ -142,9 +113,133 @@ module TransformationStats = {
 
 module TransformationHistoryActionsComponent = {
   @react.component
-  let make = () => {
+  let make = (~transformationHistoryData: transformationHistoryType) => {
+    let (showModal, setShowModal) = React.useState(_ => false)
+
+    let onClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      setShowModal(_ => true)
+    }
+
+    let modalScrollbarCss = `
+      @supports (-webkit-appearance: none){
+        .modal-scrollbar {
+            scrollbar-width: auto;
+            scrollbar-color: #CACFD8;
+          }
+      
+        .modal-scrollbar::-webkit-scrollbar {
+          display: block;
+          height: 4px;
+          width: 5px;
+        }
+      
+        .modal-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #CACFD8;
+          border-radius: 3px;
+        }
+      
+        .modal-scrollbar::-webkit-scrollbar-track {
+          display: none;
+        }
+    }`
+
     <div className="flex flex-row gap-4">
-      <Icon name="nd-alert-triangle-outline" size=16 onClick={_ => ()} />
+      <Icon name="nd-alert-triangle-outline" size=16 onClick={ev => onClick(ev)} />
+      <style> {React.string(modalScrollbarCss)} </style>
+      <Modal
+        setShowModal
+        showModal
+        closeOnOutsideClick=true
+        modalHeading={`View Errors (${transformationHistoryData.data.errors
+          ->Array.length
+          ->Int.toString})`}
+        modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
+        alignModal="justify-center items-center"
+        modalClass="flex flex-col justify-start !h-400-px w-2/5 !overflow-y-scroll !bg-white dark:!bg-jp-gray-lightgray_background"
+        childClass="relative h-full">
+        <div className="h-full relative">
+          <div className="absolute inset-0 overflow-scroll px-8 py-4 modal-scrollbar mb-20">
+            <RenderIf condition={transformationHistoryData.data.errors->Array.length > 0}>
+              <div className="flex flex-col gap-4">
+                {transformationHistoryData.data.errors
+                ->Array.map(error =>
+                  <div
+                    key={LogicUtils.randomString(~length=10)}
+                    className="flex flex-row items-center p-3 rounded-lg bg-nd_red-50">
+                    <Icon
+                      name="nd-multiple-cross"
+                      size=16
+                      className="text-nd_red-400 mr-2 flex-shrink-0"
+                    />
+                    <p className={`text-nd_gray-600 ${body.md.medium}`}> {error->React.string} </p>
+                  </div>
+                )
+                ->React.array}
+              </div>
+            </RenderIf>
+            <RenderIf condition={transformationHistoryData.data.errors->Array.length === 0}>
+              <NewAnalyticsHelper.NoData message="No Errors Found" height="h-40" />
+            </RenderIf>
+          </div>
+          <div
+            className="absolute flex justify-end bottom-0 w-full bg-white dark:bg-jp-gray-lightgray_background p-4 border-t border-nd_gray-150">
+            <Button
+              customButtonStyle="!w-fit"
+              buttonType=Button.Primary
+              onClick={_ => setShowModal(_ => false)}
+              text="OK"
+            />
+          </div>
+        </div>
+      </Modal>
+    </div>
+  }
+}
+
+module IngestionHistoryActionsComponent = {
+  @react.component
+  let make = (~ingestionHistory: ingestionHistoryType) => {
+    open ReconEngineAccountsSourcesTypes
+
+    let (showModal, setShowModal) = React.useState(_ => false)
+
+    let ingestionHistoryIconActions = [
+      {
+        iconType: ViewIcon,
+        onClick: _ => (),
+        disabled: true,
+      },
+      {
+        iconType: DownloadIcon,
+        onClick: _ => (),
+        disabled: true,
+      },
+      {
+        iconType: ChartIcon,
+        onClick: ev => {
+          ev->ReactEvent.Mouse.stopPropagation
+          setShowModal(_ => true)
+        },
+        disabled: false,
+      },
+    ]
+
+    <div className="flex flex-row gap-4">
+      <ReconEngineAccountSourceFileTimeline
+        showModal setShowModal ingestionHistoryId=ingestionHistory.ingestion_history_id
+      />
+      {ingestionHistoryIconActions
+      ->Array.mapWithIndex((action, index) => {
+        <Icon
+          key={index->Int.toString}
+          name={(action.iconType :> string)}
+          size=16
+          onClick={action.onClick}
+          className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        />
+      })
+      ->React.array}
     </div>
   }
 }
