@@ -61,6 +61,7 @@ let useSendEvent = () => {
         "lang": Navigator.browserLanguage,
         "$os": Navigator.platform,
         "$browser": Navigator.browserName,
+        "$browser_version": Navigator.getBrowserVersion,
         "mp_country_code": country,
       },
     }
@@ -124,6 +125,7 @@ let usePageView = () => {
         "lang": Navigator.browserLanguage,
         "$os": Navigator.platform,
         "$browser": Navigator.browserName,
+        "$browser_version": Navigator.getBrowserVersion,
         "mp_country_code": country,
         "page": path,
       },
