@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.23.0
+
+### Features
+
+- **Customers:** Added the time range filter and Pagination with total_count in the customer_page ([#3733](https://github.com/juspay/hyperswitch-control-center/pull/3733)) ([`bd03cd9`](https://github.com/juspay/hyperswitch-control-center/commit/bd03cd994830e61d7d86844c57df49ab2e528e7a))
+
+### Bug Fixes
+
+- Peach Payments Display Name ([#3746](https://github.com/juspay/hyperswitch-control-center/pull/3746)) ([`8332bb3`](https://github.com/juspay/hyperswitch-control-center/commit/8332bb33ede259fdc9d7f94dc28b803d2e832886))
+
+### Miscellaneous Tasks
+
+- Recon engine data overview mappers and file timeline linkage ([#3633](https://github.com/juspay/hyperswitch-control-center/pull/3633)) ([`38b9651`](https://github.com/juspay/hyperswitch-control-center/commit/38b965128db9f1e58630b05487140521e3498688))
+- Added decrypted flow for tesouro ([#3747](https://github.com/juspay/hyperswitch-control-center/pull/3747)) ([`eb2cbe8`](https://github.com/juspay/hyperswitch-control-center/commit/eb2cbe8385b3c3bb9f648b2bebb6b7e45762d77f))
+
+**Full Changelog:** [`2025.10.17.1...2025.10.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.17.1...2025.10.23.0)
+
+- - -
+
 ## 2025.10.17.1
 
 ### Features
