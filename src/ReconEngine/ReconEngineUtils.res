@@ -196,7 +196,7 @@ let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
 
 let transformationConfigItemToObjMapper = (dict): transformationConfigType => {
   {
-    id: dict->getString("id", ""),
+    transformation_id: dict->getString("transformation_id", ""),
     profile_id: dict->getString("profile_id", ""),
     ingestion_id: dict->getString("ingestion_id", ""),
     account_id: dict->getString("account_id", ""),

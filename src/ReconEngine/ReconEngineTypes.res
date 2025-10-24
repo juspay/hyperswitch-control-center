@@ -88,7 +88,7 @@ type ingestionConfigType = {
 }
 
 type transformationConfigType = {
-  id: string,
+  transformation_id: string,
   profile_id: string,
   ingestion_id: string,
   account_id: string,
