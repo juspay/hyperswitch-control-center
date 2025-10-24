@@ -19,7 +19,9 @@ let make = (~id) => {
   let (entriesList, setEntriesList) = React.useState(_ => [
     Dict.make()->transactionsEntryItemToObjMapperFromDict,
   ])
+  let (accountsData, setAccountsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getExceptionDetails = async _ => {
     try {
@@ -57,9 +59,11 @@ let make = (~id) => {
           account_name: entry.account.account_name,
         }
       })
+      let accountData = await getAccounts()
       setEntriesList(_ => entriesDataArray)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
       setAllExceptionDetails(_ => exceptionsList)
+      setAccountsData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
@@ -78,7 +82,9 @@ let make = (~id) => {
         title: "Entries",
         renderContent: () =>
           <ReconEngineExceptionTransactionEntries
-            entriesList={entriesList} currentExceptionDetails={currentExceptionsDetails}
+            entriesList={entriesList}
+            currentExceptionDetails={currentExceptionsDetails}
+            accountsData
           />,
       },
       {
@@ -86,7 +92,7 @@ let make = (~id) => {
         renderContent: () => <AuditTrail allTransactionDetails={allExceptionDetails} />,
       },
     ]
-  }, [allExceptionDetails])
+  }, (allExceptionDetails, entriesList, accountsData))
 
   <div>
     <div className="flex flex-col gap-4 mb-6">

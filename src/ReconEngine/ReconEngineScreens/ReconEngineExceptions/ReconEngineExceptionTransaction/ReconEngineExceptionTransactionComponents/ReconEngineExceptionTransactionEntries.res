@@ -4,6 +4,7 @@ open Typography
 let make = (
   ~entriesList: array<ReconEngineTypes.entryType>,
   ~currentExceptionDetails: ReconEngineTypes.transactionType,
+  ~accountsData: array<ReconEngineTypes.accountType>,
 ) => {
   open EntriesTableEntity
   open ReconEngineUtils
@@ -12,7 +13,6 @@ let make = (
   open ReconEngineExceptionTransactionHelper
   open APIUtils
   open LogicUtils
-  open ReconEngineTransactionsHelper
 
   let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
@@ -44,17 +44,17 @@ let make = (
     }
   }
 
-  let (groupedEntries, accountIdNameMap) = React.useMemo(() => {
-    getGroupedEntriesAndAccountIdNameMap(~entriesList=updatedEntriesList)
-  }, [updatedEntriesList])
+  let (groupedEntries, accountInfoMap) = React.useMemo(() => {
+    getGroupedEntriesAndAccountMaps(~accountsData, ~updatedEntriesList)
+  }, (updatedEntriesList, accountsData))
 
   let sectionDetails = (sectionIndex: int, rowIndex: int) => {
     getSectionRowDetails(~sectionIndex, ~rowIndex, ~groupedEntries)
   }
 
   let tableSections = React.useMemo(() => {
-    getSections(~groupedEntries, ~accountIdNameMap, ~detailsFields)
-  }, (groupedEntries, accountIdNameMap, detailsFields))
+    getSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+  }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     let url = getURL(
@@ -85,9 +85,9 @@ let make = (
     generateAllResolutionSummaries(entriesList, updatedEntriesList)
   }, [entriesList, updatedEntriesList])
 
-  <div className="flex flex-col gap-4 mt-6">
+  <div className="flex flex-col gap-4 mt-6 mb-16">
     <ReconEngineExceptionTransactionResolution
-      accountIdNameMap
+      accountInfoMap
       exceptionStage
       setExceptionStage
       selectedRows

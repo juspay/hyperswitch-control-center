@@ -3,9 +3,10 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open ReconEngineExceptionTransactionTypes
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions = getTransactionStatusOptions([Mismatched, Expected])
+  let statusOptions = getTransactionStatusOptions([Expected, Mismatched, PartiallyReconciled])
   [
     (
       {
@@ -76,9 +77,35 @@ let getSumOfAmountWithCurrency = (entries: array<entryType>): (float, string) =>
   (totalAmount, currency)
 }
 
+let getBalanceByAccountType = (entries: array<entryType>, accountType: string): (float, string) => {
+  let (totalCredits, totalDebits) = entries->Array.reduce((0.0, 0.0), (
+    (credits, debits),
+    entry,
+  ) => {
+    switch entry.entry_type {
+    | Credit => (credits +. entry.amount, debits)
+    | Debit => (credits, debits +. entry.amount)
+    | UnknownEntryDirectionType => (credits, debits)
+    }
+  })
+
+  let balance = switch accountType->String.toLowerCase {
+  | "credit" => totalCredits -. totalDebits
+  | "debit" => totalDebits -. totalCredits
+  | _ => totalCredits +. totalDebits
+  }
+
+  let currency = switch entries->Array.get(0) {
+  | Some(entry) => entry.currency
+  | None => ""
+  }
+
+  (balance, currency)
+}
+
 let getHeadingAndSubHeadingForMismatch = (
   mismatchData: Js.Json.t,
-  ~accountIdNameMap: Dict.t<string>,
+  ~accountInfoMap: Dict.t<accountInfo>,
 ): (string, string) => {
   let mismatchType =
     mismatchData
@@ -87,7 +114,7 @@ let getHeadingAndSubHeadingForMismatch = (
     ->getMismatchTypeVariantFromString
   let mismatchedDataDict =
     mismatchData->getDictFromJsonObject->getJsonObjectFromDict("mismatch_data")
-  let accountNames = accountIdNameMap->Dict.valuesToArray
+  let accountNames = accountInfoMap->Dict.valuesToArray->Array.map(info => info.account_info_name)
 
   let expectedAmount =
     mismatchedDataDict
@@ -160,10 +187,7 @@ let exceptionTransactionEntryItemToItemMapper = dict => {
   }
 }
 
-let hasFormValuesChanged = (
-  currentValues: JSON.t,
-  initialEntryDetails: ReconEngineTypes.entryType,
-): bool => {
+let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryType): bool => {
   let currentData = currentValues->getDictFromJsonObject
   let initialMetadata = initialEntryDetails.metadata->getFilteredMetadataFromEntries
 
@@ -236,10 +260,7 @@ let validateCreateEntryDetails = (values: JSON.t): JSON.t => {
   errors->JSON.Encode.object
 }
 
-let validateEditEntryDetails = (
-  values: JSON.t,
-  ~initialEntryDetails: ReconEngineTypes.entryType,
-): JSON.t => {
+let validateEditEntryDetails = (values: JSON.t, ~initialEntryDetails: entryType): JSON.t => {
   let data = values->getDictFromJsonObject
   let errors = Dict.make()
 
@@ -299,7 +320,7 @@ let validateEditEntryDetails = (
   errors->JSON.Encode.object
 }
 
-let getInitialValuesForEntries = entryDetails => {
+let getInitialValuesForEditEntries = entryDetails => {
   let dict = Dict.make()
   dict->Dict.set("account", entryDetails.account_id->JSON.Encode.string)
   dict->Dict.set("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string)
@@ -319,7 +340,12 @@ let getInitialValuesForEntries = entryDetails => {
   dict->JSON.Encode.object
 }
 
-open ReconEngineExceptionTransactionTypes
+let getInitialValuesForNewEntries = () => {
+  let dict = Dict.make()
+  let todayDate = Js.Date.make()->Js.Date.toISOString
+  dict->Dict.set("effective_at", todayDate->JSON.Encode.string)
+  dict->JSON.Encode.object
+}
 
 let getInnerVariant = (stage: exceptionResolutionStage): resolvingException =>
   switch stage {
@@ -328,10 +354,9 @@ let getInnerVariant = (stage: exceptionResolutionStage): resolvingException =>
   | _ => NoResolutionActionNeeded
   }
 
-let generateResolutionSummary = (
-  initialEntry: ReconEngineTypes.entryType,
-  updatedEntry: ReconEngineTypes.entryType,
-): array<string> => {
+let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryType): array<
+  string,
+> => {
   let summary = []
 
   if (initialEntry.entry_type :> string) != (updatedEntry.entry_type :> string) {
@@ -366,8 +391,8 @@ let generateResolutionSummary = (
 }
 
 let generateAllResolutionSummaries = (
-  originalEntries: array<ReconEngineTypes.entryType>,
-  updatedEntries: array<ReconEngineTypes.entryType>,
+  originalEntries: array<entryType>,
+  updatedEntries: array<entryType>,
 ): array<string> => {
   let allSummaryItems = []
 
@@ -392,7 +417,7 @@ let generateAllResolutionSummaries = (
   allSummaryItems
 }
 
-let getUniqueCurrencyOptionsFromEntries = (entries: array<ReconEngineTypes.entryType>): array<
+let getUniqueCurrencyOptionsFromEntries = (entries: array<entryType>): array<
   SelectBox.dropdownOption,
 > => {
   let currencySet = Set.make()
@@ -406,7 +431,7 @@ let getUniqueCurrencyOptionsFromEntries = (entries: array<ReconEngineTypes.entry
   })
 }
 
-let getUniqueAccountOptionsFromEntries = (entries: array<ReconEngineTypes.entryType>): array<
+let getUniqueAccountOptionsFromEntries = (entries: array<entryType>): array<
   SelectBox.dropdownOption,
 > => {
   let allAccounts = entries->Array.reduce([], (acc: array<(string, string)>, entry) => {
@@ -448,7 +473,7 @@ let parseResolutionActions = (json: JSON.t): array<
 }
 
 let constructManualReconciliationBody = (
-  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
+  ~updatedEntriesList: array<entryType>,
   ~values,
 ): JSON.t => {
   let valuesDict = values->getDictFromJsonObject
@@ -517,11 +542,11 @@ let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage) => {
 }
 
 let getUpdatedEntry = (
-  ~entryDetails: ReconEngineTypes.entryType,
+  ~entryDetails: entryType,
   ~formData,
-  ~accountData: ReconEngineTypes.accountRefType,
+  ~accountData: accountRefType,
   ~markAsReceived=false,
-): ReconEngineTypes.entryType => {
+): entryType => {
   let isExpected = entryDetails.status == Expected
 
   let statusString = if markAsReceived {
@@ -552,9 +577,9 @@ let getUpdatedEntry = (
 
 let getNewEntry = (
   ~formData,
-  ~accountData: ReconEngineTypes.accountRefType,
-  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
-): ReconEngineTypes.entryType => {
+  ~accountData: accountRefType,
+  ~updatedEntriesList: array<entryType>,
+): entryType => {
   {
     entry_id: "-",
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
@@ -575,19 +600,72 @@ let getNewEntry = (
   }
 }
 
-let getGroupedEntriesAndAccountIdNameMap = (~entriesList: array<ReconEngineTypes.entryType>): (
-  Dict.t<array<ReconEngineTypes.entryType>>,
-  Dict.t<string>,
-) => {
+let getGroupedEntriesAndAccountMaps = (
+  ~accountsData: array<accountType>,
+  ~updatedEntriesList: array<entryType>,
+): (Dict.t<array<entryType>>, Dict.t<accountInfo>) => {
+  let accountInfoDict: Dict.t<accountInfo> = Dict.make()
+  accountsData->Array.forEach(account => {
+    accountInfoDict->Dict.set(
+      account.account_id,
+      {
+        account_info_name: account.account_name,
+        account_info_type: account.account_type,
+      },
+    )
+  })
   let groupDict = Dict.make()
-  let idNameDict = Dict.make()
-
-  entriesList->Array.forEach(entry => {
+  updatedEntriesList->Array.forEach(entry => {
     let accountId = entry.account_id
     let existingEntries = groupDict->Dict.get(accountId)->Option.getOr([])
     groupDict->Dict.set(accountId, existingEntries->Array.concat([entry]))
-    idNameDict->Dict.set(accountId, entry.account_name)
   })
 
-  (groupDict, idNameDict)
+  (groupDict, accountInfoDict)
+}
+
+let calculateSectionData = (
+  ~groupedEntries,
+  ~accountInfoMap,
+  ~getBalanceByAccountType,
+  ~getSumOfAmountWithCurrency,
+) => {
+  open ReconEngineExceptionTransactionTypes
+
+  groupedEntries
+  ->Dict.keysToArray
+  ->Array.map(accountId => {
+    let accountInfo =
+      accountInfoMap
+      ->getvalFromDict(accountId)
+      ->Option.getOr({account_info_name: "", account_info_type: ""})
+    let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
+
+    let (totalAmount, currency) = if accountInfo.account_info_type->isNonEmptyString {
+      getBalanceByAccountType(accountEntries, accountInfo.account_info_type)
+    } else {
+      getSumOfAmountWithCurrency(accountEntries)
+    }
+
+    (accountId, accountInfo, accountEntries, totalAmount, currency)
+  })
+}
+
+let calculateOverallBalance = sectionData => {
+  open ReconEngineExceptionTransactionTypes
+
+  let (totalCreditAccounts, totalDebitAccounts) = sectionData->Array.reduce((0.0, 0.0), (
+    (creditSum, debitSum),
+    (_, accountInfo, _, amount, _),
+  ) => {
+    if accountInfo.account_info_type->String.toLowerCase == "credit" {
+      (creditSum +. amount, debitSum)
+    } else if accountInfo.account_info_type->String.toLowerCase == "debit" {
+      (creditSum, debitSum +. amount)
+    } else {
+      (creditSum, debitSum)
+    }
+  })
+
+  totalCreditAccounts -. totalDebitAccounts
 }

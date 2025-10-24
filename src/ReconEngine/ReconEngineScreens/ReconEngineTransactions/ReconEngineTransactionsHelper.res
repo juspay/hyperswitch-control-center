@@ -369,7 +369,7 @@ module AuditTrail = {
           </p>
           <div
             className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {(openedTransaction.transaction_status :> string)->React.string}
+            {(openedTransaction.transaction_status :> string)->String.toUpperCase->React.string}
           </div>
         </div>
         <Icon
@@ -422,60 +422,4 @@ module AuditTrail = {
       <AuditTrailStepIndicator sections />
     </div>
   }
-}
-
-let getSections = (~groupedEntries, ~accountIdNameMap, ~detailsFields) => {
-  open ReconEngineExceptionTransactionUtils
-
-  groupedEntries
-  ->Dict.keysToArray
-  ->Array.map(accountId => {
-    let accountName = accountIdNameMap->getvalFromDict(accountId)->Option.getOr("")
-    let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
-
-    let (totalAmount, currency) = getSumOfAmountWithCurrency(accountEntries)
-
-    let accountRows =
-      accountEntries->Array.map(entry =>
-        detailsFields->Array.map(colType => EntriesTableEntity.getCell(entry, colType))
-      )
-    let rowData = accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
-
-    let titleElement =
-      <div className="flex justify-between items-center mb-4">
-        <p className={`text-nd_gray-700 ${body.lg.semibold}`}> {accountName->React.string} </p>
-        <div className={`text-nd_gray-700 ${body.lg.medium}`}>
-          {(currency ++ " " ++ totalAmount->Float.toString)->React.string}
-        </div>
-      </div>
-
-    (
-      {
-        titleElement,
-        rows: accountRows,
-        rowData,
-      }: Table.tableSection
-    )
-  })
-}
-
-let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries) => {
-  open ReconEngineUtils
-  open ReconEngineTransactionsUtils
-
-  let accountId = groupedEntries->Dict.keysToArray->getValueFromArray(sectionIndex, "")
-  let sectionEntries = groupedEntries->Dict.get(accountId)->Option.getOr([])
-  let entry = sectionEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
-  let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-  let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
-
-  <RenderIf condition={hasEntryMetadata}>
-    <div className="p-4">
-      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
-        <PrettyPrintJson
-          jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
-        />
-      </div>
-    </div>
-  </RenderIf>
 }

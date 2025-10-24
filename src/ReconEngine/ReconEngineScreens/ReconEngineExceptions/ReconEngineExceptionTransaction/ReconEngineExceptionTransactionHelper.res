@@ -1,6 +1,7 @@
 open Typography
 open ReconEngineExceptionTransactionUtils
 open ReconEngineExceptionTransactionTypes
+open LogicUtils
 
 module CustomToastElement = {
   @react.component
@@ -146,7 +147,7 @@ module ExceptionDataDisplay = {
   let make = (
     ~currentExceptionDetails: ReconEngineTypes.transactionType,
     ~entryDetails: array<ReconEngineTypes.entryType>,
-    ~accountIdNameMap: Dict.t<string>=Dict.make(),
+    ~accountInfoMap: Dict.t<accountInfo>=Dict.make(),
   ) => {
     let mismatchData = React.useMemo(() => {
       if currentExceptionDetails.transaction_status === Mismatched {
@@ -160,7 +161,7 @@ module ExceptionDataDisplay = {
     }, [currentExceptionDetails.transaction_status])
 
     let (heading, subHeading) = switch currentExceptionDetails.transaction_status {
-    | Mismatched => getHeadingAndSubHeadingForMismatch(mismatchData, ~accountIdNameMap)
+    | Mismatched => getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
     | Expected => (
         "Expected",
         `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
@@ -182,8 +183,6 @@ module ExceptionDataDisplay = {
 }
 
 module MetadataInput = {
-  open LogicUtils
-
   @react.component
   let make = (
     ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -281,7 +280,7 @@ module MetadataInput = {
           </span>
         </p>
         <style> {React.string(expandableTableScrollbarCss)} </style>
-        <div className="flex flex-col gap-3 h-52 overflow-y-scroll show-scrollbar pr-2">
+        <div className="flex flex-col gap-3 max-h-64 overflow-y-scroll show-scrollbar pr-2">
           {metadataRows
           ->Array.map(row => {
             <div
@@ -334,7 +333,7 @@ module MetadataInput = {
           ->React.array}
         </div>
         <RenderIf condition={!disabled}>
-          <div className="flex flex-row justify-start h-full items-end">
+          <div className="flex flex-row justify-start h-full items-end mt-2">
             <div
               className="flex items-center gap-2 hover:text-nd_primary_blue-600 hover:scale-105 cursor-pointer"
               onClick={_ => addNewRow()}>
@@ -342,7 +341,7 @@ module MetadataInput = {
                 name="nd-plus" size=16 className={`text-nd_primary_blue-500 ${body.md.semibold}`}
               />
               <span className={`${body.md.semibold} text-nd_primary_blue-500`}>
-                {"Add"->React.string}
+                {"Add Field"->React.string}
               </span>
             </div>
           </div>
@@ -414,34 +413,6 @@ let entryTypeSelectInputField = (~disabled: bool=false) => {
         ],
         ~fullLength=true,
         ~buttonText="Select direction",
-        ~disableSelect=disabled,
-      ),
-      ~isRequired=true,
-      ~disabled,
-    )}
-  />
-}
-
-let entryStatusSelectInputField = (~disabled: bool=false) => {
-  <FormRenderer.FieldRenderer
-    labelClass="font-semibold"
-    field={FormRenderer.makeFieldInfo(
-      ~label="Entry Status",
-      ~name="status",
-      ~placeholder="Select status",
-      ~customInput=InputFields.selectInput(
-        ~options=[
-          {
-            label: "Expected",
-            value: "expected",
-          },
-          {
-            label: "Posted",
-            value: "posted",
-          },
-        ],
-        ~fullLength=true,
-        ~buttonText="Select status",
         ~disableSelect=disabled,
       ),
       ~isRequired=true,
@@ -524,4 +495,64 @@ let metadataCustomInputField = (~disabled: bool=false) => {
       ~placeholder,
     ) => <MetadataInput input placeholder disabled={disabled} />)}
   />
+}
+
+let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
+  let sectionData = calculateSectionData(
+    ~groupedEntries,
+    ~accountInfoMap,
+    ~getBalanceByAccountType,
+    ~getSumOfAmountWithCurrency,
+  )
+
+  let overallBalance = calculateOverallBalance(sectionData)
+
+  let amountColorClass = overallBalance == 0.0 ? "text-nd_green-500" : "text-nd_red-500"
+
+  sectionData->Array.map(((_accountId, accountInfo, accountEntries, totalAmount, currency)) => {
+    let accountRows =
+      accountEntries->Array.map(entry =>
+        detailsFields->Array.map(colType => EntriesTableEntity.getCell(entry, colType))
+      )
+    let rowData = accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
+
+    let titleElement =
+      <div className="flex justify-between items-center mb-4">
+        <p className={`text-nd_gray-700 ${body.lg.semibold}`}>
+          {accountInfo.account_info_name->React.string}
+        </p>
+        <div className={`${amountColorClass} ${body.lg.medium}`}>
+          {(currency ++ " " ++ totalAmount->Float.toString)->React.string}
+        </div>
+      </div>
+
+    (
+      {
+        titleElement,
+        rows: accountRows,
+        rowData,
+      }: Table.tableSection
+    )
+  })
+}
+
+let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries) => {
+  open ReconEngineUtils
+  open ReconEngineTransactionsUtils
+
+  let accountId = groupedEntries->Dict.keysToArray->getValueFromArray(sectionIndex, "")
+  let sectionEntries = groupedEntries->Dict.get(accountId)->Option.getOr([])
+  let entry = sectionEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
+  let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
+  let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
+
+  <RenderIf condition={hasEntryMetadata}>
+    <div className="p-4">
+      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+        <PrettyPrintJson
+          jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
+        />
+      </div>
+    </div>
+  </RenderIf>
 }

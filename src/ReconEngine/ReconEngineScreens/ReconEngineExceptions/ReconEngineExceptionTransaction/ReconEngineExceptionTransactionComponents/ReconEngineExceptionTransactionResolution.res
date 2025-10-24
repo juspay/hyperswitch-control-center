@@ -77,7 +77,7 @@ module EditEntryModalContent = {
     }, (isNewlyCreatedEntry, entryDetails))
 
     <div className="flex flex-col gap-4 mx-4">
-      <Form onSubmit validate initialValues={getInitialValuesForEntries(entryDetails)}>
+      <Form onSubmit validate initialValues={getInitialValuesForEditEntries(entryDetails)}>
         {accountSelectInputField(~isNewlyCreatedEntry, ~updatedEntriesList, ~disabled=false)}
         {entryTypeSelectInputField(~disabled=false)}
         {currencySelectInputField(
@@ -119,18 +119,18 @@ module MarkAsReceivedModalContent = {
       <Form
         onSubmit
         validate={_ => Dict.make()->JSON.Encode.object}
-        initialValues={getInitialValuesForEntries(entryDetails)}>
+        initialValues={getInitialValuesForEditEntries(entryDetails)}>
         {accountSelectInputField(~isNewlyCreatedEntry, ~updatedEntriesList, ~disabled=true)}
-        {entryTypeSelectInputField(~disabled=true)}
+        {entryTypeSelectInputField(~disabled=false)}
         {currencySelectInputField(
           ~updatedEntriesList,
           ~isNewlyCreatedEntry,
           ~entryDetails,
           ~disabled=true,
         )}
-        {amountTextInputField(~disabled=true)}
+        {amountTextInputField(~disabled=false)}
         {effectiveAtDatePickerInputField()}
-        {metadataCustomInputField(~disabled=true)}
+        {metadataCustomInputField(~disabled=false)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
           <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
             <FormRenderer.SubmitButton
@@ -156,7 +156,7 @@ module CreateEntryModalContent = {
       <Form
         onSubmit
         validate={validateCreateEntryDetails}
-        initialValues={Dict.make()->JSON.Encode.object}>
+        initialValues={getInitialValuesForNewEntries()}>
         {accountSelectInputField(~isNewlyCreatedEntry=true, ~updatedEntriesList)}
         {entryTypeSelectInputField()}
         {currencySelectInputField(~updatedEntriesList, ~isNewlyCreatedEntry=true, ~entryDetails)}
@@ -180,7 +180,7 @@ module CreateEntryModalContent = {
 
 @react.component
 let make = (
-  ~accountIdNameMap: Dict.t<string>,
+  ~accountInfoMap: Dict.t<accountInfo>,
   ~exceptionStage,
   ~setExceptionStage,
   ~selectedRows,
@@ -214,8 +214,12 @@ let make = (
       )
       let response = await fetchDetails(url)
       let resolutions = parseResolutionActions(response)
-      setAvailableResolutions(_ => resolutions)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if resolutions->Array.length > 0 {
+        setAvailableResolutions(_ => resolutions)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
@@ -404,6 +408,10 @@ let make = (
     selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
   }, [selectedRows])
 
+  let showMarkAsReceivedButton =
+    currentExceptionDetails.transaction_status == Expected ||
+      updatedEntriesList->Array.some(entry => entry.status == Expected)
+
   <PageLoaderWrapper
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-24" message="No data available." />}
@@ -411,7 +419,7 @@ let make = (
     <div
       className="flex flex-row items-center justify-between gap-3 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
       <ExceptionDataDisplay
-        currentExceptionDetails entryDetails=updatedEntriesList accountIdNameMap
+        currentExceptionDetails entryDetails=updatedEntriesList accountInfoMap
       />
       <RenderIf
         condition={exceptionStage == ShowResolutionOptions(FixEntries) ||
@@ -433,7 +441,7 @@ let make = (
                 customButtonStyle="!w-fit"
               />
             </RenderIf>
-            <RenderIf condition={currentExceptionDetails.transaction_status == Expected}>
+            <RenderIf condition={showMarkAsReceivedButton}>
               <Button
                 buttonState=Normal
                 buttonSize=Medium

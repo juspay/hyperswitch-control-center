@@ -39,3 +39,8 @@ type resolutionConfig = {
   layout: modalLayout,
   closeOnOutsideClick: bool,
 }
+
+type accountInfo = {
+  account_info_name: string,
+  account_info_type: string,
+}
