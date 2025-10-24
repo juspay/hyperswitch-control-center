@@ -117,14 +117,15 @@ type ruleType = {
   rule_name: string,
 }
 
+@unboxed
 type transactionStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | Void
-  | PartiallyReconciled
-  | UnknownTransactionStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("partially_reconciled") PartiallyReconciled
+  | @as("unknown") UnknownTransactionStatus
 
 @unboxed
 type entryDirectionType =

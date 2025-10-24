@@ -4,8 +4,35 @@ open ReconEngineExceptionTransactionTypes
 
 module CustomToastElement = {
   @react.component
-  let make = (~message: string, ~transactionId: string, ~toastKey: string) => {
+  let make = (~transaction: ReconEngineTypes.transactionType, ~toastKey: string) => {
     let hideToast = ToastState.useHideToast()
+
+    let (message, description, link, linkText) = switch transaction.transaction_status {
+    | PartiallyReconciled => (
+        "Transaction partially reconciled",
+        "Please review the exceptions page for details",
+        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/exceptions/${transaction.id}`)}`,
+        "See Exception",
+      )
+    | Void => (
+        "Transaction ignored successfully",
+        "Your transaction has been moved to transactions page",
+        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/exceptions/${transaction.id}`)}`,
+        "See Transaction",
+      )
+    | Posted => (
+        "Transaction matched successfully",
+        "Your transaction has been moved to transactions page",
+        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        "See Transaction",
+      )
+    | _ => (
+        "Transaction processed successfully",
+        "Please review the transactions page for details",
+        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        "See Transaction",
+      )
+    }
 
     <div
       className="flex flex-row items-start justify-between bg-nd_gray-800 rounded-xl p-6 pointer-events-auto min-w-[500px] shadow-lg m-2">
@@ -13,16 +40,11 @@ module CustomToastElement = {
         <Icon name="nd-check-circle-outline" size=24 className="text-nd_green-500 mt-1" />
         <div className="flex flex-col gap-2">
           <p className={`${heading.sm.semibold} text-nd_gray-25`}> {message->React.string} </p>
-          <p className={`${body.md.regular} text-nd_gray-300`}>
-            {"Your transaction has been moved to transactions page"->React.string}
-          </p>
-          <Link
-            to_={GlobalVars.appendDashboardPath(
-              ~url=`/v1/recon-engine/transactions/${transactionId}`,
-            )}>
+          <p className={`${body.md.regular} text-nd_gray-300`}> {description->React.string} </p>
+          <Link to_=link>
             <p
               className={`${body.md.semibold} text-nd_primary_blue-400 hover:text-nd_primary_blue-300 cursor-pointer`}>
-              {"See Transaction"->React.string}
+              {linkText->React.string}
             </p>
           </Link>
         </div>

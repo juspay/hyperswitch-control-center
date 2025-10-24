@@ -77,7 +77,13 @@ let make = (~account: ReconEngineTypes.accountType) => {
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched", "posted", "void"]->getJsonFromArrayOfString,
+          [
+            "expected",
+            "mismatched",
+            "posted",
+            "void",
+            "partially_reconciled",
+          ]->getJsonFromArrayOfString,
         )
       }
 
@@ -94,9 +100,17 @@ let make = (~account: ReconEngineTypes.accountType) => {
       let sourceTransactions = await getTransactions(~queryParamerters=Some(sourceQueryString))
       let targetTransactions = await getTransactions(~queryParamerters=Some(targetQueryString))
 
-      let allTransactions = Array.concat(sourceTransactions, targetTransactions)
-      setConfiguredTransactions(_ => allTransactions)
-      setFilteredReports(_ => allTransactions->Array.map(Nullable.make))
+      let allTransactions = sourceTransactions->Array.concat(targetTransactions)
+      let uniqueTransactions = allTransactions->Array.reduce([], (
+        acc: array<transactionType>,
+        transaction,
+      ) => {
+        let exists = acc->Array.some(t => t.transaction_id == transaction.transaction_id)
+        exists ? acc : acc->Array.concat([transaction])
+      })
+
+      setConfiguredTransactions(_ => uniqueTransactions)
+      setFilteredReports(_ => uniqueTransactions->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))

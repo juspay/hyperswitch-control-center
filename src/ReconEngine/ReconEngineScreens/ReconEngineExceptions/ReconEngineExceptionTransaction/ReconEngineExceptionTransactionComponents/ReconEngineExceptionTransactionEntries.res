@@ -135,17 +135,13 @@ let make = (
     )
     let body = constructManualReconciliationBody(~updatedEntriesList, ~values)
     let res = await updateDetails(url, body, Post)
-    let transactionData = res->getDictFromJsonObject->transactionItemToObjMapper
+    let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
     setShowConfirmationModal(_ => false)
     setExceptionStage(_ => ExceptionResolved)
 
     let generatedToastKey = randomString(~length=32)
     showToast(
-      ~toastElement=<CustomToastElement
-        message="Transaction matched successfully"
-        transactionId={transactionData.id}
-        toastKey={generatedToastKey}
-      />,
+      ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
       ~message="",
       ~toastType=ToastSuccess,
       ~toastKey=generatedToastKey,

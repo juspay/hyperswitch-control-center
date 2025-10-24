@@ -515,3 +515,62 @@ let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage) => {
     }
   }
 }
+
+let getUpdatedEntry = (
+  ~entryDetails: ReconEngineTypes.entryType,
+  ~formData,
+  ~accountData: ReconEngineTypes.accountRefType,
+  ~markAsReceived=false,
+): ReconEngineTypes.entryType => {
+  let isExpected = entryDetails.status == Expected
+
+  let statusString = if markAsReceived {
+    "pending"
+  } else if isExpected {
+    "expected"
+  } else {
+    "pending"
+  }
+
+  {
+    entry_id: entryDetails.entry_id,
+    entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
+    account_id: accountData.account_id,
+    account_name: accountData.account_name,
+    transaction_id: entryDetails.transaction_id,
+    amount: formData->getFloat("amount", entryDetails.amount),
+    currency: formData->getString("currency", ""),
+    status: statusString->getEntryStatusVariantFromString,
+    discarded_status: entryDetails.discarded_status,
+    version: entryDetails.version,
+    metadata: formData->getJsonObjectFromDict("metadata"),
+    data: Dict.fromArray([("status", statusString->JSON.Encode.string)])->JSON.Encode.object,
+    created_at: entryDetails.created_at,
+    effective_at: formData->getString("effective_at", entryDetails.effective_at),
+  }
+}
+
+let getNewEntry = (
+  ~formData,
+  ~accountData: ReconEngineTypes.accountRefType,
+  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
+): ReconEngineTypes.entryType => {
+  {
+    entry_id: "-",
+    entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
+    account_id: accountData.account_id,
+    account_name: accountData.account_name,
+    transaction_id: formData->getString("transaction_id", ""),
+    amount: formData->getFloat("amount", 0.0),
+    currency: formData->getString("currency", ""),
+    status: Pending,
+    discarded_status: None,
+    version: updatedEntriesList->Array.reduce(0, (max, entry) =>
+      max > entry.version ? max : entry.version
+    ),
+    metadata: formData->getJsonObjectFromDict("metadata"),
+    data: Dict.fromArray([("status", "pending"->JSON.Encode.string)])->JSON.Encode.object,
+    created_at: Date.make()->Date.toISOString,
+    effective_at: formData->getString("effective_at", ""),
+  }
+}

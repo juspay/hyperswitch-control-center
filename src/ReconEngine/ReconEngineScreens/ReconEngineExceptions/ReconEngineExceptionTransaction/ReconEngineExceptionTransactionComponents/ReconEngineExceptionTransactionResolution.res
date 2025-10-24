@@ -113,6 +113,48 @@ module EditEntryModalContent = {
   }
 }
 
+module MarkAsReceivedModalContent = {
+  @react.component
+  let make = (
+    ~entryDetails: ReconEngineTypes.entryType,
+    ~isNewlyCreatedEntry,
+    ~updatedEntriesList,
+    ~onSubmit,
+  ) => {
+    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionTransactionHelper
+
+    <div className="flex flex-col gap-4 mx-4">
+      <Form
+        onSubmit
+        validate={_ => Dict.make()->JSON.Encode.object}
+        initialValues={getInitialValuesForEntries(entryDetails)}>
+        {accountSelectInputField(~isNewlyCreatedEntry, ~updatedEntriesList, ~disabled=true)}
+        {entryTypeSelectInputField(~disabled=true)}
+        {currencySelectInputField(
+          ~updatedEntriesList,
+          ~isNewlyCreatedEntry,
+          ~entryDetails,
+          ~disabled=true,
+        )}
+        {amountTextInputField(~disabled=true)}
+        {effectiveAtDatePickerInputField(~disabled=true)}
+        {metadataCustomInputField(~disabled=true)}
+        <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
+          <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Mark as Received"
+              buttonType={Primary}
+              customSumbitButtonStyle="!w-full"
+            />
+          </FormRenderer.DesktopRow>
+        </div>
+      </Form>
+    </div>
+  }
+}
+
 module CreateEntryModalContent = {
   @react.component
   let make = (~updatedEntriesList, ~onSubmit, ~entryDetails) => {
@@ -208,18 +250,14 @@ let make = (
       }
 
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Put)
-      let transactionData = res->getDictFromJsonObject->transactionItemToObjMapper
+      let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
       setActiveModal(_ => None)
       setExceptionStage(_ => ExceptionResolved)
 
       let generatedToastKey = randomString(~length=32)
 
       showToast(
-        ~toastElement=<CustomToastElement
-          message="Transaction ignored successfully"
-          transactionId={transactionData.id}
-          toastKey={generatedToastKey}
-        />,
+        ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
         ~message="",
         ~toastType=ToastSuccess,
         ~toastKey=generatedToastKey,
@@ -252,18 +290,14 @@ let make = (
       }
 
       let res = await updateDetails(url, body->Identity.genericTypeToJson, Put)
-      let transactionData = res->getDictFromJsonObject->transactionItemToObjMapper
+      let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
       setActiveModal(_ => None)
       setExceptionStage(_ => ExceptionResolved)
 
       let generatedToastKey = randomString(~length=32)
 
       showToast(
-        ~toastElement=<CustomToastElement
-          message="Transaction matched successfully"
-          transactionId={transactionData.id}
-          toastKey={generatedToastKey}
-        />,
+        ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
         ~message="",
         ~toastType=ToastSuccess,
         ~toastKey=generatedToastKey,
@@ -287,13 +321,37 @@ let make = (
     let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
     let selectedAccountId = formData->getString("account", "")
 
-    let markAsReceived = switch exceptionStage {
-    | ResolvingException(EditEntry) => false
-    | ResolvingException(MarkAsReceived) => true
-    | _ => false
-    }
+    let entryDetails =
+      selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
+    let selectedAccountName =
+      updatedEntriesList
+      ->Array.find(entry => entry.account_id == selectedAccountId)
+      ->Option.map(entry => entry.account_name)
+      ->Option.getOr("")
 
-    Js.log2("Mark as received:", markAsReceived)
+    let updatedEntry = getUpdatedEntry(
+      ~formData,
+      ~accountData={
+        account_id: selectedAccountId,
+        account_name: selectedAccountName,
+      },
+      ~entryDetails,
+    )
+    let newEntriesList =
+      updatedEntriesList->Array.map(entry =>
+        entry.entry_id == updatedEntry.entry_id ? updatedEntry : entry
+      )
+    setUpdatedEntriesList(_ => newEntriesList)
+    setExceptionStage(_ => ConfirmResolution(EditEntry))
+    setActiveModal(_ => None)
+    setSelectedRows(_ => [])
+    Nullable.null
+  }
+
+  let onMarkAsReceivedSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    let formData = values->getDictFromJsonObject
+    let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
+    let selectedAccountId = formData->getString("account", "")
 
     let entryDetails =
       selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
@@ -304,35 +362,14 @@ let make = (
       ->Option.map(entry => entry.account_name)
       ->Option.getOr("")
 
-    // let statusString = markAsReceived || entryDetails.status == Pending ? "pending" : "expected"
-
-    let statusString = {
-      if markAsReceived {
-        "pending"
-      } else if entryDetails.status == Pending {
-        "pending"
-      } else {
-        "expected"
-      }
-    }
-
-    let updatedEntry = (
-      {
-        entry_id: entryDetails.entry_id,
-        entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
+    let updatedEntry = getUpdatedEntry(
+      ~formData,
+      ~accountData={
         account_id: selectedAccountId,
         account_name: selectedAccountName,
-        transaction_id: entryDetails.transaction_id,
-        amount: formData->getFloat("amount", entryDetails.amount),
-        currency: formData->getString("currency", ""),
-        status: statusString->getEntryStatusVariantFromString,
-        discarded_status: entryDetails.discarded_status,
-        version: entryDetails.version,
-        metadata: formData->getJsonObjectFromDict("metadata"),
-        data: Dict.fromArray([("status", statusString->JSON.Encode.string)])->JSON.Encode.object,
-        created_at: entryDetails.created_at,
-        effective_at: formData->getString("effective_at", entryDetails.effective_at),
-      }: ReconEngineTypes.entryType
+      },
+      ~markAsReceived=true,
+      ~entryDetails,
     )
     let newEntriesList =
       updatedEntriesList->Array.map(entry =>
@@ -349,32 +386,19 @@ let make = (
   let onCreateEntrySubmit = async (values, _form: ReactFinalForm.formApi) => {
     let formData = values->getDictFromJsonObject
     let selectedAccountId = formData->getString("account", "")
-
     let selectedAccountName =
       updatedEntriesList
       ->Array.find(entry => entry.account_id == selectedAccountId)
       ->Option.map(entry => entry.account_name)
       ->Option.getOr("")
 
-    let newEntry = (
-      {
-        entry_id: "-",
-        entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
+    let newEntry = getNewEntry(
+      ~formData,
+      ~accountData={
         account_id: selectedAccountId,
         account_name: selectedAccountName,
-        transaction_id: formData->getString("transaction_id", ""),
-        amount: formData->getFloat("amount", 0.0),
-        currency: formData->getString("currency", ""),
-        status: Pending,
-        discarded_status: None,
-        version: updatedEntriesList->Array.reduce(0, (max, entry) =>
-          max > entry.version ? max : entry.version
-        ),
-        metadata: formData->getJsonObjectFromDict("metadata"),
-        data: Dict.fromArray([("status", "pending"->JSON.Encode.string)])->JSON.Encode.object,
-        created_at: Date.make()->Date.toISOString,
-        effective_at: formData->getString("effective_at", ""),
-      }: ReconEngineTypes.entryType
+      },
+      ~updatedEntriesList,
     )
     setUpdatedEntriesList(_ => updatedEntriesList->Array.concat([newEntry]))
     setExceptionStage(_ => ConfirmResolution(CreateNewEntry))
@@ -385,8 +409,6 @@ let make = (
     let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
     selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
   }, [selectedRows])
-
-  let isNewlyCreatedEntry = entryDetails.entry_id == "-"
 
   <div
     className="flex flex-row items-center justify-between gap-3 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
@@ -574,18 +596,17 @@ let make = (
       | ResolvingException(EditEntry) =>
         <EditEntryModalContent
           entryDetails
-          isNewlyCreatedEntry
+          isNewlyCreatedEntry={entryDetails.entry_id == "-"}
           updatedEntriesList
           onSubmit=onEditEntrySubmit
           markAsReceived=false
         />
       | ResolvingException(MarkAsReceived) =>
-        <EditEntryModalContent
+        <MarkAsReceivedModalContent
           entryDetails
-          isNewlyCreatedEntry
+          isNewlyCreatedEntry={entryDetails.entry_id == "-"}
           updatedEntriesList
-          onSubmit=onEditEntrySubmit
-          markAsReceived=true
+          onSubmit=onMarkAsReceivedSubmit
         />
       | ResolvingException(CreateNewEntry) =>
         <CreateEntryModalContent updatedEntriesList onSubmit=onCreateEntrySubmit entryDetails />
