@@ -7,12 +7,12 @@ let make = (
 ) => {
   open EntriesTableEntity
   open ReconEngineUtils
-  open ReconEngineTransactionsUtils
   open ReconEngineExceptionTransactionTypes
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
   open APIUtils
   open LogicUtils
+  open ReconEngineTransactionsHelper
 
   let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
@@ -44,86 +44,16 @@ let make = (
     }
   }
 
-  let getRowDetails = (rowIndex: int) => {
-    let entry =
-      updatedEntriesList->Array.get(rowIndex)->Option.getOr(Dict.make()->entryItemToObjMapper)
-    let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-    let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
-
-    <RenderIf condition={hasEntryMetadata}>
-      <div className="p-4">
-        <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
-          <PrettyPrintJson
-            jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
-          />
-        </div>
-      </div>
-    </RenderIf>
-  }
-
   let (groupedEntries, accountIdNameMap) = React.useMemo(() => {
-    let groupDict = Dict.make()
-    let idNameDict = Dict.make()
-
-    updatedEntriesList->Array.forEach(entry => {
-      let accountId = entry.account_id
-      let existingEntries = groupDict->Dict.get(accountId)->Option.getOr([])
-      groupDict->Dict.set(accountId, existingEntries->Array.concat([entry]))
-      idNameDict->Dict.set(accountId, entry.account_name)
-    })
-
-    (groupDict, idNameDict)
+    getGroupedEntriesAndAccountIdNameMap(~entriesList=updatedEntriesList)
   }, [updatedEntriesList])
 
-  let getSectionRowDetails = (sectionIndex: int, rowIndex: int) => {
-    let accountId = groupedEntries->Dict.keysToArray->getValueFromArray(sectionIndex, "")
-    let sectionEntries = groupedEntries->Dict.get(accountId)->Option.getOr([])
-    let entry = sectionEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
-    let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-    let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
-
-    <RenderIf condition={hasEntryMetadata}>
-      <div className="p-4">
-        <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
-          <PrettyPrintJson
-            jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
-          />
-        </div>
-      </div>
-    </RenderIf>
+  let sectionDetails = (sectionIndex: int, rowIndex: int) => {
+    getSectionRowDetails(~sectionIndex, ~rowIndex, ~groupedEntries)
   }
 
   let tableSections = React.useMemo(() => {
-    groupedEntries
-    ->Dict.keysToArray
-    ->Array.map(accountId => {
-      let accountName = accountIdNameMap->getvalFromDict(accountId)->Option.getOr("")
-      let accountEntries = groupedEntries->getvalFromDict(accountId)->Option.getOr([])
-
-      let (totalAmount, currency) = getSumOfAmountWithCurrency(accountEntries)
-
-      let accountRows =
-        accountEntries->Array.map(
-          entry => detailsFields->Array.map(colType => getCell(entry, colType)),
-        )
-      let rowData = accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
-
-      let titleElement =
-        <div className="flex justify-between items-center mb-4">
-          <p className={`text-nd_gray-700 ${body.lg.semibold}`}> {accountName->React.string} </p>
-          <div className={`text-nd_gray-700 ${body.lg.medium}`}>
-            {(currency ++ " " ++ totalAmount->Float.toString)->React.string}
-          </div>
-        </div>
-
-      (
-        {
-          titleElement,
-          rows: accountRows,
-          rowData,
-        }: Table.tableSection
-      )
-    })
+    getSections(~groupedEntries, ~accountIdNameMap, ~detailsFields)
   }, (groupedEntries, accountIdNameMap, detailsFields))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -151,7 +81,11 @@ let make = (
     Nullable.null
   }
 
-  <div className="overflow-visible mt-7">
+  let summaryItems = React.useMemo(() => {
+    generateAllResolutionSummaries(entriesList, updatedEntriesList)
+  }, [entriesList, updatedEntriesList])
+
+  <div className="flex flex-col gap-4 mt-6">
     <ReconEngineExceptionTransactionResolution
       accountIdNameMap
       exceptionStage
@@ -177,8 +111,7 @@ let make = (
       rowFontStyle="font-medium"
       onExpandIconClick
       expandedRowIndexArray
-      getRowDetails
-      getSectionRowDetails
+      getSectionRowDetails=sectionDetails
       showSerial=false
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
@@ -229,39 +162,23 @@ let make = (
           onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
           {reasonMultiLineTextInputField(~label="Resolution Remark")}
           <div className="flex flex-col">
-            {
-              let summaryItems = generateAllResolutionSummaries(entriesList, updatedEntriesList)
-              <RenderIf condition={summaryItems->Array.length > 0}>
-                {<>
-                  <p className={`${body.md.semibold} text-nd_gray-700 mx-2 mt-4`}>
-                    {"Resolution Summary"->React.string}
-                  </p>
-                  <div className="flex flex-col gap-2 mx-2 mt-2">
-                    {
-                      let summaryItems = generateAllResolutionSummaries(
-                        entriesList,
-                        updatedEntriesList,
-                      )
-                      if summaryItems->Array.length > 0 {
-                        summaryItems
-                        ->Array.mapWithIndex((item, index) =>
-                          <div
-                            key={index->Int.toString}
-                            className={`${body.md.regular} text-nd_gray-600`}>
-                            {`${(index + 1)->Int.toString}. ${item}`->React.string}
-                          </div>
-                        )
-                        ->React.array
-                      } else {
-                        <div className={`${body.md.regular} text-nd_gray-600`}>
-                          {"No changes made"->React.string}
-                        </div>
-                      }
-                    }
-                  </div>
-                </>}
-              </RenderIf>
-            }
+            {<RenderIf condition={summaryItems->Array.length > 0}>
+              {<React.Fragment>
+                <p className={`${body.md.semibold} text-nd_gray-700 mx-2 mt-4`}>
+                  {"Resolution Summary"->React.string}
+                </p>
+                <div className="flex flex-col gap-2 mx-2 mt-2">
+                  {summaryItems
+                  ->Array.mapWithIndex((item, index) =>
+                    <div
+                      key={index->Int.toString} className={`${body.md.regular} text-nd_gray-600`}>
+                      {`${(index + 1)->Int.toString}. ${item}`->React.string}
+                    </div>
+                  )
+                  ->React.array}
+                </div>
+              </React.Fragment>}
+            </RenderIf>}
             <div className="flex justify-end gap-3 mt-4 items-center">
               <Button
                 buttonType=Secondary

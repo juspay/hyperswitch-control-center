@@ -174,7 +174,7 @@ let make = (
   ~filterObj=?,
   ~onExpandIconClick,
   ~expandedRowIndexArray,
-  ~getRowDetails,
+  ~getRowDetails=_ => React.null,
   ~getSectionRowDetails=?,
   ~showSerial=false,
   ~tableClass="",

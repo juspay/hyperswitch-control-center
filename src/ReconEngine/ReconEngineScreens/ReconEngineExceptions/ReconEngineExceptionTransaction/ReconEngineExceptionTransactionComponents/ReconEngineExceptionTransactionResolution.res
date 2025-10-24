@@ -66,43 +66,34 @@ module EditEntryModalContent = {
     ~isNewlyCreatedEntry,
     ~updatedEntriesList,
     ~onSubmit,
-    ~markAsReceived: bool,
   ) => {
     open ReconEngineExceptionTransactionUtils
     open ReconEngineExceptionTransactionHelper
 
     let validate = React.useCallback(values => {
-      if markAsReceived {
-        Dict.make()->JSON.Encode.object
-      } else if isNewlyCreatedEntry {
-        validateCreateEntryDetails(values)
-      } else {
-        validateEditEntryDetails(values, ~initialEntryDetails=entryDetails)
-      }
+      isNewlyCreatedEntry
+        ? validateCreateEntryDetails(values)
+        : validateEditEntryDetails(values, ~initialEntryDetails=entryDetails)
     }, (isNewlyCreatedEntry, entryDetails))
 
     <div className="flex flex-col gap-4 mx-4">
       <Form onSubmit validate initialValues={getInitialValuesForEntries(entryDetails)}>
-        {accountSelectInputField(
-          ~isNewlyCreatedEntry,
-          ~updatedEntriesList,
-          ~disabled=markAsReceived,
-        )}
-        {entryTypeSelectInputField(~disabled=markAsReceived)}
+        {accountSelectInputField(~isNewlyCreatedEntry, ~updatedEntriesList, ~disabled=false)}
+        {entryTypeSelectInputField(~disabled=false)}
         {currencySelectInputField(
           ~updatedEntriesList,
           ~isNewlyCreatedEntry,
           ~entryDetails,
-          ~disabled=markAsReceived,
+          ~disabled=false,
         )}
-        {amountTextInputField(~disabled=markAsReceived)}
-        {effectiveAtDatePickerInputField(~disabled=markAsReceived)}
-        {metadataCustomInputField(~disabled=markAsReceived)}
+        {amountTextInputField(~disabled=false)}
+        {effectiveAtDatePickerInputField()}
+        {metadataCustomInputField(~disabled=false)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
           <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
-              text={markAsReceived ? "Mark as Received" : "Save changes"}
+              text="Save changes"
               buttonType={Primary}
               customSumbitButtonStyle="!w-full"
             />
@@ -138,7 +129,7 @@ module MarkAsReceivedModalContent = {
           ~disabled=true,
         )}
         {amountTextInputField(~disabled=true)}
-        {effectiveAtDatePickerInputField(~disabled=true)}
+        {effectiveAtDatePickerInputField()}
         {metadataCustomInputField(~disabled=true)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
           <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
@@ -210,9 +201,11 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let fetchTransactionResolutions = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~hyperswitchReconType=#TRANSACTION_RESOLUTIONS,
@@ -222,8 +215,9 @@ let make = (
       let response = await fetchDetails(url)
       let resolutions = parseResolutionActions(response)
       setAvailableResolutions(_ => resolutions)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -410,208 +404,212 @@ let make = (
     selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
   }, [selectedRows])
 
-  <div
-    className="flex flex-row items-center justify-between gap-3 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
-    <ExceptionDataDisplay
-      currentExceptionDetails entryDetails=updatedEntriesList accountIdNameMap
-    />
-    <RenderIf
-      condition={exceptionStage == ShowResolutionOptions(FixEntries) ||
-      exceptionStage == ConfirmResolution(EditEntry) ||
-      exceptionStage == ConfirmResolution(CreateNewEntry)}>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-row gap-2 flex-wrap justify-end">
-          <RenderIf condition={isResolutionAvailable(EditEntry)}>
-            <Button
-              buttonState=Normal
-              buttonSize=Medium
-              buttonType=Secondary
-              text="Edit entry"
-              textWeight={`${body.md.semibold}`}
-              leftIcon={CustomIcon(
-                <Icon name="nd-pencil-edit-box" className="text-nd_gray-600" size=16 />,
-              )}
-              onClick={_ => setExceptionStage(_ => ResolvingException(EditEntry))}
-              customButtonStyle="!w-fit"
-            />
+  <PageLoaderWrapper
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-24" message="No data available." />}
+    customLoader={<Shimmer styleClass="h-24 w-full rounded-xl" />}>
+    <div
+      className="flex flex-row items-center justify-between gap-3 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
+      <ExceptionDataDisplay
+        currentExceptionDetails entryDetails=updatedEntriesList accountIdNameMap
+      />
+      <RenderIf
+        condition={exceptionStage == ShowResolutionOptions(FixEntries) ||
+        exceptionStage == ConfirmResolution(EditEntry) ||
+        exceptionStage == ConfirmResolution(CreateNewEntry)}>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-row gap-2 flex-wrap justify-end">
+            <RenderIf condition={isResolutionAvailable(EditEntry)}>
+              <Button
+                buttonState=Normal
+                buttonSize=Medium
+                buttonType=Secondary
+                text="Edit entry"
+                textWeight={`${body.md.semibold}`}
+                leftIcon={CustomIcon(
+                  <Icon name="nd-pencil-edit-box" className="text-nd_gray-600" size=16 />,
+                )}
+                onClick={_ => setExceptionStage(_ => ResolvingException(EditEntry))}
+                customButtonStyle="!w-fit"
+              />
+            </RenderIf>
+            <RenderIf condition={currentExceptionDetails.transaction_status == Expected}>
+              <Button
+                buttonState=Normal
+                buttonSize=Medium
+                buttonType=Secondary
+                text="Mark as received"
+                textWeight={`${body.md.semibold}`}
+                leftIcon={CustomIcon(
+                  <Icon name="nd-check-circle-outline" className="text-nd_gray-600" size=16 />,
+                )}
+                onClick={_ => setExceptionStage(_ => ResolvingException(MarkAsReceived))}
+                customButtonStyle="!w-fit"
+              />
+            </RenderIf>
+            <RenderIf condition={isResolutionAvailable(CreateNewEntry)}>
+              <Button
+                buttonState=Normal
+                buttonSize=Medium
+                buttonType=Secondary
+                text="Create new entry"
+                textWeight={`${body.md.semibold}`}
+                leftIcon={CustomIcon(<Icon name="nd-plus" className="text-nd_gray-600" size=16 />)}
+                onClick={_ => {
+                  setExceptionStage(_ => ResolvingException(CreateNewEntry))
+                  setActiveModal(_ => Some(CreateEntryModal))
+                }}
+                customButtonStyle="!w-fit"
+              />
+            </RenderIf>
+          </div>
+          <RenderIf condition={exceptionStage == ShowResolutionOptions(FixEntries)}>
+            <div
+              className="flex flex-row gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl px-3 py-4">
+              <Button
+                buttonState=Normal
+                buttonSize=Medium
+                buttonType=Secondary
+                text="Discard"
+                textWeight={`${body.md.semibold}`}
+                customButtonStyle="!w-fit"
+                onClick={_ => {
+                  setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
+                }}
+              />
+              <Button
+                buttonState=Disabled
+                buttonSize=Medium
+                buttonType=Primary
+                text="Resolve Exception"
+                textWeight={`${body.md.semibold}`}
+                customButtonStyle="!w-fit"
+              />
+            </div>
           </RenderIf>
-          <RenderIf condition={currentExceptionDetails.transaction_status == Expected}>
+        </div>
+      </RenderIf>
+      <RenderIf condition={exceptionStage == ShowResolutionOptions(NoResolutionOptionNeeded)}>
+        <div className="flex flex-row gap-3">
+          <RenderIf condition={isResolutionAvailable(ForceReconcile)}>
             <Button
               buttonState=Normal
               buttonSize=Medium
               buttonType=Secondary
-              text="Mark as received"
+              text="Force Reconcile"
               textWeight={`${body.md.semibold}`}
               leftIcon={CustomIcon(
                 <Icon name="nd-check-circle-outline" className="text-nd_gray-600" size=16 />,
               )}
-              onClick={_ => setExceptionStage(_ => ResolvingException(MarkAsReceived))}
-              customButtonStyle="!w-fit"
+              onClick={_ => {
+                setExceptionStage(_ => ResolvingException(ForceReconcile))
+                setActiveModal(_ => Some(ForceReconcileModal))
+              }}
             />
           </RenderIf>
-          <RenderIf condition={isResolutionAvailable(CreateNewEntry)}>
+          <RenderIf condition={isResolutionAvailable(VoidTransaction)}>
             <Button
               buttonState=Normal
               buttonSize=Medium
               buttonType=Secondary
-              text="Create new entry"
+              text="Ignore Transaction"
               textWeight={`${body.md.semibold}`}
-              leftIcon={CustomIcon(<Icon name="nd-plus" className="text-nd_gray-600" size=16 />)}
+              leftIcon={CustomIcon(
+                <Icon name="nd-delete-dustbin-02" className="text-nd_gray-600" size=16 />,
+              )}
               onClick={_ => {
-                setExceptionStage(_ => ResolvingException(CreateNewEntry))
-                setActiveModal(_ => Some(CreateEntryModal))
+                setExceptionStage(_ => ResolvingException(VoidTransaction))
+                setActiveModal(_ => Some(IgnoreTransactionModal))
               }}
-              customButtonStyle="!w-fit"
+            />
+          </RenderIf>
+          <RenderIf
+            condition={isResolutionAvailable(EditEntry) ||
+            isResolutionAvailable(CreateNewEntry) ||
+            isResolutionAvailable(LinkStagingEntriesToTransaction)}>
+            <Button
+              buttonState=Normal
+              buttonSize=Medium
+              buttonType=Primary
+              text="Fix Entries"
+              textWeight={`${body.md.semibold}`}
+              leftIcon={CustomIcon(
+                <Icon name="nd-pencil-edit-line" className="text-white" size=16 />,
+              )}
+              onClick={_ => setExceptionStage(_ => ShowResolutionOptions(FixEntries))}
             />
           </RenderIf>
         </div>
-        <RenderIf condition={exceptionStage == ShowResolutionOptions(FixEntries)}>
-          <div
-            className="flex flex-row gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl px-3 py-4">
-            <Button
-              buttonState=Normal
-              buttonSize=Medium
-              buttonType=Secondary
-              text="Discard"
-              textWeight={`${body.md.semibold}`}
-              customButtonStyle="!w-fit"
-              onClick={_ => {
-                setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
-              }}
-            />
-            <Button
-              buttonState=Disabled
-              buttonSize=Medium
-              buttonType=Primary
-              text="Resolve Exception"
-              textWeight={`${body.md.semibold}`}
-              customButtonStyle="!w-fit"
-            />
-          </div>
-        </RenderIf>
-      </div>
-    </RenderIf>
-    <RenderIf condition={exceptionStage == ShowResolutionOptions(NoResolutionOptionNeeded)}>
-      <div className="flex flex-row gap-3">
-        <RenderIf condition={isResolutionAvailable(ForceReconcile)}>
+      </RenderIf>
+      <RenderIf condition={exceptionStage == ResolvingException(EditEntry)}>
+        <div
+          className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+          <p className={`${body.md.semibold} text-nd_gray-500`}>
+            {"Select entry to edit"->React.string}
+          </p>
           <Button
-            buttonState=Normal
-            buttonSize=Medium
-            buttonType=Secondary
-            text="Force Reconcile"
-            textWeight={`${body.md.semibold}`}
-            leftIcon={CustomIcon(
-              <Icon name="nd-check-circle-outline" className="text-nd_gray-600" size=16 />,
-            )}
-            onClick={_ => {
-              setExceptionStage(_ => ResolvingException(ForceReconcile))
-              setActiveModal(_ => Some(ForceReconcileModal))
-            }}
-          />
-        </RenderIf>
-        <RenderIf condition={isResolutionAvailable(VoidTransaction)}>
-          <Button
-            buttonState=Normal
-            buttonSize=Medium
-            buttonType=Secondary
-            text="Ignore Transaction"
-            textWeight={`${body.md.semibold}`}
-            leftIcon={CustomIcon(
-              <Icon name="nd-delete-dustbin-02" className="text-nd_gray-600" size=16 />,
-            )}
-            onClick={_ => {
-              setExceptionStage(_ => ResolvingException(VoidTransaction))
-              setActiveModal(_ => Some(IgnoreTransactionModal))
-            }}
-          />
-        </RenderIf>
-        <RenderIf
-          condition={isResolutionAvailable(EditEntry) ||
-          isResolutionAvailable(CreateNewEntry) ||
-          isResolutionAvailable(LinkStagingEntriesToTransaction)}>
-          <Button
-            buttonState=Normal
+            buttonState={selectedRows->Array.length > 0 ? Normal : Disabled}
             buttonSize=Medium
             buttonType=Primary
-            text="Fix Entries"
+            text="Edit entry"
             textWeight={`${body.md.semibold}`}
-            leftIcon={CustomIcon(
-              <Icon name="nd-pencil-edit-line" className="text-white" size=16 />,
-            )}
-            onClick={_ => setExceptionStage(_ => ShowResolutionOptions(FixEntries))}
+            customButtonStyle="!w-fit"
+            onClick={_ => setActiveModal(_ => Some(EditEntryModal))}
           />
-        </RenderIf>
-      </div>
-    </RenderIf>
-    <RenderIf condition={exceptionStage == ResolvingException(EditEntry)}>
-      <div
-        className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
-        <p className={`${body.md.semibold} text-nd_gray-500`}>
-          {"Select entry to edit"->React.string}
-        </p>
-        <Button
-          buttonState={selectedRows->Array.length > 0 ? Normal : Disabled}
-          buttonSize=Medium
-          buttonType=Primary
-          text="Edit entry"
-          textWeight={`${body.md.semibold}`}
-          customButtonStyle="!w-fit"
-          onClick={_ => setActiveModal(_ => Some(EditEntryModal))}
-        />
-      </div>
-    </RenderIf>
-    <RenderIf condition={exceptionStage == ResolvingException(MarkAsReceived)}>
-      <div
-        className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
-        <p className={`${body.md.semibold} text-nd_gray-500`}>
-          {"Select entry to resolve"->React.string}
-        </p>
-        <Button
-          buttonState={selectedRows->Array.length > 0 ? Normal : Disabled}
-          buttonSize=Medium
-          buttonType=Primary
-          text="Continue"
-          textWeight={`${body.md.semibold}`}
-          customButtonStyle="!w-fit"
-          onClick={_ => setActiveModal(_ => Some(MarkAsReceivedModal))}
-        />
-      </div>
-    </RenderIf>
-    <ResolutionModal
-      exceptionStage
-      setExceptionStage
-      setSelectedRows
-      activeModal
-      setActiveModal
-      config={getResolutionModalConfig(exceptionStage)}>
-      {switch exceptionStage {
-      | ResolvingException(VoidTransaction) =>
-        <IgnoreTransactionModalContent
-          onSubmit=onIgnoreTransactionSubmit setExceptionStage setShowModal=setActiveModal
-        />
-      | ResolvingException(ForceReconcile) =>
-        <ForceReconcileModalContent
-          onSubmit=onForceReconcileSubmit setExceptionStage setShowModal={setActiveModal}
-        />
-      | ResolvingException(EditEntry) =>
-        <EditEntryModalContent
-          entryDetails
-          isNewlyCreatedEntry={entryDetails.entry_id == "-"}
-          updatedEntriesList
-          onSubmit=onEditEntrySubmit
-          markAsReceived=false
-        />
-      | ResolvingException(MarkAsReceived) =>
-        <MarkAsReceivedModalContent
-          entryDetails
-          isNewlyCreatedEntry={entryDetails.entry_id == "-"}
-          updatedEntriesList
-          onSubmit=onMarkAsReceivedSubmit
-        />
-      | ResolvingException(CreateNewEntry) =>
-        <CreateEntryModalContent updatedEntriesList onSubmit=onCreateEntrySubmit entryDetails />
-      | _ => React.null
-      }}
-    </ResolutionModal>
-  </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition={exceptionStage == ResolvingException(MarkAsReceived)}>
+        <div
+          className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
+          <p className={`${body.md.semibold} text-nd_gray-500`}>
+            {"Select entry to resolve"->React.string}
+          </p>
+          <Button
+            buttonState={selectedRows->Array.length > 0 ? Normal : Disabled}
+            buttonSize=Medium
+            buttonType=Primary
+            text="Continue"
+            textWeight={`${body.md.semibold}`}
+            customButtonStyle="!w-fit"
+            onClick={_ => setActiveModal(_ => Some(MarkAsReceivedModal))}
+          />
+        </div>
+      </RenderIf>
+      <ResolutionModal
+        exceptionStage
+        setExceptionStage
+        setSelectedRows
+        activeModal
+        setActiveModal
+        config={getResolutionModalConfig(exceptionStage)}>
+        {switch exceptionStage {
+        | ResolvingException(VoidTransaction) =>
+          <IgnoreTransactionModalContent
+            onSubmit=onIgnoreTransactionSubmit setExceptionStage setShowModal=setActiveModal
+          />
+        | ResolvingException(ForceReconcile) =>
+          <ForceReconcileModalContent
+            onSubmit=onForceReconcileSubmit setExceptionStage setShowModal={setActiveModal}
+          />
+        | ResolvingException(EditEntry) =>
+          <EditEntryModalContent
+            entryDetails
+            isNewlyCreatedEntry={entryDetails.entry_id == "-"}
+            updatedEntriesList
+            onSubmit=onEditEntrySubmit
+          />
+        | ResolvingException(MarkAsReceived) =>
+          <MarkAsReceivedModalContent
+            entryDetails
+            isNewlyCreatedEntry={entryDetails.entry_id == "-"}
+            updatedEntriesList
+            onSubmit=onMarkAsReceivedSubmit
+          />
+        | ResolvingException(CreateNewEntry) =>
+          <CreateEntryModalContent updatedEntriesList onSubmit=onCreateEntrySubmit entryDetails />
+        | _ => React.null
+        }}
+      </ResolutionModal>
+    </div>
+  </PageLoaderWrapper>
 }

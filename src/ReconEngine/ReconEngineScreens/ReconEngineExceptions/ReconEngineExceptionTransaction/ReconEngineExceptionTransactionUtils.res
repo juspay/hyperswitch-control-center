@@ -574,3 +574,20 @@ let getNewEntry = (
     effective_at: formData->getString("effective_at", ""),
   }
 }
+
+let getGroupedEntriesAndAccountIdNameMap = (~entriesList: array<ReconEngineTypes.entryType>): (
+  Dict.t<array<ReconEngineTypes.entryType>>,
+  Dict.t<string>,
+) => {
+  let groupDict = Dict.make()
+  let idNameDict = Dict.make()
+
+  entriesList->Array.forEach(entry => {
+    let accountId = entry.account_id
+    let existingEntries = groupDict->Dict.get(accountId)->Option.getOr([])
+    groupDict->Dict.set(accountId, existingEntries->Array.concat([entry]))
+    idNameDict->Dict.set(accountId, entry.account_name)
+  })
+
+  (groupDict, idNameDict)
+}

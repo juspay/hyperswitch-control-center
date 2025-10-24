@@ -497,7 +497,7 @@ let amountTextInputField = (~disabled: bool=false) => {
   />
 }
 
-let effectiveAtDatePickerInputField = (~disabled: bool=false) => {
+let effectiveAtDatePickerInputField = () => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
     field={FormRenderer.makeFieldInfo(
@@ -512,7 +512,7 @@ let effectiveAtDatePickerInputField = (~disabled: bool=false) => {
         ~fullLength=true,
       ),
       ~isRequired=true,
-      ~disabled,
+      ~disabled=false,
     )}
   />
 }
