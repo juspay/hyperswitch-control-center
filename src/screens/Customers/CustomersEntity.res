@@ -42,13 +42,37 @@ let getCell = (customersData, colType): Table.cell => {
   | Phone => Text(customersData.phone)
   | PhoneCountryCode => Text(customersData.phone_country_code)
   | Description => Text(customersData.description)
-  | Address => Date(customersData.address)
+  | Address => Text(customersData.address)
   | CreatedAt => Date(customersData.created_at)
   }
 }
 
 let itemToObjMapper = dict => {
   open LogicUtils
+  let formatAddress = addressDict => {
+    let line1 = addressDict->getString("line1", "")
+    let line2 = addressDict->getString("line2", "")
+    let line3 = addressDict->getString("line3", "")
+    let city = addressDict->getString("city", "")
+    let state = addressDict->getString("state", "")
+    let country = addressDict->getString("country", "")
+    let zip = addressDict->getString("zip", "")
+    
+    let addressParts = [line1, line2, line3, city, state, country, zip]
+    ->Array.filter(part => part !== "")
+    
+    addressParts->Array.joinWith(", ")
+  }
+
+  let address = switch dict->Dict.get("address") {
+  | Some(addressJson) => 
+    switch addressJson->JSON.Decode.object {
+    | Some(addressObj) => addressObj->formatAddress
+    | None => addressJson->JSON.Decode.string->Option.getOr("")
+    }
+  | None => ""
+  }
+  
   {
     customer_id: dict->getString("customer_id", ""),
     name: dict->getString("name", ""),
@@ -56,7 +80,7 @@ let itemToObjMapper = dict => {
     phone: dict->getString("phone", ""),
     phone_country_code: dict->getString("phone_country_code", ""),
     description: dict->getString("description", ""),
-    address: dict->getString("address", ""),
+    address: address,
     created_at: dict->getString("created_at", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
   }
