@@ -37,7 +37,7 @@ let make = () => {
         <FilterContext
           key={`recon-engine-exception-transaction-${ruleDetails.rule_id}`}
           index={`recon-engine-exception-transaction-${ruleDetails.rule_id}`}>
-          <ReconExceptionTransaction ruleId={ruleDetails.rule_id} />
+          <ReconEngineExceptionTransaction ruleId={ruleDetails.rule_id} />
         </FilterContext>
       },
     })

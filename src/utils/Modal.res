@@ -40,6 +40,7 @@ module ModalHeading = {
     ~modalParentHeadingClass,
     ~customIcon,
     ~modalHeaderIconSize,
+    ~modalDescriptionClass,
   ) => {
     let borderClass = showBorderBottom
       ? "border-b border-nd_gray-150 dark:border-jp-gray-960 dark:border-opacity-75"
@@ -50,8 +51,10 @@ module ModalHeading = {
     let justifyClass = centerHeading ? "justify-center" : "justify-between"
     let headerTextClass = isMobileView ? "text-fs-18 font-semibold" : headerTextClass
 
-    let descriptionStyle = `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg`
-
+    let descriptionStyle =
+      modalDescriptionClass->LogicUtils.isEmptyString
+        ? `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg`
+        : modalDescriptionClass
     let subInfoStyle = `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg empty:hidden`
 
     <div
@@ -219,6 +222,7 @@ let make = (
   ~customIcon=None,
   ~alignModal="justify-end",
   ~modalHeaderIconSize=35,
+  ~modalDescriptionClass="",
 ) => {
   let showBorderBottom = borderBottom
   let _ = revealFrom
@@ -317,6 +321,7 @@ let make = (
           modalParentHeadingClass
           customIcon
           modalHeaderIconSize
+          modalDescriptionClass
         />
 
       | None => React.null

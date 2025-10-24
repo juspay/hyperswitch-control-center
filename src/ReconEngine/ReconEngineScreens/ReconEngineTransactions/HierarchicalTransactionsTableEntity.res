@@ -59,6 +59,7 @@ let getStatusLabel = (transactionStatus: transactionStatus): cell => {
     | Mismatched => LabelRed
     | Expected => LabelBlue
     | Archived => LabelGray
+    | PartiallyReconciled => LabelOrange
     | _ => LabelLightGray
     },
   })

@@ -31,8 +31,12 @@ let makeToastProps = (
   ~buttonText=?,
   ~helpLink=?,
   ~toastElement=React.null,
+  ~toastKey=?,
 ) => {
-  let rString = randomString(32, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  let rString = switch toastKey {
+  | Some(key) => key
+  | None => randomString(32, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  }
 
   {
     toastKey: rString,
@@ -58,6 +62,7 @@ type showToastFn = (
   ~buttonText: string=?,
   ~helpLink: string=?,
   ~toastElement: React.element=?,
+  ~toastKey: string=?,
 ) => unit
 
 let useShowToast = (): showToastFn => {
@@ -71,6 +76,7 @@ let useShowToast = (): showToastFn => {
       ~buttonText=?,
       ~helpLink=?,
       ~toastElement=React.null,
+      ~toastKey=?,
     ) => {
       let toastProps = makeToastProps(
         ~message,
@@ -80,9 +86,28 @@ let useShowToast = (): showToastFn => {
         ~buttonText?,
         ~helpLink?,
         ~toastElement,
+        ~toastKey?,
       )
 
       setOpenToasts(prevArr => prevArr->Array.concat([toastProps]))
+    }
+  }, [setOpenToasts])
+}
+
+type hideToastFn = string => unit
+
+let useHideToast = (): hideToastFn => {
+  let setOpenToasts = Recoil.useSetRecoilState(openToasts)
+  React.useMemo(() => {
+    (toastKey: string) => {
+      setOpenToasts(prevArr => {
+        Array.filter(
+          prevArr,
+          (toastProps: toastProps) => {
+            toastProps.toastKey !== toastKey
+          },
+        )
+      })
     }
   }, [setOpenToasts])
 }

@@ -110,7 +110,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                     {file["name"]->React.string}
                   </span>
                   <span className={`${body.xs.light} text-nd_gray-500`}>
-                    {((file["size"] / 1024)->Int.toString ++ " KB")->React.string}
+                    {`${(file["size"] / 1024)->Int.toString} KB`->React.string}
                   </span>
                 </div>
                 <Button

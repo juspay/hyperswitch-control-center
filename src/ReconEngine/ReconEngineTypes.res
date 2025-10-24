@@ -38,6 +38,14 @@ type reconRuleType = {
   targets: array<reconRuleAccountRefType>,
 }
 
+@unboxed
+type mismatchType =
+  | @as("amount_mismatch") AmountMismatch
+  | @as("balance_direction_mismatch") BalanceDirectionMismatch
+  | @as("currency_mismatch") CurrencyMismatch
+  | @as("metadata_mismatch") MetadataMismatch
+  | @as("unknown") UnknownMismatchType
+
 type ingestionTransformationStatusType =
   | Pending
   | Processing
@@ -109,25 +117,31 @@ type ruleType = {
   rule_name: string,
 }
 
+@unboxed
 type transactionStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | UnknownTransactionStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("partially_reconciled") PartiallyReconciled
+  | @as("unknown") UnknownTransactionStatus
 
+@unboxed
 type entryDirectionType =
-  | Debit
-  | Credit
+  | @as("debit") Debit
+  | @as("credit") Credit
   | UnknownEntryDirectionType
 
+@unboxed
 type entryStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | Pending
-  | UnknownEntryStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("pending") Pending
+  | @as("void") Void
+  | @as("unknown") UnknownEntryStatus
 
 type transactionEntryType = {
   entry_id: string,
@@ -155,6 +169,7 @@ type transactionType = {
 type entryType = {
   entry_id: string,
   entry_type: entryDirectionType,
+  account_id: string,
   account_name: string,
   transaction_id: string,
   amount: float,
@@ -162,6 +177,8 @@ type entryType = {
   status: entryStatus,
   discarded_status: option<string>,
   metadata: Js.Json.t,
+  data: Js.Json.t,
+  version: int,
   created_at: string,
   effective_at: string,
 }
@@ -171,6 +188,7 @@ type processingEntryStatus =
   | Processed
   | NeedsManualReview
   | Archived
+  | Void
   | UnknownProcessingEntryStatus
 
 type processingEntryType = {

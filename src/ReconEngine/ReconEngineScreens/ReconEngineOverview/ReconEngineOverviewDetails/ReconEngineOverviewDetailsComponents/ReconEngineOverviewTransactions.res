@@ -27,7 +27,13 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+          [
+            "expected",
+            "mismatched",
+            "posted",
+            "partially_reconciled",
+            "void",
+          ]->getJsonFromArrayOfString,
         )
       }
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(

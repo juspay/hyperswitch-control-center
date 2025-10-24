@@ -57,7 +57,13 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
 }
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions = getTransactionStatusOptions([Mismatched, Expected, Posted])
+  let statusOptions = getTransactionStatusOptions([
+    Expected,
+    Mismatched,
+    PartiallyReconciled,
+    Posted,
+    Void,
+  ])
 
   [
     (
@@ -126,6 +132,7 @@ let getTransactionStatusLabel = (status: transactionStatus): string => {
   | Posted => "bg-nd_green-50 text-nd_green-600"
   | Expected => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
   | Archived => "bg-nd_gray-150 text-nd_gray-600"
+  | PartiallyReconciled => "bg-nd_orange-50 text-nd_orange-600"
   | _ => "bg-nd_gray-50 text-nd_gray_600"
   }
 }
