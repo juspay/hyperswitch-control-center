@@ -75,6 +75,7 @@ dev_webhooks=false
 dev_recon_engine_v1=false
 dev_ai_chat_bot=false
 dev_roles_v2=false
+dev_customer=false
 [default.merchant_config]
 [default.merchant_config.whitelist]
 [default.merchant_config.whitelist.dev_recon_engine_v1]

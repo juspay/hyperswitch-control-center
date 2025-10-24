@@ -143,7 +143,8 @@ module Landing = {
           </Card>
         </div>
       | Processors(NUVEI)
-      | Processors(WORLDPAYVANTIV) =>
+      | Processors(WORLDPAYVANTIV)
+      | Processors(TESOURO) =>
         <div
           className="p-6 m-2 cursor-pointer"
           onClick={_ => setApplePayIntegrationType(_ => #decrypted)}>
@@ -263,7 +264,8 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       | Processors(CYBERSOURCE) =>
         setApplePayIntegrationType(_ => #simplified)
       | Processors(NUVEI)
-      | Processors(WORLDPAYVANTIV) =>
+      | Processors(WORLDPAYVANTIV)
+      | Processors(TESOURO) =>
         setApplePayIntegrationType(_ => #decrypted)
 
       | _ => setApplePayIntegrationType(_ => #manual)
