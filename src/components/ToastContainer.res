@@ -89,7 +89,7 @@ module Toast = {
 module CustomToastWrapper = {
   @react.component
   let make = (~toastProps: ToastState.toastProps, ~hideToast, ~toastDuration) => {
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let duration = if toastDuration == 0 {
         5000
       } else {

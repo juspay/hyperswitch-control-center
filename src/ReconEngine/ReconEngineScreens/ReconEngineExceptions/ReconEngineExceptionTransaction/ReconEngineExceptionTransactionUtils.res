@@ -70,11 +70,8 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
 
 let getSumOfAmountWithCurrency = (entries: array<entryType>): (float, string) => {
   let totalAmount = entries->Array.reduce(0.0, (acc, entry) => acc +. entry.amount)
-  let currency = switch entries->Array.get(0) {
-  | Some(entry) => entry.currency
-  | None => ""
-  }
-  (totalAmount, currency)
+  let entry = entries->getValueFromArray(0, Dict.make()->entryItemToObjMapper)
+  (totalAmount, entry.currency)
 }
 
 let getBalanceByAccountType = (entries: array<entryType>, accountType: string): (float, string) => {
@@ -206,145 +203,77 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   isEntryTypeChanged || isAmountChanged || isEffectiveAtChanged || isMetadataChanged
 }
 
+let validateFields = (data: Dict.t<JSON.t>, rules: array<validationRule>): JSON.t => {
+  rules
+  ->Array.filterMap(((fieldName, validator)) => {
+    switch validator(data) {
+    | Some(errorMessage) => Some((fieldName, errorMessage->JSON.Encode.string))
+    | None => None
+    }
+  })
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
+let requiredString = (fieldName: string, errorMsg: string) => {
+  (data: Dict.t<JSON.t>) => data->getString(fieldName, "")->isEmptyString ? Some(errorMsg) : None
+}
+
+let positiveFloat = (fieldName: string, errorMsg: string) => {
+  (data: Dict.t<JSON.t>) => data->getFloat(fieldName, -1.0) <= 0.0 ? Some(errorMsg) : None
+}
+
 let validateCreateEntryDetails = (values: JSON.t): JSON.t => {
   let data = values->getDictFromJsonObject
-  let errors = Dict.make()
 
-  let accountErrorMessage = if data->getString("account", "")->isEmptyString {
-    "Account cannot be empty!"
-  } else {
-    ""
-  }
+  let validationRules = [
+    ("account", requiredString("account", "Cannot be empty!")),
+    ("entry_type", requiredString("entry_type", "Cannot be empty!")),
+    ("currency", requiredString("currency", "Cannot be empty!")),
+    ("effective_at", requiredString("effective_at", "Cannot be empty!")),
+    ("amount", positiveFloat("amount", "Should be greater than 0!")),
+  ]
 
-  let entryTypeErrorMessage = if data->getString("entry_type", "")->isEmptyString {
-    "Entry Type cannot be empty!"
-  } else {
-    ""
-  }
-
-  let currencyErrorMessage = if data->getString("currency", "")->isEmptyString {
-    "Currency cannot be empty!"
-  } else {
-    ""
-  }
-
-  let effectiveAtErrorMessage = if data->getString("effective_at", "")->isEmptyString {
-    "Effective At cannot be empty!"
-  } else {
-    ""
-  }
-
-  let amountErrorMessage = if data->getFloat("amount", -1.0) <= 0.0 {
-    "Amount should be greater than 0!"
-  } else {
-    ""
-  }
-
-  if amountErrorMessage->isNonEmptyString {
-    Dict.set(errors, "amount", amountErrorMessage->JSON.Encode.string)
-  }
-  if accountErrorMessage->isNonEmptyString {
-    Dict.set(errors, "account", accountErrorMessage->JSON.Encode.string)
-  }
-  if currencyErrorMessage->isNonEmptyString {
-    Dict.set(errors, "currency", currencyErrorMessage->JSON.Encode.string)
-  }
-  if entryTypeErrorMessage->isNonEmptyString {
-    Dict.set(errors, "entry_type", entryTypeErrorMessage->JSON.Encode.string)
-  }
-
-  if effectiveAtErrorMessage->isNonEmptyString {
-    Dict.set(errors, "effective_at", effectiveAtErrorMessage->JSON.Encode.string)
-  }
-
-  errors->JSON.Encode.object
+  validateFields(data, validationRules)
 }
 
 let validateEditEntryDetails = (values: JSON.t, ~initialEntryDetails: entryType): JSON.t => {
   let data = values->getDictFromJsonObject
-  let errors = Dict.make()
 
+  let validationRules = [
+    ("account", requiredString("account", "Cannot be empty!")),
+    ("entry_type", requiredString("entry_type", "Cannot be empty!")),
+    ("currency", requiredString("currency", "Cannot be empty!")),
+    ("effective_at", requiredString("effective_at", "Cannot be empty!")),
+    ("amount", positiveFloat("amount", "Should be greater than 0!")),
+  ]
+
+  let fieldErrors = validateFields(data, validationRules)->getDictFromJsonObject
   let hasChanges = hasFormValuesChanged(values, initialEntryDetails)
-
   if !hasChanges {
-    Dict.set(errors, "No changes", "Please make changes before saving."->JSON.Encode.string)
+    fieldErrors->Dict.set("No changes", "Please make changes before saving."->JSON.Encode.string)
   }
 
-  let accountErrorMessage = if data->getString("account", "")->isEmptyString {
-    "Account cannot be empty!"
-  } else {
-    ""
-  }
-
-  let entryTypeErrorMessage = if data->getString("entry_type", "")->isEmptyString {
-    "Entry Type cannot be empty!"
-  } else {
-    ""
-  }
-
-  let currencyErrorMessage = if data->getString("currency", "")->isEmptyString {
-    "Currency cannot be empty!"
-  } else {
-    ""
-  }
-
-  let effectiveAtErrorMessage = if data->getString("effective_at", "")->isEmptyString {
-    "Effective At cannot be empty!"
-  } else {
-    ""
-  }
-
-  let amountErrorMessage = if data->getFloat("amount", -1.0) <= 0.0 {
-    "Amount should be greater than 0!"
-  } else {
-    ""
-  }
-
-  if amountErrorMessage->isNonEmptyString {
-    Dict.set(errors, "amount", amountErrorMessage->JSON.Encode.string)
-  }
-  if accountErrorMessage->isNonEmptyString {
-    Dict.set(errors, "account", accountErrorMessage->JSON.Encode.string)
-  }
-  if currencyErrorMessage->isNonEmptyString {
-    Dict.set(errors, "currency", currencyErrorMessage->JSON.Encode.string)
-  }
-  if entryTypeErrorMessage->isNonEmptyString {
-    Dict.set(errors, "entry_type", entryTypeErrorMessage->JSON.Encode.string)
-  }
-
-  if effectiveAtErrorMessage->isNonEmptyString {
-    Dict.set(errors, "effective_at", effectiveAtErrorMessage->JSON.Encode.string)
-  }
-
-  errors->JSON.Encode.object
+  fieldErrors->JSON.Encode.object
 }
 
 let getInitialValuesForEditEntries = entryDetails => {
-  let dict = Dict.make()
-  dict->Dict.set("account", entryDetails.account_id->JSON.Encode.string)
-  dict->Dict.set("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string)
-  dict->Dict.set("currency", entryDetails.currency->JSON.Encode.string)
-  dict->Dict.set("amount", entryDetails.amount->JSON.Encode.float)
-  dict->Dict.set("effective_at", entryDetails.effective_at->JSON.Encode.string)
-
-  dict->Dict.set(
-    "metadata",
-    entryDetails.metadata->getFilteredMetadataFromEntries->JSON.Encode.object,
-  )
-
-  if entryDetails.status == Expected {
-    dict->Dict.set("mark_as_received", false->JSON.Encode.bool)
-  }
-
-  dict->JSON.Encode.object
+  let fields = [
+    ("account", entryDetails.account_id->JSON.Encode.string),
+    ("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string),
+    ("currency", entryDetails.currency->JSON.Encode.string),
+    ("amount", entryDetails.amount->JSON.Encode.float),
+    ("effective_at", entryDetails.effective_at->JSON.Encode.string),
+    ("metadata", entryDetails.metadata->getFilteredMetadataFromEntries->JSON.Encode.object),
+  ]
+  fields->Dict.fromArray->JSON.Encode.object
 }
 
 let getInitialValuesForNewEntries = () => {
-  let dict = Dict.make()
   let todayDate = Js.Date.make()->Js.Date.toISOString
-  dict->Dict.set("effective_at", todayDate->JSON.Encode.string)
-  dict->JSON.Encode.object
+
+  let fields = [("effective_at", todayDate->JSON.Encode.string)]
+  fields->Dict.fromArray->JSON.Encode.object
 }
 
 let getInnerVariant = (stage: exceptionResolutionStage): resolvingException =>

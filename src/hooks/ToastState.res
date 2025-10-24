@@ -98,7 +98,7 @@ type hideToastFn = string => unit
 
 let useHideToast = (): hideToastFn => {
   let setOpenToasts = Recoil.useSetRecoilState(openToasts)
-  React.useMemo1(() => {
+  React.useMemo(() => {
     (toastKey: string) => {
       setOpenToasts(prevArr => {
         Array.filter(

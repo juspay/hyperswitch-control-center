@@ -44,3 +44,5 @@ type accountInfo = {
   account_info_name: string,
   account_info_type: string,
 }
+
+type validationRule = (string, Dict.t<JSON.t> => option<string>)
