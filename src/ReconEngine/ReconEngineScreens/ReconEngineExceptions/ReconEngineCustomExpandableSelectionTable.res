@@ -160,7 +160,7 @@ let make = (
   ~showOptions=true,
   ~selectedRows=[],
   ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
-  ~sections: array<Table.tableSection>,
+  ~sections: array<ReconEngineExceptionTransactionTypes.tableSection>,
 ) => {
   let heading = if showOptions {
     [makeHeaderInfo(~key="options", ~title="")]->Array.concat(headingProp)
@@ -264,7 +264,10 @@ let make = (
   let renderSections = sections => {
     <>
       {sections
-      ->Array.mapWithIndex((section, sectionIndex) => {
+      ->Array.mapWithIndex((
+        section: ReconEngineExceptionTransactionTypes.tableSection,
+        sectionIndex,
+      ) => {
         <div key={`section-${sectionIndex->Int.toString}`} className="mb-6">
           {section.titleElement}
           <div className="border rounded-xl overflow-scroll">

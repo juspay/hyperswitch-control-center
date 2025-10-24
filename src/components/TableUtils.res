@@ -143,12 +143,6 @@ type header = {
   customWidth: option<string>,
 }
 
-type tableSection = {
-  titleElement: React.element,
-  rows: array<array<cell>>,
-  rowData: array<JSON.t>,
-}
-
 let makeHeaderInfo = (
   ~key,
   ~title,

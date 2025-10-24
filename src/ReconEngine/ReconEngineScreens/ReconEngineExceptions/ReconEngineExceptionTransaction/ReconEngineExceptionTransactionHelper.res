@@ -531,7 +531,7 @@ let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
         titleElement,
         rows: accountRows,
         rowData,
-      }: Table.tableSection
+      }: tableSection
     )
   })
 }
