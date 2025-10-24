@@ -18,6 +18,9 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (lastFilterState, setLastFilterState) = React.useState(_ =>
+    Dict.make()->JSON.Encode.object->JSON.stringify
+  )
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
@@ -104,7 +107,29 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchWebhooks()->ignore
+    let currentFilterState = {
+      let filterDict = Dict.make()
+      filterValueJson
+      ->Dict.toArray
+      ->Array.forEach(((key, value)) => {
+        if key !== "offset" && key !== "limit" {
+          filterDict->Dict.set(key, value)
+        }
+      })
+      filterDict->JSON.Encode.object->JSON.stringify
+    }
+
+    if currentFilterState !== lastFilterState && searchText === "" {
+      setLastFilterState(_ => currentFilterState)
+      if offset !== 0 {
+        setOffset(_ => 0)
+      } else {
+        fetchWebhooks()->ignore
+      }
+    } else {
+      fetchWebhooks()->ignore
+    }
+    
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
