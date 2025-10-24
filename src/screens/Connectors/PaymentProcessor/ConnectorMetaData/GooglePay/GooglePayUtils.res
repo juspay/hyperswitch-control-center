@@ -155,6 +155,12 @@ let validateGooglePay = (values, connector) => {
     allowedAuthMethodsArray->Array.length > 0
       ? Button.Normal
       : Button.Disabled
+  | Processors(BRAINTREE) =>
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
+    allowedAuthMethodsArray->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
   | _ =>
     merchantId->isNonEmptyString &&
     merchantName->isNonEmptyString &&

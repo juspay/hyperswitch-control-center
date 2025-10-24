@@ -29,8 +29,9 @@ let make = (
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
+
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #simplified)
+    let value = applePayCombined(initalFormValue, #simplified, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -49,7 +50,7 @@ let make = (
         ->getDictFromJsonObject
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
-        ->simplified
+        ->simplified(connector)
       let domainName = data.session_token_data.initiative_context->Option.getOr("")
 
       setVefifiedDomainList(_ => [domainName])
@@ -121,6 +122,7 @@ let make = (
                 ApplePayIntegrationUtils.applePayNameMapper(
                   ~name="merchant_business_country",
                   ~integrationType=Some(#simplified),
+                  ~connector,
                 )
               },
             )}
@@ -128,7 +130,11 @@ let make = (
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)})}
+            field={applePayValueInput(
+              ~applePayField,
+              ~integrationType={Some(#simplified)},
+              ~connector,
+            )}
           />
         }}
       </div>
@@ -158,6 +164,7 @@ let make = (
         prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
             ~name="initiative_context",
             ~integrationType=Some(#simplified),
+            ~connector,
           )}`}
       />}
     />
