@@ -507,7 +507,7 @@ let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
 
   let overallBalance = calculateOverallBalance(sectionData)
 
-  let amountColorClass = overallBalance == 0.0 ? "text-nd_green-500" : "text-nd_red-500"
+  let amountColorClass = overallBalance == 0.0 ? "text-nd_green-600" : "text-nd_red-600"
 
   sectionData->Array.map(((_accountId, accountInfo, accountEntries, totalAmount, currency)) => {
     let accountRows =

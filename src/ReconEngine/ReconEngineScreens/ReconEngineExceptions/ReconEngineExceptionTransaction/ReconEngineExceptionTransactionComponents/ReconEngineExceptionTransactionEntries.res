@@ -14,7 +14,6 @@ let make = (
   open APIUtils
   open LogicUtils
 
-  let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
     NoResolutionOptionNeeded,
   ))
@@ -34,14 +33,6 @@ let make = (
       | _ => [updated->Array.get(updated->Array.length - 1)->Option.getOr(JSON.Encode.null)]
       }
     })
-  }
-
-  let onExpandIconClick = (isExpanded, rowIndex) => {
-    if isExpanded {
-      setExpandedRowIndexArray(prev => prev->Array.filter(index => index !== rowIndex))
-    } else {
-      setExpandedRowIndexArray(prev => prev->Array.concat([rowIndex]))
-    }
   }
 
   let (groupedEntries, accountInfoMap) = React.useMemo(() => {
@@ -96,23 +87,10 @@ let make = (
       setUpdatedEntriesList
       currentExceptionDetails
     />
-    <CustomExpandableTable
+    <ReconEngineCustomExpandableSelectionTable
       title=""
       heading={detailsFields->Array.map(getHeading)}
-      tableClass="overflow-y-auto"
-      borderClass="border rounded-xl"
-      firstColRoundedHeadingClass="rounded-tl-xl"
-      lastColRoundedHeadingClass="rounded-tr-xl"
-      headingBgColor="bg-nd_gray-25"
-      headingFontWeight="font-semibold"
-      headingFontColor="text-nd_gray-400"
-      rowFontColor="text-nd_gray-600"
-      customRowStyle="text-sm"
-      rowFontStyle="font-medium"
-      onExpandIconClick
-      expandedRowIndexArray
       getSectionRowDetails=sectionDetails
-      showSerial=false
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
         exceptionStage == ResolvingException(MarkAsReceived)}
