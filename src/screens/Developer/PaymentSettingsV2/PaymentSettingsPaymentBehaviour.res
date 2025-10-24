@@ -216,27 +216,94 @@ module ReturnUrl = {
   }
 }
 
+module MerchantCategoryCode = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let merchantCodeWithNameArray = React.useMemo(() => {
+      try {
+        Window.getMerchantCategoryCodeWithName()
+      } catch {
+      | Exn.Error(e) =>
+        let _ = Exn.message(e)->Option.getOr("Error fetching merchant category codes")
+        []
+      }
+    }, [])
+
+    let errorClass = "text-sm leading-4 font-medium text-start ml-1"
+
+    <DesktopRow itemWrapperClass="mx-1">
+      <FieldRenderer
+        field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
+        errorClass
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl py-8 "
+      />
+    </DesktopRow>
+  }
+}
+
+module SplitTransactions = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    let customSplitTransactionInput = (
+      ~input: ReactFinalForm.fieldRenderPropsInput,
+      ~placeholder as _,
+    ) => {
+      let currentValue = switch input.value->JSON.Classify.classify {
+      | String(str) => str === "enable"
+      | _ => false
+      }
+
+      let handleChange = newValue => {
+        let valueToSet = newValue ? "enable" : "skip"
+        input.onChange(valueToSet->Identity.anyTypeToReactEvent)
+      }
+
+      <BoolInput.BaseComponent
+        isSelected={currentValue}
+        setIsSelected={handleChange}
+        isDisabled=false
+        boolCustomClass="rounded-lg"
+        toggleEnableColor="bg-nd_primary_blue-450"
+      />
+    }
+
+    <DesktopRow itemWrapperClass="mx-1">
+      <FieldRenderer
+        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        fieldWrapperClass="w-full flex justify-between items-center py-8"
+        field={makeFieldInfo(
+          ~name="split_txns_enabled",
+          ~label="Split Transactions",
+          ~customInput=customSplitTransactionInput,
+        )}
+      />
+    </DesktopRow>
+  }
+}
+
 @react.component
 let make = () => {
-  open APIUtils
   open FormRenderer
 
-  let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod()
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
+
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, values, Post)
-      let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+      let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -250,9 +317,7 @@ let make = () => {
   }
   <PageLoaderWrapper screenState>
     <Form
-      initialValues={businessProfileRecoilVal
-      ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
-      ->Identity.genericTypeToJson}
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       onSubmit
       validate={values => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
@@ -261,36 +326,127 @@ let make = () => {
           ~businessProfileRecoilVal,
         )
       }}>
-      <CollectDetails
-        title="Collect billing details from wallets"
-        subTitle="Enable automatic collection of billing information when customers connect their wallets"
-        options=[
-          {
-            name: "only if required by connector",
-            key: "collect_billing_details_from_wallet_connector",
-          },
-          {
-            name: "always",
-            key: "always_collect_billing_details_from_wallet_connector",
-          },
-        ]
-      />
-      <hr />
-      <CollectDetails
-        title="Collect shipping details from wallets"
-        subTitle="Enable automatic collection of shipping information when customers connect their wallets"
-        options=[
-          {
-            name: "only if required by connector",
-            key: "collect_shipping_details_from_wallet_connector",
-          },
-          {
-            name: "always",
-            key: "always_collect_shipping_details_from_wallet_connector",
-          },
-        ]
-      />
-      <hr />
+      <RenderIfVersion showWhenVersion=V1>
+        <CollectDetails
+          title="Collect billing details from wallets"
+          subTitle="Enable automatic collection of billing information when customers connect their wallets"
+          options=[
+            {
+              name: "only if required by connector",
+              key: "collect_billing_details_from_wallet_connector",
+            },
+            {
+              name: "always",
+              key: "always_collect_billing_details_from_wallet_connector",
+            },
+          ]
+        />
+        <hr />
+        <CollectDetails
+          title="Collect shipping details from wallets"
+          subTitle="Enable automatic collection of shipping information when customers connect their wallets"
+          options=[
+            {
+              name: "only if required by connector",
+              key: "collect_shipping_details_from_wallet_connector",
+            },
+            {
+              name: "always",
+              key: "always_collect_shipping_details_from_wallet_connector",
+            },
+          ]
+        />
+        <hr />
+        <AutoRetries />
+        <hr />
+        <DesktopRow itemWrapperClass="mx-1">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between sitems-center border-gray-200 py-8"
+            field={makeFieldInfo(
+              ~name="is_manual_retry_enabled",
+              ~label="Manual Retries",
+              ~customInput=InputFields.boolInput(
+                ~isDisabled=false,
+                ~boolCustomClass="rounded-lg",
+                ~toggleEnableColor="bg-nd_primary_blue-450",
+              ),
+              ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
+            )}
+          />
+        </DesktopRow>
+        <hr />
+        <DesktopRow itemWrapperClass="mx-1">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+            field={makeFieldInfo(
+              ~name="always_request_extended_authorization",
+              ~label="Extended Authorization",
+              ~customInput=InputFields.boolInput(
+                ~isDisabled=false,
+                ~boolCustomClass="rounded-lg",
+                ~toggleEnableColor="bg-nd_primary_blue-450",
+              ),
+              ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
+              ~toolTipPosition=Right,
+            )}
+          />
+        </DesktopRow>
+        <hr />
+        <DesktopRow itemWrapperClass="mx-1">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+            field={makeFieldInfo(
+              ~name="always_enable_overcapture",
+              ~label="Always Enable Overcapture",
+              ~customInput=InputFields.boolInput(
+                ~isDisabled=false,
+                ~boolCustomClass="rounded-lg",
+                ~toggleEnableColor="bg-nd_primary_blue-450",
+              ),
+              ~description="Allow capturing more than the originally authorized amount within connector limits",
+              ~toolTipPosition=Right,
+            )}
+          />
+        </DesktopRow>
+        <hr />
+      </RenderIfVersion>
+      <RenderIfVersion showWhenVersion=V2>
+        <CollectDetails
+          title="Collect billing details from wallets"
+          subTitle="Enable automatic collection of billing information when customers connect their wallets"
+          options=[
+            {
+              name: "only if required by connector",
+              key: "collect_billing_details_from_wallet_connector_if_required",
+            },
+            {
+              name: "always",
+              key: "always_collect_billing_details_from_wallet_connector",
+            },
+          ]
+        />
+        <hr />
+        <CollectDetails
+          title="Collect shipping details from wallets"
+          subTitle="Enable automatic collection of shipping information when customers connect their wallets"
+          options=[
+            {
+              name: "only if required by connector",
+              key: "collect_shipping_details_from_wallet_connector_if_required",
+            },
+            {
+              name: "always",
+              key: "always_collect_shipping_details_from_wallet_connector",
+            },
+          ]
+        />
+        <hr />
+        <SplitTransactions />
+        <hr />
+      </RenderIfVersion>
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass="!text-fs-15 !text-grey-700 font-semibold"
@@ -323,62 +479,11 @@ let make = () => {
         />
       </DesktopRow>
       <hr />
-      <DesktopRow itemWrapperClass="mx-1">
-        <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
-          field={makeFieldInfo(
-            ~name="always_request_extended_authorization",
-            ~label="Extended Authorization",
-            ~customInput=InputFields.boolInput(
-              ~isDisabled=false,
-              ~boolCustomClass="rounded-lg",
-              ~toggleEnableColor="bg-nd_primary_blue-450",
-            ),
-            ~description="This will enable extended authorization for all payments through connectors and payment methods that support it",
-            ~toolTipPosition=Right,
-          )}
-        />
-      </DesktopRow>
-      <hr />
-      <DesktopRow itemWrapperClass="mx-1">
-        <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
-          field={makeFieldInfo(
-            ~name="always_enable_overcapture",
-            ~label="Always Enable Overcapture",
-            ~customInput=InputFields.boolInput(
-              ~isDisabled=false,
-              ~boolCustomClass="rounded-lg",
-              ~toggleEnableColor="bg-nd_primary_blue-450",
-            ),
-            ~description="Allow capturing more than the originally authorized amount within connector limits",
-            ~toolTipPosition=Right,
-          )}
-        />
-      </DesktopRow>
-      <hr />
+      <RenderIf condition={featureFlagDetails.debitRouting}>
+        <MerchantCategoryCode />
+        <hr />
+      </RenderIf>
       <ClickToPaySection />
-      <hr />
-      <AutoRetries />
-      <hr />
-      <DesktopRow itemWrapperClass="mx-1">
-        <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between sitems-center border-gray-200 py-8"
-          field={makeFieldInfo(
-            ~name="is_manual_retry_enabled",
-            ~label="Manual Retries",
-            ~customInput=InputFields.boolInput(
-              ~isDisabled=false,
-              ~boolCustomClass="rounded-lg",
-              ~toggleEnableColor="bg-nd_primary_blue-450",
-            ),
-            ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
-          )}
-        />
-      </DesktopRow>
       <hr />
       <ReturnUrl />
       <WebHook />
@@ -387,6 +492,7 @@ let make = () => {
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
         </div>
       </DesktopRow>
+      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
