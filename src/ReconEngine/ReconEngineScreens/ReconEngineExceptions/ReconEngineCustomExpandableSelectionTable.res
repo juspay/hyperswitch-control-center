@@ -12,6 +12,7 @@ module RowProcessor = {
   }
 }
 
+// TODO:: Refactoring required
 module TableHeader = {
   @react.component
   let make = (
@@ -264,7 +265,7 @@ let make = (
     <>
       {sections
       ->Array.mapWithIndex((section, sectionIndex) => {
-        <div key={"section-" ++ Int.toString(sectionIndex)} className="mb-6">
+        <div key={`section-${sectionIndex->Int.toString}`} className="mb-6">
           {section.titleElement}
           <div className="border rounded-xl overflow-scroll">
             <table className="table-auto w-full h-full" colSpan=0>

@@ -522,7 +522,7 @@ let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
           {accountInfo.account_info_name->React.string}
         </p>
         <div className={`${amountColorClass} ${body.lg.medium}`}>
-          {(currency ++ " " ++ totalAmount->Float.toString)->React.string}
+          {`${currency} ${totalAmount->Float.toString}`->React.string}
         </div>
       </div>
 

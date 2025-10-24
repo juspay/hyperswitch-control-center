@@ -407,30 +407,25 @@ let constructManualReconciliationBody = (
 ): JSON.t => {
   let valuesDict = values->getDictFromJsonObject
   let reason = valuesDict->getString("reason", "")
-  let dict = Dict.make()
-  dict->Dict.set("reason", reason->JSON.Encode.string)
 
   let entriesJson = updatedEntriesList->Array.map(entry => {
-    let transactionEntryWithData = Dict.make()
-
-    transactionEntryWithData->Dict.set("account_id", entry.account_id->JSON.Encode.string)
-    transactionEntryWithData->Dict.set(
-      "entry_type",
-      (entry.entry_type :> string)->JSON.Encode.string,
-    )
-    transactionEntryWithData->Dict.set("amount", entry.amount->JSON.Encode.float)
-    transactionEntryWithData->Dict.set("currency", entry.currency->JSON.Encode.string)
-    transactionEntryWithData->Dict.set("effective_at", entry.effective_at->JSON.Encode.string)
-    transactionEntryWithData->Dict.set("metadata", entry.metadata)
-    transactionEntryWithData->Dict.set("staging_entry_id", JSON.Encode.null)
-
-    transactionEntryWithData->Dict.set("data", entry.data)
-
-    transactionEntryWithData->JSON.Encode.object
+    [
+      ("account_id", entry.account_id->JSON.Encode.string),
+      ("entry_type", (entry.entry_type :> string)->JSON.Encode.string),
+      ("amount", entry.amount->JSON.Encode.float),
+      ("currency", entry.currency->JSON.Encode.string),
+      ("effective_at", entry.effective_at->JSON.Encode.string),
+      ("metadata", entry.metadata),
+      ("staging_entry_id", JSON.Encode.null),
+      ("data", entry.data),
+    ]
+    ->Dict.fromArray
+    ->JSON.Encode.object
   })
 
-  dict->Dict.set("transaction_entries", entriesJson->JSON.Encode.array)
-  dict->JSON.Encode.object
+  [("reason", reason->JSON.Encode.string), ("transaction_entries", entriesJson->JSON.Encode.array)]
+  ->Dict.fromArray
+  ->JSON.Encode.object
 }
 
 let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage) => {
