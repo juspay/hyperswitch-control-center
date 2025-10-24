@@ -18,7 +18,7 @@ module CustomToastElement = {
     | Void => (
         "Transaction ignored successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/exceptions/${transaction.id}`)}`,
+        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
         "See Transaction",
       )
     | Posted => (

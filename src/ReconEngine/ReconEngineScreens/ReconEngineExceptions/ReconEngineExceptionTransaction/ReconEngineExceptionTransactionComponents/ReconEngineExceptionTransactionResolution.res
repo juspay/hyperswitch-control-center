@@ -414,7 +414,9 @@ let make = (
 
   <PageLoaderWrapper
     screenState
-    customUI={<NewAnalyticsHelper.NoData height="h-24" message="No data available." />}
+    customUI={<NewAnalyticsHelper.NoData
+      height="h-24" message="No exception resolutions available."
+    />}
     customLoader={<Shimmer styleClass="h-24 w-full rounded-xl" />}>
     <div
       className="flex flex-row items-center justify-between gap-3 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
