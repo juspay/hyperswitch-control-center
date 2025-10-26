@@ -77,7 +77,8 @@ let getHeading = colType => {
   }
 }
 let amountValue = (amount, currency) => {
-  let amountInFloat = amount->Js.Float.fromString /. 100.0
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+  let amountInFloat = amount->Js.Float.fromString /. conversionFactor
   `${amountInFloat->Float.toString} ${currency}`
 }
 
