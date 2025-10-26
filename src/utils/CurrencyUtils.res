@@ -10,6 +10,7 @@ type currencyCode =
   | BBD
   | BDT
   | BHD
+  | BIF
   | BMD
   | BND
   | BOB
@@ -19,10 +20,13 @@ type currencyCode =
   | BZD
   | CAD
   | CHF
+  | CLF
+  | CLP
   | COP
   | CRC
   | CUP
   | CZK
+  | DJF
   | DKK
   | DOP
   | DZD
@@ -34,6 +38,7 @@ type currencyCode =
   | GHS
   | GIP
   | GMD
+  | GNF
   | GTQ
   | GYD
   | HKD
@@ -43,12 +48,15 @@ type currencyCode =
   | IDR
   | ILS
   | INR
+  | IQD
+  | IRR
   | JMD
   | JOD
   | JPY
   | KES
   | KGS
   | KHR
+  | KMF
   | KRW
   | KWD
   | KYD
@@ -58,8 +66,10 @@ type currencyCode =
   | LKR
   | LRD
   | LSL
+  | LYD
   | MAD
   | MDL
+  | MGA
   | MKD
   | MMK
   | MNT
@@ -81,8 +91,10 @@ type currencyCode =
   | PHP
   | PKR
   | PLN
+  | PYG
   | QAR
   | RON
+  | RWF
   | CNY
   | RUB
   | SAR
@@ -95,11 +107,18 @@ type currencyCode =
   | SVC
   | SZL
   | THB
+  | TND
   | TRY
   | TTD
   | TWD
   | TZS
+  | UGX
   | USD
+  | VND
+  | VUV
+  | XAF
+  | XOF
+  | XPF
 
 let currencyList = [
   AED,
@@ -122,10 +141,12 @@ let currencyList = [
   BZD,
   CAD,
   CHF,
+  CLP,
   COP,
   CRC,
   CUP,
   CZK,
+  DJF,
   DKK,
   DOP,
   DZD,
@@ -137,6 +158,7 @@ let currencyList = [
   GHS,
   GIP,
   GMD,
+  GNF,
   GTQ,
   GYD,
   HKD,
@@ -146,12 +168,14 @@ let currencyList = [
   IDR,
   ILS,
   INR,
+  IRR,
   JMD,
   JOD,
   JPY,
   KES,
   KGS,
   KHR,
+  KMF,
   KRW,
   KWD,
   KYD,
@@ -163,6 +187,7 @@ let currencyList = [
   LSL,
   MAD,
   MDL,
+  MGA,
   MKD,
   MMK,
   MNT,
@@ -184,8 +209,10 @@ let currencyList = [
   PHP,
   PKR,
   PLN,
+  PYG,
   QAR,
   RON,
+  RWF,
   CNY,
   RUB,
   SAR,
@@ -202,7 +229,13 @@ let currencyList = [
   TTD,
   TWD,
   TZS,
+  UGX,
   USD,
+  VND,
+  VUV,
+  XAF,
+  XOF,
+  XPF,
 ]
 
 let getCurrencyCodeStringFromVariant = currencyCode => {
@@ -218,6 +251,7 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | BBD => "BBD"
   | BDT => "BDT"
   | BHD => "BHD"
+  | BIF => "BIF"
   | BMD => "BMD"
   | BND => "BND"
   | BOB => "BOB"
@@ -227,10 +261,13 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | BZD => "BZD"
   | CAD => "CAD"
   | CHF => "CHF"
+  | CLF => "CLF"
+  | CLP => "CLP"
   | COP => "COP"
   | CRC => "CRC"
   | CUP => "CUP"
   | CZK => "CZK"
+  | DJF => "DJF"
   | DKK => "DKK"
   | DOP => "DOP"
   | DZD => "DZD"
@@ -242,6 +279,7 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | GHS => "GHS"
   | GIP => "GIP"
   | GMD => "GMD"
+  | GNF => "GNF"
   | GTQ => "GTQ"
   | GYD => "GYD"
   | HKD => "HKD"
@@ -251,12 +289,15 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | IDR => "IDR"
   | ILS => "ILS"
   | INR => "INR"
+  | IQD => "IQD"
+  | IRR => "IRR"
   | JMD => "JMD"
   | JOD => "JOD"
   | JPY => "JPY"
   | KES => "KES"
   | KGS => "KGS"
   | KHR => "KHR"
+  | KMF => "KMF"
   | KRW => "KRW"
   | KWD => "KWD"
   | KYD => "KYD"
@@ -266,8 +307,10 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | LKR => "LKR"
   | LRD => "LRD"
   | LSL => "LSL"
+  | LYD => "LYD"
   | MAD => "MAD"
   | MDL => "MDL"
+  | MGA => "MGA"
   | MKD => "MKD"
   | MMK => "MMK"
   | MNT => "MNT"
@@ -289,8 +332,10 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | PHP => "PHP"
   | PKR => "PKR"
   | PLN => "PLN"
+  | PYG => "PYG"
   | QAR => "QAR"
   | RON => "RON"
+  | RWF => "RWF"
   | CNY => "CNY"
   | RUB => "RUB"
   | SAR => "SAR"
@@ -303,11 +348,18 @@ let getCurrencyCodeStringFromVariant = currencyCode => {
   | SVC => "SVC"
   | SZL => "SZL"
   | THB => "THB"
+  | TND => "TND"
   | TRY => "TRY"
   | TTD => "TTD"
   | TWD => "TWD"
   | TZS => "TZS"
+  | UGX => "UGX"
   | USD => "USD"
+  | VND => "VND"
+  | VUV => "VUV"
+  | XAF => "XAF"
+  | XOF => "XOF"
+  | XPF => "XPF"
   }
 }
 
@@ -324,6 +376,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "BBD" => BBD
   | "BDT" => BDT
   | "BHD" => BHD
+  | "BIF" => BIF
   | "BMD" => BMD
   | "BND" => BND
   | "BOB" => BOB
@@ -333,10 +386,13 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "BZD" => BZD
   | "CAD" => CAD
   | "CHF" => CHF
+  | "CLF" => CLF
+  | "CLP" => CLP
   | "COP" => COP
   | "CRC" => CRC
   | "CUP" => CUP
   | "CZK" => CZK
+  | "DJF" => DJF
   | "DKK" => DKK
   | "DOP" => DOP
   | "DZD" => DZD
@@ -348,6 +404,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "GHS" => GHS
   | "GIP" => GIP
   | "GMD" => GMD
+  | "GNF" => GNF
   | "GTQ" => GTQ
   | "GYD" => GYD
   | "HKD" => HKD
@@ -357,12 +414,15 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "IDR" => IDR
   | "ILS" => ILS
   | "INR" => INR
+  | "IQD" => IQD
+  | "IRR" => IRR
   | "JMD" => JMD
   | "JOD" => JOD
   | "JPY" => JPY
   | "KES" => KES
   | "KGS" => KGS
   | "KHR" => KHR
+  | "KMF" => KMF
   | "KRW" => KRW
   | "KWD" => KWD
   | "KYD" => KYD
@@ -372,8 +432,10 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "LKR" => LKR
   | "LRD" => LRD
   | "LSL" => LSL
+  | "LYD" => LYD
   | "MAD" => MAD
   | "MDL" => MDL
+  | "MGA" => MGA
   | "MKD" => MKD
   | "MMK" => MMK
   | "MNT" => MNT
@@ -395,10 +457,12 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "PHP" => PHP
   | "PKR" => PKR
   | "PLN" => PLN
+  | "PYG" => PYG
   | "QAR" => QAR
   | "RON" => RON
   | "CNY" => CNY
   | "RUB" => RUB
+  | "RWF" => RWF
   | "SAR" => SAR
   | "SCR" => SCR
   | "SEK" => SEK
@@ -409,10 +473,18 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "SVC" => SVC
   | "SZL" => SZL
   | "THB" => THB
+  | "TND" => TND
   | "TRY" => TRY
   | "TTD" => TTD
   | "TWD" => TWD
   | "TZS" => TZS
+  | "UGX" => UGX
+  | "USD" => USD
+  | "VND" => VND
+  | "VUV" => VUV
+  | "XAF" => XAF
+  | "XOF" => XOF
+  | "XPF" => XPF
   | _ => USD
   }
 }
@@ -430,6 +502,7 @@ let getCurrencyNameFromCode = currencyCode => {
   | BBD => "Barbados dollar"
   | BDT => "Bangladeshi taka"
   | BHD => "Bahraini dinar"
+  | BIF => "Burundian franc"
   | BMD => "Bermudian dollar"
   | BND => "Brunei dollar"
   | BOB => "Boliviano"
@@ -439,10 +512,13 @@ let getCurrencyNameFromCode = currencyCode => {
   | BZD => "Belize dollar"
   | CAD => "Canadian dollar"
   | CHF => "Swiss franc"
+  | CLF => "Chilean unit of account (UF)"
+  | CLP => "Chilean peso"
   | COP => "Colombian peso"
-  | CRC => "Costa Rican colon"
+  | CRC => "Costa Rican colón"
   | CUP => "Cuban peso"
   | CZK => "Czech koruna"
+  | DJF => "Djiboutian franc"
   | DKK => "Danish krone"
   | DOP => "Dominican peso"
   | DZD => "Algerian dinar"
@@ -454,6 +530,7 @@ let getCurrencyNameFromCode = currencyCode => {
   | GHS => "Ghanaian cedi"
   | GIP => "Gibraltar pound"
   | GMD => "Gambian dalasi"
+  | GNF => "Guinean franc"
   | GTQ => "Guatemalan quetzal"
   | GYD => "Guyanese dollar"
   | HKD => "Hong Kong dollar"
@@ -463,12 +540,15 @@ let getCurrencyNameFromCode = currencyCode => {
   | IDR => "Indonesian rupiah"
   | ILS => "Israeli new shekel"
   | INR => "Indian rupee"
+  | IQD => "Iraqi dinar"
+  | IRR => "Iranian rial"
   | JMD => "Jamaican dollar"
   | JOD => "Jordanian dinar"
   | JPY => "Japanese yen"
   | KES => "Kenyan shilling"
   | KGS => "Kyrgyzstani som"
   | KHR => "Cambodian riel"
+  | KMF => "Comorian franc"
   | KRW => "South Korean won"
   | KWD => "Kuwaiti dinar"
   | KYD => "Cayman Islands dollar"
@@ -478,8 +558,10 @@ let getCurrencyNameFromCode = currencyCode => {
   | LKR => "Sri Lankan rupee"
   | LRD => "Liberian dollar"
   | LSL => "Lesotho loti"
+  | LYD => "Libyan dinar"
   | MAD => "Moroccan dirham"
   | MDL => "Moldovan leu"
+  | MGA => "Malagasy ariary"
   | MKD => "Macedonian denar"
   | MMK => "Myanmar kyat"
   | MNT => "Mongolian tögrög"
@@ -501,8 +583,10 @@ let getCurrencyNameFromCode = currencyCode => {
   | PHP => "Philippine peso"
   | PKR => "Pakistani rupee"
   | PLN => "Polish złoty"
+  | PYG => "Paraguayan guaraní"
   | QAR => "Qatari riyal"
   | RON => "Romanian leu"
+  | RWF => "Rwandan franc"
   | CNY => "Renminbi"
   | RUB => "Russian ruble"
   | SAR => "Saudi riyal"
@@ -515,11 +599,18 @@ let getCurrencyNameFromCode = currencyCode => {
   | SVC => "Salvadoran colón"
   | SZL => "Swazi lilangeni"
   | THB => "Thai baht"
+  | TND => "Tunisian dinar"
   | TRY => "Turkish lira"
   | TTD => "Trinidad and Tobago dollar"
   | TWD => "New Taiwan dollar"
   | TZS => "Tanzanian shilling"
+  | UGX => "Ugandan shilling"
   | USD => "United States dollar"
+  | VND => "Vietnamese dong"
+  | VUV => "Vanuatu vatu"
+  | XAF => "Central African CFA franc"
+  | XOF => "West African CFA franc"
+  | XPF => "CFP franc"
   }
 }
 
@@ -546,6 +637,8 @@ let getCountryListFromCurrency = currencyCode => {
   | BZD => [BZ]
   | CAD => [CA]
   | CHF => [LI, CH]
+  | CLF => [CL]
+  | CLP => [CL]
   | COP => [CO]
   | CRC => [CR]
   | CUP => [CU]
@@ -606,12 +699,15 @@ let getCountryListFromCurrency = currencyCode => {
   | IDR => [ID]
   | ILS => [IL, PS]
   | INR => [IN]
+  | IQD => [IQ]
+  | IRR => [IR]
   | JMD => [JM]
   | JOD => [JO]
   | JPY => [JP]
   | KES => [KE]
   | KGS => [KG]
   | KHR => [KH]
+  | KMF => [KM]
   | KRW => [KP, KR]
   | KWD => [KW]
   | KYD => [KY]
@@ -621,12 +717,14 @@ let getCountryListFromCurrency = currencyCode => {
   | LKR => [LK]
   | LRD => [LR]
   | LSL => [LS]
+  | LYD => [LY]
   | MAD => [MA, EH]
   | MDL => [MD]
   | MKD => [MK]
   | MMK => [MM]
   | MNT => [MN]
   | MOP => [MO]
+  | MGA => [MG]
   | MUR => [MU]
   | MVR => [MV]
   | MWK => [MW]
@@ -644,10 +742,12 @@ let getCountryListFromCurrency = currencyCode => {
   | PHP => [PH]
   | PKR => [PK]
   | PLN => [PL]
+  | PYG => [PY]
   | QAR => [QA]
   | RON => [RO]
   | CNY => [CN]
   | RUB => [RU]
+  | RWF => [RW]
   | SAR => [SA]
   | SCR => [SC]
   | SEK => [SE]
@@ -658,10 +758,103 @@ let getCountryListFromCurrency = currencyCode => {
   | SVC => [SV]
   | SZL => [SZ]
   | THB => [TH]
+  | TND => [TN]
   | TRY => [TR]
   | TTD => [TT]
   | TWD => [TW]
   | TZS => [TZ]
+  | UGX => [UG]
   | USD => [AS, BQ, IO, EC, SV, GU, HT, MH, FM, MP, PW, PA, PR, TL, TC, US, VG, VI]
+  | VND => [VN]
+  | VUV => [VU]
+  | XAF => [CM, CF, TD, CG, GQ, GA]
+  | XOF => [BJ, BF, CI, GW, ML, NE, SN, TG]
+  | XPF => [NC, PF, WF]
+  | BIF => [BI]
+  | DJF => [DJ]
+  | GNF => [GN]
   }
+}
+
+let getCurrencyConversionFactor = currency => {
+  let currencyCode = getCurrencyCodeFromString(currency)
+  let conversionFactor = switch (currencyCode: currencyCode) {
+  // Zero-decimal currencies
+  | JPY
+  | KRW
+  | BIF
+  | CLP
+  | DJF
+  | GNF
+  | IQD
+  | IRR
+  | KMF
+  | MGA
+  | PYG
+  | RWF
+  | UGX
+  | VND
+  | VUV
+  | XAF
+  | XOF
+  | XPF => 1
+  // Three-decimal currencies
+  | BHD
+  | JOD
+  | KWD
+  | OMR
+  | LYD
+  | TND => 1000
+  // Four-decimal currencies
+  | CLF => 10000
+  // Two-decimal currencies (default)
+  | _ => 100
+  }
+  conversionFactor->Int.toFloat
+}
+
+let getAmountPrecisionDigits = currency => {
+  let currencyCode = getCurrencyCodeFromString(currency)
+  switch (currencyCode: currencyCode) {
+  // Zero-decimal currencies
+  | JPY
+  | KRW
+  | BIF
+  | CLP
+  | DJF
+  | GNF
+  | IQD
+  | IRR
+  | KMF
+  | MGA
+  | PYG
+  | RWF
+  | UGX
+  | VND
+  | VUV
+  | XAF
+  | XOF
+  | XPF => 0
+  // Three-decimal currencies
+  | BHD
+  | JOD
+  | KWD
+  | OMR
+  | LYD
+  | TND => 3
+  // Four-decimal currencies
+  | CLF => 4
+  // Two-decimal currencies (default)
+  | _ => 2
+  }
+}
+
+let convertCurrencyFromLowestDenomination = (~amount: float, ~currency: string) => {
+  let conversionFactor = getCurrencyConversionFactor(currency)
+  amount /. conversionFactor
+}
+
+let convertCurrencyToLowestDenomination = (~amount: float, ~currency: string) => {
+  let conversionFactor = getCurrencyConversionFactor(currency)
+  amount *. conversionFactor
 }

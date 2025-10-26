@@ -16,7 +16,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(`transformation_id=${config.id}`),
+        ~queryParamerters=Some(`transformation_id=${config.transformation_id}`),
       )
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -44,7 +44,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
     <Link
       to_={GlobalVars.appendDashboardPath(
-        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.id}`,
+        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.transformation_id}`,
       )}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
