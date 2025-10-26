@@ -57,22 +57,22 @@ let itemToObjMapper = dict => {
     let state = addressDict->getString("state", "")
     let country = addressDict->getString("country", "")
     let zip = addressDict->getString("zip", "")
-    
-    let addressParts = [line1, line2, line3, city, state, country, zip]
-    ->Array.filter(part => part !== "")
-    
+
+    let addressParts =
+      [line1, line2, line3, city, state, country, zip]->Array.filter(part => part->isNonEmptyString)
+
     addressParts->Array.joinWith(", ")
   }
 
   let address = switch dict->Dict.get("address") {
-  | Some(addressJson) => 
+  | Some(addressJson) =>
     switch addressJson->JSON.Decode.object {
     | Some(addressObj) => addressObj->formatAddress
     | None => addressJson->JSON.Decode.string->Option.getOr("")
     }
   | None => ""
   }
-  
+
   {
     customer_id: dict->getString("customer_id", ""),
     name: dict->getString("name", ""),
@@ -80,7 +80,7 @@ let itemToObjMapper = dict => {
     phone: dict->getString("phone", ""),
     phone_country_code: dict->getString("phone_country_code", ""),
     description: dict->getString("description", ""),
-    address: address,
+    address,
     created_at: dict->getString("created_at", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
   }
