@@ -82,7 +82,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
     try {
       let queryString =
         ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)->String.concat(
-          `&transformation_id=${config.id}`,
+          `&transformation_id=${config.transformation_id}`,
         )
       let transformationHistoryList = await getTransformationHistory(
         ~queryParamerters=Some(queryString),
