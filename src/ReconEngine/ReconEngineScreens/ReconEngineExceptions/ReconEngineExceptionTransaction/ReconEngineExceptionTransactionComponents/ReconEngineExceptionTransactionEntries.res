@@ -76,6 +76,11 @@ let make = (
     generateAllResolutionSummaries(entriesList, updatedEntriesList)
   }, [entriesList, updatedEntriesList])
 
+  let onCloseClickCustomFun = () => {
+    setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
+    setShowConfirmationModal(_ => false)
+  }
+
   <div className="flex flex-col gap-4 mt-6 mb-16">
     <ReconEngineExceptionTransactionResolution
       accountInfoMap
@@ -127,10 +132,7 @@ let make = (
       setShowModal=setShowConfirmationModal
       showModal=showConfirmationModal
       closeOnOutsideClick=true
-      onCloseClickCustomFun={_ => {
-        setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
-        setShowConfirmationModal(_ => false)
-      }}
+      onCloseClickCustomFun
       modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background"
       childClass="mx-4 mb-4 h-full"
       modalHeadingClass={`${heading.sm.semibold} text-nd_gray-700`}
