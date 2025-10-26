@@ -128,6 +128,7 @@ type processorTypes =
   | GIGADAT
   | LOONIO
   | TESOURO
+  | FINIX
 
 type payoutProcessorTypes =
   | ADYEN
@@ -141,6 +142,7 @@ type payoutProcessorTypes =
   | NUVEI
   | GIGADAT
   | LOONIO
+  | WORLDPAY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO

@@ -25,7 +25,7 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
@@ -140,7 +140,11 @@ let make = () => {
                           </RenderIf>
                           <RenderIf
                             condition={featureFlagDetails.devAiChatBot &&
-                            userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
+                            // TODO: Remove `MerchantDetailsView` permission in future
+                            hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsView),
+                              userHasAccess(~groupAccess=AccountView),
+                            ) == Access &&
                             merchantDetailsTypedValue.product_type == Orchestration(V1)}>
                             <div
                               onClick={_ => onAskPulseClick()}
