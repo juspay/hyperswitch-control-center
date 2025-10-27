@@ -269,18 +269,20 @@ let make = (
     />
   }
 
-  // Paginate sections based on offset and resultsPerPage
   let paginatedSections = React.useMemo(() => {
-    sections->Array.map((section: ReconEngineExceptionTransactionTypes.tableSection) => {
+    sections->Array.map(section => {
       let startIndex = offset
       let endIndex = offset + resultsPerPage
       let paginatedRows = section.rows->Array.slice(~start=startIndex, ~end=endIndex)
       let paginatedRowData = section.rowData->Array.slice(~start=startIndex, ~end=endIndex)
-      {
-        ReconEngineExceptionTransactionTypes.titleElement: section.titleElement,
-        rows: paginatedRows,
-        rowData: paginatedRowData,
-      }
+
+      (
+        {
+          titleElement: section.titleElement,
+          rows: paginatedRows,
+          rowData: paginatedRowData,
+        }: ReconEngineExceptionTransactionTypes.tableSection
+      )
     })
   }, (sections, offset, resultsPerPage))
 
@@ -292,8 +294,6 @@ let make = (
         sectionIndex,
       ) => {
         let isLastSection = sectionIndex === sections->Array.length - 1
-
-        // Don't add bottom margin if it's the last section (pagination will be attached)
         let sectionMarginClass = if isLastSection {
           ""
         } else {

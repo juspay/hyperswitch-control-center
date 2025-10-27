@@ -385,9 +385,16 @@ let generateAllResolutionSummaries = (
           allSummaryItems->Array.push(item)->ignore
         })
       }
-    | None => {
-        let message = `New ${(updatedEntry.entry_type :> string)} entry created with ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
-        allSummaryItems->Array.push(message)->ignore
+    | None =>
+      switch updatedEntry.staging_entry_id {
+      | Some(_) => {
+          let message = `Entry replaced with existing transformed entry in ${updatedEntry.account_name} account.`
+          allSummaryItems->Array.push(message)->ignore
+        }
+      | None => {
+          let message = `New ${(updatedEntry.entry_type :> string)} entry created with ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
+          allSummaryItems->Array.push(message)->ignore
+        }
       }
     }
   })

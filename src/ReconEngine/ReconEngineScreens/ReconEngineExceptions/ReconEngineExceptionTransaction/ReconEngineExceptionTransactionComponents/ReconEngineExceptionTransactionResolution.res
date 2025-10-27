@@ -647,12 +647,15 @@ let make = (
     ~setExceptionStage,
     ~setActiveModal,
   )
+
   let mainResolutionButtons = getMainResolutionButtons(
     ~isResolutionAvailable,
     ~setExceptionStage,
     ~setActiveModal,
   )
+
   let bottomBarConfig = getBottomBarConfig(~exceptionStage, ~selectedRows, ~setActiveModal)
+
   let onDiscardChanges = () => {
     setActiveModal(_ => None)
     setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
