@@ -88,7 +88,6 @@ let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   open NewAnalyticsUtils
-  Js.log2("dict in payments processed utils", dict)
   {
     payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,

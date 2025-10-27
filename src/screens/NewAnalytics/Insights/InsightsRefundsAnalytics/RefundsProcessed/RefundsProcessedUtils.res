@@ -89,7 +89,6 @@ let refundsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => refundsProcessedObject = dict => {
-  Js.log2("dict in Refund processed utils", dict)
   {
     refund_processed_amount: dict->getAmountValue(
       ~id=Refund_Processed_Amount->getStringFromVariant,
