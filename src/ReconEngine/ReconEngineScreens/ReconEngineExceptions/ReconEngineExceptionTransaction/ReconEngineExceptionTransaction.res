@@ -2,6 +2,7 @@
 let make = (~ruleId: string) => {
   open LogicUtils
   open ReconEngineFilterUtils
+  open ReconEngineExceptionTransactionUtils
   open ReconEngineTypes
   open HierarchicalTransactionsTableEntity
 
@@ -55,7 +56,7 @@ let make = (~ruleId: string) => {
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched"]->getJsonFromArrayOfString,
+          ["expected", "mismatched", "partially_reconciled"]->getJsonFromArrayOfString,
         )
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
@@ -96,11 +97,7 @@ let make = (~ruleId: string) => {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
         title="ReconEngineExceptionTransactionFilters"
-        initialFilters={ReconExceptionTransactionUtils.initialDisplayFilters(
-          ~creditAccountOptions,
-          ~debitAccountOptions,
-          (),
-        )}
+        initialFilters={initialDisplayFilters(~creditAccountOptions, ~debitAccountOptions, ())}
         options=[]
         popupFilterFields=[]
         initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
