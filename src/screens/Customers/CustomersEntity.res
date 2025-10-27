@@ -1,5 +1,21 @@
 open CustomersType
 
+let concatValueOfGivenKeysOfDict = (dict, keys) => {
+  Array.reduceWithIndex(keys, "", (acc, key, i) => {
+    let val = dict->LogicUtils.getString(key, "")
+    let delimiter = if val->LogicUtils.isNonEmptyString {
+      if key !== "first_name" {
+        i + 1 == keys->Array.length ? "." : ", "
+      } else {
+        " "
+      }
+    } else {
+      ""
+    }
+    String.concat(acc, `${val}${delimiter}`)
+  })
+}
+
 let defaultColumns = [
   CustomerId,
   Name,
@@ -49,22 +65,12 @@ let getCell = (customersData, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   open LogicUtils
-  let formatAddress = addressDict => {
-    let line1 = addressDict->getString("line1", "")
-    let line2 = addressDict->getString("line2", "")
-    let line3 = addressDict->getString("line3", "")
-    let city = addressDict->getString("city", "")
-    let state = addressDict->getString("state", "")
-    let country = addressDict->getString("country", "")
-    let zip = addressDict->getString("zip", "")
+  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
-    let addressParts =
-      [line1, line2, line3, city, state, country, zip]->Array.filter(part => part->isNonEmptyString)
-
-    addressParts->Array.joinWith(", ")
-  }
-
-  let address = dict->getJsonObjectFromDict("address")->getDictFromJsonObject->formatAddress
+  let address = dict
+  ->getJsonObjectFromDict("address")
+  ->getDictFromJsonObject
+  ->concatValueOfGivenKeysOfDict(addressKeys)
 
   {
     customer_id: dict->getString("customer_id", ""),
