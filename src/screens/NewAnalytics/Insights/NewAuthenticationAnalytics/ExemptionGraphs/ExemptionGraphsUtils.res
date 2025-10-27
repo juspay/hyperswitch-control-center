@@ -77,7 +77,7 @@ let tooltipFormatter = (
   )->asTooltipPointFormatter
 }
 
-let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
+let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false, ~currency) => {
   if groupByKey->isNonEmptyString {
     let separatorDict = Dict.make()
     data
@@ -108,7 +108,7 @@ let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
 
     dataArray
   } else {
-    data->InsightsUtils.getLineGraphData(~xKey, ~yKey, ~isAmount)
+    data->InsightsUtils.getLineGraphData(~xKey, ~yKey, ~isAmount, ~currency)
   }
 }
 
@@ -119,7 +119,7 @@ let exemptionGraphsMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGr
   let primaryCategories = data->getCategories(0, yKey)
   let groupByKey = params.groupByKey->Option.getOr("")
 
-  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~groupByKey)
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~groupByKey, ~currency)
   let tooltipFormatter = tooltipFormatter(
     ~title,
     ~metricType=Amount,
