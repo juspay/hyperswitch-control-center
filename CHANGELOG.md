@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.27.0
+
+### Bug Fixes
+
+- Update merchant detail perms to account permissions ([#3750](https://github.com/juspay/hyperswitch-control-center/pull/3750)) ([`1089e2b`](https://github.com/juspay/hyperswitch-control-center/commit/1089e2b86fceccfa90e2fac623b24354d0f8bcb6))
+
+**Full Changelog:** [`2025.10.23.0...2025.10.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.23.0...2025.10.27.0)
+
+- - -
+
 ## 2025.10.23.0
 
 ### Features
