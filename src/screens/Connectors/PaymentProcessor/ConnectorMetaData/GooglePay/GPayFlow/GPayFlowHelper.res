@@ -1,3 +1,5 @@
+open Typography
+
 module Landing = {
   @react.component
   let make = (
@@ -28,7 +30,7 @@ module Landing = {
             className="p-6 m-2 cursor-pointer"
             onClick={_ => setGooglePayIntegrationType(_ => #decryption)}>
             <Card heading="Decrypted Flow" isSelected={googlePayIntegrationType == #decryption}>
-              <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
                 {"Instantly enable Google Pay with no information or configuration needed."->React.string}
               </div>
               <div className="flex gap-2 mt-4">
@@ -43,7 +45,7 @@ module Landing = {
             onClick={_ => setGooglePayIntegrationType(_ => #payment_gateway)}>
             <Card
               heading="Payment Gateway" isSelected={googlePayIntegrationType === #payment_gateway}>
-              <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
                 {"Integrate Google Pay with your payment gateway."->React.string}
               </div>
               <div className="flex gap-2 mt-4">
@@ -61,7 +63,7 @@ module Landing = {
             className="p-6 m-2 cursor-pointer"
             onClick={_ => setGooglePayIntegrationType(_ => #decryption)}>
             <Card heading="Decrypted Flow" isSelected={googlePayIntegrationType == #decryption}>
-              <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
                 {"Instantly enable Google Pay with no information or configuration needed."->React.string}
               </div>
               <div className="flex gap-2 mt-4">
