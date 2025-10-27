@@ -2,6 +2,7 @@ open RefundsProcessedTypes
 open InsightsUtils
 open NewAnalyticsUtils
 open LogicUtils
+open CurrencyFormatUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -88,6 +89,7 @@ let refundsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => refundsProcessedObject = dict => {
+  Js.log2("dict in Refund processed utils", dict)
   {
     refund_processed_amount: dict->getAmountValue(
       ~id=Refund_Processed_Amount->getStringFromVariant,
@@ -106,7 +108,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsProcessedObject = dict => {
 
 let getObjects: JSON.t => array<refundsProcessedObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

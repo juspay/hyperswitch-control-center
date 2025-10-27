@@ -1,5 +1,6 @@
 open PaymentsProcessedTypes
 open LogicUtils
+open CurrencyFormatUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -87,6 +88,7 @@ let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   open NewAnalyticsUtils
+  Js.log2("dict in payments processed utils", dict)
   {
     payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
@@ -105,7 +107,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
 
 let getObjects: JSON.t => array<paymentsProcessedObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

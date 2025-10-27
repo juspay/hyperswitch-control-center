@@ -1,4 +1,5 @@
 open InsightsPaymentsOverviewSectionTypes
+open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -19,7 +20,7 @@ let defaultValue =
     total_dispute: 0,
   }
   ->Identity.genericTypeToJson
-  ->LogicUtils.getDictFromJsonObject
+  ->getDictFromJsonObject
 
 let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None) => {
   open InsightsTypes
@@ -33,7 +34,6 @@ let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None) => {
 }
 
 let parseResponse = (response, key) => {
-  open LogicUtils
   response
   ->getDictFromJsonObject
   ->getArrayFromDict(key, [])
@@ -43,7 +43,7 @@ let parseResponse = (response, key) => {
 
 open InsightsTypes
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  open LogicUtils
+  open CurrencyFormatUtils
   let key = switch id {
   | Total_Dispute => #total_dispute
   | Total_Refund_Processed_Amount =>
@@ -75,7 +75,6 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
 }
 
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currency) => {
-  open LogicUtils
   open NewAnalyticsUtils
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant
@@ -138,7 +137,6 @@ let getInfo = (~responseKey: overviewColumns) => {
 }
 
 let getValueFromObj = (data, index, responseKey) => {
-  open LogicUtils
   data
   ->getArrayFromJson([])
   ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
