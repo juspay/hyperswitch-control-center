@@ -46,6 +46,8 @@ let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProc
 
 let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 
+let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),

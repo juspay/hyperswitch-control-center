@@ -74,6 +74,7 @@ let businessProfileTypeMapper = values => {
     ),
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
   }
 }
 

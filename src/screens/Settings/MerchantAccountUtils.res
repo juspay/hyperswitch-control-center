@@ -624,6 +624,7 @@ let defaultValueForBusinessProfile = {
   always_request_extended_authorization: None,
   is_manual_retry_enabled: None,
   always_enable_overcapture: None,
+  billing_processor_id: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
