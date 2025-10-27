@@ -151,6 +151,18 @@ type transactionEntryType = {
   status: entryStatus,
 }
 
+type transactionPostedType =
+  | @as("auto") Reconciled
+  | @as("force_reconciled") ForceReconciled
+  | @as("manually_reconciled") ManuallyReconciled
+  | @as("N/A") UnknownTransactionPostedType
+
+type transactionDataType = {
+  status: transactionStatus,
+  posted_type: option<transactionPostedType>,
+  reason: option<string>,
+}
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -164,6 +176,7 @@ type transactionType = {
   version: int,
   created_at: string,
   effective_at: string,
+  data: transactionDataType,
 }
 
 type entryType = {
@@ -181,6 +194,7 @@ type entryType = {
   version: int,
   created_at: string,
   effective_at: string,
+  staging_entry_id: option<string>,
 }
 
 type processingEntryStatus =
@@ -192,6 +206,7 @@ type processingEntryStatus =
   | UnknownProcessingEntryStatus
 
 type processingEntryType = {
+  id: string,
   staging_entry_id: string,
   account: accountRefType,
   entry_type: string,

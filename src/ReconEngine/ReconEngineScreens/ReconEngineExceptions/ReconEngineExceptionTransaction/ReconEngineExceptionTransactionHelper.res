@@ -78,6 +78,7 @@ module ResolutionModal = {
     | (ResolvingException(EditEntry), Some(EditEntryModal)) => true
     | (ResolvingException(CreateNewEntry), Some(CreateEntryModal)) => true
     | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal)) => true
+    | (ResolvingException(LinkStagingEntriesToTransaction), Some(LinkStagingEntriesModal)) => true
     | _ => false
     }
 
@@ -90,7 +91,13 @@ module ResolutionModal = {
       )
     | SidePanelModal => (
         "flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
-        "relative h-full flex flex-col",
+        "relative h-full flex flex-col overflow-y-auto",
+        "",
+        "",
+      )
+    | ExpandedSidePanelModal => (
+        "flex flex-col justify-start h-screen w-1/2 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
+        "relative h-full flex flex-col overflow-y-auto",
         "",
         "",
       )
@@ -497,7 +504,12 @@ let metadataCustomInputField = (~disabled: bool=false) => {
   />
 }
 
-let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
+let getEntriesSections = (
+  ~groupedEntries,
+  ~accountInfoMap,
+  ~detailsFields,
+  ~showTotalAmount: bool=true,
+) => {
   let sectionData = calculateSectionData(
     ~groupedEntries,
     ~accountInfoMap,
@@ -521,9 +533,11 @@ let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
         <p className={`text-nd_gray-700 ${body.lg.semibold}`}>
           {accountInfo.account_info_name->React.string}
         </p>
-        <div className={`${amountColorClass} ${body.lg.medium}`}>
-          {`${currency} ${totalAmount->Float.toString}`->React.string}
-        </div>
+        <RenderIf condition={showTotalAmount}>
+          <div className={`${amountColorClass} ${body.lg.medium}`}>
+            {`${currency} ${totalAmount->Float.toString}`->React.string}
+          </div>
+        </RenderIf>
       </div>
 
     (
@@ -555,4 +569,73 @@ let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries)
       </div>
     </div>
   </RenderIf>
+}
+
+let getStagingEntryDetails = (~rowIndex: int, ~stagingEntries) => {
+  open ReconEngineTransactionsUtils
+  let stagingEntry =
+    stagingEntries->LogicUtils.getValueFromArray(
+      rowIndex,
+      Dict.make()->ReconEngineUtils.processingItemToObjMapper,
+    )
+  let filteredMetadata = stagingEntry.metadata->getFilteredMetadataFromEntries
+  let hasMetadata = filteredMetadata->Dict.keysToArray->Array.length > 0
+
+  <RenderIf condition={hasMetadata}>
+    <div className="p-4">
+      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+        <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
+      </div>
+    </div>
+  </RenderIf>
+}
+
+let getStagingEntrySections = (~stagingEntries, ~stagingEntriesDetailsFields) => {
+  [
+    {
+      titleElement: React.null,
+      rows: stagingEntries->Array.map(entry => {
+        stagingEntriesDetailsFields->Array.map(colType => {
+          ReconEngineExceptionEntity.getProcessingCell(entry, colType)
+        })
+      }),
+      rowData: stagingEntries->Array.map(entry => entry->Identity.genericTypeToJson),
+    },
+  ]
+}
+
+module ResolutionButton = {
+  @react.component
+  let make = (~config: ReconEngineExceptionTransactionTypes.buttonConfig) => {
+    <RenderIf condition={config.condition}>
+      <Button
+        buttonState=Normal
+        buttonSize=Medium
+        buttonType=Secondary
+        text={config.text}
+        textWeight={`${body.md.semibold}`}
+        leftIcon={CustomIcon(<Icon name={config.icon} className={config.iconClass} size=16 />)}
+        onClick={_ => config.onClick()}
+        customButtonStyle="!w-fit"
+      />
+    </RenderIf>
+  }
+}
+
+module BottomActionBar = {
+  @react.component
+  let make = (~config: ReconEngineExceptionTransactionTypes.bottomBarConfig) => {
+    <>
+      <p className={`${body.md.semibold} text-nd_gray-500`}> {config.prompt->React.string} </p>
+      <Button
+        buttonState={config.buttonEnabled ? Normal : Disabled}
+        buttonSize=Medium
+        buttonType=Primary
+        text={config.buttonText}
+        textWeight={`${body.md.semibold}`}
+        customButtonStyle="!w-fit"
+        onClick={_ => config.onClick()}
+      />
+    </>
+  }
 }

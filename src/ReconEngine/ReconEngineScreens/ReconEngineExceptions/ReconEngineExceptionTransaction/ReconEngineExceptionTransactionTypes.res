@@ -13,6 +13,7 @@ type activeModal =
   | EditEntryModal
   | CreateEntryModal
   | MarkAsReceivedModal
+  | LinkStagingEntriesModal
 
 type resolutionOptionTypes =
   | IgnoreTransaction
@@ -31,7 +32,7 @@ type metadataRow = {
   value: string,
 }
 
-type modalLayout = CenterModal | SidePanelModal
+type modalLayout = CenterModal | SidePanelModal | ExpandedSidePanelModal
 
 type resolutionConfig = {
   heading: string,
@@ -51,4 +52,19 @@ type tableSection = {
   titleElement: React.element,
   rows: array<array<Table.cell>>,
   rowData: array<RescriptCore.JSON.t>,
+}
+
+type buttonConfig = {
+  text: string,
+  icon: string,
+  iconClass: string,
+  condition: bool,
+  onClick: unit => unit,
+}
+
+type bottomBarConfig = {
+  prompt: string,
+  buttonText: string,
+  buttonEnabled: bool,
+  onClick: unit => unit,
 }

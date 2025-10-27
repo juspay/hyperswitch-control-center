@@ -167,7 +167,7 @@ let validateReasonField = (values: JSON.t) => {
 
 let exceptionTransactionEntryItemToItemMapper = dict => {
   {
-    entry_id: dict->getString("entry_id", ""),
+    entry_id: dict->getString("entry_id", "-"),
     entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
     transaction_id: dict->getString("transaction_id", ""),
     account_id: dict->getString("account_id", ""),
@@ -179,8 +179,29 @@ let exceptionTransactionEntryItemToItemMapper = dict => {
     version: dict->getInt("version", 0),
     metadata: dict->getJsonObjectFromDict("metadata"),
     data: dict->getJsonObjectFromDict("data"),
-    created_at: dict->getString("created_at", ""),
+    created_at: dict->getString("created_at", Date.make()->Date.toISOString),
     effective_at: dict->getString("effective_at", ""),
+    staging_entry_id: dict->getOptionString("staging_entry_id"),
+  }
+}
+
+let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
+  {
+    id: dict->getString("id", ""),
+    staging_entry_id: dict->getString("staging_entry_id", ""),
+    account: dict->getDictfromDict("account")->accountRefItemToObjMapper,
+    entry_type: dict->getString("entry_type", ""),
+    amount: dict->getFloat("amount", 0.0),
+    currency: dict->getString("currency", ""),
+    effective_at: dict->getString("effective_at", ""),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    processing_mode: dict->getString("processing_mode", ""),
+    status: dict
+    ->getString("status", "")
+    ->camelToSnake
+    ->getProcessingEntryStatusVariantFromString,
+    transformation_id: dict->getString("transformation_id", ""),
+    transformation_history_id: dict->getString("transformation_history_id", ""),
   }
 }
 
@@ -257,7 +278,7 @@ let validateEditEntryDetails = (values: JSON.t, ~initialEntryDetails: entryType)
   fieldErrors->JSON.Encode.object
 }
 
-let getInitialValuesForEditEntries = entryDetails => {
+let getInitialValuesForEditEntries = (entryDetails: entryType) => {
   let fields = [
     ("account", entryDetails.account_id->JSON.Encode.string),
     ("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string),
@@ -265,8 +286,36 @@ let getInitialValuesForEditEntries = entryDetails => {
     ("amount", entryDetails.amount->JSON.Encode.float),
     ("effective_at", entryDetails.effective_at->JSON.Encode.string),
     ("metadata", entryDetails.metadata->getFilteredMetadataFromEntries->JSON.Encode.object),
+    (
+      "staging_entry_id",
+      switch entryDetails.staging_entry_id {
+      | Some(id) => id->JSON.Encode.string
+      | None => JSON.Encode.null
+      },
+    ),
   ]
   fields->Dict.fromArray->JSON.Encode.object
+}
+
+let getConvertedEntriesFromStagingEntry = (
+  stagingEntry: processingEntryType,
+  entryDetails: entryType,
+) => {
+  [
+    ("account_id", stagingEntry.account.account_id->JSON.Encode.string),
+    ("account_name", stagingEntry.account.account_name->JSON.Encode.string),
+    ("entry_id", entryDetails.entry_id->JSON.Encode.string),
+    ("entry_type", stagingEntry.entry_type->JSON.Encode.string),
+    ("currency", stagingEntry.currency->JSON.Encode.string),
+    ("amount", stagingEntry.amount->JSON.Encode.float),
+    ("effective_at", stagingEntry.effective_at->JSON.Encode.string),
+    ("metadata", stagingEntry.metadata),
+    ("staging_entry_id", stagingEntry.id->JSON.Encode.string),
+    ("status", "pending"->JSON.Encode.string),
+    ("data", [("status", "pending"->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object),
+  ]
+  ->Dict.fromArray
+  ->JSON.Encode.object
 }
 
 let getInitialValuesForNewEntries = () => {
@@ -416,7 +465,13 @@ let constructManualReconciliationBody = (
       ("currency", entry.currency->JSON.Encode.string),
       ("effective_at", entry.effective_at->JSON.Encode.string),
       ("metadata", entry.metadata),
-      ("staging_entry_id", JSON.Encode.null),
+      (
+        "staging_entry_id",
+        switch entry.staging_entry_id {
+        | Some(id) => id->JSON.Encode.string
+        | None => JSON.Encode.null
+        },
+      ),
       ("data", entry.data),
     ]
     ->Dict.fromArray
@@ -455,6 +510,11 @@ let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage) => {
   | ResolvingException(CreateNewEntry) => {
       heading: "Create New Entry",
       layout: SidePanelModal,
+      closeOnOutsideClick: false,
+    }
+  | ResolvingException(LinkStagingEntriesToTransaction) => {
+      heading: "Match with an existing staging entry",
+      layout: ExpandedSidePanelModal,
       closeOnOutsideClick: false,
     }
   | _ => {
@@ -496,6 +556,7 @@ let getUpdatedEntry = (
     data: Dict.fromArray([("status", statusString->JSON.Encode.string)])->JSON.Encode.object,
     created_at: entryDetails.created_at,
     effective_at: formData->getString("effective_at", entryDetails.effective_at),
+    staging_entry_id: entryDetails.staging_entry_id,
   }
 }
 
@@ -521,6 +582,7 @@ let getNewEntry = (
     data: Dict.fromArray([("status", "pending"->JSON.Encode.string)])->JSON.Encode.object,
     created_at: Date.make()->Date.toISOString,
     effective_at: formData->getString("effective_at", ""),
+    staging_entry_id: None,
   }
 }
 
@@ -592,4 +654,103 @@ let calculateOverallBalance = sectionData => {
   })
 
   totalCreditAccounts -. totalDebitAccounts
+}
+
+let getFixEntriesButtons = (
+  ~isResolutionAvailable,
+  ~showMarkAsReceivedButton,
+  ~setExceptionStage,
+  ~setActiveModal,
+) => {
+  [
+    {
+      text: "Edit entry",
+      icon: "nd-pencil-edit-box",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(EditEntry),
+      onClick: () => setExceptionStage(_ => ResolvingException(EditEntry)),
+    },
+    {
+      text: "Mark as received",
+      icon: "nd-check-circle-outline",
+      iconClass: "text-nd_gray-600",
+      condition: showMarkAsReceivedButton,
+      onClick: () => setExceptionStage(_ => ResolvingException(MarkAsReceived)),
+    },
+    {
+      text: "Create new entry",
+      icon: "nd-plus",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(CreateNewEntry),
+      onClick: () => {
+        setExceptionStage(_ => ResolvingException(CreateNewEntry))
+        setActiveModal(_ => Some(CreateEntryModal))
+      },
+    },
+    {
+      text: "Replace Entry",
+      icon: "nd-swap-arrow-horizontal",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(LinkStagingEntriesToTransaction),
+      onClick: () => setExceptionStage(_ => ResolvingException(LinkStagingEntriesToTransaction)),
+    },
+  ]
+}
+
+let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~setActiveModal) => {
+  [
+    {
+      text: "Force Reconcile",
+      icon: "nd-check-circle-outline",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(ForceReconcile),
+      onClick: () => {
+        setExceptionStage(_ => ResolvingException(ForceReconcile))
+        setActiveModal(_ => Some(ForceReconcileModal))
+      },
+    },
+    {
+      text: "Ignore Transaction",
+      icon: "nd-delete-dustbin-02",
+      iconClass: "text-nd_gray-600",
+      condition: isResolutionAvailable(VoidTransaction),
+      onClick: () => {
+        setExceptionStage(_ => ResolvingException(VoidTransaction))
+        setActiveModal(_ => Some(IgnoreTransactionModal))
+      },
+    },
+  ]
+}
+
+let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
+  let isReplaceEntryEnabled = {
+    let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
+    let entryDetails =
+      selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
+    entryDetails.entry_id != "-"
+  }
+  switch exceptionStage {
+  | ResolvingException(EditEntry) =>
+    Some({
+      prompt: "Select entry to edit",
+      buttonText: "Edit entry",
+      buttonEnabled: selectedRows->Array.length > 0,
+      onClick: () => setActiveModal(_ => Some(EditEntryModal)),
+    })
+  | ResolvingException(MarkAsReceived) =>
+    Some({
+      prompt: "Select entry to resolve",
+      buttonText: "Continue",
+      buttonEnabled: selectedRows->Array.length > 0,
+      onClick: () => setActiveModal(_ => Some(MarkAsReceivedModal)),
+    })
+  | ResolvingException(LinkStagingEntriesToTransaction) =>
+    Some({
+      prompt: "Select entry to replace",
+      buttonText: "Continue",
+      buttonEnabled: isReplaceEntryEnabled,
+      onClick: () => setActiveModal(_ => Some(LinkStagingEntriesModal)),
+    })
+  | _ => None
+  }
 }

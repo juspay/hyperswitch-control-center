@@ -22,6 +22,8 @@ let make = (
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ => entriesList)
   let detailsFields = [EntryType, Amount, Currency, Status, EntryId, EffectiveAt, CreatedAt]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
+  let (offset, setOffset) = React.useState(_ => 0)
+  let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
@@ -44,7 +46,7 @@ let make = (
   }
 
   let tableSections = React.useMemo(() => {
-    getSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+    getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
   }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -91,6 +93,8 @@ let make = (
       updatedEntriesList
       setUpdatedEntriesList
       currentExceptionDetails
+      accountsData
+      oldEntriesList=entriesList
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""
@@ -98,14 +102,22 @@ let make = (
       getSectionRowDetails=sectionDetails
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
-        exceptionStage == ResolvingException(MarkAsReceived)}
+      exceptionStage == ResolvingException(MarkAsReceived) ||
+      exceptionStage == ResolvingException(LinkStagingEntriesToTransaction)}
       selectedRows
       onRowSelect=handleRowSelect
       sections=tableSections
+      offset
+      setOffset
+      resultsPerPage
+      setResultsPerPage
+      totalResults={updatedEntriesList->Array.length}
     />
     <RenderIf
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
-        exceptionStage == ConfirmResolution(CreateNewEntry)}>
+      exceptionStage == ConfirmResolution(CreateNewEntry) ||
+      exceptionStage == ConfirmResolution(MarkAsReceived) ||
+      exceptionStage == ConfirmResolution(LinkStagingEntriesToTransaction)}>
       <div
         className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">
