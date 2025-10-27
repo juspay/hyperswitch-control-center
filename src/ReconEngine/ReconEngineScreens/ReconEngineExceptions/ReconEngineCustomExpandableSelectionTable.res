@@ -67,7 +67,7 @@ module TableHeader = {
                               }
 
                               <SelectBox.BaseDropdown
-                                allowMultiSelect=true
+                                allowMultiSelect=false
                                 hideMultiSelectButtons=true
                                 buttonText=""
                                 input={filterInput}
@@ -168,7 +168,6 @@ let make = (
   ~totalResults: int,
   ~showSearchFilter=false,
   ~searchFilterElement: option<React.element>=?,
-  ~allowMultiSelect=false,
 ) => {
   let heading = if showOptions {
     [makeHeaderInfo(~key="options", ~title="")]->Array.concat(headingProp)

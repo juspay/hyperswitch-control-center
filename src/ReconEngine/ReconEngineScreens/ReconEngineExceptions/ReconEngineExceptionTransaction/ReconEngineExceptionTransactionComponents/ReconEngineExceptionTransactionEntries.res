@@ -30,9 +30,18 @@ let make = (
   let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
     setSelectedRows(prev => {
       let updated = updateFn(prev)
-      switch updated->Array.length {
-      | 0 => []
-      | _ => [updated->Array.get(updated->Array.length - 1)->Option.getOr(JSON.Encode.null)]
+      switch updated->Array.get(updated->Array.length - 1) {
+      | Some(entry) => {
+          let entryId = entry->getDictFromJsonObject->getString("entry_id", "")
+          let isAlreadySelected =
+            prev->Array.some(e => e->getDictFromJsonObject->getString("entry_id", "") == entryId)
+          isAlreadySelected
+            ? []
+            : updatedEntriesList
+              ->Array.filter(e => e.entry_id == entryId)
+              ->Array.map(Identity.genericTypeToJson)
+        }
+      | None => []
       }
     })
   }
@@ -94,7 +103,6 @@ let make = (
       setUpdatedEntriesList
       currentExceptionDetails
       accountsData
-      oldEntriesList=entriesList
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""

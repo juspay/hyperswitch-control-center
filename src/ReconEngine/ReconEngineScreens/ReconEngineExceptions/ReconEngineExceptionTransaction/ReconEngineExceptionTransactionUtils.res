@@ -339,12 +339,12 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
 
   if (initialEntry.entry_type :> string) != (updatedEntry.entry_type :> string) {
     let message = `Direction changed to ${(updatedEntry.entry_type :> string)->capitalizeString} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)->ignore
+    summary->Array.push(message)
   }
 
   if initialEntry.amount != updatedEntry.amount {
     let message = `Amount edited from ${updatedEntry.currency} ${initialEntry.amount->Float.toString} to ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)->ignore
+    summary->Array.push(message)
   }
 
   if initialEntry.effective_at != updatedEntry.effective_at {
@@ -352,7 +352,7 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
         updatedEntry.effective_at,
         "DD MMMM YYYY, hh:mm A",
       )} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)->ignore
+    summary->Array.push(message)
   }
 
   let initialMetadata = initialEntry.metadata->getFilteredMetadataFromEntries
@@ -362,7 +362,12 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
 
   if initialMetadataJson->JSON.stringify != updatedMetadataJson->JSON.stringify {
     let message = `Metadata updated in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)->ignore
+    summary->Array.push(message)
+  }
+
+  if updatedEntry.staging_entry_id->Option.isSome {
+    let stagingEntryChangeMessage = `Entry replaced with existing transformed entry in ${updatedEntry.account_name} account.`
+    summary->Array.push(stagingEntryChangeMessage)
   }
 
   summary
@@ -382,19 +387,12 @@ let generateAllResolutionSummaries = (
     | Some(original) => {
         let summaryItems = generateResolutionSummary(original, updatedEntry)
         summaryItems->Array.forEach(item => {
-          allSummaryItems->Array.push(item)->ignore
+          allSummaryItems->Array.push(item)
         })
       }
-    | None =>
-      switch updatedEntry.staging_entry_id {
-      | Some(_) => {
-          let message = `Entry replaced with existing transformed entry in ${updatedEntry.account_name} account.`
-          allSummaryItems->Array.push(message)->ignore
-        }
-      | None => {
-          let message = `New ${(updatedEntry.entry_type :> string)} entry created with ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
-          allSummaryItems->Array.push(message)->ignore
-        }
+    | None => {
+        let message = `New ${(updatedEntry.entry_type :> string)} entry created with ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
+        allSummaryItems->Array.push(message)
       }
     }
   })
@@ -730,12 +728,11 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
 }
 
 let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
-  let isReplaceEntryEnabled = {
-    let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
-    let entryDetails =
-      selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
+  let isReplaceEntryEnabled = selectedRows->Array.every(entry => {
+    let entryDetails = entry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
     entryDetails.entry_id != "-"
-  }
+  })
+
   switch exceptionStage {
   | ResolvingException(EditEntry) =>
     Some({

@@ -347,7 +347,6 @@ module LinkStagingEntryModalContent = {
             )}
             getSectionRowDetails=stagingEntriesSections
             showOptions=true
-            allowMultiSelect=true
             selectedRows
             onRowSelect={handleRowSelect}
             sections=stagingEntriesTableSections
@@ -397,7 +396,6 @@ let make = (
   ~setUpdatedEntriesList,
   ~currentExceptionDetails: ReconEngineTypes.transactionType,
   ~accountsData: array<ReconEngineTypes.accountType>,
-  ~oldEntriesList: array<ReconEngineTypes.entryType>,
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
@@ -597,13 +595,7 @@ let make = (
       updatedEntriesList->Array.filter(entry =>
         !(formData->Array.some(newEntry => newEntry.entry_id == entry.entry_id))
       )
-    let updatedFormData = formData->Array.map(entry => {
-      {
-        ...entry,
-        entry_id: "-",
-      }
-    })
-    setUpdatedEntriesList(_ => newEntriesList->Array.concat(updatedFormData))
+    setUpdatedEntriesList(_ => newEntriesList->Array.concat(formData))
     setExceptionStage(_ => ConfirmResolution(LinkStagingEntriesToTransaction))
     setActiveModal(_ => None)
     setSelectedRows(_ => [])
@@ -660,7 +652,6 @@ let make = (
     setActiveModal(_ => None)
     setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
     setSelectedRows(_ => [])
-    setUpdatedEntriesList(_ => oldEntriesList)
   }
 
   <PageLoaderWrapper
