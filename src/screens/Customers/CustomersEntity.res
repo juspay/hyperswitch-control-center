@@ -64,14 +64,7 @@ let itemToObjMapper = dict => {
     addressParts->Array.joinWith(", ")
   }
 
-  let address = switch dict->Dict.get("address") {
-  | Some(addressJson) =>
-    switch addressJson->JSON.Decode.object {
-    | Some(addressObj) => addressObj->formatAddress
-    | None => addressJson->JSON.Decode.string->Option.getOr("")
-    }
-  | None => ""
-  }
+  let address = dict->getJsonObjectFromDict("address")->getDictFromJsonObject->formatAddress
 
   {
     customer_id: dict->getString("customer_id", ""),
