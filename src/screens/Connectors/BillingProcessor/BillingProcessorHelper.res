@@ -1,9 +1,12 @@
+open ConnectorTypes
+open LogicUtils
+
 module CustomConnectorCellWithDefaultIcon = {
   @react.component
   let make = (
-    ~connector: ConnectorTypes.connectorPayloadCommonType,
+    ~connector: connectorPayloadCommonType,
     ~connectorName,
-    ~connectorType: option<ConnectorTypes.connector>=?,
+    ~connectorType: option<connector>=?,
     ~customIconStyle="w-6 h-6 mr-2",
   ) => {
     open Typography
@@ -11,14 +14,14 @@ module CustomConnectorCellWithDefaultIcon = {
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let connector_Type = switch connectorType {
     | Some(connectorType) => connectorType
-    | None => ConnectorTypes.Processor
+    | None => Processor
     }
     let billing_processor_id = switch businessProfileRecoilVal.billing_processor_id {
     | Some(id) => id
     | None => ""
     }
 
-    if connectorName->LogicUtils.isNonEmptyString {
+    if connectorName->isNonEmptyString {
       <div className="flex items-center">
         <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-3`}>
           <GatewayIcon
@@ -32,7 +35,7 @@ module CustomConnectorCellWithDefaultIcon = {
         </div>
         <RenderIf condition={connector.id == billing_processor_id}>
           <div
-            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-[2px] rounded-lg ${body.sm.semibold}`}>
+            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
             {"Default"->React.string}
           </div>
         </RenderIf>
@@ -84,8 +87,8 @@ module ConnectButton = {
         errorsList
         ->Array.map(entry => {
           let (key, jsonValue) = entry
-          let value = LogicUtils.getStringFromJson(jsonValue, "Error")
-          `${key->LogicUtils.snakeToTitle}: ${value}`
+          let value = getStringFromJson(jsonValue, "Error")
+          `${key->snakeToTitle}: ${value}`
         })
         ->Array.joinWith("\n")
 

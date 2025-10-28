@@ -136,7 +136,7 @@ let make = () => {
               searchVal=searchText
               setSearchVal=setSearchText
             />}
-            resultsPerPage=2
+            resultsPerPage=20
             offset
             setOffset
             entity={ConnectorInterfaceTableEntity.connectorEntity(

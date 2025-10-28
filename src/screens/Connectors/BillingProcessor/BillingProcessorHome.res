@@ -11,7 +11,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
-  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -30,7 +30,7 @@ let make = () => {
 
   let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
-    initialValues->LogicUtils.getDictFromJsonObject,
+    initialValues->getDictFromJsonObject,
   )
 
   let getConnectorDetails = async () => {
@@ -69,7 +69,7 @@ let make = () => {
 
   let connectorDetails = React.useMemo(() => {
     try {
-      if connectorName->LogicUtils.isNonEmptyString {
+      if connectorName->isNonEmptyString {
         let dict = BillingProcessorsUtils.getConnectorConfig(connectorName)
         dict
       } else {
@@ -95,7 +95,7 @@ let make = () => {
   } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
       initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
@@ -108,7 +108,7 @@ let make = () => {
   }, [connectorName, profileId])
 
   React.useEffect(() => {
-    if connectorName->LogicUtils.isNonEmptyString {
+    if connectorName->isNonEmptyString {
       getDetails()->ignore
     } else {
       setScreenState(_ => Error("Connector name not found"))
@@ -194,7 +194,7 @@ let make = () => {
   | Preview =>
     connectorInfo.merchant_connector_id == billing_processor_id
       ? <div
-          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-[2px] rounded-lg ${body.md.medium}`}>
+          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
           {"Default"->React.string}
         </div>
       : React.null
@@ -215,14 +215,14 @@ let make = () => {
             ? {
                 title: "Billing Processor",
                 link: "/billing-processor",
-                warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
+                warning: `You have not yet completed configuring your ${connectorName->snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
                 title: "Billing Processor",
                 link: "/billing-processor",
               },
         ]
-        currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(
+        currentPageTitle={connectorName->getDisplayNameForConnector(
           ~connectorType=BillingProcessor,
         )}
         cursorStyle="cursor-pointer"
@@ -273,10 +273,7 @@ let make = () => {
                       {"Connect Billing Processor ?"->React.string}
                     </p>
                     <Icon
-                      className=""
-                      name="hswitch-close"
-                      size=22
-                      onClick={_ => setShowConfirmModal(_ => false)}
+                      name="hswitch-close" size=22 onClick={_ => setShowConfirmModal(_ => false)}
                     />
                   </div>
                   <p className={`text-hyperswitch_black opacity-50 font-medium ${body.md.medium}`}>
@@ -305,7 +302,7 @@ let make = () => {
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={ConnectorInterface.mapDictToTypedConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
-                initialValues->LogicUtils.getDictFromJsonObject,
+                initialValues->getDictFromJsonObject,
               )}
               connector=connectorName
               setCurrentStep

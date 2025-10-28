@@ -81,7 +81,6 @@ let make = () => {
             showAutoScroll=true
           />
         </RenderIf>
-        // <RenderIf condition={configuredConnectors->Array.length == 0}>
         <ProcessorCards
           configuredConnectors={ConnectorListInterface.mapConnectorPayloadToConnectorType(
             ConnectorListInterface.connectorInterfaceV1,
@@ -92,7 +91,6 @@ let make = () => {
           urlPrefix="billing-processor/new"
           connectorType=ConnectorTypes.BillingProcessor
         />
-        // </RenderIf>
       </div>
     </PageLoaderWrapper>
   </div>
