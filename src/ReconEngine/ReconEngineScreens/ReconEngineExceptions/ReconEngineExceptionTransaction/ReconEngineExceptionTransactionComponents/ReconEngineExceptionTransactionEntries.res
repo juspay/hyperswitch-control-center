@@ -19,7 +19,9 @@ let make = (
   ))
   let showToast = ToastState.useShowToast()
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
-  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ => entriesList)
+  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
+    entriesList->addUniqueIdsToEntries
+  )
   let detailsFields = [EntryType, Amount, Currency, Status, EntryId, EffectiveAt, CreatedAt]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
   let (offset, setOffset) = React.useState(_ => 0)
@@ -30,18 +32,9 @@ let make = (
   let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
     setSelectedRows(prev => {
       let updated = updateFn(prev)
-      switch updated->Array.get(updated->Array.length - 1) {
-      | Some(entry) => {
-          let entryId = entry->getDictFromJsonObject->getString("entry_id", "")
-          let isAlreadySelected =
-            prev->Array.some(e => e->getDictFromJsonObject->getString("entry_id", "") == entryId)
-          isAlreadySelected
-            ? []
-            : updatedEntriesList
-              ->Array.filter(e => e.entry_id == entryId)
-              ->Array.map(Identity.genericTypeToJson)
-        }
-      | None => []
+      switch updated->Array.length {
+      | 0 => []
+      | _ => [updated->Array.get(updated->Array.length - 1)->Option.getOr(JSON.Encode.null)]
       }
     })
   }
@@ -51,11 +44,29 @@ let make = (
   }, (updatedEntriesList, accountsData))
 
   let sectionDetails = (sectionIndex: int, rowIndex: int) => {
-    getSectionRowDetails(~sectionIndex, ~rowIndex, ~groupedEntries)
+    getSectionRowDetails(
+      ~sectionIndex,
+      ~rowIndex,
+      ~groupedEntries=groupedEntries->convertGroupedEntriesToEntryType,
+    )
   }
 
   let tableSections = React.useMemo(() => {
-    getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+    let backendGroupedEntries = groupedEntries->convertGroupedEntriesToEntryType
+    let sections = getEntriesSections(
+      ~groupedEntries=backendGroupedEntries,
+      ~accountInfoMap,
+      ~detailsFields,
+    )
+    let accountIds = groupedEntries->Dict.keysToArray
+    sections->Array.mapWithIndex((section, index) => {
+      let accountId = accountIds->Array.get(index)->Option.getOr("")
+      let entriesWithUniqueId = groupedEntries->Dict.get(accountId)->Option.getOr([])
+      {
+        ...section,
+        rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
+      }
+    })
   }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -84,8 +95,11 @@ let make = (
   }
 
   let summaryItems = React.useMemo(() => {
-    generateAllResolutionSummaries(entriesList, updatedEntriesList)
-  }, [entriesList, updatedEntriesList])
+    generateAllResolutionSummaries(
+      entriesList,
+      updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType),
+    )
+  }, (entriesList, updatedEntriesList))
 
   let onCloseClickCustomFun = () => {
     setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
@@ -103,6 +117,7 @@ let make = (
       setUpdatedEntriesList
       currentExceptionDetails
       accountsData
+      oldEntriesList={entriesList->addUniqueIdsToEntries}
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""
@@ -135,7 +150,7 @@ let make = (
             customButtonStyle="!w-full"
             onClick={_ => {
               setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
-              setUpdatedEntriesList(_ => entriesList)
+              setUpdatedEntriesList(_ => entriesList->addUniqueIdsToEntries)
               setSelectedRows(_ => [])
             }}
           />

@@ -3,7 +3,6 @@ open ReconEngineTypes
 open LogicUtils
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
-open ReconEngineExceptionTransactionTypes
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getTransactionStatusOptions([Expected, Mismatched, PartiallyReconciled])
@@ -102,7 +101,7 @@ let getBalanceByAccountType = (entries: array<entryType>, accountType: string): 
 
 let getHeadingAndSubHeadingForMismatch = (
   mismatchData: Js.Json.t,
-  ~accountInfoMap: Dict.t<accountInfo>,
+  ~accountInfoMap: Dict.t<ReconEngineExceptionTransactionTypes.accountInfo>,
 ): (string, string) => {
   let mismatchType =
     mismatchData
@@ -165,8 +164,11 @@ let validateReasonField = (values: JSON.t) => {
   errors->JSON.Encode.object
 }
 
-let exceptionTransactionEntryItemToItemMapper = dict => {
+let exceptionTransactionEntryItemToItemMapper = (
+  dict
+): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
   {
+    ui_unique_id: dict->getString("ui_unique_id", randomString(~length=16)),
     entry_id: dict->getString("entry_id", "-"),
     entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
     transaction_id: dict->getString("transaction_id", ""),
@@ -224,7 +226,10 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   isEntryTypeChanged || isAmountChanged || isEffectiveAtChanged || isMetadataChanged
 }
 
-let validateFields = (data: Dict.t<JSON.t>, rules: array<validationRule>): JSON.t => {
+let validateFields = (
+  data: Dict.t<JSON.t>,
+  rules: array<ReconEngineExceptionTransactionTypes.validationRule>,
+): JSON.t => {
   rules
   ->Array.filterMap(((fieldName, validator)) => {
     switch validator(data) {
@@ -297,14 +302,12 @@ let getInitialValuesForEditEntries = (entryDetails: entryType) => {
   fields->Dict.fromArray->JSON.Encode.object
 }
 
-let getConvertedEntriesFromStagingEntry = (
-  stagingEntry: processingEntryType,
-  entryDetails: entryType,
-) => {
+let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) => {
+  let uniqueId = randomString(~length=16)
   [
     ("account_id", stagingEntry.account.account_id->JSON.Encode.string),
     ("account_name", stagingEntry.account.account_name->JSON.Encode.string),
-    ("entry_id", entryDetails.entry_id->JSON.Encode.string),
+    ("entry_id", "-"->JSON.Encode.string),
     ("entry_type", stagingEntry.entry_type->JSON.Encode.string),
     ("currency", stagingEntry.currency->JSON.Encode.string),
     ("amount", stagingEntry.amount->JSON.Encode.float),
@@ -313,6 +316,7 @@ let getConvertedEntriesFromStagingEntry = (
     ("staging_entry_id", stagingEntry.id->JSON.Encode.string),
     ("status", "pending"->JSON.Encode.string),
     ("data", [("status", "pending"->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object),
+    ("ui_unique_id", uniqueId->JSON.Encode.string),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
@@ -325,7 +329,9 @@ let getInitialValuesForNewEntries = () => {
   fields->Dict.fromArray->JSON.Encode.object
 }
 
-let getInnerVariant = (stage: exceptionResolutionStage): resolvingException =>
+let getInnerVariant = (
+  stage: ReconEngineExceptionTransactionTypes.exceptionResolutionStage,
+): ReconEngineExceptionTransactionTypes.resolvingException =>
   switch stage {
   | ResolvingException(resolvingEx) => resolvingEx
   | ConfirmResolution(resolvingEx) => resolvingEx
@@ -363,11 +369,6 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
   if initialMetadataJson->JSON.stringify != updatedMetadataJson->JSON.stringify {
     let message = `Metadata updated in ${updatedEntry.account_name} account.`
     summary->Array.push(message)
-  }
-
-  if updatedEntry.staging_entry_id->Option.isSome {
-    let stagingEntryChangeMessage = `Entry replaced with existing transformed entry in ${updatedEntry.account_name} account.`
-    summary->Array.push(stagingEntryChangeMessage)
   }
 
   summary
@@ -455,29 +456,76 @@ let parseResolutionActions = (json: JSON.t): array<
   ->Array.filter(action => action !== NoResolutionActionNeeded)
 }
 
+let getExceptionEntryTypeFromEntryType = (
+  entry: entryType,
+): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
+  {
+    entry_id: entry.entry_id,
+    entry_type: entry.entry_type,
+    account_id: entry.account_id,
+    account_name: entry.account_name,
+    transaction_id: entry.transaction_id,
+    amount: entry.amount,
+    currency: entry.currency,
+    status: entry.status,
+    discarded_status: entry.discarded_status,
+    metadata: entry.metadata,
+    data: entry.data,
+    version: entry.version,
+    created_at: entry.created_at,
+    effective_at: entry.effective_at,
+    staging_entry_id: entry.staging_entry_id,
+    ui_unique_id: randomString(~length=16),
+  }
+}
+
+let getEntryTypeFromExceptionEntryType = (
+  entry: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
+): entryType => {
+  {
+    entry_id: entry.entry_id,
+    entry_type: entry.entry_type,
+    account_id: entry.account_id,
+    account_name: entry.account_name,
+    transaction_id: entry.transaction_id,
+    amount: entry.amount,
+    currency: entry.currency,
+    status: entry.status,
+    discarded_status: entry.discarded_status,
+    metadata: entry.metadata,
+    data: entry.data,
+    version: entry.version,
+    created_at: entry.created_at,
+    effective_at: entry.effective_at,
+    staging_entry_id: entry.staging_entry_id,
+  }
+}
+
 let constructManualReconciliationBody = (
-  ~updatedEntriesList: array<entryType>,
+  ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
   ~values,
 ): JSON.t => {
   let valuesDict = values->getDictFromJsonObject
   let reason = valuesDict->getString("reason", "")
 
   let entriesJson = updatedEntriesList->Array.map(entry => {
+    let backendEntry = entry->getEntryTypeFromExceptionEntryType
+
     [
-      ("account_id", entry.account_id->JSON.Encode.string),
-      ("entry_type", (entry.entry_type :> string)->JSON.Encode.string),
-      ("amount", entry.amount->JSON.Encode.float),
-      ("currency", entry.currency->JSON.Encode.string),
-      ("effective_at", entry.effective_at->JSON.Encode.string),
-      ("metadata", entry.metadata),
+      ("account_id", backendEntry.account_id->JSON.Encode.string),
+      ("entry_type", (backendEntry.entry_type :> string)->JSON.Encode.string),
+      ("amount", backendEntry.amount->JSON.Encode.float),
+      ("currency", backendEntry.currency->JSON.Encode.string),
+      ("effective_at", backendEntry.effective_at->JSON.Encode.string),
+      ("metadata", backendEntry.metadata),
       (
         "staging_entry_id",
-        switch entry.staging_entry_id {
+        switch backendEntry.staging_entry_id {
         | Some(id) => id->JSON.Encode.string
         | None => JSON.Encode.null
         },
       ),
-      ("data", entry.data),
+      ("data", backendEntry.data),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
@@ -488,7 +536,9 @@ let constructManualReconciliationBody = (
   ->JSON.Encode.object
 }
 
-let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage) => {
+let getResolutionModalConfig = (
+  exceptionStage: ReconEngineExceptionTransactionTypes.exceptionResolutionStage,
+): ReconEngineExceptionTransactionTypes.resolutionConfig => {
   switch exceptionStage {
   | ResolvingException(VoidTransaction) => {
       heading: "Ignore Transaction",
@@ -531,11 +581,11 @@ let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage) => {
 }
 
 let getUpdatedEntry = (
-  ~entryDetails: entryType,
+  ~entryDetails: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
   ~formData,
   ~accountData: accountRefType,
   ~markAsReceived=false,
-): entryType => {
+): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
   let isExpected = entryDetails.status == Expected
 
   let statusString = if markAsReceived {
@@ -562,14 +612,17 @@ let getUpdatedEntry = (
     created_at: entryDetails.created_at,
     effective_at: formData->getString("effective_at", entryDetails.effective_at),
     staging_entry_id: entryDetails.staging_entry_id,
+    ui_unique_id: entryDetails.ui_unique_id,
   }
 }
 
 let getNewEntry = (
   ~formData,
   ~accountData: accountRefType,
-  ~updatedEntriesList: array<entryType>,
-): entryType => {
+  ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
+  let uniqueId = randomString(~length=16)
+
   {
     entry_id: "-",
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
@@ -588,14 +641,36 @@ let getNewEntry = (
     created_at: Date.make()->Date.toISOString,
     effective_at: formData->getString("effective_at", ""),
     staging_entry_id: None,
+    ui_unique_id: uniqueId,
   }
+}
+
+let addUniqueIdsToEntries = (entries: array<entryType>): array<
+  ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
+> => {
+  entries->Array.map(getExceptionEntryTypeFromEntryType)
+}
+
+let convertGroupedEntriesToEntryType = (
+  groupedEntries: Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
+): Dict.t<array<entryType>> => {
+  let result = Dict.make()
+  groupedEntries
+  ->Dict.toArray
+  ->Array.forEach(((key, entries)) => {
+    result->Dict.set(key, entries->Array.map(getEntryTypeFromExceptionEntryType))
+  })
+  result
 }
 
 let getGroupedEntriesAndAccountMaps = (
   ~accountsData: array<accountType>,
-  ~updatedEntriesList: array<entryType>,
-): (Dict.t<array<entryType>>, Dict.t<accountInfo>) => {
-  let accountInfoDict: Dict.t<accountInfo> = Dict.make()
+  ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+): (
+  Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
+  Dict.t<ReconEngineExceptionTransactionTypes.accountInfo>,
+) => {
+  let accountInfoDict: Dict.t<ReconEngineExceptionTransactionTypes.accountInfo> = Dict.make()
   accountsData->Array.forEach(account => {
     accountInfoDict->Dict.set(
       account.account_id,
@@ -666,7 +741,8 @@ let getFixEntriesButtons = (
   ~showMarkAsReceivedButton,
   ~setExceptionStage,
   ~setActiveModal,
-) => {
+): array<ReconEngineExceptionTransactionTypes.buttonConfig> => {
+  open ReconEngineExceptionTransactionTypes
   [
     {
       text: "Edit entry",
@@ -702,7 +778,10 @@ let getFixEntriesButtons = (
   ]
 }
 
-let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~setActiveModal) => {
+let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~setActiveModal): array<
+  ReconEngineExceptionTransactionTypes.buttonConfig,
+> => {
+  open ReconEngineExceptionTransactionTypes
   [
     {
       text: "Force Reconcile",
@@ -728,11 +807,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
 }
 
 let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
-  let isReplaceEntryEnabled = selectedRows->Array.every(entry => {
-    let entryDetails = entry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
-    entryDetails.entry_id != "-"
-  })
-
+  open ReconEngineExceptionTransactionTypes
   switch exceptionStage {
   | ResolvingException(EditEntry) =>
     Some({
@@ -752,7 +827,7 @@ let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
     Some({
       prompt: "Select entry to replace",
       buttonText: "Continue",
-      buttonEnabled: isReplaceEntryEnabled,
+      buttonEnabled: selectedRows->Array.length > 0,
       onClick: () => setActiveModal(_ => Some(LinkStagingEntriesModal)),
     })
   | _ => None

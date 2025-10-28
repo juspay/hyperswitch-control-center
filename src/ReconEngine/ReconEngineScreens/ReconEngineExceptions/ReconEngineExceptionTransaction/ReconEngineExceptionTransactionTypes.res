@@ -1,3 +1,5 @@
+open ReconEngineTypes
+
 type resolvingException =
   | ForceReconcile
   | VoidTransaction
@@ -67,4 +69,10 @@ type bottomBarConfig = {
   buttonText: string,
   buttonEnabled: bool,
   onClick: unit => unit,
+}
+
+// Extended entry type for exception resolution with UI-specific fields
+type exceptionResolutionEntryType = {
+  ...entryType,
+  ui_unique_id: string,
 }
