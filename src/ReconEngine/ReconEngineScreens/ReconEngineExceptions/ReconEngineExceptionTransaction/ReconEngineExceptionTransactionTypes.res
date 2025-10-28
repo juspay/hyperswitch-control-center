@@ -74,5 +74,5 @@ type bottomBarConfig = {
 // Extended entry type for exception resolution with UI-specific fields
 type exceptionResolutionEntryType = {
   ...entryType,
-  ui_unique_id: string,
+  entry_key: string,
 }

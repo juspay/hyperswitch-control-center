@@ -67,13 +67,10 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ]
 }
 
-let getSumOfAmountWithCurrency = (entries: array<entryType>): (float, string) => {
-  let totalAmount = entries->Array.reduce(0.0, (acc, entry) => acc +. entry.amount)
-  let entry = entries->getValueFromArray(0, Dict.make()->entryItemToObjMapper)
-  (totalAmount, entry.currency)
-}
-
-let getBalanceByAccountType = (entries: array<entryType>, accountType: string): (float, string) => {
+let getBalanceByAccountType = (
+  entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+  accountType: string,
+): (float, string) => {
   let (totalCredits, totalDebits) = entries->Array.reduce((0.0, 0.0), (
     (credits, debits),
     entry,
@@ -168,7 +165,7 @@ let exceptionTransactionEntryItemToItemMapper = (
   dict
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
   {
-    ui_unique_id: dict->getString("ui_unique_id", randomString(~length=16)),
+    entry_key: dict->getString("entry_key", randomString(~length=16)),
     entry_id: dict->getString("entry_id", "-"),
     entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
     transaction_id: dict->getString("transaction_id", ""),
@@ -185,6 +182,14 @@ let exceptionTransactionEntryItemToItemMapper = (
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
   }
+}
+
+let getSumOfAmountWithCurrency = (
+  entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+): (float, string) => {
+  let totalAmount = entries->Array.reduce(0.0, (acc, entry) => acc +. entry.amount)
+  let entry = entries->getValueFromArray(0, Dict.make()->exceptionTransactionEntryItemToItemMapper)
+  (totalAmount, entry.currency)
 }
 
 let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
@@ -316,7 +321,7 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("staging_entry_id", stagingEntry.id->JSON.Encode.string),
     ("status", "pending"->JSON.Encode.string),
     ("data", [("status", "pending"->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object),
-    ("ui_unique_id", uniqueId->JSON.Encode.string),
+    ("entry_key", uniqueId->JSON.Encode.string),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
@@ -475,7 +480,7 @@ let getExceptionEntryTypeFromEntryType = (
     created_at: entry.created_at,
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
-    ui_unique_id: randomString(~length=16),
+    entry_key: randomString(~length=16),
   }
 }
 
@@ -612,7 +617,7 @@ let getUpdatedEntry = (
     created_at: entryDetails.created_at,
     effective_at: formData->getString("effective_at", entryDetails.effective_at),
     staging_entry_id: entryDetails.staging_entry_id,
-    ui_unique_id: entryDetails.ui_unique_id,
+    entry_key: entryDetails.entry_key,
   }
 }
 
@@ -641,7 +646,7 @@ let getNewEntry = (
     created_at: Date.make()->Date.toISOString,
     effective_at: formData->getString("effective_at", ""),
     staging_entry_id: None,
-    ui_unique_id: uniqueId,
+    entry_key: uniqueId,
   }
 }
 
@@ -691,7 +696,7 @@ let getGroupedEntriesAndAccountMaps = (
 }
 
 let calculateSectionData = (
-  ~groupedEntries,
+  ~groupedEntries: Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
   ~accountInfoMap,
   ~getBalanceByAccountType,
   ~getSumOfAmountWithCurrency,

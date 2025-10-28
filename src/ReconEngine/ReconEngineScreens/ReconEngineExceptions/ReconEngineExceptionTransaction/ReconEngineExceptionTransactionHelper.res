@@ -378,7 +378,7 @@ let reasonMultiLineTextInputField = (~label) => {
 }
 
 let accountSelectInputField = (
-  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
+  ~entriesList: array<ReconEngineTypes.entryType>,
   ~isNewlyCreatedEntry: bool,
   ~disabled: bool=false,
 ) => {
@@ -389,7 +389,7 @@ let accountSelectInputField = (
       ~name="account",
       ~placeholder="Select account",
       ~customInput=InputFields.selectInput(
-        ~options=getUniqueAccountOptionsFromEntries(updatedEntriesList),
+        ~options=getUniqueAccountOptionsFromEntries(entriesList),
         ~fullLength=true,
         ~buttonText="Select account",
         ~disableSelect=!isNewlyCreatedEntry || disabled,
@@ -429,7 +429,7 @@ let entryTypeSelectInputField = (~disabled: bool=false) => {
 }
 
 let currencySelectInputField = (
-  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
+  ~entriesList: array<ReconEngineTypes.entryType>,
   ~isNewlyCreatedEntry: bool,
   ~entryDetails: ReconEngineTypes.entryType,
   ~disabled: bool=false,
@@ -443,7 +443,7 @@ let currencySelectInputField = (
       ~customInput=InputFields.selectInput(
         ~options={
           isNewlyCreatedEntry
-            ? getUniqueCurrencyOptionsFromEntries(updatedEntriesList)
+            ? getUniqueCurrencyOptionsFromEntries(entriesList)
             : [
                 {
                   label: entryDetails.currency,
@@ -505,7 +505,7 @@ let metadataCustomInputField = (~disabled: bool=false) => {
 }
 
 let getEntriesSections = (
-  ~groupedEntries,
+  ~groupedEntries: Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
   ~accountInfoMap,
   ~detailsFields,
   ~showTotalAmount: bool=true,
@@ -524,7 +524,9 @@ let getEntriesSections = (
   sectionData->Array.map(((_accountId, accountInfo, accountEntries, totalAmount, currency)) => {
     let accountRows =
       accountEntries->Array.map(entry =>
-        detailsFields->Array.map(colType => EntriesTableEntity.getCell(entry, colType))
+        detailsFields->Array.map(
+          colType => EntriesTableEntity.getCell(entry->getEntryTypeFromExceptionEntryType, colType),
+        )
       )
     let rowData = accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
 

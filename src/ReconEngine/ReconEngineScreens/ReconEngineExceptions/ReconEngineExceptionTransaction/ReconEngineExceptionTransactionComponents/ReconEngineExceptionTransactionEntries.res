@@ -52,12 +52,7 @@ let make = (
   }
 
   let tableSections = React.useMemo(() => {
-    let backendGroupedEntries = groupedEntries->convertGroupedEntriesToEntryType
-    let sections = getEntriesSections(
-      ~groupedEntries=backendGroupedEntries,
-      ~accountInfoMap,
-      ~detailsFields,
-    )
+    let sections = getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
     let accountIds = groupedEntries->Dict.keysToArray
     sections->Array.mapWithIndex((section, index) => {
       let accountId = accountIds->Array.get(index)->Option.getOr("")
