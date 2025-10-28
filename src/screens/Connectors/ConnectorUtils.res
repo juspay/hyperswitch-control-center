@@ -29,6 +29,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(NUVEI),
   PayoutProcessor(GIGADAT),
   PayoutProcessor(LOONIO),
+  PayoutProcessor(WORLDPAY),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -865,6 +866,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | NUVEI => "nuvei"
   | GIGADAT => "gigadat"
   | LOONIO => "loonio"
+  | WORLDPAY => "worldpay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1041,6 +1043,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "nuvei" => PayoutProcessor(NUVEI)
     | "gigadat" => PayoutProcessor(GIGADAT)
     | "loonio" => PayoutProcessor(LOONIO)
+    | "worldpay" => PayoutProcessor(WORLDPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1198,6 +1201,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | NUVEI => nuveiInfo
   | GIGADAT => gigadatInfo
   | LOONIO => loonioInfo
+  | WORLDPAY => worldpayInfo
   }
 }
 
@@ -2106,7 +2110,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
-  | PEACHPAYMENTS => "PeachPayments"
+  | PEACHPAYMENTS => "Peach Payments"
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
   | TESOURO => "Tesouro"
@@ -2126,6 +2130,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | NUVEI => "Nuvei"
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
+  | WORLDPAY => "Worldpay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

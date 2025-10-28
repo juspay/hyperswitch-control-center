@@ -7,17 +7,20 @@ let getTransactionStatusVariantFromString = (status: string): transactionStatus 
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
+  | "void" => Void
+  | "partially_reconciled" => PartiallyReconciled
   | _ => UnknownTransactionStatus
   }
 }
 
 let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
-  switch entryType {
+  switch entryType->String.toLowerCase {
   | "posted" => Posted
   | "mismatched" => Mismatched
   | "expected" => Expected
   | "archived" => Archived
   | "pending" => Pending
+  | "void" => Void
   | _ => UnknownEntryStatus
   }
 }
@@ -28,7 +31,18 @@ let getProcessingEntryStatusVariantFromString = (status: string): processingEntr
   | "processed" => Processed
   | "archived" => Archived
   | "needs_manual_review" => NeedsManualReview
+  | "void" => Void
   | _ => UnknownProcessingEntryStatus
+  }
+}
+
+let getMismatchTypeVariantFromString = (mismatchType: string): mismatchType => {
+  switch mismatchType->String.toLowerCase {
+  | "amount_mismatch" => AmountMismatch
+  | "balance_direction_mismatch" => BalanceDirectionMismatch
+  | "currency_mismatch" => CurrencyMismatch
+  | "metadata_mismatch" => MetadataMismatch
+  | _ => UnknownMismatchType
   }
 }
 
@@ -182,7 +196,7 @@ let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
 
 let transformationConfigItemToObjMapper = (dict): transformationConfigType => {
   {
-    id: dict->getString("id", ""),
+    transformation_id: dict->getString("transformation_id", ""),
     profile_id: dict->getString("profile_id", ""),
     ingestion_id: dict->getString("ingestion_id", ""),
     account_id: dict->getString("account_id", ""),
@@ -247,12 +261,15 @@ let entryItemToObjMapper = dict => {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
     transaction_id: dict->getString("transaction_id", ""),
-    account_name: dict->getDictfromDict("account")->getString("account_name", ""),
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getDictfromDict("account")->getString("account_name", "N/A"),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
-    currency: dict->getDictfromDict("amount")->getString("currency", ""),
+    currency: dict->getDictfromDict("amount")->getString("currency", "N/A"),
     status: dict->getString("status", "")->getEntryStatusVariantFromString,
     discarded_status: dict->getOptionString("discarded_status"),
+    version: dict->getInt("version", 0),
     metadata: dict->getJsonObjectFromDict("metadata"),
+    data: dict->getJsonObjectFromDict("data"),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
   }
