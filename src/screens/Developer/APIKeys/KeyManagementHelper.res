@@ -233,6 +233,7 @@ module TableActionsCell = {
     let showPopUp = PopUpState.useShowPopUp()
     let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+    // TODO: Remove `MerchantDetailsManage` permission in future
     let showButtons = hasAnyGroupAccess(
       userHasAccess(~groupAccess=MerchantDetailsManage),
       userHasAccess(~groupAccess=AccountManage),
