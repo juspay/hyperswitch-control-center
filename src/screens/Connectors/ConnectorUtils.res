@@ -2108,7 +2108,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
-  | PEACHPAYMENTS => "PeachPayments"
+  | PEACHPAYMENTS => "Peach Payments"
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
   | TESOURO => "Tesouro"

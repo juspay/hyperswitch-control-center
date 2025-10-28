@@ -273,9 +273,11 @@ let createColumnGraphCountPayload = (
 
 let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getTransactionStatusOptions([
-    Mismatched,
     Expected,
+    Mismatched,
+    PartiallyReconciled,
     Posted,
+    Void,
   ])
   [
     (
