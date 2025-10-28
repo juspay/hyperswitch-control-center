@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.28.1
+
+### Bug Fixes
+
+- Customer Page address field fix ([#3759](https://github.com/juspay/hyperswitch-control-center/pull/3759)) ([`7961aec`](https://github.com/juspay/hyperswitch-control-center/commit/7961aecfa8f891361f4d7a300ba58012b4a9bf77))
+
+### Miscellaneous Tasks
+
+- Refactored payment settings to implement v1 to common type changes ([#3649](https://github.com/juspay/hyperswitch-control-center/pull/3649)) ([`de6f74b`](https://github.com/juspay/hyperswitch-control-center/commit/de6f74b2ce7768ed0790f87c3b5a1cc04574ba8c))
+
+**Full Changelog:** [`2025.10.28.0...2025.10.28.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.28.0...2025.10.28.1)
+
+- - -
+
+## 2025.10.28.0
+
+### Features
+
+- Add recon engine exception management resolutions ([#3756](https://github.com/juspay/hyperswitch-control-center/pull/3756)) ([`4b9b9ee`](https://github.com/juspay/hyperswitch-control-center/commit/4b9b9eeae13777bba3ba993f83ca8e2c5a1332e5))
+
+**Full Changelog:** [`2025.10.27.0...2025.10.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.27.0...2025.10.28.0)
+
+- - -
+
 ## 2025.10.27.0
 
 ### Bug Fixes
