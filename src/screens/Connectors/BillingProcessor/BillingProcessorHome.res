@@ -4,6 +4,8 @@ let make = () => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
+  open Typography
+
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
@@ -15,16 +17,21 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
+  let (showConfirmModal, setShowConfirmModal) = React.useState(_ => false)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"billing-processor", "new"} => false
   | _ => true
   }
+
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->LogicUtils.getDictFromJsonObject,
+  )
 
   let getConnectorDetails = async () => {
     try {
@@ -118,6 +125,10 @@ let make = () => {
     | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
     }
   }
+  let billing_processor_id = switch businessProfileRecoilVal.billing_processor_id {
+  | Some(id) => id
+  | None => ""
+  }
 
   let onSubmit = async (values, _) => {
     try {
@@ -180,7 +191,13 @@ let make = () => {
   }
 
   let summaryPageButton = switch currentStep {
-  | Preview => React.null
+  | Preview =>
+    connectorInfo.merchant_connector_id == billing_processor_id
+      ? <div
+          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-[2px] rounded-lg ${body.md.medium}`}>
+          {"Default"->React.string}
+        </div>
+      : React.null
   | _ =>
     <Button
       text="Done"
@@ -218,10 +235,9 @@ let make = () => {
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
               connectorType={BillingProcessor}
-              headerButton={<AddDataAttributes
-                attributes=[("data-testid", "connector-submit-button")]>
-                <FormRenderer.SubmitButton loadingText="Processing..." text="Connect and Proceed" />
-              </AddDataAttributes>}>
+              headerButton={<BillingProcessorHelper.ConnectButton
+                setShowModal={setShowConfirmModal}
+              />}>
               <div className="flex flex-col gap-2 p-2 md:px-10">
                 <ConnectorAccountDetailsHelper.BusinessProfileRender
                   isUpdateFlow selectedConnector={connectorName}
@@ -245,6 +261,40 @@ let make = () => {
                 </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
+            <Modal
+              showModal={showConfirmModal}
+              setShowModal={setShowConfirmModal}
+              modalClass="w-full md:w-4/12 mx-auto my-40 rounded-xl"
+              childClass="">
+              <div className="relative flex items-start px-4 pb-10 pt-6 gap-4">
+                <div className="flex flex-col gap-5">
+                  <div className="flex justify-between">
+                    <p className={`${heading.sm.semibold}`}>
+                      {"Connect Billing Processor ?"->React.string}
+                    </p>
+                    <Icon
+                      className=""
+                      name="hswitch-close"
+                      size=22
+                      onClick={_ => setShowConfirmModal(_ => false)}
+                    />
+                  </div>
+                  <p className={`text-hyperswitch_black opacity-50 font-medium ${body.md.medium}`}>
+                    {"Are you sure you want to connect this billing processor ? This will set this as the default processor."->React.string}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-end justify-end gap-4 px-4 pb-4">
+                <Button
+                  buttonType=Button.Secondary
+                  onClick={_ => setShowConfirmModal(_ => false)}
+                  text="Cancel"
+                />
+                <FormRenderer.SubmitButton
+                  text="Proceed" buttonType=Button.Primary loadingText="Processing..."
+                />
+              </div>
+            </Modal>
           </Form>
 
         | Summary | Preview =>

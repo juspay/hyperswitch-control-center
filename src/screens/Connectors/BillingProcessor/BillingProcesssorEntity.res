@@ -31,7 +31,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   switch colType {
   | Name =>
     CustomCell(
-      <BillingProcessorHelper.CustomCellWithDefaultIcon
+      <BillingProcessorHelper.CustomConnectorCellWithDefaultIcon
         connectorName=connector.connector_name connectorType={BillingProcessor} connector
       />,
       "",
