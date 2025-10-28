@@ -697,6 +697,8 @@ let make = (
     setUpdatedEntriesList(_ => oldEntriesList)
   }
 
+  let isNewlyCreatedEntry = entryDetails.entry_id == "-"
+
   <PageLoaderWrapper
     screenState
     customUI={<NewAnalyticsHelper.NoData
@@ -803,15 +805,19 @@ let make = (
         | ResolvingException(EditEntry) =>
           <EditEntryModalContent
             entryDetails
-            isNewlyCreatedEntry={entryDetails.entry_id == "-"}
-            updatedEntriesList={updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
+            isNewlyCreatedEntry
+            updatedEntriesList={isNewlyCreatedEntry
+              ? oldEntriesList->Array.map(getEntryTypeFromExceptionEntryType)
+              : updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
             onSubmit=onEditEntrySubmit
           />
         | ResolvingException(MarkAsReceived) =>
           <MarkAsReceivedModalContent
             entryDetails
-            isNewlyCreatedEntry={entryDetails.entry_id == "-"}
-            updatedEntriesList={updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
+            isNewlyCreatedEntry
+            updatedEntriesList={isNewlyCreatedEntry
+              ? oldEntriesList->Array.map(getEntryTypeFromExceptionEntryType)
+              : updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
             onSubmit=onMarkAsReceivedSubmit
           />
         | ResolvingException(CreateNewEntry) =>
