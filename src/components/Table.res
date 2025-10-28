@@ -406,8 +406,8 @@ module TableHeadingCell = {
     }
 
     let headerTextClass = "text-nd_gray-400 leading-18 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    let fontWeight = "font-medium"
-    let fontSize = "text-fs-13 "
+    let fontWeight = "font-semibold"
+    let fontSize = "text-fs-14 "
     let lastColProp = isLastCol && fixLastCol ? "sticky right-0 !px-0 !py-0 z-20" : ""
     let borderlastCol =
       isLastCol && fixLastCol ? "border-l px-4 py-3 h-full justify-center !flex-col" : ""
