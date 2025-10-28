@@ -231,7 +231,7 @@ module WebHookSection = {
         let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
-        setBusinessProfile(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
+        setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
         fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
         showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
         setAllowEdit(_ => false)
@@ -571,10 +571,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
-      Js.log2("resfrompost", res)
-      let res2 = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-      Js.log2("resfromget", res2)
-      setBusinessProfile(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
+      fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
+      setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

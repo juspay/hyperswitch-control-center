@@ -17,7 +17,7 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
       let url = getURL(~entityName, ~methodType=Get, ~id=profileId)
       let res = await fetchDetails(url, ~version)
       //Todo: remove id atom once we start using businessProfileInterface
-      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
+      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
       let commonTypedData = switch version {
       | V1 => mapJsonToCommonType(businessProfileInterfaceV1, res)
 

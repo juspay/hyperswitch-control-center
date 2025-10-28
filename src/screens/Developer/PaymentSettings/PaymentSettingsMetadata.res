@@ -216,7 +216,7 @@ let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~prof
       let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
-      setBusinessProfile(_ => res->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV1)
+      setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       setAllowEdit(_ => false)

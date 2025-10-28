@@ -3,7 +3,9 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (profileRecord: profileEntity) => {
+let parseBussinessProfileJson = (
+  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+) => {
   open LogicUtils
   let {
     profile_name,
@@ -583,7 +585,7 @@ let validateMerchantAccountForm = (
   errors->JSON.Encode.object
 }
 
-let defaultValueForBusinessProfile = {
+let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntity_v1 = {
   profile_id: "",
   merchant_id: "",
   profile_name: "",
@@ -628,11 +630,8 @@ let getValueFromBusinessProfile = businessProfileValue => {
   businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
-let businessProfileNameDropDownOption = (
-  arrBusinessProfile: array<commonProfileEntity>,
-  ~profileId,
-) =>
-  arrBusinessProfile->Array.map(ele => {
+let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
+  arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypesV1.profileEntity_v1) => {
     let obj: SelectBox.dropdownOption = {
       label: {`${ele.profile_name} (${profileId})`},
       value: profileId,

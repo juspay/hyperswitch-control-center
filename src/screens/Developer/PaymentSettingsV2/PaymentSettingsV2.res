@@ -27,7 +27,6 @@ module InfoViewForWebhooks = {
 }
 @react.component
 let make = () => {
-  open HSwitchSettingTypes
   open Typography
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(

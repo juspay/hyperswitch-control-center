@@ -222,10 +222,8 @@ let initialFilters = (
   open FormRenderer
   open LogicUtils
 
-  open HSwitchSettingTypes
-  let businessProfileNameDropDownOption = (
-    arrBusinessProfile: array<HSwitchSettingTypes.commonProfileEntity>,
-  ) =>
+  open BusinessProfileInterfaceTypesV1
+  let businessProfileNameDropDownOption = arrBusinessProfile =>
     arrBusinessProfile->Array.map(ele => {
       let obj: FilterSelectBox.dropdownOption = {
         label: {`${ele.profile_name} (${profileId})`},

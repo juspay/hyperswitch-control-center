@@ -67,12 +67,12 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
   Table.Label({
     title: (entryStatus :> string)->String.toUpperCase,
     color: switch entryStatus {
-    | Posted => Table.LabelGreen
-    | Mismatched => Table.LabelRed
-    | Expected => Table.LabelBlue
-    | Archived => Table.LabelGray
-    | Pending => Table.LabelOrange
-    | _ => Table.LabelLightGray
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | Pending => LabelOrange
+    | _ => LabelLightGray
     },
   })
 }
@@ -80,7 +80,7 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
 let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => EllipsisText(entry.entry_id, "w-fit")
-  | EntryType => Text((entry.entry_type :> string))
+  | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
   | AccountName => Text(entry.account_name)
   | TransactionId => Text(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
