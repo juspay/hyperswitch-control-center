@@ -198,12 +198,12 @@ type entryType = {
 }
 
 type processingEntryStatus =
-  | Pending
-  | Processed
-  | NeedsManualReview
-  | Archived
-  | Void
-  | UnknownProcessingEntryStatus
+  | @as("pending") Pending
+  | @as("processed") Processed
+  | @as("needs_manual_review") NeedsManualReview
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("unknown") UnknownProcessingEntryStatus
 
 type processingEntryType = {
   id: string,
