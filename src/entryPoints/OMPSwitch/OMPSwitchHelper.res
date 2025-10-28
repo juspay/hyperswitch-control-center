@@ -471,7 +471,7 @@ module MerchantDropdownItem = {
       }
     }
 
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
       <div className={`rounded-lg`}>
         <InlineEditInput
@@ -480,7 +480,12 @@ module MerchantDropdownItem = {
           customStyle={`w-full cursor-pointer mb-0 ${backgroundColor.sidebarSecondary} ${hoverColor} `}
           handleEdit=handleIdUnderEdit
           isUnderEdit
-          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          // TODO: Remove `MerchantDetailsManage` permission in future
+          showEditIcon={isActive &&
+          hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsManage),
+            userHasAccess(~groupAccess=AccountManage),
+          ) === Access}
           showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive
@@ -596,7 +601,7 @@ module ProfileDropdownItem = {
     }
 
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <>
       <div
@@ -610,7 +615,11 @@ module ProfileDropdownItem = {
           handleEdit=handleIdUnderEdit
           isUnderEdit
           showEditIcon={isActive &&
-          userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+          // TODO: Remove `MerchantDetailsManage` permission in future
+          hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsManage),
+            userHasAccess(~groupAccess=AccountManage),
+          ) === Access &&
           version == V1}
           showEditIconOnHover={!isMobileView}
           onSubmit

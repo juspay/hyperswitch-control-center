@@ -22,7 +22,8 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     let googlePayDict = connectorWalletDict->getDictfromDict("google_pay")
     if (
       (connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(NUVEI) ||
-        connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(WORLDPAYVANTIV)) &&
+      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(WORLDPAYVANTIV) ||
+      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO)) &&
         googlePayDict->Dict.keysToArray->Array.length <= 0
     ) {
       "DECRYPTION"
