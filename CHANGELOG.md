@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.28.0
+
+### Features
+
+- Add recon engine exception management resolutions ([#3756](https://github.com/juspay/hyperswitch-control-center/pull/3756)) ([`4b9b9ee`](https://github.com/juspay/hyperswitch-control-center/commit/4b9b9eeae13777bba3ba993f83ca8e2c5a1332e5))
+
+**Full Changelog:** [`2025.10.27.0...2025.10.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.27.0...2025.10.28.0)
+
+- - -
+
 ## 2025.10.27.0
 
 ### Bug Fixes
