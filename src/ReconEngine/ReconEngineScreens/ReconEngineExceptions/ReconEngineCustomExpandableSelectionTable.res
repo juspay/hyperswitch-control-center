@@ -293,11 +293,7 @@ let make = (
         sectionIndex,
       ) => {
         let isLastSection = sectionIndex === sections->Array.length - 1
-        let sectionMarginClass = if isLastSection {
-          ""
-        } else {
-          "mb-6"
-        }
+        let sectionMarginClass = isLastSection ? "" : "mb-6"
 
         <div key={`section-${sectionIndex->Int.toString}`} className={sectionMarginClass}>
           {section.titleElement}
