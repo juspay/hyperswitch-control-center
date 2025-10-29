@@ -9,7 +9,22 @@ module HoverInline = {
     ~leftActionButtons,
     ~labelTextCustomStyle,
     ~customWidth,
+    ~showTooltipOnHover=false,
   ) => {
+    let valueComponent = showTooltipOnHover
+      ? {
+          <ToolTip
+            description={value}
+            toolTipFor={<div className={`text-sm ${labelTextCustomStyle}`}>
+              {React.string(value)}
+            </div>}
+            toolTipPosition=Bottom
+            enableTooltipDelay=true
+            tooltipDelay=800
+            customStyle="!whitespace-nowrap"
+          />
+        }
+      : {<div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>}
     <div
       className={`group/inlineHover relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
@@ -17,7 +32,7 @@ module HoverInline = {
       </RenderIf>
       <div className="flex flex-col w-full gap-1">
         <div className="flex justify-between items-center w-full">
-          <div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>
+          {valueComponent}
           <div
             className={`${showEditIconOnHover ? "invisible group-hover/inlineHover:visible" : ""}`}
             onClick={ReactEvent.Mouse.stopPropagation}>
@@ -52,6 +67,7 @@ let make = (
   ~labelTextCustomStyle="",
   ~customWidth="",
   ~handleClick=?,
+  ~showTooltipOnHover=false,
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
   let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
@@ -198,6 +214,7 @@ let make = (
           leftActionButtons
           labelTextCustomStyle
           customWidth
+          showTooltipOnHover
         />
       </RenderIf>
     }}
