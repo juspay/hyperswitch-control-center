@@ -156,10 +156,10 @@ let overallSRMapper = (
   open LineGraphTypes
   open InsightsUtils
   let {data, xKey, yKey} = params
-
+  let currency = params.currency->Option.getOr("")
   let primaryCategories = [data]->Identity.genericTypeToJson->getCategories(0, yKey)
 
-  let lineGraphData = [data]->Identity.genericTypeToJson->getLineGraphData(~xKey, ~yKey)
+  let lineGraphData = [data]->Identity.genericTypeToJson->getLineGraphData(~xKey, ~yKey, ~currency)
 
   open LogicUtilsTypes
 
