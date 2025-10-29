@@ -64,7 +64,7 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~currency) => {
     let key = id->getStringFromVariant
     let value = switch id {
     | Total_Refund_Processed_Amount =>
-      data->getAmountValue(~id=id->getKey(~currency))->JSON.Encode.float
+      data->getAmountValue(~id=id->getKey(~currency), ~currency)->JSON.Encode.float
     | _ =>
       data
       ->getFloat(id->getStringFromVariant, 0.0)

@@ -26,10 +26,11 @@ let refundsSuccessRateMapper = (
   | Some(val) => Some(val)
   | None => None
   }
+  let currency = params.currency->Option.getOr("")
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData = data->getLineGraphData(~xKey, ~yKey)
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~currency)
 
   {
     chartHeight: DefaultHeight,
