@@ -67,10 +67,11 @@ let itemToObjMapper = dict => {
   open LogicUtils
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
-  let address = dict
-  ->getJsonObjectFromDict("address")
-  ->getDictFromJsonObject
-  ->concatValueOfGivenKeysOfDict(addressKeys)
+  let address =
+    dict
+    ->getJsonObjectFromDict("address")
+    ->getDictFromJsonObject
+    ->concatValueOfGivenKeysOfDict(addressKeys)
 
   {
     customer_id: dict->getString("customer_id", ""),
