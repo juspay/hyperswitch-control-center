@@ -494,7 +494,7 @@ module MerchantDropdownItem = {
           validateInput
           customInputStyle={`!py-0 ${secondaryTextColor}`}
           customIconComponent={<ToolTip
-            description={"Copy Merchant ID"}
+            description="Copy Merchant ID"
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
@@ -624,7 +624,7 @@ module ProfileDropdownItem = {
           version == V1}
           showEditIconOnHover={!isMobileView}
           onSubmit
-          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          labelTextCustomStyle={` truncate max-w-28  ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
           customIconComponent={<ToolTip
