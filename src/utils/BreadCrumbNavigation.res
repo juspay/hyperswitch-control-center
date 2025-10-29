@@ -30,14 +30,12 @@ let make = (
   let prefix = LogicUtils.useUrlPrefix()
   let showPopUp = PopUpState.useShowPopUp()
   let pathLength = path->Array.length
-  
   let divider = {
     switch dividerVal {
     | Slash => <span className="text-nd_gray-400 ml-2 mr-2"> {"/"->React.string} </span>
     | _ => arrowDivider
     }
   }
-  
   let parentGapClass = "gap-2"
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"
 
