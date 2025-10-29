@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.29.2
+
+### Bug Fixes
+
+- Sync initial log selection with UI highlighting in Audit Logs ([#3726](https://github.com/juspay/hyperswitch-control-center/pull/3726)) ([`d0c9bf6`](https://github.com/juspay/hyperswitch-control-center/commit/d0c9bf616a905a095b6e03fc7da195baf7fca572))
+- Permissions fix for profile level users ([#3772](https://github.com/juspay/hyperswitch-control-center/pull/3772)) ([`557d344`](https://github.com/juspay/hyperswitch-control-center/commit/557d3449406f318baff1f3926cfba1201fa0121f))
+
+**Full Changelog:** [`2025.10.29.1...2025.10.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.29.1...2025.10.29.2)
+
+- - -
+
 ## 2025.10.29.1
 
 ### Bug Fixes
