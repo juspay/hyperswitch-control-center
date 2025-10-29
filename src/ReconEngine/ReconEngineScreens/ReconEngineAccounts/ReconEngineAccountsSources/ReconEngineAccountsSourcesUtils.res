@@ -205,3 +205,48 @@ let getTimelineConfig = (
     }
   }
 }
+
+let parseCsvContent = csvText => {
+  let lines =
+    csvText
+    ->String.split("\n")
+    ->Array.filter(line => line->String.trim->isNonEmptyString)
+
+  let firstLine = lines->getValueFromArray(0, "")
+  let headerKeys = if firstLine->isNonEmptyString {
+    firstLine->String.split(",")
+  } else {
+    []
+  }
+
+  let dataRows =
+    lines
+    ->Array.sliceToEnd(~start=1)
+    ->Array.map(line => {
+      let values = line->String.split(",")
+      let dict = Dict.make()
+      headerKeys->Array.forEachWithIndex((key, index) => {
+        let value = values->getValueFromArray(index, "")
+        dict->Dict.set(key, value->JSON.Encode.string)
+      })
+      dict->JSON.Encode.object
+    })
+
+  (headerKeys, dataRows)
+}
+
+let getCsvEntity = (~headerKeys) =>
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=json => [json],
+    ~defaultColumns=headerKeys,
+    ~getHeading=key => {
+      Table.makeHeaderInfo(~key, ~title=key->LogicUtils.snakeToTitle, ~dataType=TextType)
+    },
+    ~getCell=(data, key) => {
+      let dict = data->LogicUtils.getDictFromJsonObject
+      let value = dict->LogicUtils.getString(key, "")
+      Table.Text(value)
+    },
+    ~dataKey="",
+  )

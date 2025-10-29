@@ -1070,6 +1070,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #DOWNLOAD_INGESTION_HISTORY_FILE =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(ingestionHistoryId) =>
+              `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
+            | None => ``
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
