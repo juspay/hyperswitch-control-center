@@ -203,13 +203,20 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
   )->asTooltipPointFormatter
 }
 
-let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
+let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false, ~currency) => {
   data
   ->getArrayFromJson([])
   ->Array.mapWithIndex((item, index) => {
     let name = getLabelName(~key=yKey, ~index, ~points=item)
     let color = index->getColor
-    getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
+    getLineGraphObj(
+      ~array=item->getArrayFromJson([]),
+      ~key=xKey,
+      ~name,
+      ~color,
+      ~isAmount,
+      ~currency,
+    )
   })
 }
 
