@@ -32,7 +32,7 @@ let make = (
   let pathLength = path->Array.length
   let divider = {
     switch dividerVal {
-    | Slash => <span className="text-nd_gray-400 ml-2 mr-2"> {"/"->React.string} </span>
+    | Slash => <span className="text-nd_gray-400 mx-2"> {"/"->React.string} </span>
     | _ => arrowDivider
     }
   }
