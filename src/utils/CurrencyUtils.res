@@ -776,17 +776,21 @@ let getCountryListFromCurrency = currencyCode => {
   }
 }
 
-let getCurrencyConversionFactor = currency => {
+type currencyType =
+  | ZeroDecimal
+  | TwoDecimal
+  | ThreeDecimal
+  | FourDecimal
+
+let getCurrencyTypeFromString = currency => {
   let currencyCode = getCurrencyCodeFromString(currency)
-  let conversionFactor = switch (currencyCode: currencyCode) {
-  // Zero-decimal currencies
+  switch (currencyCode: currencyCode) {
   | JPY
   | KRW
   | BIF
   | CLP
   | DJF
   | GNF
-  | IQD
   | IRR
   | KMF
   | MGA
@@ -797,56 +801,40 @@ let getCurrencyConversionFactor = currency => {
   | VUV
   | XAF
   | XOF
-  | XPF => 1
-  // Three-decimal currencies
+  | XPF =>
+    ZeroDecimal
   | BHD
   | JOD
   | KWD
   | OMR
   | LYD
-  | TND => 1000
-  // Four-decimal currencies
-  | CLF => 10000
-  // Two-decimal currencies (default)
-  | _ => 100
+  | IQD
+  | TND =>
+    ThreeDecimal
+  | CLF => FourDecimal
+  | _ => TwoDecimal
   }
-  conversionFactor->Int.toFloat
 }
 
 let getAmountPrecisionDigits = currency => {
-  let currencyCode = getCurrencyCodeFromString(currency)
-  switch (currencyCode: currencyCode) {
-  // Zero-decimal currencies
-  | JPY
-  | KRW
-  | BIF
-  | CLP
-  | DJF
-  | GNF
-  | IQD
-  | IRR
-  | KMF
-  | MGA
-  | PYG
-  | RWF
-  | UGX
-  | VND
-  | VUV
-  | XAF
-  | XOF
-  | XPF => 0
-  // Three-decimal currencies
-  | BHD
-  | JOD
-  | KWD
-  | OMR
-  | LYD
-  | TND => 3
-  // Four-decimal currencies
-  | CLF => 4
-  // Two-decimal currencies (default)
-  | _ => 2
+  let currencyType = getCurrencyTypeFromString(currency)
+  switch currencyType {
+  | ZeroDecimal => 0
+  | TwoDecimal => 2
+  | ThreeDecimal => 3
+  | FourDecimal => 4
   }
+}
+
+let getCurrencyConversionFactor = currency => {
+  let currencyType = getCurrencyTypeFromString(currency)
+  let conversionFactor = switch (currencyType: currencyType) {
+  | ZeroDecimal => 1
+  | ThreeDecimal => 1000
+  | FourDecimal => 10000
+  | _ => 100
+  }
+  conversionFactor->Int.toFloat
 }
 
 let convertCurrencyFromLowestDenomination = (~amount: float, ~currency: string) => {
