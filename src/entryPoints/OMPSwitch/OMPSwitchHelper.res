@@ -368,11 +368,13 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}, checkUserEntity} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
-
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let productTypeIconMapper = productType => {
       switch productType {
       | Orchestration(V1) => "orchestrator-home"
@@ -470,8 +472,6 @@ module MerchantDropdownItem = {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
       }
     }
-
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
       <div className={`rounded-lg`}>
         <InlineEditInput
@@ -482,6 +482,7 @@ module MerchantDropdownItem = {
           isUnderEdit
           // TODO: Remove `MerchantDetailsManage` permission in future
           showEditIcon={isActive &&
+          !checkUserEntity([#Profile]) &&
           hasAnyGroupAccess(
             userHasAccess(~groupAccess=MerchantDetailsManage),
             userHasAccess(~groupAccess=AccountManage),
