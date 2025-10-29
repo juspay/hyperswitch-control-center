@@ -1070,6 +1070,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #LINKABLE_STAGING_ENTRIES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+            | None => ``
+            }
+          | _ => ""
+          }
         | #DOWNLOAD_INGESTION_HISTORY_FILE =>
           switch methodType {
           | Get =>
