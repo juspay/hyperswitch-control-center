@@ -64,7 +64,6 @@ module TooltipMainWrapper = {
       if enableTooltipDelay {
         switch timeoutRef.current {
         | Some(timerId) => clearTimeout(timerId)
-
         | None => ()
         }
       }
