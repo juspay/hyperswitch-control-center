@@ -368,11 +368,13 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}, checkUserEntity} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
-
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let productTypeIconMapper = productType => {
       switch productType {
       | Orchestration(V1) => "orchestrator-home"
@@ -470,8 +472,6 @@ module MerchantDropdownItem = {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
       }
     }
-
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
       <div className={`rounded-lg`}>
         <InlineEditInput
@@ -482,6 +482,7 @@ module MerchantDropdownItem = {
           isUnderEdit
           // TODO: Remove `MerchantDetailsManage` permission in future
           showEditIcon={isActive &&
+          !checkUserEntity([#Profile]) &&
           hasAnyGroupAccess(
             userHasAccess(~groupAccess=MerchantDetailsManage),
             userHasAccess(~groupAccess=AccountManage),
@@ -536,7 +537,7 @@ module ProfileDropdownItem = {
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
-
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getProfileList = async () => {
       try {
         let response = switch version {
@@ -590,7 +591,9 @@ module ProfileDropdownItem = {
           ~id=Some(profileId),
         )
         let res = await updateDetails(accountUrl, body, Post)
-        setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+        setBusinessProfileRecoil(_ =>
+          res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+        )
         let _ = await getProfileList()
         showToast(~message="Updated Profile name!", ~toastType=ToastSuccess)
       } catch {
@@ -599,7 +602,6 @@ module ProfileDropdownItem = {
     }
 
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <>
       <div

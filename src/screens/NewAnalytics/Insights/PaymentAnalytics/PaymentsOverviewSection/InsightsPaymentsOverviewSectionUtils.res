@@ -83,11 +83,11 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currenc
     | Total_Smart_Retried_Amount
     | Total_Payment_Processed_Amount =>
       data
-      ->getAmountValue(~id=id->getKey(~isSmartRetryEnabled=metricType, ~currency))
+      ->getAmountValue(~id=id->getKey(~isSmartRetryEnabled=metricType, ~currency), ~currency)
       ->JSON.Encode.float
     | Total_Refund_Processed_Amount =>
       data
-      ->getAmountValue(~id={id->getKey(~currency)})
+      ->getAmountValue(~id={id->getKey(~currency)}, ~currency)
       ->JSON.Encode.float
     | Total_Dispute =>
       data
