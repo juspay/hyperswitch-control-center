@@ -145,6 +145,7 @@ module.exports = {
         600: "600px",
         700: "700px",
         800: "800px",
+        400: "400px",
       },
       lineHeight: {
         14: "14px",
@@ -400,6 +401,7 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          0: "#FFFFFF",
           25: "#FCFCFD",
           50: "#F5F7FA",
           100: "#FBFBFB",
