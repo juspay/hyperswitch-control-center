@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.29.0
+
+### Miscellaneous Tasks
+
+- **connector:** [tesouro] enable googlepay hyperswitch decrypted flow ([#3752](https://github.com/juspay/hyperswitch-control-center/pull/3752)) ([`0d096e8`](https://github.com/juspay/hyperswitch-control-center/commit/0d096e87bc235938277f85b647e3a93258bb72d2))
+- Update wasm ([#3762](https://github.com/juspay/hyperswitch-control-center/pull/3762)) ([`da7e5e0`](https://github.com/juspay/hyperswitch-control-center/commit/da7e5e007beb7aa8ff5a085db0603605f7d13fe8))
+
+**Full Changelog:** [`2025.10.28.1...2025.10.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.28.1...2025.10.29.0)
+
+- - -
+
 ## 2025.10.28.1
 
 ### Bug Fixes
