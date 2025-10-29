@@ -3,7 +3,6 @@ module CopyTextCustomComp = {
   let make = (
     ~displayValue=None,
     ~copyValue=None,
-    ~showEmptyAsNA=false,
     ~customTextCss="",
     ~customParentClass="flex items-center gap-2",
     ~customOnCopyClick=() => (),
