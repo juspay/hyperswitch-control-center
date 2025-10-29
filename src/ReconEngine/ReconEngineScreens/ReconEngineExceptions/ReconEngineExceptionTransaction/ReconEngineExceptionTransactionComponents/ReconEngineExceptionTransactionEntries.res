@@ -34,7 +34,7 @@ let make = (
       let updated = updateFn(prev)
       switch updated->Array.length {
       | 0 => []
-      | _ => [updated->Array.get(updated->Array.length - 1)->Option.getOr(JSON.Encode.null)]
+      | _ => [updated->getValueFromArray(updated->Array.length - 1, JSON.Encode.null)]
       }
     })
   }
@@ -55,7 +55,7 @@ let make = (
     let sections = getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
     let accountIds = groupedEntries->Dict.keysToArray
     sections->Array.mapWithIndex((section, index) => {
-      let accountId = accountIds->Array.get(index)->Option.getOr("")
+      let accountId = accountIds->getValueFromArray(index, "")
       let entriesWithUniqueId = groupedEntries->Dict.get(accountId)->Option.getOr([])
       {
         ...section,
