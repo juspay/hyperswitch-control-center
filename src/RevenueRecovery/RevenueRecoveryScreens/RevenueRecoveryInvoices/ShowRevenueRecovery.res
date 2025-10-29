@@ -316,7 +316,6 @@ let make = (~id) => {
     <BreadCrumbNavigation
       path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
       currentPageTitle=id
-      cursorStyle="cursor-pointer"
       dividerVal=Slash
       childGapClass="gap-2"
     />

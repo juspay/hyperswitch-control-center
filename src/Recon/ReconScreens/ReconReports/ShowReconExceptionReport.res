@@ -150,7 +150,6 @@ let make = (~showOnBoarding, ~id) => {
     <BreadCrumbNavigation
       path=[{title: "Recon", link: `/v2/recon/reports?tab=exceptions`}]
       currentPageTitle="Exceptions Summary"
-      cursorStyle="cursor-pointer"
       dividerVal=Slash
       childGapClass="gap-2"
     />

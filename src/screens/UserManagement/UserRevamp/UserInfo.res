@@ -222,7 +222,6 @@ let make = () => {
       <BreadCrumbNavigation
         path=[{title: "Team management", link: "/users"}]
         currentPageTitle=userEmail
-        cursorStyle="cursor-pointer"
       />
     </div>
     <PageLoaderWrapper screenState>

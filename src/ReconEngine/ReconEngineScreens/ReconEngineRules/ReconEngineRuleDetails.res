@@ -487,7 +487,6 @@ let make = (~id) => {
       <BreadCrumbNavigation
         path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
         currentPageTitle=id
-        cursorStyle="cursor-pointer"
         dividerVal=Slash
         childGapClass="gap-2"
       />

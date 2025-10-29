@@ -82,7 +82,6 @@ let make = (~accountId) => {
       <BreadCrumbNavigation
         path=[{title: "Sources", link: `/v1/recon-engine/sources`}]
         currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
         dividerVal=Slash
         childGapClass="gap-2"
       />

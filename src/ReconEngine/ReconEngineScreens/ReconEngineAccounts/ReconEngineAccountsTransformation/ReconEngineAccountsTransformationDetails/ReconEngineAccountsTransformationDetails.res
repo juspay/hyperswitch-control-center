@@ -105,7 +105,6 @@ let make = (~accountId) => {
       <BreadCrumbNavigation
         path=[{title: "Transformation", link: `/v1/recon-engine/transformation`}]
         currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
         dividerVal=Slash
         childGapClass="gap-2"
       />

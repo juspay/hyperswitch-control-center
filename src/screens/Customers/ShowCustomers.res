@@ -140,7 +140,6 @@ let make = (~id) => {
             <BreadCrumbNavigation
               path=[{title: "Customers", link: "/customers"}]
               currentPageTitle=id
-              cursorStyle="cursor-pointer"
             />
           </div>
           <div />

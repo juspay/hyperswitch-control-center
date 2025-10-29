@@ -163,7 +163,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <BreadCrumbNavigation
             path=[{title: "Refunds", link: "/refunds"}]
             currentPageTitle=id
-            cursorStyle="cursor-pointer"
           />
         </div>
         <RenderIf condition={showSyncButton()}>

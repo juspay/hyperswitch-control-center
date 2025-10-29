@@ -18,29 +18,26 @@ let make = (
   ~path: array<breadcrumb>=[],
   ~currentPageTitle="",
   ~is_reverse=false,
-  ~cursorStyle="cursor-help",
+  ~cursorStyle="cursor-pointer",
   ~commonTextClass="",
   ~linkTextClass="text-nd_gray-400",
   ~customTextClass="",
   ~fontWeight="font-semibold",
-  ~titleTextClass="text-nd_gray-700",
-  ~titleTypography="",
+  ~titleTextClass="text-nd_gray-700 font-semibold",
   ~dividerVal=Slash,
   ~childGapClass="",
 ) => {
-  open LogicUtils
-  open Typography
-
   let prefix = LogicUtils.useUrlPrefix()
   let showPopUp = PopUpState.useShowPopUp()
   let pathLength = path->Array.length
+  
   let divider = {
     switch dividerVal {
     | Slash => <span className="text-nd_gray-400 ml-2 mr-2"> {"/"->React.string} </span>
     | _ => arrowDivider
     }
   }
-  let activeTitleTypography = titleTypography->isEmptyString ? body.md.semibold : titleTypography
+  
   let parentGapClass = "gap-2"
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"
 
@@ -102,7 +99,7 @@ let make = (
     })
     ->React.array}
     <AddDataAttributes attributes=[("data-breadcrumb", currentPageTitle)]>
-      <div className={`${activeTitleTypography} ${titleTextClass} ${commonTextClass}`}>
+      <div className={`${titleTextClass} ${commonTextClass}`}>
         {React.string(currentPageTitle)}
       </div>
     </AddDataAttributes>

@@ -99,7 +99,6 @@ let make = (~id) => {
       <BreadCrumbNavigation
         path=[{title: "Exceptions", link: `/v1/recon-engine/exceptions`}]
         currentPageTitle=id
-        cursorStyle="cursor-pointer"
         dividerVal=Slash
         childGapClass="gap-2"
       />

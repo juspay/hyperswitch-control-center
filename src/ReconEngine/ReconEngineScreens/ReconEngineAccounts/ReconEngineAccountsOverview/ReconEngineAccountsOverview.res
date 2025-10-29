@@ -92,7 +92,6 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
       <BreadCrumbNavigation
         path={breadCrumbNavigationPath}
         currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
         dividerVal=Slash
         childGapClass="gap-2"
       />

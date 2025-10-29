@@ -50,7 +50,6 @@ let make = (~id) => {
       <BreadCrumbNavigation
         path=[{title: "Transactions", link: `/v1/recon-engine/transactions`}]
         currentPageTitle=id
-        cursorStyle="cursor-pointer"
         dividerVal=Slash
         childGapClass="gap-2"
       />
