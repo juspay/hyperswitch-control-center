@@ -537,7 +537,7 @@ module ProfileDropdownItem = {
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
-
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getProfileList = async () => {
       try {
         let response = switch version {
@@ -602,7 +602,6 @@ module ProfileDropdownItem = {
     }
 
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <>
       <div
