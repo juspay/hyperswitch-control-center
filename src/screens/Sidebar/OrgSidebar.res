@@ -463,9 +463,13 @@ let make = () => {
       }
     }
   }
-  let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
-  let handleIdUnderEdit = (selectedEditId: option<int>) => {
-    setUnderEdit(_ => selectedEditId)
+  let (currentlyEditingPlatformId, setPlatformUnderEdit) = React.useState(_ => None)
+  let (currentlyEditingStandardId, setStandardUnderEdit) = React.useState(_ => None)
+  let handlePlatformIdUnderEdit = selectedEditId => {
+    setPlatformUnderEdit(_ => selectedEditId)
+  }
+  let handleStandardIdUnderEdit = selectedEditId => {
+    setStandardUnderEdit(_ => selectedEditId)
   }
   let hasPlatformOrg = platformOrgList->Array.length > 0
 
@@ -489,8 +493,8 @@ let make = () => {
           hasPlatformOrg
           orgList=platformOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingPlatformId}
+          handleIdUnderEdit={handlePlatformIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={standardOrgList->Array.length > 0}>
@@ -502,8 +506,8 @@ let make = () => {
           hasPlatformOrg
           orgList=standardOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingStandardId}
+          handleIdUnderEdit={handleStandardIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
