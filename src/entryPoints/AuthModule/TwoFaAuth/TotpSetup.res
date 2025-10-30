@@ -73,7 +73,7 @@ module EnterAccessCode = {
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
       </div>
-      <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
+      <div className="px-12 py-8 flex flex-col gap-8 justify-between flex-1">
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
           <RenderIf condition={!showOnlyRc}>
@@ -103,11 +103,6 @@ module EnterAccessCode = {
             buttonSize=Small
             buttonState={recoveryCode->String.length < 9 ? Disabled : buttonState}
             customButtonStyle="group"
-            rightIcon={CustomIcon(
-              <Icon
-                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
-              />,
-            )}
             onClick={_ => verifyAccessCode()->ignore}
           />
         </div>
@@ -135,6 +130,7 @@ module ConfigureTotpScreen = {
     let showToast = ToastState.useShowToast()
     let (otp, setOtp) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+    let (hasOtpError, setHasOtpError) = React.useState(_ => false)
 
     let verifyTOTP = async () => {
       open LogicUtils
@@ -159,12 +155,12 @@ module ConfigureTotpScreen = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Something went wrong")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
             errorHandling()
           }
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_37 {
-            showToast(~message=errorMessage, ~toastType=ToastError)
+            showToast(~message="Incorrect code, please try again", ~toastType=ToastError)
+            setHasOtpError(_ => true)
           }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
@@ -176,7 +172,7 @@ module ConfigureTotpScreen = {
       terminateTwoFactorAuth(~skip_2fa=true)->ignore
     }
 
-    let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enable 2FA"
+    let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enter Code"
     let modalHeaderText =
       twoFaStatus === TWO_FA_SET ? "Enter TOTP Code" : "Enable Two Factor Authentication"
 
@@ -203,19 +199,26 @@ module ConfigureTotpScreen = {
       )
     }, [otp])
 
-    <div
+    React.useEffect(() => {
+      if hasOtpError && otp->String.length > 0 {
+        setHasOtpError(_ => false)
+      }
+      None
+    }, [otp])
+
+    <div 
       className={`bg-white ${twoFaStatus === TWO_FA_SET
-          ? "h-20-rem"
-          : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
-      <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
+              ? "h-20-rem"
+              : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
+      <div className="p-5 border-b-1.5 border-gray-150 flex justify-between items-center">
+        <p className="px-4 text-2xl text-fs-20 font-semibold leading-8"> {modalHeaderText->React.string} </p>
       </div>
-      <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
+      <div className="px-8 py-2 flex flex-col gap-8 justify-end flex-1">
         <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
-          <TwoFaElements.TotpInput otp setOtp />
+          <TwoFaElements.TotpInput otp setOtp hasError={hasOtpError} isLoginFlow={twoFaStatus === TWO_FA_SET} />
           <RenderIf condition={twoFaStatus === TWO_FA_SET && !showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
@@ -227,6 +230,8 @@ module ConfigureTotpScreen = {
             </p>
           </RenderIf>
         </div>
+      </div>
+      <div className="p-9 border-t-1.5 border-gray-150 flex justify-end items-center">
         <div className="flex justify-end gap-4">
           <RenderIf condition={isSkippable}>
             <Button
@@ -244,13 +249,8 @@ module ConfigureTotpScreen = {
             customButtonStyle="group"
             buttonState={otp->String.length === 6 ? buttonState : Disabled}
             onClick={_ => verifyTOTP()->ignore}
-            rightIcon={CustomIcon(
-              <Icon
-                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
-              />,
-            )}
           />
-        </div>
+        </div>  
       </div>
     </div>
   }
