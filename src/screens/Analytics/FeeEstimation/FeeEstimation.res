@@ -172,6 +172,10 @@ module TransactionViewContainer = {
 
 @react.component
 let make = () => {
+  let (monthFilters, setMonthFilters) = React.useState(_ => {
+    "startDate": "2025-10-01",
+    "endDate": "2025-10-31",
+  })
   let tabs: array<Tabs.tab> = [
     {
       title: "Overview",
@@ -184,7 +188,20 @@ let make = () => {
   ]
 
   <div>
-    <p className="text-2xl font-semibold text-nd_gray-800"> {"Fee Estimate"->React.string} </p>
+    <div className="flex justify-between items-center">
+      <p className="text-2xl font-semibold text-nd_gray-800"> {"Fee Estimate"->React.string} </p>
+      <FeeEstimationHelper.MonthRangeSelector
+        isDisabled=true
+        updateDateRange={(~startDate, ~endDate) => {
+          setMonthFilters(_ => {
+            "startDate": startDate,
+            "endDate": endDate,
+          })
+        }}
+        initialStartDate={monthFilters["startDate"]}
+        initialEndDate={monthFilters["endDate"]}
+      />
+    </div>
     <Tabs
       initialIndex={0}
       tabs
