@@ -143,12 +143,19 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
+  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+    FilterContext.filterContext,
+  )
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let accountData = await getAccounts()
-      let allTransactions = await getTransactions()
+
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let allTransactions = await getTransactions(~queryParamerters=Some(queryString))
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
@@ -169,10 +176,26 @@ let make = (~reconRulesList: array<reconRuleType>) => {
     }
   }
 
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~range=7,
+    ~origin="recon_engine_overview_summary",
+    (),
+  )
+
   React.useEffect(() => {
-    getAccountsData()->ignore
+    setInitialFilters()
     None
   }, [])
+
+  React.useEffect(() => {
+    if !(filterValue->isEmptyDict) {
+      getAccountsData()->ignore
+    }
+    None
+  }, [filterValue])
 
   let (allRowsData, currency) = React.useMemo(() => {
     let totals = calculateTotals(accountsData)
