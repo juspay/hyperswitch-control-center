@@ -180,7 +180,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~range=7,
+    ~range=180,
     ~origin="recon_engine_overview_summary",
     (),
   )
