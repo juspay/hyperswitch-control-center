@@ -13,13 +13,13 @@ module OrgTile = {
   ) => {
     open LogicUtils
     open APIUtils
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {orgId}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
         sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
@@ -146,7 +146,13 @@ module OrgTile = {
               </div>}
               toolTipPosition=ToolTip.Right
             />}
-            showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
+            showEditIcon={isActive &&
+            hasAnyGroupAccess(
+              //TODO: Remove OrganizationManage permission in future
+              userHasAccess(~groupAccess=OrganizationManage),
+              userHasAccess(~groupAccess=AccountManage),
+            ) === Access &&
+            checkUserEntity([#Organization])}
             handleEdit=handleIdUnderEdit
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
@@ -351,8 +357,10 @@ let make = () => {
   let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {orgId, roleId, version}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -413,7 +421,15 @@ let make = () => {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
-      if version === V1 && userHasAccess(~groupAccess=OrganizationManage) === Access {
+      if (
+        version === V1 &&
+        hasAnyGroupAccess(
+          //TODO: Remove OrganizationManage permission in future
+          userHasAccess(~groupAccess=OrganizationManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ) === Access &&
+        checkUserEntity([#Organization])
+      ) {
         fetchOrgDetails()->ignore
       }
       orgData->Array.sort(sortByOrgName)
