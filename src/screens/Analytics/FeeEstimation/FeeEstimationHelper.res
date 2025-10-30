@@ -1,4 +1,6 @@
 open BarGraphTypes
+open Typography
+open LogicUtils
 
 let costBreakDownTableKey = "Cost Breakdown Overview"
 let transactionViewTableKey = "Fee Estimate Transaction Overview"
@@ -8,11 +10,9 @@ let feeBreakdownBasedOnGeoLocationPayload = (
   ~currency: string,
 ) => {
   let categories =
-    feeBreakdownData->Array.map(item =>
-      item.region->LogicUtils.getNonEmptyString->Option.getOr("Unknown")
-    )
+    feeBreakdownData->Array.map(item => item.region->getNonEmptyString->Option.getOr("Unknown"))
 
-  let percentageSeries: BarGraphTypes.dataObj = {
+  let percentageSeries: dataObj = {
     showInLegend: false,
     name: "Percentage",
     data: feeBreakdownData->Array.map(item => item.fees),
@@ -20,14 +20,24 @@ let feeBreakdownBasedOnGeoLocationPayload = (
   }
 
   let tooltipFormatterJs = @this
-  (this: BarGraphTypes.pointFormatter) => {
-    let title = this.points->Array.get(0)->Option.map(point => point.x)->Option.getOr("")
+  (this: pointFormatter) => {
+    let point = this.points->getValueFromArray(
+      0,
+      {
+        color: "",
+        x: "",
+        y: 0.0,
+        point: {
+          index: 0,
+        },
+      },
+    )
     let seriesNames = ["Fees Incurred"]
 
     let rows =
       this.points
       ->Array.mapWithIndex((point, idx) => {
-        let label = seriesNames->Array.get(idx)->Option.getOr("")
+        let label = seriesNames->getValueFromArray(idx, "")
         let value = point.y
         `<div
         style="
@@ -54,7 +64,7 @@ let feeBreakdownBasedOnGeoLocationPayload = (
             flex-shrink: 0;
           "
         ></div>
-        <div style="font-weight: 500">${label} <span style="font-weight:600">${currency} ${LogicUtils.valueFormatter(
+        <div style="font-weight: 500">${label} <span style="font-weight:600">${currency} ${valueFormatter(
             value,
             LogicUtilsTypes.Amount,
           )}</span></div>
@@ -64,14 +74,14 @@ let feeBreakdownBasedOnGeoLocationPayload = (
       })
       ->Array.joinWith("")
 
-    `<div class="bg-white border border-nd_br_gray-200 rounded-lg" style=\"padding:8px 12px;min-width:200px;\"><div style=\"font-weight:700;margin-bottom:8px;margin-left:8px;\">${title}</div>${rows}</div>`
+    `<div class="bg-white border border-nd_br_gray-200 rounded-lg" style=\"padding:8px 12px;min-width:200px;\"><div style=\"font-weight:700;margin-bottom:8px;margin-left:8px;\">${point.x}</div>${rows}</div>`
   }
 
-  let payload: BarGraphTypes.barGraphPayload = {
+  let payload: barGraphPayload = {
     categories,
     data: [percentageSeries],
     title: {text: ""},
-    tooltipFormatter: BarGraphTypes.asTooltipPointFormatter(tooltipFormatterJs),
+    tooltipFormatter: asTooltipPointFormatter(tooltipFormatterJs),
   }
   payload
 }
@@ -81,11 +91,9 @@ let costBreakDownBasedOnGeoLocationPayload = (
   ~currency: string,
 ) => {
   let categories =
-    costBreakDownData->Array.map(item =>
-      item.cardBrand->LogicUtils.getNonEmptyString->Option.getOr("Unknown")
-    )
+    costBreakDownData->Array.map(item => item.cardBrand->getNonEmptyString->Option.getOr("Unknown"))
 
-  let percentageSeries: BarGraphTypes.dataObj = {
+  let percentageSeries: dataObj = {
     showInLegend: false,
     name: "Cost Break Down",
     data: costBreakDownData->Array.map(item => item.value),
@@ -93,21 +101,31 @@ let costBreakDownBasedOnGeoLocationPayload = (
   }
 
   let tooltipFormatterJs = @this
-  (this: BarGraphTypes.pointFormatter) => {
-    let title = this.points->Array.get(0)->Option.map(point => point.x)->Option.getOr("")
+  (this: pointFormatter) => {
+    let point = this.points->getValueFromArray(
+      0,
+      {
+        color: "",
+        x: "",
+        y: 0.0,
+        point: {
+          index: 0,
+        },
+      },
+    )
     let seriesNames = ["Cost Break Down"]
 
     let rows =
       this.points
       ->Array.mapWithIndex((point, idx) => {
-        let label = seriesNames->Array.get(idx)->Option.getOr("")
+        let label = seriesNames->getValueFromArray(idx, "")
         let value = point.y
         `<div style="display:flex;justify-content:space-between;gap:12px;padding:2px 0;">
           <div style=\"display:flex;align-items:center;gap:8px;\">
             <div style=\"width:10px;height:10px;background-color:${point.color};border-radius:2px;\"></div>
             <div>${label}</div>
           </div>
-          <div style=\"font-weight:600\"> ${currency} ${LogicUtils.valueFormatter(
+          <div style=\"font-weight:600\"> ${currency} ${valueFormatter(
             value,
             LogicUtilsTypes.Amount,
           )}</div>
@@ -116,36 +134,35 @@ let costBreakDownBasedOnGeoLocationPayload = (
       ->Array.joinWith("")
 
     `<div class="bg-white border border-nd_br_gray-200 rounded-lg" style=\"padding:8px 12px;min-width:200px;\">
-      <div style=\"font-weight:700;margin-bottom:8px;\">${title}</div>
+      <div style=\"font-weight:700;margin-bottom:8px;\">${point.x}</div>
       ${rows}
     </div>`
   }
 
-  let payload: BarGraphTypes.barGraphPayload = {
+  let payload: barGraphPayload = {
     categories,
     data: [percentageSeries],
     title: {text: ""},
-    tooltipFormatter: BarGraphTypes.asTooltipPointFormatter(tooltipFormatterJs),
+    tooltipFormatter: asTooltipPointFormatter(tooltipFormatterJs),
   }
   payload
 }
 
 let labelFormatter = currency => {
   @this
-  (this: BarGraphTypes.labelFormatter) => {
-    `<p class="text-sm font-medium"> ${this.value} ${currency} </p>`
+  (this: labelFormatter) => {
+    `<p className="${body.md.medium}"> ${this.value} ${currency} </p>`
   }
 }
 
 module MonthRangeSelector = {
-  // Helper constants and functions
-  let months = DateTimeUtils.months
+  open DateTimeUtils
   let monthYear = "MMM YYYY"
 
   let getDaysInMonth = (year, month) => {
     switch month {
     | 0 => 31
-    | 1 => LogicUtils.checkLeapYear(year) ? 29 : 28
+    | 1 => checkLeapYear(year) ? 29 : 28
     | 2 => 31
     | 3 => 30
     | 4 => 31
@@ -173,19 +190,8 @@ module MonthRangeSelector = {
 
   type dateFormatType = YMD(string) | MY(string)
 
-  let formatDate = (~date, ~dateFormat) => {
-    let dateObj = date->Date.fromString
-
-    switch dateFormat {
-    | YMD(format) => dateObj->Date.toString->LogicUtils.dateFormat(format)
-    | MY(format) => dateObj->Date.toString->LogicUtils.dateFormat(format)
-    }
-  }
-
   @react.component
   let make = (~updateDateRange, ~initialStartDate, ~initialEndDate, ~isDisabled=false) => {
-    open LogicUtils
-
     let currentDate = Date.make()
     let lastMonth = currentDate->Date.getMonth - 1
     let currentYear = currentDate->Date.getFullYear
@@ -236,14 +242,14 @@ module MonthRangeSelector = {
       let lastValidDate = Date.makeWithYMD(~year=currentYear - 2, ~month=lastMonth, ~date=1)
       if (
         !(
-          date->Date.toString->LogicUtils.dateFormat("YYYY-MM-DD") >=
-            currentDate->Date.toString->LogicUtils.dateFormat("YYYY-MM-DD")
+          date->Date.toString->dateFormat("YYYY-MM-DD") >=
+            currentDate->Date.toString->dateFormat("YYYY-MM-DD")
         ) &&
         !(
-          date->Date.toString->LogicUtils.dateFormat("YYYY-MM-DD") <
+          date->Date.toString->dateFormat("YYYY-MM-DD") <
             lastValidDate
             ->Date.toString
-            ->LogicUtils.dateFormat("YYYY-MM-DD")
+            ->dateFormat("YYYY-MM-DD")
         )
       ) {
         if startDate->isEmptyString || (startDate->isNonEmptyString && endDate->isNonEmptyString) {
@@ -283,18 +289,18 @@ module MonthRangeSelector = {
 
     let onApply = () => {
       updateDateRange(
-        ~startDate=formatDate(~date=startDate, ~dateFormat=YMD("YYYY-MM-DD")),
-        ~endDate=formatDate(~date=endDate, ~dateFormat=YMD("YYYY-MM-DD")),
+        ~startDate=startDate->getFormattedDate("YYYY-MM-DD"),
+        ~endDate=endDate->getFormattedDate("YYYY-MM-DD"),
       )
       setShowDateRange(_ => false)
     }
 
-    let getFormattedDate = date => formatDate(~dateFormat=MY(monthYear), ~date)
+    let getFormattedDateValue = date => date->getFormattedDate(monthYear)
     let css = index => {
-      let startDateFormatted = startDate->isNonEmptyString ? getFormattedDate(startDate) : ""
-      let endDateFormatted = endDate->isNonEmptyString ? getFormattedDate(endDate) : ""
+      let startDateFormatted = startDate->isNonEmptyString ? getFormattedDateValue(startDate) : ""
+      let endDateFormatted = endDate->isNonEmptyString ? getFormattedDateValue(endDate) : ""
 
-      let formattedDate = getFormattedDate(
+      let formattedDate = getFormattedDateValue(
         getStartDateFromSelectedMonth(~month=index, ~selectedYear)->Date.toString,
       )
 
@@ -302,40 +308,38 @@ module MonthRangeSelector = {
 
       let currentYear = now->Js.Date.getFullYear
       let twoYearsAgo = Belt.Float.toInt(currentYear) - 2
-      let value = now->Js.Date.setFullYear(Int.toFloat(twoYearsAgo))
-      let millisecondsInTwoMonths = 2.0 *. 30.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
+      let twoYearsFromNow = now->Js.Date.setFullYear(Int.toFloat(twoYearsAgo))
+      let twoMonthsInMilliSeconds = 2.0 *. 30.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
       let isOutofStartingRange = index => {
         let date = getStartDateFromSelectedMonth(~month=index, ~selectedYear)
-        date->Js.Date.getTime +. millisecondsInTwoMonths < value
+        date->Js.Date.getTime +. twoMonthsInMilliSeconds < twoYearsFromNow
       }
+
       if (
         startDateFormatted->isNonEmptyString &&
         formattedDate === startDateFormatted &&
         endDateFormatted->isNonEmptyString &&
         formattedDate === endDateFormatted
       ) {
-        "bg-[#2B7FFF] text-white rounded-md"
+        "bg-blue-812 text-white rounded-md"
       } else if startDateFormatted->isNonEmptyString && formattedDate === startDateFormatted {
-        "bg-[#2B7FFF] text-white rounded-l-md"
+        "bg-blue-812 text-white rounded-l-md"
       } else if endDateFormatted->isNonEmptyString && formattedDate === endDateFormatted {
-        "bg-[#2B7FFF] text-white rounded-r-md"
+        "bg-blue-812 text-white rounded-r-md"
       } else if isInSelectedRange(index) {
-        "bg-[#EFF6FF] text-[#525866]"
+        "hover:bg-nd_gray-25 text-nd_gray-600"
       } else if isOutOfRange(index) {
         "bg-grey-light text-grey-medium"
       } else if isOutofStartingRange(index) {
         "bg-grey-light text-grey-medium"
       } else {
-        "hover:bg-[#EFF6FF] text-[#525866]"
+        "hover:bg-nd_gray-25 text-nd_gray-600"
       }
     }
 
     let getButtonText = () => {
       if startDate->String.length > 0 && endDate->String.length > 0 {
-        `${formatDate(~date=startDate, ~dateFormat=MY("MMM YY"))} - ${formatDate(
-            ~date=endDate,
-            ~dateFormat=MY("MMM YY"),
-          )}`
+        `${startDate->getFormattedDate("MMM YY")} - ${endDate->getFormattedDate("MMM YY")}`
       } else {
         "Select month range"
       }
@@ -346,33 +350,27 @@ module MonthRangeSelector = {
         <div className=monthRangeSelectorCss>
           <div className="flex justify-between p-4">
             <div className="flex items-center">
-              {if startDate->String.length > 0 {
+              <RenderIf condition={startDate->String.length > 0}>
                 <p className="font-semibold">
-                  {formatDate(~date=startDate, ~dateFormat=MY("MMM YYYY"))->React.string}
+                  {startDate->getFormattedDate("MMM YYYY")->React.string}
                 </p>
-              } else {
-                React.null
-              }}
-              {if endDate->String.length > 0 {
-                <>
-                  {<p className="font-semibold"> {"-"->React.string} </p>}
-                  {<p className="font-semibold">
-                    {formatDate(~date=endDate, ~dateFormat=MY("MMM YYYY"))->React.string}
-                  </p>}
-                </>
-              } else {
-                React.null
-              }}
+              </RenderIf>
+              <RenderIf condition={endDate->String.length > 0}>
+                <p className="font-semibold"> {"-"->React.string} </p>
+                <p className="font-semibold">
+                  {endDate->getFormattedDate("MMM YYYY")->React.string}
+                </p>
+              </RenderIf>
             </div>
             <div
               className="flex gap-2 items-center"
               onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
               <Icon
-                className="cursor-pointer" name={"angle-left"} onClick={_ => decreaseYearRange()}
+                className="cursor-pointer" name="angle-left" onClick={_ => decreaseYearRange()}
               />
               <p> {selectedYear->React.string} </p>
               <Icon
-                className="cursor-pointer" name={"angle-right"} onClick={_ => increaseYearRange()}
+                className="cursor-pointer" name="angle-right" onClick={_ => increaseYearRange()}
               />
             </div>
           </div>
@@ -382,9 +380,8 @@ module MonthRangeSelector = {
             ->Array.mapWithIndex((ele, index) => {
               <div
                 onClick={_ => handleSelect(index)}
-                key={index->Int.toString}
-                className={`p-2 text-center font-medium cursor-pointer transition-transform transform 
-          ${index->css}`}>
+                key={(ele :> string)}
+                className={`p-2 ${body.lg.medium} cursor-pointer transition-transform transform ${index->css}`}>
                 <span> {(ele :> string)->React.string} </span>
               </div>
             })
@@ -408,7 +405,7 @@ module MonthRangeSelector = {
         </div>
       </RenderIf>
       <Button
-        leftIcon={FontAwesome("calendar-alt")}
+        leftIcon=FontAwesome("calendar-alt")
         text={getButtonText()}
         buttonState={isDisabled ? Disabled : Normal}
         onClick={_ => setShowDateRange(prev => !prev)}
@@ -416,3 +413,42 @@ module MonthRangeSelector = {
     </div>
   }
 }
+
+let expandedTableRows = (~appliedFeesData: FeeEstimationTypes.breakdownItem) => [
+  [
+    Table.CustomCell(
+      <p className={`text-nd_gray-700 ${body.md.medium}`}> {"Interchange fees"->React.string} </p>,
+      "",
+    ),
+    Table.CustomCell(
+      <p className={`text-nd_gray-600 ${body.md.medium}`}>
+        {`${appliedFeesData.estimateInterchangeVariableRate->Float.toString} % + ${appliedFeesData.transactionCurrency} ${appliedFeesData.estimateInterchangeFixedRate->Float.toString}`->React.string}
+      </p>,
+      "",
+    ),
+    Table.CustomCell(
+      <p className={`text-nd_gray-600 ${body.md.medium}`}>
+        {`${appliedFeesData.transactionCurrency} ${appliedFeesData.estimateInterchangeCost->Float.toString}`->React.string}
+      </p>,
+      "",
+    ),
+  ],
+  [
+    Table.CustomCell(
+      <p className={`text-nd_gray-700 ${body.md.medium}`}> {"Scheme fees"->React.string} </p>,
+      "",
+    ),
+    Table.CustomCell(
+      <p className={`text-nd_gray-600 ${body.md.medium}`}>
+        {"Charged differently"->React.string}
+      </p>,
+      "",
+    ),
+    Table.CustomCell(
+      <p className={`text-nd_gray-600 ${body.md.medium}`}>
+        {`${appliedFeesData.transactionCurrency} ${appliedFeesData.estimateSchemeTotalCost->Float.toString}`->React.string}
+      </p>,
+      "",
+    ),
+  ],
+]

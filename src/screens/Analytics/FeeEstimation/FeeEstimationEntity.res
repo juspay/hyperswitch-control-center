@@ -1,4 +1,5 @@
 open ConnectorTypes
+open Typography
 
 type colType =
   | PaymentID
@@ -69,7 +70,7 @@ let getTableCell = () => {
     | PaymentID =>
       Table.CustomCell(
         <div>
-          <p className="text-sm text-nd_gray-600 font-medium">
+          <p className={`${body.md.medium} text-nd_gray-600`}>
             {feeEstimationData.paymentId->String.slice(~start=0, ~end=20)->React.string}
           </p>
         </div>,
@@ -85,7 +86,7 @@ let getTableCell = () => {
       })
     | TransactionValue =>
       Table.CustomCell(
-        <p className="text-sm text-nd_gray-600 font-medium">
+        <p className={`${body.md.medium} text-nd_gray-600`}>
           {`${feeEstimationData.transactionCurrency} ${LogicUtils.valueFormatter(
               feeEstimationData.gross,
               Amount,
@@ -100,7 +101,7 @@ let getTableCell = () => {
             gateway={feeEstimationData.cardBrand->String.toUpperCase}
             className="w-6 h-6 p-1 px-0.5 rounded-md bg-nd_gray-25 border border-nd_br_gray-150"
           />
-          <p className="text-sm font-medium text-nd_gray-600">
+          <p className={`${body.md.medium} text-nd_gray-600`}>
             {feeEstimationData.cardBrand->LogicUtils.camelCaseToTitle->React.string}
           </p>
         </div>,
@@ -108,7 +109,7 @@ let getTableCell = () => {
       )
     | TotalCostIncurred =>
       Table.CustomCell(
-        <p className="text-sm text-nd_gray-600 font-medium">
+        <p className={`${body.md.medium} text-nd_gray-600`}>
           {`${feeEstimationData.transactionCurrency} ${LogicUtils.valueFormatter(
               feeEstimationData.totalCost,
               Amount,
@@ -130,7 +131,7 @@ let getOverviewTableCell = () => {
     | FeeName =>
       Table.CustomCell(
         <div>
-          <p className="text-sm text-nd_gray-600 font-medium">
+          <p className={`${body.md.medium} text-nd_gray-600 font-medium`}>
             {feeEstimationData.feeName->LogicUtils.camelCaseToTitle->React.string}
           </p>
         </div>,
@@ -141,7 +142,7 @@ let getOverviewTableCell = () => {
         <Table.TableCell
           cell={CustomCell(
             <div>
-              <p className="text-sm text-nd_gray-600 font-medium">
+              <p className={`${body.md.medium} text-nd_gray-600`}>
                 {LogicUtils.valueFormatter(
                   feeEstimationData.transactionCount->Int.toFloat,
                   Amount,
@@ -157,7 +158,7 @@ let getOverviewTableCell = () => {
       )
     | TotalCostIncurred =>
       Table.CustomCell(
-        <p className="text-sm text-nd_gray-600 font-medium">
+        <p className={`${body.md.medium} text-nd_gray-600`}>
           {`${feeEstimationData.transactionCurrency} ${LogicUtils.valueFormatter(
               feeEstimationData.totalCostIncurred,
               Amount,
@@ -182,7 +183,7 @@ let getOverviewTableCell = () => {
       )
     | CostContribution =>
       Table.CustomCell(
-        <p className="text-sm text-nd_gray-600 font-medium">
+        <p className={`${body.md.medium} text-nd_gray-600`}>
           {`${LogicUtils.valueFormatter(feeEstimationData.costContribution, Rate)}`->React.string}
         </p>,
         "",

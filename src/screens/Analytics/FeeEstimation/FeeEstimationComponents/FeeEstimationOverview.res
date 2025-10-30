@@ -1,18 +1,20 @@
 open FeeEstimationTypes
 open FeeEstimationHelper
 open LogicUtils
+open Typography
+open FeeEstimationUtils
 
 module TotalCostIncurred = {
   @react.component
-  let make = (~totalIncurredCost: FeeEstimationTypes.overviewFeeEstimate) => {
+  let make = (~totalIncurredCost: overviewFeeEstimate) => {
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
 
     <div className="flex flex-col gap-2 rounded-xl border border-nd_br_gray-200 pt-3 p-4 my-6">
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-nd_gray-400">
+        <p className={`${body.sm.medium} text-nd_gray-400`}>
           {"Total Cost Incurred"->React.string}
         </p>
-        <p className="text-2xl font-semibold text-nd_gray-800">
+        <p className={`${heading.lg.semibold} text-nd_gray-800`}>
           {`${totalIncurredCost.currency} ${valueFormatter(
               totalIncurredCost.totalCost,
               Amount,
@@ -20,10 +22,7 @@ module TotalCostIncurred = {
         </p>
       </div>
       <StackedBarGraph
-        options={FeeEstimationUtils.getTotalCostIncurredGraphOptions(
-          totalIncurredCost,
-          isMiniLaptopView,
-        )}
+        options={getTotalCostIncurredGraphOptions(totalIncurredCost, isMiniLaptopView)}
       />
     </div>
   }
@@ -32,10 +31,7 @@ module TotalCostIncurred = {
 module FeeBreakdownBasedOnGeoLocation = {
   @react.component
   let make = (~feeBreakdownData: array<feeBreakdownGeoLocation>, ~currency: string) => {
-    let payload = FeeEstimationHelper.feeBreakdownBasedOnGeoLocationPayload(
-      ~feeBreakdownData,
-      ~currency,
-    )
+    let payload = feeBreakdownBasedOnGeoLocationPayload(~feeBreakdownData, ~currency)
     let maxFeeValue = React.useMemo(() => {
       feeBreakdownData->Array.reduce(0.0, (acc, item) => {
         Math.max(acc, item.fees)
@@ -51,20 +47,49 @@ module FeeBreakdownBasedOnGeoLocation = {
       ~gridLineWidthYAxis=0,
       ~height=Some(264.0),
       ~tickWidth=0,
-      ~tickInterval=FeeEstimationUtils.getTotalCostIncurredGraphTickInterval(maxFeeValue),
+      ~tickInterval=getTotalCostIncurredGraphTickInterval(maxFeeValue),
       ~yMax=Math.Int.max(maxFeeValue->Math.ceil->Int.fromFloat, 0),
       ~xAxisLineWidth=Some(0),
-      ~yAxisLabelFormatter=Some(FeeEstimationHelper.labelFormatter(currency)),
+      ~yAxisLabelFormatter=Some(labelFormatter(currency)),
     )
 
     <div className="border border-nd_gray-200 rounded-xl">
       <div className="bg-nd_gray-25 py-4 px-4 rounded-t-xl">
-        <p className="font-semibold text-nd_gray-600">
+        <p className={`${body.lg.semibold} text-nd_gray-600`}>
           {"Fee Breakdown Based on Geolocation"->React.string}
         </p>
       </div>
       <div className="border-t border-t-nd_gray-200">
         <BarGraph options className="h-270-px" />
+      </div>
+    </div>
+  }
+}
+
+module CostBreakdownSummary = {
+  @react.component
+  let make = (~selectedTransaction, ~fundingSourceGroupedValue) => {
+    <div>
+      <p className={`text-center ${body.sm.medium} text-nd_gray-600`}>
+        {`Fees (${selectedTransaction.transactionCurrency})`->React.string}
+      </p>
+      <div
+        className="flex flex-col gap-2 mt-6 p-3 rounded-xl bg-nd_gray-25 border border-nd_br_gray-150">
+        <p className={`${body.sm.semibold} text-nd_gray-400`}> {"Summary"->React.string} </p>
+        <ol className="flex flex-col gap-2">
+          {fundingSourceGroupedValue
+          ->Array.map(((funding, value, txns)) => {
+            <li
+              key={randomString(~length=10)}
+              className={`text-nd_gray-600 list-disc marker:text-nd_gray-600 ml-5 ${body.sm.medium}`}>
+              {`${funding->camelCaseToTitle} processed ${txns->Int.toString} txns, with a total cost incurred ${selectedTransaction.transactionCurrency} ${valueFormatter(
+                  value,
+                  Amount,
+                )}`->React.string}
+            </li>
+          })
+          ->React.array}
+        </ol>
       </div>
     </div>
   }
@@ -148,7 +173,7 @@ module CostBreakDownSideModal = {
 
       let maxValue = Math.max(maxFeeContribution.current->Math.ceil, 0.0)
 
-      FeeEstimationHelper.costBreakDownBasedOnGeoLocationPayload(
+      costBreakDownBasedOnGeoLocationPayload(
         ~costBreakDownData=breakdownContributions,
         ~currency=selectedTransaction.transactionCurrency,
       )->BarGraphUtils.getBarGraphOptions(
@@ -166,51 +191,53 @@ module CostBreakDownSideModal = {
       )
     }, (fundingSourceGroupedRef, selectedTransaction))
 
+    let modalSubHeading = `Breakdown of fee contribution ${filterTabValues->Array.length == 1
+        ? `- ${activeTab->getValueFromArray(0, "")->snakeToTitle}`
+        : ""}`
+
+    let modalInfoData: array<sidebarModalData> = [
+      {
+        title: "Total Cost Incurred",
+        value: valueFormatter(selectedTransaction.totalCostIncurred, Amount),
+        icon: "",
+      },
+      {
+        title: "Processor",
+        value: selectedTransaction.cardBrand->camelCaseToTitle,
+        icon: selectedTransaction.cardBrand,
+      },
+      {
+        title: "Total Transactions",
+        value: valueFormatter(selectedTransaction.transactionCount->Int.toFloat, Amount),
+        icon: "",
+      },
+      {
+        title: "Contribution %",
+        value: valueFormatter(selectedTransaction.contributionPercentage, Rate),
+        icon: "",
+      },
+    ]
+
     <div className="overflow-y-auto flex flex-col gap-24 min-h-screen">
       <div className="flex flex-col gap-12 p-2">
         <div className="grid grid-cols-2 gap-y-8 justify-between">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-[#717784] font-medium">
-              {"Total Cost Incurred"->React.string}
-            </p>
-            <p className="text-nd_gray-600 font-semibold">
-              {valueFormatter(selectedTransaction.totalCostIncurred, Amount)->React.string}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-[#717784] font-medium"> {"Processor"->React.string} </p>
-            <div className="flex items-center gap-2">
-              <GatewayIcon
-                gateway={selectedTransaction.cardBrand->String.toUpperCase} className="w-5 h-5"
-              />
-              <p className="text-nd_gray-600 font-semibold">
-                {selectedTransaction.cardBrand->camelCaseToTitle->React.string}
-              </p>
+          {modalInfoData
+          ->Array.map(item => {
+            <div key={randomString(~length=10)} className="flex flex-col gap-1">
+              <p className={`${body.md.medium} text-nd_gray-500`}> {item.title->React.string} </p>
+              <div className="flex items-center gap-2">
+                <RenderIf condition={item.icon != ""}>
+                  <GatewayIcon gateway={item.icon->String.toUpperCase} className="w-5 h-5" />
+                </RenderIf>
+                <p className={`text-nd_gray-600 ${body.lg.medium}`}> {item.value->React.string} </p>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-[#717784] font-medium">
-              {"Total Transactions"->React.string}
-            </p>
-            <p className="text-nd_gray-600 font-semibold">
-              {valueFormatter(
-                selectedTransaction.transactionCount->Int.toFloat,
-                Amount,
-              )->React.string}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-[#717784] font-medium"> {"Contribution %"->React.string} </p>
-            <p className="text-nd_gray-600 font-semibold">
-              {valueFormatter(selectedTransaction.contributionPercentage, Rate)->React.string}
-            </p>
-          </div>
+          })
+          ->React.array}
         </div>
         <div>
-          <p className="font-semibold text-nd_gray-700">
-            {`Breakdown of fee contribution ${filterTabValues->Array.length == 1
-                ? `- ${activeTab->Array.at(0)->Option.getOr("")->snakeToTitle}`
-                : ""}`->React.string}
+          <p className={`${body.lg.semibold} text-nd_gray-700`}>
+            {modalSubHeading->React.string}
           </p>
           <RenderIf condition={filterTabValues->Array.length > 1}>
             <DynamicTabs
@@ -225,27 +252,9 @@ module CostBreakDownSideModal = {
           </RenderIf>
           <div className="border border-nd_br_gray-150 pt-6 p-4 mt-3 rounded-xl">
             <BarGraph options />
-            <p className="text-center text-xs text-nd_gray-600">
-              {`Fees (${selectedTransaction.transactionCurrency})`->React.string}
-            </p>
-            <div
-              className="flex flex-col gap-2 mt-6 p-3 rounded-xl bg-nd_gray-25 border border-nd_br_gray-150">
-              <p className="text-xs text-nd_gray-400 font-semibold"> {"Summary"->React.string} </p>
-              <ol className="flex flex-col gap-2">
-                {fundingSourceGroupedRef
-                ->Array.mapWithIndex(((funding, value, txns), index) => {
-                  <li
-                    key={index->Int.toString}
-                    className="text-nd_gray-600 list-disc marker:text-nd_gray-600 ml-5 text-sm font-medium">
-                    {`${funding->camelCaseToTitle} processed ${txns->Int.toString} txns, with a total cost incurred ${selectedTransaction.transactionCurrency} ${valueFormatter(
-                        value,
-                        Amount,
-                      )}`->React.string}
-                  </li>
-                })
-                ->React.array}
-              </ol>
-            </div>
+            <CostBreakdownSummary
+              selectedTransaction fundingSourceGroupedValue={fundingSourceGroupedRef}
+            />
           </div>
         </div>
       </div>
@@ -263,7 +272,7 @@ module CostBreakDown = {
       costBreakDownRawData.overviewBreakdown
     )
     let (selectedTransaction, setSelectedTransaction) = React.useState(_ =>
-      JSON.Encode.null->FeeEstimationUtils.overviewBreakdownItemMapper
+      JSON.Encode.null->overviewBreakdownItemMapper
     )
 
     let (sortAtomValue, _) = Recoil.useRecoilState(LoadedTable.sortAtom)
@@ -288,7 +297,7 @@ module CostBreakDown = {
           checkedFields->Array.includes(item.cardBrand)
         )
       }
-      FeeEstimationUtils.calculateCardBreakdownData(dataToUse, costBreakDownRawData.currency)
+      calculateCardBreakdownData(dataToUse, costBreakDownRawData.currency)
     }, (checkedFields, costBreakDownRawData.topValuesBasedOnCardBrand))
 
     let handleSelectedTransactionData = selectedData => {
@@ -334,7 +343,7 @@ module CostBreakDown = {
 
     <div className="mt-10">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-lg font-semibold text-nd_gray-800"> {"Breakdown"->React.string} </p>
+        <p className={`${heading.md.semibold} text-nd_gray-800`}> {"Breakdown"->React.string} </p>
         <CustomInputSelectBox
           onChange=onChangeSelect
           options={filterValuesOptions->SelectBox.makeOptions}
@@ -350,21 +359,22 @@ module CostBreakDown = {
       </div>
       <div className="grid grid-cols-4 gap-6 my-6">
         {cardBreakdownData
-        ->Array.mapWithIndex((card, index) => {
+        ->Array.map(card => {
           <div
             className="flex flex-col rounded-xl w-full gap-4 p-4 border border-nd_br_gray-200"
-            key={index->Int.toString}>
-            <p className="text-sm font-medium text-nd_gray-400"> {card.title->React.string} </p>
-            <p className="text-xl font-semibold text-nd_gray-800">
+            key={randomString(~length=10)}>
+            <p className={`${body.sm.medium} text-nd_gray-400`}> {card.title->React.string} </p>
+            <p className={`${heading.md.semibold} text-nd_gray-800`}>
               {`${card.currency} ${valueFormatter(card.value, Amount)}`->React.string}
             </p>
           </div>
         })
         ->React.array}
       </div>
-      {switch filteredCostBreakDownTableData->Array.length {
-      | 0 => <NoDataFound message="No data available for selected month" />
-      | _ =>
+      <RenderIf condition={filteredCostBreakDownTableData->Array.length == 0}>
+        <NoDataFound message="No data available for selected month" />
+      </RenderIf>
+      <RenderIf condition={filteredCostBreakDownTableData->Array.length > 0}>
         <LoadedTable
           title=costBreakDownTableKey
           hideTitle=true
@@ -381,13 +391,13 @@ module CostBreakDown = {
           collapseTableRow=false
           showAutoScroll=true
         />
-      }}
+      </RenderIf>
       <Modal
         showModal
-        modalHeading={"Transaction details"}
+        modalHeading="Transaction details"
         setShowModal
         closeOnOutsideClick=true
-        modalClass="w-full overflow-y-hidden max-w-[539px] !bg-white dark:!bg-jp-gray-lightgray_background">
+        modalClass="overflow-y-hidden w-540-px !bg-white dark:!bg-jp-gray-lightgray_background">
         <CostBreakDownSideModal selectedTransaction />
       </Modal>
     </div>
