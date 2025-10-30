@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.30.0
+
+### Miscellaneous Tasks
+
+- Added tooltip on OMP name hover ([#3773](https://github.com/juspay/hyperswitch-control-center/pull/3773)) ([`796ef11`](https://github.com/juspay/hyperswitch-control-center/commit/796ef119bfd7e8e79f6082408e0cd8eae928c2db))
+
+**Full Changelog:** [`2025.10.29.2...2025.10.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.29.2...2025.10.30.0)
+
+- - -
+
 ## 2025.10.29.2
 
 ### Bug Fixes
