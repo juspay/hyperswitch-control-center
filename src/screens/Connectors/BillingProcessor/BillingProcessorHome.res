@@ -276,7 +276,7 @@ let make = () => {
                       name="hswitch-close" size=22 onClick={_ => setShowConfirmModal(_ => false)}
                     />
                   </div>
-                  <p className={`text-hyperswitch_black opacity-50 font-medium ${body.md.medium}`}>
+                  <p className={`text-hyperswitch_black opacity-50 ${body.md.medium}`}>
                     {"Are you sure you want to connect this billing processor ? This will set this as the default processor."->React.string}
                   </p>
                 </div>

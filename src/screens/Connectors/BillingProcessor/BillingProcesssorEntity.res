@@ -1,4 +1,5 @@
 open ConnectorTypes
+open Typography
 
 type colType =
   | Name
@@ -44,7 +45,7 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
     })
   | Status =>
     Table.CustomCell(
-      <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
+      <div className={`${body.xs.semibold} ${connector.status->connectorStatusStyle}`}>
         {connector.status->String.toUpperCase->React.string}
       </div>,
       "",
