@@ -3,7 +3,21 @@ let fontFamily = "Arial, sans-serif"
 let darkGray = "#666666"
 let gridLineColor = "#e6e6e6"
 open BarGraphTypes
-let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
+let getBarGraphOptions = (
+  barGraphOptions: barGraphPayload,
+  ~yMax=100,
+  ~pointWidth=20,
+  ~borderRadius=0,
+  ~borderWidth=1.0,
+  ~gridLineWidthXAxis=1,
+  ~gridLineWidthYAxis=1,
+  ~tickInterval=25.0,
+  ~tickWidth=1,
+  ~height: option<float>=None,
+  ~xAxisLineWidth: option<int>=None,
+  ~yAxisLineWidth: option<int>=None,
+  ~yAxisLabelFormatter=None,
+) => {
   let {categories, data, title, tooltipFormatter} = barGraphOptions
 
   let style = {
@@ -12,43 +26,75 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
     color: darkGray,
   }
 
+  let chartConfigBase = {
+    \"type": "bar",
+    spacingLeft: 20,
+    spacingRight: 20,
+  }
+
+  let chartConfig = switch height {
+  | Some(heightValue) => {...chartConfigBase, height: heightValue}
+  | None => chartConfigBase
+  }
+
+  let xAxisLabelBaseConfig = {
+    align: "center",
+    style,
+  }
+
+  let yAxisLabelBaseConfig = {
+    align: "center",
+    style,
+  }
+
+  let yAxisLabel = switch yAxisLabelFormatter {
+  | Some(formatter) => {...yAxisLabelBaseConfig, formatter}
+  | None => yAxisLabelBaseConfig
+  }
+
+  let xAxisBaseConfig = {
+    categories,
+    labels: xAxisLabelBaseConfig,
+    tickWidth,
+    tickmarkPlacement: "on",
+    endOnTick: false,
+    startOnTick: false,
+    gridLineWidth: gridLineWidthXAxis,
+    gridLineDashStyle: "Dash",
+    gridLineColor,
+    min: 0,
+  }
+
+  let xAxisConfig = switch xAxisLineWidth {
+  | Some(lineWidth) => {...xAxisBaseConfig, lineWidth}
+  | None => xAxisBaseConfig
+  }
+
+  let yAxisBaseConfig = {
+    title,
+    labels: yAxisLabel,
+    gridLineWidth: gridLineWidthYAxis,
+    gridLineDashStyle: "Solid",
+    gridLineColor,
+    tickInterval,
+    min: 0,
+    max: yMax,
+  }
+
+  let yAxisConfig = switch yAxisLineWidth {
+  | Some(lineWidth) => {...yAxisBaseConfig, lineWidth}
+  | None => yAxisBaseConfig
+  }
+
   {
     chart: {
-      \"type": "bar",
-      spacingLeft: 20,
-      spacingRight: 20,
+      chartConfig
     },
     title: {
       text: "",
     },
-    xAxis: {
-      categories,
-      labels: {
-        align: "center",
-        style,
-      },
-      tickWidth: 1,
-      tickmarkPlacement: "on",
-      endOnTick: false,
-      startOnTick: false,
-      gridLineWidth: 1,
-      gridLineDashStyle: "Dash",
-      gridLineColor,
-      min: 0,
-    },
-    yAxis: {
-      title,
-      labels: {
-        align: "center",
-        style,
-      },
-      gridLineWidth: 1,
-      gridLineDashStyle: "Solid",
-      gridLineColor,
-      tickInterval: 25,
-      min: 0,
-      max: 100,
-    },
+    xAxis: xAxisConfig,
+    yAxis: yAxisConfig,
     tooltip: {
       style: {
         padding: "0px",
@@ -70,6 +116,9 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
           enabled: false,
         },
         pointPadding: 0.2,
+        pointWidth,
+        borderRadius,
+        borderWidth,
       },
     },
     series: data,

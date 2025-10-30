@@ -45,7 +45,8 @@ let getOverviewHeading = overviewColType => {
   | TotalTransactions =>
     Table.makeHeaderInfo(~key="total_transactions", ~title="Total Transactions")
   | TypeOfFees => Table.makeHeaderInfo(~key="type_of_fees", ~title="Type Of Fees")
-  | CostContribution => Table.makeHeaderInfo(~key="cost_contribution", ~title="Cost Contribution")
+  | CostContribution =>
+    Table.makeHeaderInfo(~key="cost_contribution", ~title="Cost Contribution", ~showSort=true)
   }
 }
 
@@ -69,7 +70,7 @@ let getTableCell = () => {
       Table.CustomCell(
         <div>
           <p className="text-sm text-nd_gray-600 font-medium">
-            {feeEstimationData.paymentId->React.string}
+            {feeEstimationData.paymentId->String.slice(~start=0, ~end=20)->React.string}
           </p>
         </div>,
         "",
@@ -130,7 +131,7 @@ let getOverviewTableCell = () => {
       Table.CustomCell(
         <div>
           <p className="text-sm text-nd_gray-600 font-medium">
-            {feeEstimationData.feeName->React.string}
+            {feeEstimationData.feeName->LogicUtils.camelCaseToTitle->React.string}
           </p>
         </div>,
         "",
@@ -191,7 +192,7 @@ let getOverviewTableCell = () => {
   getCell
 }
 
-let feeEstimationEntity = (~authorization: CommonAuthTypes.authorization, ~sendMixpanelEvent) => {
+let feeEstimationEntity = () => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],
@@ -202,10 +203,7 @@ let feeEstimationEntity = (~authorization: CommonAuthTypes.authorization, ~sendM
   )
 }
 
-let feeOverviewEstimationEntity = (
-  ~authorization: CommonAuthTypes.authorization,
-  ~sendMixpanelEvent,
-) => {
+let feeOverviewEstimationEntity = () => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],

@@ -51,19 +51,31 @@ type overViewFeesBreakdown = {
   feeType: string,
   costContribution: float,
   cardBrand: string,
-  gmvPercentage: float,
+  contributionPercentage: float,
   regionValues: array<string>,
   regionBasedBreakdown: array<regionBasedBreakdownItem>,
+}
+
+type valuesBasedOnCardBrand = {
+  cardBrand: string,
+  totalCost: float,
+  totalInterchangeCost: float,
+  totalSchemeCost: float,
+  noOfTxn: int,
+  totalGrossAmt: float,
 }
 
 type overviewFeeEstimate = {
   totalCost: float,
   totalInterchangeCost: float,
   totalSchemeCost: float,
+  currency: string,
   noOfTxn: int,
   totalGrossAmt: float,
   feeBreakdownBasedOnGeoLocation: array<feeBreakdownGeoLocation>,
+  topValuesBasedOnCardBrand: array<valuesBasedOnCardBrand>,
   overviewBreakdown: array<overViewFeesBreakdown>,
+  totalRecords: int,
 }
 
 type transactionTableEntity = {
@@ -75,5 +87,12 @@ type transactionTableEntity = {
 
 type breakdownCard = {
   title: string,
+  value: float,
+  currency: string,
+}
+
+type breakdownContribution = {
+  cardBrand: string,
+  currency: string,
   value: float,
 }
