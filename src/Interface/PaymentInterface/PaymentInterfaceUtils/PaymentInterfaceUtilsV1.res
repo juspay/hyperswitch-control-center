@@ -1,5 +1,4 @@
 open LogicUtils
-
 open PaymentInterfaceTypesV1
 
 let attemptsItemToObjMapper = dict => {

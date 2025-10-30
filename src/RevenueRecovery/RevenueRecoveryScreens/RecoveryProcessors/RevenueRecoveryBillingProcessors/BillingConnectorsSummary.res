@@ -80,10 +80,10 @@ module WebhooksConfiguration = {
         initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
         onSubmit
         validate={values => {
-          MerchantAccountUtils.validateMerchantAccountForm(
+          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
             ~values,
             ~isLiveMode=featureFlagDetails.isLiveMode,
-            ~fieldsToValidate={[WebhookUrl]},
+            ~businessProfileRecoilVal,
           )
         }}>
         <div className="flex flex-col gap-5">

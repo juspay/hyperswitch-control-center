@@ -216,13 +216,13 @@ let filterItemObjMapper = (
 
 let initialFilters = (
   configuredConnectors: array<PaymentMethodConfigTypes.paymentMethodConfiguration>,
-  businessProfiles: array<HSwitchSettingTypes.commonProfileEntity>,
+  businessProfiles: array<BusinessProfileInterfaceTypes.commonProfileEntity>,
   ~profileId,
 ): array<EntityType.initialFilters<'t>> => {
   open FormRenderer
   open LogicUtils
 
-  open BusinessProfileInterfaceTypesV1
+  open BusinessProfileInterfaceTypes
   let businessProfileNameDropDownOption = arrBusinessProfile =>
     arrBusinessProfile->Array.map(ele => {
       let obj: FilterSelectBox.dropdownOption = {

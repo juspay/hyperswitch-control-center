@@ -631,7 +631,7 @@ let getValueFromBusinessProfile = businessProfileValue => {
 }
 
 let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
-  arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypesV1.profileEntity_v1) => {
+  arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypes.commonProfileEntity) => {
     let obj: SelectBox.dropdownOption = {
       label: {`${ele.profile_name} (${profileId})`},
       value: profileId,
