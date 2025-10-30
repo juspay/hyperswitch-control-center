@@ -31,6 +31,7 @@ module CardRenderer = {
     ~connector,
     ~initialValues,
     ~setInitialValues,
+    ~connectorType=Processor,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -93,9 +94,10 @@ module CardRenderer = {
       methodVariant === SamsungPay ||
       methodVariant === Paze) &&
         {
-          switch connector->getConnectorNameTypeFromString {
+          switch connector->getConnectorNameTypeFromString(~connectorType) {
           | Processors(TRUSTPAY)
-          | Processors(STRIPE_TEST) => false
+          | Processors(STRIPE_TEST)
+          | PayoutProcessor(WORLDPAY) => false
           | _ => true
           }
         }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
@@ -405,6 +407,7 @@ module PaymentMethodsRender = {
     ~isPayoutFlow,
     ~initialValues,
     ~setInitialValues,
+    ~connectorType=Processor,
   ) => {
     let pmts = React.useMemo(() => {
       (
@@ -432,6 +435,7 @@ module PaymentMethodsRender = {
               connector
               initialValues
               setInitialValues
+              connectorType
             />
           </div>
         | _ =>
@@ -446,6 +450,7 @@ module PaymentMethodsRender = {
               connector
               initialValues
               setInitialValues
+              connectorType
             />
           </div>
         }

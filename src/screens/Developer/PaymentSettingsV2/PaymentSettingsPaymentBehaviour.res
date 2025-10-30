@@ -243,7 +243,6 @@ module MerchantCategoryCode = {
     </DesktopRow>
   }
 }
-
 module SplitTransactions = {
   @react.component
   let make = () => {

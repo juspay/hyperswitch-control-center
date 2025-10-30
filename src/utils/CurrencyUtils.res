@@ -376,6 +376,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "BBD" => BBD
   | "BDT" => BDT
   | "BHD" => BHD
+  | "BIF" => BIF
   | "BMD" => BMD
   | "BND" => BND
   | "BOB" => BOB
@@ -391,6 +392,7 @@ let getCurrencyCodeFromString: string => currencyCode = currencyCode => {
   | "CRC" => CRC
   | "CUP" => CUP
   | "CZK" => CZK
+  | "DJF" => DJF
   | "DKK" => DKK
   | "DOP" => DOP
   | "DZD" => DZD
@@ -774,17 +776,21 @@ let getCountryListFromCurrency = currencyCode => {
   }
 }
 
-let getCurrencyConversionFactor = currency => {
+type currencyType =
+  | ZeroDecimal
+  | TwoDecimal
+  | ThreeDecimal
+  | FourDecimal
+
+let getCurrencyTypeFromString = currency => {
   let currencyCode = getCurrencyCodeFromString(currency)
-  let conversionFactor = switch (currencyCode: currencyCode) {
-  // Zero-decimal currencies
+  switch (currencyCode: currencyCode) {
   | JPY
   | KRW
   | BIF
   | CLP
   | DJF
   | GNF
-  | IQD
   | IRR
   | KMF
   | MGA
@@ -795,17 +801,37 @@ let getCurrencyConversionFactor = currency => {
   | VUV
   | XAF
   | XOF
-  | XPF => 1
-  // Three-decimal currencies
+  | XPF =>
+    ZeroDecimal
   | BHD
   | JOD
   | KWD
   | OMR
   | LYD
-  | TND => 1000
-  // Four-decimal currencies
-  | CLF => 10000
-  // Two-decimal currencies (default)
+  | IQD
+  | TND =>
+    ThreeDecimal
+  | CLF => FourDecimal
+  | _ => TwoDecimal
+  }
+}
+
+let getAmountPrecisionDigits = currency => {
+  let currencyType = getCurrencyTypeFromString(currency)
+  switch currencyType {
+  | ZeroDecimal => 0
+  | TwoDecimal => 2
+  | ThreeDecimal => 3
+  | FourDecimal => 4
+  }
+}
+
+let getCurrencyConversionFactor = currency => {
+  let currencyType = getCurrencyTypeFromString(currency)
+  let conversionFactor = switch (currencyType: currencyType) {
+  | ZeroDecimal => 1
+  | ThreeDecimal => 1000
+  | FourDecimal => 10000
   | _ => 100
   }
   conversionFactor->Int.toFloat

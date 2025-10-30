@@ -132,7 +132,6 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     is_manual_retry_enabled: profileRecord.is_manual_retry_enabled,
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
-    split_txns_enabled: None,
   }
 }
 

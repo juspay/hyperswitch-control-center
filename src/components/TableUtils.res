@@ -361,22 +361,33 @@ module Numeric = {
 }
 
 module MoneyCell = {
-  let getAmountValue = (amount, currency) => {
-    let amountSplitArr = Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
-    let decimal = amountSplitArr[1]->Option.getOr("00")
-    let receivedValue = amountSplitArr->Array.get(0)->Option.getOr("")
+  open LogicUtils
+  open CurrencyUtils
+  let getAmountValue = (amount: float, currency: string) => {
+    let precisionDigits = getAmountPrecisionDigits(currency)
+    let amountStr = amount->Float.toFixedWithPrecision(~digits=precisionDigits)
+    let amountSplitArr = amountStr->String.split(".")
 
-    let formattedAmount = if receivedValue->String.includes("e") {
-      receivedValue
-    } else if currency === "INR" {
-      receivedValue->String.replaceRegExp(%re("/(\d)(?=(?:(\d\d)+(\d)(?!\d))+(?!\d))/g"), "$1,")
+    let integerPart = amountSplitArr->getValueFromArray(0, "0")
+    let decimalPart = amountSplitArr->getValueFromArray(1, "")
+
+    let formattedInteger = if integerPart->String.includes("e") {
+      integerPart
+    } else if currency->getCurrencyCodeFromString === INR {
+      integerPart->String.replaceRegExp(%re("/(\\d)(?=(?:(\\d\\d)+\\d(?!\\d))+(?!\\d))/g"), "$1,")
     } else {
-      receivedValue->String.replaceRegExp(%re("/(\d)(?=(\d{3})+(?!\d))/g"), "$1,")
+      integerPart->String.replaceRegExp(%re("/(\\d)(?=(\\d{3})+(?!\\d))/g"), "$1,")
     }
-    let formatted_amount = `${formattedAmount}.${decimal}`
 
-    `${formatted_amount} ${currency}`
+    let formattedAmount = if precisionDigits > 0 {
+      `${formattedInteger}.${decimalPart}`
+    } else {
+      formattedInteger
+    }
+
+    `${formattedAmount} ${currency}`
   }
+
   @react.component
   let make = (
     ~amount: float,

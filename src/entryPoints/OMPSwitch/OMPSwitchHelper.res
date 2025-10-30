@@ -368,11 +368,13 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId, version}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId, version}, checkUserEntity} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
-
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let productTypeIconMapper = productType => {
       switch productType {
       | Orchestration(V1) => "orchestrator-home"
@@ -470,8 +472,6 @@ module MerchantDropdownItem = {
       | _ => showToast(~message="Failed to update Merchant name!", ~toastType=ToastError)
       }
     }
-
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     <>
       <div className={`rounded-lg`}>
         <InlineEditInput
@@ -480,7 +480,13 @@ module MerchantDropdownItem = {
           customStyle={`w-full cursor-pointer mb-0 ${backgroundColor.sidebarSecondary} ${hoverColor} `}
           handleEdit=handleIdUnderEdit
           isUnderEdit
-          showEditIcon={isActive && userHasAccess(~groupAccess=MerchantDetailsManage) === Access}
+          // TODO: Remove `MerchantDetailsManage` permission in future
+          showEditIcon={isActive &&
+          !checkUserEntity([#Profile]) &&
+          hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsManage),
+            userHasAccess(~groupAccess=AccountManage),
+          ) === Access}
           showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28 ${isActive
@@ -489,7 +495,7 @@ module MerchantDropdownItem = {
           validateInput
           customInputStyle={`!py-0 ${secondaryTextColor}`}
           customIconComponent={<ToolTip
-            description={currentId}
+            description="Copy Merchant ID"
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
@@ -504,6 +510,7 @@ module MerchantDropdownItem = {
           handleClick={_ => handleMerchantSwitch(currentId)}
           customWidth="min-w-56"
           leftIcon
+          showTooltipOnHover=true
         />
       </div>
     </>
@@ -531,7 +538,7 @@ module ProfileDropdownItem = {
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
-
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getProfileList = async () => {
       try {
         let response = switch version {
@@ -596,7 +603,6 @@ module ProfileDropdownItem = {
     }
 
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <>
       <div
@@ -610,15 +616,19 @@ module ProfileDropdownItem = {
           handleEdit=handleIdUnderEdit
           isUnderEdit
           showEditIcon={isActive &&
-          userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+          // TODO: Remove `MerchantDetailsManage` permission in future
+          hasAnyGroupAccess(
+            userHasAccess(~groupAccess=MerchantDetailsManage),
+            userHasAccess(~groupAccess=AccountManage),
+          ) === Access &&
           version == V1}
           showEditIconOnHover={!isMobileView}
           onSubmit
-          labelTextCustomStyle={` truncate max-w-28 ${isActive ? " text-nd_gray-700" : ""}`}
+          labelTextCustomStyle={` truncate max-w-28  ${isActive ? " text-nd_gray-700" : ""}`}
           validateInput
           customInputStyle="!py-0 text-nd_gray-600"
           customIconComponent={<ToolTip
-            description={currentId}
+            description="Copy Profile ID"
             customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
@@ -631,6 +641,7 @@ module ProfileDropdownItem = {
           handleClick={_ => handleProfileSwitch(currentId)}
           customWidth="min-w-48"
           leftIcon={<Icon name="nd-check" className={`${leftIconCss}`} />}
+          showTooltipOnHover=true
         />
       </div>
     </>
