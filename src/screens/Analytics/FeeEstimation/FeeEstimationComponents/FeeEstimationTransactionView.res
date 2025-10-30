@@ -1,4 +1,5 @@
 open FeeEstimationTypes
+open LogicUtils
 
 module AppliedFeesBreakdown = {
   open FeeEstimationEntity
@@ -49,11 +50,9 @@ module AppliedFeesBreakdown = {
 
     let collapseClick = idx => {
       let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
-      setExpandedRowIndexArray(_ => {
-        let array = expandedRowIndexArray->Array.map(item => item)
-        array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
-        array
-      })
+      setExpandedRowIndexArray(prev =>
+        prev->Array.filterWithIndex((_, i) => i != indexOfRemovalItem)
+      )
     }
 
     let onExpandClick = idx => {
@@ -86,7 +85,7 @@ module AppliedFeesBreakdown = {
                 className="h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 px-4 py-3">
                 {switch colType {
                 | FeeType =>
-                  let feeName = item.feeName->LogicUtils.snakeToTitle
+                  let feeName = item.feeName->snakeToTitle
                   <div className="flex items-center gap-2">
                     <Icon name="expanded-arrow-icon" size=14 />
                     <span className="text-nd_gray-600 text-sm font-medium">
@@ -99,7 +98,7 @@ module AppliedFeesBreakdown = {
                   </p>
                 | TotalCost =>
                   <p className="text-nd_gray-600 text-sm font-medium">
-                    {`${appliedFeesData.transactionCurrency} ${LogicUtils.valueFormatter(
+                    {`${appliedFeesData.transactionCurrency} ${valueFormatter(
                         item.cost,
                         Amount,
                       )}`->React.string}
@@ -148,32 +147,32 @@ module TransactionViewSideModal = {
               gateway={selectedTransaction.connector->String.toUpperCase} className="w-5 h-5"
             />
             <p className="text-nd_gray-600 font-semibold">
-              {selectedTransaction.connector->LogicUtils.camelCaseToTitle->React.string}
+              {selectedTransaction.connector->camelCaseToTitle->React.string}
             </p>
           </div>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm text-[#717784] font-medium"> {"Type of Card"->React.string} </p>
           <p className="text-nd_gray-600 font-semibold">
-            {selectedTransaction.fundingSource->LogicUtils.camelCaseToTitle->React.string}
+            {selectedTransaction.fundingSource->camelCaseToTitle->React.string}
           </p>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm text-[#717784] font-medium"> {"Card Brand"->React.string} </p>
           <p className="text-nd_gray-600 font-semibold">
-            {selectedTransaction.cardBrand->LogicUtils.camelCaseToTitle->React.string}
+            {selectedTransaction.cardBrand->camelCaseToTitle->React.string}
           </p>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm text-[#717784] font-medium"> {"Regionality"->React.string} </p>
           <p className="text-nd_gray-600 font-semibold">
-            {selectedTransaction.regionality->LogicUtils.camelCaseToTitle->React.string}
+            {selectedTransaction.regionality->camelCaseToTitle->React.string}
           </p>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm text-[#717784] font-medium"> {"Card Variant"->React.string} </p>
           <p className="text-nd_gray-600 font-semibold">
-            {selectedTransaction.cardVariant->LogicUtils.camelCaseToTitle->React.string}
+            {selectedTransaction.cardVariant->camelCaseToTitle->React.string}
           </p>
         </div>
         <div className="flex flex-col gap-1">
@@ -181,7 +180,7 @@ module TransactionViewSideModal = {
             {"Transaction value"->React.string}
           </p>
           <p className="text-nd_gray-600 font-semibold">
-            {`${selectedTransaction.transactionCurrency} ${LogicUtils.valueFormatter(
+            {`${selectedTransaction.transactionCurrency} ${valueFormatter(
                 selectedTransaction.gross,
                 Amount,
               )}`->React.string}
@@ -190,7 +189,7 @@ module TransactionViewSideModal = {
         <div className="flex flex-col gap-1">
           <p className="text-sm text-[#717784] font-medium"> {"Transaction Fees"->React.string} </p>
           <p className="text-nd_gray-600 font-semibold">
-            {`${selectedTransaction.transactionCurrency} ${LogicUtils.valueFormatter(
+            {`${selectedTransaction.transactionCurrency} ${valueFormatter(
                 selectedTransaction.totalCost,
                 Amount,
               )}`->React.string}

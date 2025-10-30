@@ -141,3 +141,84 @@ let overviewDataMapper: Dict.t<JSON.t> => overviewFeeEstimate = dict => {
     totalRecords: dict->getInt("total_records", 10),
   }
 }
+
+let getTotalCostIncurredGraphOptions = (totalIncurredCost, isMiniLaptopView) => {
+  StackedBarGraphUtils.getStackedBarGraphOptions(
+    {
+      categories: ["Total Orders"],
+      data: [
+        {
+          name: "Interchanged Based Fee",
+          data: [totalIncurredCost.totalInterchangeCost],
+          color: "#8BC2F3",
+        },
+        {
+          name: "Scheme Based Fee",
+          data: [totalIncurredCost.totalSchemeCost],
+          color: "#7CC5BF",
+        },
+      ],
+      labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Amount),
+    },
+    ~yMax=Math.Int.max(totalIncurredCost.totalCost->Math.ceil->Int.fromFloat, 1),
+    ~labelItemDistance={isMiniLaptopView ? 45 : 90},
+  )
+}
+
+let getTotalCostIncurredGraphTickInterval = maxFeeValue => {
+  let exp = Math.floor(Math.log10(maxFeeValue))
+  Math.pow(10.0, ~exp=exp -. 1.0) *. if maxFeeValue /. Math.pow(10.0, ~exp) < 1.5 {
+    1.0
+  } else if maxFeeValue /. Math.pow(10.0, ~exp) < 3.0 {
+    2.0
+  } else if maxFeeValue /. Math.pow(10.0, ~exp) < 7.0 {
+    5.0
+  } else {
+    10.0
+  }
+}
+
+let calculateCardBreakdownData = (
+  cardBreakdownData: array<valuesBasedOnCardBrand>,
+  currency: string,
+) => {
+  let (
+    totalGrossAmt,
+    totalCost,
+    totalSchemeCost,
+    totalInterchangeCost,
+  ) = cardBreakdownData->Array.reduce((0.0, 0.0, 0.0, 0.0), (
+    (grossAcc, costAcc, schemeAcc, interchangeAcc),
+    item,
+  ) => {
+    (
+      grossAcc +. item.totalGrossAmt,
+      costAcc +. item.totalCost,
+      schemeAcc +. item.totalSchemeCost,
+      interchangeAcc +. item.totalInterchangeCost,
+    )
+  })
+
+  [
+    {
+      title: "Total Sales",
+      value: totalGrossAmt,
+      currency,
+    },
+    {
+      title: "Total Cost Incurred",
+      value: totalCost,
+      currency,
+    },
+    {
+      title: "Total Scheme Based Fee",
+      value: totalSchemeCost,
+      currency,
+    },
+    {
+      title: "Total Interchange Based Fee",
+      value: totalInterchangeCost,
+      currency,
+    },
+  ]
+}

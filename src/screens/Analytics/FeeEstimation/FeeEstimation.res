@@ -39,7 +39,6 @@ module OverviewContainer = {
 
         let overViewData =
           response
-          ->Identity.genericTypeToJson
           ->LogicUtils.getDictFromJsonObject
           ->LogicUtils.getDictfromDict("response")
           ->FeeEstimationUtils.overviewDataMapper
@@ -82,7 +81,7 @@ module TransactionViewContainer = {
     let (offset, setOffset) = React.useState(_ => 0)
     let (showModal, setShowModal) = React.useState(_ => false)
     let (selectedTransaction, setSelectedTransaction) = React.useState(_ =>
-      JSON.Encode.object(Dict.make())->FeeEstimationUtils.feeEstimateBreakdownMapper
+      JSON.Encode.null->FeeEstimationUtils.feeEstimateBreakdownMapper
     )
     let (transactionData, setTransactionData) = React.useState(_ =>
       Dict.make()->FeeEstimationUtils.feeEstimationMapper
@@ -116,7 +115,6 @@ module TransactionViewContainer = {
 
         let transactionData =
           response
-          ->Identity.genericTypeToJson
           ->LogicUtils.getDictFromJsonObject
           ->LogicUtils.getDictfromDict("response")
           ->FeeEstimationUtils.feeEstimationMapper
@@ -172,10 +170,12 @@ module TransactionViewContainer = {
 
 @react.component
 let make = () => {
-  let (monthFilters, setMonthFilters) = React.useState(_ => {
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-31",
-  })
+  let (monthFilters, setMonthFilters) = React.useState(_ =>
+    {
+      "startDate": "2025-10-01",
+      "endDate": "2025-10-31",
+    }
+  )
   let tabs: array<Tabs.tab> = [
     {
       title: "Overview",
@@ -193,10 +193,12 @@ let make = () => {
       <FeeEstimationHelper.MonthRangeSelector
         isDisabled=true
         updateDateRange={(~startDate, ~endDate) => {
-          setMonthFilters(_ => {
-            "startDate": startDate,
-            "endDate": endDate,
-          })
+          setMonthFilters(_ =>
+            {
+              "startDate": startDate,
+              "endDate": endDate,
+            }
+          )
         }}
         initialStartDate={monthFilters["startDate"]}
         initialEndDate={monthFilters["endDate"]}

@@ -1,5 +1,7 @@
 open FeeEstimationTypes
 open FeeEstimationHelper
+open LogicUtils
+
 module TotalCostIncurred = {
   @react.component
   let make = (~totalIncurredCost: FeeEstimationTypes.overviewFeeEstimate) => {
@@ -11,32 +13,16 @@ module TotalCostIncurred = {
           {"Total Cost Incurred"->React.string}
         </p>
         <p className="text-2xl font-semibold text-nd_gray-800">
-          {`${totalIncurredCost.currency} ${LogicUtils.valueFormatter(
+          {`${totalIncurredCost.currency} ${valueFormatter(
               totalIncurredCost.totalCost,
               Amount,
             )}`->React.string}
         </p>
       </div>
       <StackedBarGraph
-        options={StackedBarGraphUtils.getStackedBarGraphOptions(
-          {
-            categories: ["Total Orders"],
-            data: [
-              {
-                name: "Interchanged Based Fee",
-                data: [totalIncurredCost.totalInterchangeCost],
-                color: "#8BC2F3",
-              },
-              {
-                name: "Scheme Based Fee",
-                data: [totalIncurredCost.totalSchemeCost],
-                color: "#7CC5BF",
-              },
-            ],
-            labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Amount),
-          },
-          ~yMax=Math.Int.max(totalIncurredCost.totalCost->Math.ceil->Int.fromFloat, 1),
-          ~labelItemDistance={isMiniLaptopView ? 45 : 90},
+        options={FeeEstimationUtils.getTotalCostIncurredGraphOptions(
+          totalIncurredCost,
+          isMiniLaptopView,
         )}
       />
     </div>
@@ -56,19 +42,6 @@ module FeeBreakdownBasedOnGeoLocation = {
       })
     }, [feeBreakdownData])
 
-    let tickInterval = {
-      let exp = Math.floor(Math.log10(maxFeeValue))
-      Math.pow(10.0, ~exp=exp -. 1.0) *. if maxFeeValue /. Math.pow(10.0, ~exp) < 1.5 {
-        1.0
-      } else if maxFeeValue /. Math.pow(10.0, ~exp) < 3.0 {
-        2.0
-      } else if maxFeeValue /. Math.pow(10.0, ~exp) < 7.0 {
-        5.0
-      } else {
-        10.0
-      }
-    }
-
     let options = BarGraphUtils.getBarGraphOptions(
       payload,
       ~pointWidth=24,
@@ -78,7 +51,7 @@ module FeeBreakdownBasedOnGeoLocation = {
       ~gridLineWidthYAxis=0,
       ~height=Some(264.0),
       ~tickWidth=0,
-      ~tickInterval,
+      ~tickInterval=FeeEstimationUtils.getTotalCostIncurredGraphTickInterval(maxFeeValue),
       ~yMax=Math.Int.max(maxFeeValue->Math.ceil->Int.fromFloat, 0),
       ~xAxisLineWidth=Some(0),
       ~yAxisLabelFormatter=Some(FeeEstimationHelper.labelFormatter(currency)),
@@ -91,7 +64,7 @@ module FeeBreakdownBasedOnGeoLocation = {
         </p>
       </div>
       <div className="border-t border-t-nd_gray-200">
-        <BarGraph options className="h-[270px]" />
+        <BarGraph options className="h-270-px" />
       </div>
     </div>
   }
@@ -119,21 +92,22 @@ module CostBreakDownSideModal = {
       filterTab.contents
     }, [])
 
-    let firstFilterValue =
-      filterTabValues
-      ->Array.at(0)
-      ->Option.getOr({
+    let firstFilterValue = filterTabValues->getValueFromArray(
+      0,
+      {
         title: "",
         value: "",
         isRemovable: false,
-      })
+      },
+    )
+
     let (activeTab, setActiveTab) = React.useState(_ => [firstFilterValue.value])
 
     let maxFeeContribution = React.useRef(0.0)
 
     let fundingSourceGroupedRef = React.useMemo(() => {
       maxFeeContribution.current = 0.0
-      let currentTab = activeTab->Array.at(0)->Option.getOr("domestic")
+      let currentTab = activeTab->getValueFromArray(0, "domestic")
       let costDict = Dict.make()
       let txnDict = Dict.make()
 
@@ -145,7 +119,7 @@ module CostBreakDownSideModal = {
           let value = item.totalCostIncurred
           let txns = item.transactionCount
 
-          let prevCost = costDict->Dict.get(funding)->Option.getOr(0.0)
+          let prevCost = costDict->getFloat(funding, 0.0)
           costDict->Dict.set(funding, prevCost +. value)
           let prevTxn = txnDict->Dict.get(funding)->Option.getOr(0)
           txnDict->Dict.set(funding, prevTxn + txns)
@@ -200,10 +174,7 @@ module CostBreakDownSideModal = {
               {"Total Cost Incurred"->React.string}
             </p>
             <p className="text-nd_gray-600 font-semibold">
-              {LogicUtils.valueFormatter(
-                selectedTransaction.totalCostIncurred,
-                Amount,
-              )->React.string}
+              {valueFormatter(selectedTransaction.totalCostIncurred, Amount)->React.string}
             </p>
           </div>
           <div className="flex flex-col gap-1">
@@ -213,7 +184,7 @@ module CostBreakDownSideModal = {
                 gateway={selectedTransaction.cardBrand->String.toUpperCase} className="w-5 h-5"
               />
               <p className="text-nd_gray-600 font-semibold">
-                {selectedTransaction.cardBrand->LogicUtils.camelCaseToTitle->React.string}
+                {selectedTransaction.cardBrand->camelCaseToTitle->React.string}
               </p>
             </div>
           </div>
@@ -222,7 +193,7 @@ module CostBreakDownSideModal = {
               {"Total Transactions"->React.string}
             </p>
             <p className="text-nd_gray-600 font-semibold">
-              {LogicUtils.valueFormatter(
+              {valueFormatter(
                 selectedTransaction.transactionCount->Int.toFloat,
                 Amount,
               )->React.string}
@@ -231,17 +202,14 @@ module CostBreakDownSideModal = {
           <div className="flex flex-col gap-1">
             <p className="text-sm text-[#717784] font-medium"> {"Contribution %"->React.string} </p>
             <p className="text-nd_gray-600 font-semibold">
-              {LogicUtils.valueFormatter(
-                selectedTransaction.contributionPercentage,
-                Rate,
-              )->React.string}
+              {valueFormatter(selectedTransaction.contributionPercentage, Rate)->React.string}
             </p>
           </div>
         </div>
         <div>
           <p className="font-semibold text-nd_gray-700">
             {`Breakdown of fee contribution ${filterTabValues->Array.length == 1
-                ? `- ${activeTab->Array.at(0)->Option.getOr("")->LogicUtils.snakeToTitle}`
+                ? `- ${activeTab->Array.at(0)->Option.getOr("")->snakeToTitle}`
                 : ""}`->React.string}
           </p>
           <RenderIf condition={filterTabValues->Array.length > 1}>
@@ -269,7 +237,7 @@ module CostBreakDownSideModal = {
                   <li
                     key={index->Int.toString}
                     className="text-nd_gray-600 list-disc marker:text-nd_gray-600 ml-5 text-sm font-medium">
-                    {`${funding->LogicUtils.camelCaseToTitle} processed ${txns->Int.toString} txns, with a total cost incurred ${selectedTransaction.transactionCurrency} ${LogicUtils.valueFormatter(
+                    {`${funding->camelCaseToTitle} processed ${txns->Int.toString} txns, with a total cost incurred ${selectedTransaction.transactionCurrency} ${valueFormatter(
                         value,
                         Amount,
                       )}`->React.string}
@@ -295,7 +263,7 @@ module CostBreakDown = {
       costBreakDownRawData.overviewBreakdown
     )
     let (selectedTransaction, setSelectedTransaction) = React.useState(_ =>
-      JSON.Encode.object(Dict.make())->FeeEstimationUtils.overviewBreakdownItemMapper
+      JSON.Encode.null->FeeEstimationUtils.overviewBreakdownItemMapper
     )
 
     let (sortAtomValue, _) = Recoil.useRecoilState(LoadedTable.sortAtom)
@@ -320,46 +288,7 @@ module CostBreakDown = {
           checkedFields->Array.includes(item.cardBrand)
         )
       }
-
-      let (
-        totalGrossAmt,
-        totalCost,
-        totalSchemeCost,
-        totalInterchangeCost,
-      ) = dataToUse->Array.reduce((0.0, 0.0, 0.0, 0.0), (
-        (grossAcc, costAcc, schemeAcc, interchangeAcc),
-        item,
-      ) => {
-        (
-          grossAcc +. item.totalGrossAmt,
-          costAcc +. item.totalCost,
-          schemeAcc +. item.totalSchemeCost,
-          interchangeAcc +. item.totalInterchangeCost,
-        )
-      })
-
-      [
-        {
-          title: "Total Sales",
-          value: totalGrossAmt,
-          currency: costBreakDownRawData.currency,
-        },
-        {
-          title: "Total Cost Incurred",
-          value: totalCost,
-          currency: costBreakDownRawData.currency,
-        },
-        {
-          title: "Total Scheme Based Fee",
-          value: totalSchemeCost,
-          currency: costBreakDownRawData.currency,
-        },
-        {
-          title: "Total Interchange Based Fee",
-          value: totalInterchangeCost,
-          currency: costBreakDownRawData.currency,
-        },
-      ]
+      FeeEstimationUtils.calculateCardBreakdownData(dataToUse, costBreakDownRawData.currency)
     }, (checkedFields, costBreakDownRawData.topValuesBasedOnCardBrand))
 
     let handleSelectedTransactionData = selectedData => {
@@ -390,13 +319,13 @@ module CostBreakDown = {
       | ASC =>
         setFilteredCostBreakDownTableData(_ =>
           filteredCostBreakDownTableData->Array.toSorted(
-            (a, b) => LogicUtils.compareLogic(b.contributionPercentage, a.contributionPercentage),
+            (a, b) => compareLogic(b.contributionPercentage, a.contributionPercentage),
           )
         )
       | DSC =>
         setFilteredCostBreakDownTableData(_ =>
           filteredCostBreakDownTableData->Array.toSorted(
-            (a, b) => LogicUtils.compareLogic(a.contributionPercentage, b.contributionPercentage),
+            (a, b) => compareLogic(a.contributionPercentage, b.contributionPercentage),
           )
         )
       }
@@ -410,10 +339,9 @@ module CostBreakDown = {
           onChange=onChangeSelect
           options={filterValuesOptions->SelectBox.makeOptions}
           allowMultiSelect=true
-          buttonText={switch checkedFields->Array.length {
-          | 0 => "Select Card Brand"
-          | _ => `Selected Card Brand (${checkedFields->Array.length->Int.toString})`
-          }}
+          buttonText={checkedFields->Array.length == 0
+            ? "Select Card Brand"
+            : `Selected Card Brand (${checkedFields->Array.length->Int.toString})`}
           isDropDown=true
           hideMultiSelectButtons=true
           buttonType={Secondary}
@@ -422,13 +350,13 @@ module CostBreakDown = {
       </div>
       <div className="grid grid-cols-4 gap-6 my-6">
         {cardBreakdownData
-        ->Array.mapWithIndex((_card, index) => {
+        ->Array.mapWithIndex((card, index) => {
           <div
             className="flex flex-col rounded-xl w-full gap-4 p-4 border border-nd_br_gray-200"
             key={index->Int.toString}>
-            <p className="text-sm font-medium text-nd_gray-400"> {_card.title->React.string} </p>
+            <p className="text-sm font-medium text-nd_gray-400"> {card.title->React.string} </p>
             <p className="text-xl font-semibold text-nd_gray-800">
-              {`${_card.currency} ${LogicUtils.valueFormatter(_card.value, Amount)}`->React.string}
+              {`${card.currency} ${valueFormatter(card.value, Amount)}`->React.string}
             </p>
           </div>
         })

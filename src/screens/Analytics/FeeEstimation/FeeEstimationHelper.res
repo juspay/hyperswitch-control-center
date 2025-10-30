@@ -139,7 +139,7 @@ let labelFormatter = currency => {
 
 module MonthRangeSelector = {
   // Helper constants and functions
-  let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  let months = DateTimeUtils.months
   let monthYear = "MMM YYYY"
 
   let getDaysInMonth = (year, month) => {
@@ -196,10 +196,9 @@ module MonthRangeSelector = {
     let monthRangeSelectorRef = React.useRef(Nullable.null)
 
     let isMobileView = MatchMedia.useMobileChecker()
-    let monthRangeSelectorCss = switch isMobileView {
-    | false => "absolute z-10 bg-white border w-[20rem] right-0 top-12 shadow-connectorTagShadow rounded-xl"
-    | true => "absolute z-10 bg-white border w-full bottom-0 shadow-connectorTagShadow rounded-xl"
-    }
+    let monthRangeSelectorCss = isMobileView
+      ? "absolute z-10 bg-white border w-[20rem] right-0 top-12 shadow-connectorTagShadow rounded-xl"
+      : "absolute z-10 bg-white border w-full bottom-0 shadow-connectorTagShadow rounded-xl"
 
     OutsideClick.useOutsideClick(
       ~refs=ArrayOfRef([monthRangeSelectorRef]),
@@ -386,7 +385,7 @@ module MonthRangeSelector = {
                 key={index->Int.toString}
                 className={`p-2 text-center font-medium cursor-pointer transition-transform transform 
           ${index->css}`}>
-                <span> {ele->React.string} </span>
+                <span> {(ele :> string)->React.string} </span>
               </div>
             })
             ->React.array}
@@ -411,10 +410,7 @@ module MonthRangeSelector = {
       <Button
         leftIcon={FontAwesome("calendar-alt")}
         text={getButtonText()}
-        buttonState={switch isDisabled {
-        | true => Disabled
-        | false => Normal
-        }}
+        buttonState={isDisabled ? Disabled : Normal}
         onClick={_ => setShowDateRange(prev => !prev)}
       />
     </div>
