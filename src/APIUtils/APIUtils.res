@@ -1270,6 +1270,8 @@ let useGetURL = () => {
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
       | CHAT_BOT => `chat/ai/data`
+      | FEE_OVERVIEW_ESTIMATE => `hypersense/fee_estimate/get-overview-estimate`
+      | FEE_TRANSACTION_ESTIMATE => `hypersense/fee_estimate/get-transaction-fee-estimation`
       }
 
     | V2(entityNameForv2) =>

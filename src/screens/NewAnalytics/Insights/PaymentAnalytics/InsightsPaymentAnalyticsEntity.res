@@ -96,7 +96,7 @@ let successfulPaymentsDistributionChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: SuccessfulPaymentsDistributionUtils.successfulPaymentsDistributionMapper,
-  getChatOptions: BarGraphUtils.getBarGraphOptions,
+  getChatOptions: payload => BarGraphUtils.getBarGraphOptions(payload),
 }
 
 let successfulPaymentsDistributionTableEntity = {
@@ -129,7 +129,7 @@ let failedPaymentsDistributionChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: FailedPaymentsDistributionUtils.failedPaymentsDistributionMapper,
-  getChatOptions: BarGraphUtils.getBarGraphOptions,
+  getChatOptions: payload => BarGraphUtils.getBarGraphOptions(payload),
 }
 
 let failedPaymentsDistributionTableEntity = {

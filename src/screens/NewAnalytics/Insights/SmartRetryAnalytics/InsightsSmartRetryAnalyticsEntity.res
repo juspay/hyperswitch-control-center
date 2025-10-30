@@ -48,7 +48,7 @@ let successfulSmartRetryDistributionChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: SuccessfulSmartRetryDistributionUtils.successfulSmartRetryDistributionMapper,
-  getChatOptions: BarGraphUtils.getBarGraphOptions,
+  getChatOptions: payload => BarGraphUtils.getBarGraphOptions(payload),
 }
 
 let successfulSmartRetryDistributionTableEntity = {
@@ -81,7 +81,7 @@ let failedSmartRetryDistributionChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: FailureSmartRetryDistributionUtils.failedSmartRetryDistributionMapper,
-  getChatOptions: BarGraphUtils.getBarGraphOptions,
+  getChatOptions: payload => BarGraphUtils.getBarGraphOptions(payload),
 }
 
 let failedSmartRetryDistributionTableEntity = {
