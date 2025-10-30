@@ -8,6 +8,7 @@ module OverviewContainer = {
   @react.component
   let make = () => {
     let getURL = APIUtils.useGetURL()
+    let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
     let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -48,7 +49,6 @@ module OverviewContainer = {
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Error(""))
-          let showToast = ToastState.useShowToast()
           showToast(
             ~message="Error while fetching overview data. Please try again",
             ~toastType=ToastError,
