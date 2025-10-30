@@ -55,7 +55,7 @@ let feeEstimationMapper: Dict.t<JSON.t> => transactionViewfeeEstimate = dict => 
 }
 
 let fee_breakdown_based_on_geolocation: Dict.t<JSON.t> => array<feeBreakdownGeoLocation> = dict => {
-  let feeBreakDownDict = dict->LogicUtils.getArrayFromDict("fee_breakdown_based_on_geolocation", [])
+  let feeBreakDownDict = dict->getArrayFromDict("fee_breakdown_based_on_geolocation", [])
   let feeBreakdownGeoLocation: array<
     feeBreakdownGeoLocation,
   > = feeBreakDownDict->Array.map(value => {
@@ -71,7 +71,7 @@ let fee_breakdown_based_on_geolocation: Dict.t<JSON.t> => array<feeBreakdownGeoL
 let regionBasedBreakdownMapper = overviewDict => {
   let regionBasedBreakdown: array<regionBasedBreakdownItem> =
     overviewDict
-    ->LogicUtils.getArrayFromDict("region_based_breakdown", [])
+    ->getArrayFromDict("region_based_breakdown", [])
     ->Array.map(value => {
       let regionDict = value->getDictFromJsonObject
       {
@@ -94,14 +94,14 @@ let overviewBreakdownItemMapper: JSON.t => overViewFeesBreakdown = item => {
     feeType: overviewDict->getString("fee_type", ""),
     costContribution: overviewDict->getFloat("cost_contribution", 0.0),
     cardBrand: overviewDict->getString("card_brand", ""),
-    regionValues: overviewDict->LogicUtils.getStrArray("region_values"),
+    regionValues: overviewDict->getStrArray("region_values"),
     contributionPercentage: overviewDict->getFloat("cost_contribution", 0.0),
     regionBasedBreakdown: regionBasedBreakdownMapper(overviewDict),
   }
 }
 
 let overviewBreakdownMapper: Dict.t<JSON.t> => array<overViewFeesBreakdown> = dict => {
-  let overviewBreakdownDict = dict->LogicUtils.getArrayFromDict("breakdown", [])
+  let overviewBreakdownDict = dict->getArrayFromDict("breakdown", [])
   let overviewBreakdown: array<overViewFeesBreakdown> = overviewBreakdownDict->Array.map(value => {
     overviewBreakdownItemMapper(value)
   })
@@ -109,8 +109,7 @@ let overviewBreakdownMapper: Dict.t<JSON.t> => array<overViewFeesBreakdown> = di
 }
 
 let valuesBasedOnCardBrandMapper: Dict.t<JSON.t> => array<valuesBasedOnCardBrand> = dict => {
-  let valuesBasedOnCardBrandDict =
-    dict->LogicUtils.getArrayFromDict("top_values_based_on_brand", [])
+  let valuesBasedOnCardBrandDict = dict->getArrayFromDict("top_values_based_on_brand", [])
   let valuesBasedOnCardBrand: array<
     valuesBasedOnCardBrand,
   > = valuesBasedOnCardBrandDict->Array.map(value => {

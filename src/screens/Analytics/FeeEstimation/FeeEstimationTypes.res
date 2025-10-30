@@ -96,3 +96,9 @@ type breakdownContribution = {
   currency: string,
   value: float,
 }
+
+type sidebarModalData = {
+  title: string,
+  value: string,
+  icon: string,
+}

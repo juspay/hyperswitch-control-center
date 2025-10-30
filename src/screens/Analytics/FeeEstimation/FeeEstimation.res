@@ -2,6 +2,7 @@ open FeeEstimationTypes
 open FeeEstimationOverview
 open FeeEstimationTransactionView
 open FeeEstimationHelper
+open Typography
 
 module OverviewContainer = {
   @react.component
@@ -45,7 +46,14 @@ module OverviewContainer = {
         setOverviewRawData(_ => overViewData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Error(""))
+          let showToast = ToastState.useShowToast()
+          showToast(
+            ~message="Error while fetching overview data. Please try again",
+            ~toastType=ToastError,
+          )
+        }
       }
     }
 
@@ -58,14 +66,12 @@ module OverviewContainer = {
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-56" message="No data available" />}
       customLoader={<Shimmer styleClass="w-full h-56 rounded-xl" />}>
-      {<>
-        <TotalCostIncurred totalIncurredCost={overviewRawData} />
-        <FeeBreakdownBasedOnGeoLocation
-          feeBreakdownData=overviewRawData.feeBreakdownBasedOnGeoLocation
-          currency=overviewRawData.currency
-        />
-        <CostBreakDown costBreakDownRawData={overviewRawData} />
-      </>}
+      <TotalCostIncurred totalIncurredCost={overviewRawData} />
+      <FeeBreakdownBasedOnGeoLocation
+        feeBreakdownData=overviewRawData.feeBreakdownBasedOnGeoLocation
+        currency=overviewRawData.currency
+      />
+      <CostBreakDown costBreakDownRawData={overviewRawData} />
     </PageLoaderWrapper>
   }
 }
@@ -75,6 +81,7 @@ module TransactionViewContainer = {
   let make = () => {
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
+    let showToast = ToastState.useShowToast()
     let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -121,7 +128,13 @@ module TransactionViewContainer = {
         setTransactionData(_ => transactionData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Error(""))
+          showToast(
+            ~message="Error while fetching transaction data. Please try again",
+            ~toastType=ToastError,
+          )
+        }
       }
     }
 
@@ -135,9 +148,10 @@ module TransactionViewContainer = {
         screenState
         customUI={<NewAnalyticsHelper.NoData height="h-56" message="No data available" />}
         customLoader={<Shimmer styleClass="w-full h-56 rounded-xl" />}>
-        {switch transactionData.breakdown->Array.length {
-        | 0 => <NoDataFound message="No data available for selected month" />
-        | _ =>
+        <RenderIf condition={transactionData.breakdown->Array.length == 0}>
+          <NoDataFound message="No data available for selected month" />
+        </RenderIf>
+        <RenderIf condition={transactionData.breakdown->Array.length > 0}>
           <LoadedTable
             title=transactionViewTableKey
             hideTitle=true
@@ -154,14 +168,14 @@ module TransactionViewContainer = {
             collapseTableRow=false
             showAutoScroll=true
           />
-        }}
+        </RenderIf>
       </PageLoaderWrapper>
       <Modal
         showModal
-        modalHeading={"Transaction details"}
+        modalHeading="Transaction details"
         setShowModal
         closeOnOutsideClick=true
-        modalClass="w-full max-w-[539px] !bg-white dark:!bg-jp-gray-lightgray_background">
+        modalClass="w-540-px !bg-white dark:!bg-jp-gray-lightgray_background">
         <TransactionViewSideModal selectedTransaction />
       </Modal>
     </div>
@@ -189,8 +203,8 @@ let make = () => {
 
   <div>
     <div className="flex justify-between items-center">
-      <p className="text-2xl font-semibold text-nd_gray-800"> {"Fee Estimate"->React.string} </p>
-      <FeeEstimationHelper.MonthRangeSelector
+      <p className={`${heading.lg.semibold} text-nd_gray-800`}> {"Fee Estimate"->React.string} </p>
+      <MonthRangeSelector
         isDisabled=true
         updateDateRange={(~startDate, ~endDate) => {
           setMonthFilters(_ =>
@@ -205,7 +219,7 @@ let make = () => {
       />
     </div>
     <Tabs
-      initialIndex={0}
+      initialIndex=0
       tabs
       disableIndicationArrow=true
       showBorder=true
