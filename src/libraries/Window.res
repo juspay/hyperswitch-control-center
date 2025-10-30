@@ -216,11 +216,11 @@ module Navigator = {
     let extractVersion = (pattern: string) => {
       let parts = ua->String.split(pattern)
       if parts->Array.length > 1 {
-        let rest = parts->Array.getUnsafe(1)
+        let rest = parts->LogicUtils.getValueFromArray(1, "")
         let versionParts = rest->String.split(" ")
         if versionParts->Array.length > 0 {
-          let version = versionParts->Array.getUnsafe(0)
-          let cleanVersion = version->String.split("/")->Array.getUnsafe(0)
+          let version = versionParts->LogicUtils.getValueFromArray(0, "")
+          let cleanVersion = version->String.split("/")->LogicUtils.getValueFromArray(0, "")
           cleanVersion
         } else {
           "Unknown"
