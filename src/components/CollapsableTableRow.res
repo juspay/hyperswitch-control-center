@@ -16,6 +16,10 @@ let make = (
   ~isLastRowRounded=false,
   ~rowComponentInCell=true,
   ~customRowStyle="",
+  ~showOptions=false,
+  ~selectedRows=[],
+  ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
+  ~rowData: option<JSON.t>=?,
 ) => {
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
   let headingArray = []
@@ -26,10 +30,46 @@ let make = (
   })
   let borderRadius = "rounded-md"
 
+  let isRowSelected = React.useMemo(() => {
+    switch rowData {
+    | Some(data) =>
+      selectedRows->Array.some(selectedRow => {
+        selectedRow === data
+      })
+    | None => false
+    }
+  }, (selectedRows, rowData))
+
+  let handleRowSelection = () => {
+    switch (onRowSelect, rowData) {
+    | (Some(selectFn), Some(data)) =>
+      if isRowSelected {
+        selectFn(_ => selectedRows->Array.filter(row => row !== data))
+      } else {
+        selectFn(_ => selectedRows->Array.concat([data]))
+      }
+    | _ => ()
+    }
+  }
+
   <>
     <DesktopView>
       <tr
         className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${rowFontColor} ${rowFontStyle} transition duration-300 ease-in-out ${rowFontSize}}`}>
+        <RenderIf condition={showOptions}>
+          <td className="h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960">
+            <div className="h-full box-border px-4 py-3">
+              <div className="flex flex-row gap-3 items-center">
+                <div onClick={_ => handleRowSelection()}>
+                  <CheckBoxIcon isSelected={isRowSelected} checkboxDimension="h-4 w-4" />
+                </div>
+                <div className="opacity-50 cursor-not-allowed">
+                  <Icon name="nd-delete-dustbin-02" size=16 className="text-nd_red-500" />
+                </div>
+              </div>
+            </div>
+          </td>
+        </RenderIf>
         {item
         ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {
