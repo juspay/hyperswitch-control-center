@@ -5,37 +5,6 @@ let getColor = index => {
   [blue, green]->Array.get(index)->Option.getOr(blue)
 }
 
-let getAmountValue = (data, ~id) => {
-  switch data->getOptionFloat(id) {
-  | Some(value) => value /. 100.0
-  | _ => 0.0
-  }
-}
-
-let getLineGraphObj = (
-  ~array: array<JSON.t>,
-  ~key: string,
-  ~name: string,
-  ~color,
-  ~isAmount=false,
-): LineGraphTypes.dataObj => {
-  let data = array->Array.map(item => {
-    let dict = item->getDictFromJsonObject
-    if isAmount {
-      dict->getAmountValue(~id=key)
-    } else {
-      dict->getFloat(key, 0.0)
-    }
-  })
-  let dataObj: LineGraphTypes.dataObj = {
-    showInLegend: true,
-    name,
-    data,
-    color,
-  }
-  dataObj
-}
-
 let getBarGraphData = (json: JSON.t, key: string, barColor: string): BarGraphTypes.data => {
   json
   ->getArrayFromJson([])
