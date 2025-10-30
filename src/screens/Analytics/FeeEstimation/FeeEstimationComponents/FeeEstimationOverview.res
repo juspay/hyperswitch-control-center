@@ -78,7 +78,7 @@ module FeeBreakdownBasedOnGeoLocation = {
       ~gridLineWidthYAxis=0,
       ~height=Some(264.0),
       ~tickWidth=0,
-      ~tickInterval=tickInterval,
+      ~tickInterval,
       ~yMax=Math.Int.max(maxFeeValue->Math.ceil->Int.fromFloat, 0),
       ~xAxisLineWidth=Some(0),
       ~yAxisLabelFormatter=Some(FeeEstimationHelper.labelFormatter(currency)),
@@ -281,11 +281,6 @@ module CostBreakDownSideModal = {
           </div>
         </div>
       </div>
-      // TODO: Enable when the backend support is available
-      //   <div className="flex gap-4 items-center justify-center">
-      //     <Button text={`View All Transactions For Selected Fees`} buttonType={Secondary} />
-      //     <Button text="Got it" buttonType={Primary} />
-      //   </div>
     </div>
   })
 }
