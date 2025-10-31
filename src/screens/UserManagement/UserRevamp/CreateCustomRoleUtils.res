@@ -1,10 +1,11 @@
 open LogicUtils
 open UserManagementTypes
 
-let updateScope = (scopes: array<string>, action: scopeAction, targetScope: string) => {
+let updateScope = (scopes, action, targetScope: groupScopeType) => {
+  let target = (targetScope :> string)->String.toLowerCase
   switch action {
-  | Add => scopes->Array.includes(targetScope) ? scopes : scopes->Array.concat([targetScope])
-  | Remove => scopes->Array.filter(s => s !== targetScope)
+  | Add => scopes->Array.includes(target) ? scopes : scopes->Array.concat([target])
+  | Remove => scopes->Array.filter(s => s !== target)
   }
 }
 

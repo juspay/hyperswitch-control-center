@@ -35,14 +35,13 @@ module RenderPermissionModule = {
       parentGroupsField.input.onChange(updatedGroups->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
-    let handleScopeChange = (scope: groupScopeType, isSelected: bool) => {
+    let handleScopeChange = (scope, isSelected) => {
       let currentScopes = getCurrentScopes()
-      let scopeString = (scope :> string)->String.toLowerCase
-      let newScopes = updateScope(currentScopes, isSelected ? Add : Remove, scopeString)
+      let newScopes = updateScope(currentScopes, isSelected ? Add : Remove, scope)
 
       let finalScopes = switch (scope, isSelected) {
-      | (Write, true) => updateScope(newScopes, Add, "read")
-      | (Read, false) => updateScope(newScopes, Remove, "write")
+      | (Write, true) => updateScope(newScopes, Add, Read)
+      | (Read, false) => updateScope(newScopes, Remove, Write)
       | _ => newScopes
       }
       updateScopes(finalScopes->Array.map(JSON.Encode.string))
