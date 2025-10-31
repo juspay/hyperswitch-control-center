@@ -123,6 +123,7 @@ module FlowWithLayoutControls = {
 let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
+  open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
@@ -131,6 +132,11 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
+  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
+    FilterContext.filterContext,
+  )
+  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
+  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
   let handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(prev => {
@@ -145,7 +151,9 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let accountData = await getAccounts()
-      let allTransactions = await getTransactions()
+
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let allTransactions = await getTransactions(~queryParamerters=Some(queryString))
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
@@ -174,10 +182,26 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
     }
   }
 
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~range=180,
+    ~origin="recon_engine_overview_summary",
+    (),
+  )
+
   React.useEffect(() => {
-    getAccountsData()->ignore
+    setInitialFilters()
     None
   }, [])
+
+  React.useEffect(() => {
+    if !(filterValue->isEmptyDict) {
+      getAccountsData()->ignore
+    }
+    None
+  }, [filterValue])
 
   React.useEffect(() => {
     switch allData {
