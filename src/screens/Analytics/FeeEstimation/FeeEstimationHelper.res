@@ -157,240 +157,176 @@ let labelFormatter = currency => {
 
 module MonthRangeSelector = {
   open DateTimeUtils
-  let monthYear = "MMM YYYY"
 
-  let getDaysInMonth = (year, month) => {
-    switch month {
-    | 0 => 31
-    | 1 => checkLeapYear(year) ? 29 : 28
-    | 2 => 31
-    | 3 => 30
-    | 4 => 31
-    | 5 => 30
-    | 6 => 31
-    | 7 => 31
-    | 8 => 30
-    | 9 => 31
-    | 10 => 30
-    | 11 => 31
-    | _ => 31
-    }
-  }
-
-  let getStartDateFromSelectedMonth = (~month, ~selectedYear) => {
-    let year = selectedYear->Int.fromString->Option.getOr(2025)
-    Date.makeWithYMD(~year, ~month, ~date=1)
-  }
-
-  let getEndDateFromSelectedMonth = (~month, ~selectedYear) => {
-    let year = selectedYear->Int.fromString->Option.getOr(2025)
-    let lastDay = getDaysInMonth(year, month)
-    Date.makeWithYMD(~year, ~month, ~date=lastDay)
-  }
-
-  type dateFormatType = YMD(string) | MY(string)
+  let getMonthStart = (~month, ~year) => Date.makeWithYMD(~year, ~month, ~date=2)
+  let getMonthEnd = (~month, ~year) => Date.makeWithYMD(~year, ~month=month + 1, ~date=0)
+  let toYearMonth = date => date->Date.toString->getFormattedDate("YYYY-MM")
+  let formatYearMonth = (year, month) =>
+    `${year->Int.toString}-${(month + 1)->Int.toString->String.padStart(2, "0")}`
 
   @react.component
   let make = (~updateDateRange, ~initialStartDate, ~initialEndDate, ~isDisabled=false) => {
-    let currentDate = Date.make()
-    let lastMonth = currentDate->Date.getMonth - 1
-    let currentYear = currentDate->Date.getFullYear
-    let defaultStartDate = Date.makeWithYMD(~year=currentYear, ~month=lastMonth, ~date=1)
+    let today = Date.make()
+    let currentYear = today->Date.getFullYear
+    let currentMonth = today->Date.getMonth
+    let minYearMonth = formatYearMonth(currentYear - 2, currentMonth)
+    let maxYearMonth = toYearMonth(today)
 
     let (selectedYear, setSelectedYear) = React.useState(_ => currentYear->Int.toString)
     let (showDateRange, setShowDateRange) = React.useState(_ => false)
-    let monthRangeSelectorRef = React.useRef(Nullable.null)
-
-    let isMobileView = MatchMedia.useMobileChecker()
-    let monthRangeSelectorCss = isMobileView
-      ? "absolute z-10 bg-white border w-[20rem] right-0 top-12 shadow-connectorTagShadow rounded-xl"
-      : "absolute z-10 bg-white border w-full bottom-0 shadow-connectorTagShadow rounded-xl"
-
-    OutsideClick.useOutsideClick(
-      ~refs=ArrayOfRef([monthRangeSelectorRef]),
-      ~isActive=showDateRange,
-      ~callback=() => setShowDateRange(_ => false),
-    )
-
-    let increaseYearRange = () => {
-      let currentActualDate = Date.make()->Date.getFullYear->Int.toString
-
-      if selectedYear != currentActualDate {
-        let reducedYear = selectedYear->safeParse->getIntFromJson(1999) + 1
-        setSelectedYear(_ => reducedYear->Int.toString)
-      }
-    }
-    let decreaseYearRange = () => {
-      let reducedYear = selectedYear->safeParse->getIntFromJson(1999) - 1
-      setSelectedYear(_ => reducedYear->Int.toString)
-    }
-
     let (startDate, setStartDate) = React.useState(_ => initialStartDate)
     let (endDate, setEndDate) = React.useState(_ => initialEndDate)
 
-    let isOutOfRange = index => {
-      let date = Date.makeWithYMD(
-        ~year=selectedYear->Int.fromString->Option.getOr(2025),
-        ~month=index,
-        ~date=1,
-      )
-      date > defaultStartDate
+    let monthRangeSelectorRef = React.useRef(Nullable.null)
+    let isMobileView = MatchMedia.useMobileChecker()
+
+    let monthRangeSelectorCss = isMobileView
+      ? "absolute z-10 bg-white border w-full bottom-0 shadow-connectorTagShadow rounded-xl"
+      : "absolute z-10 bg-white border w-[20rem] right-0 top-12 shadow-connectorTagShadow rounded-xl"
+
+    let getYear = () => selectedYear->Int.fromString->Option.getOr(currentYear)
+
+    let changeYear = delta => {
+      let newYear = getYear() + delta
+      if newYear <= currentYear && newYear >= currentYear - 2 {
+        setSelectedYear(_ => newYear->Int.toString)
+      }
     }
 
-    let handleSelect = index => {
-      let date = getStartDateFromSelectedMonth(~month=index, ~selectedYear)
-      let lastValidDate = Date.makeWithYMD(~year=currentYear - 2, ~month=lastMonth, ~date=1)
-      if (
-        !(
-          date->Date.toString->dateFormat("YYYY-MM-DD") >=
-            currentDate->Date.toString->dateFormat("YYYY-MM-DD")
-        ) &&
-        !(
-          date->Date.toString->dateFormat("YYYY-MM-DD") <
-            lastValidDate
-            ->Date.toString
-            ->dateFormat("YYYY-MM-DD")
-        )
-      ) {
-        if startDate->isEmptyString || (startDate->isNonEmptyString && endDate->isNonEmptyString) {
-          let startDate = getStartDateFromSelectedMonth(~month=index, ~selectedYear)
-          setStartDate(_ => startDate->Js.Date.toString)
+    let isMonthValid = monthIndex => {
+      let yearMonth = formatYearMonth(getYear(), monthIndex)
+      yearMonth >= minYearMonth && yearMonth <= maxYearMonth
+    }
+
+    let handleSelect = monthIndex => {
+      if isMonthValid(monthIndex) {
+        let year = getYear()
+        let clickedDate = getMonthStart(~month=monthIndex, ~year)
+        let clickedYearMonth = toYearMonth(clickedDate)
+
+        if startDate->isEmptyString || endDate->isNonEmptyString {
+          setStartDate(_ => clickedDate->Date.toString)
           setEndDate(_ => "")
-        } else if startDate->isNonEmptyString && endDate->isEmptyString {
-          if date > startDate->Js.Date.fromString {
-            let endDate = getEndDateFromSelectedMonth(~month=index, ~selectedYear)
-            setEndDate(_ => endDate->Js.Date.toString)
+        } else {
+          let startYearMonth = toYearMonth(startDate->Date.fromString)
+          if clickedYearMonth >= startYearMonth {
+            setEndDate(_ => getMonthEnd(~month=monthIndex, ~year)->Date.toString)
           } else {
-            let newStartDate = getStartDateFromSelectedMonth(~month=index, ~selectedYear)
-            let mon = startDate->Date.fromString->Date.getMonth
-            let year = startDate->Date.fromString->Date.getFullYear->Int.toString
-            let newEndDate = getEndDateFromSelectedMonth(~month=mon, ~selectedYear=year)
-            setStartDate(_ => newStartDate->Js.Date.toString)
-            setEndDate(_ => newEndDate->Js.Date.toString)
+            let prevStart = startDate->Date.fromString
+            let newEndDate = getMonthEnd(
+              ~month=prevStart->Date.getMonth,
+              ~year=prevStart->Date.getFullYear,
+            )
+            setStartDate(_ => clickedDate->Date.toString)
+            setEndDate(_ => newEndDate->Date.toString)
           }
         }
       }
     }
 
-    let isInSelectedRange = index => {
-      if startDate->isEmptyString || endDate->isEmptyString {
-        false
-      } else {
-        getStartDateFromSelectedMonth(~month=index, ~selectedYear) >=
-        startDate->Js.Date.fromString &&
-          getStartDateFromSelectedMonth(~month=index, ~selectedYear) <= endDate->Js.Date.fromString
+    let isInSelectedRange = monthIndex => {
+      startDate->isNonEmptyString &&
+      endDate->isNonEmptyString && {
+        let monthDate = getMonthStart(~month=monthIndex, ~year=getYear())
+        monthDate >= startDate->Date.fromString && monthDate <= endDate->Date.fromString
       }
     }
 
-    let onCancel = () => {
-      setEndDate(_ => "")
+    let handleCancel = () => {
+      setStartDate(_ => initialStartDate)
+      setEndDate(_ => initialEndDate)
       setShowDateRange(_ => false)
     }
 
     let onApply = () => {
-      updateDateRange(
-        ~startDate=startDate->getFormattedDate("YYYY-MM-DD"),
-        ~endDate=endDate->getFormattedDate("YYYY-MM-DD"),
-      )
-      setShowDateRange(_ => false)
+      if endDate->isNonEmptyString {
+        updateDateRange(
+          ~startDate=startDate->getFormattedDate("YYYY-MM-DD"),
+          ~endDate=endDate->getFormattedDate("YYYY-MM-DD"),
+        )
+        setShowDateRange(_ => false)
+      }
     }
 
-    let getFormattedDateValue = date => date->getFormattedDate(monthYear)
-    let css = index => {
-      let startDateFormatted = startDate->isNonEmptyString ? getFormattedDateValue(startDate) : ""
-      let endDateFormatted = endDate->isNonEmptyString ? getFormattedDateValue(endDate) : ""
-
-      let formattedDate = getFormattedDateValue(
-        getStartDateFromSelectedMonth(~month=index, ~selectedYear)->Date.toString,
-      )
-
-      let now = Js.Date.fromFloat(Date.now())
-
-      let currentYear = now->Js.Date.getFullYear
-      let twoYearsAgo = Belt.Float.toInt(currentYear) - 2
-      let twoYearsFromNow = now->Js.Date.setFullYear(Int.toFloat(twoYearsAgo))
-      let twoMonthsInMilliSeconds = 2.0 *. 30.0 *. 24.0 *. 60.0 *. 60.0 *. 1000.0
-      let isOutofStartingRange = index => {
-        let date = getStartDateFromSelectedMonth(~month=index, ~selectedYear)
-        date->Js.Date.getTime +. twoMonthsInMilliSeconds < twoYearsFromNow
-      }
-
-      if (
-        startDateFormatted->isNonEmptyString &&
-        formattedDate === startDateFormatted &&
-        endDateFormatted->isNonEmptyString &&
-        formattedDate === endDateFormatted
-      ) {
-        "bg-blue-812 text-white rounded-md"
-      } else if startDateFormatted->isNonEmptyString && formattedDate === startDateFormatted {
-        "bg-blue-812 text-white rounded-l-md"
-      } else if endDateFormatted->isNonEmptyString && formattedDate === endDateFormatted {
-        "bg-blue-812 text-white rounded-r-md"
-      } else if isInSelectedRange(index) {
-        "hover:bg-nd_gray-25 text-nd_gray-600"
-      } else if isOutOfRange(index) {
-        "bg-grey-light text-grey-medium"
-      } else if isOutofStartingRange(index) {
-        "bg-grey-light text-grey-medium"
+    let getCssClass = monthIndex => {
+      if !isMonthValid(monthIndex) {
+        "bg-grey-light text-grey-medium cursor-not-allowed"
       } else {
-        "hover:bg-nd_gray-25 text-nd_gray-600"
+        let monthYearMonth = getMonthStart(~month=monthIndex, ~year=getYear())->toYearMonth
+        let startYearMonth =
+          startDate->isNonEmptyString ? startDate->Date.fromString->toYearMonth : ""
+        let endYearMonth = endDate->isNonEmptyString ? endDate->Date.fromString->toYearMonth : ""
+
+        switch (startYearMonth === monthYearMonth, endYearMonth === monthYearMonth) {
+        | (true, true) => "bg-blue-812 text-white rounded-md"
+        | (true, false) => "bg-blue-812 text-white rounded-l-md"
+        | (false, true) => "bg-blue-812 text-white rounded-r-md"
+        | (false, false) =>
+          isInSelectedRange(monthIndex)
+            ? "bg-blue-100 text-nd_gray-600"
+            : "hover:bg-nd_gray-25 text-nd_gray-600"
+        }
       }
     }
 
     let getButtonText = () => {
-      if startDate->String.length > 0 && endDate->String.length > 0 {
-        `${startDate->getFormattedDate("MMM YY")} - ${endDate->getFormattedDate("MMM YY")}`
-      } else {
-        "Select month range"
-      }
+      startDate->isNonEmptyString && endDate->isNonEmptyString
+        ? `${startDate->getFormattedDate("MMM YY")} - ${endDate->getFormattedDate("MMM YY")}`
+        : "Select month range"
     }
+
+    OutsideClick.useOutsideClick(
+      ~refs=ArrayOfRef([monthRangeSelectorRef]),
+      ~isActive=showDateRange,
+      ~callback=() => {
+        handleCancel()
+      },
+    )
 
     <div className="relative" ref={monthRangeSelectorRef->ReactDOM.Ref.domRef}>
       <RenderIf condition={showDateRange}>
         <div className=monthRangeSelectorCss>
           <div className="flex justify-between p-4">
-            <div className="flex items-center">
-              <RenderIf condition={startDate->String.length > 0}>
+            <div className="flex items-center gap-1">
+              <RenderIf condition={startDate->isNonEmptyString}>
                 <p className="font-semibold">
                   {startDate->getFormattedDate("MMM YYYY")->React.string}
                 </p>
               </RenderIf>
-              <RenderIf condition={endDate->String.length > 0}>
-                <p className="font-semibold"> {"-"->React.string} </p>
-                <p className="font-semibold">
-                  {endDate->getFormattedDate("MMM YYYY")->React.string}
-                </p>
-              </RenderIf>
+              {endDate->isNonEmptyString
+                ? <>
+                    <p className="font-semibold"> {"-"->React.string} </p>
+                    <p className="font-semibold">
+                      {endDate->getFormattedDate("MMM YYYY")->React.string}
+                    </p>
+                  </>
+                : React.null}
             </div>
             <div
               className="flex gap-2 items-center"
               onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
-              <Icon
-                className="cursor-pointer" name="angle-left" onClick={_ => decreaseYearRange()}
-              />
+              <Icon className="cursor-pointer" name="angle-left" onClick={_ => changeYear(-1)} />
               <p> {selectedYear->React.string} </p>
-              <Icon
-                className="cursor-pointer" name="angle-right" onClick={_ => increaseYearRange()}
-              />
+              <Icon className="cursor-pointer" name="angle-right" onClick={_ => changeYear(1)} />
             </div>
           </div>
           <hr />
           <div className="grid grid-cols-3 p-4 gap-y-4">
             {months
-            ->Array.mapWithIndex((ele, index) => {
+            ->Array.mapWithIndex((month, index) =>
               <div
+                key={(month :> string)}
                 onClick={_ => handleSelect(index)}
-                key={(ele :> string)}
-                className={`p-2 ${body.lg.medium} cursor-pointer transition-transform transform ${index->css}`}>
-                <span> {(ele :> string)->React.string} </span>
+                className={`p-2 ${body.lg.medium} ${index->getCssClass}`}>
+                {(month :> string)->React.string}
               </div>
-            })
+            )
             ->React.array}
           </div>
           <hr />
           <div className="flex p-4 justify-end gap-3">
             <Button
-              text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} buttonSize={Small}
+              text="Cancel" buttonType={Secondary} onClick={_ => handleCancel()} buttonSize={Small}
             />
             <Button
               text="Apply"
