@@ -42,6 +42,10 @@ let make = (
     None
   }, [showViewModal])
 
+  let (headerLength, csvDataLength) = React.useMemo(() => {
+    (headerKeys->Array.length, csvData->Array.length)
+  }, (headerKeys, csvData))
+
   <Modal
     setShowModal=setShowViewModal
     showModal=showViewModal
@@ -52,21 +56,21 @@ let make = (
     modalClass="flex flex-col justify-start !max-h-750-px w-4/5 !overflow-scroll !bg-white dark:!bg-jp-gray-lightgray_background"
     childClass="relative h-full">
     <div className="h-full overflow-scroll p-6">
-      <RenderIf condition={headerKeys->Array.length > 0 && csvData->Array.length > 0}>
+      <RenderIf condition={headerLength > 0 && csvDataLength > 0}>
         <LoadedTable
           title="CSV Data"
           hideTitle=true
           actualData={csvData->Array.map(Nullable.make)}
-          totalResults={csvData->Array.length}
+          totalResults=csvDataLength
           resultsPerPage=10
           offset
           setOffset
-          currrentFetchCount={csvData->Array.length}
+          currrentFetchCount=csvDataLength
           entity={getCsvEntity(~headerKeys)}
           collapseTableRow=false
         />
       </RenderIf>
-      <RenderIf condition={headerKeys->Array.length === 0 || csvData->Array.length === 0}>
+      <RenderIf condition={headerLength === 0 || csvDataLength === 0}>
         <NewAnalyticsHelper.NoData message="No Data Found" height="h-40" />
       </RenderIf>
     </div>
