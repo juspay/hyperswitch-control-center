@@ -15,7 +15,7 @@ let make = () => {
   let {updateExistingKeys, filterValueJson, reset, filterValue} =
     FilterContext.filterContext->React.useContext
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")

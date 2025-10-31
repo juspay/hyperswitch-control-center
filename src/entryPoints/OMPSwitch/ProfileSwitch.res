@@ -137,7 +137,7 @@ let make = () => {
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isMobileView = MatchMedia.useMobileChecker()
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
