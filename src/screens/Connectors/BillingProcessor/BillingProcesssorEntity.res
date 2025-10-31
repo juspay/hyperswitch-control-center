@@ -23,10 +23,7 @@ let getHeading = colType => {
   }
 }
 let connectorStatusStyle = connectorStatus =>
-  switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
-  }
+  connectorStatus->String.toLowerCase == "active" ? "text-green-700" : "text-grey-800 opacity-50"
 
 let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   switch colType {

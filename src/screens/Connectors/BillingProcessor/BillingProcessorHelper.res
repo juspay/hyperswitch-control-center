@@ -16,10 +16,7 @@ module CustomConnectorCellWithDefaultIcon = {
     | Some(connectorType) => connectorType
     | None => Processor
     }
-    let billing_processor_id = switch businessProfileRecoilVal.billing_processor_id {
-    | Some(id) => id
-    | None => ""
-    }
+    let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
 
     if connectorName->isNonEmptyString {
       <div className="flex items-center">
@@ -50,13 +47,7 @@ module ConnectButton = {
   @react.component
   let make = (~setShowModal) => {
     let dict = Dict.make()
-    [
-      "hasSubmitErrors",
-      "hasValidationErrors",
-      "errors",
-      "submitErrors",
-      "submitting",
-    ]->Array.forEach(item => {
+    ["hasValidationErrors", "errors"]->Array.forEach(item => {
       Dict.set(dict, item, JSON.Encode.bool(true))
     })
 
@@ -68,14 +59,12 @@ module ConnectButton = {
 
     let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Dict.toArray
 
-    let disabled = hasValidationErrors
-
     let button =
       <AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
         <Button
           text="Connect and Proceed"
           buttonType=Button.Primary
-          buttonState={disabled ? Button.Disabled : Button.Normal}
+          buttonState={hasValidationErrors ? Button.Disabled : Button.Normal}
           onClick={_ => setShowModal(_ => true)}
         />
       </AddDataAttributes>

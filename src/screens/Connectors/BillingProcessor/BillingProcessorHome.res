@@ -125,10 +125,7 @@ let make = () => {
     | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
     }
   }
-  let billing_processor_id = switch businessProfileRecoilVal.billing_processor_id {
-  | Some(id) => id
-  | None => ""
-  }
+  let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
 
   let onSubmit = async (values, _) => {
     try {
