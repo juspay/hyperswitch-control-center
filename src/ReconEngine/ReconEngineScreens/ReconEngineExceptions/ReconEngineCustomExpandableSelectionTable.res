@@ -67,7 +67,7 @@ module TableHeader = {
                               }
 
                               <SelectBox.BaseDropdown
-                                allowMultiSelect=true
+                                allowMultiSelect=false
                                 hideMultiSelectButtons=true
                                 buttonText=""
                                 input={filterInput}
@@ -161,6 +161,13 @@ let make = (
   ~selectedRows=[],
   ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
   ~sections: array<ReconEngineExceptionTransactionTypes.tableSection>,
+  ~offset: int,
+  ~setOffset: (int => int) => unit,
+  ~resultsPerPage: int,
+  ~setResultsPerPage: (int => int) => unit,
+  ~totalResults: int,
+  ~showSearchFilter=false,
+  ~searchFilterElement: option<React.element>=?,
 ) => {
   let heading = if showOptions {
     [makeHeaderInfo(~key="options", ~title="")]->Array.concat(headingProp)
@@ -261,6 +268,23 @@ let make = (
     />
   }
 
+  let paginatedSections = React.useMemo(() => {
+    sections->Array.map(section => {
+      let startIndex = offset
+      let endIndex = offset + resultsPerPage
+      let paginatedRows = section.rows->Array.slice(~start=startIndex, ~end=endIndex)
+      let paginatedRowData = section.rowData->Array.slice(~start=startIndex, ~end=endIndex)
+
+      (
+        {
+          titleElement: section.titleElement,
+          rows: paginatedRows,
+          rowData: paginatedRowData,
+        }: ReconEngineExceptionTransactionTypes.tableSection
+      )
+    })
+  }, (sections, offset, resultsPerPage))
+
   let renderSections = sections => {
     <>
       {sections
@@ -268,9 +292,12 @@ let make = (
         section: ReconEngineExceptionTransactionTypes.tableSection,
         sectionIndex,
       ) => {
-        <div key={`section-${sectionIndex->Int.toString}`} className="mb-6">
+        let isLastSection = sectionIndex === sections->Array.length - 1
+        let sectionMarginClass = isLastSection ? "" : "mb-6"
+
+        <div key={`section-${sectionIndex->Int.toString}`} className={sectionMarginClass}>
           {section.titleElement}
-          <div className="border rounded-xl overflow-scroll">
+          <div className={`border rounded-xl overflow-x-scroll ${scrollBarClass}`}>
             <table className="table-auto w-full h-full" colSpan=0>
               <TableHeader
                 heading
@@ -295,10 +322,29 @@ let make = (
     <RenderIf condition={showScrollBar}>
       <style> {expandableTableScrollbarCss->React.string} </style>
     </RenderIf>
-    <div className={`overflow-scroll ${scrollBarClass}`}>
-      <AddDataAttributes attributes=[("data-expandable-table", title)]>
-        {renderSections(sections)}
-      </AddDataAttributes>
+    <div className="flex flex-col w-full">
+      <RenderIf condition={showSearchFilter}>
+        <div className="mb-4"> {searchFilterElement->Option.getOr(React.null)} </div>
+      </RenderIf>
+      <RenderIf condition={totalResults > 0}>
+        <AddDataAttributes attributes=[("data-expandable-table", title)]>
+          {renderSections(paginatedSections)}
+        </AddDataAttributes>
+        <Paginator
+          totalResults
+          offset
+          resultsPerPage
+          setOffset
+          setResultsPerPage
+          currrentFetchCount=totalResults
+          actualData=[]
+          tableDataLoading=false
+          showResultsPerPageSelector=true
+        />
+      </RenderIf>
+      <RenderIf condition={totalResults === 0}>
+        <NoDataFound customCssClass="my-6" message="No Data Available" renderType=Painting />
+      </RenderIf>
     </div>
   </>
 }

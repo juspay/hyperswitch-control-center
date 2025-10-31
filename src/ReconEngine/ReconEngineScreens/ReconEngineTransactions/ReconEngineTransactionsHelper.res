@@ -71,7 +71,10 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails: ReconEngineTypes.transactionType) => {
+  let make = (
+    ~currentTransactionDetails: ReconEngineTypes.transactionType,
+    ~detailsFields: array<TransactionsTableEntity.transactionColType>,
+  ) => {
     open TransactionsTableEntity
 
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
@@ -81,7 +84,6 @@ module TransactionDetailInfo = {
       "w-1/4"
     }
     let isArchived = currentTransactionDetails.transaction_status == Archived
-    let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
@@ -345,7 +347,12 @@ module AuditTrail = {
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
       let customComponent = {
         id: transaction.version->Int.toString,
-        customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
+        customComponent: Some(
+          <TransactionDetailInfo
+            currentTransactionDetails=transaction
+            detailsFields=[TransactionId, Status, Variance, CreatedAt]
+          />,
+        ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)

@@ -55,11 +55,11 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     (sourceData, targetData)
   }, (allTransactionsData, sourceAccountData.account_id, targetAccountData.account_id))
 
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <PageLoaderWrapper
-      screenState
-      customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
-      customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+  <PageLoaderWrapper
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
+    customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <AccountDetailCard
         accountName={sourceAccountData.account_name}
         otherAccountName={targetAccountData.account_name}
@@ -72,6 +72,6 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
         isSource={false}
         transactionData={targetTransactionData}
       />
-    </PageLoaderWrapper>
-  </div>
+    </div>
+  </PageLoaderWrapper>
 }

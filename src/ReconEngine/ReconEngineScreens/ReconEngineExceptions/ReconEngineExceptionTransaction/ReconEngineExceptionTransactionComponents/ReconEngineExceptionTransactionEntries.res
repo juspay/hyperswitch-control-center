@@ -19,9 +19,13 @@ let make = (
   ))
   let showToast = ToastState.useShowToast()
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
-  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ => entriesList)
+  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
+    entriesList->addUniqueIdsToEntries
+  )
   let detailsFields = [EntryType, Amount, Currency, Status, EntryId, EffectiveAt, CreatedAt]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
+  let (offset, setOffset) = React.useState(_ => 0)
+  let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
@@ -30,7 +34,7 @@ let make = (
       let updated = updateFn(prev)
       switch updated->Array.length {
       | 0 => []
-      | _ => [updated->Array.get(updated->Array.length - 1)->Option.getOr(JSON.Encode.null)]
+      | _ => [updated->getValueFromArray(updated->Array.length - 1, JSON.Encode.null)]
       }
     })
   }
@@ -40,11 +44,24 @@ let make = (
   }, (updatedEntriesList, accountsData))
 
   let sectionDetails = (sectionIndex: int, rowIndex: int) => {
-    getSectionRowDetails(~sectionIndex, ~rowIndex, ~groupedEntries)
+    getSectionRowDetails(
+      ~sectionIndex,
+      ~rowIndex,
+      ~groupedEntries=groupedEntries->convertGroupedEntriesToEntryType,
+    )
   }
 
   let tableSections = React.useMemo(() => {
-    getSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+    let sections = getEntriesSections(~groupedEntries, ~accountInfoMap, ~detailsFields)
+    let accountIds = groupedEntries->Dict.keysToArray
+    sections->Array.mapWithIndex((section, index) => {
+      let accountId = accountIds->getValueFromArray(index, "")
+      let entriesWithUniqueId = groupedEntries->Dict.get(accountId)->Option.getOr([])
+      {
+        ...section,
+        rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
+      }
+    })
   }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -73,8 +90,11 @@ let make = (
   }
 
   let summaryItems = React.useMemo(() => {
-    generateAllResolutionSummaries(entriesList, updatedEntriesList)
-  }, [entriesList, updatedEntriesList])
+    generateAllResolutionSummaries(
+      entriesList,
+      updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType),
+    )
+  }, (entriesList, updatedEntriesList))
 
   let onCloseClickCustomFun = () => {
     setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
@@ -91,6 +111,8 @@ let make = (
       updatedEntriesList
       setUpdatedEntriesList
       currentExceptionDetails
+      accountsData
+      oldEntriesList={entriesList->addUniqueIdsToEntries}
     />
     <ReconEngineCustomExpandableSelectionTable
       title=""
@@ -98,14 +120,22 @@ let make = (
       getSectionRowDetails=sectionDetails
       showScrollBar=true
       showOptions={exceptionStage == ResolvingException(EditEntry) ||
-        exceptionStage == ResolvingException(MarkAsReceived)}
+      exceptionStage == ResolvingException(MarkAsReceived) ||
+      exceptionStage == ResolvingException(LinkStagingEntriesToTransaction)}
       selectedRows
       onRowSelect=handleRowSelect
       sections=tableSections
+      offset
+      setOffset
+      resultsPerPage
+      setResultsPerPage
+      totalResults={updatedEntriesList->Array.length}
     />
     <RenderIf
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
-        exceptionStage == ConfirmResolution(CreateNewEntry)}>
+      exceptionStage == ConfirmResolution(CreateNewEntry) ||
+      exceptionStage == ConfirmResolution(MarkAsReceived) ||
+      exceptionStage == ConfirmResolution(LinkStagingEntriesToTransaction)}>
       <div
         className="flex flex-row items-center gap-3 absolute right-1/2 bottom-10 border border-nd_gray-200 bg-nd_gray-0 shadow-lg rounded-2xl p-3">
         <div className="flex gap-3">
@@ -115,7 +145,7 @@ let make = (
             customButtonStyle="!w-full"
             onClick={_ => {
               setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
-              setUpdatedEntriesList(_ => entriesList)
+              setUpdatedEntriesList(_ => entriesList->addUniqueIdsToEntries)
               setSelectedRows(_ => [])
             }}
           />

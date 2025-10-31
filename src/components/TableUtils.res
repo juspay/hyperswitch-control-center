@@ -261,7 +261,7 @@ module LabelCell = {
       <div className="flex-initial ">
         <div className={`rounded ${borderColor}`}>
           <div
-            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5`}>
+            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5 whitespace-nowrap`}>
             <AddDataAttributes attributes=[("data-label", text)]>
               <div> {highlightedText(text, highlightText)} </div>
             </AddDataAttributes>

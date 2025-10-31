@@ -1,5 +1,4 @@
 open ReconEngineTypes
-open LogicUtils
 
 type processingColType =
   | StagingEntryId
@@ -37,7 +36,7 @@ let getProcessingHeading = colType => {
 
 let getStatusLabel = (status: processingEntryStatus): Table.cell => {
   Label({
-    title: (status :> string)->camelCaseToTitle,
+    title: (status :> string)->String.toUpperCase,
     color: switch status {
     | Pending => LabelBlue
     | Processed => LabelGreen
