@@ -155,6 +155,25 @@ let labelFormatter = currency => {
   }
 }
 
+module ModalInfoSection = {
+  @react.component
+  let make = (~modalInfoData: array<FeeEstimationTypes.sidebarModalData>) => {
+    modalInfoData
+    ->Array.map(item => {
+      <div key={randomString(~length=10)} className="flex flex-col gap-1">
+        <p className={`${body.md.medium} text-nd_gray-500`}> {item.title->React.string} </p>
+        <div className="flex items-center gap-2">
+          <RenderIf condition={item.icon->isEmptyString}>
+            <GatewayIcon gateway={item.icon->String.toUpperCase} className="w-5 h-5" />
+          </RenderIf>
+          <p className={`text-nd_gray-600 ${body.lg.medium}`}> {item.value->React.string} </p>
+        </div>
+      </div>
+    })
+    ->React.array
+  }
+}
+
 module MonthRangeSelector = {
   open DateTimeUtils
 
@@ -182,9 +201,9 @@ module MonthRangeSelector = {
 
     let monthRangeSelectorCss = isMobileView
       ? "absolute z-10 bg-white border w-full bottom-0 shadow-connectorTagShadow rounded-xl"
-      : "absolute z-10 bg-white border w-[20rem] right-0 top-12 shadow-connectorTagShadow rounded-xl"
+      : "absolute z-10 bg-white border w-20-rem right-0 top-12 shadow-connectorTagShadow rounded-xl"
 
-    let getYear = () => selectedYear->Int.fromString->Option.getOr(currentYear)
+    let getYear = () => selectedYear->getIntFromString(currentYear)
 
     let changeYear = delta => {
       let newYear = getYear() + delta
@@ -258,12 +277,12 @@ module MonthRangeSelector = {
         let endYearMonth = endDate->isNonEmptyString ? endDate->Date.fromString->toYearMonth : ""
 
         switch (startYearMonth === monthYearMonth, endYearMonth === monthYearMonth) {
-        | (true, true) => "bg-blue-812 text-white rounded-md"
-        | (true, false) => "bg-blue-812 text-white rounded-l-md"
-        | (false, true) => "bg-blue-812 text-white rounded-r-md"
+        | (true, true) => "bg-nd_primary_blue-450 text-white rounded-md"
+        | (true, false) => "bg-nd_primary_blue-450 text-white rounded-l-md"
+        | (false, true) => "bg-nd_primary_blue-450 text-white rounded-r-md"
         | (false, false) =>
           isInSelectedRange(monthIndex)
-            ? "bg-blue-100 text-nd_gray-600"
+            ? "bg-nd_primary_blue-50 text-nd_gray-600"
             : "hover:bg-nd_gray-25 text-nd_gray-600"
         }
       }
@@ -289,14 +308,14 @@ module MonthRangeSelector = {
           <div className="flex justify-between p-4">
             <div className="flex items-center gap-1">
               <RenderIf condition={startDate->isNonEmptyString}>
-                <p className="font-semibold">
+                <p className={body.lg.semibold}>
                   {startDate->getFormattedDate("MMM YYYY")->React.string}
                 </p>
               </RenderIf>
               {endDate->isNonEmptyString
                 ? <>
-                    <p className="font-semibold"> {"-"->React.string} </p>
-                    <p className="font-semibold">
+                    <p className={body.lg.semibold}> {"-"->React.string} </p>
+                    <p className={body.lg.semibold}>
                       {endDate->getFormattedDate("MMM YYYY")->React.string}
                     </p>
                   </>

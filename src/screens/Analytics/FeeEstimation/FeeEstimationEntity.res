@@ -1,5 +1,7 @@
 open ConnectorTypes
 open Typography
+open LogicUtils
+open FeeEstimationTypes
 
 type colType =
   | PaymentID
@@ -53,19 +55,13 @@ let getOverviewHeading = overviewColType => {
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
-    acc->Array.concat([item.payment_method_type->LogicUtils.capitalizeString])
+    acc->Array.concat([item.payment_method_type->capitalizeString])
   })
   paymentMethods
 }
 
-let connectorStatusStyle = connectorStatus =>
-  switch connectorStatus->String.toLowerCase {
-  | "active" => "text-green-700"
-  | _ => "text-grey-800 opacity-50"
-  }
-
 let getTableCell = () => {
-  let getCell = (feeEstimationData: FeeEstimationTypes.breakdownItem, colType): Table.cell => {
+  let getCell = (feeEstimationData: breakdownItem, colType): Table.cell => {
     switch colType {
     | PaymentID =>
       Table.CustomCell(
@@ -78,7 +74,7 @@ let getTableCell = () => {
       )
     | CardType =>
       Label({
-        title: feeEstimationData.fundingSource->LogicUtils.camelCaseToTitle,
+        title: feeEstimationData.fundingSource->camelCaseToTitle,
         color: switch feeEstimationData.fundingSource {
         | "credit" => LabelOrange
         | _ => LabelBlue
@@ -87,7 +83,7 @@ let getTableCell = () => {
     | TransactionValue =>
       Table.CustomCell(
         <p className={`${body.md.medium} text-nd_gray-600`}>
-          {`${feeEstimationData.transactionCurrency} ${LogicUtils.valueFormatter(
+          {`${feeEstimationData.transactionCurrency} ${valueFormatter(
               feeEstimationData.gross,
               Amount,
             )}`->React.string}
@@ -102,7 +98,7 @@ let getTableCell = () => {
             className="w-6 h-6 p-1 px-0.5 rounded-md bg-nd_gray-25 border border-nd_br_gray-150"
           />
           <p className={`${body.md.medium} text-nd_gray-600`}>
-            {feeEstimationData.cardBrand->LogicUtils.camelCaseToTitle->React.string}
+            {feeEstimationData.cardBrand->camelCaseToTitle->React.string}
           </p>
         </div>,
         "",
@@ -110,7 +106,7 @@ let getTableCell = () => {
     | TotalCostIncurred =>
       Table.CustomCell(
         <p className={`${body.md.medium} text-nd_gray-600`}>
-          {`${feeEstimationData.transactionCurrency} ${LogicUtils.valueFormatter(
+          {`${feeEstimationData.transactionCurrency} ${valueFormatter(
               feeEstimationData.totalCost,
               Amount,
             )}`->React.string}
@@ -122,75 +118,72 @@ let getTableCell = () => {
   getCell
 }
 
-let getOverviewTableCell = () => {
-  let getCell = (
-    feeEstimationData: FeeEstimationTypes.overViewFeesBreakdown,
-    colType: overviewColType,
-  ): Table.cell => {
-    switch colType {
-    | FeeName =>
-      Table.CustomCell(
-        <div>
-          <p className={`${body.md.medium} text-nd_gray-600 font-medium`}>
-            {feeEstimationData.feeName->LogicUtils.camelCaseToTitle->React.string}
-          </p>
-        </div>,
-        "",
-      )
-    | TotalTransactions =>
-      Table.CustomCell(
-        <Table.TableCell
-          cell={CustomCell(
-            <div>
-              <p className={`${body.md.medium} text-nd_gray-600`}>
-                {LogicUtils.valueFormatter(
-                  feeEstimationData.transactionCount->Int.toFloat,
-                  Amount,
-                )->React.string}
-              </p>
-            </div>,
-            "",
-          )}
-          textAlign=Table.Left
-          labelMargin="!py-0"
-        />,
-        "",
-      )
-    | TotalCostIncurred =>
-      Table.CustomCell(
-        <p className={`${body.md.medium} text-nd_gray-600`}>
-          {`${feeEstimationData.transactionCurrency} ${LogicUtils.valueFormatter(
-              feeEstimationData.totalCostIncurred,
-              Amount,
-            )}`->React.string}
-        </p>,
-        "",
-      )
-    | TypeOfFees =>
-      Table.CustomCell(
-        <Table.TableCell
-          cell={Label({
-            title: feeEstimationData.feeType->LogicUtils.camelCaseToTitle,
-            color: switch feeEstimationData.feeType->String.toLocaleLowerCase {
-            | "interchange" => LabelOrange
-            | _ => LabelBlue
-            },
-          })}
-          textAlign=Table.Left
-          labelMargin="!py-0"
-        />,
-        "",
-      )
-    | CostContribution =>
-      Table.CustomCell(
-        <p className={`${body.md.medium} text-nd_gray-600`}>
-          {`${LogicUtils.valueFormatter(feeEstimationData.costContribution, Rate)}`->React.string}
-        </p>,
-        "",
-      )
-    }
+let getOverviewTableCell = (
+  feeEstimationData: overViewFeesBreakdown,
+  colType: overviewColType,
+): Table.cell => {
+  switch colType {
+  | FeeName =>
+    Table.CustomCell(
+      <div>
+        <p className={`${body.md.medium} text-nd_gray-600 font-medium`}>
+          {feeEstimationData.feeName->camelCaseToTitle->React.string}
+        </p>
+      </div>,
+      "",
+    )
+  | TotalTransactions =>
+    Table.CustomCell(
+      <Table.TableCell
+        cell={CustomCell(
+          <div>
+            <p className={`${body.md.medium} text-nd_gray-600`}>
+              {valueFormatter(
+                feeEstimationData.transactionCount->Int.toFloat,
+                Amount,
+              )->React.string}
+            </p>
+          </div>,
+          "",
+        )}
+        textAlign=Table.Left
+        labelMargin="!py-0"
+      />,
+      "",
+    )
+  | TotalCostIncurred =>
+    Table.CustomCell(
+      <p className={`${body.md.medium} text-nd_gray-600`}>
+        {`${feeEstimationData.transactionCurrency} ${valueFormatter(
+            feeEstimationData.totalCostIncurred,
+            Amount,
+          )}`->React.string}
+      </p>,
+      "",
+    )
+  | TypeOfFees =>
+    Table.CustomCell(
+      <Table.TableCell
+        cell={Label({
+          title: feeEstimationData.feeType->camelCaseToTitle,
+          color: switch feeEstimationData.feeType->String.toLocaleLowerCase {
+          | "interchange" => LabelOrange
+          | _ => LabelBlue
+          },
+        })}
+        textAlign=Table.Left
+        labelMargin="!py-0"
+      />,
+      "",
+    )
+  | CostContribution =>
+    Table.CustomCell(
+      <p className={`${body.md.medium} text-nd_gray-600`}>
+        {`${valueFormatter(feeEstimationData.costContribution, Rate)}`->React.string}
+      </p>,
+      "",
+    )
   }
-  getCell
 }
 
 let feeEstimationEntity = () => {
@@ -210,7 +203,7 @@ let feeOverviewEstimationEntity = () => {
     ~getObjects=_ => [],
     ~defaultColumns=overviewDefaultColumns,
     ~getHeading=getOverviewHeading,
-    ~getCell=getOverviewTableCell(),
+    ~getCell=getOverviewTableCell,
     ~dataKey="",
   )
 }
@@ -238,12 +231,12 @@ let getFeeBreakdownHeading = (feesBreakdownData: feesBreakdown) => {
 }
 
 let getFeeBreakdownCell = (
-  refunds: FeeEstimationTypes.schemeFee,
+  refunds: schemeFee,
   feeBreakdownColType: feesBreakdown,
 ): Table.cell => {
   switch feeBreakdownColType {
   | FeeType =>
-    let feeName = refunds.feeName->LogicUtils.snakeToTitle
+    let feeName = refunds.feeName->snakeToTitle
     if refunds.feeName->String.includes("interchange") {
       CustomCell(<p className="!cursor-not-allowed"> {`${feeName}`->React.string} </p>, "")
     } else {

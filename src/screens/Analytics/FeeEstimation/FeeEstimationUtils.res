@@ -221,3 +221,118 @@ let calculateCardBreakdownData = (
     },
   ]
 }
+
+let modalInfoDataOverview: overViewFeesBreakdown => array<
+  sidebarModalData,
+> = selectedTransaction => {
+  [
+    {
+      title: "Total Cost Incurred",
+      value: valueFormatter(selectedTransaction.totalCostIncurred, Amount),
+      icon: "",
+    },
+    {
+      title: "Processor",
+      value: selectedTransaction.cardBrand->camelCaseToTitle,
+      icon: selectedTransaction.cardBrand,
+    },
+    {
+      title: "Total Transactions",
+      value: valueFormatter(selectedTransaction.transactionCount->Int.toFloat, Amount),
+      icon: "",
+    },
+    {
+      title: "Contribution %",
+      value: valueFormatter(selectedTransaction.contributionPercentage, Rate),
+      icon: "",
+    },
+  ]
+}
+
+let modalInfoDataTransactionView: breakdownItem => array<
+  sidebarModalData,
+> = selectedTransaction => {
+  [
+    {
+      title: "Payment ID",
+      value: selectedTransaction.paymentId->String.slice(~start=0, ~end=20),
+      icon: "",
+    },
+    {
+      title: "Processor",
+      value: selectedTransaction.cardBrand->camelCaseToTitle,
+      icon: selectedTransaction.cardBrand,
+    },
+    {
+      title: "Type of Card",
+      value: selectedTransaction.fundingSource->camelCaseToTitle,
+      icon: "",
+    },
+    {
+      title: "Card Brand",
+      value: selectedTransaction.cardBrand->camelCaseToTitle,
+      icon: "",
+    },
+    {
+      title: "Regionality",
+      value: selectedTransaction.regionality->camelCaseToTitle,
+      icon: "",
+    },
+    {
+      title: "Card Variant",
+      value: selectedTransaction.cardVariant->camelCaseToTitle,
+      icon: "",
+    },
+    {
+      title: "Transaction value",
+      value: `${selectedTransaction.transactionCurrency} ${valueFormatter(
+          selectedTransaction.gross,
+          Amount,
+        )}`,
+      icon: "",
+    },
+    {
+      title: "Transaction Fees",
+      value: `${selectedTransaction.transactionCurrency} ${valueFormatter(
+          selectedTransaction.totalCost,
+          Amount,
+        )}`,
+      icon: "",
+    },
+  ]
+}
+
+let fundingSourceGrouped: (
+  array<string>,
+  array<regionBasedBreakdownItem>,
+) => (array<(string, float, int)>, float) = (activeTab, regionBasedBreakdown) => {
+  let maxFeeContribution = ref(0.0)
+
+  maxFeeContribution.contents = 0.0
+  let currentTab = activeTab->getValueFromArray(0, "domestic")
+  let costDict = Dict.make()
+  let txnDict = Dict.make()
+
+  regionBasedBreakdown
+  ->Array.filter(item => currentTab->String.toLowerCase == item.region->String.toLowerCase)
+  ->Array.forEach(item => {
+    let funding = item.fundingSource
+    let value = item.totalCostIncurred
+    let txns = item.transactionCount
+
+    let prevCost = costDict->getFloat(funding, 0.0)
+    costDict->Dict.set(funding, prevCost +. value)
+    let prevTxn = txnDict->Dict.get(funding)->Option.getOr(0)
+    txnDict->Dict.set(funding, prevTxn + txns)
+  })
+
+  let costBreakdownGrouped =
+    costDict
+    ->Dict.toArray
+    ->Array.map(((k, v)) => {
+      let txn = txnDict->Dict.get(k)->Option.getOr(0)
+      maxFeeContribution.contents = Math.max(maxFeeContribution.contents, v)
+      (k, v, txn)
+    })
+  (costBreakdownGrouped, maxFeeContribution.contents)
+}

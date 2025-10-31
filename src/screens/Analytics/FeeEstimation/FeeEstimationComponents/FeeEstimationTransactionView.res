@@ -3,6 +3,7 @@ open LogicUtils
 open Typography
 open FeeEstimationEntity
 open FeeEstimationHelper
+open FeeEstimationUtils
 
 module ExpandedTableCustom = {
   @react.component
@@ -12,7 +13,7 @@ module ExpandedTableCustom = {
       ->Array.map(item => {
         <tr
           key={randomString(~length=10)}
-          className="group h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75 font-fira-code transition duration-300 ease-in-out text-sm}">
+          className={`group h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75 font-fira-code transition duration-300 ease-in-out ${body.md.medium}`}>
           {feesBreakdownColumns
           ->Array.map(colType => {
             <td
@@ -99,70 +100,10 @@ module AppliedFeesBreakdown = {
 module TransactionViewSideModal = {
   @react.component
   let make = (~selectedTransaction: breakdownItem) => {
-    let modalInfoData: array<sidebarModalData> = [
-      {
-        title: "Payment ID",
-        value: selectedTransaction.paymentId->String.slice(~start=0, ~end=20),
-        icon: "",
-      },
-      {
-        title: "Processor",
-        value: selectedTransaction.cardBrand->camelCaseToTitle,
-        icon: selectedTransaction.cardBrand,
-      },
-      {
-        title: "Type of Card",
-        value: selectedTransaction.fundingSource->camelCaseToTitle,
-        icon: "",
-      },
-      {
-        title: "Card Brand",
-        value: selectedTransaction.cardBrand->camelCaseToTitle,
-        icon: "",
-      },
-      {
-        title: "Regionality",
-        value: selectedTransaction.regionality->camelCaseToTitle,
-        icon: "",
-      },
-      {
-        title: "Card Variant",
-        value: selectedTransaction.cardVariant->camelCaseToTitle,
-        icon: "",
-      },
-      {
-        title: "Transaction value",
-        value: `${selectedTransaction.transactionCurrency} ${valueFormatter(
-            selectedTransaction.gross,
-            Amount,
-          )}`,
-        icon: "",
-      },
-      {
-        title: "Transaction Fees",
-        value: `${selectedTransaction.transactionCurrency} ${valueFormatter(
-            selectedTransaction.totalCost,
-            Amount,
-          )}`,
-        icon: "",
-      },
-    ]
-
+    let modalInfoData = modalInfoDataTransactionView(selectedTransaction)
     <div className="p-2 overflow-y-auto min-h-screen">
       <div className="grid grid-cols-2 gap-y-8 justify-between">
-        {modalInfoData
-        ->Array.map(item => {
-          <div key={randomString(~length=10)} className="flex flex-col gap-1">
-            <p className={`${body.md.medium} text-nd_gray-500`}> {item.title->React.string} </p>
-            <div className="flex items-center gap-2">
-              <RenderIf condition={item.icon != ""}>
-                <GatewayIcon gateway={item.icon->String.toUpperCase} className="w-5 h-5" />
-              </RenderIf>
-              <p className={`text-nd_gray-600 ${body.lg.medium}`}> {item.value->React.string} </p>
-            </div>
-          </div>
-        })
-        ->React.array}
+        <FeeEstimationHelper.ModalInfoSection modalInfoData />
       </div>
       <div className="flex flex-col gap-4 mt-10">
         <p className={`text-nd_gray-700 ${body.lg.semibold}`}> {"Fee Applied"->React.string} </p>
