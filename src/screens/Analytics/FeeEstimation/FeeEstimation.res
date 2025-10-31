@@ -3,6 +3,7 @@ open FeeEstimationOverview
 open FeeEstimationTransactionView
 open FeeEstimationHelper
 open Typography
+open LogicUtils
 
 module OverviewContainer = {
   @react.component
@@ -41,8 +42,8 @@ module OverviewContainer = {
 
         let overViewData =
           response
-          ->LogicUtils.getDictFromJsonObject
-          ->LogicUtils.getDictfromDict("response")
+          ->getDictFromJsonObject
+          ->getDictfromDict("response")
           ->FeeEstimationUtils.overviewDataMapper
         setOverviewRawData(_ => overViewData)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -122,8 +123,8 @@ module TransactionViewContainer = {
 
         let transactionData =
           response
-          ->LogicUtils.getDictFromJsonObject
-          ->LogicUtils.getDictfromDict("response")
+          ->getDictFromJsonObject
+          ->getDictfromDict("response")
           ->FeeEstimationUtils.feeEstimationMapper
         setTransactionData(_ => transactionData)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -201,7 +202,7 @@ let make = () => {
     },
   ]
 
-  <div>
+  <>
     <div className="flex justify-between items-center">
       <p className={`${heading.lg.semibold} text-nd_gray-800`}> {"Fee Estimate"->React.string} </p>
       <MonthRangeSelector
@@ -225,9 +226,9 @@ let make = () => {
       showBorder=true
       includeMargin=false
       lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600"
+      defaultClasses={`font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 ${body.lg.semibold} text-body`}
+      textStyle="text-nd_primary_blue-450"
+      selectTabBottomBorderColor="bg-nd_primary_blue-600"
     />
-  </div>
+  </>
 }

@@ -97,7 +97,7 @@ module CostBreakdownSummary = {
 
 module CostBreakDownSideModal = {
   @react.component
-  let make = React.memo((~selectedTransaction: overViewFeesBreakdown) => {
+  let make = React.memo((~selectedTransaction) => {
     let filterTabValues = React.useMemo(() => {
       let regionSet = Set.make()
       let filterTab = ref([])
@@ -128,38 +128,8 @@ module CostBreakDownSideModal = {
 
     let (activeTab, setActiveTab) = React.useState(_ => [firstFilterValue.value])
 
-    let maxFeeContribution = React.useRef(0.0)
-
-    let fundingSourceGroupedRef = React.useMemo(() => {
-      maxFeeContribution.current = 0.0
-      let currentTab = activeTab->getValueFromArray(0, "domestic")
-      let costDict = Dict.make()
-      let txnDict = Dict.make()
-
-      selectedTransaction.regionBasedBreakdown
-      ->Array.filter(item => currentTab->String.toLowerCase == item.region->String.toLowerCase)
-      ->Array.forEach(
-        item => {
-          let funding = item.fundingSource
-          let value = item.totalCostIncurred
-          let txns = item.transactionCount
-
-          let prevCost = costDict->getFloat(funding, 0.0)
-          costDict->Dict.set(funding, prevCost +. value)
-          let prevTxn = txnDict->Dict.get(funding)->Option.getOr(0)
-          txnDict->Dict.set(funding, prevTxn + txns)
-        },
-      )
-
-      costDict
-      ->Dict.toArray
-      ->Array.map(
-        ((k, v)) => {
-          let txn = txnDict->Dict.get(k)->Option.getOr(0)
-          maxFeeContribution.current = Math.max(maxFeeContribution.current, v)
-          (k, v, txn)
-        },
-      )
+    let (fundingSourceGroupedRef, maxFeeContribution) = React.useMemo(() => {
+      fundingSourceGrouped(activeTab, selectedTransaction.regionBasedBreakdown)
     }, (activeTab, selectedTransaction))
 
     let options = React.useMemo(() => {
@@ -171,7 +141,7 @@ module CostBreakDownSideModal = {
         },
       )
 
-      let maxValue = Math.max(maxFeeContribution.current->Math.ceil, 0.0)
+      let maxValue = Math.max(maxFeeContribution->Math.ceil, 0.0)
 
       costBreakDownBasedOnGeoLocationPayload(
         ~costBreakDownData=breakdownContributions,
@@ -183,7 +153,7 @@ module CostBreakDownSideModal = {
         ~gridLineWidthXAxis=0,
         ~gridLineWidthYAxis=0,
         ~tickInterval=Math.pow(10.0, ~exp=Math.floor(Math.log10(maxValue +. 1.0)) -. 1.0),
-        ~yMax=Math.Int.max(maxFeeContribution.current->Math.ceil->Int.fromFloat, 0),
+        ~yMax=Math.Int.max(maxFeeContribution->Math.ceil->Int.fromFloat, 0),
         ~height=Some(140.0),
         ~tickWidth=0,
         ~xAxisLineWidth=Some(0),
@@ -191,49 +161,16 @@ module CostBreakDownSideModal = {
       )
     }, (fundingSourceGroupedRef, selectedTransaction))
 
+    let modalInfoData = modalInfoDataOverview(selectedTransaction)
+
     let modalSubHeading = `Breakdown of fee contribution ${filterTabValues->Array.length == 1
         ? `- ${activeTab->getValueFromArray(0, "")->snakeToTitle}`
         : ""}`
 
-    let modalInfoData: array<sidebarModalData> = [
-      {
-        title: "Total Cost Incurred",
-        value: valueFormatter(selectedTransaction.totalCostIncurred, Amount),
-        icon: "",
-      },
-      {
-        title: "Processor",
-        value: selectedTransaction.cardBrand->camelCaseToTitle,
-        icon: selectedTransaction.cardBrand,
-      },
-      {
-        title: "Total Transactions",
-        value: valueFormatter(selectedTransaction.transactionCount->Int.toFloat, Amount),
-        icon: "",
-      },
-      {
-        title: "Contribution %",
-        value: valueFormatter(selectedTransaction.contributionPercentage, Rate),
-        icon: "",
-      },
-    ]
-
     <div className="overflow-y-auto flex flex-col gap-24 min-h-screen">
       <div className="flex flex-col gap-12 p-2">
         <div className="grid grid-cols-2 gap-y-8 justify-between">
-          {modalInfoData
-          ->Array.map(item => {
-            <div key={randomString(~length=10)} className="flex flex-col gap-1">
-              <p className={`${body.md.medium} text-nd_gray-500`}> {item.title->React.string} </p>
-              <div className="flex items-center gap-2">
-                <RenderIf condition={item.icon != ""}>
-                  <GatewayIcon gateway={item.icon->String.toUpperCase} className="w-5 h-5" />
-                </RenderIf>
-                <p className={`text-nd_gray-600 ${body.lg.medium}`}> {item.value->React.string} </p>
-              </div>
-            </div>
-          })
-          ->React.array}
+          <FeeEstimationHelper.ModalInfoSection modalInfoData />
         </div>
         <div>
           <p className={`${body.lg.semibold} text-nd_gray-700`}>
@@ -319,12 +256,12 @@ module CostBreakDown = {
       setFilteredCostBreakDownTableData(_ => filteredData)
     }
 
-    React.useEffect(() => {
-      let costBreakDownAtomValue =
+    let costBreakDownAtomValue = React.useCallback(() => {
+      let sortDictValue =
         sortAtomValue
         ->Dict.get(costBreakDownTableKey)
         ->Option.getOr({sortKey: "", sortType: DSC})
-      switch costBreakDownAtomValue.sortType {
+      switch sortDictValue.sortType {
       | ASC =>
         setFilteredCostBreakDownTableData(_ =>
           filteredCostBreakDownTableData->Array.toSorted(
@@ -338,8 +275,12 @@ module CostBreakDown = {
           )
         )
       }
-      None
     }, [sortAtomValue])
+
+    React.useEffect(() => {
+      costBreakDownAtomValue()->ignore
+      None
+    }, (sortAtomValue, costBreakDownAtomValue))
 
     <div className="mt-10">
       <div className="flex items-center justify-between gap-2">
