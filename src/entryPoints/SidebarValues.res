@@ -234,6 +234,13 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let feeEstimation = SubLevelLink({
+  name: "Fee Estimation",
+  link: `/analytics-fee-estimation`,
+  access: Access,
+  searchOptions: [("View analytics", "")],
+})
+
 let performanceMonitor = SubLevelLink({
   name: "Performance",
   link: `/performance-monitor`,
@@ -284,7 +291,7 @@ let analytics = (
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
-  let links = [paymentAnalytcis, refundAnalytics]
+  let links = [paymentAnalytcis, refundAnalytics, feeEstimation]
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics)
   }
