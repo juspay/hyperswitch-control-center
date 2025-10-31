@@ -101,21 +101,23 @@ let make = () => {
           ~businessProfileRecoilVal,
         )
       }}>
-      <DesktopRow itemWrapperClass="mx-1">
-        <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
-          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 pt-8 pb-4"
-          field={makeFieldInfo(
-            ~name="force_3ds_challenge",
-            ~label="Force 3DS Challenge",
-            ~customInput=InputFields.boolInput(
-              ~isDisabled=false,
-              ~boolCustomClass="rounded-lg ",
-              ~toggleEnableColor="bg-nd_primary_blue-450",
-            ),
-          )}
-        />
-      </DesktopRow>
+      <RenderIfVersion showWhenVersion=V1>
+        <DesktopRow itemWrapperClass="mx-1">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between items-center border-gray-200 pt-8 pb-4"
+            field={makeFieldInfo(
+              ~name="force_3ds_challenge",
+              ~label="Force 3DS Challenge",
+              ~customInput=InputFields.boolInput(
+                ~isDisabled=false,
+                ~boolCustomClass="rounded-lg ",
+                ~toggleEnableColor="bg-nd_primary_blue-450",
+              ),
+            )}
+          />
+        </DesktopRow>
+      </RenderIfVersion>
       <RenderIf condition={isBusinessProfileHasThreeds}>
         <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4" itemWrapperClass="mx-1">
           <FieldRenderer
@@ -136,7 +138,7 @@ let make = () => {
         </div>
       </DesktopRow>
     </Form>
-    <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
+    <RenderIf condition={featureFlagDetails.acquirerConfigSettings && version == V1}>
       <AcquirerConfigSettingsRevamp />
     </RenderIf>
   </PageLoaderWrapper>

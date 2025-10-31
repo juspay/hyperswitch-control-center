@@ -32,30 +32,56 @@ let make = () => {
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=AuthenticationProcessor,
+  )
+  let {userInfo: {profileId, merchantId, version}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let isBusinessProfileHasThreeds =
+    threedsConnectorList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let tabs: array<Tabs.tab> = [
-    {
-      title: "Payment Behaviour",
-      renderContent: () => {
-        <PaymentSettingsPaymentBehaviour />
+  let tabs: array<Tabs.tab> = if version == V2 && !isBusinessProfileHasThreeds {
+    [
+      {
+        title: "Payment Behaviour",
+        renderContent: () => {
+          <PaymentSettingsPaymentBehaviour />
+        },
       },
-    },
-    {
-      title: "3DS",
-      renderContent: () => <PaymentSettingsThreeDs />,
-    },
-    {
-      title: "Custom Headers",
-      renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
-    },
-    {
-      title: "Metadata Headers",
-      renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
-    },
-  ]
+      {
+        title: "Custom Headers",
+        renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
+      },
+      {
+        title: "Metadata Headers",
+        renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
+      },
+    ]
+  } else {
+    [
+      {
+        title: "Payment Behaviour",
+        renderContent: () => {
+          <PaymentSettingsPaymentBehaviour />
+        },
+      },
+      {
+        title: "3DS",
+        renderContent: () => <PaymentSettingsThreeDs />,
+      },
+      {
+        title: "Custom Headers",
+        renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
+      },
+      {
+        title: "Metadata Headers",
+        renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
+      },
+    ]
+  }
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
   let truncatedHashKey = `${hashKeyVal->String.slice(~start=0, ~end=20)}....`
 

@@ -99,5 +99,6 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     collect_billing_details_from_wallet_connector_if_required: jsonDict->getOptionBool(
       "collect_billing_details_from_wallet_connector_if_required",
     ),
+    split_txns_enabled: jsonDict->getOptionString("split_txns_enabled"),
   }
 }
