@@ -59,11 +59,12 @@ let getStatusLabel = (statusString: transactionStatus): Table.cell => {
   Table.Label({
     title: (statusString :> string)->String.toUpperCase,
     color: switch statusString {
-    | Posted => Table.LabelGreen
-    | Mismatched => Table.LabelRed
-    | Expected => Table.LabelBlue
-    | Archived => Table.LabelGray
-    | _ => Table.LabelLightGray
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | PartiallyReconciled => LabelOrange
+    | _ => LabelLightGray
     },
   })
 }

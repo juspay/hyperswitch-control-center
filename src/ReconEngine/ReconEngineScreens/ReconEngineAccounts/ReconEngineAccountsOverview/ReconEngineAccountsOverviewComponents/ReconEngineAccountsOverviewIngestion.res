@@ -1,5 +1,7 @@
+open ReconEngineTypes
+
 @react.component
-let make = (~ingestionId) => {
+let make = (~ingestionHistoryData: ingestionHistoryType) => {
   open ReconEngineAccountsSourcesTypes
   open LogicUtils
   open APIUtils
@@ -12,15 +14,16 @@ let make = (~ingestionId) => {
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict
   )
+  let (showModal, setShowModal) = React.useState(_ => false)
 
-  let fetchIngestionHistoryData = async () => {
+  let fetchIngestionConfigDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionConfigUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_CONFIG,
-        ~id=Some(ingestionId),
+        ~id=Some(ingestionHistoryData.ingestion_id),
       )
       let ingestionConfigRes = await fetchDetails(ingestionConfigUrl)
       let ingestionConfigData =
@@ -46,21 +49,27 @@ let make = (~ingestionId) => {
     {
       buttonType: ViewFile,
       onClick: _ => (),
+      disabled: true,
     },
     {
       buttonType: Download,
       onClick: _ => (),
+      disabled: true,
     },
     {
       buttonType: Timeline,
-      onClick: _ => (),
+      onClick: ev => {
+        ev->ReactEvent.Mouse.stopPropagation
+        setShowModal(_ => true)
+      },
+      disabled: false,
     },
   ]
 
   React.useEffect(() => {
-    fetchIngestionHistoryData()->ignore
+    fetchIngestionConfigDetails()->ignore
     None
-  }, [ingestionId])
+  }, [ingestionHistoryData.ingestion_id])
 
   <PageLoaderWrapper
     screenState
@@ -83,17 +92,21 @@ let make = (~ingestionId) => {
       </div>
       <div className="flex flex-row gap-4">
         {getIngestionButtonActions
-        ->Array.mapWithIndex((action, index) =>
+        ->Array.mapWithIndex((action, index) => {
           <Button
             key={index->Int.toString}
             buttonType=Secondary
+            buttonState={action.disabled ? Disabled : Normal}
             text={(action.buttonType :> string)}
             onClick={action.onClick}
             customButtonStyle="!w-fit"
           />
-        )
+        })
         ->React.array}
       </div>
+      <ReconEngineAccountSourceFileTimeline
+        showModal setShowModal ingestionHistoryId=ingestionHistoryData.ingestion_history_id
+      />
     </div>
   </PageLoaderWrapper>
 }

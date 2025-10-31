@@ -84,10 +84,11 @@ module RefundsProcessedHeader = {
       ~key=selectedMetric.value->getMetaDataMapper(~currency),
     )
 
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
     let (primaryValue, secondaryValue) = if (
       selectedMetric.value->getMetaDataMapper(~currency)->isAmountMetric
     ) {
-      (primaryValue /. 100.0, secondaryValue /. 100.0)
+      (primaryValue /. conversionFactor, secondaryValue /. conversionFactor)
     } else {
       (primaryValue, secondaryValue)
     }
