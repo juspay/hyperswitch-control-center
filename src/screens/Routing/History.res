@@ -39,7 +39,6 @@ module BreadCrumbWrapper = {
           },
         ]
         currentPageTitle={pageTitle}
-        cursorStyle="cursor-pointer"
       />
       {children}
     </>

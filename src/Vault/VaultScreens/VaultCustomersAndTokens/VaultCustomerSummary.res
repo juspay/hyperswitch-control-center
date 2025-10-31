@@ -273,7 +273,6 @@ let make = (~id, ~sampleReport) => {
             <BreadCrumbNavigation
               path=[{title: "Customers", link: "/v2/vault/customers-tokens"}]
               currentPageTitle=id
-              cursorStyle="cursor-pointer"
             />
           </div>
         </div>

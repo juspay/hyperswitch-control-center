@@ -77,7 +77,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
       <BreadCrumbNavigation
-        path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
+        path currentPageTitle={frmName->capitalizeString}
       />
       <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />

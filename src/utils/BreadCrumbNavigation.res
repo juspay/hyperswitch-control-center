@@ -18,28 +18,24 @@ let make = (
   ~path: array<breadcrumb>=[],
   ~currentPageTitle="",
   ~is_reverse=false,
-  ~cursorStyle="cursor-help",
+  ~cursorStyle="cursor-pointer",
   ~commonTextClass="",
-  ~linkTextClass="",
+  ~linkTextClass="text-nd_gray-400",
   ~customTextClass="",
   ~fontWeight="font-semibold",
-  ~titleTextClass="text-jp-gray-930",
-  ~dividerVal=Arrow,
+  ~titleTextClass="text-nd_gray-700 font-semibold",
+  ~dividerVal=Slash,
   ~childGapClass="",
 ) => {
-  open LogicUtils
-
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let prefix = LogicUtils.useUrlPrefix()
   let showPopUp = PopUpState.useShowPopUp()
   let pathLength = path->Array.length
   let divider = {
     switch dividerVal {
-    | Slash => <p className="text-nd_br_gray-400"> {"/ "->React.string} </p>
+    | Slash => <span className="text-nd_gray-400 mx-2"> {"/"->React.string} </span>
     | _ => arrowDivider
     }
   }
-  let textClass = {customTextClass->isEmptyString ? `${textColor.primaryNormal}` : customTextClass}
   let parentGapClass = "gap-2"
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"
 
@@ -81,13 +77,13 @@ let make = (
                 {switch (crumb.warning, crumb.onClick) {
                 | (None, None) =>
                   <Link
-                    className={`${textClass} ${linkTextClass} ${commonTextClass}`}
+                    className={`${linkTextClass} ${commonTextClass}`}
                     to_={GlobalVars.appendDashboardPath(~url=`${prefix}${crumb.link}`)}>
                     {React.string(crumb.title)}
                   </Link>
                 | _ =>
                   <a
-                    className={`${textClass} ${cursorStyle} ${linkTextClass} ${commonTextClass}`}
+                    className={`${cursorStyle} ${linkTextClass} ${commonTextClass}`}
                     onClick>
                     {React.string(crumb.title)}
                   </a>
@@ -101,7 +97,7 @@ let make = (
     })
     ->React.array}
     <AddDataAttributes attributes=[("data-breadcrumb", currentPageTitle)]>
-      <div className={`text-fs-14 ${titleTextClass} ${commonTextClass}`}>
+      <div className={`${titleTextClass} ${commonTextClass}`}>
         {React.string(currentPageTitle)}
       </div>
     </AddDataAttributes>
