@@ -29,6 +29,7 @@ let make = (~setScreenState) => {
     | list{"3ds-authenticators", ..._}
     | list{"pm-authentication-processor", ..._}
     | list{"tax-processor", ..._}
+    | list{"billing-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
     | list{"routing", ..._}

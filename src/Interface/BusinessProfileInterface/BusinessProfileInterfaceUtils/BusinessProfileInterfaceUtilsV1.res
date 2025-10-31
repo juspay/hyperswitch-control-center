@@ -99,6 +99,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     ),
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
   }
 }
 
@@ -132,6 +133,7 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     is_manual_retry_enabled: profileRecord.is_manual_retry_enabled,
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
+    billing_processor_id: profileRecord.billing_processor_id,
   }
 }
 
