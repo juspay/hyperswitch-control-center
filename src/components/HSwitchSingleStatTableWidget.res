@@ -32,7 +32,7 @@ let tableItemToObjMapper: 'a => tableRowType = dict => {
 let getObjects: JSON.t => array<tableRowType> = json => {
   open LogicUtils
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -67,7 +67,7 @@ let stringToVarient = statType => {
 // if day > then only date else time
 let statValue = (val, statType) => {
   let statType = statType->stringToVarient
-  open LogicUtils
+  open CurrencyFormatUtils
   switch statType {
   | Amount => val->indianShortNum
   | Rate | NegativeRate => val->Js.Float.isNaN ? "-" : val->percentFormat

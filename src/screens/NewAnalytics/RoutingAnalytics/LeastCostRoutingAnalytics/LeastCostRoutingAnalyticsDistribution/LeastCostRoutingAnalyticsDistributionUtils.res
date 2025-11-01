@@ -3,6 +3,8 @@ open NewAnalyticsUtils
 open RoutingAnalyticsUtils
 open LeastCostRoutingAnalyticsDistributionTypes
 open LeastCostRoutingAnalyticsTypes
+open CurrencyFormatUtils
+open LogicUtilsTypes
 
 //Functions related to Pie Graph
 let mapPieGraphData = filtereddata => {
@@ -114,7 +116,7 @@ let fillMissingDataForSavingsGraph = (
 
 let getSavingsTimeGraphTooltipFormatter = (
   ~title: string,
-  ~valueFormatterType=LogicUtilsTypes.Rate,
+  ~valueFormatterType=Rate,
   ~currency="",
 ) =>
   (
@@ -171,7 +173,7 @@ let getSavingsTimeGraphTooltipFormatter = (
 let savingsTimeMapper = (
   ~params: getObjects<JSON.t>,
   ~config: savingsTimeConfig,
-  ~tooltipValueFormatterType=LogicUtilsTypes.Rate,
+  ~tooltipValueFormatterType=Rate,
 ): LineGraphTypes.lineGraphPayload => {
   let {data, xKey, yKey} = params
 
@@ -248,14 +250,14 @@ let savingsTimeMapper = (
 let savingsTimeConfig = {
   title: "Debit Routing Savings",
   yAxisMaxValue: Some(300),
-  statType: LogicUtilsTypes.Amount,
+  statType: Amount,
   suffix: "$",
   tooltipTitle: "Debit Routed Savings",
 }
 let savingsChartOptions = (
   ~params: getObjects<JSON.t>,
   ~config: savingsTimeConfig,
-  ~tooltipValueFormatterType=LogicUtilsTypes.Amount,
+  ~tooltipValueFormatterType=Amount,
 ) => {
   let defaultOptions =
     savingsTimeMapper(

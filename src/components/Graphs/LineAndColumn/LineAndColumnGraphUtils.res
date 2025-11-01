@@ -171,7 +171,7 @@ let lineColumnGraphTooltipFormatter = (
       let line2Point = this.points->getValueFromArray(2, defaultValue)
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="", ~name="") => {
-        let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency)
+        let formattedValue = CurrencyFormatUtils.valueFormatter(value, metricType, ~currency)
         let key = showNameInTooltip ? name : date
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
@@ -244,7 +244,7 @@ let lineColumnGraphYAxisFormatter = (
     @this
     (this: yAxisFormatter) => {
       let value = this.value->Int.toFloat /. scaleFactor
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(value, statType, ~currency, ~suffix)
 
       formattedValue
     }

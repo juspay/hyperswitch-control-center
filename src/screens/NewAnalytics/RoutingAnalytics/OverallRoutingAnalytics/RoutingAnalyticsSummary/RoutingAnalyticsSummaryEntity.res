@@ -1,5 +1,6 @@
 open RoutingAnalyticsSummaryTypes
 open LogicUtils
+open CurrencyFormatUtils
 
 let summaryMainColumns = [
   RoutingLogic,

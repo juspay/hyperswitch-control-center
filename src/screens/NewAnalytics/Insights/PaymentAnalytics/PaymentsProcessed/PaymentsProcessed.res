@@ -5,8 +5,9 @@ open NewAnalyticsHelper
 open InsightsPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open InsightsPaymentAnalyticsUtils
+open LogicUtils
+
 module TableModule = {
-  open LogicUtils
   open PaymentsProcessedTypes
   @react.component
   let make = (~data, ~className="") => {
@@ -54,8 +55,8 @@ module TableModule = {
 
 module PaymentsProcessedHeader = {
   open InsightsUtils
-  open LogicUtils
   open LogicUtilsTypes
+  open CurrencyFormatUtils
 
   @react.component
   let make = (
@@ -158,7 +159,6 @@ let make = (
     JSON.t,
   >,
 ) => {
-  open LogicUtils
   open APIUtils
   open InsightsUtils
   open NewAnalyticsUtils

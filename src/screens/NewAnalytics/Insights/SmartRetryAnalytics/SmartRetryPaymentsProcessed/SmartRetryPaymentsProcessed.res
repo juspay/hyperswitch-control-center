@@ -56,6 +56,7 @@ module SmartRetryPaymentsProcessedHeader = {
   open InsightsUtils
   open LogicUtils
   open LogicUtilsTypes
+  open CurrencyFormatUtils
 
   @react.component
   let make = (

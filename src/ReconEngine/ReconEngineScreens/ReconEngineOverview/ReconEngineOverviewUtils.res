@@ -5,6 +5,7 @@ open ReconEngineAccountsUtils
 open ColumnGraphUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
+open CurrencyFormatUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
@@ -29,7 +30,7 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
     accountData
     ->Array.find(account => account.account_id === accountId)
     ->Option.getOr(Dict.make()->getAccountPayloadFromDict)
-  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
+  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (

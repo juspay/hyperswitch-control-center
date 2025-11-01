@@ -1,8 +1,8 @@
 open ReconEngineFilterUtils
 open ReconEngineAccountsTransformedEntriesTypes
-open LogicUtils
 open ReconEngineUtils
 open ReconEngineTypes
+open CurrencyFormatUtils
 
 let getTransformedEntriesTransformationHistoryPayloadFromDict = dict => {
   dict->transformationHistoryItemToObjMapper

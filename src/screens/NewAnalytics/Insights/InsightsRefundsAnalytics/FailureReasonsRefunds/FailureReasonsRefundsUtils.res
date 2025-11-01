@@ -29,7 +29,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
 
 let getObjects: JSON.t => array<failreResonsObjectType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -71,6 +71,7 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
+  open CurrencyFormatUtils
   switch colType {
   | Refund_Error_Message => Text(obj.refund_error_message)
   | Refund_Error_Message_Count => Text(obj.refund_error_message_count->Int.toString)

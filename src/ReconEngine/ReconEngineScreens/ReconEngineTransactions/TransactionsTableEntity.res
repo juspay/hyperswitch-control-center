@@ -1,7 +1,6 @@
 open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
-open LogicUtils
 
 type transactionColType =
   | TransactionId
@@ -70,6 +69,7 @@ let getStatusLabel = (statusString: transactionStatus): Table.cell => {
 }
 
 let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
+  open CurrencyFormatUtils
   switch colType {
   | TransactionId => EllipsisText(transaction.transaction_id, "")
   | CreditAccount => Text(getAccounts(transaction.entries, Credit))

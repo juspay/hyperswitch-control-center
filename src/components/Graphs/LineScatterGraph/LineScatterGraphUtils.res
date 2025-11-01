@@ -28,7 +28,12 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="", ~svgIconU
         let primartPoint = this.points->Array.get(0)->Option.getOr(defaultValue)
 
         let getRowsHtml = (~value) => {
-          let valueString = LogicUtils.valueFormatter(value, metricType, ~currency, ~suffix)
+          let valueString = CurrencyFormatUtils.valueFormatter(
+            value,
+            metricType,
+            ~currency,
+            ~suffix,
+          )
           `<div style="display: flex; align-items: center;">
             <div>Success Rate</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
@@ -93,7 +98,7 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="", ~svgIconU
           <div style="font-size: 12px; color: #999999;">${primartPoint.x}</div>
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span>Success Rate</span>
-            <span style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;"">${LogicUtils.valueFormatter(
+            <span style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;"">${CurrencyFormatUtils.valueFormatter(
             primartPoint.y,
             metricType,
             ~currency,
@@ -126,7 +131,7 @@ let lineGraphYAxisFormatter = (
     @this
     (this: yAxisFormatter) => {
       let value = this.value->Int.toFloat /. scaleFactor
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(value, statType, ~currency, ~suffix)
       formattedValue
     }
   )->asTooltipPointFormatter

@@ -1,5 +1,6 @@
 open PaymentsProcessedTypes
 open LogicUtils
+open CurrencyFormatUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -108,7 +109,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
 
 let getObjects: JSON.t => array<paymentsProcessedObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

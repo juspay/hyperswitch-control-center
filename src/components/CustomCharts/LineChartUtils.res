@@ -3,6 +3,7 @@ external legendItemAsBool: Highcharts.legendItem => Highcharts.element = "%ident
 open LogicUtils
 open Highcharts
 open Identity
+open CurrencyFormatUtils
 let defaultColor = "#7cb5ec"
 let legendColor = [
   defaultColor,
@@ -289,7 +290,7 @@ let timeSeriesDataMaker = (
           Dict.get(dict, key)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
         )
       )
-      ->Array.map(LogicUtils.snakeToTitle)
+      ->Array.map(snakeToTitle)
       ->Array.joinWith(" : ")
     | None =>
       dict->getString(
@@ -305,7 +306,7 @@ let timeSeriesDataMaker = (
     | Some(secondryMetrics) => Some(dict->getFloat(secondryMetrics.metric_name_db, 0.))
     | None => None
     }
-    if dict->getString(xAxis, "")->LogicUtils.isNonEmptyString {
+    if dict->getString(xAxis, "")->isNonEmptyString {
       timeSeriesDict->appendToDictValue(
         groupByName,
         (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondryAxisPoint),
@@ -501,7 +502,7 @@ let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: st
     ) // groupby/ selected segment
 
     let stats = getFloat(dict, yAxis, 0.) // overall metrics
-    selectedSegmentVal->LogicUtils.isNonEmptyString ? Some(selectedSegmentVal, stats) : None
+    selectedSegmentVal->isNonEmptyString ? Some(selectedSegmentVal, stats) : None
   })
 
   let val: Highcharts.barChartSeries = {
@@ -605,7 +606,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
 
   `<tr>
       <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
-      <td><span style='${highlight};padding-right: 10px;'>${name->LogicUtils.snakeToTitle}</span></td>
+      <td><span style='${highlight};padding-right: 10px;'>${name->snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
   </tr>

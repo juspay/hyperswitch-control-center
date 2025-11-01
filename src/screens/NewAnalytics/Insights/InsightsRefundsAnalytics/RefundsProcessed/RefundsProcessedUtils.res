@@ -2,6 +2,7 @@ open RefundsProcessedTypes
 open InsightsUtils
 open NewAnalyticsUtils
 open LogicUtils
+open CurrencyFormatUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -109,7 +110,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsProcessedObject = dict => {
 
 let getObjects: JSON.t => array<refundsProcessedObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

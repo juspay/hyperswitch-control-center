@@ -8,7 +8,7 @@ let valueFormatter = (
   @this
   (this: nodeFormatter) => {
     let weight = this.point.options.dataLabels.name
-    let sum = weight->Int.toFloat->LogicUtils.valueFormatter(Volume)
+    let sum = weight->Int.toFloat->CurrencyFormatUtils.valueFormatter(Volume)
     let label = `<span style="font-size: 20px; font-weight: bold;">${sum}</span><br/> <span style="font-size: 14px;">${this.point.id}</span>`
     label
   }
@@ -19,7 +19,7 @@ let tooltipFormatter = (
   (this: pointFormatter) => {
     let pointType = this.point.formatPrefix == "node" ? Node : Link
 
-    let format = value => value->Int.toFloat->LogicUtils.valueFormatter(Volume)
+    let format = value => value->Int.toFloat->CurrencyFormatUtils.valueFormatter(Volume)
 
     let arrowIcon = "&#8594;"
 
@@ -40,7 +40,7 @@ let tooltipFormatter = (
         let percentage = toValue->Int.toFloat /. fromValue->Int.toFloat *. 100.0
         (
           `${toValue->format} of ${fromValue->format}`,
-          `${percentage->LogicUtils.valueFormatter(Rate)}`,
+          `${percentage->CurrencyFormatUtils.valueFormatter(Rate)}`,
         )
       }
 
