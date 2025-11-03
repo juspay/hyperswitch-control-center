@@ -1,77 +1,38 @@
-module MenuOption = {
-  open HeadlessUI
-  @react.component
-  let make = (~disableConnector, ~isConnectorDisabled) => {
-    let showPopUp = PopUpState.useShowPopUp()
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action?",
-        description: `You are about to ${isConnectorDisabled
-            ? "Enable"
-            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-
-    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
-
-    <Popover \"as"="div" className="relative inline-block text-left">
-      {_popoverProps => <>
-        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-5 top-4">
-          {panelProps => {
-            <div
-              id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
-              {<>
-                <Navbar.MenuOption
-                  text={connectorStatusAvailableToSwitch}
-                  onClick={_ => {
-                    panelProps["close"]()
-                    openConfirmationPopUp()
-                  }}
-                />
-              </>}
-            </div>
-          }}
-        </Popover.Panel>
-      </>}
-    </Popover>
-  }
-}
-
 @react.component
 let make = () => {
-  open ThreeDsProcessorTypes
+  open BillingProcessorTypes
   open ConnectorUtils
   open APIUtils
   open LogicUtils
+  open Typography
+
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
-  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
+
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
+  let (showConfirmModal, setShowConfirmModal) = React.useState(_ => false)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let updateDetails = useUpdateMethod()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-  | list{"3ds-authenticators", "new"} => false
+  | list{"billing-processor", "new"} => false
   | _ => true
   }
+
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
+    ConnectorInterface.connectorInterfaceV1,
+    initialValues->getDictFromJsonObject,
+  )
 
   let getConnectorDetails = async () => {
     try {
@@ -109,9 +70,8 @@ let make = () => {
 
   let connectorDetails = React.useMemo(() => {
     try {
-      if connectorName->LogicUtils.isNonEmptyString {
-        let dict = Window.getAuthenticationConnectorConfig(connectorName)
-        dict
+      if connectorName->isNonEmptyString {
+        BillingProcessorsUtils.getConnectorConfig(connectorName)
       } else {
         Dict.make()->JSON.Encode.object
       }
@@ -124,31 +84,7 @@ let make = () => {
       }
     }
   }, [connectorName])
-  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
-    ConnectorInterface.connectorInterfaceV1,
-    initialValues->LogicUtils.getDictFromJsonObject,
-  )
 
-  let isConnectorDisabled = connectorInfo.disabled
-  let disableConnector = async isConnectorDisabled => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
-      )
-
-      let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
-      setInitialValues(_ => res)
-      let _ = await fetchConnectorListResponse()
-      setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
-    } catch {
-    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
-    }
-  }
   let {
     bodyType,
     connectorAccountFields,
@@ -159,7 +95,7 @@ let make = () => {
   } = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
       initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
@@ -172,11 +108,24 @@ let make = () => {
   }, [connectorName, profileId])
 
   React.useEffect(() => {
-    if connectorName->LogicUtils.isNonEmptyString {
+    if connectorName->isNonEmptyString {
       getDetails()->ignore
+    } else {
+      setScreenState(_ => Error("Connector name not found"))
     }
     None
   }, [connectorName])
+
+  let updateBusinessProfileDetails = async mcaId => {
+    try {
+      let body = Dict.make()
+      body->Dict.set("billing_processor_id", mcaId->JSON.Encode.string)
+      let _ = await updateBusinessProfile(~body=body->Identity.genericTypeToJson)
+    } catch {
+    | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
+    }
+  }
+  let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
 
   let onSubmit = async (values, _) => {
     try {
@@ -186,7 +135,7 @@ let make = () => {
           ~connector=connectorName,
           ~bodyType,
           ~isLiveMode,
-          ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
+          ~connectorType=ConnectorTypes.BillingProcessor,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
         ~entityName=V1(CONNECTOR),
@@ -194,6 +143,14 @@ let make = () => {
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
       let response = await updateAPIHook(connectorUrl, body, Post)
+
+      if !isUpdateFlow {
+        let mcaId =
+          response
+          ->getDictFromJsonObject
+          ->getString("merchant_connector_id", "")
+        let _ = await updateBusinessProfileDetails(mcaId)
+      }
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
@@ -220,7 +177,7 @@ let make = () => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator),
+      connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor),
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -229,27 +186,21 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    }
 
   let summaryPageButton = switch currentStep {
   | Preview =>
-    <div className="flex gap-6 items-center">
+    <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
       <div
-        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
+        className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
+        {"Default"->React.string}
       </div>
-      <MenuOption disableConnector isConnectorDisabled />
-    </div>
+    </RenderIf>
   | _ =>
     <Button
       text="Done"
       buttonType=Primary
       onClick={_ =>
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/3ds-authenticators"))}
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/billing-processor"))}
     />
   }
 
@@ -259,17 +210,17 @@ let make = () => {
         path=[
           connectorID === "new"
             ? {
-                title: "3DS Authenticator",
-                link: "/3ds-authenticators",
-                warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
+                title: "Billing Processor",
+                link: "/billing-processor",
+                warning: `You have not yet completed configuring your ${connectorName->snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
-                title: "3DS Authenticator",
-                link: "/3ds-authenticators",
+                title: "Billing Processor",
+                link: "/billing-processor",
               },
         ]
         currentPageTitle={connectorName->getDisplayNameForConnector(
-          ~connectorType=ThreeDsAuthenticator,
+          ~connectorType=BillingProcessor,
         )}
         cursorStyle="cursor-pointer"
       />
@@ -280,46 +231,78 @@ let make = () => {
           <Form initialValues={initialValues} onSubmit validate={validateMandatoryField}>
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
-              connectorType=ThreeDsAuthenticator
-              headerButton={<AddDataAttributes
-                attributes=[("data-testid", "connector-submit-button")]>
-                <FormRenderer.SubmitButton loadingText="Processing..." text="Connect and Proceed" />
-              </AddDataAttributes>}>
+              connectorType={BillingProcessor}
+              headerButton={<BillingProcessorHelper.ConnectButton
+                setShowModal={setShowConfirmModal}
+              />}>
               <div className="flex flex-col gap-2 p-2 md:px-10">
                 <ConnectorAccountDetailsHelper.BusinessProfileRender
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className={`flex flex-col gap-2 p-2 md:p-10`}>
-                <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-                  connector={connectorName->getConnectorNameTypeFromString(
-                    ~connectorType=ThreeDsAuthenticator,
-                  )}
-                  connectorAccountFields
-                  selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
-                  ->getConnectorInfo}
-                  connectorMetaDataFields
-                  connectorWebHookDetails
-                  connectorLabelDetailField
-                  connectorAdditionalMerchantData
-                />
+              <div className="flex flex-col gap-2 p-2 md:p-10">
+                <div className="grid grid-cols-2 flex-1">
+                  <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+                    connector={connectorName->getConnectorNameTypeFromString(
+                      ~connectorType=BillingProcessor,
+                    )}
+                    connectorAccountFields
+                    selectedConnector={connectorName
+                    ->getConnectorNameTypeFromString(~connectorType=BillingProcessor)
+                    ->getConnectorInfo}
+                    connectorMetaDataFields
+                    connectorWebHookDetails
+                    connectorLabelDetailField
+                    connectorAdditionalMerchantData
+                  />
+                </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
+            <Modal
+              showModal={showConfirmModal}
+              setShowModal={setShowConfirmModal}
+              modalClass="w-full md:w-4/12 mx-auto my-40 rounded-xl"
+              childClass="">
+              <div className="relative flex items-start px-4 pb-10 pt-6 gap-4">
+                <div className="flex flex-col gap-5">
+                  <div className="flex justify-between">
+                    <p className={`${heading.sm.semibold}`}>
+                      {"Connect Billing Processor ?"->React.string}
+                    </p>
+                    <Icon
+                      name="hswitch-close" size=22 onClick={_ => setShowConfirmModal(_ => false)}
+                    />
+                  </div>
+                  <p className={`text-hyperswitch_black opacity-50 ${body.md.medium}`}>
+                    {"Are you sure you want to connect this billing processor ? This will set this as the default processor."->React.string}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-end justify-end gap-4 px-4 pb-4">
+                <Button
+                  buttonType=Button.Secondary
+                  onClick={_ => setShowConfirmModal(_ => false)}
+                  text="Cancel"
+                />
+                <FormRenderer.SubmitButton
+                  text="Proceed" buttonType=Button.Primary loadingText="Processing..."
+                />
+              </div>
+            </Modal>
           </Form>
 
         | Summary | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName
-            connectorType=ThreeDsAuthenticator
+            connectorType={BillingProcessor}
             headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={ConnectorInterface.mapDictToTypedConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
-                initialValues->LogicUtils.getDictFromJsonObject,
+                initialValues->getDictFromJsonObject,
               )}
               connector=connectorName
-              setCurrentStep={_ => ()}
+              setCurrentStep
               getConnectorDetails={Some(getConnectorDetails)}
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>

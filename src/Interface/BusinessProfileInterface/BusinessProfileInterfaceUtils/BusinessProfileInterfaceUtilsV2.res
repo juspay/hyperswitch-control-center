@@ -122,6 +122,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     is_manual_retry_enabled: None,
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
+    billing_processor_id: None,
   }
 }
 
