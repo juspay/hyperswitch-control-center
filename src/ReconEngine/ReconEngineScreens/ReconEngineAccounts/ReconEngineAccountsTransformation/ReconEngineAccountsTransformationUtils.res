@@ -63,7 +63,7 @@ let getTransformationConfigData = (~config: transformationConfigType): array<
   let sourceConfigData: array<transformationConfigDataType> = [
     {
       label: TransformationId,
-      value: config.id,
+      value: config.transformation_id,
       valueType: #text,
     },
     {

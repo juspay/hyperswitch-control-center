@@ -22,6 +22,12 @@ let getV2Url = (
     | (Get, Some(customerId)) => `v2/customers/${customerId}`
     | _ => ""
     }
+  | CUSTOMERS_COUNT =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list_with_count"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
   | V2_CONNECTOR =>
     switch methodType {
     | Get =>
@@ -212,6 +218,19 @@ let useGetURL = () => {
             switch queryParamerters {
             | Some(queryParams) => `customers/list?${queryParams}`
             | None => `customers/list?limit=500`
+            }
+          }
+        | _ => ""
+        }
+      | CUSTOMERS_COUNT =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(customerId) => `customers/${customerId}`
+          | None =>
+            switch queryParamerters {
+            | Some(queryParams) => `customers/list_with_count?${queryParams}`
+            | None => `customers/list_with_count`
             }
           }
         | _ => ""
@@ -1012,7 +1031,55 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-
+        | #VOID_TRANSACTION =>
+          switch methodType {
+          | Put =>
+            switch id {
+            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/void`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #FORCE_RECONCILE_TRANSACTION =>
+          switch methodType {
+          | Put =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/force_reconcile`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #TRANSACTION_RESOLUTIONS =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/resolutions`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #MANUAL_RECONCILIATION =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #LINKABLE_STAGING_ENTRIES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+            | None => ``
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1086,7 +1153,11 @@ let useGetURL = () => {
 
         // USER GROUP ACCESS
         | #GET_GROUP_ACL => `${userUrl}/role/v2`
-        | #ROLE_INFO => `${userUrl}/parent/list`
+        | #ROLE_INFO =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/parent/list?${params}`
+          | None => `${userUrl}/parent/list`
+          }
 
         | #GROUP_ACCESS_INFO =>
           switch queryParamerters {
@@ -1100,7 +1171,11 @@ let useGetURL = () => {
         | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
         // INVITATION INSIDE DASHBOARD
-        | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+        | #RESEND_INVITE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/user/resend_invite?${params}`
+          | None => `${userUrl}/user/resend_invite`
+          }
         | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
         | #INVITE_MULTIPLE =>
           switch queryParamerters {
@@ -1130,7 +1205,7 @@ let useGetURL = () => {
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-
+        | #CREATE_CUSTOM_ROLE_V2 => `${userUrl}/role/v2`
         // EMAIL FLOWS
         | #FROM_EMAIL => `${userUrl}/from_email`
         | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`

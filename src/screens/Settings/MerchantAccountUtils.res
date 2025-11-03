@@ -5,7 +5,9 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (profileRecord: profileEntity) => {
+let parseBussinessProfileJson = (
+  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+) => {
   let {
     profile_name,
     webhook_details,
@@ -38,7 +40,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   // converting allowed domains from array of string to comma separated string
   let paymentLinkConfig = switch payment_link_config {
   | Some(config) => config
-  | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
+  | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
   }
   let allowedDomains = paymentLinkConfig.allowed_domains->JSON.Decode.array->Option.getOr([])
   let allowedDomainsString =
@@ -84,18 +86,14 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("payment_succeeded_enabled", webhook_details.payment_succeeded_enabled)
   profileInfo->setOptionBool("payment_failed_enabled", webhook_details.payment_failed_enabled)
   profileInfo->setOptionString("payment_response_hash_key", payment_response_hash_key)
-  profileInfo->setOptionArray(
-    "authentication_connectors",
-    authentication_connector_details.authentication_connectors,
-  )
-  profileInfo->setOptionString(
-    "three_ds_requestor_url",
-    authentication_connector_details.three_ds_requestor_url,
-  )
-  profileInfo->setOptionString(
-    "three_ds_requestor_app_url",
-    authentication_connector_details.three_ds_requestor_app_url,
-  )
+  switch authentication_connector_details {
+  | Some(val) =>
+    profileInfo->setOptionArray("authentication_connectors", val.authentication_connectors)
+    profileInfo->setOptionString("three_ds_requestor_url", val.three_ds_requestor_url)
+    profileInfo->setOptionString("three_ds_requestor_app_url", val.three_ds_requestor_app_url)
+  | None => ()
+  }
+
   profileInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
   profileInfo->setOptionBool("is_debit_routing_enabled", is_debit_routing_enabled)
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
@@ -162,7 +160,9 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
   let paymentLinkDomainDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
-  let paymentLinkConfigTyped = BusinessProfileMapper.paymentLinkConfigMapper(paymentLinkConfig)
+  let paymentLinkConfigTyped = BusinessProfileInterfaceUtils.paymentLinkConfigMapper(
+    paymentLinkConfig,
+  )
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfigTyped,
@@ -684,7 +684,9 @@ let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
   errors->JSON.Encode.object
 }
 
-let defaultValueForBusinessProfile = {
+let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntity_v1 = {
+  profile_id: "",
+  merchant_id: "",
   profile_name: "",
   return_url: None,
   payment_response_hash_key: None,
@@ -697,11 +699,11 @@ let defaultValueForBusinessProfile = {
     payment_succeeded_enabled: None,
     payment_failed_enabled: None,
   },
-  authentication_connector_details: {
+  authentication_connector_details: Some({
     authentication_connectors: None,
     three_ds_requestor_url: None,
     three_ds_requestor_app_url: None,
-  },
+  }),
   collect_shipping_details_from_wallet_connector: None,
   always_collect_shipping_details_from_wallet_connector: None,
   collect_billing_details_from_wallet_connector: None,
@@ -729,7 +731,7 @@ let getValueFromBusinessProfile = businessProfileValue => {
 }
 
 let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
-  arrBusinessProfile->Array.map(ele => {
+  arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypesV1.profileEntity_v1) => {
     let obj: SelectBox.dropdownOption = {
       label: {`${ele.profile_name} (${profileId})`},
       value: profileId,

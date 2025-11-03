@@ -230,7 +230,7 @@ module WebHookSection = {
         let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
         let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
         let res = await updateDetails(url, body, Post)
-        setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+        setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
         fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
         showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
         setAllowEdit(_ => false)
@@ -394,7 +394,7 @@ module PaymentLinkDomain = {
         let body = valuesDict->JSON.Encode.object->getPaymentLinkDomainPayload->JSON.Encode.object
         let businessProfileResponse = await updateDetails(url, body, Post)
         setBusinessProfile(_ =>
-          businessProfileResponse->BusinessProfileMapper.businessProfileTypeMapper
+          businessProfileResponse->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
         )
         fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
 
@@ -736,7 +736,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
-      setBusinessProfile(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

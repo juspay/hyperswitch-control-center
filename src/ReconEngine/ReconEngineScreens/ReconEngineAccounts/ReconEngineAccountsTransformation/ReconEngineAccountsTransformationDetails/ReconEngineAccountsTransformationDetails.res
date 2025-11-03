@@ -17,9 +17,7 @@ let make = (~accountId) => {
   ])
   let (accountData, setAccountData) = React.useState(_ => Dict.make()->getAccountPayloadFromDict)
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (selectedTransformation, setSelectedTransformation) = React.useState(_ =>
-    Dict.make()->getTransformationConfigPayloadFromDict
-  )
+  let (selectedTransformationId, setSelectedTransformationId) = React.useState(_ => "")
 
   let getTransformationDetails = async () => {
     try {
@@ -44,11 +42,12 @@ let make = (~accountId) => {
 
       switch url.search->getTransformationIdFromUrl {
       | Some(id) => {
-          let transformation = transformationConfigs->Array.find(config => config.id === id)
-          setSelectedTransformation(_ =>
+          let transformation =
+            transformationConfigs->Array.find(config => config.transformation_id === id)
+          setSelectedTransformationId(_ =>
             switch transformation {
-            | Some(config) => config
-            | None => Dict.make()->getTransformationConfigPayloadFromDict
+            | Some(config) => config.transformation_id
+            | None => ""
             }
           )
         }
@@ -69,10 +68,10 @@ let make = (~accountId) => {
       title: config.name,
       onTabSelection: {
         _ => {
-          setSelectedTransformation(_ => config)
+          setSelectedTransformationId(_ => config.transformation_id)
           RescriptReactRouter.push(
             GlobalVars.appendDashboardPath(
-              ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.id}`,
+              ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.transformation_id}`,
             ),
           )
         }
@@ -89,7 +88,9 @@ let make = (~accountId) => {
   let getActiveTabIndex = React.useMemo(() => {
     switch url.search->getTransformationIdFromUrl {
     | Some(transformationId) =>
-      transformationConfigs->Array.findIndex(config => config.id === transformationId)
+      transformationConfigs->Array.findIndex(config =>
+        config.transformation_id === transformationId
+      )
     | None => 0
     }
   }, (url.search, transformationConfigs))
@@ -119,17 +120,13 @@ let make = (~accountId) => {
           onClick={_ => setShowModal(_ => true)}
           buttonSize=Large
         />
-        <ToolTip
-          toolTipPosition=Bottom
-          description="This feature is available in prod"
-          toolTipFor={<Button
-            text="Add New Transformation"
-            customButtonStyle="!cursor-not-allowed"
-            buttonState=Normal
-            buttonType=Primary
-            onClick={_ => ()}
-            buttonSize=Large
-          />}
+        <Button
+          text="Add New Transformation"
+          customButtonStyle="!cursor-not-allowed"
+          buttonState=Disabled
+          buttonType=Primary
+          onClick={_ => ()}
+          buttonSize=Large
         />
       </div>
     </div>
@@ -163,7 +160,7 @@ let make = (~accountId) => {
     </div>
     <RenderIf condition=showModal>
       <ReconEngineAccountsTransformationDetailsMappers
-        showModal setShowModal selectedTransformation
+        showModal setShowModal selectedTransformationId
       />
     </RenderIf>
   </div>

@@ -17,6 +17,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
+  let {devRolesV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchModuleList = async () => {
     try {
@@ -52,7 +53,9 @@ let make = () => {
       </AccessControl>
     | list{"users", "create-custom-role"} =>
       <AccessControl authorization={userHasAccess(~groupAccess=UsersManage)}>
-        <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />
+        {devRolesV2
+          ? <CreateCustomRoleV2 />
+          : <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />}
       </AccessControl>
     | list{"users", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=UsersView)}>

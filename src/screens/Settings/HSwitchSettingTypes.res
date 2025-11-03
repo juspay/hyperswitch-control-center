@@ -20,6 +20,8 @@ type merchantDetails = {
   address: address,
 }
 
+type webhookDetailsRequest = {webhook_url: option<JSON.t>}
+
 type webhookDetails = {
   webhook_version: option<string>,
   webhook_username: option<string>,
@@ -30,24 +32,12 @@ type webhookDetails = {
   payment_failed_enabled: option<bool>,
 }
 
-type authConnectorDetailsType = {
-  authentication_connectors: option<array<JSON.t>>,
-  three_ds_requestor_url: option<string>,
-  three_ds_requestor_app_url: option<string>,
-}
-
 type profileSetting = {
   merchant_id: string,
   merchant_name: string,
   locker_id: string,
   primary_business_details: array<JSON.t>,
   merchant_details: merchantDetails,
-}
-
-type webhookSettings = {
-  merchant_id: string,
-  return_url: string,
-  webhook_details: webhookDetails,
 }
 
 type consolidatedBusinessEntity = {
@@ -152,76 +142,6 @@ type personalSettings = {
   buttonText?: string,
   redirectUrl?: string,
   isApiCall?: bool,
-}
-
-type background_image = {
-  url: string,
-  position: string,
-  size: string,
-}
-
-type style_config = {
-  theme: string,
-  logo: string,
-  seller_name: string,
-  sdk_layout: string,
-  display_sdk_only: option<bool>,
-  enabled_saved_payment_method: option<bool>,
-  hide_card_nickname_field: option<bool>,
-  show_card_form_by_default: option<bool>,
-  transaction_details: JSON.t,
-  background_image: option<background_image>,
-  details_layout: option<string>,
-  payment_button_text: string,
-  custom_message_for_card_terms: string,
-  payment_button_colour: string,
-  skip_status_screen: option<bool>,
-  payment_button_text_colour: string,
-  background_colour: string,
-  sdk_ui_rules: JSON.t,
-  payment_link_ui_rules: JSON.t,
-  enable_button_only_on_form_ready: bool,
-  payment_form_header_text: string,
-  payment_form_label_type: option<string>,
-  show_card_terms: option<string>,
-  is_setup_mandate_flow: option<bool>,
-  color_icon_card_cvc_error: string,
-}
-
-type payment_link_config = {
-  domain_name: string,
-  allowed_domains: JSON.t,
-  business_specific_configs: JSON.t,
-  branding_visibility: option<bool>,
-  ...style_config,
-}
-
-type profileEntity = {
-  profile_name: string,
-  return_url: option<string>,
-  payment_response_hash_key: option<string>,
-  webhook_details: webhookDetails,
-  authentication_connector_details: authConnectorDetailsType,
-  collect_shipping_details_from_wallet_connector: option<bool>,
-  always_collect_shipping_details_from_wallet_connector: option<bool>,
-  collect_billing_details_from_wallet_connector: option<bool>,
-  always_collect_billing_details_from_wallet_connector: option<bool>,
-  is_connector_agnostic_mit_enabled: option<bool>,
-  is_click_to_pay_enabled: option<bool>,
-  authentication_product_ids: option<JSON.t>,
-  outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
-  is_auto_retries_enabled: option<bool>,
-  max_auto_retries_enabled: option<int>,
-  metadata: option<Dict.t<JSON.t>>,
-  force_3ds_challenge: option<bool>,
-  is_debit_routing_enabled: option<bool>,
-  acquirer_configs: option<array<JSON.t>>,
-  merchant_category_code: option<string>,
-  is_network_tokenization_enabled: option<bool>,
-  always_request_extended_authorization: option<bool>,
-  is_manual_retry_enabled: option<bool>,
-  always_enable_overcapture: option<bool>,
-  payment_link_config: option<payment_link_config>,
 }
 
 type twoFaType = RecoveryCode | Totp
