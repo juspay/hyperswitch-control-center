@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.31.0
+
+### Bug Fixes
+
+- Organization manage deprecated permission changes ([#3779](https://github.com/juspay/hyperswitch-control-center/pull/3779)) ([`6bd6fac`](https://github.com/juspay/hyperswitch-control-center/commit/6bd6facd1459a75c4376c6a9bb7b2f6fbc4aed95))
+
+**Full Changelog:** [`2025.10.30.0...2025.10.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.30.0...2025.10.31.0)
+
+- - -
+
 ## 2025.10.30.0
 
 ### Miscellaneous Tasks
