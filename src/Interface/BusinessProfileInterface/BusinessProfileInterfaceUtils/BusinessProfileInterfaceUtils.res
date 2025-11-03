@@ -155,6 +155,7 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     collect_billing_details_from_wallet_connector_if_required: jsonDict->getOptionBool(
       "collect_billing_details_from_wallet_connector_if_required",
     ),
+    billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
     payment_link_config: paymentLinkConfig->isEmptyDict
       ? None
       : Some(paymentLinkConfig->paymentLinkConfigMapper),

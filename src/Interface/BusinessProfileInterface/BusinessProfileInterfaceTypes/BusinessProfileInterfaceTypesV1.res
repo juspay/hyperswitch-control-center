@@ -108,5 +108,6 @@ type profileEntity_v1 = {
   always_request_extended_authorization: option<bool>,
   is_manual_retry_enabled: option<bool>,
   always_enable_overcapture: option<bool>,
+  billing_processor_id: option<string>,
   payment_link_config: option<payment_link_config_v1>,
 }
