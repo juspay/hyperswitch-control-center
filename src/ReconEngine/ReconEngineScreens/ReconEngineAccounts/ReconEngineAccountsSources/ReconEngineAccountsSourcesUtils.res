@@ -206,25 +206,19 @@ let getTimelineConfig = (
   }
 }
 
-let parseCsvContent = csvText => {
-  let parseResult = PapaParse.parseToArrays(
-    csvText,
-    ~config=PapaParse.makeConfig(~delimiter=",", ~skipEmptyLines=true, ()),
-  )
-  let allRows = parseResult.data
-  let headerKeys = allRows->getValueFromArray(0, [])
-  let dataRows =
-    allRows
-    ->Array.sliceToEnd(~start=1)
-    ->Array.map(values => {
-      let dict = Dict.make()
-      headerKeys->Array.forEachWithIndex((key, index) => {
-        let value = values->getValueFromArray(index, "")
-        dict->Dict.set(key, value->JSON.Encode.string)
-      })
-      dict->JSON.Encode.object
-    })
-  (headerKeys, dataRows)
+let getHeadersAndJsonArray = (~res) => {
+  let jsonArray = res->getArrayFromJson([])
+  let headersSet = Set.make()
+  jsonArray->Array.forEach(item => {
+    let dict = item->getDictFromJsonObject
+    dict->Dict.keysToArray->Array.forEach(key => headersSet->Set.add(key))
+  })
+
+  let headers = []
+  headersSet->Set.forEach(key => headers->Array.push(key))
+  let sortedHeaders = headers->Array.toSorted(String.compare)
+
+  (sortedHeaders, jsonArray)
 }
 
 let getCsvEntity = (~headerKeys) =>

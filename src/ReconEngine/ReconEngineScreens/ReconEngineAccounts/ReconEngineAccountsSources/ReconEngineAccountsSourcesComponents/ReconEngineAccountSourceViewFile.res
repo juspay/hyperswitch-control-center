@@ -13,23 +13,21 @@ let make = (
   let (csvData, setCsvData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let getURL = useGetURL()
-  let fetchApi = AuthHooks.useApiFetcher()
+  let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchIngestionHistoryFileData = async () => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
-        ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
+        ~hyperswitchReconType=#PREVIEW_INGESTION_HISTORY_FILE,
         ~methodType=Get,
         ~id=Some(ingestionHistory.id),
       )
-      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
-      let csvContent = await res->Fetch.Response.text
-      let (keys, data) = parseCsvContent(csvContent)
-      setHeaderKeys(_ => keys)
-      setCsvData(_ => data)
+      let res = await fetchDetails(url)
+      let (headers, jsonArray) = getHeadersAndJsonArray(~res)
+      setHeaderKeys(_ => headers)
+      setCsvData(_ => jsonArray)
     } catch {
     | _ => showToast(~message="Failed to load CSV file. Please try again.", ~toastType=ToastError)
     }
