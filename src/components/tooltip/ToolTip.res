@@ -20,6 +20,8 @@ module TooltipMainWrapper = {
     ~height,
     ~contentAlign,
     ~justifyClass,
+    ~tooltipDelay: option<int>=?,
+    ~enableTooltipDelay=false,
   ) => {
     let relativeClass = isRelative ? "relative" : ""
     let flexCss = hoverOnToolTip ? "inline-flex" : "flex"
@@ -31,14 +33,20 @@ module TooltipMainWrapper = {
     }
 
     let timeoutRef = React.useRef(None)
-
     let handleMouseOver = _ => {
       if !visibleOnClick {
         switch timeoutRef.current {
         | Some(timerId) => clearTimeout(timerId)
         | None => ()
         }
-        setIsToolTipVisible(_ => true)
+        if enableTooltipDelay {
+          let delay = tooltipDelay->Option.getOr(500)
+          timeoutRef.current = setTimeout(() => {
+              setIsToolTipVisible(_ => true)
+            }, delay)->Some
+        } else {
+          setIsToolTipVisible(_ => true)
+        }
       }
     }
 
@@ -53,6 +61,12 @@ module TooltipMainWrapper = {
     }
 
     let handleMouseOut = _ => {
+      if enableTooltipDelay {
+        switch timeoutRef.current {
+        | Some(timerId) => clearTimeout(timerId)
+        | None => ()
+        }
+      }
       if hoverOnToolTip {
         timeoutRef.current = setTimeout(() => {
             setIsToolTipVisible(_ => false)
@@ -635,6 +649,8 @@ let make = (
   ~dismissable=false,
   ~newDesign=false,
   ~iconOpacityVal="50",
+  ~enableTooltipDelay=false,
+  ~tooltipDelay: option<int>=?,
   (),
 ) => {
   let (isToolTipVisible, setIsToolTipVisible) = React.useState(_ => false)
@@ -691,7 +707,9 @@ let make = (
     flexClass
     height
     contentAlign
-    justifyClass>
+    justifyClass
+    enableTooltipDelay
+    ?tooltipDelay>
     <TooltipFor toolTipFor tooltipForWidthClass componentRef opacityVal=iconOpacityVal />
     <TooltipWrapper
       isToolTipVisible
