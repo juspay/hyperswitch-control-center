@@ -22,6 +22,7 @@ let make = () => {
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"billing-processor", "new"} => false
@@ -134,7 +135,7 @@ let make = () => {
           ~values,
           ~connector=connectorName,
           ~bodyType,
-          ~isLiveMode={false},
+          ~isLiveMode,
           ~connectorType=ConnectorTypes.BillingProcessor,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(

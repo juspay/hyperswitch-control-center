@@ -17,29 +17,29 @@ module CustomConnectorCellWithDefaultIcon = {
     | None => Processor
     }
     let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
-
-    if connectorName->isNonEmptyString {
-      <div className="flex items-center">
-        <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-3`}>
-          <GatewayIcon
-            gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`}
-          />
-          <div>
-            {connectorName
-            ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
-            ->React.string}
+    <>
+      <RenderIf condition={connectorName->isNonEmptyString}>
+        <div className="flex items-center">
+          <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-3`}>
+            <GatewayIcon
+              gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`}
+            />
+            <div>
+              {connectorName
+              ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
+              ->React.string}
+            </div>
           </div>
+          <RenderIf condition={connector.id == billing_processor_id}>
+            <div
+              className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
+              {"Default"->React.string}
+            </div>
+          </RenderIf>
         </div>
-        <RenderIf condition={connector.id == billing_processor_id}>
-          <div
-            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
-            {"Default"->React.string}
-          </div>
-        </RenderIf>
-      </div>
-    } else {
-      "NA"->React.string
-    }
+      </RenderIf>
+      <RenderIf condition={connectorName->isEmptyString}> {"NA"->React.string} </RenderIf>
+    </>
   }
 }
 
