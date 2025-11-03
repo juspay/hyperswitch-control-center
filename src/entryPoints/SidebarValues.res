@@ -306,8 +306,9 @@ let analytics = (
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
+  ~feeEstimationFeatureFlag,
 ) => {
-  let links = [paymentAnalytcis, refundAnalytics, feeEstimation]
+  let links = [paymentAnalytcis, refundAnalytics]
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics)
   }
@@ -324,6 +325,9 @@ let analytics = (
   }
   if routingAnalyticsFlag {
     links->Array.push(routingAnalytics)
+  }
+  if feeEstimationFeatureFlag {
+    links->Array.push(feeEstimation)
   }
 
   isAnalyticsEnabled
@@ -671,6 +675,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     paymentSettingsV2,
     routingAnalytics,
     billingProcessor,
+    feeEstimationFeatureFlag,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -698,6 +703,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
+      ~feeEstimationFeatureFlag,
     ),
     default->workflow(
       isSurchargeEnabled,
