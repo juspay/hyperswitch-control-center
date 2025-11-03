@@ -12,6 +12,8 @@ type transactionColType =
   | Variance
   | Status
   | CreatedAt
+  | ReconciliationType
+  | Reason
 
 let defaultColumns: array<transactionColType> = [
   TransactionId,
@@ -52,6 +54,9 @@ let getHeading = (colType: transactionColType) => {
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
+  | ReconciliationType =>
+    Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
+  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Reason")
   }
 }
 
@@ -64,6 +69,18 @@ let getStatusLabel = (statusString: transactionStatus): Table.cell => {
     | Expected => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled => LabelOrange
+    | _ => LabelLightGray
+    },
+  })
+}
+
+let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell => {
+  Table.Label({
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | ForceReconciled => LabelOrange
+    | ManuallyReconciled => LabelGray
+    | Reconciled => LabelBlue
     | _ => LabelLightGray
     },
   })
@@ -104,6 +121,12 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     | None => getStatusLabel(transaction.transaction_status)
     }
   | CreatedAt => Date(transaction.created_at)
+  | ReconciliationType =>
+    switch transaction.data.posted_type {
+    | Some(postedType) => getReconciledTypeLabel(postedType)
+    | None => getReconciledTypeLabel(UnknownTransactionPostedType)
+    }
+  | Reason => Text(transaction.data.reason->Option.getOr("N/A"))
   }
 }
 
