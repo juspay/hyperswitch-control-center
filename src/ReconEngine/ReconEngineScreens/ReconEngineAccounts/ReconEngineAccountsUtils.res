@@ -35,12 +35,12 @@ let getStatusLabel = (statusString: ingestionTransformationStatusType): Table.ce
   Table.Label({
     title: (statusString :> string),
     color: switch statusString {
-    | Pending => Table.LabelGray
-    | Processing => Table.LabelOrange
-    | Processed => Table.LabelGreen
-    | Failed => Table.LabelRed
-    | Discarded => Table.LabelGray
-    | UnknownIngestionTransformationStatus => Table.LabelLightGray
+    | Pending => LabelYellow
+    | Processing => LabelOrange
+    | Processed => LabelGreen
+    | Failed => LabelRed
+    | Discarded => LabelGray
+    | UnknownIngestionTransformationStatus => LabelLightGray
     },
   })
 }
