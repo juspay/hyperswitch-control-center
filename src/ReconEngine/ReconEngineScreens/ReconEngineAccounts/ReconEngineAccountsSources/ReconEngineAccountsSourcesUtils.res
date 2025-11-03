@@ -207,23 +207,16 @@ let getTimelineConfig = (
 }
 
 let parseCsvContent = csvText => {
-  let lines =
-    csvText
-    ->String.split("\n")
-    ->Array.filter(line => line->String.trim->isNonEmptyString)
-
-  let firstLine = lines->getValueFromArray(0, "")
-  let headerKeys = if firstLine->isNonEmptyString {
-    firstLine->String.split(",")
-  } else {
-    []
-  }
-
+  let parseResult = PapaParse.parseToArrays(
+    csvText,
+    ~config=PapaParse.makeConfig(~delimiter=",", ~skipEmptyLines=true, ()),
+  )
+  let allRows = parseResult.data
+  let headerKeys = allRows->getValueFromArray(0, [])
   let dataRows =
-    lines
+    allRows
     ->Array.sliceToEnd(~start=1)
-    ->Array.map(line => {
-      let values = line->String.split(",")
+    ->Array.map(values => {
       let dict = Dict.make()
       headerKeys->Array.forEachWithIndex((key, index) => {
         let value = values->getValueFromArray(index, "")
@@ -231,7 +224,6 @@ let parseCsvContent = csvText => {
       })
       dict->JSON.Encode.object
     })
-
   (headerKeys, dataRows)
 }
 
