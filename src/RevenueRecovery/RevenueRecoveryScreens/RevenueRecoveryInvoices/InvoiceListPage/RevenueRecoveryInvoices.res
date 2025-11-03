@@ -67,7 +67,8 @@ let make = () => {
       // Process failed payments to get additional information from process tracker
       let processedOrderData = await Promise.all(
         orderData->Array.map(async order => {
-          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
+          // TODO: change this later // order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed
+          if false {
             try {
               let processTrackerUrl = getURL(
                 ~entityName=V2(PROCESS_TRACKER),
@@ -183,7 +184,7 @@ let make = () => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading
-          title="Invoices" subTitle="List of failed Invoices picked up for retry" customTitleStyle
+          title="Invoices" customTitleStyle
         />
       </div>
       //<div className="flex"> {filtersUI} </div>
