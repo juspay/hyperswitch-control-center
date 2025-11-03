@@ -98,6 +98,16 @@ let make = () => {
           renderShow={(_, _) => <TaxProcessorHome />}
         />
       </AccessControl>
+    | list{"billing-processor", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Billing Processor"
+          remainingPath
+          renderList={() => <BillingProcessorList />}
+          renderNewForm={() => <BillingProcessorHome />}
+          renderShow={(_, _) => <BillingProcessorHome />}
+        />
+      </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.frm}

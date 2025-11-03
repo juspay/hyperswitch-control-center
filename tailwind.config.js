@@ -78,6 +78,7 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+        "2-px": "2px",
       },
       minWidth: {
         "25-rem": "25rem",
