@@ -177,7 +177,7 @@ module ModalInfoSection = {
 module MonthRangeSelector = {
   open DateTimeUtils
 
-  let getMonthStart = (~month, ~year) => Date.makeWithYMD(~year, ~month, ~date=2)
+  let getMonthStart = (~month, ~year) => Date.makeWithYMDH(~year, ~month, ~date=1, ~hours=10)
   let getMonthEnd = (~month, ~year) => Date.makeWithYMD(~year, ~month=month + 1, ~date=0)
   let toYearMonth = date => date->Date.toString->getFormattedDate("YYYY-MM")
   let formatYearMonth = (year, month) =>

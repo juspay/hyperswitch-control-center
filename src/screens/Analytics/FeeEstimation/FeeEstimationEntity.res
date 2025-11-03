@@ -230,10 +230,7 @@ let getFeeBreakdownHeading = (feesBreakdownData: feesBreakdown) => {
   }
 }
 
-let getFeeBreakdownCell = (
-  refunds: schemeFee,
-  feeBreakdownColType: feesBreakdown,
-): Table.cell => {
+let getFeeBreakdownCell = (refunds: schemeFee, feeBreakdownColType: feesBreakdown): Table.cell => {
   switch feeBreakdownColType {
   | FeeType =>
     let feeName = refunds.feeName->snakeToTitle

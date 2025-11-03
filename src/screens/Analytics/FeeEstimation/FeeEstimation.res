@@ -7,11 +7,10 @@ open LogicUtils
 
 module OverviewContainer = {
   @react.component
-  let make = () => {
+  let make = (~monthFilters) => {
     let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
-    let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (overviewRawData, setOverviewRawData) = React.useState(_ =>
@@ -30,9 +29,9 @@ module OverviewContainer = {
           "payload": {
             "offset": pageDetail.offset,
             "limit": pageDetail.resultsPerPage,
+            "startDate": monthFilters["startDate"],
+            "endDate": monthFilters["endDate"],
           },
-          "merchant_id": merchantId,
-          "profile_id": profileId,
         }->Identity.genericTypeToJson
 
         let response = switch GlobalVars.hostType {
@@ -79,11 +78,10 @@ module OverviewContainer = {
 
 module TransactionViewContainer = {
   @react.component
-  let make = () => {
+  let make = (~monthFilters) => {
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (offset, setOffset) = React.useState(_ => 0)
@@ -112,9 +110,9 @@ module TransactionViewContainer = {
           "payload": {
             "offset": pageDetail.offset,
             "limit": pageDetail.resultsPerPage,
+            "startDate": monthFilters["startDate"],
+            "endDate": monthFilters["endDate"],
           },
-          "merchant_id": merchantId,
-          "profile_id": profileId,
         }->Identity.genericTypeToJson
         let response = switch GlobalVars.hostType {
         | Local | Integ => FeeEstimationMockData.mockData
@@ -194,11 +192,11 @@ let make = () => {
   let tabs: array<Tabs.tab> = [
     {
       title: "Overview",
-      renderContent: () => <OverviewContainer />,
+      renderContent: () => <OverviewContainer monthFilters />,
     },
     {
       title: "Transactions View",
-      renderContent: () => <TransactionViewContainer />,
+      renderContent: () => <TransactionViewContainer monthFilters />,
     },
   ]
 
@@ -206,7 +204,7 @@ let make = () => {
     <div className="flex justify-between items-center">
       <p className={`${heading.lg.semibold} text-nd_gray-800`}> {"Fee Estimate"->React.string} </p>
       <MonthRangeSelector
-        isDisabled=true
+        isDisabled=false
         updateDateRange={(~startDate, ~endDate) => {
           setMonthFilters(_ =>
             {
