@@ -1076,6 +1076,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #LINKABLE_STAGING_ENTRIES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+            | None => ``
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1149,7 +1159,11 @@ let useGetURL = () => {
 
         // USER GROUP ACCESS
         | #GET_GROUP_ACL => `${userUrl}/role/v2`
-        | #ROLE_INFO => `${userUrl}/parent/list`
+        | #ROLE_INFO =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/parent/list?${params}`
+          | None => `${userUrl}/parent/list`
+          }
 
         | #GROUP_ACCESS_INFO =>
           switch queryParamerters {
@@ -1197,7 +1211,7 @@ let useGetURL = () => {
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-
+        | #CREATE_CUSTOM_ROLE_V2 => `${userUrl}/role/v2`
         // EMAIL FLOWS
         | #FROM_EMAIL => `${userUrl}/from_email`
         | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`

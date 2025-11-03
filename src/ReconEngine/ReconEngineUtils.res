@@ -13,6 +13,15 @@ let getTransactionStatusVariantFromString = (status: string): transactionStatus 
   }
 }
 
+let getTransactionPostedTypeVariantFromString = (postedType: string): transactionPostedType => {
+  switch postedType->String.toLowerCase {
+  | "reconciled" => Reconciled
+  | "force_reconciled" => ForceReconciled
+  | "manually_reconciled" => ManuallyReconciled
+  | _ => UnknownTransactionPostedType
+  }
+}
+
 let getEntryStatusVariantFromString = (entryType: string): entryStatus => {
   switch entryType->String.toLowerCase {
   | "posted" => Posted
@@ -249,6 +258,21 @@ let transactionItemToObjMapper = (dict): transactionType => {
     transaction_status: dict
     ->getString("transaction_status", "")
     ->getTransactionStatusVariantFromString,
+    data: {
+      status: dict
+      ->getDictfromDict("data")
+      ->getString("status", "")
+      ->getTransactionStatusVariantFromString,
+      posted_type: switch dict
+      ->getDictfromDict("data")
+      ->getOptionString("posted_type") {
+      | Some(postedType) => Some(postedType->getTransactionPostedTypeVariantFromString)
+      | None => None
+      },
+      reason: dict
+      ->getDictfromDict("data")
+      ->getOptionString("reason"),
+    },
     discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
@@ -272,11 +296,13 @@ let entryItemToObjMapper = dict => {
     data: dict->getJsonObjectFromDict("data"),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
+    staging_entry_id: dict->getOptionString("staging_entry_id"),
   }
 }
 
 let processingItemToObjMapper = (dict): processingEntryType => {
   {
+    id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
     account: dict
     ->getDictfromDict("account")
