@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.10.31.0
+
+### Bug Fixes
+
+- Organization manage deprecated permission changes ([#3779](https://github.com/juspay/hyperswitch-control-center/pull/3779)) ([`6bd6fac`](https://github.com/juspay/hyperswitch-control-center/commit/6bd6facd1459a75c4376c6a9bb7b2f6fbc4aed95))
+
+**Full Changelog:** [`2025.10.30.0...2025.10.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.30.0...2025.10.31.0)
+
+- - -
+
+## 2025.10.30.0
+
+### Miscellaneous Tasks
+
+- Added tooltip on OMP name hover ([#3773](https://github.com/juspay/hyperswitch-control-center/pull/3773)) ([`796ef11`](https://github.com/juspay/hyperswitch-control-center/commit/796ef119bfd7e8e79f6082408e0cd8eae928c2db))
+
+**Full Changelog:** [`2025.10.29.2...2025.10.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.29.2...2025.10.30.0)
+
+- - -
+
+## 2025.10.29.2
+
+### Bug Fixes
+
+- Sync initial log selection with UI highlighting in Audit Logs ([#3726](https://github.com/juspay/hyperswitch-control-center/pull/3726)) ([`d0c9bf6`](https://github.com/juspay/hyperswitch-control-center/commit/d0c9bf616a905a095b6e03fc7da195baf7fca572))
+- Permissions fix for profile level users ([#3772](https://github.com/juspay/hyperswitch-control-center/pull/3772)) ([`557d344`](https://github.com/juspay/hyperswitch-control-center/commit/557d3449406f318baff1f3926cfba1201fa0121f))
+
+**Full Changelog:** [`2025.10.29.1...2025.10.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.10.29.1...2025.10.29.2)
+
+- - -
+
 ## 2025.10.29.1
 
 ### Bug Fixes
