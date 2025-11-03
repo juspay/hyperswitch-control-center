@@ -147,7 +147,7 @@ let make = (~setScreenState) => {
     | list{"unauthorized"} => <UnauthorizedPage />
     | list{"chat-bot"} =>
       <AccessControl
-        isEnabled={featureFlagDetails.devAiChatBot}
+        isEnabled={featureFlagDetails.devAiChatBot && !checkUserEntity([#Profile])}
         // TODO: Remove `MerchantDetailsView` permission in future
         authorization={hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsView),
