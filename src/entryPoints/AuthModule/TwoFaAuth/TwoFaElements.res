@@ -1,3 +1,5 @@
+open Typography
+
 let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let h3TextStyle = HSwitchUtils.getTextClass((H3, Leading_1))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
@@ -10,18 +12,18 @@ module TotpScanQR = {
       <div className="grid grid-cols-4 gap-4 w-full">
         <div className="flex flex-col gap-10 col-span-3">
           <div className="flex flex-col gap-4">
-            <p className="text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1 ml-1">
+            <p className={`${body.lg.medium} text-nd_gray-400 mt-2 !mt-1 ml-1`}>
               {"Follow these steps to configure 2FA:"->React.string}
             </p>
             <div className="flex flex-col gap-4 ml-2">
-              <p className="text-fs-15 font-medium opacity-70 flex gap-3 items-center">
+              <p className={`${body.lg.medium} opacity-70 flex gap-3 items-center`}>
                 <div
                   className="text-black bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-[28%] w-6 text-center">
                   {"1"->React.string}
                 </div>
                 {"Scan the QR code with your authenticator app"->React.string}
               </p>
-              <p className="text-fs-15 font-medium opacity-70 flex gap-3 items-center">
+              <p className={`${body.lg.medium} opacity-70 flex gap-3 items-center`}>
                 <div
                   className="text-black bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-[28%] w-6 text-center">
                   {"2"->React.string}
