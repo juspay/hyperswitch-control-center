@@ -7,11 +7,10 @@ let defaultColumns = [
   PhoneCountryCode,
   Phone,
   Description,
-  Address,
   CreatedAt,
 ]
 
-let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description, Address, CreatedAt]
+let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description, CreatedAt]
 
 let getHeading = colType => {
   switch colType {
@@ -21,7 +20,6 @@ let getHeading = colType => {
   | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
-  | Address => Table.makeHeaderInfo(~key="address", ~title="Address")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created")
   }
 }
@@ -42,7 +40,6 @@ let getCell = (customersData, colType): Table.cell => {
   | Phone => Text(customersData.phone)
   | PhoneCountryCode => Text(customersData.phone_country_code)
   | Description => Text(customersData.description)
-  | Address => Date(customersData.address)
   | CreatedAt => Date(customersData.created_at)
   }
 }
@@ -56,7 +53,6 @@ let itemToObjMapper = dict => {
     phone: dict->getString("phone", ""),
     phone_country_code: dict->getString("phone_country_code", ""),
     description: dict->getString("description", ""),
-    address: dict->getString("address", ""),
     created_at: dict->getString("created_at", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
   }
