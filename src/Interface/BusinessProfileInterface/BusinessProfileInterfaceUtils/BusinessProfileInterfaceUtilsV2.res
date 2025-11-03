@@ -80,6 +80,17 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
   }
 }
+let mapV2WebhookDetailsToCommonType: webhookDetails_v2 => BusinessProfileInterfaceTypes.webhookDetails = webhookDetailsRecord => {
+  {
+    webhook_version: webhookDetailsRecord.webhook_version,
+    webhook_username: webhookDetailsRecord.webhook_username,
+    webhook_password: webhookDetailsRecord.webhook_password,
+    webhook_url: webhookDetailsRecord.webhook_url,
+    payment_created_enabled: webhookDetailsRecord.payment_created_enabled,
+    payment_succeeded_enabled: webhookDetailsRecord.payment_succeeded_enabled,
+    payment_failed_enabled: webhookDetailsRecord.payment_failed_enabled,
+  }
+}
 
 let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonProfileEntity = profileEntity => {
   {
@@ -88,15 +99,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     profile_name: profileEntity.profile_name,
     return_url: None,
     payment_response_hash_key: None,
-    webhook_details: {
-      webhook_version: None,
-      webhook_username: None,
-      webhook_password: None,
-      webhook_url: None,
-      payment_created_enabled: None,
-      payment_succeeded_enabled: None,
-      payment_failed_enabled: None,
-    },
+    webhook_details: profileEntity.webhook_details->mapV2WebhookDetailsToCommonType,
     authentication_connector_details: None,
     collect_shipping_details_from_wallet_connector: None,
     always_collect_shipping_details_from_wallet_connector: None,
