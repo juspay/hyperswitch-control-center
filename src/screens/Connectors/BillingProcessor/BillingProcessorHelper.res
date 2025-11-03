@@ -69,27 +69,28 @@ module ConnectButton = {
         />
       </AddDataAttributes>
 
-    if errorsList->Array.length === 0 {
-      button
-    } else {
-      let description =
-        errorsList
-        ->Array.map(entry => {
-          let (key, jsonValue) = entry
-          let value = getStringFromJson(jsonValue, "Error")
-          `${key->snakeToTitle}: ${value}`
-        })
-        ->Array.joinWith("\n")
+    let description =
+      errorsList
+      ->Array.map(entry => {
+        let (key, jsonValue) = entry
+        let value = getStringFromJson(jsonValue, "Error")
+        `${key->snakeToTitle}: ${value}`
+      })
+      ->Array.joinWith("\n")
 
-      <ToolTip
-        description
-        toolTipFor=button
-        toolTipPosition=ToolTip.Top
-        tooltipPositioning=#fixed
-        tooltipWidthClass="w-auto"
-        height="h-full"
-        tooltipForWidthClass=""
-      />
-    }
+    <>
+      <RenderIf condition={errorsList->Array.length === 0}> {button} </RenderIf>
+      <RenderIf condition={errorsList->Array.length > 0}>
+        <ToolTip
+          description
+          toolTipFor=button
+          toolTipPosition=ToolTip.Top
+          tooltipPositioning=#fixed
+          tooltipWidthClass="w-auto"
+          height="h-full"
+          tooltipForWidthClass=""
+        />
+      </RenderIf>
+    </>
   }
 }
