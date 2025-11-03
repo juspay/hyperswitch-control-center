@@ -185,6 +185,18 @@ let taxProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let billingProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Billing Processor",
+    link: `/billing-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.billingProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -193,6 +205,7 @@ let connectors = (
   ~isThreedsConnectorEnabled,
   ~isPMAuthenticationProcessor,
   ~isTaxProcessor,
+  ~isBillingProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -214,6 +227,9 @@ let connectors = (
 
   if isTaxProcessor {
     connectorLinkArray->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+  }
+  if isBillingProcessor {
+    connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -647,6 +663,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     threedsExemptionRules,
     paymentSettingsV2,
     routingAnalytics,
+    billingProcessor,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -664,6 +681,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~isTaxProcessor=taxProcessor,
+      ~isBillingProcessor=billingProcessor,
       ~userHasResourceAccess,
     ),
     default->analytics(
