@@ -154,22 +154,46 @@ type personalSettings = {
   isApiCall?: bool,
 }
 
-type payment_link_config = {
-  domain_name: string,
-  allowed_domains: JSON.t,
+type background_image = {
+  url: string,
+  position: string,
+  size: string,
+}
+
+type style_config = {
   theme: string,
   logo: string,
   seller_name: string,
   sdk_layout: string,
-  display_sdk_only: bool,
-  enabled_saved_payment_method: bool,
-  hide_card_nickname_field: bool,
-  show_card_form_by_default: bool,
+  display_sdk_only: option<bool>,
+  enabled_saved_payment_method: option<bool>,
+  hide_card_nickname_field: option<bool>,
+  show_card_form_by_default: option<bool>,
+  transaction_details: JSON.t,
+  background_image: option<background_image>,
+  details_layout: option<string>,
   payment_button_text: string,
+  custom_message_for_card_terms: string,
+  payment_button_colour: string,
+  skip_status_screen: option<bool>,
+  payment_button_text_colour: string,
+  background_colour: string,
   sdk_ui_rules: JSON.t,
   payment_link_ui_rules: JSON.t,
+  enable_button_only_on_form_ready: bool,
+  payment_form_header_text: string,
+  payment_form_label_type: option<string>,
+  show_card_terms: option<string>,
+  is_setup_mandate_flow: option<bool>,
+  color_icon_card_cvc_error: string,
+}
+
+type payment_link_config = {
+  domain_name: string,
+  allowed_domains: JSON.t,
   business_specific_configs: JSON.t,
-  branding_visibility: bool,
+  branding_visibility: option<bool>,
+  ...style_config,
 }
 
 type profileEntity = {

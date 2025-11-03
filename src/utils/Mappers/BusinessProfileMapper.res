@@ -24,28 +24,59 @@ let constructAuthConnectorObject = authConnectorDict => {
   authConnectorDetails
 }
 
+let getBackgroundImage = backgroundImageDict => {
+  {
+    url: backgroundImageDict->getString("url", ""),
+    position: backgroundImageDict->getString("position", ""),
+    size: backgroundImageDict->getString("size", ""),
+  }
+}
+
 let paymentLinkConfigMapper = paymentLinkConfigDict => {
+  let backgroundImageDict = paymentLinkConfigDict->getDictfromDict("background_image")
+
   {
     theme: paymentLinkConfigDict->getString("theme", ""),
     logo: paymentLinkConfigDict->getString("logo", ""),
     seller_name: paymentLinkConfigDict->getString("seller_name", ""),
     sdk_layout: paymentLinkConfigDict->getString("sdk_layout", ""),
-    display_sdk_only: paymentLinkConfigDict->getBool("display_sdk_only", false),
-    enabled_saved_payment_method: paymentLinkConfigDict->getBool(
+    display_sdk_only: paymentLinkConfigDict->getOptionBool("display_sdk_only"),
+    enabled_saved_payment_method: paymentLinkConfigDict->getOptionBool(
       "enabled_saved_payment_method",
+    ),
+    hide_card_nickname_field: paymentLinkConfigDict->getOptionBool("hide_card_nickname_field"),
+    show_card_form_by_default: paymentLinkConfigDict->getOptionBool("show_card_form_by_default"),
+    transaction_details: paymentLinkConfigDict->getJsonObjectFromDict("transaction_details"),
+    background_image: backgroundImageDict->isEmptyDict
+      ? None
+      : Some(backgroundImageDict->getBackgroundImage),
+    details_layout: paymentLinkConfigDict->getOptionString("details_layout"),
+    payment_button_text: paymentLinkConfigDict->getString("payment_button_text", ""),
+    custom_message_for_card_terms: paymentLinkConfigDict->getString(
+      "custom_message_for_card_terms",
+      "",
+    ),
+    payment_button_colour: paymentLinkConfigDict->getString("payment_button_colour", ""),
+    skip_status_screen: paymentLinkConfigDict->getOptionBool("skip_status_screen"),
+    payment_button_text_colour: paymentLinkConfigDict->getString("payment_button_text_colour", ""),
+    background_colour: paymentLinkConfigDict->getString("background_colour", ""),
+    sdk_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
+    payment_link_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
+    enable_button_only_on_form_ready: paymentLinkConfigDict->getBool(
+      "enable_button_only_on_form_ready",
       false,
     ),
-    hide_card_nickname_field: paymentLinkConfigDict->getBool("hide_card_nickname_field", false),
-    show_card_form_by_default: paymentLinkConfigDict->getBool("show_card_form_by_default", false),
-    payment_button_text: paymentLinkConfigDict->getString("payment_button_text", ""),
-    sdk_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
+    payment_form_header_text: paymentLinkConfigDict->getString("payment_form_header_text", ""),
+    payment_form_label_type: paymentLinkConfigDict->getOptionString("payment_form_label_type"),
+    show_card_terms: paymentLinkConfigDict->getOptionString("show_card_terms"),
+    is_setup_mandate_flow: paymentLinkConfigDict->getOptionBool("is_setup_mandate_flow"),
+    color_icon_card_cvc_error: paymentLinkConfigDict->getString("color_icon_card_cvc_error", ""),
+    branding_visibility: paymentLinkConfigDict->getOptionBool("branding_visibility"),
     domain_name: paymentLinkConfigDict->getString("domain_name", ""),
     allowed_domains: paymentLinkConfigDict->getJsonObjectFromDict("allowed_domains"),
-    payment_link_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
     business_specific_configs: paymentLinkConfigDict->getJsonObjectFromDict(
       "business_specific_configs",
     ),
-    branding_visibility: paymentLinkConfigDict->getBool("branding_visibility", false),
   }
 }
 
