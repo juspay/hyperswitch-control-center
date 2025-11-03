@@ -189,12 +189,12 @@ let make = () => {
 
   let summaryPageButton = switch currentStep {
   | Preview =>
-    connectorInfo.merchant_connector_id == billing_processor_id
-      ? <div
-          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
-          {"Default"->React.string}
-        </div>
-      : React.null
+    <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
+      <div
+        className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
+        {"Default"->React.string}
+      </div>
+    </RenderIf>
   | _ =>
     <Button
       text="Done"
