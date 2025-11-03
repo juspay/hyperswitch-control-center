@@ -71,8 +71,7 @@ let make = () => {
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->isNonEmptyString {
-        let dict = BillingProcessorsUtils.getConnectorConfig(connectorName)
-        dict
+        BillingProcessorsUtils.getConnectorConfig(connectorName)
       } else {
         Dict.make()->JSON.Encode.object
       }
