@@ -205,34 +205,3 @@ let getTimelineConfig = (
     }
   }
 }
-
-let getHeadersAndJsonArray = (~res) => {
-  let jsonArray = res->getArrayFromJson([])
-  let headersSet = Set.make()
-  jsonArray->Array.forEach(item => {
-    let dict = item->getDictFromJsonObject
-    dict->Dict.keysToArray->Array.forEach(key => headersSet->Set.add(key))
-  })
-
-  let headers = []
-  headersSet->Set.forEach(key => headers->Array.push(key))
-  let sortedHeaders = headers->Array.toSorted(String.compare)
-
-  (sortedHeaders, jsonArray)
-}
-
-let getCsvEntity = (~headerKeys) =>
-  EntityType.makeEntity(
-    ~uri="",
-    ~getObjects=json => [json],
-    ~defaultColumns=headerKeys,
-    ~getHeading=key => {
-      Table.makeHeaderInfo(~key, ~title=key->LogicUtils.snakeToTitle, ~dataType=TextType)
-    },
-    ~getCell=(data, key) => {
-      let dict = data->LogicUtils.getDictFromJsonObject
-      let value = dict->LogicUtils.getString(key, "")
-      Table.Text(value)
-    },
-    ~dataKey="",
-  )
