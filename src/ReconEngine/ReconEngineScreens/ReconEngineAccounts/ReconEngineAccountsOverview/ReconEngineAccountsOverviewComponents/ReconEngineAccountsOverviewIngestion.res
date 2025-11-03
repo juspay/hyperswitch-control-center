@@ -18,7 +18,6 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   )
   let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (showViewModal, setShowViewModal) = React.useState(_ => false)
 
   let fetchIngestionConfigDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -72,14 +71,6 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   ]
 
   let getIngestionButtonActions = [
-    {
-      buttonType: ViewFile,
-      onClick: ev => {
-        ev->ReactEvent.Mouse.stopPropagation
-        setShowViewModal(_ => true)
-      },
-      disabled: false,
-    },
     {
       buttonType: Download,
       onClick: ev => onDownloadClick(ev)->ignore,
@@ -135,9 +126,6 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
       </div>
       <ReconEngineAccountSourceFileTimeline
         showModal setShowModal ingestionHistoryId=ingestionHistoryData.ingestion_history_id
-      />
-      <ReconEngineAccountSourceViewFile
-        showViewModal setShowViewModal ingestionHistory=ingestionHistoryData
       />
     </div>
   </PageLoaderWrapper>

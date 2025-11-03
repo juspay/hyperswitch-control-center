@@ -204,7 +204,6 @@ module IngestionHistoryActionsComponent = {
     open APIUtils
 
     let (showModal, setShowModal) = React.useState(_ => false)
-    let (showViewModal, setShowViewModal) = React.useState(_ => false)
     let getURL = useGetURL()
     let fetchApi = AuthHooks.useApiFetcher()
     let showToast = ToastState.useShowToast()
@@ -235,14 +234,6 @@ module IngestionHistoryActionsComponent = {
 
     let ingestionHistoryIconActions = [
       {
-        iconType: ViewIcon,
-        onClick: ev => {
-          ev->ReactEvent.Mouse.stopPropagation
-          setShowViewModal(_ => true)
-        },
-        disabled: false,
-      },
-      {
         iconType: DownloadIcon,
         onClick: ev => onDownloadClick(ev)->ignore,
         disabled: false,
@@ -272,7 +263,6 @@ module IngestionHistoryActionsComponent = {
         />
       })
       ->React.array}
-      <ReconEngineAccountSourceViewFile showViewModal setShowViewModal ingestionHistory />
     </div>
   }
 }
