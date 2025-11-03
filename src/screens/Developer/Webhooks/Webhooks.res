@@ -152,7 +152,7 @@ let make = () => {
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
       customLeftView={<HSwitchRemoteFilter.SearchBarFilter
-        placeholder="Search for object ID or Event ID"
+        placeholder="Search for object ID or event ID"
         setSearchVal=setSearchText
         searchVal=searchText
       />}
