@@ -252,9 +252,10 @@ let checkTimePresent = (options, key) => {
   })
 }
 
-let getAmountValue = (data, ~id) => {
+let getAmountValue = (data, ~id, ~currency="") => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
   switch data->getOptionFloat(id) {
-  | Some(value) => value /. 100.0
+  | Some(value) => value /. conversionFactor
   | _ => 0.0
   }
 }
@@ -265,11 +266,12 @@ let getLineGraphObj = (
   ~name: string,
   ~color,
   ~isAmount=false,
+  ~currency="",
 ): LineGraphTypes.dataObj => {
   let data = array->Array.map(item => {
     let dict = item->getDictFromJsonObject
     if isAmount {
-      dict->getAmountValue(~id=key)
+      dict->getAmountValue(~id=key, ~currency)
     } else {
       dict->getFloat(key, 0.0)
     }

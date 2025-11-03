@@ -46,7 +46,8 @@ let smartRetryPaymentsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
+  let lineGraphData =
+    data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric, ~currency)
 
   open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
@@ -86,9 +87,11 @@ let smartRetryPaymentsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => smartRetryPaymentsProcessedObject = dict => {
+  let currency = dict->getString("currency", "")
   {
     smart_retry_payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
+      ~currency,
     ),
     smart_retry_payment_processed_count: dict->getInt(
       Payment_Processed_Count->getStringFromVariant,
