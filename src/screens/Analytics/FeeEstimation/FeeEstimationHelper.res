@@ -163,7 +163,7 @@ module ModalInfoSection = {
       <div key={randomString(~length=10)} className="flex flex-col gap-1">
         <p className={`${body.md.medium} text-nd_gray-500`}> {item.title->React.string} </p>
         <div className="flex items-center gap-2">
-          <RenderIf condition={item.icon->isEmptyString}>
+          <RenderIf condition={item.icon->isNonEmptyString}>
             <GatewayIcon gateway={item.icon->String.toUpperCase} className="w-5 h-5" />
           </RenderIf>
           <p className={`text-nd_gray-600 ${body.lg.medium}`}> {item.value->React.string} </p>
