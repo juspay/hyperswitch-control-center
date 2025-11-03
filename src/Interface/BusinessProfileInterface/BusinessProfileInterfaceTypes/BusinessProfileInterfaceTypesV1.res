@@ -39,13 +39,13 @@ type profileEntityRequestType_v1 = {
 }
 type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
 
-type background_image_v1 = {
+type backgroundImage_v1 = {
   url: string,
   position: string,
   size: string,
 }
 
-type style_config_v1 = {
+type styleConfig_v1 = {
   theme: string,
   logo: string,
   seller_name: string,
@@ -55,7 +55,7 @@ type style_config_v1 = {
   hide_card_nickname_field: option<bool>,
   show_card_form_by_default: option<bool>,
   transaction_details: JSON.t,
-  background_image: option<background_image_v1>,
+  background_image: option<backgroundImage_v1>,
   details_layout: option<string>,
   payment_button_text: string,
   custom_message_for_card_terms: string,
@@ -73,12 +73,12 @@ type style_config_v1 = {
   color_icon_card_cvc_error: string,
 }
 
-type payment_link_config_v1 = {
+type paymentLinkConfig_v1 = {
   domain_name: string,
   allowed_domains: JSON.t,
   business_specific_configs: JSON.t,
   branding_visibility: option<bool>,
-  ...style_config_v1,
+  ...styleConfig_v1,
 }
 
 type profileEntity_v1 = {
@@ -109,5 +109,5 @@ type profileEntity_v1 = {
   is_manual_retry_enabled: option<bool>,
   always_enable_overcapture: option<bool>,
   billing_processor_id: option<string>,
-  payment_link_config: option<payment_link_config_v1>,
+  payment_link_config: option<paymentLinkConfig_v1>,
 }

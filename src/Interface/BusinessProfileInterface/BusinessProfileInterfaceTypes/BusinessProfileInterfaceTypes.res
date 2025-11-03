@@ -13,13 +13,13 @@ type authConnectorDetailsType = {
   three_ds_requestor_app_url: option<string>,
 }
 
-type background_image = {
+type backgroundImage = {
   url: string,
   position: string,
   size: string,
 }
 
-type style_config = {
+type styleConfig = {
   theme: string,
   logo: string,
   seller_name: string,
@@ -29,7 +29,7 @@ type style_config = {
   hide_card_nickname_field: option<bool>,
   show_card_form_by_default: option<bool>,
   transaction_details: JSON.t,
-  background_image: option<background_image>,
+  background_image: option<backgroundImage>,
   details_layout: option<string>,
   payment_button_text: string,
   custom_message_for_card_terms: string,
@@ -47,12 +47,12 @@ type style_config = {
   color_icon_card_cvc_error: string,
 }
 
-type payment_link_config = {
+type paymentLinkConfig = {
   domain_name: string,
   allowed_domains: JSON.t,
   business_specific_configs: JSON.t,
   branding_visibility: option<bool>,
-  ...style_config,
+  ...styleConfig,
 }
 
 type commonProfileEntity = {
@@ -85,5 +85,5 @@ type commonProfileEntity = {
   collect_billing_details_from_wallet_connector_if_required: option<bool>,
   collect_shipping_details_from_wallet_connector_if_required: option<bool>,
   billing_processor_id: option<string>,
-  payment_link_config: option<payment_link_config>,
+  payment_link_config: option<paymentLinkConfig>,
 }
