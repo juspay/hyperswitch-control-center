@@ -1,16 +1,17 @@
 module HoverInline: {
   @react.component
   let make: (
-    ~customStyle: string=?,
-    ~leftIcon: option<React.element>,
-    ~value: string,
-    ~subText: string,
-    ~showEditIconOnHover: bool,
-    ~leftActionButtons: React.element,
-    ~labelTextCustomStyle: string,
-    ~customWidth: string,
-    ~showTooltipOnHover: bool=?,
-  ) => React.element
+  ~customStyle: string=?,
+  ~leftIcon: option<React.element>,
+  ~value: string,
+  ~subText: string,
+  ~showEditIconOnHover: bool,
+  ~leftActionButtons: React.element,
+  ~labelTextCustomStyle: string,
+  ~customWidth: string,
+  ~showTooltipOnHover: bool=?,
+  ~toolTipPosition: ToolTip.toolTipPosition=?,
+) => React.element
 }
 @react.component
 let make: (
@@ -33,4 +34,5 @@ let make: (
   ~customWidth: string=?,
   ~handleClick: unit => unit=?,
   ~showTooltipOnHover: bool=?,
+  ~toolTipPosition: ToolTip.toolTipPosition=?,
 ) => React.element
