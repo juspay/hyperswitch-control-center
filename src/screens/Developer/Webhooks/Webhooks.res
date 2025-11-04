@@ -128,6 +128,7 @@ let make = () => {
     } else {
       fetchWebhooks()->ignore
     }
+
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
