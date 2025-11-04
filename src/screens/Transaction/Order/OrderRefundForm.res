@@ -114,7 +114,9 @@ let make = (
     let amountValue = Dict.get(valuesDict, "amount")
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
-      if floatVal > amoutAvailableToRefund {
+      let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
+      if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
         let amountSplitArr =
           Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
         let decimal = if amountSplitArr->Array.length > 1 {
