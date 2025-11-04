@@ -1,5 +1,58 @@
 open Typography
+open AdditionalDetailsSidebarHelper
 
+module DirectFlowLandingCard = {
+  @react.component
+  let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
+    <div
+      className="p-6 m-2 cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
+      <Card heading="Direct" isSelected={googlePayIntegrationType === #direct}>
+        <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
+          {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
+        </div>
+        <div className="flex gap-2 mt-4">
+          <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+          <CustomTag
+            tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
+          />
+        </div>
+      </Card>
+    </div>
+  }
+}
+
+module PaymentGatewayFlowLandingCard = {
+  @react.component
+  let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
+    <div
+      className="p-6 m-2 cursor-pointer"
+      onClick={_ => setGooglePayIntegrationType(_ => #payment_gateway)}>
+      <Card heading="Payment Gateway" isSelected={googlePayIntegrationType === #payment_gateway}>
+        <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
+          {"Integrate Google Pay with your payment gateway."->React.string}
+        </div>
+        <div className="flex gap-2 mt-4">
+          <CustomTag tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+          <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+        </div>
+      </Card>
+    </div>
+  }
+}
+module DecryptedFlowBanner = {
+  @react.component
+  let make = () => {
+    <div
+      className="p-4 cursor-pointer border border-nd_yellow-500 bg-nd_yellow-50 rounded-xl mx-6 mt-4 my-6">
+      <div className={`${body.lg.semibold}`}>
+        {"Decrypted flow is enabled by default and needs no setup"->React.string}
+      </div>
+      <div className={` mt-2 text-hyperswitch_black opacity-50 ${body.md.regular}`}>
+        {"If needed, choose one of the options below to continue. Once connected, you can't revert back."->React.string}
+      </div>
+    </div>
+  }
+}
 module Landing = {
   @react.component
   let make = (
@@ -11,7 +64,7 @@ module Landing = {
     ~update,
   ) => {
     open GPayFlowTypes
-    open AdditionalDetailsSidebarHelper
+    // open AdditionalDetailsSidebarHelper
 
     let handleConfirmClick = () => {
       if googlePayIntegrationType === #decryption {
@@ -26,102 +79,28 @@ module Landing = {
       | Processors(NUVEI)
       | Processors(WORLDPAYVANTIV) =>
         <>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setGooglePayIntegrationType(_ => #decryption)}>
-            <Card heading="Decrypted Flow" isSelected={googlePayIntegrationType == #decryption}>
-              <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
-                {"Instantly enable Google Pay with no information or configuration needed."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag
-                  tagText="No Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-              </div>
-            </Card>
+          <div className="flex flex-col gap-3">
+            <DecryptedFlowBanner />
+            <p className={`${heading.xs.semibold} flex ml-4`}>
+              {"Choose Configuration Method"->React.string}
+            </p>
           </div>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setGooglePayIntegrationType(_ => #payment_gateway)}>
-            <Card
-              heading="Payment Gateway" isSelected={googlePayIntegrationType === #payment_gateway}>
-              <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
-                {"Integrate Google Pay with your payment gateway."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag
-                  tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-                <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-              </div>
-            </Card>
-          </div>
+          <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
       | Processors(TESOURO) =>
         <>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setGooglePayIntegrationType(_ => #decryption)}>
-            <Card heading="Decrypted Flow" isSelected={googlePayIntegrationType == #decryption}>
-              <div className={`${body.lg.regular} mt-2 text-nd_gray-500`}>
-                {"Instantly enable Google Pay with no information or configuration needed."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag
-                  tagText="No Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-              </div>
-            </Card>
+          <div className="flex flex-col gap-3">
+            <DecryptedFlowBanner />
+            <p className={`${heading.xs.semibold} ml-8`}>
+              {"Choose Configuration Method"->React.string}
+            </p>
           </div>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
-            <Card heading="Direct" isSelected={googlePayIntegrationType === #direct}>
-              <div className={` ${body.lg.regular} mt-2 text-nd_gray-500`}>
-                {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-                <CustomTag
-                  tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-              </div>
-            </Card>
-          </div>
+          <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
       | _ =>
         <>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setGooglePayIntegrationType(_ => #payment_gateway)}>
-            <Card
-              heading="Payment Gateway" isSelected={googlePayIntegrationType === #payment_gateway}>
-              <div className={` ${body.lg.regular} mt-2 text-nd_gray-500`}>
-                {"Integrate Google Pay with your payment gateway."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag
-                  tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-                <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-              </div>
-            </Card>
-          </div>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
-            <Card heading="Direct" isSelected={googlePayIntegrationType === #direct}>
-              <div className={` ${body.lg.regular} mt-2 text-nd_gray-500`}>
-                {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-                <CustomTag
-                  tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-              </div>
-            </Card>
-          </div>
+          <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
+          <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
       }}
       <div className={`flex gap-2 justify-end m-2 p-6`}>
