@@ -117,15 +117,11 @@ let make = (
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
       let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
-        let amountSplitArr =
-          Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
-        let decimal = if amountSplitArr->Array.length > 1 {
-          amountSplitArr[1]->Option.getOr("")
-        } else {
-          "00"
-        }
-        let receivedValue = amoutAvailableToRefund->Math.floor->Float.toString
-        let formatted_amount = `${receivedValue}.${decimal}`
+        let precisionDigits = conversionFactor->Math.log10->Float.toInt
+        let formatted_amount = Float.toFixedWithPrecision(
+          amoutAvailableToRefund,
+          ~digits=precisionDigits,
+        )
         Dict.set(
           errors,
           "amount",
