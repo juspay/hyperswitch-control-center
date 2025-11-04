@@ -13,6 +13,48 @@ type authConnectorDetailsType = {
   three_ds_requestor_app_url: option<string>,
 }
 
+type backgroundImage = {
+  url: string,
+  position: string,
+  size: string,
+}
+
+type styleConfig = {
+  theme: string,
+  logo: string,
+  seller_name: string,
+  sdk_layout: string,
+  display_sdk_only: option<bool>,
+  enabled_saved_payment_method: option<bool>,
+  hide_card_nickname_field: option<bool>,
+  show_card_form_by_default: option<bool>,
+  transaction_details: JSON.t,
+  background_image: option<backgroundImage>,
+  details_layout: option<string>,
+  payment_button_text: string,
+  custom_message_for_card_terms: string,
+  payment_button_colour: string,
+  skip_status_screen: option<bool>,
+  payment_button_text_colour: string,
+  background_colour: string,
+  sdk_ui_rules: JSON.t,
+  payment_link_ui_rules: JSON.t,
+  enable_button_only_on_form_ready: option<bool>,
+  payment_form_header_text: string,
+  payment_form_label_type: option<string>,
+  show_card_terms: option<string>,
+  is_setup_mandate_flow: option<bool>,
+  color_icon_card_cvc_error: string,
+}
+
+type paymentLinkConfig = {
+  domain_name: string,
+  allowed_domains: JSON.t,
+  business_specific_configs: JSON.t,
+  branding_visibility: option<bool>,
+  ...styleConfig,
+}
+
 type commonProfileEntity = {
   profile_id: string,
   merchant_id: string,
@@ -43,4 +85,5 @@ type commonProfileEntity = {
   collect_billing_details_from_wallet_connector_if_required: option<bool>,
   collect_shipping_details_from_wallet_connector_if_required: option<bool>,
   billing_processor_id: option<string>,
+  payment_link_config: option<paymentLinkConfig>,
 }
