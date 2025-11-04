@@ -162,6 +162,7 @@ module OrgTile = {
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
             showTooltipOnHover=true
+            toolTipPosition=BottomRight
           />
         </div>
       </div>

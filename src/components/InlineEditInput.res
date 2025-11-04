@@ -10,6 +10,7 @@ module HoverInline = {
     ~labelTextCustomStyle,
     ~customWidth,
     ~showTooltipOnHover=false,
+    ~toolTipPosition: ToolTip.toolTipPosition=Bottom,
   ) => {
     open Typography
 
@@ -26,10 +27,9 @@ module HoverInline = {
               toolTipFor={<div className={`${body.md.medium} ${labelTextCustomStyle}`}>
                 {React.string(value)}
               </div>}
-              toolTipPosition=Bottom
+              toolTipPosition
               enableTooltipDelay=true
               tooltipDelay=800
-              customStyle="!whitespace-nowrap"
             />
           </RenderIf>
           <RenderIf condition={!showTooltipOnHover}>
@@ -72,6 +72,7 @@ let make = (
   ~customWidth="",
   ~handleClick=?,
   ~showTooltipOnHover=false,
+  ~toolTipPosition: ToolTip.toolTipPosition=Bottom,
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
   let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
@@ -219,6 +220,7 @@ let make = (
           labelTextCustomStyle
           customWidth
           showTooltipOnHover
+          toolTipPosition
         />
       </RenderIf>
     }}
