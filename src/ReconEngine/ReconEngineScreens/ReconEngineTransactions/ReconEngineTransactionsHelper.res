@@ -71,7 +71,10 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails: ReconEngineTypes.transactionType) => {
+  let make = (
+    ~currentTransactionDetails: ReconEngineTypes.transactionType,
+    ~detailsFields: array<TransactionsTableEntity.transactionColType>,
+  ) => {
     open TransactionsTableEntity
 
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
@@ -81,7 +84,6 @@ module TransactionDetailInfo = {
       "w-1/4"
     }
     let isArchived = currentTransactionDetails.transaction_status == Archived
-    let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
@@ -345,7 +347,12 @@ module AuditTrail = {
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
       let customComponent = {
         id: transaction.version->Int.toString,
-        customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
+        customComponent: Some(
+          <TransactionDetailInfo
+            currentTransactionDetails=transaction
+            detailsFields=[TransactionId, Status, Variance, CreatedAt]
+          />,
+        ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
@@ -369,7 +376,7 @@ module AuditTrail = {
           </p>
           <div
             className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {(openedTransaction.transaction_status :> string)->React.string}
+            {(openedTransaction.transaction_status :> string)->String.toUpperCase->React.string}
           </div>
         </div>
         <Icon
@@ -381,13 +388,7 @@ module AuditTrail = {
       </div>
     }
 
-    <div>
-      <div className="mb-6">
-        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Audit Trail"->React.string} </p>
-        <p className={`text-nd_gray-500 ${body.md.medium}`}>
-          {"This section shows the audit trail of the transaction, including all changes made to it."->React.string}
-        </p>
-      </div>
+    <div className="mt-2">
       <Modal
         setShowModal
         showModal

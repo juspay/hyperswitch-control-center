@@ -222,7 +222,7 @@ let initialFilters = (
   open FormRenderer
   open LogicUtils
 
-  open HSwitchSettingTypes
+  open BusinessProfileInterfaceTypesV1
   let businessProfileNameDropDownOption = arrBusinessProfile =>
     arrBusinessProfile->Array.map(ele => {
       let obj: FilterSelectBox.dropdownOption = {

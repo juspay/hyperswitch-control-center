@@ -62,6 +62,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -184,7 +185,7 @@ let make = () => {
           ~values,
           ~connector=connectorName,
           ~bodyType,
-          ~isLiveMode={false},
+          ~isLiveMode,
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(

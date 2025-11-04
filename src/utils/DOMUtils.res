@@ -24,3 +24,9 @@ external appendChild: Dom.element => unit = "appendChild"
 external appendHead: Dom.element => unit = "appendChild"
 external domProps: {..} => JsxDOM.domProps = "%identity"
 @set external elementOnload: (Dom.element, unit => unit) => unit = "onload"
+
+// HTMLInputElement bindings
+type htmlInputElement
+@set external setInputValue: (htmlInputElement, string) => unit = "value"
+@get external getInputValue: htmlInputElement => string = "value"
+external toInputElement: Dom.element => htmlInputElement = "%identity"
