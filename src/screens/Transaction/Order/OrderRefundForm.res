@@ -118,10 +118,9 @@ let make = (
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
       let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
-        let precisionDigits = getAmountPrecisionDigits(order.currency)
         let formatted_amount = Float.toFixedWithPrecision(
           amoutAvailableToRefund,
-          ~digits=precisionDigits,
+          ~digits=getAmountPrecisionDigits(order.currency),
         )
         Dict.set(
           errors,
