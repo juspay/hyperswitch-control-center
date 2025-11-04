@@ -12,7 +12,7 @@ module TotpScanQR = {
       <div className="grid grid-cols-4 gap-4 w-full">
         <div className="flex flex-col gap-10 col-span-3">
           <div className="flex flex-col gap-4">
-            <p className={`${body.lg.medium} text-nd_gray-400 mt-2 !mt-1 ml-1`}>
+            <p className={`${body.lg.medium} text-nd_gray-400 mt-1 ml-1`}>
               {"Follow these steps to configure 2FA:"->React.string}
             </p>
             <div className="flex flex-col gap-4 ml-2">
