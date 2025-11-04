@@ -5,13 +5,14 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open Typography
+  open BillingProcessorHelper
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
+  let showToast = ToastState.useShowToast()
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -71,7 +72,7 @@ let make = () => {
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->isNonEmptyString {
-        BillingProcessorsUtils.getConnectorConfig(connectorName)
+        Window.getBillingConnectorConfig(connectorName->capitalizeString)
       } else {
         Dict.make()->JSON.Encode.object
       }
@@ -118,15 +119,19 @@ let make = () => {
 
   let updateBusinessProfileDetails = async mcaId => {
     try {
+      setScreenState(_ => Loading)
       let body = Dict.make()
       body->Dict.set("billing_processor_id", mcaId->JSON.Encode.string)
       let _ = await updateBusinessProfile(~body=body->Identity.genericTypeToJson)
+      setScreenState(_ => Success)
+      if isUpdateFlow {
+        showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastState.ToastSuccess)
+      }
     } catch {
     | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
     }
   }
   let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
-
   let onSubmit = async (values, _) => {
     try {
       let body =
@@ -163,6 +168,7 @@ let make = () => {
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
+          setShowConfirmModal(_ => false)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
@@ -189,12 +195,17 @@ let make = () => {
 
   let summaryPageButton = switch currentStep {
   | Preview =>
-    <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
-      <div
-        className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
-        {"Default"->React.string}
-      </div>
-    </RenderIf>
+    <>
+      <RenderIf condition={connectorInfo.merchant_connector_id == billing_processor_id}>
+        <div
+          className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.md.medium}`}>
+          {"Default"->React.string}
+        </div>
+      </RenderIf>
+      <RenderIf condition={connectorInfo.merchant_connector_id != billing_processor_id}>
+        <MenuOption updateBusinessProfileDetails connectorInfo />
+      </RenderIf>
+    </>
   | _ =>
     <Button
       text="Done"
@@ -232,9 +243,7 @@ let make = () => {
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
               connectorType={BillingProcessor}
-              headerButton={<BillingProcessorHelper.ConnectButton
-                setShowModal={setShowConfirmModal}
-              />}>
+              headerButton={<ConnectButton setShowModal={setShowConfirmModal} />}>
               <div className="flex flex-col gap-2 p-2 md:px-10">
                 <ConnectorAccountDetailsHelper.BusinessProfileRender
                   isUpdateFlow selectedConnector={connectorName}
