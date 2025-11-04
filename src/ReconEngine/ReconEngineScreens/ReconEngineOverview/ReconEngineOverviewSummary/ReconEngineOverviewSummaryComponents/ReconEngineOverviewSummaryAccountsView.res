@@ -1,5 +1,6 @@
 open Typography
 open ReconEngineTypes
+open LogicUtils
 
 module AccountsHeader = {
   open ReconEngineOverviewSummaryUtils
@@ -51,7 +52,7 @@ module AccountsHeader = {
 }
 
 module AmountCell = {
-  open LogicUtils
+  open CurrencyFormatUtils
 
   @react.component
   let make = (
@@ -105,7 +106,7 @@ module AccountRow = {
           let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
           let shouldShowBorder = !(isLastAmount && isLastSubHeader)
           let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
-          let key = LogicUtils.randomString(~length=10)
+          let key = randomString(~length=10)
 
           <AmountCell key subHeaderType creditAmount debitAmount borderClass />
         })
@@ -124,7 +125,7 @@ module AccountsList = {
       ->Array.mapWithIndex((data, index) => {
         let isLastRow = index === Array.length(allRowsData) - 1
         let isTotalRow = index === Array.length(accountsData)
-        let key = LogicUtils.randomString(~length=10)
+        let key = randomString(~length=10)
 
         <AccountRow key data isLastRow isTotalRow />
       })
@@ -135,7 +136,6 @@ module AccountsList = {
 
 @react.component
 let make = (~reconRulesList: array<reconRuleType>) => {
-  open LogicUtils
   open ReconEngineOverviewSummaryUtils
   open ReconEngineAccountsUtils
 

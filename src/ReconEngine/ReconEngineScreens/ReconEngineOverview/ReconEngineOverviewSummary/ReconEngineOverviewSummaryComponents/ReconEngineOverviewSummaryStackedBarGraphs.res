@@ -4,7 +4,7 @@ open ReconEngineTypes
 module RuleWiseStackedBarGraph = {
   @react.component
   let make = (~rule: ReconEngineTypes.reconRuleType) => {
-    open LogicUtils
+    open CurrencyFormatUtils
 
     let getTransactions = ReconEngineHooks.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])

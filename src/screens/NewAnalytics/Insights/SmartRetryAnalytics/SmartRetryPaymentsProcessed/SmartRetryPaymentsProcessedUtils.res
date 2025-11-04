@@ -1,6 +1,7 @@
 open SmartRetryPaymentsProcessedTypes
 open InsightsUtils
 open LogicUtils
+open CurrencyFormatUtils
 open PaymentsProcessedTypes
 open NewAnalyticsUtils
 
@@ -110,7 +111,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => smartRetryPaymentsProcessedObject = 
 
 let getObjects: JSON.t => array<smartRetryPaymentsProcessedObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
