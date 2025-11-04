@@ -10,10 +10,13 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let fetchApi = AuthHooks.useApiFetcher()
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict
   )
+  let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let fetchIngestionConfigDetails = async () => {
@@ -38,6 +41,28 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
     }
   }
 
+  let onDownloadClick = async ev => {
+    ev->ReactEvent.Mouse.stopPropagation
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
+        ~methodType=Get,
+        ~id=Some(ingestionHistoryData.id),
+      )
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let csvContent = await res->Fetch.Response.text
+      DownloadUtils.download(
+        ~fileName=ingestionHistoryData.file_name,
+        ~content=csvContent,
+        ~fileType="text/csv",
+      )
+      showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
+    } catch {
+    | _ => showToast(~message="Failed to download file. Please try again.", ~toastType=ToastError)
+    }
+  }
+
   let detailsFields: array<ReconEngineAccountsSourcesEntity.ingestionConfigColType> = [
     SourceConfigName,
     ConfigurationType,
@@ -47,14 +72,9 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
 
   let getIngestionButtonActions = [
     {
-      buttonType: ViewFile,
-      onClick: _ => (),
-      disabled: true,
-    },
-    {
       buttonType: Download,
-      onClick: _ => (),
-      disabled: true,
+      onClick: ev => onDownloadClick(ev)->ignore,
+      disabled: false,
     },
     {
       buttonType: Timeline,
