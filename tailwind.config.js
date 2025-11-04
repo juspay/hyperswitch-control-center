@@ -78,6 +78,7 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+        "2-px": "2px",
       },
       minWidth: {
         "25-rem": "25rem",
@@ -86,6 +87,7 @@ module.exports = {
         "15-rem": "15rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
+        "750-px": "750px",
       },
       minHeight: {
         "500-px": "500px",
@@ -145,6 +147,7 @@ module.exports = {
         600: "600px",
         700: "700px",
         800: "800px",
+        400: "400px",
       },
       lineHeight: {
         14: "14px",
@@ -400,6 +403,7 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          0: "#FFFFFF",
           25: "#FCFCFD",
           50: "#F5F7FA",
           100: "#FBFBFB",

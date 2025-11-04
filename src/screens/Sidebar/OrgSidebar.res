@@ -13,13 +13,13 @@ module OrgTile = {
   ) => {
     open LogicUtils
     open APIUtils
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {orgId}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
         sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
@@ -135,7 +135,7 @@ module OrgTile = {
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2}`}
             customIconComponent={<ToolTip
-              description={orgID}
+              description="Copy Organization ID"
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
@@ -146,7 +146,13 @@ module OrgTile = {
               </div>}
               toolTipPosition=ToolTip.Right
             />}
-            showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
+            showEditIcon={isActive &&
+            hasAnyGroupAccess(
+              //TODO: Remove OrganizationManage permission in future
+              userHasAccess(~groupAccess=OrganizationManage),
+              userHasAccess(~groupAccess=AccountManage),
+            ) === Access &&
+            checkUserEntity([#Organization])}
             handleEdit=handleIdUnderEdit
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
@@ -155,6 +161,8 @@ module OrgTile = {
             customWidth="min-w-64"
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
+            showTooltipOnHover=true
+            toolTipPosition=BottomRight
           />
         </div>
       </div>
@@ -350,8 +358,10 @@ let make = () => {
   let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {orgId, roleId, version}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -412,7 +422,15 @@ let make = () => {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
-      if version === V1 && userHasAccess(~groupAccess=OrganizationManage) === Access {
+      if (
+        version === V1 &&
+        hasAnyGroupAccess(
+          //TODO: Remove OrganizationManage permission in future
+          userHasAccess(~groupAccess=OrganizationManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ) === Access &&
+        checkUserEntity([#Organization])
+      ) {
         fetchOrgDetails()->ignore
       }
       orgData->Array.sort(sortByOrgName)
@@ -446,9 +464,13 @@ let make = () => {
       }
     }
   }
-  let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
-  let handleIdUnderEdit = (selectedEditId: option<int>) => {
-    setUnderEdit(_ => selectedEditId)
+  let (currentlyEditingPlatformId, setPlatformUnderEdit) = React.useState(_ => None)
+  let (currentlyEditingStandardId, setStandardUnderEdit) = React.useState(_ => None)
+  let handlePlatformIdUnderEdit = selectedEditId => {
+    setPlatformUnderEdit(_ => selectedEditId)
+  }
+  let handleStandardIdUnderEdit = selectedEditId => {
+    setStandardUnderEdit(_ => selectedEditId)
   }
   let hasPlatformOrg = platformOrgList->Array.length > 0
 
@@ -472,8 +494,8 @@ let make = () => {
           hasPlatformOrg
           orgList=platformOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingPlatformId}
+          handleIdUnderEdit={handlePlatformIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={standardOrgList->Array.length > 0}>
@@ -485,8 +507,8 @@ let make = () => {
           hasPlatformOrg
           orgList=standardOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingStandardId}
+          handleIdUnderEdit={handleStandardIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
