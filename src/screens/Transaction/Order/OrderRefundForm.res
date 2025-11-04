@@ -3,6 +3,7 @@ open APIUtils
 open OrderUtils
 open HSwitchOrderUtils
 open LogicUtils
+open CurrencyUtils
 @react.component
 let make = (
   ~order: PaymentInterfaceTypes.order,
@@ -54,7 +55,7 @@ let make = (
     }
   }
 
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
+  let conversionFactor = getCurrencyConversionFactor(order.currency)
 
   let onSubmit = (values, _) => {
     open Promise
@@ -117,7 +118,7 @@ let make = (
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
       let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
-        let precisionDigits = conversionFactor->Math.log10->Float.toInt
+        let precisionDigits = getAmountPrecisionDigits(order.currency)
         let formatted_amount = Float.toFixedWithPrecision(
           amoutAvailableToRefund,
           ~digits=precisionDigits,
