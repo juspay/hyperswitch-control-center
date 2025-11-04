@@ -425,6 +425,10 @@ let numericArraySortComperator = (a, b) => {
   }
 }
 
+let removeTrailingZero = (numeric_str: string) => {
+  numeric_str->Float.fromString->Option.getOr(0.)->Float.toString
+}
+
 let isEmptyDict = dict => {
   dict->Dict.keysToArray->Array.length === 0
 }

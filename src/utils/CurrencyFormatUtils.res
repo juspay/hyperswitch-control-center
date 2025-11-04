@@ -5,10 +5,6 @@ type currencyFormat =
   | USD
   | DefaultConvert
 
-let removeTrailingZero = (numeric_str: string) => {
-  numeric_str->Float.fromString->Option.getOr(0.)->Float.toString
-}
-
 let shortNum = (~labelValue: float, ~numberFormat: currencyFormat, ~presision: int=2) => {
   let value = Math.abs(labelValue)
 
