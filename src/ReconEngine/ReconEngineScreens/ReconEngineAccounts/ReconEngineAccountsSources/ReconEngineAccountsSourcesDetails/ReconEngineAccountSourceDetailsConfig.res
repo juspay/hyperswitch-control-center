@@ -12,8 +12,15 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
   })
   let showToast = ToastState.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
+  let fileInputRef = React.useRef(Js.Nullable.null)
   let getURL = APIUtils.useGetURL()
   let updateDetails = APIUtils.useUpdateMethod()
+
+  let clearFileInput = () => {
+    fileInputRef.current
+    ->Nullable.toOption
+    ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
+  }
 
   let handleFileUpload = async ev => {
     try {
@@ -61,10 +68,12 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
         )
         showToast(~message="File uploaded successfully.", ~toastType=ToastSuccess)
         setSelectedFile(_ => None)
+        clearFileInput()
         setIsUploading(_ => false)
       } catch {
       | Exn.Error(_) =>
         showToast(~message="An error occurred while uploading the file.", ~toastType=ToastError)
+        clearFileInput()
         setIsUploading(_ => false)
       }
     }
@@ -74,6 +83,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     if ingestionType == "manual" {
       <div className="mt-10">
         <input
+          ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
           accept=".csv,.ext"
           onChange={ev => ev->handleFileUpload->ignore}
@@ -110,7 +120,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                     {file["name"]->React.string}
                   </span>
                   <span className={`${body.xs.light} text-nd_gray-500`}>
-                    {((file["size"] / 1024)->Int.toString ++ " KB")->React.string}
+                    {`${(file["size"] / 1024)->Int.toString} KB`->React.string}
                   </span>
                 </div>
                 <Button
