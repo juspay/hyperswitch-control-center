@@ -1,5 +1,6 @@
 open PaymentSettingsV2Types
 open PaymentSettingsV2Helper
+open Typography
 module CollectDetails = {
   @react.component
   let make = (~title, ~subTitle, ~options: array<options>) => {
@@ -39,10 +40,8 @@ module CollectDetails = {
       <div className="w-full py-8 ">
         <div className="flex justify-between items-center">
           <div className="flex-1 ">
-            <p className="font-bold text-fs-16 text-nd_gray-600"> {title->React.string} </p>
-            <p className="font-medium text-fs-14 text-nd_gray-400 pt-2">
-              {subTitle->React.string}
-            </p>
+            <p className={`${body.lg.semibold} text-nd_gray-700`}> {title->React.string} </p>
+            <p className={`${body.md.medium} text-nd_gray-400 pt-2`}> {subTitle->React.string} </p>
           </div>
           <BoolInput.BaseComponent
             isSelected={initValue}
@@ -64,7 +63,7 @@ module CollectDetails = {
                   isSelected={valuesDict->getBool(option.key, false)}
                   fill="text-nd_primary_blue-450"
                 />
-                <div className="text-fs-14 font-medium text-nd_gray-600">
+                <div className={`${body.md.medium}text-nd_gray-700`}>
                   {option.name->LogicUtils.snakeToTitle->React.string}
                 </div>
               </div>
@@ -91,7 +90,7 @@ module AutoRetries = {
     <>
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
           fieldWrapperClass="w-full flex justify-between items-center py-8 "
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
@@ -109,7 +108,7 @@ module AutoRetries = {
         <FieldRenderer
           field={maxAutoRetries}
           errorClass
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
           fieldWrapperClass="pb-8 "
         />
       </RenderIf>
@@ -145,7 +144,7 @@ module ClickToPaySection = {
         <DesktopRow itemWrapperClass="mx-1">
           <div>
             <FieldRenderer
-              labelClass="!text-fs-15 !text-grey-700 font-semibold"
+              labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
               fieldWrapperClass="w-full flex justify-between items-center pt-8 pb-8  "
               field={makeFieldInfo(
                 ~name="is_click_to_pay_enabled",
@@ -165,7 +164,7 @@ module ClickToPaySection = {
           <DesktopRow itemWrapperClass="mx-1">
             <div>
               <FormRenderer.FieldRenderer
-                labelClass="!text-fs-15 !text-grey-700 font-semibold"
+                labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
                 fieldWrapperClass="pb-4"
                 field={FormRenderer.makeFieldInfo(
                   ~label="Click to Pay - Connector ID",
@@ -194,7 +193,7 @@ module WebHook = {
     <div className="ml-1 mt-4">
       <FieldRenderer
         field={webhookUrl}
-        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
         fieldWrapperClass="max-w-xl  "
       />
     </div>
@@ -209,7 +208,7 @@ module ReturnUrl = {
       <FieldRenderer
         field={returnUrl}
         errorClass={HSwitchUtils.errorClass}
-        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
         fieldWrapperClass="max-w-xl pt-8 border-gray-200 "
       />
     </div>
@@ -237,7 +236,7 @@ module MerchantCategoryCode = {
       <FieldRenderer
         field={merchantCodeWithNameArray->DeveloperUtils.merchantCategoryCode}
         errorClass
-        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
         fieldWrapperClass="max-w-xl py-8 "
       />
     </DesktopRow>
@@ -273,7 +272,7 @@ module SplitTransactions = {
 
     <DesktopRow itemWrapperClass="mx-1">
       <FieldRenderer
-        labelClass="!text-fs-15 !text-grey-700 font-semibold"
+        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
         fieldWrapperClass="w-full flex justify-between items-center py-8"
         field={makeFieldInfo(
           ~name="split_txns_enabled",
@@ -314,6 +313,7 @@ let make = () => {
     }
     Nullable.null
   }
+
   <PageLoaderWrapper screenState>
     <Form
       initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
@@ -325,7 +325,7 @@ let make = () => {
           ~businessProfileRecoilVal,
         )
       }}>
-      <RenderIfVersion showWhenVersion=V1>
+      <RenderIfVersion visibleForVersion=V1>
         <CollectDetails
           title="Collect billing details from wallets"
           subTitle="Enable automatic collection of billing information when customers connect their wallets"
@@ -360,7 +360,7 @@ let make = () => {
         <hr />
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
-            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
             fieldWrapperClass="w-full flex justify-between sitems-center border-gray-200 py-8"
             field={makeFieldInfo(
               ~name="is_manual_retry_enabled",
@@ -377,7 +377,7 @@ let make = () => {
         <hr />
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
-            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
             fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
             field={makeFieldInfo(
               ~name="always_request_extended_authorization",
@@ -395,7 +395,7 @@ let make = () => {
         <hr />
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
-            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
             fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
             field={makeFieldInfo(
               ~name="always_enable_overcapture",
@@ -412,7 +412,7 @@ let make = () => {
         </DesktopRow>
         <hr />
       </RenderIfVersion>
-      <RenderIfVersion showWhenVersion=V2>
+      <RenderIfVersion visibleForVersion=V2>
         <CollectDetails
           title="Collect billing details from wallets"
           subTitle="Enable automatic collection of billing information when customers connect their wallets"
@@ -448,7 +448,7 @@ let make = () => {
       </RenderIfVersion>
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
           fieldWrapperClass="w-full flex justify-between items-center py-8"
           field={makeFieldInfo(
             ~name="is_connector_agnostic_mit_enabled",
@@ -464,7 +464,7 @@ let make = () => {
       <hr />
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
-          labelClass="!text-fs-15 !text-grey-700 font-semibold"
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
           fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
           field={makeFieldInfo(
             ~name="is_network_tokenization_enabled",

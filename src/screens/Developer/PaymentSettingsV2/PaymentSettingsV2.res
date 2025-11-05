@@ -42,46 +42,33 @@ let make = () => {
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-
-  let tabs: array<Tabs.tab> = if version == V2 && !isBusinessProfileHasThreeds {
-    [
-      {
-        title: "Payment Behaviour",
-        renderContent: () => {
-          <PaymentSettingsPaymentBehaviour />
-        },
-      },
-      {
-        title: "Custom Headers",
-        renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
-      },
-      {
-        title: "Metadata Headers",
-        renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
-      },
-    ]
-  } else {
-    [
-      {
-        title: "Payment Behaviour",
-        renderContent: () => {
-          <PaymentSettingsPaymentBehaviour />
-        },
-      },
-      {
-        title: "3DS",
-        renderContent: () => <PaymentSettingsThreeDs />,
-      },
-      {
-        title: "Custom Headers",
-        renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
-      },
-      {
-        title: "Metadata Headers",
-        renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
-      },
-    ]
+  let paymentBehaviourTab: Tabs.tab = {
+    title: "Payment Behaviour",
+    renderContent: () => <PaymentSettingsPaymentBehaviour />,
   }
+
+  let threeDsTab: Tabs.tab = {
+    title: "3DS",
+    renderContent: () => <PaymentSettingsThreeDs />,
+  }
+
+  let additionalTabs: array<Tabs.tab> = [
+    {
+      title: "Custom Headers",
+      renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
+    },
+    {
+      title: "Metadata Headers",
+      renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
+    },
+  ]
+
+  let tabs = if version == V2 && !isBusinessProfileHasThreeds {
+    Array.concat([paymentBehaviourTab], additionalTabs)
+  } else {
+    Array.concat(Array.concat([paymentBehaviourTab], [threeDsTab]), additionalTabs)
+  }
+
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
   let truncatedHashKey = `${hashKeyVal->String.slice(~start=0, ~end=20)}....`
 

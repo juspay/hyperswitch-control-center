@@ -87,10 +87,10 @@ let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity)
   let apiKeys = apiKeys(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
   let defaultDevelopersOptions = []
+  defaultDevelopersOptions->Array.push(paymentSettings)
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
   }
-  defaultDevelopersOptions->Array.push(paymentSettings)
 
   isDevelopersEnabled
     ? Section({
@@ -110,8 +110,8 @@ let useGetOrchestrationV2SidebarValues = () => {
 
   let sidebar = [
     home,
-    default->connectors(~isLiveMode, ~userHasResourceAccess),
     default->operations(~userHasResourceAccess),
+    default->connectors(~isLiveMode, ~userHasResourceAccess),
     default->developers(~userHasResourceAccess, ~checkUserEntity),
   ]
 
