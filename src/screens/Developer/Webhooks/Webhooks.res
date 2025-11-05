@@ -13,8 +13,7 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {updateExistingKeys, filterValueJson, reset, filterValue} =
-    FilterContext.filterContext->React.useContext
+  let {updateExistingKeys, filterValueJson, reset} = FilterContext.filterContext->React.useContext
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -129,7 +128,7 @@ let make = () => {
     } else {
       fetchWebhooks()->ignore
     }
-    
+
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
