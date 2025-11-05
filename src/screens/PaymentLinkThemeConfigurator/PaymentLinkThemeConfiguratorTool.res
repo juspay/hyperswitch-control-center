@@ -4,6 +4,7 @@ open PaymentLinkThemeConfiguratorUtils
 module ConfiguratorForm = {
   @react.component
   let make = (~initialValues, ~selectedStyleId) => {
+    open Typography
     open FormRenderer
     open PaymentLinkThemeConfiguratorHelper
 
@@ -52,7 +53,6 @@ module ConfiguratorForm = {
           ~publishableKey,
           ~formValues=values,
         )
-        // Js.log2("WASM configs", configs)
 
         let validationResult = Window.validatePaymentLinkConfig(
           JSON.stringify(configs->Identity.genericTypeToJson),
@@ -77,7 +77,6 @@ module ConfiguratorForm = {
             JSON.stringify(configs->Identity.genericTypeToJson),
           )
 
-          // Js.log2("WASM response", response)
           setPreviewHtml(_ => response)
           setPreviewLoading(_ => false)
         }
@@ -154,7 +153,6 @@ module ConfiguratorForm = {
       }
     }
 
-    // Js.log2("Initial Values", initialValues)
     let defaultThemeColor = initialValues->getDictFromJsonObject->getString("theme", "#FFFFFF")
 
     <RenderIf condition={selectedStyleId->isNonEmptyString}>
@@ -262,7 +260,6 @@ module ConfiguratorForm = {
                     text="Save Configuration" buttonType={Primary} buttonSize={Medium}
                   />
                 </div>
-                // <FormValuesSpy />
               </Form>
             </div>
           </div>
@@ -270,7 +267,7 @@ module ConfiguratorForm = {
             <div className="sticky top-4 w-full">
               <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-4 h-full">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-md font-semibold text-nd_gray-600 mb-2">
+                  <h4 className={`text-nd_gray-600 mb-2 ${body.xl.medium}`}>
                     {"Live Preview"->React.string}
                   </h4>
                   {previewLoading
@@ -282,7 +279,7 @@ module ConfiguratorForm = {
                       </div>
                     : React.null}
                 </div>
-                <div className=" rounded-lg w-full h-[700px] flex flex-col bg-white">
+                <div className=" rounded-lg w-full h-700-px flex flex-col bg-white">
                   {switch (previewLoading, previewError, previewHtml) {
                   | (true, _, _) =>
                     <div className="flex items-center justify-center h-full w-full">
@@ -322,7 +319,7 @@ module ConfiguratorForm = {
                           ~height="133%",
                           (),
                         )}
-                        srcDoc={html}
+                        srcDoc=html
                         sandbox="allow-scripts allow-same-origin"
                         title="Payment Link Preview"
                       />
@@ -351,9 +348,6 @@ module CreateNewStyleID = {
 
     let cursorStyles = authorization =>
       authorization === CommonAuthTypes.Access ? "cursor-pointer" : "cursor-not-allowed"
-    let customStyle = ""
-    let customPadding = ""
-    let addItemBtnStyle = ""
 
     let styleIdField = makeFieldInfo(
       ~label="Style ID",
@@ -368,7 +362,7 @@ module CreateNewStyleID = {
               ->Identity.stringToFormReactEvent
               ->input.onChange,
           },
-          ~placeholder="Eg: my-style-id",
+          ~placeholder="Eg: my_style_id",
         ),
       ~isRequired=true,
     )
@@ -431,18 +425,15 @@ module CreateNewStyleID = {
         </div>
         <hr />
         <Form
-          key="new-style-id-creation"
-          onSubmit={createNewStyleID}
-          initialValues
-          validate={validateForm}>
+          key="new-style-id-creation" onSubmit=createNewStyleID initialValues validate=validateForm>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <DesktopRow>
                 <FieldRenderer
                   fieldWrapperClass="w-full"
-                  field={styleIdField}
+                  field=styleIdField
                   showErrorOnChange=true
-                  errorClass={ProdVerifyModalUtils.errorClass}
+                  errorClass=ProdVerifyModalUtils.errorClass
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />
               </DesktopRow>
@@ -458,17 +449,17 @@ module CreateNewStyleID = {
 
     <>
       <ACLDiv
-        authorization={Access}
+        authorization=Access
         noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
         onClick={_ => setShowModal(_ => true)}
         isRelative=false
         contentAlign=Default
         tooltipForWidthClass="!h-full"
-        className={`${cursorStyles(Access)} ${customPadding} ${addItemBtnStyle}`}
+        className={`${cursorStyles(Access)} `}
         showTooltip=true>
         {<>
           <hr />
-          <div className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle}`}>
+          <div className="flex items-center gap-2 font-medium px-3.5 py-3 text-sm ">
             <Icon name="nd-plus" size=15 />
             {`Create new`->React.string}
           </div>
@@ -502,7 +493,7 @@ module StyleIdSelection = {
       try {
         let businessProfileResponse = await fetchBusinessProfileFromId(~profileId=Some(profileId))
         setBusinessProfileRecoilVal(_ =>
-          businessProfileResponse->BusinessProfileMapper.businessProfileTypeMapper
+          businessProfileResponse->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
         )
       } catch {
       | _ =>
@@ -518,10 +509,11 @@ module StyleIdSelection = {
     React.useEffect(() => {
       let defaultPaymentLinkConfigValues = switch businessProfileRecoilVal.payment_link_config {
       | Some(config) => config
-      | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
+      | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
       }
 
-      let stylesDict = defaultPaymentLinkConfigValues.business_specific_configs
+      let stylesDict =
+        defaultPaymentLinkConfigValues.business_specific_configs->Option.getOr(JSON.Encode.null)
       let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
 
       setAvailableStyles(_ => {
@@ -585,7 +577,7 @@ let make = () => {
   let getSelectedStyleConfigs = {
     let paymentLinkConfig = switch businessProfileRecoilVal.payment_link_config {
     | Some(config) => config
-    | None => BusinessProfileMapper.paymentLinkConfigMapper(Dict.make())
+    | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
     }
 
     switch selectedStyleId->selectedStyleVariant {
@@ -595,7 +587,9 @@ let make = () => {
       ->Identity.genericTypeToJson
     | Custom => {
         let businessSpecificConfigsDict =
-          paymentLinkConfig.business_specific_configs->getDictFromJsonObject
+          paymentLinkConfig.business_specific_configs
+          ->Option.getOr(JSON.Encode.null)
+          ->getDictFromJsonObject
         businessSpecificConfigsDict
         ->Dict.get(selectedStyleId)
         ->Option.getOr(Dict.make()->JSON.Encode.object)
@@ -615,7 +609,7 @@ let make = () => {
       </RenderIf>
       <RenderIf condition={selectedStyleId->isEmptyString}>
         <NoDataFound
-          customCssClass={"my-6"}
+          customCssClass="my-6"
           message="Please select a Style Id to Configure and Preview"
           renderType=Painting
         />

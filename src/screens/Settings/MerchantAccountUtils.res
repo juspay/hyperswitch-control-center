@@ -42,7 +42,13 @@ let parseBussinessProfileJson = (
   | Some(config) => config
   | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
   }
-  let allowedDomains = paymentLinkConfig.allowed_domains->JSON.Decode.array->Option.getOr([])
+
+  let allowedDomains =
+    paymentLinkConfig.allowed_domains
+    ->Option.getOr(JSON.Encode.null)
+    ->JSON.Decode.array
+    ->Option.getOr([])
+
   let allowedDomainsString =
     allowedDomains
     ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
@@ -50,7 +56,7 @@ let parseBussinessProfileJson = (
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfig,
-    allowed_domains: allowedDomainsString->JSON.Encode.string,
+    allowed_domains: Some(allowedDomainsString->JSON.Encode.string),
   }
 
   profileInfo->setOptionDict(
@@ -166,12 +172,15 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfigTyped,
-    domain_name: paymentLinkConfig->getString("domain_name", ""),
-    allowed_domains: paymentLinkConfig
-    ->getString("allowed_domains", "")
-    ->String.split(",")
-    ->Array.map(domain => domain->String.trim->JSON.Encode.string)
-    ->JSON.Encode.array,
+    domain_name: paymentLinkConfig->getOptionString("domain_name"),
+    allowed_domains: Some(
+      paymentLinkConfig
+      ->getOptionString("allowed_domains")
+      ->Option.getOr("")
+      ->String.split(",")
+      ->Array.map(domain => domain->String.trim->JSON.Encode.string)
+      ->JSON.Encode.array,
+    ),
   }
 
   paymentLinkDomainDict->setOptionDict(

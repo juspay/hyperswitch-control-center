@@ -20,7 +20,7 @@ let make = () => {
     if businessProfileRecoilVal.profile_id !== "" {
       let initialValues = SDKPaymentUtils.initialValueForForm(
         ~customCustomerId="hyperswitch_payment_link",
-        businessProfileRecoilVal,
+        ~profileId=businessProfileRecoilVal.profile_id,
       )
       setInitialValuesForCheckoutForm(_ => initialValues)
     }
