@@ -225,12 +225,12 @@ let makeShowCardTermsField = () => {
   )
 }
 
-let makeColorIconCardCvcErrorField = () => {
+let makeColorIconCardCvcErrorField = (~defaultValue) => {
   makeFieldInfo(
-    ~label="Color Icon Card CVC Error",
+   ~label="Color Icon Card CVC Error",
     ~name="color_icon_card_cvc_error",
-    ~customInput=InputFields.textInput(),
-    ~placeholder="Enter color for card CVC error",
+    ~placeholder="",
     ~isRequired=false,
+    ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 }
