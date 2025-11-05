@@ -21,6 +21,26 @@ let getProcessedCount = (~transformationHistoryList: array<transformationHistory
   ->Array.length
 }
 
+let getTransformationIdFromUrl = urlSearch => {
+  urlSearch
+  ->getDictFromUrlSearchParams
+  ->getvalFromDict("transformationId")
+}
+
+let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
+  name,
+  onBlur: _ => (),
+  onChange: _ => (),
+  onFocus: _ => (),
+  value: value->JSON.Encode.string,
+  checked: true,
+}
+
+let createDropdownOption = (~label, ~value) => {
+  SelectBox.label,
+  value,
+}
+
 let getHealthyStatus = (~transformationHistoryList: array<transformationHistoryType>): (
   string,
   string,
@@ -43,7 +63,7 @@ let getTransformationConfigData = (~config: transformationConfigType): array<
   let sourceConfigData: array<transformationConfigDataType> = [
     {
       label: TransformationId,
-      value: config.id,
+      value: config.transformation_id,
       valueType: #text,
     },
     {

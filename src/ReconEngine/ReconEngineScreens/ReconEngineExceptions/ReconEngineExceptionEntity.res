@@ -1,5 +1,4 @@
 open ReconEngineTypes
-open LogicUtils
 
 type processingColType =
   | StagingEntryId
@@ -9,6 +8,7 @@ type processingColType =
   | Currency
   | Status
   | EffectiveAt
+  | Actions
 
 let processingDefaultColumns = [
   StagingEntryId,
@@ -18,8 +18,8 @@ let processingDefaultColumns = [
   Currency,
   Status,
   EffectiveAt,
+  Actions,
 ]
-let fileManagementStagingDefaultColumns = [StagingEntryId, EntryType, Amount, Currency, EffectiveAt]
 
 let getProcessingHeading = colType => {
   switch colType {
@@ -28,14 +28,15 @@ let getProcessingHeading = colType => {
   | AccountName => Table.makeHeaderInfo(~key="account", ~title="Account")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~customWidth="min-w-48")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 
 let getStatusLabel = (status: processingEntryStatus): Table.cell => {
   Label({
-    title: (status :> string)->camelCaseToTitle,
+    title: (status :> string)->String.toUpperCase,
     color: switch status {
     | Pending => LabelBlue
     | Processed => LabelGreen
@@ -47,13 +48,14 @@ let getStatusLabel = (status: processingEntryStatus): Table.cell => {
 
 let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   switch colType {
-  | StagingEntryId => Text(data.staging_entry_id)
+  | StagingEntryId => EllipsisText(data.staging_entry_id, "")
   | EntryType => Text(data.entry_type)
-  | AccountName => Text(data.account.account_name)
+  | AccountName => EllipsisText(data.account.account_name, "")
   | Amount => Numeric(data.amount, amount => {amount->Float.toString})
   | Currency => Text(data.currency)
   | Status => getStatusLabel(data.status)
   | EffectiveAt => Date(data.effective_at)
+  | Actions => CustomCell(<ReconEngineAccountsTransformedEntriesActions processingEntry=data />, "")
   }
 }
 
@@ -61,15 +63,6 @@ let processingTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=_ => [],
   ~defaultColumns=processingDefaultColumns,
-  ~getHeading=getProcessingHeading,
-  ~getCell=getProcessingCell,
-  ~dataKey="",
-)
-
-let fileManagementStagingEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=_ => [],
-  ~defaultColumns=fileManagementStagingDefaultColumns,
   ~getHeading=getProcessingHeading,
   ~getCell=getProcessingCell,
   ~dataKey="",

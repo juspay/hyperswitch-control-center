@@ -63,7 +63,9 @@ module StagingEntryHeader = {
   let make = (~manualReviewStatus) => {
     <div className="flex flex-row items-center justify-between w-full px-6">
       <div className="flex flex-row items-center gap-2">
-        <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Staging Entry"->React.string} </p>
+        <p className={`${body.lg.semibold} text-nd_gray-800`}>
+          {"Transformed Entries"->React.string}
+        </p>
       </div>
       {switch manualReviewStatus {
       | #Loading => <Shimmer styleClass="h-5 w-24 rounded-lg" />
@@ -95,14 +97,13 @@ let getAccordionConfig = (
   ~setSelectedTransformationHistoryId,
   ~manualReviewStatus,
   ~setManualReviewStatus,
-  ~transformationConfigTabIndex,
   ~stagingEntryId,
+  ~transformationHistoryId,
 ): array<Accordion.accordion> => {
   [
     {
       title: "Source & Ingestion Config",
-      renderContent: () =>
-        <ReconEngineAccountsOverviewIngestion ingestionId=ingestionHistoryData.ingestion_id />,
+      renderContent: () => <ReconEngineAccountsOverviewIngestion ingestionHistoryData />,
       renderContentOnTop: Some(() => <SourceIngestionHeader ingestionHistoryData />),
     },
     {
@@ -113,12 +114,12 @@ let getAccordionConfig = (
           setSelectedTransformationHistoryId
           onTransformationStatusChange={isProcessed =>
             setTransformationStatus(_ => isProcessed ? #Processed : #AttentionRequired)}
-          transformationConfigTabIndex
+          transformationHistoryId
         />,
       renderContentOnTop: Some(() => <TransformationHeader transformationStatus />),
     },
     {
-      title: "Staging Entry",
+      title: "Transformed Entries",
       renderContent: () => {
         <FilterContext
           key={`recon-engine-accounts-sources-staging-${selectedTransformationHistoryId}`}

@@ -3,6 +3,7 @@ let make = () => {
   open SDKPaymentUtils
   let getURL = APIUtils.useGetURL()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let {
     keyForReRenderingSDK,
@@ -11,14 +12,10 @@ let make = () => {
     setClientSecretStatus,
   } = React.useContext(SDKProvider.defaultContext)
 
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
-  )
-
   React.useEffect(() => {
-    setInitialValuesForCheckoutForm(_ => initialValueForForm(businessProfileRecoilVal))
+    setInitialValuesForCheckoutForm(_ => initialValueForForm(~profileId))
     None
-  }, [businessProfileRecoilVal.profile_id])
+  }, [profileId])
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
 
   let getClientSecret = async (~typedValues: SDKPaymentTypes.paymentType) => {

@@ -90,10 +90,11 @@ module PaymentsProcessedHeader = {
       ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
     )
 
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
     let (primaryValue, secondaryValue) = if (
       selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled)->isAmountMetric
     ) {
-      (primaryValue /. 100.0, secondaryValue /. 100.0)
+      (primaryValue /. conversionFactor, secondaryValue /. conversionFactor)
     } else {
       (primaryValue, secondaryValue)
     }

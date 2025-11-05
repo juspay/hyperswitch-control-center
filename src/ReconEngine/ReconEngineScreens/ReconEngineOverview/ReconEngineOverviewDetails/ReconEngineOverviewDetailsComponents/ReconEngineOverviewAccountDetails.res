@@ -3,27 +3,19 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open ReconEngineTypes
   open ReconEngineOverviewSummaryUtils
   open ReconEngineOverviewHelper
-  open APIUtils
   open LogicUtils
   open ReconEngineAccountsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getAccountAndTransactionData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accounts = res->getArrayDataFromJson(getAccountPayloadFromDict)
+      let accounts = await getAccounts()
       setAccountData(_ => accounts)
       let transactionsData = await getTransactions(
         ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
@@ -63,11 +55,11 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     (sourceData, targetData)
   }, (allTransactionsData, sourceAccountData.account_id, targetAccountData.account_id))
 
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <PageLoaderWrapper
-      screenState
-      customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
-      customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+  <PageLoaderWrapper
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
+    customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <AccountDetailCard
         accountName={sourceAccountData.account_name}
         otherAccountName={targetAccountData.account_name}
@@ -80,6 +72,6 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
         isSource={false}
         transactionData={targetTransactionData}
       />
-    </PageLoaderWrapper>
-  </div>
+    </div>
+  </PageLoaderWrapper>
 }

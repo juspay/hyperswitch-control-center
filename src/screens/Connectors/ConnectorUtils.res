@@ -4,8 +4,6 @@ type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
-
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
@@ -14,6 +12,7 @@ let getStepName = step => {
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
+  | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
   }
 }
@@ -27,6 +26,10 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(STRIPE),
   PayoutProcessor(WISE),
   PayoutProcessor(NOMUPAY),
+  PayoutProcessor(NUVEI),
+  PayoutProcessor(GIGADAT),
+  PayoutProcessor(LOONIO),
+  PayoutProcessor(WORLDPAY),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -35,6 +38,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
   ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
+  ThreeDsAuthenticator(CARDINAL),
 ]
 
 let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
@@ -42,6 +46,8 @@ let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticat
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
 let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
+
+let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -134,8 +140,12 @@ let connectorList: array<connectorTypes> = [
   Processors(PHONEPE),
   Processors(FLEXITI),
   Processors(BREADPAY),
-  Processors(BLUECODE),
+  Processors(CALIDA),
   Processors(PAYSAFE),
+  Processors(GIGADAT),
+  Processors(LOONIO),
+  Processors(TESOURO),
+  Processors(FINIX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -146,6 +156,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(BLUESNAP),
   Processors(BAMBORA),
   Processors(BRAINTREE),
+  Processors(CALIDA),
   Processors(CHECKOUT),
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
@@ -156,6 +167,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(IATAPAY),
   Processors(KLARNA),
   Processors(MIFINITY),
+  Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
   Processors(PAYPAL),
@@ -534,7 +546,9 @@ let clickToPayInfo = {
 let clickToPayVisaInfo = {
   description: "Secure online payment method that allows customers to make purchases without manually entering their card details or reaching for their card",
 }
-
+let cardinalInfo = {
+  description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Cardinal.",
+}
 let juspayThreeDsServerInfo = {
   description: "Juspay's cost-effective 3DS platform, ensures security, compliance, and seamless checkout—reducing fraud, boosting conversions, and enhancing customer trust with frictionless authentication.",
 }
@@ -703,8 +717,8 @@ let breadpayInfo = {
   description: "Bread Pay is an intuitive, omni-channel Pay Over Time lending platform from a financial partner you can count on, offering flexible installment loans and SplitPay solutions with real-time credit decisions and transparent terms.",
 }
 
-let bluecodeInfo = {
-  description: "Bluecode is building a global payment network that combines Alipay+, Discover and EMPSA and enables seamless payments in 75 countries. With over 160 million acceptance points, payments are processed according to the highest European security and data protection standards to make Europe less dependent on international players.",
+let calidaInfo = {
+  description: "Calida Financial is a licensed e-money institution based in Malta and they provide customized financial infrastructure and payment solutions across the EU and EEA. As part of The Payments Group, it focuses on embedded finance, prepaid services, and next-generation digital payment products.",
 }
 
 let blackhawknetworkInfo = {
@@ -717,6 +731,21 @@ let dwollaInfo = {
 
 let peachpaymentsInfo = {
   description: "The secure African payment gateway with easy integrations, 365-day support, and advanced orchestration.",
+}
+
+let gigadatInfo = {
+  description: "Gigadat Solutions Inc. is a Canadian fintech leader specializing in secure, real-time online banking payment solutions tailored for the evolving needs of e-merchants, consumers, and financial institutions.",
+}
+
+let loonioInfo = {
+  description: "Loonio is a payment processing platform that provides APIs for deposits and payouts via methods like Interac, PIX, EFT, and credit cards, with webhook support and transaction sync for real-time and manual status tracking.",
+}
+let tesouroInfo = {
+  description: "Tesouro is a Miami-based fintech company that provides a cloud-native payment gateway platform, offering APIs and streamlined data inflows to connect software companies, banks, and payment facilitators for seamless payment processing.",
+}
+
+let finixInfo = {
+  description: "Discover reliable, end-to-end payments technology for businesses of all types, industries, and sizes. With a single integration for omnichannel payments acceptance Finix offers hundreds of configurable ways for you to create the best payments solution for your business.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
@@ -813,11 +842,15 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PHONEPE => "phonepe"
   | FLEXITI => "flexiti"
   | BREADPAY => "breadpay"
-  | BLUECODE => "bluecode"
+  | CALIDA => "calida"
   | BLACKHAWKNETWORK => "blackhawknetwork"
   | DWOLLA => "dwolla"
   | PAYSAFE => "paysafe"
   | PEACHPAYMENTS => "peachpayments"
+  | GIGADAT => "gigadat"
+  | LOONIO => "loonio"
+  | TESOURO => "tesouro"
+  | FINIX => "finix"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -830,6 +863,10 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | STRIPE => "stripe"
   | WISE => "wise"
   | NOMUPAY => "nomupay"
+  | NUVEI => "nuvei"
+  | GIGADAT => "gigadat"
+  | LOONIO => "loonio"
+  | WORLDPAY => "worldpay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -839,6 +876,7 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | CLICK_TO_PAY_MASTERCARD => "ctp_mastercard"
   | JUSPAYTHREEDSSERVER => "juspaythreedsserver"
   | CLICK_TO_PAY_VISA => "ctp_visa"
+  | CARDINAL => "cardinal"
   }
 
 let getFRMNameString = (frm: frmTypes) => {
@@ -981,11 +1019,15 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "phonepe" => Processors(PHONEPE)
     | "flexiti" => Processors(FLEXITI)
     | "breadpay" => Processors(BREADPAY)
-    | "bluecode" => Processors(BLUECODE)
+    | "calida" => Processors(CALIDA)
     | "blackhawknetwork" => Processors(BLACKHAWKNETWORK)
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
+    | "gigadat" => Processors(GIGADAT)
+    | "loonio" => Processors(LOONIO)
+    | "tesouro" => Processors(TESOURO)
+    | "finix" => Processors(FINIX)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -998,6 +1040,10 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "stripe" => PayoutProcessor(STRIPE)
     | "wise" => PayoutProcessor(WISE)
     | "nomupay" => PayoutProcessor(NOMUPAY)
+    | "nuvei" => PayoutProcessor(NUVEI)
+    | "gigadat" => PayoutProcessor(GIGADAT)
+    | "loonio" => PayoutProcessor(LOONIO)
+    | "worldpay" => PayoutProcessor(WORLDPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1007,6 +1053,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "ctp_mastercard" => ThreeDsAuthenticator(CLICK_TO_PAY_MASTERCARD)
     | "juspaythreedsserver" => ThreeDsAuthenticator(JUSPAYTHREEDSSERVER)
     | "ctp_visa" => ThreeDsAuthenticator(CLICK_TO_PAY_VISA)
+    | "cardinal" => ThreeDsAuthenticator(CARDINAL)
     | _ => UnknownConnector("Not known")
     }
   | FRMPlayer =>
@@ -1129,11 +1176,15 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PHONEPE => phonepeInfo
   | FLEXITI => flexitiInfo
   | BREADPAY => breadpayInfo
-  | BLUECODE => bluecodeInfo
+  | CALIDA => calidaInfo
   | BLACKHAWKNETWORK => blackhawknetworkInfo
   | DWOLLA => dwollaInfo
   | PAYSAFE => paysafeInfo
   | PEACHPAYMENTS => peachpaymentsInfo
+  | GIGADAT => gigadatInfo
+  | LOONIO => loonioInfo
+  | TESOURO => tesouroInfo
+  | FINIX => finixInfo
   }
 }
 
@@ -1147,6 +1198,10 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | STRIPE => stripeInfo
   | WISE => wiseInfo
   | NOMUPAY => nomupayInfo
+  | NUVEI => nuveiInfo
+  | GIGADAT => gigadatInfo
+  | LOONIO => loonioInfo
+  | WORLDPAY => worldpayInfo
   }
 }
 
@@ -1157,6 +1212,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | CLICK_TO_PAY_MASTERCARD => clickToPayInfo
   | JUSPAYTHREEDSSERVER => juspayThreeDsServerInfo
   | CLICK_TO_PAY_VISA => clickToPayVisaInfo
+  | CARDINAL => cardinalInfo
   }
 let getFrmInfo = frm =>
   switch frm {
@@ -1581,6 +1637,7 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
   let keys =
     connectorMetaDataFields
     ->Dict.keysToArray
@@ -2049,11 +2106,15 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PHONEPE => "PhonePe"
   | FLEXITI => "Flexiti"
   | BREADPAY => "Breadpay"
-  | BLUECODE => "Bluecode"
+  | CALIDA => "Calida Financial"
   | BLACKHAWKNETWORK => "BlackhawkNetwork"
   | DWOLLA => "Dwolla"
   | PAYSAFE => "Paysafe"
-  | PEACHPAYMENTS => "PeachPayments"
+  | PEACHPAYMENTS => "Peach Payments"
+  | GIGADAT => "Gigadat"
+  | LOONIO => "Loonio"
+  | TESOURO => "Tesouro"
+  | FINIX => "Finix"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2066,6 +2127,10 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | STRIPE => "Stripe"
   | WISE => "Wise"
   | NOMUPAY => "Nomupay"
+  | NUVEI => "Nuvei"
+  | GIGADAT => "Gigadat"
+  | LOONIO => "Loonio"
+  | WORLDPAY => "Worldpay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2075,6 +2140,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   | CLICK_TO_PAY_MASTERCARD => "Mastercard Unified Click to Pay"
   | JUSPAYTHREEDSSERVER => "Juspay 3DS Server"
   | CLICK_TO_PAY_VISA => "Visa Unified Click to Pay"
+  | CARDINAL => "Cardinal"
   }
 
 let getDisplayNameForFRMConnector = frmConnector =>
@@ -2210,3 +2276,10 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
     ThreeDsAuthenticator
   | _ => Processor
   }
+
+let stepsArr = (~connector) => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+  | _ => [IntegFields, PaymentMethods, SummaryAndTest]
+  }
+}

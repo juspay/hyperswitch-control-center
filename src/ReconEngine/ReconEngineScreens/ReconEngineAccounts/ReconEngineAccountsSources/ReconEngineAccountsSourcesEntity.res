@@ -103,7 +103,11 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   | Status => ReconEngineAccountsUtils.getStatusLabel(data.status)
   | IngestionType => Text(data.upload_type)
   | ReceivedAt => Date(data.created_at)
-  | Actions => CustomCell(<IngestionHistoryActionsComponent />, "")
+  | Actions =>
+    CustomCell(
+      <ReconEngineAccountsSourcesHelper.IngestionHistoryActionsComponent ingestionHistory={data} />,
+      "",
+    )
   }
 }
 
@@ -122,7 +126,7 @@ let getTransformationConfigCell = (
   colType: transformationConfigColType,
 ): Table.cell => {
   switch colType {
-  | TransformationId => Text(data.id)
+  | TransformationId => Text(data.transformation_id)
   | IngestionId => Text(data.ingestion_id)
   | Status =>
     Label({
@@ -156,7 +160,7 @@ let getTransformationHistoryCell = (
   | ProcessedCount => Text(transformationHistoryData.data.transformed_count->Int.toString)
   | IgnoredCount => Text(transformationHistoryData.data.ignored_count->Int.toString)
   | ErrorCount => Text(transformationHistoryData.data.errors->Array.length->Int.toString)
-  | Actions => CustomCell(<TransformationHistoryActionsComponent />, "")
+  | Actions => CustomCell(<TransformationHistoryActionsComponent transformationHistoryData />, "")
   }
 }
 

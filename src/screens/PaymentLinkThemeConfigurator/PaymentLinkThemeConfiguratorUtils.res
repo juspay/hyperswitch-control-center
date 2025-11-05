@@ -15,7 +15,7 @@ let getDefaultStyleLabelValue = styleVariant => {
   }
 }
 
-let getDefaultStylesValue: HSwitchSettingTypes.payment_link_config => HSwitchSettingTypes.style_configs = paymentLinkConfig => {
+let getDefaultStylesValue: BusinessProfileInterfaceTypesV1.paymentLinkConfig_v1 => BusinessProfileInterfaceTypesV1.styleConfig_v1 = paymentLinkConfig => {
   {
     theme: paymentLinkConfig.theme,
     logo: paymentLinkConfig.logo,
@@ -27,15 +27,26 @@ let getDefaultStylesValue: HSwitchSettingTypes.payment_link_config => HSwitchSet
     show_card_form_by_default: paymentLinkConfig.show_card_form_by_default,
     payment_button_text: paymentLinkConfig.payment_button_text,
     sdk_ui_rules: paymentLinkConfig.sdk_ui_rules,
-    allowed_domains: paymentLinkConfig.allowed_domains,
     payment_link_ui_rules: paymentLinkConfig.payment_link_ui_rules,
-    domain_name: paymentLinkConfig.domain_name,
-    branding_visibility: paymentLinkConfig.branding_visibility,
+    transaction_details: paymentLinkConfig.transaction_details,
+    background_image: paymentLinkConfig.background_image,
+    details_layout: paymentLinkConfig.details_layout,
+    custom_message_for_card_terms: paymentLinkConfig.custom_message_for_card_terms,
+    payment_button_colour: paymentLinkConfig.payment_button_colour,
+    skip_status_screen: paymentLinkConfig.skip_status_screen,
+    payment_button_text_colour: paymentLinkConfig.payment_button_text_colour,
+    background_colour: paymentLinkConfig.background_colour,
+    enable_button_only_on_form_ready: paymentLinkConfig.enable_button_only_on_form_ready,
+    payment_form_header_text: paymentLinkConfig.payment_form_header_text,
+    payment_form_label_type: paymentLinkConfig.payment_form_label_type,
+    show_card_terms: paymentLinkConfig.show_card_terms,
+    is_setup_mandate_flow: paymentLinkConfig.is_setup_mandate_flow,
+    color_icon_card_cvc_error: paymentLinkConfig.color_icon_card_cvc_error,
   }
 }
 
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
-  open BusinessProfileMapper
+  open BusinessProfileInterfaceUtilsV1
 
   let paymentLinkConfig = switch paymentLinkConfig {
   | Some(config) => config
@@ -44,19 +55,20 @@ let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
 
   let defaultStyles = paymentLinkConfig->getDefaultStylesValue
 
-  let businessSpecificConfigs = paymentLinkConfig.business_specific_configs
+  let businessSpecificConfigs =
+    paymentLinkConfig.business_specific_configs->Option.getOr(JSON.Encode.null)
   let businessSpecificConfigsDict = businessSpecificConfigs->getDictFromJsonObject
   let updatedBusinessSpecificDict = Dict.copy(businessSpecificConfigsDict)
   updatedBusinessSpecificDict->Dict.set(styleID, defaultStyles->Identity.genericTypeToJson)
 
   {
     ...paymentLinkConfig,
-    business_specific_configs: updatedBusinessSpecificDict->JSON.Encode.object,
+    business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
   }
 }
 
 let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID) => {
-  open BusinessProfileMapper
+  open BusinessProfileInterfaceUtilsV1
 
   let paymentLinkConfig = switch paymentLinkConfig {
   | Some(config) => config
@@ -67,20 +79,76 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   | Default => {
       let styleConfig = json->getDictFromJsonObject->styleConfigMapper
 
-      {
-        ...styleConfig,
+      let paymentLinkConfig: BusinessProfileInterfaceTypesV1.paymentLinkConfig_v1 = {
+        theme: styleConfig.theme,
+        logo: styleConfig.logo,
+        seller_name: styleConfig.seller_name,
+        sdk_layout: styleConfig.sdk_layout,
+        display_sdk_only: styleConfig.display_sdk_only,
+        enabled_saved_payment_method: styleConfig.enabled_saved_payment_method,
+        hide_card_nickname_field: styleConfig.hide_card_nickname_field,
+        show_card_form_by_default: styleConfig.show_card_form_by_default,
+        transaction_details: styleConfig.transaction_details,
+        background_image: styleConfig.background_image,
+        details_layout: styleConfig.details_layout,
+        payment_button_text: styleConfig.payment_button_text,
+        custom_message_for_card_terms: styleConfig.custom_message_for_card_terms,
+        payment_button_colour: styleConfig.payment_button_colour,
+        skip_status_screen: styleConfig.skip_status_screen,
+        payment_button_text_colour: styleConfig.payment_button_text_colour,
+        background_colour: styleConfig.background_colour,
+        sdk_ui_rules: styleConfig.sdk_ui_rules,
+        payment_link_ui_rules: styleConfig.payment_link_ui_rules,
+        enable_button_only_on_form_ready: styleConfig.enable_button_only_on_form_ready,
+        payment_form_header_text: styleConfig.payment_form_header_text,
+        payment_form_label_type: styleConfig.payment_form_label_type,
+        show_card_terms: styleConfig.show_card_terms,
+        is_setup_mandate_flow: styleConfig.is_setup_mandate_flow,
+        color_icon_card_cvc_error: styleConfig.color_icon_card_cvc_error,
+        domain_name: paymentLinkConfig.domain_name,
+        allowed_domains: paymentLinkConfig.allowed_domains,
         business_specific_configs: paymentLinkConfig.business_specific_configs,
+        branding_visibility: paymentLinkConfig.branding_visibility,
       }
+      paymentLinkConfig
     }
   | Custom => {
-      let businessSpecificConfigs = paymentLinkConfig.business_specific_configs
+      let businessSpecificConfigs =
+        paymentLinkConfig.business_specific_configs->Option.getOr(JSON.Encode.null)
       let businessSpecificConfigsDict = businessSpecificConfigs->getDictFromJsonObject
       let updatedBusinessSpecificDict = Dict.copy(businessSpecificConfigsDict)
       updatedBusinessSpecificDict->Dict.set(styleID, json)
 
       {
-        ...paymentLinkConfig,
-        business_specific_configs: updatedBusinessSpecificDict->JSON.Encode.object,
+        theme: paymentLinkConfig.theme,
+        logo: paymentLinkConfig.logo,
+        seller_name: paymentLinkConfig.seller_name,
+        sdk_layout: paymentLinkConfig.sdk_layout,
+        display_sdk_only: paymentLinkConfig.display_sdk_only,
+        enabled_saved_payment_method: paymentLinkConfig.enabled_saved_payment_method,
+        hide_card_nickname_field: paymentLinkConfig.hide_card_nickname_field,
+        show_card_form_by_default: paymentLinkConfig.show_card_form_by_default,
+        transaction_details: paymentLinkConfig.transaction_details,
+        background_image: paymentLinkConfig.background_image,
+        details_layout: paymentLinkConfig.details_layout,
+        payment_button_text: paymentLinkConfig.payment_button_text,
+        custom_message_for_card_terms: paymentLinkConfig.custom_message_for_card_terms,
+        payment_button_colour: paymentLinkConfig.payment_button_colour,
+        skip_status_screen: paymentLinkConfig.skip_status_screen,
+        payment_button_text_colour: paymentLinkConfig.payment_button_text_colour,
+        background_colour: paymentLinkConfig.background_colour,
+        sdk_ui_rules: paymentLinkConfig.sdk_ui_rules,
+        payment_link_ui_rules: paymentLinkConfig.payment_link_ui_rules,
+        enable_button_only_on_form_ready: paymentLinkConfig.enable_button_only_on_form_ready,
+        payment_form_header_text: paymentLinkConfig.payment_form_header_text,
+        payment_form_label_type: paymentLinkConfig.payment_form_label_type,
+        show_card_terms: paymentLinkConfig.show_card_terms,
+        is_setup_mandate_flow: paymentLinkConfig.is_setup_mandate_flow,
+        color_icon_card_cvc_error: paymentLinkConfig.color_icon_card_cvc_error,
+        domain_name: paymentLinkConfig.domain_name,
+        allowed_domains: paymentLinkConfig.allowed_domains,
+        branding_visibility: paymentLinkConfig.branding_visibility,
+        business_specific_configs: Some(updatedBusinessSpecificDict->JSON.Encode.object),
       }
     }
   }
@@ -93,16 +161,17 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
   let getStringFromDict = (dict, key, default) => dict->getString(key, default)
 
   let backgroundImage = getStringFromDict(formValuesDict, "background_image", "")
-  let backgroundImageObj = if backgroundImage->isNonEmptyString {
-    Some({url: backgroundImage})
-  } else {
-    None
-  }
+  let backgroundImageObj = backgroundImage->isNonEmptyString ? Some({url: backgroundImage}) : None
+
+  let currency = getStringFromDict(paymentDetailsDict, "currency", "USD")
+  let amount = paymentDetailsDict->getInt("amount", 0)->Int.toFloat
+  let formattedAmount =
+    CurrencyUtils.convertCurrencyFromLowestDenomination(~amount, ~currency)->Float.toString
 
   {
     pub_key: publishableKey,
-    amount: (paymentDetailsDict->getInt("amount", 0) / 100)->Int.toString,
-    currency: getStringFromDict(paymentDetailsDict, "currency", "USD"),
+    amount: formattedAmount,
+    currency,
     client_secret: getStringFromDict(paymentDetailsDict, "client_secret", ""),
     payment_id: getStringFromDict(paymentDetailsDict, "payment_id", ""),
     status: getStringFromDict(paymentDetailsDict, "status", "incomplete"),

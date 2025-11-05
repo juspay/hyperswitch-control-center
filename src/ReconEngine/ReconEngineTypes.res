@@ -38,6 +38,14 @@ type reconRuleType = {
   targets: array<reconRuleAccountRefType>,
 }
 
+@unboxed
+type mismatchType =
+  | @as("amount_mismatch") AmountMismatch
+  | @as("balance_direction_mismatch") BalanceDirectionMismatch
+  | @as("currency_mismatch") CurrencyMismatch
+  | @as("metadata_mismatch") MetadataMismatch
+  | @as("unknown") UnknownMismatchType
+
 type ingestionTransformationStatusType =
   | Pending
   | Processing
@@ -67,7 +75,7 @@ type ingestionHistoryType = {
   ingestion_name: string,
   version: int,
   discarded_at: string,
-  discarded_at_status: string,
+  discarded_status: string,
 }
 
 type ingestionConfigType = {
@@ -80,7 +88,7 @@ type ingestionConfigType = {
 }
 
 type transformationConfigType = {
-  id: string,
+  transformation_id: string,
   profile_id: string,
   ingestion_id: string,
   account_id: string,
@@ -109,25 +117,31 @@ type ruleType = {
   rule_name: string,
 }
 
+@unboxed
 type transactionStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | UnknownTransactionStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("partially_reconciled") PartiallyReconciled
+  | @as("unknown") UnknownTransactionStatus
 
+@unboxed
 type entryDirectionType =
-  | Debit
-  | Credit
+  | @as("debit") Debit
+  | @as("credit") Credit
   | UnknownEntryDirectionType
 
+@unboxed
 type entryStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | Pending
-  | UnknownEntryStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("pending") Pending
+  | @as("void") Void
+  | @as("unknown") UnknownEntryStatus
 
 type transactionEntryType = {
   entry_id: string,
@@ -135,6 +149,18 @@ type transactionEntryType = {
   account: accountType,
   amount: balanceType,
   status: entryStatus,
+}
+
+type transactionPostedType =
+  | @as("auto") Reconciled
+  | @as("force_reconciled") ForceReconciled
+  | @as("manually_reconciled") ManuallyReconciled
+  | @as("N/A") UnknownTransactionPostedType
+
+type transactionDataType = {
+  status: transactionStatus,
+  posted_type: option<transactionPostedType>,
+  reason: option<string>,
 }
 
 type transactionType = {
@@ -150,11 +176,13 @@ type transactionType = {
   version: int,
   created_at: string,
   effective_at: string,
+  data: transactionDataType,
 }
 
 type entryType = {
   entry_id: string,
   entry_type: entryDirectionType,
+  account_id: string,
   account_name: string,
   transaction_id: string,
   amount: float,
@@ -162,18 +190,23 @@ type entryType = {
   status: entryStatus,
   discarded_status: option<string>,
   metadata: Js.Json.t,
+  data: Js.Json.t,
+  version: int,
   created_at: string,
   effective_at: string,
+  staging_entry_id: option<string>,
 }
 
 type processingEntryStatus =
-  | Pending
-  | Processed
-  | NeedsManualReview
-  | Archived
-  | UnknownProcessingEntryStatus
+  | @as("pending") Pending
+  | @as("processed") Processed
+  | @as("needs_manual_review") NeedsManualReview
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("unknown") UnknownProcessingEntryStatus
 
 type processingEntryType = {
+  id: string,
   staging_entry_id: string,
   account: accountRefType,
   entry_type: string,

@@ -31,7 +31,7 @@ module DisplayKeyValueParams = {
               textAlign=Table.Left
               fontBold=true
               customMoneyStyle="!font-normal !text-sm"
-              labelMargin="!py-0 mt-2"
+              labelMargin="!py-0"
             />
           </div>
         </div>
@@ -71,7 +71,10 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails: ReconEngineTypes.transactionType) => {
+  let make = (
+    ~currentTransactionDetails: ReconEngineTypes.transactionType,
+    ~detailsFields: array<TransactionsTableEntity.transactionColType>,
+  ) => {
     open TransactionsTableEntity
 
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
@@ -81,7 +84,6 @@ module TransactionDetailInfo = {
       "w-1/4"
     }
     let isArchived = currentTransactionDetails.transaction_status == Archived
-    let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
@@ -114,8 +116,20 @@ module EntryAuditTrailInfo = {
       entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
 
+    let expectedEntries = React.useMemo(() => {
+      entriesList
+      ->Array.slice(~start=1, ~end=entriesList->Array.length)
+      ->Array.filter(entry =>
+        entry.status == Expected || entry.discarded_status == Some("expected")
+      )
+    }, [entriesList])
+
     let reconciledEntries = React.useMemo(() => {
-      entriesList->Array.slice(~start=1, ~end=entriesList->Array.length)
+      entriesList
+      ->Array.slice(~start=1, ~end=entriesList->Array.length)
+      ->Array.filter(entry =>
+        entry.status != Expected && entry.discarded_status != Some("expected")
+      )
     }, [entriesList])
 
     let isArchived = mainEntry.status == Archived
@@ -156,8 +170,12 @@ module EntryAuditTrailInfo = {
     }
 
     let heading = detailsFields->Array.map(getHeading)
-    let rows =
+    let reconciledRows =
       reconciledEntries->Array.map(entry =>
+        detailsFields->Array.map(colType => getCell(entry, colType))
+      )
+    let expectedRows =
+      expectedEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
     <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
@@ -200,6 +218,33 @@ module EntryAuditTrailInfo = {
           </RenderIf>
         </div>
       </div>
+      <RenderIf condition={expectedEntries->Array.length > 0}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Expectations"->React.string} </p>
+          <div className="overflow-visible">
+            <CustomExpandableTable
+              title="Expected Entries"
+              tableClass="border rounded-xl overflow-y-auto"
+              borderClass=" "
+              firstColRoundedHeadingClass="rounded-tl-xl"
+              lastColRoundedHeadingClass="rounded-tr-xl"
+              headingBgColor="bg-nd_gray-25"
+              headingFontWeight="font-semibold"
+              headingFontColor="text-nd_gray-400"
+              rowFontColor="text-nd_gray-600"
+              customRowStyle="text-sm"
+              rowFontStyle="font-medium"
+              heading
+              rows=expectedRows
+              onExpandIconClick
+              expandedRowIndexArray
+              getRowDetails
+              showSerial=false
+              showScrollBar=true
+            />
+          </div>
+        </div>
+      </RenderIf>
       <RenderIf condition={reconciledEntries->Array.length > 0}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
@@ -219,7 +264,7 @@ module EntryAuditTrailInfo = {
               customRowStyle="text-sm"
               rowFontStyle="font-medium"
               heading
-              rows
+              rows=reconciledRows
               onExpandIconClick
               expandedRowIndexArray
               getRowDetails
@@ -302,7 +347,12 @@ module AuditTrail = {
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
       let customComponent = {
         id: transaction.version->Int.toString,
-        customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
+        customComponent: Some(
+          <TransactionDetailInfo
+            currentTransactionDetails=transaction
+            detailsFields=[TransactionId, Status, Variance, CreatedAt]
+          />,
+        ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
@@ -326,7 +376,7 @@ module AuditTrail = {
           </p>
           <div
             className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {(openedTransaction.transaction_status :> string)->React.string}
+            {(openedTransaction.transaction_status :> string)->String.toUpperCase->React.string}
           </div>
         </div>
         <Icon
@@ -338,13 +388,7 @@ module AuditTrail = {
       </div>
     }
 
-    <div>
-      <div className="mb-6">
-        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Audit Trail"->React.string} </p>
-        <p className={`text-nd_gray-500 ${body.md.medium}`}>
-          {"This section shows the audit trail of the transaction, including all changes made to it."->React.string}
-        </p>
-      </div>
+    <div className="mt-2">
       <Modal
         setShowModal
         showModal

@@ -68,6 +68,8 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "344-px": "344px",
+        "400-px": "400px",
+        "700-px": "700px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
@@ -77,6 +79,7 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+        "2-px": "2px",
       },
       minWidth: {
         "25-rem": "25rem",
@@ -85,6 +88,7 @@ module.exports = {
         "15-rem": "15rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
+        "750-px": "750px",
       },
       minHeight: {
         "500-px": "500px",
@@ -102,6 +106,7 @@ module.exports = {
         extended: "2px",
       },
       width: {
+        "1-px": "1px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
@@ -143,6 +148,7 @@ module.exports = {
         600: "600px",
         700: "700px",
         800: "800px",
+        400: "400px",
       },
       lineHeight: {
         14: "14px",
@@ -398,6 +404,7 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          0: "#FFFFFF",
           25: "#FCFCFD",
           50: "#F5F7FA",
           100: "#FBFBFB",
@@ -442,8 +449,10 @@ module.exports = {
         },
         nd_red: {
           50: "#FCF1EF",
+          100: "#FDD4CD",
           200: "#FCB5AA",
           400: "#EC5941",
+          500: "#DD2B0E",
           600: "#C91C00",
         },
         nd_orange: {

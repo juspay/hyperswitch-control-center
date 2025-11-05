@@ -72,8 +72,8 @@ let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let value: string = (status :> string)->camelToSnake
-    let label = (status :> string)->capitalizeString
+    let value: string = (status :> string)
+    let label = (status :> string)->snakeToTitle
 
     {
       FilterSelectBox.label,

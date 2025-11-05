@@ -16,7 +16,8 @@ let make = (
   let showToast = ToastState.useShowToast()
   let businessProfileValues =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileValues.profile_id)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ => initialValues)
   let (pageState, setPageState) = React.useState(() => RoutingTypes.Create)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -75,33 +76,24 @@ let make = (
     None
   }, [routingRuleId])
 
-  let authRateRoutingConfig = async (routingId, values: JSON.t) => {
+  let createAuthRateRouting = async (~values=JSON.Encode.null, ~isActivate=true) => {
     try {
-      let url = getURL(
-        ~entityName=V1(SET_CONFIG_AUTH_RATE_ROUTING),
-        ~methodType=Patch,
-        ~id=Some(routingId),
-      )
-      let response = await updateDetails(url, values, Patch)
-      response
-    } catch {
-    | Exn.Error(e) => {
-        showToast(~message="Failed to update configs!", ~toastType=ToastError)
-        let err = Exn.message(e)->Option.getOr("Something went wrong")
-        Exn.raiseError(err)
-      }
-    }
-  }
+      let dict = values->getDictFromJsonObject
 
-  let enableAuthRateRouting = async (~isActivate=true) => {
-    try {
+      let decisionEngineConfigDict = Dict.make()
+      if isActivate {
+        let decisionEngineConfigValues =
+          dict->getDictfromDict("decision_engine_configs")->JSON.Encode.object
+        decisionEngineConfigDict->Dict.set("decision_engine_configs", decisionEngineConfigValues)
+      }
+
       let queryParamerters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
       let url = getURL(
-        ~entityName=V1(ENABLE_AUTH_RATE_ROUTING),
+        ~entityName=V1(CREATE_AUTH_RATE_ROUTING),
         ~methodType=Post,
         ~queryParamerters=Some(queryParamerters),
       )
-      let response = await updateDetails(url, JSON.Encode.null, Post)
+      let response = await updateDetails(url, decisionEngineConfigDict->JSON.Encode.object, Post)
       if !isActivate {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
       }
@@ -123,8 +115,7 @@ let make = (
         }
       | None => setScreenState(_ => Error("Something went wrong"))
       }
-      let err = Exn.message(e)->Option.getOr("Something went wrong")
-      Exn.raiseError(err)
+      JSON.Encode.null
     }
   }
 
@@ -151,21 +142,8 @@ let make = (
       let dict = values->getDictFromJsonObject
       let splitPercentage = dict->getInt("split_percentage", 100)
 
-      let configDict = Dict.make()
-      let configValues = dict->getDictfromDict("config")->JSON.Encode.object
-      configDict->Dict.set("config", configValues)
-
-      let updateRoutingId = switch routingRuleId {
-      | Some(id) => id
-      | None => {
-          let response = await enableAuthRateRouting()
-          response->getDictFromJsonObject->getString("id", "")
-        }
-      }
-
-      let response = await authRateRoutingConfig(updateRoutingId, configDict->JSON.Encode.object)
+      let response = await createAuthRateRouting(~values)
       let routingId = response->getDictFromJsonObject->getString("id", "")
-
       let _ = await setVolumeSplit(splitPercentage)
 
       showToast(
@@ -226,7 +204,7 @@ let make = (
 
   let handleDeactivateConfiguration = async () => {
     try {
-      let _ = await enableAuthRateRouting(~isActivate=false)
+      let _ = await createAuthRateRouting(~isActivate=false, ~values=initialValues)
       showToast(~message="Successfully Deactivated!", ~toastType=ToastState.ToastSuccess)
     } catch {
     | Exn.Error(e) =>
@@ -240,33 +218,26 @@ let make = (
     requiredConfigKeys: array<AuthRateRoutingTypes.formFields>,
   ): JSON.t => {
     let dict = values->JSON.Decode.object->Option.getOr(Dict.make())
-    let errors = Dict.make()
-    let configErrors = Dict.make()
-
-    let config = dict->getDictfromDict("config")
+    let decisionEngineConfigs = dict->getDictfromDict("decision_engine_configs")
+    let formErrors = Dict.make()
+    let decisionEngineErrors = Dict.make()
 
     requiredConfigKeys->Array.forEach(key => {
       switch key {
-      | MaxTotalCount => {
-          let currentBlockThreshold = config->getDictfromDict("current_block_threshold")
-          if currentBlockThreshold->getInt("max_total_count", -1) == -1 {
-            let thresholdErrors = Dict.make()
-            thresholdErrors->Dict.set("max_total_count", "Required"->JSON.Encode.string)
-            configErrors->Dict.set("current_block_threshold", thresholdErrors->JSON.Encode.object)
-          }
+      | BucketSize
+      | ExplorationPercent =>
+        if decisionEngineConfigs->getInt(getFormFieldKey(key), -1) == -1 {
+          decisionEngineErrors->Dict.set(getFormFieldKey(key), "Required"->JSON.Encode.string)
+          formErrors->Dict.set("decision_engine_configs", decisionEngineErrors->JSON.Encode.object)
         }
-      | _ =>
-        if config->getInt(key->getFormFieldKey, -1) == -1 {
-          configErrors->Dict.set(key->getFormFieldKey, "Required"->JSON.Encode.string)
+      | RolloutPercent =>
+        if dict->getInt(key->getFormFieldKey, -1) == -1 {
+          formErrors->Dict.set(key->getFormFieldKey, "Required"->JSON.Encode.string)
         }
       }
     })
 
-    if configErrors->Dict.keysToArray->Array.length > 0 {
-      errors->Dict.set("config", configErrors->JSON.Encode.object)
-    }
-
-    errors->JSON.Encode.object
+    formErrors->JSON.Encode.object
   }
 
   let formFields = allFormFields->Array.mapWithIndex((field, index) => {
@@ -287,10 +258,9 @@ let make = (
   }
 
   let requiredConfigKeys: array<AuthRateRoutingTypes.formFields> = [
-    MinAggregateSize,
-    DefaultSuccessRate,
-    MaxAggregateSize,
-    MaxTotalCount,
+    BucketSize,
+    ExplorationPercent,
+    RolloutPercent,
   ]
 
   <div className="my-6">
@@ -304,9 +274,10 @@ let make = (
               <BasicDetailsForm.BusinessProfileInp
                 setProfile={setProfile}
                 profile={profile}
-                options={[
-                  businessProfileValues,
-                ]->MerchantAccountUtils.businessProfileNameDropDownOption}
+                options={MerchantAccountUtils.businessProfileNameDropDownOption(
+                  [businessProfileValues],
+                  ~profileId,
+                )}
                 label="Profile"
               />
             </div>

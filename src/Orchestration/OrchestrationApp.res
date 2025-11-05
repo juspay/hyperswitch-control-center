@@ -29,6 +29,7 @@ let make = (~setScreenState) => {
     | list{"3ds-authenticators", ..._}
     | list{"pm-authentication-processor", ..._}
     | list{"tax-processor", ..._}
+    | list{"billing-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
@@ -69,21 +70,23 @@ let make = (~setScreenState) => {
       <AccessControl
         authorization={userHasAccess(~groupAccess=OperationsView)}
         isEnabled={[#Tenant, #Organization, #Merchant]->checkUserEntity}>
-        <EntityScaffold
-          entityName="Customers"
-          remainingPath
-          access=Access
-          renderList={() => <Customers />}
-          renderShow={(id, _) => <ShowCustomers id />}
-        />
+        <FilterContext key="Customers" index="Customers">
+          <EntityScaffold
+            entityName="Customers"
+            remainingPath
+            access=Access
+            renderList={() => featureFlagDetails.devCustomer ? <CustomerV2 /> : <Customers />}
+            renderShow={(id, _) => <ShowCustomers id />}
+          />
+        </FilterContext>
       </AccessControl>
     | list{"users", ..._} => <UserManagementContainer />
     | list{"developer-api-keys"} =>
       <AccessControl
-        // TODO: Remove `MerchantDetailsManage` permission in future
+        // TODO: Remove `MerchantDetailsView` permission in future
         authorization={hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsView),
-          userHasAccess(~groupAccess=AccountManage),
+          userHasAccess(~groupAccess=AccountView),
         )}
         isEnabled={!checkUserEntity([#Profile])}>
         <KeyManagement />
@@ -146,8 +149,12 @@ let make = (~setScreenState) => {
     | list{"unauthorized"} => <UnauthorizedPage />
     | list{"chat-bot"} =>
       <AccessControl
-        isEnabled={featureFlagDetails.devAiChatBot}
-        authorization={userHasAccess(~groupAccess=MerchantDetailsView)}>
+        isEnabled={featureFlagDetails.devAiChatBot && !checkUserEntity([#Profile])}
+        // TODO: Remove `MerchantDetailsView` permission in future
+        authorization={hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsView),
+          userHasAccess(~groupAccess=AccountView),
+        )}>
         <ChatBot />
       </AccessControl>
     | _ => <EmptyPage path="/home" />

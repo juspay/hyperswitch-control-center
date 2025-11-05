@@ -5,34 +5,27 @@ let make = (
   ~ingestionHistoryId: string,
   ~setSelectedTransformationHistoryId: (string => string) => unit,
   ~onTransformationStatusChange: option<bool => unit>=?,
-  ~transformationConfigTabIndex: option<string>,
+  ~transformationHistoryId,
 ) => {
+  open ReconEngineHooks
   open ReconEngineAccountsSourcesHelper
-  open APIUtils
   open LogicUtils
   open ReconEngineAccountsOverviewUtils
 
-  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let fetchDetails = useGetMethod()
+  let getTransformationHistory = useGetTransformationHistory()
   let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (showModal, setShowModal) = React.useState(_ => false)
+  let (selectedTransformationId, setSelectedTransformationId) = React.useState(_ => "")
 
   let fetchTransformationHistory = async () => {
     if ingestionHistoryId->isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
-        let transformationHistoryUrl = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+        let transformationHistoryList = await getTransformationHistory(
           ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
         )
-        let transformationHistoryRes = await fetchDetails(transformationHistoryUrl)
-        let transformationHistoryList =
-          transformationHistoryRes->getArrayDataFromJson(
-            getAccountsOverviewTransformationHistoryPayloadFromDict,
-          )
         setTransformationHistoryData(_ => transformationHistoryList)
 
         let allProcessed =
@@ -44,7 +37,7 @@ let make = (
 
         switch transformationHistoryList->getNonEmptyArray {
         | Some(arr) => {
-            let selectedIndex = transformationConfigTabIndex->Option.getOr("0")->getIntFromString(0)
+            let selectedIndex = transformationHistoryId->Option.getOr("0")->getIntFromString(0)
             let selectedItem =
               arr->getValueFromArray(
                 selectedIndex,
@@ -64,7 +57,7 @@ let make = (
   React.useEffect(() => {
     fetchTransformationHistory()->ignore
     None
-  }, (ingestionHistoryId, transformationConfigTabIndex))
+  }, (ingestionHistoryId, transformationHistoryId))
 
   let detailsFields: array<ReconEngineAccountsSourcesEntity.transformationHistoryColType> = [
     TransformationName,
@@ -81,13 +74,20 @@ let make = (
       ->getvalFromDict("transformationHistoryId")
 
     switch urlTransformationHistoryId {
-    | Some(historyId) =>
-      transformationHistoryData->Array.findIndex(config =>
-        config.transformation_history_id === historyId
-      )
+    | Some(historyId) => {
+        setSelectedTransformationHistoryId(_ => historyId)
+        transformationHistoryData->Array.findIndex(config =>
+          config.transformation_history_id === historyId
+        )
+      }
     | None => 0
     }
   }, (url.search, transformationHistoryData))
+
+  let onViewMappersClick = (~transformationId: string) => {
+    setSelectedTransformationId(_ => transformationId)
+    setShowModal(_ => true)
+  }
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
@@ -116,7 +116,12 @@ let make = (
             )
             ->React.array}
           </div>
-          <Button buttonType=Secondary text="View Mappers" customButtonStyle="!w-fit" />
+          <Button
+            buttonType=Secondary
+            text="View Mappers"
+            customButtonStyle="!w-fit"
+            onClick={_ => onViewMappersClick(~transformationId=config.transformation_id)->ignore}
+          />
         </div>
       },
     })
@@ -136,5 +141,8 @@ let make = (
         selectTabBottomBorderColor="bg-primary"
       />
     </div>
+    <ReconEngineAccountsTransformationDetailsMappers
+      showModal setShowModal selectedTransformationId
+    />
   </PageLoaderWrapper>
 }

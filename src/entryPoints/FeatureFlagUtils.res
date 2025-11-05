@@ -64,6 +64,8 @@ type featureFlag = {
   devAiChatBot: bool,
   routingAnalytics: bool,
   devRolesV2: bool,
+  devCustomer: bool,
+  billingProcessor: bool,
   paymentLinkThemeConfigurator: bool,
 }
 
@@ -131,6 +133,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
     routingAnalytics: dict->getBool("routing_analytics", false),
     devRolesV2: dict->getBool("dev_roles_v2", false),
+    devCustomer: dict->getBool("dev_customer", false),
+    billingProcessor: dict->getBool("billing_processor", false),
     paymentLinkThemeConfigurator: dict->getBool("payment_link_theme_configurator", false),
   }
 }

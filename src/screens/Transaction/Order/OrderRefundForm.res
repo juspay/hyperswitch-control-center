@@ -33,26 +33,35 @@ let make = (
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {
-      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess)
+      | Succeeded =>
+        showToast(~message="Refund successful", ~toastType=ToastSuccess)
+        setShowModal(_ => false)
       | Failed =>
         showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
+        setShowModal(_ => false)
       | _ =>
         showToast(
           ~message="Processing your refund. Please check refund status",
           ~toastType=ToastInfo,
         )
+        setShowModal(_ => false)
       }
     } catch {
-    | _ => setShowModal(_ => true)
+    | _ => {
+        showToast(~message="Refund failed", ~toastType=ToastError)
+        setShowModal(_ => false)
+      }
     }
   }
+
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
 
   let onSubmit = (values, _) => {
     open Promise
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
+    Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
     updateRefundDetails(body->JSON.Encode.object)->ignore
@@ -187,13 +196,13 @@ let make = (
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded")}
-              value={Currency(amountRefunded.contents /. 100.0, order.currency)}
+              value={Currency(amountRefunded.contents /. conversionFactor, order.currency)}
             />
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount")}
-              value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
+              value={Currency(requestedRefundAmount.contents /. conversionFactor, order.currency)}
             />
           </FormRenderer.DesktopRow>
         </div>
