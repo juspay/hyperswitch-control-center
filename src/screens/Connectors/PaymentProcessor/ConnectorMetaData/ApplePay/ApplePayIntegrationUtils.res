@@ -241,3 +241,49 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   body
 }
+let getApplePayIntegrationTypeFromString = (name: string) => {
+  switch name->String.toLowerCase {
+  | "manual" => #manual
+  | "simplified" => #simplified
+  | "decrypted" => #decrypted
+  | _ => #manual
+  }
+}
+
+let getIntegrationTypeFromConnectorName = (
+  ~connector,
+  setIntegrationType,
+  formState: ReactFinalForm.formState,
+) => {
+  let metadataDict =
+    formState.values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+  let applePayCombinedDictArray =
+    metadataDict->getDictfromDict("apple_pay_combined")->Dict.keysToArray
+  switch connector->ConnectorUtils.getConnectorNameTypeFromString {
+  | Processors(STRIPE)
+  | Processors(BANKOFAMERICA)
+  | Processors(CYBERSOURCE)
+  | Processors(FIUU) =>
+    setIntegrationType(_ =>
+      applePayCombinedDictArray
+      ->getValueFromArray(0, "simplified")
+      ->getApplePayIntegrationTypeFromString
+    )
+  | Processors(NUVEI)
+  | Processors(WORLDPAYVANTIV)
+  | Processors(TESOURO) =>
+    setIntegrationType(_ =>
+      applePayCombinedDictArray
+      ->getValueFromArray(0, "decrypted")
+      ->getApplePayIntegrationTypeFromString
+    )
+  | _ =>
+    setIntegrationType(_ =>
+      applePayCombinedDictArray
+      ->getValueFromArray(0, "manual")
+      ->getApplePayIntegrationTypeFromString
+    )
+  }
+}

@@ -111,7 +111,8 @@ module Landing = {
     ~update,
   ) => {
     open ApplePayIntegrationTypes
-    open AdditionalDetailsSidebarHelper
+    open ApplePayLandingHelper
+    open Typography
 
     let handleConfirmClick = () => {
       if appleIntegrationType === #decrypted {
@@ -127,54 +128,19 @@ module Landing = {
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE)
       | Processors(FIUU) =>
-        <div
-          className="p-6 m-2 cursor-pointer"
-          onClick={_ => setApplePayIntegrationType(_ => #simplified)}>
-          <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-              {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <CustomTag
-                tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
-              />
-              <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            </div>
-          </Card>
-        </div>
+        <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
       | Processors(NUVEI)
       | Processors(WORLDPAYVANTIV)
       | Processors(TESOURO) =>
-        <div
-          className="p-6 m-2 cursor-pointer"
-          onClick={_ => setApplePayIntegrationType(_ => #decrypted)}>
-          <Card heading="Decrypted Flow" isSelected={appleIntegrationType === #decrypted}>
-            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-              {"Instantly enable Apple Pay with no information or configuration needed."->React.string}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <CustomTag
-                tagText="No Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-              />
-            </div>
-          </Card>
+        <div className="flex flex-col gap-3">
+          <ApplePayDecryptedLandingBanner />
+          <p className={`${heading.xs.semibold} ml-8`}>
+            {"Choose Configuration Method"->React.string}
+          </p>
         </div>
       | _ => React.null
       }}
-      <div
-        className="p-6 m-2 cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #manual)}>
-        <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
-          <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-            <CustomSubText />
-          </div>
-          <div className="flex gap-2 mt-4">
-            <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            <CustomTag
-              tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-            />
-          </div>
-        </Card>
-      </div>
+      <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       <div className={`flex gap-2 justify-end m-2 p-6`}>
         <Button
           text="Cancel"
@@ -203,6 +169,10 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let (merchantBusinessCountry, setMerchantBusinessCountry) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])
+  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
+
   let applePayFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
@@ -257,19 +227,17 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   }
 
   React.useEffect(() => {
+    ApplePayIntegrationUtils.getIntegrationTypeFromConnectorName(
+      ~connector,
+      setApplePayIntegrationType,
+      formState,
+    )
     if connector->String.length > 0 {
-      switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(STRIPE)
-      | Processors(BANKOFAMERICA)
-      | Processors(CYBERSOURCE) =>
-        setApplePayIntegrationType(_ => #simplified)
-      | Processors(NUVEI)
-      | Processors(WORLDPAYVANTIV)
-      | Processors(TESOURO) =>
-        setApplePayIntegrationType(_ => #decrypted)
-
-      | _ => setApplePayIntegrationType(_ => #manual)
-      }
+      ApplePayIntegrationUtils.getIntegrationTypeFromConnectorName(
+        ~connector,
+        setApplePayIntegrationType,
+        formState,
+      )
 
       getProcessorDetails()->ignore
     }
