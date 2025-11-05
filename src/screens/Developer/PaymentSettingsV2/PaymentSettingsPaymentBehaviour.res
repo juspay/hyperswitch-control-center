@@ -90,7 +90,7 @@ module AutoRetries = {
     <>
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
-          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
           fieldWrapperClass="w-full flex justify-between items-center py-8 "
           field={makeFieldInfo(
             ~name="is_auto_retries_enabled",
@@ -108,7 +108,7 @@ module AutoRetries = {
         <FieldRenderer
           field={maxAutoRetries}
           errorClass
-          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
           fieldWrapperClass="pb-8 "
         />
       </RenderIf>
@@ -395,7 +395,7 @@ let make = () => {
         <hr />
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
-            labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
+            labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
             fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
             field={makeFieldInfo(
               ~name="always_enable_overcapture",
@@ -448,7 +448,7 @@ let make = () => {
       </RenderIfVersion>
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
-          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
           fieldWrapperClass="w-full flex justify-between items-center py-8"
           field={makeFieldInfo(
             ~name="is_connector_agnostic_mit_enabled",
@@ -464,7 +464,7 @@ let make = () => {
       <hr />
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
-          labelClass={`!${body.lg.semibold} !text-nd-gray-700 `}
+          labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
           fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
           field={makeFieldInfo(
             ~name="is_network_tokenization_enabled",

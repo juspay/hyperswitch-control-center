@@ -51,7 +51,6 @@ type profileEntity_v2 = {
   authentication_product_ids: option<JSON.t>,
   outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
   metadata: option<Dict.t<JSON.t>>,
-  force_3ds_challenge: option<bool>,
   is_debit_routing_enabled: option<bool>,
   merchant_category_code: option<string>,
   is_network_tokenization_enabled: option<bool>,

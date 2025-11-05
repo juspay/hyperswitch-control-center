@@ -69,7 +69,6 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
       "always_collect_billing_details_from_wallet_connector",
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
-    force_3ds_challenge: None,
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
@@ -118,7 +117,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     is_auto_retries_enabled: None,
     max_auto_retries_enabled: None,
     metadata: profileRecord.metadata,
-    force_3ds_challenge: profileRecord.force_3ds_challenge,
+    force_3ds_challenge: None,
     is_debit_routing_enabled: profileRecord.is_debit_routing_enabled,
     acquirer_configs: None,
     merchant_category_code: profileRecord.merchant_category_code,
