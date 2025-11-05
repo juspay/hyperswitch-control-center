@@ -1,10 +1,15 @@
 open HSwitchSettingTypes
 open LogicUtils
 
+open LogicUtils
+
 let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
+let parseBussinessProfileJson = (
+  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+) => {
 let parseBussinessProfileJson = (
   profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
 ) => {
@@ -32,6 +37,7 @@ let parseBussinessProfileJson = (
     always_request_extended_authorization,
     is_manual_retry_enabled,
     always_enable_overcapture,
+    payment_link_config,
     payment_link_config,
   } = profileRecord
 
@@ -92,6 +98,14 @@ let parseBussinessProfileJson = (
   profileInfo->setOptionBool("payment_succeeded_enabled", webhook_details.payment_succeeded_enabled)
   profileInfo->setOptionBool("payment_failed_enabled", webhook_details.payment_failed_enabled)
   profileInfo->setOptionString("payment_response_hash_key", payment_response_hash_key)
+  switch authentication_connector_details {
+  | Some(val) =>
+    profileInfo->setOptionArray("authentication_connectors", val.authentication_connectors)
+    profileInfo->setOptionString("three_ds_requestor_url", val.three_ds_requestor_url)
+    profileInfo->setOptionString("three_ds_requestor_app_url", val.three_ds_requestor_app_url)
+  | None => ()
+  }
+
   switch authentication_connector_details {
   | Some(val) =>
     profileInfo->setOptionArray("authentication_connectors", val.authentication_connectors)
@@ -481,6 +495,20 @@ let domainNameValidationErrorMapper = key => {
   }
 }
 
+let domainNameValidationFieldsMapper = key => {
+  switch key {
+  | DomainName => "domain_name"
+  | AllowedDomains => "allowed_domains"
+  }
+}
+
+let domainNameValidationErrorMapper = key => {
+  switch key {
+  | DomainName => "Please enter valid URL"->JSON.Encode.string
+  | AllowedDomains => "Please enter allowed domains"->JSON.Encode.string
+  }
+}
+
 let checkValueChange = (~initialDict, ~valuesDict) => {
   let initialKeys = Dict.keysToArray(initialDict)
   let updatedKeys = Dict.keysToArray(valuesDict)
@@ -695,6 +723,51 @@ let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
 
 let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntity_v1 = {
   profile_id: "",
+let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
+  let errors = Dict.make()
+  let paymentLinkConfigDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
+
+  let domainNameRegex = Js.Re.fromString(
+    "^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?::\\d{4})?$",
+  )
+  let allowedDomainsRegex = Js.Re.fromString(
+    "^(?:(?:https?:\/\/)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?::\\d{1,5})?)(?:,(?:https?:\/\/)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?::\\d{1,5})?)*$",
+  )
+
+  let getRegex = field =>
+    switch field {
+    | DomainName => domainNameRegex
+    | AllowedDomains => allowedDomainsRegex
+    }
+
+  let isValidField = (field, regex) => {
+    RegExp.test(regex, field)
+  }
+
+  fieldsToValidate->Array.forEach(key => {
+    switch key {
+    | DomainName
+    | AllowedDomains =>
+      let fieldValue = getString(paymentLinkConfig, key->domainNameValidationFieldsMapper, "")
+
+      if !isValidField(fieldValue, getRegex(key)) {
+        Dict.set(
+          paymentLinkConfigDict,
+          key->domainNameValidationFieldsMapper,
+          key->domainNameValidationErrorMapper,
+        )
+      }
+    }
+  })
+
+  Dict.set(errors, "payment_link_config", paymentLinkConfigDict->JSON.Encode.object)
+  errors->JSON.Encode.object
+}
+
+let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntity_v1 = {
+  profile_id: "",
   merchant_id: "",
   profile_name: "",
   return_url: None,
@@ -709,9 +782,11 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
     payment_failed_enabled: None,
   },
   authentication_connector_details: Some({
+  authentication_connector_details: Some({
     authentication_connectors: None,
     three_ds_requestor_url: None,
     three_ds_requestor_app_url: None,
+  }),
   }),
   collect_shipping_details_from_wallet_connector: None,
   always_collect_shipping_details_from_wallet_connector: None,
@@ -734,6 +809,8 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   always_enable_overcapture: None,
   billing_processor_id: None,
   payment_link_config: None,
+  billing_processor_id: None,
+  payment_link_config: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
@@ -742,7 +819,11 @@ let getValueFromBusinessProfile = businessProfileValue => {
 
 let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
   arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypesV1.profileEntity_v1) => {
+let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
+  arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypesV1.profileEntity_v1) => {
     let obj: SelectBox.dropdownOption = {
+      label: {`${ele.profile_name} (${profileId})`},
+      value: profileId,
       label: {`${ele.profile_name} (${profileId})`},
       value: profileId,
     }
