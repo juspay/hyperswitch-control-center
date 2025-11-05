@@ -1,11 +1,13 @@
+open Typography
+
 @send
 external focus: (Dom.element, unit) => unit = "focus"
 module InputFieldForOtp = {
   @react.component
   let make = (~inputRef, ~value, ~index, ~handleChange, ~handleFocus, ~hasError=false) => {
-    let inputClass = `text-center h-full w-full border ${hasError
-        ? "border-red-500 focus:border-red-500"
-        : "border-jp-2-light-gray-600 focus:border-primary focus:shadow-focusBoxShadow"} rounded-lg outline-none text-2xl overflow-hidden`
+    let inputClass = `${heading.lg.regular} text-center h-full w-full border ${hasError
+        ? "border-nd_red-400 focus:border-nd_red-400"
+        : "border-nd_gray-200 focus:border-primary focus:shadow-focusBoxShadow"} rounded-lg outline-none overflow-hidden`
 
     let onChange = ev => {
       let currValue = {ev->ReactEvent.Form.target}["value"]

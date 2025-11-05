@@ -1,3 +1,6 @@
+open Typography
+open LogicUtils
+
 let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
 let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
@@ -17,7 +20,6 @@ module EnterAccessCode = {
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
     let verifyAccessCode = async _ => {
-      open LogicUtils
       try {
         setButtonState(_ => Button.Loading)
 
@@ -133,7 +135,6 @@ module ConfigureTotpScreen = {
     let (hasOtpError, setHasOtpError) = React.useState(_ => false)
 
     let verifyTOTP = async () => {
-      open LogicUtils
       try {
         setButtonState(_ => Button.Loading)
 
@@ -204,7 +205,7 @@ module ConfigureTotpScreen = {
     }, [otp])
 
     React.useEffect(() => {
-      if hasOtpError && otp->String.length > 0 {
+      if hasOtpError && otp->isNonEmptyString {
         setHasOtpError(_ => false)
       }
       None
@@ -214,10 +215,8 @@ module ConfigureTotpScreen = {
       className={`bg-white ${twoFaStatus === TWO_FA_SET
           ? "h-20-rem"
           : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
-      <div className="p-5 border-b-1.5 border-gray-150 flex justify-between items-center">
-        <p className="px-4 text-2xl text-fs-20 font-semibold leading-8">
-          {modalHeaderText->React.string}
-        </p>
+      <div className="p-5 border-b-1.5 border-nd_gray-150 flex justify-between items-center">
+        <p className={`${heading.lg.semibold}`}> {modalHeaderText->React.string} </p>
       </div>
       <div className="px-8 py-2 flex flex-col gap-8 justify-end flex-1">
         <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
@@ -239,7 +238,7 @@ module ConfigureTotpScreen = {
           </RenderIf>
         </div>
       </div>
-      <div className={`p-9 ${borderClass} border-gray-150 flex justify-end items-center`}>
+      <div className={`p-9 ${borderClass} border-nd_gray-150 flex justify-end items-center`}>
         <div className="flex justify-end gap-4">
           <RenderIf condition={isSkippable}>
             <Button
@@ -301,7 +300,6 @@ let make = (
   }
 
   let terminateTwoFactorAuth = async (~skip_2fa) => {
-    open LogicUtils
     try {
       open AuthUtils
 
@@ -335,7 +333,6 @@ let make = (
   }
 
   let getTOTPString = async () => {
-    open LogicUtils
     try {
       setTotpUrl(_ => "")
       let url = getURL(~entityName=V1(USERS), ~userType=#BEGIN_TOTP, ~methodType=Get)
