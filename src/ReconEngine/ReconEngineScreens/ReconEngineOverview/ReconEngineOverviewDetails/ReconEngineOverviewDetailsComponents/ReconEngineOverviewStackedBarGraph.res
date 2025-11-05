@@ -2,7 +2,7 @@ open Typography
 
 @react.component
 let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
-  open LogicUtils
+  open CurrencyFormatUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

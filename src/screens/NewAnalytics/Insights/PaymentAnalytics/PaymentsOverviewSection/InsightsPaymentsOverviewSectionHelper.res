@@ -6,6 +6,7 @@ module SmartRetryCard = {
   @react.component
   let make = (~responseKey: overviewColumns, ~data) => {
     open LogicUtils
+    open CurrencyFormatUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: InsightsTypes.filters :> string), "")

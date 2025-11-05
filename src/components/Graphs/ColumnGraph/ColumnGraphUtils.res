@@ -107,7 +107,12 @@ let columnGraphTooltipFormatter = (
       let _defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
 
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
-        let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency, ~suffix)
+        let formattedValue = CurrencyFormatUtils.valueFormatter(
+          value,
+          metricType,
+          ~currency,
+          ~suffix,
+        )
 
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
@@ -190,7 +195,7 @@ let columnGraphYAxisFormatter = (
     @this
     (this: yAxisFormatter) => {
       let value = this.value->Int.toFloat /. scaleFactor
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(value, statType, ~currency, ~suffix)
 
       formattedValue
     }

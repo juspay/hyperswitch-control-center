@@ -1,6 +1,6 @@
 open LogicUtils
 open DynamicSingleStat
-
+open CurrencyFormatUtils
 open AnalyticsTypes
 open HSAnalyticsUtils
 let domain = "refunds"
@@ -76,7 +76,7 @@ let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell
 
 let getRefundTable: JSON.t => array<refundTableType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -250,7 +250,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: `${domain->LogicUtils.getFirstLetterCaps} Success Rate`,
+      title: `${domain->getFirstLetterCaps} Success Rate`,
       tooltipText: "Successful refund over total refund initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.refund_success_rate,

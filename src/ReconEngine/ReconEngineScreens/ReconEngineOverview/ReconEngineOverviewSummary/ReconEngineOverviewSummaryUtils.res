@@ -1,5 +1,6 @@
 open ReconEngineOverviewUtils
 open LogicUtils
+open CurrencyFormatUtils
 
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
@@ -215,7 +216,7 @@ let summarizeTransactions = (ruleTransactions: array<ReconEngineTypes.transactio
 let getPercentageLabel = (~postedCount, ~totalCount) =>
   if totalCount > 0 {
     let percentageValue = postedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
-    `${percentageValue->LogicUtils.valueFormatter(Rate)} Reconciled`
+    `${percentageValue->valueFormatter(Rate)} Reconciled`
   } else {
     "0% Reconciled"
   }
