@@ -130,6 +130,7 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     collect_billing_details_from_wallet_connector_if_required: profileRecord.collect_billing_details_from_wallet_connector_if_required,
     split_txns_enabled: profileRecord.split_txns_enabled,
     billing_processor_id: None,
+    payment_link_config: None,
   }
 }
 

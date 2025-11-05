@@ -1,5 +1,6 @@
 open LogicUtils
 open LogicUtilsTypes
+open CurrencyFormatUtils
 
 module StatCard = {
   @react.component

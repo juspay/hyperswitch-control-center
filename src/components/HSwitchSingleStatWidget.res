@@ -23,7 +23,7 @@ let make = (
   }
   // if day > then only date else time
   let statValue = statType => {
-    open LogicUtils
+    open CurrencyFormatUtils
     if statType === "Amount" {
       value->indianShortNum
     } else if statType === "Rate" || statType === "NegativeRate" {

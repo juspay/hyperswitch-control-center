@@ -52,12 +52,68 @@ let mapV1AuthConnectorDetailsToCommonType: option<authConnectorDetailsType_v1> =
   }
 }
 
+let getBackgroundImage = backgroundImageDict => {
+  {
+    url: backgroundImageDict->getString("url", ""),
+    position: backgroundImageDict->getString("position", ""),
+    size: backgroundImageDict->getString("size", ""),
+  }
+}
+
+let paymentLinkConfigMapper = paymentLinkConfigDict => {
+  let backgroundImageDict = paymentLinkConfigDict->getDictfromDict("background_image")
+
+  {
+    theme: paymentLinkConfigDict->getString("theme", ""),
+    logo: paymentLinkConfigDict->getString("logo", ""),
+    seller_name: paymentLinkConfigDict->getString("seller_name", ""),
+    sdk_layout: paymentLinkConfigDict->getString("sdk_layout", ""),
+    display_sdk_only: paymentLinkConfigDict->getOptionBool("display_sdk_only"),
+    enabled_saved_payment_method: paymentLinkConfigDict->getOptionBool(
+      "enabled_saved_payment_method",
+    ),
+    hide_card_nickname_field: paymentLinkConfigDict->getOptionBool("hide_card_nickname_field"),
+    show_card_form_by_default: paymentLinkConfigDict->getOptionBool("show_card_form_by_default"),
+    transaction_details: paymentLinkConfigDict->getJsonObjectFromDict("transaction_details"),
+    background_image: backgroundImageDict->isEmptyDict
+      ? None
+      : Some(backgroundImageDict->getBackgroundImage),
+    details_layout: paymentLinkConfigDict->getOptionString("details_layout"),
+    payment_button_text: paymentLinkConfigDict->getString("payment_button_text", ""),
+    custom_message_for_card_terms: paymentLinkConfigDict->getString(
+      "custom_message_for_card_terms",
+      "",
+    ),
+    payment_button_colour: paymentLinkConfigDict->getString("payment_button_colour", ""),
+    skip_status_screen: paymentLinkConfigDict->getOptionBool("skip_status_screen"),
+    payment_button_text_colour: paymentLinkConfigDict->getString("payment_button_text_colour", ""),
+    background_colour: paymentLinkConfigDict->getString("background_colour", ""),
+    sdk_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("sdk_ui_rules"),
+    payment_link_ui_rules: paymentLinkConfigDict->getJsonObjectFromDict("payment_link_ui_rules"),
+    enable_button_only_on_form_ready: paymentLinkConfigDict->getOptionBool(
+      "enable_button_only_on_form_ready",
+    ),
+    payment_form_header_text: paymentLinkConfigDict->getString("payment_form_header_text", ""),
+    payment_form_label_type: paymentLinkConfigDict->getOptionString("payment_form_label_type"),
+    show_card_terms: paymentLinkConfigDict->getOptionString("show_card_terms"),
+    is_setup_mandate_flow: paymentLinkConfigDict->getOptionBool("is_setup_mandate_flow"),
+    color_icon_card_cvc_error: paymentLinkConfigDict->getString("color_icon_card_cvc_error", ""),
+    branding_visibility: paymentLinkConfigDict->getOptionBool("branding_visibility"),
+    domain_name: paymentLinkConfigDict->getString("domain_name", ""),
+    allowed_domains: paymentLinkConfigDict->getJsonObjectFromDict("allowed_domains"),
+    business_specific_configs: paymentLinkConfigDict->getJsonObjectFromDict(
+      "business_specific_configs",
+    ),
+  }
+}
+
 let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookHeaders = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   {
     profile_id: jsonDict->getString("profile_id", ""),
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -100,6 +156,9 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
     always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
     billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
+    payment_link_config: paymentLinkConfig->isEmptyDict
+      ? None
+      : Some(paymentLinkConfig->paymentLinkConfigMapper),
   }
 }
 
@@ -134,6 +193,7 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
     billing_processor_id: profileRecord.billing_processor_id,
+    payment_link_config: None,
     split_txns_enabled: None,
   }
 }
