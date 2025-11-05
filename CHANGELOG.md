@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.05.0
+
+### Miscellaneous Tasks
+
+- Add CI/CD pipeline for spell check ([#3695](https://github.com/juspay/hyperswitch-control-center/pull/3695)) ([`6ddab91`](https://github.com/juspay/hyperswitch-control-center/commit/6ddab91b6e6f2a977884a0c9228bcf3be84a4d61))
+- Moved currency format util functions to Currency Format Utils file ([#3760](https://github.com/juspay/hyperswitch-control-center/pull/3760)) ([`f62ec3c`](https://github.com/juspay/hyperswitch-control-center/commit/f62ec3c4206b79fbd477496133d12936ab81fd2d))
+
+**Full Changelog:** [`2025.11.04.1...2025.11.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.04.1...2025.11.05.0)
+
+- - -
+
 ## 2025.11.04.1
 
 ### Features
