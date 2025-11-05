@@ -80,10 +80,16 @@ let labels = ["Above", "Floating"]
 let initialValueForForm = (
   ~showSetupFutureUsage=false,
   ~sendAuthType=true,
+  ~customCustomerId="",
   ~profileId,
 ): SDKPaymentTypes.paymentType => {
   let setupFutureValue = showSetupFutureUsage ? Some("on_session") : None
   let authTypevalue = sendAuthType ? Some("three_ds") : None
+  let customerID = if customCustomerId != "" {
+    Some(customCustomerId)
+  } else {
+    Some("hyperswitch_sdk_demo_id")
+  }
   let shippingValue: SDKPaymentTypes.addressAndPhone = {
     address: {
       line1: "1600",
@@ -124,7 +130,7 @@ let initialValueForForm = (
     country_currency: "US-USD",
     profile_id: profileId,
     description: "Default value",
-    customer_id: Some("hyperswitch_sdk_demo_id"),
+    customer_id: customerID,
     setup_future_usage: setupFutureValue,
     show_saved_card: "yes",
     request_external_three_ds_authentication: false,
