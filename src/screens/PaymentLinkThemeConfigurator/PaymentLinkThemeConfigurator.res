@@ -17,7 +17,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if businessProfileRecoilVal.profile_id !== "" {
+    if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
       let initialValues = SDKPaymentUtils.initialValueForForm(
         ~customCustomerId="hyperswitch_payment_link",
         ~profileId=businessProfileRecoilVal.profile_id,

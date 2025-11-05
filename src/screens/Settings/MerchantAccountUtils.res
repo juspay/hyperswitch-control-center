@@ -46,8 +46,7 @@ let parseBussinessProfileJson = (
   let allowedDomains =
     paymentLinkConfig.allowed_domains
     ->Option.getOr(JSON.Encode.null)
-    ->JSON.Decode.array
-    ->Option.getOr([])
+    ->LogicUtils.getArrayFromJson([])
 
   let allowedDomainsString =
     allowedDomains
@@ -175,11 +174,10 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
     domain_name: paymentLinkConfig->getOptionString("domain_name"),
     allowed_domains: Some(
       paymentLinkConfig
-      ->getOptionString("allowed_domains")
-      ->Option.getOr("")
+      ->getString("allowed_domains", "")
       ->String.split(",")
-      ->Array.map(domain => domain->String.trim->JSON.Encode.string)
-      ->JSON.Encode.array,
+      ->Array.map(String.trim)
+      ->getJsonFromArrayOfString,
     ),
   }
 

@@ -8,13 +8,6 @@ let selectedStyleVariant = styleID => {
   }
 }
 
-let getDefaultStyleLabelValue = styleVariant => {
-  switch styleVariant {
-  | Default => "default"
-  | _ => ""
-  }
-}
-
 let getDefaultStylesValue: BusinessProfileInterfaceTypesV1.paymentLinkConfig_v1 => BusinessProfileInterfaceTypesV1.styleConfig_v1 = paymentLinkConfig => {
   {
     theme: paymentLinkConfig.theme,
@@ -221,4 +214,30 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
       getStringFromDict(formValuesDict, "color_icon_card_cvc_error", "#FFFFFF"),
     ),
   }
+}
+
+let validateStyleIdForm = (values: JSON.t) => {
+  let errors = Dict.make()
+
+  let styleId = values->getDictFromJsonObject->getString("style_id", "")->String.trim
+  let regexForStyleId = "^([a-zA-Z0-9_\\s-]+)$"
+
+  let isDefault = styleId == (Default: PaymentLinkThemeConfiguratorTypes.styleType :> string)
+  let errorMessage = if styleId->isEmptyString {
+    "Style ID name cannot be empty"
+  } else if styleId->String.length > 32 {
+    "Style ID name cannot exceed 32 characters"
+  } else if !RegExp.test(RegExp.fromString(regexForStyleId), styleId) {
+    "Style ID name should not contain special characters"
+  } else if isDefault {
+    "Style ID with this name already exists in this organization"
+  } else {
+    ""
+  }
+
+  if errorMessage->isNonEmptyString {
+    Dict.set(errors, "style_id", errorMessage->JSON.Encode.string)
+  }
+
+  errors->JSON.Encode.object
 }

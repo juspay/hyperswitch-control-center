@@ -2,9 +2,10 @@ type steps =
   | Checkout
   | Configurator
 
+@unboxed
 type styleType =
-  | Default
-  | Custom
+  | @as("default") Default
+  | @as("") Custom
 
 type background_image = {url: string}
 

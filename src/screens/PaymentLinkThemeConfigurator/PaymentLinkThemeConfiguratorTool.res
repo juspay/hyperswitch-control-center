@@ -89,10 +89,6 @@ module ConfiguratorForm = {
       }
     }
 
-    let debouncedGeneratePreview = ReactDebounce.useDebounced(values => {
-      generatePreview(~values)
-    }, ~wait=800)
-
     React.useEffect(() => {
       if wasmInitialized {
         generatePreview(~values=initialValues)
@@ -101,7 +97,6 @@ module ConfiguratorForm = {
     }, (initialValues, wasmInitialized, merchantDetailsTypedValue))
 
     let onSubmit = async (values, isAutoSubmit) => {
-      debouncedGeneratePreview(values)
       setInitialValues(_ => values)
 
       if !isAutoSubmit {
@@ -130,7 +125,6 @@ module ConfiguratorForm = {
           ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
         )
         let form = ReactFinalForm.useForm()
-        let values = formState.values
         React.useEffect(() => {
           let onKeyDown = ev => {
             let keyCode = ev->ReactEvent.Keyboard.keyCode
@@ -147,7 +141,7 @@ module ConfiguratorForm = {
             submit(formState.values, false)->ignore
           }
           None
-        }, [values])
+        }, [formState.values])
 
         React.null
       }
@@ -340,7 +334,6 @@ module CreateNewStyleID = {
   let make = (~setSelectedStyleId) => {
     open FormRenderer
     let (showModal, setShowModal) = React.useState(() => false)
-    let (initialValues, _setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtom,
     )
@@ -385,34 +378,8 @@ module CreateNewStyleID = {
       Nullable.null
     }
 
-    let validateForm = (values: JSON.t) => {
-      let errors = Dict.make()
-
-      let styleId = values->getDictFromJsonObject->getString("style_id", "")->String.trim
-      let regexForStyleId = "^([a-zA-Z0-9_\\s-]+)$"
-
-      let isDefault = styleId == getDefaultStyleLabelValue(Default)
-      let errorMessage = if styleId->isEmptyString {
-        "Style ID name cannot be empty"
-      } else if styleId->String.length > 32 {
-        "Style ID name cannot exceed 32 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForStyleId), styleId) {
-        "Style ID name should not contain special characters"
-      } else if isDefault {
-        "Style ID with this name already exists in this organization"
-      } else {
-        ""
-      }
-
-      if errorMessage->isNonEmptyString {
-        Dict.set(errors, "style_id", errorMessage->JSON.Encode.string)
-      }
-
-      errors->JSON.Encode.object
-    }
-
     let modalBody = {
-      <div className="">
+      <>
         <div className="pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
             heading="Create a new style id"
@@ -425,7 +392,10 @@ module CreateNewStyleID = {
         </div>
         <hr />
         <Form
-          key="new-style-id-creation" onSubmit=createNewStyleID initialValues validate=validateForm>
+          key="new-style-id-creation"
+          onSubmit=createNewStyleID
+          initialValues={JSON.Encode.object(Dict.make())}
+          validate=validateStyleIdForm>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <DesktopRow>
@@ -444,7 +414,7 @@ module CreateNewStyleID = {
             </div>
           </div>
         </Form>
-      </div>
+      </>
     }
 
     <>
@@ -481,6 +451,8 @@ module CreateNewStyleID = {
 module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
+    open PaymentLinkThemeConfiguratorTypes
+    open Typography
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
       HyperswitchAtom.businessProfileFromIdAtom,
@@ -527,8 +499,8 @@ module StyleIdSelection = {
           },
         )
         stylesList->Array.unshift({
-          label: getDefaultStyleLabelValue(Default),
-          value: getDefaultStyleLabelValue(Default),
+          label: (Default :> string),
+          value: (Default :> string),
         })
         stylesList
       })
@@ -547,7 +519,9 @@ module StyleIdSelection = {
       checked: true,
     }
     <div>
-      <div className="text-nd_gray-700 text-sm py-2"> {"Select Style ID"->React.string} </div>
+      <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
+        {"Select Style ID"->React.string}
+      </div>
       <SelectBox.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Style ID"

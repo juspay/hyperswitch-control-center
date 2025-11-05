@@ -4,7 +4,6 @@ let makeThemeField = (~defaultValue) => {
     ~label="Theme Color",
     ~name="theme",
     ~placeholder="Select Theme Color",
-    ~isRequired=false,
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 }
@@ -15,7 +14,6 @@ let makeLogoField = () => {
     ~name="logo",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter logo url",
-    ~isRequired=false,
   )
 }
 
@@ -25,7 +23,6 @@ let makeBackgroundImageField = () => {
     ~name="background_image",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter background image url",
-    ~isRequired=false,
   )
 }
 
@@ -35,7 +32,6 @@ let makeSellerNameField = () => {
     ~name="seller_name",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter Seller Name",
-    ~isRequired=false,
   )
 }
 
@@ -52,7 +48,6 @@ let makeSdkLayoutField = () => {
       ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
       ~fullLength=true,
     ),
-    ~isRequired=false,
   )
 }
 
@@ -61,7 +56,6 @@ let makeDisplaySdkOnlyField = () => {
     ~label="Display SDK Only",
     ~name="display_sdk_only",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -70,7 +64,6 @@ let makeEnabledSavedPaymentMethodField = () => {
     ~label="Enable Saved Payment Methods",
     ~name="enabled_saved_payment_method",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -79,7 +72,6 @@ let makeHideCardNicknameField = () => {
     ~label="Hide Card Nickname Field",
     ~name="hide_card_nickname_field",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -88,7 +80,6 @@ let makeShowCardFormByDefaultField = () => {
     ~label="Show Card Form by Default",
     ~name="show_card_form_by_default",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -98,7 +89,6 @@ let makePaymentButtonTextField = () => {
     ~name="payment_button_text",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter Payment Button Text",
-    ~isRequired=false,
   )
 }
 
@@ -108,7 +98,6 @@ let makeMerchantDescriptionField = () => {
     ~name="merchant_description",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter description of your business",
-    ~isRequired=false,
   )
 }
 
@@ -118,7 +107,6 @@ let makeReturnUrlField = () => {
     ~name="return_url",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter return URL",
-    ~isRequired=false,
   )
 }
 
@@ -128,7 +116,6 @@ let makeMaxItemsVisibleAfterCollapseField = () => {
     ~name="max_items_visible_after_collapse",
     ~customInput=InputFields.numericTextInput(),
     ~placeholder="Enter a number",
-    ~isRequired=false,
   )
 }
 
@@ -137,7 +124,6 @@ let makeBrandingVisibilityField = () => {
     ~label="Branding Visibility",
     ~name="branding_visibility",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -146,7 +132,6 @@ let makeSkipStatusScreenField = () => {
     ~label="Skip Status Screen",
     ~name="skip_status_screen",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -155,7 +140,6 @@ let makePaymentButtonColorField = (~defaultValue) => {
     ~label="Payment Button Color",
     ~name="payment_button_colour",
     ~placeholder="",
-    ~isRequired=false,
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 }
@@ -165,7 +149,6 @@ let makePaymentButtonTextColorField = (~defaultValue) => {
     ~label="Payment Button Text Color",
     ~name="payment_button_text_colour",
     ~placeholder="",
-    ~isRequired=false,
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 }
@@ -175,7 +158,6 @@ let makeIsSetupMandateFlowField = () => {
     ~label="Is Setup Mandate Flow",
     ~name="is_setup_mandate_flow",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -184,7 +166,6 @@ let makeBackgroundColorField = (~defaultValue) => {
     ~label="Background Colour",
     ~name="background_colour",
     ~placeholder="",
-    ~isRequired=false,
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 }
@@ -202,7 +183,6 @@ let makeDetailsLayoutField = () => {
       ~customButtonStyle="!w-full pr-4 pl-2 !rounded-md",
       ~fullLength=true,
     ),
-    ~isRequired=false,
   )
 }
 
@@ -212,7 +192,6 @@ let makeCustomMessageForCardTermsField = () => {
     ~name="custom_message_for_card_terms",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter custom message for card terms",
-    ~isRequired=false,
   )
 }
 
@@ -221,7 +200,6 @@ let makeShowCardTermsField = () => {
     ~label="Show Card Terms",
     ~name="show_card_terms",
     ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
-    ~isRequired=false,
   )
 }
 
@@ -230,7 +208,6 @@ let makeColorIconCardCvcErrorField = (~defaultValue) => {
     ~label="Color Icon Card CVC Error",
     ~name="color_icon_card_cvc_error",
     ~placeholder="",
-    ~isRequired=false,
     ~customInput=InputFields.colorPickerInput(~defaultValue),
   )
 }
