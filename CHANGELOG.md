@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.05.1
+
+### Bug Fixes
+
+- Calida and finix connector icons not visible ([#3802](https://github.com/juspay/hyperswitch-control-center/pull/3802)) ([`4fceac0`](https://github.com/juspay/hyperswitch-control-center/commit/4fceac0d9dccd2f9096cb11d84bb57b1496a3719))
+
+**Full Changelog:** [`2025.11.05.0...2025.11.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.05.0...2025.11.05.1)
+
+- - -
+
 ## 2025.11.05.0
 
 ### Miscellaneous Tasks
