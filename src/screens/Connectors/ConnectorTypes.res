@@ -129,6 +129,7 @@ type processorTypes =
   | LOONIO
   | TESOURO
   | FINIX
+  | AMAZONPAY
 
 type payoutProcessorTypes =
   | ADYEN
