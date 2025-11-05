@@ -449,7 +449,21 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
+let paymentLinkTheme = {
+  SubLevelLink({
+    name: "Payment Link Theme",
+    link: `/payment-link-theme`,
+    access: Access,
+    searchOptions: [("Configure payment link theme", "")],
+  })
+}
+
+let settings = (
+  ~isConfigurePmtsEnabled,
+  ~userHasResourceAccess,
+  ~complianceCertificate,
+  ~paymentLinkThemeConfigurator,
+) => {
   let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
@@ -458,6 +472,10 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+
+  if paymentLinkThemeConfigurator {
+    settingsLinkArray->Array.push(paymentLinkTheme)->ignore
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
@@ -653,6 +671,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    paymentLinkThemeConfigurator,
     performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
     taxProcessor,
@@ -707,7 +726,12 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~checkUserEntity,
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
     ),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
+    settings(
+      ~isConfigurePmtsEnabled=configurePmts,
+      ~userHasResourceAccess,
+      ~complianceCertificate,
+      ~paymentLinkThemeConfigurator,
+    ),
   ]
 
   sidebar
