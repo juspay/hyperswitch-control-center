@@ -3,7 +3,6 @@ let make = () => {
   open APIUtils
   open WebhooksUtils
   open LogicUtils
-  open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -18,9 +17,6 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFilterState, setLastFilterState) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->JSON.stringify
-  )
   let (lastFilterState, setLastFilterState) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->JSON.stringify
   )
@@ -60,36 +56,27 @@ let make = () => {
 
   let setData = (~total, ~data) => {
     let shouldAddOffset = searchText->isEmptyString
-    let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
 
     if total <= offset && shouldAddOffset {
-    let shouldAddOffset = searchText->isEmptyString
-    let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
+      let shouldAddOffset = searchText->isEmptyString
+      let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
 
-    if total <= offset && shouldAddOffset {
-      setOffset(_ => 0)
-    }
-
-    if total > 0 {
-      let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-      let webhookData = arr->Array.concat(webhookDictArr)->Array.map(itemToObjectMapper)
-      let webhookData = arr->Array.concat(webhookDictArr)->Array.map(itemToObjectMapper)
-      setTotalCount(_ => total)
-      setWebhooksData(_ => webhookData)
-      setWebhooksData(_ => webhookData)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } else {
-      setTotalCount(_ => 0)
-      setWebhooksData(_ => [])
-      setTotalCount(_ => 0)
-      setWebhooksData(_ => [])
-      setScreenState(_ => PageLoaderWrapper.Custom)
+      if total > 0 {
+        let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+        let webhookData = arr->Array.concat(webhookDictArr)->Array.map(itemToObjectMapper)
+        setTotalCount(_ => total)
+        setWebhooksData(_ => webhookData)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setTotalCount(_ => 0)
+        setWebhooksData(_ => [])
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     }
   }
 
   let fetchWebhooks = async () => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
       let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
@@ -97,8 +84,6 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->setOptionString("object_id", Some(searchText))
-        payload->setOptionString("event_id", Some(searchText))
         payload->setOptionString("object_id", Some(searchText))
         payload->setOptionString("event_id", Some(searchText))
       } else {
@@ -143,7 +128,7 @@ let make = () => {
     } else {
       fetchWebhooks()->ignore
     }
-    
+
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
@@ -158,7 +143,6 @@ let make = () => {
       fixedFilters={initialFixedFilter()}
       requiredSearchFieldsList=[]
       localFilters=[]
-      localFilters=[]
       localOptions=[]
       remoteOptions=[]
       remoteFilters=[]
@@ -167,9 +151,6 @@ let make = () => {
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
       customLeftView={<HSwitchRemoteFilter.SearchBarFilter
-        placeholder="Search for object ID or event ID"
-        setSearchVal=setSearchText
-        searchVal=searchText
         placeholder="Search for object ID or event ID"
         setSearchVal=setSearchText
         searchVal=searchText
