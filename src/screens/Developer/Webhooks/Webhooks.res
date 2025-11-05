@@ -56,22 +56,22 @@ let make = () => {
 
   let setData = (~total, ~data) => {
     let shouldAddOffset = searchText->isEmptyString
+    let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
 
     if total <= offset && shouldAddOffset {
-      let shouldAddOffset = searchText->isEmptyString
-      let arr = shouldAddOffset ? Array.make(~length=offset, Dict.make()) : []
+      setOffset(_ => 0)
+    }
 
-      if total > 0 {
-        let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-        let webhookData = arr->Array.concat(webhookDictArr)->Array.map(itemToObjectMapper)
-        setTotalCount(_ => total)
-        setWebhooksData(_ => webhookData)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } else {
-        setTotalCount(_ => 0)
-        setWebhooksData(_ => [])
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
+    if total > 0 {
+      let webhookDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+      let webhookData = arr->Array.concat(webhookDictArr)->Array.map(itemToObjectMapper)
+      setTotalCount(_ => total)
+      setWebhooksData(_ => webhookData)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } else {
+      setTotalCount(_ => 0)
+      setWebhooksData(_ => [])
+      setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
