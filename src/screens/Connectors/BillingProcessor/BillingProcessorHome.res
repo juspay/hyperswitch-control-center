@@ -30,6 +30,11 @@ let make = () => {
   | _ => true
   }
 
+  let isBillingProcessorConnected =
+    ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=BillingProcessor,
+    )->Array.length > 0
+
   let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->getDictFromJsonObject,
@@ -119,18 +124,20 @@ let make = () => {
 
   let updateBusinessProfileDetails = async mcaId => {
     try {
-      setScreenState(_ => Loading)
       let body = Dict.make()
       body->Dict.set("billing_processor_id", mcaId->JSON.Encode.string)
       let _ = await updateBusinessProfile(~body=body->Identity.genericTypeToJson)
-      setScreenState(_ => Success)
-      if isUpdateFlow {
-        showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastState.ToastSuccess)
-      }
     } catch {
     | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
     }
   }
+  let handleMenuOptionSubmit = async mcaId => {
+    setScreenState(_ => Loading)
+    let _ = await updateBusinessProfileDetails(mcaId)
+    setScreenState(_ => Success)
+    showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastState.ToastSuccess)
+  }
+
   let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")
   let onSubmit = async (values, _) => {
     try {
@@ -203,7 +210,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={connectorInfo.merchant_connector_id != billing_processor_id}>
-        <MenuOption updateBusinessProfileDetails connectorInfo />
+        <MenuOption handleMenuOptionSubmit connectorInfo />
       </RenderIf>
     </>
   | _ =>
@@ -243,7 +250,9 @@ let make = () => {
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
               connectorType={BillingProcessor}
-              headerButton={<ConnectButton setShowModal={setShowConfirmModal} />}>
+              headerButton={<ConnectButton
+                setShowModal={setShowConfirmModal} isBillingProcessorConnected
+              />}>
               <div className="flex flex-col gap-2 p-2 md:px-10">
                 <ConnectorAccountDetailsHelper.BusinessProfileRender
                   isUpdateFlow selectedConnector={connectorName}

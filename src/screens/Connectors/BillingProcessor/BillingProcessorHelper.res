@@ -4,9 +4,10 @@ open LogicUtils
 module MenuOption = {
   open HeadlessUI
   @react.component
-  let make = (~updateBusinessProfileDetails, ~connectorInfo: ConnectorTypes.connectorPayload) => {
+  let make = (~handleMenuOptionSubmit, ~connectorInfo: ConnectorTypes.connectorPayload) => {
     let showPopUp = PopUpState.useShowPopUp()
     let mcaId = connectorInfo.merchant_connector_id
+
     let openConfirmationPopUp = _ => {
       showPopUp({
         popUpType: (Warning, WithIcon),
@@ -14,7 +15,7 @@ module MenuOption = {
         description: `You are about to set this connector as the default connector. This will override the previous default connector.`->React.string,
         handleConfirm: {
           text: "Confirm",
-          onClick: _ => updateBusinessProfileDetails(mcaId)->ignore,
+          onClick: _ => handleMenuOptionSubmit(mcaId)->ignore,
         },
         handleCancel: {text: "Cancel"},
       })
@@ -86,12 +87,11 @@ module CustomConnectorCellWithDefaultIcon = {
 
 module ConnectButton = {
   @react.component
-  let make = (~setShowModal) => {
+  let make = (~setShowModal, ~isBillingProcessorConnected) => {
     let dict = Dict.make()
     ["hasValidationErrors", "errors"]->Array.forEach(item => {
       Dict.set(dict, item, JSON.Encode.bool(true))
     })
-
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       dict->JSON.Encode.object->Nullable.make,
     )
@@ -100,15 +100,18 @@ module ConnectButton = {
 
     let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Dict.toArray
 
-    let button =
-      <AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
-        <Button
-          text="Connect and Proceed"
-          buttonType=Button.Primary
-          buttonState={hasValidationErrors ? Button.Disabled : Button.Normal}
-          onClick={_ => setShowModal(_ => true)}
+    let button = isBillingProcessorConnected
+      ? <AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
+          <Button
+            text="Connect and Proceed"
+            buttonType=Button.Primary
+            buttonState={hasValidationErrors ? Button.Disabled : Button.Normal}
+            onClick={_ => setShowModal(_ => true)}
+          />
+        </AddDataAttributes>
+      : <FormRenderer.SubmitButton
+          text="Connect and Proceed" buttonType=Button.Primary loadingText="Processing..."
         />
-      </AddDataAttributes>
 
     let description =
       errorsList
