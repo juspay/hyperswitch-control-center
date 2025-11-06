@@ -537,7 +537,11 @@ let getEntriesSections = (
         </p>
         <RenderIf condition={showTotalAmount}>
           <div className={`${amountColorClass} ${body.lg.medium}`}>
-            {`${currency} ${totalAmount->Float.toString}`->React.string}
+            {CurrencyFormatUtils.valueFormatter(
+              totalAmount,
+              AmountWithSuffix,
+              ~currency,
+            )->React.string}
           </div>
         </RenderIf>
       </div>
