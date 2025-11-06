@@ -143,11 +143,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
-    FilterContext.filterContext,
-  )
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let getAccountsData = async _ => {
     try {
@@ -180,20 +176,6 @@ let make = (~reconRulesList: array<reconRuleType>) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_overview_summary",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {

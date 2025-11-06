@@ -364,7 +364,7 @@ let reasonMultiLineTextInputField = (~label) => {
     field={FormRenderer.makeFieldInfo(
       ~label,
       ~name="reason",
-      ~placeholder="Enter reason",
+      ~placeholder="Enter remark",
       ~customInput=InputFields.multiLineTextInput(
         ~isDisabled=false,
         ~rows=Some(4),
@@ -468,6 +468,20 @@ let amountTextInputField = (~disabled: bool=false) => {
       ~label="Amount",
       ~name="amount",
       ~placeholder="Enter amount",
+      ~customInput=InputFields.textInput(~inputStyle="!rounded-xl", ~isDisabled=disabled),
+      ~isRequired=true,
+      ~disabled,
+    )}
+  />
+}
+
+let orderIdTextInputField = (~disabled: bool=false) => {
+  <FormRenderer.FieldRenderer
+    labelClass="font-semibold"
+    field={FormRenderer.makeFieldInfo(
+      ~label="Order ID",
+      ~name="order_id",
+      ~placeholder="Enter Order ID",
       ~customInput=InputFields.textInput(~inputStyle="!rounded-xl", ~isDisabled=disabled),
       ~isRequired=true,
       ~disabled,

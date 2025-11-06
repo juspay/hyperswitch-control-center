@@ -7,6 +7,7 @@ type hierarchicalColType =
   | TransactionId
   | Status
   | EntryId
+  | OrderId
   | Account
   | EntryStatus
   | Currency
@@ -18,6 +19,7 @@ let defaultColumns: array<hierarchicalColType> = [
   TransactionId,
   Status,
   EntryId,
+  OrderId,
   Account,
   EntryStatus,
   Currency,
@@ -30,6 +32,7 @@ let allColumns: array<hierarchicalColType> = [
   TransactionId,
   Status,
   EntryId,
+  OrderId,
   Account,
   EntryStatus,
   Currency,
@@ -43,6 +46,7 @@ let getHeading = (colType: hierarchicalColType) => {
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")
   | EntryId => makeHeaderInfo(~key="entry_id", ~title="Entry ID")
+  | OrderId => makeHeaderInfo(~key="order_id", ~title="Order ID")
   | Account => makeHeaderInfo(~key="account", ~title="Account")
   | EntryStatus => makeHeaderInfo(~key="entry_status", ~title="Entry Status")
   | Currency => makeHeaderInfo(~key="currency", ~title="Currency")
@@ -68,7 +72,7 @@ let getStatusLabel = (transactionStatus: transactionStatus): cell => {
 let getCell = (transaction: transactionType, colType: hierarchicalColType): cell => {
   let hierarchicalContainerClassName = "-mx-8 border-r-gray-400 divide-y divide-gray-200"
   switch colType {
-  | Date => DateWithoutTime(transaction.created_at)
+  | Date => DateWithoutTime(transaction.effective_at)
   | TransactionId => Text(transaction.transaction_id)
   | Status =>
     switch transaction.discarded_status {
@@ -88,6 +92,18 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
         ->React.array}
       </div>
     CustomCell(entryIdContent, "")
+  | OrderId =>
+    let orderIdContent =
+      <div className=hierarchicalContainerClassName>
+        {transaction.entries
+        ->Array.map(entry => {
+          <HierarchicalEntryRenderer
+            fieldValue=entry.order_id key={LogicUtils.randomString(~length=10)}
+          />
+        })
+        ->React.array}
+      </div>
+    CustomCell(orderIdContent, "")
   | Account =>
     let accountContent =
       <div className=hierarchicalContainerClassName>

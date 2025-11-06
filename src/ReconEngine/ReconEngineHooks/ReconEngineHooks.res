@@ -1,7 +1,8 @@
+open ReconEngineUtils
+
 let useGetIngestionHistory = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -15,7 +16,9 @@ let useGetIngestionHistory = () => {
         ~queryParamerters,
       )
       let res = await fetchDetails(url)
-      res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
+      let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
+      ingestionHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
+      ingestionHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -25,7 +28,6 @@ let useGetIngestionHistory = () => {
 let useGetTransactions = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -39,7 +41,9 @@ let useGetTransactions = () => {
         ~queryParamerters,
       )
       let res = await fetchDetails(url)
-      res->getArrayDataFromJson(transactionItemToObjMapper)
+      let transactions = res->getArrayDataFromJson(transactionItemToObjMapper)
+      transactions->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
+      transactions
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -49,7 +53,6 @@ let useGetTransactions = () => {
 let useGetAccounts = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -63,7 +66,9 @@ let useGetAccounts = () => {
         ~queryParamerters,
       )
       let res = await fetchDetails(url)
-      res->getArrayDataFromJson(accountItemToObjMapper)
+      let accounts = res->getArrayDataFromJson(accountItemToObjMapper)
+      accounts->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
+      accounts
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -73,7 +78,6 @@ let useGetAccounts = () => {
 let useGetProcessingEntries = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -87,7 +91,9 @@ let useGetProcessingEntries = () => {
         ~queryParamerters,
       )
       let res = await fetchDetails(url)
-      res->getArrayDataFromJson(processingItemToObjMapper)
+      let processedEntries = res->getArrayDataFromJson(processingItemToObjMapper)
+      processedEntries->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
+      processedEntries
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
@@ -97,7 +103,6 @@ let useGetProcessingEntries = () => {
 let useGetTransformationHistory = () => {
   open APIUtils
   open LogicUtils
-  open ReconEngineUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -111,7 +116,9 @@ let useGetTransformationHistory = () => {
         ~queryParamerters,
       )
       let res = await fetchDetails(url)
-      res->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+      let transformationHistory = res->getArrayDataFromJson(transformationHistoryItemToObjMapper)
+      transformationHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
+      transformationHistory
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

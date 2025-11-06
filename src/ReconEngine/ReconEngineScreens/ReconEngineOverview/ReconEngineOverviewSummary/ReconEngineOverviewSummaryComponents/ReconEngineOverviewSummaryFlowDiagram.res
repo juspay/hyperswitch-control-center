@@ -132,11 +132,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
-    FilterContext.filterContext,
-  )
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(prev => {
@@ -185,20 +181,6 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_overview_summary",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
