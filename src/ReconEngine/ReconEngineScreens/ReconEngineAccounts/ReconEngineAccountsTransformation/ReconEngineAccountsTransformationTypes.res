@@ -10,3 +10,11 @@ type transformationConfigDataType = {
   value: string,
   valueType: [#text | #date | #status],
 }
+
+@unboxed
+type basicFieldType =
+  | @as("currency") Currency
+  | @as("amount") Amount
+  | @as("effective_at") EffectiveAt
+  | @as("balance_direction") BalanceDirection
+  | @as("order_id") OrderId

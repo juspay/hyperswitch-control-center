@@ -323,3 +323,65 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     order_id: dict->getString("order_id", ""),
   }
 }
+
+let metadataFieldItemToObjMapper = (dict): metadataFieldType => {
+  {
+    identifier: dict->getString("identifier", ""),
+    field_name: dict->getString("field_name", ""),
+    field_type: dict->getString("field_type", ""),
+  }
+}
+
+let basicFieldIdentifierItemToObjMapper = (dict): basicFieldIdentifierType => {
+  {
+    identifier: dict->getString("identifier", ""),
+  }
+}
+
+let balanceDirectionFieldItemToObjMapper = (dict): balanceDirectionFieldType => {
+  {
+    identifier: dict->getString("identifier", ""),
+    credit_values: dict->getStrArrayFromDict("credit_values", []),
+    debit_values: dict->getStrArrayFromDict("debit_values", []),
+  }
+}
+
+let schemaFieldsItemToObjMapper = (dict): schemaFieldsType => {
+  let currencyDict = dict->getDictfromDict("currency")
+  let amountDict = dict->getDictfromDict("amount")
+  let effectiveAtDict = dict->getDictfromDict("effective_at")
+  let balanceDirectionDict = dict->getDictfromDict("balance_direction")
+  let orderIdDict = dict->getDictfromDict("order_id")
+
+  {
+    currency: currencyDict->basicFieldIdentifierItemToObjMapper,
+    amount: amountDict->basicFieldIdentifierItemToObjMapper,
+    effective_at: effectiveAtDict->basicFieldIdentifierItemToObjMapper,
+    balance_direction: balanceDirectionDict->balanceDirectionFieldItemToObjMapper,
+    order_id: orderIdDict->basicFieldIdentifierItemToObjMapper,
+    metadata_fields: dict
+    ->getArrayFromDict("metadata_fields", [])
+    ->Array.map(item => item->getDictFromJsonObject->metadataFieldItemToObjMapper),
+  }
+}
+
+let schemaDataItemToObjMapper = (dict): schemaDataType => {
+  {
+    schema_type: dict->getString("schema_type", ""),
+    fields: dict->getDictfromDict("fields")->schemaFieldsItemToObjMapper,
+    processing_mode: dict->getString("processing_mode", ""),
+  }
+}
+
+let metadataSchemaItemToObjMapper = (dict): metadataSchemaType => {
+  {
+    id: dict->getString("id", ""),
+    schema_id: dict->getString("schema_id", ""),
+    profile_id: dict->getString("profile_id", ""),
+    account_id: dict->getString("account_id", ""),
+    schema_data: dict->getDictfromDict("schema_data")->schemaDataItemToObjMapper,
+    version: dict->getInt("version", 0),
+    created_at: dict->getString("created_at", ""),
+    last_modified_at: dict->getString("last_modified_at", ""),
+  }
+}

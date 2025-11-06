@@ -46,6 +46,7 @@ let detailsFields = [
   Amount,
   Currency,
   TransactionId,
+  OrderID,
   Status,
   CreatedAt,
   EffectiveAt,
