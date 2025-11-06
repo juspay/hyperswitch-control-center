@@ -12,7 +12,10 @@ let apiDefaultCols = Recoil.atom("hyperSwitchApiDefaultCols", DeveloperUtils.def
 
 let customersMapDefaultCols = Recoil.atom("customersMapDefaultCols", CustomersEntity.defaultColumns)
 
-let feeEstimationTransactionViewMapDefaultCols = Recoil.atom("feeEstimationTransactionViewMapDefaultCols", FeeEstimationEntity.defaultColumns)
+let feeEstimationTransactionViewMapDefaultCols = Recoil.atom(
+  "feeEstimationTransactionViewMapDefaultCols",
+  FeeEstimationEntity.defaultColumns,
+)
 
 let revenueRecoveryMapDefaultCols = Recoil.atom(
   "revenueRecoveryMapDefaultCols",
