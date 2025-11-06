@@ -132,18 +132,6 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=OperationsView)}>
         <PaymentIntentTable />
       </AccessControl>
-    | list{"payouts-global"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.globalSearch}
-        authorization={userHasAccess(~groupAccess=OperationsView)}>
-        <PayoutTable key={url.search} />
-      </AccessControl>
-    | list{"payout-attempts"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.globalSearch}
-        authorization={userHasAccess(~groupAccess=OperationsView)}>
-        <PayoutAttemptTable key={url.search} />
-      </AccessControl>
     | list{"refunds-global"} =>
       <AccessControl
         isEnabled={featureFlagDetails.globalSearch}

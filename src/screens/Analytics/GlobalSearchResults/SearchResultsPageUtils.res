@@ -43,16 +43,6 @@ let getSearchresults = (result: GlobalSearchTypes.defaultResult) => {
   let key2 = SessionizerPaymentAttempts->getSectionIndex
   getItemFromArray(results, key1, key2, data)
 
-  // Payouts
-  let key1 = Payouts->getSectionIndex
-  let key2 = ""  // No sessionizer variant for payouts
-  getItemFromArray(results, key1, key2, data)
-
-  // Payout Attempts
-  let key1 = PayoutAttempts->getSectionIndex
-  let key2 = ""  // No sessionizer variant for payout attempts
-  getItemFromArray(results, key1, key2, data)
-
   // Refunds
   let key1 = Refunds->getSectionIndex
   let key2 = SessionizerPaymentRefunds->getSectionIndex

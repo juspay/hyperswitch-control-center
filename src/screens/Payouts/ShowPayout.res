@@ -295,7 +295,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   React.useEffect(() => {
     fetchPayoutsData()->ignore
     None
-  }, [id])
+  }, [])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
