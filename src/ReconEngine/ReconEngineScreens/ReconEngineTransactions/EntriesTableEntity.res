@@ -11,6 +11,7 @@ type entryColType =
   | Metadata
   | CreatedAt
   | EffectiveAt
+  | OrderID
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -22,6 +23,7 @@ let defaultColumns: array<entryColType> = [
   Metadata,
   CreatedAt,
   EffectiveAt,
+  OrderID,
 ]
 
 let allColumns: array<entryColType> = [
@@ -34,6 +36,7 @@ let allColumns: array<entryColType> = [
   Metadata,
   CreatedAt,
   EffectiveAt,
+  OrderID,
 ]
 
 let detailsFields = [
@@ -60,6 +63,7 @@ let getHeading = (colType: entryColType) => {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
+  | OrderID => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   }
 }
 
@@ -94,6 +98,7 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   | Metadata => Text(entry.metadata->JSON.stringify)
   | CreatedAt => Date(entry.created_at)
   | EffectiveAt => Date(entry.effective_at)
+  | OrderID => EllipsisText(entry.order_id, "w-fit")
   }
 }
 

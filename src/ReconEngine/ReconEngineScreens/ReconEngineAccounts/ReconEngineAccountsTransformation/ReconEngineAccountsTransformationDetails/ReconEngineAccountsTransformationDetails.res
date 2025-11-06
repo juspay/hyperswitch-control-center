@@ -38,6 +38,7 @@ let make = (~accountId) => {
       let accountRes = await fetchDetails(accountUrl)
       let transformationConfigs =
         transformationConfigsRes->getArrayDataFromJson(getTransformationConfigPayloadFromDict)
+      transformationConfigs->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
 
       switch url.search->getTransformationIdFromUrl {
