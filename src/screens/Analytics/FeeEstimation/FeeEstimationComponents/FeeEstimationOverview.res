@@ -53,7 +53,7 @@ module FeeBreakdownBasedOnGeoLocation = {
       ~yAxisLabelFormatter=Some(labelFormatter(currency)),
     )
 
-    <div className="border border-nd_gray-200 rounded-xl">
+    <div className="border border-nd_gray-200 rounded-xl overflow-hidden">
       <div className="bg-nd_gray-25 py-4 px-4 rounded-t-xl">
         <p className={`${body.lg.semibold} text-nd_gray-600`}>
           {"Fee Breakdown Based on Geolocation"->React.string}
@@ -134,7 +134,7 @@ module CostBreakDownSideModal = {
 
     let options = React.useMemo(() => {
       let breakdownContributions = fundingSourceGroupedRef->Array.map(
-        ((brand, value, _otherValue)) => {
+        ((brand, value, _)) => {
           cardBrand: brand,
           currency: selectedTransaction.transactionCurrency,
           value,
@@ -201,12 +201,12 @@ module CostBreakDownSideModal = {
 
 module CostBreakDown = {
   @react.component
-  let make = (~costBreakDownRawData: overviewFeeEstimate) => {
+  let make = (~overViewBreakdownRawData: overViewBreakdownData, ~overViewBreakdownTableData) => {
     let (offset, setOffset) = React.useState(_ => 0)
     let (showModal, setShowModal) = React.useState(_ => false)
     let (checkedFields, setCheckedFields) = React.useState(_ => [])
     let (filteredCostBreakDownTableData, setFilteredCostBreakDownTableData) = React.useState(_ =>
-      costBreakDownRawData.overviewBreakdown
+      overViewBreakdownTableData
     )
     let (selectedTransaction, setSelectedTransaction) = React.useState(_ =>
       JSON.Encode.null->overviewBreakdownItemMapper
@@ -216,7 +216,7 @@ module CostBreakDown = {
 
     let filterValuesOptions = React.useMemo(() => {
       let cardBrandsSet = Set.make()
-      costBreakDownRawData.overviewBreakdown->Array.forEach(value => {
+      overViewBreakdownRawData.overviewBreakdown->Array.forEach(value => {
         cardBrandsSet->Set.add(value.cardBrand)
       })
       let cardBrandsArray = []
@@ -224,18 +224,18 @@ module CostBreakDown = {
         cardBrandsArray->Array.push(value)
       })
       cardBrandsArray
-    }, [costBreakDownRawData.overviewBreakdown])
+    }, [overViewBreakdownRawData])
 
     let cardBreakdownData = React.useMemo(() => {
-      let dataToUse = switch checkedFields->Array.length {
-      | 0 => costBreakDownRawData.topValuesBasedOnCardBrand
-      | _ =>
-        costBreakDownRawData.topValuesBasedOnCardBrand->Array.filter(item =>
-          checkedFields->Array.includes(item.cardBrand)
-        )
-      }
-      calculateCardBreakdownData(dataToUse, costBreakDownRawData.currency)
-    }, (checkedFields, costBreakDownRawData.topValuesBasedOnCardBrand))
+      let dataToUse =
+        checkedFields->Array.length == 0
+          ? overViewBreakdownRawData.topValuesBasedOnCardBrand
+          : overViewBreakdownRawData.topValuesBasedOnCardBrand->Array.filter(item =>
+              checkedFields->Array.includes(item.cardBrand)
+            )
+
+      calculateCardBreakdownData(dataToUse, overViewBreakdownRawData.currency)
+    }, (checkedFields, overViewBreakdownRawData.topValuesBasedOnCardBrand))
 
     let handleSelectedTransactionData = selectedData => {
       setSelectedTransaction(_ => selectedData)
@@ -245,11 +245,11 @@ module CostBreakDown = {
     let onChangeSelect = ev => {
       let fieldNameArr = ev->Identity.formReactEventToArrayOfString
       let filteredData = if fieldNameArr->Array.length > 0 {
-        costBreakDownRawData.overviewBreakdown->Array.filter(item =>
+        overViewBreakdownRawData.overviewBreakdown->Array.filter(item =>
           fieldNameArr->Array.includes(item.cardBrand)
         )
       } else {
-        costBreakDownRawData.overviewBreakdown
+        overViewBreakdownRawData.overviewBreakdown
       }
 
       setCheckedFields(_ => fieldNameArr)
@@ -319,8 +319,8 @@ module CostBreakDown = {
         <LoadedTable
           title=costBreakDownTableKey
           hideTitle=true
-          actualData={filteredCostBreakDownTableData->Array.map(Nullable.make)}
-          totalResults={costBreakDownRawData.totalRecords}
+          actualData={overViewBreakdownTableData->Array.map(Nullable.make)}
+          totalResults={overViewBreakdownRawData.totalRecords}
           resultsPerPage=10
           offset
           setOffset

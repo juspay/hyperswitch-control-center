@@ -73,9 +73,13 @@ type overviewFeeEstimate = {
   noOfTxn: int,
   totalGrossAmt: float,
   feeBreakdownBasedOnGeoLocation: array<feeBreakdownGeoLocation>,
-  topValuesBasedOnCardBrand: array<valuesBasedOnCardBrand>,
+}
+
+type overViewBreakdownData = {
   overviewBreakdown: array<overViewFeesBreakdown>,
+  topValuesBasedOnCardBrand: array<valuesBasedOnCardBrand>,
   totalRecords: int,
+  currency: string,
 }
 
 type transactionTableEntity = {

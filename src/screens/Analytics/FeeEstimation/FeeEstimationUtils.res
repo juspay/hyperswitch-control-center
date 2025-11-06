@@ -100,14 +100,6 @@ let overviewBreakdownItemMapper: JSON.t => overViewFeesBreakdown = item => {
   }
 }
 
-let overviewBreakdownMapper: Dict.t<JSON.t> => array<overViewFeesBreakdown> = dict => {
-  let overviewBreakdownDict = dict->getArrayFromDict("breakdown", [])
-  let overviewBreakdown: array<overViewFeesBreakdown> = overviewBreakdownDict->Array.map(value => {
-    overviewBreakdownItemMapper(value)
-  })
-  overviewBreakdown
-}
-
 let valuesBasedOnCardBrandMapper: Dict.t<JSON.t> => array<valuesBasedOnCardBrand> = dict => {
   let valuesBasedOnCardBrandDict = dict->getArrayFromDict("top_values_based_on_brand", [])
   let valuesBasedOnCardBrand: array<
@@ -126,6 +118,20 @@ let valuesBasedOnCardBrandMapper: Dict.t<JSON.t> => array<valuesBasedOnCardBrand
   valuesBasedOnCardBrand
 }
 
+let overViewBreakdownTableDataMapper: Dict.t<JSON.t> => array<overViewFeesBreakdown> = dict => {
+  let overviewBreakdownDict = dict->getArrayFromDict("breakdown", [])
+  overviewBreakdownDict->Array.map(overviewBreakdownItemMapper)
+}
+
+let overviewBreakdownMapper: Dict.t<JSON.t> => overViewBreakdownData = dict => {
+  {
+    overviewBreakdown: overViewBreakdownTableDataMapper(dict),
+    totalRecords: dict->getInt("total_records", 0),
+    topValuesBasedOnCardBrand: valuesBasedOnCardBrandMapper(dict),
+    currency: dict->getString("currency", ""),
+  }
+}
+
 let overviewDataMapper: Dict.t<JSON.t> => overviewFeeEstimate = dict => {
   {
     totalCost: dict->getFloat("total_cost", 0.0),
@@ -135,9 +141,6 @@ let overviewDataMapper: Dict.t<JSON.t> => overviewFeeEstimate = dict => {
     noOfTxn: dict->getInt("no_of_txn", 0),
     totalGrossAmt: dict->getFloat("total_gross_amt", 0.0),
     feeBreakdownBasedOnGeoLocation: fee_breakdown_based_on_geolocation(dict),
-    topValuesBasedOnCardBrand: valuesBasedOnCardBrandMapper(dict),
-    overviewBreakdown: overviewBreakdownMapper(dict),
-    totalRecords: dict->getInt("total_records", 10),
   }
 }
 

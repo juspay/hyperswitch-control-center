@@ -21,6 +21,19 @@ type feesBreakdown = FeeType | Rate | TotalCost
 
 let defaultColumns = [PaymentID, CardType, TransactionValue, CardBrand, TotalCostIncurred]
 
+let allTransactionViewColumns = [
+  PaymentID,
+  CardType,
+  TransactionValue,
+  CardBrand,
+  TotalCostIncurred,
+]
+
+let feeEstimationTransactionViewMapDefaultCols = Recoil.atom(
+  "feeEstimationTransactionViewMapDefaultCols",
+  defaultColumns,
+)
+
 let overviewDefaultColumns = [
   FeeName,
   TotalCostIncurred,
@@ -54,10 +67,9 @@ let getOverviewHeading = overviewColType => {
 }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledTypeCommon>) => {
-  let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
+  paymentMethodsArray->Array.reduce([], (acc, item) => {
     acc->Array.concat([item.payment_method_type->capitalizeString])
   })
-  paymentMethods
 }
 
 let getTableCell = () => {
@@ -92,7 +104,7 @@ let getTableCell = () => {
       )
     | CardBrand =>
       Table.CustomCell(
-        <div className="flex items-center !justify-between gap-2">
+        <div className="flex items-center gap-2">
           <GatewayIcon
             gateway={feeEstimationData.cardBrand->String.toUpperCase}
             className="w-6 h-6 p-1 px-0.5 rounded-md bg-nd_gray-25 border border-nd_br_gray-150"
@@ -192,6 +204,7 @@ let feeEstimationEntity = () => {
     ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
+    ~allColumns=allTransactionViewColumns,
     ~getCell=getTableCell(),
     ~dataKey="",
   )
@@ -219,7 +232,7 @@ let getConnectorObjectFromListViaId = (
   }
   connectorList
   ->Array.find(ele => {ele.id == mca_id})
-  ->Option.getOr(ConnectorListInterface.mapDictToConnectorPayload(interface, Dict.make())) //interface
+  ->Option.getOr(ConnectorListInterface.mapDictToConnectorPayload(interface, Dict.make()))
 }
 
 let getFeeBreakdownHeading = (feesBreakdownData: feesBreakdown) => {

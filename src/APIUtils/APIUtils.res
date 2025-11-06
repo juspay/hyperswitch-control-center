@@ -157,6 +157,7 @@ let getV2Url = (
 
 let useGetURL = () => {
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let hypersenseBaseURL = "hypersense"
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -721,7 +722,7 @@ let useGetURL = () => {
 
       /* RECONCILIATION */
       | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
-      | HYPERSENSE => `hypersense/${(hypersenseType :> string)->String.toLowerCase}`
+      | HYPERSENSE => `${hypersenseBaseURL}/${(hypersenseType :> string)->String.toLowerCase}`
 
       /* REPORTS */
       | PAYMENT_REPORT =>
@@ -1270,8 +1271,11 @@ let useGetURL = () => {
       | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
       | SDK_PAYMENT => "payments"
       | CHAT_BOT => `chat/ai/data`
-      | FEE_OVERVIEW_ESTIMATE => `hypersense/fee_estimate/get-overview-estimate`
-      | FEE_TRANSACTION_ESTIMATE => `hypersense/fee_estimate/get-transaction-fee-estimation`
+      | FEE_OVERVIEW_ESTIMATE => `${hypersenseBaseURL}/fee_estimate/get-overview-estimate`
+      | FEE_TRANSACTION_ESTIMATE =>
+        `${hypersenseBaseURL}/fee_estimate/get-transaction-fee-estimation`
+      | FEE_OVERVIEW_ESTIMATE_BREAKDOWN =>
+        `${hypersenseBaseURL}/fee_estimate/get-overview-estimate-table`
       }
 
     | V2(entityNameForv2) =>
