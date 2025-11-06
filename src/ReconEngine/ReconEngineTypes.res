@@ -18,6 +18,7 @@ type accountType = {
   expected_credits: balanceType,
   mismatched_debits: balanceType,
   mismatched_credits: balanceType,
+  created_at: string,
 }
 
 type accountRefType = {
@@ -85,6 +86,7 @@ type ingestionConfigType = {
   name: string,
   last_synced_at: string,
   data: JSON.t,
+  created_at: string,
 }
 
 type transformationConfigType = {
@@ -149,6 +151,7 @@ type transactionEntryType = {
   account: accountType,
   amount: balanceType,
   status: entryStatus,
+  order_id: string,
 }
 
 type transactionPostedType =
@@ -187,6 +190,7 @@ type entryType = {
   transaction_id: string,
   amount: float,
   currency: string,
+  order_id: string,
   status: entryStatus,
   discarded_status: option<string>,
   metadata: Js.Json.t,
@@ -218,6 +222,7 @@ type processingEntryType = {
   transformation_id: string,
   transformation_history_id: string,
   effective_at: string,
+  order_id: string,
 }
 
 type processedEntryType = {

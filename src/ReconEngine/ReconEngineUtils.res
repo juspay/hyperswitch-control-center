@@ -109,6 +109,7 @@ let accountItemToObjMapper = dict => {
     mismatched_credits: dict
     ->getDictfromDict("mismatched_credits")
     ->getAmountPayload,
+    created_at: dict->getString("created_at", ""),
   }
 }
 
@@ -200,6 +201,7 @@ let ingestionConfigItemToObjMapper = (dict): ingestionConfigType => {
     name: dict->getString("name", ""),
     last_synced_at: dict->getString("last_synced_at", ""),
     data: dict->getJsonObjectFromDict("data"),
+    created_at: dict->getString("created_at", ""),
   }
 }
 
@@ -235,6 +237,7 @@ let transactionsEntryItemToObjMapper = dict => {
     ->accountItemToObjMapper,
     amount: dict->getDictfromDict("amount")->getAmountPayload,
     status: dict->getString("status", "NA")->getEntryStatusVariantFromString,
+    order_id: dict->getString("order_id", ""),
   }
 }
 
@@ -289,6 +292,7 @@ let entryItemToObjMapper = dict => {
     account_name: dict->getDictfromDict("account")->getString("account_name", "N/A"),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", "N/A"),
+    order_id: dict->getString("order_id", ""),
     status: dict->getString("status", "")->getEntryStatusVariantFromString,
     discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
@@ -316,5 +320,6 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     metadata: dict->getJsonObjectFromDict("metadata"),
     transformation_id: dict->getString("transformation_id", ""),
     transformation_history_id: dict->getString("transformation_history_id", ""),
+    order_id: dict->getString("order_id", ""),
   }
 }
