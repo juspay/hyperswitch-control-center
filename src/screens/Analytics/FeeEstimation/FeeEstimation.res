@@ -39,7 +39,6 @@ module OverviewBreakdown = {
           ->getDictfromDict("response")
           ->FeeEstimationUtils.overviewBreakdownMapper
 
-        Console.log2("overview breakdown data fetched:", overViewBreakdownDataResponse)
         setOverViewBreakdownRawData(_ => overViewBreakdownDataResponse)
         setOverViewBreakdownTableData(_ => overViewBreakdownDataResponse.overviewBreakdown)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -103,7 +102,6 @@ module OverviewContainer = {
           ->FeeEstimationUtils.overviewDataMapper
 
         setOverviewRawData(_ => overViewData)
-        Console.log2("overview data fetched:", overViewData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => {
