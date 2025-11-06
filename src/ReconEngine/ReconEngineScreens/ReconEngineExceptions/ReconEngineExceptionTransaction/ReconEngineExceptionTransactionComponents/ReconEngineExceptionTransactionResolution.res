@@ -424,7 +424,6 @@ module LinkStagingEntryModalContent = {
           />
         </div>
       </div>
-      <FormValuesSpy />
     </Form>
   }
 }
