@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.06.0
+
+### Bug Fixes
+
+- Refund Validation False Positive Due to Floating Point Precision ([#3798](https://github.com/juspay/hyperswitch-control-center/pull/3798)) ([`c898a0f`](https://github.com/juspay/hyperswitch-control-center/commit/c898a0f30539b6e606d350b2780d409c0b31cd6e))
+- Added validation for name and description in routing ([#3805](https://github.com/juspay/hyperswitch-control-center/pull/3805)) ([`b1240a8`](https://github.com/juspay/hyperswitch-control-center/commit/b1240a8623a44db7478fa3a9ed9d58b698ab3e34))
+
+### Miscellaneous Tasks
+
+- Revamp 2FA setup page ([#3731](https://github.com/juspay/hyperswitch-control-center/pull/3731)) ([`da1700d`](https://github.com/juspay/hyperswitch-control-center/commit/da1700d664fac546a2d4f045df0dc5b330eb6837))
+
+**Full Changelog:** [`2025.11.05.1...2025.11.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.05.1...2025.11.06.0)
+
+- - -
+
 ## 2025.11.05.1
 
 ### Bug Fixes
