@@ -20,7 +20,7 @@ module ConfiguratorForm = {
       HyperswitchAtom.merchantDetailsValueAtom,
     )
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfileFromIdAtom,
+      HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
 
@@ -335,12 +335,15 @@ module CreateNewStyleID = {
     open FormRenderer
     let (showModal, setShowModal) = React.useState(() => false)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfileFromIdAtom,
+      HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
 
     let cursorStyles = authorization =>
       authorization === CommonAuthTypes.Access ? "cursor-pointer" : "cursor-not-allowed"
+
+    let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+    let addItemBtnStyle = "w-full"
 
     let styleIdField = makeFieldInfo(
       ~label="Style ID",
@@ -425,11 +428,11 @@ module CreateNewStyleID = {
         isRelative=false
         contentAlign=Default
         tooltipForWidthClass="!h-full"
-        className={`${cursorStyles(Access)} `}
+        className={`${cursorStyles(Access)} ${addItemBtnStyle}`}
         showTooltip=true>
         {<>
           <hr />
-          <div className="flex items-center gap-2 font-medium px-3.5 py-3 text-sm ">
+          <div className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle}`}>
             <Icon name="nd-plus" size=15 />
             {`Create new`->React.string}
           </div>
@@ -455,7 +458,7 @@ module StyleIdSelection = {
     open Typography
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
-      HyperswitchAtom.businessProfileFromIdAtom,
+      HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let (availableStyles, setAvailableStyles) = React.useState(_ => [])
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
@@ -465,7 +468,7 @@ module StyleIdSelection = {
       try {
         let businessProfileResponse = await fetchBusinessProfileFromId(~profileId=Some(profileId))
         setBusinessProfileRecoilVal(_ =>
-          businessProfileResponse->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+          businessProfileResponse->BusinessProfileInterfaceUtils.mapJsontoCommonType
         )
       } catch {
       | _ =>
@@ -481,7 +484,7 @@ module StyleIdSelection = {
     React.useEffect(() => {
       let defaultPaymentLinkConfigValues = switch businessProfileRecoilVal.payment_link_config {
       | Some(config) => config
-      | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
+      | None => BusinessProfileInterfaceUtils.paymentLinkConfigMapper(Dict.make())
       }
 
       let stylesDict =
@@ -518,6 +521,9 @@ module StyleIdSelection = {
       value: selectedStyleId->JSON.Encode.string,
       checked: true,
     }
+
+    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+
     <div>
       <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
         {"Select Style ID"->React.string}
@@ -535,6 +541,8 @@ module StyleIdSelection = {
         searchInputPlaceHolder="Search Style ID"
         buttonType=SecondaryFilled
         customButtonStyle="!w-32"
+        customDropdownOuterClass="!border-none"
+        customScrollStyle
         bottomComponent={<CreateNewStyleID setSelectedStyleId />}
       />
     </div>
@@ -545,13 +553,13 @@ module StyleIdSelection = {
 let make = () => {
   let (selectedStyleId, setSelectedStyleId) = React.useState(() => "")
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 
   let getSelectedStyleConfigs = {
     let paymentLinkConfig = switch businessProfileRecoilVal.payment_link_config {
     | Some(config) => config
-    | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
+    | None => BusinessProfileInterfaceUtils.paymentLinkConfigMapper(Dict.make())
     }
 
     switch selectedStyleId->selectedStyleVariant {

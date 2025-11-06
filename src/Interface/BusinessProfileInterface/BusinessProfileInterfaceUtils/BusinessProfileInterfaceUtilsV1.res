@@ -203,7 +203,59 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   }
 }
 
+let mapV1BackgroundImageToCommonType: backgroundImage_v1 => BusinessProfileInterfaceTypes.backgroundImage = backgroundImageRecord => {
+  {
+    url: backgroundImageRecord.url,
+    position: backgroundImageRecord.position,
+    size: backgroundImageRecord.size,
+  }
+}
+
+let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileInterfaceTypes.paymentLinkConfig = paymentLinkConfigRecord => {
+  let backgroundImage = switch paymentLinkConfigRecord.background_image {
+  | Some(bgImage) => Some(bgImage->mapV1BackgroundImageToCommonType)
+  | None => None
+  }
+
+  {
+    theme: paymentLinkConfigRecord.theme,
+    logo: paymentLinkConfigRecord.logo,
+    seller_name: paymentLinkConfigRecord.seller_name,
+    sdk_layout: paymentLinkConfigRecord.sdk_layout,
+    display_sdk_only: paymentLinkConfigRecord.display_sdk_only,
+    enabled_saved_payment_method: paymentLinkConfigRecord.enabled_saved_payment_method,
+    hide_card_nickname_field: paymentLinkConfigRecord.hide_card_nickname_field,
+    show_card_form_by_default: paymentLinkConfigRecord.show_card_form_by_default,
+    transaction_details: paymentLinkConfigRecord.transaction_details,
+    background_image: backgroundImage,
+    details_layout: paymentLinkConfigRecord.details_layout,
+    payment_button_text: paymentLinkConfigRecord.payment_button_text,
+    custom_message_for_card_terms: paymentLinkConfigRecord.custom_message_for_card_terms,
+    payment_button_colour: paymentLinkConfigRecord.payment_button_colour,
+    skip_status_screen: paymentLinkConfigRecord.skip_status_screen,
+    payment_button_text_colour: paymentLinkConfigRecord.payment_button_text_colour,
+    background_colour: paymentLinkConfigRecord.background_colour,
+    sdk_ui_rules: paymentLinkConfigRecord.sdk_ui_rules,
+    payment_link_ui_rules: paymentLinkConfigRecord.payment_link_ui_rules,
+    enable_button_only_on_form_ready: paymentLinkConfigRecord.enable_button_only_on_form_ready,
+    payment_form_header_text: paymentLinkConfigRecord.payment_form_header_text,
+    payment_form_label_type: paymentLinkConfigRecord.payment_form_label_type,
+    show_card_terms: paymentLinkConfigRecord.show_card_terms,
+    is_setup_mandate_flow: paymentLinkConfigRecord.is_setup_mandate_flow,
+    color_icon_card_cvc_error: paymentLinkConfigRecord.color_icon_card_cvc_error,
+    branding_visibility: paymentLinkConfigRecord.branding_visibility,
+    domain_name: paymentLinkConfigRecord.domain_name,
+    allowed_domains: paymentLinkConfigRecord.allowed_domains,
+    business_specific_configs: paymentLinkConfigRecord.business_specific_configs,
+  }
+}
+
 let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonProfileEntity = profileRecord => {
+  let paymentLinkConfig = switch profileRecord.payment_link_config {
+  | Some(config) => Some(config->mapV1PaymentLinkConfigToCommonType)
+  | None => None
+  }
+
   {
     profile_id: profileRecord.profile_id,
     merchant_id: profileRecord.merchant_id,
@@ -234,7 +286,7 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     collect_shipping_details_from_wallet_connector_if_required: None,
     collect_billing_details_from_wallet_connector_if_required: None,
     billing_processor_id: profileRecord.billing_processor_id,
-    payment_link_config: None,
+    payment_link_config: paymentLinkConfig,
   }
 }
 

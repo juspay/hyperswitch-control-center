@@ -8,7 +8,7 @@ let selectedStyleVariant = styleID => {
   }
 }
 
-let getDefaultStylesValue: BusinessProfileInterfaceTypesV1.paymentLinkConfig_v1 => BusinessProfileInterfaceTypesV1.styleConfig_v1 = paymentLinkConfig => {
+let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => BusinessProfileInterfaceTypes.styleConfig = paymentLinkConfig => {
   {
     theme: paymentLinkConfig.theme,
     logo: paymentLinkConfig.logo,
@@ -39,7 +39,7 @@ let getDefaultStylesValue: BusinessProfileInterfaceTypesV1.paymentLinkConfig_v1 
 }
 
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
-  open BusinessProfileInterfaceUtilsV1
+  open BusinessProfileInterfaceUtils
 
   let paymentLinkConfig = switch paymentLinkConfig {
   | Some(config) => config
@@ -61,7 +61,7 @@ let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
 }
 
 let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID) => {
-  open BusinessProfileInterfaceUtilsV1
+  open BusinessProfileInterfaceUtils
 
   let paymentLinkConfig = switch paymentLinkConfig {
   | Some(config) => config
@@ -72,7 +72,7 @@ let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID)
   | Default => {
       let styleConfig = json->getDictFromJsonObject->styleConfigMapper
 
-      let paymentLinkConfig: BusinessProfileInterfaceTypesV1.paymentLinkConfig_v1 = {
+      let paymentLinkConfig: BusinessProfileInterfaceTypes.paymentLinkConfig = {
         theme: styleConfig.theme,
         logo: styleConfig.logo,
         seller_name: styleConfig.seller_name,
