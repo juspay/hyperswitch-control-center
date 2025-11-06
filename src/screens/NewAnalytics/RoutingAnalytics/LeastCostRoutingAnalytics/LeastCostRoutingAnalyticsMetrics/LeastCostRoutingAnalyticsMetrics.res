@@ -4,6 +4,7 @@ open PageLoaderWrapper
 module LeastCostAnalyticsBasicMetricsCard = {
   open APIUtils
   open LogicUtils
+  open CurrencyFormatUtils
   open LeastCostRoutingAnalyticsMetricsUtils
 
   @react.component
@@ -94,6 +95,7 @@ module LeastCostAnalyticsBasicMetricsCard = {
 module LeastCostAnalyticsRegulationMetricsCard = {
   open APIUtils
   open LogicUtils
+  open CurrencyFormatUtils
   open LeastCostRoutingAnalyticsMetricsUtils
 
   @react.component

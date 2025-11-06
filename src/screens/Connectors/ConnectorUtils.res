@@ -92,6 +92,7 @@ let connectorList: array<connectorTypes> = [
   Processors(NOON),
   Processors(NUVEI),
   Processors(OPENNODE),
+  Processors(PAYJUSTNOW),
   Processors(PAYME),
   Processors(PAYU),
   Processors(PEACHPAYMENTS),
@@ -748,6 +749,10 @@ let finixInfo = {
   description: "Discover reliable, end-to-end payments technology for businesses of all types, industries, and sizes. With a single integration for omnichannel payments acceptance Finix offers hundreds of configurable ways for you to create the best payments solution for your business.",
 }
 
+let payjustnowInfo = {
+  description: "PayJustNow is a South African payment connector that enables customers to split online purchases into three interest-free monthly installments.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -851,6 +856,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | LOONIO => "loonio"
   | TESOURO => "tesouro"
   | FINIX => "finix"
+  | PAYJUSTNOW => "payjustnow"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1024,6 +1030,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
+    | "payjustnow" => Processors(PAYJUSTNOW)
     | "gigadat" => Processors(GIGADAT)
     | "loonio" => Processors(LOONIO)
     | "tesouro" => Processors(TESOURO)
@@ -1185,6 +1192,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | LOONIO => loonioInfo
   | TESOURO => tesouroInfo
   | FINIX => finixInfo
+  | PAYJUSTNOW => payjustnowInfo
   }
 }
 
@@ -2115,6 +2123,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | LOONIO => "Loonio"
   | TESOURO => "Tesouro"
   | FINIX => "Finix"
+  | PAYJUSTNOW => "PayJustNow"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
