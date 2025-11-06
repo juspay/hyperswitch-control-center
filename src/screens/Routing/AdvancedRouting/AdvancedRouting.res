@@ -610,12 +610,12 @@ let make = (
     AdvancedRoutingUtils.validateNameAndDescription(
       ~dict,
       ~errors,
-      ~validateFields=["name", "description"],
+      ~validateFields=[Name, Description],
     )
 
     let validateGateways = (connectorData: array<RoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
-        Some("Need atleast 1 Gateway")
+        Some("Need at least 1 Gateway")
       } else {
         let isDistibuted = connectorData->Array.every(ele => {
           switch ele {
