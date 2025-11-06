@@ -41,10 +41,7 @@ let getDefaultStylesValue: BusinessProfileInterfaceTypes.paymentLinkConfig => Bu
 let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
   open BusinessProfileInterfaceUtils
 
-  let paymentLinkConfig = switch paymentLinkConfig {
-  | Some(config) => config
-  | None => paymentLinkConfigMapper(Dict.make())
-  }
+  let paymentLinkConfig = paymentLinkConfig->Option.getOr(paymentLinkConfigMapper(Dict.make()))
 
   let defaultStyles = paymentLinkConfig->getDefaultStylesValue
 
@@ -63,10 +60,7 @@ let constructBusinessProfileBody = (~paymentLinkConfig, ~styleID) => {
 let constructBusinessProfileBodyFromJson = (~json, ~paymentLinkConfig, ~styleID) => {
   open BusinessProfileInterfaceUtils
 
-  let paymentLinkConfig = switch paymentLinkConfig {
-  | Some(config) => config
-  | None => paymentLinkConfigMapper(Dict.make())
-  }
+  let paymentLinkConfig = paymentLinkConfig->Option.getOr(paymentLinkConfigMapper(Dict.make()))
 
   switch styleID->selectedStyleVariant {
   | Default => {

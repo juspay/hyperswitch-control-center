@@ -57,8 +57,7 @@ module ConfiguratorForm = {
         let validationResult = Window.validatePaymentLinkConfig(
           JSON.stringify(configs->Identity.genericTypeToJson),
         )
-        let validationJson = JSON.parseExn(validationResult)
-        let validationDict = validationJson->getDictFromJsonObject
+        let validationDict = validationResult->JSON.parseExn->getDictFromJsonObject
         let isValid = validationDict->getBool("valid", false)
         let errors = validationDict->getArrayFromDict("errors", [])
 
@@ -265,7 +264,7 @@ module ConfiguratorForm = {
                     {"Live Preview"->React.string}
                   </h4>
                   {previewLoading
-                    ? <div className="flex items-center gap-2 text-sm text-nd_gray-500">
+                    ? <div className={`flex items-center gap-2 text-nd_gray-500 ${body.md.medium}`}>
                         <div
                           className="animate-spin h-4 w-4 border-b-2 border-nd_primary_blue-500 rounded-full"
                         />
@@ -284,7 +283,7 @@ module ConfiguratorForm = {
                           <div className="h-32 bg-nd_gray-200 rounded w-full" />
                           <div className="h-4 bg-nd_gray-200 rounded w-2/3 mx-auto" />
                         </div>
-                        <p className="text-nd_gray-500 mt-4 text-sm">
+                        <p className={`text-nd_gray-500 mt-4 ${body.md.medium}`}>
                           {"Generating preview..."->React.string}
                         </p>
                       </div>
@@ -295,10 +294,12 @@ module ConfiguratorForm = {
                         <div className="text-red-500 mb-4">
                           <Icon name="cross-icon" size=24 />
                         </div>
-                        <p className="text-red-600 font-medium mb-2">
+                        <p className={`text-red-600 mb-2 ${body.md.medium}`}>
                           {"Preview Generation Failed"->React.string}
                         </p>
-                        <p className="text-nd_gray-500 text-sm max-w-md"> {error->React.string} </p>
+                        <p className={`text-nd_gray-500 max-w-md ${body.md.medium}`}>
+                          {error->React.string}
+                        </p>
                       </div>
                     </div>
                   | (false, None, html) =>
@@ -333,6 +334,7 @@ module CreateNewStyleID = {
   @react.component
   let make = (~setSelectedStyleId) => {
     open FormRenderer
+    open Typography
     let (showModal, setShowModal) = React.useState(() => false)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -407,7 +409,7 @@ module CreateNewStyleID = {
                   field=styleIdField
                   showErrorOnChange=true
                   errorClass=ProdVerifyModalUtils.errorClass
-                  labelClass="!text-black font-medium !-ml-[0.5px]"
+                  labelClass={`!text-black !-ml-[0.5px] ${body.md.medium}`}
                 />
               </DesktopRow>
             </div>
@@ -432,7 +434,7 @@ module CreateNewStyleID = {
         showTooltip=true>
         {<>
           <hr />
-          <div className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle}`}>
+          <div className={`flex items-center gap-2 px-3.5 py-3 ${body.md.medium} ${customStyle}`}>
             <Icon name="nd-plus" size=15 />
             {`Create new`->React.string}
           </div>
@@ -455,6 +457,7 @@ module StyleIdSelection = {
   @react.component
   let make = (~selectedStyleId, ~setSelectedStyleId) => {
     open PaymentLinkThemeConfiguratorTypes
+    open BusinessProfileInterfaceUtils
     open Typography
     let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
@@ -467,9 +470,7 @@ module StyleIdSelection = {
     let fetchBusinessProfile = async () => {
       try {
         let businessProfileResponse = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-        setBusinessProfileRecoilVal(_ =>
-          businessProfileResponse->BusinessProfileInterfaceUtils.mapJsontoCommonType
-        )
+        setBusinessProfileRecoilVal(_ => businessProfileResponse->mapJsontoCommonType)
       } catch {
       | _ =>
         showToast(~toastType=ToastError, ~message="Failed to update style ids", ~autoClose=true)
@@ -482,10 +483,10 @@ module StyleIdSelection = {
     }, [])
 
     React.useEffect(() => {
-      let defaultPaymentLinkConfigValues = switch businessProfileRecoilVal.payment_link_config {
-      | Some(config) => config
-      | None => BusinessProfileInterfaceUtils.paymentLinkConfigMapper(Dict.make())
-      }
+      let defaultPaymentLinkConfigValues =
+        businessProfileRecoilVal.payment_link_config->Option.getOr(
+          paymentLinkConfigMapper(Dict.make()),
+        )
 
       let stylesDict =
         defaultPaymentLinkConfigValues.business_specific_configs->Option.getOr(JSON.Encode.null)
@@ -557,10 +558,11 @@ let make = () => {
   )
 
   let getSelectedStyleConfigs = {
-    let paymentLinkConfig = switch businessProfileRecoilVal.payment_link_config {
-    | Some(config) => config
-    | None => BusinessProfileInterfaceUtils.paymentLinkConfigMapper(Dict.make())
-    }
+    open BusinessProfileInterfaceUtils
+    let paymentLinkConfig =
+      businessProfileRecoilVal.payment_link_config->Option.getOr(
+        paymentLinkConfigMapper(Dict.make()),
+      )
 
     switch selectedStyleId->selectedStyleVariant {
     | Default =>
