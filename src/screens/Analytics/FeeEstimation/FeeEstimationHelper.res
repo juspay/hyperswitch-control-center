@@ -1,6 +1,7 @@
 open BarGraphTypes
 open Typography
 open LogicUtils
+open CurrencyFormatUtils
 
 let costBreakDownTableKey = "Cost Breakdown Overview"
 let transactionViewTableKey = "Fee Estimate Transaction Overview"

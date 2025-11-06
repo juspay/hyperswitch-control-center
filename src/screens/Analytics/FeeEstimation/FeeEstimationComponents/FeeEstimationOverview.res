@@ -3,6 +3,7 @@ open FeeEstimationHelper
 open LogicUtils
 open Typography
 open FeeEstimationUtils
+open CurrencyFormatUtils
 
 module TotalCostIncurred = {
   @react.component

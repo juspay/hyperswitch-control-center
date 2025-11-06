@@ -87,10 +87,12 @@ module OverviewContainer = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=V1(FEE_OVERVIEW_ESTIMATE), ~methodType=Post)
         let body = {
-          "offset": pageDetail.offset,
-          "limit": pageDetail.resultsPerPage,
-          "startDate": monthFilters["startDate"],
-          "endDate": monthFilters["endDate"],
+          "payload": {
+            "offset": pageDetail.offset,
+            "limit": pageDetail.resultsPerPage,
+            "startDate": monthFilters["startDate"],
+            "endDate": monthFilters["endDate"],
+          },
         }->Identity.genericTypeToJson
 
         let response = await updateDetails(url, body, Fetch.Post)
@@ -165,10 +167,12 @@ module TransactionViewContainer = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=V1(FEE_TRANSACTION_ESTIMATE), ~methodType=Post)
         let body = {
-          "offset": offset,
-          "limit": pageDetail.resultsPerPage,
-          "startDate": monthFilters["startDate"],
-          "endDate": monthFilters["endDate"],
+          "payload": {
+            "offset": offset,
+            "limit": pageDetail.resultsPerPage,
+            "startDate": monthFilters["startDate"],
+            "endDate": monthFilters["endDate"],
+          },
         }->Identity.genericTypeToJson
 
         let response = await updateDetails(url, body, Fetch.Post)

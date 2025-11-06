@@ -1,5 +1,6 @@
 open FeeEstimationTypes
 open LogicUtils
+open CurrencyFormatUtils
 let schemeFeesBreakdown: Dict.t<JSON.t> => array<schemeFee> = paymentDict => {
   paymentDict
   ->getArrayFromDict("estimate_scheme_breakdown", [])

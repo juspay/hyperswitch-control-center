@@ -4,6 +4,7 @@ open Typography
 open FeeEstimationEntity
 open FeeEstimationHelper
 open FeeEstimationUtils
+open CurrencyFormatUtils
 
 module ExpandedTableCustom = {
   @react.component

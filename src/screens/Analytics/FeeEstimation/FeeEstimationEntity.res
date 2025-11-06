@@ -2,6 +2,7 @@ open ConnectorTypes
 open Typography
 open LogicUtils
 open FeeEstimationTypes
+open CurrencyFormatUtils
 
 type colType =
   | PaymentID
