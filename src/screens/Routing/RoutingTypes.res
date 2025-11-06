@@ -6,6 +6,11 @@ type variantType = Number | Enum_variant | Metadata_value | String_value | Unkno
 type logicalOperator = AND | OR | UnknownLogicalOperator(string)
 type val = StringArray(array<string>) | String(string) | Int(int)
 
+@unboxed
+type basicDetails =
+  | @as("name") Name
+  | @as("description") Description
+
 type historyColType =
   | Name
   | Type

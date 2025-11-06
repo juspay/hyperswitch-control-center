@@ -2,6 +2,12 @@ open ReconEngineOverviewUtils
 open LogicUtils
 open CurrencyFormatUtils
 
+let roundCurrency = (value: float, currency: string): float => {
+  let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
+  let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
+  Math.round(value *. factor) /. factor
+}
+
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
   ~mismatchedCount: int,
@@ -341,7 +347,10 @@ let processAllTransactionsWithAmounts = (
             ...accountData,
             posted_confirmation_count: accountData.posted_confirmation_count + 1,
             posted_confirmation_amount: {
-              value: accountData.posted_confirmation_amount.value +. transaction.debit_amount.value,
+              value: roundCurrency(
+                accountData.posted_confirmation_amount.value +. transaction.debit_amount.value,
+                transaction.debit_amount.currency,
+              ),
               currency: transaction.debit_amount.currency,
             },
           }
@@ -349,8 +358,10 @@ let processAllTransactionsWithAmounts = (
             ...accountData,
             pending_confirmation_count: accountData.pending_confirmation_count + 1,
             pending_confirmation_amount: {
-              value: accountData.pending_confirmation_amount.value +.
-              transaction.debit_amount.value,
+              value: roundCurrency(
+                accountData.pending_confirmation_amount.value +. transaction.debit_amount.value,
+                transaction.debit_amount.currency,
+              ),
               currency: transaction.debit_amount.currency,
             },
           }
@@ -358,8 +369,21 @@ let processAllTransactionsWithAmounts = (
             ...accountData,
             mismatched_confirmation_count: accountData.mismatched_confirmation_count + 1,
             mismatched_confirmation_amount: {
-              value: accountData.mismatched_confirmation_amount.value +.
-              transaction.debit_amount.value,
+              value: roundCurrency(
+                accountData.mismatched_confirmation_amount.value +. transaction.debit_amount.value,
+                transaction.debit_amount.currency,
+              ),
+              currency: transaction.debit_amount.currency,
+            },
+          }
+        | PartiallyReconciled => {
+            ...accountData,
+            pending_confirmation_count: accountData.pending_confirmation_count + 1,
+            pending_confirmation_amount: {
+              value: roundCurrency(
+                accountData.pending_confirmation_amount.value +. transaction.debit_amount.value,
+                transaction.debit_amount.currency,
+              ),
               currency: transaction.debit_amount.currency,
             },
           }
@@ -379,7 +403,10 @@ let processAllTransactionsWithAmounts = (
             ...accountData,
             posted_transaction_count: accountData.posted_transaction_count + 1,
             posted_transaction_amount: {
-              value: accountData.posted_transaction_amount.value +. transaction.credit_amount.value,
+              value: roundCurrency(
+                accountData.posted_transaction_amount.value +. transaction.credit_amount.value,
+                transaction.credit_amount.currency,
+              ),
               currency: transaction.credit_amount.currency,
             },
           }
@@ -387,8 +414,10 @@ let processAllTransactionsWithAmounts = (
             ...accountData,
             pending_transaction_count: accountData.pending_transaction_count + 1,
             pending_transaction_amount: {
-              value: accountData.pending_transaction_amount.value +.
-              transaction.credit_amount.value,
+              value: roundCurrency(
+                accountData.pending_transaction_amount.value +. transaction.credit_amount.value,
+                transaction.credit_amount.currency,
+              ),
               currency: transaction.credit_amount.currency,
             },
           }
@@ -396,8 +425,21 @@ let processAllTransactionsWithAmounts = (
             ...accountData,
             mismatched_transaction_count: accountData.mismatched_transaction_count + 1,
             mismatched_transaction_amount: {
-              value: accountData.mismatched_transaction_amount.value +.
-              transaction.credit_amount.value,
+              value: roundCurrency(
+                accountData.mismatched_transaction_amount.value +. transaction.credit_amount.value,
+                transaction.credit_amount.currency,
+              ),
+              currency: transaction.credit_amount.currency,
+            },
+          }
+        | PartiallyReconciled => {
+            ...accountData,
+            pending_transaction_count: accountData.pending_transaction_count + 1,
+            pending_transaction_amount: {
+              value: roundCurrency(
+                accountData.pending_transaction_amount.value +. transaction.credit_amount.value,
+                transaction.credit_amount.currency,
+              ),
               currency: transaction.credit_amount.currency,
             },
           }
