@@ -129,6 +129,7 @@ type processorTypes =
   | LOONIO
   | TESOURO
   | FINIX
+  | PAYJUSTNOW
 
 type payoutProcessorTypes =
   | ADYEN
