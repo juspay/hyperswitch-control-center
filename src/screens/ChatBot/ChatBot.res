@@ -51,6 +51,7 @@ module ChatMessage = {
   @react.component
   let make = (~message: string, ~response: response, ~isLatest: bool, ~loading: bool) => {
     open LogicUtils
+    open CurrencyFormatUtils
     let isTyping = isLatest && loading && response.markdown->isEmptyString
 
     <div className="space-y-6">

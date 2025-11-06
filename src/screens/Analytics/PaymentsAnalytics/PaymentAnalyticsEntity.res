@@ -2,6 +2,7 @@ type pageStateType = Loading | Failed | Success | NoData
 
 open LogicUtils
 open DynamicSingleStat
+open CurrencyFormatUtils
 
 open HSAnalyticsUtils
 open AnalyticsTypes
@@ -60,7 +61,7 @@ let percentFormat = value => {
 }
 
 let getWeeklySR = dict => {
-  switch dict->LogicUtils.getOptionFloat(WeeklySuccessRate->colMapper) {
+  switch dict->getOptionFloat(WeeklySuccessRate->colMapper) {
   | Some(val) => val->percentFormat
   | _ => "NA"
   }
@@ -170,7 +171,7 @@ let getCell = (paymentTable, colType): Table.cell => {
 
 let getPaymentTable: JSON.t => array<paymentTableType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
