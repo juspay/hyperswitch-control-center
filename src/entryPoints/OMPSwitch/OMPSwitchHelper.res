@@ -377,20 +377,6 @@ module MerchantDropdownItem = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let productTypeIconMapper = productType => {
-      switch productType {
-      | Orchestration(V1) => "orchestrator-home"
-      | Recon(V2) => "recon-home"
-      | Recovery => "recovery-home"
-      | Vault => "vault-home"
-      | CostObservability => "nd-piggy-bank"
-      | DynamicRouting => "intelligent-routing-home"
-      | Orchestration(V2) => "orchestrator-home"
-      | Recon(V1) => "recon-engine-v1"
-      | OnBoarding(_) => ""
-      | UnknownProduct => ""
-      }
-    }
 
     let isActive = currentId == merchantId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}

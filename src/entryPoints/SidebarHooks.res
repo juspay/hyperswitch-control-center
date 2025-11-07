@@ -28,6 +28,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     threedsExemptionRules,
     paymentSettingsV2,
     routingAnalytics,
+    billingProcessor,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -46,6 +47,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~isTaxProcessor=taxProcessor,
       ~userHasResourceAccess,
+      ~isBillingProcessor=billingProcessor,
     ),
     default->analytics(
       disputeAnalytics,
