@@ -498,20 +498,12 @@ module ProductTypeSectionItem = {
   ) => {
     open Typography
 
-    let {
-      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
-    } = React.useContext(ThemeProvider.themeContext)
-    let {activeProduct, onProductSelectClick} = React.useContext(
-      ProductSelectionProvider.defaultContext,
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
+      ThemeProvider.themeContext,
     )
+    let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
 
-    let activeProductDisplayName = activeProduct->ProductUtils.getProductDisplayName
-    let activeProductVariant =
-      activeProductDisplayName->ProductUtils.getProductVariantFromDisplayName
     let sectionProductVariant = section.name->ProductUtils.getProductVariantFromDisplayName
-    let isActiveProduct = activeProductVariant === sectionProductVariant
-
-    let textColor = isActiveProduct ? `${primaryTextColor}` : `${secondaryTextColor}`
 
     let iconClassName = isExpanded
       ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
@@ -530,11 +522,8 @@ module ProductTypeSectionItem = {
         onClick=handleClick
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
         <div className="flex items-center gap-2">
-          <Icon size=14 name={section.icon} className={textColor} />
-          <div
-            className={`whitespace-nowrap ${isActiveProduct
-                ? `${primaryTextColor} ${body.md.regular}`
-                : `${secondaryTextColor}`} ${body.md.medium}`}>
+          <Icon size=14 name={section.icon} className={secondaryTextColor} />
+          <div className={`whitespace-nowrap ${secondaryTextColor} ${body.md.medium}`}>
             {React.string(section.name)}
           </div>
         </div>
