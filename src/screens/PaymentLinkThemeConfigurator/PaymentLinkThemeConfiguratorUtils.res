@@ -145,12 +145,10 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
   let paymentDetailsDict = paymentDetails->getDictFromJsonObject
   let formValuesDict = formValues->getDictFromJsonObject
 
-  let getStringFromDict = (dict, key, default) => dict->getString(key, default)
-
-  let backgroundImage = getStringFromDict(formValuesDict, "background_image", "")
+  let backgroundImage = getString(formValuesDict, "background_image", "")
   let backgroundImageObj = backgroundImage->isNonEmptyString ? Some({url: backgroundImage}) : None
 
-  let currency = getStringFromDict(paymentDetailsDict, "currency", "USD")
+  let currency = getString(paymentDetailsDict, "currency", "USD")
   let amount = paymentDetailsDict->getInt("amount", 0)->Int.toFloat
   let formattedAmount =
     CurrencyUtils.convertCurrencyFromLowestDenomination(~amount, ~currency)->Float.toString
@@ -159,16 +157,16 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
     pub_key: publishableKey,
     amount: formattedAmount,
     currency,
-    client_secret: getStringFromDict(paymentDetailsDict, "client_secret", ""),
-    payment_id: getStringFromDict(paymentDetailsDict, "payment_id", ""),
-    status: getStringFromDict(paymentDetailsDict, "status", "incomplete"),
-    session_expiry: getStringFromDict(paymentDetailsDict, "expires_on", ""),
-    merchant_logo: getStringFromDict(formValuesDict, "logo", ""),
-    return_url: getStringFromDict(formValuesDict, "return_url", "https://google.com"),
-    merchant_name: getStringFromDict(formValuesDict, "seller_name", "Seller Name"),
+    client_secret: getString(paymentDetailsDict, "client_secret", ""),
+    payment_id: getString(paymentDetailsDict, "payment_id", ""),
+    status: getString(paymentDetailsDict, "status", "incomplete"),
+    session_expiry: getString(paymentDetailsDict, "expires_on", ""),
+    merchant_logo: getString(formValuesDict, "logo", ""),
+    return_url: getString(formValuesDict, "return_url", "https://google.com"),
+    merchant_name: getString(formValuesDict, "seller_name", "Seller Name"),
     max_items_visible_after_collapse: formValuesDict->getInt("max_items_visible_after_collapse", 3),
-    theme: getStringFromDict(formValuesDict, "theme", "#FFFFFF"),
-    sdk_layout: getStringFromDict(formValuesDict, "sdk_layout", "accordion"),
+    theme: getString(formValuesDict, "theme", "#FFFFFF"),
+    sdk_layout: getString(formValuesDict, "sdk_layout", "accordion"),
     display_sdk_only: formValuesDict->getBool("display_sdk_only", false),
     hide_card_nickname_field: formValuesDict->getBool("hide_card_nickname_field", false),
     show_card_form_by_default: formValuesDict->getBool("show_card_form_by_default", true),
@@ -176,37 +174,25 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
       "enable_button_only_on_form_ready",
       true,
     ),
-    payment_button_text: Some(getStringFromDict(formValuesDict, "payment_button_text", "Pay Now")),
-    merchant_description: Some(getStringFromDict(formValuesDict, "merchant_description", "")),
+    payment_button_text: getOptionString(formValuesDict, "payment_button_text"),
+    merchant_description: getOptionString(formValuesDict, "merchant_description"),
     locale: Some("en"),
     background_image: backgroundImageObj,
-    details_layout: Some(getStringFromDict(formValuesDict, "details_layout", "")),
-    branding_visibility: Some(formValuesDict->getBool("branding_visibility", false)),
-    skip_status_screen: Some(formValuesDict->getBool("skip_status_screen", false)),
-    custom_message_for_card_terms: Some(
-      getStringFromDict(formValuesDict, "custom_message_for_card_terms", ""),
-    ),
-    payment_button_colour: Some(
-      getStringFromDict(formValuesDict, "payment_button_colour", "#FFFFFF"),
-    ),
-    payment_button_text_colour: Some(
-      getStringFromDict(formValuesDict, "payment_button_text_colour", "#000000"),
-    ),
-    background_colour: Some(getStringFromDict(formValuesDict, "background_colour", "#FFFFFF")),
+    details_layout: getOptionString(formValuesDict, "details_layout"),
+    branding_visibility: getOptionBool(formValuesDict, "branding_visibility"),
+    skip_status_screen: getOptionBool(formValuesDict, "skip_status_screen"),
+    custom_message_for_card_terms: getOptionString(formValuesDict, "custom_message_for_card_terms"),
+    payment_button_colour: getOptionString(formValuesDict, "payment_button_colour"),
+    payment_button_text_colour: getOptionString(formValuesDict, "payment_button_text_colour"),
+    background_colour: getOptionString(formValuesDict, "background_colour"),
     sdk_ui_rules: None,
-    payment_form_header_text: Some(
-      getStringFromDict(formValuesDict, "payment_form_header_text", ""),
-    ),
-    payment_form_label_type: Some(getStringFromDict(formValuesDict, "payment_form_label_type", "")),
-    show_card_terms: Some(getStringFromDict(formValuesDict, "show_card_terms", "")),
-    is_setup_mandate_flow: Some(formValuesDict->getBool("is_setup_mandate_flow", false)),
-    capture_method: Some(getStringFromDict(paymentDetailsDict, "capture_method", "")),
-    setup_future_usage_applied: Some(
-      getStringFromDict(paymentDetailsDict, "setup_future_usage_applied", ""),
-    ),
-    color_icon_card_cvc_error: Some(
-      getStringFromDict(formValuesDict, "color_icon_card_cvc_error", "#FFFFFF"),
-    ),
+    payment_form_header_text: getOptionString(formValuesDict, "payment_form_header_text"),
+    payment_form_label_type: getOptionString(formValuesDict, "payment_form_label_type"),
+    show_card_terms: getOptionString(formValuesDict, "show_card_terms"),
+    is_setup_mandate_flow: getOptionBool(formValuesDict, "is_setup_mandate_flow"),
+    capture_method: getOptionString(formValuesDict, "capture_method"),
+    setup_future_usage_applied: getOptionString(formValuesDict, "setup_future_usage_applied"),
+    color_icon_card_cvc_error: getOptionString(formValuesDict, "color_icon_card_cvc_error"),
   }
 }
 

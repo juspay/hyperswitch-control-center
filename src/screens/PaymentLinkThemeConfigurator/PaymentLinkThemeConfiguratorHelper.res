@@ -4,7 +4,7 @@ let makeThemeField = (~defaultValue) => {
     ~label="Theme Color",
     ~name="theme",
     ~placeholder="Select Theme Color",
-    ~customInput=InputFields.colorPickerInput(~defaultValue),
+    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }
 
@@ -140,7 +140,7 @@ let makePaymentButtonColorField = (~defaultValue) => {
     ~label="Payment Button Color",
     ~name="payment_button_colour",
     ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue),
+    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }
 
@@ -149,7 +149,7 @@ let makePaymentButtonTextColorField = (~defaultValue) => {
     ~label="Payment Button Text Color",
     ~name="payment_button_text_colour",
     ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue),
+    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }
 
@@ -166,7 +166,7 @@ let makeBackgroundColorField = (~defaultValue) => {
     ~label="Background Colour",
     ~name="background_colour",
     ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue),
+    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }
 
@@ -208,6 +208,6 @@ let makeColorIconCardCvcErrorField = (~defaultValue) => {
     ~label="Color Icon Card CVC Error",
     ~name="color_icon_card_cvc_error",
     ~placeholder="",
-    ~customInput=InputFields.colorPickerInput(~defaultValue),
+    ~customInput=InputFields.colorPickerInput(~defaultValue, ~showErrorWhenEmpty=false),
   )
 }

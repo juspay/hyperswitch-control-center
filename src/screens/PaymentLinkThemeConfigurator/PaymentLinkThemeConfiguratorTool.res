@@ -146,8 +146,6 @@ module ConfiguratorForm = {
       }
     }
 
-    let defaultThemeColor = initialValues->getDictFromJsonObject->getString("theme", "#FFFFFF")
-
     <RenderIf condition={selectedStyleId->isNonEmptyString}>
       <div className="bg-white rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
@@ -197,7 +195,7 @@ module ConfiguratorForm = {
                     field={makeThemeField(
                       ~defaultValue=initialValues
                       ->getDictFromJsonObject
-                      ->getString("theme", "#FFFFFF"),
+                      ->getString("theme", ""),
                     )}
                     fieldWrapperClass="!w-full"
                   />
@@ -205,7 +203,7 @@ module ConfiguratorForm = {
                     field={makeBackgroundColorField(
                       ~defaultValue=initialValues
                       ->getDictFromJsonObject
-                      ->getString("background_color", "#FFFFFF"),
+                      ->getString("background_color", ""),
                     )}
                     fieldWrapperClass="!w-full"
                   />
@@ -215,7 +213,7 @@ module ConfiguratorForm = {
                     field={makePaymentButtonColorField(
                       ~defaultValue=initialValues
                       ->getDictFromJsonObject
-                      ->getString("payment_button_colour", defaultThemeColor),
+                      ->getString("payment_button_colour", ""),
                     )}
                     fieldWrapperClass="!w-full"
                   />
@@ -223,7 +221,7 @@ module ConfiguratorForm = {
                     field={makePaymentButtonTextColorField(
                       ~defaultValue=initialValues
                       ->getDictFromJsonObject
-                      ->getString("payment_button_text_colour", "#FFFFFF"),
+                      ->getString("payment_button_text_colour", ""),
                     )}
                     fieldWrapperClass="!w-full"
                   />
@@ -233,7 +231,7 @@ module ConfiguratorForm = {
                     field={makeColorIconCardCvcErrorField(
                       ~defaultValue=initialValues
                       ->getDictFromJsonObject
-                      ->getString("color_icon_card_cvc_error", defaultThemeColor),
+                      ->getString("color_icon_card_cvc_error", ""),
                     )}
                     fieldWrapperClass="!w-full"
                   />
