@@ -125,7 +125,7 @@ module OrgTile = {
         </RenderIf>
         <span className={body.xs.medium}> {displayText->React.string} </span>
         <div
-          className={` ${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
+          className={`${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
           <InlineEditInput
             index
             labelText={orgName}
