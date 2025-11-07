@@ -88,13 +88,7 @@ let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell =
 let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
   open CurrencyFormatUtils
   switch colType {
-  | TransactionId =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="truncate whitespace-nowrap" displayValue=Some(transaction.transaction_id)
-      />,
-      "",
-    )
+  | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | CreditAccount => Text(getAccounts(transaction.entries, Credit))
   | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>

@@ -12,11 +12,18 @@ module TransformationConfigItem = {
       </span>
       {switch data.valueType {
       | #text =>
-        <div className={`${body.md.medium} flex items-center text-nd_gray-600`}>
-          <HelperComponents.CopyTextCustomComp
-            customTextCss="w-28 truncate whitespace-nowrap" displayValue=Some(data.value)
-          />
-        </div>
+        <>
+          <RenderIf condition={data.value->LogicUtils.isNonEmptyString}>
+            <div className={`${body.md.medium} flex items-center text-nd_gray-600`}>
+              <HelperComponents.CopyTextCustomComp
+                customTextCss="max-w-28 truncate whitespace-nowrap" displayValue=Some(data.value)
+              />
+            </div>
+          </RenderIf>
+          <RenderIf condition={data.value->LogicUtils.isEmptyString}>
+            <span className={`${body.md.medium} text-nd_gray-600`}> {"N/A"->React.string} </span>
+          </RenderIf>
+        </>
       | #date =>
         if data.value->LogicUtils.isNonEmptyString {
           <span className={`${body.md.medium} text-nd_gray-600`}>
