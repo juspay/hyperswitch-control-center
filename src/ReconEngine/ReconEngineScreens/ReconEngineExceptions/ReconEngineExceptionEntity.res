@@ -1,4 +1,5 @@
 open ReconEngineTypes
+open LogicUtils
 
 type processingColType =
   | StagingEntryId
@@ -12,7 +13,6 @@ type processingColType =
   | Actions
 
 let processingDefaultColumns = [
-  EffectiveAt,
   StagingEntryId,
   EntryType,
   OrderId,
@@ -59,7 +59,22 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   | Currency => Text(data.currency)
   | Status => getStatusLabel(data.status)
   | EffectiveAt => Date(data.effective_at)
-  | OrderId => DisplayCopyCell(data.order_id)
+  | OrderId =>
+    CustomCell(
+      <>
+        <RenderIf condition={data.order_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customParentClass="flex flex-row items-center gap-2"
+            customTextCss="truncate whitespace-nowrap max-w-fit"
+            displayValue=Some(data.order_id)
+          />
+        </RenderIf>
+        <RenderIf condition={data.order_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
   | Actions => CustomCell(<ReconEngineAccountsTransformedEntriesActions processingEntry=data />, "")
   }
 }
