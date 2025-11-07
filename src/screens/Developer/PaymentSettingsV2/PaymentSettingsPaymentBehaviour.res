@@ -209,7 +209,7 @@ module ReturnUrl = {
         field={returnUrl}
         errorClass={HSwitchUtils.errorClass}
         labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-        fieldWrapperClass="max-w-xl pt-8 border-gray-200 "
+        fieldWrapperClass="max-w-xl pt-8 border-nd_gray-200"
       />
     </div>
   }
@@ -361,7 +361,7 @@ let make = () => {
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-            fieldWrapperClass="w-full flex justify-between sitems-center border-gray-200 py-8"
+            fieldWrapperClass="w-full flex justify-between sitems-center border-nd_gray-200 py-8"
             field={makeFieldInfo(
               ~name="is_manual_retry_enabled",
               ~label="Manual Retries",
@@ -378,7 +378,7 @@ let make = () => {
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-            fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+            fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 py-8"
             field={makeFieldInfo(
               ~name="always_request_extended_authorization",
               ~label="Extended Authorization",
@@ -396,7 +396,7 @@ let make = () => {
         <DesktopRow itemWrapperClass="mx-1">
           <FieldRenderer
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-            fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+            fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 py-8"
             field={makeFieldInfo(
               ~name="always_enable_overcapture",
               ~label="Always Enable Overcapture",
@@ -465,7 +465,7 @@ let make = () => {
       <DesktopRow itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-          fieldWrapperClass="w-full flex justify-between items-center border-gray-200 py-8"
+          fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 py-8"
           field={makeFieldInfo(
             ~name="is_network_tokenization_enabled",
             ~label="Network Tokenization",
