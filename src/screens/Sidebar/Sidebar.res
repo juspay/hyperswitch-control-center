@@ -497,10 +497,12 @@ module ProductTypeSectionItem = {
     ~isExploredModule: bool,
     ~allowProductToggle: bool,
   ) => {
-    let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
-      ThemeProvider.themeContext,
+    let {
+      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+    let {activeProduct, onProductSelectClick} = React.useContext(
+      ProductSelectionProvider.defaultContext,
     )
-    let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
 
     let sectionProductVariant = section.name->ProductUtils.getProductVariantFromDisplayName
 
