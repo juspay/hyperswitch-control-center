@@ -135,7 +135,7 @@ let make = () => {
     setScreenState(_ => Loading)
     let _ = await updateBusinessProfileDetails(mcaId)
     setScreenState(_ => Success)
-    showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastState.ToastSuccess)
+    showToast(~message="Successfully Saved the Changes", ~toastType=ToastState.ToastSuccess)
   }
 
   let billing_processor_id = businessProfileRecoilVal.billing_processor_id->Option.getOr("")

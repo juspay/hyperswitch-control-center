@@ -6,7 +6,6 @@ module MenuOption = {
   @react.component
   let make = (~handleMenuOptionSubmit, ~connectorInfo: ConnectorTypes.connectorPayload) => {
     let showPopUp = PopUpState.useShowPopUp()
-    let mcaId = connectorInfo.merchant_connector_id
 
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -15,7 +14,7 @@ module MenuOption = {
         description: `You are about to set this connector as the default connector. This will override the previous default connector.`->React.string,
         handleConfirm: {
           text: "Confirm",
-          onClick: _ => handleMenuOptionSubmit(mcaId)->ignore,
+          onClick: _ => handleMenuOptionSubmit(connectorInfo.merchant_connector_id)->ignore,
         },
         handleCancel: {text: "Cancel"},
       })
@@ -30,7 +29,7 @@ module MenuOption = {
               id="neglectTopbarTheme"
               className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
               {<Navbar.MenuOption
-                text={"Set as default"}
+                text="Set as default"
                 onClick={_ => {
                   panelProps["close"]()
                   openConfirmationPopUp()
