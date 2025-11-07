@@ -147,7 +147,7 @@ let getTransformationHistoryCell = (
 ): Table.cell => {
   switch colType {
   | TransformationId => EllipsisText(transformationHistoryData.transformation_id, "")
-  | TransformationHistoryId => Text(transformationHistoryData.transformation_history_id)
+  | TransformationHistoryId => DisplayCopyCell(transformationHistoryData.transformation_history_id)
   | TransformationName => Text(transformationHistoryData.transformation_name)
   | Status => ReconEngineAccountsUtils.getStatusLabel(transformationHistoryData.status)
   | CreatedAt => Date(transformationHistoryData.created_at)
