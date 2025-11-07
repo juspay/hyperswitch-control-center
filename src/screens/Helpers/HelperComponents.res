@@ -9,6 +9,7 @@ module CopyTextCustomComp = {
     ~customIconCss="h-7 opacity-70",
     ~customIcon="nd-copy",
     ~customIconSize=15,
+    ~customComponent=None,
   ) => {
     let showToast = ToastState.useShowToast()
 
@@ -29,16 +30,16 @@ module CopyTextCustomComp = {
 
     switch displayValue {
     | Some(val) =>
-      <div className=customParentClass>
+      <div
+        className={`${customParentClass} cursor-pointer`}
+        onClick={ev => {
+          onCopyClick(ev)
+        }}>
         <div className=customTextCss> {val->React.string} </div>
-        <Icon
-          size={customIconSize}
-          name={customIcon}
-          onClick={ev => {
-            onCopyClick(ev)
-          }}
-          className={`${customIconCss} cursor-pointer`}
-        />
+        {switch customComponent {
+        | Some(element) => element
+        | None => <Icon size={customIconSize} name={customIcon} className={`${customIconCss} `} />
+        }}
       </div>
     | None => "NA"->React.string
     }
@@ -150,16 +151,6 @@ module ConnectorCustomCell = {
     } else {
       "NA"->React.string
     }
-  }
-}
-
-module BusinessProfileComponent = {
-  @react.component
-  let make = (~profile_id: string, ~className="") => {
-    let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profile_id)
-    <div className="truncate whitespace-nowrap overflow-hidden">
-      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
-    </div>
   }
 }
 

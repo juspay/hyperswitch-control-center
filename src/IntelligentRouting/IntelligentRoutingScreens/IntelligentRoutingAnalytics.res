@@ -153,6 +153,7 @@ module Card = {
     ~amountFormat=false,
   ) => {
     open LogicUtils
+    open CurrencyFormatUtils
 
     let displayValue = value =>
       switch (amountFormat, valueFormat) {

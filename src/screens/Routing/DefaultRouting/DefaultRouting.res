@@ -10,7 +10,8 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let showPopUp = PopUpState.useShowPopUp()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profile, setProfile) = React.useState(_ => profileId)
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
@@ -110,7 +111,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
           profile={profile}
-          options={[businessProfileRecoilVal]->businessProfileNameDropDownOption}
+          options={businessProfileNameDropDownOption([businessProfileRecoilVal], ~profileId)}
           label="Profile"
         />
       </div>

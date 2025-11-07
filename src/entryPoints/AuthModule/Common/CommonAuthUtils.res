@@ -124,6 +124,7 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_16" => UR_16
   | "UR_29" => UR_29
   | "UR_33" => UR_33
+  | "UR_35" => UR_35
   | "UR_38" => UR_38
   | "UR_40" => UR_40
   | "UR_41" => UR_41
@@ -200,9 +201,9 @@ module ToggleLiveTestMode = {
 
 let handleSwitchUserQueryParam = (~url: RescriptReactRouter.url) => {
   switch url.path {
-  | list{orgId, merchantId, profileId, "switch", "user"} => {
+  | list{orgId, merchantId, profileId, version, "switch", "user"} => {
       let omp =
-        [orgId, merchantId, profileId]
+        [orgId, merchantId, profileId, version]
         ->Array.map(val => val->JSON.Encode.string)
         ->JSON.Encode.array
         ->JSON.stringify

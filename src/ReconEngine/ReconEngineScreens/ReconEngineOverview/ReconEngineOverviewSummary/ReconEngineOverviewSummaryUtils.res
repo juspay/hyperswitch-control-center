@@ -1,6 +1,13 @@
 open ReconEngineOverviewUtils
 open LogicUtils
-open ReconEngineOverviewTypes
+open CurrencyFormatUtils
+open ReconEngineTypes
+
+let roundCurrency = (value: float, currency: string): float => {
+  let precision = CurrencyUtils.getAmountPrecisionDigits(currency)
+  let factor = Math.pow(10.0, ~exp=precision->Int.toFloat)
+  Math.round(value *. factor) /. factor
+}
 
 let getSummaryStackedBarGraphData = (
   ~postedCount: int,
@@ -31,7 +38,7 @@ let getSummaryStackedBarGraphData = (
 }
 
 let calculateTotals = (data: array<accountType>) => {
-  data->Array.reduce(Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper, (acc, item) => {
+  data->Array.reduce(Dict.make()->getOverviewAccountPayloadFromDict, (acc, item) => {
     {
       ...acc,
       posted_credits: {
@@ -148,8 +155,8 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
 
   [
     {
-      statusType: Reconciled,
-      data: {
+      statusType: ReconciledAmount,
+      reconStatusData: {
         inAmount: formatAmountWithCurrency(transactionData.posted_confirmation_amount),
         outAmount: formatAmountWithCurrency(transactionData.posted_transaction_amount),
         inTxns: `${transactionData.posted_confirmation_count->Int.toString} txns`,
@@ -157,8 +164,8 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
       },
     },
     {
-      statusType: Pending,
-      data: {
+      statusType: PendingAmount,
+      reconStatusData: {
         inAmount: formatAmountWithCurrency(transactionData.pending_confirmation_amount),
         outAmount: formatAmountWithCurrency(transactionData.pending_transaction_amount),
         inTxns: `${transactionData.pending_confirmation_count->Int.toString} txns`,
@@ -166,8 +173,8 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
       },
     },
     {
-      statusType: Mismatched,
-      data: {
+      statusType: MismatchedAmount,
+      reconStatusData: {
         inAmount: formatAmountWithCurrency(transactionData.mismatched_confirmation_amount),
         outAmount: formatAmountWithCurrency(transactionData.mismatched_transaction_amount),
         inTxns: `${transactionData.mismatched_confirmation_count->Int.toString} txns`,
@@ -180,7 +187,7 @@ let generateStatusDataWithTransactionAmounts = (transactionData: accountTransact
 let getAccountData = (accountData: array<accountType>, accountId: string): accountType => {
   accountData
   ->Array.find(account => account.account_id === accountId)
-  ->Option.getOr(Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper)
+  ->Option.getOr(Dict.make()->getOverviewAccountPayloadFromDict)
 }
 
 let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
@@ -194,29 +201,29 @@ let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
   ->getUniqueArray
 }
 
-let summarizeTransactions = (
-  ruleTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
-): (int, int) => {
-  ruleTransactions->Array.reduce((0, 0), (
-    (postedCount, totalCount),
-    t: ReconEngineTransactionsTypes.transactionPayload,
-  ) => {
-    let txType = t.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
-    switch txType {
+let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, int) => {
+  ruleTransactions->Array.reduce((0, 0), ((postedCount, totalCount), t: transactionType) => {
+    switch t.transaction_status {
     | Posted => (postedCount + 1, totalCount + 1)
     | Archived => (postedCount, totalCount)
     | _ => (postedCount, totalCount + 1)
     }
   })
 }
+
 let getPercentageLabel = (~postedCount, ~totalCount) =>
   if totalCount > 0 {
     let percentageValue = postedCount->Int.toFloat /. totalCount->Int.toFloat *. 100.0
-    `${percentageValue->LogicUtils.valueFormatter(Rate)} Reconciled`
+    `${percentageValue->valueFormatter(Rate)} Reconciled`
   } else {
     "0% Reconciled"
   }
-let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
+let makeEdge = (
+  ~source: reconRuleAccountRefType,
+  ~target: reconRuleAccountRefType,
+  ~ruleTransactions,
+  ~selectedNodeId,
+) => {
   let (postedCount, totalCount) = summarizeTransactions(ruleTransactions)
   let label = getPercentageLabel(~postedCount, ~totalCount)
   let sourceNodeId = `${source.account_id}-node`
@@ -239,8 +246,8 @@ let makeEdge = (~source, ~target, ~ruleTransactions, ~selectedNodeId) => {
   }
 }
 let getEdges = (
-  ~reconRulesList,
-  ~allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  ~reconRulesList: array<reconRuleType>,
+  ~allTransactions: array<transactionType>,
   ~selectedNodeId,
 ) =>
   reconRulesList->Array.flatMap(rule =>
@@ -267,7 +274,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
   reconRulesList: array<reconRuleType>,
   accountsData: array<accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  allTransactions: array<transactionType>,
   ~selectedNodeId: option<string>,
   ~onNodeClick: option<string => unit>=?,
 ) => {
@@ -278,6 +285,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
     let transactionData = getTransactionsData(accountTransactionData, accountId)
 
     let statusData = generateStatusDataWithTransactionAmounts(transactionData)
+    let accountType = accountData.account_type
     let nodeId = `${accountId}-node`
     let isSelected = switch selectedNodeId {
     | Some(id) => id === nodeId
@@ -290,6 +298,7 @@ let generateNodesAndEdgesWithTransactionAmounts = (
       position: {x: Int.toFloat(index * 100), y: 0.0},
       data: {
         label: accountData.account_name,
+        accountType,
         statusData,
         selected: isSelected,
         onNodeClick: switch onNodeClick {
@@ -305,100 +314,103 @@ let generateNodesAndEdgesWithTransactionAmounts = (
   getLayoutedElements(nodes, edges, "LR")
 }
 
+let calculateMetrics = (
+  accountId: string,
+  transactions: array<transactionType>,
+  entryType: entryDirectionType,
+) => {
+  let matchingEntries =
+    transactions->Array.flatMap(transaction =>
+      transaction.entries->Array.filter(entry =>
+        entry.account.account_id === accountId && entry.entry_type === entryType
+      )
+    )
+  let amount = matchingEntries->Array.reduce(0.0, (sum, entry) => sum +. entry.amount.value)
+  let count =
+    transactions
+    ->Array.filter(t =>
+      t.entries->Array.some(e => e.account.account_id === accountId && e.entry_type === entryType)
+    )
+    ->Array.length
+  (count, amount)
+}
+
+let makeAmountData = (amount, currency): balanceType => {
+  {
+    value: roundCurrency(amount, currency),
+    currency,
+  }
+}
+
 let processAllTransactionsWithAmounts = (
   reconRulesList: array<reconRuleType>,
-  allTransactions: array<ReconEngineTransactionsTypes.transactionPayload>,
+  allTransactions: array<transactionType>,
+  accountsData: array<accountType>,
 ) => {
   let accountTransactionData = Dict.make()
-
   let allAccountIds = getAllAccountIds(reconRulesList)
 
   allAccountIds->Array.forEach(accountId => {
     accountTransactionData->Dict.set(accountId, Dict.make()->accountTransactionDataToObjMapper)
   })
 
-  allTransactions->Array.forEach((transaction: ReconEngineTransactionsTypes.transactionPayload) => {
-    let creditEntries = transaction.entries->Array.filter(entry => entry.entry_type === "credit")
-    let debitEntries = transaction.entries->Array.filter(entry => entry.entry_type === "debit")
+  let processStatusMetrics = (accountId, transactions) => {
+    let (confirmationCount, debitAmount) = calculateMetrics(accountId, transactions, Debit)
+    let (transactionCount, creditAmount) = calculateMetrics(accountId, transactions, Credit)
+    (confirmationCount, debitAmount, transactionCount, creditAmount)
+  }
 
-    let transactionStatus =
-      transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString
-
-    debitEntries->Array.forEach(entry => {
-      let accountId = entry.account.account_id
-      switch accountTransactionData->getvalFromDict(accountId) {
-      | Some(accountData) =>
-        let updatedData = switch transactionStatus {
-        | Posted => {
-            ...accountData,
-            posted_confirmation_count: accountData.posted_confirmation_count + 1,
-            posted_confirmation_amount: {
-              value: accountData.posted_confirmation_amount.value +. transaction.debit_amount.value,
-              currency: transaction.debit_amount.currency,
-            },
-          }
-        | Expected => {
-            ...accountData,
-            pending_confirmation_count: accountData.pending_confirmation_count + 1,
-            pending_confirmation_amount: {
-              value: accountData.pending_confirmation_amount.value +.
-              transaction.debit_amount.value,
-              currency: transaction.debit_amount.currency,
-            },
-          }
-        | Mismatched => {
-            ...accountData,
-            mismatched_confirmation_count: accountData.mismatched_confirmation_count + 1,
-            mismatched_confirmation_amount: {
-              value: accountData.mismatched_confirmation_amount.value +.
-              transaction.debit_amount.value,
-              currency: transaction.debit_amount.currency,
-            },
-          }
-        | _ => accountData
-        }
-        accountTransactionData->Dict.set(accountId, updatedData)
-      | None => ()
-      }
+  allAccountIds->Array.forEach(accountId => {
+    let accountTransactions = allTransactions->Array.filter(transaction => {
+      transaction.entries->Array.some(entry => entry.account.account_id === accountId)
     })
 
-    creditEntries->Array.forEach(entry => {
-      let accountId = entry.account.account_id
-      switch accountTransactionData->getvalFromDict(accountId) {
-      | Some(accountData) =>
-        let updatedData = switch transactionStatus {
-        | Posted => {
-            ...accountData,
-            posted_transaction_count: accountData.posted_transaction_count + 1,
-            posted_transaction_amount: {
-              value: accountData.posted_transaction_amount.value +. transaction.credit_amount.value,
-              currency: transaction.credit_amount.currency,
-            },
-          }
-        | Expected => {
-            ...accountData,
-            pending_transaction_count: accountData.pending_transaction_count + 1,
-            pending_transaction_amount: {
-              value: accountData.pending_transaction_amount.value +.
-              transaction.credit_amount.value,
-              currency: transaction.credit_amount.currency,
-            },
-          }
-        | Mismatched => {
-            ...accountData,
-            mismatched_transaction_count: accountData.mismatched_transaction_count + 1,
-            mismatched_transaction_amount: {
-              value: accountData.mismatched_transaction_amount.value +.
-              transaction.credit_amount.value,
-              currency: transaction.credit_amount.currency,
-            },
-          }
-        | _ => accountData
-        }
-        accountTransactionData->Dict.set(accountId, updatedData)
-      | None => ()
-      }
-    })
+    let postedTransactions = accountTransactions->Array.filter(t => t.transaction_status === Posted)
+    let pendingTransactions =
+      accountTransactions->Array.filter(t =>
+        t.transaction_status === Expected || t.transaction_status === PartiallyReconciled
+      )
+    let mismatchedTransactions =
+      accountTransactions->Array.filter(t => t.transaction_status === Mismatched)
+
+    let (
+      postedConfirmationCount,
+      postedDebitAmount,
+      postedTransactionCount,
+      postedCreditAmount,
+    ) = processStatusMetrics(accountId, postedTransactions)
+
+    let (
+      pendingConfirmationCount,
+      pendingDebitAmount,
+      pendingTransactionCount,
+      pendingCreditAmount,
+    ) = processStatusMetrics(accountId, pendingTransactions)
+
+    let (
+      mismatchedConfirmationCount,
+      mismatchedDebitAmount,
+      mismatchedTransactionCount,
+      mismatchedCreditAmount,
+    ) = processStatusMetrics(accountId, mismatchedTransactions)
+
+    let currency = getAccountData(accountsData, accountId).currency
+
+    let updatedData = {
+      posted_confirmation_count: postedConfirmationCount,
+      posted_confirmation_amount: makeAmountData(postedDebitAmount, currency),
+      pending_confirmation_count: pendingConfirmationCount,
+      pending_confirmation_amount: makeAmountData(pendingDebitAmount, currency),
+      mismatched_confirmation_count: mismatchedConfirmationCount,
+      mismatched_confirmation_amount: makeAmountData(mismatchedDebitAmount, currency),
+      posted_transaction_count: postedTransactionCount,
+      posted_transaction_amount: makeAmountData(postedCreditAmount, currency),
+      pending_transaction_count: pendingTransactionCount,
+      pending_transaction_amount: makeAmountData(pendingCreditAmount, currency),
+      mismatched_transaction_count: mismatchedTransactionCount,
+      mismatched_transaction_amount: makeAmountData(mismatchedCreditAmount, currency),
+    }
+    accountTransactionData->Dict.set(accountId, updatedData)
   })
 
   accountTransactionData
@@ -406,17 +418,17 @@ let processAllTransactionsWithAmounts = (
 
 let getHeaderText = (amountType: amountType, currency: string) => {
   switch amountType {
-  | Reconciled => `Reconciled Amount (${currency})`
-  | Pending => `Pending Amount (${currency})`
-  | Mismatched => `Mismatched Amount (${currency})`
+  | ReconciledAmount => `Reconciled Amount (${currency})`
+  | PendingAmount => `Pending Amount (${currency})`
+  | MismatchedAmount => `Mismatched Amount (${currency})`
   }
 }
 
 let getAmountPair = (amountType: amountType, data: accountType) => {
   switch amountType {
-  | Reconciled => (data.posted_debits, data.posted_credits)
-  | Pending => (data.pending_debits, data.pending_credits)
-  | Mismatched => (data.mismatched_debits, data.mismatched_credits)
+  | ReconciledAmount => (data.posted_debits, data.posted_credits)
+  | PendingAmount => (data.pending_debits, data.pending_credits)
+  | MismatchedAmount => (data.mismatched_debits, data.mismatched_credits)
   }
 }
 
@@ -492,11 +504,11 @@ let calculateTotalsFromTransactionAmounts = (
 
 let getStatusIcon = (statusType: amountType) => {
   switch statusType {
-  | Reconciled => "nd-check-circle-outline"
-  | Pending => "nd-hour-glass-outline"
-  | Mismatched => "nd-alert-triangle-outline"
+  | ReconciledAmount => ("nd-check-circle-outline", "text-nd_green-600")
+  | PendingAmount => ("nd-hour-glass-outline", "text-nd_yellow-600")
+  | MismatchedAmount => ("nd-alert-triangle-outline", "text-nd_red-500")
   }
 }
 
-let allAmountTypes = [Reconciled, Pending, Mismatched]
-let allSubHeaderTypes = [In, Out]
+let allAmountTypes = [ReconciledAmount, PendingAmount, MismatchedAmount]
+let allSubHeaderTypes = [DebitAmount, CreditAmount]

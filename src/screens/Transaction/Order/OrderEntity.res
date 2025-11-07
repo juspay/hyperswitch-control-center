@@ -10,11 +10,12 @@ module CurrencyCell = {
 }
 
 let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(refunds.currency)
   switch refundsColType {
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(refunds.amount /. 100.0)->Float.toString} currency={refunds.currency}
+        amount={(refunds.amount /. conversionFactor)->Float.toString} currency={refunds.currency}
       />,
       "",
     )
@@ -39,17 +40,18 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
     })
   | PaymentId => Text(refunds.payment_id)
   | ErrorMessage => Text(refunds.error_message)
-  | LastUpdated => Text(refunds.updated_at)
-  | Created => Text(refunds.created_at)
+  | LastUpdated => Date(refunds.updated_at)
+  | Created => Date(refunds.created_at)
   }
 }
 
 let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(attempt.currency)
   switch attemptColType {
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(attempt.amount /. 100.0)->Float.toString} currency={attempt.currency}
+        amount={(attempt.amount /. conversionFactor)->Float.toString} currency={attempt.currency}
       />,
       "",
     )
@@ -98,13 +100,15 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
 }
 
 let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderDetais.currency)
   switch frmColType {
   | PaymentId => Text(orderDetais.payment_id)
   | PaymentMethodType => Text(orderDetais.payment_method_type)
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(orderDetais.amount /. 100.0)->Float.toString} currency={orderDetais.currency}
+        amount={(orderDetais.amount /. conversionFactor)->Float.toString}
+        currency={orderDetais.currency}
       />,
       "",
     )
@@ -133,7 +137,14 @@ let getAuthenticationCell = (orderDetais: order, colType: authenticationColType)
   }
 }
 
-let refundColumns: array<refundsColType> = [Created, LastUpdated, Amount, PaymentId, RefundStatus]
+let refundColumns: array<refundsColType> = [
+  RefundId,
+  PaymentId,
+  Amount,
+  RefundStatus,
+  Created,
+  LastUpdated,
+]
 
 let attemptsColumns: array<attemptColType> = [
   Status,
@@ -502,12 +513,13 @@ let getHeadingForOtherDetails = otherDetailsColType => {
 }
 
 let getCellForSummary = (order, summaryColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   switch summaryColType {
   | Created => Date(order.created_at)
   | NetAmount =>
     CustomCell(
       <CurrencyCell
-        amount={(order.net_amount /. 100.0)->Float.toString} currency={order.currency}
+        amount={(order.net_amount /. conversionFactor)->Float.toString} currency={order.currency}
       />,
       "",
     )
@@ -517,7 +529,8 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
-        amount={(order.amount_captured /. 100.0)->Float.toString} currency={order.currency}
+        amount={(order.amount_captured /. conversionFactor)->Float.toString}
+        currency={order.currency}
       />,
       "",
     )
@@ -569,6 +582,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 }
 
 let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   let splittedName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
@@ -586,13 +600,21 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
   | Phone => Text(order.phone->Option.getOr(""))
   | Email => Text(order.email->Option.getOr(""))
-  | CustomerId => Text(order.customer_id)
+  | CustomerId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/customers/${order.customer_id}`}
+        displayValue=order.customer_id
+        copyValue=Some(order.customer_id)
+      />,
+      "",
+    )
   | Description => Text(order.description)
   | ShippingAddress => Text(order.shipping)
   | ShippingPhone => Text(order.shippingPhone)
   | ShippingEmail => Text(order.shippingEmail)
   | BillingAddress => Text(order.billing)
-  | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
+  | AmountCapturable => Currency(order.amount_capturable /. conversionFactor, order.currency)
   | ErrorCode => Text(order.error.error_code)
   | MandateData => Text(order.mandate_data->Option.getOr(""))
   | FRMName => Text(order.frm_message.frm_name)
@@ -611,6 +633,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
 
 let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Metadata =>
@@ -657,11 +680,13 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     })
   | Amount =>
     CustomCell(
-      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
+      <CurrencyCell
+        amount={(order.amount /. conversionFactor)->Float.toString} currency={order.currency}
+      />,
       "",
     )
-  | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
-  | AmountReceived => Currency(order.amount_captured /. 100.0, order.currency)
+  | AmountCapturable => Currency(order.amount_capturable /. conversionFactor, order.currency)
+  | AmountReceived => Currency(order.amount_captured /. conversionFactor, order.currency)
   | ClientSecret => Text(order.client_secret)
   | Created => Date(order.created_at)
   | Currency => Text(order.currency)

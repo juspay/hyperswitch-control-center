@@ -1,18 +1,20 @@
 open Typography
 
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
-  open LogicUtils
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+  open CurrencyFormatUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getAllTransactionsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParamerters=Some(
+          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)

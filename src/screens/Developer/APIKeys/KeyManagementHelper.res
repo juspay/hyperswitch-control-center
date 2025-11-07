@@ -233,6 +233,7 @@ module TableActionsCell = {
     let showPopUp = PopUpState.useShowPopUp()
     let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+    // TODO: Remove `MerchantDetailsManage` permission in future
     let showButtons = hasAnyGroupAccess(
       userHasAccess(~groupAccess=MerchantDetailsManage),
       userHasAccess(~groupAccess=AccountManage),
@@ -319,6 +320,7 @@ module ApiKeysTable = {
   open DeveloperUtils
   open HSwitchSettingTypes
   open APIUtilsTypes
+  open Typography
   @react.component
   let make = (~dataNotFoundComponent=?) => {
     let getURL = APIUtils.useGetURL()
@@ -386,8 +388,7 @@ module ApiKeysTable = {
 
     <PageLoaderWrapper screenState>
       {<div className="relative mt-10 md:mt-0">
-        <h2
-          className="font-bold absolute top-2 md:top-6 left-0 text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+        <h2 className={`absolute top-2 md:top-6 left-0 ${heading.sm.semibold}`}>
           {"API Keys"->React.string}
         </h2>
         <LoadedTable

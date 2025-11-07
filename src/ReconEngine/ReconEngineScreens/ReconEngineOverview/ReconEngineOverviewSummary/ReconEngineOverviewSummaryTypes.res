@@ -1,8 +1,10 @@
+open ReconEngineTypes
+
 @unboxed
 type amountType =
-  | Reconciled
-  | Pending
-  | Mismatched
+  | ReconciledAmount
+  | PendingAmount
+  | MismatchedAmount
 
 type accountTransactionCounts = {
   posted_confirmation_count: int,
@@ -20,18 +22,18 @@ type accountTransactionData = {
   posted_transaction_count: int,
   pending_transaction_count: int,
   mismatched_transaction_count: int,
-  posted_confirmation_amount: ReconEngineOverviewTypes.balanceType,
-  pending_confirmation_amount: ReconEngineOverviewTypes.balanceType,
-  mismatched_confirmation_amount: ReconEngineOverviewTypes.balanceType,
-  posted_transaction_amount: ReconEngineOverviewTypes.balanceType,
-  pending_transaction_amount: ReconEngineOverviewTypes.balanceType,
-  mismatched_transaction_amount: ReconEngineOverviewTypes.balanceType,
+  posted_confirmation_amount: balanceType,
+  pending_confirmation_amount: balanceType,
+  mismatched_confirmation_amount: balanceType,
+  posted_transaction_amount: balanceType,
+  pending_transaction_amount: balanceType,
+  mismatched_transaction_amount: balanceType,
 }
 
 @unboxed
 type subHeaderType =
-  | In
-  | Out
+  | DebitAmount
+  | CreditAmount
 
 type reconData = {
   inAmount: string,
@@ -42,11 +44,12 @@ type reconData = {
 
 type reconStatusData = {
   statusType: amountType,
-  data: reconData,
+  reconStatusData: reconData,
 }
 
 type nodeData = {
   label: string,
+  accountType: string,
   statusData: array<reconStatusData>,
   selected: bool,
   onNodeClick: option<unit => unit>,

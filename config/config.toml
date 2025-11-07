@@ -42,6 +42,7 @@ threeds_authenticator=true
 frm=true
 pm_authentication_processor=true
 tax_processor=true
+billing_processor=true
 dispute_analytics=false
 authentication_analytics=false
 performance_monitor=false
@@ -58,7 +59,7 @@ recon_v2=false
 payment_settings_v2=false
 custom_webhook_headers=true
 tenant_user=false
-google_pay_decryption_flow=false
+google_pay_direct_flow=false
 sample_data_analytics=false
 acquirer_config_settings=false
 dev_click_to_pay=true
@@ -76,6 +77,7 @@ dev_webhooks=false
 dev_recon_engine_v1=false
 dev_ai_chat_bot=false
 dev_roles_v2=false
+dev_customer=false
 [default.merchant_config]
 [default.merchant_config.whitelist]
 [default.merchant_config.whitelist.dev_recon_engine_v1]

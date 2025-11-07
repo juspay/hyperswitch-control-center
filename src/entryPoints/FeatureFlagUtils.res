@@ -52,7 +52,7 @@ type featureFlag = {
   forceCookies: bool,
   authenticationAnalytics: bool,
   devIntelligentRoutingV2: bool,
-  googlePayDecryptionFlow: bool,
+  googlePayDirectFlow: bool,
   devWebhooks: bool,
   sampleDataAnalytics: bool,
   threedsExemptionRules: bool,
@@ -64,6 +64,8 @@ type featureFlag = {
   devAiChatBot: bool,
   routingAnalytics: bool,
   devRolesV2: bool,
+  devCustomer: bool,
+  billingProcessor: bool,
   devSidebarV2: bool,
 }
 
@@ -119,7 +121,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devModularityV2: dict->getBool("dev_modularity_v2", false),
     devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
-    googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
+    googlePayDirectFlow: dict->getBool("google_pay_direct_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
     acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
@@ -131,6 +133,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
     routingAnalytics: dict->getBool("routing_analytics", false),
     devRolesV2: dict->getBool("dev_roles_v2", false),
+    devCustomer: dict->getBool("dev_customer", false),
+    billingProcessor: dict->getBool("billing_processor", false),
     devSidebarV2: dict->getBool("dev_sidebar_v2", false),
   }
 }

@@ -266,6 +266,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
+        | CustomMetadata
         | SummaryAndTest
         | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper

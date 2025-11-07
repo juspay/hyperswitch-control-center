@@ -3,6 +3,8 @@ open NewAnalyticsUtils
 open RoutingAnalyticsUtils
 open LeastCostRoutingAnalyticsDistributionTypes
 open LeastCostRoutingAnalyticsTypes
+open CurrencyFormatUtils
+open LogicUtilsTypes
 
 //Functions related to Pie Graph
 let mapPieGraphData = filtereddata => {
@@ -57,6 +59,7 @@ let payloadMapper = (~data: JSON.t, ~tooltipTitle): PieGraphTypes.pieGraphPayloa
       align: "right",
       verticalAlign: "middle",
       enabled: true,
+      layout: "vertical",
     },
   }
 }
@@ -74,7 +77,7 @@ let chartOptions = (data, ~tooltipTitle) => {
     plotOptions: {
       pie: {
         ...defaultOptions.plotOptions.pie,
-        center: ["40%", "65%"],
+        center: ["40%", "50%"],
       },
     },
   }
@@ -113,14 +116,15 @@ let fillMissingDataForSavingsGraph = (
 
 let getSavingsTimeGraphTooltipFormatter = (
   ~title: string,
-  ~valueFormatterType=LogicUtilsTypes.Rate,
+  ~valueFormatterType=Rate,
+  ~currency="",
 ) =>
   (
     @this
     (this: LineGraphTypes.pointFormatter) => {
       let titleHtml = `<div style="font-size: 14px; font-weight: bold;">${title}</div>`
       let getRowHtml = (~iconColor, ~name, ~value) => {
-        let valueString = value->valueFormatter(valueFormatterType)
+        let valueString = value->valueFormatter(valueFormatterType, ~currency)
         `<div style="display: flex; align-items: center;">
               <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
               <div style="margin-left: 8px;font-size: 12px;">${name->snakeToTitle}</div>
@@ -169,7 +173,7 @@ let getSavingsTimeGraphTooltipFormatter = (
 let savingsTimeMapper = (
   ~params: getObjects<JSON.t>,
   ~config: savingsTimeConfig,
-  ~tooltipValueFormatterType=LogicUtilsTypes.Rate,
+  ~tooltipValueFormatterType=Rate,
 ): LineGraphTypes.lineGraphPayload => {
   let {data, xKey, yKey} = params
 
@@ -225,6 +229,7 @@ let savingsTimeMapper = (
     tooltipFormatter: getSavingsTimeGraphTooltipFormatter(
       ~title=config.tooltipTitle,
       ~valueFormatterType=tooltipValueFormatterType,
+      ~currency="all_currencies",
     ),
     yAxisFormatter: LineGraphUtils.lineGraphYAxisFormatter(
       ~statType=config.statType,
@@ -245,14 +250,14 @@ let savingsTimeMapper = (
 let savingsTimeConfig = {
   title: "Debit Routing Savings",
   yAxisMaxValue: Some(300),
-  statType: LogicUtilsTypes.Amount,
+  statType: Amount,
   suffix: "$",
   tooltipTitle: "Debit Routed Savings",
 }
 let savingsChartOptions = (
   ~params: getObjects<JSON.t>,
   ~config: savingsTimeConfig,
-  ~tooltipValueFormatterType=LogicUtilsTypes.Amount,
+  ~tooltipValueFormatterType=Amount,
 ) => {
   let defaultOptions =
     savingsTimeMapper(

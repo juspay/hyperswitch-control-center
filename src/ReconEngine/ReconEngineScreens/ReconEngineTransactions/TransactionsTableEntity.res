@@ -1,6 +1,19 @@
-open ReconEngineTransactionsTypes
+open ReconEngineTypes
+open ReconEngineUtils
 open ReconEngineTransactionsUtils
 open LogicUtils
+
+type transactionColType =
+  | TransactionId
+  | CreditAccount
+  | DebitAccount
+  | CreditAmount
+  | DebitAmount
+  | Variance
+  | Status
+  | CreatedAt
+  | ReconciliationType
+  | Reason
 
 let defaultColumns: array<transactionColType> = [
   TransactionId,
@@ -41,27 +54,58 @@ let getHeading = (colType: transactionColType) => {
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
+  | ReconciliationType =>
+    Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
+  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Reason")
   }
 }
 
-let getStatusLabel = (statusString: string): Table.cell => {
+let getStatusLabel = (statusString: transactionStatus): Table.cell => {
   Table.Label({
-    title: statusString->String.toUpperCase,
-    color: switch statusString->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-    | Posted => Table.LabelGreen
-    | Mismatched => Table.LabelRed
-    | Expected => Table.LabelBlue
-    | Archived => Table.LabelGray
-    | _ => Table.LabelLightGray
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | PartiallyReconciled => LabelOrange
+    | _ => LabelLightGray
     },
   })
 }
 
-let getCell = (transaction: transactionPayload, colType: transactionColType): Table.cell => {
+let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell => {
+  Table.Label({
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | ForceReconciled => LabelOrange
+    | ManuallyReconciled => LabelGray
+    | Reconciled => LabelBlue
+    | _ => LabelLightGray
+    },
+  })
+}
+
+let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
+  open CurrencyFormatUtils
   switch colType {
-  | TransactionId => EllipsisText(transaction.transaction_id, "")
-  | CreditAccount => Text(getAccounts(transaction.entries, "credit"))
-  | DebitAccount => Text(getAccounts(transaction.entries, "debit"))
+  | TransactionId =>
+    CustomCell(
+      <>
+        <RenderIf condition={transaction.transaction_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customTextCss="max-w-36 truncate whitespace-nowrap"
+            displayValue=Some(transaction.transaction_id)
+          />
+        </RenderIf>
+        <RenderIf condition={transaction.transaction_id->isEmptyString}>
+          <p className="px-8 py-3.5 text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
+  | CreditAccount => Text(getAccounts(transaction.entries, Credit))
+  | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>
     Text(
       valueFormatter(
@@ -88,17 +132,23 @@ let getCell = (transaction: transactionPayload, colType: transactionColType): Ta
     )
   | Status =>
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status)
+    | Some(status) => getStatusLabel(status->getTransactionStatusVariantFromString)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | CreatedAt => Date(transaction.created_at)
+  | ReconciliationType =>
+    switch transaction.data.posted_type {
+    | Some(postedType) => getReconciledTypeLabel(postedType)
+    | None => getReconciledTypeLabel(UnknownTransactionPostedType)
+    }
+  | Reason => Text(transaction.data.reason->Option.getOr("N/A"))
   }
 }
 
 let transactionsEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getTransactionsList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~allColumns,
     ~getHeading,

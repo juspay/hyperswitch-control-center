@@ -276,6 +276,7 @@ let make = (
             initialValues
             validateMandatoryField
             connector={paymentConnectorName}
+            billingConnector=connector
             onSubmit
             connector_account_reference_id=connectorID
           />

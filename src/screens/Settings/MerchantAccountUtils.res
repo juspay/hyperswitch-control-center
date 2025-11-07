@@ -1,13 +1,14 @@
 open HSwitchSettingTypes
+open LogicUtils
+
 let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (profileRecord: profileEntity) => {
-  open LogicUtils
+let parseBussinessProfileJson = (
+  profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+) => {
   let {
-    merchant_id,
-    profile_id,
     profile_name,
     webhook_details,
     return_url,
@@ -27,14 +28,35 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     force_3ds_challenge,
     is_debit_routing_enabled,
     merchant_category_code,
+    is_network_tokenization_enabled,
+    always_request_extended_authorization,
+    is_manual_retry_enabled,
+    always_enable_overcapture,
+    payment_link_config,
   } = profileRecord
 
-  let profileInfo =
-    [
-      ("merchant_id", merchant_id->JSON.Encode.string),
-      ("profile_id", profile_id->JSON.Encode.string),
-      ("profile_name", profile_name->JSON.Encode.string),
-    ]->Dict.fromArray
+  let profileInfo = [("profile_name", profile_name->JSON.Encode.string)]->Dict.fromArray
+
+  // converting allowed domains from array of string to comma separated string
+  let paymentLinkConfig = switch payment_link_config {
+  | Some(config) => config
+  | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
+  }
+  let allowedDomains = paymentLinkConfig.allowed_domains->JSON.Decode.array->Option.getOr([])
+  let allowedDomainsString =
+    allowedDomains
+    ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
+    ->Array.joinWith(",")
+
+  let paymentLinkConfigUpdated = {
+    ...paymentLinkConfig,
+    allowed_domains: allowedDomainsString->JSON.Encode.string,
+  }
+
+  profileInfo->setOptionDict(
+    "payment_link_config",
+    Some(paymentLinkConfigUpdated->Identity.genericTypeToDictOfJson),
+  )
   profileInfo->setDictNull("return_url", return_url)
   profileInfo->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
@@ -64,25 +86,27 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("payment_succeeded_enabled", webhook_details.payment_succeeded_enabled)
   profileInfo->setOptionBool("payment_failed_enabled", webhook_details.payment_failed_enabled)
   profileInfo->setOptionString("payment_response_hash_key", payment_response_hash_key)
-  profileInfo->setOptionArray(
-    "authentication_connectors",
-    authentication_connector_details.authentication_connectors,
-  )
-  profileInfo->setOptionString(
-    "three_ds_requestor_url",
-    authentication_connector_details.three_ds_requestor_url,
-  )
-  profileInfo->setOptionString(
-    "three_ds_requestor_app_url",
-    authentication_connector_details.three_ds_requestor_app_url,
-  )
+  switch authentication_connector_details {
+  | Some(val) =>
+    profileInfo->setOptionArray("authentication_connectors", val.authentication_connectors)
+    profileInfo->setOptionString("three_ds_requestor_url", val.three_ds_requestor_url)
+    profileInfo->setOptionString("three_ds_requestor_app_url", val.three_ds_requestor_app_url)
+  | None => ()
+  }
+
   profileInfo->setOptionBool("force_3ds_challenge", force_3ds_challenge)
   profileInfo->setOptionBool("is_debit_routing_enabled", is_debit_routing_enabled)
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
   profileInfo->setOptionJson("authentication_product_ids", authentication_product_ids)
   profileInfo->setOptionString("merchant_category_code", merchant_category_code)
-
+  profileInfo->setOptionBool("is_network_tokenization_enabled", is_network_tokenization_enabled)
+  profileInfo->setOptionBool("is_manual_retry_enabled", is_manual_retry_enabled)
+  profileInfo->setOptionBool(
+    "always_request_extended_authorization",
+    always_request_extended_authorization,
+  )
+  profileInfo->setOptionBool("always_enable_overcapture", always_enable_overcapture)
   profileInfo->setOptionDict(
     "outgoing_webhook_custom_http_headers",
     outgoing_webhook_custom_http_headers,
@@ -92,7 +116,6 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
 }
 
 let parseMerchantJson = (merchantDict: merchantPayload) => {
-  open LogicUtils
   let {merchant_details, merchant_name, publishable_key, primary_business_details} = merchantDict
   let primary_business_details = primary_business_details->Array.map(detail => {
     let {country, business} = detail
@@ -133,8 +156,33 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   merchantInfo
 }
 
+let getPaymentLinkDomainPayload = (values: JSON.t) => {
+  let paymentLinkDomainDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
+  let paymentLinkConfigTyped = BusinessProfileInterfaceUtils.paymentLinkConfigMapper(
+    paymentLinkConfig,
+  )
+
+  let paymentLinkConfigUpdated = {
+    ...paymentLinkConfigTyped,
+    domain_name: paymentLinkConfig->getString("domain_name", ""),
+    allowed_domains: paymentLinkConfig
+    ->getString("allowed_domains", "")
+    ->String.split(",")
+    ->Array.map(domain => domain->String.trim->JSON.Encode.string)
+    ->JSON.Encode.array,
+  }
+
+  paymentLinkDomainDict->setOptionDict(
+    "payment_link_config",
+    Some(paymentLinkConfigUpdated->Identity.genericTypeToDictOfJson),
+  )
+
+  paymentLinkDomainDict
+}
+
 let getCustomHeadersPayload = (values: JSON.t) => {
-  open LogicUtils
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let outGoingWebHookCustomHttpHeaders = Dict.make()
@@ -158,7 +206,6 @@ let getCustomHeadersPayload = (values: JSON.t) => {
 }
 
 let getMetdataKeyValuePayload = (values: JSON.t) => {
-  open LogicUtils
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let customMetadataVal = Dict.make()
@@ -176,7 +223,6 @@ let getMetdataKeyValuePayload = (values: JSON.t) => {
 }
 
 let getBusinessProfilePayload = (values: JSON.t) => {
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
   webhookSettingsValue->setOptionString(
@@ -270,6 +316,18 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "merchant_category_code",
     valuesDict->getOptionString("merchant_category_code"),
   )
+  profileDetailsDict->setOptionBool(
+    "is_network_tokenization_enabled",
+    valuesDict->getOptionBool("is_network_tokenization_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_manual_retry_enabled",
+    valuesDict->getOptionBool("is_manual_retry_enabled"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_request_extended_authorization",
+    valuesDict->getOptionBool("always_request_extended_authorization"),
+  )
 
   profileDetailsDict->setOptionDict(
     "webhook_details",
@@ -284,6 +342,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "is_click_to_pay_enabled",
     valuesDict->getOptionBool("is_click_to_pay_enabled"),
   )
+  profileDetailsDict->setOptionBool(
+    "always_enable_overcapture",
+    valuesDict->getOptionBool("always_enable_overcapture"),
+  )
 
   let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
   if !(authenticationProductIds->getDictFromJsonObject->isEmptyDict) {
@@ -294,7 +356,6 @@ let getBusinessProfilePayload = (values: JSON.t) => {
 }
 
 let getSettingsPayload = (values: JSON.t, merchantId) => {
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let addressDetailsValue = Dict.make()
   addressDetailsValue->setOptionString("line1", valuesDict->getOptionString("line1"))
@@ -397,8 +458,21 @@ let validationFieldsMapper = key => {
   }
 }
 
+let domainNameValidationFieldsMapper = key => {
+  switch key {
+  | DomainName => "domain_name"
+  | AllowedDomains => "allowed_domains"
+  }
+}
+
+let domainNameValidationErrorMapper = key => {
+  switch key {
+  | DomainName => "Please enter valid URL"->JSON.Encode.string
+  | AllowedDomains => "Please enter allowed domains"->JSON.Encode.string
+  }
+}
+
 let checkValueChange = (~initialDict, ~valuesDict) => {
-  open LogicUtils
   let initialKeys = Dict.keysToArray(initialDict)
   let updatedKeys = Dict.keysToArray(valuesDict)
   let key =
@@ -511,7 +585,6 @@ let validateMerchantAccountForm = (
   ~isLiveMode,
 ) => {
   // Need to refactor
-  open LogicUtils
   let errors = Dict.make()
 
   let valuesDict = values->getDictFromJsonObject
@@ -568,9 +641,52 @@ let validateMerchantAccountForm = (
   errors->JSON.Encode.object
 }
 
-let defaultValueForBusinessProfile = {
-  merchant_id: "",
+let validatePaymentLinkDomainForm = (~values: JSON.t, ~fieldsToValidate) => {
+  let errors = Dict.make()
+  let paymentLinkConfigDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let paymentLinkConfig = valuesDict->getDictfromDict("payment_link_config")
+
+  let domainNameRegex = Js.Re.fromString(
+    "^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?::\\d{4})?$",
+  )
+  let allowedDomainsRegex = Js.Re.fromString(
+    "^(?:(?:https?:\/\/)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?::\\d{1,5})?)(?:,(?:https?:\/\/)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?::\\d{1,5})?)*$",
+  )
+
+  let getRegex = field =>
+    switch field {
+    | DomainName => domainNameRegex
+    | AllowedDomains => allowedDomainsRegex
+    }
+
+  let isValidField = (field, regex) => {
+    RegExp.test(regex, field)
+  }
+
+  fieldsToValidate->Array.forEach(key => {
+    switch key {
+    | DomainName
+    | AllowedDomains =>
+      let fieldValue = getString(paymentLinkConfig, key->domainNameValidationFieldsMapper, "")
+
+      if !isValidField(fieldValue, getRegex(key)) {
+        Dict.set(
+          paymentLinkConfigDict,
+          key->domainNameValidationFieldsMapper,
+          key->domainNameValidationErrorMapper,
+        )
+      }
+    }
+  })
+
+  Dict.set(errors, "payment_link_config", paymentLinkConfigDict->JSON.Encode.object)
+  errors->JSON.Encode.object
+}
+
+let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntity_v1 = {
   profile_id: "",
+  merchant_id: "",
   profile_name: "",
   return_url: None,
   payment_response_hash_key: None,
@@ -583,11 +699,11 @@ let defaultValueForBusinessProfile = {
     payment_succeeded_enabled: None,
     payment_failed_enabled: None,
   },
-  authentication_connector_details: {
+  authentication_connector_details: Some({
     authentication_connectors: None,
     three_ds_requestor_url: None,
     three_ds_requestor_app_url: None,
-  },
+  }),
   collect_shipping_details_from_wallet_connector: None,
   always_collect_shipping_details_from_wallet_connector: None,
   collect_billing_details_from_wallet_connector: None,
@@ -603,17 +719,23 @@ let defaultValueForBusinessProfile = {
   is_debit_routing_enabled: None,
   acquirer_configs: None,
   merchant_category_code: None,
+  is_network_tokenization_enabled: None,
+  always_request_extended_authorization: None,
+  is_manual_retry_enabled: None,
+  always_enable_overcapture: None,
+  billing_processor_id: None,
+  payment_link_config: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
   businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
-let businessProfileNameDropDownOption = arrBusinessProfile =>
-  arrBusinessProfile->Array.map(ele => {
+let businessProfileNameDropDownOption = (arrBusinessProfile, ~profileId) =>
+  arrBusinessProfile->Array.map((ele: BusinessProfileInterfaceTypesV1.profileEntity_v1) => {
     let obj: SelectBox.dropdownOption = {
-      label: {`${ele.profile_name} (${ele.profile_id})`},
-      value: ele.profile_id,
+      label: {`${ele.profile_name} (${profileId})`},
+      value: profileId,
     }
     obj
   })

@@ -2,10 +2,9 @@ open Typography
 
 @react.component
 let make = () => {
-  open ReconEngineOverviewUtils
-  open ReconEngineOverviewTypes
   open APIUtils
   open LogicUtils
+  open ReconEngineRulesUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
@@ -21,7 +20,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(reconRuleItemToObjMapper)
+      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -48,7 +47,7 @@ let make = () => {
     None
   }, [])
 
-  <div className="flex flex-col gap-6 w-full">
+  <div className="flex flex-col gap-4 w-full">
     <PageUtils.PageHeading
       title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
     />

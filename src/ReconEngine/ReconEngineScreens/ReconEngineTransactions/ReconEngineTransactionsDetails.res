@@ -10,12 +10,12 @@ let make = (~id) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
-    Dict.make()->getAllTransactionPayload
+    Dict.make()->getTransactionsPayloadFromDict
   )
   let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
-    Dict.make()->getAllTransactionPayload,
+    Dict.make()->getTransactionsPayloadFromDict,
   ])
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -27,7 +27,7 @@ let make = (~id) => {
         ~id=Some(id),
       )
       let res = await fetchDetails(currentTransactionUrl)
-      let currentTransaction = res->getDictFromJsonObject->getAllTransactionPayload
+      let currentTransaction = res->getDictFromJsonObject->getTransactionsPayloadFromDict
 
       let transactionsList = await getTransactions(
         ~queryParamerters=Some(`transaction_id=${currentTransaction.transaction_id}`),
@@ -44,6 +44,14 @@ let make = (~id) => {
     getTransactionDetails()->ignore
     None
   }, [])
+
+  let detailsFields = React.useMemo(() => {
+    open TransactionsTableEntity
+    switch currentTransactionDetails.data.posted_type {
+    | Some(Reconciled) => [TransactionId, Status, Variance, ReconciliationType, CreatedAt]
+    | _ => [TransactionId, Status, Variance, ReconciliationType, CreatedAt, Reason]
+    }
+  }, [currentTransactionDetails])
 
   <div>
     <div className="flex flex-col gap-4 mb-8">
@@ -65,7 +73,9 @@ let make = (~id) => {
         message="Payment does not exists in out record" renderType=NotFound
       />}>
       <div className="flex flex-col gap-8">
-        <TransactionDetailInfo currentTransactionDetails={currentTransactionDetails} />
+        <TransactionDetailInfo
+          currentTransactionDetails={currentTransactionDetails} detailsFields={detailsFields}
+        />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>
     </PageLoaderWrapper>

@@ -57,32 +57,28 @@ module ThreeDsAppUrl = {
 @react.component
 let make = () => {
   open PaymentSettingsV2Helper
-  open APIUtils
   open HSwitchUtils
   open FormRenderer
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
-  let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod()
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
+  )
+  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let _ = await updateDetails(url, values, Post)
-      let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+      let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -97,9 +93,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <Form
       onSubmit
-      initialValues={businessProfileRecoilVal
-      ->PaymentSettingsV2Utils.parseBusinessProfileForThreeDS
-      ->Identity.genericTypeToJson}
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       validate={values => {
         PaymentSettingsV2Utils.validateMerchantAccountFormV2(
           ~values,
@@ -142,5 +136,8 @@ let make = () => {
         </div>
       </DesktopRow>
     </Form>
+    <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
+      <AcquirerConfigSettingsRevamp />
+    </RenderIf>
   </PageLoaderWrapper>
 }

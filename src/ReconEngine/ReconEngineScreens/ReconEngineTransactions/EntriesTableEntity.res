@@ -1,5 +1,17 @@
-open ReconEngineTransactionsTypes
-open ReconEngineTransactionsUtils
+open ReconEngineTypes
+
+type entryColType =
+  | EntryId
+  | EntryType
+  | AccountName
+  | TransactionId
+  | Amount
+  | Currency
+  | Status
+  | Metadata
+  | CreatedAt
+  | EffectiveAt
+  | OrderID
 
 let defaultColumns: array<entryColType> = [
   EntryId,
@@ -11,6 +23,7 @@ let defaultColumns: array<entryColType> = [
   Metadata,
   CreatedAt,
   EffectiveAt,
+  OrderID,
 ]
 
 let allColumns: array<entryColType> = [
@@ -21,6 +34,20 @@ let allColumns: array<entryColType> = [
   Currency,
   Status,
   Metadata,
+  CreatedAt,
+  EffectiveAt,
+  OrderID,
+]
+
+let detailsFields = [
+  EntryId,
+  EntryType,
+  AccountName,
+  Amount,
+  Currency,
+  TransactionId,
+  OrderID,
+  Status,
   CreatedAt,
   EffectiveAt,
 ]
@@ -37,46 +64,49 @@ let getHeading = (colType: entryColType) => {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
+  | OrderID => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   }
 }
 
-let getStatusLabel = (statusString: string): Table.cell => {
+let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
   Table.Label({
-    title: statusString->String.toUpperCase,
-    color: switch statusString->String.toLowerCase {
-    | "posted" => Table.LabelGreen
-    | "mismatched" => Table.LabelRed
-    | "expected" => Table.LabelBlue
-    | "archived" => Table.LabelGray
-    | "pending" => Table.LabelOrange
-    | _ => Table.LabelLightGray
+    title: (entryStatus :> string)->String.toUpperCase,
+    color: switch entryStatus {
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | Pending => LabelOrange
+    | _ => LabelLightGray
     },
   })
 }
 
-let getCell = (entry: entryPayload, colType: entryColType): Table.cell => {
+let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
-  | EntryId => Text(entry.entry_id)
-  | EntryType => Text(entry.entry_type)
+  | EntryId => DisplayCopyCell(entry.entry_id)
+  | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
   | AccountName => Text(entry.account_name)
-  | TransactionId => Text(entry.transaction_id)
+  | TransactionId => DisplayCopyCell(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
   | Status =>
     switch entry.discarded_status {
-    | Some(discardedStatus) => getStatusLabel(discardedStatus)
+    | Some(discardedStatus) =>
+      getStatusLabel(discardedStatus->ReconEngineUtils.getEntryStatusVariantFromString)
     | None => getStatusLabel(entry.status)
     }
   | Metadata => Text(entry.metadata->JSON.stringify)
   | CreatedAt => Date(entry.created_at)
   | EffectiveAt => Date(entry.effective_at)
+  | OrderID => EllipsisText(entry.order_id, "w-fit")
   }
 }
 
 let entriesEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getEntriesList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~allColumns,
     ~getHeading,

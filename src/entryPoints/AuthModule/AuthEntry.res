@@ -12,9 +12,9 @@ let make = () => {
           <GlobalProvider>
             <UserInfoProvider>
               <ProductSelectionProvider>
-                <OMPSwitchUser>
+                <OMPSwitchUserFromURL>
                   <HyperSwitchApp />
-                </OMPSwitchUser>
+                </OMPSwitchUserFromURL>
               </ProductSelectionProvider>
             </UserInfoProvider>
           </GlobalProvider>

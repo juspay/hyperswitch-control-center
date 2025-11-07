@@ -143,10 +143,10 @@ let getSectionVariant = ({sectionId, subSectionId}) => {
 
 module PageWrapper = {
   @react.component
-  let make = (~title, ~subTitle, ~children) => {
+  let make = (~title, ~subTitle, ~children, ~showPermLink=false) => {
     <div className="flex flex-col gap-7">
       <PageUtils.PageHeading
-        title subTitle customSubTitleStyle="font-500 font-normal text-nd_gray-700"
+        title subTitle customSubTitleStyle="font-500 font-normal text-nd_gray-700" showPermLink
       />
       {children}
     </div>
@@ -176,7 +176,7 @@ let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   },
   {
     name: "Stripe Billing",
-    icon: "/Gateway/STRIPEBILLING.svg",
+    icon: "/assets/Gateway/STRIPEBILLING.svg",
   },
 ]
 

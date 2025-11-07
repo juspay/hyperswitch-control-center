@@ -1,9 +1,11 @@
 open LogicUtils
 open ReconEngineOverviewTypes
-open ColumnGraphTypes
+open ReconEngineTypes
+open ReconEngineAccountsUtils
 open ColumnGraphUtils
-open ReconEngineTransactionsUtils
 open NewAnalyticsUtils
+open ReconEngineUtils
+open CurrencyFormatUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
@@ -16,74 +18,8 @@ let reconciledVolumeColor = "#8BC2F3"
 let highlightStrokeColor = "#3b82f6"
 let normalStrokeColor = "#6b7280"
 
-let defaultAccountDetails = {
-  id: "",
-  account_id: "",
-}
-
-let getAmountPayload = dict => {
-  {
-    value: dict->getFloat("value", 0.0),
-    currency: dict->getString("currency", ""),
-  }
-}
-
-let accountItemToObjMapper = dict => {
-  {
-    account_name: dict->getString("account_name", ""),
-    account_id: dict->getString("account_id", ""),
-    account_type: dict->getString("account_type", ""),
-    profile_id: dict->getString("profile_id", ""),
-    currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
-    initial_balance: dict
-    ->getDictfromDict("initial_balance")
-    ->getAmountPayload,
-    posted_debits: dict
-    ->getDictfromDict("posted_debits")
-    ->getAmountPayload,
-    posted_credits: dict
-    ->getDictfromDict("posted_credits")
-    ->getAmountPayload,
-    pending_debits: dict
-    ->getDictfromDict("pending_debits")
-    ->getAmountPayload,
-    pending_credits: dict
-    ->getDictfromDict("pending_credits")
-    ->getAmountPayload,
-    expected_debits: dict
-    ->getDictfromDict("expected_debits")
-    ->getAmountPayload,
-    expected_credits: dict
-    ->getDictfromDict("expected_credits")
-    ->getAmountPayload,
-    mismatched_debits: dict
-    ->getDictfromDict("mismatched_debits")
-    ->getAmountPayload,
-    mismatched_credits: dict
-    ->getDictfromDict("mismatched_credits")
-    ->getAmountPayload,
-  }
-}
-
-let accountRefItemToObjMapper = dict => {
-  {
-    id: dict->getString("id", ""),
-    account_id: dict->getString("account_id", ""),
-  }
-}
-
-let reconRuleItemToObjMapper = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-    rule_description: dict->getString("rule_description", ""),
-    sources: dict
-    ->getArrayFromDict("sources", [])
-    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
-    targets: dict
-    ->getArrayFromDict("targets", [])
-    ->Array.map(item => item->getDictFromJsonObject->accountRefItemToObjMapper),
-  }
+let getOverviewAccountPayloadFromDict: Dict.t<JSON.t> => accountType = dict => {
+  dict->accountItemToObjMapper
 }
 
 let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: string): (
@@ -93,12 +29,12 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   let account =
     accountData
     ->Array.find(account => account.account_id === accountId)
-    ->Option.getOr(Dict.make()->accountItemToObjMapper)
-  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
+    ->Option.getOr(Dict.make()->getAccountPayloadFromDict)
+  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
+  transactionsData: array<ReconEngineTypes.transactionType>,
   ~sourceAccountName: string,
   ~sourceAccountCurrency: string,
   ~targetAccountName: string,
@@ -118,7 +54,7 @@ let calculateAccountAmounts = (
     let creditAmount = transaction.credit_amount.value
     let debitAmount = transaction.debit_amount.value
 
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status {
     | Posted => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
@@ -136,6 +72,14 @@ let calculateAccountAmounts = (
         tExpected,
       )
     | Expected => (
+        sPosted,
+        tPosted,
+        sMismatched,
+        tMismatched,
+        sExpected +. creditAmount,
+        tExpected +. debitAmount,
+      )
+    | PartiallyReconciled => (
         sPosted,
         tPosted,
         sMismatched,
@@ -171,14 +115,13 @@ let calculateAccountAmounts = (
   ]
 }
 
-let calculateTransactionCounts = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
-) => {
+let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
-    switch transaction.transaction_status->getTransactionTypeFromString {
+    switch transaction.transaction_status {
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
+    | PartiallyReconciled => (posted, mismatched, expected + 1)
     | _ => (posted, mismatched, expected)
     }
   })
@@ -208,30 +151,75 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
   }
 }
 
-let processCountGraphData = (
-  transactionsData: array<ReconEngineTransactionsTypes.transactionPayload>,
-  ~graphColor: string,
-  ~startDate: string,
-  ~endDate: string,
-  ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
-) => {
-  let groupedByDate = transactionsData->Array.reduce(Dict.make(), (acc, transaction) => {
-    let dateStr = transaction.created_at->String.slice(~start=0, ~end=10)
+let getTransactionDate = (transaction: ReconEngineTypes.transactionType) =>
+  transaction.effective_at->String.slice(~start=0, ~end=10)
+
+let findDateRange = transactions => {
+  transactions->Array.reduce(None, (acc, transaction) => {
+    let date = getTransactionDate(transaction)
+    switch acc {
+    | Some((min, max)) => {
+        let earliestDate = date < min ? date : min
+        let latestDate = date > max ? date : max
+        Some((earliestDate, latestDate))
+      }
+    | None => Some((date, date))
+    }
+  })
+}
+
+let calculateSevenDayWindow = (earliestDate, latestDate) => {
+  let earliestDayJs = earliestDate->DayJs.getDayJsForString
+  let sevenDaysLater = earliestDayJs.add(7, "day")
+  let calculatedEndDate = sevenDaysLater.format("YYYY-MM-DD")
+
+  let actualEndDate = calculatedEndDate <= latestDate ? calculatedEndDate : latestDate
+  (earliestDate, actualEndDate)
+}
+
+let filterTransactionsByDateRange = (transactions, startDate, endDate) => {
+  transactions->Array.filter(transaction => {
+    let transactionDate = getTransactionDate(transaction)
+    transactionDate >= startDate && transactionDate <= endDate
+  })
+}
+
+let groupTransactionsByDate = transactions => {
+  transactions->Array.reduce(Dict.make(), (acc, transaction) => {
+    let dateStr = getTransactionDate(transaction)
     let formattedDate = `${dateStr} 00:00:00`
     let currentDateData = acc->getObj(formattedDate, Dict.make())
     let currentCount = currentDateData->getInt("count", 0)
+
     currentDateData->Dict.set("count", (currentCount + 1)->JSON.Encode.int)
     currentDateData->Dict.set("time_bucket", formattedDate->JSON.Encode.string)
     acc->Dict.set(formattedDate, currentDateData->JSON.Encode.object)
     acc
   })
+}
 
-  let today = Date.make()
-  let endDate = if endDate->isEmptyString {
-    today->Js.Date.toISOString
-  } else {
-    today->Js.Date.toISOString->String.slice(~start=0, ~end=10) ++ " 00:00:00"
+let processCountGraphData = (
+  transactionsData: array<ReconEngineTypes.transactionType>,
+  ~graphColor: string,
+  ~granularity=(#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
+) => {
+  let (earliestDate, latestDate) = switch findDateRange(transactionsData) {
+  | Some((earliest, latest)) => (earliest, latest)
+  | None => ("", "")
   }
+
+  let (windowStartDate, windowEndDate) = calculateSevenDayWindow(earliestDate, latestDate)
+
+  let filteredTransactions = filterTransactionsByDateRange(
+    transactionsData,
+    windowStartDate,
+    windowEndDate,
+  )
+
+  let groupedByDate = groupTransactionsByDate(filteredTransactions)
+
+  let actualStartDateTime = `${windowStartDate} 00:00:00`
+  let actualEndDateTime = `${windowEndDate} 23:59:59`
 
   let defaultValue = Dict.make()
   defaultValue->Dict.set("count", 0->JSON.Encode.int)
@@ -242,17 +230,15 @@ let processCountGraphData = (
     ~existingTimeDict=groupedByDate,
     ~timeKey="time_bucket",
     ~defaultValue=defaultValueJson,
-    ~startDate,
-    ~endDate,
+    ~startDate=actualStartDateTime,
+    ~endDate=actualEndDateTime,
     ~granularity,
   )
 
-  let sortedDates =
-    filledData
-    ->Dict.keysToArray
-    ->Array.toSorted(String.compare)
-
-  let countData = sortedDates->Array.map(dateTime => {
+  filledData
+  ->Dict.keysToArray
+  ->Array.toSorted(String.compare)
+  ->Array.map(dateTime => {
     let dateStr = dateTime->String.slice(~start=0, ~end=10)
     let parts = dateStr->String.split("-")
     let monthStr = parts->getValueFromArray(1, "01")
@@ -266,21 +252,19 @@ let processCountGraphData = (
       ->Int.toFloat
 
     {
-      name: `${month} ${day}`,
+      ColumnGraphTypes.name: `${month} ${day}`,
       y: count,
       color: graphColor,
     }
   })
-
-  countData
 }
 
 let createColumnGraphCountPayload = (
-  ~countData: array<dataObj>,
+  ~countData: array<ColumnGraphTypes.dataObj>,
   ~title: string,
   ~color: string,
 ) => {
-  let columnGraphData: columnGraphPayload = {
+  let columnGraphData: ColumnGraphTypes.columnGraphPayload = {
     data: [
       {
         showInLegend: false,
@@ -298,7 +282,13 @@ let createColumnGraphCountPayload = (
 }
 
 let initialDisplayFilters = () => {
-  let statusOptions = ReconEngineUtils.getTransactionStatusOptions([Mismatched, Expected, Posted])
+  let statusOptions = ReconEngineFilterUtils.getTransactionStatusOptions([
+    Expected,
+    Mismatched,
+    PartiallyReconciled,
+    Posted,
+    Void,
+  ])
   [
     (
       {

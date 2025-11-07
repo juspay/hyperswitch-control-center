@@ -25,13 +25,14 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let {userInfo: {orgId, merchantId, profileId, roleId, version}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    userInfo: {orgId, merchantId, profileId, roleId, version},
+    checkUserEntity,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
@@ -145,7 +146,12 @@ let make = () => {
                           </RenderIf>
                           <RenderIf
                             condition={featureFlagDetails.devAiChatBot &&
-                            userHasAccess(~groupAccess=MerchantDetailsView) == Access &&
+                            // TODO: Remove `MerchantDetailsView` permission in future
+                            hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsView),
+                              userHasAccess(~groupAccess=AccountView),
+                            ) == Access &&
+                            !checkUserEntity([#Profile]) &&
                             merchantDetailsTypedValue.product_type == Orchestration(V1)}>
                             <div
                               onClick={_ => onAskPulseClick()}

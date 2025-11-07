@@ -3,6 +3,7 @@ open APIUtils
 open OrderUtils
 open HSwitchOrderUtils
 open LogicUtils
+open CurrencyUtils
 @react.component
 let make = (
   ~order: PaymentInterfaceTypes.order,
@@ -33,26 +34,35 @@ let make = (
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {
-      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess)
+      | Succeeded =>
+        showToast(~message="Refund successful", ~toastType=ToastSuccess)
+        setShowModal(_ => false)
       | Failed =>
         showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
+        setShowModal(_ => false)
       | _ =>
         showToast(
           ~message="Processing your refund. Please check refund status",
           ~toastType=ToastInfo,
         )
+        setShowModal(_ => false)
       }
     } catch {
-    | _ => setShowModal(_ => true)
+    | _ => {
+        showToast(~message="Refund failed", ~toastType=ToastError)
+        setShowModal(_ => false)
+      }
     }
   }
+
+  let conversionFactor = getCurrencyConversionFactor(order.currency)
 
   let onSubmit = (values, _) => {
     open Promise
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
+    Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
     updateRefundDetails(body->JSON.Encode.object)->ignore
@@ -105,16 +115,13 @@ let make = (
     let amountValue = Dict.get(valuesDict, "amount")
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
-      if floatVal > amoutAvailableToRefund {
-        let amountSplitArr =
-          Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
-        let decimal = if amountSplitArr->Array.length > 1 {
-          amountSplitArr[1]->Option.getOr("")
-        } else {
-          "00"
-        }
-        let receivedValue = amoutAvailableToRefund->Math.floor->Float.toString
-        let formatted_amount = `${receivedValue}.${decimal}`
+      let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
+      if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
+        let formatted_amount = Float.toFixedWithPrecision(
+          amoutAvailableToRefund,
+          ~digits=getAmountPrecisionDigits(order.currency),
+        )
         Dict.set(
           errors,
           "amount",
@@ -187,13 +194,13 @@ let make = (
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded")}
-              value={Currency(amountRefunded.contents /. 100.0, order.currency)}
+              value={Currency(amountRefunded.contents /. conversionFactor, order.currency)}
             />
           </FormRenderer.DesktopRow>
           <FormRenderer.DesktopRow>
             <DisplayKeyValueParams
               heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount")}
-              value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
+              value={Currency(requestedRefundAmount.contents /. conversionFactor, order.currency)}
             />
           </FormRenderer.DesktopRow>
         </div>

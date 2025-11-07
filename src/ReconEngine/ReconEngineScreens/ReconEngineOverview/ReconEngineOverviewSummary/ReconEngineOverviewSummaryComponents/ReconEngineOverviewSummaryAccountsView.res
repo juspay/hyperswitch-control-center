@@ -1,5 +1,6 @@
 open Typography
-open ReconEngineOverviewTypes
+open ReconEngineTypes
+open LogicUtils
 
 module AccountsHeader = {
   open ReconEngineOverviewSummaryUtils
@@ -51,24 +52,23 @@ module AccountsHeader = {
 }
 
 module AmountCell = {
-  open ReconEngineOverviewSummaryTypes
-  open LogicUtils
+  open CurrencyFormatUtils
 
   @react.component
   let make = (
-    ~subHeaderType: subHeaderType,
+    ~subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType,
     ~creditAmount: balanceType,
     ~debitAmount: balanceType,
     ~borderClass: string,
   ) => {
     <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
       <div className={`${body.md.medium} text-nd_gray-600`}>
-        {switch subHeaderType {
-        | In =>
+        {switch (subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType) {
+        | DebitAmount =>
           `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${creditAmount.currency}`->React.string
-        | Out =>
+        | CreditAmount =>
           `${Math.abs(debitAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${debitAmount.currency}`->React.string
@@ -106,7 +106,7 @@ module AccountRow = {
           let isLastSubHeader = subIndex === Array.length(allSubHeaderTypes) - 1
           let shouldShowBorder = !(isLastAmount && isLastSubHeader)
           let borderClass = shouldShowBorder ? "border-r border-nd_br_gray-150" : ""
-          let key = LogicUtils.randomString(~length=10)
+          let key = randomString(~length=10)
 
           <AmountCell key subHeaderType creditAmount debitAmount borderClass />
         })
@@ -125,7 +125,7 @@ module AccountsList = {
       ->Array.mapWithIndex((data, index) => {
         let isLastRow = index === Array.length(allRowsData) - 1
         let isTotalRow = index === Array.length(accountsData)
-        let key = LogicUtils.randomString(~length=10)
+        let key = randomString(~length=10)
 
         <AccountRow key data isLastRow isTotalRow />
       })
@@ -136,31 +136,31 @@ module AccountsList = {
 
 @react.component
 let make = (~reconRulesList: array<reconRuleType>) => {
-  open LogicUtils
-  open ReconEngineOverviewTypes
   open ReconEngineOverviewSummaryUtils
-  open APIUtils
+  open ReconEngineAccountsUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
+      let accountData = await getAccounts()
+
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let allTransactions = await getTransactions(
+        ~queryParamerters=Some(
+          `${queryString}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
-      let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
-      let allTransactions = await getTransactions()
+
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
+        accountData,
       )
       let accountsWithTransactionAmounts = convertTransactionDataToAccountData(
         accountData,
@@ -179,17 +179,15 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   }
 
   React.useEffect(() => {
-    getAccountsData()->ignore
+    if !(filterValue->isEmptyDict) {
+      getAccountsData()->ignore
+    }
     None
-  }, [])
+  }, [filterValue])
 
   let (allRowsData, currency) = React.useMemo(() => {
     let totals = calculateTotals(accountsData)
-    let account =
-      accountsData->getValueFromArray(
-        0,
-        Dict.make()->ReconEngineOverviewUtils.accountItemToObjMapper,
-      )
+    let account = accountsData->getValueFromArray(0, Dict.make()->getAccountPayloadFromDict)
     let allRows = [...accountsData, totals]
     (allRows, account.currency)
   }, [accountsData])

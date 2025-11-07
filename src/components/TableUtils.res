@@ -261,7 +261,7 @@ module LabelCell = {
       <div className="flex-initial ">
         <div className={`rounded ${borderColor}`}>
           <div
-            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5`}>
+            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5 whitespace-nowrap`}>
             <AddDataAttributes attributes=[("data-label", text)]>
               <div> {highlightedText(text, highlightText)} </div>
             </AddDataAttributes>
@@ -361,22 +361,33 @@ module Numeric = {
 }
 
 module MoneyCell = {
-  let getAmountValue = (amount, currency) => {
-    let amountSplitArr = Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
-    let decimal = amountSplitArr[1]->Option.getOr("00")
-    let receivedValue = amountSplitArr->Array.get(0)->Option.getOr("")
+  open LogicUtils
+  open CurrencyUtils
+  let getAmountValue = (amount: float, currency: string) => {
+    let precisionDigits = getAmountPrecisionDigits(currency)
+    let amountStr = amount->Float.toFixedWithPrecision(~digits=precisionDigits)
+    let amountSplitArr = amountStr->String.split(".")
 
-    let formattedAmount = if receivedValue->String.includes("e") {
-      receivedValue
-    } else if currency === "INR" {
-      receivedValue->String.replaceRegExp(%re("/(\d)(?=(?:(\d\d)+(\d)(?!\d))+(?!\d))/g"), "$1,")
+    let integerPart = amountSplitArr->getValueFromArray(0, "0")
+    let decimalPart = amountSplitArr->getValueFromArray(1, "")
+
+    let formattedInteger = if integerPart->String.includes("e") {
+      integerPart
+    } else if currency->getCurrencyCodeFromString === INR {
+      integerPart->String.replaceRegExp(%re("/(\\d)(?=(?:(\\d\\d)+\\d(?!\\d))+(?!\\d))/g"), "$1,")
     } else {
-      receivedValue->String.replaceRegExp(%re("/(\d)(?=(\d{3})+(?!\d))/g"), "$1,")
+      integerPart->String.replaceRegExp(%re("/(\\d)(?=(\\d{3})+(?!\\d))/g"), "$1,")
     }
-    let formatted_amount = `${formattedAmount}.${decimal}`
 
-    `${formatted_amount} ${currency}`
+    let formattedAmount = if precisionDigits > 0 {
+      `${formattedInteger}.${decimalPart}`
+    } else {
+      formattedInteger
+    }
+
+    `${formattedAmount} ${currency}`
   }
+
   @react.component
   let make = (
     ~amount: float,
@@ -669,16 +680,18 @@ module TableCell = {
         />
       </AddDataAttributes>
     | Text(x) | DropDown(x) => {
-        let x = x->isEmptyString ? "NA" : x
+        let x = x->isEmptyString ? "N/A" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 
-    | EllipsisText(text, width) =>
-      <AddDataAttributes attributes=[("data-testid", text->String.toLowerCase)]>
-        <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
-      </AddDataAttributes>
+    | EllipsisText(text, width) => {
+        let text = text->isEmptyString ? "N/A" : text
+        <AddDataAttributes attributes=[("data-testid", text->String.toLowerCase)]>
+          <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
+        </AddDataAttributes>
+      }
     | TrimmedText(text, width) => <TrimmedText text width highlightText hideShowMore />
     | Currency(amount, currency) =>
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />

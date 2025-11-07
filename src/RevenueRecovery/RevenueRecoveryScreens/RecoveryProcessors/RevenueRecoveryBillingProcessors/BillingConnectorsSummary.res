@@ -1,6 +1,148 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 open Typography
 
+module WebhooksConfiguration = {
+  @react.component
+  let make = () => {
+    open APIUtils
+    open FormRenderer
+
+    let getURL = useGetURL()
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let showToast = ToastState.useShowToast()
+    let updateDetails = useUpdateMethod()
+    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
+      ~version=UserInfoTypes.V2,
+    )
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+    let (isEditMode, setIsEditMode) = React.useState(_ => false)
+    let (merchantBusinessProfileInfo, setMerchantBusinessProfileInfo) = React.useState(() =>
+      JSON.Encode.null->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
+    )
+
+    let onSubmit = async (values, _) => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+        let _ = await updateDetails(url, values, Put, ~version=V2)
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+        setIsEditMode(_ => false)
+
+        showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        }
+      }
+      Nullable.null
+    }
+
+    let getMerchantDetails = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+        setMerchantBusinessProfileInfo(_ =>
+          profile->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Success)
+      }
+    }
+
+    React.useEffect(() => {
+      getMerchantDetails()->ignore
+      None
+    }, [])
+
+    let webhookUrl = FormRenderer.makeFieldInfo(
+      ~label="",
+      ~name="webhook_details.webhook_url",
+      ~placeholder="Enter Webhook URL",
+      ~customInput=InputFields.textInput(
+        ~autoComplete="off",
+        ~customStyle="rounded-xl",
+        ~isDisabled={!isEditMode},
+      ),
+      ~isRequired=false,
+    )
+
+    let paymentResponseHashKey =
+      merchantBusinessProfileInfo.payment_response_hash_key->Option.getOr("")
+
+    <PageLoaderWrapper screenState sectionHeight="h-28">
+      <Form
+        initialValues={businessProfileRecoilVal
+        ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
+        ->Identity.genericTypeToJson}
+        onSubmit
+        validate={values => {
+          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+            ~values,
+            ~isLiveMode=featureFlagDetails.isLiveMode,
+            ~businessProfileRecoilVal,
+          )
+        }}>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between border-b mt-7 pb-2 items-end">
+              <p className={`${heading.sm.semibold}`}> {"Webhook URL"->React.string} </p>
+              <div className="flex gap-4">
+                {if isEditMode {
+                  <>
+                    <Button
+                      text="Cancel"
+                      onClick={_ => setIsEditMode(_ => false)}
+                      buttonType={Secondary}
+                      buttonSize={Small}
+                      customButtonStyle="w-fit"
+                    />
+                    <FormRenderer.SubmitButton
+                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    />
+                  </>
+                } else {
+                  <div
+                    className="flex gap-2 items-center cursor-pointer"
+                    onClick={_ => setIsEditMode(_ => true)}>
+                    <Icon name="nd-edit" size=14 />
+                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                  </div>
+                }}
+              </div>
+            </div>
+            <FieldRenderer
+              field={webhookUrl}
+              labelClass={`!text-fs-15 !text-grey-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-md  "
+            />
+          </div>
+          <RenderIf condition={paymentResponseHashKey->String.length !== 0}>
+            <div className="flex flex-col gap-1 ">
+              <div className="flex justify-between border-b mt-7 pb-2 items-end">
+                <p className={`${heading.sm.semibold}`}>
+                  {"Payment Response Hash Key"->React.string}
+                </p>
+              </div>
+              <HelperComponents.CopyTextCustomComp
+                displayValue={Some(paymentResponseHashKey)}
+                customTextCss={`break-all truncate md:whitespace-normal ${body.md.regular} text-nd_gray-800`}
+                customParentClass="flex items-center gap-5 mt-3"
+                customIconCss="text-jp-gray-700"
+              />
+            </div>
+          </RenderIf>
+        </div>
+      </Form>
+    </PageLoaderWrapper>
+  }
+}
+
 module BillingConnectorDetails = {
   open PageLoaderWrapper
   open LogicUtils
@@ -110,25 +252,17 @@ module BillingConnectorDetails = {
         {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
         | BillingProcessor(CUSTOMBILLING) =>
           <div className="px-2">
-            <div className="flex justify-between pb-4 items-end">
-              <p className={heading.sm.semibold}> {"API Keys"->React.string} </p>
-              <Button
-                text="Add API Key"
-                onClick={_ => ()}
-                buttonType={Secondary}
-                buttonSize={Small}
-                buttonState={Disabled}
-              />
-            </div>
-            <div className="p-1">
-              <NewAnalyticsHelper.NoData height="h-56 -m-2" message="No API Keys Available" />
-            </div>
-            <div className="flex justify-between pb-4 items-end mt-8">
-              <p className={heading.sm.semibold}> {"Webhooks Url"->React.string} </p>
-            </div>
-            <p
-              className={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-5 text-nd_gray-400 !font-jetbrain-mono bg-nd_gray-150 w-96 cursor-not-allowed opacity-70`}
+            <KeyManagementHelper.ApiKeysTable
+              dataNotFoundComponent={<div className="p-1">
+                <div
+                  className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+                  {"No API Keys Available"->React.string}
+                </div>
+              </div>}
             />
+            <div className="mt-5">
+              <WebhooksConfiguration />
+            </div>
           </div>
         | _ =>
           <>

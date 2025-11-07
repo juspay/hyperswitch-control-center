@@ -15,8 +15,22 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let integrationType = React.useMemo(() => {
-    formState.values->getDictFromJsonObject->getDictfromDict("connector_wallets_details")
-  }, [])->getIntegrationTypeFromConnectorWalletDetailsGooglePay
+    let connectorWalletDict =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("connector_wallets_details")
+    let googlePayDict = connectorWalletDict->getDictfromDict("google_pay")
+    if (
+      (connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(NUVEI) ||
+      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(WORLDPAYVANTIV) ||
+      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO)) &&
+        googlePayDict->Dict.keysToArray->Array.length <= 0
+    ) {
+      "DECRYPTION"
+    } else {
+      connectorWalletDict->getIntegrationTypeFromConnectorWalletDetailsGooglePay
+    }
+  }, [])
 
   let googlePayFields = React.useMemo(() => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -71,7 +85,12 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     {switch googlePayIntegrationStep {
     | Landing =>
       <Landing
-        googlePayIntegrationType closeModal setGooglePayIntegrationStep setGooglePayIntegrationType
+        googlePayIntegrationType
+        closeModal
+        setGooglePayIntegrationStep
+        setGooglePayIntegrationType
+        connector
+        update
       />
     | Configure =>
       <>
@@ -94,6 +113,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
             setShowWalletConfigurationModal
             update
           />
+        | #decryption => React.null
         }}
       </>
     }}

@@ -30,16 +30,6 @@ let reconExceptions = {
   })
 }
 
-let reconQueue = {
-  Link({
-    name: "File Management",
-    link: `/v1/recon-engine/file-management`,
-    access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
-  })
-}
-
 let reconRuleCreation = {
   Link({
     name: "Rules Library",
@@ -50,13 +40,40 @@ let reconRuleCreation = {
   })
 }
 
-let reconConnection = {
-  Link({
-    name: "Connections",
-    link: `/v1/recon-engine/connection`,
+let sources = {
+  SubLevelLink({
+    name: "Sources",
+    link: "/v1/recon-engine/sources",
+    searchOptions: [],
     access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
+  })
+}
+
+let transformation = {
+  SubLevelLink({
+    name: "Transformation",
+    link: "/v1/recon-engine/transformation",
+    searchOptions: [],
+    access: Access,
+  })
+}
+
+let transformedEntries = {
+  SubLevelLink({
+    name: "Transformed Entries",
+    link: "/v1/recon-engine/transformed-entries",
+    searchOptions: [],
+    access: Access,
+  })
+}
+
+let reconAccounts = {
+  Section({
+    name: "Data",
+    icon: "nd-connectors",
+    showSection: true,
+    links: [sources, transformation, transformedEntries],
+    selectedIcon: "nd-connectors-fill",
   })
 }
 
@@ -65,9 +82,8 @@ let reconEngineSidebars = {
     reconOverview,
     reconTransactions,
     reconExceptions,
-    reconQueue,
     reconRuleCreation,
-    reconConnection,
+    reconAccounts,
   ]
   sidebar
 }

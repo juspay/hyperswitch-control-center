@@ -1,27 +1,36 @@
 open Typography
+open ReconEngineTypes
 
 module RuleWiseStackedBarGraph = {
   @react.component
-  let make = (~rule: ReconEngineOverviewTypes.reconRuleType) => {
+  let make = (~rule: ReconEngineTypes.reconRuleType) => {
+    open CurrencyFormatUtils
     open LogicUtils
 
-    let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+    let getTransactions = ReconEngineHooks.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
     let isMiniLaptopView = MatchMedia.useScreenSizeChecker(~screenSize="1600")
+    let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
     let getAllTransactionsData = async _ => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let transactionsData = await getTransactions(
-          ~queryParamerters=Some(`rule_id=${rule.rule_id}`),
-        )
+        let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+        let queryString = if baseQueryString->isNonEmptyString {
+          `${baseQueryString}&rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
+        } else {
+          `rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
+        }
+        let transactionsData = await getTransactions(~queryParamerters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
+
     let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
       ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
     }, [allTransactionsData])
@@ -41,9 +50,11 @@ module RuleWiseStackedBarGraph = {
     }, [postedCount, mismatchedCount, expectedCount])
 
     React.useEffect(() => {
-      getAllTransactionsData()->ignore
+      if !(filterValue->isEmptyDict) {
+        getAllTransactionsData()->ignore
+      }
       None
-    }, [])
+    }, [filterValue])
 
     <PageLoaderWrapper
       screenState
@@ -72,7 +83,7 @@ module RuleWiseStackedBarGraph = {
 }
 
 @react.component
-let make = (~reconRulesList: array<ReconEngineOverviewTypes.reconRuleType>) => {
+let make = (~reconRulesList: array<reconRuleType>) => {
   <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
     {reconRulesList
     ->Array.map(rule => <RuleWiseStackedBarGraph rule key={rule.rule_id} />)

@@ -68,6 +68,7 @@ module.exports = {
         "130-px": "130px",
         "195-px": "195px",
         "344-px": "344px",
+        "400-px": "400px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
@@ -77,6 +78,7 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+        "2-px": "2px",
       },
       minWidth: {
         "25-rem": "25rem",
@@ -85,6 +87,7 @@ module.exports = {
         "15-rem": "15rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
+        "750-px": "750px",
       },
       minHeight: {
         "500-px": "500px",
@@ -102,6 +105,7 @@ module.exports = {
         extended: "2px",
       },
       width: {
+        "1-px": "1px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
@@ -143,6 +147,7 @@ module.exports = {
         600: "600px",
         700: "700px",
         800: "800px",
+        400: "400px",
       },
       lineHeight: {
         14: "14px",
@@ -398,6 +403,7 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          0: "#FFFFFF",
           25: "#FCFCFD",
           50: "#F5F7FA",
           100: "#FBFBFB",
@@ -435,15 +441,18 @@ module.exports = {
           50: "#ECF4EE",
           100: "#E8F8F5",
           200: "#52B87A",
+          300: "#69AF7D",
           400: "#2DA160",
           500: "#11927E",
-          600: "#217645",
+          600: "#25744C",
         },
         nd_red: {
           50: "#FCF1EF",
+          100: "#FDD4CD",
           200: "#FCB5AA",
-          600: "#C91C00",
           400: "#EC5941",
+          500: "#DD2B0E",
+          600: "#C91C00",
         },
         nd_orange: {
           50: "#FDF1DD",
@@ -454,6 +463,7 @@ module.exports = {
           100: "#FFFBEE",
           200: "#5E4200",
           300: "#FFDF20",
+          600: "#D08700",
           800: "#998335",
         },
       },

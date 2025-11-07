@@ -1,6 +1,7 @@
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open LogicUtils
+  open HierarchicalTransactionsTableEntity
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
@@ -9,7 +10,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -26,10 +27,16 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+          [
+            "expected",
+            "mismatched",
+            "posted",
+            "partially_reconciled",
+            "void",
+          ]->getJsonFromArrayOfString,
         )
       }
-      let baseQueryString = ReconEngineUtils.buildQueryStringFromFilters(
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
       let queryString = if baseQueryString->isNonEmptyString {
@@ -100,17 +107,17 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
       <LoadedTableWithCustomColumns
         title="All Transactions"
         actualData={filteredTransactionsData}
-        entity={TransactionsTableEntity.transactionsEntity(
+        entity={hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/transactions`,
           ~authorization=Access,
         )}
-        resultsPerPage=10
+        resultsPerPage=5
         totalResults={filteredTransactionsData->Array.length}
         offset
         setOffset
         currrentFetchCount={configuredTransactions->Array.length}
-        customColumnMapper=TableAtoms.reconTransactionsOverviewDefaultCols
-        defaultColumns={TransactionsTableEntity.defaultColumnsOverview}
+        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
+        defaultColumns
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
         hideTitle=true
@@ -118,6 +125,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
+        customSeparation=[(2, 3)]
       />
     </PageLoaderWrapper>
   </div>

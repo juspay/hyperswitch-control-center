@@ -264,6 +264,7 @@ module TriggerRules = {
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
             ~customDashboardClass="h-8 text-sm font-normal",
+            ~onDisabledStyle=`!bg-gray-200 border-none !text-gray-900 ${body.md.semibold}`,
           )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
       </div>
@@ -273,24 +274,18 @@ module TriggerRules = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload) => {
-    open APIUtils
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
     let (accountData, setAccountData) = React.useState(_ => [])
+    let getAccounts = ReconEngineHooks.useGetAccounts()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let getAccountsData = async _ => {
       try {
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#ACCOUNTS_LIST,
-        )
-        let res = await fetchDetails(url)
-        let accountData =
-          res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let accountData = await getAccounts()
         setAccountData(_ => accountData)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => ()
+      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
 
@@ -319,41 +314,42 @@ module SourceTargetAccount = {
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
     let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
 
-    {
-      <div className="p-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 max-w-xs">
-            <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              buttonText={getAccountName(sourceAccountId)}
-              input=sourceAccountInput
-              options={accountOptions}
-              hideMultiSelectButtons=true
-              deselectDisable=true
-              disableSelect=true
-              fullLength=true
-            />
-          </div>
-          <div className="flex items-center mt-8">
-            <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
-          </div>
-          <div className="flex-1 max-w-xs">
-            <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              buttonText={getAccountName(targetAccountId)}
-              input=targetAccountInput
-              options={accountOptions}
-              hideMultiSelectButtons=true
-              deselectDisable=true
-              disableSelect=true
-              fullLength=true
-            />
-          </div>
+    <PageLoaderWrapper
+      screenState
+      customUI={<NewAnalyticsHelper.NoData height="h-32" message="No data available." />}
+      customLoader={<Shimmer styleClass="h-32 w-full rounded-b-lg" />}>
+      <div className="flex items-center gap-4 p-6">
+        <div className="flex-1 max-w-xs">
+          <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={getAccountName(sourceAccountId)}
+            input=sourceAccountInput
+            options={accountOptions}
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+          />
+        </div>
+        <div className="flex items-center mt-8">
+          <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+        </div>
+        <div className="flex-1 max-w-xs">
+          <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={getAccountName(targetAccountId)}
+            input=targetAccountInput
+            options={accountOptions}
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+          />
         </div>
       </div>
-    }
+    </PageLoaderWrapper>
   }
 }
 
@@ -487,7 +483,7 @@ let make = (~id) => {
   }, [])
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-8 p-6">
+    <div className="flex flex-col gap-6">
       <BreadCrumbNavigation
         path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
         currentPageTitle=id
@@ -498,7 +494,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
+      <PageUtils.PageHeading title="Configure Rule" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>
