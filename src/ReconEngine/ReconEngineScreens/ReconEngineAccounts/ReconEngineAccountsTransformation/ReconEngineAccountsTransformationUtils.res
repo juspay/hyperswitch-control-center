@@ -3,6 +3,24 @@ open LogicUtils
 open ReconEngineTypes
 open ReconEngineUtils
 
+let basicFieldMappingList: array<basicFieldType> = [
+  Currency,
+  Amount,
+  EffectiveAt,
+  BalanceDirection,
+  OrderId,
+]
+
+let getBasicFieldIdentifier = (fields: schemaFieldsType, fieldType: basicFieldType): string => {
+  switch fieldType {
+  | Currency => fields.currency.identifier
+  | Amount => fields.amount.identifier
+  | EffectiveAt => fields.effective_at.identifier
+  | BalanceDirection => fields.balance_direction.identifier
+  | OrderId => fields.order_id.identifier
+  }
+}
+
 let getTransformationConfigPayloadFromDict = dict => {
   dict->transformationConfigItemToObjMapper
 }
