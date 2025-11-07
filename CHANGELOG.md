@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.07.0
+
+### Features
+
+- Recon engine add `order_id` in entries for exception resolution ([#3814](https://github.com/juspay/hyperswitch-control-center/pull/3814)) ([`c3bfd1c`](https://github.com/juspay/hyperswitch-control-center/commit/c3bfd1c28ed3ad3b851c8624dda2ed4350481bc4))
+
+### Bug Fixes
+
+- Recon engine overview transactions filtering ([#3809](https://github.com/juspay/hyperswitch-control-center/pull/3809)) ([`1038e9b`](https://github.com/juspay/hyperswitch-control-center/commit/1038e9b13cc188c2d3b67760b4098d6dbbbfcc0f))
+
+**Full Changelog:** [`2025.11.06.1...2025.11.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.06.1...2025.11.07.0)
+
+- - -
+
 ## 2025.11.06.1
 
 ### Features
