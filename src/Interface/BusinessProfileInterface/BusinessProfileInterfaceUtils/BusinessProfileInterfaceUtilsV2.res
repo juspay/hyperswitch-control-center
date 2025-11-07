@@ -25,6 +25,19 @@ let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest_v2 = webhoo
   ->getOptionString("webhook_url")
   ->convertOptionalStringToOptionalJson,
 }
+let mapV2AuthConnectorDetailsToCommonType: option<authConnectorDetailsType_v2> => option<
+  BusinessProfileInterfaceTypes.authConnectorDetailsType,
+> = authConnectorDetailsOption => {
+  switch authConnectorDetailsOption {
+  | Some(authConnectorDetails) =>
+    Some({
+      authentication_connectors: authConnectorDetails.authentication_connectors,
+      three_ds_requestor_url: authConnectorDetails.three_ds_requestor_url,
+      three_ds_requestor_app_url: authConnectorDetails.three_ds_requestor_app_url,
+    })
+  | None => None
+  }
+}
 
 let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
   let jsonDict = values->getDictFromJsonObject
@@ -43,29 +56,25 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     authentication_connector_details: !(authenticationConnectorDetails->isEmptyDict)
       ? Some(authenticationConnectorDetails->constructAuthConnectorObject)
       : None,
-    collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
-      "collect_shipping_details_from_wallet_connector",
+    collect_shipping_details_from_wallet_connector_if_required: jsonDict->getOptionBool(
+      "collect_shipping_details_from_wallet_connector_if_required",
     ),
     always_collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
       "always_collect_shipping_details_from_wallet_connector",
     ),
-    collect_billing_details_from_wallet_connector: jsonDict->getOptionBool(
-      "collect_billing_details_from_wallet_connector",
+    collect_billing_details_from_wallet_connector_if_required: jsonDict->getOptionBool(
+      "collect_billing_details_from_wallet_connector_if_required",
     ),
     always_collect_billing_details_from_wallet_connector: jsonDict->getOptionBool(
       "always_collect_billing_details_from_wallet_connector",
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
-    force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
     metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
-    is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
-    max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
-    acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),
     authentication_product_ids: Some(
       jsonDict
       ->getDictfromDict("authentication_product_ids")
@@ -73,11 +82,7 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     ),
     merchant_category_code: jsonDict->getOptionString("merchant_category_code"),
     is_network_tokenization_enabled: jsonDict->getOptionBool("is_network_tokenization_enabled"),
-    always_request_extended_authorization: jsonDict->getOptionBool(
-      "always_request_extended_authorization",
-    ),
-    is_manual_retry_enabled: jsonDict->getOptionBool("is_manual_retry_enabled"),
-    always_enable_overcapture: jsonDict->getOptionBool("always_enable_overcapture"),
+    split_txns_enabled: jsonDict->getOptionString("split_txns_enabled"),
   }
 }
 let mapV2WebhookDetailsToCommonType: webhookDetails_v2 => BusinessProfileInterfaceTypes.webhookDetails = webhookDetailsRecord => {
@@ -92,36 +97,37 @@ let mapV2WebhookDetailsToCommonType: webhookDetails_v2 => BusinessProfileInterfa
   }
 }
 
-let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonProfileEntity = profileEntity => {
+let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonProfileEntity = profileRecord => {
   {
-    profile_id: profileEntity.profile_id,
-    merchant_id: profileEntity.merchant_id,
-    profile_name: profileEntity.profile_name,
-    return_url: None,
-    payment_response_hash_key: None,
-    webhook_details: profileEntity.webhook_details->mapV2WebhookDetailsToCommonType,
-    authentication_connector_details: None,
+    profile_id: profileRecord.profile_id,
+    merchant_id: profileRecord.merchant_id,
+    profile_name: profileRecord.profile_name,
+    return_url: profileRecord.return_url,
+    payment_response_hash_key: profileRecord.payment_response_hash_key,
+    webhook_details: profileRecord.webhook_details->mapV2WebhookDetailsToCommonType,
+    authentication_connector_details: profileRecord.authentication_connector_details->mapV2AuthConnectorDetailsToCommonType,
     collect_shipping_details_from_wallet_connector: None,
-    always_collect_shipping_details_from_wallet_connector: None,
+    always_collect_shipping_details_from_wallet_connector: profileRecord.always_collect_shipping_details_from_wallet_connector,
     collect_billing_details_from_wallet_connector: None,
-    always_collect_billing_details_from_wallet_connector: None,
-    is_connector_agnostic_mit_enabled: None,
-    is_click_to_pay_enabled: None,
-    authentication_product_ids: None,
-    outgoing_webhook_custom_http_headers: None,
+    always_collect_billing_details_from_wallet_connector: profileRecord.always_collect_billing_details_from_wallet_connector,
+    is_connector_agnostic_mit_enabled: profileRecord.is_connector_agnostic_mit_enabled,
+    is_click_to_pay_enabled: profileRecord.is_click_to_pay_enabled,
+    authentication_product_ids: profileRecord.authentication_product_ids,
+    outgoing_webhook_custom_http_headers: profileRecord.outgoing_webhook_custom_http_headers,
     is_auto_retries_enabled: None,
     max_auto_retries_enabled: None,
-    metadata: None,
+    metadata: profileRecord.metadata,
     force_3ds_challenge: None,
-    is_debit_routing_enabled: None,
+    is_debit_routing_enabled: profileRecord.is_debit_routing_enabled,
     acquirer_configs: None,
-    merchant_category_code: None,
-    is_network_tokenization_enabled: None,
+    merchant_category_code: profileRecord.merchant_category_code,
+    is_network_tokenization_enabled: profileRecord.is_network_tokenization_enabled,
     always_request_extended_authorization: None,
     always_enable_overcapture: None,
     is_manual_retry_enabled: None,
-    collect_shipping_details_from_wallet_connector_if_required: None,
-    collect_billing_details_from_wallet_connector_if_required: None,
+    collect_shipping_details_from_wallet_connector_if_required: profileRecord.collect_shipping_details_from_wallet_connector_if_required,
+    collect_billing_details_from_wallet_connector_if_required: profileRecord.collect_billing_details_from_wallet_connector_if_required,
+    split_txns_enabled: profileRecord.split_txns_enabled,
     billing_processor_id: None,
     payment_link_config: None,
   }
@@ -140,17 +146,14 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
 
   {
     profile_name: dict->getString("profile_name", ""),
-    collect_billing_details_from_wallet_connector: dict
-    ->getOptionBool("collect_billing_details_from_wallet_connector")
+    collect_billing_details_from_wallet_connector_if_required: dict
+    ->getOptionBool("collect_billing_details_from_wallet_connector_if_required")
     ->convertOptionalBoolToOptionalJson,
     always_collect_billing_details_from_wallet_connector: dict
     ->getOptionBool("always_collect_billing_details_from_wallet_connector")
     ->convertOptionalBoolToOptionalJson,
     is_connector_agnostic_mit_enabled: dict
     ->getOptionBool("is_connector_agnostic_mit_enabled")
-    ->convertOptionalBoolToOptionalJson,
-    force_3ds_challenge: dict
-    ->getOptionBool("force_3ds_challenge")
     ->convertOptionalBoolToOptionalJson,
     is_debit_routing_enabled: dict
     ->getOptionBool("is_debit_routing_enabled")
@@ -161,12 +164,6 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
     metadata: !(metadataDict->isEmptyDict)
       ? Some(metadataDict->JSON.Encode.object)
       : Some(JSON.Encode.null),
-    is_auto_retries_enabled: dict
-    ->getOptionBool("is_auto_retries_enabled")
-    ->convertOptionalBoolToOptionalJson,
-    max_auto_retries_enabled: dict
-    ->getOptionInt("max_auto_retries_enabled")
-    ->convertOptionalIntToOptionalJson,
     is_click_to_pay_enabled: dict
     ->getOptionBool("is_click_to_pay_enabled")
     ->convertOptionalBoolToOptionalJson,
@@ -179,12 +176,6 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
     is_network_tokenization_enabled: dict
     ->getOptionBool("is_network_tokenization_enabled")
     ->convertOptionalBoolToOptionalJson,
-    always_request_extended_authorization: dict
-    ->getOptionBool("always_request_extended_authorization")
-    ->convertOptionalBoolToOptionalJson,
-    is_manual_retry_enabled: dict
-    ->getOptionBool("is_manual_retry_enabled")
-    ->convertOptionalBoolToOptionalJson,
     return_url: dict
     ->getOptionString("return_url")
     ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
@@ -195,11 +186,8 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
           ->Identity.genericTypeToJson,
         )
       : Some(JSON.Encode.null),
-    collect_shipping_details_from_wallet_connector: dict
-    ->getOptionBool("collect_shipping_details_from_wallet_connector")
-    ->convertOptionalBoolToOptionalJson,
-    always_enable_overcapture: dict
-    ->getOptionBool("always_enable_overcapture")
+    collect_shipping_details_from_wallet_connector_if_required: dict
+    ->getOptionBool("collect_shipping_details_from_wallet_connector_if_required")
     ->convertOptionalBoolToOptionalJson,
     always_collect_shipping_details_from_wallet_connector: dict
     ->getOptionBool("always_collect_shipping_details_from_wallet_connector")
@@ -211,5 +199,8 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
           ->Identity.genericTypeToJson,
         )
       : Some(JSON.Encode.null),
+    split_txns_enabled: dict
+    ->getOptionString("split_txns_enabled")
+    ->convertOptionalStringToOptionalJson,
   }
 }
