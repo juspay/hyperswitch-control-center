@@ -23,7 +23,7 @@ let processingDefaultColumns = [
 
 let getProcessingHeading = colType => {
   switch colType {
-  | StagingEntryId => Table.makeHeaderInfo(~key="staging_entry_id", ~title="Staging Entry ID")
+  | StagingEntryId => Table.makeHeaderInfo(~key="staging_entry_id", ~title="Transformed Entry ID")
   | EntryType => Table.makeHeaderInfo(~key="entry_type", ~title="Entry Type")
   | AccountName => Table.makeHeaderInfo(~key="account", ~title="Account")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
