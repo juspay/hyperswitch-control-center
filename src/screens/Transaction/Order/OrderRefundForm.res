@@ -3,6 +3,7 @@ open APIUtils
 open OrderUtils
 open HSwitchOrderUtils
 open LogicUtils
+open CurrencyUtils
 @react.component
 let make = (
   ~order: PaymentInterfaceTypes.order,
@@ -54,7 +55,9 @@ let make = (
     }
   }
 
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
+  let conversionFactor = getCurrencyConversionFactor(order.currency)
+  let precisionDigits = getAmountPrecisionDigits(order.currency)
+  let amountFieldWithPrecision = HSwitchOrderUtils.amountFieldWithPrecision(~precisionDigits)
 
   let onSubmit = (values, _) => {
     open Promise
@@ -114,16 +117,13 @@ let make = (
     let amountValue = Dict.get(valuesDict, "amount")
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
-      if floatVal > amoutAvailableToRefund {
-        let amountSplitArr =
-          Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
-        let decimal = if amountSplitArr->Array.length > 1 {
-          amountSplitArr[1]->Option.getOr("")
-        } else {
-          "00"
-        }
-        let receivedValue = amoutAvailableToRefund->Math.floor->Float.toString
-        let formatted_amount = `${receivedValue}.${decimal}`
+      let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
+      if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
+        let formatted_amount = Float.toFixedWithPrecision(
+          amoutAvailableToRefund,
+          ~digits=precisionDigits,
+        )
         Dict.set(
           errors,
           "amount",
@@ -208,7 +208,7 @@ let make = (
         </div>
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
-            <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
+            <FormRenderer.FieldRenderer field={amountFieldWithPrecision} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
           {switch order.connector
           ->String.toLowerCase
