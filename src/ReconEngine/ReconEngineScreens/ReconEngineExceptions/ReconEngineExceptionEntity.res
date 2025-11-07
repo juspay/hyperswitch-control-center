@@ -8,15 +8,17 @@ type processingColType =
   | Currency
   | Status
   | EffectiveAt
+  | OrderId
   | Actions
 
 let processingDefaultColumns = [
   StagingEntryId,
   EntryType,
-  AccountName,
+  OrderId,
   Amount,
   Currency,
   Status,
+  AccountName,
   EffectiveAt,
   Actions,
 ]
@@ -30,6 +32,7 @@ let getProcessingHeading = colType => {
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~customWidth="min-w-48")
   | EffectiveAt => Table.makeHeaderInfo(~key="effective_at", ~title="Effective At")
+  | OrderId => Table.makeHeaderInfo(~key="order_id", ~title="Order ID")
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
@@ -48,13 +51,14 @@ let getStatusLabel = (status: processingEntryStatus): Table.cell => {
 
 let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   switch colType {
-  | StagingEntryId => EllipsisText(data.staging_entry_id, "")
-  | EntryType => Text(data.entry_type)
+  | StagingEntryId => DisplayCopyCell(data.staging_entry_id)
+  | EntryType => Text(data.entry_type->LogicUtils.capitalizeString)
   | AccountName => EllipsisText(data.account.account_name, "")
   | Amount => Numeric(data.amount, amount => {amount->Float.toString})
   | Currency => Text(data.currency)
   | Status => getStatusLabel(data.status)
   | EffectiveAt => Date(data.effective_at)
+  | OrderId => DisplayCopyCell(data.order_id)
   | Actions => CustomCell(<ReconEngineAccountsTransformedEntriesActions processingEntry=data />, "")
   }
 }

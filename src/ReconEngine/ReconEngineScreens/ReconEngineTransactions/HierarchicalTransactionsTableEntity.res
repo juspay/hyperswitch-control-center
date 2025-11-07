@@ -73,7 +73,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
   let hierarchicalContainerClassName = "-mx-8 border-r-gray-400 divide-y divide-gray-200"
   switch colType {
   | Date => DateWithoutTime(transaction.effective_at)
-  | TransactionId => Text(transaction.transaction_id)
+  | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
     switch transaction.discarded_status {
     | Some(discardedStatus) =>
@@ -85,9 +85,13 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer
-            fieldValue=entry.entry_id key={LogicUtils.randomString(~length=10)}
-          />
+          <div key={LogicUtils.randomString(~length=10)} className="px-8 py-3.5">
+            <HelperComponents.CopyTextCustomComp
+              customParentClass="flex flex-row items-center gap-2"
+              customTextCss="truncate whitespace-nowrap w-32"
+              displayValue=Some(entry.entry_id)
+            />
+          </div>
         })
         ->React.array}
       </div>
@@ -97,9 +101,13 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <HierarchicalEntryRenderer
-            fieldValue=entry.order_id key={LogicUtils.randomString(~length=10)}
-          />
+          <div key={LogicUtils.randomString(~length=10)} className="px-8 py-3.5">
+            <HelperComponents.CopyTextCustomComp
+              customParentClass="flex flex-row items-center gap-2"
+              customTextCss="truncate whitespace-nowrap w-48"
+              displayValue=Some(entry.order_id)
+            />
+          </div>
         })
         ->React.array}
       </div>
