@@ -3,7 +3,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
 
   switch url.path->HSwitchUtils.urlPath {
-  | list{"v1", "recon-engine", "exceptions", ...remainingPath} =>
+  | list{"v1", "recon-engine", "transaction-exceptions", ...remainingPath} =>
     <EntityScaffold
       entityName="Exceptions"
       remainingPath

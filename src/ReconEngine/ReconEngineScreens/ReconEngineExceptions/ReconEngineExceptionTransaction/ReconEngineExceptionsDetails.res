@@ -97,7 +97,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-6">
       <BreadCrumbNavigation
-        path=[{title: "Exceptions", link: `/v1/recon-engine/exceptions`}]
+        path=[{title: "Recon Exceptions", link: `/v1/recon-engine/transaction-exceptions`}]
         currentPageTitle=id
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"
@@ -106,7 +106,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="Exceptions Detail" />
+      <PageUtils.PageHeading title="Recon Exceptions Detail" />
     </div>
     <PageLoaderWrapper
       screenState

@@ -514,7 +514,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/transaction-exceptions"),
       )
     } catch {
     | _ =>
@@ -554,7 +554,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/transaction-exceptions"),
       )
     } catch {
     | _ =>

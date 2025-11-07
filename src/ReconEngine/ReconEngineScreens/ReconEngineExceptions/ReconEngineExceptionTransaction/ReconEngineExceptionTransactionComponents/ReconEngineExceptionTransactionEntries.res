@@ -94,7 +94,9 @@ let make = (
       ~toastKey=generatedToastKey,
       ~toastDuration=5000,
     )
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"))
+    RescriptReactRouter.replace(
+      GlobalVars.appendDashboardPath(~url="/v1/recon-engine/transaction-exceptions"),
+    )
     Nullable.null
   }
 
