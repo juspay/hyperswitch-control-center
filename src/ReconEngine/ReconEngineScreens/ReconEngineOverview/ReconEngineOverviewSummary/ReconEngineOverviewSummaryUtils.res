@@ -504,9 +504,9 @@ let calculateTotalsFromTransactionAmounts = (
 
 let getStatusIcon = (statusType: amountType) => {
   switch statusType {
-  | ReconciledAmount => ("nd-check-circle-outline", "text-green-500")
-  | PendingAmount => ("nd-hour-glass-outline", "text-yellow-500")
-  | MismatchedAmount => ("nd-alert-triangle-outline", "text-red-500")
+  | ReconciledAmount => ("nd-check-circle-outline", "text-nd_green-600")
+  | PendingAmount => ("nd-hour-glass-outline", "text-nd_yellow-600")
+  | MismatchedAmount => ("nd-alert-triangle-outline", "text-nd_red-500")
   }
 }
 
