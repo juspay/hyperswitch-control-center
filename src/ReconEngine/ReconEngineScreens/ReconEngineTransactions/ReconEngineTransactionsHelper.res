@@ -283,7 +283,7 @@ module HierarchicalEntryRenderer = {
   let make = (~fieldValue: string, ~containerClassName: string="", ~entryClassName: string="") => {
     <div
       key={randomString(~length=10)}
-      className={`px-8 py-3.5 text-sm text-gray-900 w-48 truncate whitespace-nowrap ${entryClassName}`}>
+      className={`px-8 py-3.5 w-48 truncate whitespace-nowrap ${entryClassName}`}>
       {fieldValue->React.string}
     </div>
   }
