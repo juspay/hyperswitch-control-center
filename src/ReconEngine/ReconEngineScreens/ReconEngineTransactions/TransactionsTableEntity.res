@@ -1,6 +1,7 @@
 open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open LogicUtils
 
 type transactionColType =
   | TransactionId
@@ -88,7 +89,21 @@ let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell =
 let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
   open CurrencyFormatUtils
   switch colType {
-  | TransactionId => DisplayCopyCell(transaction.transaction_id)
+  | TransactionId =>
+    CustomCell(
+      <>
+        <RenderIf condition={transaction.transaction_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customTextCss="max-w-36 truncate whitespace-nowrap"
+            displayValue=Some(transaction.transaction_id)
+          />
+        </RenderIf>
+        <RenderIf condition={transaction.transaction_id->isEmptyString}>
+          <p className="px-8 py-3.5 text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
   | CreditAccount => Text(getAccounts(transaction.entries, Credit))
   | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>
