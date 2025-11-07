@@ -64,11 +64,11 @@ module AmountCell = {
     <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
       <div className={`${body.md.medium} text-nd_gray-600`}>
         {switch (subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType) {
-        | Debit =>
+        | DebitAmount =>
           `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${creditAmount.currency}`->React.string
-        | Credit =>
+        | CreditAmount =>
           `${Math.abs(debitAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${debitAmount.currency}`->React.string
@@ -160,6 +160,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
+        accountData,
       )
       let accountsWithTransactionAmounts = convertTransactionDataToAccountData(
         accountData,

@@ -50,6 +50,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     let accountTransactionData = processAllTransactionsWithAmounts(
       [ruleDetails],
       allTransactionsData,
+      accountData,
     )
 
     let sourceData = getTransactionsData(accountTransactionData, sourceAccountData.account_id)
