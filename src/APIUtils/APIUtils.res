@@ -1090,6 +1090,15 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #METADATA_SCHEMA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
+            | None => `${reconBaseURL}/metadata_schemas`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
