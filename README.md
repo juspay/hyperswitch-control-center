@@ -372,6 +372,7 @@ If you don’t have typos installed, you can install it via Cargo (requires Rust
 ```
 cargo install typos-cli
 ```
+
 Alternatively, you can download a precompiled binary from the[releases page](https://github.com/crate-ci/typos/releases).
 
 ### Auto-fixing Typos

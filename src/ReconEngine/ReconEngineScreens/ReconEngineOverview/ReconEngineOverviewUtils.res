@@ -79,6 +79,14 @@ let calculateAccountAmounts = (
         sExpected +. creditAmount,
         tExpected +. debitAmount,
       )
+    | PartiallyReconciled => (
+        sPosted,
+        tPosted,
+        sMismatched,
+        tMismatched,
+        sExpected +. creditAmount,
+        tExpected +. debitAmount,
+      )
     | _ => (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected)
     }
   })
@@ -113,6 +121,7 @@ let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.trans
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
+    | PartiallyReconciled => (posted, mismatched, expected + 1)
     | _ => (posted, mismatched, expected)
     }
   })
