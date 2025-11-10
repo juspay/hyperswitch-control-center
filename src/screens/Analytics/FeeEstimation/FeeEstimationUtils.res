@@ -340,3 +340,29 @@ let fundingSourceGrouped: (
     })
   (costBreakdownGrouped, maxFeeContribution.contents)
 }
+
+let getCurrentMonthAndYear = _ => {
+  let formattedDate = date => date->Date.toString->DateTimeUtils.getFormattedDate("YYYY-MM-DD")
+  let today = Date.make()
+  let currentYear = today->Date.getFullYear
+  let currentMonth = today->Date.getMonth
+  let (lastMonth, lastMonthYear) = if currentMonth == 0 {
+    (11, currentYear - 1)
+  } else {
+    (currentMonth - 1, currentYear)
+  }
+  {
+    "startDate": Date.makeWithYMDH(
+      ~year=lastMonthYear,
+      ~month=lastMonth,
+      ~date=1,
+      ~hours=10,
+    )->formattedDate,
+    "endDate": Date.makeWithYMDH(
+      ~year=lastMonthYear,
+      ~month=currentMonth,
+      ~date=0,
+      ~hours=10,
+    )->formattedDate,
+  }
+}

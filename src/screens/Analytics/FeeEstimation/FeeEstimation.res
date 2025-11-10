@@ -1,6 +1,7 @@
 open FeeEstimationTypes
 open FeeEstimationOverview
 open FeeEstimationTransactionView
+open FeeEstimationUtils
 open FeeEstimationHelper
 open Typography
 open LogicUtils
@@ -26,10 +27,12 @@ module OverviewBreakdown = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=V1(FEE_OVERVIEW_ESTIMATE_BREAKDOWN), ~methodType=Post)
         let body = {
-          "offset": pageDetail.offset,
-          "limit": pageDetail.resultsPerPage,
-          "startDate": monthFilters["startDate"],
-          "endDate": monthFilters["endDate"],
+          "payload": {
+            "offset": pageDetail.offset,
+            "limit": pageDetail.resultsPerPage,
+            "startDate": monthFilters["startDate"],
+            "endDate": monthFilters["endDate"],
+          },
         }->Identity.genericTypeToJson
 
         let response = await updateDetails(url, body, Fetch.Post)
@@ -253,13 +256,8 @@ module TransactionViewContainer = {
 
 @react.component
 let make = () => {
-  let formattedDate = date => date->Date.toString->DateTimeUtils.getFormattedDate("YYYY-MM-DD")
-  let (monthFilters, setMonthFilters) = React.useState(_ =>
-    {
-      "startDate": Date.makeWithYMDH(~month=8, ~year=2025, ~date=1, ~hours=10)->formattedDate,
-      "endDate": Date.makeWithYMDH(~month=9, ~year=2025, ~date=0, ~hours=10)->formattedDate,
-    }
-  )
+  let (monthFilters, setMonthFilters) = React.useState(_ => getCurrentMonthAndYear())
+
   let tabs: array<Tabs.tab> = [
     {
       title: "Overview",
