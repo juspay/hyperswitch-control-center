@@ -14,12 +14,12 @@ module ExpandedTableCustom = {
       ->Array.map(item => {
         <tr
           key={randomString(~length=10)}
-          className={`group h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75 font-fira-code transition duration-300 ease-in-out ${body.md.medium}`}>
+          className={`group h-full rounded-md bg-white text-nd_gray-800 text-opacity-75 dark:bg-nd_gray-800 hover:bg-nd_gray-25 dark:hover:bg-nd_gray-50 dark:hover:bg-opacity-10 dark:text-opacity-75 transition duration-300 ease-in-out ${body.md.medium}`}>
           {feesBreakdownColumns
           ->Array.map(colType => {
             <td
               key={randomString(~length=10)}
-              className="h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960 px-4 py-3">
+              className="h-full p-0 align-top border-t border-nd_br_gray-500 dark:border-nd_br_gray-500 px-4 py-3">
               {switch colType {
               | FeeType =>
                 let feeName = item.feeName->snakeToTitle
