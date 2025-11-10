@@ -16,19 +16,11 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
   })
 }
 
-let defaultColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, Description, CreatedAt]
-
 let allColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, Description, CreatedAt]
 
 let defaultColumns = allColumns
 
 let detailsColumns = [...allColumns, Address]
-  Phone,
-  PhoneCountryCode,
-  Description,
-  Address,
-  CreatedAt,
-]
 
 let getHeading = colType => {
   switch colType {
