@@ -289,7 +289,7 @@ module MetadataInput = {
           </span>
         </p>
         <style> {React.string(expandableTableScrollbarCss)} </style>
-        <div className="flex flex-col gap-3 max-h-64 overflow-y-scroll show-scrollbar pr-2">
+        <div className="flex flex-col gap-3 max-h-40 overflow-y-scroll show-scrollbar pr-2">
           {metadataRows
           ->Array.map(row => {
             <div

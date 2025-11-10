@@ -99,7 +99,7 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
           />
         </RenderIf>
         <RenderIf condition={transaction.transaction_id->isEmptyString}>
-          <p className="px-8 py-3.5 text-nd_gray-600"> {"N/A"->React.string} </p>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
         </RenderIf>
       </>,
       "",

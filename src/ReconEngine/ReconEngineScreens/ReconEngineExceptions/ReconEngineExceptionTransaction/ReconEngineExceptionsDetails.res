@@ -25,6 +25,7 @@ let make = (~id) => {
 
   let getExceptionDetails = async _ => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let currentExceptionUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,

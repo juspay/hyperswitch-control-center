@@ -66,7 +66,7 @@ let make = (
         if statusFilter->Array.length == 0 {
           enhancedFilterValueJson->Dict.set(
             "status",
-            ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
+            ["pending", "processed", "needs_manual_review", "void"]->getJsonFromArrayOfString,
           )
         }
         let queryString =

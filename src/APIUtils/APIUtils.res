@@ -971,6 +971,11 @@ let useGetURL = () => {
               | None => `${reconBaseURL}/staging_entries`
               }
             }
+          | Put =>
+            switch id {
+            | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
+            | None => ""
+            }
           | _ => ""
           }
         | #RECON_RULES =>
@@ -1102,6 +1107,25 @@ let useGetURL = () => {
             switch id {
             | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
             | None => `${reconBaseURL}/metadata_schemas`
+            }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRY_RESOLUTIONS =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(processingEntryId) =>
+              `${reconBaseURL}/exception_management/staging_entries/${processingEntryId}/resolutions`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #VOID_PROCESSING_ENTRY =>
+          switch methodType {
+          | Put =>
+            switch id {
+            | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}/void`
+            | None => ``
             }
           | _ => ""
           }
