@@ -64,49 +64,56 @@ let make = (
   }, (detailsFields, updatedTransformedEntryDetails))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    let url = getURL(
-      ~entityName=V1(HYPERSWITCH_RECON),
-      ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-      ~methodType=Put,
-      ~id=Some(currentTransformedEntryDetails.id),
-    )
-    let body = constructManualReconciliationBody(
-      ~updatedEntry=updatedTransformedEntryDetails,
-      ~values,
-    )
-    let res = await updateDetails(url, body, Put)
-    let transformedEntry = res->getDictFromJsonObject->processingItemToObjMapper
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+        ~methodType=Put,
+        ~id=Some(currentTransformedEntryDetails.id),
+      )
+      let body = constructManualReconciliationBody(
+        ~updatedEntry=updatedTransformedEntryDetails,
+        ~values,
+      )
+      let res = await updateDetails(url, body, Put)
+      let transformedEntry = res->getDictFromJsonObject->processingItemToObjMapper
 
-    let url = getURL(
-      ~entityName=V1(HYPERSWITCH_RECON),
-      ~methodType=Get,
-      ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-      ~queryParamerters=None,
-      ~id=Some(currentTransformedEntryDetails.transformation_history_id),
-    )
-    let transformationHistoryRes = await fetchDetails(url)
-    let transformationHistoryData =
-      transformationHistoryRes->getDictFromJsonObject->transformationHistoryItemToObjMapper
-    setShowConfirmationModal(_ => false)
-    setExceptionStage(_ => TransformedEntryExceptionResolved)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+        ~queryParamerters=None,
+        ~id=Some(currentTransformedEntryDetails.transformation_history_id),
+      )
+      let transformationHistoryRes = await fetchDetails(url)
+      let transformationHistoryData =
+        transformationHistoryRes->getDictFromJsonObject->transformationHistoryItemToObjMapper
+      setShowConfirmationModal(_ => false)
+      setExceptionStage(_ => TransformedEntryExceptionResolved)
 
-    let generatedToastKey = randomString(~length=32)
+      let generatedToastKey = randomString(~length=32)
 
-    showToast(
-      ~toastElement=<CustomToastElement
-        processingEntry=transformedEntry
-        toastKey={generatedToastKey}
-        ingestionHistoryId=transformationHistoryData.ingestion_history_id
-      />,
-      ~message="",
-      ~toastType=ToastSuccess,
-      ~toastKey=generatedToastKey,
-      ~toastDuration=5000,
-    )
-    RescriptReactRouter.replace(
-      GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/transformed-entries"),
-    )
-    Nullable.null
+      showToast(
+        ~toastElement=<CustomToastElement
+          processingEntry=transformedEntry
+          toastKey={generatedToastKey}
+          ingestionHistoryId=transformationHistoryData.ingestion_history_id
+        />,
+        ~message="",
+        ~toastType=ToastSuccess,
+        ~toastKey=generatedToastKey,
+        ~toastDuration=5000,
+      )
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/transformed-entries"),
+      )
+      Nullable.null
+    } catch {
+    | _ => {
+        showToast(~message="An unexpected error occurred. Please try again.", ~toastType=ToastError)
+        Nullable.null
+      }
+    }
   }
 
   let onCloseClickCustomFun = () => {
