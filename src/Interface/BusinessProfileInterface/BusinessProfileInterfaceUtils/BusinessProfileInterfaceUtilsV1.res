@@ -212,10 +212,10 @@ let mapV1BackgroundImageToCommonType: backgroundImage_v1 => BusinessProfileInter
 }
 
 let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileInterfaceTypes.paymentLinkConfig = paymentLinkConfigRecord => {
-  let backgroundImage = switch paymentLinkConfigRecord.background_image {
-  | Some(bgImage) => Some(bgImage->mapV1BackgroundImageToCommonType)
-  | None => None
-  }
+  let backgroundImage =
+    paymentLinkConfigRecord.background_image->Option.map(bgImage =>
+      bgImage->mapV1BackgroundImageToCommonType
+    )
 
   {
     theme: paymentLinkConfigRecord.theme,
@@ -251,10 +251,10 @@ let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileI
 }
 
 let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonProfileEntity = profileRecord => {
-  let paymentLinkConfig = switch profileRecord.payment_link_config {
-  | Some(config) => Some(config->mapV1PaymentLinkConfigToCommonType)
-  | None => None
-  }
+  let paymentLinkConfig =
+    profileRecord.payment_link_config->Option.map(config =>
+      config->mapV1PaymentLinkConfigToCommonType
+    )
 
   {
     profile_id: profileRecord.profile_id,

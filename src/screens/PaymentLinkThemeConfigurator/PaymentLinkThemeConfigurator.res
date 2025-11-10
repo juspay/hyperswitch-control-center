@@ -62,7 +62,7 @@ let make = () => {
     {switch currentStep {
     | Checkout =>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <CheckoutDetails getClientSecret onShowPreview customNavigationPath="/payment-link-theme" />
+        <CheckoutDetails getClientSecret onShowPreview navigationPath="/payment-link-theme" />
       </div>
     | Configurator => <PaymentLinkThemeConfiguratorTool />
     }}

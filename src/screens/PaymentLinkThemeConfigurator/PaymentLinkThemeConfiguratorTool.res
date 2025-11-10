@@ -9,7 +9,6 @@ module ConfiguratorForm = {
     open PaymentLinkThemeConfiguratorHelper
 
     let showToast = ToastState.useShowToast()
-    let (wasmInitialized, setWasmInitialized) = React.useState(_ => false)
     let (initialValues, setInitialValues) = React.useState(_ => initialValues)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
@@ -24,24 +23,7 @@ module ConfiguratorForm = {
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
 
-    let initializeWasm = async () => {
-      try {
-        let _ = await Window.paymentLinkWasmInit()
-        setWasmInitialized(_ => true)
-      } catch {
-      | Exn.Error(e) => {
-          let errorMessage = Exn.message(e)->Option.getOr("WASM initialization failed")
-          setPreviewError(_ => Some(errorMessage))
-        }
-      }
-    }
-
-    React.useEffect(() => {
-      initializeWasm()->ignore
-      None
-    }, [])
-
-    let generatePreview = (~values) => {
+    let generatePreview = React.useCallback((~values) => {
       let publishableKey = merchantDetailsTypedValue.publishable_key
 
       try {
@@ -62,23 +44,19 @@ module ConfiguratorForm = {
         let errors = validationDict->getArrayFromDict("errors", [])
 
         if !isValid {
-          let errorMessages = errors->Array.map(error => {
-            switch error->JSON.Decode.string {
-            | Some(msg) => msg
-            | None => "Unknown validation error"
-            }
-          })
+          let errorMessages =
+            errors->Array.map(error => error->getStringFromJson("Unknown validation error"))
+
           let combinedErrors = errorMessages->Array.joinWith(", ")
           setPreviewError(_ => Some(`Validation failed: ${combinedErrors}`))
-          setPreviewLoading(_ => false)
         } else {
           let response = Window.generatePaymentLinkPreview(
             JSON.stringify(configs->Identity.genericTypeToJson),
           )
-
           setPreviewHtml(_ => response)
-          setPreviewLoading(_ => false)
         }
+
+        setPreviewLoading(_ => false)
       } catch {
       | Exn.Error(e) => {
           let errorMessage = Exn.message(e)->Option.getOr("WASM function failed")
@@ -86,14 +64,12 @@ module ConfiguratorForm = {
           setPreviewLoading(_ => false)
         }
       }
-    }
+    }, (merchantDetailsTypedValue.merchant_id, paymentResult))
 
     React.useEffect(() => {
-      if wasmInitialized {
-        generatePreview(~values=initialValues)
-      }
+      generatePreview(~values=initialValues)
       None
-    }, (initialValues, wasmInitialized, merchantDetailsTypedValue))
+    }, (initialValues, merchantDetailsTypedValue.merchant_id))
 
     let onSubmit = async (values, isAutoSubmit) => {
       setInitialValues(_ => values)
@@ -104,8 +80,7 @@ module ConfiguratorForm = {
           ~paymentLinkConfig=businessProfileRecoilVal.payment_link_config,
           ~styleID=selectedStyleId,
         )
-        let dict = Dict.make()
-        dict->Dict.set("payment_link_config", body->Identity.genericTypeToJson)
+        let dict = [("payment_link_config", body->Identity.genericTypeToJson)]->Dict.fromArray
         let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
         showToast(
           ~toastType=ToastSuccess,
@@ -117,35 +92,6 @@ module ConfiguratorForm = {
       Nullable.null
     }
 
-    module AutoSubmitter = {
-      @react.component
-      let make = (~submit) => {
-        let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-          ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-        )
-        let form = ReactFinalForm.useForm()
-        React.useEffect(() => {
-          let onKeyDown = ev => {
-            let keyCode = ev->ReactEvent.Keyboard.keyCode
-            if keyCode === 13 {
-              form.submit()->ignore
-            }
-          }
-          Window.addEventListener("keydown", onKeyDown)
-          Some(() => Window.removeEventListener("keydown", onKeyDown))
-        }, [])
-
-        React.useEffect(() => {
-          if formState.dirty {
-            submit(formState.values, false)->ignore
-          }
-          None
-        }, [formState.values])
-
-        React.null
-      }
-    }
-
     <RenderIf condition={selectedStyleId->isNonEmptyString}>
       <div className="bg-white rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
@@ -155,7 +101,11 @@ module ConfiguratorForm = {
                 formClass="space-y-4"
                 initialValues
                 onSubmit={(values, _) => onSubmit(values, false)}>
-                <AutoSubmitter submit={(values, _) => onSubmit(values, true)} />
+                <HelperComponents.AutoSubmitter
+                  autoApply=true
+                  submit={(values, _) => onSubmit(values, true)}
+                  submitInputOnEnter=true
+                />
                 <FieldRenderer field={makeBackgroundImageField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
                 <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />
@@ -333,6 +283,7 @@ module CreateNewStyleID = {
   let make = (~setSelectedStyleId) => {
     open FormRenderer
     open Typography
+    let showToast = ToastState.useShowToast()
     let (showModal, setShowModal) = React.useState(() => false)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -364,20 +315,31 @@ module CreateNewStyleID = {
     )
 
     let createNewStyleID = async (values, _) => {
-      let valuesDict = values->getDictFromJsonObject
-      let styleId = valuesDict->getString("style_id", "")->String.trim
+      try {
+        let valuesDict = values->getDictFromJsonObject
+        let styleId = valuesDict->getString("style_id", "")->String.trim
 
-      if styleId->isNonEmptyString {
-        setShowModal(_ => false)
-        setSelectedStyleId(_ => styleId)
+        if styleId->isNonEmptyString {
+          setShowModal(_ => false)
+          setSelectedStyleId(_ => styleId)
+        }
+        let config = businessProfileRecoilVal.payment_link_config
+        let body = constructBusinessProfileBody(~paymentLinkConfig=config, ~styleID=styleId)
+        let dict = [("payment_link_config", body->Identity.genericTypeToJson)]->Dict.fromArray
+        let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
+        showToast(
+          ~toastType=ToastSuccess,
+          ~message="Style ID Created Successfully!",
+          ~autoClose=true,
+        )
+      } catch {
+      | Exn.Error(_) =>
+        showToast(
+          ~toastType=ToastError,
+          ~message="Failed to create new Style ID. Please try again.",
+          ~autoClose=true,
+        )
       }
-      let config = businessProfileRecoilVal.payment_link_config
-      let body = constructBusinessProfileBody(~paymentLinkConfig=config, ~styleID=styleId)
-
-      let dict = Dict.make()
-      dict->Dict.set("payment_link_config", body->Identity.genericTypeToJson)
-      let _ = await updateBusinessProfile(~body=dict->JSON.Encode.object)
-
       Nullable.null
     }
 
@@ -490,22 +452,19 @@ module StyleIdSelection = {
         defaultPaymentLinkConfigValues.business_specific_configs->Option.getOr(JSON.Encode.null)
       let styles = getDictFromJsonObject(stylesDict)->Dict.keysToArray
 
-      setAvailableStyles(_ => {
-        let stylesList = styles->Array.map(
-          styleId => {
-            let dropdownOption: SelectBox.dropdownOption = {
-              label: styleId,
-              value: styleId,
-            }
-            dropdownOption
-          },
-        )
-        stylesList->Array.unshift({
-          label: (Default :> string),
-          value: (Default :> string),
-        })
-        stylesList
+      let stylesList = styles->Array.map(styleId => {
+        let dropdownOption: SelectBox.dropdownOption = {
+          label: styleId,
+          value: styleId,
+        }
+        dropdownOption
       })
+      stylesList->Array.unshift({
+        label: (Default :> string),
+        value: (Default :> string),
+      })
+
+      setAvailableStyles(_ => stylesList)
       None
     }, [businessProfileRecoilVal])
 
@@ -569,12 +528,10 @@ let make = () => {
       ->Identity.genericTypeToJson
     | Custom => {
         let businessSpecificConfigsDict =
-          paymentLinkConfig.business_specific_configs
-          ->Option.getOr(JSON.Encode.null)
-          ->getDictFromJsonObject
-        businessSpecificConfigsDict
-        ->Dict.get(selectedStyleId)
-        ->Option.getOr(Dict.make()->JSON.Encode.object)
+          paymentLinkConfig.business_specific_configs->Option.mapOr(Dict.make(), json =>
+            json->getDictFromJsonObject
+          )
+        businessSpecificConfigsDict->getJsonFromDict(selectedStyleId)
       }
     }
   }

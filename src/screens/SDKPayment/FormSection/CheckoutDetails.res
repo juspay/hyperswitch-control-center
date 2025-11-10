@@ -1,5 +1,5 @@
 @react.component
-let make = (~getClientSecret, ~customNavigationPath=?, ~onShowPreview=_ => ()) => {
+let make = (~getClientSecret, ~navigationPath="/sdk", ~onShowPreview=_ => ()) => {
   open FormRenderer
   open SDKPaymentHelper
   open SDKPaymentUtils
@@ -45,7 +45,6 @@ let make = (~getClientSecret, ~customNavigationPath=?, ~onShowPreview=_ => ()) =
         ~sendAuthType,
       )
       let _ = await getClientSecret(~typedValues)
-      let navigationPath = customNavigationPath->Option.getOr("/sdk")
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=navigationPath))
       onShowPreview()
       // To re-render the SDK back again after the payment is completed
