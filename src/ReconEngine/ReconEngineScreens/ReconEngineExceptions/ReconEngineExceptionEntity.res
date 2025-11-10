@@ -52,7 +52,22 @@ let getStatusLabel = (status: processingEntryStatus): Table.cell => {
 
 let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   switch colType {
-  | StagingEntryId => DisplayCopyCell(data.staging_entry_id)
+  | StagingEntryId =>
+    CustomCell(
+      <>
+        <RenderIf condition={data.staging_entry_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customParentClass="flex flex-row items-center gap-2"
+            customTextCss="truncate whitespace-nowrap max-w-36"
+            displayValue=Some(data.staging_entry_id)
+          />
+        </RenderIf>
+        <RenderIf condition={data.staging_entry_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
   | EntryType => Text(data.entry_type->LogicUtils.capitalizeString)
   | AccountName => EllipsisText(data.account.account_name, "")
   | Amount => Numeric(data.amount, amount => {amount->Float.toString})
