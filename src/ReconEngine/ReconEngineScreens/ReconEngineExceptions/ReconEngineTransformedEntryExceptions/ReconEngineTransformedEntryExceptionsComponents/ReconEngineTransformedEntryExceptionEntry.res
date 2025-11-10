@@ -150,6 +150,7 @@ let make = (
             buttonType={Secondary}
             customButtonStyle="!w-full"
             onClick={_ => {
+              setUpdatedTransformedEntryDetails(_ => currentTransformedEntryDetails)
               setExceptionStage(_ => ShowTransformedEntryResolutionOptions(
                 NoTransformedEntryResolutionOptionNeeded,
               ))
