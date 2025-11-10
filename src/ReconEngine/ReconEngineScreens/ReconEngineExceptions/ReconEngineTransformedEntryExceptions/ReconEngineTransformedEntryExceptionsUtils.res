@@ -194,12 +194,13 @@ let hasFormValuesChanged = (
     accountData->getString("account_id", "") != initialEntryDetails.account.account_id
   let isAccountNameChanged =
     accountData->getString("account_name", "") != initialEntryDetails.account.account_name
-
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
   let isEffectiveAtChanged =
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
+  let isTransformationConfigChanged =
+    currentData->getString("transformation_id", "") != initialEntryDetails.transformation_id
   let isMetadataChanged = {
     let currentMetadata = currentData->getJsonObjectFromDict("metadata")
     let currentMetadataJson = currentMetadata
@@ -214,7 +215,8 @@ let hasFormValuesChanged = (
   isAmountChanged ||
   isEffectiveAtChanged ||
   isMetadataChanged ||
-  isOrderIdChanged
+  isOrderIdChanged ||
+  isTransformationConfigChanged
 }
 
 let validateEditEntryDetails = (
