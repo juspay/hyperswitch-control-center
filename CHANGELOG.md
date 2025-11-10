@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.10.0
+
+### Features
+
+- Added toggles for payment settings v2 ([#3730](https://github.com/juspay/hyperswitch-control-center/pull/3730)) ([`60d3c0d`](https://github.com/juspay/hyperswitch-control-center/commit/60d3c0d4dbdcad341b96fd9c2cf51155fdb1cc23))
+
+**Full Changelog:** [`2025.11.07.1...2025.11.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.07.1...2025.11.10.0)
+
+- - -
+
 ## 2025.11.07.1
 
 ### Bug Fixes
