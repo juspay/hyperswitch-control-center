@@ -591,12 +591,12 @@ let validateMerchantAccountForm = (
   fieldsToValidate->Array.forEach(key => {
     switch key {
     | MaxAutoRetries => {
-        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
-        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Int.toString) {
+        let value = getFloat(valuesDict, key->validationFieldsMapper, 0.0)
+        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Float.toString) {
           Dict.set(
             errors,
             key->validationFieldsMapper,
-            "Please enter integer value from 1 to 5"->JSON.Encode.string,
+            "Please enter an integer value from 1 to 5"->JSON.Encode.string,
           )
         }
       }
