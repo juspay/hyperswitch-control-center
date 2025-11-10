@@ -18,12 +18,11 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 
 let defaultColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, Description, CreatedAt]
 
-let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description, CreatedAt]
+let allColumns = [CustomerId, Name, Email, PhoneCountryCode, Phone, Description, CreatedAt]
 
-let detailsColumns = [
-  CustomerId,
-  Name,
-  Email,
+let defaultColumns = allColumns
+
+let detailsColumns = [...allColumns, Address]
   Phone,
   PhoneCountryCode,
   Description,
