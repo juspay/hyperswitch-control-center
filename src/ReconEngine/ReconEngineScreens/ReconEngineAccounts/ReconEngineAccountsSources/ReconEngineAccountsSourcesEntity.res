@@ -99,7 +99,7 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   switch colType {
   | FileName => Text(data.file_name)
   | IngestionName => Text(data.ingestion_name)
-  | IngestionHistoryId => Text(data.ingestion_history_id)
+  | IngestionHistoryId => DisplayCopyCell(data.ingestion_history_id)
   | Status => ReconEngineAccountsUtils.getStatusLabel(data.status)
   | IngestionType => Text(data.upload_type)
   | ReceivedAt => Date(data.created_at)
@@ -116,7 +116,7 @@ let getIngestionConfigCell = (data: ingestionConfigType, colType): Table.cell =>
   | SourceConfigName => Text(data.name)
   | ConfigurationType =>
     Text(data.data->getDictFromJsonObject->getString("ingestion_type", "")->String.toUpperCase)
-  | IngestionId => Text(data.ingestion_id)
+  | IngestionId => DisplayCopyCell(data.ingestion_id)
   | LastSyncAt => Date(data.last_synced_at)
   }
 }
@@ -126,7 +126,7 @@ let getTransformationConfigCell = (
   colType: transformationConfigColType,
 ): Table.cell => {
   switch colType {
-  | TransformationId => Text(data.transformation_id)
+  | TransformationId => DisplayCopyCell(data.transformation_id)
   | IngestionId => Text(data.ingestion_id)
   | Status =>
     Label({

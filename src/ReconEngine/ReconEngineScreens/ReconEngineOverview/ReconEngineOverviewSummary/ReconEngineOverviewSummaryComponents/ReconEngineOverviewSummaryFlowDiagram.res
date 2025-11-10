@@ -21,18 +21,18 @@ module InOutComponent = {
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.data.inAmount->React.string}
+              {statusItem.reconStatusData.inAmount->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.data.inTxns->React.string}
+              {statusItem.reconStatusData.inTxns->React.string}
             </p>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.data.outAmount->React.string}
+              {statusItem.reconStatusData.outAmount->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.data.outTxns->React.string}
+              {statusItem.reconStatusData.outTxns->React.string}
             </p>
           </div>
         </div>
@@ -132,11 +132,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
-    FilterContext.filterContext,
-  )
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(prev => {
@@ -161,6 +157,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
+        accountData,
       )
 
       setAllData(_ => Some((reconRulesList, accountData, accountTransactionData, allTransactions)))
@@ -185,20 +182,6 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_overview_summary",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {
