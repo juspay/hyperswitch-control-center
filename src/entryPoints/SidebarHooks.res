@@ -2,9 +2,10 @@ open SidebarValues
 open SidebarTypes
 open FeatureFlagUtils
 open ProductTypes
+open HyperswitchAtom
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
@@ -36,7 +37,8 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
-  let sidebar = [
+
+  [
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
@@ -74,48 +76,48 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     ),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
-
-  sidebar
 }
 
 let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
 
 let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
-  let products = [ProductTypes.Orchestration(V1)]
+  let products = [Orchestration(V1)]
 
   if featureFlagDetails.devReconv2Product {
-    products->Array.push(ProductTypes.Recon(V2))->ignore
+    products->Array.push(Recon(V2))->ignore
   }
 
   if featureFlagDetails.devRecoveryV2Product {
-    products->Array.push(ProductTypes.Recovery)->ignore
+    products->Array.push(Recovery)->ignore
   }
 
   if featureFlagDetails.devVaultV2Product {
-    products->Array.push(ProductTypes.Vault)->ignore
+    products->Array.push(Vault)->ignore
   }
 
   if featureFlagDetails.devHypersenseV2Product {
-    products->Array.push(ProductTypes.CostObservability)->ignore
+    products->Array.push(CostObservability)->ignore
   }
 
   if featureFlagDetails.devIntelligentRoutingV2 {
-    products->Array.push(ProductTypes.DynamicRouting)->ignore
+    products->Array.push(DynamicRouting)->ignore
   }
 
   if featureFlagDetails.devOrchestrationV2Product {
-    products->Array.push(ProductTypes.Orchestration(V2))->ignore
+    products->Array.push(Orchestration(V2))->ignore
   }
 
   if featureFlagDetails.devReconEngineV1 {
-    products->Array.push(ProductTypes.Recon(V1))->ignore
+    products->Array.push(Recon(V1))->ignore
   }
 
   products
 }
 
-let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.productTypes>) => {
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>) => {
+  open ProductUtils
+
+  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
@@ -133,8 +135,8 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.p
     }
 
     {
-      name: productType->ProductUtils.getProductDisplayName,
-      icon: productType->ProductUtils.productTypeIconMapper,
+      name: productType->getProductDisplayName,
+      icon: productType->productTypeIconMapper,
       links,
       showSection: true,
     }
@@ -142,7 +144,7 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<ProductTypes.p
 }
 
 let useGetSidebarProductModules = (~isExplored) => {
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let merchantList = Recoil.useRecoilValueFromAtom(merchantListAtom)
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
 
@@ -154,9 +156,9 @@ let useGetSidebarProductModules = (~isExplored) => {
     })
     alreadyExists ? acc : acc->Array.concat([product])
   })
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
-  let filteredProducts = allProducts->Array.filter(productType => {
+  allProducts->Array.filter(productType => {
     let hasProduct = uniqueMerchantListProducts->Array.some(merchantProductType => {
       switch (merchantProductType, productType) {
       | (a, b) => a == b ? true : false
@@ -164,14 +166,12 @@ let useGetSidebarProductModules = (~isExplored) => {
     })
     isExplored ? hasProduct : !hasProduct
   })
-
-  filteredProducts
 }
 
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let defaultSidebar = []

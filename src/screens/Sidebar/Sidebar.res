@@ -1,9 +1,11 @@
 open HeadlessUI
 open SidebarTypes
 open Typography
+open ProductUtils
+open LogicUtils
 
 let defaultLinkSelectionCheck = (firstPart, tabLink) => {
-  firstPart->LogicUtils.removeTrailingSlash === tabLink->LogicUtils.removeTrailingSlash
+  firstPart->removeTrailingSlash === tabLink->removeTrailingSlash
 }
 
 let getIconSize = buttonType => {
@@ -21,7 +23,7 @@ module MenuOption = {
       globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
     <button
-      className={`px-4 py-3 flex ${body.md.regular} w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} ${hoverColor} !bg-sidebar-hoverColor`}
+      className={`px-4 py-3 flex ${body.md.regular} w-full ${secondaryTextColor} cursor-pointer ${backgroundColor.sidebarSecondary} ${hoverColor} bg-sidebar-hoverColor`}
       ?onClick>
       {switch text {
       | Some(str) => React.string(str)
@@ -64,10 +66,12 @@ module SidebarOption = {
 module SidebarSubOption = {
   @react.component
   let make = (~name, ~isSectionExpanded, ~isSelected, ~children=React.null) => {
-    let {globalUIConfig: {sidebarColor: {hoverColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
-    let subOptionClass = isSelected ? `${hoverColor} !bg-sidebar-hoverColor` : ""
+    let {
+      globalUIConfig: {sidebarColor: {hoverColor, secondaryTextColor, primaryTextColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+    let subOptionClass = isSelected
+      ? `bg-sidebar-hoverColor ${hoverColor} ${primaryTextColor} ${body.md.semibold}`
+      : `${secondaryTextColor} ${body.md.medium}`
     let alignmentClasses = children == React.null ? "" : "flex flex-row items-center"
 
     <div
@@ -101,12 +105,11 @@ module SidebarItem = {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-    let activeProductDisplayName = activeProduct->ProductUtils.getProductDisplayName
-    let activeProductVariant =
-      activeProductDisplayName->ProductUtils.getProductVariantFromDisplayName
+    let activeProductDisplayName = activeProduct->getProductDisplayName
+    let activeProductVariant = activeProductDisplayName->getProductVariantFromDisplayName
 
     let selectedClass = if isSelected {
-      `${hoverColor} !bg-sidebar-hoverColor`
+      `${hoverColor} bg-sidebar-hoverColor`
     } else {
       `hover:transition hover:duration-300 `
     }
@@ -212,23 +215,18 @@ module NestedSidebarItem = {
       ThemeProvider.themeContext,
     )
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-    let activeProductDisplayName = activeProduct->ProductUtils.getProductDisplayName
-    let activeProductVariant =
-      activeProductDisplayName->ProductUtils.getProductVariantFromDisplayName
+    let activeProductDisplayName = activeProduct->getProductDisplayName
+    let activeProductVariant = activeProductDisplayName->getProductVariantFromDisplayName
 
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
 
     let selectedClass = if isSelected {
-      `${body.md.semibold}`
+      `${primaryTextColor} ${body.md.semibold}`
     } else {
-      `${body.md.medium} rounded-lg hover:transition hover:duration-300`
+      `${secondaryTextColor} ${body.md.medium} rounded-lg hover:transition hover:duration-300`
     }
-    let textColor = if isSelected {
-      `${primaryTextColor}`
-    } else {
-      `${secondaryTextColor}`
-    }
+
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let nestedSidebarItemRef = React.useRef(Nullable.null)
@@ -258,7 +256,7 @@ module NestedSidebarItem = {
                     | None => ()
                     }
                   }}
-                  className={`${textColor} ${selectedClass} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg`}>
+                  className={`${selectedClass} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg`}>
                   <SidebarSubOption name isSectionExpanded isSelected>
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className="ml-2">
@@ -300,14 +298,13 @@ module NestedSectionItem = {
     )
 
     let sidebarNestedSectionRef = React.useRef(Nullable.null)
-
-    let sectionExpandedAnimation = `rounded-lg transition duration-[250ms] ease-in-out`
+    let sectionExpandedAnimation = "rounded-lg transition duration-[250ms] ease-in-out"
 
     <AddDataAttributes
       attributes=[
         ("data-testid", section.name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
       ]>
-      <div className={`transition duration-300`}>
+      <div className="transition duration-300">
         <div
           ref={sidebarNestedSectionRef->ReactDOM.Ref.domRef}
           className={`${body.md.medium} ${textColor} relative overflow-hidden flex flex-row items-center justify-between px-3 py-1.5 rounded-lg ${cursor} ${isSectionExpanded
@@ -323,7 +320,7 @@ module NestedSectionItem = {
           </div>
           <RenderIf condition={isSideBarExpanded}>
             <Icon
-              name={"nd-angle-down"}
+              name="nd-angle-down"
               className={isSectionExpanded
                 ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
                 : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`}
@@ -420,26 +417,22 @@ module SidebarNestedSection = {
 
     let textColor = {
       if isSideBarExpanded {
-        if isAnySubItemSelected {
-          `${primaryTextColor}`
-        } else {
-          `${secondaryTextColor}  `
-        }
+        isAnySubItemSelected
+          ? `${primaryTextColor} ${body.md.semibold}`
+          : `${secondaryTextColor} ${body.md.medium}`
       } else if isAnySubItemSelected {
-        `${primaryTextColor}`
+        `${primaryTextColor} ${body.md.semibold}`
       } else {
-        `${secondaryTextColor}  `
+        `${secondaryTextColor} ${body.md.medium}`
       }
     }
 
-    let cursor = if isAnySubItemSelected && isSideBarExpanded {
-      `cursor-default`
-    } else {
-      `cursor-pointer`
-    }
+    let cursor = isAnySubItemSelected && isSideBarExpanded ? `cursor-default` : `cursor-pointer`
+
     let expandedTextColor = isAnySubItemSelected
       ? `${primaryTextColor} ${body.md.semibold}`
       : `${secondaryTextColor} ${body.md.medium}`
+
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
       acc &&
       switch subLevelItem {
@@ -497,25 +490,18 @@ module ProductTypeSectionItem = {
     ~isExploredModule: bool,
     ~allowProductToggle: bool,
   ) => {
-    let {
-      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
-    } = React.useContext(ThemeProvider.themeContext)
-    let {activeProduct, onProductSelectClick} = React.useContext(
-      ProductSelectionProvider.defaultContext,
+    let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
+      ThemeProvider.themeContext,
     )
+    let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
+    let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
-    let sectionProductVariant = section.name->ProductUtils.getProductVariantFromDisplayName
-
-    let iconClassName = isExpanded
-      ? `-rotate-180 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
-      : `-rotate-0 transition duration-[250ms] mr-2 ${secondaryTextColor} opacity-70`
+    let iconClassName = `transition duration-[250ms] mr-2 opacity-70 ${secondaryTextColor} ${isExpanded
+        ? "-rotate-180"
+        : "-rotate-0"}`
 
     let handleClick = _ => {
-      if isExploredModule && allowProductToggle {
-        onToggle()
-      } else {
-        onProductSelectClick(section.name)
-      }
+      isExploredModule && allowProductToggle ? onToggle() : onProductSelectClick(section.name)
     }
 
     <div className="flex flex-col">
@@ -542,7 +528,7 @@ module ProductTypeSectionItem = {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
                 <SidebarItem
                   key={Int.toString(index)}
-                  product={section.name->ProductUtils.getProductVariantFromDisplayName}
+                  product={section.name->getProductVariantFromDisplayName}
                   tabInfo
                   isSelected
                   isSidebarExpanded
@@ -554,7 +540,7 @@ module ProductTypeSectionItem = {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
                 <SidebarItem
                   key={Int.toString(index)}
-                  product={section.name->ProductUtils.getProductVariantFromDisplayName}
+                  product={section.name->getProductVariantFromDisplayName}
                   tabInfo
                   isSelected
                   isSidebarExpanded
@@ -627,7 +613,7 @@ let make = (
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let hasMerchantData = React.useMemo(() => {
     merchantList->Array.length > 0 &&
-      merchantList->Array.some(merchant => merchant.id->LogicUtils.isNonEmptyString)
+      merchantList->Array.some(merchant => merchant.id->isNonEmptyString)
   }, [merchantList])
 
   let exploredModules = useGetSidebarProductModules(~isExplored=true)
@@ -643,7 +629,7 @@ let make = (
 
   let allowProductToggle = exploredSidebars->Array.length > 0
   React.useEffect(() => {
-    let activeProductDisplayName = activeProduct->ProductUtils.getProductDisplayName
+    let activeProductDisplayName = activeProduct->getProductDisplayName
     if !Array.includes(expandedSections, activeProductDisplayName) {
       setExpandedSections(prev => [activeProductDisplayName, ...prev])
     }
@@ -739,11 +725,9 @@ let make = (
 
   let toggleSection = sectionName => {
     setExpandedSections(prev => {
-      if Array.includes(prev, sectionName) {
-        prev->Array.filter(name => name !== sectionName)
-      } else {
-        [sectionName]
-      }
+      Array.includes(prev, sectionName)
+        ? prev->Array.filter(name => name !== sectionName)
+        : [sectionName]
     })
   }
 
@@ -846,7 +830,7 @@ let make = (
                 ->React.array}
               </div>
               <RenderIf condition={productSiebars->Array.length > 0}>
-                <div className={"p-2.5"}>
+                <div className="p-2.5">
                   <div
                     className={`px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
                     {React.string("Other modular services"->String.toUpperCase)}
@@ -857,7 +841,7 @@ let make = (
                     | Link(record) => {
                         let isSelected = linkSelectionCheck(firstPart, record.link)
                         <SidebarItem
-                          product={record.name->ProductUtils.getProductVariantFromDisplayName}
+                          product={record.name->getProductVariantFromDisplayName}
                           key={Int.toString(index)}
                           tabInfo
                           isSelected
@@ -878,13 +862,13 @@ let make = (
             <div
               className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
               style={height: `calc(100vh - ${verticalOffset})`}>
-              <style> {React.string(sidebarScrollbarCss)} </style>
+              <style> {sidebarScrollbarCss->React.string} </style>
               <div className="p-3 pt-0">
                 <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
                   <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                     <div
                       className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
-                          ? "!bg-sidebar-hoverColor"
+                          ? "bg-sidebar-hoverColor"
                           : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
                       <SidebarOption
                         name="Home"
@@ -973,7 +957,7 @@ let make = (
                           </div>
                           <div
                             className={`${body.md.medium} text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
-                            {roleId->LogicUtils.snakeToTitle->React.string}
+                            {roleId->snakeToTitle->React.string}
                           </div>
                         </div>
                         <div className="flex flex-row">

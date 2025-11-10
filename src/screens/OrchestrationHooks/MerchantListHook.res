@@ -2,6 +2,7 @@ let useFetchMerchantList = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
