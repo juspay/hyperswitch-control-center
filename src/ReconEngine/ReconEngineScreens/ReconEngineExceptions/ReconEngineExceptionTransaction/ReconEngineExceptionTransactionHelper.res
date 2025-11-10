@@ -13,7 +13,7 @@ module CustomToastElement = {
         "Transaction partially reconciled",
         "Please review the exceptions page for details",
         `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/transaction-exceptions/${transaction.id}`,
+            ~url=`/v1/recon-engine/exceptions/recon/${transaction.id}`,
           )}`,
         "See Exception",
       )

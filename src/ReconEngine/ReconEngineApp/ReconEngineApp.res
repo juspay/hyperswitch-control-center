@@ -7,10 +7,7 @@ let make = () => {
     switch url.path->urlPath {
     | list{"v1", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
     | list{"v1", "recon-engine", "transactions", ..._} => <ReconEngineTransactionContainer />
-    | list{"v1", "recon-engine", "transaction-exceptions", ..._} =>
-      <ReconEngineExceptionContainer />
-    | list{"v1", "recon-engine", "transformed-entry-exceptions", ..._} =>
-      <ReconEngineTransformedEntryExceptionsContainer />
+    | list{"v1", "recon-engine", "exceptions", ..._} => <ReconEngineExceptionContainer />
     | list{"v1", "recon-engine", "rules", ..._} => <ReconEngineRulesContainer />
     | list{"v1", "recon-engine", "sources", ..._} => <ReconEngineSourcesContainer />
     | list{"v1", "recon-engine", "transformation", ..._} => <ReconEngineTransformationContainer />

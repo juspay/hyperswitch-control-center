@@ -23,7 +23,7 @@ let reconTransactions = {
 let transformedEntriesExceptions = {
   SubLevelLink({
     name: "Transformed Entries",
-    link: "/v1/recon-engine/transformed-entry-exceptions",
+    link: "/v1/recon-engine/exceptions/transformed-entries",
     searchOptions: [],
     access: Access,
   })
@@ -32,7 +32,7 @@ let transformedEntriesExceptions = {
 let reconExceptions = {
   SubLevelLink({
     name: "Recon",
-    link: "/v1/recon-engine/transaction-exceptions",
+    link: "/v1/recon-engine/exceptions/recon",
     searchOptions: [],
     access: Access,
   })

@@ -97,7 +97,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-6">
       <BreadCrumbNavigation
-        path=[{title: "Recon Exceptions", link: `/v1/recon-engine/transaction-exceptions`}]
+        path=[{title: "Recon Exceptions", link: "/v1/recon-engine/exceptions/recon"}]
         currentPageTitle=id
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"
