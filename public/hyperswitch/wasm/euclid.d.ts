@@ -47,6 +47,7 @@ export function getVariantValues(key: string): any;
 export function addTwo(n1: bigint, n2: bigint): bigint;
 export function getDescriptionCategory(): any;
 export function getConnectorConfig(key: string): any;
+export function getBillingConnectorConfig(key: string): any;
 export function getPayoutConnectorConfig(key: string): any;
 export function getAuthenticationConnectorConfig(key: string): any;
 export function getTaxProcessorConfig(key: string): any;
@@ -87,6 +88,7 @@ export interface InitOutput {
   readonly addTwo: (a: bigint, b: bigint) => bigint;
   readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getBillingConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getTaxProcessorConfig: (a: number, b: number, c: number) => void;

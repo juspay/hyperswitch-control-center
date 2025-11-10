@@ -150,6 +150,12 @@ let getV2Url = (
       | Some(id) => `v2/profiles/${id}`
       | None => `v2/profiles`
       }
+    | Put =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
     | _ => `v2/profiles`
     }
   }
@@ -1087,6 +1093,15 @@ let useGetURL = () => {
             | Some(ingestionHistoryId) =>
               `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
             | None => ``
+            }
+          | _ => ""
+          }
+        | #METADATA_SCHEMA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
+            | None => `${reconBaseURL}/metadata_schemas`
             }
           | _ => ""
           }

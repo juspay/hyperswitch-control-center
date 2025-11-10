@@ -200,5 +200,6 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     payment_link_config: paymentLinkConfig->isEmptyDict
       ? None
       : Some(paymentLinkConfig->paymentLinkConfigMapper),
+    split_txns_enabled: jsonDict->getOptionString("split_txns_enabled"),
   }
 }

@@ -3,6 +3,46 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.10.0
+
+### Features
+
+- Added toggles for payment settings v2 ([#3730](https://github.com/juspay/hyperswitch-control-center/pull/3730)) ([`60d3c0d`](https://github.com/juspay/hyperswitch-control-center/commit/60d3c0d4dbdcad341b96fd9c2cf51155fdb1cc23))
+
+**Full Changelog:** [`2025.11.07.1...2025.11.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.07.1...2025.11.10.0)
+
+- - -
+
+## 2025.11.07.1
+
+### Bug Fixes
+
+- Recon overview calculations for transactions with multiple entries ([#3818](https://github.com/juspay/hyperswitch-control-center/pull/3818)) ([`ea5933e`](https://github.com/juspay/hyperswitch-control-center/commit/ea5933e1557148db053518374874abb12d4a78db))
+
+### Miscellaneous Tasks
+
+- Recon engine transformation mappers with `metadata_schema` ([#3815](https://github.com/juspay/hyperswitch-control-center/pull/3815)) ([`97ee112`](https://github.com/juspay/hyperswitch-control-center/commit/97ee112a114accda4982d4540ff55ffd71eedc16))
+- Recon engine add copy icons in tables ([#3820](https://github.com/juspay/hyperswitch-control-center/pull/3820)) ([`6154403`](https://github.com/juspay/hyperswitch-control-center/commit/6154403d4094bf9eb8747faed8d282ab331e382f))
+- Support 0 and 3 decimal currency support for refund Amount Field ([#3819](https://github.com/juspay/hyperswitch-control-center/pull/3819)) ([`30eb0c8`](https://github.com/juspay/hyperswitch-control-center/commit/30eb0c89e271a02ea29812ef6461a4b890049c2c))
+
+**Full Changelog:** [`2025.11.07.0...2025.11.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.07.0...2025.11.07.1)
+
+- - -
+
+## 2025.11.07.0
+
+### Features
+
+- Recon engine add `order_id` in entries for exception resolution ([#3814](https://github.com/juspay/hyperswitch-control-center/pull/3814)) ([`c3bfd1c`](https://github.com/juspay/hyperswitch-control-center/commit/c3bfd1c28ed3ad3b851c8624dda2ed4350481bc4))
+
+### Bug Fixes
+
+- Recon engine overview transactions filtering ([#3809](https://github.com/juspay/hyperswitch-control-center/pull/3809)) ([`1038e9b`](https://github.com/juspay/hyperswitch-control-center/commit/1038e9b13cc188c2d3b67760b4098d6dbbbfcc0f))
+
+**Full Changelog:** [`2025.11.06.1...2025.11.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.06.1...2025.11.07.0)
+
+- - -
+
 ## 2025.11.06.1
 
 ### Features

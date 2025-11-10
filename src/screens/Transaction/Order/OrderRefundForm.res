@@ -56,6 +56,8 @@ let make = (
   }
 
   let conversionFactor = getCurrencyConversionFactor(order.currency)
+  let precisionDigits = getAmountPrecisionDigits(order.currency)
+  let amountFieldWithPrecision = HSwitchOrderUtils.amountFieldWithPrecision(~precisionDigits)
 
   let onSubmit = (values, _) => {
     open Promise
@@ -120,7 +122,7 @@ let make = (
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
         let formatted_amount = Float.toFixedWithPrecision(
           amoutAvailableToRefund,
-          ~digits=getAmountPrecisionDigits(order.currency),
+          ~digits=precisionDigits,
         )
         Dict.set(
           errors,
@@ -206,7 +208,7 @@ let make = (
         </div>
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
-            <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
+            <FormRenderer.FieldRenderer field={amountFieldWithPrecision} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
           {switch order.connector
           ->String.toLowerCase

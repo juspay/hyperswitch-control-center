@@ -9,7 +9,7 @@ module IgnoreTransactionModalContent = {
 
     <div className="flex flex-col gap-4">
       <Form onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
-        {reasonMultiLineTextInputField(~label="Reason to ignore")}
+        {reasonMultiLineTextInputField(~label="Add Remark")}
         <div className="flex justify-end gap-3 mt-4 items-center">
           <Button
             buttonType=Secondary
@@ -38,7 +38,7 @@ module ForceReconcileModalContent = {
 
     <div className="flex flex-col gap-4">
       <Form onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
-        {reasonMultiLineTextInputField(~label="Resolution Remark")}
+        {reasonMultiLineTextInputField(~label="Add Remark")}
         <div className="flex justify-end gap-3 mt-4 items-center">
           <Button
             buttonType=Secondary
@@ -99,6 +99,7 @@ module EditEntryModalContent = {
           ~disabled=false,
         )}
         {amountTextInputField(~disabled=false)}
+        {orderIdTextInputField(~disabled=false)}
         {effectiveAtDatePickerInputField()}
         {metadataCustomInputField(~disabled=false)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
@@ -147,6 +148,7 @@ module MarkAsReceivedModalContent = {
           ~disabled=true,
         )}
         {amountTextInputField(~disabled=false)}
+        {orderIdTextInputField(~disabled=false)}
         {effectiveAtDatePickerInputField()}
         {metadataCustomInputField(~disabled=false)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
@@ -183,6 +185,7 @@ module CreateEntryModalContent = {
           ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
         )}
         {amountTextInputField()}
+        {orderIdTextInputField()}
         {effectiveAtDatePickerInputField()}
         {metadataCustomInputField()}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
