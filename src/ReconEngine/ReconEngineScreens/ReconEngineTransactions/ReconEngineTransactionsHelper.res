@@ -74,6 +74,7 @@ module TransactionDetailInfo = {
   let make = (
     ~currentTransactionDetails: ReconEngineTypes.transactionType,
     ~detailsFields: array<TransactionsTableEntity.transactionColType>,
+    ~customWidthClass="w-1/4",
   ) => {
     open TransactionsTableEntity
 
@@ -81,7 +82,7 @@ module TransactionDetailInfo = {
     let widthClass = if isMiniLaptopView {
       "md:w-1/3 w-1/2"
     } else {
-      "w-1/3"
+      customWidthClass
     }
     let isArchived = currentTransactionDetails.transaction_status == Archived
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
@@ -374,7 +375,9 @@ module AuditTrail = {
         id: transaction.version->Int.toString,
         customComponent: Some(
           <TransactionDetailInfo
-            currentTransactionDetails=transaction detailsFields=[Status, Variance, CreatedAt]
+            currentTransactionDetails=transaction
+            detailsFields=[Status, Variance, CreatedAt]
+            customWidthClass="w-1/3"
           />,
         ),
         onClick: _ => {
