@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.11.0
+
+### Miscellaneous Tasks
+
+- Update Peach Payments WASM ([#3831](https://github.com/juspay/hyperswitch-control-center/pull/3831)) ([`aac466d`](https://github.com/juspay/hyperswitch-control-center/commit/aac466d85d652946bc45e31ce4f2b700aa34f138))
+- Added billing processor set as default feature and wasm function ([#3801](https://github.com/juspay/hyperswitch-control-center/pull/3801)) ([`c17100c`](https://github.com/juspay/hyperswitch-control-center/commit/c17100cc401bece21c9cc7479f88d7f4c453500d))
+- Auto retry toggle not working fix ([#3838](https://github.com/juspay/hyperswitch-control-center/pull/3838)) ([`aba8817`](https://github.com/juspay/hyperswitch-control-center/commit/aba88173b406e070d089a9a0aaa36b9680a992a6))
+
+**Full Changelog:** [`2025.11.10.0...2025.11.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.10.0...2025.11.11.0)
+
+- - -
+
 ## 2025.11.10.0
 
 ### Features
