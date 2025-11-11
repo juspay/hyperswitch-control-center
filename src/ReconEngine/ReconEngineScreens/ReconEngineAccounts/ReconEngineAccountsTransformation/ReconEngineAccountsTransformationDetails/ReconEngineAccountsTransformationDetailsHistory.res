@@ -129,7 +129,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
         filters={<TableSearchFilter
           data={transformationHistoryList}
           filterLogic
-          placeholder="Search by Transformation or Ingestion History ID"
+          placeholder="Search by Transformation History or Ingestion History ID"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText
