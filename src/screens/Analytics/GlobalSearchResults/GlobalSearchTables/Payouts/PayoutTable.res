@@ -1,7 +1,9 @@
+open LogicUtils
 module PreviewTable = {
   open PayoutTableEntity
   open GlobalSearchTypes
   open ResultsTableUtils
+
   @react.component
   let make = (~data) => {
     let defaultSort: Table.sortedObject = {
@@ -12,7 +14,7 @@ module PreviewTable = {
     let tableData =
       data
       ->Array.map(item => {
-        let data = item.texts->LogicUtils.getValueFromArray(0, Dict.make()->JSON.Encode.object)
+        let data = item.texts->getValueFromArray(0, Dict.make()->JSON.Encode.object)
         data->JSON.Decode.object->Option.getOr(Dict.make())
       })
       ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
@@ -58,8 +60,8 @@ let make = () => {
   let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get(domain)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
-  let path = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("domain", "")
+  let searchText = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
+  let path = UrlUtils.useGetFilterDictFromUrl("")->getString("domain", "")
 
   let clearPageDetails = () => {
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
@@ -79,7 +81,7 @@ let make = () => {
       }
 
       if total > 0 {
-        let dataDictArr = data->Array.map(item => item->LogicUtils.getDictFromJsonObject)
+        let dataDictArr = data->Array.map(item => item->getDictFromJsonObject)
         let orderData = arr->Array.concat(dataDictArr)->Array.map(tableItemToObjMapper)
         let list = orderData->Array.map(Nullable.make)
 
