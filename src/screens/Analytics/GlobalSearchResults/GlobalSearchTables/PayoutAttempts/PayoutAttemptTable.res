@@ -12,7 +12,7 @@ module PreviewTable = {
     let tableData =
       data
       ->Array.map(item => {
-        let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
+        let data = item.texts->LogicUtils.getValueFromArray(0, Dict.make()->JSON.Encode.object)
         data->JSON.Decode.object->Option.getOr(Dict.make())
       })
       ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)

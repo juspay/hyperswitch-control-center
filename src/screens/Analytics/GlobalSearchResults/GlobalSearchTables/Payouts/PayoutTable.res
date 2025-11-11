@@ -12,7 +12,7 @@ module PreviewTable = {
     let tableData =
       data
       ->Array.map(item => {
-        let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
+        let data = item.texts->LogicUtils.getValueFromArray(0, Dict.make()->JSON.Encode.object)
         data->JSON.Decode.object->Option.getOr(Dict.make())
       })
       ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
@@ -79,7 +79,7 @@ let make = () => {
       }
 
       if total > 0 {
-        let dataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+        let dataDictArr = data->Array.map(item => item->LogicUtils.getDictFromJsonObject)
         let orderData = arr->Array.concat(dataDictArr)->Array.map(tableItemToObjMapper)
         let list = orderData->Array.map(Nullable.make)
 
