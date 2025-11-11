@@ -73,6 +73,7 @@ let make = (~showDrawer: bool) => {
       )
       let response = await fetchDetails(url)
       let events = response->getArrayFromJson([])->Array.map(getEventTypeFromJson)
+      events->Array.sort(sortByTimeStamp)
       setAuditEvents(_ => events)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

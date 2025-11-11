@@ -161,3 +161,7 @@ let getTimestamp = (event: auditEvent): string => {
   | NoAuditEvent => ""
   }
 }
+
+let sortByTimeStamp = (a: auditEvent, b: auditEvent) => {
+  compareLogic(a->getTimestamp, b->getTimestamp)
+}
