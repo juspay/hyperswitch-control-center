@@ -182,7 +182,7 @@ module EntryAuditTrailInfo = {
       expectedEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
-    <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
+    <div className="flex flex-col gap-4 px-2 my-6">
       {switch (openedTransaction.data.posted_type, openedTransaction.data.reason) {
       | (Some(postedType), Some(resolutionRemark)) =>
         <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
