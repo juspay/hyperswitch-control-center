@@ -89,7 +89,7 @@ module Heading = {
         {switch topic {
         | String(string) =>
           <AddDataAttributes attributes=[("data-heading", string)]>
-            <span className="text-gray-600 dark:text-gray-400 font-bold text-base text-fs-16">
+            <span className="text-gray-600 dark:text-gray-400 font-bold text-base">
               {React.string({string})}
             </span>
           </AddDataAttributes>
