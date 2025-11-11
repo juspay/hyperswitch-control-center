@@ -26,7 +26,7 @@ module EventCard = {
           <div className={`${body.md.semibold} text-nd_gray-800`}>
             {metadata.title->React.string}
           </div>
-          <div className={`${body.xs.medium} text-nd_gray-500 ml-4 flex-shrink-0`}>
+          <div className={`${body.sm.medium} text-nd_gray-500 ml-4 flex-shrink-0`}>
             <TableUtils.DateCell timestamp={getTimestamp(event)} textAlign={Left} />
           </div>
         </div>

@@ -6,11 +6,11 @@ let make = () => {
 
   <>
     <div
-      className={`fixed top-1/2 -translate-y-1/2 z-20 transition-all duration-300 ease-in-out ${iconClass}`}>
+      className={`fixed top-120-px -translate-y-1/2 z-20 transition-all duration-300 ease-in-out ${iconClass}`}>
       <RenderIf condition={!showDrawer}>
         <div className="relative group cursor-pointer" onClick={_ => setShowDrawer(_ => true)}>
           <div
-            className="flex items-center justify-center w-12 h-20 bg-nd_gray-700 rounded-l-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:w-14 hover:bg-nd_gray-800">
+            className="flex items-center justify-center w-12 h-16 bg-nd_gray-700 rounded-l-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:w-14 hover:bg-nd_gray-800">
             <Icon
               name="notification_bell"
               size=20

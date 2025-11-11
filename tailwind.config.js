@@ -95,6 +95,7 @@ module.exports = {
       inset: {
         "5-px": "5px",
         "76-px": "76px",
+        "120-px": "120px",
         "180-px": "180px",
         "500-px": "500px",
       },
