@@ -587,7 +587,7 @@ let getResolutionModalConfig = (
       closeOnOutsideClick: false,
     }
   | ResolvingException(LinkStagingEntriesToTransaction) => {
-      heading: "Match with an existing staging entry",
+      heading: "Match with an existing transformed entry",
       layout: ExpandedSidePanelModal,
       closeOnOutsideClick: false,
     }
