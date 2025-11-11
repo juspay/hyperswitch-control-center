@@ -6,16 +6,6 @@ module EventCard = {
   @react.component
   let make = (~event: auditEvent, ~isLast: bool) => {
     let metadata = getEventMetadata(event)
-    let timestampStr = getTimestamp(event)
-
-    let formattedTimestamp = try {
-      timestampStr
-      ->Date.fromString
-      ->Date.toISOString
-      ->TimeZoneHook.formattedISOString("MMM DD, YYYY HH:mm:ss")
-    } catch {
-    | _ => timestampStr
-    }
 
     <div className="flex gap-4 px-6">
       <div className="flex flex-col items-center flex-shrink-0 pb-6 w-2">
@@ -37,7 +27,7 @@ module EventCard = {
             {metadata.title->React.string}
           </div>
           <div className={`${body.xs.medium} text-nd_gray-500 ml-4 flex-shrink-0`}>
-            {formattedTimestamp->React.string}
+            <TableUtils.DateCell timestamp={getTimestamp(event)} textAlign={Left} />
           </div>
         </div>
         <div className={`${body.sm.medium} text-nd_gray-600`}>
