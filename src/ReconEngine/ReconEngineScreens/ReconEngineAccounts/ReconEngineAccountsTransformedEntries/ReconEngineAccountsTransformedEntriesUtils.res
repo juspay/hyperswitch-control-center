@@ -93,10 +93,10 @@ let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~en
     ],
   },
   {
-    lineageSectionTitle: "Staging Entry",
+    lineageSectionTitle: "Transformed Entry",
     lineageSectionFields: [
       {
-        lineageFieldLabel: "Staging Entry Id",
+        lineageFieldLabel: "Transformed Entry Id",
         lineageFieldValue: entry.staging_entry_id,
         lineageFileCopyable: true,
       },
