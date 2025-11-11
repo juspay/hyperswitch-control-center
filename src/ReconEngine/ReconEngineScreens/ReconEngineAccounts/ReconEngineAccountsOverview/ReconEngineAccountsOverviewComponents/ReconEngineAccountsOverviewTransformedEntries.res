@@ -153,7 +153,7 @@ let make = (
       />
       <div className="flex-shrink-0"> {topFilterUi} </div>
       <LoadedTable
-        title="Staging Entries"
+        title="Transformed Entries"
         hideTitle=true
         actualData={filteredStagingData}
         entity={ReconEngineExceptionEntity.processingTableEntity}
@@ -171,7 +171,7 @@ let make = (
         filters={<TableSearchFilter
           data={stagingData->Array.map(Nullable.make)}
           filterLogic
-          placeholder="Search Staging Entry ID or Order ID or Status"
+          placeholder="Search Transformed Entry ID or Order ID or Status"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText

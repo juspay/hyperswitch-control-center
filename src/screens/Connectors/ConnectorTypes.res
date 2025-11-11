@@ -130,6 +130,7 @@ type processorTypes =
   | TESOURO
   | FINIX
   | PAYJUSTNOW
+  | ZIFT
 
 type payoutProcessorTypes =
   | ADYEN
