@@ -179,7 +179,7 @@ let make = () => {
           filters={<TableSearchFilter
             data={stagingData->Array.map(Nullable.make)}
             filterLogic
-            placeholder="Search Staging Entry ID or Status"
+            placeholder="Search Transformed Entry ID or Status"
             customSearchBarWrapperWidth="w-full lg:w-1/3"
             customInputBoxWidth="w-full rounded-xl"
             searchVal=searchText

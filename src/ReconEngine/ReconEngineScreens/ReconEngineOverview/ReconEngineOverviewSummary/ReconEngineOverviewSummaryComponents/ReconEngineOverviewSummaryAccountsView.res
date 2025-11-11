@@ -64,11 +64,11 @@ module AmountCell = {
     <div className={`px-4 py-3 text-center flex items-center justify-center ${borderClass}`}>
       <div className={`${body.md.medium} text-nd_gray-600`}>
         {switch (subHeaderType: ReconEngineOverviewSummaryTypes.subHeaderType) {
-        | Debit =>
+        | DebitAmount =>
           `${Math.abs(creditAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${creditAmount.currency}`->React.string
-        | Credit =>
+        | CreditAmount =>
           `${Math.abs(debitAmount.value)->valueFormatter(
               AmountWithSuffix,
             )} ${debitAmount.currency}`->React.string
@@ -143,11 +143,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
-  let {updateExistingKeys, filterValueJson, filterValue} = React.useContext(
-    FilterContext.filterContext,
-  )
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let getAccountsData = async _ => {
     try {
@@ -155,10 +151,16 @@ let make = (~reconRulesList: array<reconRuleType>) => {
       let accountData = await getAccounts()
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
-      let allTransactions = await getTransactions(~queryParamerters=Some(queryString))
+      let allTransactions = await getTransactions(
+        ~queryParamerters=Some(
+          `${queryString}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
+      )
+
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
+        accountData,
       )
       let accountsWithTransactionAmounts = convertTransactionDataToAccountData(
         accountData,
@@ -175,20 +177,6 @@ let make = (~reconRulesList: array<reconRuleType>) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_overview_summary",
-    (),
-  )
-
-  React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
 
   React.useEffect(() => {
     if !(filterValue->isEmptyDict) {

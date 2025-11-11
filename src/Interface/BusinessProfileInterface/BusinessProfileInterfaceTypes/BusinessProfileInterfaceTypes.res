@@ -86,4 +86,5 @@ type commonProfileEntity = {
   collect_shipping_details_from_wallet_connector_if_required: option<bool>,
   billing_processor_id: option<string>,
   payment_link_config: option<paymentLinkConfig>,
+  split_txns_enabled: option<string>,
 }

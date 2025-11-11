@@ -364,7 +364,7 @@ let reasonMultiLineTextInputField = (~label) => {
     field={FormRenderer.makeFieldInfo(
       ~label,
       ~name="reason",
-      ~placeholder="Enter reason",
+      ~placeholder="Enter remark",
       ~customInput=InputFields.multiLineTextInput(
         ~isDisabled=false,
         ~rows=Some(4),
@@ -475,6 +475,20 @@ let amountTextInputField = (~disabled: bool=false) => {
   />
 }
 
+let orderIdTextInputField = (~disabled: bool=false) => {
+  <FormRenderer.FieldRenderer
+    labelClass="font-semibold"
+    field={FormRenderer.makeFieldInfo(
+      ~label="Order ID",
+      ~name="order_id",
+      ~placeholder="Enter Order ID",
+      ~customInput=InputFields.textInput(~inputStyle="!rounded-xl", ~isDisabled=disabled),
+      ~isRequired=true,
+      ~disabled,
+    )}
+  />
+}
+
 let effectiveAtDatePickerInputField = () => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
@@ -537,7 +551,11 @@ let getEntriesSections = (
         </p>
         <RenderIf condition={showTotalAmount}>
           <div className={`${amountColorClass} ${body.lg.medium}`}>
-            {`${currency} ${totalAmount->Float.toString}`->React.string}
+            {CurrencyFormatUtils.valueFormatter(
+              totalAmount,
+              AmountWithSuffix,
+              ~currency,
+            )->React.string}
           </div>
         </RenderIf>
       </div>

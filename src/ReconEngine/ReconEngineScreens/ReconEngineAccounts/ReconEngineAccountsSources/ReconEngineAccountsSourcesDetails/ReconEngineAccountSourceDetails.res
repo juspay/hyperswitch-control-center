@@ -37,6 +37,7 @@ let make = (~accountId) => {
       let accountRes = await fetchDetails(accountUrl)
       let ingestionConfigs =
         ingestionConfigsRes->getArrayDataFromJson(getIngestionConfigPayloadFromDict)
+      ingestionConfigs->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
       setAccountData(_ => accountData)
       setIngestionConfigs(_ => ingestionConfigs)

@@ -557,28 +557,17 @@ module CollectDetails = {
 
 module AutoRetries = {
   @react.component
-  let make = (~setCheckMaxAutoRetry) => {
+  let make = () => {
     open FormRenderer
     open DeveloperUtils
     open LogicUtils
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let form = ReactFinalForm.useForm()
     let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
     let isAutoRetryEnabled =
       formState.values->getDictFromJsonObject->getBool("is_auto_retries_enabled", false)
-
-    React.useEffect(() => {
-      if !isAutoRetryEnabled {
-        form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
-        setCheckMaxAutoRetry(_ => false)
-      } else {
-        setCheckMaxAutoRetry(_ => true)
-      }
-      None
-    }, [isAutoRetryEnabled])
 
     <>
       <DesktopRow>
@@ -707,7 +696,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
   let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
@@ -721,9 +709,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
       [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
-    if checkMaxAutoRetry {
-      defaultFieldsToValidate->Array.push(MaxAutoRetries)
-    }
+    defaultFieldsToValidate->Array.push(MaxAutoRetries)
     defaultFieldsToValidate
   }
 
@@ -905,7 +891,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </DesktopRow>
                 <ClickToPaySection />
-                <AutoRetries setCheckMaxAutoRetry />
+                <AutoRetries />
                 <DesktopRow>
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"

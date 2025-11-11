@@ -9,7 +9,7 @@ module IgnoreTransactionModalContent = {
 
     <div className="flex flex-col gap-4">
       <Form onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
-        {reasonMultiLineTextInputField(~label="Reason to ignore")}
+        {reasonMultiLineTextInputField(~label="Add Remark")}
         <div className="flex justify-end gap-3 mt-4 items-center">
           <Button
             buttonType=Secondary
@@ -38,7 +38,7 @@ module ForceReconcileModalContent = {
 
     <div className="flex flex-col gap-4">
       <Form onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
-        {reasonMultiLineTextInputField(~label="Resolution Remark")}
+        {reasonMultiLineTextInputField(~label="Add Remark")}
         <div className="flex justify-end gap-3 mt-4 items-center">
           <Button
             buttonType=Secondary
@@ -99,6 +99,7 @@ module EditEntryModalContent = {
           ~disabled=false,
         )}
         {amountTextInputField(~disabled=false)}
+        {orderIdTextInputField(~disabled=false)}
         {effectiveAtDatePickerInputField()}
         {metadataCustomInputField(~disabled=false)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
@@ -147,6 +148,7 @@ module MarkAsReceivedModalContent = {
           ~disabled=true,
         )}
         {amountTextInputField(~disabled=false)}
+        {orderIdTextInputField(~disabled=false)}
         {effectiveAtDatePickerInputField()}
         {metadataCustomInputField(~disabled=false)}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
@@ -183,6 +185,7 @@ module CreateEntryModalContent = {
           ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
         )}
         {amountTextInputField()}
+        {orderIdTextInputField()}
         {effectiveAtDatePickerInputField()}
         {metadataCustomInputField()}
         <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
@@ -349,7 +352,7 @@ module LinkStagingEntryModalContent = {
       if valuesDict->isEmptyDict {
         errors->Dict.set(
           "staging_entry",
-          "Please select at least one staging entry."->JSON.Encode.string,
+          "Please select at least one transformed entry."->JSON.Encode.string,
         )
       }
       errors->JSON.Encode.object
@@ -375,7 +378,7 @@ module LinkStagingEntryModalContent = {
           screenState
           customLoader={<Shimmer styleClass="h-96 w-full rounded-xl" />}
           customUI={<NewAnalyticsHelper.NoData
-            height="h-96" message="No linkable staging entries found."
+            height="h-96" message="No linkable transformed entries found."
           />}>
           <p className={`${body.lg.semibold} text-nd_gray-700`}>
             {"Select entry to match"->React.string}
@@ -399,7 +402,7 @@ module LinkStagingEntryModalContent = {
             searchFilterElement={<TableSearchFilter
               data={linkableStagingEntries}
               filterLogic
-              placeholder="Search by Staging Entry ID or Entry Type"
+              placeholder="Search by Transformed Entry ID or Entry Type"
               customSearchBarWrapperWidth="w-full"
               customInputBoxWidth="w-full rounded-xl"
               searchVal=searchText

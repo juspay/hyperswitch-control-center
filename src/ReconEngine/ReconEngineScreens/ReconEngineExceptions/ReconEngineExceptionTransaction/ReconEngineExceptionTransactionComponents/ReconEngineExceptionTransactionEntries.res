@@ -22,7 +22,16 @@ let make = (
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
     entriesList->addUniqueIdsToEntries
   )
-  let detailsFields = [EntryType, Amount, Currency, Status, EntryId, EffectiveAt, CreatedAt]
+  let detailsFields = [
+    EntryType,
+    Amount,
+    Currency,
+    Status,
+    EntryId,
+    OrderID,
+    EffectiveAt,
+    CreatedAt,
+  ]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
   let (offset, setOffset) = React.useState(_ => 0)
   let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
@@ -101,6 +110,20 @@ let make = (
     setShowConfirmationModal(_ => false)
   }
 
+  let isRowSelectable = switch exceptionStage {
+  | ResolvingException(MarkAsReceived) =>
+    Some(
+      (rowData: JSON.t) => {
+        let entry =
+          rowData
+          ->getDictFromJsonObject
+          ->exceptionTransactionEntryItemToItemMapper
+        entry.status == Expected
+      },
+    )
+  | _ => None
+  }
+
   <div className="flex flex-col gap-4 mt-6 mb-16">
     <ReconEngineExceptionTransactionResolution
       accountInfoMap
@@ -130,6 +153,7 @@ let make = (
       resultsPerPage
       setResultsPerPage
       totalResults={updatedEntriesList->Array.length}
+      ?isRowSelectable
     />
     <RenderIf
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
@@ -170,7 +194,7 @@ let make = (
       <div className="flex flex-col gap-4">
         <Form
           onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
-          {reasonMultiLineTextInputField(~label="Resolution Remark")}
+          {reasonMultiLineTextInputField(~label="Add Remark")}
           <div className="flex flex-col">
             {<RenderIf condition={summaryItems->Array.length > 0}>
               {<React.Fragment>
