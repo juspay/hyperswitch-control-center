@@ -141,7 +141,7 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     | Some(postedType) => getReconciledTypeLabel(postedType)
     | None => getReconciledTypeLabel(UnknownTransactionPostedType)
     }
-  | Reason => Text(transaction.data.reason->Option.getOr("N/A"))
+  | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
   }
 }
 

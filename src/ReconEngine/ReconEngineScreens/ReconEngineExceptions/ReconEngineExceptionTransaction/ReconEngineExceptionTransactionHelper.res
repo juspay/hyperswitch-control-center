@@ -13,26 +13,32 @@ module CustomToastElement = {
         "Transaction partially reconciled",
         "Please review the exceptions page for details",
         `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/exceptions/recon/${transaction.id}`,
+            ~url=`/v1/recon-engine/exceptions/recon/${transaction.transaction_id}`,
           )}`,
         "See Exception",
       )
     | Void => (
         "Transaction ignored successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `${GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/transactions/${transaction.transaction_id}`,
+          )}`,
         "See Transaction",
       )
     | Posted => (
         "Transaction matched successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `${GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/transactions/${transaction.transaction_id}`,
+          )}`,
         "See Transaction",
       )
     | _ => (
         "Transaction processed successfully",
         "Please review the transactions page for details",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `${GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/transactions/${transaction.transaction_id}`,
+          )}`,
         "See Transaction",
       )
     }

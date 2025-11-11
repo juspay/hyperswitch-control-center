@@ -313,7 +313,7 @@ module CustomToastElement = {
         "Transformed entry is pending",
         "The entry is being processed and will be available shortly",
         `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/exceptions/transformed-entries/${processingEntry.id}`,
+            ~url=`/v1/recon-engine/exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
           )}`,
         "See Entry",
       )
