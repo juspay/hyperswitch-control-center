@@ -20,7 +20,7 @@ let makeLogoField = () => {
 let makeBackgroundImageField = () => {
   makeFieldInfo(
     ~label="Background Image URL",
-    ~name="background_image",
+    ~name="background_image.url",
     ~customInput=InputFields.textInput(),
     ~placeholder="Enter background image url",
   )

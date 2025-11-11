@@ -8,6 +8,25 @@ module ConfiguratorForm = {
     open FormRenderer
     open PaymentLinkThemeConfiguratorHelper
 
+    let configuratorScrollbarCss = `
+      .configurator-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #9CA3AF #F3F4F6;
+      }
+      .configurator-scrollbar::-webkit-scrollbar {
+        width: 2px;
+        height: 2px;
+      }
+      .configurator-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #9CA3AF;
+        border-radius: 10px;
+      }
+      .configurator-scrollbar::-webkit-scrollbar-track {
+        background-color: #F3F4F6;
+        border-radius: 10px;
+      }
+    `
+
     let showToast = ToastState.useShowToast()
     let (initialValues, setInitialValues) = React.useState(_ => initialValues)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
@@ -94,7 +113,7 @@ module ConfiguratorForm = {
 
     <RenderIf condition={selectedStyleId->isNonEmptyString}>
       <div className="bg-white rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
           <div className="w-full">
             <div className="space-y-4">
               <Form
@@ -106,95 +125,103 @@ module ConfiguratorForm = {
                   submit={(values, _) => onSubmit(values, true)}
                   submitInputOnEnter=true
                 />
-                <FieldRenderer field={makeBackgroundImageField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
-                <FieldRenderer
-                  field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
-                />
-                <FieldRenderer
-                  field={makeMaxItemsVisibleAfterCollapseField()} fieldWrapperClass="!w-full"
-                />
-                <div className="flex flex-row">
-                  <FieldRenderer field={makeDisplaySdkOnlyField()} fieldWrapperClass="!w-full" />
+                <style> {React.string(configuratorScrollbarCss)} </style>
+                <div
+                  className="flex flex-col gap-3 rounded-lg border border-nd_gray-300 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
+                  <FieldRenderer field={makeBackgroundImageField()} fieldWrapperClass="!w-full" />
+                  <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
+                  <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />
+                  <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer
-                    field={makeEnabledSavedPaymentMethodField()} fieldWrapperClass="!w-full"
-                  />
-                </div>
-                <div className="flex flex-row">
-                  <FieldRenderer field={makeHideCardNicknameField()} fieldWrapperClass="!w-full" />
-                  <FieldRenderer
-                    field={makeShowCardFormByDefaultField()} fieldWrapperClass="!w-full"
-                  />
-                </div>
-                <div className="flex flex-row">
-                  <FieldRenderer
-                    field={makeBrandingVisibilityField()} fieldWrapperClass="!w-full"
-                  />
-                  <FieldRenderer field={makeSkipStatusScreenField()} fieldWrapperClass="!w-full" />
-                </div>
-                <div className="flex flex-row">
-                  <FieldRenderer
-                    field={makeIsSetupMandateFlowField()} fieldWrapperClass="!w-full"
-                  />
-                  <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
-                </div>
-                <div className="flex flex-row gap-4">
-                  <FieldRenderer
-                    field={makeThemeField(
-                      ~defaultValue=initialValues
-                      ->getDictFromJsonObject
-                      ->getString("theme", ""),
-                    )}
-                    fieldWrapperClass="!w-full"
+                    field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
                   />
                   <FieldRenderer
-                    field={makeBackgroundColorField(
-                      ~defaultValue=initialValues
-                      ->getDictFromJsonObject
-                      ->getString("background_color", ""),
-                    )}
-                    fieldWrapperClass="!w-full"
+                    field={makeMaxItemsVisibleAfterCollapseField()} fieldWrapperClass="!w-full"
                   />
-                </div>
-                <div className="flex flex-row gap-4">
-                  <FieldRenderer
-                    field={makePaymentButtonColorField(
-                      ~defaultValue=initialValues
-                      ->getDictFromJsonObject
-                      ->getString("payment_button_colour", ""),
-                    )}
-                    fieldWrapperClass="!w-full"
-                  />
-                  <FieldRenderer
-                    field={makePaymentButtonTextColorField(
-                      ~defaultValue=initialValues
-                      ->getDictFromJsonObject
-                      ->getString("payment_button_text_colour", ""),
-                    )}
-                    fieldWrapperClass="!w-full"
-                  />
-                </div>
-                <div className="flex flex-row gap-4">
-                  <FieldRenderer
-                    field={makeColorIconCardCvcErrorField(
-                      ~defaultValue=initialValues
-                      ->getDictFromJsonObject
-                      ->getString("color_icon_card_cvc_error", ""),
-                    )}
-                    fieldWrapperClass="!w-full"
-                  />
-                </div>
-                <div className="flex flex-row gap-4">
-                  <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
-                  <FieldRenderer
-                    field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full"
-                  />
-                </div>
-                <div className="flex flex-row gap-4">
-                  <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
-                  <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+                  <div className="flex flex-row">
+                    <FieldRenderer field={makeDisplaySdkOnlyField()} fieldWrapperClass="!w-full" />
+                    <FieldRenderer
+                      field={makeEnabledSavedPaymentMethodField()} fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row">
+                    <FieldRenderer
+                      field={makeHideCardNicknameField()} fieldWrapperClass="!w-full"
+                    />
+                    <FieldRenderer
+                      field={makeShowCardFormByDefaultField()} fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row">
+                    <FieldRenderer
+                      field={makeBrandingVisibilityField()} fieldWrapperClass="!w-full"
+                    />
+                    <FieldRenderer
+                      field={makeSkipStatusScreenField()} fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row">
+                    <FieldRenderer
+                      field={makeIsSetupMandateFlowField()} fieldWrapperClass="!w-full"
+                    />
+                    <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
+                  </div>
+                  <div className="flex flex-row gap-4">
+                    <FieldRenderer
+                      field={makeThemeField(
+                        ~defaultValue=initialValues
+                        ->getDictFromJsonObject
+                        ->getString("theme", ""),
+                      )}
+                      fieldWrapperClass="!w-full"
+                    />
+                    <FieldRenderer
+                      field={makeBackgroundColorField(
+                        ~defaultValue=initialValues
+                        ->getDictFromJsonObject
+                        ->getString("background_color", ""),
+                      )}
+                      fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row gap-4">
+                    <FieldRenderer
+                      field={makePaymentButtonColorField(
+                        ~defaultValue=initialValues
+                        ->getDictFromJsonObject
+                        ->getString("payment_button_colour", ""),
+                      )}
+                      fieldWrapperClass="!w-full"
+                    />
+                    <FieldRenderer
+                      field={makePaymentButtonTextColorField(
+                        ~defaultValue=initialValues
+                        ->getDictFromJsonObject
+                        ->getString("payment_button_text_colour", ""),
+                      )}
+                      fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row gap-4">
+                    <FieldRenderer
+                      field={makeColorIconCardCvcErrorField(
+                        ~defaultValue=initialValues
+                        ->getDictFromJsonObject
+                        ->getString("color_icon_card_cvc_error", ""),
+                      )}
+                      fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row gap-4">
+                    <FieldRenderer field={makeSellerNameField()} fieldWrapperClass="!w-full" />
+                    <FieldRenderer
+                      field={makeMerchantDescriptionField()} fieldWrapperClass="!w-full"
+                    />
+                  </div>
+                  <div className="flex flex-row gap-4">
+                    <FieldRenderer field={makeDetailsLayoutField()} fieldWrapperClass="!w-full" />
+                    <FieldRenderer field={makeSdkLayoutField()} fieldWrapperClass="!w-full" />
+                  </div>
                 </div>
                 <div className="flex justify-between pt-4">
                   <SubmitButton
@@ -206,7 +233,7 @@ module ConfiguratorForm = {
           </div>
           <div className="w-full">
             <div className="sticky top-4 w-full">
-              <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-4 h-full">
+              <div className="bg-nd_gray-25 rounded-lg border border-nd_gray-300 p-3.5 h-650-px">
                 <div className="flex items-center justify-between">
                   <h4 className={`text-nd_gray-600 mb-2 ${body.xl.medium}`}>
                     {"Live Preview"->React.string}
@@ -220,7 +247,7 @@ module ConfiguratorForm = {
                       </div>
                     : React.null}
                 </div>
-                <div className=" rounded-lg w-full h-700-px flex flex-col bg-white">
+                <div className=" rounded-lg w-full h-590-px flex flex-col bg-white">
                   {switch (previewLoading, previewError, previewHtml) {
                   | (true, _, _) =>
                     <div className="flex items-center justify-center h-full w-full">
@@ -549,7 +576,7 @@ let make = () => {
       <RenderIf condition={selectedStyleId->isEmptyString}>
         <NoDataFound
           customCssClass="my-6"
-          message="Please select a Style Id to Configure and Preview"
+          message="Please select a Style ID to Configure and Preview"
           renderType=Painting
         />
       </RenderIf>

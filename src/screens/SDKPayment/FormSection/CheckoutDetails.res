@@ -1,5 +1,10 @@
 @react.component
-let make = (~getClientSecret, ~navigationPath="/sdk", ~onShowPreview=_ => ()) => {
+let make = (
+  ~getClientSecret,
+  ~navigationPath="/sdk",
+  ~onShowPreview=_ => (),
+  ~submitButtonText="Show Preview",
+) => {
   open FormRenderer
   open SDKPaymentHelper
   open SDKPaymentUtils
@@ -87,7 +92,7 @@ let make = (~getClientSecret, ~navigationPath="/sdk", ~onShowPreview=_ => ()) =>
       />
     </RenderIf>
     <SubmitButton
-      text="Show preview"
+      text=submitButtonText
       disabledParamter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
       paymentConnectorList->Array.length == 0 ||
       isInternalUser}
