@@ -72,7 +72,7 @@ let make = (~id) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col">
         <TransactionDetailInfo
           currentTransactionDetails={currentTransactionDetails} detailsFields={detailsFields}
         />
