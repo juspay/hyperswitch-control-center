@@ -89,7 +89,7 @@ module EditEntryModalContent = {
               ~label="Account",
               ~comboCustomInput=accountComboSelectInputField(
                 ~accountsList,
-                ~disabled=false,
+                ~disabled=true,
                 ~setTransformationsList,
                 ~initialAccountId=entryDetails.account.account_id,
               ),
@@ -100,7 +100,7 @@ module EditEntryModalContent = {
               ~isRequired=true,
             )}
           />
-          {transformationConfigSelectInputField(~transformationsList, ~disabled=false)}
+          {transformationConfigSelectInputField(~transformationsList, ~disabled=true)}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(~entryDetails, ~disabled=false)}
           {amountTextInputField(~disabled=false)}
