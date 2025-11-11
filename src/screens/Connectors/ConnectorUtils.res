@@ -147,6 +147,7 @@ let connectorList: array<connectorTypes> = [
   Processors(LOONIO),
   Processors(TESOURO),
   Processors(FINIX),
+  Processors(ZIFT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -753,6 +754,10 @@ let payjustnowInfo = {
   description: "PayJustNow is a South African payment connector that enables customers to split online purchases into three interest-free monthly installments.",
 }
 
+let ziftInfo = {
+  description: "Zift is a modern payment technology provider offering embedded and integrated payment solutions for SaaS platforms, POS systems, and businesses of all sizes. With its Payments-as-a-Service (PaaS) model, Zift enables seamless onboarding, transaction processing, and API-driven integrations—helping companies deliver smooth, secure, and scalable payment experiences.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -857,6 +862,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TESOURO => "tesouro"
   | FINIX => "finix"
   | PAYJUSTNOW => "payjustnow"
+  | ZIFT => "zift"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1035,6 +1041,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "loonio" => Processors(LOONIO)
     | "tesouro" => Processors(TESOURO)
     | "finix" => Processors(FINIX)
+    | "zift" => Processors(ZIFT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1193,6 +1200,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TESOURO => tesouroInfo
   | FINIX => finixInfo
   | PAYJUSTNOW => payjustnowInfo
+  | ZIFT => ziftInfo
   }
 }
 
@@ -2124,6 +2132,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TESOURO => "Tesouro"
   | FINIX => "Finix"
   | PAYJUSTNOW => "PayJustNow"
+  | ZIFT => "Zift"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
