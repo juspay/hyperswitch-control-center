@@ -169,11 +169,20 @@ module Location = {
 }
 
 module Navigator = {
+  type browserType =
+    | Edge
+    | Opera
+    | Chrome
+    | Safari
+    | Firefox
+    | InternetExplorer
+    | Unknown
+
   @val @scope(("window", "navigator"))
   external userAgent: string = "userAgent"
 
   @val @scope(("window", "navigator"))
-  external appName: string = "appName"
+  external browserNameRaw: string = "appName"
 
   @val @scope(("window", "navigator"))
   external browserVersion: string = "appVersion"
@@ -184,30 +193,24 @@ module Navigator = {
   @val @scope(("window", "navigator"))
   external browserLanguage: string = "language"
 
-  let browserName = {
+  let browserName: browserType = {
     let ua = userAgent
     if ua->String.includes("Edg/") || ua->String.includes("Edge/") {
-      "Edge"
-    }
-    else if ua->String.includes("OPR/") || ua->String.includes("Opera/") {
-      "Opera"
-    }
-    else if ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")) {
-      "Chrome"
-    }
-    else if ua->String.includes("Safari/") && !(ua->String.includes("Chrome/")) {
-      "Safari"
-    }
-    else if ua->String.includes("Firefox/") {
-      "Firefox"
-    }
-    else if ua->String.includes("MSIE ") || ua->String.includes("Trident/") {
-      "Internet Explorer"
-    }
-    else if appName == "Netscape" {
-      "Unknown"
+      Edge
+    } else if ua->String.includes("OPR/") || ua->String.includes("Opera/") {
+      Opera
+    } else if ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")) {
+      Chrome
+    } else if ua->String.includes("Safari/") && !(ua->String.includes("Chrome/")) {
+      Safari
+    } else if ua->String.includes("Firefox/") {
+      Firefox
+    } else if ua->String.includes("MSIE ") || ua->String.includes("Trident/") {
+      InternetExplorer
+    } else if browserNameRaw == "Netscape" {
+      Unknown
     } else {
-      appName
+      Unknown
     }
   }
 
