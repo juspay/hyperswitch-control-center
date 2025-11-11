@@ -2,7 +2,7 @@
 let make = (
   ~getClientSecret,
   ~navigationPath="/sdk",
-  ~onShowPreview=_ => (),
+  ~onSubmitClick=_ => (),
   ~submitButtonText="Show Preview",
 ) => {
   open FormRenderer
@@ -51,7 +51,7 @@ let make = (
       )
       let _ = await getClientSecret(~typedValues)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=navigationPath))
-      onShowPreview()
+      onSubmitClick()
       // To re-render the SDK back again after the payment is completed
       setPaymentStatus(_ => INCOMPLETE)
     } catch {

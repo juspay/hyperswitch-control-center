@@ -44,7 +44,7 @@ let make = () => {
     }
   }
 
-  let onShowPreview = () => {
+  let onSubmitClick = () => {
     setCurrentStep(_ => Configurator)
   }
 
@@ -56,7 +56,7 @@ let make = () => {
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Payment Link Theme Configuration" subTitle={subtitle} />
       <RenderIf condition={currentStep == Configurator}>
-        <Button text="Edit details" onClick={_ => onRestartClick()} />
+        <Button text="Edit checkout details" onClick={_ => onRestartClick()} />
       </RenderIf>
     </div>
     {switch currentStep {
@@ -64,7 +64,7 @@ let make = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <CheckoutDetails
           getClientSecret
-          onShowPreview
+          onSubmitClick
           navigationPath="/payment-link-theme"
           submitButtonText="Configure Style ID"
         />

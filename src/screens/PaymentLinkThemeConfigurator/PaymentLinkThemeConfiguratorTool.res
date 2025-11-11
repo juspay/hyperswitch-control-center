@@ -3,19 +3,19 @@ open PaymentLinkThemeConfiguratorUtils
 
 module ConfiguratorForm = {
   @react.component
-  let make = (~initialValues, ~selectedStyleId) => {
+  let make = (~initialFormValues, ~selectedStyleId) => {
     open Typography
     open FormRenderer
     open PaymentLinkThemeConfiguratorHelper
 
     let configuratorScrollbarCss = `
       .configurator-scrollbar {
-        scrollbar-width: auto;
+        scrollbar-width: thin;
         scrollbar-color: #9CA3AF #F3F4F6;
       }
       .configurator-scrollbar::-webkit-scrollbar {
-        width: 2px;
-        height: 2px;
+        width: 6px;
+        height: 6px;
       }
       .configurator-scrollbar::-webkit-scrollbar-thumb {
         background-color: #9CA3AF;
@@ -28,7 +28,7 @@ module ConfiguratorForm = {
     `
 
     let showToast = ToastState.useShowToast()
-    let (initialValues, setInitialValues) = React.useState(_ => initialValues)
+    let (initialValues, setInitialValues) = React.useState(_ => initialFormValues)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
     let (previewError, setPreviewError) = React.useState(_ => None)
@@ -83,12 +83,12 @@ module ConfiguratorForm = {
           setPreviewLoading(_ => false)
         }
       }
-    }, (merchantDetailsTypedValue.merchant_id, paymentResult))
+    }, [])
 
     React.useEffect(() => {
       generatePreview(~values=initialValues)
       None
-    }, (initialValues, merchantDetailsTypedValue.merchant_id))
+    }, [initialValues])
 
     let onSubmit = async (values, isAutoSubmit) => {
       setInitialValues(_ => values)
@@ -569,7 +569,7 @@ let make = () => {
       <RenderIf condition={selectedStyleId->isNonEmptyString}>
         <ConfiguratorForm
           key={`configurator-form-${selectedStyleId}`}
-          initialValues={getSelectedStyleConfigs}
+          initialFormValues={getSelectedStyleConfigs}
           selectedStyleId
         />
       </RenderIf>
