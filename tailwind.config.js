@@ -96,6 +96,7 @@ module.exports = {
         "5-px": "5px",
         "76-px": "76px",
         "180-px": "180px",
+        "500-px": "500px",
       },
       letterSpacing: {
         compressed: "-2px",

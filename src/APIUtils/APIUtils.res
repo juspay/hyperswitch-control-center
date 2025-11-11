@@ -1105,6 +1105,15 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #AUDIT_TRAIL =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
+            | None => `${reconBaseURL}/audit_trail`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
