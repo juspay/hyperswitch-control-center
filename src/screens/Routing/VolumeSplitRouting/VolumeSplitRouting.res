@@ -320,7 +320,7 @@ let make = (
       )
       setScreenState(_ => Success)
       if isSaveRule {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
       }
       Nullable.make(res)
     } catch {
