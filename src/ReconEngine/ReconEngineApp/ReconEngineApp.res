@@ -3,8 +3,8 @@ let make = () => {
   open HSwitchUtils
   let url = RescriptReactRouter.useUrl()
 
-  {
-    switch url.path->urlPath {
+  <>
+    {switch url.path->urlPath {
     | list{"v1", "recon-engine", "overview"} => <ReconEngineOverviewContainer />
     | list{"v1", "recon-engine", "transactions", ..._} => <ReconEngineTransactionContainer />
     | list{"v1", "recon-engine", "exceptions", ..._} => <ReconEngineExceptionContainer />
@@ -14,6 +14,7 @@ let make = () => {
     | list{"v1", "recon-engine", "transformed-entries", ..._} =>
       <ReconEngineTransformedEntriesContainer />
     | _ => <EmptyPage path="/v1/recon-engine/overview" />
-    }
-  }
+    }}
+    <ReconEngineActivityFAB />
+  </>
 }
