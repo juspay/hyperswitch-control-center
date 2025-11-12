@@ -46,6 +46,7 @@ let make = (~setScreenState) => {
     | list{"payouts", ..._} =>
       <TransactionContainer />
     | list{"analytics-payments"}
+    | list{"analytics-fee-estimation"}
     | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}

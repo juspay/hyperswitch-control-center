@@ -66,6 +66,7 @@ type featureFlag = {
   devRolesV2: bool,
   devCustomer: bool,
   billingProcessor: bool,
+  feeEstimationFeatureFlag: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -134,6 +135,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devRolesV2: dict->getBool("dev_roles_v2", false),
     devCustomer: dict->getBool("dev_customer", false),
     billingProcessor: dict->getBool("billing_processor", false),
+    feeEstimationFeatureFlag: dict->getBool("fee_estimation", false),
   }
 }
 

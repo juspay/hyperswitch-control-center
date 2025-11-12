@@ -11,12 +11,13 @@ type gridLineDashStyle = string
 type tickmarkPlacement = string
 type endOnTick = bool
 type startOnTick = bool
-type tickInterval = int
+type tickInterval = float
 type tickWidth = int
 type min = int
 type max = int
 type showInLegend = bool
 type name = string
+type labelFormatter = {value: string}
 
 type title = {text: string}
 type style = {
@@ -38,11 +39,14 @@ type bar = {
   stacking?: string,
   borderWidth?: float,
   borderColor?: string,
+  borderRadius?: int,
+  pointWidth?: int,
 }
 type plotOptions = {bar: bar}
 type labels = {
   align: align,
   style: style,
+  formatter?: labelFormatter => string,
 }
 type chart = {
   \"type": \"type",
@@ -70,6 +74,7 @@ type yAxis = {
   min?: min,
   max?: max,
   labels?: labels,
+  lineWidth?: int,
   visible?: bool,
 }
 
@@ -78,6 +83,7 @@ type xAxis = {
   labels?: labels,
   tickWidth?: tickWidth,
   tickmarkPlacement?: tickmarkPlacement,
+  lineWidth?: int,
   endOnTick?: endOnTick,
   startOnTick?: startOnTick,
   gridLineDashStyle?: gridLineDashStyle,

@@ -250,6 +250,13 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let feeEstimation = SubLevelLink({
+  name: "Fee Estimation",
+  link: `/analytics-fee-estimation`,
+  access: Access,
+  searchOptions: [("View analytics", "")],
+})
+
 let performanceMonitor = SubLevelLink({
   name: "Performance",
   link: `/performance-monitor`,
@@ -299,6 +306,7 @@ let analytics = (
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
+  ~feeEstimationFeatureFlag,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
   if authenticationAnalyticsFlag {
@@ -317,6 +325,9 @@ let analytics = (
   }
   if routingAnalyticsFlag {
     links->Array.push(routingAnalytics)
+  }
+  if feeEstimationFeatureFlag {
+    links->Array.push(feeEstimation)
   }
 
   isAnalyticsEnabled
@@ -664,6 +675,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     paymentSettingsV2,
     routingAnalytics,
     billingProcessor,
+    feeEstimationFeatureFlag,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -691,6 +703,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
+      ~feeEstimationFeatureFlag,
     ),
     default->workflow(
       isSurchargeEnabled,

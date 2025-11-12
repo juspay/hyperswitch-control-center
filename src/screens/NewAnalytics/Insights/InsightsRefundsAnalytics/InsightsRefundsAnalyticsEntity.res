@@ -76,7 +76,7 @@ let successfulRefundsDistributionChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: SuccessfulRefundsDistributionUtils.successfulRefundsDistributionMapper,
-  getChatOptions: BarGraphUtils.getBarGraphOptions,
+  getChatOptions: payload => BarGraphUtils.getBarGraphOptions(payload),
 }
 
 let successfulRefundsDistributionTableEntity = {
@@ -110,7 +110,7 @@ let failedRefundsDistributionChartEntity: chartEntity<
   JSON.t,
 > = {
   getObjects: FailedRefundsDistributionUtils.failedRefundsDistributionMapper,
-  getChatOptions: BarGraphUtils.getBarGraphOptions,
+  getChatOptions: payload => BarGraphUtils.getBarGraphOptions(payload),
 }
 
 let failedRefundsDistributionTableEntity = {
