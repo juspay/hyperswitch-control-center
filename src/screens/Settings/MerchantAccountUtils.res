@@ -591,8 +591,9 @@ let validateMerchantAccountForm = (
   fieldsToValidate->Array.forEach(key => {
     switch key {
     | MaxAutoRetries => {
+        let isAutoRetryEnabled = getBool(valuesDict, "is_auto_retry_enabled", false)
         let value = getFloat(valuesDict, key->validationFieldsMapper, 0.0)
-        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Float.toString) {
+        if isAutoRetryEnabled && !RegExp.test(%re("/^(?:[1-5])$/"), value->Float.toString) {
           Dict.set(
             errors,
             key->validationFieldsMapper,
