@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.12.0
+
+### Features
+
+- Add new connector `zift` ([#3841](https://github.com/juspay/hyperswitch-control-center/pull/3841)) ([`4d53299`](https://github.com/juspay/hyperswitch-control-center/commit/4d532994ce5263f01dcc5d762e7b0d649760a8b5))
+
+### Bug Fixes
+
+- Fix sort of events and logs ([#3810](https://github.com/juspay/hyperswitch-control-center/pull/3810)) ([`2957c58`](https://github.com/juspay/hyperswitch-control-center/commit/2957c581e4ab57f4fd6b51cf7bf04b5d860144e4))
+
+### Miscellaneous Tasks
+
+- Recon engine rename staging entry to transformed entry ([#3822](https://github.com/juspay/hyperswitch-control-center/pull/3822)) ([`61aa2c5`](https://github.com/juspay/hyperswitch-control-center/commit/61aa2c5af45f3cd91fa8e558dda2f585ed6321a5))
+
+**Full Changelog:** [`2025.11.11.0...2025.11.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.11.0...2025.11.12.0)
+
+- - -
+
 ## 2025.11.11.0
 
 ### Miscellaneous Tasks
