@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.12.1
+
+### Features
+
+- Recon engine activity side pane ([#3851](https://github.com/juspay/hyperswitch-control-center/pull/3851)) ([`458172e`](https://github.com/juspay/hyperswitch-control-center/commit/458172ef0cbcd89b24de0729d2afdc986de542f2))
+
+### Miscellaneous Tasks
+
+- Recon engine transaction audit trail changes ([#3852](https://github.com/juspay/hyperswitch-control-center/pull/3852)) ([`b2fba0d`](https://github.com/juspay/hyperswitch-control-center/commit/b2fba0d832c268f0b90d47a691f83bfda7887178))
+
+**Full Changelog:** [`2025.11.12.0...2025.11.12.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.12.0...2025.11.12.1)
+
+- - -
+
 ## 2025.11.12.0
 
 ### Features
