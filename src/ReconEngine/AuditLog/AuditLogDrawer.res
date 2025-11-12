@@ -8,7 +8,7 @@ module EventCard = {
     let metadata = getEventMetadata(event)
 
     <div className="flex gap-4 px-6">
-      <div className="flex flex-col items-center flex-shrink-0 pb-6 w-2">
+      <div className="flex flex-col items-center flex-shrink-0 w-2">
         <div className="relative flex h-2 w-2 mt-2">
           <RenderIf condition={metadata.eventType == EventError}>
             <span

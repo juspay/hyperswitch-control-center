@@ -3,14 +3,39 @@ type accountData = {
   account_name: string,
 }
 
+type fileUploadType = {
+  account: accountData,
+  ingestion_id: string,
+  file_name: string,
+  timestamp: string,
+}
+
+type commonEventData = {
+  accounts: array<accountData>,
+  count: int,
+  timestamp: string,
+}
+
+type ingestionFailedEventType = {
+  account: accountData,
+  count: int,
+  last_failed_at: string,
+}
+
+type stagingEntriesEventType = {
+  account: accountData,
+  count: int,
+  timestamp: string,
+}
+
 type auditEvent =
-  | FileUploaded({account: accountData, ingestion_id: string, file_name: string, timestamp: string})
-  | IngestionsFailed({account: accountData, count: int, last_failed_at: string})
-  | StagingEntriesCreated({account: accountData, count: int, timestamp: string})
-  | StagingEntryNeedsManualReview({account: accountData, count: int, timestamp: string})
-  | ExpectationsCreated({accounts: array<accountData>, count: int, timestamp: string})
-  | TransactionsReconciled({accounts: array<accountData>, count: int, timestamp: string})
-  | TransactionsMismatched({accounts: array<accountData>, count: int, timestamp: string})
+  | FileUploaded(fileUploadType)
+  | IngestionsFailed(ingestionFailedEventType)
+  | StagingEntriesCreated(stagingEntriesEventType)
+  | StagingEntryNeedsManualReview(stagingEntriesEventType)
+  | ExpectationsCreated(commonEventData)
+  | TransactionsReconciled(commonEventData)
+  | TransactionsMismatched(commonEventData)
   | NoAuditEvent
 
 type eventType =
