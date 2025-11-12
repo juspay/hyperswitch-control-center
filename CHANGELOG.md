@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.12.2
+
+### Bug Fixes
+
+- Payment settings bugfix ([#3854](https://github.com/juspay/hyperswitch-control-center/pull/3854)) ([`5bed8b4`](https://github.com/juspay/hyperswitch-control-center/commit/5bed8b45b62cfdffda48eff98f822248bca8b06d))
+
+**Full Changelog:** [`2025.11.12.1...2025.11.12.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.12.1...2025.11.12.2)
+
+- - -
+
 ## 2025.11.12.1
 
 ### Features
