@@ -46,7 +46,7 @@ module SidebarOption = {
     let textBoldStyles = isSelected
       ? `${primaryTextColor} ${body.md.semibold}`
       : `${secondaryTextColor} ${body.md.medium}`
-    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}  `
+    let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}`
 
     if isSidebarExpanded {
       <div className="flex items-center gap-2 px-3 py-1.5">
@@ -479,7 +479,7 @@ module SidebarNestedSection = {
 module ProductTypeSectionItem = {
   @react.component
   let make = (
-    ~section: SidebarTypes.productTypeSection,
+    ~section: productTypeSection,
     ~isExpanded: bool,
     ~onToggle: unit => unit,
     ~isSidebarExpanded: bool,
@@ -509,7 +509,6 @@ module ProductTypeSectionItem = {
         onClick=handleClick
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
         <div className="flex items-center gap-2">
-          <Icon size=14 name={section.icon} className={secondaryTextColor} />
           <div className={`whitespace-nowrap ${secondaryTextColor} ${body.md.medium}`}>
             {React.string(section.name)}
           </div>
@@ -724,14 +723,22 @@ let make = (
   `
 
   let toggleSection = sectionName => {
+    let activeProductDisplayName = activeProduct->getProductDisplayName
+
     setExpandedSections(prev => {
-      Array.includes(prev, sectionName)
-        ? prev->Array.filter(name => name !== sectionName)
-        : [sectionName]
+      if Array.includes(prev, sectionName) {
+        if sectionName === activeProductDisplayName {
+          prev
+        } else {
+          prev->Array.filter(name => name !== sectionName)
+        }
+      } else {
+        [activeProductDisplayName, sectionName]
+      }
     })
   }
 
-  let onItemClickCustom = (valueSelected: SidebarTypes.optionType) => {
+  let onItemClickCustom = (valueSelected: optionType) => {
     onProductSelectClick(valueSelected.name)
   }
 

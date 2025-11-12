@@ -90,7 +90,7 @@ let getProductVariantFromDisplayName = product => {
 
 let productTypeIconMapper = productType => {
   switch productType {
-  | Orchestration(V1) => "orchestrator-home"
+  | Orchestration(V1)
   | Orchestration(V2) => "orchestrator-home"
   | Recovery => "recovery-home"
   | Vault => "vault-home"

@@ -58,7 +58,6 @@ type topLevelItem =
 
 type productTypeSection = {
   name: string,
-  icon: string,
   links: array<topLevelItem>,
   showSection: bool,
 }

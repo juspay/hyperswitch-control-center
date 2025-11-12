@@ -33,11 +33,7 @@ let useFetchMerchantList = () => {
       )
       let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
 
-      let v2MerchantList = if featureFlagDetails.devModularityV2 {
-        await getV2MerchantList()
-      } else {
-        []
-      }
+      let v2MerchantList = featureFlagDetails.devModularityV2 ? await getV2MerchantList() : []
       let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
       let response = concatenatedList->uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
       let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
