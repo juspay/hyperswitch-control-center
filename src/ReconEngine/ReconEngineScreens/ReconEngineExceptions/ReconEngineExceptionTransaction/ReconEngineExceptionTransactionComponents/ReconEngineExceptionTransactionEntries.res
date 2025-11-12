@@ -74,28 +74,40 @@ let make = (
   }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    let url = getURL(
-      ~entityName=V1(HYPERSWITCH_RECON),
-      ~hyperswitchReconType=#MANUAL_RECONCILIATION,
-      ~methodType=Post,
-      ~id=Some(currentExceptionDetails.id),
-    )
-    let body = constructManualReconciliationBody(~updatedEntriesList, ~values)
-    let res = await updateDetails(url, body, Post)
-    let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
-    setShowConfirmationModal(_ => false)
-    setExceptionStage(_ => ExceptionResolved)
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#MANUAL_RECONCILIATION,
+        ~methodType=Post,
+        ~id=Some(currentExceptionDetails.id),
+      )
+      let body = constructManualReconciliationBody(~updatedEntriesList, ~values)
+      let res = await updateDetails(url, body, Post)
+      let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
+      setShowConfirmationModal(_ => false)
+      setExceptionStage(_ => ExceptionResolved)
 
-    let generatedToastKey = randomString(~length=32)
-    showToast(
-      ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
-      ~message="",
-      ~toastType=ToastSuccess,
-      ~toastKey=generatedToastKey,
-      ~toastDuration=5000,
-    )
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"))
-    Nullable.null
+      let generatedToastKey = randomString(~length=32)
+      showToast(
+        ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
+        ~message="",
+        ~toastType=ToastSuccess,
+        ~toastKey=generatedToastKey,
+        ~toastDuration=5000,
+      )
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+      )
+      Nullable.null
+    } catch {
+    | _ => {
+        showToast(
+          ~message="Failed to resolve transaction exception. Please try again.",
+          ~toastType=ToastError,
+        )
+        Nullable.null
+      }
+    }
   }
 
   let summaryItems = React.useMemo(() => {
