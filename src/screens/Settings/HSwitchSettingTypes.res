@@ -106,6 +106,10 @@ type validationFields =
   | UnknownValidateFields(string)
   | MaxAutoRetries
 
+type domainValidationFields =
+  | DomainName
+  | AllowedDomains
+
 type formStateType = Preview | Edit
 type fieldType = {
   placeholder: string,

@@ -118,6 +118,7 @@ module TableBody = {
     ~showOptions: bool,
     ~selectedRows: array<JSON.t>,
     ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
+    ~isRowSelectable: option<JSON.t => bool>=?,
   ) => {
     <tbody>
       {rowInfo
@@ -144,6 +145,7 @@ module TableBody = {
           selectedRows
           ?onRowSelect
           rowData={rowData->Array.get(rowIndex)->Option.getOr(JSON.Encode.null)}
+          ?isRowSelectable
         />
       })
       ->React.array}
@@ -168,6 +170,7 @@ let make = (
   ~totalResults: int,
   ~showSearchFilter=false,
   ~searchFilterElement: option<React.element>=?,
+  ~isRowSelectable: option<JSON.t => bool>=?,
 ) => {
   let heading = if showOptions {
     [makeHeaderInfo(~key="options", ~title="")]->Array.concat(headingProp)
@@ -265,6 +268,7 @@ let make = (
       showOptions
       selectedRows
       ?onRowSelect
+      ?isRowSelectable
     />
   }
 

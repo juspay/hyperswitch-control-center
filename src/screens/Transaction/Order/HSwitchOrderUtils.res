@@ -131,6 +131,17 @@ let amountField = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
+// Amount field with precision based on currency
+let amountFieldWithPrecision = (~precisionDigits) => {
+  FormRenderer.makeFieldInfo(
+    ~name="amount",
+    ~label="Refund Amount",
+    ~customInput=InputFields.numericTextInput(~precision=precisionDigits),
+    ~placeholder="Enter Refund Amount",
+    ~isRequired=true,
+  )
+}
+
 let reasonField = FormRenderer.makeFieldInfo(
   ~name="reason",
   ~label="Reason",

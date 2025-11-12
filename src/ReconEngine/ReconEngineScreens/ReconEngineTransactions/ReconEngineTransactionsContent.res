@@ -29,7 +29,8 @@ let make = (~account: ReconEngineTypes.accountType) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase((obj.transaction_status :> string), searchText)
+          isContainingStringLowercase((obj.transaction_status :> string), searchText) ||
+          obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
         | None => false
         }
       })
@@ -167,7 +168,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         filters={<TableSearchFilter
           data={configuredTransactions->Array.map(Nullable.make)}
           filterLogic
-          placeholder="Search Transaction Id or Status"
+          placeholder="Search Transaction ID or Order ID or Status"
           searchVal=searchText
           setSearchVal=setSearchText
           customSearchBarWrapperWidth="w-full lg:w-1/3"

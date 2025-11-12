@@ -22,7 +22,16 @@ let make = (
   let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
     entriesList->addUniqueIdsToEntries
   )
-  let detailsFields = [EntryType, Amount, Currency, Status, EntryId, EffectiveAt, CreatedAt]
+  let detailsFields = [
+    EntryType,
+    Amount,
+    Currency,
+    Status,
+    EntryId,
+    OrderID,
+    EffectiveAt,
+    CreatedAt,
+  ]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
   let (offset, setOffset) = React.useState(_ => 0)
   let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
@@ -65,28 +74,40 @@ let make = (
   }, (groupedEntries, accountInfoMap, detailsFields, currentExceptionDetails.transaction_status))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
-    let url = getURL(
-      ~entityName=V1(HYPERSWITCH_RECON),
-      ~hyperswitchReconType=#MANUAL_RECONCILIATION,
-      ~methodType=Post,
-      ~id=Some(currentExceptionDetails.id),
-    )
-    let body = constructManualReconciliationBody(~updatedEntriesList, ~values)
-    let res = await updateDetails(url, body, Post)
-    let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
-    setShowConfirmationModal(_ => false)
-    setExceptionStage(_ => ExceptionResolved)
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#MANUAL_RECONCILIATION,
+        ~methodType=Post,
+        ~id=Some(currentExceptionDetails.id),
+      )
+      let body = constructManualReconciliationBody(~updatedEntriesList, ~values)
+      let res = await updateDetails(url, body, Post)
+      let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
+      setShowConfirmationModal(_ => false)
+      setExceptionStage(_ => ExceptionResolved)
 
-    let generatedToastKey = randomString(~length=32)
-    showToast(
-      ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
-      ~message="",
-      ~toastType=ToastSuccess,
-      ~toastKey=generatedToastKey,
-      ~toastDuration=5000,
-    )
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"))
-    Nullable.null
+      let generatedToastKey = randomString(~length=32)
+      showToast(
+        ~toastElement=<CustomToastElement transaction toastKey={generatedToastKey} />,
+        ~message="",
+        ~toastType=ToastSuccess,
+        ~toastKey=generatedToastKey,
+        ~toastDuration=5000,
+      )
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+      )
+      Nullable.null
+    } catch {
+    | _ => {
+        showToast(
+          ~message="Failed to resolve transaction exception. Please try again.",
+          ~toastType=ToastError,
+        )
+        Nullable.null
+      }
+    }
   }
 
   let summaryItems = React.useMemo(() => {
@@ -99,6 +120,20 @@ let make = (
   let onCloseClickCustomFun = () => {
     setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
     setShowConfirmationModal(_ => false)
+  }
+
+  let isRowSelectable = switch exceptionStage {
+  | ResolvingException(MarkAsReceived) =>
+    Some(
+      (rowData: JSON.t) => {
+        let entry =
+          rowData
+          ->getDictFromJsonObject
+          ->exceptionTransactionEntryItemToItemMapper
+        entry.status == Expected
+      },
+    )
+  | _ => None
   }
 
   <div className="flex flex-col gap-4 mt-6 mb-16">
@@ -130,6 +165,7 @@ let make = (
       resultsPerPage
       setResultsPerPage
       totalResults={updatedEntriesList->Array.length}
+      ?isRowSelectable
     />
     <RenderIf
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
@@ -170,7 +206,7 @@ let make = (
       <div className="flex flex-col gap-4">
         <Form
           onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
-          {reasonMultiLineTextInputField(~label="Resolution Remark")}
+          {reasonMultiLineTextInputField(~label="Add Remark")}
           <div className="flex flex-col">
             {<RenderIf condition={summaryItems->Array.length > 0}>
               {<React.Fragment>

@@ -6,6 +6,7 @@ let make = (
   ~customInputClassName="",
   ~customWrapperClassName="",
   ~defaultValue=?,
+  ~showErrorWhenEmpty=true,
 ) => {
   open LogicUtils
 
@@ -54,6 +55,12 @@ let make = (
     setToggle(_ => false)
   )
 
+  let showError = switch (color->isEmptyString, showErrorWhenEmpty) {
+  | (true, true) => !isValid
+  | (true, false) => false
+  | (false, _) => !isValid
+  }
+
   <div
     className={`relative flex flex-col ${fullWidth ? "w-full" : ""} ${customWrapperClassName}`}
     ref={colorPickerRef->ReactDOM.Ref.domRef}>
@@ -63,7 +70,7 @@ let make = (
       </label>
     </RenderIf>
     <div
-      className={`flex flex-row items-center border rounded-md px-3 py-2 bg-white dark:bg-jp-gray-950 dark:border-jp-gray-960 cursor-pointer ${!isValid
+      className={`flex flex-row items-center border rounded-md px-3 py-2 bg-white dark:bg-jp-gray-950 dark:border-jp-gray-960 cursor-pointer ${showError
           ? "border-red-500"
           : ""} ${customInputClassName}`}
       onClick={_ => setToggle(prev => !prev)}>
@@ -91,7 +98,7 @@ let make = (
         style={ReactDOMStyle.make(~backgroundColor=isValid ? color : initialColor, ())}
       />
     </div>
-    <RenderIf condition={!isValid}>
+    <RenderIf condition={showError}>
       <div className="text-red-500 text-xs mt-1">
         {React.string("Please enter a valid hex color code (e.g., #FF5733)")}
       </div>

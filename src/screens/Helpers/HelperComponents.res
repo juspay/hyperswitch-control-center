@@ -168,3 +168,38 @@ module ProfileNameComponent = {
     <div className> {(name->LogicUtils.isNonEmptyString ? name : "NA")->React.string} </div>
   }
 }
+
+module AutoSubmitter = {
+  @react.component
+  let make = (~autoApply, ~submit, ~defaultFilterKeys=[], ~submitInputOnEnter) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    React.useEffect(() => {
+      let onKeyDown = ev => {
+        let keyCode = ev->ReactEvent.Keyboard.keyCode
+        if keyCode === 13 && submitInputOnEnter {
+          form.submit()->ignore
+        }
+      }
+      Window.addEventListener("keydown", onKeyDown)
+      Some(() => Window.removeEventListener("keydown", onKeyDown))
+    }, [])
+
+    React.useEffect(() => {
+      if formState.dirty {
+        let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
+          formState.dirtyFields->Dict.get(key)->Option.getOr(false)
+        })
+        if autoApply || defaultFieldsHaveChanged {
+          submit(formState.values, 0)->ignore
+        }
+      }
+
+      None
+    }, [formState.values])
+
+    React.null
+  }
+}

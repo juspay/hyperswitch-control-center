@@ -201,19 +201,42 @@ module IngestionHistoryActionsComponent = {
   @react.component
   let make = (~ingestionHistory: ingestionHistoryType) => {
     open ReconEngineAccountsSourcesTypes
+    open APIUtils
 
     let (showModal, setShowModal) = React.useState(_ => false)
+    let getURL = useGetURL()
+    let fetchApi = AuthHooks.useApiFetcher()
+    let showToast = ToastState.useShowToast()
+    let {xFeatureRoute, forceCookies} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+    let onDownloadClick = async ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      try {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
+          ~methodType=Get,
+          ~id=Some(ingestionHistory.id),
+        )
+        let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+        let csvContent = await res->Fetch.Response.text
+        DownloadUtils.download(
+          ~fileName=ingestionHistory.file_name,
+          ~content=csvContent,
+          ~fileType="text/csv",
+        )
+        showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to download file. Please try again.", ~toastType=ToastError)
+      }
+    }
 
     let ingestionHistoryIconActions = [
       {
-        iconType: ViewIcon,
-        onClick: _ => (),
-        disabled: true,
-      },
-      {
         iconType: DownloadIcon,
-        onClick: _ => (),
-        disabled: true,
+        onClick: ev => onDownloadClick(ev)->ignore,
+        disabled: false,
       },
       {
         iconType: ChartIcon,

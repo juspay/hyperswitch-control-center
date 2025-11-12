@@ -269,6 +269,13 @@ let make = (
   let validate = (values: JSON.t) => {
     let errors = Dict.make()
     let dict = values->getDictFromJsonObject
+
+    AdvancedRoutingUtils.validateNameAndDescription(
+      ~dict,
+      ~errors,
+      ~validateFields=[Name, Description],
+    )
+
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
       if gateways->Array.length === 0 {
