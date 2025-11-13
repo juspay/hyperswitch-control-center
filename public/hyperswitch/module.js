@@ -1,4 +1,5 @@
 let wasm;
+let paymentLinkWasm;
 let dynamicRoutingWasm;
 async function init() {
   try {
@@ -19,6 +20,35 @@ async function dynamicRoutingInit() {
   } catch (e) {
     console.error(e, "FAILED TO LOAD DYNAMIC ROUTING WASM CONFIG");
     throw e;
+  }
+}
+
+async function paymentLinkInit() {
+  try {
+    paymentLinkWasm = await import("/payment_link_wasm/payment_link_wasm.js");
+    await paymentLinkWasm.default(
+      "/payment_link_wasm/payment_link_wasm_bg.wasm",
+    );
+    return { status: true, paymentLinkWasm };
+  } catch (e) {
+    console.error(e, "FAILED TO LOAD PAYMENT LINK WASM CONFIG");
+    throw e;
+  }
+}
+
+function generate_payment_link_preview(config_json) {
+  if (paymentLinkWasm) {
+    return paymentLinkWasm.generate_payment_link_preview(config_json);
+  } else {
+    return {};
+  }
+}
+
+function validate_payment_link_config(config_json) {
+  if (paymentLinkWasm) {
+    return paymentLinkWasm.validate_payment_link_config(config_json);
+  } else {
+    return {};
   }
 }
 

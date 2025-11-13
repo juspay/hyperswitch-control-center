@@ -4,6 +4,7 @@ open ReconEngineUtils
 
 type processingColType =
   | StagingEntryId
+  | TransformationHistoryId
   | EntryType
   | AccountName
   | Amount
@@ -15,6 +16,7 @@ type processingColType =
 
 let processingDefaultColumns = [
   StagingEntryId,
+  TransformationHistoryId,
   EntryType,
   OrderId,
   Amount,
@@ -28,6 +30,8 @@ let processingDefaultColumns = [
 let getProcessingHeading = colType => {
   switch colType {
   | StagingEntryId => Table.makeHeaderInfo(~key="staging_entry_id", ~title="Transformed Entry ID")
+  | TransformationHistoryId =>
+    Table.makeHeaderInfo(~key="transformation_history_id", ~title="Transformation History ID")
   | EntryType => Table.makeHeaderInfo(~key="entry_type", ~title="Entry Type")
   | AccountName => Table.makeHeaderInfo(~key="account", ~title="Account")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
@@ -64,6 +68,22 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
           />
         </RenderIf>
         <RenderIf condition={data.staging_entry_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
+  | TransformationHistoryId =>
+    CustomCell(
+      <>
+        <RenderIf condition={data.transformation_history_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customParentClass="flex flex-row items-center gap-2"
+            customTextCss="truncate whitespace-nowrap max-w-36"
+            displayValue=Some(data.transformation_history_id)
+          />
+        </RenderIf>
+        <RenderIf condition={data.transformation_history_id->isEmptyString}>
           <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
         </RenderIf>
       </>,
