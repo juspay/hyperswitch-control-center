@@ -32,6 +32,7 @@ let make = (~setScreenState) => {
     | list{"billing-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
+    | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
