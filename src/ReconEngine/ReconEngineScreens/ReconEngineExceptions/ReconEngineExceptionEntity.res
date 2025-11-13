@@ -1,5 +1,6 @@
 open ReconEngineTypes
 open LogicUtils
+open ReconEngineUtils
 
 type processingColType =
   | StagingEntryId
@@ -92,7 +93,11 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
   | AccountName => EllipsisText(data.account.account_name, "")
   | Amount => Numeric(data.amount, amount => {amount->Float.toString})
   | Currency => Text(data.currency)
-  | Status => getStatusLabel(data.status)
+  | Status =>
+    switch data.discarded_status {
+    | Some(status) => getStatusLabel(status->getProcessingEntryStatusVariantFromString)
+    | None => getStatusLabel(data.status)
+    }
   | EffectiveAt => Date(data.effective_at)
   | OrderId =>
     CustomCell(
@@ -122,3 +127,25 @@ let processingTableEntity = EntityType.makeEntity(
   ~getCell=getProcessingCell,
   ~dataKey="",
 )
+
+let transformedEntryExceptionTableEntity = (
+  path: string,
+  ~authorization: CommonAuthTypes.authorization,
+) => {
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=_ => [],
+    ~defaultColumns=processingDefaultColumns,
+    ~getHeading=getProcessingHeading,
+    ~getCell=getProcessingCell,
+    ~dataKey="",
+    ~getShowLink={
+      connec => {
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.id}`),
+          ~authorization,
+        )
+      }
+    },
+  )
+}

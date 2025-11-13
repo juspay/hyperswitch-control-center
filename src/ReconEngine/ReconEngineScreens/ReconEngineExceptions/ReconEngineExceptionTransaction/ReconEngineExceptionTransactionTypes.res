@@ -51,7 +51,7 @@ type accountInfo = {
 type validationRule = (string, Dict.t<JSON.t> => option<string>)
 
 type tableSection = {
-  titleElement: React.element,
+  titleElement?: React.element,
   rows: array<array<Table.cell>>,
   rowData: array<RescriptCore.JSON.t>,
 }

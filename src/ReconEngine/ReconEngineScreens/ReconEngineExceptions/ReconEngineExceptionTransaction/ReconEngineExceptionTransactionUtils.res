@@ -211,6 +211,9 @@ let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
     transformation_id: dict->getString("transformation_id", ""),
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
+    version: dict->getInt("version", 0),
+    discarded_status: dict->getOptionString("discarded_status"),
+    data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
   }
 }
 
@@ -238,28 +241,7 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   isOrderIdChanged
 }
 
-let validateFields = (
-  data: Dict.t<JSON.t>,
-  rules: array<ReconEngineExceptionTransactionTypes.validationRule>,
-): JSON.t => {
-  rules
-  ->Array.filterMap(((fieldName, validator)) => {
-    switch validator(data) {
-    | Some(errorMessage) => Some((fieldName, errorMessage->JSON.Encode.string))
-    | None => None
-    }
-  })
-  ->Dict.fromArray
-  ->JSON.Encode.object
-}
-
-let requiredString = (fieldName: string, errorMsg: string) => {
-  (data: Dict.t<JSON.t>) => data->getString(fieldName, "")->isEmptyString ? Some(errorMsg) : None
-}
-
-let positiveFloat = (fieldName: string, errorMsg: string) => {
-  (data: Dict.t<JSON.t>) => data->getFloat(fieldName, -1.0) <= 0.0 ? Some(errorMsg) : None
-}
+open ReconEngineExceptionsUtils
 
 let validateCreateEntryDetails = (values: JSON.t): JSON.t => {
   let data = values->getDictFromJsonObject
@@ -366,6 +348,11 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
 
   if initialEntry.amount != updatedEntry.amount {
     let message = `Amount edited from ${updatedEntry.currency} ${initialEntry.amount->Float.toString} to ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.order_id != updatedEntry.order_id {
+    let message = `Order ID changed to ${updatedEntry.order_id} in ${updatedEntry.account_name} account.`
     summary->Array.push(message)
   }
 

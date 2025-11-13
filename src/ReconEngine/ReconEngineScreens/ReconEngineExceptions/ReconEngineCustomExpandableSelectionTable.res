@@ -281,7 +281,10 @@ let make = (
 
       (
         {
-          titleElement: section.titleElement,
+          titleElement: switch section.titleElement {
+          | Some(element) => element
+          | None => React.null
+          },
           rows: paginatedRows,
           rowData: paginatedRowData,
         }: ReconEngineExceptionTransactionTypes.tableSection
@@ -300,7 +303,7 @@ let make = (
         let sectionMarginClass = isLastSection ? "" : "mb-6"
 
         <div key={`section-${sectionIndex->Int.toString}`} className={sectionMarginClass}>
-          {section.titleElement}
+          {section.titleElement->Option.getOr(React.null)}
           <div className={`border rounded-xl overflow-x-scroll ${scrollBarClass}`}>
             <table className="table-auto w-full h-full" colSpan=0>
               <TableHeader
