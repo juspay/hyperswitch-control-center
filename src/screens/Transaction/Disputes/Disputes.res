@@ -14,7 +14,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {transactionEntity, orgId, merchantId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -118,7 +118,7 @@ let make = () => {
             entityMapper=UserInfoUtils.transactionEntityMapper
           />
         </Portal>
-        <RenderIf condition={generateReport && disputesData->Array.length > 0}>
+        <RenderIf condition={generateReport && email && disputesData->Array.length > 0}>
           <GenerateReport entityName={V1(DISPUTE_REPORT)} />
         </RenderIf>
       </div>
