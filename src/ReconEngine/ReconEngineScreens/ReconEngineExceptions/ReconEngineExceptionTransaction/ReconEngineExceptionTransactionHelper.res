@@ -100,14 +100,14 @@ module ResolutionModal = {
     | SidePanelModal => (
         "flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
         "relative h-full flex flex-col overflow-y-auto",
-        "",
-        "",
+        `${heading.sm.semibold} text-nd_gray-700`,
+        `${body.md.regular} text-nd_gray-600 mt-1`,
       )
     | ExpandedSidePanelModal => (
         "flex flex-col justify-start h-screen w-1/2 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
         "relative h-full flex flex-col overflow-y-auto",
-        "",
-        "",
+        `${heading.sm.semibold} text-nd_gray-700`,
+        `${body.md.regular} text-nd_gray-600 mt-1`,
       )
     }
 

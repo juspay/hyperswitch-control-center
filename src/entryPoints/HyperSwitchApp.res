@@ -57,6 +57,9 @@ let make = () => {
       setuserGroupACL(_ => None)
       setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
+      if featureFlagDetails.paymentLinkThemeConfigurator {
+        Window.paymentLinkWasmInit()->ignore
+      }
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()

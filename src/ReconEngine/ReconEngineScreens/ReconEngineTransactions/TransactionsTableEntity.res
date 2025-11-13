@@ -56,7 +56,7 @@ let getHeading = (colType: transactionColType) => {
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | ReconciliationType =>
     Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
-  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Reason")
+  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Remark")
   }
 }
 

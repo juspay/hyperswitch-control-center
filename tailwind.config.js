@@ -69,6 +69,9 @@ module.exports = {
         "195-px": "195px",
         "344-px": "344px",
         "400-px": "400px",
+        "590-px": "590px",
+        "650-px": "650px",
+        "700-px": "700px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
@@ -95,7 +98,9 @@ module.exports = {
       inset: {
         "5-px": "5px",
         "76-px": "76px",
+        "120-px": "120px",
         "180-px": "180px",
+        "500-px": "500px",
       },
       letterSpacing: {
         compressed: "-2px",

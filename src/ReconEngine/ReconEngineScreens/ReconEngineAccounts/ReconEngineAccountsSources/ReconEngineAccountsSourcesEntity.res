@@ -26,6 +26,7 @@ type ingestionHistoryColType =
 type transformationHistoryColType =
   | TransformationId
   | TransformationHistoryId
+  | IngestionHistoryId
   | TransformationName
   | Status
   | CreatedAt
@@ -78,6 +79,8 @@ let getTransformationHistoryHeading = colType => {
   | TransformationId => Table.makeHeaderInfo(~key="transformation_id", ~title="Transformation ID")
   | TransformationHistoryId =>
     Table.makeHeaderInfo(~key="transformation_history_id", ~title="Transformation History ID")
+  | IngestionHistoryId =>
+    Table.makeHeaderInfo(~key="ingestion_history_id", ~title="Ingestion History ID")
   | TransformationName =>
     Table.makeHeaderInfo(~key="transformation_name", ~title="Transformation Name")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
@@ -148,6 +151,7 @@ let getTransformationHistoryCell = (
   switch colType {
   | TransformationId => EllipsisText(transformationHistoryData.transformation_id, "")
   | TransformationHistoryId => DisplayCopyCell(transformationHistoryData.transformation_history_id)
+  | IngestionHistoryId => DisplayCopyCell(transformationHistoryData.ingestion_history_id)
   | TransformationName => Text(transformationHistoryData.transformation_name)
   | Status => ReconEngineAccountsUtils.getStatusLabel(transformationHistoryData.status)
   | CreatedAt => Date(transformationHistoryData.created_at)
