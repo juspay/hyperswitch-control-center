@@ -211,7 +211,12 @@ module WebHookAuthenticationHeaders = {
 
 module WebHookSection = {
   @react.component
-  let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
+  let make = (
+    ~businessProfileDetails: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+    ~setBusinessProfile,
+    ~setScreenState,
+    ~profileId="",
+  ) => {
     open APIUtils
     open LogicUtils
     open FormRenderer
@@ -220,7 +225,6 @@ module WebHookSection = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
     let onSubmit = async (values, _) => {
@@ -696,7 +700,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -735,13 +738,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   }
 
   React.useEffect(() => {
-    if profileId->LogicUtils.isNonEmptyString {
+    if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [profileId, businessProfileRecoilVal.profile_name])
+  }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
@@ -776,10 +779,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
-                  <InfoViewForWebhooks heading="Profile ID" subHeading=profileId isCopy=true />
+                  <InfoViewForWebhooks
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
+                  />
                 </div>
                 <div className="flex items-center">
-                  <InfoViewForWebhooks heading="Merchant ID" subHeading=merchantId />
+                  <InfoViewForWebhooks
+                    heading="Merchant ID" subHeading=businessProfileDetails.merchant_id
+                  />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
                     subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
