@@ -139,6 +139,7 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>)
     {
       name: productType->getProductDisplayName,
       links,
+      icon: productType->productTypeIconMapper,
       showSection: true,
     }
   })

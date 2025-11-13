@@ -509,6 +509,7 @@ module ProductTypeSectionItem = {
         onClick=handleClick
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
         <div className="flex items-center gap-2">
+          <Icon size=14 name={section.icon} className={secondaryTextColor} />
           <div className={`whitespace-nowrap ${secondaryTextColor} ${body.md.medium}`}>
             {React.string(section.name)}
           </div>
