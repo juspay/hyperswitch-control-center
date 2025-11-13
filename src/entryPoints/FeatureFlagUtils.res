@@ -65,6 +65,7 @@ type featureFlag = {
   routingAnalytics: bool,
   devRolesV2: bool,
   devCustomer: bool,
+  devAcceptInvite: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -132,6 +133,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     routingAnalytics: dict->getBool("routing_analytics", false),
     devRolesV2: dict->getBool("dev_roles_v2", false),
     devCustomer: dict->getBool("dev_customer", false),
+    devAcceptInvite: dict->getBool("dev_accept_invite", false),
   }
 }
 
