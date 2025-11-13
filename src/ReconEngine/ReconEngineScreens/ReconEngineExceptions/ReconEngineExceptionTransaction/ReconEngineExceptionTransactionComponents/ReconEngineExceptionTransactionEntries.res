@@ -96,7 +96,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
       Nullable.null
     } catch {

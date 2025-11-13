@@ -2,17 +2,13 @@ open Typography
 
 @react.component
 let make = () => {
-  open LogicUtils
-  open APIUtils
-  open ReconEngineAccountsTransformedEntriesUtils
-  open ReconEngineTypes
-  open ReconEngineFilterUtils
   open ReconEngineHooks
+  open ReconEngineFilterUtils
+  open LogicUtils
+  open ReconEngineTypes
+  open ReconEngineTransformedEntryExceptionsUtils
 
   let getGetProcessingEntries = useGetProcessingEntries()
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
@@ -29,7 +25,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_accounts_transformed_entries_date_filter_opened")
+    mixpanelEvent(~eventName="recon_engine_transformed_entries_exceptions_date_filter_opened")
   }
 
   let accountOptions = React.useMemo(() => {
@@ -44,7 +40,6 @@ let make = () => {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
           isContainingStringLowercase((obj.status :> string), searchText) ||
-          isContainingStringLowercase(obj.transformation_history_id, searchText) ||
           isContainingStringLowercase(obj.order_id, searchText)
         | None => false
         }
@@ -63,7 +58,7 @@ let make = () => {
       if statusFilter->Array.length == 0 {
         enhancedFilterValueJson->Dict.set(
           "status",
-          ["pending", "processed", "needs_manual_review", "void"]->getJsonFromArrayOfString,
+          ["needs_manual_review"]->getJsonFromArrayOfString,
         )
       }
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
@@ -84,7 +79,7 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
-    ~origin="recon_engine_accounts_transformed_entries",
+    ~origin="recon_engine_transformed_entries_exceptions",
     ~range=180,
     (),
   )
@@ -104,7 +99,7 @@ let make = () => {
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
-        title="ReconEngineAccountsTransformedEntriesFilters"
+        title="ReconEngineTransformedEntriesExceptionsFilters"
         initialFilters={initialDisplayFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
@@ -114,7 +109,7 @@ let make = () => {
         )}
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
-        key="ReconEngineAccountsTransformedEntriesFilters"
+        key="ReconEngineTransformedEntriesExceptionsFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
@@ -124,70 +119,55 @@ let make = () => {
     </div>
   }
 
-  let onEntityClick = async transformedEntry => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
-        ~id=Some(transformedEntry.transformation_history_id),
-      )
-      let res = await fetchDetails(url)
-      let transformationHistoryData =
-        res->getDictFromJsonObject->getTransformedEntriesTransformationHistoryPayloadFromDict
-
-      RescriptReactRouter.push(
-        GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?transformationHistoryId=${transformedEntry.transformation_history_id}&stagingEntryId=${transformedEntry.staging_entry_id}`,
-        ),
-      )
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
-
   <div className="flex flex-col gap-5 w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
-        title="Transformed Entries"
+        title="Transformed Entry Exceptions"
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
     </div>
-    <ReconEngineAccountsTransformedEntriesOverviewCards selectedTransformationHistoryId=None />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
-        <LoadedTable
-          title="Transformed Entries"
-          hideTitle=true
-          actualData={filteredStagingData}
-          entity={ReconEngineExceptionEntity.processingTableEntity}
-          resultsPerPage=10
-          totalResults={filteredStagingData->Array.length}
-          offset
-          setOffset
-          currrentFetchCount={filteredStagingData->Array.length}
-          tableheadingClass="h-12"
-          tableHeadingTextClass="!font-normal"
-          nonFrozenTableParentClass="!rounded-lg"
-          loadedTableParentClass="flex flex-col"
-          enableEqualWidthCol=false
-          onEntityClick={val => {
-            onEntityClick(val)->ignore
-          }}
-          showAutoScroll=true
-          filters={<TableSearchFilter
-            data={stagingData->Array.map(Nullable.make)}
-            filterLogic
-            placeholder="Search Transformation History Id or Order ID"
-            customSearchBarWrapperWidth="w-full lg:w-1/3"
-            customInputBoxWidth="w-full rounded-xl"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />}
-        />
+        <RenderIf condition={stagingData->Array.length == 0}>
+          <div className="h-40-vh flex flex-col justify-center items-center gap-2">
+            <p className={`${heading.sm.semibold} text-gray-800`}>
+              {"No exceptions to show."->React.string}
+            </p>
+            <p className={`${body.md.medium} text-gray-500`}>
+              {"All transformed entries have been processed successfully and entered into the reconciliation engine."->React.string}
+            </p>
+          </div>
+        </RenderIf>
+        <RenderIf condition={stagingData->Array.length > 0}>
+          <LoadedTable
+            title="Transformed Entries"
+            hideTitle=true
+            actualData={filteredStagingData}
+            entity={ReconEngineExceptionEntity.processingTableEntity}
+            resultsPerPage=10
+            totalResults={filteredStagingData->Array.length}
+            offset
+            setOffset
+            currrentFetchCount={filteredStagingData->Array.length}
+            tableheadingClass="h-12"
+            tableHeadingTextClass="!font-normal"
+            nonFrozenTableParentClass="!rounded-lg"
+            loadedTableParentClass="flex flex-col"
+            enableEqualWidthCol=false
+            showAutoScroll=true
+            filters={<TableSearchFilter
+              data={stagingData->Array.map(Nullable.make)}
+              filterLogic
+              placeholder="Search Staging Entry ID or Order ID or Status"
+              customSearchBarWrapperWidth="w-full lg:w-1/3"
+              customInputBoxWidth="w-full rounded-xl"
+              searchVal=searchText
+              setSearchVal=setSearchText
+            />}
+          />
+        </RenderIf>
       </div>
     </PageLoaderWrapper>
   </div>

@@ -12,7 +12,9 @@ module CustomToastElement = {
     | PartiallyReconciled => (
         "Transaction partially reconciled",
         "Please review the exceptions page for details",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/exceptions/${transaction.id}`)}`,
+        `${GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/exceptions/recon/${transaction.id}`,
+          )}`,
         "See Exception",
       )
     | Void => (
@@ -287,7 +289,7 @@ module MetadataInput = {
           </span>
         </p>
         <style> {React.string(expandableTableScrollbarCss)} </style>
-        <div className="flex flex-col gap-3 max-h-64 overflow-y-scroll show-scrollbar pr-2">
+        <div className="flex flex-col gap-3 max-h-40 overflow-y-scroll show-scrollbar pr-2">
           {metadataRows
           ->Array.map(row => {
             <div

@@ -46,7 +46,8 @@ let make = (
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase((obj.status :> string), searchText)
+          isContainingStringLowercase((obj.status :> string), searchText) ||
+          isContainingStringLowercase(obj.order_id, searchText)
         | None => false
         }
       })
@@ -65,7 +66,7 @@ let make = (
         if statusFilter->Array.length == 0 {
           enhancedFilterValueJson->Dict.set(
             "status",
-            ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
+            ["pending", "processed", "needs_manual_review", "void"]->getJsonFromArrayOfString,
           )
         }
         let queryString =
@@ -170,7 +171,7 @@ let make = (
         filters={<TableSearchFilter
           data={stagingData->Array.map(Nullable.make)}
           filterLogic
-          placeholder="Search Transformed Entry ID or Status"
+          placeholder="Search Transformed Entry ID or Order ID or Status"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText
