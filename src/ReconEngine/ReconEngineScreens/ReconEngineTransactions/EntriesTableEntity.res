@@ -40,14 +40,14 @@ let allColumns: array<entryColType> = [
 ]
 
 let detailsFields = [
-  EntryId,
+  OrderID,
   EntryType,
-  AccountName,
   Amount,
   Currency,
-  TransactionId,
-  OrderID,
   Status,
+  AccountName,
+  EntryId,
+  TransactionId,
   CreatedAt,
   EffectiveAt,
 ]

@@ -1,5 +1,10 @@
 @react.component
-let make = (~getClientSecret) => {
+let make = (
+  ~getClientSecret,
+  ~navigationPath="/sdk",
+  ~onSubmitClick=_ => (),
+  ~submitButtonText="Show Preview",
+) => {
   open FormRenderer
   open SDKPaymentHelper
   open SDKPaymentUtils
@@ -17,6 +22,8 @@ let make = (~getClientSecret) => {
     showBillingAddress,
     setPaymentStatus,
   } = React.useContext(SDKProvider.defaultContext)
+  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
   )
@@ -47,7 +54,8 @@ let make = (~getClientSecret) => {
         ~sendAuthType,
       )
       let _ = await getClientSecret(~typedValues)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=navigationPath))
+      onSubmitClick()
       // To re-render the SDK back again after the payment is completed
       setPaymentStatus(_ => INCOMPLETE)
     } catch {
@@ -88,9 +96,10 @@ let make = (~getClientSecret) => {
       />
     </RenderIf>
     <SubmitButton
-      text="Show preview"
+      text=submitButtonText
       disabledParamter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
-        paymentConnectorList->Array.length == 0}
+      paymentConnectorList->Array.length == 0 ||
+      isInternalUser}
       customSumbitButtonStyle="!mt-5 !w-full"
     />
   </Form>

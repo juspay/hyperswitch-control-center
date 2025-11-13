@@ -150,6 +150,12 @@ let getV2Url = (
       | Some(id) => `v2/profiles/${id}`
       | None => `v2/profiles`
       }
+    | Put =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
     | _ => `v2/profiles`
     }
   }
@@ -1096,6 +1102,15 @@ let useGetURL = () => {
             switch id {
             | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
             | None => `${reconBaseURL}/metadata_schemas`
+            }
+          | _ => ""
+          }
+        | #AUDIT_TRAIL =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
+            | None => `${reconBaseURL}/audit_trail`
             }
           | _ => ""
           }

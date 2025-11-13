@@ -537,6 +537,10 @@ let getJsonFromStr = data => {
   }
 }
 
+let getJsonFromDict = (dict, key) => {
+  dict->Dict.get(key)->Option.getOr(Dict.make()->JSON.Encode.object)
+}
+
 let compareLogic = (firstValue, secondValue) => {
   let temp1 = firstValue
   let temp2 = secondValue

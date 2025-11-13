@@ -573,21 +573,25 @@ let getResolutionModalConfig = (
     }
   | ResolvingException(EditEntry) => {
       heading: "Edit Entry",
+      description: "Allows you to fix data discrepancies in the selected entry.",
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
   | ResolvingException(MarkAsReceived) => {
       heading: "Mark as Received",
+      description: "Allows you to mark that the expected entry has been received.",
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
   | ResolvingException(CreateNewEntry) => {
       heading: "Create New Entry",
+      description: "Manually create an entry when data is missing from either accounts",
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
   | ResolvingException(LinkStagingEntriesToTransaction) => {
-      heading: "Match with an existing staging entry",
+      heading: "Match with an existing transformed entry",
+      description: "Allows you to replace the existing entry with the correct transformed entries",
       layout: ExpandedSidePanelModal,
       closeOnOutsideClick: false,
     }

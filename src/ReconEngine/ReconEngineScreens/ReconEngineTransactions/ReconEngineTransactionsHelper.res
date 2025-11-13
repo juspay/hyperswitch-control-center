@@ -74,6 +74,7 @@ module TransactionDetailInfo = {
   let make = (
     ~currentTransactionDetails: ReconEngineTypes.transactionType,
     ~detailsFields: array<TransactionsTableEntity.transactionColType>,
+    ~customWidthClass="w-1/4",
   ) => {
     open TransactionsTableEntity
 
@@ -81,7 +82,7 @@ module TransactionDetailInfo = {
     let widthClass = if isMiniLaptopView {
       "md:w-1/3 w-1/2"
     } else {
-      "w-1/4"
+      customWidthClass
     }
     let isArchived = currentTransactionDetails.transaction_status == Archived
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
@@ -107,7 +108,10 @@ module EntryAuditTrailInfo = {
   open ReconEngineTypes
 
   @react.component
-  let make = (~entriesList: array<entryType>=[]) => {
+  let make = (
+    ~openedTransaction: ReconEngineTypes.transactionType,
+    ~entriesList: array<entryType>=[],
+  ) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
     open ReconEngineUtils
@@ -178,7 +182,22 @@ module EntryAuditTrailInfo = {
       expectedEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
-    <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
+    <div className="flex flex-col gap-4 px-2 my-6">
+      {switch (openedTransaction.data.posted_type, openedTransaction.data.reason) {
+      | (Some(postedType), Some(resolutionRemark)) =>
+        <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
+          <div className="flex flex-row justify-between">
+            <p className={`${body.lg.semibold} text-nd_gray-700`}>
+              {"Resolution Remark"->React.string}
+            </p>
+            <TableUtils.TableCell
+              cell={TransactionsTableEntity.getReconciledTypeLabel(postedType)}
+            />
+          </div>
+          <p className={`${body.md.medium} text-nd_gray-500`}> {resolutionRemark->React.string} </p>
+        </div>
+      | (_, _) => React.null
+      }}
       <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
@@ -345,18 +364,27 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
+      let reasonText = switch transaction.data.posted_type {
+      | Some(ManuallyReconciled)
+      | Some(ForceReconciled) =>
+        transaction.data.reason
+      | _ => None
+      }
+
       let customComponent = {
         id: transaction.version->Int.toString,
         customComponent: Some(
           <TransactionDetailInfo
             currentTransactionDetails=transaction
-            detailsFields=[TransactionId, Status, Variance, CreatedAt]
+            detailsFields=[Status, Variance, CreatedAt]
+            customWidthClass="w-1/3"
           />,
         ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
         },
+        reasonText,
       }
       customComponent
     })
@@ -388,7 +416,14 @@ module AuditTrail = {
       </div>
     }
 
-    <div className="mt-2">
+    <>
+      <div className="my-8">
+        <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Audit Trail"->React.string} </p>
+        <p className={`text-nd_gray-400 mt-1 ${body.md.medium}`}>
+          {"An immutable history of every version and update made to this transaction"->React.string}
+        </p>
+      </div>
+      <AuditTrailStepIndicator sections />
       <Modal
         setShowModal
         showModal
@@ -406,7 +441,7 @@ module AuditTrail = {
           <div className="h-full relative">
             <div className="absolute inset-0 overflow-y-auto px-2 pb-20">
               <RenderIf condition={entriesList->Array.length > 0}>
-                <EntryAuditTrailInfo entriesList />
+                <EntryAuditTrailInfo openedTransaction entriesList />
               </RenderIf>
               <RenderIf condition={entriesList->Array.length === 0}>
                 <div className="text-center text-nd_gray-500 py-8">
@@ -426,7 +461,6 @@ module AuditTrail = {
           </div>
         </PageLoaderWrapper>
       </Modal>
-      <AuditTrailStepIndicator sections />
-    </div>
+    </>
   }
 }

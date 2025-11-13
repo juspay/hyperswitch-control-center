@@ -506,12 +506,22 @@ let webhooks = userHasResourceAccess => {
   })
 }
 
+let paymentLinkTheme = {
+  SubLevelLink({
+    name: "Payment Link Theme",
+    link: `/payment-link-theme`,
+    access: Access,
+    searchOptions: [("Configure payment link theme", "")],
+  })
+}
+
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~isPaymentSettingsV2Enabled,
+  ~paymentLinkThemeConfigurator,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
@@ -520,15 +530,17 @@ let developers = (
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
-  if isWebhooksEnabled {
-    defaultDevelopersOptions->Array.push(webhooks)
-  }
   if isPaymentSettingsV2Enabled {
     defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
-
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
+  }
+  if isWebhooksEnabled {
+    defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if paymentLinkThemeConfigurator {
+    defaultDevelopersOptions->Array.push(paymentLinkTheme)
   }
 
   isDevelopersEnabled
