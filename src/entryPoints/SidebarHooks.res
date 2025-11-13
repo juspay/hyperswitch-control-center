@@ -30,6 +30,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     paymentSettingsV2,
     routingAnalytics,
     billingProcessor,
+    paymentLinkThemeConfigurator,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -73,6 +74,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~userHasResourceAccess,
       ~checkUserEntity,
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
+      ~paymentLinkThemeConfigurator,
     ),
     settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
