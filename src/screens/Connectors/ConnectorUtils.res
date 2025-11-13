@@ -33,6 +33,21 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAYXML),
 ]
 
+let payoutConnectorListForLive: array<connectorTypes> = [
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CYBERSOURCE),
+  PayoutProcessor(EBANX),
+  PayoutProcessor(PAYPAL),
+  PayoutProcessor(STRIPE),
+  PayoutProcessor(WISE),
+  PayoutProcessor(NOMUPAY),
+  PayoutProcessor(NUVEI),
+  PayoutProcessor(GIGADAT),
+  PayoutProcessor(LOONIO),
+  PayoutProcessor(WORLDPAY),
+]
+
 let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(THREEDSECUREIO),
   ThreeDsAuthenticator(NETCETERA),
