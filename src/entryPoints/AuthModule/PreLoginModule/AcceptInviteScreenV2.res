@@ -37,7 +37,7 @@ let make = (~onClick) => {
         ~entityName=V1(USERS),
         ~methodType=Post,
         ~userType={#ACCEPT_INVITE_FROM_EMAIL},
-        ~queryParamerters=Some("validate_only=true"),
+        ~queryParamerters=Some("status_check=true"),
       )
       let res = await updateDetails(url, body, Post)
 
@@ -64,7 +64,7 @@ let make = (~onClick) => {
       let url = getURL(
         ~entityName=V1(USERS),
         ~methodType=Post,
-        ~userType={#GENERATE_TOKEN_FORCE_SET_PASSWORD},
+        ~userType={#TERMINATE_ACCEPT_INVITE},
       )
       let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(getPreLoginInfo(res)))

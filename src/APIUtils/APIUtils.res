@@ -1200,7 +1200,7 @@ let useGetURL = () => {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
-        | #GENERATE_TOKEN_FORCE_SET_PASSWORD => `${userUrl}/generate_token_force_set_password`
+        | #TERMINATE_ACCEPT_INVITE => `${userUrl}/terminate_accept_invite`
 
         // SPT FLOWS (Totp)
         | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
