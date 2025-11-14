@@ -56,4 +56,11 @@ type topLevelItem =
   | LinkWithTag(optionTypeWithTag)
   | Section(sectionType)
 
+type productTypeSection = {
+  name: string,
+  links: array<topLevelItem>,
+  icon: string,
+  showSection: bool,
+}
+
 type urlRoute = Local(string) | Remote(string) | LocalSection(array<(string, string)>)
