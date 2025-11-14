@@ -21,6 +21,7 @@ module CopyTextCustomComp = {
       | None => ""
       }
     }
+
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(copyVal)
