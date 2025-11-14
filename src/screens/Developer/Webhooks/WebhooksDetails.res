@@ -244,7 +244,6 @@ let make = (~id) => {
     <BreadCrumbNavigation
       path=[{title: "Webhooks", link: "/webhooks"}]
       currentPageTitle="Webhooks home"
-      cursorStyle="cursor-pointer"
     />
     <PageLoaderWrapper screenState>
       <div className="flex gap-6 max-h-screen">

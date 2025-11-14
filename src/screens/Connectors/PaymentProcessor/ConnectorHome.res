@@ -224,7 +224,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
                 },
           ]
           currentPageTitle={connector->getDisplayNameForConnector}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>

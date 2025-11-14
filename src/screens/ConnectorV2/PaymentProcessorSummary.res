@@ -177,9 +177,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
       ]
       currentPageTitle={`${connectorName->getDisplayNameForConnector}`}
       dividerVal=Slash
-      customTextClass="text-nd_gray-400 font-medium "
       childGapClass="gap-2"
-      titleTextClass="text-ng_gray-600 font-medium"
     />
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className={`flex flex-col gap-10 ${topPadding} `}>
