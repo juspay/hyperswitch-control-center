@@ -69,16 +69,35 @@ module NoteComponent = {
     let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+
+    let orgName =
+      orgList
+      ->Array.find(org => org.id === orgId)
+      ->Belt.Option.map(org => org.name)
+      ->Belt.Option.getWithDefault(orgId)
+    let merchantName =
+      merchantList
+      ->Array.find(merchant => merchant.id === merchantId)
+      ->Belt.Option.map(merchant => merchant.name)
+      ->Belt.Option.getWithDefault(merchantId)
+    let profileName =
+      profileList
+      ->Array.find(profile => profile.id === profileId)
+      ->Belt.Option.map(profile => profile.name)
+      ->Belt.Option.getWithDefault(profileId)
 
     // TODO : Chnage id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
     | #Tenant
     | #Organization =>
-      `You can only invite people for ${orgId} here. To invite users to another organisation, please switch the organisation.`
+      `You can only invite people for ${orgName} here. To invite users to another organisation, please switch the organisation.`
     | #Merchant =>
-      `You can only invite people for ${merchantId} here. To invite users to another merchant, please switch the merchant.`
+      `You can only invite people for ${merchantName} here. To invite users to another merchant, please switch the merchant.`
     | #Profile =>
-      `You can only invite people for ${profileId} here. To invite users to another profile, please switch the profile.`
+      `You can only invite people for ${profileName} here. To invite users to another profile, please switch the profile.`
     }
 
     <div className="flex gap-2 items-start justify-start">
