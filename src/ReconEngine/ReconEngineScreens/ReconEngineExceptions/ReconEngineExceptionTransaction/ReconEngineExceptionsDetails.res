@@ -106,7 +106,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="Exception Detail" />
+      <PageUtils.PageHeading title="Exceptions Detail" />
     </div>
     <PageLoaderWrapper
       screenState
@@ -114,7 +114,10 @@ let make = (~id) => {
         message="Payment does not exists in out record" renderType=NotFound
       />}>
       <div className="flex flex-col gap-4">
-        <TransactionDetailInfo currentTransactionDetails={currentExceptionsDetails} />
+        <TransactionDetailInfo
+          currentTransactionDetails={currentExceptionsDetails}
+          detailsFields=[TransactionId, Status, Variance, CreatedAt]
+        />
         <Tabs
           tabs
           showBorder=true

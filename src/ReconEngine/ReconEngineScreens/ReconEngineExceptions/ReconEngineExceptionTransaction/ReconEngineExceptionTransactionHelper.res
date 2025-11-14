@@ -78,6 +78,7 @@ module ResolutionModal = {
     | (ResolvingException(EditEntry), Some(EditEntryModal)) => true
     | (ResolvingException(CreateNewEntry), Some(CreateEntryModal)) => true
     | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal)) => true
+    | (ResolvingException(LinkStagingEntriesToTransaction), Some(LinkStagingEntriesModal)) => true
     | _ => false
     }
 
@@ -90,9 +91,15 @@ module ResolutionModal = {
       )
     | SidePanelModal => (
         "flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
-        "relative h-full flex flex-col",
-        "",
-        "",
+        "relative h-full flex flex-col overflow-y-auto",
+        `${heading.sm.semibold} text-nd_gray-700`,
+        `${body.md.regular} text-nd_gray-600 mt-1`,
+      )
+    | ExpandedSidePanelModal => (
+        "flex flex-col justify-start h-screen w-1/2 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
+        "relative h-full flex flex-col overflow-y-auto",
+        `${heading.sm.semibold} text-nd_gray-700`,
+        `${body.md.regular} text-nd_gray-600 mt-1`,
       )
     }
 
@@ -357,7 +364,7 @@ let reasonMultiLineTextInputField = (~label) => {
     field={FormRenderer.makeFieldInfo(
       ~label,
       ~name="reason",
-      ~placeholder="Enter reason",
+      ~placeholder="Enter remark",
       ~customInput=InputFields.multiLineTextInput(
         ~isDisabled=false,
         ~rows=Some(4),
@@ -371,7 +378,7 @@ let reasonMultiLineTextInputField = (~label) => {
 }
 
 let accountSelectInputField = (
-  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
+  ~entriesList: array<ReconEngineTypes.entryType>,
   ~isNewlyCreatedEntry: bool,
   ~disabled: bool=false,
 ) => {
@@ -382,7 +389,7 @@ let accountSelectInputField = (
       ~name="account",
       ~placeholder="Select account",
       ~customInput=InputFields.selectInput(
-        ~options=getUniqueAccountOptionsFromEntries(updatedEntriesList),
+        ~options=getUniqueAccountOptionsFromEntries(entriesList),
         ~fullLength=true,
         ~buttonText="Select account",
         ~disableSelect=!isNewlyCreatedEntry || disabled,
@@ -422,7 +429,7 @@ let entryTypeSelectInputField = (~disabled: bool=false) => {
 }
 
 let currencySelectInputField = (
-  ~updatedEntriesList: array<ReconEngineTypes.entryType>,
+  ~entriesList: array<ReconEngineTypes.entryType>,
   ~isNewlyCreatedEntry: bool,
   ~entryDetails: ReconEngineTypes.entryType,
   ~disabled: bool=false,
@@ -436,7 +443,7 @@ let currencySelectInputField = (
       ~customInput=InputFields.selectInput(
         ~options={
           isNewlyCreatedEntry
-            ? getUniqueCurrencyOptionsFromEntries(updatedEntriesList)
+            ? getUniqueCurrencyOptionsFromEntries(entriesList)
             : [
                 {
                   label: entryDetails.currency,
@@ -461,6 +468,20 @@ let amountTextInputField = (~disabled: bool=false) => {
       ~label="Amount",
       ~name="amount",
       ~placeholder="Enter amount",
+      ~customInput=InputFields.textInput(~inputStyle="!rounded-xl", ~isDisabled=disabled),
+      ~isRequired=true,
+      ~disabled,
+    )}
+  />
+}
+
+let orderIdTextInputField = (~disabled: bool=false) => {
+  <FormRenderer.FieldRenderer
+    labelClass="font-semibold"
+    field={FormRenderer.makeFieldInfo(
+      ~label="Order ID",
+      ~name="order_id",
+      ~placeholder="Enter Order ID",
       ~customInput=InputFields.textInput(~inputStyle="!rounded-xl", ~isDisabled=disabled),
       ~isRequired=true,
       ~disabled,
@@ -497,7 +518,12 @@ let metadataCustomInputField = (~disabled: bool=false) => {
   />
 }
 
-let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
+let getEntriesSections = (
+  ~groupedEntries: Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
+  ~accountInfoMap,
+  ~detailsFields,
+  ~showTotalAmount: bool=true,
+) => {
   let sectionData = calculateSectionData(
     ~groupedEntries,
     ~accountInfoMap,
@@ -512,7 +538,9 @@ let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
   sectionData->Array.map(((_accountId, accountInfo, accountEntries, totalAmount, currency)) => {
     let accountRows =
       accountEntries->Array.map(entry =>
-        detailsFields->Array.map(colType => EntriesTableEntity.getCell(entry, colType))
+        detailsFields->Array.map(
+          colType => EntriesTableEntity.getCell(entry->getEntryTypeFromExceptionEntryType, colType),
+        )
       )
     let rowData = accountEntries->Array.map(entry => entry->Identity.genericTypeToJson)
 
@@ -521,9 +549,15 @@ let getSections = (~groupedEntries, ~accountInfoMap, ~detailsFields) => {
         <p className={`text-nd_gray-700 ${body.lg.semibold}`}>
           {accountInfo.account_info_name->React.string}
         </p>
-        <div className={`${amountColorClass} ${body.lg.medium}`}>
-          {`${currency} ${totalAmount->Float.toString}`->React.string}
-        </div>
+        <RenderIf condition={showTotalAmount}>
+          <div className={`${amountColorClass} ${body.lg.medium}`}>
+            {CurrencyFormatUtils.valueFormatter(
+              totalAmount,
+              AmountWithSuffix,
+              ~currency,
+            )->React.string}
+          </div>
+        </RenderIf>
       </div>
 
     (
@@ -555,4 +589,73 @@ let getSectionRowDetails = (~sectionIndex: int, ~rowIndex: int, ~groupedEntries)
       </div>
     </div>
   </RenderIf>
+}
+
+let getStagingEntryDetails = (~rowIndex: int, ~stagingEntries) => {
+  open ReconEngineTransactionsUtils
+  let stagingEntry =
+    stagingEntries->LogicUtils.getValueFromArray(
+      rowIndex,
+      Dict.make()->ReconEngineUtils.processingItemToObjMapper,
+    )
+  let filteredMetadata = stagingEntry.metadata->getFilteredMetadataFromEntries
+  let hasMetadata = filteredMetadata->Dict.keysToArray->Array.length > 0
+
+  <RenderIf condition={hasMetadata}>
+    <div className="p-4">
+      <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
+        <PrettyPrintJson jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify} />
+      </div>
+    </div>
+  </RenderIf>
+}
+
+let getStagingEntrySections = (~stagingEntries, ~stagingEntriesDetailsFields) => {
+  [
+    {
+      titleElement: React.null,
+      rows: stagingEntries->Array.map(entry => {
+        stagingEntriesDetailsFields->Array.map(colType => {
+          ReconEngineExceptionEntity.getProcessingCell(entry, colType)
+        })
+      }),
+      rowData: stagingEntries->Array.map(entry => entry->Identity.genericTypeToJson),
+    },
+  ]
+}
+
+module ResolutionButton = {
+  @react.component
+  let make = (~config: ReconEngineExceptionTransactionTypes.buttonConfig) => {
+    <RenderIf condition={config.condition}>
+      <Button
+        buttonState=Normal
+        buttonSize=Medium
+        buttonType=Secondary
+        text={config.text}
+        textWeight={`${body.md.semibold}`}
+        leftIcon={CustomIcon(<Icon name={config.icon} className={config.iconClass} size=16 />)}
+        onClick={_ => config.onClick()}
+        customButtonStyle="!w-fit"
+      />
+    </RenderIf>
+  }
+}
+
+module BottomActionBar = {
+  @react.component
+  let make = (~config: ReconEngineExceptionTransactionTypes.bottomBarConfig) => {
+    <>
+      <p className={`${body.md.semibold} text-nd_gray-500`}> {config.prompt->React.string} </p>
+      <Button
+        buttonState={config.buttonEnabled ? Normal : Disabled}
+        buttonSize=Medium
+        buttonType=Primary
+        text={config.buttonText}
+        textWeight={`${body.md.semibold}`}
+        customButtonStyle="!w-fit"
+        onClick={_ => config.onClick()}
+      />
+    </>
+  }
 }

@@ -9,7 +9,11 @@ module HoverInline = {
     ~leftActionButtons,
     ~labelTextCustomStyle,
     ~customWidth,
+    ~showTooltipOnHover=false,
+    ~toolTipPosition: ToolTip.toolTipPosition=Bottom,
   ) => {
+    open Typography
+
     <div
       className={`group/inlineHover relative font-medium flex flex-row items-center p-2 justify-center gap-x-2 w-full bg-white rounded-md ${customWidth} ${customStyle}`}>
       <RenderIf condition={leftIcon->Option.isSome}>
@@ -17,7 +21,22 @@ module HoverInline = {
       </RenderIf>
       <div className="flex flex-col w-full gap-1">
         <div className="flex justify-between items-center w-full">
-          <div className={`text-sm ${labelTextCustomStyle}`}> {React.string(value)} </div>
+          <RenderIf condition={showTooltipOnHover}>
+            <ToolTip
+              description={value}
+              toolTipFor={<div className={`${body.md.medium} ${labelTextCustomStyle}`}>
+                {React.string(value)}
+              </div>}
+              toolTipPosition
+              enableTooltipDelay=true
+              tooltipDelay=800
+            />
+          </RenderIf>
+          <RenderIf condition={!showTooltipOnHover}>
+            <div className={`${body.md.medium} ${labelTextCustomStyle}`}>
+              {React.string(value)}
+            </div>
+          </RenderIf>
           <div
             className={`${showEditIconOnHover ? "invisible group-hover/inlineHover:visible" : ""}`}
             onClick={ReactEvent.Mouse.stopPropagation}>
@@ -52,6 +71,8 @@ let make = (
   ~labelTextCustomStyle="",
   ~customWidth="",
   ~handleClick=?,
+  ~showTooltipOnHover=false,
+  ~toolTipPosition: ToolTip.toolTipPosition=Bottom,
 ) => {
   let (value, setValue) = React.useState(_ => labelText)
   let (inputErrors, setInputErrors) = React.useState(_ => Dict.make())
@@ -198,6 +219,8 @@ let make = (
           leftActionButtons
           labelTextCustomStyle
           customWidth
+          showTooltipOnHover
+          toolTipPosition
         />
       </RenderIf>
     }}

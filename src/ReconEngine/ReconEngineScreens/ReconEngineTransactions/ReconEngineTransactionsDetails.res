@@ -45,6 +45,25 @@ let make = (~id) => {
     None
   }, [])
 
+  let detailsFields = React.useMemo(() => {
+    open TransactionsTableEntity
+    switch (
+      currentTransactionDetails.transaction_status,
+      currentTransactionDetails.data.posted_type,
+    ) {
+    | (Posted, Some(ForceReconciled))
+    | (Posted, Some(ManuallyReconciled)) => [
+        TransactionId,
+        Status,
+        Variance,
+        ReconciliationType,
+        CreatedAt,
+        Reason,
+      ]
+    | _ => [TransactionId, Status, Variance, CreatedAt]
+    }
+  }, [currentTransactionDetails])
+
   <div>
     <div className="flex flex-col gap-4 mb-8">
       <BreadCrumbNavigation
@@ -64,8 +83,10 @@ let make = (~id) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col gap-8">
-        <TransactionDetailInfo currentTransactionDetails={currentTransactionDetails} />
+      <div className="flex flex-col">
+        <TransactionDetailInfo
+          currentTransactionDetails={currentTransactionDetails} detailsFields={detailsFields}
+        />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>
     </PageLoaderWrapper>

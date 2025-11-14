@@ -157,7 +157,7 @@ module StatisticsCard = {
       <div className="-mb-0.5 flex">
         {icon}
         <div className="font-semibold text-sm pt-0.5 pr-0.5">
-          {`${value->LogicUtils.valueFormatter(Rate)}`->React.string}
+          {`${value->CurrencyFormatUtils.valueFormatter(Rate)}`->React.string}
         </div>
       </div>
     </div>
@@ -285,6 +285,7 @@ module OverViewStat = {
   @react.component
   let make = (~responseKey, ~data, ~getInfo, ~getValueFromObj, ~getStringFromVariant) => {
     open LogicUtils
+    open CurrencyFormatUtils
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: InsightsTypes.filters :> string), "")

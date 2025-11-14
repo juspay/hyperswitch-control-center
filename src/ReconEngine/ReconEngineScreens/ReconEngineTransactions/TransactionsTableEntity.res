@@ -12,6 +12,8 @@ type transactionColType =
   | Variance
   | Status
   | CreatedAt
+  | ReconciliationType
+  | Reason
 
 let defaultColumns: array<transactionColType> = [
   TransactionId,
@@ -52,6 +54,9 @@ let getHeading = (colType: transactionColType) => {
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
+  | ReconciliationType =>
+    Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
+  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Remark")
   }
 }
 
@@ -69,9 +74,36 @@ let getStatusLabel = (statusString: transactionStatus): Table.cell => {
   })
 }
 
+let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell => {
+  Table.Label({
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | ForceReconciled => LabelOrange
+    | ManuallyReconciled => LabelGray
+    | Reconciled => LabelBlue
+    | _ => LabelLightGray
+    },
+  })
+}
+
 let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
+  open CurrencyFormatUtils
   switch colType {
-  | TransactionId => EllipsisText(transaction.transaction_id, "")
+  | TransactionId =>
+    CustomCell(
+      <>
+        <RenderIf condition={transaction.transaction_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customTextCss="max-w-36 truncate whitespace-nowrap"
+            displayValue=Some(transaction.transaction_id)
+          />
+        </RenderIf>
+        <RenderIf condition={transaction.transaction_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
   | CreditAccount => Text(getAccounts(transaction.entries, Credit))
   | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>
@@ -104,6 +136,12 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     | None => getStatusLabel(transaction.transaction_status)
     }
   | CreatedAt => Date(transaction.created_at)
+  | ReconciliationType =>
+    switch transaction.data.posted_type {
+    | Some(postedType) => getReconciledTypeLabel(postedType)
+    | None => getReconciledTypeLabel(UnknownTransactionPostedType)
+    }
+  | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
   }
 }
 

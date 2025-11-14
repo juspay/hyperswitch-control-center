@@ -150,6 +150,12 @@ let getV2Url = (
       | Some(id) => `v2/profiles/${id}`
       | None => `v2/profiles`
       }
+    | Put =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
     | _ => `v2/profiles`
     }
   }
@@ -731,6 +737,13 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
         }
+      | PAYOUT_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/payouts`
+        | #Merchant => `analytics/v1/merchant/report/payouts`
+        | #Profile => `analytics/v1/profile/report/payouts`
+        }
 
       | REFUND_REPORT =>
         switch transactionEntity {
@@ -1070,6 +1083,44 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #LINKABLE_STAGING_ENTRIES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #DOWNLOAD_INGESTION_HISTORY_FILE =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(ingestionHistoryId) =>
+              `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #METADATA_SCHEMA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
+            | None => `${reconBaseURL}/metadata_schemas`
+            }
+          | _ => ""
+          }
+        | #AUDIT_TRAIL =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
+            | None => `${reconBaseURL}/audit_trail`
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
 
@@ -1143,7 +1194,11 @@ let useGetURL = () => {
 
         // USER GROUP ACCESS
         | #GET_GROUP_ACL => `${userUrl}/role/v2`
-        | #ROLE_INFO => `${userUrl}/parent/list`
+        | #ROLE_INFO =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/parent/list?${params}`
+          | None => `${userUrl}/parent/list`
+          }
 
         | #GROUP_ACCESS_INFO =>
           switch queryParamerters {
@@ -1191,7 +1246,7 @@ let useGetURL = () => {
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-
+        | #CREATE_CUSTOM_ROLE_V2 => `${userUrl}/role/v2`
         // EMAIL FLOWS
         | #FROM_EMAIL => `${userUrl}/from_email`
         | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
