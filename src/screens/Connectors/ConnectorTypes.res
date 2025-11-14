@@ -145,6 +145,7 @@ type payoutProcessorTypes =
   | GIGADAT
   | LOONIO
   | WORLDPAY
+  | WORLDPAYXML
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
