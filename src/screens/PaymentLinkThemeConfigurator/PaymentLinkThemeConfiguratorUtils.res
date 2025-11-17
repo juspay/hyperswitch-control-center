@@ -153,6 +153,13 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
   let formattedAmount =
     CurrencyUtils.convertCurrencyFromLowestDenomination(~amount, ~currency)->Float.toString
 
+  let getNonEmptyValue = (dict, key, defaultValue) => {
+    switch getOptionString(dict, key) {
+    | Some(value) if value->isNonEmptyString => value
+    | _ => defaultValue
+    }
+  }
+
   {
     pub_key: publishableKey,
     amount: formattedAmount,
@@ -163,10 +170,10 @@ let generateWasmPayload = (~paymentDetails, ~publishableKey, ~formValues) => {
     session_expiry: getString(paymentDetailsDict, "expires_on", ""),
     merchant_logo: getString(formValuesDict, "logo", ""),
     return_url: getString(formValuesDict, "return_url", "https://google.com"),
-    merchant_name: getString(formValuesDict, "seller_name", "Seller Name"),
+    merchant_name: getNonEmptyValue(formValuesDict, "seller_name", "Seller Name"),
     max_items_visible_after_collapse: formValuesDict->getInt("max_items_visible_after_collapse", 3),
-    theme: getString(formValuesDict, "theme", "#FFFFFF"),
-    sdk_layout: getString(formValuesDict, "sdk_layout", "accordion"),
+    theme: getNonEmptyValue(formValuesDict, "theme", "#FFFFFF"),
+    sdk_layout: getNonEmptyValue(formValuesDict, "sdk_layout", "accordion"),
     display_sdk_only: formValuesDict->getBool("display_sdk_only", false),
     hide_card_nickname_field: formValuesDict->getBool("hide_card_nickname_field", false),
     show_card_form_by_default: formValuesDict->getBool("show_card_form_by_default", true),
