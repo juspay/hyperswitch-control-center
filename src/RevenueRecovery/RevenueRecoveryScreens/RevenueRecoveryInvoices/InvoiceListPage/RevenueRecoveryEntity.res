@@ -67,6 +67,7 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   network_error_message: dict
   ->getDictfromDict("error")
   ->getString("network_error_message", ""),
+  net_amount: dict->getDictfromDict("amount")->getFloat("net_amount", 0.0),
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
@@ -80,8 +81,8 @@ let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
 
     let errorDict = dict->getDictfromDict("error")
 
-    let networkDeclineCode = errorDict->getString("network_decline_code", "")
-    let networkErrorMessage = errorDict->getString("network_error_message", "")
+    let networkDeclineCode = errorDict->getString("code", "")
+    let networkErrorMessage = errorDict->getString("message", "")
 
     if (
       (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&

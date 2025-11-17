@@ -1,219 +1,3 @@
-module DisplayKeyValueParams = {
-  @react.component
-  let make = (
-    ~showTitle: bool=true,
-    ~heading: Table.header,
-    ~value: Table.cell,
-    ~isInHeader=false,
-    ~isHorizontal=false,
-    ~customMoneyStyle="",
-    ~labelMargin="",
-    ~customDateStyle="",
-    ~wordBreak=true,
-    ~overiddingHeadingStyles="",
-    ~textColor="!font-medium !text-nd_gray-600",
-  ) => {
-    let marginClass = if labelMargin->LogicUtils.isEmptyString {
-      "mt-4 py-0"
-    } else {
-      labelMargin
-    }
-
-    let fontClass = if isInHeader {
-      "text-fs-20"
-    } else {
-      "text-fs-13"
-    }
-
-    let textColor =
-      textColor->LogicUtils.isEmptyString ? "text-jp-gray-900 dark:text-white" : textColor
-
-    let description = heading.description->Option.getOr("")
-
-    {
-      <AddDataAttributes attributes=[("data-label", heading.title)]>
-        <div
-          className={`flex ${isHorizontal ? "flex-row justify-between" : "flex-col gap-1"} py-4 `}>
-          <div
-            className={`flex flex-row text-fs-11  ${isHorizontal
-                ? "flex justify-start"
-                : ""} text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 `}>
-            <div className={overiddingHeadingStyles}>
-              {React.string(showTitle ? `${heading.title}:` : " x")}
-            </div>
-            <RenderIf condition={description->LogicUtils.isNonEmptyString}>
-              <div className="text-sm text-gray-500 mx-2 -mt-1 ">
-                <ToolTip description={description} toolTipPosition={ToolTip.Top} />
-              </div>
-            </RenderIf>
-          </div>
-          <div
-            className={`${isHorizontal
-                ? "flex justify-end"
-                : ""} ${fontClass} font-semibold text-left ${textColor}`}>
-            <Table.TableCell
-              cell=value
-              textAlign=Table.Left
-              fontBold=true
-              customMoneyStyle
-              labelMargin=marginClass
-              customDateStyle
-            />
-          </div>
-        </div>
-      </AddDataAttributes>
-    }
-  }
-}
-
-module Heading = {
-  @react.component
-  let make = (
-    ~topic: RevenueRecoveryOrderTypes.topic,
-    ~children=?,
-    ~borderClass="border-b",
-    ~headingCss="",
-  ) => {
-    let widthClass = headingCss->LogicUtils.isEmptyString ? "" : "w-full"
-    <div
-      className={`${borderClass} border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
-      <div className={`p-2 m-2 flex flex-row justify-start ${widthClass}`}>
-        {switch topic {
-        | String(string) =>
-          <AddDataAttributes attributes=[("data-heading", string)]>
-            <span className="text-gray-600 dark:text-gray-400 font-bold text-base text-fs-16">
-              {React.string({string})}
-            </span>
-          </AddDataAttributes>
-        | ReactElement(element) => element
-        }}
-      </div>
-      <div className="p-2 m-2 flex flex-row justify-end ">
-        <span>
-          {switch children {
-          | Some(element) => element
-          | None => React.null
-          }}
-        </span>
-      </div>
-    </div>
-  }
-}
-
-module Section = {
-  @react.component
-  let make = (
-    ~children,
-    ~customCssClass="border border-jp-gray-500 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-950 rounded-md p-0 m-3",
-  ) => {
-    <div className=customCssClass> children </div>
-  }
-}
-
-module Details = {
-  @react.component
-  let make = (
-    ~heading,
-    ~data,
-    ~getHeading,
-    ~getCell,
-    ~excludeColKeys=[],
-    ~detailsFields,
-    ~justifyClassName="justify-start",
-    ~widthClass="w-3/12",
-    ~chargeBackField=None,
-    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
-    ~children=?,
-    ~headRightElement=React.null,
-    ~borderRequired=true,
-    ~isHeadingRequired=true,
-    ~cardView=false,
-    ~showDetails=true,
-    ~headingCss="",
-    ~showTitle=true,
-    ~flexClass="flex flex-wrap",
-  ) => {
-    let customBorderCss = `${borderRequired
-        ? "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
-        : ""}`
-    if !cardView {
-      <Section customCssClass={` ${customBorderCss} ${bgColor} rounded-md `}>
-        <RenderIf condition=isHeadingRequired>
-          <Heading topic=heading headingCss> {headRightElement} </Heading>
-        </RenderIf>
-        <RenderIf condition=showDetails>
-          <FormRenderer.DesktopRow>
-            <div
-              className={`${flexClass} ${justifyClassName} lg:flex-row flex-col dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
-              {detailsFields
-              ->Array.mapWithIndex((colType, i) => {
-                if !(excludeColKeys->Array.includes(colType)) {
-                  <div className=widthClass key={Int.toString(i)}>
-                    <DisplayKeyValueParams
-                      heading={getHeading(colType)}
-                      value={getCell(data, colType)}
-                      customMoneyStyle="!text-fs-13"
-                      labelMargin="!py-0 mt-2"
-                      customDateStyle="!font-fira-code"
-                      showTitle
-                    />
-                    <div />
-                  </div>
-                } else {
-                  React.null
-                }
-              })
-              ->React.array}
-              {switch chargeBackField {
-              | Some(field) =>
-                <div className="flex flex-col py-4">
-                  <div
-                    className="text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
-                    {React.string("Chargeback Amount")}
-                  </div>
-                  <div
-                    className="text-fs-13 font-semibold text-left dark:text-white text-jp-gray-900 break-all">
-                    <Table.TableCell
-                      cell=field
-                      textAlign=Table.Left
-                      fontBold=true
-                      customDateStyle="!font-fira-code"
-                      customMoneyStyle="!text-fs-13"
-                      labelMargin="!py-0 mt-2 h-6"
-                    />
-                  </div>
-                </div>
-
-              | None => React.null
-              }}
-            </div>
-          </FormRenderer.DesktopRow>
-        </RenderIf>
-        {switch children {
-        | Some(ele) => ele
-        | None => React.null
-        }}
-      </Section>
-    } else {
-      <div
-        className="flex flex-col w-full pt-4 gap-4 bg-white rounded-md dark:bg-jp-gray-lightgray_background">
-        {detailsFields
-        ->Array.map(item => {
-          <div className="flex justify-between">
-            <div className="text-jp-gray-900 dark:text-white opacity-50 font-medium">
-              {getHeading(item).title->React.string}
-            </div>
-            <div className="font-semibold break-all">
-              <Table.TableCell cell={getCell(data, item)} />
-            </div>
-          </div>
-        })
-        ->React.array}
-      </div>
-    }
-  }
-}
-
 module SegmentedProgressBar = {
   open Typography
   @react.component
@@ -258,6 +42,276 @@ module SegmentedProgressBar = {
       <span className={`ml-3 text-gray-600 ${body.md.semibold}`}>
         {`${percentageInt->Int.toString}%`->React.string}
       </span>
+    </div>
+  }
+}
+
+open RevenueRecoveryOrderTypes
+open RevenueRecoveryOrderUtils
+open LogicUtils
+open Typography
+
+let formatCurrency = (amount: float) => {
+  let dollars = amount /. 100.0
+  `$${dollars->Float.toFixedWithPrecision(~digits=2)}`
+}
+
+let parseAttemptStatus = (attempt: attempts) =>
+  attempt.attempt_triggered_by->String.toUpperCase->attemptTriggeredByVariantMapper
+
+let isInternalAttempt = (attempt: attempts) => {
+  attempt->parseAttemptStatus == INTERNAL
+}
+
+let isExternalAttempt = (attempt: attempts) => {
+  attempt->parseAttemptStatus != INTERNAL
+}
+
+let getStatusBadgeColor = (status: string) => {
+  switch status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
+  | #CHARGED => (
+      "bg-green-100 text-nd_green-600  border border-nd_green-200",
+      "Recovered successfully",
+    )
+  | #FAILURE => ("bg-red-100 text-nd_red-500 border border-nd_red-200 ", "Failed")
+  | _ => ("bg-orange-100 text-orange-700", "Pending")
+  }
+}
+
+let getTimelineDotColor = (status: string) => {
+  switch status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
+  | #CHARGED => "bg-nd_green-500"
+  | #FAILURE => "bg-nd_red-500"
+  | _ => "bg-orange-500"
+  }
+}
+
+module AttemptItem = {
+  @react.component
+  let make = (~attempt: attempts, ~index: int, ~totalAttempts: int, ~isLast: bool) => {
+    let (badgeClass, badgeText) = getStatusBadgeColor(attempt.status)
+    let dotColor = getTimelineDotColor(attempt.status)
+    let attemptNumber = totalAttempts - index
+
+    <div className="pt-7">
+      <div className="flex items-center justify-between relative">
+        <RenderIf condition={!isLast}>
+          <div
+            className="border-l-2 border-gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+          />
+        </RenderIf>
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 relative flex justify-center items-center">
+            <div className={`w-2 h-2 rounded-full ${dotColor} z-10`} />
+          </div>
+          <div className="pt-2">
+            <div className={`${body.sm.regular} flex gap-2 text-gray-500 mb-2`}>
+              {`#${attemptNumber->Int.toString}`->React.string}
+              {<Table.DateCell
+                textStyle={`${body.sm.regular} text-gray-500`}
+                timestamp={attempt.created}
+                isCard=true
+              />}
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`px-1.5 py-0.5 rounded-md ${body.sm.semibold} ${badgeClass}`}>
+                {badgeText->React.string}
+              </span>
+              {if attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper == #FAILURE {
+                <>
+                  <div className={`${body.sm.semibold} text-gray-500`}>
+                    {"due to"->React.string}
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md border text-xs bg-gray-100 text-gray-700">
+                    {attempt.error->React.string}
+                  </span>
+                  <div className={`${body.sm.semibold} text-gray-500`}>
+                    {`unable to recover ${attempt.net_amount->formatCurrency} `->React.string}
+                  </div>
+                </>
+              } else {
+                <>
+                  <div className={`${body.sm.semibold} text-gray-500`}>
+                    {"in this attempt"->React.string}
+                  </div>
+                </>
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+module AttemptsHistory = {
+  @react.component
+  let make = (~order, ~attemptsList, ~processTracker: option<Dict.t<JSON.t>>) => {
+    let attempts = attemptsList
+    let internalAttempts = attempts->Array.filter(isInternalAttempt)
+    let merchantAttempts = attempts->Array.filter(isExternalAttempt)
+
+    let scheduledTime = switch processTracker {
+    | Some(dict) =>
+      let scheduleTime = dict->getString("schedule_time_for_payment", "")
+      if scheduleTime->isNonEmptyString {
+        Some(scheduleTime)
+      } else {
+        None
+      }
+    | None => None
+    }
+
+    let status = order.status->statusVariantMapper
+
+    <div className="bg-white p-1">
+      <div className={`${heading.md.semibold} text-gray-900 mb-6`}>
+        {"Attempts History"->React.string}
+      </div>
+      <div className="pt-4">
+        <div className="flex items-center justify-between cursor-pointer relative">
+          <div
+            className="border-l-2 border-gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+          />
+          <div className="flex items-center gap-3">
+            <div className="bg-gray-100 p-2 rounded-full border">
+              <Icon name="juspay-logo" size=20 className="text-gray-600" />
+            </div>
+            <div className={`${body.md.semibold} text-gray-500 uppercase`}>
+              {"REVENUE RECOVERY IS ATTEMPTING RETRIES"->React.string}
+            </div>
+          </div>
+          <div className="flex-1 border-t-1.5 mx-4" />
+          // <Icon name="nd-chevron-arrow-down" size=16 className="text-gray-600" />
+        </div>
+      </div>
+      <RenderIf
+        condition={order.status->RevenueRecoveryOrderUtils.statusVariantMapper != Recovered}>
+        <div className="pt-4">
+          <div className="flex items-center justify-between relative">
+            <div
+              className="border-l-2 border-gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+            />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9  relative flex justify-center items-center">
+                <div className={`w-2 h-2 bg-orange-500 rounded-full`} />
+              </div>
+              <div className={`${body.sm.semibold} text-gray-700`}>
+                {`Attempting retries to recover ${(order.order_amount -. order.amount_captured)
+                    ->formatCurrency}`->React.string}
+              </div>
+            </div>
+          </div>
+        </div>
+      </RenderIf>
+      {switch status {
+      | Scheduled | Processing =>
+        switch scheduledTime {
+        | Some(time) => {
+            let convertedTime = time->RevenueRecoveryOrderUtils.convertScheduleTimeToUTC
+            <div className="flex items-center justify-between relative pt-4">
+              <div
+                className="border-l-2 border-gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+              />
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 relative flex justify-center items-center bg-white">
+                  <Icon name="nd_recovery-calandar" size=18 className="text-gray-600" />
+                </div>
+                <div className="pt-2">
+                  <div className={`${body.sm.regular} flex gap-2 text-gray-500 mb-2`}>
+                    {`#${(internalAttempts->Array.length + 1)->Int.toString} • `->React.string}
+                    {<Table.DateCell
+                      textStyle={`${body.sm.regular} text-gray-500 `}
+                      timestamp=convertedTime
+                      isCard=true
+                    />}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`px-1.5 py-0.5 rounded-md ${body.sm.semibold} bg-purple-100 text-purple-700 border border-purple-500`}>
+                      {"Scheduled"->React.string}
+                    </span>
+                    <div className={`${body.sm.semibold} text-gray-500 flex gap-1`}>
+                      {`Retry to recover ${order.order_amount->formatCurrency} on `->React.string}
+                      {<Table.DateCell
+                        textStyle={`${body.sm.semibold} text-gray-500`}
+                        timestamp=convertedTime
+                        isCard=true
+                      />}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        | _ => React.null
+        }
+      | _ => React.null
+      }}
+      <RenderIf condition={internalAttempts->Array.length > 0}>
+        {internalAttempts
+        ->Array.mapWithIndex((attempt, index) => {
+          <AttemptItem
+            key={attempt.id}
+            attempt
+            index
+            totalAttempts={internalAttempts->Array.length}
+            isLast={false}
+          />
+        })
+        ->React.array}
+      </RenderIf>
+      <div className="pt-4">
+        <div className="flex items-center justify-between relative">
+          <div
+            className="border-l-2 border-gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+          />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9  relative flex justify-center items-center">
+              <div className={`w-2 h-2 border-2 border-gray-700 rounded-full`} />
+            </div>
+            <div className={`${body.sm.semibold} text-gray-500 uppercase`}>
+              {"Revenue Recovery Retry Attempts Started"->React.string}
+            </div>
+          </div>
+        </div>
+      </div>
+      <RenderIf condition={merchantAttempts->Array.length > 0}>
+        <div className="pt-4">
+          <div className="flex items-center justify-between cursor-pointer relative">
+            <div
+              className="border-l-2 border-gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+            />
+            <div className="flex items-center gap-3 z-10">
+              <div className="bg-gray-100 p-2 rounded-full border">
+                <Icon name="nd-merchant-retires" size=20 className="text-gray-600" />
+              </div>
+              <div className={`${body.md.semibold} text-gray-500 uppercase`}>
+                {"MERCHANT RETRIES COMPLETED"->React.string}
+              </div>
+              <span
+                className={`px-2 py-0.5 rounded-md border ${body.sm.semibold} bg-gray-100 text-gray-700`}>
+                {`${merchantAttempts->Array.length->Int.toString} Retries`->React.string}
+              </span>
+            </div>
+            <div className="flex-1 border-t-1.5 mx-4" />
+            // <Icon name="nd-chevron-arrow-down" size=16 className="text-gray-600" />
+          </div>
+        </div>
+        <RenderIf condition={merchantAttempts->Array.length > 0}>
+          {merchantAttempts
+          ->Array.mapWithIndex((attempt, index) => {
+            <AttemptItem
+              key={attempt.id}
+              attempt
+              index
+              totalAttempts={merchantAttempts->Array.length}
+              isLast={index === merchantAttempts->Array.length - 1}
+            />
+          })
+          ->React.array}
+        </RenderIf>
+      </RenderIf>
     </div>
   }
 }

@@ -35,3 +35,25 @@ let schedulerStatusStringMapper: RevenueRecoveryOrderTypes.recoverySchedulerStat
   | Finish => "finish"
   | Scheduled => "scheduled"
   }
+
+let attemptTriggeredByVariantMapper: string => RevenueRecoveryOrderTypes.attemptTriggeredByType = statusLabel =>
+  switch statusLabel->String.toUpperCase {
+  | "INTERNAL" => INTERNAL
+  | _ => EXTERNAL
+  }
+
+let attemptTriggeredByStringMapper: RevenueRecoveryOrderTypes.attemptTriggeredByType => string = statusLabel =>
+  switch statusLabel {
+  | INTERNAL => "INTERNAL"
+  | EXTERNAL => "EXTERNAL"
+  }
+
+// Alternative: Simple conversion for your specific format
+let convertScheduleTimeToUTC = (scheduleTime: string) => {
+  if scheduleTime->String.includes(" ") {
+    // "2025-08-15 19:24:18.375771" -> "2025-08-15T19:24:18.375Z"
+    scheduleTime->String.replace(" ", "T") ++ "Z"
+  } else {
+    scheduleTime
+  }
+}

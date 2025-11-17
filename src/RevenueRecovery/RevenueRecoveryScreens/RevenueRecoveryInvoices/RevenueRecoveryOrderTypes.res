@@ -28,6 +28,7 @@ type attempts = {
   last4: string,
   network_decline_code: string,
   network_error_message: string,
+  net_amount: float,
 }
 
 type order = {
@@ -52,6 +53,13 @@ type topic =
   | String(string)
   | ReactElement(React.element)
 
+type attemptGroup = {
+  amount: float,
+  attempts: array<attempts>,
+  isSuccessful: bool,
+  isPartial: bool,
+}
+
 type recoveryInvoiceStatus =
   | Recovered
   | Scheduled
@@ -66,3 +74,7 @@ type recoveryInvoiceStatus =
 type recoverySchedulerStatusType =
   | Finish
   | Scheduled
+
+type attemptTriggeredByType =
+  | INTERNAL
+  | EXTERNAL

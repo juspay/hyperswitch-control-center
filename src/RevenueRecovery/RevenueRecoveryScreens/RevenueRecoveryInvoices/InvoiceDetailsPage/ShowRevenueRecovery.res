@@ -59,177 +59,6 @@ module OrderDetailsCard = {
   }
 }
 
-// Alternative: Simple conversion for your specific format
-let convertScheduleTimeToUTC = (scheduleTime: string) => {
-  if scheduleTime->String.includes(" ") {
-    // "2025-08-15 19:24:18.375771" -> "2025-08-15T19:24:18.375Z"
-    scheduleTime->String.replace(" ", "T") ++ "Z"
-  } else {
-    scheduleTime
-  }
-}
-
-// module Attempts = {
-//   @react.component
-//   let make = (~id) => {
-//     open APIUtils
-//     let getURL = useGetURL()
-//     let fetchDetails = useGetMethod()
-//     let (attemptsList, setAttemptsList) = React.useState(_ => [])
-//     let (nextScheduleTime, setNextScheduleTime) = React.useState(_ => JSON.Encode.string(""))
-
-//     let getStyle = status => {
-//       let orderStatus = status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
-
-//       switch orderStatus {
-//       | #CHARGED => ("green-status", "nd-check")
-//       | #FAILURE => ("red-status", "nd-alert-triangle-outline")
-//       | _ => ("orange-status", "nd-calender")
-//       }
-//     }
-
-//     let fetchProcessTrackerDetails = async _ => {
-//       try {
-//         let url = getURL(~entityName=V2(PROCESS_TRACKER), ~methodType=Get, ~id=Some(id))
-//         let data = await fetchDetails(url, ~version=V2)
-
-//         setNextScheduleTime(_ => data)
-//       } catch {
-//       | _ => ()
-//       }
-//     }
-
-//     let fetchOrderAttemptListDetails = async _ => {
-//       try {
-//         let url = getURL(~entityName=V2(V2_ATTEMPTS_LIST), ~methodType=Get, ~id=Some(id))
-//         let data = await fetchDetails(url, ~version=V2)
-
-//         let array =
-//           data
-//           ->getDictFromJsonObject
-//           ->getArrayFromDict("payment_attempt_list", [])
-//           ->JSON.Encode.array
-//           ->getAttempts
-//           ->Array.filter(item => item.status !== "started")
-
-//         array->Array.reverse
-
-//         setAttemptsList(_ => array)
-//       } catch {
-//       | _ => ()
-//       }
-//     }
-
-//     React.useEffect(() => {
-//       fetchOrderAttemptListDetails()->ignore
-//       fetchProcessTrackerDetails()->ignore
-//       None
-//     }, [])
-
-//     let scheduleTimeComponent = {
-//       let (border, icon) = ""->getStyle
-
-//       let dict = nextScheduleTime->getDictFromJsonObject
-
-//       <RenderIf
-//         condition={dict->Dict.keysToArray->Array.length > 0 &&
-//           dict->getString("status", "") != "finish"}>
-//         <div className="grid grid-cols-12 gap-5">
-//           <div className="col-span-2 flex flex-col gap-1">
-//             <div className="w-full flex justify-end font-semibold">
-//               {`#${(attemptsList->Array.length + 1)->Int.toString}`->React.string}
-//             </div>
-//             <div className="w-full flex justify-end text-xs opacity-50">
-//               {<Table.DateCell
-//                 timestamp={dict
-//                 ->getString("schedule_time_for_payment", "")
-//                 ->convertScheduleTimeToUTC}
-//                 isCard=true
-//               />}
-//             </div>
-//           </div>
-//           <div className="relative ml-7">
-//             <div
-//               className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
-//               <Icon name=icon className={`w-5 h-5 text-${border}`} />
-//             </div>
-//             <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
-//           </div>
-//           <div className="border col-span-9 rounded-lg px-5">
-//             <div className="flex justify-start">
-//               <div className="w-1/3">
-//                 <DisplayKeyValueParams
-//                   heading={getAttemptHeading(AttemptTriggeredBy)}
-//                   value={Text("Internal")}
-//                   customMoneyStyle="!font-normal !text-sm"
-//                   labelMargin="!py-0 mt-2"
-//                   overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
-//                   isHorizontal=false
-//                 />
-//               </div>
-//               <div className="w-1/3">
-//                 <DisplayKeyValueParams
-//                   heading={getAttemptHeading(Status)}
-//                   value={Label({
-//                     title: dict->getString("status", "")->String.toUpperCase,
-//                     color: LabelBlue,
-//                   })}
-//                   customMoneyStyle="!font-normal !text-sm"
-//                   labelMargin="!py-0 mt-2"
-//                   overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
-//                   isHorizontal=false
-//                 />
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </RenderIf>
-//     }
-
-//     <RenderIf condition={attemptsList->Array.length > 0}>
-//       <div className="border rounded-lg w-full h-fit p-5">
-//         <div className="font-bold text-lg mb-5 px-4"> {"Attempts History"->React.string} </div>
-//         <div className="p-5 flex flex-col gap-11 ">
-//           {scheduleTimeComponent}
-//           {attemptsList
-//           ->Array.mapWithIndex((item: RevenueRecoveryOrderTypes.attempts, index) => {
-//             let (border, icon) = item.status->getStyle
-
-//             <div className="grid grid-cols-12 gap-5" key={index->Int.toString}>
-//               <div className="col-span-2 flex  flex-col gap-1 ">
-//                 <div className="w-full flex justify-end font-semibold">
-//                   {`#${(attemptsList->Array.length - index)->Int.toString}`->React.string}
-//                 </div>
-//                 <div className="w-full flex justify-end text-xs opacity-50">
-//                   {<Table.DateCell timestamp={item.created} isCard=true />}
-//                 </div>
-//               </div>
-//               <div className="relative ml-7">
-//                 <div
-//                   className={`absolute left-0 -ml-0.5 top-0 border-1.5 p-2 rounded-full h-fit w-fit border-${border} bg-white z-10`}>
-//                   <Icon name=icon className={`w-5 h-5 text-${border}`} />
-//                 </div>
-//                 <RenderIf condition={index != attemptsList->Array.length - 1}>
-//                   <div className="ml-4 mt-10 border-l-2 border-gray-200 h-full w-1 z-20" />
-//                 </RenderIf>
-//               </div>
-//               <div className="border col-span-9 rounded-lg px-2">
-//                 <ShowOrderDetails
-//                   data=item
-//                   getHeading=getAttemptHeading
-//                   getCell=getAttemptCell
-//                   detailsFields=[AttemptTriggeredBy, Status, CardNetwork, DeclineCode, ErrorMessage]
-//                 />
-//               </div>
-//             </div>
-//           })
-//           ->React.array}
-//         </div>
-//       </div>
-//     </RenderIf>
-//   }
-// }
-
 module RecoveryAmountStatus = {
   open RevenueRecoveryOrderTypes
   open RevenueRecoveryOrderUtils
@@ -283,10 +112,10 @@ module RecoveryAmountStatus = {
         </div>
         {switch scheduledTime {
         | Some(time) =>
-          let convertedTime = time->convertScheduleTimeToUTC
+          let convertedTime = time->RevenueRecoveryOrderUtils.convertScheduleTimeToUTC
           <>
             <div className="border-t-2 border-gray-200 my-5" />
-            <div className={`flex items-center gap-2 ${body.lg.regular}`}>
+            <div className={`flex items-center gap-2 ${body.md.regular}`}>
               <div className="w-2 h-2 bg-orange-500 rounded-full mx-1" />
               <span className="text-gray-500 flex gap-1">
                 {`Retry to recover ${(orderAmount -. amountCaptured)
@@ -377,6 +206,7 @@ let make = (~id) => {
   )
   let (processTrackerData, setProcessTrackerData) = React.useState(_ => Dict.make())
   let showToast = ToastState.useShowToast()
+  let (attemptsList, setAttemptsList) = React.useState(_ => [])
 
   let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {
     try {
@@ -449,8 +279,30 @@ let make = (~id) => {
     }
   }
 
+  let fetchOrderAttemptListDetails = async _ => {
+    try {
+      let url = getURL(~entityName=V2(V2_ATTEMPTS_LIST), ~methodType=Get, ~id=Some(id))
+      let data = await fetchDetails(url, ~version=V2)
+
+      let array =
+        data
+        ->getDictFromJsonObject
+        ->getArrayFromDict("payment_attempt_list", [])
+        ->JSON.Encode.array
+        ->getAttempts
+        ->Array.filter(item => item.status !== "started")
+
+      array->Array.reverse
+
+      setAttemptsList(_ => array)
+    } catch {
+    | _ => ()
+    }
+  }
+
   React.useEffect(() => {
     fetchOrderDetails()->ignore
+    fetchOrderAttemptListDetails()->ignore
     None
   }, [])
 
@@ -477,8 +329,11 @@ let make = (~id) => {
           message="Payment does not exists in out record" renderType=NotFound
         />}>
         <div className="w-full grid grid-cols-10">
-          <div className="w-full h-full col-span-7">
+          <div className="w-full h-full col-span-7 flex flex-col gap-7">
             <RecoveryAmountStatus order={revenueRecoveryData} processTracker={processTrackerData} />
+            <AttemptsHistory
+              order={revenueRecoveryData} attemptsList processTracker={processTrackerData->Some}
+            />
           </div>
           <div className="w-full h-full col-span-3">
             <OrderDetailsCard
