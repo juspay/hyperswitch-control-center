@@ -213,3 +213,50 @@ module Details = {
     }
   }
 }
+
+module SegmentedProgressBar = {
+  @react.component
+  let make = (~orderAmount: float, ~amountCaptured: float, ~className: string="") => {
+    // Calculate percentage: (amount_captured / order_amount) * 100
+    let percentage = if orderAmount <= 0.0 {
+      0.0
+    } else {
+      let calculated = amountCaptured /. orderAmount *. 100.0
+
+      // Clamp between 0 and 100
+      if calculated < 0.0 {
+        0.0
+      } else if calculated > 100.0 {
+        100.0
+      } else {
+        calculated
+      }
+    }
+
+    let percentageInt = percentage->Float.toInt
+    let percentageString = percentage->Float.toString
+
+    <div className={`flex items-center w-full ${className}`}>
+      <div className="flex-1 flex items-center relative">
+        {if percentageInt > 0 {
+          <div
+            className="bg-blue-500 h-3 rounded-sm absolute left-0 top-0"
+            style={width: `${percentageString}%`}
+          />
+        } else {
+          React.null
+        }}
+        <div className="flex-1 flex gap-1">
+          {Array.make(~length=20, 0)
+          ->Array.map(i => {
+            <div key={i->Int.toString} className="w-1 h-3 bg-gray-300 rounded-sm" />
+          })
+          ->React.array}
+        </div>
+      </div>
+      <span className="ml-3 text-gray-600 text-sm font-medium">
+        {`${percentageInt->Int.toString}%`->React.string}
+      </span>
+    </div>
+  }
+}

@@ -5,6 +5,8 @@ type colType =
   | Connector
   | Created
   | PaymentMethodType
+  | ModifiedAt
+  | RecoveryProgress
 
 type attemptColType =
   | Id
@@ -32,11 +34,13 @@ type order = {
   id: string,
   status: string,
   order_amount: float,
+  amount_captured: float,
   connector: string,
   created: string,
   payment_method_type: string,
   payment_method_subtype: string,
   attempts: array<attempts>,
+  modified_at: string,
 }
 
 type optionObj = {

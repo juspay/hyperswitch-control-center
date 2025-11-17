@@ -116,6 +116,8 @@ let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
   | PaymentMethodType => Table.makeHeaderInfo(~key="PaymentMethodType", ~title="Payment Method")
+  | ModifiedAt => Table.makeHeaderInfo(~key="ModifiedAt", ~title="Last Attempted")
+  | RecoveryProgress => Table.makeHeaderInfo(~key="RecoveryProgress", ~title="Recovery Progress")
   }
 }
 
@@ -167,6 +169,14 @@ let getCell = (
     )
   | Created => Date(order.created)
   | PaymentMethodType => Text(order.payment_method_type)
+  | ModifiedAt => Date(order.modified_at)
+  | RecoveryProgress =>
+    CustomCell(
+      <RecoveryInvoicesHelper.SegmentedProgressBar
+        orderAmount=order.order_amount amountCaptured=order.amount_captured className="w-32"
+      />,
+      "",
+    )
   }
 }
 
@@ -188,11 +198,11 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 
 let defaultColumns: array<RevenueRecoveryOrderTypes.colType> = [
   Id,
-  Status,
   OrderAmount,
-  Connector,
+  Status,
+  RecoveryProgress,
   Created,
-  PaymentMethodType,
+  ModifiedAt,
 ]
 
 let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
@@ -210,10 +220,14 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
     order_amount: dict
     ->getDictfromDict("amount_details")
     ->getFloat("order_amount", 0.0),
+    amount_captured: dict
+    ->getDictfromDict("amount_details")
+    ->getFloat("amount_captured", 0.0),
     connector: revenueRecoveryMetadata->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: revenueRecoveryMetadata->getString("payment_method_type", ""),
     payment_method_subtype: revenueRecoveryMetadata->getString("payment_method_subtype", ""),
+    modified_at: dict->getString("modified_at", ""),
     attempts,
   }
 }
@@ -228,10 +242,14 @@ let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict =>
     order_amount: dict
     ->getDictfromDict("amount")
     ->getFloat("order_amount", 0.0),
+    amount_captured: dict
+    ->getDictfromDict("amount")
+    ->getFloat("amount_captured", 0.0),
     connector: dict->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_subtype: dict->getString("payment_method_subtype", ""),
+    modified_at: dict->getString("modified_at", ""),
     attempts,
   }
 }

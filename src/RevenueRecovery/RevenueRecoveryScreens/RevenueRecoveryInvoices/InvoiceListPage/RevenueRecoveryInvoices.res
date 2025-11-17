@@ -17,12 +17,14 @@ let make = () => {
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
   let setData = (total, data) => {
+    let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
     if total <= offset {
       setOffset(_ => 0)
     }
 
     if total > 0 {
-      let list = data->Array.map(Nullable.make)
+      let orderData = arr->Array.concat(data)
+      let list = orderData->Array.map(Nullable.make)
       setTotalCount(_ => total)
       setRevenueRecoveryData(_ => list)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -136,6 +138,7 @@ let make = () => {
       filters
     | _ => {
         let filters = Dict.make()
+        filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         filters
       }
