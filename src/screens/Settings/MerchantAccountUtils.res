@@ -370,7 +370,7 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "external_vault_connector_details",
     Some(
       valuesDict
-      ->getOptionString("external_vault_connector_details")
+      ->getDictfromDict("external_vault_connector_details")
       ->Identity.genericTypeToDictOfJson,
     ),
   )
