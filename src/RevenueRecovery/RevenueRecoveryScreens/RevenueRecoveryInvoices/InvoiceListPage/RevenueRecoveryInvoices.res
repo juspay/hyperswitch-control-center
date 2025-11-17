@@ -69,7 +69,7 @@ let make = () => {
       let processedOrderData = await Promise.all(
         orderData->Array.map(async order => {
           // TODO: change this later // order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed
-          if false {
+          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
             try {
               let processTrackerUrl = getURL(
                 ~entityName=V2(PROCESS_TRACKER),
@@ -90,7 +90,7 @@ let make = () => {
                 // Create a modified order object with additional process tracker data
                 {
                   ...order,
-                  status: Scheduled->schedulerStatusStringMapper,
+                  status: Scheduled->statusStringMapper,
                 }
               } else {
                 // Keep the order as-is if no response

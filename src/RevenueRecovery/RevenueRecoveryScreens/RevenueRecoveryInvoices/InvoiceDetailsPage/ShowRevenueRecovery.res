@@ -38,6 +38,7 @@ module ShowOrderDetails = {
     </FormRenderer.DesktopRow>
   }
 }
+
 module OrderInfo = {
   @react.component
   let make = (~order) => {
@@ -50,6 +51,16 @@ module OrderInfo = {
         isButtonEnabled=true
       />
     </div>
+  }
+}
+
+// Alternative: Simple conversion for your specific format
+let convertScheduleTimeToUTC = (scheduleTime: string) => {
+  if scheduleTime->String.includes(" ") {
+    // "2025-08-15 19:24:18.375771" -> "2025-08-15T19:24:18.375Z"
+    scheduleTime->String.replace(" ", "T") ++ "Z"
+  } else {
+    scheduleTime
   }
 }
 
@@ -114,16 +125,6 @@ module Attempts = {
       let (border, icon) = ""->getStyle
 
       let dict = nextScheduleTime->getDictFromJsonObject
-
-      // Alternative: Simple conversion for your specific format
-      let convertScheduleTimeToUTC = (scheduleTime: string) => {
-        if scheduleTime->String.includes(" ") {
-          // "2025-08-15 19:24:18.375771" -> "2025-08-15T19:24:18.375Z"
-          scheduleTime->String.replace(" ", "T") ++ "Z"
-        } else {
-          scheduleTime
-        }
-      }
 
       <RenderIf
         condition={dict->Dict.keysToArray->Array.length > 0 &&
@@ -224,6 +225,141 @@ module Attempts = {
   }
 }
 
+module RecoveryAmountStatus = {
+  open RevenueRecoveryOrderTypes
+  open RevenueRecoveryOrderUtils
+  open Typography
+
+  let formatCurrency = (amount: float) => {
+    let dollars = amount /. 100.0
+    `$${dollars->Float.toFixedWithPrecision(~digits=2)}`
+  }
+
+  @react.component
+  let make = (~order: order, ~processTracker: Dict.t<JSON.t>) => {
+    let orderAmount = order.order_amount
+    let amountCaptured = order.amount_captured
+    let status: RevenueRecoveryOrderTypes.recoveryInvoiceStatus = order.status->statusVariantMapper
+
+    let scheduledTime = if processTracker->Dict.keysToArray->Array.length > 0 {
+      let scheduleTime = processTracker->getString("schedule_time_for_payment", "")
+      if scheduleTime->isNonEmptyString {
+        Some(scheduleTime)
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+
+    switch status {
+    | Recovered =>
+      <div className="bg-green-200 border border-green-700 rounded-xl p-4 flex items-start gap-3">
+        <Icon name="nd-check-circle-outline" size=20 className="mt-0.5" />
+        <div className="flex-1">
+          <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+            {"Fully recovered"->React.string}
+          </div>
+          <div className={`${body.md.regular} text-gray-600`}>
+            {"This invoice was successfully recovered."->React.string}
+          </div>
+        </div>
+      </div>
+    | Scheduled | Processing =>
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`${heading.md.semibold} text-gray-900`}>
+            {`${amountCaptured->formatCurrency} / ${orderAmount->formatCurrency} `->React.string}
+            <span className={`${body.lg.regular} ml-1`}> {"Recovered"->React.string} </span>
+          </div>
+        </div>
+        <div className="mb-4">
+          <SegmentedProgressBar orderAmount amountCaptured className="w-fit" />
+        </div>
+        {switch scheduledTime {
+        | Some(time) =>
+          let convertedTime = time->convertScheduleTimeToUTC
+          <>
+            <div className="border-t-2 border-gray-200 my-5" />
+            <div className={`flex items-center gap-2 ${body.lg.regular}`}>
+              <div className="w-2 h-2 bg-orange-500 rounded-full mx-1" />
+              <span className="text-gray-500 flex gap-1">
+                {`Retry to recover ${(orderAmount -. amountCaptured)
+                    ->formatCurrency} is scheduled for `->React.string}
+                {<Table.DateCell timestamp=convertedTime isCard=true />}
+              </span>
+            </div>
+          </>
+        | None => React.null
+        }}
+      </div>
+    | Queued | NoPicked =>
+      <div className="bg-gray-100 border border-gray-300 rounded-xl p-4 flex items-start gap-3">
+        <Icon name="nd-payment-queued" size=20 className="text-gray-600 mt-0.5" />
+        <div className="flex-1">
+          <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+            {"Recovery not started"->React.string}
+          </div>
+          <div className={`${body.md.regular} text-gray-600`}>
+            {"This invoice is queued. Retries will begin soon."->React.string}
+          </div>
+        </div>
+      </div>
+    | Terminated =>
+      if amountCaptured > 0.0 {
+        <div
+          className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start gap-3">
+          <Icon name="nd-payment-partial-captured" size=20 className="text-orange-600 mt-0.5" />
+          <div className="flex-1">
+            <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+              {"Partially recovered invoice"->React.string}
+            </div>
+            <div className={`${body.md.regular} text-gray-600`}>
+              {`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`->React.string}
+            </div>
+          </div>
+        </div>
+      } else {
+        <div className="bg-red-50 border border-red-960 rounded-xl p-4 flex items-start gap-3">
+          <Icon name="nd-payment-terminal" size=20 className="text-red-600 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-semibold text-gray-800 mb-1">
+              {"Unable to Recover Invoice"->React.string}
+            </div>
+            <div className="text-sm text-gray-600">
+              {"This invoice couldn't be recovered."->React.string}
+            </div>
+          </div>
+        </div>
+      }
+    | PartiallyRecovered =>
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start gap-3">
+        <Icon name="nd-payment-partial-captured" size=20 className="text-orange-600 mt-0.5" />
+        <div className="flex-1">
+          <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+            {"Partially recovered invoice"->React.string}
+          </div>
+          <div className={`${body.md.regular} text-gray-600`}>
+            {`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`->React.string}
+          </div>
+        </div>
+      </div>
+    | Monitoring | Other(_) =>
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`${heading.md.semibold} text-gray-900`}>
+            {`${amountCaptured->formatCurrency} / ${orderAmount->formatCurrency} `->React.string}
+            <span className={`${body.lg.regular} ml-1`}> {"Recovered"->React.string} </span>
+          </div>
+        </div>
+        <div className="mb-4">
+          <SegmentedProgressBar orderAmount amountCaptured className="w-fit" />
+        </div>
+      </div>
+    }
+  }
+}
+
 @react.component
 let make = (~id) => {
   open APIUtils
@@ -234,6 +370,7 @@ let make = (~id) => {
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ =>
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
+  let (processTrackerData, setProcessTrackerData) = React.useState(_ => Dict.make())
   let showToast = ToastState.useShowToast()
 
   let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {
@@ -246,18 +383,18 @@ let make = (~id) => {
       let processTrackerData = await fetchDetails(processTrackerUrl, ~version=V2)
 
       let processTrackerDataDict = processTrackerData->getDictFromJsonObject
-
-      let status = processTrackerDataDict->getString("status", "")
+      setProcessTrackerData(_ => processTrackerDataDict)
+      let processTrackeStatus = processTrackerDataDict->getString("status", "")
 
       // If we get a response, modify the payment object
       let orderDetails = if (
         processTrackerDataDict->Dict.keysToArray->Array.length > 0 &&
-          status != Finish->schedulerStatusStringMapper
+          processTrackeStatus != Finish->schedulerStatusStringMapper
       ) {
         // Create a modified order object with additional process tracker data
         {
           ...orderData,
-          status: Scheduled->schedulerStatusStringMapper,
+          status: Scheduled->statusStringMapper,
         }
       } else {
         // Keep the order as-is if no response
@@ -283,7 +420,7 @@ let make = (~id) => {
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
 
-      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
+      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
         await getPTDetails(~orderData)
       } else {
         // Keep non-failed orders as-is
@@ -314,7 +451,7 @@ let make = (~id) => {
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
-      path=[{title: "List of Invoices", link: "/v2/recovery/invoices"}]
+      path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
       currentPageTitle=id
       cursorStyle="cursor-pointer"
       customTextClass="text-nd_gray-400"
@@ -326,7 +463,7 @@ let make = (~id) => {
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">
         <div className="flex gap-2 items-center">
-          <PageUtils.PageHeading title="Invoice summary" />
+          <PageUtils.PageHeading title="Invoice Recovery Details" />
         </div>
       </div>
       <PageLoaderWrapper
@@ -334,13 +471,13 @@ let make = (~id) => {
         customUI={<NoDataFound
           message="Payment does not exists in out record" renderType=NotFound
         />}>
-        <div className="w-full">
-          <OrderInfo order=revenueRecoveryData />
+        <div className="w-full grid grid-cols-10">
+          <div className="w-full h-full col-span-7">
+            <RecoveryAmountStatus order={revenueRecoveryData} processTracker={processTrackerData} />
+          </div>
+          <div className="w-full h-full col-span-3" />
         </div>
       </PageLoaderWrapper>
-    </div>
-    <div className="overflow-scroll">
-      <Attempts id />
     </div>
   </div>
 }

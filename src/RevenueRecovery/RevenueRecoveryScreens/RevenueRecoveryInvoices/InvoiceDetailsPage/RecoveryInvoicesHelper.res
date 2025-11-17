@@ -215,6 +215,7 @@ module Details = {
 }
 
 module SegmentedProgressBar = {
+  open Typography
   @react.component
   let make = (~orderAmount: float, ~amountCaptured: float, ~className: string="") => {
     // Calculate percentage: (amount_captured / order_amount) * 100
@@ -236,7 +237,7 @@ module SegmentedProgressBar = {
     let percentageInt = percentage->Float.toInt
     let percentageString = percentage->Float.toString
 
-    <div className={`flex items-center w-full ${className}`}>
+    <div className={`flex items-center w-fit ${className}`}>
       <div className="flex-1 flex items-center relative">
         {if percentageInt > 0 {
           <div
@@ -254,7 +255,7 @@ module SegmentedProgressBar = {
           ->React.array}
         </div>
       </div>
-      <span className="ml-3 text-gray-600 text-sm font-medium">
+      <span className={`ml-3 text-gray-600 ${body.md.semibold}`}>
         {`${percentageInt->Int.toString}%`->React.string}
       </span>
     </div>
