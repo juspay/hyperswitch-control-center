@@ -150,10 +150,6 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    // TODO: filters will be enabled later
-    // if filters->OrderUIUtils.isNonEmptyValue {
-    //   fetchOrders()
-    // }
     fetchOrders()
 
     None
@@ -162,25 +158,6 @@ let make = () => {
   let customTitleStyle = "py-0 !pt-0"
 
   let (widthClass, heightClass) = ("w-full", "")
-
-  // TODO: filters will be enabled later
-  // let filtersUI = React.useMemo(() => {
-  //   <RemoteTableFilters
-  //     title="Orders"
-  //     setFilters
-  //     endTimeFilterKey
-  //     startTimeFilterKey
-  //     initialFilters
-  //     initialFixedFilter
-  //     setOffset
-  //     submitInputOnEnter=true
-  //     customLeftView={<SearchBarFilter
-  //       placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-  //     />}
-  //     entityName=V2(V2_ORDER_FILTERS)
-  //     version=V2
-  //   />
-  // }, [searchText])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>

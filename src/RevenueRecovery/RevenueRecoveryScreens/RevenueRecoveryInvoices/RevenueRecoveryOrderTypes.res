@@ -52,18 +52,17 @@ type topic =
   | String(string)
   | ReactElement(React.element)
 
-type status =
-  | Succeeded
+type recoveryInvoiceStatus =
+  | Recovered
   | Scheduled
-  | Failed
-  | Cancelled
+  | Terminated
   | Processing
-  | RequiresCustomerAction
-  | RequiresPaymentMethod
-  | RequiresConfirmation
-  | PartiallyCaptured
-  | None
+  | Queued
+  | NoPicked
+  | Monitoring
+  | PartiallyRecovered
+  | Other(string)
 
-type recoveryStatusType =
+type recoverySchedulerStatusType =
   | Finish
   | Scheduled

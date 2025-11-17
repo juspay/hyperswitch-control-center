@@ -125,7 +125,8 @@ let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->RevenueRecoveryOrderUtils.statusVariantMapper
+  open RevenueRecoveryOrderUtils
+  let orderStatus = order.status->statusVariantMapper->statusStringMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -137,21 +138,14 @@ let getCell = (
 
   | Status =>
     Label({
-      title: order.status->String.toUpperCase,
-      color: switch orderStatus {
-      | Succeeded
-      | PartiallyCaptured =>
-        LabelGreen
-      | Failed
-      | Cancelled =>
-        LabelRed
+      title: orderStatus,
+      color: switch order.status->statusVariantMapper {
+      | Recovered | PartiallyRecovered => LabelGreen
       | Scheduled => LabelOrange
-      | Processing
-      | RequiresCustomerAction
-      | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelBlue
-      | _ => LabelBlue
+      | Terminated => LabelRed
+      | Processing => LabelBlue
+      | Queued => LabelYellow
+      | _ => LabelLightGray
       },
     })
   | OrderAmount =>
