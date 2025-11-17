@@ -182,9 +182,7 @@ let make = () => {
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading
-          title="List of Invoices" customTitleStyle
-        />
+        <PageUtils.PageHeading title="List of Invoices" customTitleStyle />
       </div>
       //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>
