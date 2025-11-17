@@ -11,9 +11,10 @@ module VaultFields = {
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
     )
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+    let formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let form = ReactFinalForm.useForm()
     let isExternalVaultEnabled =
       formState.values
       ->getDictFromJsonObject
@@ -27,7 +28,8 @@ module VaultFields = {
           field={makeFieldInfo(
             ~name="is_external_vault_enabled",
             ~label="Enable External Vault",
-            ~customInput=customExternalVaultEnabled,
+            ~customInput=(~input, ~placeholder) =>
+              customExternalVaultEnabled(~input, ~placeholder, ~form),
           )}
         />
       </DesktopRow>

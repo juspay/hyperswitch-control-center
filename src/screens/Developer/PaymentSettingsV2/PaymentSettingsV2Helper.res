@@ -68,13 +68,12 @@ let vaultConnectors = connectorList => {
 let customExternalVaultEnabled = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
+  ~form: ReactFinalForm.formApi,
 ) => {
   let currentValue = switch input.value->JSON.Classify.classify {
   | String(str) => str === "enable"
   | _ => false
   }
-
-  let form = ReactFinalForm.useForm()
 
   let handleChange = newValue => {
     let valueToSet = newValue ? "enable" : "skip"
