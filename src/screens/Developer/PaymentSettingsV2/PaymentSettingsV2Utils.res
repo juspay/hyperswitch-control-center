@@ -262,18 +262,18 @@ let validateMerchantAccountFormV2 = (
         }
       }
     | VaultProcessorDetails => {
+        let isExternalVaultEnabled =
+          getString(valuesDict, "is_external_vault_enabled", "")->getNonEmptyString
         let vaultProcessorDetailsDict =
           valuesDict->getDictfromDict("external_vault_connector_details")
         let vaultConnectorId =
           vaultProcessorDetailsDict
           ->getString("vault_connector_id", "")
           ->getNonEmptyString
-        switch vaultConnectorId {
-        | Some(_) => ()
-        | _ =>
+        if isExternalVaultEnabled == Some("enable") && vaultConnectorId == None {
           Dict.set(
             errors,
-            "external_vault_connector_details",
+            "vault_connector_id",
             "Please select a vault connector"->JSON.Encode.string,
           )
         }

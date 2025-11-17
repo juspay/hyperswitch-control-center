@@ -368,11 +368,13 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   )
   profileDetailsDict->setOptionDict(
     "external_vault_connector_details",
-    Some(
-      valuesDict
-      ->getDictfromDict("external_vault_connector_details")
-      ->Identity.genericTypeToDictOfJson,
-    ),
+    !(valuesDict->getDictfromDict("external_vault_connector_details")->isEmptyDict)
+      ? Some(
+          valuesDict
+          ->getDictfromDict("external_vault_connector_details")
+          ->Identity.genericTypeToDictOfJson,
+        )
+      : None,
   )
 
   let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
@@ -633,22 +635,18 @@ let validateMerchantAccountForm = (
     | VaultProcessorDetails => {
         let isExternalVaultEnabled =
           getString(valuesDict, "is_external_vault_enabled", "")->getNonEmptyString
-        if isExternalVaultEnabled == Some("enable") {
-          let vaultProcessorDetailsDict =
-            valuesDict->getDictfromDict("external_vault_connector_details")
-          let vaultConnectorId =
-            vaultProcessorDetailsDict
-            ->getString("vault_connector_id", "")
-            ->getNonEmptyString
-          switch vaultConnectorId {
-          | Some(_) => ()
-          | _ =>
-            Dict.set(
-              errors,
-              "external_vault_connector_details",
-              "Please select a vault connector"->JSON.Encode.string,
-            )
-          }
+        let vaultProcessorDetailsDict =
+          valuesDict->getDictfromDict("external_vault_connector_details")
+        let vaultConnectorId =
+          vaultProcessorDetailsDict
+          ->getString("vault_connector_id", "")
+          ->getNonEmptyString
+        if isExternalVaultEnabled == Some("enable") && vaultConnectorId == None {
+          Dict.set(
+            errors,
+            "vault_connector_id",
+            "Please select a vault connector"->JSON.Encode.string,
+          )
         }
       }
     | _ => {
