@@ -54,6 +54,10 @@ let make = () => {
 
   let additionalTabs: array<Tabs.tab> = [
     {
+      title: "Vault",
+      renderContent: () => <PaymentSettingsVault />,
+    },
+    {
       title: "Custom Headers",
       renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
     },

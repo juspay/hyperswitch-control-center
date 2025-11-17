@@ -680,6 +680,92 @@ module MerchantCategoryCode = {
   }
 }
 
+module Vault = {
+  @react.component
+  let make = () => {
+    open Typography
+    open HSwitchUtils
+    open FormRenderer
+    open LogicUtils
+
+    let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=VaultProcessor,
+    )
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let isBusinessProfileHasVault =
+      vaultConnectorsList->Array.some(item => item.profile_id == profileId)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let isExternalVaultEnabled =
+      formState.values
+      ->getDictFromJsonObject
+      ->getString("is_external_vault_enabled", "") === "enable"
+
+    <div className="border-b border-gray-200 pb-8">
+      <RenderIf condition={isBusinessProfileHasVault}>
+        <DesktopRow itemWrapperClass="mx-1">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+            field={makeFieldInfo(
+              ~name="is_external_vault_enabled",
+              ~label="Enable External Vault",
+              ~customInput=(~input, ~placeholder as _) => {
+                let currentValue = switch input.value->JSON.Classify.classify {
+                | String(str) => str === "enable"
+                | _ => false
+                }
+                let handleChange = newValue => {
+                  let valueToSet = newValue ? "enable" : "skip"
+                  input.onChange(valueToSet->Identity.anyTypeToReactEvent)
+
+                  if !newValue {
+                    form.change("external_vault_connector_details", JSON.Encode.null)
+                  }
+                }
+                <BoolInput.BaseComponent
+                  isSelected={currentValue}
+                  setIsSelected={handleChange}
+                  isDisabled=false
+                  boolCustomClass="rounded-lg"
+                />
+              },
+            )}
+          />
+        </DesktopRow>
+        <RenderIf condition={isExternalVaultEnabled}>
+          <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 !mx-0" itemWrapperClass="mx-1">
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Connectors",
+                ~name="external_vault_connector_details.vault_connector_id",
+                ~customInput=InputFields.selectInput(
+                  ~options=vaultConnectorsList->Array.map((item): SelectBox.dropdownOption => {
+                    {
+                      label: `${item.connector_label} - ${item.id}`,
+                      value: item.id,
+                    }
+                  }),
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                ),
+                ~isRequired=true,
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+          </DesktopRow>
+        </RenderIf>
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -709,7 +795,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
       [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
-    defaultFieldsToValidate->Array.push(MaxAutoRetries)
+    defaultFieldsToValidate->Array.pushMany([MaxAutoRetries, VaultProcessorDetails])
     defaultFieldsToValidate
   }
 
@@ -906,6 +992,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
                     )}
                   />
+                </DesktopRow>
+                <DesktopRow>
+                  <Vault />
                 </DesktopRow>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
                   <MerchantCategoryCode />
