@@ -96,7 +96,7 @@ let productTypeIconMapper = productType => {
   | Vault => "vault-home"
   | CostObservability => "nd-piggy-bank"
   | DynamicRouting => "intelligent-routing-home"
-  | Recon(V1) => "recon-engine-v1"
+  | Recon(V1)
   | Recon(V2) => "recon-home"
   | OnBoarding(_) => ""
   | UnknownProduct => ""

@@ -329,10 +329,10 @@ module NestedSectionItem = {
           </RenderIf>
         </div>
         <RenderIf condition={isElementShown}>
-          <div className="flex flex-1 w-full mt-4">
+          <div className="flex flex-1 w-full mt-2">
             <div className="w-8" />
             <div className="border-l border-nd_gray-200" />
-            <div className="flex flex-col gap-1.5 w-full leading-20">
+            <div className="flex flex-col gap-2 w-full leading-20">
               {section.links
               ->Array.mapWithIndex((subLevelItem, index) => {
                 let isSelected = subLevelItem->isSubLevelItemSelected
@@ -519,7 +519,7 @@ module ProductTypeSectionItem = {
         </RenderIf>
       </div>
       <RenderIf condition={isExpanded && isExploredModule}>
-        <div className="flex flex-col gap-1 mt-2 ml-2">
+        <div className="flex flex-col gap-2 mt-2 ml-2">
           {section.links
           ->Array.mapWithIndex((tabInfo, index) => {
             switch tabInfo {
@@ -646,9 +646,9 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "248px"
+      | false => "300px"
       }
-    | false => "248px"
+    | false => "300px"
     }
   }
   let profileMaxWidth = "160px"
@@ -693,7 +693,7 @@ let make = (
   let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
-  let sidebarCollapseWidth = showSideBar ? "304px" : "56px"
+  let sidebarCollapseWidth = showSideBar ? "356px" : "56px"
   let sidebarContainerClassWidth = isMobileView ? "0px" : `${sidebarCollapseWidth}`
 
   let transformClass = "transform md:translate-x-0 transition"
@@ -780,7 +780,7 @@ let make = (
               className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
-              <div className="p-2.5 pt-0">
+              <div className="flex flex-col gap-2 p-2.5 pt-0 ">
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
                   switch tabInfo {
@@ -838,7 +838,7 @@ let make = (
                 ->React.array}
               </div>
               <RenderIf condition={productSiebars->Array.length > 0}>
-                <div className="p-2.5">
+                <div className="flex flex-col gap-2 p-2.5">
                   <div
                     className={`px-3 pt-6 pb-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
                     {React.string("Other modular services"->String.toUpperCase)}
