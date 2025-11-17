@@ -2,9 +2,43 @@ open RevenueRecoveryEntity
 open LogicUtils
 open RecoveryInvoicesHelper
 
+module DisplayValues = {
+  open Typography
+
+  @react.component
+  let make = (
+    ~heading: Table.header,
+    ~value: Table.cell,
+    ~isInHeader=false,
+    ~customDateStyle="",
+    ~wordBreak=true,
+    ~textColor="",
+  ) => {
+    let marginClass = "!py-0"
+
+    <AddDataAttributes attributes=[("data-label", heading.title)]>
+      <div className="grid grid-cols-10">
+        <div className="flex items-center col-span-3">
+          <div className={`${body.sm.medium} text-gray-500`}> {heading.title->React.string} </div>
+        </div>
+        <div
+          className={`flex-1 flex justify-left ml-4 ${body.md.semibold} text-gray-900 col-span-7`}>
+          <Table.TableCell
+            cell=value
+            textAlign=Table.Right
+            fontBold=false
+            customMoneyStyle="!font-normal"
+            labelMargin=marginClass
+            customDateStyle
+          />
+        </div>
+      </div>
+    </AddDataAttributes>
+  }
+}
+
 module OrderDetailsCard = {
   open RevenueRecoveryOrderTypes
-  open Typography
 
   @react.component
   let make = (
@@ -13,19 +47,11 @@ module OrderDetailsCard = {
     ~getCell: (order, colType) => Table.cell,
     ~detailsFields: array<colType>,
   ) => {
-    <div className="bg-white border border-gray-200 rounded-xl px-6 py-2 ml-5">
+    <div className="bg-white border border-gray-200 rounded-xl px-7 py-6 ml-6 flex flex-col gap-6">
       {detailsFields
       ->Array.mapWithIndex((colType, i) => {
         <div key={i->Int.toString}>
-          <DisplayKeyValueParams
-            heading={getHeading(colType)}
-            value={getCell(order, colType)}
-            isHorizontal=false
-            customMoneyStyle="!font-normal"
-            labelMargin="!-py-5"
-            overiddingHeadingStyles={`${body.sm.medium} text-gray-500`}
-            textColor={`${body.md.semibold} text-gray-900`}
-          />
+          <DisplayValues heading={getHeading(colType)} value={getCell(order, colType)} />
         </div>
       })
       ->React.array}
