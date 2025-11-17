@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.14.0
+
+### Features
+
+- Add payout report handling in APIUtils and update related components ([#3786](https://github.com/juspay/hyperswitch-control-center/pull/3786)) ([`bc2384e`](https://github.com/juspay/hyperswitch-control-center/commit/bc2384e96a605936114d9f3fc1588a5cb0e7874e))
+- Add Payouts functionality to Global Search ([#3796](https://github.com/juspay/hyperswitch-control-center/pull/3796)) ([`a66d7b5`](https://github.com/juspay/hyperswitch-control-center/commit/a66d7b53dc364c57bdcc7347f73775168be61f26))
+
+**Full Changelog:** [`2025.11.13.2...2025.11.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.13.2...2025.11.14.0)
+
+- - -
+
 ## 2025.11.13.2
 
 ### Features
