@@ -40,14 +40,14 @@ let allColumns: array<entryColType> = [
 ]
 
 let detailsFields = [
-  EntryId,
+  OrderID,
   EntryType,
-  AccountName,
   Amount,
   Currency,
-  TransactionId,
-  OrderID,
   Status,
+  AccountName,
+  EntryId,
+  TransactionId,
   CreatedAt,
   EffectiveAt,
 ]
@@ -84,10 +84,10 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
 
 let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
-  | EntryId => EllipsisText(entry.entry_id, "w-fit")
+  | EntryId => DisplayCopyCell(entry.entry_id)
   | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
   | AccountName => Text(entry.account_name)
-  | TransactionId => Text(entry.transaction_id)
+  | TransactionId => DisplayCopyCell(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
   | Status =>

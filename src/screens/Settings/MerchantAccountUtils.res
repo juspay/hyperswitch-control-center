@@ -42,7 +42,12 @@ let parseBussinessProfileJson = (
   | Some(config) => config
   | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
   }
-  let allowedDomains = paymentLinkConfig.allowed_domains->JSON.Decode.array->Option.getOr([])
+
+  let allowedDomains =
+    paymentLinkConfig.allowed_domains
+    ->Option.getOr(JSON.Encode.null)
+    ->LogicUtils.getArrayFromJson([])
+
   let allowedDomainsString =
     allowedDomains
     ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
@@ -50,7 +55,7 @@ let parseBussinessProfileJson = (
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfig,
-    allowed_domains: allowedDomainsString->JSON.Encode.string,
+    allowed_domains: Some(allowedDomainsString->JSON.Encode.string),
   }
 
   profileInfo->setOptionDict(
@@ -166,12 +171,14 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfigTyped,
-    domain_name: paymentLinkConfig->getString("domain_name", ""),
-    allowed_domains: paymentLinkConfig
-    ->getString("allowed_domains", "")
-    ->String.split(",")
-    ->Array.map(domain => domain->String.trim->JSON.Encode.string)
-    ->JSON.Encode.array,
+    domain_name: paymentLinkConfig->getOptionString("domain_name"),
+    allowed_domains: Some(
+      paymentLinkConfig
+      ->getString("allowed_domains", "")
+      ->String.split(",")
+      ->Array.map(String.trim)
+      ->getJsonFromArrayOfString,
+    ),
   }
 
   paymentLinkDomainDict->setOptionDict(
@@ -591,12 +598,13 @@ let validateMerchantAccountForm = (
   fieldsToValidate->Array.forEach(key => {
     switch key {
     | MaxAutoRetries => {
-        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
-        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Int.toString) {
+        let isAutoRetryEnabled = getBool(valuesDict, "is_auto_retries_enabled", false)
+        let value = getFloat(valuesDict, key->validationFieldsMapper, 0.0)
+        if isAutoRetryEnabled && !RegExp.test(%re("/^(?:[1-5])$/"), value->Float.toString) {
           Dict.set(
             errors,
             key->validationFieldsMapper,
-            "Please enter integer value from 1 to 5"->JSON.Encode.string,
+            "Please enter an integer value from 1 to 5"->JSON.Encode.string,
           )
         }
       }

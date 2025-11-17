@@ -1,6 +1,7 @@
 open ReconEngineTypes
 open ReconEngineUtils
 open ReconEngineTransactionsUtils
+open LogicUtils
 
 type transactionColType =
   | TransactionId
@@ -55,7 +56,7 @@ let getHeading = (colType: transactionColType) => {
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
   | ReconciliationType =>
     Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
-  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Reason")
+  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Remark")
   }
 }
 
@@ -88,7 +89,21 @@ let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell =
 let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
   open CurrencyFormatUtils
   switch colType {
-  | TransactionId => EllipsisText(transaction.transaction_id, "")
+  | TransactionId =>
+    CustomCell(
+      <>
+        <RenderIf condition={transaction.transaction_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customTextCss="max-w-36 truncate whitespace-nowrap"
+            displayValue=Some(transaction.transaction_id)
+          />
+        </RenderIf>
+        <RenderIf condition={transaction.transaction_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
   | CreditAccount => Text(getAccounts(transaction.entries, Credit))
   | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>
@@ -126,7 +141,7 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     | Some(postedType) => getReconciledTypeLabel(postedType)
     | None => getReconciledTypeLabel(UnknownTransactionPostedType)
     }
-  | Reason => Text(transaction.data.reason->Option.getOr("N/A"))
+  | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
   }
 }
 
