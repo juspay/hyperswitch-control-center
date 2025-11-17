@@ -263,6 +263,7 @@ let getUpdatedEntry = (~entryDetails: processingEntryType, ~formData): processin
     discarded_status: entryDetails.discarded_status,
     version: entryDetails.version,
     data: entryDetails.data,
+    discarded_data: entryDetails.discarded_data,
   }
 }
 

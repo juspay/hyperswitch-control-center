@@ -194,6 +194,8 @@ let getSumOfAmountWithCurrency = (
 }
 
 let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
+  let discardedDataDict =
+    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -214,6 +216,9 @@ let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
     version: dict->getInt("version", 0),
     discarded_status: dict->getOptionString("discarded_status"),
     data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
+    discarded_data: discardedDataDict.status != UnknownProcessingEntryStatus
+      ? Some(discardedDataDict)
+      : None,
   }
 }
 
