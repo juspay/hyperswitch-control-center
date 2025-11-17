@@ -33,6 +33,8 @@ let parseBussinessProfileJson = (
     is_manual_retry_enabled,
     always_enable_overcapture,
     payment_link_config,
+    is_external_vault_enabled,
+    external_vault_connector_details,
   } = profileRecord
 
   let profileInfo = [("profile_name", profile_name->JSON.Encode.string)]->Dict.fromArray
@@ -82,6 +84,11 @@ let parseBussinessProfileJson = (
 
   profileInfo->setOptionBool("is_auto_retries_enabled", is_auto_retries_enabled)
   profileInfo->setOptionInt("max_auto_retries_enabled", max_auto_retries_enabled)
+  profileInfo->setOptionString("is_external_vault_enabled", is_external_vault_enabled)
+  profileInfo->setOptionDict(
+    "external_vault_connector_details",
+    Some(external_vault_connector_details->Identity.genericTypeToDictOfJson),
+  )
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -185,6 +192,8 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
     "payment_link_config",
     Some(paymentLinkConfigUpdated->Identity.genericTypeToDictOfJson),
   )
+
+  Js.log2("paymentLinkDomainDict", paymentLinkDomainDict)
 
   paymentLinkDomainDict
 }
@@ -353,6 +362,18 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "always_enable_overcapture",
     valuesDict->getOptionBool("always_enable_overcapture"),
   )
+  profileDetailsDict->setOptionString(
+    "is_external_vault_enabled",
+    valuesDict->getOptionString("is_external_vault_enabled"),
+  )
+  profileDetailsDict->setOptionDict(
+    "external_vault_connector_details",
+    Some(
+      valuesDict
+      ->getOptionString("external_vault_connector_details")
+      ->Identity.genericTypeToDictOfJson,
+    ),
+  )
 
   let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
   if !(authenticationProductIds->getDictFromJsonObject->isEmptyDict) {
@@ -462,6 +483,7 @@ let validationFieldsMapper = key => {
   | UnknownValidateFields(key) => key
   | MaxAutoRetries => "max_auto_retries_enabled"
   | ThreeDsRequestorAppUrl => "three_ds_requestor_app_url"
+  | VaultProcessorDetails => "is_external_vault_enabled"
   }
 }
 
@@ -608,6 +630,27 @@ let validateMerchantAccountForm = (
           )
         }
       }
+    | VaultProcessorDetails => {
+        let isExternalVaultEnabled =
+          getString(valuesDict, "is_external_vault_enabled", "")->getNonEmptyString
+        if isExternalVaultEnabled == Some("enable") {
+          let vaultProcessorDetailsDict =
+            valuesDict->getDictfromDict("external_vault_connector_details")
+          let vaultConnectorId =
+            vaultProcessorDetailsDict
+            ->getString("vault_connector_id", "")
+            ->getNonEmptyString
+          switch vaultConnectorId {
+          | Some(_) => ()
+          | _ =>
+            Dict.set(
+              errors,
+              "external_vault_connector_details",
+              "Please select a vault connector"->JSON.Encode.string,
+            )
+          }
+        }
+      }
     | _ => {
         let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
         switch value {
@@ -733,6 +776,8 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   always_enable_overcapture: None,
   billing_processor_id: None,
   payment_link_config: None,
+  is_external_vault_enabled: None,
+  external_vault_connector_details: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

@@ -161,6 +161,7 @@ let validationFieldsReverseMapperV2 = value => {
   | "return_url" => ReturnUrl
   | "is_auto_retries_enabled" => AutoRetry
   | "authentication_connector_details" => AuthenticationConnectorDetails
+  | "is_external_vault_enabled" => VaultProcessorDetails
   | _ => UnknownValidateFields(value)
   }
 }
@@ -260,7 +261,23 @@ let validateMerchantAccountFormV2 = (
         | _ => ()
         }
       }
-
+    | VaultProcessorDetails => {
+        let vaultProcessorDetailsDict =
+          valuesDict->getDictfromDict("external_vault_connector_details")
+        let vaultConnectorId =
+          vaultProcessorDetailsDict
+          ->getString("vault_connector_id", "")
+          ->getNonEmptyString
+        switch vaultConnectorId {
+        | Some(_) => ()
+        | _ =>
+          Dict.set(
+            errors,
+            "external_vault_connector_details",
+            "Please select a vault connector"->JSON.Encode.string,
+          )
+        }
+      }
     | _ => {
         let value = getString(valuesDict, key, "")->getNonEmptyString
         switch value {

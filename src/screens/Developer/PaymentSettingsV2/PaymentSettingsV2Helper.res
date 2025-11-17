@@ -49,3 +49,46 @@ let authenticationConnectors = connectorList =>
     ),
     ~isRequired=false,
   )
+
+let vaultConnectors = connectorList => {
+  FormRenderer.makeFieldInfo(
+    ~label="Vault Connectors",
+    ~name="external_vault_connector_details.vault_connector_id",
+    ~customInput=InputFields.selectInput(
+      ~options=connectorList,
+      ~buttonText="Select Field",
+      ~customButtonStyle="!rounded-lg",
+      ~fixedDropDownDirection=BottomRight,
+      ~dropdownClassName="!max-h-15-rem !overflow-auto",
+    ),
+    ~isRequired=true,
+  )
+}
+
+let customExternalVaultEnabled = (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  let currentValue = switch input.value->JSON.Classify.classify {
+  | String(str) => str === "enable"
+  | _ => false
+  }
+
+  let form = ReactFinalForm.useForm()
+
+  let handleChange = newValue => {
+    let valueToSet = newValue ? "enable" : "skip"
+    input.onChange(valueToSet->Identity.anyTypeToReactEvent)
+    if !newValue {
+      form.change("external_vault_connector_details", JSON.Encode.null)
+    }
+  }
+
+  <BoolInput.BaseComponent
+    isSelected={currentValue}
+    setIsSelected={handleChange}
+    isDisabled=false
+    boolCustomClass="rounded-lg"
+    toggleEnableColor="bg-nd_primary_blue-450"
+  />
+}
