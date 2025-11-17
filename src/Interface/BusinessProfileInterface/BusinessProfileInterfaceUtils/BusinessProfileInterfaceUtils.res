@@ -47,11 +47,108 @@ let convertDictToOptionalJson = dict => {
   !(dict->isEmptyDict) ? Some(dict->JSON.Encode.object) : Some(JSON.Encode.null)
 }
 
+let getBackgroundImage = backgroundImageDict => {
+  {
+    url: backgroundImageDict->getString("url", ""),
+    position: backgroundImageDict->getString("position", ""),
+    size: backgroundImageDict->getString("size", ""),
+  }
+}
+
+let styleConfigMapper = paymentLinkConfigDict => {
+  let backgroundImageDict = paymentLinkConfigDict->getDictfromDict("background_image")
+
+  {
+    theme: paymentLinkConfigDict->getOptionString("theme"),
+    logo: paymentLinkConfigDict->getOptionString("logo"),
+    seller_name: paymentLinkConfigDict->getOptionString("seller_name"),
+    sdk_layout: paymentLinkConfigDict->getOptionString("sdk_layout"),
+    display_sdk_only: paymentLinkConfigDict->getOptionBool("display_sdk_only"),
+    enabled_saved_payment_method: paymentLinkConfigDict->getOptionBool(
+      "enabled_saved_payment_method",
+    ),
+    hide_card_nickname_field: paymentLinkConfigDict->getOptionBool("hide_card_nickname_field"),
+    show_card_form_by_default: paymentLinkConfigDict->getOptionBool("show_card_form_by_default"),
+    transaction_details: paymentLinkConfigDict->Dict.get("transaction_details"),
+    background_image: backgroundImageDict->isEmptyDict
+      ? None
+      : Some(backgroundImageDict->getBackgroundImage),
+    details_layout: paymentLinkConfigDict->getOptionString("details_layout"),
+    payment_button_text: paymentLinkConfigDict->getOptionString("payment_button_text"),
+    custom_message_for_card_terms: paymentLinkConfigDict->getOptionString(
+      "custom_message_for_card_terms",
+    ),
+    payment_button_colour: paymentLinkConfigDict->getOptionString("payment_button_colour"),
+    skip_status_screen: paymentLinkConfigDict->getOptionBool("skip_status_screen"),
+    payment_button_text_colour: paymentLinkConfigDict->getOptionString(
+      "payment_button_text_colour",
+    ),
+    background_colour: paymentLinkConfigDict->getOptionString("background_colour"),
+    sdk_ui_rules: paymentLinkConfigDict->Dict.get("sdk_ui_rules"),
+    payment_link_ui_rules: paymentLinkConfigDict->Dict.get("payment_link_ui_rules"),
+    enable_button_only_on_form_ready: paymentLinkConfigDict->getOptionBool(
+      "enable_button_only_on_form_ready",
+    ),
+    payment_form_header_text: paymentLinkConfigDict->getOptionString("payment_form_header_text"),
+    payment_form_label_type: paymentLinkConfigDict->getOptionString("payment_form_label_type"),
+    show_card_terms: paymentLinkConfigDict->getOptionString("show_card_terms"),
+    is_setup_mandate_flow: paymentLinkConfigDict->getOptionBool("is_setup_mandate_flow"),
+    color_icon_card_cvc_error: paymentLinkConfigDict->getOptionString("color_icon_card_cvc_error"),
+  }
+}
+
+let paymentLinkConfigMapper = paymentLinkConfigDict => {
+  let backgroundImageDict = paymentLinkConfigDict->getDictfromDict("background_image")
+
+  {
+    theme: paymentLinkConfigDict->getOptionString("theme"),
+    logo: paymentLinkConfigDict->getOptionString("logo"),
+    seller_name: paymentLinkConfigDict->getOptionString("seller_name"),
+    sdk_layout: paymentLinkConfigDict->getOptionString("sdk_layout"),
+    display_sdk_only: paymentLinkConfigDict->getOptionBool("display_sdk_only"),
+    enabled_saved_payment_method: paymentLinkConfigDict->getOptionBool(
+      "enabled_saved_payment_method",
+    ),
+    hide_card_nickname_field: paymentLinkConfigDict->getOptionBool("hide_card_nickname_field"),
+    show_card_form_by_default: paymentLinkConfigDict->getOptionBool("show_card_form_by_default"),
+    transaction_details: paymentLinkConfigDict->Dict.get("transaction_details"),
+    background_image: backgroundImageDict->isEmptyDict
+      ? None
+      : Some(backgroundImageDict->getBackgroundImage),
+    details_layout: paymentLinkConfigDict->getOptionString("details_layout"),
+    payment_button_text: paymentLinkConfigDict->getOptionString("payment_button_text"),
+    custom_message_for_card_terms: paymentLinkConfigDict->getOptionString(
+      "custom_message_for_card_terms",
+    ),
+    payment_button_colour: paymentLinkConfigDict->getOptionString("payment_button_colour"),
+    skip_status_screen: paymentLinkConfigDict->getOptionBool("skip_status_screen"),
+    payment_button_text_colour: paymentLinkConfigDict->getOptionString(
+      "payment_button_text_colour",
+    ),
+    background_colour: paymentLinkConfigDict->getOptionString("background_colour"),
+    sdk_ui_rules: paymentLinkConfigDict->Dict.get("sdk_ui_rules"),
+    payment_link_ui_rules: paymentLinkConfigDict->Dict.get("payment_link_ui_rules"),
+    enable_button_only_on_form_ready: paymentLinkConfigDict->getOptionBool(
+      "enable_button_only_on_form_ready",
+    ),
+    payment_form_header_text: paymentLinkConfigDict->getOptionString("payment_form_header_text"),
+    payment_form_label_type: paymentLinkConfigDict->getOptionString("payment_form_label_type"),
+    show_card_terms: paymentLinkConfigDict->getOptionString("show_card_terms"),
+    is_setup_mandate_flow: paymentLinkConfigDict->getOptionBool("is_setup_mandate_flow"),
+    color_icon_card_cvc_error: paymentLinkConfigDict->getOptionString("color_icon_card_cvc_error"),
+    branding_visibility: paymentLinkConfigDict->getOptionBool("branding_visibility"),
+    domain_name: paymentLinkConfigDict->getOptionString("domain_name"),
+    allowed_domains: paymentLinkConfigDict->Dict.get("allowed_domains"),
+    business_specific_configs: paymentLinkConfigDict->Dict.get("business_specific_configs"),
+  }
+}
+
 let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
   let jsonDict = input->getDictFromJsonObject
   let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookdict = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   {
     profile_id: jsonDict->getString("profile_id", ""),
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -99,5 +196,10 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     collect_billing_details_from_wallet_connector_if_required: jsonDict->getOptionBool(
       "collect_billing_details_from_wallet_connector_if_required",
     ),
+    billing_processor_id: jsonDict->getOptionString("billing_processor_id"),
+    payment_link_config: paymentLinkConfig->isEmptyDict
+      ? None
+      : Some(paymentLinkConfig->paymentLinkConfigMapper),
+    split_txns_enabled: jsonDict->getOptionString("split_txns_enabled"),
   }
 }

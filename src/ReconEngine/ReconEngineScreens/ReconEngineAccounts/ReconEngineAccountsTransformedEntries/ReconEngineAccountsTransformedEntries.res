@@ -43,7 +43,8 @@ let make = () => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
-          isContainingStringLowercase((obj.status :> string), searchText)
+          isContainingStringLowercase((obj.status :> string), searchText) ||
+          isContainingStringLowercase(obj.transformation_history_id, searchText)
         | None => false
         }
       })
@@ -179,7 +180,7 @@ let make = () => {
           filters={<TableSearchFilter
             data={stagingData->Array.map(Nullable.make)}
             filterLogic
-            placeholder="Search Staging Entry ID or Status"
+            placeholder="Search Transformed Entry or Transformation History ID"
             customSearchBarWrapperWidth="w-full lg:w-1/3"
             customInputBoxWidth="w-full rounded-xl"
             searchVal=searchText

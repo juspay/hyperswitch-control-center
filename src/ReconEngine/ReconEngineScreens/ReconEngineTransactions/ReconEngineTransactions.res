@@ -10,7 +10,6 @@ let make = () => {
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-
       let accountData = await getAccounts()
       setAccountData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)

@@ -45,15 +45,21 @@ class SignInPage {
 
   // 2FA setup
   get headerText2FA() {
-    return cy.get('[class="text-2xl font-semibold leading-8 text-grey-900"]');
+    return cy.get('[class="px-4 text-2xl text-fs-20 font-semibold leading-8"]');
   }
 
   get instructions2FA() {
-    return cy.get('[class="flex flex-col gap-10 col-span-3"]');
+    return cy.get('[class="flex flex-col gap-4"]');
+  }
+
+  get otpBoxHeader() {
+    return cy.get(
+      '[class="text-fs-15 mx-4 opacity-80 text-gray-700 whitespace-nowrap"]',
+    );
   }
 
   get otpBox2FA() {
-    return cy.get('[class="flex flex-col gap-4 items-center"]');
+    return cy.get('[class="flex justify-center relative "]');
   }
 
   get skip2FAButton() {
@@ -61,7 +67,7 @@ class SignInPage {
   }
 
   get enable2FA() {
-    return cy.get('[data-button-for="enable2FA"]');
+    return cy.get('[data-button-for="enterCode"]');
   }
 
   get footerText2FA() {

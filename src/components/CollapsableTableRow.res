@@ -20,6 +20,7 @@ let make = (
   ~selectedRows=[],
   ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
   ~rowData: option<JSON.t>=?,
+  ~isRowSelectable: option<JSON.t => bool>=?,
 ) => {
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
   let headingArray = []
@@ -29,6 +30,14 @@ let make = (
     headingArray->Array.push(item.title)->ignore
   })
   let borderRadius = "rounded-md"
+
+  let isSelectable = React.useMemo(() => {
+    switch (isRowSelectable, rowData) {
+    | (Some(checkFn), Some(data)) => checkFn(data)
+    | (None, _) => true
+    | _ => false
+    }
+  }, (isRowSelectable, rowData))
 
   let isRowSelected = React.useMemo(() => {
     switch rowData {
@@ -41,8 +50,8 @@ let make = (
   }, (selectedRows, rowData))
 
   let handleRowSelection = () => {
-    switch (onRowSelect, rowData) {
-    | (Some(selectFn), Some(data)) =>
+    switch (onRowSelect, rowData, isSelectable) {
+    | (Some(selectFn), Some(data), true) =>
       if isRowSelected {
         selectFn(_ => selectedRows->Array.filter(row => row !== data))
       } else {
@@ -60,9 +69,11 @@ let make = (
           <td className="h-full p-0 align-top border-t border-jp-gray-500 dark:border-jp-gray-960">
             <div className="h-full box-border pl-4 py-3">
               <div className="flex flex-row gap-3 items-center">
-                <div onClick={_ => handleRowSelection()}>
-                  <CheckBoxIcon isSelected={isRowSelected} checkboxDimension="h-4 w-4" />
-                </div>
+                <RenderIf condition={isSelectable}>
+                  <div onClick={_ => handleRowSelection()} className="cursor-pointer">
+                    <CheckBoxIcon isSelected={isRowSelected} checkboxDimension="h-4 w-4" />
+                  </div>
+                </RenderIf>
               </div>
             </div>
           </td>

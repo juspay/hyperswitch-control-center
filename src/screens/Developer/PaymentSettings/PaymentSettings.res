@@ -41,7 +41,7 @@ module AuthenticationInput = {
         formState.values
         ->getDictFromJsonObject
         ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
+      let key = outGoingWebhookDict->Dict.keysToArray->getValueFromArray(index, "")
       let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
       switch outGoingWebHookVal {
       | Some(value) => (key, value)
@@ -146,7 +146,7 @@ module WebHookAuthenticationHeaders = {
       setShowModal(_ => false)
     }
     React.useEffect(() => {
-      let isEmpty = outGoingWebhookDict->LogicUtils.isEmptyDict
+      let isEmpty = outGoingWebhookDict->isEmptyDict
       setDisabled(_ => !isEmpty)
       setAllowEdit(_ => isEmpty)
       None
@@ -157,8 +157,7 @@ module WebHookAuthenticationHeaders = {
           className={`text-xl dark:text-jp-gray-text_darktheme dark:text-opacity-50  !text-grey-700 font-semibold ml-4`}>
           {"Custom Headers"->React.string}
         </p>
-        <RenderIf
-          condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict) && isDisabled && !allowEdit}>
+        <RenderIf condition={!(outGoingWebhookDict->isEmptyDict) && isDisabled && !allowEdit}>
           <div
             className="flex gap-2 items-center cursor-pointer"
             onClick={_ => setShowModal(_ => true)}>
@@ -253,6 +252,173 @@ module WebHookSection = {
       render={({handleSubmit}) => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-8 h-full w-full py-6 px-4">
           <WebHookAuthenticationHeaders setAllowEdit allowEdit />
+          <DesktopRow>
+            <div className="flex justify-end w-full gap-2">
+              <RenderIf condition=allowEdit>
+                <SubmitButton
+                  text="Update"
+                  buttonType=Button.Primary
+                  buttonSize=Button.Medium
+                  disabledParamter={!allowEdit}
+                />
+                <Button
+                  buttonType=Button.Secondary
+                  onClick={_ =>
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/payment-settings"),
+                    )}
+                  text="Cancel"
+                />
+              </RenderIf>
+            </div>
+          </DesktopRow>
+        </form>
+      }}
+    />
+  }
+}
+
+module PaymentLinkDomainFields = {
+  @react.component
+  let make = (~setAllowEdit, ~allowEdit) => {
+    open Typography
+    open FormRenderer
+    open LogicUtils
+
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let (isDisabled, setDisabled) = React.useState(_ => true)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+
+    let paymentLinkConfigDict =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("payment_link_config")
+
+    let allowEditConfiguration = () => {
+      setDisabled(_ => false)
+      setAllowEdit(_ => true)
+      setShowModal(_ => false)
+    }
+
+    React.useEffect(() => {
+      let isEmpty = paymentLinkConfigDict->isEmptyDict
+      setDisabled(_ => !isEmpty)
+      setAllowEdit(_ => isEmpty)
+      None
+    }, [])
+
+    <>
+      <div className="flex flex-row justify-between items-center gap-6">
+        <p className={`!text-grey-700 ml-4 ${heading.md.semibold}`}>
+          {"Payment Link Domain"->React.string}
+        </p>
+        <RenderIf condition={!(paymentLinkConfigDict->isEmptyDict) && isDisabled && !allowEdit}>
+          <div
+            className="flex gap-2 items-center cursor-pointer"
+            onClick={_ => setShowModal(_ => true)}>
+            <Icon name="nd-edit" size=14 />
+            <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+          </div>
+        </RenderIf>
+      </div>
+      <div className="flex flex-col gap-2 ml-4">
+        <FieldRenderer
+          field={DeveloperUtils.domainName(isDisabled)}
+          labelClass={`!text-grey-700 ${body.md.semibold}`}
+          fieldWrapperClass="max-w-xl"
+        />
+        <FieldRenderer
+          field={DeveloperUtils.allowedDomains(isDisabled)}
+          labelClass={`!text-grey-700 ${body.md.semibold}`}
+          fieldWrapperClass="max-w-xl"
+        />
+      </div>
+      <Modal
+        showModal
+        setShowModal
+        modalClass="w-full md:w-4/12 mx-auto my-40 border-t-8 border-t-orange-960 rounded-xl">
+        <div className="relative flex items-start px-4 pb-10 pt-8 gap-4">
+          <Icon
+            name="warning-outlined" size=25 className="w-8" onClick={_ => setShowModal(_ => false)}
+          />
+          <div className="flex flex-col gap-5">
+            <p className="font-bold text-2xl"> {"Edit the Current Configuration"->React.string} </p>
+            <p className="text-hyperswitch_black opacity-50 font-medium">
+              {"Editing the current configuration will override the current active configuration."->React.string}
+            </p>
+          </div>
+          <Icon
+            className="absolute top-2 right-2"
+            name="hswitch-close"
+            size=22
+            onClick={_ => setShowModal(_ => false)}
+          />
+        </div>
+        <div className="flex items-end justify-end gap-4">
+          <Button
+            buttonType=Button.Primary onClick={_ => allowEditConfiguration()} text="Proceed"
+          />
+          <Button
+            buttonType=Button.Secondary onClick={_ => setShowModal(_ => false)} text="Cancel"
+          />
+        </div>
+      </Modal>
+    </>
+  }
+}
+
+module PaymentLinkDomain = {
+  @react.component
+  let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
+    open APIUtils
+    open LogicUtils
+    open FormRenderer
+    open MerchantAccountUtils
+    open HSwitchSettingTypes
+
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let (allowEdit, setAllowEdit) = React.useState(_ => false)
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+
+    let onSubmit = async (values, _) => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+
+        let valuesDict = values->getDictFromJsonObject
+        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+        let body = valuesDict->JSON.Encode.object->getPaymentLinkDomainPayload->JSON.Encode.object
+        let businessProfileResponse = await updateDetails(url, body, Post)
+        setBusinessProfile(_ =>
+          businessProfileResponse->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+        )
+        fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
+
+        showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        }
+      }
+      Nullable.null
+    }
+
+    <ReactFinalForm.Form
+      key="payment_link_domain"
+      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      subscription=ReactFinalForm.subscribeToValues
+      onSubmit
+      validate={values =>
+        validatePaymentLinkDomainForm(~values, ~fieldsToValidate=[DomainName, AllowedDomains])}
+      render={({handleSubmit}) => {
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 h-full w-full py-6 px-4">
+          <PaymentLinkDomainFields setAllowEdit allowEdit />
           <DesktopRow>
             <div className="flex justify-end w-full gap-2">
               <RenderIf condition=allowEdit>
@@ -378,9 +544,7 @@ module CollectDetails = {
                 <RadioIcon
                   isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
                 />
-                <div className=p2RegularTextStyle>
-                  {option.name->LogicUtils.snakeToTitle->React.string}
-                </div>
+                <div className=p2RegularTextStyle> {option.name->snakeToTitle->React.string} </div>
               </div>
             )
             ->React.array}
@@ -393,28 +557,17 @@ module CollectDetails = {
 
 module AutoRetries = {
   @react.component
-  let make = (~setCheckMaxAutoRetry) => {
+  let make = () => {
     open FormRenderer
     open DeveloperUtils
     open LogicUtils
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let form = ReactFinalForm.useForm()
     let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
     let isAutoRetryEnabled =
       formState.values->getDictFromJsonObject->getBool("is_auto_retries_enabled", false)
-
-    React.useEffect(() => {
-      if !isAutoRetryEnabled {
-        form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
-        setCheckMaxAutoRetry(_ => false)
-      } else {
-        setCheckMaxAutoRetry(_ => true)
-      }
-      None
-    }, [isAutoRetryEnabled])
 
     <>
       <DesktopRow>
@@ -543,7 +696,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
   let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
@@ -557,9 +709,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
       [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
-    if checkMaxAutoRetry {
-      defaultFieldsToValidate->Array.push(MaxAutoRetries)
-    }
+    defaultFieldsToValidate->Array.push(MaxAutoRetries)
     defaultFieldsToValidate
   }
 
@@ -609,7 +759,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
-              MerchantAccountUtils.validateMerchantAccountForm(
+              validateMerchantAccountForm(
                 ~values,
                 ~fieldsToValidate={fieldsToValidate()},
                 ~isLiveMode=featureFlagDetails.isLiveMode,
@@ -741,7 +891,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </DesktopRow>
                 <ClickToPaySection />
-                <AutoRetries setCheckMaxAutoRetry />
+                <AutoRetries />
                 <DesktopRow>
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
@@ -801,10 +951,15 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                <FormValuesSpy />
               </form>
             }}
           />
+        </div>
+        <div className="py-4 md:py-10 h-full flex flex-col">
+          <div
+            className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960 ${bgClass}`}>
+            <PaymentLinkDomain businessProfileDetails setBusinessProfile setScreenState profileId />
+          </div>
         </div>
         <div className={` py-4 md:py-10 h-full flex flex-col `}>
           <div
