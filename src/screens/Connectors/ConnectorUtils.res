@@ -52,6 +52,8 @@ let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 
 let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
+let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -764,6 +766,10 @@ let ziftInfo = {
   description: "Zift is a modern payment technology provider offering embedded and integrated payment solutions for SaaS platforms, POS systems, and businesses of all sizes. With its Payments-as-a-Service (PaaS) model, Zift enables seamless onboarding, transaction processing, and API-driven integrations—helping companies deliver smooth, secure, and scalable payment experiences.",
 }
 
+let vgsInfo = {
+  description: "Very Good Security (VGS) is a data security platform that helps businesses protect sensitive information such as payment card data, personally identifiable information (PII), and other confidential data. VGS provides solutions for data tokenization, encryption, and secure data storage, allowing businesses to reduce their compliance scope and mitigate the risks associated with handling sensitive data.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -926,6 +932,12 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   }
 }
 
+let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
+  switch vaultProcessor {
+  | VGS => "vgs"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
@@ -937,6 +949,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
     pmAuthenticationConnector->getPMAuthenticationConnectorNameString
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorNameString
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -1097,6 +1110,11 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
+    | _ => UnknownConnector("Not known")
+    }
+  | VaultProcessor =>
+    switch connector {
+    | "vgs" => VaultProcessor(VGS)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -1264,6 +1282,12 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   }
 }
 
+let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
+  switch vaultProcessor {
+  | VGS => vgsInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
@@ -1274,6 +1298,7 @@ let getConnectorInfo = connector => {
     pmAuthenticationConnector->getOpenBankingProcessorInfo
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorInfo
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -1389,6 +1414,7 @@ let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
   | TaxProcessor(_) => "tax_processor"
   | FRM(_) => "payment_vas"
   | BillingProcessor(_) => "billing_processor"
+  | VaultProcessor(_) => "vault_processor"
   | UnknownConnector(str) => str
   }
 }
@@ -2193,6 +2219,12 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   }
 }
 
+let getDisplayNameForVaultProcessor = vaultProcessor => {
+  switch vaultProcessor {
+  | VGS => "VGS"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
@@ -2205,6 +2237,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
     pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
   | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
   | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -2219,6 +2252,7 @@ let connectorTypeTuple = connectorType => {
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
   | "billing_processor" => (BillingProcessor, BillingProcessor)
+  | "vault_processor" => (VaultProcessor, VaultProcessor)
   | _ => (PaymentProcessor, Processor)
   }
 }
@@ -2231,6 +2265,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor
   | "billing_processor" => BillingProcessor
+  | "vault_processor" => VaultProcessor
   | "payment_processor"
   | _ =>
     PaymentProcessor
@@ -2246,6 +2281,7 @@ let connectorTypeTypedValueToStringMapper = val => {
   | TaxProcessor => "tax_processor"
   | PaymentProcessor => "payment_processor"
   | BillingProcessor => "billing_processor"
+  | VaultProcessor => "vault_processor"
   }
 }
 

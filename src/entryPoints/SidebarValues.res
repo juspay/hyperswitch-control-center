@@ -197,6 +197,18 @@ let billingProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let vaultProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Vault Processor",
+    link: `/vault-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.vaultProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -206,6 +218,7 @@ let connectors = (
   ~isPMAuthenticationProcessor,
   ~isTaxProcessor,
   ~isBillingProcessor,
+  ~isVaultProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -230,6 +243,10 @@ let connectors = (
   }
   if isBillingProcessor {
     connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+  }
+
+  if isVaultProcessor {
+    connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -677,6 +694,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     paymentSettingsV2,
     routingAnalytics,
     billingProcessor,
+    vaultProcessor,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -695,6 +713,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~isTaxProcessor=taxProcessor,
       ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
       ~userHasResourceAccess,
     ),
     default->analytics(
