@@ -314,7 +314,7 @@ let make = (~id) => {
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
-      path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
+      path=[{title: "List of Invoices", link: "/v2/recovery/invoices"}]
       currentPageTitle=id
       cursorStyle="cursor-pointer"
       customTextClass="text-nd_gray-400"

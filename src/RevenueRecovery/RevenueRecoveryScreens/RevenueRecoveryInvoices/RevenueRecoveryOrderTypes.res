@@ -59,3 +59,7 @@ type status =
   | RequiresConfirmation
   | PartiallyCaptured
   | None
+
+type recoveryStatusType =
+  | Finish
+  | Scheduled

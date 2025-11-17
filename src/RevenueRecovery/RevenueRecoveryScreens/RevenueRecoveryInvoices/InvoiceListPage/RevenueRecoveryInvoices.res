@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   open APIUtils
-  open RevenueRecoveryTypes
   open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -184,7 +183,7 @@ let make = () => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading
-          title="Invoices" customTitleStyle
+          title="List of Invoices" customTitleStyle
         />
       </div>
       //<div className="flex"> {filtersUI} </div>

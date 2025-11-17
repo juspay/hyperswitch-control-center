@@ -183,13 +183,13 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.status = statusLabe
   | _ => None
   }
 
-let schedulerStatusVariantMapper: string => RevenueRecoveryTypes.schedulerStatusType = statusLabel =>
+let schedulerStatusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryStatusType = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "finish" => Finish
   | "scheduled" | _ => Scheduled
   }
 
-let schedulerStatusStringMapper: RevenueRecoveryTypes.schedulerStatusType => string = statusLabel =>
+let schedulerStatusStringMapper: RevenueRecoveryOrderTypes.recoveryStatusType => string = statusLabel =>
   switch statusLabel {
   | Finish => "finish"
   | Scheduled => "scheduled"
