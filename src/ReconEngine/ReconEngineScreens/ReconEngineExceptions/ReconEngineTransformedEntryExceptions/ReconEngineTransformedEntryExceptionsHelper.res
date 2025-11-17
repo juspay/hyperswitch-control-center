@@ -432,7 +432,7 @@ module TransformedEntryDetails = {
 module TransformedEntryDetailsInfo = {
   @react.component
   let make = (
-    ~currentTransactionDetails: ReconEngineTypes.processingEntryType,
+    ~currentProcessingEntryDetails: ReconEngineTypes.processingEntryType,
     ~detailsFields: array<ReconEngineExceptionEntity.processingColType>,
   ) => {
     open ReconEngineExceptionEntity
@@ -443,7 +443,7 @@ module TransformedEntryDetailsInfo = {
     } else {
       "w-1/4"
     }
-    let isArchived = currentTransactionDetails.status == Archived
+    let isArchived = currentProcessingEntryDetails.status == Archived
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
@@ -452,7 +452,7 @@ module TransformedEntryDetailsInfo = {
         </p>
       </RenderIf>
       <TransformedEntryDetails
-        data=currentTransactionDetails
+        data=currentProcessingEntryDetails
         getHeading=getProcessingHeading
         getCell=getProcessingCell
         detailsFields
@@ -472,23 +472,28 @@ module AuditTrail = {
       }
     }, [allTransactionDetails])
 
-    let sections = allTransactionDetails->Array.map((transaction: processingEntryType) => {
+    let sections = allTransactionDetails->Array.map((processingEntry: processingEntryType) => {
       let customComponent = {
-        AuditTrailStepIndicatorTypes.id: transaction.version->Int.toString,
+        AuditTrailStepIndicatorTypes.id: processingEntry.version->Int.toString,
         customComponent: Some(
           <TransformedEntryDetailsInfo
-            currentTransactionDetails=transaction
+            currentProcessingEntryDetails=processingEntry
             detailsFields=[OrderId, Status, EntryType, EffectiveAt]
           />,
         ),
         onClick: _ => {
           ()
         },
+        reasonText: switch processingEntry.discarded_data {
+        | Some(discardedData) =>
+          discardedData.reason->isNonEmptyString ? Some(discardedData.reason) : None
+        | None => None
+        },
       }
       customComponent
     })
 
-    <div className="mt-2">
+    <div className="mt-6">
       <AuditTrailStepIndicator sections />
     </div>
   }

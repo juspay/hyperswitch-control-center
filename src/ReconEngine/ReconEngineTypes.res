@@ -224,6 +224,11 @@ type processingEntryDataType = {
   needs_manual_review_type: needsManualReviewType,
 }
 
+type processingEntryDiscardedDataType = {
+  status: processingEntryStatus,
+  reason: string,
+}
+
 type processingEntryType = {
   id: string,
   staging_entry_id: string,
@@ -241,6 +246,7 @@ type processingEntryType = {
   version: int,
   discarded_status: option<string>,
   data: processingEntryDataType,
+  discarded_data: option<processingEntryDiscardedDataType>,
 }
 
 type processedEntryType = {

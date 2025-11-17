@@ -89,7 +89,7 @@ let make = (~id) => {
       />}>
       <div className="flex flex-col gap-4">
         <TransformedEntryDetailsInfo
-          currentTransactionDetails={currentTransformedEntryDetails}
+          currentProcessingEntryDetails={currentTransformedEntryDetails}
           detailsFields=[StagingEntryId, Status, AccountName, EffectiveAt]
         />
         <Tabs

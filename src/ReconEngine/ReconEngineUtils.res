@@ -325,7 +325,16 @@ let processingEntryDataItemToObjMapper = (dataDict): processingEntryDataType => 
   }
 }
 
+let processingEntryDiscardedDataItemToObjMapper = (dataDict): processingEntryDiscardedDataType => {
+  {
+    reason: dataDict->getString("reason", ""),
+    status: dataDict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+  }
+}
+
 let processingItemToObjMapper = (dict): processingEntryType => {
+  let discardedDataDict =
+    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -345,6 +354,9 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     version: dict->getInt("version", 0),
     discarded_status: dict->getOptionString("discarded_status"),
     data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
+    discarded_data: discardedDataDict.status != UnknownProcessingEntryStatus
+      ? Some(discardedDataDict)
+      : None,
   }
 }
 
