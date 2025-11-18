@@ -103,8 +103,11 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
 
-    clearPageDetails()->ignore
-    None
+    Some(
+      () => {
+        clearPageDetails()
+      },
+    )
   }, (offset, searchText))
 
   open ResultsTableUtils
