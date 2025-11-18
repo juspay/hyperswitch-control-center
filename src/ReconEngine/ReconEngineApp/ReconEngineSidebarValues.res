@@ -24,7 +24,6 @@ let transformedEntriesExceptions = {
   SubLevelLink({
     name: "Transformed Entries",
     link: "/v1/recon-engine/exceptions/transformed-entries",
-    searchOptions: [],
     access: Access,
   })
 }
@@ -33,7 +32,6 @@ let reconExceptions = {
   SubLevelLink({
     name: "Recon",
     link: "/v1/recon-engine/exceptions/recon",
-    searchOptions: [],
     access: Access,
   })
 }
@@ -62,7 +60,6 @@ let sources = {
   SubLevelLink({
     name: "Sources",
     link: "/v1/recon-engine/sources",
-    searchOptions: [],
     access: Access,
   })
 }
@@ -71,7 +68,6 @@ let transformation = {
   SubLevelLink({
     name: "Transformation",
     link: "/v1/recon-engine/transformation",
-    searchOptions: [],
     access: Access,
   })
 }
@@ -80,7 +76,6 @@ let transformedEntries = {
   SubLevelLink({
     name: "Transformed Entries",
     link: "/v1/recon-engine/transformed-entries",
-    searchOptions: [],
     access: Access,
   })
 }
