@@ -7,6 +7,7 @@ let make = () => {
   open LogicUtils
   open ReconEngineTypes
   open ReconEngineTransformedEntryExceptionsUtils
+  open HSAnalyticsUtils
 
   let getGetProcessingEntries = useGetProcessingEntries()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
@@ -18,9 +19,6 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -103,7 +101,7 @@ let make = () => {
         initialFilters={initialDisplayFilters(~accountOptions)}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={HSAnalyticsUtils.initialFixedFilterFields(
+        initialFixedFilters={initialFixedFilterFields(
           null,
           ~events=dateDropDownTriggerMixpanelCallback,
         )}
@@ -111,7 +109,7 @@ let make = () => {
         tabNames=filterKeys
         key="ReconEngineTransformedEntriesExceptionsFilters"
         updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        filterFieldsPortalName={filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
         setOffset
