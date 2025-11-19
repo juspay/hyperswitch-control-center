@@ -81,7 +81,7 @@ let make = (~onClick) => {
     try {
       let _statusResponse = await acceptInviteWithStatusCheck(body)
 
-      if errorMessage === "" {
+      if errorMessage->LogicUtils.isNonEmptyString {
         setIsProcessingToken(_ => true)
         await generateTokenForceSetPassword(body)
       }
@@ -94,7 +94,7 @@ let make = (~onClick) => {
     }
   }
 
-  React.useEffect(() => {
+  let handleInviteFlow = () => {
     open CommonAuthUtils
     open TwoFaUtils
     open GlobalVars
@@ -105,17 +105,18 @@ let make = (~onClick) => {
     | Some(token) => token->generateBodyForEmailRedirection->processInviteFlow->ignore
     | None => setErrorMessage(_ => "Token not received")
     }
+  }
 
+  React.useEffect(() => {
+    handleInviteFlow()
     None
   }, [])
 
   <EmailVerifyScreen
     errorMessage
     onClick
-    trasitionMessage={if isProcessingToken {
-      "Accepting invite... You will be redirected to the Dashboard.."
-    } else {
-      "Processing invitation... Please wait..."
-    }}
+    trasitionMessage={isProcessingToken
+      ? "Accepting invite... You will be redirected to the Dashboard.."
+      : "Processing invitation... Please wait..."}
   />
 }
