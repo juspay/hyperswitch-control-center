@@ -145,22 +145,6 @@ let getHeadingAndSubHeadingForMismatch = (
   (mismatchHeading, mismatchSubHeading)
 }
 
-let validateReasonField = (values: JSON.t) => {
-  let data = values->getDictFromJsonObject
-  let errors = Dict.make()
-
-  let errorMessage = if data->getString("reason", "")->isEmptyString {
-    "Remark cannot be empty!"
-  } else {
-    ""
-  }
-  if errorMessage->isNonEmptyString {
-    Dict.set(errors, "Error", errorMessage->JSON.Encode.string)
-  }
-
-  errors->JSON.Encode.object
-}
-
 let exceptionTransactionEntryItemToItemMapper = (
   dict
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
@@ -233,9 +217,8 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
   let isMetadataChanged = {
     let currentMetadata = currentData->getJsonObjectFromDict("metadata")
-    let currentMetadataJson = currentMetadata
     let initialMetadataJson = initialMetadata->JSON.Encode.object
-    currentMetadataJson->JSON.stringify != initialMetadataJson->JSON.stringify
+    currentMetadata->JSON.stringify != initialMetadataJson->JSON.stringify
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
@@ -549,7 +532,7 @@ let constructManualReconciliationBody = (
 
 let getResolutionModalConfig = (
   exceptionStage: ReconEngineExceptionTransactionTypes.exceptionResolutionStage,
-): ReconEngineExceptionTransactionTypes.resolutionConfig => {
+): ReconEngineExceptionsTypes.resolutionConfig => {
   switch exceptionStage {
   | ResolvingException(VoidTransaction) => {
       heading: "Ignore Transaction",
@@ -824,6 +807,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
 }
 
 let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
+  open ReconEngineExceptionsTypes
   open ReconEngineExceptionTransactionTypes
   switch exceptionStage {
   | ResolvingException(EditEntry) =>

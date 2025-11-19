@@ -13,6 +13,7 @@ let make = (
   open APIUtils
   open LogicUtils
   open ReconEngineUtils
+  open ReconEngineExceptionsUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

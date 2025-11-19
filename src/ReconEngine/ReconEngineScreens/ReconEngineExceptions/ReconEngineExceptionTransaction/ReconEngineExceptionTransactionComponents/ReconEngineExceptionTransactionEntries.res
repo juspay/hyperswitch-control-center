@@ -13,6 +13,7 @@ let make = (
   open ReconEngineExceptionTransactionHelper
   open APIUtils
   open LogicUtils
+  open ReconEngineExceptionsUtils
 
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
     NoResolutionOptionNeeded,
