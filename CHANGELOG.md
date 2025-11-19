@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.19.0
+
+### Bug Fixes
+
+- Global search payout pagination issue ([#3875](https://github.com/juspay/hyperswitch-control-center/pull/3875)) ([`bfbace0`](https://github.com/juspay/hyperswitch-control-center/commit/bfbace005bdbc66ecf06632bd3f2dd87ba474783))
+
+**Full Changelog:** [`2025.11.18.0...2025.11.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.18.0...2025.11.19.0)
+
+- - -
+
+## 2025.11.18.0
+
+### Features
+
+- Enable Juspay 3DS Server in prod ([#3869](https://github.com/juspay/hyperswitch-control-center/pull/3869)) ([`1d0d6da`](https://github.com/juspay/hyperswitch-control-center/commit/1d0d6da33a6e81a236f830f26bf2dd371ed0e9fa))
+
+**Full Changelog:** [`2025.11.14.0...2025.11.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.14.0...2025.11.18.0)
+
+- - -
+
 ## 2025.11.14.0
 
 ### Features
