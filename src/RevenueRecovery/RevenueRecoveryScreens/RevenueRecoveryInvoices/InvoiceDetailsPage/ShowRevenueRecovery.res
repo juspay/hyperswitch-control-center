@@ -77,11 +77,7 @@ module RecoveryAmountStatus = {
 
     let scheduledTime = if processTracker->Dict.keysToArray->Array.length > 0 {
       let scheduleTime = processTracker->getString("schedule_time_for_payment", "")
-      if scheduleTime->isNonEmptyString {
-        Some(scheduleTime)
-      } else {
-        None
-      }
+      scheduleTime->isNonEmptyString ? Some(scheduleTime) : None
     } else {
       None
     }
@@ -157,10 +153,10 @@ module RecoveryAmountStatus = {
         <div className="bg-red-50 border border-red-960 rounded-xl p-4 flex items-start gap-3">
           <Icon name="nd-payment-terminal" size=20 className="text-red-600 mt-0.5" />
           <div className="flex-1">
-            <div className="font-semibold text-gray-800 mb-1">
+            <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
               {"Unable to Recover Invoice"->React.string}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className={`${body.md.regular} text-gray-600`}>
               {"This invoice couldn't be recovered."->React.string}
             </div>
           </div>

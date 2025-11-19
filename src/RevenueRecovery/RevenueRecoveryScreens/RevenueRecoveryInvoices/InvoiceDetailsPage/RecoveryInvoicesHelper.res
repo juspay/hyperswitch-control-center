@@ -23,14 +23,12 @@ module SegmentedProgressBar = {
 
     <div className={`flex items-center w-fit ${className}`}>
       <div className="flex-1 flex items-center relative">
-        {if percentageInt > 0 {
+        <RenderIf condition={percentageInt > 0}>
           <div
-            className="bg-blue-500 h-3 rounded-sm absolute left-0 top-0"
+            className="bg-nd_primary_blue-500 h-3 rounded-sm absolute left-0 top-0"
             style={width: `${percentageString}%`}
           />
-        } else {
-          React.null
-        }}
+        </RenderIf>
         <div className="flex-1 flex gap-1">
           {Array.make(~length=20, 0)
           ->Array.map(i => {
@@ -130,11 +128,9 @@ module AttemptItem = {
                   </div>
                 </>
               } else {
-                <>
-                  <div className={`${body.sm.semibold} text-gray-500`}>
-                    {"in this attempt"->React.string}
-                  </div>
-                </>
+                <div className={`${body.sm.semibold} text-gray-500`}>
+                  {"in this attempt"->React.string}
+                </div>
               }}
             </div>
           </div>
@@ -154,11 +150,7 @@ module AttemptsHistory = {
     let scheduledTime = switch processTracker {
     | Some(dict) =>
       let scheduleTime = dict->getString("schedule_time_for_payment", "")
-      if scheduleTime->isNonEmptyString {
-        Some(scheduleTime)
-      } else {
-        None
-      }
+      scheduleTime->isNonEmptyString ? Some(scheduleTime) : None
     | None => None
     }
 
@@ -182,7 +174,6 @@ module AttemptsHistory = {
             </div>
           </div>
           <div className="flex-1 border-t-1.5 mx-4" />
-          // <Icon name="nd-chevron-arrow-down" size=16 className="text-gray-600" />
         </div>
       </div>
       <RenderIf
@@ -194,7 +185,7 @@ module AttemptsHistory = {
             />
             <div className="flex items-center gap-3">
               <div className="w-9 h-9  relative flex justify-center items-center">
-                <div className={`w-2 h-2 bg-orange-500 rounded-full`} />
+                <div className={"w-2 h-2 bg-orange-500 rounded-full"} />
               </div>
               <div className={`${body.sm.semibold} text-gray-700`}>
                 {`Attempting retries to recover ${(order.order_amount -. order.amount_captured)
@@ -268,7 +259,7 @@ module AttemptsHistory = {
           />
           <div className="flex items-center gap-3">
             <div className="w-9 h-9  relative flex justify-center items-center">
-              <div className={`w-2 h-2 border-2 border-gray-700 rounded-full`} />
+              <div className={"w-2 h-2 border-2 border-gray-700 rounded-full"} />
             </div>
             <div className={`${body.sm.semibold} text-gray-500 uppercase`}>
               {"Revenue Recovery Retry Attempts Started"->React.string}
@@ -295,7 +286,6 @@ module AttemptsHistory = {
               </span>
             </div>
             <div className="flex-1 border-t-1.5 mx-4" />
-            // <Icon name="nd-chevron-arrow-down" size=16 className="text-gray-600" />
           </div>
         </div>
         <RenderIf condition={merchantAttempts->Array.length > 0}>
