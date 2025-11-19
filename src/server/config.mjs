@@ -20,6 +20,10 @@ function updateConfigWithEnv(config, domain = "", prefix = "") {
       }
     }
   }
+  console.log(process.env['zurich__endpoints__logo_url']);
+  console.log(config + "config");
+  console.log(domain + "domain");
+  console.log(prefix + "prefix");
 
   return config;
 }
@@ -101,7 +105,7 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
       "whitelist",
     );
   }
-  console.log(process.env);
+
 
   return modifiedConfig;
 }
