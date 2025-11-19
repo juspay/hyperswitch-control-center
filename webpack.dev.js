@@ -45,6 +45,7 @@ let proxy = [
 let configMiddleware = (req, res, next) => {
   if (req.path.includes("/config/feature") && req.method == "GET") {
     let { domain = "default" } = req.query;
+    console.log("Domain received in configMiddleware:", domain, req.query);
     config
       .then((result) => {
         result.configHandler(req, res, false, domain);
