@@ -45,6 +45,11 @@ let proxy = [
 let configMiddleware = (req, res, next) => {
   if (req.path.includes("/config/feature") && req.method == "GET") {
     let { domain = "default" } = req.query;
+    if (!domain || domain === "") {
+      console.log("No domain provided, falling back to default");
+      domain = "default"; // Fallback to default if no domain is provided
+    }
+
     console.log("Domain received in configMiddleware:", domain, req.query);
     config
       .then((result) => {

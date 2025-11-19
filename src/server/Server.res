@@ -79,6 +79,22 @@ let serverHandler: Http.serverHandler = (request, response) => {
 
   let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
 
+  Js.log2("Domain resolved in serverHandler:", domain)
+
+  Js.log4(
+    "Domain resolved in serverHandler:",
+    arr,
+    arr
+    ->Array.get(1)
+    ->Option.getOr("domain=")
+    ->Js.String2.split("="),
+    arr
+    ->Array.get(1)
+    ->Option.getOr("domain=")
+    ->Js.String2.split("=")
+    ->Array.get(1),
+  )
+
   let path =
     arr
     ->Array.get(0)
