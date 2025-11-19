@@ -481,14 +481,12 @@ module ProductTypeSectionItem = {
   let make = (
     ~section: productTypeSection,
     ~isExpanded: bool,
-    ~onToggle: unit => unit,
     ~isSidebarExpanded: bool,
     ~linkSelectionCheck,
     ~firstPart,
     ~openItem,
     ~setOpenItem,
     ~isExploredModule: bool,
-    ~allowProductToggle: bool,
   ) => {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
       ThemeProvider.themeContext,
@@ -496,13 +494,7 @@ module ProductTypeSectionItem = {
     let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
     let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
-    let iconClassName = `transition duration-[250ms] mr-2 opacity-70 ${secondaryTextColor} ${isExpanded
-        ? "-rotate-180"
-        : "-rotate-0"}`
-
-    let handleClick = _ => {
-      isExploredModule && allowProductToggle ? onToggle() : onProductSelectClick(section.name)
-    }
+    let handleClick = _ => onProductSelectClick(section.name)
 
     <div className="flex flex-col">
       <div
@@ -514,9 +506,6 @@ module ProductTypeSectionItem = {
             {React.string(section.name)}
           </div>
         </div>
-        <RenderIf condition={isSidebarExpanded && isExploredModule && allowProductToggle}>
-          <Icon name="nd-angle-down" className=iconClassName size=12 />
-        </RenderIf>
       </div>
       <RenderIf condition={isExpanded && isExploredModule}>
         <div className="flex flex-col gap-2 mt-2 ml-2">
@@ -627,14 +616,11 @@ let make = (
     ~products=hasMerchantData ? unexploredModules : [],
   )
 
-  let allowProductToggle = exploredSidebars->Array.length > 0
   React.useEffect(() => {
     let activeProductDisplayName = activeProduct->getProductDisplayName
-    if !Array.includes(expandedSections, activeProductDisplayName) {
-      setExpandedSections(prev => [activeProductDisplayName, ...prev])
-    }
+    setExpandedSections(_ => [activeProductDisplayName])
     None
-  }, (activeProduct, exploredSidebars))
+  }, [activeProduct])
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -722,22 +708,6 @@ let make = (
       }
 }
   `
-
-  let toggleSection = sectionName => {
-    let activeProductDisplayName = activeProduct->getProductDisplayName
-
-    setExpandedSections(prev => {
-      if Array.includes(prev, sectionName) {
-        if sectionName === activeProductDisplayName {
-          prev
-        } else {
-          prev->Array.filter(name => name !== sectionName)
-        }
-      } else {
-        [activeProductDisplayName, sectionName]
-      }
-    })
-  }
 
   let onItemClickCustom = (valueSelected: optionType) => {
     onProductSelectClick(valueSelected.name)
@@ -899,14 +869,12 @@ let make = (
                       key={Int.toString(index)}
                       section
                       isExpanded
-                      onToggle={_ => toggleSection(section.name)}
                       isSidebarExpanded
                       linkSelectionCheck
                       firstPart
                       openItem
                       setOpenItem
                       isExploredModule=true
-                      allowProductToggle
                     />
                   })
                   ->React.array}
@@ -925,14 +893,12 @@ let make = (
                         key={Int.toString(index)}
                         section
                         isExpanded
-                        onToggle={_ => toggleSection(section.name)}
                         isSidebarExpanded
                         linkSelectionCheck
                         firstPart
                         openItem
                         setOpenItem
                         isExploredModule=false
-                        allowProductToggle
                       />
                     })
                     ->React.array}
