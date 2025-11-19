@@ -41,7 +41,10 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(CARDINAL),
 ]
 
-let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+let threedsAuthenticatorListForLive: array<connectorTypes> = [
+  ThreeDsAuthenticator(NETCETERA),
+  ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+]
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
