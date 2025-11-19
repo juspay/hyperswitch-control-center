@@ -63,6 +63,8 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
 
+  Js.log2("Domain resolved in serverHandler:-444", arr)
+
   let domainFromQueryParam =
     arr
     ->Array.get(1)
@@ -76,13 +78,14 @@ let serverHandler: Http.serverHandler = (request, response) => {
   | "public" => "default"
   | value => value
   }
+  Js.log2("Domain resolved in serverHandler:--111", domainFromQueryParam)
 
   let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
 
-  Js.log2("Domain resolved in serverHandler:", domain)
+  Js.log2("Domain resolved in serverHandler:-222", domain)
 
   Js.log4(
-    "Domain resolved in serverHandler:",
+    "Domain resolved in serverHandler:-333",
     arr,
     arr
     ->Array.get(1)

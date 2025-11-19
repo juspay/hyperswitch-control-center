@@ -196,8 +196,11 @@ const merchantConfigHandler = async (
   try {
     const body = await getRequestBody(req);
     const config = await readTomlConfig(filePath, res);
+
+    console.log("Domain received in merchantConfigHandler:", domain);
     const merchantConfig =
       config[domain]?.merchant_config || config.default.merchant_config;
+
     const data = updateMerchantConfigWithEnv(merchantConfig, body, domain);
 
     res.writeHead(200, {
