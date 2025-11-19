@@ -264,7 +264,9 @@ let make = (
           ShowTransformedEntryResolutionOptions(NoTransformedEntryResolutionOptionNeeded)}>
         <div className="flex flex-row gap-3">
           {mainResolutionButtons
-          ->Array.map(config => <ResolutionButton key={config.text} config />)
+          ->Array.map(config =>
+            <ReconEngineExceptionsHelper.ResolutionButton key={config.text} config />
+          )
           ->React.array}
         </div>
       </RenderIf>

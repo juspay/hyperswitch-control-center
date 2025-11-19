@@ -626,24 +626,6 @@ let getStagingEntrySections = (~stagingEntries, ~stagingEntriesDetailsFields) =>
   ]
 }
 
-module ResolutionButton = {
-  @react.component
-  let make = (~config: buttonConfig) => {
-    <RenderIf condition={config.condition}>
-      <Button
-        buttonState=Normal
-        buttonSize=Medium
-        buttonType=Secondary
-        text={config.text}
-        textWeight={`${body.md.semibold}`}
-        leftIcon={CustomIcon(<Icon name={config.icon} className={config.iconClass} size=16 />)}
-        onClick={_ => config.onClick()}
-        customButtonStyle="!w-fit"
-      />
-    </RenderIf>
-  }
-}
-
 module BottomActionBar = {
   @react.component
   let make = (~config: ReconEngineExceptionsTypes.bottomBarConfig) => {

@@ -47,14 +47,6 @@ type tableSection = {
   rowData: array<RescriptCore.JSON.t>,
 }
 
-type buttonConfig = {
-  text: string,
-  icon: string,
-  iconClass: string,
-  condition: bool,
-  onClick: unit => unit,
-}
-
 // Extended entry type for exception resolution with UI-specific fields
 type exceptionResolutionEntryType = {
   ...entryType,

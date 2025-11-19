@@ -443,6 +443,7 @@ let make = (
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
+  open ReconEngineExceptionsHelper
   open LogicUtils
   open ReconEngineUtils
   open APIUtils

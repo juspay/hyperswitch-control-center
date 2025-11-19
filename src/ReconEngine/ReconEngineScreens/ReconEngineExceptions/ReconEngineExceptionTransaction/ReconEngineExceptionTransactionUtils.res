@@ -741,7 +741,7 @@ let getFixEntriesButtons = (
   ~showMarkAsReceivedButton,
   ~setExceptionStage,
   ~setActiveModal,
-): array<ReconEngineExceptionTransactionTypes.buttonConfig> => {
+): array<ReconEngineExceptionsTypes.buttonConfig> => {
   open ReconEngineExceptionTransactionTypes
   [
     {
@@ -750,6 +750,7 @@ let getFixEntriesButtons = (
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(EditEntry),
       onClick: () => setExceptionStage(_ => ResolvingException(EditEntry)),
+      buttonType: Secondary,
     },
     {
       text: "Mark as received",
@@ -757,6 +758,7 @@ let getFixEntriesButtons = (
       iconClass: "text-nd_gray-600",
       condition: showMarkAsReceivedButton,
       onClick: () => setExceptionStage(_ => ResolvingException(MarkAsReceived)),
+      buttonType: Secondary,
     },
     {
       text: "Create new entry",
@@ -767,6 +769,7 @@ let getFixEntriesButtons = (
         setExceptionStage(_ => ResolvingException(CreateNewEntry))
         setActiveModal(_ => Some(CreateEntryModal))
       },
+      buttonType: Secondary,
     },
     {
       text: "Replace Entry",
@@ -774,12 +777,13 @@ let getFixEntriesButtons = (
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(LinkStagingEntriesToTransaction),
       onClick: () => setExceptionStage(_ => ResolvingException(LinkStagingEntriesToTransaction)),
+      buttonType: Secondary,
     },
   ]
 }
 
 let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~setActiveModal): array<
-  ReconEngineExceptionTransactionTypes.buttonConfig,
+  ReconEngineExceptionsTypes.buttonConfig,
 > => {
   open ReconEngineExceptionTransactionTypes
   [
@@ -792,6 +796,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
         setExceptionStage(_ => ResolvingException(ForceReconcile))
         setActiveModal(_ => Some(ForceReconcileModal))
       },
+      buttonType: Secondary,
     },
     {
       text: "Ignore Transaction",
@@ -802,6 +807,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
         setExceptionStage(_ => ResolvingException(VoidTransaction))
         setActiveModal(_ => Some(IgnoreTransactionModal))
       },
+      buttonType: Secondary,
     },
   ]
 }
