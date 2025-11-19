@@ -111,7 +111,7 @@ let make = (
       Nullable.null
     } catch {
     | _ => {
-        showToast(~message="An unexpected error occurred. Please try again.", ~toastType=ToastError)
+        showToast(~message="Failed to update entry. Please try again.", ~toastType=ToastError)
         Nullable.null
       }
     }
