@@ -26,13 +26,10 @@ let make = (~id) => {
   let getExceptionDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let exceptionsList = await getTransactions(~queryParamerters=Some(`transaction_id=${id}`))
       let exceptions = await getTransactions(~queryParamerters=Some(`transaction_id=${id}`))
       exceptions->Array.sort(sortByVersion)
       let currentExceptionDetails =
         exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
-      setCurrentExceptionDetails(_ => currentExceptionDetails)
-      setAllExceptionDetails(_ => exceptions)
       let entriesUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
@@ -55,7 +52,7 @@ let make = (~id) => {
       let accountData = await getAccounts()
       setEntriesList(_ => entriesDataArray)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
-      setAllExceptionDetails(_ => exceptionsList)
+      setAllExceptionDetails(_ => exceptions)
       setAccountsData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
