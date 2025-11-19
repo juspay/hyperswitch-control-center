@@ -101,6 +101,7 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
       "whitelist",
     );
   }
+  console.log(process.env);
 
   return modifiedConfig;
 }
