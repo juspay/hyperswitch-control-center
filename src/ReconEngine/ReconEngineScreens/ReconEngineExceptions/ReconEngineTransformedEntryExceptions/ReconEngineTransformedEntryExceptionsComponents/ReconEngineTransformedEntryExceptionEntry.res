@@ -13,6 +13,7 @@ let make = (
   open APIUtils
   open LogicUtils
   open ReconEngineUtils
+  open ReconEngineExceptionsUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -110,7 +111,7 @@ let make = (
       Nullable.null
     } catch {
     | _ => {
-        showToast(~message="An unexpected error occurred. Please try again.", ~toastType=ToastError)
+        showToast(~message="Failed to update entry. Please try again.", ~toastType=ToastError)
         Nullable.null
       }
     }

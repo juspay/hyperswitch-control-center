@@ -1,11 +1,13 @@
 open ReconEngineTypes
 open ReconEngineTransformedEntryExceptionsTypes
-open ReconEngineTransformedEntryExceptionsUtils
 open ReconEngineTransformedEntryExceptionsHelper
+open ReconEngineTransformedEntryExceptionsUtils
 
 module IgnoreTransactionModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
+    open ReconEngineExceptionsUtils
+
     <div className="flex flex-col gap-4">
       <Form onSubmit validate={validateReasonField} initialValues={Dict.make()->JSON.Encode.object}>
         {reasonMultiLineTextInputField(~label="Add Remark")}

@@ -67,7 +67,7 @@ module ResolutionModal = {
     ~exceptionStage: exceptionResolutionStage,
     ~setExceptionStage,
     ~setSelectedRows,
-    ~config: resolutionConfig,
+    ~config: ReconEngineExceptionsTypes.resolutionConfig,
     ~children,
     ~activeModal,
     ~setActiveModal,
@@ -519,7 +519,7 @@ let metadataCustomInputField = (~disabled: bool=false) => {
 }
 
 let getEntriesSections = (
-  ~groupedEntries: Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
+  ~groupedEntries: Dict.t<array<exceptionResolutionEntryType>>,
   ~accountInfoMap,
   ~detailsFields,
   ~showTotalAmount: bool=true,
@@ -626,7 +626,7 @@ let getStagingEntrySections = (~stagingEntries, ~stagingEntriesDetailsFields) =>
 
 module ResolutionButton = {
   @react.component
-  let make = (~config: ReconEngineExceptionTransactionTypes.buttonConfig) => {
+  let make = (~config: buttonConfig) => {
     <RenderIf condition={config.condition}>
       <Button
         buttonState=Normal
@@ -644,7 +644,7 @@ module ResolutionButton = {
 
 module BottomActionBar = {
   @react.component
-  let make = (~config: ReconEngineExceptionTransactionTypes.bottomBarConfig) => {
+  let make = (~config: ReconEngineExceptionsTypes.bottomBarConfig) => {
     <>
       <p className={`${body.md.semibold} text-nd_gray-500`}> {config.prompt->React.string} </p>
       <Button

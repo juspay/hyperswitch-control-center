@@ -3,6 +3,7 @@ open ReconEngineTypes
 open ReconEngineTransformedEntryExceptionsTypes
 open LogicUtils
 open ReconEngineUtils
+open ReconEngineExceptionsTypes
 
 let reasonMultiLineTextInputField = (~label) => {
   <FormRenderer.FieldRenderer

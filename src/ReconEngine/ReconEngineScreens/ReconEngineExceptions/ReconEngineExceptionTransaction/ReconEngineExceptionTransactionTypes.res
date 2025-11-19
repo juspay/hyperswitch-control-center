@@ -34,15 +34,6 @@ type metadataRow = {
   value: string,
 }
 
-type modalLayout = CenterModal | SidePanelModal | ExpandedSidePanelModal
-
-type resolutionConfig = {
-  heading: string,
-  description?: string,
-  layout: modalLayout,
-  closeOnOutsideClick: bool,
-}
-
 type accountInfo = {
   account_info_name: string,
   account_info_type: string,
@@ -61,13 +52,6 @@ type buttonConfig = {
   icon: string,
   iconClass: string,
   condition: bool,
-  onClick: unit => unit,
-}
-
-type bottomBarConfig = {
-  prompt: string,
-  buttonText: string,
-  buttonEnabled: bool,
   onClick: unit => unit,
 }
 

@@ -3,6 +3,7 @@ open LogicUtils
 open ReconEngineTransformedEntryExceptionsTypes
 open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
+open ReconEngineExceptionsTypes
 
 let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
   compareLogic(c1.version, c2.version)
@@ -141,22 +142,6 @@ let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage): resol
       closeOnOutsideClick: true,
     }
   }
-}
-
-let validateReasonField = (values: JSON.t) => {
-  let data = values->getDictFromJsonObject
-  let errors = Dict.make()
-
-  let errorMessage = if data->getString("reason", "")->isEmptyString {
-    "Remark cannot be empty!"
-  } else {
-    ""
-  }
-  if errorMessage->isNonEmptyString {
-    Dict.set(errors, "Error", errorMessage->JSON.Encode.string)
-  }
-
-  errors->JSON.Encode.object
 }
 
 let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
