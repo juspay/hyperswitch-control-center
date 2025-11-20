@@ -17,7 +17,7 @@ type refundsObject = {
   sent_to_gateway: bool,
   refund_error_message: string,
   refund_arn: string,
-  created_at: int,
+  created_at: float,
   modified_at: int,
   description: string,
   attempt_id: string,
@@ -57,7 +57,15 @@ type cols =
   | ProfileId
   | OrganizationId
 
-let visibleColumns = [RefundId, PaymentId, Refundstatus, TotalAmount, Currency, Connector]
+let visibleColumns = [
+  RefundId,
+  PaymentId,
+  Refundstatus,
+  TotalAmount,
+  Currency,
+  Connector,
+  CreatedAt,
+]
 
 let colMapper = (col: cols) => {
   switch col {
@@ -110,7 +118,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     sent_to_gateway: dict->getBool(SentToGateway->colMapper, false),
     refund_error_message: dict->getString(RefundErrorMessage->colMapper, "NA"),
     refund_arn: dict->getString(RefundArn->colMapper, "NA"),
-    created_at: dict->getInt(CreatedAt->colMapper, 0),
+    created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
     modified_at: dict->getInt(ModifiedAt->colMapper, 0),
     description: dict->getString(Description->colMapper, "NA"),
     attempt_id: dict->getString(AttemptId->colMapper, "NA"),
@@ -217,14 +225,14 @@ let getCell = (refundsObj, colType): Table.cell => {
   | SentToGateway => Text(refundsObj.sent_to_gateway->LogicUtils.getStringFromBool)
   | RefundErrorMessage => Text(refundsObj.refund_error_message)
   | RefundArn => Text(refundsObj.refund_arn)
-  | CreatedAt => Text(refundsObj.created_at->Int.toString)
+  | CreatedAt => Date(refundsObj.created_at->DateTimeUtils.getISOStringFromNanos)
   | ModifiedAt => Text(refundsObj.modified_at->Int.toString)
   | Description => Text(refundsObj.description)
   | AttemptId => Text(refundsObj.attempt_id)
   | RefundReason => Text(refundsObj.refund_reason)
   | RefundErrorCode => Text(refundsObj.refund_error_code)
   | SignFlag => Text(refundsObj.sign_flag->Int.toString)
-  | Timestamp => Text(refundsObj.timestamp)
+  | Timestamp => Date(refundsObj.timestamp)
   | ProfileId => Text(refundsObj.profile_id)
   | OrganizationId => Text(refundsObj.organization_id)
   }

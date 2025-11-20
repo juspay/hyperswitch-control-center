@@ -44,8 +44,8 @@ module RenderSearchResultBody = {
       <PaymentIntentTable.PreviewTable data={section.results} />
     | PaymentAttempts | SessionizerPaymentAttempts =>
       <PaymentAttemptTable.PreviewTable data={section.results} />
-    | Payouts => <PayoutTable.PreviewTable data={section.results}/>
-    | PayoutAttempts => <PayoutAttemptTable.PreviewTable data={section.results}/>
+    | Payouts => <PayoutTable.PreviewTable data={section.results} />
+    | PayoutAttempts => <PayoutAttemptTable.PreviewTable data={section.results} />
     | Refunds | SessionizerPaymentRefunds => <RefundsTable.PreviewTable data={section.results} />
     | Disputes | SessionizerPaymentDisputes => <DisputeTable.PreviewTable data={section.results} />
     | Others | Default => "Not implemented"->React.string
@@ -57,6 +57,7 @@ module SearchResultsComponent = {
   open GlobalSearchTypes
   @react.component
   let make = (~searchResults, ~searchText) => {
+    Js.log2("Search Results:", searchResults)
     searchResults
     ->Array.mapWithIndex((section: resultType, i) => {
       let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"

@@ -15,7 +15,7 @@ type disputesObject = {
   challenge_required_by: int,
   connector_created_at: int,
   connector_updated_at: int,
-  created_at: int,
+  created_at: float,
   modified_at: int,
   connector: string,
   evidence: string,
@@ -51,7 +51,15 @@ type cols =
   | Timestamp
   | OrganizationId
 
-let visibleColumns = [DisputeId, PaymentId, DisputeStatus, DisputeAmount, Currency, Connector]
+let visibleColumns = [
+  DisputeId,
+  PaymentId,
+  DisputeStatus,
+  DisputeAmount,
+  Currency,
+  Connector,
+  CreatedAt,
+]
 
 let colMapper = (col: cols) => {
   switch col {
@@ -98,7 +106,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
     challenge_required_by: dict->getInt(ChallengeRequiredBy->colMapper, 0),
     connector_created_at: dict->getInt(ConnectorCreatedAt->colMapper, 0),
     connector_updated_at: dict->getInt(ConnectorUpdatedAt->colMapper, 0),
-    created_at: dict->getInt(CreatedAt->colMapper, 0),
+    created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
     modified_at: dict->getInt(ModifiedAt->colMapper, 0),
     connector: dict->getString(Connector->colMapper, "NA"),
     evidence: dict->getString(Evidence->colMapper, "NA"),
@@ -203,7 +211,7 @@ let getCell = (disputeObj, colType): Table.cell => {
   | ChallengeRequiredBy => Text(disputeObj.challenge_required_by->Int.toString)
   | ConnectorCreatedAt => Text(disputeObj.connector_created_at->Int.toString)
   | ConnectorUpdatedAt => Text(disputeObj.connector_updated_at->Int.toString)
-  | CreatedAt => Text(disputeObj.created_at->Int.toString)
+  | CreatedAt => Date(disputeObj.created_at->DateTimeUtils.getISOStringFromNanos)
   | ModifiedAt => Text(disputeObj.modified_at->Int.toString)
   | Connector => Text(disputeObj.connector)
   | Evidence => Text(disputeObj.evidence)

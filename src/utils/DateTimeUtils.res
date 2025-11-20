@@ -49,6 +49,15 @@ let utcToIST = timeStr => {
   }
 }
 
+let getISOStringFromNanos = nanos => {
+  if nanos > 0.0 {
+    let milliseconds = nanos /. 1000000.0
+    Js.Date.fromFloat(milliseconds)->Date.toISOString
+  } else {
+    "NA"
+  }
+}
+
 let utcToISTDate = timeStr => {
   let isEU = false
   let updatedHour = Js.Date.getHours(timeStr) +. 5.0
