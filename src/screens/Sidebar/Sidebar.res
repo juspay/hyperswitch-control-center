@@ -134,7 +134,7 @@ module SidebarItem = {
           setOpenItem(prev => {prev == name ? "" : name})
 
           switch (activeProductVariant, product) {
-          | (a, b) if a == b => ()
+          | (activeProductVariant, product) if activeProductVariant == product => ()
           | _ => onItemClickCustom()
           }
         }
@@ -250,7 +250,7 @@ module NestedSidebarItem = {
                     switch onItemClickCustom {
                     | Some(fn) =>
                       switch (activeProductVariant, product) {
-                      | (a, b) if a == b => ()
+                      | (activeProductVariant, product) if activeProductVariant == product => ()
                       | _ => fn()
                       }
                     | None => ()
@@ -522,7 +522,7 @@ module ProductTypeSectionItem = {
                   isSelected
                   isSidebarExpanded
                   setOpenItem
-                  onItemClickCustom={_ => onProductSelectClick(section.name)}
+                  onItemClickCustom=handleClick
                 />
               }
             | LinkWithTag(record) => {
@@ -547,7 +547,7 @@ module ProductTypeSectionItem = {
                   openItem
                   setOpenItem
                   isSectionAutoCollapseEnabled=true
-                  onItemClickCustom={Some(_ => onProductSelectClick(section.name))}
+                  onItemClickCustom={Some(handleClick)}
                 />
               </RenderIf>
             | Heading(headingOptions) =>
@@ -583,30 +583,28 @@ let make = (
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
+  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let {activeProduct, onProductSelectClick} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let handleLogout = APIUtils.useHandleLogout(~eventName="user_signout_manual")
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
-  let (openItem, setOpenItem) = React.useState(_ => "")
-  let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let (expandedSections, setExpandedSections) = React.useState(_ => [])
+  let (exploredModules, unexploredModules) = useGetSidebarProductModules()
   let {devModularityV2, devSidebarV2} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {activeProduct, onProductSelectClick} = React.useContext(
-    ProductSelectionProvider.defaultContext,
-  )
-
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let (openItem, setOpenItem) = React.useState(_ => "")
+  let expandedSections = [activeProduct->getProductDisplayName]
   let hasMerchantData = React.useMemo(() => {
     merchantList->Array.length > 0 &&
       merchantList->Array.some(merchant => merchant.id->isNonEmptyString)
   }, [merchantList])
 
-  let exploredModules = useGetSidebarProductModules(~isExplored=true)
-  let unexploredModules = useGetSidebarProductModules(~isExplored=false)
   let exploredSidebars = useGetAllProductSections(
     ~isReconEnabled,
     ~products=hasMerchantData ? exploredModules : [],
@@ -615,12 +613,6 @@ let make = (
     ~isReconEnabled,
     ~products=hasMerchantData ? unexploredModules : [],
   )
-
-  React.useEffect(() => {
-    let activeProductDisplayName = activeProduct->getProductDisplayName
-    setExpandedSections(_ => [activeProductDisplayName])
-    None
-  }, [activeProduct])
 
   React.useEffect(() => {
     setIsSidebarExpanded(_ => !isMobileView)
@@ -908,7 +900,7 @@ let make = (
             </div>
           </RenderIf>
           <div
-            className={`flex items-center justify-between px-4 py-3 border-t ${borderColor} ${hoverColor}`}>
+            className={`flex items-center justify-center p-4 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>
               <Popover className="relative inline-block text-left">
                 {popoverProps => <>
@@ -922,17 +914,11 @@ let make = (
                       `${openClasses} border-none`
                     }>
                     {_ => <>
-                      <div className="flex items-center justify-between gap-x-2">
+                      <div className="flex items-center justify-between gap-x-4">
                         <Icon name="nd-user" size=24 />
-                        <div className={`flex flex-col gap-0.5 max-w-[${profileMaxWidth}]`}>
-                          <div
-                            className={`${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
-                            {email->React.string}
-                          </div>
-                          <div
-                            className={`${body.md.medium} text-left text-nd_gray-400 dark:text-nd_gray-400 text-ellipsis overflow-hidden`}>
-                            {roleId->snakeToTitle->React.string}
-                          </div>
+                        <div
+                          className={`${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
+                          {email->React.string}
                         </div>
                         <div className="flex flex-row">
                           <Icon
@@ -952,11 +938,12 @@ let make = (
                     leave={"transition ease-in duration-150"}
                     leaveFrom="opacity-100 translate-y-0"
                     leaveTo="opacity-0 translate-y-1">
-                    <Popover.Panel className={`absolute !z-30 bottom-[100%] -ml-3`}>
+                    <Popover.Panel
+                      className={`absolute !z-30 bottom-[100%] left-1/2 -translate-x-1/2 mb-2`}>
                       {panelProps => {
                         <div
                           id="neglectTopbarTheme"
-                          className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 ${backgroundColor.sidebarSecondary}`}>
+                          className={`relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-64 ${backgroundColor.sidebarSecondary}`}>
                           <MenuOption
                             onClick={_ => {
                               panelProps["close"]()

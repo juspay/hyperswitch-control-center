@@ -1,6 +1,6 @@
 module NewMerchantCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getMerchantList) => {
+  let make = (~setShowModal, ~showModal) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -9,6 +9,7 @@ module NewMerchantCreationModal = {
     let showToast = ToastState.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let getMerchantList = MerchantListHook.useFetchMerchantList()
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
@@ -164,7 +165,6 @@ let make = () => {
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
-  let getMerchantList = MerchantListHook.useFetchMerchantList()
 
   let switchMerch = async value => {
     try {
@@ -201,7 +201,7 @@ let make = () => {
 
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`
   let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
-  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass} -ml-3`
+  let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -222,7 +222,6 @@ let make = () => {
         }}
         index=i
         currentId=item.id
-        getMerchantList
         switchMerch
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
@@ -243,7 +242,7 @@ let make = () => {
       options={updatedMerchantList->generateDropdownOptionsCustomComponent(
         ~isPlatformOrg=isCurrentOrganizationPlatform,
       )}
-      marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
+      marginTop={`mt-16 ${borderColor} shadow-generic_shadow ml-2`}
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
@@ -269,7 +268,7 @@ let make = () => {
       reverseSortGroupKeys=true
     />
     <RenderIf condition={showModal}>
-      <NewMerchantCreationModal setShowModal showModal getMerchantList />
+      <NewMerchantCreationModal setShowModal showModal />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingMerch}

@@ -102,7 +102,7 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-0.5 ${body.sm.semibold}`}>
+          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-0.5 ${body.sm.semibold} w-267-px px-4 py-3`}>
           <div className="flex flex-row w-full justify-between">
             <div className="flex gap-2">
               <span className={`${secondaryTextColor} opacity-50 ${body.sm.medium}`}>
@@ -128,7 +128,7 @@ module ListBaseComp = {
               toolTipPosition=ToolTip.Right
             />
           </div>
-          <div className="text-left flex gap-2 w-13.5-rem justify-between">
+          <div className="text-left flex gap-2 justify-between">
             <p
               className={`${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre ${body.md.semibold}`}>
               {subHeading->React.string}
@@ -348,14 +348,7 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (
-    ~merchantName,
-    ~productType,
-    ~index: int,
-    ~currentId,
-    ~getMerchantList,
-    ~switchMerch,
-  ) => {
+  let make = (~merchantName, ~productType, ~index: int, ~currentId, ~switchMerch) => {
     open LogicUtils
     open APIUtils
     open ProductUtils
@@ -367,6 +360,7 @@ module MerchantDropdownItem = {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let getMerchantList = MerchantListHook.useFetchMerchantList()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()

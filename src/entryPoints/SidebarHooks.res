@@ -145,28 +145,30 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>)
   })
 }
 
-let useGetSidebarProductModules = (~isExplored) => {
+let useGetSidebarProductModules = () => {
   let merchantList = Recoil.useRecoilValueFromAtom(merchantListAtom)
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
-
-  let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (acc, product) => {
-    let alreadyExists = acc->Array.some(existingProduct => {
-      switch (existingProduct, product) {
-      | (a, b) => a == b ? true : false
-      }
-    })
-    alreadyExists ? acc : acc->Array.concat([product])
-  })
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
-  allProducts->Array.filter(productType => {
-    let hasProduct = uniqueMerchantListProducts->Array.some(merchantProductType => {
-      switch (merchantProductType, productType) {
-      | (a, b) => a == b ? true : false
-      }
+
+  let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (
+    productList,
+    product,
+  ) => {
+    let alreadyExists = productList->Array.some(existingProduct => {
+      existingProduct == product
     })
-    isExplored ? hasProduct : !hasProduct
+    alreadyExists ? productList : productList->Array.concat([product])
+  })
+
+  allProducts->Array.reduce(([], []), ((explored, unexplored), productType) => {
+    let hasProduct = uniqueMerchantListProducts->Array.some(merchantProductType => {
+      merchantProductType == productType
+    })
+    hasProduct
+      ? (explored->Array.concat([productType]), unexplored)
+      : (explored, unexplored->Array.concat([productType]))
   })
 }
 
