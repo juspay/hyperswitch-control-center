@@ -36,6 +36,7 @@ module AuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
+    let originalKeyRef = React.useRef("")
     let getOutGoingWebhook = () => {
       let outGoingWebhookDict =
         formState.values
@@ -53,6 +54,7 @@ module AuthenticationInput = {
       let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
       setValue(_ => outGoingWebHookValue)
       setKey(_ => outGoingWebhookKey)
+      originalKeyRef.current = outGoingWebhookKey
       None
     }, [])
 
@@ -65,7 +67,19 @@ module AuthenticationInput = {
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => (),
+      onBlur: _ => {
+        if (
+          key->String.length > 0 &&
+          originalKeyRef.current->String.length > 0 &&
+          originalKeyRef.current !== key
+        ) {
+          let oldName = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
+          form.change(oldName, JSON.Encode.null)
+          let name = `outgoing_webhook_custom_http_headers.${key}`
+          form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
+        }
+      },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
@@ -81,7 +95,7 @@ module AuthenticationInput = {
           true
         }
         if value->String.length <= 0 {
-          let name = `outgoing_webhook_custom_http_headers.${key}`
+          let name = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
           form.change(name, JSON.Encode.null)
         }
         //Not allow users to enter just integers
@@ -98,8 +112,13 @@ module AuthenticationInput = {
       name: "string",
       onBlur: _ => {
         if key->String.length > 0 {
+          if originalKeyRef.current->String.length > 0 && originalKeyRef.current !== key {
+            let oldName = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
+            form.change(oldName, JSON.Encode.null)
+          }
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
