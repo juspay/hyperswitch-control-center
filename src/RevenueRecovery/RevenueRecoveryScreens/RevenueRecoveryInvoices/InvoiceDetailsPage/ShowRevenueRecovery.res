@@ -19,10 +19,12 @@ module DisplayValues = {
     <AddDataAttributes attributes=[("data-label", heading.title)]>
       <div className="grid grid-cols-10">
         <div className="flex items-center col-span-3">
-          <div className={`${body.sm.medium} text-gray-500`}> {heading.title->React.string} </div>
+          <div className={`${body.sm.medium} text-nd_gray-500`}>
+            {heading.title->React.string}
+          </div>
         </div>
         <div
-          className={`flex-1 flex justify-left ml-4 ${body.md.semibold} text-gray-900 col-span-7`}>
+          className={`flex-1 flex justify-left ml-4 ${body.md.semibold} text-nd_gray-800 col-span-7`}>
           <Table.TableCell
             cell=value
             textAlign=Table.Right
@@ -47,7 +49,8 @@ module OrderDetailsCard = {
     ~getCell: (order, colType) => Table.cell,
     ~detailsFields: array<colType>,
   ) => {
-    <div className="bg-white border border-gray-200 rounded-xl px-7 py-6 ml-6 flex flex-col gap-6">
+    <div
+      className="bg-white border border-nd_gray-200 rounded-xl px-7 py-6 ml-6 flex flex-col gap-6">
       {detailsFields
       ->Array.mapWithIndex((colType, i) => {
         <div key={i->Int.toString}>
@@ -84,21 +87,22 @@ module RecoveryAmountStatus = {
 
     switch status {
     | Recovered =>
-      <div className="bg-green-200 border border-green-700 rounded-xl p-4 flex items-start gap-3">
+      <div
+        className="bg-nd_green-150 border border-nd_green-500 rounded-xl p-4 flex items-start gap-3">
         <Icon name="nd-check-circle-outline" size=20 className="mt-0.5" />
         <div className="flex-1">
-          <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+          <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
             {"Fully recovered"->React.string}
           </div>
-          <div className={`${body.md.regular} text-gray-600`}>
+          <div className={`${body.md.regular} text-nd_gray-600`}>
             {"This invoice was successfully recovered."->React.string}
           </div>
         </div>
       </div>
     | Scheduled | Processing =>
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className={`${heading.md.semibold} text-gray-900`}>
+          <div className={`${heading.md.semibold} text-nd_gray-900`}>
             {`${amountCaptured->formatCurrency} / ${orderAmount->formatCurrency} `->React.string}
             <span className={`${body.lg.regular} ml-1`}> {"Recovered"->React.string} </span>
           </div>
@@ -110,10 +114,10 @@ module RecoveryAmountStatus = {
         | Some(time) =>
           let convertedTime = time->RevenueRecoveryOrderUtils.convertScheduleTimeToUTC
           <>
-            <div className="border-t-2 border-gray-200 my-5" />
+            <div className="border-t-2 border-nd_gray-200 my-5" />
             <div className={`flex items-center gap-2 ${body.md.regular}`}>
-              <div className="w-2 h-2 bg-orange-500 rounded-full mx-1" />
-              <span className="text-gray-500 flex gap-1">
+              <div className="w-2 h-2 bg-nd_orange-300 rounded-full mx-1" />
+              <span className="text-nd_gray-500 flex gap-1">
                 {`Retry to recover ${(orderAmount -. amountCaptured)
                     ->formatCurrency} is scheduled for `->React.string}
                 {<Table.DateCell timestamp=convertedTime isCard=true />}
@@ -124,13 +128,14 @@ module RecoveryAmountStatus = {
         }}
       </div>
     | Queued | NoPicked =>
-      <div className="bg-gray-100 border border-gray-300 rounded-xl p-4 flex items-start gap-3">
-        <Icon name="nd-payment-queued" size=20 className="text-gray-600 mt-0.5" />
+      <div
+        className="bg-nd_gray-100 border border-nd_gray-300 rounded-xl p-4 flex items-start gap-3">
+        <Icon name="nd-payment-queued" size=20 className="text-nd_gray-600 mt-0.5" />
         <div className="flex-1">
-          <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+          <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
             {"Recovery not started"->React.string}
           </div>
-          <div className={`${body.md.regular} text-gray-600`}>
+          <div className={`${body.md.regular} text-nd_gray-600`}>
             {"This invoice is queued. Retries will begin soon."->React.string}
           </div>
         </div>
@@ -138,46 +143,48 @@ module RecoveryAmountStatus = {
     | Terminated =>
       if amountCaptured > 0.0 {
         <div
-          className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start gap-3">
-          <Icon name="nd-payment-partial-captured" size=20 className="text-orange-600 mt-0.5" />
+          className="bg-nd_orange-150 border border-nd_orange-200 rounded-xl p-4 flex items-start gap-3">
+          <Icon name="nd-payment-partial-captured" size=20 className="text-nd_orange-600 mt-0.5" />
           <div className="flex-1">
-            <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+            <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
               {"Partially recovered invoice"->React.string}
             </div>
-            <div className={`${body.md.regular} text-gray-600`}>
+            <div className={`${body.md.regular} text-nd_gray-600`}>
               {`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`->React.string}
             </div>
           </div>
         </div>
       } else {
-        <div className="bg-red-50 border border-red-960 rounded-xl p-4 flex items-start gap-3">
-          <Icon name="nd-payment-terminal" size=20 className="text-red-600 mt-0.5" />
+        <div
+          className="bg-nd_red-50 border border-nd_red-600 rounded-xl p-4 flex items-start gap-3">
+          <Icon name="nd-payment-terminal" size=20 className="text-nd_red-600 mt-0.5" />
           <div className="flex-1">
-            <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+            <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
               {"Unable to Recover Invoice"->React.string}
             </div>
-            <div className={`${body.md.regular} text-gray-600`}>
+            <div className={`${body.md.regular} text-nd_gray-600`}>
               {"This invoice couldn't be recovered."->React.string}
             </div>
           </div>
         </div>
       }
     | PartiallyRecovered =>
-      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start gap-3">
-        <Icon name="nd-payment-partial-captured" size=20 className="text-orange-600 mt-0.5" />
+      <div
+        className="bg-nd_orange-150 border border-nd_orange-200 rounded-xl p-4 flex items-start gap-3">
+        <Icon name="nd-payment-partial-captured" size=20 className="text-nd_orange-600 mt-0.5" />
         <div className="flex-1">
-          <div className={`${heading.xs.semibold} text-gray-800 mb-1`}>
+          <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
             {"Partially recovered invoice"->React.string}
           </div>
-          <div className={`${body.md.regular} text-gray-600`}>
+          <div className={`${body.md.regular} text-nd_gray-600`}>
             {`${amountCaptured->formatCurrency} recovered out of ${orderAmount->formatCurrency}.`->React.string}
           </div>
         </div>
       </div>
     | Monitoring | Other(_) =>
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
+      <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className={`${heading.md.semibold} text-gray-900`}>
+          <div className={`${heading.md.semibold} text-nd_gray-900`}>
             {`${amountCaptured->formatCurrency} / ${orderAmount->formatCurrency} `->React.string}
             <span className={`${body.lg.regular} ml-1`}> {"Recovered"->React.string} </span>
           </div>
@@ -217,25 +224,20 @@ let make = (~id) => {
       setProcessTrackerData(_ => processTrackerDataDict)
       let processTrackeStatus = processTrackerDataDict->getString("status", "")
 
-      // If we get a response, modify the payment object
       let orderDetails = if (
         processTrackerDataDict->Dict.keysToArray->Array.length > 0 &&
           processTrackeStatus != Finish->schedulerStatusStringMapper
       ) {
-        // Create a modified order object with additional process tracker data
         {
           ...orderData,
           status: Scheduled->statusStringMapper,
         }
       } else {
-        // Keep the order as-is if no response
         orderData
       }
       setRevenueRecoveryData(_ => orderDetails)
     } catch {
-    | Exn.Error(_) =>
-      // Keep the order as-is if there's an error
-      setRevenueRecoveryData(_ => orderData)
+    | Exn.Error(_) => setRevenueRecoveryData(_ => orderData)
     }
   }
 
@@ -254,7 +256,6 @@ let make = (~id) => {
       if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
         await getPTDetails(~orderData)
       } else {
-        // Keep non-failed orders as-is
         setRevenueRecoveryData(_ => orderData)
       }
 
