@@ -57,7 +57,10 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(CARDINAL),
 ]
 
-let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+let threedsAuthenticatorListForLive: array<connectorTypes> = [
+  ThreeDsAuthenticator(NETCETERA),
+  ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+]
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
@@ -182,12 +185,15 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(COINGATE),
   Processors(DATATRANS),
   Processors(FIUU),
+  Processors(GIGADAT),
   Processors(IATAPAY),
   Processors(KLARNA),
+  Processors(LOONIO),
   Processors(MIFINITY),
   Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
+  Processors(NUVEI),
   Processors(PAYPAL),
   Processors(PAYBOX),
   Processors(PAYME),

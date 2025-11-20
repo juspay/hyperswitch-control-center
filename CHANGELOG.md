@@ -3,6 +3,85 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.20.0
+
+### Features
+
+- Recon engine transformed entry exception ([#3828](https://github.com/juspay/hyperswitch-control-center/pull/3828)) ([`1ebf2f4`](https://github.com/juspay/hyperswitch-control-center/commit/1ebf2f4720ee774c88f97d5675f11f967217b72d))
+
+**Full Changelog:** [`2025.11.19.0...2025.11.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.19.0...2025.11.20.0)
+
+- - -
+
+## 2025.11.19.0
+
+### Bug Fixes
+
+- Global search payout pagination issue ([#3875](https://github.com/juspay/hyperswitch-control-center/pull/3875)) ([`bfbace0`](https://github.com/juspay/hyperswitch-control-center/commit/bfbace005bdbc66ecf06632bd3f2dd87ba474783))
+
+**Full Changelog:** [`2025.11.18.0...2025.11.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.18.0...2025.11.19.0)
+
+- - -
+
+## 2025.11.18.0
+
+### Features
+
+- Enable Juspay 3DS Server in prod ([#3869](https://github.com/juspay/hyperswitch-control-center/pull/3869)) ([`1d0d6da`](https://github.com/juspay/hyperswitch-control-center/commit/1d0d6da33a6e81a236f830f26bf2dd371ed0e9fa))
+
+**Full Changelog:** [`2025.11.14.0...2025.11.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.14.0...2025.11.18.0)
+
+- - -
+
+## 2025.11.14.0
+
+### Features
+
+- Add payout report handling in APIUtils and update related components ([#3786](https://github.com/juspay/hyperswitch-control-center/pull/3786)) ([`bc2384e`](https://github.com/juspay/hyperswitch-control-center/commit/bc2384e96a605936114d9f3fc1588a5cb0e7874e))
+- Add Payouts functionality to Global Search ([#3796](https://github.com/juspay/hyperswitch-control-center/pull/3796)) ([`a66d7b5`](https://github.com/juspay/hyperswitch-control-center/commit/a66d7b53dc364c57bdcc7347f73775168be61f26))
+
+**Full Changelog:** [`2025.11.13.2...2025.11.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.13.2...2025.11.14.0)
+
+- - -
+
+## 2025.11.13.2
+
+### Features
+
+- Enable `nuvei`, `loonio` and `gigadat` connectors in prod ([#3862](https://github.com/juspay/hyperswitch-control-center/pull/3862)) ([`5df1f00`](https://github.com/juspay/hyperswitch-control-center/commit/5df1f00d2a78a299a7ce1d3b5db633cfafb9bc79))
+
+**Full Changelog:** [`2025.11.13.1...2025.11.13.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.13.1...2025.11.13.2)
+
+- - -
+
+## 2025.11.13.1
+
+### Bug Fixes
+
+- `braintree` googlepay and applepay validation ([#3740](https://github.com/juspay/hyperswitch-control-center/pull/3740)) ([`7919388`](https://github.com/juspay/hyperswitch-control-center/commit/7919388fb2dd3cef81687b5597024df67f54c355))
+
+### Miscellaneous Tasks
+
+- Added web domain flow in applepay and remove decrypted flow in… ([#3843](https://github.com/juspay/hyperswitch-control-center/pull/3843)) ([`f4e4861`](https://github.com/juspay/hyperswitch-control-center/commit/f4e48615ff9891a357db3099f7ebec36a47be6ef))
+
+**Full Changelog:** [`2025.11.13.0...2025.11.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.13.0...2025.11.13.1)
+
+- - -
+
+## 2025.11.13.0
+
+### Features
+
+- Payment link theme configurator ([#3804](https://github.com/juspay/hyperswitch-control-center/pull/3804)) ([`8dbb06d`](https://github.com/juspay/hyperswitch-control-center/commit/8dbb06db99589ff5de92b2174566dd34c418aa8c))
+
+### Bug Fixes
+
+- Payment settings bugfix ([#3856](https://github.com/juspay/hyperswitch-control-center/pull/3856)) ([`c1d013c`](https://github.com/juspay/hyperswitch-control-center/commit/c1d013ce5261b1c6f13d1ba9c2a2582c05b54e17))
+
+**Full Changelog:** [`2025.11.12.2...2025.11.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.12.2...2025.11.13.0)
+
+- - -
+
 ## 2025.11.12.2
 
 ### Bug Fixes
