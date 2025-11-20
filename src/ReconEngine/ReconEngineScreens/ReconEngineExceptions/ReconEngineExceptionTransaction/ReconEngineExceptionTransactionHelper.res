@@ -12,25 +12,25 @@ module CustomToastElement = {
     | PartiallyReconciled => (
         "Transaction partially reconciled",
         "Please review the exceptions page for details",
-        `/exceptions/recon/${transaction.transaction_id}`,
+        `exceptions/recon/${transaction.transaction_id}`,
         "See Exception",
       )
     | Void => (
         "Transaction ignored successfully",
         "Your transaction has been moved to transactions page",
-        `/transactions/${transaction.transaction_id}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     | Posted => (
         "Transaction matched successfully",
         "Your transaction has been moved to transactions page",
-        `/transactions/${transaction.transaction_id}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     | _ => (
         "Transaction processed successfully",
         "Please review the transactions page for details",
-        `/transactions/${transaction.transaction_id}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     }

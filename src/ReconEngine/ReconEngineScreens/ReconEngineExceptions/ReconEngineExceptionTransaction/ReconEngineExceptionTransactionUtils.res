@@ -284,7 +284,7 @@ let getInitialValuesForEditEntries = (entryDetails: entryType) => {
       },
     ),
   ]
-  fields->Dict.fromArray->JSON.Encode.object
+  fields->getJsonFromArrayOfJson
 }
 
 let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) => {
@@ -301,7 +301,7 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("metadata", stagingEntry.metadata),
     ("staging_entry_id", stagingEntry.id->JSON.Encode.string),
     ("status", "pending"->JSON.Encode.string),
-    ("data", [("status", "pending"->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object),
+    ("data", [("status", "pending"->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("entry_key", uniqueId->JSON.Encode.string),
   ]
   ->Dict.fromArray
@@ -312,7 +312,7 @@ let getInitialValuesForNewEntries = () => {
   let todayDate = Js.Date.make()->Js.Date.toISOString
 
   let fields = [("effective_at", todayDate->JSON.Encode.string)]
-  fields->Dict.fromArray->JSON.Encode.object
+  fields->getJsonFromArrayOfJson
 }
 
 let getInnerVariant = (

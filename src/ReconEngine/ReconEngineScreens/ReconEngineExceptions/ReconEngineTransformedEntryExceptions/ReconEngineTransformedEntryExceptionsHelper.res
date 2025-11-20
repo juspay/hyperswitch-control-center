@@ -305,33 +305,25 @@ module CustomToastElement = {
     | Void => (
         "Transformed entry ignored successfully",
         "The entry has been moved to transformation entry page",
-        `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,
-          )}`,
+        `transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,
         "See Entry",
       )
     | Pending => (
         "Transformed entry is pending",
         "The entry is being processed and will be available shortly",
-        `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
-          )}`,
+        `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
     | NeedsManualReview => (
         "Transformed entry marked for manual review",
         "Please review the entry in the transformed entry exceptions page",
-        `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
-          )}`,
+        `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
     | _ => (
         "Transformed entry processed successfully",
         "The entry has been moved to transformation entry page",
-        `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,
-          )}`,
+        `transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,
         "See Entry",
       )
     }
@@ -343,7 +335,7 @@ module CustomToastElement = {
         <div className="flex flex-col gap-2">
           <p className={`${heading.sm.semibold} text-nd_gray-25`}> {message->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-300`}> {description->React.string} </p>
-          <Link to_=link>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/${link}`)}>
             <p
               className={`${body.md.semibold} text-nd_primary_blue-400 hover:text-nd_primary_blue-300 cursor-pointer`}>
               {linkText->React.string}
@@ -364,12 +356,7 @@ module CustomToastElement = {
 
 module DisplayKeyValueParams = {
   @react.component
-  let make = (
-    ~showTitle: bool=true,
-    ~heading: Table.header,
-    ~value: Table.cell,
-    ~wordBreak=true,
-  ) => {
+  let make = (~heading: Table.header, ~value: Table.cell, ~wordBreak=true) => {
     let description = heading.description->Option.getOr("")
 
     {
@@ -378,7 +365,7 @@ module DisplayKeyValueParams = {
           <div
             className="flex flex-row text-fs-11 text-nd_gray-500 text-opacity-50 dark:text-nd_gray-500 dark:text-opacity-50">
             <div className={`text-nd_gray-500 ${body.md.medium}`}>
-              {React.string(showTitle ? heading.title : " x")}
+              {heading.title->React.string}
             </div>
             <RenderIf condition={description->LogicUtils.isNonEmptyString}>
               <div className="text-sm text-gray-500 mx-2 -mt-1">
@@ -552,7 +539,7 @@ module ResolutionModal = {
     ~setActiveModal,
   ) => {
     let showModal = switch (exceptionStage, activeModal) {
-    | (ResolvingTransformedEntry(VoidTransformedEntry), Some(VoidTransformedEntryModal)) => true
+    | (ResolvingTransformedEntry(VoidTransformedEntry), Some(VoidTransformedEntryModal))
     | (ResolvingTransformedEntry(EditTransformedEntry), Some(EditTransformedEntryModal)) => true
     | _ => false
     }
