@@ -216,6 +216,15 @@ let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileI
     paymentLinkConfigRecord.background_image->Option.map(bgImage =>
       bgImage->mapV1BackgroundImageToCommonType
     )
+  let allowedDomains =
+    paymentLinkConfigRecord.allowed_domains
+    ->Option.getOr(JSON.Encode.null)
+    ->LogicUtils.getArrayFromJson([])
+
+  let allowedDomainsString =
+    allowedDomains
+    ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
+    ->Array.joinWith(",")
 
   {
     theme: paymentLinkConfigRecord.theme,
@@ -245,7 +254,7 @@ let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileI
     color_icon_card_cvc_error: paymentLinkConfigRecord.color_icon_card_cvc_error,
     branding_visibility: paymentLinkConfigRecord.branding_visibility,
     domain_name: paymentLinkConfigRecord.domain_name,
-    allowed_domains: paymentLinkConfigRecord.allowed_domains,
+    allowed_domains: Some(allowedDomainsString->JSON.Encode.string),
     business_specific_configs: paymentLinkConfigRecord.business_specific_configs,
   }
 }
