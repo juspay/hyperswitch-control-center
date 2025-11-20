@@ -255,7 +255,6 @@ let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~prof
             </RenderIf>
           </div>
         </DesktopRow>
-        <FormValuesSpy />
       </form>
     }}
   />
