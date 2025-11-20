@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.20.0
+
+### Features
+
+- Recon engine transformed entry exception ([#3828](https://github.com/juspay/hyperswitch-control-center/pull/3828)) ([`1ebf2f4`](https://github.com/juspay/hyperswitch-control-center/commit/1ebf2f4720ee774c88f97d5675f11f967217b72d))
+
+**Full Changelog:** [`2025.11.19.0...2025.11.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.19.0...2025.11.20.0)
+
+- - -
+
 ## 2025.11.19.0
 
 ### Bug Fixes

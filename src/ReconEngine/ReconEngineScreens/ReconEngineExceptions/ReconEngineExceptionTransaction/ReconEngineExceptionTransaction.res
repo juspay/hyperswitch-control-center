@@ -137,7 +137,7 @@ let make = (~ruleId: string) => {
           title="Exception Entries - Expected & Mismatched"
           actualData={filteredExceptionData}
           entity={hierarchicalTransactionsLoadedTableEntity(
-            `v1/recon-engine/exceptions`,
+            "v1/recon-engine/exceptions/recon",
             ~authorization=userHasAccess(~groupAccess=UsersManage),
           )}
           resultsPerPage=6
