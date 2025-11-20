@@ -97,7 +97,8 @@ module CardRenderer = {
           switch connector->getConnectorNameTypeFromString(~connectorType) {
           | Processors(TRUSTPAY)
           | Processors(STRIPE_TEST)
-          | PayoutProcessor(WORLDPAY) => false
+          | PayoutProcessor(WORLDPAY)
+          | PayoutProcessor(WORLDPAYXML) => false
           | _ => true
           }
         }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
