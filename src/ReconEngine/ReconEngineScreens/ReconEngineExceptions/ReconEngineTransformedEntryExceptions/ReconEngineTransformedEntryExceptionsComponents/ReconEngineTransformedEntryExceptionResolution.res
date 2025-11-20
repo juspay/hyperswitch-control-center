@@ -162,7 +162,6 @@ let make = (
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }

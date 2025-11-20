@@ -150,7 +150,7 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
     ("account_name", entryDetails.account.account_name->JSON.Encode.string),
   ]
   let fields = [
-    ("account", account->Dict.fromArray->JSON.Encode.object),
+    ("account", account->getJsonFromArrayOfJson),
     ("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string),
     ("currency", entryDetails.currency->JSON.Encode.string),
     ("amount", entryDetails.amount->JSON.Encode.float),
@@ -164,7 +164,7 @@ let getInitialValuesForEditEntries = (entryDetails: processingEntryType) => {
       ->JSON.Encode.object,
     ),
   ]
-  fields->Dict.fromArray->JSON.Encode.object
+  fields->getJsonFromArrayOfJson
 }
 
 let hasFormValuesChanged = (
