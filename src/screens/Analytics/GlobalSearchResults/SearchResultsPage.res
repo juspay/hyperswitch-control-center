@@ -57,7 +57,6 @@ module SearchResultsComponent = {
   open GlobalSearchTypes
   @react.component
   let make = (~searchResults, ~searchText) => {
-    Js.log2("Search Results:", searchResults)
     searchResults
     ->Array.mapWithIndex((section: resultType, i) => {
       let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
