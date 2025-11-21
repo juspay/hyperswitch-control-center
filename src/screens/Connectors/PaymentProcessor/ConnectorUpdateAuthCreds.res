@@ -28,6 +28,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
+        | VaultProcessor => Window.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         dict
