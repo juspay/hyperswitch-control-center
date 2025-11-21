@@ -2,14 +2,12 @@ open Typography
 
 @react.component
 let make = (~id) => {
-  open APIUtils
   open LogicUtils
   open ReconEngineUtils
   open ReconEngineTransformedEntryExceptionsHelper
   open ReconEngineHooks
+  open ReconEngineTransformedEntryExceptionsUtils
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let getProcessingEntries = useGetProcessingEntries()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -26,19 +24,14 @@ let make = (~id) => {
   let getTransformedEntryDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let currentTransformedEntryUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~id=Some(id),
+      let transformedEntriesList = await getProcessingEntries(
+        ~queryParamerters=Some(`staging_entry_id=${id}`),
       )
-      let res = await fetchDetails(currentTransformedEntryUrl)
-      let currentTransformedEntry = res->getDictFromJsonObject->processingItemToObjMapper
+      transformedEntriesList->Array.sort(sortByVersion)
+      let currentTransformedEntry =
+        transformedEntriesList->getValueFromArray(0, Dict.make()->processingItemToObjMapper)
       setCurrentTransformedEntryDetails(_ => currentTransformedEntry)
       setUpdatedTransformedEntryDetails(_ => currentTransformedEntry)
-      let transformedEntriesList = await getProcessingEntries(
-        ~queryParamerters=Some(`staging_entry_id=${currentTransformedEntry.staging_entry_id}`),
-      )
       setAllTransformedEntryDetails(_ => transformedEntriesList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

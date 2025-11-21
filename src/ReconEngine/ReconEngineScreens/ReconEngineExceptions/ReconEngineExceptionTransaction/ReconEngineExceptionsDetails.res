@@ -26,26 +26,15 @@ let make = (~id) => {
   let getExceptionDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let currentExceptionUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~id=Some(id),
-      )
-      let res = await fetchDetails(currentExceptionUrl)
-      let currentException = res->getDictFromJsonObject->getTransactionsPayloadFromDict
-      let exceptionsList = await getTransactions(
-        ~queryParamerters=Some(`transaction_id=${currentException.transaction_id}`),
-      )
+      let exceptions = await getTransactions(~queryParamerters=Some(`transaction_id=${id}`))
+      exceptions->Array.sort(sortByVersion)
       let currentExceptionDetails =
-        exceptionsList
-        ->Array.filter(txn => txn.id == currentException.id)
-        ->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
+        exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
       let entriesUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
-        ~id=Some(currentException.transaction_id),
+        ~id=Some(currentExceptionDetails.transaction_id),
       )
       let entriesRes = await fetchDetails(entriesUrl)
       let entriesList = entriesRes->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
@@ -63,7 +52,7 @@ let make = (~id) => {
       let accountData = await getAccounts()
       setEntriesList(_ => entriesDataArray)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
-      setAllExceptionDetails(_ => exceptionsList)
+      setAllExceptionDetails(_ => exceptions)
       setAccountsData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
