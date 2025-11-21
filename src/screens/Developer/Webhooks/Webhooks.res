@@ -17,9 +17,9 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFilterState, setLastFilterState) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->JSON.stringify
-  )
+  let (searchType, setSearchType) = React.useState(_ => "object_id")
+  let (searchTrigger, setSearchTrigger) = React.useState(_ => 0)
+  let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
@@ -84,8 +84,7 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->setOptionString("object_id", Some(searchText))
-        payload->setOptionString("event_id", Some(searchText))
+        payload->Dict.set(searchType, searchText->JSON.Encode.string)
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -133,7 +132,7 @@ let make = () => {
       setInitialFilters()
     }
     None
-  }, (filterValueJson, offset, searchText))
+  }, (filterValueJson, offset, searchText, searchTrigger))
 
   let filtersUI = React.useMemo(() => {
     <Filter
@@ -150,18 +149,22 @@ let make = () => {
       submitInputOnEnter=true
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
-      customLeftView={<HSwitchRemoteFilter.SearchBarFilter
-        placeholder="Search for object ID or event ID"
-        setSearchVal=setSearchText
-        searchVal=searchText
-      />}
       clearFilters={() => reset()}
     />
   }, [])
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
-    {filtersUI}
+    <div>
+      <WebhooksUtils.EnhancedSearchBarFilter
+        searchVal=searchText
+        setSearchVal=setSearchText
+        searchType
+        setSearchType
+        onEnterPress={() => setSearchTrigger(prev => prev + 1)}
+      />
+      <div className=" -mb-6"> {filtersUI} </div>
+    </div>
     <PageLoaderWrapper screenState customUI>
       <LoadedTable
         title=" "
