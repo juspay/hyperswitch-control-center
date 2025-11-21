@@ -49,6 +49,31 @@ let utcToIST = timeStr => {
   }
 }
 
+let unixToISOString = unixTime => {
+  let unixTimeStr = unixTime->Float.toString
+  switch unixTimeStr->String.length {
+  | 10 => {
+      // seconds
+      let milliseconds = unixTime *. 1000.0
+      Js.Date.fromFloat(milliseconds)->Date.toISOString
+    }
+  | 13 =>
+    // milliseconds
+    Js.Date.fromFloat(unixTime)->Date.toISOString
+  | 16 => {
+      // microseconds
+      let milliseconds = unixTime /. 1000.0
+      Js.Date.fromFloat(milliseconds)->Date.toISOString
+    }
+  | 19 => {
+      // nanoseconds
+      let milliseconds = unixTime /. 1000000.0
+      Js.Date.fromFloat(milliseconds)->Date.toISOString
+    }
+  | _ => "NA"
+  }
+}
+
 let utcToISTDate = timeStr => {
   let isEU = false
   let updatedHour = Js.Date.getHours(timeStr) +. 5.0
