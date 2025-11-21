@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   open APIUtils
-  open RevenueRecoveryTypes
   open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -18,12 +17,14 @@ let make = () => {
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
   let setData = (total, data) => {
+    let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
     if total <= offset {
       setOffset(_ => 0)
     }
 
     if total > 0 {
-      let list = data->Array.map(Nullable.make)
+      let orderData = arr->Array.concat(data)
+      let list = orderData->Array.map(Nullable.make)
       setTotalCount(_ => total)
       setRevenueRecoveryData(_ => list)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -67,7 +68,8 @@ let make = () => {
       // Process failed payments to get additional information from process tracker
       let processedOrderData = await Promise.all(
         orderData->Array.map(async order => {
-          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
+          // TODO: change this later // order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed
+          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
             try {
               let processTrackerUrl = getURL(
                 ~entityName=V2(PROCESS_TRACKER),
@@ -88,7 +90,7 @@ let make = () => {
                 // Create a modified order object with additional process tracker data
                 {
                   ...order,
-                  status: Scheduled->schedulerStatusStringMapper,
+                  status: Scheduled->statusStringMapper,
                 }
               } else {
                 // Keep the order as-is if no response
@@ -136,6 +138,7 @@ let make = () => {
       filters
     | _ => {
         let filters = Dict.make()
+        filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         filters
       }
@@ -147,10 +150,6 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    // TODO: filters will be enabled later
-    // if filters->OrderUIUtils.isNonEmptyValue {
-    //   fetchOrders()
-    // }
     fetchOrders()
 
     None
@@ -160,31 +159,10 @@ let make = () => {
 
   let (widthClass, heightClass) = ("w-full", "")
 
-  // TODO: filters will be enabled later
-  // let filtersUI = React.useMemo(() => {
-  //   <RemoteTableFilters
-  //     title="Orders"
-  //     setFilters
-  //     endTimeFilterKey
-  //     startTimeFilterKey
-  //     initialFilters
-  //     initialFixedFilter
-  //     setOffset
-  //     submitInputOnEnter=true
-  //     customLeftView={<SearchBarFilter
-  //       placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-  //     />}
-  //     entityName=V2(V2_ORDER_FILTERS)
-  //     version=V2
-  //   />
-  // }, [searchText])
-
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading
-          title="Invoices" subTitle="List of failed Invoices picked up for retry" customTitleStyle
-        />
+        <PageUtils.PageHeading title="List of Invoices" customTitleStyle />
       </div>
       //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>
