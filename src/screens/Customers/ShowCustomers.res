@@ -50,7 +50,7 @@ module CustomerInfo = {
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
-      <Details data=customerData getHeading getCell detailsFields=allColumns />
+      <Details data=customerData getHeading getCell detailsFields=detailsColumns />
     </>
   }
 }
