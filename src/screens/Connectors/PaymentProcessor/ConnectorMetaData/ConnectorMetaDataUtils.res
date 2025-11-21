@@ -11,7 +11,7 @@ let getField = (~inputType: CommonConnectorTypes.inputType, ~name, ~connectorMet
   | (Text, _) => textInput(~field={connectorMetaDataFields}, ~formName=name)
   | (Number, _) => numberInput(~field={connectorMetaDataFields}, ~formName=name)
   | (Select, _) =>
-    selectInput(~field={connectorMetaDataFields}, ~formName=name, ~fixedDropDownDirection=TopLeft)
+    selectInput(~field={connectorMetaDataFields}, ~formName=name, ~fixedDropDownDirection=TopRight)
   | (Toggle, _) => toggleInput(~field={connectorMetaDataFields}, ~formName=name)
   | (MultiSelect, _) => multiSelectInput(~field={connectorMetaDataFields}, ~formName=name)
   | _ => textInput(~field={connectorMetaDataFields}, ~formName=name)
