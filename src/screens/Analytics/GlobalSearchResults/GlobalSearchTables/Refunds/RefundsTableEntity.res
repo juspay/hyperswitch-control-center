@@ -225,7 +225,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | SentToGateway => Text(refundsObj.sent_to_gateway->LogicUtils.getStringFromBool)
   | RefundErrorMessage => Text(refundsObj.refund_error_message)
   | RefundArn => Text(refundsObj.refund_arn)
-  | CreatedAt => Date(refundsObj.created_at->DateTimeUtils.getISOStringFromNanos)
+  | CreatedAt => Date(refundsObj.created_at->DateTimeUtils.unixToISOString)
   | ModifiedAt => Text(refundsObj.modified_at->Int.toString)
   | Description => Text(refundsObj.description)
   | AttemptId => Text(refundsObj.attempt_id)

@@ -211,7 +211,7 @@ let getCell = (disputeObj, colType): Table.cell => {
   | ChallengeRequiredBy => Text(disputeObj.challenge_required_by->Int.toString)
   | ConnectorCreatedAt => Text(disputeObj.connector_created_at->Int.toString)
   | ConnectorUpdatedAt => Text(disputeObj.connector_updated_at->Int.toString)
-  | CreatedAt => Date(disputeObj.created_at->DateTimeUtils.getISOStringFromNanos)
+  | CreatedAt => Date(disputeObj.created_at->DateTimeUtils.unixToISOString)
   | ModifiedAt => Text(disputeObj.modified_at->Int.toString)
   | Connector => Text(disputeObj.connector)
   | Evidence => Text(disputeObj.evidence)

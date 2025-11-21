@@ -233,7 +233,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | ConnectorId => Text(paymentObj.connector_id)
   | StatementDescriptorName => Text(paymentObj.statement_descriptor_name)
   | StatementDescriptorSuffix => Text(paymentObj.statement_descriptor_suffix)
-  | CreatedAt => Date(paymentObj.created_at->DateTimeUtils.getISOStringFromNanos)
+  | CreatedAt => Date(paymentObj.created_at->DateTimeUtils.unixToISOString)
   | ModifiedAt => Text(paymentObj.modified_at->Int.toString)
   | LastSynced => Text(paymentObj.last_synced->Int.toString)
   | SetupFutureUsage => Text(paymentObj.setup_future_usage)
