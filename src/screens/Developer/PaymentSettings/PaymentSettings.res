@@ -275,7 +275,6 @@ module WebHookSection = {
               </RenderIf>
             </div>
           </DesktopRow>
-          <FormValuesSpy />
         </form>
       }}
     />
