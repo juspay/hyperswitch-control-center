@@ -23,6 +23,7 @@ let getStatusMessage = (status: invitationAcceptanceStatus) => {
 let make = (~onClick) => {
   open AuthProviderTypes
   open APIUtils
+  open LogicUtils
   let getURL = useGetURL()
 
   let updateDetails = useUpdateMethod()
@@ -41,7 +42,7 @@ let make = (~onClick) => {
       )
       let res = await updateDetails(url, body, Post)
 
-      let status = res->JSON.Decode.string->Option.getOr("")
+      let status = res->getStringFromJson("")
       let parsedStatus = parseInvitationStatus(status)
       let statusMessage = getStatusMessage(parsedStatus)
 
@@ -79,9 +80,9 @@ let make = (~onClick) => {
 
   let processInviteFlow = async body => {
     try {
-      let _statusResponse = await acceptInviteWithStatusCheck(body)
+      let _ = await acceptInviteWithStatusCheck(body)
 
-      if errorMessage->LogicUtils.isNonEmptyString {
+      if !(errorMessage->isNonEmptyString) {
         setIsProcessingToken(_ => true)
         await generateTokenForceSetPassword(body)
       }
