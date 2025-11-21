@@ -1,29 +1,9 @@
-type invitationAcceptanceStatus =
-  | AlreadyAccepted
-  | SuccessfullyAccepted
-  | Unknown
-
-let parseInvitationStatus = (statusString: string) => {
-  switch statusString {
-  | "AlreadyAccepted" => AlreadyAccepted
-  | "SuccessfullyAccepted" => SuccessfullyAccepted
-  | _ => Unknown
-  }
-}
-
-let getStatusMessage = (status: invitationAcceptanceStatus) => {
-  switch status {
-  | AlreadyAccepted => "Your invitation has already been accepted"
-  | SuccessfullyAccepted => "Invitation accepted successfully!"
-  | Unknown => "Invitation processed"
-  }
-}
-
 @react.component
 let make = (~onClick) => {
   open AuthProviderTypes
   open APIUtils
   open LogicUtils
+  open PreLoginUtils
   let getURL = useGetURL()
 
   let updateDetails = useUpdateMethod()
