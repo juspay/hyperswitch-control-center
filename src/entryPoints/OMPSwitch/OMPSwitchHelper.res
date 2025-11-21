@@ -102,7 +102,7 @@ module ListBaseComp = {
       {switch user {
       | #Merchant =>
         <div
-          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-1 ${body.sm.semibold}`}>
+          className={`cursor-pointer ${secondaryTextColor} hover:bg-opacity-80 flex flex-col gap-0.5 ${body.sm.semibold} w-267-px px-4 py-3`}>
           <div className="flex flex-row w-full justify-between">
             <div className="flex gap-2">
               <span className={`${secondaryTextColor} opacity-50 ${body.sm.medium}`}>
@@ -128,7 +128,7 @@ module ListBaseComp = {
               toolTipPosition=ToolTip.Right
             />
           </div>
-          <div className="text-left flex gap-2 w-13.5-rem justify-between">
+          <div className="text-left flex gap-2 justify-between">
             <p
               className={`${secondaryTextColor} overflow-scroll text-nowrap whitespace-pre ${body.md.semibold}`}>
               {subHeading->React.string}
@@ -188,6 +188,9 @@ module AddNewOMPButton = {
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
+    let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
 
     <ACLDiv
       authorization={hasOMPCreateAccess}
@@ -201,7 +204,7 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={` flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
+          className={`flex items-center gap-2 px-3.5 py-3 ${customStyle} ${primaryNormal} ${body.md.medium}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
@@ -345,17 +348,9 @@ module OMPViews = {
 
 module MerchantDropdownItem = {
   @react.component
-  let make = (
-    ~merchantName,
-    ~productType,
-    ~index: int,
-    ~currentId,
-    ~getMerchantList,
-    ~switchMerch,
-  ) => {
+  let make = (~merchantName, ~productType, ~index: int, ~currentId, ~switchMerch) => {
     open LogicUtils
     open APIUtils
-    open ProductTypes
     open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
@@ -365,6 +360,7 @@ module MerchantDropdownItem = {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let getMerchantList = MerchantListHook.useFetchMerchantList()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -375,20 +371,6 @@ module MerchantDropdownItem = {
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let productTypeIconMapper = productType => {
-      switch productType {
-      | Orchestration(V1) => "orchestrator-home"
-      | Recon(V2) => "recon-home"
-      | Recovery => "recovery-home"
-      | Vault => "vault-home"
-      | CostObservability => "nd-piggy-bank"
-      | DynamicRouting => "intelligent-routing-home"
-      | Orchestration(V2) => "orchestrator-home"
-      | Recon(V1) => "recon-engine-v1"
-      | OnBoarding(_) => ""
-      | UnknownProduct => ""
-      }
-    }
 
     let isActive = currentId == merchantId
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
@@ -402,7 +384,7 @@ module MerchantDropdownItem = {
         description={productType->getProductDisplayName}
         customStyle="!whitespace-nowrap"
         toolTipFor={<Icon
-          name={productType->productTypeIconMapper}
+          name={productType->ProductUtils.productTypeIconMapper}
           className={`${secondaryTextColor} opacity-50`}
           size=14
         />}

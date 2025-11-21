@@ -1,6 +1,6 @@
 module NewMerchantCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getMerchantList) => {
+  let make = (~setShowModal, ~showModal) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -9,6 +9,7 @@ module NewMerchantCreationModal = {
     let showToast = ToastState.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let getMerchantList = MerchantListHook.useFetchMerchantList()
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
@@ -149,71 +150,21 @@ module NewMerchantCreationModal = {
 
 @react.component
 let make = () => {
-  open APIUtils
-  open LogicUtils
   open OMPSwitchUtils
   open OMPSwitchHelper
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let isMobileView = MatchMedia.useMobileChecker()
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.merchantDetailsValueAtom,
-  )
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
-    globalUIConfig: {
-      sidebarColor: {backgroundColor, primaryTextColor, borderColor, secondaryTextColor},
-    },
+    globalUIConfig: {sidebarColor: {backgroundColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {devModularityV2} = featureFlagDetails
-
-  let getV2MerchantList = async () => {
-    try {
-      let v2MerchantListUrl = getURL(
-        ~entityName=V2(USERS),
-        ~userType=#LIST_MERCHANT,
-        ~methodType=Get,
-      )
-      let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
-      v2MerchantResponse->getArrayFromJson([])
-    } catch {
-    | _ => []
-    }
-  }
-  let getMerchantList = async () => {
-    try {
-      let v1MerchantListUrl = getURL(
-        ~entityName=V1(USERS),
-        ~userType=#LIST_MERCHANT,
-        ~methodType=Get,
-      )
-      let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
-
-      let v2MerchantList = if devModularityV2 {
-        await getV2MerchantList()
-      } else {
-        []
-      }
-      let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
-      let response = concatenatedList->uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
-      let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
-      setMerchantList(_ => concatenatedListTyped)
-    } catch {
-    | _ => {
-        setMerchantList(_ => [ompDefaultValue(merchantId, "")])
-        showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
-      }
-    }
-  }
 
   let switchMerch = async value => {
     try {
@@ -254,11 +205,6 @@ let make = () => {
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
-  React.useEffect(() => {
-    getMerchantList()->ignore
-    None
-  }, [merchantDetailsTypedValue.merchant_name])
-
   let toggleChevronState = () => {
     setArrow(prev => !prev)
   }
@@ -276,7 +222,6 @@ let make = () => {
         }}
         index=i
         currentId=item.id
-        getMerchantList
         switchMerch
       />
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
@@ -297,7 +242,7 @@ let make = () => {
       options={updatedMerchantList->generateDropdownOptionsCustomComponent(
         ~isPlatformOrg=isCurrentOrganizationPlatform,
       )}
-      marginTop={`mt-12 ${borderColor} shadow-generic_shadow`}
+      marginTop={`mt-16 ${borderColor} shadow-generic_shadow ml-2`}
       hideMultiSelectButtons=true
       addButton=false
       customStyle={`!border-none w-fit ${backgroundColor.sidebarSecondary} !${borderColor} `}
@@ -305,13 +250,13 @@ let make = () => {
       baseComponent={<ListBaseComp
         user=#Merchant heading="Merchant" subHeading arrow isPlatform=isCurrentMerchantPlatform
       />}
-      baseComponentCustomStyle={`!border-none`}
+      baseComponentCustomStyle="!border-none"
       bottomComponent={<AddNewOMPButton
         user=#Merchant
         setShowModal
-        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
+        customStyle={`${backgroundColor.sidebarSecondary} ${borderColor} !border-none`}
         addItemBtnStyle
-        customHRTagStyle={`${borderColor}`}
+        customHRTagStyle={borderColor}
       />}
       toggleChevronState
       customScrollStyle
@@ -323,7 +268,7 @@ let make = () => {
       reverseSortGroupKeys=true
     />
     <RenderIf condition={showModal}>
-      <NewMerchantCreationModal setShowModal showModal getMerchantList />
+      <NewMerchantCreationModal setShowModal showModal />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingMerch}

@@ -88,6 +88,21 @@ let getProductVariantFromDisplayName = product => {
   }
 }
 
+let productTypeIconMapper = productType => {
+  switch productType {
+  | Orchestration(V1)
+  | Orchestration(V2) => "orchestrator-home"
+  | Recovery => "recovery-home"
+  | Vault => "vault-home"
+  | CostObservability => "nd-piggy-bank"
+  | DynamicRouting => "intelligent-routing-home"
+  | Recon(V1)
+  | Recon(V2) => "recon-home"
+  | OnBoarding(_) => ""
+  | UnknownProduct => ""
+  }
+}
+
 let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
   switch productType {
   | Orchestration(V1) => `/dashboard/home`
