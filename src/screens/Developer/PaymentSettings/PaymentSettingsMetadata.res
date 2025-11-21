@@ -8,6 +8,7 @@ module MetadataAuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
+    let originalKeyRef = React.useRef("")
     let getMetadatKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
@@ -25,6 +26,7 @@ module MetadataAuthenticationInput = {
       let (metadataKey, customMetadataVal) = getMetadatKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
+      originalKeyRef.current = metadataKey
       None
     }, [])
 
@@ -32,24 +34,16 @@ module MetadataAuthenticationInput = {
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        let (metadataKey, customMetadataVal) = getMetadatKeyValues()
-
-        //When we try to change just key field.
-        if metadataKey->String.length > 0 {
-          let name = `metadata.${metadataKey}`
-          let newKey = `metadata.${key}`
-          form.change(name, JSON.Encode.null)
-          if key->String.length > 0 {
-            form.change(newKey, customMetadataVal->JSON.Encode.string)
-          }
-        }
-
-        //When we empty the key field , then just put a new key field name, keeping the value field the same.
         if (
-          metadataKey->String.length <= 0 && metaValue->String.length > 0 && key->String.length > 0
+          key->isNonEmptyString &&
+          originalKeyRef.current->isNonEmptyString &&
+          originalKeyRef.current !== key
         ) {
-          let field = `metadata.${key}`
-          form.change(field, metaValue->JSON.Encode.string)
+          let oldName = `metadata.${originalKeyRef.current}`
+          form.change(oldName, JSON.Encode.null)
+          let newName = `metadata.${key}`
+          form.change(newName, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
@@ -67,7 +61,7 @@ module MetadataAuthenticationInput = {
           true
         }
         if value->String.length <= 0 {
-          let name = `metadata.${key}`
+          let name = `metadata.${originalKeyRef.current}`
           form.change(name, JSON.Encode.null)
         }
         //Not allow users to enter just integers
@@ -83,9 +77,14 @@ module MetadataAuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
+        if key->isNonEmptyString {
+          if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
+            let oldName = `metadata.${originalKeyRef.current}`
+            form.change(oldName, JSON.Encode.null)
+          }
           let name = `metadata.${key}`
           form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
