@@ -35,8 +35,8 @@ module MetadataAuthenticationInput = {
       name: "string",
       onBlur: _ => {
         if (
-          key->String.length > 0 &&
-          originalKeyRef.current->String.length > 0 &&
+          key->isNonEmptyString &&
+          originalKeyRef.current->isNonEmptyString &&
           originalKeyRef.current !== key
         ) {
           let oldName = `metadata.${originalKeyRef.current}`
@@ -77,8 +77,8 @@ module MetadataAuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
-          if originalKeyRef.current->String.length > 0 && originalKeyRef.current !== key {
+        if key->isNonEmptyString {
+          if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
             let oldName = `metadata.${originalKeyRef.current}`
             form.change(oldName, JSON.Encode.null)
           }
