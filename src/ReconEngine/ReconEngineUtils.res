@@ -55,6 +55,18 @@ let getMismatchTypeVariantFromString = (mismatchType: string): mismatchType => {
   }
 }
 
+let getNeedsManualReviewTypeVariantFromString = (reviewType: string): needsManualReviewType => {
+  switch reviewType->String.toLowerCase {
+  | "no_rules_found" => NoRulesFound
+  | "staging_entry_currency_mismatch" => StagingEntryCurrencyMismatch
+  | "duplicate_entry" => DuplicateEntry
+  | "no_expectation_entry_found" => NoExpectationEntryFound
+  | "missing_search_identifier_value" => MissingSearchIdentifierValue
+  | "missing_unique_field" => MissingUniqueField
+  | _ => UnknownNeedsManualReviewType
+  }
+}
+
 let ingestionAndTransformationStatusTypeFromString = (
   status: string,
 ): ingestionTransformationStatusType => {
@@ -304,7 +316,25 @@ let entryItemToObjMapper = dict => {
   }
 }
 
+let processingEntryDataItemToObjMapper = (dataDict): processingEntryDataType => {
+  {
+    status: dataDict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+    needs_manual_review_type: dataDict
+    ->getString("needs_manual_review_type", "")
+    ->getNeedsManualReviewTypeVariantFromString,
+  }
+}
+
+let processingEntryDiscardedDataItemToObjMapper = (dataDict): processingEntryDiscardedDataType => {
+  {
+    reason: dataDict->getString("reason", ""),
+    status: dataDict->getString("status", "")->getProcessingEntryStatusVariantFromString,
+  }
+}
+
 let processingItemToObjMapper = (dict): processingEntryType => {
+  let discardedDataDict =
+    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -321,6 +351,12 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     transformation_id: dict->getString("transformation_id", ""),
     transformation_history_id: dict->getString("transformation_history_id", ""),
     order_id: dict->getString("order_id", ""),
+    version: dict->getInt("version", 0),
+    discarded_status: dict->getOptionString("discarded_status"),
+    data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
+    discarded_data: discardedDataDict.status != UnknownProcessingEntryStatus
+      ? Some(discardedDataDict)
+      : None,
   }
 }
 

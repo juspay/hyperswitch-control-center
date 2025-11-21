@@ -30,6 +30,22 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(GIGADAT),
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
+]
+
+let payoutConnectorListForLive: array<connectorTypes> = [
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CYBERSOURCE),
+  PayoutProcessor(EBANX),
+  PayoutProcessor(PAYPAL),
+  PayoutProcessor(STRIPE),
+  PayoutProcessor(WISE),
+  PayoutProcessor(NOMUPAY),
+  PayoutProcessor(NUVEI),
+  PayoutProcessor(GIGADAT),
+  PayoutProcessor(LOONIO),
+  PayoutProcessor(WORLDPAY),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -41,7 +57,10 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(CARDINAL),
 ]
 
-let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+let threedsAuthenticatorListForLive: array<connectorTypes> = [
+  ThreeDsAuthenticator(NETCETERA),
+  ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+]
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
@@ -882,6 +901,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | GIGADAT => "gigadat"
   | LOONIO => "loonio"
   | WORLDPAY => "worldpay"
+  | WORLDPAYXML => "worldpayxml"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1061,6 +1081,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "gigadat" => PayoutProcessor(GIGADAT)
     | "loonio" => PayoutProcessor(LOONIO)
     | "worldpay" => PayoutProcessor(WORLDPAY)
+    | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1221,6 +1242,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | GIGADAT => gigadatInfo
   | LOONIO => loonioInfo
   | WORLDPAY => worldpayInfo
+  | WORLDPAYXML => worldpayxmlInfo
   }
 }
 
@@ -2152,6 +2174,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
   | WORLDPAY => "Worldpay"
+  | WORLDPAYXML => "Worldpay WPG"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
