@@ -215,7 +215,6 @@ module WebHookSection = {
     ~businessProfileDetails: BusinessProfileInterfaceTypesV1.profileEntity_v1,
     ~setBusinessProfile,
     ~setScreenState,
-    ~profileId="",
   ) => {
     open APIUtils
     open LogicUtils
@@ -226,7 +225,7 @@ module WebHookSection = {
     let showToast = ToastState.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-
+    let profileId = businessProfileDetails.profile_id
     let onSubmit = async (values, _) => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
@@ -276,6 +275,7 @@ module WebHookSection = {
               </RenderIf>
             </div>
           </DesktopRow>
+          <FormValuesSpy />
         </form>
       }}
     />
@@ -971,15 +971,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <div className={` py-4 md:py-10 h-full flex flex-col `}>
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <WebHookSection businessProfileDetails setBusinessProfile setScreenState profileId />
+            <WebHookSection businessProfileDetails setBusinessProfile setScreenState />
           </div>
         </div>
         <div className="py-4 md:py-10 h-full flex flex-col">
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <PaymentSettingsMetadata
-              businessProfileDetails setBusinessProfile setScreenState profileId
-            />
+            <PaymentSettingsMetadata businessProfileDetails setBusinessProfile setScreenState />
           </div>
         </div>
         <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>
