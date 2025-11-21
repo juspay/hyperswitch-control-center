@@ -157,7 +157,6 @@ let make = () => {
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
     <div>
       <WebhooksUtils.EnhancedSearchBarFilter
-        searchVal=searchText
         setSearchVal=setSearchText
         searchType
         setSearchType

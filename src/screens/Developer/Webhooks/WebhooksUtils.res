@@ -3,7 +3,7 @@ open LogicUtils
 
 module EnhancedSearchBarFilter = {
   @react.component
-  let make = (~searchVal, ~setSearchVal, ~searchType, ~setSearchType, ~onEnterPress) => {
+  let make = (~setSearchVal, ~searchType, ~setSearchType, ~onEnterPress) => {
     let dropdownRef = React.useRef(Nullable.null)
     let (baseValue, setBaseValue) = React.useState(_ => "")
     let (showDropdown, setShowDropdown) = React.useState(_ => false)
