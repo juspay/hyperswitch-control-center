@@ -51,15 +51,7 @@ type cols =
   | CreatedAt
   | LastModifiedAt
 
-let visibleColumns = [
-  PayoutId,
-  PayoutAttemptId,
-  Status,
-  Amount,
-  Currency,
-  Connector,
-  CreatedAt,
-]
+let visibleColumns = [PayoutId, PayoutAttemptId, Status, Amount, Currency, Connector, CreatedAt]
 
 let colMapper = (col: cols) => {
   switch col {
@@ -132,8 +124,10 @@ let getHeading = colType => {
   switch colType {
   | PayoutId => Table.makeHeaderInfo(~key, ~title="Payout ID", ~dataType=TextType)
   | PayoutAttemptId => Table.makeHeaderInfo(~key, ~title="Payout Attempt ID", ~dataType=TextType)
-  | MerchantOrderReferenceId => Table.makeHeaderInfo(~key, ~title="Merchant Order Reference ID", ~dataType=TextType)
-  | ConnectorPayoutId => Table.makeHeaderInfo(~key, ~title="Connector Payout ID", ~dataType=TextType)
+  | MerchantOrderReferenceId =>
+    Table.makeHeaderInfo(~key, ~title="Merchant Order Reference ID", ~dataType=TextType)
+  | ConnectorPayoutId =>
+    Table.makeHeaderInfo(~key, ~title="Connector Payout ID", ~dataType=TextType)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
@@ -150,7 +144,8 @@ let getHeading = colType => {
   | UnifiedMessage => Table.makeHeaderInfo(~key, ~title="Unified Message", ~dataType=TextType)
   | BusinessCountry => Table.makeHeaderInfo(~key, ~title="Business Country", ~dataType=TextType)
   | BusinessLabel => Table.makeHeaderInfo(~key, ~title="Business Label", ~dataType=TextType)
-  | AdditionalPayoutMethodData => Table.makeHeaderInfo(~key, ~title="Additional Payout Method Data", ~dataType=TextType)
+  | AdditionalPayoutMethodData =>
+    Table.makeHeaderInfo(~key, ~title="Additional Payout Method Data", ~dataType=TextType)
   | CreatedAt => Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType)
   | LastModifiedAt => Table.makeHeaderInfo(~key, ~title="Last Modified At", ~dataType=TextType)
   }
