@@ -165,8 +165,10 @@ let getHeading = colType => {
   | PayoutId => Table.makeHeaderInfo(~key, ~title="Payout Id", ~dataType=TextType)
   | PayoutAttemptId => Table.makeHeaderInfo(~key, ~title="Payout Attempt Id", ~dataType=TextType)
   | PayoutLinkId => Table.makeHeaderInfo(~key, ~title="Payout Link Id", ~dataType=TextType)
-  | MerchantOrderReferenceId => Table.makeHeaderInfo(~key, ~title="Merchant Order Reference Id", ~dataType=TextType)
-  | ConnectorPayoutId => Table.makeHeaderInfo(~key, ~title="Connector Payout Id", ~dataType=TextType)
+  | MerchantOrderReferenceId =>
+    Table.makeHeaderInfo(~key, ~title="Merchant Order Reference Id", ~dataType=TextType)
+  | ConnectorPayoutId =>
+    Table.makeHeaderInfo(~key, ~title="Connector Payout Id", ~dataType=TextType)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
@@ -193,7 +195,8 @@ let getHeading = colType => {
   | EntityType => Table.makeHeaderInfo(~key, ~title="Entity Type", ~dataType=TextType)
   | CreatedAt => Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType)
   | LastModifiedAt => Table.makeHeaderInfo(~key, ~title="Last Modified At", ~dataType=TextType)
-  | AdditionalPayoutMethodData => Table.makeHeaderInfo(~key, ~title="Additional Payout Method Data", ~dataType=TextType)
+  | AdditionalPayoutMethodData =>
+    Table.makeHeaderInfo(~key, ~title="Additional Payout Method Data", ~dataType=TextType)
   | Metadata => Table.makeHeaderInfo(~key, ~title="Metadata", ~dataType=TextType)
   }
 }
@@ -237,7 +240,8 @@ let getCell = (payoutObj, colType): Table.cell => {
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(payoutObj.amount /. conversionFactor)->Float.toString} currency={payoutObj.currency}
+        amount={(payoutObj.amount /. conversionFactor)->Float.toString}
+        currency={payoutObj.currency}
       />,
       "",
     )
