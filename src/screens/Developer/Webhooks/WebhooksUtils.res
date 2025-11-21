@@ -4,11 +4,9 @@ open LogicUtils
 module EnhancedSearchBarFilter = {
   @react.component
   let make = (~searchVal, ~setSearchVal, ~searchType, ~setSearchType, ~onEnterPress) => {
+    let dropdownRef = React.useRef(Nullable.null)
     let (baseValue, setBaseValue) = React.useState(_ => "")
     let (showDropdown, setShowDropdown) = React.useState(_ => false)
-    let (isContainerHovered, setIsContainerHovered) = React.useState(_ => false)
-    let (isInputFocused, setIsInputFocused) = React.useState(_ => false)
-    let (isButtonFocused, setIsButtonFocused) = React.useState(_ => false)
 
     let searchTypeOptions = [
       {"label": "Object ID", "value": "object_id"},
@@ -33,8 +31,8 @@ module EnhancedSearchBarFilter = {
     }
 
     React.useEffect(() => {
-      if baseValue->String.length === 0 && searchVal->isNonEmptyString {
-        setSearchVal(_ => baseValue)
+      if baseValue->isEmptyString {
+        setSearchVal(_ => "")
       }
       None
     }, [baseValue])
@@ -51,39 +49,19 @@ module EnhancedSearchBarFilter = {
       Some(() => Window.removeEventListener("keydown", onKeyPress))
     }, [baseValue])
 
-    // Determine unified states
-    let isAnyFocused = isInputFocused || isButtonFocused || showDropdown
-    let isHoveredOrFocused = isContainerHovered || isAnyFocused
+    OutsideClick.useOutsideClick(
+      ~refs=ArrayOfRef([dropdownRef]),
+      ~isActive=showDropdown,
+      ~callback=() => {
+        setShowDropdown(_ => false)
+      },
+    )
 
-    let borderStyle = if isAnyFocused {
-      "border border-primary"
-    } else if isHoveredOrFocused {
-      "border border-jp-gray-600"
-    } else {
-      "border border-jp-gray-600 border-opacity-75"
-    }
-
-    let backgroundStyle = if isHoveredOrFocused && !isAnyFocused {
-      "bg-gray-50"
-    } else {
-      "bg-white"
-    }
-
-    let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
-      name: "name",
-      onBlur: _ => setIsInputFocused(_ => false),
-      onChange,
-      onFocus: _ => setIsInputFocused(_ => true),
-      value: baseValue->JSON.Encode.string,
-      checked: true,
-    }
-
-    <div
-      className="w-max relative"
-      onMouseEnter={_ => setIsContainerHovered(_ => true)}
-      onMouseLeave={_ => setIsContainerHovered(_ => false)}>
+    <div className="w-max relative">
       <div
-        className={`relative flex items-center ${borderStyle} ${backgroundStyle} rounded-lg transition-all duration-200`}>
+        className={`relative flex items-center border rounded-lg transition-all duration-200 bg-nd_gray-0 hover:bg-nd_gray-50 ${showDropdown
+            ? "border-nd_primary_blue-500"
+            : "border-nd_br_gray-200 border-opacity-75 hover:border-opacity-100 focus-within:!border-nd_primary_blue-500 focus-within:!border-opacity-100"}`}>
         <div className="flex items-center pl-4">
           <Icon name="search" size=14 className="text-gray-400" />
         </div>
@@ -91,17 +69,14 @@ module EnhancedSearchBarFilter = {
           type_="text"
           value=baseValue
           onChange
-          onFocus={inputSearch.onFocus}
-          onBlur={inputSearch.onBlur}
           placeholder="Search by ID"
           className="flex-1 px-3 py-2 bg-transparent text-sm text-gray-700 placeholder-gray-400 placeholder:opacity-90 focus:outline-none h-10"
         />
+        <div className="h-6 w-px bg-gray-300" />
         <div className="relative">
           <button
             type_="button"
             onClick={_ => setShowDropdown(prev => !prev)}
-            onFocus={_ => setIsButtonFocused(_ => true)}
-            onBlur={_ => setIsButtonFocused(_ => false)}
             className="flex items-center gap-1 px-3 h-10 text-sm text-gray-700 bg-transparent rounded-r-lg transition-all duration-200 focus:outline-none active:outline-none outline-none border-0 shadow-none active:shadow-none focus:shadow-none active:border-0 focus:border-0 select-none">
             <span className="whitespace-nowrap text-xs"> {getCurrentLabel()->React.string} </span>
             <Icon
@@ -114,9 +89,11 @@ module EnhancedSearchBarFilter = {
           </button>
           <RenderIf condition=showDropdown>
             <div
+              ref={dropdownRef->ReactDOM.Ref.domRef}
               className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-28 overflow-hidden">
               {searchTypeOptions
               ->Array.map(option => {
+                let isSelected = searchType === option["value"]
                 <button
                   key={option["value"]}
                   type_="button"
@@ -124,11 +101,13 @@ module EnhancedSearchBarFilter = {
                     ReactEvent.Mouse.preventDefault(event)
                     onSearchTypeChange(option["value"])
                   }}
-                  className={`w-full px-3 py-2 text-xs text-left transition-colors ${searchType ===
-                      option["value"]
-                      ? "bg-blue-50 text-blue-700 font-medium"
+                  className={`w-full px-3 py-2 text-xs text-left transition-colors ${isSelected
+                      ? "bg-gray-100 text-gray-700"
                       : "text-gray-700 hover:bg-gray-50"}`}>
-                  {option["label"]->React.string}
+                  <div className="flex items-center justify-between gap-2">
+                    <span> {option["label"]->React.string} </span>
+                    <Tick isSelected />
+                  </div>
                 </button>
               })
               ->React.array}
