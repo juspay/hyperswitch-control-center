@@ -22,3 +22,8 @@ type acceptInviteRequest = {
   entity_id: string,
   entity_type: string,
 }
+
+type invitationAcceptanceStatus =
+  | AlreadyAccepted
+  | SuccessfullyAccepted
+  | Unknown
