@@ -679,6 +679,7 @@ let generateDropdownOptionsCustomComponent: (
   array<OMPSwitchTypes.ompListTypesCustom>,
   ~isPlatformOrg: bool,
 ) => array<SelectBox.dropdownOption> = (dropdownList, ~isPlatformOrg) => {
+  open ProductUtils
   let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
     item
   ): SelectBox.dropdownOption => {
@@ -718,6 +719,12 @@ let generateDropdownOptionsCustomComponent: (
           toolTipPosition=ToolTip.TopRight
         />,
       ),
+      optGroup: {
+        switch item.productType {
+        | Some(productType) => productType->getProductDisplayName->String.toUpperCase
+        | None => "OTHER"
+        }
+      },
     }
     isPlatformOrg ? platformOptions : merchantOptions
   })
