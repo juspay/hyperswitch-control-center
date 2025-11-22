@@ -63,7 +63,7 @@ module RangeSliderLocalFilter = {
     <div className="flex relative flex-row flex-wrap">
       <div className="flex relative flex-row flex-wrap w-full">
         <div
-          className="flex justify-center relative h-10 flex flex-row min-w-min items-center bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100 text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2 w-full justify-between overflow-hidden w-full"
+          className="flex relative h-10 flex-row min-w-min items-center bg-white text-jp-gray-950 text-opacity-75 hover:shadow hover:text-black hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100 dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2 w-full justify-between overflow-hidden"
           type_="button"
           onClick={_ => setShowDropDown(prev => !prev)}>
           {rightIcon}
@@ -71,7 +71,7 @@ module RangeSliderLocalFilter = {
         <RenderIf condition={min !== max && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
-            className=" top-3.5 px-4 pt-4 pb-2 bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark mt-8 absolute border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
+            className=" top-3.5 px-4 pt-4 pb-2 bg-white dark:bg-jp-gray-lightgray_background mt-8 absolute border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
             <div className="flex">
               <RangeSlider min max maxSlide minSlide />
             </div>
@@ -153,7 +153,7 @@ module FilterDropDown = {
       />
     } else {
       <div
-        className="flex justify-center relative h-10 flex flex-row min-w-min items-center bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100 text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2 w-full justify-between overflow-hidden w-full"
+        className="flex relative h-10 flex-row min-w-min items-center bg-white text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100 text-jp-gray-950 dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2 w-full justify-between overflow-hidden"
         type_="button">
         <div className="max-w-[250px] md:max-w-xs">
           <div className="px-2 text-fs-13 font-medium truncate whitespace-pre ">
