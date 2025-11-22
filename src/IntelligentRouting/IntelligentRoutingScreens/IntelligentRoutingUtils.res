@@ -102,7 +102,7 @@ module StepCard = {
             : "cursor-pointer"} justify-between`}
         onClick={!isDisabled ? onClick : _ => ()}>
         <div className="flex items-center gap-x-2.5">
-          <img alt={iconName} src={`/IntelligentRouting/${iconName}.svg`} className="w-8 h-8" />
+          <img alt={iconName} src={`/assets/IntelligentRouting/${iconName}.svg`} className="w-8 h-8" />
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <h3 className="font-medium text-grey-900"> {stepName->React.string} </h3>
