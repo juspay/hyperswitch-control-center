@@ -48,7 +48,6 @@ let make = () => {
       <BreadCrumbNavigation
         path=[{title: "Profile", link: "/account-settings/profile"}]
         currentPageTitle=pageTitle
-        cursorStyle="cursor-pointer"
       />
     </div>
     {switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
