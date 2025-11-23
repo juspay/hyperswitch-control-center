@@ -68,7 +68,7 @@ let make = () => {
       // Process failed payments to get additional information from process tracker
       let processedOrderData = await Promise.all(
         orderData->Array.map(async order => {
-          // TODO: change this later // order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed
+          // TODO: change this later
           if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
             try {
               let processTrackerUrl = getURL(
@@ -82,26 +82,21 @@ let make = () => {
 
               let status = processTrackerDataDict->getString("status", "")
 
-              // If we get a response, modify the payment object
               if (
-                processTrackerDataDict->Dict.keysToArray->Array.length > 0 &&
-                  status != Finish->schedulerStatusStringMapper
+                !(processTrackerDataDict->isEmptyDict) &&
+                status != Finish->schedulerStatusStringMapper
               ) {
-                // Create a modified order object with additional process tracker data
                 {
                   ...order,
                   status: Scheduled->statusStringMapper,
                 }
               } else {
-                // Keep the order as-is if no response
                 order
               }
             } catch {
-            | Exn.Error(_) => // Keep the order as-is if there's an error
-              order
+            | Exn.Error(_) => order
             }
           } else {
-            // Keep non-failed orders as-is
             order
           }
         }),
@@ -124,7 +119,6 @@ let make = () => {
         filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
       }
 
-      //to create amount_filter query
       let newDict = AmountFilterUtils.createAmountQuery(~dict)
       newDict
       ->Dict.toArray
@@ -132,7 +126,7 @@ let make = () => {
         let (key, value) = item
         filters->Dict.set(key, value)
       })
-      // TODO: enable amount filter later
+
       filters->Dict.delete("amount_filter")
 
       filters
@@ -155,16 +149,11 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let customTitleStyle = "py-0 !pt-0"
-
-  let (widthClass, heightClass) = ("w-full", "")
-
   <ErrorBoundary>
-    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+    <div className={`flex flex-col mx-auto h-full w-full min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="List of Invoices" customTitleStyle />
+        <PageUtils.PageHeading title="List of Invoices" customTitleStyle="py-0 !pt-0" />
       </div>
-      //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>
         <LoadedTableWithCustomColumns
           title="Recovery"

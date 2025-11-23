@@ -14,8 +14,6 @@ module DisplayValues = {
     ~wordBreak=true,
     ~textColor="",
   ) => {
-    let marginClass = "!py-0"
-
     <AddDataAttributes attributes=[("data-label", heading.title)]>
       <div className="grid grid-cols-10">
         <div className="flex items-center col-span-3">
@@ -30,7 +28,7 @@ module DisplayValues = {
             textAlign=Table.Right
             fontBold=false
             customMoneyStyle="!font-normal"
-            labelMargin=marginClass
+            labelMargin="!py-0"
             customDateStyle
           />
         </div>
@@ -66,11 +64,7 @@ module RecoveryAmountStatus = {
   open RevenueRecoveryOrderTypes
   open RevenueRecoveryOrderUtils
   open Typography
-
-  let formatCurrency = (amount: float) => {
-    let dollars = amount /. 100.0
-    `$${dollars->Float.toFixedWithPrecision(~digits=2)}`
-  }
+  open InvoiceDetailsPageUtils
 
   @react.component
   let make = (~order: order, ~processTracker: Dict.t<JSON.t>) => {
@@ -78,7 +72,7 @@ module RecoveryAmountStatus = {
     let amountCaptured = order.amount_captured
     let status: RevenueRecoveryOrderTypes.recoveryInvoiceStatus = order.status->statusVariantMapper
 
-    let scheduledTime = if processTracker->Dict.keysToArray->Array.length > 0 {
+    let scheduledTime = if !(processTracker->isEmptyDict) {
       let scheduleTime = processTracker->getString("schedule_time_for_payment", "")
       scheduleTime->isNonEmptyString ? Some(scheduleTime) : None
     } else {
@@ -241,41 +235,6 @@ let make = (~id) => {
     }
   }
 
-  let fetchOrderDetails = async _ => {
-    try {
-      setScreenState(_ => Loading)
-
-      let url = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
-      let data = await fetchDetails(url, ~version=V2)
-
-      let orderData =
-        data
-        ->getDictFromJsonObject
-        ->RevenueRecoveryEntity.itemToObjMapperForIntents
-
-      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
-        await getPTDetails(~orderData)
-      } else {
-        setRevenueRecoveryData(_ => orderData)
-      }
-
-      setScreenState(_ => Success)
-    } catch {
-    | Exn.Error(e) =>
-      switch Exn.message(e) {
-      | Some(message) =>
-        if message->String.includes("HE_02") {
-          setScreenState(_ => Custom)
-        } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
-          setScreenState(_ => Error("Failed to Fetch!"))
-        }
-
-      | None => setScreenState(_ => Error("Failed to Fetch!"))
-      }
-    }
-  }
-
   let fetchOrderAttemptListDetails = async _ => {
     try {
       let url = getURL(~entityName=V2(V2_ATTEMPTS_LIST), ~methodType=Get, ~id=Some(id))
@@ -297,9 +256,45 @@ let make = (~id) => {
     }
   }
 
+  let fetchOrderDetails = async _ => {
+    try {
+      setScreenState(_ => Loading)
+
+      let url = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      let data = await fetchDetails(url, ~version=V2)
+
+      let orderData =
+        data
+        ->getDictFromJsonObject
+        ->RevenueRecoveryEntity.itemToObjMapperForIntents
+
+      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
+        await getPTDetails(~orderData)
+      } else {
+        setRevenueRecoveryData(_ => orderData)
+      }
+
+      fetchOrderAttemptListDetails()->ignore
+
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("HE_02") {
+          setScreenState(_ => Custom)
+        } else {
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
+          setScreenState(_ => Error("Failed to Fetch!"))
+        }
+
+      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      }
+    }
+  }
+
   React.useEffect(() => {
     fetchOrderDetails()->ignore
-    fetchOrderAttemptListDetails()->ignore
     None
   }, [])
 

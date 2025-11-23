@@ -1,20 +1,9 @@
 module SegmentedProgressBar = {
   open Typography
+  open InvoiceDetailsPageUtils
   @react.component
   let make = (~orderAmount: float, ~amountCaptured: float, ~className: string="") => {
-    let percentage = if orderAmount <= 0.0 {
-      0.0
-    } else {
-      let calculated = amountCaptured /. orderAmount *. 100.0
-
-      if calculated < 0.0 {
-        0.0
-      } else if calculated > 100.0 {
-        100.0
-      } else {
-        calculated
-      }
-    }
+    let percentage = getAmountPercentage(~orderAmount, ~amountCaptured)
 
     let percentageInt = percentage->Float.toInt
     let percentageString = percentage->Float.toString
@@ -42,47 +31,10 @@ module SegmentedProgressBar = {
   }
 }
 
-open RevenueRecoveryOrderTypes
-open RevenueRecoveryOrderUtils
-open LogicUtils
-open Typography
-
-let formatCurrency = (amount: float) => {
-  let dollars = amount /. 100.0
-  `$${dollars->Float.toFixedWithPrecision(~digits=2)}`
-}
-
-let parseAttemptStatus = (attempt: attempts) =>
-  attempt.attempt_triggered_by->String.toUpperCase->attemptTriggeredByVariantMapper
-
-let isInternalAttempt = (attempt: attempts) => {
-  attempt->parseAttemptStatus == INTERNAL
-}
-
-let isExternalAttempt = (attempt: attempts) => {
-  attempt->parseAttemptStatus != INTERNAL
-}
-
-let getStatusBadgeColor = (status: string) => {
-  switch status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
-  | #CHARGED => (
-      "bg-nd_green-100 text-nd_green-600  border border-nd_green-200",
-      "Recovered successfully",
-    )
-  | #FAILURE => ("bg-nd_red-50 text-nd_red-500 border border-nd_red-200 ", "Failed")
-  | _ => ("bg-nd_orange-150 text-nd_orange-300 border border-nd_orange-300", "Pending")
-  }
-}
-
-let getTimelineDotColor = (status: string) => {
-  switch status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
-  | #CHARGED => "bg-nd_green-500"
-  | #FAILURE => "bg-nd_red-500"
-  | _ => "bg-nd_orange-300"
-  }
-}
-
 module AttemptItem = {
+  open RevenueRecoveryOrderTypes
+  open Typography
+  open InvoiceDetailsPageUtils
   @react.component
   let make = (~attempt: attempts, ~index: int, ~totalAttempts: int, ~isLast: bool) => {
     let (badgeClass, badgeText) = getStatusBadgeColor(attempt.status)
@@ -140,6 +92,11 @@ module AttemptItem = {
 }
 
 module AttemptsHistory = {
+  open RevenueRecoveryOrderTypes
+  open InvoiceDetailsPageUtils
+  open RevenueRecoveryOrderUtils
+  open Typography
+  open LogicUtils
   @react.component
   let make = (~order, ~attemptsList, ~processTracker: option<Dict.t<JSON.t>>) => {
     let attempts = attemptsList
@@ -175,8 +132,7 @@ module AttemptsHistory = {
           <div className="flex-1 border-t-1.5 mx-4" />
         </div>
       </div>
-      <RenderIf
-        condition={order.status->RevenueRecoveryOrderUtils.statusVariantMapper != Recovered}>
+      <RenderIf condition={status != Recovered}>
         <div className="pt-7">
           <div className="flex items-center justify-between relative">
             <div
