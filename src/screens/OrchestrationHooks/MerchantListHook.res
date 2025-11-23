@@ -1,6 +1,29 @@
+open APIUtils
+open LogicUtils
+
+let useFetchMerchantListV2 = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+  let showToast = ToastState.useShowToast()
+
+  async () => {
+    try {
+      let v2MerchantListUrl = getURL(
+        ~entityName=V2(USERS),
+        ~userType=#LIST_MERCHANT,
+        ~methodType=Get,
+      )
+      let v2MerchantListResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
+      v2MerchantListResponse->getArrayFromJson([])
+    } catch {
+    | _ =>
+      showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+      []
+    }
+  }
+}
+
 let useFetchMerchantList = () => {
-  open APIUtils
-  open LogicUtils
   open OMPSwitchUtils
 
   let getURL = useGetURL()
@@ -10,19 +33,7 @@ let useFetchMerchantList = () => {
   let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
-  let getV2MerchantList = async () => {
-    try {
-      let v2MerchantListUrl = getURL(
-        ~entityName=V2(USERS),
-        ~userType=#LIST_MERCHANT,
-        ~methodType=Get,
-      )
-      let v2MerchantResponse = await fetchDetails(v2MerchantListUrl, ~version=V2)
-      v2MerchantResponse->getArrayFromJson([])
-    } catch {
-    | _ => []
-    }
-  }
+  let v2MerchantListFetcher = useFetchMerchantListV2()
 
   async () => {
     try {
@@ -33,7 +44,7 @@ let useFetchMerchantList = () => {
       )
       let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
 
-      let v2MerchantList = featureFlagDetails.devModularityV2 ? await getV2MerchantList() : []
+      let v2MerchantList = featureFlagDetails.devModularityV2 ? await v2MerchantListFetcher() : []
       let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
       let response = concatenatedList->uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
       let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
