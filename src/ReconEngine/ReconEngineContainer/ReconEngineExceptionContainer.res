@@ -22,7 +22,7 @@ let make = () => {
           index="recon-engine-transformed-entry-exceptions">
           <ReconEngineTransformedEntryExceptions />
         </FilterContext>}
-      renderShow={(_id, _) => React.null}
+      renderShow={(id, _) => <ReconEngineTransformedEntryExceptionsDetails id />}
     />
   | _ => React.null
   }

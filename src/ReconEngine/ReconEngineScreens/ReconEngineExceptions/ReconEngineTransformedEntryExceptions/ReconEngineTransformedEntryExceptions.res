@@ -143,7 +143,10 @@ let make = () => {
             title="Transformed Entries"
             hideTitle=true
             actualData={filteredStagingData}
-            entity={ReconEngineExceptionEntity.processingTableEntity}
+            entity={ReconEngineExceptionEntity.transformedEntryExceptionTableEntity(
+              `v1/recon-engine/exceptions/transformed-entries`,
+              ~authorization=Access,
+            )}
             resultsPerPage=10
             totalResults={filteredStagingData->Array.length}
             offset

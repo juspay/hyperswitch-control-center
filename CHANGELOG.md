@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.21.0
+
+### Features
+
+- Recon engine transformed entry exception details ([#3840](https://github.com/juspay/hyperswitch-control-center/pull/3840)) ([`77ee878`](https://github.com/juspay/hyperswitch-control-center/commit/77ee87892149da04ed788aaf1e727a627c9b94c5))
+- Worldpay xml payout connector addition ([#3858](https://github.com/juspay/hyperswitch-control-center/pull/3858)) ([`9b830f3`](https://github.com/juspay/hyperswitch-control-center/commit/9b830f3e10dff6b2834cc7d179f0617d1c2591c6))
+
+**Full Changelog:** [`2025.11.20.0...2025.11.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.20.0...2025.11.21.0)
+
+- - -
+
 ## 2025.11.20.0
 
 ### Features
