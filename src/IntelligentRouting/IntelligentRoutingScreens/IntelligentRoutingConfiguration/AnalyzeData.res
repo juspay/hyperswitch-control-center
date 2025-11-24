@@ -15,6 +15,9 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   let (upload, setUpload) = React.useState(() => false)
   let inputRef = React.useRef(Nullable.null)
   let (buttonState, setButtonState) = React.useState(() => Button.Normal)
+  let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
 
   let getReviewData = async () => {
     try {
@@ -174,7 +177,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
                 <Icon name="nd-arrow-down" />
               </span>
               <div
-                className="text-nd_primary_blue-500 font-medium"
+                className={`${primaryNormal} font-medium`}
                 onClick={_ => downloadTemplateFile()->ignore}>
                 {"Download"->React.string}
               </div>
