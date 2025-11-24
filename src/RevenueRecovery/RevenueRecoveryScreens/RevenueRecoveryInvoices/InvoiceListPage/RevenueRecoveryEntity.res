@@ -67,7 +67,7 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   network_error_message: dict
   ->getDictfromDict("error")
   ->getString("network_error_message", ""),
-  net_amount: dict->getDictfromDict("amount")->getFloat("net_amount", 0.0),
+  net_amount: dict->getDictfromDict("amount")->getFloat("net_amount", 0.0) /. 100.0,
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
@@ -150,10 +150,7 @@ let getCell = (
       },
     })
   | OrderAmount =>
-    CustomCell(
-      <CurrencyCell amount={(order.order_amount /. 100.0)->Float.toString} currency={"USD"} />,
-      "",
-    )
+    CustomCell(<CurrencyCell amount={order.order_amount->Float.toString} currency={"USD"} />, "")
   | Connector =>
     CustomCell(
       <HelperComponents.ConnectorCustomCell
@@ -214,10 +211,10 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount_details")
-    ->getFloat("order_amount", 0.0),
+    ->getFloat("order_amount", 0.0) /. 100.0,
     amount_captured: dict
     ->getDictfromDict("amount_details")
-    ->getFloat("amount_captured", 0.0),
+    ->getFloat("amount_captured", 0.0) /. 100.0,
     connector: revenueRecoveryMetadata->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: revenueRecoveryMetadata->getString("payment_method_type", ""),
@@ -236,10 +233,10 @@ let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict =>
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount")
-    ->getFloat("order_amount", 0.0),
+    ->getFloat("order_amount", 0.0) /. 100.0,
     amount_captured: dict
     ->getDictfromDict("amount")
-    ->getFloat("amount_captured", 0.0),
+    ->getFloat("amount_captured", 0.0) /. 100.0,
     connector: dict->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: dict->getString("payment_method_type", ""),

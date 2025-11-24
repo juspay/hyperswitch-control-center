@@ -17,8 +17,7 @@ let getAmountPercentage = (~orderAmount, ~amountCaptured) => {
 open RevenueRecoveryOrderTypes
 open RevenueRecoveryOrderUtils
 let formatCurrency = (amount: float) => {
-  let dollars = amount /. 100.0
-  `$${dollars->Float.toFixedWithPrecision(~digits=2)}`
+  amount->CurrencyFormatUtils.valueFormatter(AmountWithSuffix, ~currency="$")
 }
 
 let parseAttemptStatus = (attempt: attempts) =>
