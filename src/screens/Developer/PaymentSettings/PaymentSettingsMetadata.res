@@ -195,15 +195,18 @@ module MetadataHeaders = {
 }
 
 @react.component
-let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
+let make = (
+  ~businessProfileDetails: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+  ~setBusinessProfile,
+  ~setScreenState,
+) => {
   open APIUtils
   open LogicUtils
   open FormRenderer
   open MerchantAccountUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let url = RescriptReactRouter.useUrl()
-  let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
+  let profileId = businessProfileDetails.profile_id
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
@@ -212,7 +215,7 @@ let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~prof
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(id))
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
