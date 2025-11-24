@@ -44,8 +44,8 @@ module RenderSearchResultBody = {
       <PaymentIntentTable.PreviewTable data={section.results} />
     | PaymentAttempts | SessionizerPaymentAttempts =>
       <PaymentAttemptTable.PreviewTable data={section.results} />
-    | Payouts => <PayoutTable.PreviewTable data={section.results}/>
-    | PayoutAttempts => <PayoutAttemptTable.PreviewTable data={section.results}/>
+    | Payouts => <PayoutTable.PreviewTable data={section.results} />
+    | PayoutAttempts => <PayoutAttemptTable.PreviewTable data={section.results} />
     | Refunds | SessionizerPaymentRefunds => <RefundsTable.PreviewTable data={section.results} />
     | Disputes | SessionizerPaymentDisputes => <DisputeTable.PreviewTable data={section.results} />
     | Others | Default => "Not implemented"->React.string
@@ -92,7 +92,7 @@ let make = () => {
   let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
   let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
-  let hswitchTabs = SidebarValues.useGetHsSidebarValues(~isReconEnabled)
+  let hswitchTabs = SidebarHooks.useGetHsSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()

@@ -130,6 +130,7 @@ module.exports = {
         "137-px": "137px",
         "145-px": "145px",
         "147-px": "147px",
+        "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
         "499-px": "499px",
@@ -445,6 +446,7 @@ module.exports = {
         nd_green: {
           50: "#ECF4EE",
           100: "#E8F8F5",
+          150: "#F0FDF4",
           200: "#52B87A",
           300: "#69AF7D",
           400: "#2DA160",
@@ -462,6 +464,9 @@ module.exports = {
         nd_orange: {
           50: "#FDF1DD",
           100: "#FFE6CC",
+          150: "#FFF7ED",
+          200: "#FFD6A8",
+          300: "#FF6900",
           600: "#9E5400",
         },
         nd_yellow: {
@@ -470,6 +475,11 @@ module.exports = {
           300: "#FFDF20",
           600: "#D08700",
           800: "#998335",
+        },
+        nd_purple: {
+          100: "#FAF5FF",
+          200: "#F3E8FF",
+          300: "#AD46FF",
         },
       },
       borderRadius: {
