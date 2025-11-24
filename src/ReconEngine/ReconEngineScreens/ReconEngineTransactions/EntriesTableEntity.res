@@ -1,4 +1,5 @@
 open ReconEngineTypes
+open LogicUtils
 
 type entryColType =
   | EntryId
@@ -84,7 +85,7 @@ let getStatusLabel = (entryStatus: entryStatus): Table.cell => {
 
 let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
-  | EntryId => DisplayCopyCell(entry.entry_id)
+  | EntryId => Text(entry.entry_id)
   | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
   | AccountName => Text(entry.account_name)
   | TransactionId => DisplayCopyCell(entry.transaction_id)
@@ -99,7 +100,20 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   | Metadata => Text(entry.metadata->JSON.stringify)
   | CreatedAt => Date(entry.created_at)
   | EffectiveAt => Date(entry.effective_at)
-  | OrderID => EllipsisText(entry.order_id, "w-fit")
+  | OrderID =>
+    CustomCell(
+      <>
+        <RenderIf condition={entry.order_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customTextCss="max-w-36 truncate whitespace-nowrap" displayValue=Some(entry.order_id)
+          />
+        </RenderIf>
+        <RenderIf condition={entry.order_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
   }
 }
 

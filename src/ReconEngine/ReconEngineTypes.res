@@ -209,6 +209,26 @@ type processingEntryStatus =
   | @as("void") Void
   | @as("unknown") UnknownProcessingEntryStatus
 
+@unboxed
+type needsManualReviewType =
+  | @as("no_rules_found") NoRulesFound
+  | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("duplicate_entry") DuplicateEntry
+  | @as("no_expectation_entry_found") NoExpectationEntryFound
+  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
+  | @as("missing_unique_field") MissingUniqueField
+  | UnknownNeedsManualReviewType
+
+type processingEntryDataType = {
+  status: processingEntryStatus,
+  needs_manual_review_type: needsManualReviewType,
+}
+
+type processingEntryDiscardedDataType = {
+  status: processingEntryStatus,
+  reason: string,
+}
+
 type processingEntryType = {
   id: string,
   staging_entry_id: string,
@@ -223,6 +243,10 @@ type processingEntryType = {
   transformation_history_id: string,
   effective_at: string,
   order_id: string,
+  version: int,
+  discarded_status: option<string>,
+  data: processingEntryDataType,
+  discarded_data: option<processingEntryDiscardedDataType>,
 }
 
 type processedEntryType = {
