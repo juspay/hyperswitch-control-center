@@ -270,24 +270,25 @@ module FileDropdownBaseComp = {
 module FileDropdownBottomComp = {
   @react.component
   let make = () => {
-    let {
-      globalUIConfig: {sidebarColor: {backgroundColor, primaryTextColor, borderColor}},
-    } = React.useContext(ThemeProvider.themeContext)
+    open Typography
+    let {globalUIConfig: {button: {backgroundColor}, font: {textColor}}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
 
     let customStyle = {
-      `${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`
+      `${backgroundColor.primaryOutline} ${textColor.primaryNormal} !border-none`
     }
 
     let restartSimulation = () => {
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/dynamic-routing/home"))
     }
 
-    <div className="flex items-center">
-      <hr className={borderColor} />
+    <div className="flex flex-col items-center">
+      <hr className="w-full" />
       <p
-        className={`flex items-center gap-2 font-medium px-3.5 py-3 text-sm ${customStyle} cursor-pointer`}
+        className={`flex items-center gap-2 px-3.5 py-3 ${body.md.medium} ${customStyle} cursor-pointer`}
         onClick={_ => restartSimulation()}>
-        <Icon name="nd-upload" size=15 customIconColor="text-nd_primary_blue" />
+        <Icon name="nd-upload" size=15 customIconColor={textColor.primaryNormal} />
         {"Change File"->React.string}
       </p>
     </div>

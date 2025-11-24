@@ -13,6 +13,7 @@ let make = (
   open ReconEngineExceptionTransactionHelper
   open APIUtils
   open LogicUtils
+  open ReconEngineExceptionsUtils
 
   let (exceptionStage, setExceptionStage) = React.useState(_ => ShowResolutionOptions(
     NoResolutionOptionNeeded,
@@ -96,7 +97,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
       Nullable.null
     } catch {
