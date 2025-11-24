@@ -62,7 +62,7 @@ let make = (~onClick) => {
     try {
       let _ = await acceptInviteWithStatusCheck(body)
 
-      if !(errorMessage->isNonEmptyString) {
+      if errorMessage->isEmptyString {
         setIsProcessingToken(_ => true)
         await generateTokenForceSetPassword(body)
       }
