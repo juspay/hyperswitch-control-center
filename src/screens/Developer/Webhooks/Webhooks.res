@@ -105,6 +105,13 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    if searchText->isNonEmptyString {
+      setOffset(_ => 0)
+    }
+    None
+  }, [searchTrigger])
+
+  React.useEffect(() => {
     let currentFilterState = {
       let filterDict = Dict.make()
       filterValueJson
@@ -132,7 +139,7 @@ let make = () => {
       setInitialFilters()
     }
     None
-  }, (filterValueJson, offset, searchText, searchTrigger))
+  }, (filterValueJson, offset, searchTrigger))
 
   let filtersUI = React.useMemo(() => {
     <Filter
@@ -150,20 +157,27 @@ let make = () => {
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
       clearFilters={() => reset()}
+      customLeftView={<SearchInput
+        onChange={value => setSearchText(_ => value)}
+        inputText=searchText
+        placeholder="Search by ID"
+        showTypeSelector=true
+        typeSelectorOptions=[
+          {label: "Object ID", value: "object_id"},
+          {label: "Event ID", value: "event_id"},
+        ]
+        selectedType=searchType
+        onTypeChange={value => setSearchType(_ => value)}
+        onEnterPress={() => setSearchTrigger(prev => prev + 1)}
+        widthClass="w-max"
+        showSearchIcon=true
+      />}
     />
-  }, [])
+  }, [searchText, searchType])
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
-    <div>
-      <WebhooksUtils.EnhancedSearchBarFilter
-        setSearchVal=setSearchText
-        searchType
-        setSearchType
-        onEnterPress={() => setSearchTrigger(prev => prev + 1)}
-      />
-      <div className=" -mb-6"> {filtersUI} </div>
-    </div>
+    <div className="-mb-6"> {filtersUI} </div>
     <PageLoaderWrapper screenState customUI>
       <LoadedTable
         title=" "
