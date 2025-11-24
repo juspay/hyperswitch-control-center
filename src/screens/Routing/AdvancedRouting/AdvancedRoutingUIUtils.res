@@ -372,7 +372,14 @@ module RuleFieldBase = {
         }
         setVariantValues(_ => variantValues)
       }
-      setKeyType(_ => keyType)
+      let valueType = value->stringToVariantType
+      switch valueType {
+      | CARD_BIN | EXTENDED_CARD_BIN => {
+          let key = getKeyTypeFromValueField(valueType)
+          setKeyType(_ => key->variantToStringMapper)
+        }
+      | OTHER => setKeyType(_ => keyType)
+      }
     }
 
     let onChangeMethod = value => {
