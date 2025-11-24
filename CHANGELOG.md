@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.24.0
+
+### Miscellaneous Tasks
+
+- Use main IDs `transaction_id` and `staging_entry_id` for URL routing and data fetching ([#3847](https://github.com/juspay/hyperswitch-control-center/pull/3847)) ([`c4ba340`](https://github.com/juspay/hyperswitch-control-center/commit/c4ba340a90d849df3f67d0982d77b1297058f5aa))
+
+**Full Changelog:** [`2025.11.21.0...2025.11.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.21.0...2025.11.24.0)
+
+- - -
+
 ## 2025.11.21.0
 
 ### Features

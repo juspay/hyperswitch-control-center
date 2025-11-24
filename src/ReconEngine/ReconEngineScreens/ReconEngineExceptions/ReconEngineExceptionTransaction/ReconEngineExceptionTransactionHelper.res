@@ -12,27 +12,25 @@ module CustomToastElement = {
     | PartiallyReconciled => (
         "Transaction partially reconciled",
         "Please review the exceptions page for details",
-        `${GlobalVars.appendDashboardPath(
-            ~url=`/v1/recon-engine/exceptions/recon/${transaction.id}`,
-          )}`,
+        `exceptions/recon/${transaction.transaction_id}`,
         "See Exception",
       )
     | Void => (
         "Transaction ignored successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     | Posted => (
         "Transaction matched successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     | _ => (
         "Transaction processed successfully",
         "Please review the transactions page for details",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     }
@@ -44,7 +42,7 @@ module CustomToastElement = {
         <div className="flex flex-col gap-2">
           <p className={`${heading.sm.semibold} text-nd_gray-25`}> {message->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-300`}> {description->React.string} </p>
-          <Link to_=link>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/${link}`)}>
             <p
               className={`${body.md.semibold} text-nd_primary_blue-400 hover:text-nd_primary_blue-300 cursor-pointer`}>
               {linkText->React.string}
