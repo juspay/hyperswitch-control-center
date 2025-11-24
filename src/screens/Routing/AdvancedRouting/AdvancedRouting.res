@@ -524,9 +524,8 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ =>
     initialValues->Identity.genericTypeToJson
   )
@@ -557,7 +556,7 @@ let make = (
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
-      setProfile(_ => schemaValue->getString("profile_id", businessProfileRecoilVal.profile_id))
+      setProfile(_ => schemaValue->getString("profile_id", profileId))
       setFormState(_ => ViewConfig)
     } catch {
     | Exn.Error(e) =>
@@ -611,12 +610,12 @@ let make = (
     AdvancedRoutingUtils.validateNameAndDescription(
       ~dict,
       ~errors,
-      ~validateFields=["name", "description"],
+      ~validateFields=[Name, Description],
     )
 
     let validateGateways = (connectorData: array<RoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
-        Some("Need atleast 1 Gateway")
+        Some("Need at least 1 Gateway")
       } else {
         let isDistibuted = connectorData->Array.every(ele => {
           switch ele {

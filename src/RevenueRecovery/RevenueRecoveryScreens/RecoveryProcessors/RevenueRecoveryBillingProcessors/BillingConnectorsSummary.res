@@ -1,4 +1,147 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
+open Typography
+
+module WebhooksConfiguration = {
+  @react.component
+  let make = () => {
+    open APIUtils
+    open FormRenderer
+
+    let getURL = useGetURL()
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let showToast = ToastState.useShowToast()
+    let updateDetails = useUpdateMethod()
+    let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
+      ~version=UserInfoTypes.V2,
+    )
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let businessProfileRecoilVal =
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+    let (isEditMode, setIsEditMode) = React.useState(_ => false)
+    let (merchantBusinessProfileInfo, setMerchantBusinessProfileInfo) = React.useState(() =>
+      JSON.Encode.null->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
+    )
+
+    let onSubmit = async (values, _) => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+        let _ = await updateDetails(url, values, Put, ~version=V2)
+        let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+        setIsEditMode(_ => false)
+
+        showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        }
+      }
+      Nullable.null
+    }
+
+    let getMerchantDetails = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+        setMerchantBusinessProfileInfo(_ =>
+          profile->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Success)
+      }
+    }
+
+    React.useEffect(() => {
+      getMerchantDetails()->ignore
+      None
+    }, [])
+
+    let webhookUrl = FormRenderer.makeFieldInfo(
+      ~label="",
+      ~name="webhook_details.webhook_url",
+      ~placeholder="Enter Webhook URL",
+      ~customInput=InputFields.textInput(
+        ~autoComplete="off",
+        ~customStyle="rounded-xl",
+        ~isDisabled={!isEditMode},
+      ),
+      ~isRequired=false,
+    )
+
+    let paymentResponseHashKey =
+      merchantBusinessProfileInfo.payment_response_hash_key->Option.getOr("")
+
+    <PageLoaderWrapper screenState sectionHeight="h-28">
+      <Form
+        initialValues={businessProfileRecoilVal
+        ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
+        ->Identity.genericTypeToJson}
+        onSubmit
+        validate={values => {
+          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+            ~values,
+            ~isLiveMode=featureFlagDetails.isLiveMode,
+            ~businessProfileRecoilVal,
+          )
+        }}>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between border-b mt-7 pb-2 items-end">
+              <p className={`${heading.sm.semibold}`}> {"Webhook URL"->React.string} </p>
+              <div className="flex gap-4">
+                {if isEditMode {
+                  <>
+                    <Button
+                      text="Cancel"
+                      onClick={_ => setIsEditMode(_ => false)}
+                      buttonType={Secondary}
+                      buttonSize={Small}
+                      customButtonStyle="w-fit"
+                    />
+                    <FormRenderer.SubmitButton
+                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    />
+                  </>
+                } else {
+                  <div
+                    className="flex gap-2 items-center cursor-pointer"
+                    onClick={_ => setIsEditMode(_ => true)}>
+                    <Icon name="nd-edit" size=14 />
+                    <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                  </div>
+                }}
+              </div>
+            </div>
+            <FieldRenderer
+              field={webhookUrl}
+              labelClass={`!text-fs-15 !text-grey-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-md  "
+            />
+          </div>
+          <RenderIf condition={paymentResponseHashKey->String.length !== 0}>
+            <div className="flex flex-col gap-1 ">
+              <div className="flex justify-between border-b mt-7 pb-2 items-end">
+                <p className={`${heading.sm.semibold}`}>
+                  {"Payment Response Hash Key"->React.string}
+                </p>
+              </div>
+              <HelperComponents.CopyTextCustomComp
+                displayValue={Some(paymentResponseHashKey)}
+                customTextCss={`break-all truncate md:whitespace-normal ${body.md.regular} text-nd_gray-800`}
+                customParentClass="flex items-center gap-5 mt-3"
+                customIconCss="text-jp-gray-700"
+              />
+            </div>
+          </RenderIf>
+        </div>
+      </Form>
+    </PageLoaderWrapper>
+  }
+}
 
 module BillingConnectorDetails = {
   open PageLoaderWrapper
@@ -84,37 +227,10 @@ module BillingConnectorDetails = {
 
     let {connectorAccountFields} = getConnectorFields(connectorDetails)
 
-    let revenueRecovery =
-      connectorInfodict.feature_metadata
-      ->getDictFromJsonObject
-      ->getDictfromDict("revenue_recovery")
-    let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
-    let billing_connector_retry_threshold =
-      revenueRecovery->getInt("billing_connector_retry_threshold", 0)
-
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-7">
+      <div className="flex flex-col gap-9">
         <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-lg font-semibold text-nd_gray-600">
-            {"Revenue Recovery Details"->React.string}
-          </p>
-        </div>
-        <div className="grid grid-cols-3 px-2">
-          <div className="flex flex-col gap-0.5-rem ">
-            <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
-            {billing_connector_retry_threshold->Int.toString->React.string}
-          </div>
-          <div className="flex flex-col gap-0.5-rem ">
-            <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
-            {max_retry_count->Int.toString->React.string}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-7">
-        <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className="text-lg font-semibold text-nd_gray-600">
-            {"Billing Platform Details"->React.string}
-          </p>
+          <p className={heading.md.semibold}> {"Billing Platform Details"->React.string} </p>
         </div>
         <div className="grid grid-cols-3 px-2">
           <div className="flex flex-col gap-0.5-rem ">
@@ -126,28 +242,52 @@ module BillingConnectorDetails = {
               {connectorName->React.string}
             </div>
           </div>
-          <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+          <RenderIf
+            condition={connectorName->getConnectorNameTypeFromString(
+              ~connectorType=BillingProcessor,
+            ) != BillingProcessor(CUSTOMBILLING)}>
+            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+          </RenderIf>
         </div>
-        <ConnectorHelperV2.PreviewCreds
-          connectorInfo=connectorInfodict
-          connectorAccountFields
-          customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
-          customElementStyle="px-2 "
-        />
-        <div className="grid grid-cols-3 px-2">
-          {connector_webhook_details
-          ->getDictFromJsonObject
-          ->Dict.toArray
-          ->Array.mapWithIndex((item, index) => {
-            let (key, value) = item
-
-            <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
-              <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
-              {value->JSON.Decode.string->Option.getOr("")->React.string}
+        {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
+        | BillingProcessor(CUSTOMBILLING) =>
+          <div className="px-2">
+            <KeyManagementHelper.ApiKeysTable
+              dataNotFoundComponent={<div className="p-1">
+                <div
+                  className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+                  {"No API Keys Available"->React.string}
+                </div>
+              </div>}
+            />
+            <div className="mt-5">
+              <WebhooksConfiguration />
             </div>
-          })
-          ->React.array}
-        </div>
+          </div>
+        | _ =>
+          <>
+            <ConnectorHelperV2.PreviewCreds
+              connectorInfo=connectorInfodict
+              connectorAccountFields
+              customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
+              customElementStyle="px-2 "
+            />
+            <div className="grid grid-cols-3 px-2">
+              {connector_webhook_details
+              ->getDictFromJsonObject
+              ->Dict.toArray
+              ->Array.mapWithIndex((item, index) => {
+                let (key, value) = item
+
+                <div className="flex flex-col gap-0.5-rem " key={index->Int.toString}>
+                  <h4 className="text-nd_gray-400 "> {key->snakeToTitle->React.string} </h4>
+                  {value->JSON.Decode.string->Option.getOr("")->React.string}
+                </div>
+              })
+              ->React.array}
+            </div>
+          </>
+        }}
       </div>
     </PageLoaderWrapper>
   }
@@ -280,9 +420,7 @@ module PaymentConnectorDetails = {
       <PageLoaderWrapper screenState sectionHeight="h-96">
         <div className="flex flex-col gap-7">
           <div className="flex justify-between border-b pb-4 px-2 items-end">
-            <p className="text-lg font-semibold text-nd_gray-600">
-              {"Payment Processor Details"->React.string}
-            </p>
+            <p className=heading.md.semibold> {"Payment Processor Details"->React.string} </p>
           </div>
           <Form onSubmit={onSubmit} initialValues={initialValues} validate=validateMandatoryField>
             <div className="grid grid-cols-3 px-2">
@@ -312,7 +450,7 @@ module PaymentConnectorDetails = {
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between border-b pb-4 px-2 items-end">
-                  <p className="text-lg font-semibold text-nd_gray-600">
+                  <p className={`${heading.sm.semibold} text-nd_gray-600`}>
                     {"Authentication keys"->React.string}
                   </p>
                 </div>
@@ -331,9 +469,82 @@ module PaymentConnectorDetails = {
   }
 }
 
+module RetriesConfiguration = {
+  open PageLoaderWrapper
+  open LogicUtils
+  open APIUtils
+  @react.component
+  let make = (~removeFieldsFromRespose) => {
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let (screenState, setScreenState) = React.useState(_ => Loading)
+    let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+
+    let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=BillingProcessor,
+    )
+
+    let (connectorID, _) =
+      billingConnectorListFromRecoil->BillingProcessorsUtils.getConnectorDetails
+
+    let getConnectorDetails = async () => {
+      try {
+        setScreenState(_ => Loading)
+        let connectorUrl = getURL(
+          ~entityName=V2(V2_CONNECTOR),
+          ~methodType=Get,
+          ~id=Some(connectorID),
+        )
+        let json = await fetchDetails(connectorUrl, ~version=V2)
+        setInitialValues(_ => json->removeFieldsFromRespose)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch details"))
+      }
+    }
+
+    React.useEffect(() => {
+      getConnectorDetails()->ignore
+      None
+    }, [])
+
+    let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
+      ConnectorInterface.connectorInterfaceV2,
+      initialValues->LogicUtils.getDictFromJsonObject,
+    )
+
+    let revenueRecovery =
+      connectorInfodict.feature_metadata
+      ->getDictFromJsonObject
+      ->getDictfromDict("revenue_recovery")
+    let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
+    let billing_connector_retry_threshold =
+      revenueRecovery->getInt("billing_connector_retry_threshold", 0)
+
+    <PageLoaderWrapper screenState>
+      <div className="flex flex-col gap-7">
+        <div className="flex justify-between border-b pb-4 px-2 items-end">
+          <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
+        </div>
+        <div className="grid grid-cols-3 px-2">
+          <div className="flex flex-col gap-0.5-rem ">
+            <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
+            {billing_connector_retry_threshold->Int.toString->React.string}
+          </div>
+          <div className="flex flex-col gap-0.5-rem ">
+            <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
+            {max_retry_count->Int.toString->React.string}
+          </div>
+        </div>
+      </div>
+    </PageLoaderWrapper>
+  }
+}
+
 @react.component
 let make = () => {
   open LogicUtils
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -346,8 +557,45 @@ let make = () => {
     dict->JSON.Encode.object
   }
 
-  <div className="flex flex-col gap-20 -ml-2">
-    <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
-    <PaymentConnectorDetails connectorId=paymentConnectorId removeFieldsFromRespose merchantId />
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Processor details",
+      renderContent: () => {
+        <div className="flex flex-col gap-20 mt-10">
+          <BillingConnectorDetails removeFieldsFromRespose merchantId setPaymentConnectorId />
+          <PaymentConnectorDetails
+            connectorId=paymentConnectorId removeFieldsFromRespose merchantId
+          />
+        </div>
+      },
+    },
+  ]
+
+  // TODO: remove once we have upload file flow on prod
+  if !isLiveMode {
+    tabs->Array.push({
+      title: "Retries Configuration",
+      renderContent: () => {
+        <div className="flex flex-col gap-20 mt-10">
+          <RetriesConfiguration removeFieldsFromRespose />
+        </div>
+      },
+    })
+  }
+
+  <div className="flex flex-col -ml-2">
+    <div className="flex justify-between px-2 items-end">
+      <PageUtils.PageHeading title="Configuration" />
+    </div>
+    <Tabs
+      tabs
+      showBorder=true
+      includeMargin=false
+      initialIndex={tabIndex}
+      onTitleClick={index => setTabIndex(_ => index)}
+      selectTabBottomBorderColor="bg-nd_primary_blue-500"
+    />
   </div>
 }

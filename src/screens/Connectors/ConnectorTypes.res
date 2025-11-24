@@ -1,4 +1,5 @@
-type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview | AutomaticFlow
+type steps =
+  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -37,6 +38,7 @@ type processorTypes =
   | KLARNA
   | GLOBALPAY
   | BLUESNAP
+  | AFFIRM
   | AIRWALLEX
   | WORLDPAY
   | WORLDPAYXML
@@ -70,6 +72,7 @@ type processorTypes =
   | BITPAY
   | CRYPTOPAY
   | CASHTOCODE
+  | CHECKBOOK
   | PAYME
   | GLOBEPAY
   | POWERTRANZ
@@ -97,6 +100,7 @@ type processorTypes =
   | NOVALNET
   | DEUTSCHEBANK
   | NEXIXPAY
+  | NORDEA
   | XENDIT
   | JPMORGAN
   | INESPAY
@@ -106,10 +110,27 @@ type processorTypes =
   | PAYSTACK
   | FACILITAPAY
   | ARCHIPEL
+  | AUTHIPAY
   | WORLDPAYVANTIV
   | BARCLAYCARD
+  | SILVERFLOW
   | TOKENIO
   | PAYLOAD
+  | PAYTM
+  | PHONEPE
+  | FLEXITI
+  | BREADPAY
+  | CALIDA
+  | BLACKHAWKNETWORK
+  | DWOLLA
+  | PAYSAFE
+  | PEACHPAYMENTS
+  | GIGADAT
+  | LOONIO
+  | TESOURO
+  | FINIX
+  | PAYJUSTNOW
+  | ZIFT
 
 type payoutProcessorTypes =
   | ADYEN
@@ -120,9 +141,19 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
   | NOMUPAY
+  | NUVEI
+  | GIGADAT
+  | LOONIO
+  | WORLDPAY
+  | WORLDPAYXML
 
 type threeDsAuthenticatorTypes =
-  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER | CLICK_TO_PAY_VISA
+  | THREEDSECUREIO
+  | NETCETERA
+  | CLICK_TO_PAY_MASTERCARD
+  | JUSPAYTHREEDSSERVER
+  | CLICK_TO_PAY_VISA
+  | CARDINAL
 
 type frmTypes =
   | Signifyd
@@ -132,7 +163,7 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
 type connectorTypeVariants =
   | PaymentProcessor

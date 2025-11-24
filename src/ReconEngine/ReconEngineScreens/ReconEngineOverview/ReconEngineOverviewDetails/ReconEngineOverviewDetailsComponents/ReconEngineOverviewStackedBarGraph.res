@@ -1,16 +1,20 @@
 open Typography
 
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+  open CurrencyFormatUtils
+
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
 
   let getAllTransactionsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParamerters=Some(
+          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -28,6 +32,10 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   let stackedBarGraphData = React.useMemo(() => {
     ReconEngineOverviewUtils.getStackedBarGraphData(~postedCount, ~mismatchedCount, ~expectedCount)
   }, [postedCount, mismatchedCount, expectedCount])
+  let reconciliationPercentage =
+    totalTransactions > 0
+      ? postedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
+      : 0.0
 
   React.useEffect(() => {
     getAllTransactionsData()->ignore
@@ -36,16 +44,13 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
 
   <PageLoaderWrapper
     screenState
-    customLoader={<div className="h-full flex flex-col justify-center items-center">
-      <div className="animate-spin">
-        <Icon name="spinner" size=20 />
-      </div>
-    </div>}>
+    customUI={<NewAnalyticsHelper.NoData height="h-40" message="No data available" />}
+    customLoader={<Shimmer styleClass="w-full h-40 rounded-xl" />}>
     <div
       className="flex flex-col space-y-2 items-start border rounded-xl border-nd_gray-150 px-4 pt-3 pb-4">
       <p className={`text-nd_gray-400 ${body.sm.medium}`}> {"Total Transaction"->React.string} </p>
-      <p className={`text-nd_gray-800 ${heading.lg.semibold}`}>
-        {totalTransactions->Int.toString->React.string}
+      <p className={`text-nd_gray-800 ${heading.md.semibold}`}>
+        {`${reconciliationPercentage->valueFormatter(Rate)}`->React.string}
       </p>
       <div className="w-full">
         <StackedBarGraph
@@ -53,6 +58,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
             stackedBarGraphData,
             ~yMax=totalTransactions,
             ~labelItemDistance={isMiniLaptopView ? 45 : 90},
+            ~pointWidth=12,
           )}
         />
       </div>

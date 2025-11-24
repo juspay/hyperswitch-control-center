@@ -35,10 +35,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8">
       <PageUtils.PageHeading
-        title="Rules Library"
-        subTitle="View your Rules and their details"
-        customSubTitleStyle={body.lg.medium}
-        customTitleStyle={`${heading.lg.semibold} py-0`}
+        title="Rules Library" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
       />
       <div className="bg-white rounded-lg">
         <LoadedTable
@@ -47,7 +44,7 @@ let make = () => {
           actualData={rulesData->Array.map(Nullable.make)}
           entity={rulesTableEntity(`v1/recon-engine/rules`, ~authorization=Access)}
           resultsPerPage
-          showSerialNumber=true
+          showSerialNumber=false
           totalResults={rulesData->Array.length}
           offset
           setOffset

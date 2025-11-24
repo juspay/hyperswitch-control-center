@@ -20,6 +20,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let defaultDate = getDateFilteredObject(~range=30)
   let {filterValueJson} = FilterContext.filterContext->React.useContext
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let downloadReport = async body => {
     try {
@@ -42,16 +43,17 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let initialValues = {
     timeRange: {
       startTime: filterValueJson
-      ->getString(startTimeFilterKey, defaultDate.start_time)
+      ->getString(startTimeFilterKey(version), defaultDate.start_time)
       ->JSON.Encode.string,
       endTime: filterValueJson
-      ->getString(endTimeFilterKey, defaultDate.end_time)
+      ->getString(endTimeFilterKey(version), defaultDate.end_time)
       ->JSON.Encode.string,
     },
   }->Identity.genericTypeToJson
 
   let category = switch entityName {
   | V1(PAYMENT_REPORT) => "Payment"
+  | V1(PAYOUT_REPORT) => "Payout"
   | V1(REFUND_REPORT) => "Refund"
   | V1(DISPUTE_REPORT) => "Dispute"
   | _ => ""

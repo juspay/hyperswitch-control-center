@@ -2,66 +2,91 @@ open Typography
 
 @react.component
 let make = () => {
-  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  open APIUtils
+  open LogicUtils
+  open ReconEngineRulesUtils
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (reconRulesList, setReconRulesList) = React.useState(_ => [])
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  let getReconRulesData = async _ => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#RECON_RULES,
+        ~methodType=Get,
+      )
+      let res = await fetchDetails(url)
+      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
+      setReconRulesList(_ => ruleDetails)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    }
+  }
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    [
-      {
-        title: "Exceptions at Upload",
-        renderContent: () =>
-          <FilterContext
-            key="recon-engine-exception-staging" index="recon-engine-exception-staging">
-            <ReconEngineExceptionStaging />
-          </FilterContext>,
+    reconRulesList->Array.map(ruleDetails => {
+      title: ruleDetails.rule_name,
+      renderContent: () => {
+        <FilterContext
+          key={`recon-engine-exception-transaction-${ruleDetails.rule_id}`}
+          index={`recon-engine-exception-transaction-${ruleDetails.rule_id}`}>
+          <ReconEngineExceptionTransaction ruleId={ruleDetails.rule_id} />
+        </FilterContext>
       },
-      {
-        title: "Exceptions at Recon",
-        renderContent: () =>
-          <FilterContext
-            key="recon-engine-exception-transaction" index="recon-engine-exception-transaction">
-            <ReconExceptionTransaction />
-          </FilterContext>,
-      },
-    ]
+    })
+  }, [reconRulesList])
+
+  React.useEffect(() => {
+    getReconRulesData()->ignore
+    None
   }, [])
 
-  <div className="flex flex-col gap-6">
-    <div className="flex flex-row justify-between items-center gap-4">
+  <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-row justify-between items-center">
+      <PageUtils.PageHeading
+        title="Recon Exceptions"
+        customTitleStyle={`${heading.lg.semibold}`}
+        customHeadingStyle="py-0"
+      />
       <div className="flex-shrink-0">
-        <PageUtils.PageHeading
-          title="Exceptions"
-          subTitle="View your exceptions and their details"
-          customSubTitleStyle={body.lg.medium}
-          customTitleStyle={`${heading.lg.semibold} py-0`}
+        <Button
+          text="Generate Report"
+          buttonType=Primary
+          buttonSize=Large
+          buttonState=Disabled
+          onClick={_ => {
+            mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
+          }}
         />
       </div>
-      <div className="flex flex-row items-center gap-4">
-        <div className="flex-shrink-0 mt-2">
-          <Button
-            text="Generate Report"
-            buttonType=Primary
-            buttonSize=Large
-            buttonState=Disabled
-            onClick={_ => {
-              mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
-            }}
+    </div>
+    <PageLoaderWrapper screenState>
+      <RenderIf condition={reconRulesList->Array.length == 0}>
+        <div className="my-4">
+          <NoDataFound
+            message="No recon rules found. Please create a recon rule to view the exceptions."
+            renderType={Painting}
+            customMessageCss={`${body.lg.semibold} text-nd_gray-400`}
           />
         </div>
-      </div>
-    </div>
-    <div className="flex flex-col gap-2">
-      <Tabs
-        initialIndex={tabIndex >= 0 ? tabIndex : 0}
-        tabs
-        showBorder=true
-        includeMargin=false
-        defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center px-6 ${Typography.body.md.semibold}`}
-        onTitleClick={index => {
-          setTabIndex(_ => index)
-        }}
-        selectTabBottomBorderColor="bg-primary"
-      />
-    </div>
+      </RenderIf>
+      <RenderIf condition={reconRulesList->Array.length > 0}>
+        <Tabs
+          tabs
+          showBorder=true
+          includeMargin=false
+          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center !text-red-500 ${body.lg.semibold}`}
+          selectTabBottomBorderColor="bg-primary"
+          customBottomBorderColor="bg-nd_gray-150 mb-4"
+        />
+      </RenderIf>
+    </PageLoaderWrapper>
   </div>
 }

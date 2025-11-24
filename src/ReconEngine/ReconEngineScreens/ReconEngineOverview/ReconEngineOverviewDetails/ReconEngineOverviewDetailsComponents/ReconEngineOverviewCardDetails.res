@@ -1,35 +1,30 @@
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open LogicUtils
   open ReconEngineOverviewUtils
   open ReconEngineOverviewHelper
-  open APIUtils
+  open ReconEngineAccountsUtils
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getTransactionsAndAccountData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#ACCOUNTS_LIST,
-      )
-      let res = await fetchDetails(url)
-      let accountData = res->getArrayDataFromJson(accountItemToObjMapper)
+      let accountData = await getAccounts()
       setAccountData(_ => accountData)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParamerters=Some(
+          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -37,8 +32,10 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     (sourceAccountName, sourceAccountCurrency),
     (targetAccountName, targetAccountCurrency),
   ) = React.useMemo(() => {
-    let source = ruleDetails.sources->getValueFromArray(0, defaultAccountDetails)
-    let target = ruleDetails.targets->getValueFromArray(0, defaultAccountDetails)
+    let source =
+      ruleDetails.sources->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
+    let target =
+      ruleDetails.targets->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
     let sourceInfo = getAccountNameAndCurrency(accountData, source.account_id)
     let targetInfo = getAccountNameAndCurrency(accountData, target.account_id)
     (sourceInfo, targetInfo)
@@ -50,34 +47,38 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     )
   }, (allTransactionsData, ruleDetails.rule_id))
 
-  let (sourcePostedAmount, targetPostedAmount, netVariance) = React.useMemo(() => {
-    calculateAccountAmounts(ruleTransactionsData)
-  }, [ruleTransactionsData])
+  let cardData = React.useMemo(() => {
+    calculateAccountAmounts(
+      ruleTransactionsData,
+      ~sourceAccountName,
+      ~sourceAccountCurrency,
+      ~targetAccountName,
+      ~targetAccountCurrency,
+    )
+  }, (
+    ruleTransactionsData,
+    sourceAccountName,
+    sourceAccountCurrency,
+    targetAccountName,
+    targetAccountCurrency,
+  ))
 
   React.useEffect(() => {
     getTransactionsAndAccountData()->ignore
     None
   }, [])
 
-  <PageLoaderWrapper
-    screenState
-    customLoader={<div className="h-full flex flex-col justify-center items-center">
-      <div className="animate-spin">
-        <Icon name="spinner" size=20 />
-      </div>
-    </div>}>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <OverviewCard
-        title={`Expected from ${sourceAccountName}`}
-        value={formatAmountWithCurrency(sourcePostedAmount, sourceAccountCurrency)}
-      />
-      <OverviewCard
-        title={`Received by ${targetAccountName}`}
-        value={formatAmountWithCurrency(targetPostedAmount, targetAccountCurrency)}
-      />
-      <OverviewCard
-        title="Net Variance" value={formatAmountWithCurrency(netVariance, sourceAccountCurrency)}
-      />
-    </div>
-  </PageLoaderWrapper>
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {cardData
+    ->Array.map(card => {
+      <PageLoaderWrapper
+        key={randomString(~length=10)}
+        screenState
+        customUI={<NewAnalyticsHelper.NoData height="h-28" message="No data available" />}
+        customLoader={<Shimmer styleClass="w-full h-28 rounded-xl" />}>
+        <OverviewCard title={card.cardTitle} value={card.cardValue} />
+      </PageLoaderWrapper>
+    })
+    ->React.array}
+  </div>
 }

@@ -1,3 +1,7 @@
+open UserManagementTypes
+open LogicUtils
+open UserInfoTypes
+open CommonAuthTypes
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 let createCustomRole = FormRenderer.makeFieldInfo(
@@ -17,7 +21,7 @@ let roleScope = userRole => {
   })
 
   FormRenderer.makeFieldInfo(
-    ~label="Role Scope",
+    ~label="Role Visibility",
     ~name="role_scope",
     ~customInput=InputFields.selectInput(
       ~options=roleScopeArray,
@@ -26,6 +30,49 @@ let roleScope = userRole => {
       ~disableSelect=userRole === "org_admin" || userRole === "tenant_admin" ? false : true,
     ),
     ~isRequired=true,
+  )
+}
+
+let entityTypeField = (~onEntityTypeChange: option<entity => unit>=?, ~userHasAccess) => {
+  let entityTypeVariants: array<UserInfoTypes.entity> = [#Merchant, #Profile]
+  let entityTypeArray = entityTypeVariants->Array.map(entityVariant => {
+    let entityString = (entityVariant :> string)->String.toLowerCase
+    let option: SelectBox.dropdownOption = {
+      label: entityString->LogicUtils.snakeToTitle,
+      value: entityString,
+    }
+    option
+  })
+
+  FormRenderer.makeFieldInfo(
+    ~label="Entity Type",
+    ~isRequired=true,
+    ~name="entity_type",
+    ~customInput=(~input, ~placeholder as _) =>
+      InputFields.selectInput(
+        ~deselectDisable=true,
+        ~options=entityTypeArray,
+        ~buttonText="Select Option",
+        ~disableSelect=userHasAccess(~groupAccess=UsersManage) === NoAccess,
+      )(
+        ~input={
+          ...input,
+          onChange: {
+            ev => {
+              input.onChange(ev)
+              switch onEntityTypeChange {
+              | Some(fn) => {
+                  let selectedValue = ev->Identity.formReactEventToString
+                  let entityVariant = selectedValue->UserInfoUtils.entityMapper
+                  fn(entityVariant)
+                }
+              | None => ()
+              }
+            }
+          },
+        },
+        ~placeholder="",
+      ),
   )
 }
 
@@ -38,7 +85,6 @@ let validateEmptyValue = (key, errors) => {
 
 let validateForm = (values, ~fieldsToValidate: array<string>) => {
   let errors = Dict.make()
-  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
   fieldsToValidate->Array.forEach(key => {
@@ -57,24 +103,6 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 
   errors->JSON.Encode.object
 }
-let validateFormForRoles = values => {
-  let errors = Dict.make()
-  open LogicUtils
-  let valuesDict = values->getDictFromJsonObject
-  if valuesDict->getString("role_scope", "")->isEmptyString {
-    Dict.set(errors, "role_scope", "Role scope is required"->JSON.Encode.string)
-  }
-  if valuesDict->getString("role_name", "")->isEmptyString {
-    Dict.set(errors, "role_name", "Role name is required"->JSON.Encode.string)
-  }
-  if valuesDict->getString("role_name", "")->String.length > 64 {
-    Dict.set(errors, "role_name", "Role name should be less than 64 characters"->JSON.Encode.string)
-  }
-  if valuesDict->getArrayFromDict("groups", [])->Array.length === 0 {
-    Dict.set(errors, "groups", "Roles required"->JSON.Encode.string)
-  }
-  errors->JSON.Encode.object
-}
 
 let tabIndeToVariantMapper = index => {
   open UserManagementTypes
@@ -84,7 +112,7 @@ let tabIndeToVariantMapper = index => {
   }
 }
 
-let getUserManagementViewValues = (~checkUserEntity) => {
+let getUserManagementViewValues = (~checkUserEntity, ~showDefault=true) => {
   open UserManagementTypes
 
   let org = {
@@ -104,12 +132,18 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     entity: #Default,
   }
 
-  if checkUserEntity([#Organization, #Tenant]) {
-    [default, org, merchant, profile]
+  let baseViews = if checkUserEntity([#Organization, #Tenant]) {
+    [org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
-    [default, merchant, profile]
+    [merchant, profile]
   } else {
-    [default]
+    [profile]
+  }
+
+  if showDefault {
+    [default, ...baseViews]
+  } else {
+    baseViews
   }
 }
 
@@ -125,5 +159,13 @@ let stringToVariantMapperTenantAdmin: string => UserManagementTypes.admin = role
   switch roleId {
   | "tenant_admin" => TenantAdmin
   | _ => NonTenantAdmin
+  }
+}
+
+let permissionModuleMapper = (dict: Dict.t<JSON.t>): parentGroupInfo => {
+  {
+    name: getString(dict, "name", ""),
+    description: getString(dict, "description", ""),
+    scopes: getStrArrayFromDict(dict, "scopes", []),
   }
 }

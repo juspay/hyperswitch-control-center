@@ -1,5 +1,7 @@
 @react.component
 let make = () => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let tabList: array<Tabs.tab> = [
     {
       title: "Users",
@@ -7,7 +9,7 @@ let make = () => {
     },
     {
       title: "Roles",
-      renderContent: () => <ListRoles />,
+      renderContent: () => featureFlagDetails.devRolesV2 ? <ListRolesV2 /> : <ListRoles />,
     },
   ]
 

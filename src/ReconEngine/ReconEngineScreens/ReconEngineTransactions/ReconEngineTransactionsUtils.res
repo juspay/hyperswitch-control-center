@@ -1,113 +1,45 @@
-open ReconEngineTransactionsTypes
 open LogicUtils
+open ReconEngineFilterUtils
+open ReconEngineTypes
+open ReconEngineTransactionsTypes
 open ReconEngineUtils
 
-let getArrayDictFromRes = res => {
-  res->getDictFromJsonObject->getArrayFromDict("data", [])
-}
-
-let formatAmountToString = (amount, ~currency) => {
-  `${amount->Float.toString} ${currency}`
-}
-
-let getAmountPayload = dict => {
-  {
-    value: dict->getFloat("value", 0.0),
-    currency: dict->getString("currency", ""),
+let entriesMetadataKeyToString = key => {
+  switch key {
+  | Amount => "amount"
+  | Currency => "currency"
   }
 }
 
-let getRulePayload = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-  }
-}
+let entriesMetadataExcludedKeys = [Amount, Currency]->Array.map(entriesMetadataKeyToString)
 
-let getAccountPayload = dict => {
-  {
-    account_id: dict->getString("account_id", ""),
-    account_name: dict->getString("account_name", ""),
-  }
-}
-
-let getTransactionsEntryPayload = dict => {
-  {
-    entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
-    account: dict
-    ->getDictfromDict("account")
-    ->getAccountPayload,
-  }
-}
-
-let getArrayOfTransactionsEntriesListPayloadType = json => {
-  json->Array.map(entriesJson => {
-    entriesJson->getDictFromJsonObject->getTransactionsEntryPayload
+let getFilteredMetadataFromEntries = metadata => {
+  metadata
+  ->getDictFromJsonObject
+  ->Dict.toArray
+  ->Array.filter(((key, _value)) => {
+    !Array.includes(entriesMetadataExcludedKeys, key)
   })
+  ->Dict.fromArray
 }
 
 let getHeadersForCSV = () => {
   "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
 }
 
-let getAllTransactionPayload = dict => {
-  {
-    id: dict->getString("id", ""),
-    transaction_id: dict->getString("transaction_id", ""),
-    profile_id: dict->getString("profile_id", ""),
-    entries: dict
-    ->getArrayFromDict("entries", [])
-    ->getArrayOfTransactionsEntriesListPayloadType,
-    credit_amount: dict->getDictfromDict("credit_amount")->getAmountPayload,
-    debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
-    rule: dict->getDictfromDict("rule")->getRulePayload,
-    transaction_status: dict->getString("transaction_status", ""),
-    version: dict->getInt("version", 0),
-    created_at: dict->getString("created_at", ""),
-  }
+let getTransactionsPayloadFromDict = dict => {
+  dict->transactionItemToObjMapper
 }
 
-let getArrayOfTransactionsListPayloadType = json => {
-  json->Array.map(transactionJson => {
-    transactionJson->getDictFromJsonObject->getAllTransactionPayload
-  })
+let transactionsEntryItemToObjMapperFromDict = dict => {
+  dict->entryItemToObjMapper
 }
 
-let getAllEntryPayload = dict => {
-  {
-    entry_id: dict->getString("entry_id", ""),
-    entry_type: dict->getString("entry_type", ""),
-    transaction_id: dict->getString("transaction_id", ""),
-    amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
-    currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: dict->getString("status", ""),
-    discarded_status: dict->getString("discarded_status", ""),
-    metadata: dict->getJsonObjectFromDict("metadata"),
-    created_at: dict->getString("created_at", ""),
-    effective_at: dict->getString("effective_at", ""),
-  }
-}
-
-let getArrayOfEntriesListPayloadType = json => {
-  json->Array.map(entriesJson => {
-    entriesJson->getDictFromJsonObject->getAllEntryPayload
-  })
-}
-
-let getTransactionsList: JSON.t => array<transactionPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, getAllTransactionPayload)
-}
-
-let getEntriesList: JSON.t => array<entryPayload> = json => {
-  LogicUtils.getArrayDataFromJson(json, getAllEntryPayload)
-}
-
-let sortByVersion = (c1: transactionPayload, c2: transactionPayload) => {
+let sortByVersion = (c1: transactionType, c2: transactionType) => {
   compareLogic(c1.version, c2.version)
 }
 
-let getAccounts = (entries: array<transactionEntryType>, entryType: string): string => {
+let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirectionType): string => {
   let accounts =
     entries
     ->Array.filter(entry => entry.entry_type === entryType)
@@ -124,18 +56,14 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: string): str
   uniqueAccounts->Array.joinWith(", ")
 }
 
-let getTransactionTypeFromString = (status: string) => {
-  switch status {
-  | "posted" => ReconEngineTransactionsTypes.Posted
-  | "mismatched" => ReconEngineTransactionsTypes.Mismatched
-  | "expected" => ReconEngineTransactionsTypes.Expected
-  | "archived" => ReconEngineTransactionsTypes.Archived
-  | _ => ReconEngineTransactionsTypes.Unknown
-  }
-}
-
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions = getTransactionStatusOptions([Mismatched, Expected, Posted])
+  let statusOptions = getTransactionStatusOptions([
+    Expected,
+    Mismatched,
+    PartiallyReconciled,
+    Posted,
+    Void,
+  ])
 
   [
     (
@@ -160,11 +88,11 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="credit_account",
-          ~name="credit_account",
+          ~label="source_account",
+          ~name="source_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=creditAccountOptions,
-            ~buttonText="Select Credit Account",
+            ~buttonText="Select Source Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -179,11 +107,11 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="debit_account",
-          ~name="debit_account",
+          ~label="target_account",
+          ~name="target_account",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=debitAccountOptions,
-            ~buttonText="Select Debit Account",
+            ~buttonText="Select Target Account",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,
@@ -198,27 +126,13 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ]
 }
 
-let getSampleStackedBarGraphData = () => {
-  open StackedBarGraphTypes
-  {
-    categories: ["Total Orders"],
-    data: [
-      {
-        name: "Expected",
-        data: [400.0],
-        color: "#8BC2F3",
-      },
-      {
-        name: "Mismatch",
-        data: [400.0],
-        color: "#EA8A8F",
-      },
-      {
-        name: "Matched",
-        data: [1200.0],
-        color: "#7AB891",
-      },
-    ],
-    labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
+let getTransactionStatusLabel = (status: transactionStatus): string => {
+  switch status {
+  | Mismatched => "bg-nd_red-50 text-nd_red-600"
+  | Posted => "bg-nd_green-50 text-nd_green-600"
+  | Expected => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
+  | Archived => "bg-nd_gray-150 text-nd_gray-600"
+  | PartiallyReconciled => "bg-nd_orange-50 text-nd_orange-600"
+  | _ => "bg-nd_gray-50 text-nd_gray_600"
   }
 }

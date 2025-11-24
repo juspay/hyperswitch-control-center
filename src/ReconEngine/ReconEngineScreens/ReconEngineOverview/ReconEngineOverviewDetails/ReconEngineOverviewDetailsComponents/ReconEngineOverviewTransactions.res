@@ -1,6 +1,7 @@
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   open LogicUtils
+  open HierarchicalTransactionsTableEntity
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
   let (filteredTransactionsData, setFilteredReports) = React.useState(_ => [])
@@ -9,7 +10,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let getTransactions = ReconEngineTransactionsHook.useGetTransactions()
+  let getTransactions = ReconEngineHooks.useGetTransactions()
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -26,10 +27,16 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "transaction_status",
-          ["expected", "mismatched", "posted"]->getJsonFromArrayOfString,
+          [
+            "expected",
+            "mismatched",
+            "posted",
+            "partially_reconciled",
+            "void",
+          ]->getJsonFromArrayOfString,
         )
       }
-      let baseQueryString = ReconEngineUtils.buildQueryStringFromFilters(
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
       let queryString = if baseQueryString->isNonEmptyString {
@@ -43,7 +50,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
       setFilteredReports(_ => transactionsListData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -51,6 +58,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~range=180,
     ~origin="recon_engine_overview_transactions",
     (),
   )
@@ -85,6 +93,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+        setOffset
       />
     </div>
   }
@@ -93,25 +102,22 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
     <div className="flex-shrink-0"> {topFilterUi} </div>
     <PageLoaderWrapper
       screenState
-      customLoader={<div className="h-full flex flex-col justify-center items-center">
-        <div className="animate-spin">
-          <Icon name="spinner" size=20 />
-        </div>
-      </div>}>
+      customUI={<NewAnalyticsHelper.NoData height="h-96" message="No data available" />}
+      customLoader={<Shimmer styleClass="w-full h-96 rounded-xl" />}>
       <LoadedTableWithCustomColumns
         title="All Transactions"
         actualData={filteredTransactionsData}
-        entity={TransactionsTableEntity.transactionsEntity(
+        entity={hierarchicalTransactionsLoadedTableEntity(
           `v1/recon-engine/transactions`,
           ~authorization=Access,
         )}
-        resultsPerPage=10
+        resultsPerPage=5
         totalResults={filteredTransactionsData->Array.length}
         offset
         setOffset
         currrentFetchCount={configuredTransactions->Array.length}
-        customColumnMapper=TableAtoms.reconTransactionsOverviewDefaultCols
-        defaultColumns={TransactionsTableEntity.defaultColumnsOverview}
+        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
+        defaultColumns
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
         hideTitle=true
@@ -119,6 +125,7 @@ let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
         customizeColumnButtonIcon="nd-filter-horizontal"
         hideRightTitleElement=true
         showAutoScroll=true
+        customSeparation=[(2, 3)]
       />
     </PageLoaderWrapper>
   </div>

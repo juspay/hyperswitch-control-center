@@ -5,6 +5,8 @@ type colType =
   | Connector
   | Created
   | PaymentMethodType
+  | ModifiedAt
+  | RecoveryProgress
 
 type attemptColType =
   | Id
@@ -26,17 +28,20 @@ type attempts = {
   last4: string,
   network_decline_code: string,
   network_error_message: string,
+  net_amount: float,
 }
 
 type order = {
   id: string,
   status: string,
   order_amount: float,
+  amount_captured: float,
   connector: string,
   created: string,
   payment_method_type: string,
   payment_method_subtype: string,
   attempts: array<attempts>,
+  modified_at: string,
 }
 
 type optionObj = {
@@ -47,3 +52,29 @@ type optionObj = {
 type topic =
   | String(string)
   | ReactElement(React.element)
+
+type attemptGroup = {
+  amount: float,
+  attempts: array<attempts>,
+  isSuccessful: bool,
+  isPartial: bool,
+}
+
+type recoveryInvoiceStatus =
+  | Recovered
+  | Scheduled
+  | Terminated
+  | Processing
+  | Queued
+  | NoPicked
+  | Monitoring
+  | PartiallyRecovered
+  | Other(string)
+
+type recoverySchedulerStatusType =
+  | Finish
+  | Scheduled
+
+type attemptTriggeredByType =
+  | INTERNAL
+  | EXTERNAL

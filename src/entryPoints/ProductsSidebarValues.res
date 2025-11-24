@@ -30,7 +30,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     Link({
       name: Orchestration(V1)->getProductDisplayName,
       icon: "orchestrator-home",
-      link: "/v2/onboarding/orchestrator",
+      link: "/v2/orchestrator/onboarding",
       access: Access,
     }),
   ]
@@ -40,28 +40,31 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon(V2)->getProductDisplayName,
         icon: "recon-home",
-        link: "/v2/onboarding/recon",
+        link: "/v2/recon/onboarding/",
         access: Access,
       }),
     )
   }
+
+  let recoveryDefaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   if devRecoveryV2Product {
     sideBarValues->Array.push(
       Link({
         name: Recovery->getProductDisplayName,
         icon: "recovery-home",
-        link: "/v2/onboarding/recovery",
+        link: recoveryDefaultPath,
         access: Access,
       }),
     )
   }
+
   if devVaultV2Product {
     sideBarValues->Array.push(
       Link({
         name: Vault->getProductDisplayName,
         icon: "vault-home",
-        link: "/v2/onboarding/vault",
+        link: "/v2/vault/onboarding",
         access: Access,
       }),
     )
@@ -71,7 +74,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: CostObservability->getProductDisplayName,
         icon: "nd-piggy-bank",
-        link: "/v2/onboarding/cost-observability",
+        link: "/v2/cost-observability/onboarding",
         access: Access,
       }),
     )
@@ -81,7 +84,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: DynamicRouting->getProductDisplayName,
         icon: "intelligent-routing-home",
-        link: "/v2/onboarding/intelligent-routing",
+        link: "/v2/intelligent-routing/onboarding",
         access: Access,
       }),
     )
@@ -91,7 +94,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Orchestration(V2)->getProductDisplayName,
         icon: "orchestrator-home",
-        link: "/v2/onboarding/orchestrator",
+        link: "/v2/orchestrator/onboarding",
         access: Access,
       }),
     )
@@ -101,7 +104,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       Link({
         name: Recon(V1)->getProductDisplayName,
         icon: "recon-engine-v1",
-        link: "/v1/onboarding/recon-engine",
+        link: "/v1/recon-engine/onboarding",
         access: Access,
       }),
     )

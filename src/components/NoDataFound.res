@@ -115,13 +115,13 @@ let make = (
                   buttonType=Primary onClick=fn text="Expand the search to the previous 90 days"
                 />
                 <div className="flex justify-center">
-                  <p className="mt-6">
+                  <div className="mt-6">
                     {"Or try the following:"->React.string}
                     <ul className="list-disc">
                       <li> {"Try a different search parameter"->React.string} </li>
                       <li> {"Adjust or remove filters and search once more"->React.string} </li>
                     </ul>
-                  </p>
+                  </div>
                 </div>
               </div>
             | None => React.null

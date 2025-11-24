@@ -11,6 +11,7 @@ let make = () => {
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -57,6 +58,10 @@ let make = () => {
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
+
+  let payoutConnectorList = featureFlagDetails.isLiveMode
+    ? payoutConnectorListForLive
+    : payoutConnectorList
 
   <div>
     <PageLoaderWrapper screenState>

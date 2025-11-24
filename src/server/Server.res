@@ -16,6 +16,10 @@ external configHandler: (Http.request, Http.response, bool, string, string) => u
 external merchantConfigHandler: (Http.request, Http.response, bool, string, string) => unit =
   "merchantConfigHandler"
 
+@module("./theme.mjs")
+external themeConfigHandler: (Http.request, Http.response, bool, string) => unit =
+  "themeConfigHandler"
+
 @module("./health.mjs")
 external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
 
@@ -92,6 +96,12 @@ let serverHandler: Http.serverHandler = (request, response) => {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, domain, path)
+      ()->(resolve(_))
+    })
+  } else if path->String.includes("/config/theme") && request.method === "GET" {
+    let path = env->Dict.get("themeConfigPath")->Option.getOr("dist/server/config/theme.json")
+    Promise.make((resolve, _reject) => {
+      themeConfigHandler(request, response, true, path)
       ()->(resolve(_))
     })
   } else if path === "/health" && request.method === "GET" {

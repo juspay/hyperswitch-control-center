@@ -1,9 +1,9 @@
 @react.component
-let make = (~ruleDetails: ReconEngineOverviewTypes.reconRuleType) => {
-  <div className="flex flex-col gap-8">
-    <ReconEngineOverviewCardDetails ruleDetails />
+let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+  <div className="flex flex-col gap-8 mt-8">
     <ReconEngineOverviewStackedBarGraph ruleDetails />
-    <ReconEngineOverviewLineGraph ruleDetails />
+    <ReconEngineOverviewColumnGraphs ruleDetails />
+    <ReconEngineOverviewAccountDetails ruleDetails />
     <ReconEngineOverviewTransactions ruleDetails />
   </div>
 }

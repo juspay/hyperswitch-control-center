@@ -1,14 +1,14 @@
 @react.component
 let make = () => {
   open RevenueRecoveryOnboardingUtils
-
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let hasConfiguredPaymentConnector = connectorList->Array.length > 0
   let (connectorID, connectorName) = connectorList->BillingProcessorsUtils.getConnectorDetails
   let (currentStep, setNextStep) = React.useState(() =>
-    hasConfiguredPaymentConnector ? defaultStepBilling : defaultStep
+    hasConfiguredPaymentConnector ? defaultStepBilling : getDefaultStep(isLiveMode)
   )
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
@@ -21,6 +21,7 @@ let make = () => {
   let (paymentConnectorName, setPaymentConnectorName) = React.useState(() => connectorName)
   let (paymentConnectorID, setPaymentConnectorID) = React.useState(() => connectorID)
   let (billingConnectorName, setBillingConnectorName) = React.useState(() => "")
+  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   React.useEffect(() => {
     setShowSideBar(_ => false)
@@ -35,10 +36,10 @@ let make = () => {
   <div className="flex flex-row">
     <VerticalStepIndicator
       titleElement={"Setup Recovery"->React.string}
-      sections
+      sections={getSections(isLiveMode)}
       currentStep
       backClick={() => {
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v2/recovery/overview"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=defaultPath))
       }}
     />
     <div className="flex flex-row ml-14 mt-16 w-540-px">

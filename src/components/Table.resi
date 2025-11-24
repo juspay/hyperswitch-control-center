@@ -128,6 +128,7 @@ module TableFilterRow: {
     ~tableDataBorderClass: string,
     ~customFilterRowStyle: string,
     ~showCheckbox: bool,
+    ~customSeparationArray: array<(int, int)>=?,
   ) => React.element
 }
 module TableRow: {
@@ -167,6 +168,8 @@ module TableRow: {
     ~highlightSelectedRow: bool=?,
     ~selectedIndex: int,
     ~setSelectedIndex: ('a => int) => unit,
+    ~areLastCellsRounded: bool=?,
+    ~customSeparationArray: array<(int, int)>=?,
   ) => React.element
 }
 module SortAction: {
@@ -306,4 +309,6 @@ let make: (
   ~showVerticalScroll: bool=?,
   ~showPagination: bool=?,
   ~highlightSelectedRow: bool=?,
+  ~freezeFirstColumn: bool=?,
+  ~customSeparation: array<(int, int)>=?,
 ) => React.element

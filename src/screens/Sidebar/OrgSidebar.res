@@ -13,16 +13,18 @@ module OrgTile = {
   ) => {
     open LogicUtils
     open APIUtils
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {orgId}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+        sidebarColor: {backgroundColor, secondaryTextColor, borderColor: sidebarBorderColor},
+        border: {borderColor},
+        font: {textColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
 
@@ -100,10 +102,6 @@ module OrgTile = {
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
-    let ringClass = switch isActive {
-    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
-    }
 
     let handleClick = () => {
       if !isActive {
@@ -115,9 +113,9 @@ module OrgTile = {
       onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
       <div
-        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${ringClass} ${isActive
-            ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
-            : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
+        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${isActive
+            ? `bg-white/20 ${borderColor.primaryNormal} ${textColor.primaryNormal}`
+            : `${secondaryTextColor}hover:bg-white/10 border-sidebar-borderColor`}`}>
         <RenderIf condition={isPlatformOrganization}>
           <div
             className={`absolute top-5-px right-5-px w-0 h-0 border-t-[10px] border-l-[10px] ${isActive
@@ -126,7 +124,8 @@ module OrgTile = {
           />
         </RenderIf>
         <span className={body.xs.medium}> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40`}>
+        <div
+          className={`${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -135,7 +134,7 @@ module OrgTile = {
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2}`}
             customIconComponent={<ToolTip
-              description={orgID}
+              description="Copy Organization ID"
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
@@ -146,7 +145,13 @@ module OrgTile = {
               </div>}
               toolTipPosition=ToolTip.Right
             />}
-            showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
+            showEditIcon={isActive &&
+            hasAnyGroupAccess(
+              //TODO: Remove OrganizationManage permission in future
+              userHasAccess(~groupAccess=OrganizationManage),
+              userHasAccess(~groupAccess=AccountManage),
+            ) === Access &&
+            checkUserEntity([#Organization])}
             handleEdit=handleIdUnderEdit
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
@@ -155,6 +160,8 @@ module OrgTile = {
             customWidth="min-w-64"
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
+            showTooltipOnHover=true
+            toolTipPosition=BottomRight
           />
         </div>
       </div>
@@ -348,8 +355,12 @@ let make = () => {
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
+  let {userInfo: {orgId, roleId, version}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -394,7 +405,10 @@ let make = () => {
   }
 
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, hoverColor, borderColor},
+      font: {textColor: {primaryNormal}},
+    },
   } = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrgDetails = async () => {
@@ -410,7 +424,15 @@ let make = () => {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
-      if version === V1 {
+      if (
+        version === V1 &&
+        hasAnyGroupAccess(
+          //TODO: Remove OrganizationManage permission in future
+          userHasAccess(~groupAccess=OrganizationManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ) === Access &&
+        checkUserEntity([#Organization])
+      ) {
         fetchOrgDetails()->ignore
       }
       orgData->Array.sort(sortByOrgName)
@@ -444,10 +466,15 @@ let make = () => {
       }
     }
   }
-  let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
-  let handleIdUnderEdit = (selectedEditId: option<int>) => {
-    setUnderEdit(_ => selectedEditId)
+  let (currentlyEditingPlatformId, setPlatformUnderEdit) = React.useState(_ => None)
+  let (currentlyEditingStandardId, setStandardUnderEdit) = React.useState(_ => None)
+  let handlePlatformIdUnderEdit = selectedEditId => {
+    setPlatformUnderEdit(_ => selectedEditId)
   }
+  let handleStandardIdUnderEdit = selectedEditId => {
+    setStandardUnderEdit(_ => selectedEditId)
+  }
+  let hasPlatformOrg = platformOrgList->Array.length > 0
 
   <div className={`${backgroundColor.sidebarNormal}  p-2 pt-3 border-r w-14 ${borderColor}`}>
     <div className="flex flex-col gap-5 pt-2 px-2 items-center justify-center ">
@@ -459,29 +486,33 @@ let make = () => {
           onClick={_ => setShowAllOrgs(_ => false)}
         />
       </RenderIf>
-      <RenderIf condition={platformOrgList->Array.length > 0}>
+      <RenderIf condition={hasPlatformOrg}>
         <OrgTileGroup
           customHeading={<div
             className="text-nd_gray-400 uppercase leading-12 text-fs-8 font-bold flex flex-col items-center">
             <div> {"Platform"->React.string} </div>
             <div> {"Org"->React.string} </div>
           </div>}
-          hasPlatformOrg={platformOrgList->Array.length > 0}
+          hasPlatformOrg
           orgList=platformOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingPlatformId}
+          handleIdUnderEdit={handlePlatformIdUnderEdit}
         />
-        <hr className="w-full" />
       </RenderIf>
-      <OrgTileGroup
-        heading="Org"
-        hasPlatformOrg={platformOrgList->Array.length > 0}
-        orgList=standardOrgList
-        orgSwitch
-        currentlyEditingId
-        handleIdUnderEdit
-      />
+      <RenderIf condition={standardOrgList->Array.length > 0}>
+        <RenderIf condition={hasPlatformOrg}>
+          <hr className="w-full" />
+        </RenderIf>
+        <OrgTileGroup
+          heading="Org"
+          hasPlatformOrg
+          orgList=standardOrgList
+          orgSwitch
+          currentlyEditingId={currentlyEditingStandardId}
+          handleIdUnderEdit={handleStandardIdUnderEdit}
+        />
+      </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
         <Icon
           name="nd-angle-down"
@@ -494,8 +525,8 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
-          <Icon name="plus" size=20 className={secondaryTextColor} />
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${primaryNormal}`}>
+          <Icon name="plus" size=20 className={primaryNormal} />
         </div>
       </RenderIf>
     </div>

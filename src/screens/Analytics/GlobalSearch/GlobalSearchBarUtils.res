@@ -118,8 +118,9 @@ let getLocalMatchedResults = (searchText, tabs) => {
 
 let getElements = (hits, section) => {
   let getAmount = (value, amountKey, currencyKey) => {
-    let amount = (value->getFloat(amountKey, 0.0) /. 100.0)->Belt.Float.toString
     let currency = value->getString(currencyKey, "")
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+    let amount = (value->getFloat(amountKey, 0.0) /. conversionFactor)->Float.toString
     `${amount} ${currency}`
   }
 
@@ -189,6 +190,43 @@ let getElements = (hits, section) => {
       {
         texts: [disId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/${disId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
+      }
+    })
+  | Payouts =>
+    hits->Array.map(item => {
+      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+      let payoutId = value->getString("payout_id", "")
+      let currency = value->getString("destination_currency", "")
+      let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+      let amount = (value->getFloat("amount", 0.0) /. conversionFactor)->Float.toString
+      let formattedAmount = `${amount} ${currency}`
+      let status = value->getString("status", "")
+      let profileId = value->getString("profile_id", "")
+      let orgId = value->getString("organization_id", "")
+      let merchantId = value->getString("merchant_id", "")
+
+      {
+        texts: [payoutId, formattedAmount, status]->Array.map(JSON.Encode.string),
+        redirect_link: `/payouts/${payoutId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
+      }
+    })
+  | PayoutAttempts =>
+    hits->Array.map(item => {
+      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+      let payoutId = value->getString("payout_id", "")
+      let payoutAttemptId = value->getString("payout_attempt_id", "")
+      let currency = value->getString("destination_currency", "")
+      let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+      let amount = (value->getFloat("amount", 0.0) /. conversionFactor)->Float.toString
+      let formattedAmount = `${amount} ${currency}`
+      let status = value->getString("status", "")
+      let profileId = value->getString("profile_id", "")
+      let orgId = value->getString("organization_id", "")
+      let merchantId = value->getString("merchant_id", "")
+
+      {
+        texts: [payoutAttemptId, formattedAmount, status]->Array.map(JSON.Encode.string),
+        redirect_link: `/payouts/${payoutId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
       }
     })
   | Local
@@ -268,6 +306,16 @@ let getRemoteResults = json => {
   // Disputes
   let key1 = Disputes->getSectionIndex
   let key2 = SessionizerPaymentDisputes->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Payouts
+  let key1 = Payouts->getSectionIndex
+  let key2 = "" // No sessionizer variant for payouts
+  getItemFromArray(results, key1, key2, data)
+
+  // Payout Attempts
+  let key1 = PayoutAttempts->getSectionIndex
+  let key2 = "" // No sessionizer variant for payout attempts
   getItemFromArray(results, key1, key2, data)
 
   results

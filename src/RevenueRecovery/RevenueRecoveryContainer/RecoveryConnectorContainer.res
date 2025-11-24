@@ -9,6 +9,7 @@ let make = () => {
   )
   let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let {merchantId, profileId} = getUserInfoData()
+  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -36,7 +37,6 @@ let make = () => {
     setUpConnectorContainer()->ignore
     None
   }, [merchantId, profileId])
-
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     | list{"v2", "recovery", "onboarding", ...remainingPath} =>
@@ -82,7 +82,7 @@ let make = () => {
         <RevenueRecoveryOnboardingLanding createMerchant=false />
       }
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <NotFoundPage />
+    | _ => <EmptyPage path=defaultPath />
     }}
   </PageLoaderWrapper>
 }

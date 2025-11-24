@@ -6,6 +6,7 @@ let getStackedBarGraphOptions = (
   stackedBarGraphOptions: stackedBarGraphPayload,
   ~yMax,
   ~labelItemDistance,
+  ~pointWidth=30,
 ) => {
   let {categories, data, labelFormatter} = stackedBarGraphOptions
 
@@ -66,7 +67,7 @@ let getStackedBarGraphOptions = (
           enabled: false,
         },
         borderWidth: 3,
-        pointWidth: 30,
+        pointWidth,
         borderRadius: 5,
       },
     },
@@ -85,7 +86,7 @@ let stackedBarGraphLabelFormatter = (~statType: LogicUtilsTypes.valueType, ~curr
     (this: labelFormatter) => {
       let name = this.name
       let yData = this.yData->getValueFromArray(0, 0)->Int.toFloat
-      let formattedValue = LogicUtils.valueFormatter(yData, statType, ~currency)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(yData, statType, ~currency)
 
       let title = `<div style="color: #525866; font-weight: 500;">${name}<span style="color: #99A0AE"> | ${formattedValue}</span></div>`
       title

@@ -47,6 +47,7 @@ export function getVariantValues(key: string): any;
 export function addTwo(n1: bigint, n2: bigint): bigint;
 export function getDescriptionCategory(): any;
 export function getConnectorConfig(key: string): any;
+export function getBillingConnectorConfig(key: string): any;
 export function getPayoutConnectorConfig(key: string): any;
 export function getAuthenticationConnectorConfig(key: string): any;
 export function getTaxProcessorConfig(key: string): any;
@@ -82,10 +83,12 @@ export interface InitOutput {
   readonly getThreeDsKeys: (a: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
   readonly getThreeDsDecisionRuleKeys: (a: number) => void;
+  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: bigint, b: bigint) => bigint;
   readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getBillingConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getTaxProcessorConfig: (a: number, b: number, c: number) => void;
@@ -98,7 +101,6 @@ export interface InitOutput {
   readonly getValidWebhookStatus: (a: number, b: number, c: number) => void;
   readonly ring_core_0_17_14__bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
-  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: (a: number) => void;

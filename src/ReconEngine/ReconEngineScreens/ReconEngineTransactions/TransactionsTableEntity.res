@@ -1,6 +1,20 @@
-open ReconEngineTransactionsTypes
-open ReconEngineTransactionsUtils
+open ReconEngineTypes
 open ReconEngineUtils
+open ReconEngineTransactionsUtils
+open LogicUtils
+
+type transactionColType =
+  | TransactionId
+  | CreditAccount
+  | DebitAccount
+  | CreditAmount
+  | DebitAmount
+  | Variance
+  | Status
+  | CreatedAt
+  | ReconciliationType
+  | Reason
+
 let defaultColumns: array<transactionColType> = [
   TransactionId,
   CreditAccount,
@@ -33,59 +47,108 @@ let allColumns: array<transactionColType> = [
 let getHeading = (colType: transactionColType) => {
   switch colType {
   | TransactionId => Table.makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
-  | CreditAccount => Table.makeHeaderInfo(~key="credit_account", ~title="Credit Account")
-  | DebitAccount => Table.makeHeaderInfo(~key="debit_account", ~title="Debit Account")
+  | CreditAccount => Table.makeHeaderInfo(~key="credit_account", ~title="Source Account")
+  | DebitAccount => Table.makeHeaderInfo(~key="debit_account", ~title="Target Account")
   | CreditAmount => Table.makeHeaderInfo(~key="credit_amount", ~title="Credit Amount")
   | DebitAmount => Table.makeHeaderInfo(~key="debit_amount", ~title="Debit Amount")
   | Variance => Table.makeHeaderInfo(~key="variance", ~title="Variance")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created At")
+  | ReconciliationType =>
+    Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
+  | Reason => Table.makeHeaderInfo(~key="reason", ~title="Remark")
   }
 }
 
-let getCell = (transaction: transactionPayload, colType: transactionColType): Table.cell => {
+let getStatusLabel = (statusString: transactionStatus): Table.cell => {
+  Table.Label({
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | Posted => LabelGreen
+    | Mismatched => LabelRed
+    | Expected => LabelBlue
+    | Archived => LabelGray
+    | PartiallyReconciled => LabelOrange
+    | _ => LabelLightGray
+    },
+  })
+}
+
+let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell => {
+  Table.Label({
+    title: (statusString :> string)->String.toUpperCase,
+    color: switch statusString {
+    | ForceReconciled => LabelOrange
+    | ManuallyReconciled => LabelGray
+    | Reconciled => LabelBlue
+    | _ => LabelLightGray
+    },
+  })
+}
+
+let getCell = (transaction: transactionType, colType: transactionColType): Table.cell => {
+  open CurrencyFormatUtils
   switch colType {
-  | TransactionId => EllipsisText(transaction.transaction_id, "")
-  | CreditAccount => Text(getAccounts(transaction.entries, "credit"))
-  | DebitAccount => Text(getAccounts(transaction.entries, "debit"))
+  | TransactionId =>
+    CustomCell(
+      <>
+        <RenderIf condition={transaction.transaction_id->isNonEmptyString}>
+          <HelperComponents.CopyTextCustomComp
+            customTextCss="max-w-36 truncate whitespace-nowrap"
+            displayValue=Some(transaction.transaction_id)
+          />
+        </RenderIf>
+        <RenderIf condition={transaction.transaction_id->isEmptyString}>
+          <p className="text-nd_gray-600"> {"N/A"->React.string} </p>
+        </RenderIf>
+      </>,
+      "",
+    )
+  | CreditAccount => Text(getAccounts(transaction.entries, Credit))
+  | DebitAccount => Text(getAccounts(transaction.entries, Debit))
   | CreditAmount =>
     Text(
-      transaction.credit_amount.value->formatAmountToString(
-        ~currency=transaction.credit_amount.currency,
+      valueFormatter(
+        transaction.credit_amount.value,
+        AmountWithSuffix,
+        ~suffix=transaction.credit_amount.currency,
       ),
     )
   | DebitAmount =>
     Text(
-      transaction.debit_amount.value->formatAmountToString(
-        ~currency=transaction.debit_amount.currency,
+      valueFormatter(
+        transaction.debit_amount.value,
+        AmountWithSuffix,
+        ~suffix=transaction.debit_amount.currency,
       ),
     )
   | Variance =>
     Text(
-      formatAmountToString(
-        transaction.credit_amount.value -. transaction.debit_amount.value,
-        ~currency=transaction.credit_amount.currency,
+      valueFormatter(
+        Math.abs(transaction.credit_amount.value -. transaction.debit_amount.value),
+        AmountWithSuffix,
+        ~suffix=transaction.credit_amount.currency,
       ),
     )
   | Status =>
-    Label({
-      title: {transaction.transaction_status->getDisplayStatusName},
-      color: switch transaction.transaction_status->ReconEngineTransactionsUtils.getTransactionTypeFromString {
-      | Posted => LabelGreen
-      | Mismatched => LabelRed
-      | Expected => LabelBlue
-      | Archived => LabelGray
-      | _ => LabelGray
-      },
-    })
-  | CreatedAt => EllipsisText(transaction.created_at, "")
+    switch transaction.discarded_status {
+    | Some(status) => getStatusLabel(status->getTransactionStatusVariantFromString)
+    | None => getStatusLabel(transaction.transaction_status)
+    }
+  | CreatedAt => Date(transaction.created_at)
+  | ReconciliationType =>
+    switch transaction.data.posted_type {
+    | Some(postedType) => getReconciledTypeLabel(postedType)
+    | None => getReconciledTypeLabel(UnknownTransactionPostedType)
+    }
+  | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
   }
 }
 
 let transactionsEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getTransactionsList,
+    ~getObjects=_ => [],
     ~defaultColumns,
     ~allColumns,
     ~getHeading,

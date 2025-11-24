@@ -51,7 +51,7 @@ module StepCard = {
 let make = () => {
   open RevenueRecoveryOnboardingUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
+  let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   let customSelectionComponent =
@@ -65,7 +65,7 @@ let make = () => {
   let handleClick = () => {
     mixpanelEvent(~eventName="recovery_start_exploring")
     setShowSideBar(_ => true)
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/v2/recovery/overview`))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=defaultPath))
   }
 
   <PageWrapper

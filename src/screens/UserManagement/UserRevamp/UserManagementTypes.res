@@ -107,6 +107,8 @@ type userDetailstype = {
 @unboxed
 type groupScopeType = Read | Write
 
+type scopeAction = Add | Remove
+
 type allSelectionType = [#All_Merchants | #All_Profiles]
 
 type userActionType = SwitchUser | ManageUser | NoActionAccess
@@ -118,4 +120,10 @@ type userModuleTypes = [UserInfoTypes.entity | #Default]
 type usersOmpViewType = {
   label: string,
   entity: userModuleTypes,
+}
+
+type parentGroupInfo = {
+  name: string,
+  description: string,
+  scopes: array<string>,
 }

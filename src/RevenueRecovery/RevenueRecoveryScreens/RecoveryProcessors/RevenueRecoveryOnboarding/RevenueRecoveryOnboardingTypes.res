@@ -8,9 +8,6 @@ type revenueRecoverySections = [
 type revenueRecoverySubsections = [
   | #selectProcessor
   | #activePaymentMethods
-  | #setupWebhookProcessor
   | #selectAPlatform
-  | #configureRetries
-  | #connectProcessor
-  | #setupWebhookPlatform
+  | #processorSetUp
 ]

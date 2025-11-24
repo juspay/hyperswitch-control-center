@@ -165,7 +165,7 @@ module MappingRules = {
             ),
           ]
 
-          <div key={index->Int.toString} className="flex items-center gap-4 py-2">
+          <div key={LogicUtils.randomString(~length=10)} className="flex items-center gap-4 py-2">
             <div className="flex-1 max-w-xs">
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
@@ -260,10 +260,12 @@ module TriggerRules = {
         </div>
         <div className="flex-1 flex flex-col gap-2">
           <label className={`${labelCss}`}> {"Value"->React.string} </label>
-          {InputFields.textInput(~isDisabled=true, ~inputStyle="rounded-lg")(
-            ~input=valueInput,
-            ~placeholder="Enter trigger value",
-          )}
+          {InputFields.textInput(
+            ~isDisabled=true,
+            ~inputStyle="rounded-lg",
+            ~customDashboardClass="h-8 text-sm font-normal",
+            ~onDisabledStyle=`!bg-gray-200 border-none !text-gray-900 ${body.md.semibold}`,
+          )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
       </div>
     </div>
@@ -272,24 +274,18 @@ module TriggerRules = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload) => {
-    open APIUtils
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
     let (accountData, setAccountData) = React.useState(_ => [])
+    let getAccounts = ReconEngineHooks.useGetAccounts()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let getAccountsData = async _ => {
       try {
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#ACCOUNTS_LIST,
-        )
-        let res = await fetchDetails(url)
-        let accountData =
-          res->LogicUtils.getArrayDataFromJson(ReconEngineOverviewUtils.accountItemToObjMapper)
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let accountData = await getAccounts()
         setAccountData(_ => accountData)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => ()
+      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
 
@@ -318,41 +314,42 @@ module SourceTargetAccount = {
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
     let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
 
-    {
-      <div className="p-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 max-w-xs">
-            <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              buttonText={getAccountName(sourceAccountId)}
-              input=sourceAccountInput
-              options={accountOptions}
-              hideMultiSelectButtons=true
-              deselectDisable=true
-              disableSelect=true
-              fullLength=true
-            />
-          </div>
-          <div className="flex items-center mt-8">
-            <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
-          </div>
-          <div className="flex-1 max-w-xs">
-            <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              buttonText={getAccountName(targetAccountId)}
-              input=targetAccountInput
-              options={accountOptions}
-              hideMultiSelectButtons=true
-              deselectDisable=true
-              disableSelect=true
-              fullLength=true
-            />
-          </div>
+    <PageLoaderWrapper
+      screenState
+      customUI={<NewAnalyticsHelper.NoData height="h-32" message="No data available." />}
+      customLoader={<Shimmer styleClass="h-32 w-full rounded-b-lg" />}>
+      <div className="flex items-center gap-4 p-6">
+        <div className="flex-1 max-w-xs">
+          <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={getAccountName(sourceAccountId)}
+            input=sourceAccountInput
+            options={accountOptions}
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+          />
+        </div>
+        <div className="flex items-center mt-8">
+          <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+        </div>
+        <div className="flex-1 max-w-xs">
+          <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={getAccountName(targetAccountId)}
+            input=targetAccountInput
+            options={accountOptions}
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+          />
         </div>
       </div>
-    }
+    </PageLoaderWrapper>
   }
 }
 
@@ -377,12 +374,12 @@ module RuleSchemaComponents = {
         contentExpandCss="p-0"
         titleStyle={`${accordianTitleCss}`}
       />
-      // Trigger Rules Section
+      // Filters Section
       <Accordion
         initialExpandedArray=[0]
         accordion={[
           {
-            title: "Trigger Rules",
+            title: "Filters",
             renderContent: () => <TriggerRules rule />,
             renderContentOnTop: None,
           },
@@ -392,12 +389,12 @@ module RuleSchemaComponents = {
         contentExpandCss="p-0"
         titleStyle={`${accordianTitleCss}`}
       />
-      // Search Identifier Section
+      // Identifiers Section
       <Accordion
         initialExpandedArray=[0]
         accordion={[
           {
-            title: "Search Identifier",
+            title: "Identifiers",
             renderContent: () => <SearchIdentifier rule />,
             renderContentOnTop: None,
           },
@@ -407,12 +404,12 @@ module RuleSchemaComponents = {
         contentExpandCss="p-0"
         titleStyle={`${accordianTitleCss}`}
       />
-      // Mapping Rules Section
+      // Rules Section
       <Accordion
         initialExpandedArray=[0]
         accordion={[
           {
-            title: "Mapping Rules",
+            title: "Rules",
             renderContent: () => <MappingRules rule />,
             renderContentOnTop: None,
           },
@@ -430,8 +427,8 @@ module RuleDetailsContent = {
   @react.component
   let make = (~rule: rulePayload) => {
     let fields = [
-      ("ID", rule.rule_id),
       ("Rule Name", rule.rule_name),
+      ("ID", rule.rule_id),
       (
         "Description",
         rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
@@ -442,24 +439,14 @@ module RuleDetailsContent = {
       <div className="rounded-lg p-6 border border-nd_gray-150">
         <div className="grid md:grid-cols-2 gap-8">
           {fields
-          ->Array.mapWithIndex(((label, value), index) => {
-            <FieldDisplay key={index->Int.toString} label value />
+          ->Array.map(((label, value)) => {
+            <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
           <StatusBadge isActive={rule.is_active} />
         </div>
       </div>
-      <div>
-        <div className="flex flex-col gap-1 mb-6">
-          <span className={`${body.lg.semibold} text-nd_gray-800`}>
-            {"Rule Schema"->React.string}
-          </span>
-          <p className={`${body.md.medium} text-nd_gray-400`}>
-            {"Configure the source and target accounts and matching rules for this reconciliation rule."->React.string}
-          </p>
-        </div>
-        <RuleSchemaComponents rule />
-      </div>
+      <RuleSchemaComponents rule />
     </div>
   }
 }
@@ -496,7 +483,7 @@ let make = (~id) => {
   }, [])
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-8 p-6">
+    <div className="flex flex-col gap-6">
       <BreadCrumbNavigation
         path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
         currentPageTitle=id
@@ -507,7 +494,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
+      <PageUtils.PageHeading title="Configure Rule" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>

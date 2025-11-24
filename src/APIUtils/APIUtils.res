@@ -9,6 +9,7 @@ let getV2Url = (
   ~id=None,
   ~profileId,
   ~merchantId,
+  ~transactionEntity,
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
@@ -18,6 +19,12 @@ let getV2Url = (
   | CUSTOMERS =>
     switch (methodType, id) {
     | (Get, None) => "v2/customers/list"
+    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | _ => ""
+    }
+  | CUSTOMERS_COUNT =>
+    switch (methodType, id) {
+    | (Get, None) => "v2/customers/list_with_count"
     | (Get, Some(customerId)) => `v2/customers/${customerId}`
     | _ => ""
     }
@@ -76,6 +83,20 @@ let getV2Url = (
     | _ => ""
     }
   | V2_ORDER_FILTERS => "v2/payments/profile/filter"
+  | V2_ORDERS_AGGREGATE =>
+    switch methodType {
+    | Get =>
+      switch queryParamerters {
+      | Some(queryParams) =>
+        switch transactionEntity {
+        | #Merchant => `v2/payments/aggregate?${queryParams}`
+        | #Profile => `v2/payments/profile/aggregate?${queryParams}`
+        | _ => `v2/payments/aggregate?${queryParams}`
+        }
+      | None => ``
+      }
+    | _ => ``
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
@@ -102,6 +123,40 @@ let getV2Url = (
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
+    }
+  /* API KEYS */
+  | API_KEYS =>
+    switch methodType {
+    | Get => `v2/api-keys/list`
+    | Post
+    | Put
+    | Delete =>
+      switch id {
+      | Some(key_id) => `v2/api-keys/${key_id}`
+      | None => `v2/api-keys`
+      }
+    | _ => ""
+    }
+  | BUSINESS_PROFILE =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
+    | Post =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+    | Put =>
+      switch id {
+      | Some(id) => `v2/profiles/${id}`
+      | None => `v2/profiles`
+      }
+
+    | _ => `v2/profiles`
     }
   }
 }
@@ -169,6 +224,19 @@ let useGetURL = () => {
             switch queryParamerters {
             | Some(queryParams) => `customers/list?${queryParams}`
             | None => `customers/list?limit=500`
+            }
+          }
+        | _ => ""
+        }
+      | CUSTOMERS_COUNT =>
+        switch methodType {
+        | Get =>
+          switch id {
+          | Some(customerId) => `customers/${customerId}`
+          | None =>
+            switch queryParamerters {
+            | Some(queryParams) => `customers/list_with_count?${queryParams}`
+            | None => `customers/list_with_count`
             }
           }
         | _ => ""
@@ -432,22 +500,12 @@ let useGetURL = () => {
         | _ => ""
         }
       | ACTIVE_ROUTING => `routing/active`
-      | ENABLE_AUTH_RATE_ROUTING =>
+      | CREATE_AUTH_RATE_ROUTING =>
         switch methodType {
         | Post =>
           switch queryParamerters {
           | Some(param) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/toggle?${param}`
-          | None => ""
-          }
-        | _ => ""
-        }
-      | SET_CONFIG_AUTH_RATE_ROUTING =>
-        switch methodType {
-        | Patch =>
-          switch id {
-          | Some(id) =>
-            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/config/${id}`
+            `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/create?${param}`
           | None => ""
           }
         | _ => ""
@@ -679,6 +737,13 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
         }
+      | PAYOUT_REPORT =>
+        switch transactionEntity {
+        | #Tenant
+        | #Organization => `analytics/v1/org/report/payouts`
+        | #Merchant => `analytics/v1/merchant/report/payouts`
+        | #Profile => `analytics/v1/profile/report/payouts`
+        }
 
       | REFUND_REPORT =>
         switch transactionEntity {
@@ -907,7 +972,16 @@ let useGetURL = () => {
           | Get =>
             switch queryParamerters {
             | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
-            | None => `${reconBaseURL}/staging_entries`
+            | None =>
+              switch id {
+              | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
+              | None => `${reconBaseURL}/staging_entries`
+              }
+            }
+          | Put =>
+            switch id {
+            | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}`
+            | None => ""
             }
           | _ => ""
           }
@@ -937,9 +1011,13 @@ let useGetURL = () => {
         | #INGESTION_CONFIG =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
-            | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
-            | None => `${reconBaseURL}/ingestions/config`
+            switch id {
+            | Some(ingestionId) => `${reconBaseURL}/ingestions/config/${ingestionId}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
+              | None => `${reconBaseURL}/ingestions/config`
+              }
             }
           | _ => ""
           }
@@ -957,7 +1035,116 @@ let useGetURL = () => {
             }
           | _ => ""
           }
-
+        | #TRANSFORMATION_CONFIG =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}`
+            | None =>
+              switch queryParamerters {
+              | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
+              | None => `${reconBaseURL}/transformations/configs`
+              }
+            }
+          | _ => ""
+          }
+        | #VOID_TRANSACTION =>
+          switch methodType {
+          | Put =>
+            switch id {
+            | Some(transactionId) => `${reconBaseURL}/transactions/${transactionId}/void`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #FORCE_RECONCILE_TRANSACTION =>
+          switch methodType {
+          | Put =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/force_reconcile`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #TRANSACTION_RESOLUTIONS =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/resolutions`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #MANUAL_RECONCILIATION =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #LINKABLE_STAGING_ENTRIES =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transactionId) =>
+              `${reconBaseURL}/exception_management/transactions/${transactionId}/linkable_staging_entries`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #DOWNLOAD_INGESTION_HISTORY_FILE =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(ingestionHistoryId) =>
+              `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #METADATA_SCHEMA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
+            | None => `${reconBaseURL}/metadata_schemas`
+            }
+          | _ => ""
+          }
+        | #AUDIT_TRAIL =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
+            | None => `${reconBaseURL}/audit_trail`
+            }
+          | _ => ""
+          }
+        | #PROCESSING_ENTRY_RESOLUTIONS =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(processingEntryId) =>
+              `${reconBaseURL}/exception_management/staging_entries/${processingEntryId}/resolutions`
+            | None => ``
+            }
+          | _ => ""
+          }
+        | #VOID_PROCESSING_ENTRY =>
+          switch methodType {
+          | Put =>
+            switch id {
+            | Some(processingEntryId) => `${reconBaseURL}/staging_entries/${processingEntryId}/void`
+            | None => ``
+            }
+          | _ => ""
+          }
         | #NONE => ""
         }
       /* Themes */
@@ -1087,7 +1274,11 @@ let useGetURL = () => {
 
         // USER GROUP ACCESS
         | #GET_GROUP_ACL => `${userUrl}/role/v2`
-        | #ROLE_INFO => `${userUrl}/parent/list`
+        | #ROLE_INFO =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/parent/list?${params}`
+          | None => `${userUrl}/parent/list`
+          }
 
         | #GROUP_ACCESS_INFO =>
           switch queryParamerters {
@@ -1101,7 +1292,11 @@ let useGetURL = () => {
         | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
         // INVITATION INSIDE DASHBOARD
-        | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+        | #RESEND_INVITE =>
+          switch queryParamerters {
+          | Some(params) => `${userUrl}/user/resend_invite?${params}`
+          | None => `${userUrl}/user/resend_invite`
+          }
         | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
         | #INVITE_MULTIPLE =>
           switch queryParamerters {
@@ -1131,7 +1326,7 @@ let useGetURL = () => {
 
         // CREATE ROLES
         | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-
+        | #CREATE_CUSTOM_ROLE_V2 => `${userUrl}/role/v2`
         // EMAIL FLOWS
         | #FROM_EMAIL => `${userUrl}/from_email`
         | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
@@ -1197,6 +1392,7 @@ let useGetURL = () => {
         ~queryParamerters,
         ~profileId,
         ~merchantId,
+        ~transactionEntity,
       )
     }
 

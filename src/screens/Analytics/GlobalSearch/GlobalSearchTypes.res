@@ -2,6 +2,8 @@ type section =
   | Local
   | PaymentIntents
   | PaymentAttempts
+  | Payouts
+  | PayoutAttempts
   | Refunds
   | Disputes
   | SessionizerPaymentAttempts
@@ -32,6 +34,8 @@ let getSectionHeader = section => {
   | Local => "Go To"
   | PaymentIntents | SessionizerPaymentIntents => "Payment Intents"
   | PaymentAttempts | SessionizerPaymentAttempts => "Payment Attempts"
+  | Payouts => "Payouts"
+  | PayoutAttempts => "Payout Attempts"
   | Refunds | SessionizerPaymentRefunds => "Refunds"
   | Disputes | SessionizerPaymentDisputes => "Disputes"
   | Others => "Others"
@@ -43,6 +47,8 @@ let getSectionVariant = string => {
   switch string {
   | "payment_attempts" => PaymentAttempts
   | "payment_intents" => PaymentIntents
+  | "payouts" => Payouts
+  | "payout_attempts" => PayoutAttempts
   | "refunds" => Refunds
   | "disputes" => Disputes
   | "sessionizer_payment_attempts" => SessionizerPaymentAttempts
@@ -57,6 +63,8 @@ let getSectionIndex = string => {
   switch string {
   | PaymentAttempts => "payment_attempts"
   | PaymentIntents => "payment_intents"
+  | Payouts => "payouts"
+  | PayoutAttempts => "payout_attempts"
   | Refunds => "refunds"
   | Disputes => "disputes"
   | SessionizerPaymentAttempts => "sessionizer_payment_attempts"

@@ -32,7 +32,7 @@ module DefaultHomeCard = {
     let {activeProduct, onProductSelectClick} = React.useContext(
       ProductSelectionProvider.defaultContext,
     )
-    let url = RescriptReactRouter.useUrl()
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     <div
       className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
@@ -54,12 +54,7 @@ module DefaultHomeCard = {
           switch action {
           | InternalRoute =>
             if product === activeProduct {
-              let currentUrl = GlobalVars.extractModulePath(
-                ~path=url.path,
-                ~end=url.path->List.toArray->Array.length,
-              )
-
-              let productUrl = ProductUtils.getProductUrl(~productType=product, ~url=currentUrl)
+              let productUrl = ProductUtils.getProductUrl(~productType=product, ~isLiveMode)
               RescriptReactRouter.replace(productUrl)
             } else {
               onProductSelectClick(heading)
@@ -125,6 +120,13 @@ let defaultHomeCardsArray = {
       heading: "Revenue Recovery",
       description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
       imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
+      action: InternalRoute,
+    },
+    {
+      product: CostObservability,
+      heading: "Cost Observability",
+      description: "Unified view of payment processing costs across acquirers, payment methods, & regions. Track every cent, detect anomalies, audit against contracted rates, & forecast the impact of card network changes.",
+      imgSrc: "/assets/DefaultHomeHypersenseCard.svg",
       action: InternalRoute,
     },
   ]

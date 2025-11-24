@@ -20,23 +20,29 @@ let reconTransactions = {
   })
 }
 
-let reconExceptions = {
-  Link({
-    name: "Exceptions",
-    link: `/v1/recon-engine/exceptions`,
+let transformedEntriesExceptions = {
+  SubLevelLink({
+    name: "Transformed Entries",
+    link: "/v1/recon-engine/exceptions/transformed-entries",
     access: Access,
-    icon: "nd-operations",
-    selectedIcon: "nd-operations-fill",
   })
 }
 
-let reconQueue = {
-  Link({
-    name: "File Management",
-    link: `/v1/recon-engine/file-management`,
+let reconExceptions = {
+  SubLevelLink({
+    name: "Recon",
+    link: "/v1/recon-engine/exceptions/recon",
     access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
+  })
+}
+
+let exceptions = {
+  Section({
+    name: "Exceptions",
+    icon: "nd-operations",
+    showSection: true,
+    links: [reconExceptions, transformedEntriesExceptions],
+    selectedIcon: "nd-operations-fill",
   })
 }
 
@@ -50,24 +56,41 @@ let reconRuleCreation = {
   })
 }
 
-let reconConnection = {
-  Link({
-    name: "Connections",
-    link: `/v1/recon-engine/connection`,
+let sources = {
+  SubLevelLink({
+    name: "Sources",
+    link: "/v1/recon-engine/sources",
     access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
+  })
+}
+
+let transformation = {
+  SubLevelLink({
+    name: "Transformation",
+    link: "/v1/recon-engine/transformation",
+    access: Access,
+  })
+}
+
+let transformedEntries = {
+  SubLevelLink({
+    name: "Transformed Entries",
+    link: "/v1/recon-engine/transformed-entries",
+    access: Access,
+  })
+}
+
+let reconAccounts = {
+  Section({
+    name: "Data",
+    icon: "nd-connectors",
+    showSection: true,
+    links: [sources, transformation, transformedEntries],
+    selectedIcon: "nd-connectors-fill",
   })
 }
 
 let reconEngineSidebars = {
-  let sidebar = [
-    reconOverview,
-    reconTransactions,
-    reconExceptions,
-    reconQueue,
-    reconRuleCreation,
-    reconConnection,
-  ]
+  let sidebar = [reconOverview, reconTransactions, exceptions, reconRuleCreation, reconAccounts]
   sidebar
 }
