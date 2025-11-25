@@ -39,7 +39,10 @@ let make = () => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(
+    ~isReconEnabled,
+    ~userHasAccess,
+  )
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
 
   sessionExpired := false

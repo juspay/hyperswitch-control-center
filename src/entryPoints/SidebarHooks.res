@@ -172,14 +172,13 @@ let useGetSidebarProductModules = () => {
   })
 }
 
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled, ~userHasAccess) => {
   let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let defaultSidebar = []
-
   if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
     defaultSidebar->Array.pushMany([
       Link({
@@ -189,7 +188,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         access: Access,
         selectedIcon: "nd-fill-home",
       }),
-      ThemeSidebarValues.theme,
+      ThemeSidebarValues.theme(~userHasAccess),
       CustomComponent({
         component: <ProductHeaderComponent />,
       }),

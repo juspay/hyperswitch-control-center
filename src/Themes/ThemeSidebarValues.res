@@ -1,10 +1,11 @@
 open SidebarTypes
+open UserManagementTypes
 
-let theme = {
+let theme = (~userHasAccess) => {
   Link({
     name: "Theme",
     link: `/theme`,
-    access: Access,
+    access: userHasAccess(~groupAccess=ThemeView),
     icon: "nd-overview",
     selectedIcon: "nd-overview-fill",
   })
