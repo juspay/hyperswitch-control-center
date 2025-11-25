@@ -180,7 +180,21 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let defaultSidebar = []
 
-  if featureFlagDetails.devModularityV2 {
+  if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      ThemeSidebarValues.theme,
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  } else if featureFlagDetails.devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
         name: "Home",
@@ -193,9 +207,6 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         component: <ProductHeaderComponent />,
       }),
     ])
-  }
-  if featureFlagDetails.devTheme {
-    defaultSidebar->Array.pushMany([ThemeSidebarValues.theme])
   }
 
   let sidebarValuesForProduct = switch activeProduct {
