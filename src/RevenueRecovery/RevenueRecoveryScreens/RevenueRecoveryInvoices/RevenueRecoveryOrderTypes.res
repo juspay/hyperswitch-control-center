@@ -69,6 +69,7 @@ type recoveryInvoiceStatus =
   | NoPicked
   | Monitoring
   | PartiallyRecovered
+  | PartiallyCapturedAndProcessing
   | Other(string)
 
 type recoverySchedulerStatusType =

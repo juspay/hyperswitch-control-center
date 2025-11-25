@@ -145,7 +145,7 @@ let getCell = (
       | Scheduled => LabelOrange
       | Terminated => LabelRed
       | Processing => LabelBlue
-      | Queued => LabelYellow
+      | Queued => LabelGray
       | _ => LabelLightGray
       },
     })

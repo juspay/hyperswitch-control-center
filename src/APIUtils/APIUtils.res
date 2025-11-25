@@ -64,6 +64,23 @@ let getV2Url = (
       }
     | _ => ""
     }
+  | V2_RECOVERY_INVOICES_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) =>
+        switch queryParamerters {
+        | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
+        | None => `${peymantsBaseURL}/${key_id}/get-revenue-recovery-intent`
+        }
+      | None =>
+        switch queryParamerters {
+        | Some(queryParams) => `${peymantsBaseURL}/recovery-list?${queryParams}`
+        | None => `${peymantsBaseURL}/recovery-list?limit=100`
+        }
+      }
+    | _ => ""
+    }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
     | Get =>
