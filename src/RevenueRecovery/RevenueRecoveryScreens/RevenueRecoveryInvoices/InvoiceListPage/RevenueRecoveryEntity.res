@@ -67,6 +67,7 @@ let attemptsItemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.attempt
   network_error_message: dict
   ->getDictfromDict("error")
   ->getString("network_error_message", ""),
+  net_amount: dict->getDictfromDict("amount")->getFloat("net_amount", 0.0) /. 100.0,
 }
 
 let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
@@ -80,8 +81,8 @@ let getAttempts: JSON.t => array<RevenueRecoveryOrderTypes.attempts> = json => {
 
     let errorDict = dict->getDictfromDict("error")
 
-    let networkDeclineCode = errorDict->getString("network_decline_code", "")
-    let networkErrorMessage = errorDict->getString("network_error_message", "")
+    let networkDeclineCode = errorDict->getString("code", "")
+    let networkErrorMessage = errorDict->getString("message", "")
 
     if (
       (networkDeclineCode->isEmptyString || networkErrorMessage->isEmptyString) &&
@@ -116,6 +117,8 @@ let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
   | PaymentMethodType => Table.makeHeaderInfo(~key="PaymentMethodType", ~title="Payment Method")
+  | ModifiedAt => Table.makeHeaderInfo(~key="ModifiedAt", ~title="Last Attempted")
+  | RecoveryProgress => Table.makeHeaderInfo(~key="RecoveryProgress", ~title="Recovery Progress")
   }
 }
 
@@ -123,7 +126,8 @@ let getCell = (
   order: RevenueRecoveryOrderTypes.order,
   colType: RevenueRecoveryOrderTypes.colType,
 ): Table.cell => {
-  let orderStatus = order.status->RevenueRecoveryOrderUtils.statusVariantMapper
+  open RevenueRecoveryOrderUtils
+  let orderStatus = order.status->statusVariantMapper->statusStringMapper
   switch colType {
   | Id =>
     CustomCell(
@@ -135,28 +139,18 @@ let getCell = (
 
   | Status =>
     Label({
-      title: order.status->String.toUpperCase,
-      color: switch orderStatus {
-      | Succeeded
-      | PartiallyCaptured =>
-        LabelGreen
-      | Failed
-      | Cancelled =>
-        LabelRed
+      title: orderStatus,
+      color: switch order.status->statusVariantMapper {
+      | Recovered | PartiallyRecovered => LabelGreen
       | Scheduled => LabelOrange
-      | Processing
-      | RequiresCustomerAction
-      | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelBlue
-      | _ => LabelBlue
+      | Terminated => LabelRed
+      | Processing => LabelBlue
+      | Queued => LabelYellow
+      | _ => LabelLightGray
       },
     })
   | OrderAmount =>
-    CustomCell(
-      <CurrencyCell amount={(order.order_amount /. 100.0)->Float.toString} currency={"USD"} />,
-      "",
-    )
+    CustomCell(<CurrencyCell amount={order.order_amount->Float.toString} currency={"USD"} />, "")
   | Connector =>
     CustomCell(
       <HelperComponents.ConnectorCustomCell
@@ -167,6 +161,14 @@ let getCell = (
     )
   | Created => Date(order.created)
   | PaymentMethodType => Text(order.payment_method_type)
+  | ModifiedAt => Date(order.modified_at)
+  | RecoveryProgress =>
+    CustomCell(
+      <RecoveryInvoicesHelper.SegmentedProgressBar
+        orderAmount=order.order_amount amountCaptured=order.amount_captured className="w-32"
+      />,
+      "",
+    )
   }
 }
 
@@ -188,11 +190,11 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 
 let defaultColumns: array<RevenueRecoveryOrderTypes.colType> = [
   Id,
-  Status,
   OrderAmount,
-  Connector,
+  Status,
+  RecoveryProgress,
   Created,
-  PaymentMethodType,
+  ModifiedAt,
 ]
 
 let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
@@ -209,11 +211,15 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount_details")
-    ->getFloat("order_amount", 0.0),
+    ->getFloat("order_amount", 0.0) /. 100.0,
+    amount_captured: dict
+    ->getDictfromDict("amount_details")
+    ->getFloat("amount_captured", 0.0) /. 100.0,
     connector: revenueRecoveryMetadata->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: revenueRecoveryMetadata->getString("payment_method_type", ""),
     payment_method_subtype: revenueRecoveryMetadata->getString("payment_method_subtype", ""),
+    modified_at: dict->getString("modified_at", ""),
     attempts,
   }
 }
@@ -227,11 +233,15 @@ let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict =>
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount")
-    ->getFloat("order_amount", 0.0),
+    ->getFloat("order_amount", 0.0) /. 100.0,
+    amount_captured: dict
+    ->getDictfromDict("amount")
+    ->getFloat("amount_captured", 0.0) /. 100.0,
     connector: dict->getString("connector", ""),
     created: dict->getString("created", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_subtype: dict->getString("payment_method_subtype", ""),
+    modified_at: dict->getString("modified_at", ""),
     attempts,
   }
 }

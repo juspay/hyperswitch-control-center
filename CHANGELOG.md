@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.25.0
+
+### Features
+
+- Revenue recovery new invoices list and detail pages ([#3874](https://github.com/juspay/hyperswitch-control-center/pull/3874)) ([`3a1f915`](https://github.com/juspay/hyperswitch-control-center/commit/3a1f915a5d96f46c9c5e0cf2d09d3a535e784103))
+
+### Bug Fixes
+
+- Custom headers not populating initially ([#3863](https://github.com/juspay/hyperswitch-control-center/pull/3863)) ([`2e845eb`](https://github.com/juspay/hyperswitch-control-center/commit/2e845eb6725ebfea8ae9832e15128ad4202391d9))
+
+### Miscellaneous Tasks
+
+- Updated latest payment link wasm ([#3877](https://github.com/juspay/hyperswitch-control-center/pull/3877)) ([`fd07f33`](https://github.com/juspay/hyperswitch-control-center/commit/fd07f33b7a9e4d9bc19bbcdfd8f4eb7d011364e7))
+- Revamping sidebar and improved navigation between product modules ([#3142](https://github.com/juspay/hyperswitch-control-center/pull/3142)) ([`d8fb60c`](https://github.com/juspay/hyperswitch-control-center/commit/d8fb60c0bb96077976ffe42a6947b2da9ee94bc1))
+
+**Full Changelog:** [`2025.11.24.0...2025.11.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.24.0...2025.11.25.0)
+
+- - -
+
 ## 2025.11.24.0
 
 ### Miscellaneous Tasks

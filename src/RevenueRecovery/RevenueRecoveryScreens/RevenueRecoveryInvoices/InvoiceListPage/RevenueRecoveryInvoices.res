@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   open APIUtils
-  open RevenueRecoveryTypes
   open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -18,12 +17,14 @@ let make = () => {
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
 
   let setData = (total, data) => {
+    let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
     if total <= offset {
       setOffset(_ => 0)
     }
 
     if total > 0 {
-      let list = data->Array.map(Nullable.make)
+      let orderData = arr->Array.concat(data)
+      let list = orderData->Array.map(Nullable.make)
       setTotalCount(_ => total)
       setRevenueRecoveryData(_ => list)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -67,7 +68,8 @@ let make = () => {
       // Process failed payments to get additional information from process tracker
       let processedOrderData = await Promise.all(
         orderData->Array.map(async order => {
-          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Failed {
+          // TODO: change this later
+          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
             try {
               let processTrackerUrl = getURL(
                 ~entityName=V2(PROCESS_TRACKER),
@@ -80,26 +82,21 @@ let make = () => {
 
               let status = processTrackerDataDict->getString("status", "")
 
-              // If we get a response, modify the payment object
               if (
-                processTrackerDataDict->Dict.keysToArray->Array.length > 0 &&
-                  status != Finish->schedulerStatusStringMapper
+                !(processTrackerDataDict->isEmptyDict) &&
+                status != Finish->schedulerStatusStringMapper
               ) {
-                // Create a modified order object with additional process tracker data
                 {
                   ...order,
-                  status: Scheduled->schedulerStatusStringMapper,
+                  status: Scheduled->statusStringMapper,
                 }
               } else {
-                // Keep the order as-is if no response
                 order
               }
             } catch {
-            | Exn.Error(_) => // Keep the order as-is if there's an error
-              order
+            | Exn.Error(_) => order
             }
           } else {
-            // Keep non-failed orders as-is
             order
           }
         }),
@@ -122,7 +119,6 @@ let make = () => {
         filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
       }
 
-      //to create amount_filter query
       let newDict = AmountFilterUtils.createAmountQuery(~dict)
       newDict
       ->Dict.toArray
@@ -130,12 +126,13 @@ let make = () => {
         let (key, value) = item
         filters->Dict.set(key, value)
       })
-      // TODO: enable amount filter later
+
       filters->Dict.delete("amount_filter")
 
       filters
     | _ => {
         let filters = Dict.make()
+        filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         filters
       }
@@ -147,46 +144,16 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    // TODO: filters will be enabled later
-    // if filters->OrderUIUtils.isNonEmptyValue {
-    //   fetchOrders()
-    // }
     fetchOrders()
 
     None
   }, (offset, filters, searchText))
 
-  let customTitleStyle = "py-0 !pt-0"
-
-  let (widthClass, heightClass) = ("w-full", "")
-
-  // TODO: filters will be enabled later
-  // let filtersUI = React.useMemo(() => {
-  //   <RemoteTableFilters
-  //     title="Orders"
-  //     setFilters
-  //     endTimeFilterKey
-  //     startTimeFilterKey
-  //     initialFilters
-  //     initialFixedFilter
-  //     setOffset
-  //     submitInputOnEnter=true
-  //     customLeftView={<SearchBarFilter
-  //       placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
-  //     />}
-  //     entityName=V2(V2_ORDER_FILTERS)
-  //     version=V2
-  //   />
-  // }, [searchText])
-
   <ErrorBoundary>
-    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+    <div className={`flex flex-col mx-auto h-full w-full min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading
-          title="Invoices" subTitle="List of failed Invoices picked up for retry" customTitleStyle
-        />
+        <PageUtils.PageHeading title="List of Invoices" customTitleStyle="py-0 !pt-0" />
       </div>
-      //<div className="flex"> {filtersUI} </div>
       <PageLoaderWrapper screenState>
         <LoadedTableWithCustomColumns
           title="Recovery"
