@@ -332,7 +332,7 @@ let make = (~id) => {
               order=revenueRecoveryData
               getHeading
               getCell
-              detailsFields=[Id, Created, OrderAmount, Status, Connector]
+              detailsFields=[Id, Created, OrderAmount, Status, Connector, CardAttached]
             />
           </div>
         </div>

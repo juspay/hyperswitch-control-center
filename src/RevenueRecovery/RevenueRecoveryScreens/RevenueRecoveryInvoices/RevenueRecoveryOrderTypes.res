@@ -7,6 +7,7 @@ type colType =
   | PaymentMethodType
   | ModifiedAt
   | RecoveryProgress
+  | CardAttached
 
 type attemptColType =
   | Id
@@ -42,6 +43,7 @@ type order = {
   payment_method_subtype: string,
   attempts: array<attempts>,
   modified_at: string,
+  card_attached: int,
 }
 
 type optionObj = {
