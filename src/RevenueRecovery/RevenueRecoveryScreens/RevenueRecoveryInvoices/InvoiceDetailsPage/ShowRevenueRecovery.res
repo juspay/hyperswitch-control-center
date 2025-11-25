@@ -254,6 +254,7 @@ let make = (~id) => {
     } catch {
     | _ => ()
     }
+    setScreenState(_ => Success)
   }
 
   let fetchOrderDetails = async _ => {
@@ -275,8 +276,6 @@ let make = (~id) => {
       }
 
       fetchOrderAttemptListDetails()->ignore
-
-      setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {
