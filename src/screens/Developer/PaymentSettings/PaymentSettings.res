@@ -691,6 +691,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open MerchantAccountUtils
   open HSwitchSettingTypes
   open FormRenderer
+  open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
@@ -850,7 +851,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <DesktopRow>
+                <DesktopRow wrapperClass="!flex-col">
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
@@ -858,11 +859,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~name="is_network_tokenization_enabled",
                       ~label="Network Tokenization",
                       ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
+                        ~isDisabled=true,
                         ~boolCustomClass="rounded-lg",
                       ),
                     )}
                   />
+                  <div className={`${body.md.medium} ml-1 text-jp-gray-text_muted`}>
+                    {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
+                    <a
+                      href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+                      className="text-primary hover:cursor-pointer hover:underline"
+                      target="_blank">
+                      {"Slack"->React.string}
+                    </a>
+                  </div>
                 </DesktopRow>
                 <DesktopRow>
                   <FieldRenderer
