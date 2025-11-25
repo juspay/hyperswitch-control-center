@@ -1,26 +1,26 @@
 module StatCard = {
+  open Typography
+
   @react.component
   let make = (~title, ~value, ~change, ~soft, ~hard) => {
     <div className="bg-white border border-nd_br_gray-200 rounded-xl p-5 flex-1">
       <div className="flex items-center justify-between">
-        <span className="text-nd_gray-500 font-medium text-sm"> {React.string(title)} </span>
+        <span className={`${body.sm.medium} text-nd_gray-500`}> {React.string(title)} </span>
       </div>
-      <div className="mt-2 text-3xl font-medium flex items-center">
+      <div className={`mt-2 ${heading.xl.semibold} flex items-center`}>
         {React.string(value)}
-        <span className="ml-2 text-nd_green-400 text-base font-medium">
-          {React.string(change)}
-        </span>
+        <span className={`ml-2 ${body.md.medium} text-nd_green-400`}> {React.string(change)} </span>
       </div>
       <div className="border-t border-dashed border-nd_br_gray-200 my-2" />
-      <div className="mt-4 text-xs text-nd_gray-500">
-        <span className="font-semibold "> {"Decline Breakdown:"->React.string} </span>
+      <div className={`mt-4 ${body.xs.regular} text-nd_gray-500`}>
+        <span className={body.sm.semibold}> {"Decline Breakdown:"->React.string} </span>
         <div className="mt-2 flex gap-4">
           <span>
-            <b> {"Soft : "->React.string} </b>
+            <span className={body.xs.semibold}> {"Soft : "->React.string} </span>
             {React.string(soft)}
           </span>
           <span>
-            <b> {"Hard : "->React.string} </b>
+            <span className={body.xs.semibold}> {"Hard : "->React.string} </span>
             {React.string(hard)}
           </span>
         </div>
@@ -32,6 +32,7 @@ module StatCard = {
 module BudgetCard = {
   open LocalStorage
   open CurrencyFormatUtils
+  open Typography
 
   let localStorageKey = "hard_decline_budget"
   let defaultBudget = "1600"
@@ -76,12 +77,14 @@ module BudgetCard = {
 
     <div
       className="bg-white border border-nd_br_gray-200 rounded-xl p-5 flex flex-col justify-between">
-      <div className="text-nd_gray-500 text-sm font-medium flex items-center justify-between">
+      <div className={`${body.sm.medium} text-nd_gray-500 flex items-center justify-between`}>
         <span> {"Budget for Recovering Decline Invoices"->React.string} </span>
       </div>
       <div className="mt-4">
-        <div className="text-nd_gray-500 text-sm"> {"Available Budget"->React.string} </div>
-        <div className="text-3xl font-bold my-1">
+        <div className={`${body.sm.medium} text-nd_gray-500`}>
+          {"Available Budget"->React.string}
+        </div>
+        <div className={`${heading.xl.bold} my-1`}>
           {"$"->React.string}
           {React.string(budgetDisplay)}
         </div>
@@ -94,43 +97,47 @@ module BudgetCard = {
             )}
           />
         </div>
-        <div className="text-xs text-nd_gray-500 mt-2">
+        <div className={`${body.sm.regular} text-nd_gray-500 mt-2`}>
           {"Budget used for doing Hard Retries: $"->React.string}
           {React.string(usedDisplay)}
         </div>
       </div>
       <div className="border-t border-dashed border-nd_br_gray-200 my-4" />
-      <div className="text-sm text-nd_gray-500 font-medium mb-1">
+      <div className={`${body.sm.medium} text-nd_gray-500 mb-1`}>
         {"Hard-Decline Recovery Overview"->React.string}
       </div>
       <div
         className="grid grid-cols-2 gap-4 bg-nd_gray-50 p-4 rounded-xl border border-nd_br_gray-200">
         <div>
-          <div className="text-lg font-medium">
+          <div className={`${body.lg.semibold}`}>
             {"$"->React.string}
             {React.string(spentDisplay)}
           </div>
-          <div className="text-xs text-nd_gray-500">
+          <div className={`${body.xs.regular} text-nd_gray-500`}>
             {"Budget Spent to recover"->React.string}
           </div>
         </div>
         <div>
-          <div className="text-lg font-medium">
+          <div className={`${body.lg.semibold}`}>
             {"$"->React.string}
             {React.string(recoveredDisplay)}
           </div>
-          <div className="text-xs text-nd_gray-500"> {"Recovered Amount"->React.string} </div>
+          <div className={`${body.xs.regular} text-nd_gray-500`}>
+            {"Recovered Amount"->React.string}
+          </div>
         </div>
         <div>
-          <div className="text-lg font-medium"> {React.string(invoices)} </div>
-          <div className="text-xs text-nd_gray-500"> {"Invoices Recovered"->React.string} </div>
+          <div className={`${body.lg.semibold}`}> {React.string(invoices)} </div>
+          <div className={`${body.xs.regular} text-nd_gray-500`}>
+            {"Invoices Recovered"->React.string}
+          </div>
         </div>
         <div>
-          <div className="text-lg font-medium">
+          <div className={`${body.lg.semibold}`}>
             {"$"->React.string}
             {React.string(pendingDisplay)}
           </div>
-          <div className="text-xs text-nd_gray-500">
+          <div className={`${body.xs.regular} text-nd_gray-500`}>
             {"Pending Recovery Amount"->React.string}
           </div>
         </div>
