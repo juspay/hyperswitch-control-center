@@ -1,3 +1,5 @@
+open Typography
+
 module PmtConfigInp = {
   @react.component
   let make = (
@@ -193,6 +195,24 @@ let make = (
                   label: `Currencies`,
                   options: currencies,
                 })}
+              />
+              <FormRenderer.FieldRenderer
+                labelClass={`text-nd_gray-700 ${body.xs.medium}`}
+                field={FormRenderer.makeFieldInfo(
+                  ~label="Minimum Amount",
+                  ~name=`${id}.minimum_amount`,
+                  ~placeholder="Enter Minimum Amount",
+                  ~customInput=InputFields.numericTextInput(~customStyle="!rounded-xl"),
+                )}
+              />
+              <FormRenderer.FieldRenderer
+                labelClass={`text-nd_gray-700 ${body.xs.medium}`}
+                field={FormRenderer.makeFieldInfo(
+                  ~label="Maximum Amount",
+                  ~name=`${id}.maximum_amount`,
+                  ~placeholder="Enter Maximum Amount",
+                  ~customInput=InputFields.numericTextInput(~customStyle="!rounded-xl"),
+                )}
               />
             </div>
             <hr className="w-full" />
