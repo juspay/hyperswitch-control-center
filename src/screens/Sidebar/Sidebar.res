@@ -491,14 +491,16 @@ module ProductTypeSectionItem = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
+    let {onProductSelectClick, activeProduct} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
     let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
     let handleClick = _ => onProductSelectClick(section.name)
 
     <div className="flex flex-col">
       <div
-        onClick=handleClick
+        onClick={activeProduct == sectionProductVariant ? _ => () : handleClick}
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
         <div className="flex items-center gap-2">
           <Icon size=14 name={section.icon} className={secondaryTextColor} />
