@@ -110,10 +110,6 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     )
   }
 
-  if devTheme {
-    sideBarValues->Array.push(ThemeSidebarValues.theme)
-  }
-
   let productName = activeProduct->getProductDisplayName
 
   sideBarValues->Array.filter(topLevelItem =>
