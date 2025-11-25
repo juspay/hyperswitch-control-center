@@ -13,7 +13,6 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devIntelligentRoutingV2,
     devOrchestrationV2Product,
     devReconEngineV1,
-    devTheme,
   } =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
