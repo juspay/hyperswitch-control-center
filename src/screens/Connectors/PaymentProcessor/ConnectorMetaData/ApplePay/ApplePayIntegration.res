@@ -112,7 +112,7 @@ module Landing = {
     ~setApplePayIntegrationType,
   ) => {
     open ApplePayIntegrationTypes
-    open AdditionalDetailsSidebarHelper
+    open ApplePayLandingHelper
 
     let handleConfirmClick = () => {
       setApplePayIntegrationSteps(_ => Configure)
@@ -126,70 +126,13 @@ module Landing = {
       | Processors(FIUU)
       | Processors(TESOURO) =>
         <>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setApplePayIntegrationType(_ => #simplified)}>
-            <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-              <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-                {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag
-                  tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-                <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-              </div>
-            </Card>
-          </div>
-          <div
-            className="p-6 m-2 cursor-pointer"
-            onClick={_ => setApplePayIntegrationType(_ => #manual)}>
-            <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
-              <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-                <CustomSubText />
-              </div>
-              <div className="flex gap-2 mt-4">
-                <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-                <CustomTag
-                  tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-                />
-              </div>
-            </Card>
-          </div>
+          <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+          <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
 
       | Processors(WORLDPAYVANTIV) =>
-        <div
-          className="p-6 m-2 cursor-pointer"
-          onClick={_ => setApplePayIntegrationType(_ => #simplified)}>
-          <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-              {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <CustomTag
-                tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
-              />
-              <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            </div>
-          </Card>
-        </div>
-      | _ =>
-        <div
-          className="p-6 m-2 cursor-pointer"
-          onClick={_ => setApplePayIntegrationType(_ => #manual)}>
-          <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
-            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-              <CustomSubText />
-            </div>
-            <div className="flex gap-2 mt-4">
-              <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-              <CustomTag
-                tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-              />
-            </div>
-          </Card>
-        </div>
+        <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+      | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
       <div className={`flex gap-2 justify-end m-2 p-6`}>
         <Button
