@@ -33,24 +33,10 @@ module BudgetCard = {
   open LocalStorage
   open CurrencyFormatUtils
   open Typography
+  open SingleStatsAnalyticsUtils
 
   let localStorageKey = "hard_decline_budget"
   let defaultBudget = "1600"
-
-  let originalBudget = 3000.0
-  let originalUsed = 1380.0
-  let originalSpent = 1380.0
-  let originalRecovered = 72800.0
-  let originalPending = 87480.0
-
-  let calculateSplitValues = (newBudget: float) => {
-    let splitPercentage = newBudget /. originalBudget
-    let used = originalUsed *. splitPercentage
-    let spent = originalSpent *. splitPercentage
-    let recovered = originalRecovered *. splitPercentage
-    let pending = originalPending *. splitPercentage
-    (used, spent, recovered, pending)
-  }
 
   @react.component
   let make = (~invoices) => {
@@ -60,20 +46,16 @@ module BudgetCard = {
     }
 
     let budget = budgetFromStorage->Float.fromString->Option.getOr(originalBudget)
-    let budgetDisplay = budgetFromStorage->Js.String2.replace("$", "")->Js.String2.trim
+    let budgetDisplay = budgetFromStorage->String.replace("$", "")->String.trim
 
-    let (used, spent, recovered, pending) = calculateSplitValues(budget)
+    let (used, spent, recovered, pending) = React.useMemo(() => {
+      calculateSplitValues(budget)
+    }, [budget])
 
     let usedDisplay = used->valueFormatter(Amount)
     let spentDisplay = spent->valueFormatter(Amount)
     let recoveredDisplay = recovered->valueFormatter(Volume)
     let pendingDisplay = pending->valueFormatter(Volume)
-
-    let usedPercentage = if budget > 0.0 {
-      used /. budget *. 100.0
-    } else {
-      0.0
-    }
 
     <div
       className="bg-white border border-nd_br_gray-200 rounded-xl p-5 flex flex-col justify-between">
@@ -92,7 +74,7 @@ module BudgetCard = {
           <div
             className="bg-nd_purple-300 h-1 rounded"
             style={ReactDOM.Style.make(
-              ~width={usedPercentage->Float.toFixedWithPrecision(~digits=1) ++ "%"},
+              ~width={usedPercentage(budget, used)->Float.toFixedWithPrecision(~digits=1) ++ "%"},
               (),
             )}
           />

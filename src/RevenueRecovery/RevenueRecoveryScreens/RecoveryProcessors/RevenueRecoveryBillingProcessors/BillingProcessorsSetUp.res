@@ -44,10 +44,17 @@ module HardDeclineRetryConfiguration = {
       None
     }, [])
 
-    let handleInputChange = (ev: ReactEvent.Form.t) => {
-      let newValue = {ev->ReactEvent.Form.target}["value"]
-      setBudgetValue(_ => newValue)
-      setItem("hard_decline_budget", newValue)
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "hard_decline_budget",
+      value: budgetValue->JSON.Encode.int,
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        setBudgetValue(_ => value->Int.fromString->Option.getOr(0))
+        setItem("hard_decline_budget", value)
+      },
+      onBlur: _ => (),
+      onFocus: _ => (),
+      checked: false,
     }
 
     <div className="flex flex-col gap-5">
@@ -78,13 +85,10 @@ module HardDeclineRetryConfiguration = {
         <div className={`${body.lg.medium} text-nd_gray-700`}>
           {"Suggested Budget"->React.string}
         </div>
-        <input
-          type_="text"
-          value={budgetValue->Int.toString}
-          onChange=handleInputChange
-          placeholder="$ 1600"
-          className="w-full border border-nd_br_gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-0.5 focus:ring-nd_primary_blue-400 focus:border-nd_primary_blue-400"
-        />
+        {InputFields.numericTextInput(
+          ~customStyle="w-full border border-nd_br_gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-0.5 focus:ring-nd_primary_blue-400 focus:border-nd_primary_blue-400",
+          ~removeLeadingZeroes=true,
+        )(~input, ~placeholder="$ 1600")}
       </div>
     </div>
   }
