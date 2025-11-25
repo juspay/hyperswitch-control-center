@@ -30,8 +30,50 @@ module StatCard = {
 }
 
 module BudgetCard = {
+  open LocalStorage
+  open CurrencyFormatUtils
+
+  let localStorageKey = "hard_decline_budget"
+  let defaultBudget = "1600"
+
+  let originalBudget = 3000.0
+  let originalUsed = 1380.0
+  let originalSpent = 1380.0
+  let originalRecovered = 72800.0
+  let originalPending = 87480.0
+
+  let calculateSplitValues = (newBudget: float) => {
+    let splitPercentage = newBudget /. originalBudget
+    let used = originalUsed *. splitPercentage
+    let spent = originalSpent *. splitPercentage
+    let recovered = originalRecovered *. splitPercentage
+    let pending = originalPending *. splitPercentage
+    (used, spent, recovered, pending)
+  }
+
   @react.component
-  let make = (~budget, ~used, ~spent, ~recovered, ~pending, ~invoices) => {
+  let make = (~invoices) => {
+    let budgetFromStorage = switch getItem(localStorageKey)->Nullable.toOption {
+    | Some(value) => value
+    | None => defaultBudget
+    }
+
+    let budget = budgetFromStorage->Float.fromString->Option.getOr(originalBudget)
+    let budgetDisplay = budgetFromStorage->Js.String2.replace("$", "")->Js.String2.trim
+
+    let (used, spent, recovered, pending) = calculateSplitValues(budget)
+
+    let usedDisplay = used->valueFormatter(Amount)
+    let spentDisplay = spent->valueFormatter(Amount)
+    let recoveredDisplay = recovered->valueFormatter(Volume)
+    let pendingDisplay = pending->valueFormatter(Volume)
+
+    let usedPercentage = if budget > 0.0 {
+      used /. budget *. 100.0
+    } else {
+      0.0
+    }
+
     <div
       className="bg-white border border-nd_br_gray-200 rounded-xl p-5 flex flex-col justify-between">
       <div className="text-nd_gray-500 text-sm font-medium flex items-center justify-between">
@@ -41,16 +83,20 @@ module BudgetCard = {
         <div className="text-nd_gray-500 text-sm"> {"Available Budget"->React.string} </div>
         <div className="text-3xl font-bold my-1">
           {"$"->React.string}
-          {React.string(budget)}
+          {React.string(budgetDisplay)}
         </div>
         <div className="w-full bg-nd_gray-100 h-1 rounded mt-2">
           <div
-            className="bg-nd_purple-300 h-1 rounded" style={ReactDOM.Style.make(~width="33%", ())}
+            className="bg-nd_purple-300 h-1 rounded"
+            style={ReactDOM.Style.make(
+              ~width={usedPercentage->Float.toFixedWithPrecision(~digits=1) ++ "%"},
+              (),
+            )}
           />
         </div>
         <div className="text-xs text-nd_gray-500 mt-2">
           {"Budget used for doing Hard Retries: $"->React.string}
-          {React.string(used)}
+          {React.string(usedDisplay)}
         </div>
       </div>
       <div className="border-t border-dashed border-nd_br_gray-200 my-4" />
@@ -62,7 +108,7 @@ module BudgetCard = {
         <div>
           <div className="text-lg font-medium">
             {"$"->React.string}
-            {React.string(spent)}
+            {React.string(spentDisplay)}
           </div>
           <div className="text-xs text-nd_gray-500">
             {"Budget Spent to recover"->React.string}
@@ -71,7 +117,7 @@ module BudgetCard = {
         <div>
           <div className="text-lg font-medium">
             {"$"->React.string}
-            {React.string(recovered)}
+            {React.string(recoveredDisplay)}
           </div>
           <div className="text-xs text-nd_gray-500"> {"Recovered Amount"->React.string} </div>
         </div>
@@ -82,7 +128,7 @@ module BudgetCard = {
         <div>
           <div className="text-lg font-medium">
             {"$"->React.string}
-            {React.string(pending)}
+            {React.string(pendingDisplay)}
           </div>
           <div className="text-xs text-nd_gray-500">
             {"Pending Recovery Amount"->React.string}
@@ -104,8 +150,6 @@ let make = () => {
       <StatCard title="Pending Recovery invoices" value="24.3K" change="" soft="82%" hard="18%" />
       <StatCard title="Recovered MRR" value="$ 1.33M" change="" soft="77%" hard="23%" />
     </div>
-    <BudgetCard
-      budget="1600" used="736" spent="736" recovered="38K" pending="46K" invoices="1 of 4"
-    />
+    <BudgetCard invoices="1 of 4" />
   </div>
 }
