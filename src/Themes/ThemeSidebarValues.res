@@ -1,20 +1,20 @@
 open SidebarTypes
 open UserManagementTypes
 
-let themeTopLevelLink = (~userHasAccess) => {
+let themeTopLevelLink = (~userHasResourceAccess) => {
   Link({
     name: "Theme",
     link: `/theme`,
-    access: userHasAccess(~groupAccess=ThemeView),
+    access: userHasResourceAccess(~resourceAccess=Theme),
     icon: "nd-overview",
     selectedIcon: "nd-overview-fill",
   })
 }
-let themeSublevelLinks = (~userHasAccess) => {
+let themeSublevelLinks = (~userHasResourceAccess) => {
   SubLevelLink({
     name: "Theme",
     link: `/theme`,
-    access: userHasAccess(~groupAccess=ThemeView),
+    access: userHasResourceAccess(~resourceAccess=Theme),
     searchOptions: [("View theme", "")],
   })
 }
