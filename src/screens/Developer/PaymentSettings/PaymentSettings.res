@@ -709,6 +709,7 @@ module Vault = {
     open HSwitchUtils
     open FormRenderer
     open LogicUtils
+    open PaymentSettingsUtils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -764,18 +765,31 @@ module Vault = {
                 ~label="Vault Connectors",
                 ~name="external_vault_connector_details.vault_connector_id",
                 ~customInput=InputFields.selectInput(
-                  ~options=vaultConnectorsList->Array.map((item): SelectBox.dropdownOption => {
-                    {
-                      label: `${item.connector_label} - ${item.id}`,
-                      value: item.id,
-                    }
-                  }),
+                  ~options=vaultConnectorsList->vaultConnectorDropdownOptions,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                  ~dropdownCustomWidth="!w-full",
+                ),
+                ~isRequired=true,
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Token ",
+                ~name="external_vault_connector_details.vault_token_selector",
+                ~customInput=InputFields.multiSelectInput(
+                  ~showSelectionAsChips=false,
+                  ~options=vaultTokenSelectorDropdownOptions,
                   ~buttonText="Select Field",
                   ~customButtonStyle="!rounded-lg",
                   ~fixedDropDownDirection=BottomRight,
                   ~dropdownClassName="!max-h-15-rem !overflow-auto",
                 ),
-                ~isRequired=true,
               )}
               errorClass
               labelClass={`text-nd_gray-700 ${body.md.semibold}`}

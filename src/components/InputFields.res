@@ -206,7 +206,7 @@ let multiSelectInput = (
   ~options: array<SelectBox.dropdownOption>,
   ~optionSize: CheckBoxIcon.size=Small,
   ~buttonText,
-  ~buttonSize=?,
+  ~buttonSize=Button.Large,
   ~hideMultiSelectButtons=false,
   ~showSelectionAsChips=true,
   ~showToggle=false,
@@ -256,7 +256,7 @@ let multiSelectInput = (
     options
     optionSize
     buttonText
-    ?buttonSize
+    buttonSize
     allowMultiSelect=true
     hideMultiSelectButtons
     showSelectionAsChips
