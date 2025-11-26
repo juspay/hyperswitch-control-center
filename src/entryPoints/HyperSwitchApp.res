@@ -25,7 +25,12 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {
+    fetchUserGroupACL,
+    userHasResourceAccess,
+    hasAnyGroupAccess,
+    userHasAccess,
+  } = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
@@ -41,7 +46,7 @@ let make = () => {
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(
     ~isReconEnabled,
-    ~userHasAccess,
+    ~userHasResourceAccess,
   )
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
 

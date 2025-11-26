@@ -455,7 +455,6 @@ let settings = (
   ~complianceCertificate,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
-  ~userHasAccess,
 ) => {
   let settingsLinkArray = []
 
@@ -468,7 +467,7 @@ let settings = (
   }
   if !devModularityV2Enabled && devThemeEnabled {
     settingsLinkArray
-    ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasAccess))
+    ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
 

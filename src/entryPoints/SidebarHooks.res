@@ -6,7 +6,7 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
@@ -84,7 +84,6 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~complianceCertificate,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
-      ~userHasAccess,
     ),
   ]
 }
@@ -181,7 +180,7 @@ let useGetSidebarProductModules = () => {
   })
 }
 
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled, ~userHasAccess) => {
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled, ~userHasResourceAccess) => {
   let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -197,7 +196,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled, ~userHasAccess) => {
         access: Access,
         selectedIcon: "nd-fill-home",
       }),
-      ThemeSidebarValues.themeTopLevelLink(~userHasAccess),
+      ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess),
       CustomComponent({
         component: <ProductHeaderComponent />,
       }),

@@ -7,7 +7,7 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     | list{"theme", ...remainingPath} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
         <EntityScaffold
           entityName="Themes"
           remainingPath
