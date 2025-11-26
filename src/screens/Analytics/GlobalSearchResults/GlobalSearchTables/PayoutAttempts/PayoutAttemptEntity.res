@@ -209,7 +209,7 @@ let getCell = (payoutAttemptObj, colType): Table.cell => {
   | BusinessCountry => Text(payoutAttemptObj.business_country)
   | BusinessLabel => Text(payoutAttemptObj.business_label)
   | AdditionalPayoutMethodData => Text("N/A")
-  | CreatedAt => Text(payoutAttemptObj.created_at)
+  | CreatedAt => Date(payoutAttemptObj.created_at)
   | LastModifiedAt => Text(payoutAttemptObj.last_modified_at)
   }
 }
