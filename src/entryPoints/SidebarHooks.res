@@ -180,12 +180,13 @@ let useGetSidebarProductModules = () => {
   })
 }
 
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled, ~userHasResourceAccess) => {
+let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
   if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
     defaultSidebar->Array.pushMany([
