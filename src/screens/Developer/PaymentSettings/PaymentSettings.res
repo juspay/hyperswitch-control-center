@@ -230,7 +230,11 @@ module WebHookAuthenticationHeaders = {
 
 module WebHookSection = {
   @react.component
-  let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
+  let make = (
+    ~businessProfileDetails: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+    ~setBusinessProfile,
+    ~setScreenState,
+  ) => {
     open APIUtils
     open LogicUtils
     open FormRenderer
@@ -239,9 +243,8 @@ module WebHookSection = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-
+    let profileId = businessProfileDetails.profile_id
     let onSubmit = async (values, _) => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
@@ -707,6 +710,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open MerchantAccountUtils
   open HSwitchSettingTypes
   open FormRenderer
+  open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
@@ -715,7 +719,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
 
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -754,13 +757,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   }
 
   React.useEffect(() => {
-    if profileId->LogicUtils.isNonEmptyString {
+    if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [profileId, businessProfileRecoilVal.profile_name])
+  }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
@@ -795,10 +798,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
-                  <InfoViewForWebhooks heading="Profile ID" subHeading=profileId isCopy=true />
+                  <InfoViewForWebhooks
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
+                  />
                 </div>
                 <div className="flex items-center">
-                  <InfoViewForWebhooks heading="Merchant ID" subHeading=merchantId />
+                  <InfoViewForWebhooks
+                    heading="Merchant ID" subHeading=businessProfileDetails.merchant_id
+                  />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
                     subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
@@ -863,7 +870,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <DesktopRow>
+                <DesktopRow wrapperClass="!flex-col">
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
@@ -871,11 +878,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~name="is_network_tokenization_enabled",
                       ~label="Network Tokenization",
                       ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
+                        ~isDisabled=true,
                         ~boolCustomClass="rounded-lg",
                       ),
                     )}
                   />
+                  <div className={`${body.md.medium} ml-1 text-jp-gray-text_muted`}>
+                    {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
+                    <a
+                      href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+                      className="text-primary hover:cursor-pointer hover:underline"
+                      target="_blank">
+                      {"Slack"->React.string}
+                    </a>
+                  </div>
                 </DesktopRow>
                 <DesktopRow>
                   <FieldRenderer
@@ -983,15 +999,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <div className={` py-4 md:py-10 h-full flex flex-col `}>
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <WebHookSection businessProfileDetails setBusinessProfile setScreenState profileId />
+            <WebHookSection businessProfileDetails setBusinessProfile setScreenState />
           </div>
         </div>
         <div className="py-4 md:py-10 h-full flex flex-col">
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <PaymentSettingsMetadata
-              businessProfileDetails setBusinessProfile setScreenState profileId
-            />
+            <PaymentSettingsMetadata businessProfileDetails setBusinessProfile setScreenState />
           </div>
         </div>
         <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>

@@ -311,7 +311,7 @@ module CustomToastElement = {
     | Pending => (
         "Transformed entry is pending",
         "The entry is being processed and will be available shortly",
-        `exceptions/transformed-entries/${processingEntry.id}`,
+        `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
     | NeedsManualReview => (
