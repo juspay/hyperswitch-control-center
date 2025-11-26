@@ -91,7 +91,6 @@ module SidebarSubOption = {
 module SidebarItem = {
   @react.component
   let make = (
-    ~product,
     ~tabInfo,
     ~isSelected,
     ~isSidebarExpanded,
@@ -104,9 +103,6 @@ module SidebarItem = {
     let {
       globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-    let activeProductDisplayName = activeProduct->getProductDisplayName
-    let activeProductVariant = activeProductDisplayName->getProductVariantFromDisplayName
 
     let selectedClass = if isSelected {
       `${hoverColor} bg-sidebar-hoverColor`
@@ -132,11 +128,6 @@ module SidebarItem = {
         let onSidebarItemClick = _ => {
           isMobileView ? setIsSidebarExpanded(_ => false) : ()
           setOpenItem(prev => {prev == name ? "" : name})
-
-          switch (activeProductVariant, product) {
-          | (activeProductVariant, product) if activeProductVariant == product => ()
-          | _ => onItemClickCustom()
-          }
         }
         <RenderIf condition={access !== NoAccess}>
           <Link to_={GlobalVars.appendDashboardPath(~url=redirectionLink)}>
@@ -203,20 +194,10 @@ module SidebarItem = {
 
 module NestedSidebarItem = {
   @react.component
-  let make = (
-    ~product,
-    ~tabInfo,
-    ~isSelected,
-    ~isSideBarExpanded,
-    ~isSectionExpanded,
-    ~onItemClickCustom,
-  ) => {
+  let make = (~tabInfo, ~isSelected, ~isSideBarExpanded, ~isSectionExpanded) => {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-    let activeProductDisplayName = activeProduct->getProductDisplayName
-    let activeProductVariant = activeProductDisplayName->getProductVariantFromDisplayName
 
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
@@ -246,15 +227,6 @@ module NestedSidebarItem = {
                   ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
                   onClick={_ => {
                     isMobileView ? setIsSidebarExpanded(_ => false) : ()
-
-                    switch onItemClickCustom {
-                    | Some(fn) =>
-                      switch (activeProductVariant, product) {
-                      | (activeProductVariant, product) if activeProductVariant == product => ()
-                      | _ => fn()
-                      }
-                    | None => ()
-                    }
                   }}
                   className={`${selectedClass} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg`}>
                   <SidebarSubOption name isSectionExpanded isSelected>
@@ -281,7 +253,6 @@ module NestedSidebarItem = {
 module NestedSectionItem = {
   @react.component
   let make = (
-    ~product,
     ~section: sectionType,
     ~isSectionExpanded,
     ~textColor,
@@ -291,7 +262,6 @@ module NestedSectionItem = {
     ~isElementShown,
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
-    ~onItemClickCustom,
   ) => {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
       ThemeProvider.themeContext,
@@ -338,12 +308,10 @@ module NestedSectionItem = {
                 let isSelected = subLevelItem->isSubLevelItemSelected
                 <NestedSidebarItem
                   key={Int.toString(index)}
-                  product
                   isSelected
                   isSideBarExpanded
                   isSectionExpanded
                   tabInfo=subLevelItem
-                  onItemClickCustom
                 />
               })
               ->React.array}
@@ -358,7 +326,6 @@ module NestedSectionItem = {
 module SidebarNestedSection = {
   @react.component
   let make = (
-    ~product,
     ~section: sectionType,
     ~linkSelectionCheck,
     ~firstPart,
@@ -366,7 +333,6 @@ module SidebarNestedSection = {
     ~openItem="",
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
-    ~onItemClickCustom,
   ) => {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
@@ -460,7 +426,6 @@ module SidebarNestedSection = {
 
     <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
-        product
         section
         isSectionExpanded
         textColor
@@ -470,7 +435,6 @@ module SidebarNestedSection = {
         isElementShown
         isSubLevelItemSelected
         isSideBarExpanded
-        onItemClickCustom
       />
     </RenderIf>
   }
@@ -496,11 +460,15 @@ module ProductTypeSectionItem = {
     )
     let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
-    let handleClick = _ => onProductSelectClick(section.name)
+    let handleClick = _ => {
+      if activeProduct != sectionProductVariant {
+        onProductSelectClick(section.name)
+      }
+    }
 
     <div className="flex flex-col">
       <div
-        onClick={activeProduct == sectionProductVariant ? _ => () : handleClick}
+        onClick={handleClick}
         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer ${hoverColor} rounded-lg`}>
         <div className="flex items-center gap-2">
           <Icon size=14 name={section.icon} className={secondaryTextColor} />
@@ -518,29 +486,16 @@ module ProductTypeSectionItem = {
             | Link(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
                 <SidebarItem
-                  key={Int.toString(index)}
-                  product={section.name->getProductVariantFromDisplayName}
-                  tabInfo
-                  isSelected
-                  isSidebarExpanded
-                  setOpenItem
-                  onItemClickCustom=handleClick
+                  key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
                 />
               }
             | LinkWithTag(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem
-                  key={Int.toString(index)}
-                  product={section.name->getProductVariantFromDisplayName}
-                  tabInfo
-                  isSelected
-                  isSidebarExpanded
-                />
+                <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
               }
             | Section(thisSection) =>
               <RenderIf condition={thisSection.showSection} key={Int.toString(index)}>
                 <SidebarNestedSection
-                  product=sectionProductVariant
                   key={Int.toString(index)}
                   section=thisSection
                   linkSelectionCheck
@@ -549,7 +504,6 @@ module ProductTypeSectionItem = {
                   openItem
                   setOpenItem
                   isSectionAutoCollapseEnabled=true
-                  onItemClickCustom={Some(handleClick)}
                 />
               </RenderIf>
             | Heading(headingOptions) =>
@@ -751,28 +705,16 @@ let make = (
                   | Link(record) => {
                       let isSelected = linkSelectionCheck(firstPart, record.link)
                       <SidebarItem
-                        product={activeProduct}
-                        key={Int.toString(index)}
-                        tabInfo
-                        isSelected
-                        isSidebarExpanded
-                        setOpenItem
+                        key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
                       />
                     }
                   | LinkWithTag(record) => {
                       let isSelected = linkSelectionCheck(firstPart, record.link)
-                      <SidebarItem
-                        product={activeProduct}
-                        key={Int.toString(index)}
-                        tabInfo
-                        isSelected
-                        isSidebarExpanded
-                      />
+                      <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
                     }
                   | Section(section) =>
                     <RenderIf condition={section.showSection} key={Int.toString(index)}>
                       <SidebarNestedSection
-                        product={activeProduct}
                         key={Int.toString(index)}
                         section
                         linkSelectionCheck
@@ -781,7 +723,6 @@ let make = (
                         openItem
                         setOpenItem
                         isSectionAutoCollapseEnabled=true
-                        onItemClickCustom=None
                       />
                     </RenderIf>
                   | Heading(headingOptions) =>
@@ -812,7 +753,6 @@ let make = (
                     | Link(record) => {
                         let isSelected = linkSelectionCheck(firstPart, record.link)
                         <SidebarItem
-                          product={record.name->getProductVariantFromDisplayName}
                           key={Int.toString(index)}
                           tabInfo
                           isSelected
