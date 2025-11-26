@@ -12,4 +12,5 @@ type validationFieldsV2 =
   | ThreeDsRequestorAppUrl
   | MaxAutoRetries
   | AutoRetry
+  | VaultProcessorDetails
   | UnknownValidateFields(string)
