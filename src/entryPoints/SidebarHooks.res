@@ -6,7 +6,7 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
@@ -31,6 +31,8 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
+    devModularityV2,
+    devTheme,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -76,7 +78,14 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
       ~paymentLinkThemeConfigurator,
     ),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
+    settings(
+      ~isConfigurePmtsEnabled=configurePmts,
+      ~userHasResourceAccess,
+      ~complianceCertificate,
+      ~devModularityV2Enabled=devModularityV2,
+      ~devThemeEnabled=devTheme,
+      ~userHasAccess,
+    ),
   ]
 }
 
@@ -188,7 +197,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled, ~userHasAccess) => {
         access: Access,
         selectedIcon: "nd-fill-home",
       }),
-      ThemeSidebarValues.theme(~userHasAccess),
+      ThemeSidebarValues.themeTopLevelLink(~userHasAccess),
       CustomComponent({
         component: <ProductHeaderComponent />,
       }),

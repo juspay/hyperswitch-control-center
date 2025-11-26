@@ -1,7 +1,7 @@
 open SidebarTypes
 open UserManagementTypes
 
-let theme = (~userHasAccess) => {
+let themeTopLevelLink = (~userHasAccess) => {
   Link({
     name: "Theme",
     link: `/theme`,
@@ -10,8 +10,16 @@ let theme = (~userHasAccess) => {
     selectedIcon: "nd-overview-fill",
   })
 }
+let themeSublevelLinks = (~userHasAccess) => {
+  SubLevelLink({
+    name: "Theme",
+    link: `/theme`,
+    access: userHasAccess(~groupAccess=ThemeView),
+    searchOptions: [("View theme", "")],
+  })
+}
 
 let themeSidebars = {
-  let sidebar = [theme]
+  let sidebar = [themeTopLevelLink]
   sidebar
 }
