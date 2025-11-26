@@ -36,6 +36,7 @@ module AuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
+    let originalKeyRef = React.useRef("")
     let getOutGoingWebhook = () => {
       let outGoingWebhookDict =
         formState.values
@@ -53,6 +54,7 @@ module AuthenticationInput = {
       let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
       setValue(_ => outGoingWebHookValue)
       setKey(_ => outGoingWebhookKey)
+      originalKeyRef.current = outGoingWebhookKey
       None
     }, [])
 
@@ -65,7 +67,19 @@ module AuthenticationInput = {
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => (),
+      onBlur: _ => {
+        if (
+          key->isNonEmptyString &&
+          originalKeyRef.current->isNonEmptyString &&
+          originalKeyRef.current !== key
+        ) {
+          let oldName = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
+          form.change(oldName, JSON.Encode.null)
+          let name = `outgoing_webhook_custom_http_headers.${key}`
+          form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
+        }
+      },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
@@ -81,7 +95,7 @@ module AuthenticationInput = {
           true
         }
         if value->String.length <= 0 {
-          let name = `outgoing_webhook_custom_http_headers.${key}`
+          let name = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
           form.change(name, JSON.Encode.null)
         }
         //Not allow users to enter just integers
@@ -97,9 +111,14 @@ module AuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
+        if key->isNonEmptyString {
+          if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
+            let oldName = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
+            form.change(oldName, JSON.Encode.null)
+          }
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
@@ -691,6 +710,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open MerchantAccountUtils
   open HSwitchSettingTypes
   open FormRenderer
+  open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
@@ -850,7 +870,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <DesktopRow>
+                <DesktopRow wrapperClass="!flex-col">
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
@@ -858,11 +878,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~name="is_network_tokenization_enabled",
                       ~label="Network Tokenization",
                       ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
+                        ~isDisabled=true,
                         ~boolCustomClass="rounded-lg",
                       ),
                     )}
                   />
+                  <div className={`${body.md.medium} ml-1 text-jp-gray-text_muted`}>
+                    {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
+                    <a
+                      href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+                      className="text-primary hover:cursor-pointer hover:underline"
+                      target="_blank">
+                      {"Slack"->React.string}
+                    </a>
+                  </div>
                 </DesktopRow>
                 <DesktopRow>
                   <FieldRenderer
