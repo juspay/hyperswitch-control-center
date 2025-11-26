@@ -93,7 +93,7 @@ module RecoveryAmountStatus = {
           </div>
         </div>
       </div>
-    | Scheduled | Processing =>
+    | Scheduled | Processing | PartiallyCapturedAndProcessing =>
       <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className={`${heading.md.semibold} text-nd_gray-900`}>
@@ -254,13 +254,14 @@ let make = (~id) => {
     } catch {
     | _ => ()
     }
+    setScreenState(_ => Success)
   }
 
   let fetchOrderDetails = async _ => {
     try {
       setScreenState(_ => Loading)
 
-      let url = getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+      let url = getURL(~entityName=V2(V2_RECOVERY_INVOICES_LIST), ~methodType=Get, ~id=Some(id))
       let data = await fetchDetails(url, ~version=V2)
 
       let orderData =
@@ -268,15 +269,13 @@ let make = (~id) => {
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
 
-      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
+      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Scheduled {
         await getPTDetails(~orderData)
       } else {
         setRevenueRecoveryData(_ => orderData)
       }
 
       fetchOrderAttemptListDetails()->ignore
-
-      setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {
@@ -332,7 +331,7 @@ let make = (~id) => {
               order=revenueRecoveryData
               getHeading
               getCell
-              detailsFields=[Id, Created, OrderAmount, Status, Connector]
+              detailsFields=[Id, Created, OrderAmount, Status, Connector, CardAttached]
             />
           </div>
         </div>
