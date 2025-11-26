@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.26.1
+
+### Features
+
+- Recovery dashboard enhancements ([#3897](https://github.com/juspay/hyperswitch-control-center/pull/3897)) ([`7e31607`](https://github.com/juspay/hyperswitch-control-center/commit/7e316078ec48b1e5e4b536965987efd8d6e39305))
+
+### Bug Fixes
+
+- Unnecessary headers augmentation issue in payment settings ([#3882](https://github.com/juspay/hyperswitch-control-center/pull/3882)) ([`385b0ed`](https://github.com/juspay/hyperswitch-control-center/commit/385b0ed98a6a4e8d814dd35d5ca81d420781d61d))
+
+**Full Changelog:** [`2025.11.26.0...2025.11.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.26.0...2025.11.26.1)
+
+- - -
+
+## 2025.11.26.0
+
+### Bug Fixes
+
+- Disable Network Tokenization toggle for Orchestration ([#3890](https://github.com/juspay/hyperswitch-control-center/pull/3890)) ([`e644f33`](https://github.com/juspay/hyperswitch-control-center/commit/e644f338af2820110e4d1890fb5e8b38ccce0393))
+- Add `created_at` table field in open search results ([#3884](https://github.com/juspay/hyperswitch-control-center/pull/3884)) ([`0b6641f`](https://github.com/juspay/hyperswitch-control-center/commit/0b6641f96a4f0d79bfdbbd5f1f7e0f3cca0ec6e2))
+
+**Full Changelog:** [`2025.11.25.0...2025.11.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.25.0...2025.11.26.0)
+
+- - -
+
 ## 2025.11.25.0
 
 ### Features
