@@ -306,8 +306,8 @@ let defaultColumns: array<colType> = [
   Metadata,
   Created,
 ]
-
-let allColumns = [
+//Columns array for V1 Orders page
+let allColumnsV1 = [
   Amount,
   AmountCapturable,
   AuthenticationType,
@@ -331,6 +331,34 @@ let allColumns = [
   MerchantOrderReferenceId,
   AttemptCount,
   CardNetwork,
+]
+
+//Columns array for V1 Orders page
+let allColumnsV2 = [
+  Amount,
+  AmountCapturable,
+  AuthenticationType,
+  ProfileId,
+  CaptureMethod,
+  ClientSecret,
+  Connector,
+  ConnectorTransactionID,
+  Created,
+  Currency,
+  CustomerId,
+  Description,
+  Email,
+  MerchantId,
+  PaymentId,
+  PaymentMethod,
+  PaymentMethodType,
+  SetupFutureUsage,
+  Status,
+  Metadata,
+  MerchantOrderReferenceId,
+  AttemptCount,
+  CardNetwork,
+  PaymentType,
 ]
 
 let getHeading = (colType: colType) => {
@@ -386,6 +414,7 @@ let getHeading = (colType: colType) => {
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
   | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count")
+  | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
 
@@ -631,6 +660,12 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   }
 }
 
+let getAllColumns = (version: UserInfoTypes.version) =>
+  switch version {
+  | V1 => allColumnsV1
+  | V2 => allColumnsV2
+  }
+
 let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
@@ -741,6 +776,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     }
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   | AttemptCount => Text(order.attempt_count->Int.toString)
+  | PaymentType => Text(order.is_split_payment ? "Split" : "Standard")
   }
 }
 
@@ -753,7 +789,7 @@ let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>
     ~uri=``,
     ~getObjects=getOrders,
     ~defaultColumns,
-    ~allColumns,
+    ~allColumns=getAllColumns(version),
     ~getHeading,
     ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",
