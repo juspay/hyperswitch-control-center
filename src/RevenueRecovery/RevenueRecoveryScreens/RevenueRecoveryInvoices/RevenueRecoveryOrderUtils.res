@@ -7,7 +7,8 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStat
   | "QUEUED" => Queued
   | "NOPICKED" => NoPicked
   | "MONITORING" => Monitoring
-  | "PARTIALLY_CAPTURED" => PartiallyRecovered
+  | "PARTIALLYCAPTURED" => PartiallyRecovered
+  | "PARTIALLYCAPTUREDANDPROCESSING" => PartiallyCapturedAndProcessing
   | _ => Other(statusLabel)
   }
 
@@ -15,12 +16,13 @@ let statusStringMapper: RevenueRecoveryOrderTypes.recoveryInvoiceStatus => strin
   switch statusLabel {
   | Recovered => "Recovered"
   | Scheduled => "Scheduled"
-  | Terminated => "Terminated"
-  | Processing => "Processing"
-  | Queued => "Queued"
   | NoPicked => "NoPicked"
-  | PartiallyRecovered => "PartiallyRecovered"
+  | Processing => "Processing"
+  | Terminated => "Terminated"
   | Monitoring => "Monitoring"
+  | Queued => "Queued"
+  | PartiallyRecovered => "PartiallyRecovered"
+  | PartiallyCapturedAndProcessing => "PartiallyCapturedAndProcessing"
   | Other(status) => status
   }
 
