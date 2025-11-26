@@ -22,6 +22,8 @@ type authFlow =
   | ResendVerifyEmail
   | LiveMode
   | ActivateFromEmail
+  | OAuthAuthorize
+
 type data = {code: string, message: string, type_: string}
 type subCode =
   | HE_02
