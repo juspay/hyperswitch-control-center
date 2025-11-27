@@ -3,7 +3,7 @@ let make = (~remainingPath) => {
   let (screenState, _) = React.useState(_ => PageLoaderWrapper.Success)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
+  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
     <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
       <EntityScaffold
         entityName="Themes"
