@@ -18,9 +18,11 @@ let ingestionHistoryTableEntity = (path: string, ~authorization: CommonAuthTypes
     ~getCell=getIngestionHistoryCell,
     ~dataKey="",
     ~getShowLink={
-      connector => {
+      ingestionHistory => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.ingestion_history_id}`),
+          ~url=GlobalVars.appendDashboardPath(
+            ~url=`/${path}/${ingestionHistory.ingestion_history_id}`,
+          ),
           ~authorization,
         )
       }

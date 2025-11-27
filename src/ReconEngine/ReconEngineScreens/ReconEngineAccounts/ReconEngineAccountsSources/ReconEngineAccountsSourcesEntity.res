@@ -177,9 +177,9 @@ let ingestionHistoryTableEntity = (path: string, ~authorization: CommonAuthTypes
     ~getCell=getIngestionHistoryCell,
     ~dataKey="",
     ~getShowLink={
-      connector => {
+      ingestionHistory => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${ingestionHistory.id}`),
           ~authorization,
         )
       }
@@ -199,9 +199,11 @@ let transformationHistoryTableEntity = (
     ~getCell=getTransformationHistoryCell,
     ~dataKey="",
     ~getShowLink={
-      connector => {
+      transformationHistory => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.ingestion_history_id}`),
+          ~url=GlobalVars.appendDashboardPath(
+            ~url=`/${path}/${transformationHistory.ingestion_history_id}`,
+          ),
           ~authorization,
         )
       }

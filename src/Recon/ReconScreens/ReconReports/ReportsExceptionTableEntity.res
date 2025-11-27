@@ -96,9 +96,9 @@ let exceptionReportsEntity = (path: string, ~authorization: CommonAuthTypes.auth
     ~getCell,
     ~dataKey="reports",
     ~getShowLink={
-      connector =>
+      exceptionReport =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.transaction_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${exceptionReport.transaction_id}`),
           ~authorization,
         )
     },
