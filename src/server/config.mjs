@@ -135,7 +135,7 @@ const configHandler = async (
   try {
     const config = await readTomlConfig(filePath, res);
     let merchantConfig = config.default;
-    let isDomainExitsInEnv = process.env[`${domain}_enabled`];
+    let isDomainExitsInEnv = process.env[`${domain}__enabled`];
 
     if (config[domain] && Object.keys(config[domain]).length > 0) {
       merchantConfig = updateConfigWithEnv(config[domain], domain, "theme");
