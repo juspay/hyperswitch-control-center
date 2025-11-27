@@ -216,7 +216,7 @@ let make = () => {
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
-                        | (_, list{"theme", ..._}) => <ThemeContainer />
+                        | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"
