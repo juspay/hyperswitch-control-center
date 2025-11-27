@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.11.26.1
+
+### Features
+
+- Recovery dashboard enhancements ([#3897](https://github.com/juspay/hyperswitch-control-center/pull/3897)) ([`7e31607`](https://github.com/juspay/hyperswitch-control-center/commit/7e316078ec48b1e5e4b536965987efd8d6e39305))
+
+### Bug Fixes
+
+- Unnecessary headers augmentation issue in payment settings ([#3882](https://github.com/juspay/hyperswitch-control-center/pull/3882)) ([`385b0ed`](https://github.com/juspay/hyperswitch-control-center/commit/385b0ed98a6a4e8d814dd35d5ca81d420781d61d))
+
+**Full Changelog:** [`2025.11.26.0...2025.11.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.26.0...2025.11.26.1)
+
+- - -
+
 ## 2025.11.26.0
 
 ### Bug Fixes
