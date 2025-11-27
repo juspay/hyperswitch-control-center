@@ -63,6 +63,9 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
 
+  Js.log2("Domain from query param array:", arr)
+  Js.log2("Full Request URL:", request.url.toString())
+
   let domainFromQueryParam =
     arr
     ->Array.get(1)
@@ -76,6 +79,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   | "public" => "default"
   | value => value
   }
+  Js.log3("Domain from x-tenant-id:", domainFromXTenantId, domainFromQueryParam)
 
   let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
   Js.log2("Serving request for domain:", domain)
