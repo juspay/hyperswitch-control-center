@@ -808,14 +808,14 @@ module BaseSelect = {
           } else {
             {
               filteredOptions
-              ->Array.mapWithIndex((item, indx) => {
+              ->Array.mapWithIndex((item, idx) => {
                 let valueToConsider = item.value
                 let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-                let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
+                let isPrevSelected = switch filteredOptions->Array.get(idx - 1) {
                 | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
                 | None => false
                 }
-                let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
+                let isNextSelected = switch filteredOptions->Array.get(idx + 1) {
                 | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
                 | None => false
                 }
@@ -847,7 +847,7 @@ module BaseSelect = {
                     description=item.description
                     customMarginStyle
                     listFlexDirection
-                    dataId=indx
+                    dataId=idx
                     showDescriptionAsTool
                     optionClass
                     selectClass

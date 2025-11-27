@@ -252,7 +252,7 @@ module LineChart1D = {
     }
 
     let legendData = React.useMemo(() => {
-      let data = LineChartUtils.getLegendDataForCurrentMetrix(
+      let data = LineChartUtils.getLegendDataForCurrentMetric(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
         ~timeSeriesData=rawChartData,
@@ -281,7 +281,7 @@ module LineChart1D = {
       colType: LineChartUtils.chartLegendStatsType,
     ): Table.cell => {
       let formatter = value => {
-        LineChartUtils.formatStatsAccToMetrix(selectedMetrics.metric_type, value)
+        LineChartUtils.formatStatsAccToMetric(selectedMetrics.metric_type, value)
       }
       let colorOrig =
         chartDataOrig
@@ -623,7 +623,7 @@ module LineChart1D = {
               | None => NumericUtils.pretty([0., param.dataMax], 5)
               }
 
-              //NOTE have to implement the NumericUtils.pretty perfactly to make it work
+              //NOTE have to implement the NumericUtils.pretty perfectly to make it work
 
               positions
             },

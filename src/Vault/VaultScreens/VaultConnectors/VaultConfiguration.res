@@ -76,9 +76,9 @@ let make = () => {
         showBorder=true
         includeMargin=false
         defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body border "
-        onTitleClick={indx => {
-          setTabIndex(_ => indx)
-          setCurrentTabName(_ => getTabName(indx))
+        onTitleClick={index => {
+          setTabIndex(_ => index)
+          setCurrentTabName(_ => getTabName(index))
         }}
         selectTabBottomBorderColor="bg-primary"
       />

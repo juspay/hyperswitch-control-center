@@ -104,11 +104,11 @@ let connectorEntity = (
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
     ~getShowLink={
-      connec => {
+      connector => {
         sendMixpanelEvent()
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connector.id}?name=${connector.connector_name}`,
           ),
           ~authorization,
         )

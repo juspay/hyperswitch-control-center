@@ -140,9 +140,9 @@ let transformedEntryExceptionTableEntity = (
     ~getCell=getProcessingCell,
     ~dataKey="",
     ~getShowLink={
-      connec => {
+      connector => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.staging_entry_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.staging_entry_id}`),
           ~authorization,
         )
       }

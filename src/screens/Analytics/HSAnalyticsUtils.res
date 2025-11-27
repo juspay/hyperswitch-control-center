@@ -241,7 +241,7 @@ let generateTablePayload = (
     ~showDeltaMetrics,
   )
 
-  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
+  let tableBodyWithNonDeltaMetric = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currentlySelectedTab,
@@ -259,7 +259,7 @@ let generateTablePayload = (
     []
   }
 
-  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
+  let tableBodyWithDeltaMetric = if deltaMetrics->Array.length > 0 {
     switch distributionArray {
     | Some(distributionArray) =>
       distributionArray->Array.map(arr =>
@@ -313,7 +313,7 @@ let generateTablePayload = (
     []
   }
   let tableBodyValues =
-    tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
+    tableBodyWithNonDeltaMetric->Array.concatMany([tableBodyWithDeltaMetric, tableIndustryPayload])
 
   let tableBody =
     tableBodyValues->Array.concat(deltaPayload)->Array.map(JSON.Encode.object)->JSON.Encode.array

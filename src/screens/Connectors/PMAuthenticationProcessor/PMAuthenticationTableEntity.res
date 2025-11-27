@@ -70,10 +70,10 @@ let pmAuthenticationEntity = (path: string, ~authorization: CommonAuthTypes.auth
     ~getCell,
     ~dataKey="",
     ~getShowLink={
-      connec =>
+      connector =>
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
+            ~url=`/${path}/${connector.id}?name=${connector.connector_name}`,
           ),
           ~authorization,
         )

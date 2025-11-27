@@ -86,7 +86,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let getGranularity = LineChartUtils.getGranularityNewStr
   let {filterValue} = React.useContext(FilterContext.filterContext)
-  let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
+  let (currentTopMatrix, currentBottomMetric) = chartEntity.currentMetrics
   let (startTimeFilterKey, endTimeFilterKey) = chartEntity.dateFilterKeys
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
@@ -200,7 +200,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
   let chartBottomMetricFromUrl =
-    getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
+    getChartCompFilters->getString("chartBottomMetric", currentBottomMetric)
 
   let (granularity, setGranularity) = React.useState(_ => None)
   let current_granularity = if (
@@ -616,7 +616,7 @@ module SDKAnalyticsChartContext = {
 
     let getGranularity = LineChartUtils.getGranularityNewStr
     let {filterValue} = React.useContext(FilterContext.filterContext)
-    let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
+    let (currentTopMatrix, currentBottomMetric) = chartEntity.currentMetrics
     let (startTimeFilterKey, endTimeFilterKey) = chartEntity.dateFilterKeys
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
@@ -723,7 +723,7 @@ module SDKAnalyticsChartContext = {
     let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
     let _chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
     let _chartBottomMetricFromUrl =
-      getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
+      getChartCompFilters->getString("chartBottomMetric", currentBottomMetric)
 
     let (granularity, setGranularity) = React.useState(_ => None)
     let current_granularity = if (

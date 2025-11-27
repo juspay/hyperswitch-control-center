@@ -331,10 +331,10 @@ let timeSeriesDataMaker = (
     | Traffic =>
       value
       ->Array.map(item => {
-        let (key, value, secondryMetrix) = item
+        let (key, value, secondryMetric) = item
         let trafficValue =
           value *. 100. /. groupedByTime->Dict.get(key->Float.toString)->Option.getOr(1.)
-        (key, trafficValue, secondryMetrix)
+        (key, trafficValue, secondryMetric)
       })
       ->Array.toSorted(chartDataSortBasedOnTime)
     | _ => value->Array.toSorted(chartDataSortBasedOnTime)
@@ -364,7 +364,7 @@ let timeSeriesDataMaker = (
   })
 }
 
-let getLegendDataForCurrentMetrix = (
+let getLegendDataForCurrentMetric = (
   ~yAxis: string,
   ~timeSeriesData: array<JSON.t>,
   ~groupedData: array<JSON.t>,
@@ -568,7 +568,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
     }
   })
 }
-let formatStatsAccToMetrix = (metric: dropDownMetricType, value: float) => {
+let formatStatsAccToMetric = (metric: dropDownMetricType, value: float) => {
   switch metric {
   | Latency => latencyShortNum(~labelValue=value)
   | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
@@ -578,7 +578,7 @@ let formatStatsAccToMetrix = (metric: dropDownMetricType, value: float) => {
 }
 
 let formatLabels = (metric: metricsConfig, value: float) => {
-  let formattedValue = formatStatsAccToMetrix(metric.metric_type, value)
+  let formattedValue = formatStatsAccToMetric(metric.metric_type, value)
 
   switch metric.thresholdVal {
   | Some(val) =>
@@ -596,7 +596,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let (name, color, y_axis, secondry_metrix) = data
   let secondry_metrix_val = switch metrics.secondryMetrics {
   | Some(secondryMetrics) =>
-    `${formatStatsAccToMetrix(secondryMetrics.metric_type, secondry_metrix->Option.getOr(0.))}`
+    `${formatStatsAccToMetric(secondryMetrics.metric_type, secondry_metrix->Option.getOr(0.))}`
   | None => ""
   }
 
@@ -607,7 +607,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   `<tr>
       <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
       <td><span style='${highlight};padding-right: 10px;'>${name->snakeToTitle}</span></td>
-      <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
+      <td><span style=${highlight}>${formatStatsAccToMetric(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
   </tr>
   ${spacing}`

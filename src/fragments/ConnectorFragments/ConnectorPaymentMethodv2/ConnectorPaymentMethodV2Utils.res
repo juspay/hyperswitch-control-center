@@ -91,7 +91,7 @@ let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethod
 
   let paymentExperience = dict->getOptionString("payment_experience")
   let pme = getPaymentExperience(connector, pm, modifiedPaymentMethodType, paymentExperience)
-  let newPaymentMenthodDict =
+  let newPaymentMethodDict =
     [
       ("payment_method_subtype", modifiedPaymentMethodType->JSON.Encode.string),
       ("card_networks", cardNetworks->JSON.Encode.array),
@@ -100,8 +100,8 @@ let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethod
       ("recurring_enabled", recurringEnabled->JSON.Encode.bool),
       ("installment_payment_enabled", installmentPaymentEnabled->JSON.Encode.bool),
     ]->Dict.fromArray
-  newPaymentMenthodDict->setOptionString("payment_experience", pme)
-  newPaymentMenthodDict->ConnectorInterfaceUtils.getPaymentMethodTypesV2
+  newPaymentMethodDict->setOptionString("payment_experience", pme)
+  newPaymentMethodDict->ConnectorInterfaceUtils.getPaymentMethodTypesV2
 }
 
 let getPaymentMethodMapper = (arr, connector, pm) => {

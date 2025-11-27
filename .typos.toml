@@ -55,3 +55,4 @@ utcToIST = "utcToIST" # function to convert utc to indian standard time
 utcToISTDate = "utcToISTDate" # function to convert utc date to indian standard time date
 UE4wO="UE4wO" # Base64 encoded string
 istTime="istTime" # function to get time in indian standard time
+idx = "idx" # common abbreviation for index

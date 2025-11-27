@@ -81,10 +81,10 @@ let getRulesValue = rulesArray => {
 
 let dataMapper = dataDict => {
   open LogicUtils
-  let manipuledDataDict = dataDict->Dict.copy
-  manipuledDataDict->Dict.set("rules", dataDict->getArrayFromDict("rules", [])->getRulesValue)
+  let manipulatedDataDict = dataDict->Dict.copy
+  manipulatedDataDict->Dict.set("rules", dataDict->getArrayFromDict("rules", [])->getRulesValue)
 
-  manipuledDataDict->JSON.Encode.object
+  manipulatedDataDict->JSON.Encode.object
 }
 
 let getAlgo = algoDict => {

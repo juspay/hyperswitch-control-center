@@ -8,7 +8,7 @@ module MetadataAuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
-    let getMetadatKeyValues = () => {
+    let getMetadataKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
         ->getDictFromJsonObject
@@ -22,7 +22,7 @@ module MetadataAuthenticationInput = {
     }
     let keyField = `metadata.${key}`
     React.useEffect(() => {
-      let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+      let (metadataKey, customMetadataVal) = getMetadataKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
       None
@@ -32,7 +32,7 @@ module MetadataAuthenticationInput = {
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        let (metadataKey, customMetadataVal) = getMetadatKeyValues()
+        let (metadataKey, customMetadataVal) = getMetadataKeyValues()
 
         //When we try to change just key field.
         if metadataKey->String.length > 0 {

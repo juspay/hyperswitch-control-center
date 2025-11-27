@@ -61,7 +61,7 @@ let switchMerchantListAtom: Recoil.recoilAtom<
 
 let currentTabNameRecoilAtom = Recoil.atom("currentTabName", "ActiveTab")
 
-let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
+let globalSearchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
   "globalSearch",
   {
     GlobalSearchTypes.local_results: [],

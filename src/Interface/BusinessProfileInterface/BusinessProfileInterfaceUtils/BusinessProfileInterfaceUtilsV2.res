@@ -43,7 +43,7 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
-  let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+  let outgoingWebhookHeader = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
 
   {
@@ -70,8 +70,8 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
-    outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
-      ? Some(outgoingWebhookHeades)
+    outgoing_webhook_custom_http_headers: !(outgoingWebhookHeader->isEmptyDict)
+      ? Some(outgoingWebhookHeader)
       : None,
     metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),

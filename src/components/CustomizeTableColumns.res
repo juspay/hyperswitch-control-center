@@ -32,7 +32,7 @@ let make = (
     ))
     ->Dict.fromArray
 
-  let sortByOrderOderedArr = (a, b) => {
+  let sortByrOrderedArr = (a, b) => {
     let positionInHeader = headingDict->LogicUtils.getInt(getHeading(a).title, 0)
     let positionInHeading = headingDict->LogicUtils.getInt(getHeading(b).title, 0)
     if positionInHeader < positionInHeading {
@@ -64,7 +64,7 @@ let make = (
     }
     let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderedColumnBasedOnDefaultCol
-      ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
+      ? headers->Array.copy->Array.toSorted(sortByrOrderedArr)
       : headers
 
     setColumnValueInLocalStorage(values, title)

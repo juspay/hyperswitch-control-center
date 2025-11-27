@@ -51,13 +51,13 @@ let make = (
     None
   }, (fileNames, fileTypes))
 
-  let clearData = indx => {
-    setFilenames(prev => prev->Array.filterWithIndex((_, i) => indx !== i))
-    setFileTypes(prev => prev->Array.filterWithIndex((_, i) => indx !== i))
+  let clearData = index => {
+    setFilenames(prev => prev->Array.filterWithIndex((_, i) => index !== i))
+    setFileTypes(prev => prev->Array.filterWithIndex((_, i) => index !== i))
     input.onChange(
       input.value
       ->getArrayFromJson([])
-      ->Array.filterWithIndex((_, i) => indx != i)
+      ->Array.filterWithIndex((_, i) => index != i)
       ->JSON.Encode.array
       ->Identity.anyTypeToReactEvent,
     )
@@ -183,18 +183,18 @@ let make = (
 
   let val = getArrayFromJson(input.value, [])
 
-  let onClick = (fileName, indx) => {
+  let onClick = (fileName, index) => {
     DownloadUtils.downloadOld(
       ~fileName,
       ~content=decodeParsedfile
         ? try {
-            val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson("")->atob
+            val->Array.get(index)->Option.getOr(JSON.Encode.null)->getStringFromJson("")->atob
           } catch {
           | _ =>
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson(""),
+        : val->Array.get(index)->Option.getOr(JSON.Encode.null)->getStringFromJson(""),
     )
   }
 
@@ -247,8 +247,8 @@ let make = (
     </label>
     <div className={`${heightClass} ${displayClass} justify-between gap-x-5`}>
       {fileNames
-      ->Array.mapWithIndex((fileName, indx) => {
-        <div key={indx->Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
+      ->Array.mapWithIndex((fileName, index) => {
+        <div key={index->Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
           <div
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
@@ -262,16 +262,16 @@ let make = (
               className="flex flex-row text-sm text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-40 text-opacity-50 font-medium"
               onClick={_ =>
                 if customDownload {
-                  fileOnClick(indx, fileName)
+                  fileOnClick(index, fileName)
                 } else {
-                  onClick(fileName, indx)
+                  onClick(fileName, index)
                 }}>
               {React.string(fileName)}
             </div>
           </div>
           {if !isDisabled {
             <Icon
-              onClick={_ => clearData(indx)}
+              onClick={_ => clearData(index)}
               className="cursor-pointer text-jp-gray-900 text-opacity-50"
               size=14
               name="times"

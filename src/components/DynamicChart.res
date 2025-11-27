@@ -493,7 +493,7 @@ let make = (
     )
   )
 
-  let (currentTopMatrix, currentBottomMetrix) = currentMetrics
+  let (currentTopMatrix, currentBottomMetric) = currentMetrics
   // if we won't see anything in the url then we will update the url
   React.useEffect(() => {
     let cardinality = getChartCompFilters->getString("cardinality", "TOP_5")
@@ -504,7 +504,7 @@ let make = (
       )
     let chartTopMetric = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
-    let chartBottomMetric = getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
+    let chartBottomMetric = getChartCompFilters->getString("chartBottomMetric", currentBottomMetric)
 
     let dict = Dict.make()
     let chartMatrixArr = entityAllMetrics->Array.map(item => item.metric_label)
@@ -530,8 +530,8 @@ let make = (
 
     if chartMatrixArr->Array.includes(chartBottomMetric) {
       dict->Dict.set("chartBottomMetric", chartBottomMetric)
-    } else if chartMatrixArr->Array.includes(currentBottomMetrix) {
-      dict->Dict.set("chartBottomMetric", currentBottomMetrix)
+    } else if chartMatrixArr->Array.includes(currentBottomMetric) {
+      dict->Dict.set("chartBottomMetric", currentBottomMetric)
     } else {
       dict->Dict.set("chartBottomMetric", chartMatrixArr->Array.get(0)->Option.getOr(""))
     }

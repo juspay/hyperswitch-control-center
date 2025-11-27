@@ -2,7 +2,7 @@ open AnalyticsTypesUtils
 
 type filterConfig = {
   source: string, // source can be BATCH, KVLOGS basically which DB to fetch
-  modeValue: string, // modeValue can be ORDERS, TXN so here is the mode is orders we see data aggregated by the order_id and if mode is txn the data is aggregated by txn id simmilarly more mode can be added
+  modeValue: string, // modeValue can be ORDERS, TXN so here is the mode is orders we see data aggregated by the order_id and if mode is txn the data is aggregated by txn id similarly more mode can be added
   filterValues?: JSON.t, // which all filters will be applicable for the single stats (those keys i.e merchant_id, payment_gateway etc.)
   startTime: string, // start time from when data will fetch  (later can be moved to the parent level)
   endTime: string, // end time till when data should be fetched (later can be moved to the parent level)
