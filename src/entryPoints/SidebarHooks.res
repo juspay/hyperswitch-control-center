@@ -31,6 +31,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
+    vaultProcessor,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -51,6 +52,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isTaxProcessor=taxProcessor,
       ~userHasResourceAccess,
       ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
     ),
     default->analytics(
       disputeAnalytics,
