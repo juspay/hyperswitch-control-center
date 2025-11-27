@@ -21,11 +21,10 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       ->getDictfromDict("connector_wallets_details")
     let googlePayDict = connectorWalletDict->getDictfromDict("google_pay")
     if (
-      (connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(WORLDPAYVANTIV) ||
-        connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO)) &&
+      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO) &&
         googlePayDict->Dict.keysToArray->Array.length <= 0
     ) {
-      "DECRYPTION"
+      "DIRECT"
     } else {
       connectorWalletDict->getIntegrationTypeFromConnectorWalletDetailsGooglePay
     }
@@ -89,7 +88,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         setGooglePayIntegrationStep
         setGooglePayIntegrationType
         connector
-        update
       />
     | Configure =>
       <>
@@ -112,7 +110,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
             setShowWalletConfigurationModal
             update
           />
-        | #decryption => React.null
         }}
       </>
     }}
