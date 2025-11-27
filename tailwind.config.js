@@ -389,6 +389,7 @@ module.exports = {
           border_gray: "#E8E8E8", // need to check this
           secondary_hover: "#EEEEEE",
           test_credentials_bg: "#D9D9D959",
+          text_muted: "#808080",
         },
         hyperswitch_dark_bg: "#212E46",
         light_blue: "#006DF966",
