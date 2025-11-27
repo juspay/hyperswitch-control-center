@@ -78,6 +78,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   }
 
   let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
+  Js.log2("Serving request for domain:", domain)
 
   let path =
     arr
@@ -95,10 +96,11 @@ let serverHandler: Http.serverHandler = (request, response) => {
   } else if path->String.includes("/config/feature") && request.method === "GET" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
+      Js.log2("Serving request for domain inside :", domain)
       configHandler(request, response, true, domain, path)
       ()->(resolve(_))
     })
-  } else if path->String.includes("/config/theme") && request.method === "GET" {
+  } else if path->String.includes("/config/theme /config/feature") && request.method === "GET" {
     let path = env->Dict.get("themeConfigPath")->Option.getOr("dist/server/config/theme.json")
     Promise.make((resolve, _reject) => {
       themeConfigHandler(request, response, true, path)
