@@ -31,6 +31,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
+    vaultProcessor,
     devModularityV2,
     devTheme,
   } = featureFlagDetails
@@ -53,6 +54,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isTaxProcessor=taxProcessor,
       ~userHasResourceAccess,
       ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
     ),
     default->analytics(
       disputeAnalytics,
