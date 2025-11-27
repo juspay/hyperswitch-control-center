@@ -59,7 +59,7 @@ type entityType<'colType, 't, 't2> = {
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
   totalVolumeCol: option<string>,
-  matrixUriMapper: 'colType => string, // metrix uriMapper will contain the ${prefix}${url}
+  matrixUriMapper: 'colType => string, // metric uriMapper will contain the ${prefix}${url}
   source?: string,
   customFilterKey?: string,
   enableLoaders?: bool,

@@ -257,7 +257,7 @@ module LineChart1D = {
         ~xAxis,
         ~timeSeriesData=rawChartData,
         ~groupedData=legendData,
-        ~metrixType=selectedMetrics.metric_type,
+        ~metricType=selectedMetrics.metric_type,
         ~activeTab=groupKey,
       )->Belt.Array.keepMap(item => {
         if (

@@ -36,7 +36,7 @@ type singleStatEntity<'a> = {
   endTimeFilterKey: string, // end time filter key which we store in url (can be moved to parent level)
   moduleName: string, // just the string module name which should be same across one module (later can be moved to the parent level)
   customFilterKey: string, // customFilterKey the key which is used in url for the customfilter
-  metrixMapper: 'a => string, // it will map the current key with the the key which get from the api
+  metricsMapper: 'a => string, // it will map the current key with the the key which get from the api
   getStatDetails: (
     'a,
     'a => string,

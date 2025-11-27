@@ -274,7 +274,7 @@ let timeSeriesDataMaker = (
   | None => []
   }
   let yAxis = metricsConfig.metric_name_db
-  let metrixType = metricsConfig.metric_type
+  let metricType = metricsConfig.metric_type
   let secondryMetrics = metricsConfig.secondryMetrics
   let timeSeriesDict = Dict.make() // { name : groupByName, data: array<(value1, value2)>}
   let groupedByTime = Dict.make() // {time : [values at that time]}
@@ -327,7 +327,7 @@ let timeSeriesDataMaker = (
 
   timeSeriesArr->Array.mapWithIndex((item, index) => {
     let (key, value) = item
-    let sortedValBasedOnTime = switch metrixType {
+    let sortedValBasedOnTime = switch metricType {
     | Traffic =>
       value
       ->Array.map(item => {
@@ -370,7 +370,7 @@ let getLegendDataForCurrentMetric = (
   ~groupedData: array<JSON.t>,
   ~activeTab: string,
   ~xAxis: string,
-  ~metrixType: dropDownMetricType,
+  ~metricType: dropDownMetricType,
 ) => {
   let currentAvgDict = Dict.make()
   let orderedDims = groupedData->Array.map(item => {
@@ -456,7 +456,7 @@ let getLegendDataForCurrentMetric = (
       let arrLen = sortedValueBasedOnTime->Array.length
       let (_, currentVal) = sortedValueBasedOnTime[arrLen - 1]->Option.getOr(("", 0.))
       // the avg stat won't work correct for Sr case have to find another way or avoid using the avg for Sr
-      let overall = if metrixType === Traffic {
+      let overall = if metricType === Traffic {
         (currentOverall->Dict.get(metricsName)->Option.getOr(0.) *.
         100. /.
         Math.max(totalOverall, 1.))
@@ -467,7 +467,7 @@ let getLegendDataForCurrentMetric = (
       } else {
         currentOverall->Dict.get(metricsName)->Option.getOr(0.)
       }
-      let currentVal = if metrixType === Traffic {
+      let currentVal = if metricType === Traffic {
         currentVal *. 100. /. currentValueOverallSum
       } else {
         currentVal
@@ -593,10 +593,10 @@ let formatLabels = (metric: metricsConfig, value: float) => {
 
 let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let metric_type = metrics.metric_type
-  let (name, color, y_axis, secondry_metrix) = data
-  let secondry_metrix_val = switch metrics.secondryMetrics {
+  let (name, color, y_axis, secondry_metric) = data
+  let secondry_metric_val = switch metrics.secondryMetrics {
   | Some(secondryMetrics) =>
-    `${formatStatsAccToMetric(secondryMetrics.metric_type, secondry_metrix->Option.getOr(0.))}`
+    `${formatStatsAccToMetric(secondryMetrics.metric_type, secondry_metric->Option.getOr(0.))}`
   | None => ""
   }
 
@@ -608,7 +608,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
       <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
       <td><span style='${highlight};padding-right: 10px;'>${name->snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetric(metric_type, y_axis)}</span></td>
-      <td><span style=${highlight}>${secondry_metrix_val}</span></td>
+      <td><span style=${highlight}>${secondry_metric_val}</span></td>
   </tr>
   ${spacing}`
 }
