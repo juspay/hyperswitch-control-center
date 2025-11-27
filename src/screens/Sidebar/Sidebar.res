@@ -497,7 +497,7 @@ module ProductTypeSectionItem = {
     let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
     let handleClick = _ => {
-      if activeProduct !== sectionProductVariant {
+      if activeProduct != sectionProductVariant {
         onProductSelectClick(section.name)
       }
     }
