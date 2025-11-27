@@ -155,7 +155,7 @@ let transactionsEntity = (path: string, ~authorization: CommonAuthTypes.authoriz
     ~getCell,
     ~dataKey="reports",
     ~getShowLink={
-      connec => {
+      connector => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.id}}`),
           ~authorization,

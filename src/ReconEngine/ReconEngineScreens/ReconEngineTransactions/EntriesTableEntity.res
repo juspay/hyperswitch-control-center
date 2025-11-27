@@ -129,7 +129,7 @@ let entriesEntity = (path: string, ~authorization: CommonAuthTypes.authorization
     ~getShowLink={
       connector => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.entry_id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connector.entry_id}`),
           ~authorization,
         )
       }
