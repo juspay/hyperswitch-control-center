@@ -50,11 +50,11 @@ function processConfigList(configList, body, domain, listType) {
       process.env[`${domain}__merchant_config__${listType}__${key}__org_ids`];
     const envMerchantIds =
       process.env[
-        `${domain}__merchant_config__${listType}__${key}__merchant_ids`
+      `${domain}__merchant_config__${listType}__${key}__merchant_ids`
       ];
     const envProfileIds =
       process.env[
-        `${domain}__merchant_config__${listType}__${key}__profile_ids`
+      `${domain}__merchant_config__${listType}__${key}__profile_ids`
       ];
 
     const orgId = checkEnvValues(envOrgIds, configList[key].org_ids).find(
@@ -135,7 +135,8 @@ const configHandler = async (
   try {
     const config = await readTomlConfig(filePath, res);
     let merchantConfig = config.default;
-    let isDomainExitsInEnv = process.env[`${domain}`];
+    let isDomainExitsInEnv = process.env[`${domain}_enabled`];
+
     if (config[domain] && Object.keys(config[domain]).length > 0) {
       merchantConfig = updateConfigWithEnv(config[domain], domain, "theme");
     } else if (domain.length > 0 && isDomainExitsInEnv) {
