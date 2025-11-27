@@ -23,7 +23,7 @@ let defaultValue = {
   setIsGuestMode: _ => (),
   initialValuesForCheckoutForm: SDKPaymentUtils.initialValueForForm(~profileId=""),
   setInitialValuesForCheckoutForm: _ => (),
-  clientSecretStatus: IntialPreview,
+  clientSecretStatus: InitialPreview,
   setClientSecretStatus: _ => (),
 }
 
@@ -46,7 +46,7 @@ let make = (~children) => {
     Date.now()->Float.toString
   )
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
-  let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => IntialPreview)
+  let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => InitialPreview)
   let (showSetupFutureUsage, setShowSetupFutureUsage) = React.useState(_ => false)
   let (sendAuthType, setSendAuthType) = React.useState(_ => true)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)

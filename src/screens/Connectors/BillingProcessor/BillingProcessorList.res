@@ -61,7 +61,7 @@ let make = () => {
             actualData={filteredConnectorData}
             totalResults={filteredConnectorData->Array.length}
             resultsPerPage=20
-            entity={BillingProcesssorEntity.billingProcessorEntity(
+            entity={BillingProcessorEntity.billingProcessorEntity(
               "billing-processor",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
@@ -76,7 +76,7 @@ let make = () => {
             />}
             offset
             setOffset
-            currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
+            currentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

@@ -113,7 +113,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
           },
         )}
       />
-      <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-5 mb-3  " />
+      <FormRenderer.SubmitButton text="Generate" customSubmitButtonStyle="mt-5 mb-3  " />
     </Form>
   </Modal>
 }

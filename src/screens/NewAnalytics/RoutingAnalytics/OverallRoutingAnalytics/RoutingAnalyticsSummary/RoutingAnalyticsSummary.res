@@ -29,7 +29,7 @@ module RowDetailsComponent = {
             removeVerticalLines=true
             highlightSelectedRow=false
             removeHorizontalLines=false
-            evenVertivalLines=false
+            evenVerticalLines=false
             highlightEnabledFieldsArray={[]}
             expandedRow={_ => React.null}
             onMouseEnter=Some(_ => ())

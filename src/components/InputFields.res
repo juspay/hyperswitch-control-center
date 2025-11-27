@@ -110,7 +110,7 @@ let filterMultiSelectInput = (
   ~isDropDown=true,
   ~searchable=false,
   ~showBorder=?,
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~customStyle="",
   ~customMargin="",
   ~customButtonStyle=?,
@@ -164,7 +164,7 @@ let filterMultiSelectInput = (
     ?showBorder
     customStyle
     customMargin
-    ?optionRigthElement
+    ?optionRightElement
     hideBorder
     allSelectType
     ?customButtonStyle
@@ -213,7 +213,7 @@ let multiSelectInput = (
   ~isDropDown=true,
   ~searchable=false,
   ~showBorder=?,
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~customStyle="",
   ~customMargin="",
   ~customButtonStyle=?,
@@ -266,7 +266,7 @@ let multiSelectInput = (
     ?showBorder
     customStyle
     customMargin
-    ?optionRigthElement
+    ?optionRightElement
     hideBorder
     allSelectType
     ?customButtonStyle
@@ -399,12 +399,12 @@ let textTagInput = (
   ~name="",
   ~customStyle=?,
   ~disabled=false,
-  ~seperateByComma=false,
-  ~seperateBySpace=false,
+  ~separateByComma=false,
+  ~separateBySpace=false,
   ~customButtonStyle=?,
 ) => {
   <MultipleTextInput
-    input name disabled seperateByComma seperateBySpace ?customStyle ?customButtonStyle placeholder
+    input name disabled separateByComma separateBySpace ?customStyle ?customButtonStyle placeholder
   />
 }
 
@@ -452,7 +452,7 @@ let singleDatePickerInput = (
   ~currentDateSecondsFormat="00",
   ~customButtonStyle=?,
   ~newThemeCustomButtonStyle=?,
-  ~calendarContaierStyle=?,
+  ~calendarContainerStyle=?,
   ~buttonSize=?,
   ~showTime=?,
   ~fullLength=?,
@@ -468,7 +468,7 @@ let singleDatePickerInput = (
     currentDateSecondsFormat
     ?customButtonStyle
     ?newThemeCustomButtonStyle
-    ?calendarContaierStyle
+    ?calendarContainerStyle
     ?buttonSize
     ?showTime
     ?fullLength

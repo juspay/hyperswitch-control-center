@@ -92,7 +92,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
         ReconEngineFilterUtils.buildQueryStringFromFilters(
           ~filterValueJson=enhancedFilterValueJson,
         )->String.concat(`&ingestion_id=${config.ingestion_id}`)
-      let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
+      let ingestionHistoryList = await getIngestionHistory(~queryParameters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
       setIngestionHistoryData(_ => ingestionHistoryData)
       setFilteredHistoryData(_ => ingestionHistoryData)
@@ -124,7 +124,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
         totalResults={filteredHistoryData->Array.length}
         offset
         setOffset
-        currrentFetchCount={filteredHistoryData->Array.length}
+        currentFetchCount={filteredHistoryData->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"

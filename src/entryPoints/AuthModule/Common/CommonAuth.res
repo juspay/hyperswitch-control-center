@@ -78,7 +78,7 @@ module Header = {
       </div>
     }
 
-    let getHeaderLink = (~prefix, ~authType, ~path, ~sufix) => {
+    let getHeaderLink = (~prefix, ~authType, ~path, ~suffix) => {
       <div className="flex text-sm items-center gap-2">
         <div className="text-grey-650"> {prefix->React.string} </div>
         <AddDataAttributes attributes=[("data-testid", "card-subtitle")]>
@@ -91,7 +91,7 @@ module Header = {
             }}
             id="card-subtitle"
             className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>
-            {sufix->React.string}
+            {suffix->React.string}
           </div>
         </AddDataAttributes>
       </div>
@@ -130,7 +130,7 @@ module Header = {
             ~prefix="New to Hyperswitch?",
             ~authType=SignUP,
             ~path="/register",
-            ~sufix="Sign up",
+            ~suffix="Sign up",
           )}
         </RenderIf>
 
@@ -139,7 +139,7 @@ module Header = {
           ~prefix="Already using Hyperswitch?",
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
           ~path=`/login?auth_id=${authId}`,
-          ~sufix="Sign in",
+          ~suffix="Sign in",
         )
       | ForgetPassword =>
         <div className="text-md text-center text-grey-650 w-full max-w-md">

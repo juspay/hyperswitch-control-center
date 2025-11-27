@@ -83,7 +83,7 @@ let make = (~showModal, ~setShowModal) => {
   //   }
   // }
 
-  let udpateMerchantDetails = async values => {
+  let updateMerchantDetails = async values => {
     try {
       let accountUrl = getURL(
         ~entityName=V1(MERCHANT_ACCOUNT),
@@ -107,7 +107,7 @@ let make = (~showModal, ~setShowModal) => {
 
   let onSubmit = async (values, _) => {
     try {
-      let _ = values->udpateMerchantDetails
+      let _ = values->updateMerchantDetails
       mixpanelEvent(~eventName="start_exploring_button_click")
       // TODO: Move this to prod onboarding form
       // let _ = values->updateOnboardingSurveyDetails
@@ -284,7 +284,7 @@ let make = (~showModal, ~setShowModal) => {
               //   renderContentOnTop: None,
               // },
             ]}
-            accordianTopContainerCss="rounded-md"
+            accordionTopContainerCss="rounded-md"
             contentExpandCss="p-4"
             gapClass="flex flex-col gap-4"
             titleStyle="font-semibold text-bold text-md"

@@ -125,7 +125,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass

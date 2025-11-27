@@ -21,7 +21,7 @@ let paymentDistributionObjMapper = json => {
   ->Array.map(dict => dict->distributionObjMapper)
 }
 
-let defaultDimesions = {
+let defaultDimensions = {
   dimension: #no_value,
   values: [],
 }
@@ -30,7 +30,7 @@ let getSpecificDimension = (dimensions: dimensions, dimension: dimension) => {
   dimensions
   ->Array.filter(ele => ele.dimension == dimension)
   ->Array.at(0)
-  ->Option.getOr(defaultDimesions)
+  ->Option.getOr(defaultDimensions)
 }
 
 let getGroupByForPerformance = (~dimensions: array<dimension>) => {

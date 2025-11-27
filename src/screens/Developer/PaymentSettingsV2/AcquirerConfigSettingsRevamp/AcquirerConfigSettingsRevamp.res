@@ -246,7 +246,7 @@ module AcquirerConfigContentRevamp = {
           offset
           setOffset
           entity=entityWithEditHandler
-          currrentFetchCount=totalResults
+          currentFetchCount=totalResults
           showPagination={totalResults > resultsPerPage}
           tableLocalFilter=false
           showSerialNumber=false
@@ -277,8 +277,8 @@ let make = () => {
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
     <Accordion
       accordion=accordionData
-      accordianTopContainerCss="border overflow-visible rounded-xl"
-      accordianBottomContainerCss="px-4 py-3"
+      accordionTopContainerCss="border overflow-visible rounded-xl"
+      accordionBottomContainerCss="px-4 py-3"
       contentExpandCss="p-0 rounded-xl"
       arrowFillColor="#6B7280"
       titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-xl"

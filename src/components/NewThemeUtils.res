@@ -9,7 +9,7 @@ module NewThemeHeading = {
     ~descriptionColor="",
     ~headingSize=Large,
     ~rightActions=?,
-    ~headingRightElemnt=?,
+    ~headingRightElement=?,
     ~alignItems="items-end",
     ~outerMargin="desktop:mb-6 mb-4",
   ) => {
@@ -36,7 +36,7 @@ module NewThemeHeading = {
             <div
               className={`flex items-center ${headingSize} mobile:text-fs-16 font-semibold ${headingColor} dark:text-white`}>
               {heading->React.string}
-              {switch headingRightElemnt {
+              {switch headingRightElement {
               | Some(ele) => ele
               | None => React.null
               }}

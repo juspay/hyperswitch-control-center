@@ -113,7 +113,7 @@ let make = () => {
           totalResults={tableData->Array.length}
           offset
           setOffset
-          currrentFetchCount={tableData->Array.length}
+          currentFetchCount={tableData->Array.length}
           defaultColumns
           customColumnMapper=yourDataMapDefaultCols
         />
@@ -252,7 +252,7 @@ let defaultColumns = [
   totalResults={tableData->Array.length}
   offset
   setOffset
-  currrentFetchCount={tableData->Array.length}
+  currentFetchCount={tableData->Array.length}
   defaultColumns
   customColumnMapper=websiteTrafficMapDefaultCols
 />

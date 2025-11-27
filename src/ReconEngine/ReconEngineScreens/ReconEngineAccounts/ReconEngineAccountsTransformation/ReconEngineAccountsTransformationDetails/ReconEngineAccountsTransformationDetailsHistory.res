@@ -86,7 +86,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
           `&transformation_id=${config.transformation_id}`,
         )
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(queryString),
+        ~queryParameters=Some(queryString),
       )
       let transformationHistoryData = transformationHistoryList->Array.map(Nullable.make)
       setTransformationHistoryList(_ => transformationHistoryData)
@@ -119,7 +119,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
         totalResults={filteredHistoryData->Array.length}
         offset
         setOffset
-        currrentFetchCount={filteredHistoryData->Array.length}
+        currentFetchCount={filteredHistoryData->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"

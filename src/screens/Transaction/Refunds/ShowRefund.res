@@ -36,7 +36,7 @@ module RefundInfo = {
                     value={getCell(data, colType)}
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
-                    overiddingHeadingStyles="text-black text-sm font-medium"
+                    overridingHeadingStyles="text-black text-sm font-medium"
                     textColor="!font-normal !text-jp-gray-700"
                   />
                 </div>
@@ -110,7 +110,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(paymentId),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =
@@ -185,16 +185,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <PageLoaderWrapper
       screenState={screenStateForRefund}
       customUI={<DefaultLandingPage
-        height="90vh"
-        title="Something Went Wrong!"
-        overriddingStylesTitle={`text-3xl font-semibold`}
+        height="90vh" title="Something Went Wrong!" overridingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->getDictFromJsonObject} />
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
         userHasAccess(~groupAccess=AnalyticsView) === Access}>
-        <OrderUIUtils.RenderAccordian
+        <OrderUIUtils.RenderAccordion
           initialExpandedArray=[0]
           accordion={[
             {
@@ -219,7 +217,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           totalResults=1
           offset
           setOffset
-          currrentFetchCount=1
+          currentFetchCount=1
         />
       </RenderIf>
     </PageLoaderWrapper>

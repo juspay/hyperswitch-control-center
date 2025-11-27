@@ -24,7 +24,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#USER_DATA,
         ~methodType=Post,
-        ~queryParamerters=Some("keys=ReconStatus"),
+        ~queryParameters=Some("keys=ReconStatus"),
       )
       let res = await fetchDetails(url)
       let reconStatusData =

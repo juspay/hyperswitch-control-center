@@ -56,7 +56,7 @@ let make = () => {
       let disputesUrl = getURL(
         ~entityName=V1(DISPUTES),
         ~methodType=Get,
-        ~queryParamerters=Some(queryParam),
+        ~queryParameters=Some(queryParam),
       )
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->getArrayDataFromJson(DisputesEntity.itemToObjMapper)
@@ -139,7 +139,7 @@ let make = () => {
           totalResults={disputesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={disputesData->Array.length}
+          currentFetchCount={disputesData->Array.length}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false

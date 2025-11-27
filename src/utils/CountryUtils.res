@@ -1258,7 +1258,7 @@ let getCountryCodeFromCountry = country => {
   | Zimbabwe => ZW
   }
 }
-let getCountryNameFromVarient = country => {
+let getCountryNameFromVariant = country => {
   switch country {
   | Afghanistan => "Afghanistan"
   | AlandIslands => "AlandIslands"
@@ -1511,7 +1511,7 @@ let getCountryNameFromVarient = country => {
   | Zimbabwe => "Zimbabwe"
   }
 }
-let getCountryCodeStringFromVarient = code => {
+let getCountryCodeStringFromVariant = code => {
   switch code {
   | AF => "AF"
   | AX => "AX"
@@ -2275,12 +2275,12 @@ let getCountryCodeFromString = code => {
 }
 
 let splitCountryNameWithSpace = countryName => {
-  countryName->getCountryNameFromVarient->LogicUtils.camelCaseToTitle
+  countryName->getCountryNameFromVariant->LogicUtils.camelCaseToTitle
 }
 
 let getCountryOption: countries => SelectBox.dropdownOption = countryType => {
   let countryName = countryType->splitCountryNameWithSpace
-  let countryCode = countryType->getCountryCodeFromCountry->getCountryCodeStringFromVarient
+  let countryCode = countryType->getCountryCodeFromCountry->getCountryCodeStringFromVariant
   {label: countryName, value: countryCode}
 }
 

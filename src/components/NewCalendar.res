@@ -161,7 +161,7 @@ module TableRow = {
                 obj->isNonEmptyString && hSelf.highlightSelf ? selectedcellClass : "h-10 w-10"
 
               let shouldHighlight = (startDate, endDate, obj, month, year) => {
-                let cellSelectedHiglight = "h-full w-full flex flex-1 justify-center items-center  dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
+                let cellSelectedHighlight = "h-full w-full flex flex-1 justify-center items-center  dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
                 let cellHoverHighlight = `h-full w-full flex flex-1 justify-center items-center  dark:bg-opacity-100`
 
                 if startDate->isNonEmptyString {
@@ -178,7 +178,7 @@ module TableRow = {
                         : z == parsedEndDate
                         ? selectedcellClass
                         : z > parsedStartDate && z < parsedEndDate
-                        ? `${cellSelectedHiglight} bg-jp-2-light-primary-100  dark:bg-jp-2-dark-primary-100 ${cellIndex == 0
+                        ? `${cellSelectedHighlight} bg-jp-2-light-primary-100  dark:bg-jp-2-dark-primary-100 ${cellIndex == 0
                             ? "rounded-l-full"
                             : ""} ${cellIndex == 6 ? "rounded-r-full" : ""}`
                         : "h-full w-full"
@@ -205,7 +205,7 @@ module TableRow = {
                     let parsedEndDate = getDate(String.split(endDate, "-"))
 
                     zObj > parsedStartDate && zObj < parsedEndDate
-                      ? `${cellSelectedHiglight}
+                      ? `${cellSelectedHighlight}
                       ${cellIndex == 0
                             ? "bg-gradient-to-r from-jp-2-light-primary-100/0 to-jp-2-light-primary-100/100"
                             : cellIndex == 6
@@ -374,7 +374,7 @@ let make = (
   ~setIsDateClicked=?,
 ) => {
   open LogicUtils
-  let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
+  let heading = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
   let getMonthInFloat = mon => Array.indexOf(months, mon)->Float.fromInt

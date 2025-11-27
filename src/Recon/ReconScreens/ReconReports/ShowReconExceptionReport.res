@@ -24,7 +24,7 @@ module ShowOrderDetails = {
               value={getCell(data, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-nd_gray-400 text-sm font-medium"
+              overridingHeadingStyles="text-nd_gray-400 text-sm font-medium"
               isHorizontal
             />
           </div>
@@ -214,7 +214,7 @@ let make = (~showOnBoarding, ~id) => {
           resultsPerPage=20
           offset
           setOffset
-          currrentFetchCount={attemptData->Array.length}
+          currentFetchCount={attemptData->Array.length}
         />
       </PageLoaderWrapper>
     </div>
@@ -248,7 +248,7 @@ let make = (~showOnBoarding, ~id) => {
               tooltipForWidthClass="w-full"
               text="Done"
               buttonType={Primary}
-              customSumbitButtonStyle="!w-full mt-4"
+              customSubmitButtonStyle="!w-full mt-4"
             />
           </FormRenderer.DesktopRow>
         </Form>

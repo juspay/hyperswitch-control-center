@@ -80,8 +80,8 @@ module AccordionInfo = {
     ~accordion,
     ~arrowFillColor="",
     ~arrowPosition=Left,
-    ~accordianTopContainerCss="",
-    ~accordianBottomContainerCss="",
+    ~accordionTopContainerCss="",
+    ~accordionBottomContainerCss="",
     ~expanded=false,
     ~contentExpandCss="",
     ~titleStyle="",
@@ -114,10 +114,10 @@ module AccordionInfo = {
     }
 
     <div
-      className={`overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 ${accordianTopContainerCss}  `}>
+      className={`overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 ${accordionTopContainerCss}  `}>
       <div
         onClick={handleClick}
-        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyleFull} ${accordianBottomContainerCss}`}>
+        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyleFull} ${accordionBottomContainerCss}`}>
         {if arrowPosition == Left {
           <Icon name="nd-angle-down" size=12 className={iconRotateAngle} />
         } else {
@@ -148,8 +148,8 @@ module AccordionInfo = {
 let make = (
   ~accordion: array<accordion>,
   ~arrowFillColor: string="#CED0DA",
-  ~accordianTopContainerCss: string="mt-5 rounded-lg",
-  ~accordianBottomContainerCss: string="p-4",
+  ~accordionTopContainerCss: string="mt-5 rounded-lg",
+  ~accordionBottomContainerCss: string="p-4",
   ~contentExpandCss="px-8 font-bold",
   ~arrowPosition=Left,
   ~initialExpandedArray=[],
@@ -166,8 +166,8 @@ let make = (
         accordion
         arrowFillColor
         arrowPosition
-        accordianTopContainerCss
-        accordianBottomContainerCss
+        accordionTopContainerCss
+        accordionBottomContainerCss
         contentExpandCss
         expanded={initialExpandedArray->Array.includes(i)}
         titleStyle

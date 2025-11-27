@@ -8,7 +8,7 @@ let getFailureRateData = (~args) => {
   let value: PerformanceMonitorTypes.gaugeData = {value: rate}
   value
 }
-let falureGaugeOption = (data: gaugeData) =>
+let failureGaugeOption = (data: gaugeData) =>
   {
     "chart": {
       "type": "gauge",

@@ -2,7 +2,7 @@
 let make = () => {
   open APIUtils
   let getURL = useGetURL()
-  let (redirectToken, setRedirecToken) = React.useState(_ => "")
+  let (redirectToken, setRedirectToken) = React.useState(_ => "")
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -33,7 +33,7 @@ let make = () => {
         let url = getURL(~entityName=V1(RECON), ~reconType=#TOKEN, ~methodType=Get)
         let res = await fetchDetails(url)
         let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
-        setRedirecToken(_ => token)
+        setRedirectToken(_ => token)
         let link = "https://sandbox.hyperswitch.io/recon-dashboard/?token=" ++ token
         Window._open(link)
         setScreenState(_ => PageLoaderWrapper.Success)

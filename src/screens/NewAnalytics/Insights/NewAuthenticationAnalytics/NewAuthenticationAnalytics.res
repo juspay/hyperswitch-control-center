@@ -131,7 +131,7 @@ let make = () => {
         let queryDataMapped = paymentData
         let funnelDict = Dict.make()->itemToObjMapperForFunnelData
         funnelDict.authentication_initiated = authenticationInitiated
-        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.authentication_attempted = authenticationAttempted
         funnelDict.payments_requiring_3ds_2_authentication = queryDataMapped.authentication_count
         funnelDict.authentication_successful = queryDataMapped.authentication_success_count
 
@@ -235,7 +235,7 @@ let make = () => {
 
         let funnelDict = Dict.make()->itemToObjMapperForFunnelData
         funnelDict.authentication_initiated = authenticationInitiated
-        funnelDict.authentication_attemped = authenticationAttempted
+        funnelDict.authentication_attempted = authenticationAttempted
         funnelDict.payments_requiring_3ds_2_authentication = valueOfQueryData.authentication_count
         funnelDict.authentication_successful = valueOfQueryData.authentication_success_count
 
@@ -343,7 +343,7 @@ let make = () => {
     () =>
       funnelData.authentication_initiated > 0 &&
       funnelData.payments_requiring_3ds_2_authentication > 0 &&
-      funnelData.authentication_attemped > 0 &&
+      funnelData.authentication_attempted > 0 &&
       funnelData.authentication_successful > 0,
     [funnelData],
   )

@@ -442,7 +442,7 @@ let nexinetsInfo = {
 }
 
 let forteInfo = {
-  description: "Payment processor specializing in secure and reliable payment solutions for variuos industries like healthcare.",
+  description: "Payment processor specializing in secure and reliable payment solutions for various industries like healthcare.",
 }
 
 let cryptopayInfo = {
@@ -578,7 +578,7 @@ let juspayThreeDsServerInfo = {
 }
 
 let unknownConnectorInfo = {
-  description: "unkown connector",
+  description: "unknown connector",
 }
 
 let bankOfAmericaInfo = {
@@ -1419,7 +1419,7 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
   )
   ->Option.getOr({
     payment_method: "unknown",
-    payment_method_type: "unkonwn",
+    payment_method_type: "unknown",
   })
 }
 
@@ -1855,7 +1855,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
-            <PaypalClientAuthenticationFalied />
+            <PaypalClientAuthenticationFailed />
           } else {
             React.null
           }
@@ -2306,7 +2306,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    LogicUtils.numericArraySortComperator(
+    LogicUtils.numericArraySortComparator(
       getDisabledStatus(a) ? 1.0 : 0.0,
       getDisabledStatus(b) ? 1.0 : 0.0,
     )

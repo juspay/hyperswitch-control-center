@@ -27,7 +27,7 @@ let make = (~urlList) => {
   | list{"upload-files"} => "upload-recon-files"
   | list{"run-recon"} => "run-recon/home"
   | list{"reports"} => "report/reconciliation"
-  | list{"config-settings"} => "reconcilation-config"
+  | list{"config-settings"} => "reconciliation-config"
 
   | list{"recon-analytics"} => "analytics-recon-and-settlement"
   | _ => ""
@@ -41,7 +41,7 @@ let make = (~urlList) => {
   }, (iframeLoaded, redirectUrl))
 
   React.useEffect(() => {
-    // Event listner to check if the session is expired in iframe
+    // Event listener to check if the session is expired in iframe
     let handleIframeMessage = event => {
       let dictFromEvent = event->Identity.genericTypeToJson->getDictFromJsonObject
 

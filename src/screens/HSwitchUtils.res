@@ -71,7 +71,7 @@ let getClientCountry = clientTimeZone => {
   ->Option.getOr(Country.defaultTimeZone)
 }
 
-let getBrowswerDetails = () => {
+let getBrowserDetails = () => {
   open Window
   open Window.Navigator
   open Window.Screen

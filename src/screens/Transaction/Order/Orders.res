@@ -219,7 +219,7 @@ let make = (~previewOnly=false) => {
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
-          currrentFetchCount={orderData->Array.length}
+          currentFetchCount={orderData->Array.length}
           customColumnMapper=TableAtoms.ordersMapDefaultCols
           defaultColumns={OrderEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false

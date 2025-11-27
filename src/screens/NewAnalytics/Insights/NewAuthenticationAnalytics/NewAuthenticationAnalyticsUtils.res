@@ -159,7 +159,7 @@ let itemToObjMapperForFunnelData: Dict.t<JSON.t> => funnelDataType = dict => {
       0,
     ),
     authentication_initiated: dict->getInt("authentication_initiated", 0),
-    authentication_attemped: dict->getInt("authentication_attemped", 0),
+    authentication_attempted: dict->getInt("authentication_attempted", 0),
     authentication_successful: dict->getInt("authentication_successful", 0),
   }
 }
@@ -182,7 +182,7 @@ let metrics: array<LineChartUtils.metricsConfig> = [
     disabled: false,
   },
   {
-    metric_name_db: "authentication_attemped",
+    metric_name_db: "authentication_attempted",
     metric_label: "Authentication Attempted",
     thresholdVal: None,
     step_up_threshold: None,
@@ -216,8 +216,8 @@ let getFunnelChartData = funnelData => {
     ->JSON.Encode.string,
   )
   funnelDict->Dict.set(
-    "authentication_attemped",
-    (funnelData.authentication_attemped->Int.toFloat /.
+    "authentication_attempted",
+    (funnelData.authentication_attempted->Int.toFloat /.
     funnelData.payments_requiring_3ds_2_authentication->Int.toFloat *. 100.0)
     ->Float.toString
     ->JSON.Encode.string,

@@ -38,7 +38,7 @@ let make = (
   }
   let fileTypeInput = ReactFinalForm.useField(input.name ++ "_filemimes").input
 
-  let defaultFileNames = fileNamesInput.value->getStrArryFromJson
+  let defaultFileNames = fileNamesInput.value->getStrArrayFromJson
   // let defaultFileMimes = input.value->getArrayFromJson([])
 
   let (fileNames, setFilenames) = React.useState(_ => defaultFileNames)

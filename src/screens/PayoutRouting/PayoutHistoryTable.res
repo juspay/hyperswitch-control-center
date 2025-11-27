@@ -18,6 +18,6 @@ let make = (~records, ~activeRoutingIds: array<string>) => {
     totalResults={records->Array.length}
     offset
     setOffset
-    currrentFetchCount={records->Array.length}
+    currentFetchCount={records->Array.length}
   />
 }

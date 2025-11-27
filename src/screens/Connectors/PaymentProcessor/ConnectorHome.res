@@ -196,9 +196,9 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
       customStyle={`py-16 !m-0 `}
-      overriddingStylesTitle="text-2xl font-semibold"
+      overridingStylesTitle="text-2xl font-semibold"
       buttonText="Go back to processor"
-      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      overridingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))

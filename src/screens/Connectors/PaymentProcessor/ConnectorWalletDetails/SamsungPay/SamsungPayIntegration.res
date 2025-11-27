@@ -34,7 +34,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   }, [connector])
 
   let setSamsungFormData = () => {
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("connector_wallets_details")
@@ -43,7 +43,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
     form.change(
       "connector_wallets_details.samsung_pay.merchant_credentials",
-      initalFormValue->samsungPayRequest->Identity.genericTypeToJson,
+      initialFormValue->samsungPayRequest->Identity.genericTypeToJson,
     )
   }
 
@@ -119,7 +119,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     ->React.array
   <PageLoaderWrapper
     screenState={screenState}
-    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+    customLoader={<div className="mt-60   flex flex-col justify-center items-center">
       <div className={`animate-spin mb-1`}>
         <Icon name="spinner" size=20 />
       </div>

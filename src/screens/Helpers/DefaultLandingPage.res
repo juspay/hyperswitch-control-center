@@ -8,8 +8,8 @@ let make = (
   ~isButton=false,
   ~buttonText="Home",
   ~onClickHandler=_ => (),
-  ~overriddingStylesTitle="",
-  ~overriddingStylesSubtitle="",
+  ~overridingStylesTitle="",
+  ~overridingStylesSubtitle="",
   ~showLogoutButton=false,
 ) => {
   let handleLogout = APIUtils.useHandleLogout()
@@ -25,11 +25,11 @@ let make = (
     className={`m-5 bg-white dark:bg-jp-gray-lightgray_background dark:border-jp-gray-850 flex flex-col p-5 items-center justify-center ${customStyle}`}>
     <img alt="work-in-progress" src={`/assets/WorkInProgress.svg`} />
     <RenderIf condition={title->String.length !== 0}>
-      <div className={`font-bold mt-5 ${overriddingStylesTitle}`}> {title->React.string} </div>
+      <div className={`font-bold mt-5 ${overridingStylesTitle}`}> {title->React.string} </div>
     </RenderIf>
     <RenderIf condition={subtitle->String.length !== 0}>
       <div
-        className={`mt-5 text-center text-semibold text-xl text-[#0E0E0E] ${overriddingStylesSubtitle}`}>
+        className={`mt-5 text-center text-semibold text-xl text-[#0E0E0E] ${overridingStylesSubtitle}`}>
         {subtitle->React.string}
       </div>
     </RenderIf>

@@ -48,7 +48,7 @@ let make = () => {
           totalResults={rulesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={rulesData->Array.length}
+          currentFetchCount={rulesData->Array.length}
         />
       </div>
     </div>

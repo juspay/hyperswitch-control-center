@@ -402,7 +402,7 @@ module ApiKeysTable = {
           totalResults={data->Array.length}
           offset
           setOffset
-          currrentFetchCount={data->Array.length}
+          currentFetchCount={data->Array.length}
           showAutoScroll=true
           tableActions={<div className="mt-0 md:mt-5">
             <ApiKeyAddBtn getAPIKeyDetails />

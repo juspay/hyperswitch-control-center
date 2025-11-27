@@ -30,7 +30,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionHistoryList = await getIngestionHistory(
-        ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
+        ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
       )
       ingestionHistoryList->Array.sort(sortByDescendingVersion)
       let latestIngestionHistory =
@@ -118,8 +118,8 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
             ~transformationHistoryId,
             ~stagingEntryId,
           )}
-          accordianTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"
-          accordianBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl !overflow-scroll"
+          accordionTopContainerCss="!border !border-nd_gray-150 !rounded-xl !overflow-scroll"
+          accordionBottomContainerCss="!p-4 !bg-nd_gray-25 !rounded-xl !overflow-scroll"
           contentExpandCss={`!${body.md.semibold} !rounded-b-xl !overflow-scroll`}
           titleStyle={`${body.lg.semibold} !text-nd_gray-800`}
           gapClass="flex flex-col gap-8"

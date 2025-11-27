@@ -347,7 +347,7 @@ let removeEmptyValues = (~dict, ~key) => {
     })
   finalDict
 }
-let getMetdataKeyValuePayload = valuesDict => {
+let getMetadataKeyValuePayload = valuesDict => {
   let customHeaderDict = Dict.make()
   let customMetadataVal = Dict.make()
   let formValues = valuesDict->getDictfromDict("metadata")

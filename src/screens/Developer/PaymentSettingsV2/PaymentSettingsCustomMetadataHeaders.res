@@ -237,7 +237,7 @@ let make = () => {
             text="Update"
             buttonType=Button.Primary
             buttonSize=Button.Medium
-            disabledParamter={!allowEdit}
+            disabledParameter={!allowEdit}
           />
         </div>
       </DesktopRow>

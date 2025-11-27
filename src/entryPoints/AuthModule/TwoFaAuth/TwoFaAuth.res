@@ -13,8 +13,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let setMixpanelIdentity = MixpanelHook.useSetIdentity()
 
   let initialValues = Dict.make()->JSON.Encode.object
-  let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
-  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
+  let clientCountry = HSwitchUtils.getBrowserDetails().clientCountry
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
@@ -48,7 +48,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
+        ~queryParameters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
       )
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
@@ -104,7 +104,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#FORGOT_PASSWORD,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`),
+        ~queryParameters=Some(`auth_id=${authId}&theme_id=${themeId}`),
       )
       let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ForgetPasswordEmailSent)
@@ -122,7 +122,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#VERIFY_EMAIL_REQUEST,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`),
+        ~queryParameters=Some(`auth_id=${authId}&theme_id=${themeId}`),
       )
       let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ResendVerifyEmailSent)
@@ -243,7 +243,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   | LoginWithEmail => ["email"]
   | SignUP => featureFlagValues.email ? ["email"] : ["email", "password"]
   | LoginWithPassword => ["email"]
-  | ResetPassword => ["create_password", "comfirm_password"]
+  | ResetPassword => ["create_password", "confirm_password"]
   | _ => []
   }
 
@@ -300,7 +300,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               | ResendVerifyEmail
               | SignUP =>
                 <FormRenderer.SubmitButton
-                  customSumbitButtonStyle="!w-full"
+                  customSubmitButtonStyle="!w-full"
                   text=submitBtnText
                   userInteractionRequired=true
                   showToolTip=false

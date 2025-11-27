@@ -73,7 +73,7 @@ let createPasswordField = FormRenderer.makeFieldInfo(
 
 let confirmPasswordField = FormRenderer.makeFieldInfo(
   ~label="Confirm Password",
-  ~name="comfirm_password",
+  ~name="confirm_password",
   ~placeholder="Re-enter your Password",
   ~type_="password",
   ~customInput=InputFields.textInput(

@@ -46,6 +46,6 @@ let make = (~onClick) => {
   <EmailVerifyScreen
     errorMessage
     onClick
-    trasitionMessage="Accepting invite... You will be redirecting to the Dashboard.."
+    transitionMessage="Accepting invite... You will be redirecting to the Dashboard.."
   />
 }

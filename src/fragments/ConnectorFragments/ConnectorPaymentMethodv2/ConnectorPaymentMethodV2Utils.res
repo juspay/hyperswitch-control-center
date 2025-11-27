@@ -66,7 +66,7 @@ let acceptedValues = dict => {
 let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethodConfigTypeV2 => {
   let paymentMethodType =
     dict->getString("payment_method_subtype", dict->getString("payment_method_type", ""))
-  let (cardNetworks, modifedPaymentMethodType) = switch pm->getPMTFromString {
+  let (cardNetworks, modifiedPaymentMethodType) = switch pm->getPMTFromString {
   | Credit => {
       let cardNetworks = [paymentMethodType->JSON.Encode.string]
       let pmt = pm
@@ -90,10 +90,10 @@ let getPaymentMethodDictV2 = (dict, pm, connector): ConnectorTypes.paymentMethod
   let installmentPaymentEnabled = dict->getBool("installment_payment_enabled", true)
 
   let paymentExperience = dict->getOptionString("payment_experience")
-  let pme = getPaymentExperience(connector, pm, modifedPaymentMethodType, paymentExperience)
+  let pme = getPaymentExperience(connector, pm, modifiedPaymentMethodType, paymentExperience)
   let newPaymentMenthodDict =
     [
-      ("payment_method_subtype", modifedPaymentMethodType->JSON.Encode.string),
+      ("payment_method_subtype", modifiedPaymentMethodType->JSON.Encode.string),
       ("card_networks", cardNetworks->JSON.Encode.array),
       ("minimum_amount", minimumAmount->JSON.Encode.int),
       ("maximum_amount", maximumAmount->JSON.Encode.int),

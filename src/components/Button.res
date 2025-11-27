@@ -308,7 +308,7 @@ let make = (
   }
 
   // Hyperswitch doesn't have use case of some btn type variant
-  // overridding the variant with a used type
+  // overriding the variant with a used type
   let buttonType = switch buttonType {
   | SecondaryFilled => Secondary
   | _ => buttonType

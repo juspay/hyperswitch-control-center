@@ -45,7 +45,7 @@ let createFontStyle = (variant, size, weight) => {
 
   let fontFamily = switch variant {
   | Display | Body | Heading => "font-inter-style"
-  | Code => "font-jetbrain-mono"
+  | Code => "font-jetbrains-mono"
   }
 
   `${fontSize} ${fontWeight} ${fontFamily}`

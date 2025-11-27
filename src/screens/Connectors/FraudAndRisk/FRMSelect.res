@@ -92,7 +92,7 @@ let make = () => {
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText="No connectors configured yet. Try connecting a connector."
       buttonText="Take me to connectors"
       onClickElement={React.null}
@@ -170,7 +170,7 @@ let make = () => {
             "fraud-risk-management",
             ~authorization={userHasAccess(~groupAccess=ConnectorsManage)},
           )}
-          currrentFetchCount={configuredFRMs->Array.length}
+          currentFetchCount={configuredFRMs->Array.length}
           collapseTableRow=false
           showAutoScroll=true
         />

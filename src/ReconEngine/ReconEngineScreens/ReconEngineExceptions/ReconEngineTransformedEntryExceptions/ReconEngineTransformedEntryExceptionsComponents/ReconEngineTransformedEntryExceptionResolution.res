@@ -25,7 +25,7 @@ module IgnoreTransactionModalContent = {
             }}
           />
           <FormRenderer.SubmitButton
-            text="Ignore Entry" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+            text="Ignore Entry" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
           />
         </div>
       </Form>
@@ -56,7 +56,7 @@ module EditEntryModalContent = {
             ~entityName=V1(HYPERSWITCH_RECON),
             ~methodType=Get,
             ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-            ~queryParamerters=Some(`account_id=${entryDetails.account.account_id}`),
+            ~queryParameters=Some(`account_id=${entryDetails.account.account_id}`),
           )
           let res = await fetchDetails(url)
           setTransformationsList(_ =>
@@ -115,7 +115,7 @@ module EditEntryModalContent = {
                 tooltipForWidthClass="w-full"
                 text="Save changes"
                 buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
+                customSubmitButtonStyle="!w-full"
               />
             </FormRenderer.DesktopRow>
           </div>
@@ -195,7 +195,7 @@ let make = (
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
+        ~queryParameters=None,
         ~id=Some(currentTransformedEntryDetails.transformation_history_id),
       )
       let transformationHistoryRes = await fetchDetails(url)

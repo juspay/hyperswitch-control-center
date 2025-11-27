@@ -126,7 +126,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={payoutData->Array.length}
+          currentFetchCount={payoutData->Array.length}
           defaultColumns={PayoutsEntity.defaultColumns}
           customColumnMapper=TableAtoms.payoutsMapDefaultCols
           showSerialNumberInCustomizeColumns=false

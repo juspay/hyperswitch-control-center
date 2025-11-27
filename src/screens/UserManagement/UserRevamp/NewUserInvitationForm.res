@@ -70,7 +70,7 @@ module NoteComponent = {
       UserInfoProvider.defaultContext,
     )
 
-    // TODO : Chnage id to name once backend starts sending name in userinfo
+    // TODO : Change id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
     | #Tenant
     | #Organization =>
@@ -113,7 +113,7 @@ let make = () => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
 
-  let getMemberAcessBasedOnRole = async _ => {
+  let getMemberAccessBasedOnRole = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
@@ -140,7 +140,7 @@ let make = () => {
 
   React.useEffect(() => {
     if roleTypeValue->Option.isSome {
-      getMemberAcessBasedOnRole()->ignore
+      getMemberAccessBasedOnRole()->ignore
     }
     None
   }, [roleTypeValue])
@@ -155,7 +155,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#LIST_ROLES_FOR_INVITE,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=${roleEntity}`),
+        ~queryParameters=Some(`entity_type=${roleEntity}`),
       )
       let result = await fetchDetails(url)
       setOptions(_ => result->makeSelectBoxOptions)
@@ -182,7 +182,7 @@ let make = () => {
           text={"Send Invite"}
           loadingText="Loading..."
           buttonSize={Small}
-          customSumbitButtonStyle="w-full !h-12"
+          customSubmitButtonStyle="w-full !h-12"
           tooltipForWidthClass="w-full"
         />
       </div>

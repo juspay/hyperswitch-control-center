@@ -22,8 +22,8 @@ let make = (~isPayoutFlow=false) => {
       setScreenState(_ => Loading)
       let response = await fetchConnectorListResponse()
       let configuredConnectors = response->getConnectedList
-      let filterdValue = response->getFilterdConnectorList(allFilters)
-      setFiltersConnectors(_ => filterdValue)
+      let filteredValue = response->getFilteredConnectorList(allFilters)
+      setFiltersConnectors(_ => filteredValue)
       setConnectorResponse(_ => response)
       setConfiguredConnectors(_ => configuredConnectors)
       setScreenState(_ => Success)
@@ -38,7 +38,7 @@ let make = (~isPayoutFlow=false) => {
   }, (isPayoutFlow, filterValue))
 
   let applyFilter = async () => {
-    let res = connectorResponse->getFilterdConnectorList(allFilters)
+    let res = connectorResponse->getFilteredConnectorList(allFilters)
     setFiltersConnectors(_ => res)
   }
 
@@ -58,7 +58,7 @@ let make = (~isPayoutFlow=false) => {
   let handleClearFilter = async () => {
     await HyperSwitchUtils.delay(500)
     let dict = Dict.make()->pmtConfigFilter
-    let res = connectorResponse->getFilterdConnectorList(dict)
+    let res = connectorResponse->getFilteredConnectorList(dict)
     setFiltersConnectors(_ => res)
     reset()
   }
@@ -94,9 +94,9 @@ let make = (~isPayoutFlow=false) => {
           offset
           setOffset
           entity={PaymentMethodEntity.paymentMethodEntity(
-            ~setReferesh=getConnectorListAndUpdateState,
+            ~setRefresh=getConnectorListAndUpdateState,
           )}
-          currrentFetchCount={filteredConnectors->Array.length}
+          currentFetchCount={filteredConnectors->Array.length}
           collapseTableRow=false
           showAutoScroll=true
         />

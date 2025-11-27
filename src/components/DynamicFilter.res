@@ -237,7 +237,7 @@ let make = (
       ?updateUrlWith
       ?setOffset
       clearFilters
-      initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
+      initialCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
       showSelectFiltersSearch
       tableName=moduleName
     />

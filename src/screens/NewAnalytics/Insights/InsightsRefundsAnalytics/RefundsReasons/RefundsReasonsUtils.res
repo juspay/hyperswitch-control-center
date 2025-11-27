@@ -11,7 +11,7 @@ let getStringFromVariant = value => {
   }
 }
 
-let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => failureReasonsObjectType = dict => {
   {
     refund_reason: dict->getString(Refund_Reason->getStringFromVariant, ""),
     refund_reason_count: dict->getInt(Refund_Reason_Count->getStringFromVariant, 0),
@@ -21,7 +21,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
   }
 }
 
-let getObjects: JSON.t => array<failreResonsObjectType> = json => {
+let getObjects: JSON.t => array<failureReasonsObjectType> = json => {
   json
   ->getArrayFromJson([])
   ->Array.map(item => {

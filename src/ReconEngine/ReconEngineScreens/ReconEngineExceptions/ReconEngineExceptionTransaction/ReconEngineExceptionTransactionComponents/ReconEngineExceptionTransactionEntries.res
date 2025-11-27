@@ -238,7 +238,7 @@ let make = (
                 }}
               />
               <FormRenderer.SubmitButton
-                text="Save Changes" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+                text="Save Changes" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
               />
             </div>
           </div>

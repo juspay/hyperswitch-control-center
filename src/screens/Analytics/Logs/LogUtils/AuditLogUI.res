@@ -150,7 +150,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   let {merchantId} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let fetchDetails = useGetMethod(~showErrorToast=false)
-  let fetchPostDetils = useUpdateMethod()
+  let fetchPostDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
   let isError = React.useMemo(() => {ref(false)}, [])
   let (logDetails, setLogDetails) = React.useState(_ => {
@@ -207,7 +207,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             | Some(val) => val
             | _ => Dict.make()->JSON.Encode.object
             }
-            fetchPostDetils(url.url, body, Post)
+            fetchPostDetails(url.url, body, Post)
           }
         | _ => fetchDetails(url.url)
         }
@@ -215,7 +215,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       let resArr = await PromiseUtils.allSettledPolyfill(promiseArr)
 
       resArr->Array.forEach(json => {
-        // clasify btw json value and error response
+        // classify btw json value and error response
         switch JSON.Classify.classify(json) {
         | Array(arr) =>
           // add to the logs only if array is non empty
@@ -295,9 +295,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             tabs=tabValues
             maxSelection=1
             setActiveTab
-            initalTab=tabKeys
+            initialTab=tabKeys
             tabContainerClass="px-2"
-            updateCollapsableTabs=collapseTab
+            updateCollapsibleTabs=collapseTab
             showAddMoreTabs=false
           />
         </div>

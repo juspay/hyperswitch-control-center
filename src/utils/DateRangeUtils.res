@@ -311,7 +311,7 @@ let getStrokeColor = (disable, isDropdownExpandedActualPrimary) =>
     "stroke-jp-2-light-gray-1100"
   }
 
-let getComparisionTimePeriod = (~startDate, ~endDate) => {
+let getComparisonTimePeriod = (~startDate, ~endDate) => {
   let startingPoint = startDate->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
   let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points

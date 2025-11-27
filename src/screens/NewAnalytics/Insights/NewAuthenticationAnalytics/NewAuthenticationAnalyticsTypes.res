@@ -52,7 +52,7 @@ type secondFunnelDataType = {
 type funnelDataType = {
   mutable payments_requiring_3ds_2_authentication: int,
   mutable authentication_initiated: int,
-  mutable authentication_attemped: int,
+  mutable authentication_attempted: int,
   mutable authentication_successful: int,
 }
 

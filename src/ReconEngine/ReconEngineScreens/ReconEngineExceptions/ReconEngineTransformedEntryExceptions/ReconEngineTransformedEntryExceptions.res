@@ -63,7 +63,7 @@ let make = () => {
         ~filterValueJson=enhancedFilterValueJson,
       )
 
-      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
+      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
@@ -151,7 +151,7 @@ let make = () => {
             totalResults={filteredStagingData->Array.length}
             offset
             setOffset
-            currrentFetchCount={filteredStagingData->Array.length}
+            currentFetchCount={filteredStagingData->Array.length}
             tableheadingClass="h-12"
             tableHeadingTextClass="!font-normal"
             nonFrozenTableParentClass="!rounded-lg"

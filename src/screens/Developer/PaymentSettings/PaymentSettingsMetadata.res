@@ -215,7 +215,7 @@ let make = (
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->JSON.Encode.object->getMetdataKeyValuePayload->JSON.Encode.object
+      let body = valuesDict->JSON.Encode.object->getMetadataKeyValuePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
       setBusinessProfile(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
@@ -232,7 +232,7 @@ let make = (
   }
   <ReactFinalForm.Form
     key="auth"
-    initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+    initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
     subscription=ReactFinalForm.subscribeToValues
     onSubmit
     render={({handleSubmit}) => {
@@ -245,7 +245,7 @@ let make = (
                 text="Update"
                 buttonType=Button.Primary
                 buttonSize=Button.Medium
-                disabledParamter={!allowEdit}
+                disabledParameter={!allowEdit}
               />
               <Button
                 buttonType=Button.Secondary

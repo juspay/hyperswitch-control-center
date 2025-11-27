@@ -11,7 +11,7 @@ let preRequisiteList = [
 
 module PayPalCreateNewAccountModal = {
   @react.component
-  let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
+  let make = (~buttonDisplayText, ~actionUrl, ~setScreenState) => {
     let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
     let initializePayPalWindow = () => {
       try {
@@ -35,7 +35,7 @@ module PayPalCreateNewAccountModal = {
         className={`!w-fit rounded-md ${primaryColor} text-white px-4  h-fit border py-3 flex items-center justify-center gap-2`}
         href={`${actionUrl}&displayMode=minibrowser`}
         target="PPFrame">
-        {butttonDisplayText->React.string}
+        {buttonDisplayText->React.string}
         <Icon name="thin-right-arrow" size=20 />
       </a>
     </AddDataAttributes>
@@ -68,12 +68,12 @@ module ManualSetupScreen = {
 
 module LandingScreen = {
   @react.component
-  let make = (~configuartionType, ~setConfigurationType) => {
+  let make = (~configurationType, ~setConfigurationType) => {
     let {
       globalUIConfig: {primaryColor, font: {textColor}, border: {borderColor}},
     } = React.useContext(ThemeProvider.themeContext)
     let getBlockColor = value =>
-      configuartionType === value
+      configurationType === value
         ? `${borderColor.primaryNormal} ${primaryColor} bg-opacity-10 `
         : "border"
 
@@ -94,7 +94,7 @@ module LandingScreen = {
                   <p className=p1MediumTextClass> {items.displayText->React.string} </p>
                 </div>
                 <Icon
-                  name={configuartionType === items.variantType ? "selected" : "nonselected"}
+                  name={configurationType === items.variantType ? "selected" : "nonselected"}
                   size=20
                   className={`cursor-pointer !${textColor.primaryNormal}`}
                 />
@@ -130,7 +130,7 @@ module ErrorPage = {
         </div>
         <div className="flex gap-4 items-center">
           <PayPalCreateNewAccountModal
-            actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
+            actionUrl buttonDisplayText="Sign in / Sign up on PayPal" setScreenState
           />
           <Button
             text="Refresh status"
@@ -141,7 +141,7 @@ module ErrorPage = {
         </div>
         <RenderIf condition={errorPageDetails.buttonText->Option.isSome}>
           <PayPalCreateNewAccountModal
-            butttonDisplayText={errorPageDetails.buttonText->Option.getOr("")}
+            buttonDisplayText={errorPageDetails.buttonText->Option.getOr("")}
             actionUrl
             setScreenState
           />
@@ -210,7 +210,7 @@ module RedirectionToPayPalFlow = {
           </div>
           <div className="flex gap-4 items-center">
             <PayPalCreateNewAccountModal
-              actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
+              actionUrl buttonDisplayText="Sign in / Sign up on PayPal" setScreenState
             />
             <Button
               text="Refresh status "
@@ -253,7 +253,7 @@ let make = (
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
+  let (configurationType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
 
   let selectedConnector =
     connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
@@ -278,7 +278,7 @@ let make = (
   }, [initialValues])
 
   let setConnectorAsActive = values => {
-    // sets the status as active and diabled as false
+    // sets the status as active and disabled as false
     let dictOfInitialValues = values->getDictFromJsonObject
     dictOfInitialValues->Dict.set("disabled", false->JSON.Encode.bool)
     dictOfInitialValues->Dict.set("status", "active"->JSON.Encode.string)
@@ -296,7 +296,7 @@ let make = (
         true,
         "inactive",
       )
-      if configuartionType === Manual {
+      if configurationType === Manual {
         setConnectorAsActive(res)
       } else {
         setInitialValues(_ => res)
@@ -336,13 +336,13 @@ let make = (
       let _ = await deleteTrackingDetails(connectorId, connector)
       let _ = await updateConnectorDetails(values)
 
-      switch configuartionType {
+      switch configurationType {
       | Automatic => setSetupAccountStatus(_ => Redirecting_to_paypal)
       | Manual | _ => setCurrentStep(_ => ConnectorTypes.IntegFields)
       }
       setScreenState(_ => Success)
     } catch {
-    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuartion"))
+    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuration"))
     }
   }
 
@@ -354,7 +354,7 @@ let make = (
 
       // create flow
       if !isUpdateFlow {
-        switch configuartionType {
+        switch configurationType {
         | Automatic => {
             await updateConnectorDetails(values)
             setSetupAccountStatus(_ => Redirecting_to_paypal)
@@ -368,7 +368,7 @@ let make = (
       } // update flow if body type is changed
       else if (
         authType !==
-          PayPalFlowUtils.getBodyType(isUpdateFlow, configuartionType)
+          PayPalFlowUtils.getBodyType(isUpdateFlow, configurationType)
           ->String.toLowerCase
           ->ConnectorUtils.mapAuthType
       ) {
@@ -384,7 +384,7 @@ let make = (
         })
       } else {
         // update flow if body type is not changed
-        switch configuartionType {
+        switch configurationType {
         | Automatic => setCurrentStep(_ => ConnectorTypes.PaymentMethods)
         | Manual | _ => {
             setConnectorAsActive(values)
@@ -437,7 +437,7 @@ let make = (
     <FormRenderer.SubmitButton
       loadingText="Processing..."
       text="Proceed"
-      disabledParamter={configuartionType === NotSelected}
+      disabledParameter={configurationType === NotSelected}
     />
   }
 
@@ -472,7 +472,7 @@ let make = (
                   <ConnectorAccountDetailsHelper.BusinessProfileRender
                     isUpdateFlow selectedConnector={connector}
                   />
-                  <LandingScreen configuartionType setConfigurationType />
+                  <LandingScreen configurationType setConfigurationType />
                 </div>
               | Redirecting_to_paypal
               | Account_not_found

@@ -139,7 +139,7 @@ module ShowPayoutDetails = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-black text-sm font-medium"
+                overridingHeadingStyles="text-black text-sm font-medium"
                 textColor="!font-normal !text-jp-gray-700"
               />
             </div>
@@ -317,7 +317,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="overflow-scroll">
           <Attempts data=payoutData />
         </div>
-        <RenderAccordian
+        <RenderAccordion
           accordion=[
             {
               title: "Customer Details",
@@ -328,7 +328,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             },
           ]
         />
-        <RenderAccordian
+        <RenderAccordion
           accordion=[
             {
               title: "More Payout Details",
@@ -342,7 +342,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <RenderIf
           condition={payoutData.payout_type === "card" &&
             payoutData.payout_method_data->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion=[
               {
                 title: "Payout Method Details",
@@ -362,7 +362,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={!(payoutData.metadata->LogicUtils.isEmptyDict)}>
-          <RenderAccordian
+          <RenderAccordion
             accordion=[
               {
                 title: "Payout Metadata",

@@ -21,7 +21,7 @@ module DisplayKeyValueParams = {
     ~customDateStyle="",
     ~wordBreak=true,
     ~textColor="",
-    ~overiddingHeadingStyles="",
+    ~overridingHeadingStyles="",
   ) => {
     let marginClass = if labelMargin->LogicUtils.isEmptyString {
       "mt-4 py-0"
@@ -50,7 +50,7 @@ module DisplayKeyValueParams = {
         <div className={`flex ${isHorizontal ? "flex-row gap-3" : "flex-col gap-1"} py-4`}>
           <div
             className="flex flex-row text-fs-11 leading-3 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 items-center">
-            <div className={`${overiddingHeadingStyles}`}>
+            <div className={`${overridingHeadingStyles}`}>
               {React.string(showTitle ? heading.title : "")}
             </div>
             <RenderIf condition={description->LogicUtils.isNonEmptyString}>

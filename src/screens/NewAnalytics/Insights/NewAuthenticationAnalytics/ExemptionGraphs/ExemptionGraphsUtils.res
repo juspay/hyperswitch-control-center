@@ -191,7 +191,7 @@ let getObjects: JSON.t => array<exemptionGraphsObject> = json => {
   })
 }
 
-let defaulGranularity = {
+let defaultGranularity = {
   label: "Daily",
   value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }

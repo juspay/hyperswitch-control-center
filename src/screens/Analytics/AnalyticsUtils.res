@@ -80,7 +80,7 @@ type tableApiBodyEntity = {
   startTimeFromUrl: string,
   endTimeFromUrl: string,
   filterValueFromUrl?: JSON.t,
-  currenltySelectedTab?: array<string>,
+  currentlySelectedTab?: array<string>,
   deltaMetrics: array<string>,
   isIndustry: bool,
   distributionArray?: array<JSON.t>,
@@ -462,7 +462,7 @@ let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
   ~filterValueFromUrl: option<JSON.t>,
-  ~currenltySelectedTab: option<array<string>>,
+  ~currentlySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
   ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
@@ -487,7 +487,7 @@ let generateTablePayload = (
   let deltaPayload = generatedeltaTablePayload(
     ~deltaDateArr,
     ~metrics=deltaMetrics,
-    ~groupByNames=currenltySelectedTab,
+    ~groupByNames=currentlySelectedTab,
     ~source,
     ~mode,
     ~deltaPrefixArr,
@@ -498,7 +498,7 @@ let generateTablePayload = (
   let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
-        ~groupByNames=currenltySelectedTab,
+        ~groupByNames=currentlySelectedTab,
         ~filter=filterValueFromUrl,
         ~metrics=Some(metrics),
         ~delta=showDeltaMetrics,
@@ -516,7 +516,7 @@ let generateTablePayload = (
   let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     [
       getFilterRequestBody(
-        ~groupByNames=currenltySelectedTab,
+        ~groupByNames=currentlySelectedTab,
         ~filter=filterValueFromUrl,
         ~metrics=Some(deltaMetrics),
         ~delta=showDeltaMetrics,
@@ -534,7 +534,7 @@ let generateTablePayload = (
   let tableIndustryPayload = if isIndustry {
     [
       getFilterRequestBody(
-        ~groupByNames=currenltySelectedTab,
+        ~groupByNames=currentlySelectedTab,
         ~filter=filterValueFromUrl,
         ~metrics=Some(deltaMetrics),
         ~delta=showDeltaMetrics,
@@ -556,7 +556,7 @@ let generateTablePayload = (
   | Some(distributionArray) =>
     distributionArray->Array.map(arr =>
       getFilterRequestBody(
-        ~groupByNames=currenltySelectedTab,
+        ~groupByNames=currentlySelectedTab,
         ~filter=filterValueFromUrl,
         ~delta=false,
         ~mode,

@@ -80,7 +80,7 @@ let make = (~sampleReport, ~setSampleReport) => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (filteredCustomersData, setFilteredCustomersData) = React.useState(_ => [])
   let (searchVal, setSearchVal) = React.useState(_ => "")
-  let total = 100 // TODO: take this value from API response [currenctly set to 5 pages]
+  let total = 100 // TODO: take this value from API response [currently set to 5 pages]
   let limit = 10 // each api calls will return 50 results
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -89,7 +89,7 @@ let make = (~sampleReport, ~setSampleReport) => {
       let customersUrl = getURL(
         ~entityName=V2(CUSTOMERS),
         ~methodType=Get,
-        ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
+        ~queryParameters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
       let response = await fetchDetails(customersUrl, ~version=V2)
       let data = response->JSON.Decode.array->Option.getOr([])
@@ -194,7 +194,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           totalResults={filteredCustomersData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredCustomersData->Array.length}
+          currentFetchCount={filteredCustomersData->Array.length}
           showResultsPerPageSelector=false
           showAutoScroll=true
           collapseTableRow=false

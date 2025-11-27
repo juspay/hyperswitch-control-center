@@ -7,7 +7,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   )
   let form = ReactFinalForm.useForm()
   let setPazeFormData = () => {
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("connector_wallets_details")
@@ -15,7 +15,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
     form.change(
       "connector_wallets_details.paze",
-      initalFormValue->pazePayRequest->Identity.genericTypeToJson,
+      initialFormValue->pazePayRequest->Identity.genericTypeToJson,
     )
   }
   React.useEffect(() => {

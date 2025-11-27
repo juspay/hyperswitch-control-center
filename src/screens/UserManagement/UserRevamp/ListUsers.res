@@ -33,7 +33,7 @@ let make = () => {
         ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
-        ~queryParamerters=userModuleEntity == #Default
+        ~queryParameters=userModuleEntity == #Default
           ? None
           : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
@@ -106,7 +106,7 @@ let make = () => {
         offset=userOffset
         setOffset=setUserOffset
         entity={ListUserTableEntity.userEntity}
-        currrentFetchCount={usersFilterData->Array.length}
+        currentFetchCount={usersFilterData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"

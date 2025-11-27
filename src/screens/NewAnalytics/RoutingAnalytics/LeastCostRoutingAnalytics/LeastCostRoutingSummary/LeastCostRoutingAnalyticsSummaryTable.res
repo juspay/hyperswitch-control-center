@@ -88,7 +88,7 @@ let make = () => {
         title=" "
         setOffset
         entity={LeastCostRoutingAnalyticsSummaryTableEntity.summaryEntity()}
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         showAutoScroll=true
       />
     </PageLoaderWrapper>

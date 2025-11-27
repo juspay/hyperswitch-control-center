@@ -101,8 +101,8 @@ let make = (
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss="!overflow-visible"
-        accordianBottomContainerCss="p-5"
+        accordionTopContainerCss="!overflow-visible"
+        accordionBottomContainerCss="p-5"
         contentExpandCss="p-2"
         titleStyle="font-semibold text-bold text-md hover:!bg-white"
       />

@@ -39,7 +39,7 @@ let make = () => {
       setScreenState(_ => Success)
       setCurrentStep(prev => prev->getNextStep)
     } catch {
-    | _ => setScreenState(_ => Error("Error Occured!"))
+    | _ => setScreenState(_ => Error("Error Occurred!"))
     }
   }
 
@@ -89,12 +89,12 @@ let make = () => {
             setCurrentStep
             selectedFRMName
             setInitialValues
-            retrivedValues=Some(initialValues)
+            retrievedValues=Some(initialValues)
             isUpdateFlow
           />
         | PaymentMethods =>
           <FRMPaymentMethods
-            setCurrentStep retrivedValues=Some(initialValues) setInitialValues isUpdateFlow
+            setCurrentStep retrievedValues=Some(initialValues) setInitialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>

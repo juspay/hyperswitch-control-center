@@ -96,13 +96,13 @@ let make = (
   open InsightsUtils
   open NewAnalyticsUtils
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let defaulGranularity = getDefaultGranularity(
+  let defaultGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,
     ~granularity=featureFlag.granularity,
   )
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
-  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
+  let (granularity, setGranularity) = React.useState(_ => defaultGranularity)
   let fetchApi = AuthHooks.useApiFetcher()
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)

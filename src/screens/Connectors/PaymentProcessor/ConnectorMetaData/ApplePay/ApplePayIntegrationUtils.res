@@ -273,7 +273,7 @@ let validateManualFlow = (values, ~connector) => {
   }
 }
 
-let validateSimplifedFlow = values => {
+let validateSimplifiedFlow = values => {
   let data =
     values
     ->getDictFromJsonObject

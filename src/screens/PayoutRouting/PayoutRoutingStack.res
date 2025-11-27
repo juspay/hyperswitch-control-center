@@ -34,7 +34,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 height="90%"
                 title="No Routing Rule Configured!"
                 customStyle="py-16"
-                overriddingStylesTitle="text-3xl font-semibold"
+                overridingStylesTitle="text-3xl font-semibold"
               />
         },
       },

@@ -11,7 +11,7 @@ type ompListTypes = {
 type ompListTypesCustom = {...ompListTypes, customComponent: React.element}
 
 type opmView = {
-  lable: string,
+  label: string,
   entity: UserInfoTypes.entity,
 }
 type ompViews = array<opmView>

@@ -50,7 +50,7 @@ let make = () => {
       } else {
         let processedModifiedData = fillMissingDataPointsForConnectors(
           ~data=responseData
-          ->modifyQueryDataForSucessGraph
+          ->modifyQueryDataForSuccessGraph
           ->sortQueryDataByDate,
           ~startDate=startTimeVal,
           ~endDate=endTimeVal,

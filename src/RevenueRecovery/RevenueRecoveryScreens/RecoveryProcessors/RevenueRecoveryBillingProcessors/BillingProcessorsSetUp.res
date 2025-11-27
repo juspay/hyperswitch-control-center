@@ -219,7 +219,7 @@ let make = (
           <FormRenderer.SubmitButton
             text="Next"
             buttonSize={Small}
-            customSumbitButtonStyle="!w-full"
+            customSubmitButtonStyle="!w-full"
             tooltipForWidthClass="w-full"
           />
         </div>

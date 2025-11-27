@@ -111,7 +111,7 @@ module SelectMerchantBody = {
         values->getDictFromJsonObject->getString("merchant_selected", "")->String.trim
 
       if merchant_selected->isEmptyString {
-        Dict.set(errors, "company_name", "Merchant cannot be emoty"->JSON.Encode.string)
+        Dict.set(errors, "company_name", "Merchant cannot be empty"->JSON.Encode.string)
       }
 
       errors->JSON.Encode.object
@@ -153,7 +153,7 @@ module SelectMerchantBody = {
           </div>
           <div className="flex justify-end w-full p-3">
             <FormRenderer.SubmitButton
-              text="Select Merchant" buttonSize=Small customSumbitButtonStyle="w-full mb-2"
+              text="Select Merchant" buttonSize=Small customSubmitButtonStyle="w-full mb-2"
             />
           </div>
         </div>

@@ -98,8 +98,8 @@ let make = (~account: ReconEngineTypes.accountType) => {
         "&debit_account=" ++
         account.account_id
 
-      let sourceTransactions = await getTransactions(~queryParamerters=Some(sourceQueryString))
-      let targetTransactions = await getTransactions(~queryParamerters=Some(targetQueryString))
+      let sourceTransactions = await getTransactions(~queryParameters=Some(sourceQueryString))
+      let targetTransactions = await getTransactions(~queryParameters=Some(targetQueryString))
 
       let allTransactions = sourceTransactions->Array.concat(targetTransactions)
       let uniqueTransactions = allTransactions->Array.reduce([], (
@@ -154,7 +154,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         resultsPerPage=6
         offset
         setOffset
-        currrentFetchCount={filteredTransactionsData->Array.length}
+        currentFetchCount={filteredTransactionsData->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
         defaultColumns
         showPagination=true

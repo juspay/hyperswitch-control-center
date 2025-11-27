@@ -157,14 +157,14 @@ let make = () => {
 
         let programValue = responseDict->getDictfromDict("algorithm")->getDictfromDict("data")
 
-        let intitialValue =
+        let initialValue =
           [
             ("name", responseDict->getString("name", "")->JSON.Encode.string),
             ("description", responseDict->getString("description", "")->JSON.Encode.string),
             ("algorithm", programValue->JSON.Encode.object),
           ]->Dict.fromArray
 
-        setInitialRule(_ => Some(intitialValue))
+        setInitialRule(_ => Some(initialValue))
       }
     } catch {
     | Exn.Error(e) =>

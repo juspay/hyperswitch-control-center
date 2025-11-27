@@ -46,8 +46,8 @@ let overallRetryStrategyChartEntity: chartEntity<
   getChatOptions: LineAndColumnGraphUtils.getLineColumnGraphOptions,
 }
 
-// Retries Comparision
-let retriesComparisionEntity: moduleEntity = {
+// Retries Comparison
+let retriesComparisonEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [],
@@ -56,12 +56,12 @@ let retriesComparisionEntity: moduleEntity = {
   domain: #payments,
 }
 
-let retriesComparisionChartEntity: chartEntity<
+let retriesComparisonChartEntity: chartEntity<
   LineScatterGraphTypes.lineScatterGraphPayload,
   LineScatterGraphTypes.lineScatterGraphOptions,
   JSON.t,
 > = {
-  getObjects: RetriesComparisionAnalyticsUtils.smartRetriesComparisionMapper,
+  getObjects: RetriesComparisonAnalyticsUtils.smartRetriesComparisonMapper,
   getChatOptions: LineScatterGraphUtils.getLineGraphOptions,
 }
 

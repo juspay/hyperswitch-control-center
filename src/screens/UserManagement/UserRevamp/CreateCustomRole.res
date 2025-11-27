@@ -2,7 +2,7 @@ module RenderCustomRoles = {
   @react.component
   let make = (~heading, ~description, ~groupName) => {
     let groupsInput = ReactFinalForm.useField(`groups`).input
-    let groupsAdded = groupsInput.value->LogicUtils.getStrArryFromJson
+    let groupsAdded = groupsInput.value->LogicUtils.getStrArrayFromJson
     let (checkboxSelected, setCheckboxSelected) = React.useState(_ =>
       groupsAdded->Array.includes(groupName)
     )
@@ -11,7 +11,7 @@ module RenderCustomRoles = {
         let _ = groupsAdded->Array.push(groupName)
         groupsInput.onChange(groupsAdded->Identity.arrayOfGenericTypeToFormReactEvent)
       } else {
-        let arr = groupsInput.value->LogicUtils.getStrArryFromJson
+        let arr = groupsInput.value->LogicUtils.getStrArrayFromJson
 
         let filteredValue = arr->Array.filter(value => {value !== groupName})
         groupsInput.onChange(filteredValue->Identity.arrayOfGenericTypeToFormReactEvent)
@@ -75,7 +75,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
 
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initalValue, setInitialValues) = React.useState(_ => initialValuesForForm)
+  let (initialValue, setInitialValues) = React.useState(_ => initialValuesForForm)
 
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
@@ -117,7 +117,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         ~entityName=V1(USERS),
         ~userType=#GROUP_ACCESS_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
+        ~queryParameters=Some(`groups=true`),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
@@ -155,7 +155,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       <PageLoaderWrapper screenState>
         <Form
           key="invite-user-management"
-          initialValues={initalValue->JSON.Encode.object}
+          initialValues={initialValue->JSON.Encode.object}
           validate={values => validateCustomRoleForm(values, ~isV2=false)}
           onSubmit
           formClass="flex flex-col gap-8">

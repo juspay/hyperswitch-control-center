@@ -18,7 +18,7 @@ module HistoryTable = {
       totalResults={records->Array.length}
       offset
       setOffset
-      currrentFetchCount={records->Array.length}
+      currentFetchCount={records->Array.length}
     />
   }
 }

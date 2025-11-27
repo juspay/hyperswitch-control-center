@@ -99,30 +99,30 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   }
 }
 
-let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderDetais.currency)
+let getFrmCell = (orderDetails: order, frmColType: frmColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderDetails.currency)
   switch frmColType {
-  | PaymentId => Text(orderDetais.payment_id)
-  | PaymentMethodType => Text(orderDetais.payment_method_type)
+  | PaymentId => Text(orderDetails.payment_id)
+  | PaymentMethodType => Text(orderDetails.payment_method_type)
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(orderDetais.amount /. conversionFactor)->Float.toString}
-        currency={orderDetais.currency}
+        amount={(orderDetails.amount /. conversionFactor)->Float.toString}
+        currency={orderDetails.currency}
       />,
       "",
     )
-  | Currency => Text(orderDetais.currency)
-  | PaymentProcessor => Text(orderDetais.connector)
-  | FRMConnector => Text(orderDetais.frm_message.frm_name)
-  | FRMMessage => Text(orderDetais.frm_message.frm_reason)
-  | MerchantDecision => Text(orderDetais.frm_merchant_decision)
+  | Currency => Text(orderDetails.currency)
+  | PaymentProcessor => Text(orderDetails.connector)
+  | FRMConnector => Text(orderDetails.frm_message.frm_name)
+  | FRMMessage => Text(orderDetails.frm_message.frm_reason)
+  | MerchantDecision => Text(orderDetails.frm_merchant_decision)
   }
 }
 
-let getAuthenticationCell = (orderDetais: order, colType: authenticationColType): Table.cell => {
+let getAuthenticationCell = (orderDetails: order, colType: authenticationColType): Table.cell => {
   let authenticationDetails =
-    orderDetais.external_authentication_details
+    orderDetails.external_authentication_details
     ->Option.getOr(JSON.Encode.null)
     ->getDictFromJsonObject
   switch colType {
@@ -583,7 +583,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 
 let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): Table.cell => {
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
-  let splittedName = order.name->Option.getOr("")->String.split(" ")
+  let splitName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
   | ReturnUrl => Text(order.return_url)
@@ -596,8 +596,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | StatementDescriptorName => Text(order.statement_descriptor)
   | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix->Option.getOr(""))
   | PaymentExperience => Text(order.payment_experience)
-  | FirstName => Text(splittedName->Array.get(0)->Option.getOr(""))
-  | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
+  | FirstName => Text(splitName->Array.get(0)->Option.getOr(""))
+  | LastName => Text(splitName->Array.get(splitName->Array.length - 1)->Option.getOr(""))
   | Phone => Text(order.phone->Option.getOr(""))
   | Email => Text(order.email->Option.getOr(""))
   | CustomerId =>

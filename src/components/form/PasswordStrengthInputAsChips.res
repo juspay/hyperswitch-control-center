@@ -11,7 +11,7 @@ type chipType = Number | Lowercase | Uppercase | SpecialChar | MinEightChars
 module PasswordChip = {
   @react.component
   let make = (~passwordChecks: passwordCheck, ~chipType: chipType, ~customTextStyle="") => {
-    let initalClassName = " bg-gray-50 dark:bg-jp-gray-960/75 border-gray-300 inline-block text-xs p-2 border-0.5 dark:border-0 border-gray-300 rounded-2xl"
+    let initialClassName = " bg-gray-50 dark:bg-jp-gray-960/75 border-gray-300 inline-block text-xs p-2 border-0.5 dark:border-0 border-gray-300 rounded-2xl"
     let passedClassName = "flex items-center bg-green-50 dark:bg-green-700/25 border-gray-300 inline-block text-xs p-2 border-0.5 border-green-700 rounded-2xl gap-1"
 
     let (isCheckPassed, checkName) = switch chipType {
@@ -24,7 +24,7 @@ module PasswordChip = {
 
     let textClass = isCheckPassed ? "text-green-700 font-medium" : "font-base dark:text-gray-100"
 
-    <p className={isCheckPassed ? passedClassName : initalClassName}>
+    <p className={isCheckPassed ? passedClassName : initialClassName}>
       <RenderIf condition=isCheckPassed>
         <Icon name="check" size=9 />
       </RenderIf>
@@ -42,7 +42,7 @@ let make = (
   ~customStyle="",
   ~customPaddingClass="",
   ~customTextStyle="",
-  ~specialCharatersInfoText="",
+  ~specialCharactersInfoText="",
   ~customDashboardClass=?,
 ) => {
   let initialPasswordState = {
@@ -133,10 +133,10 @@ let make = (
           : "hidden"} flex flex-row flex-wrap gap-y-3 gap-x-2 mt-3`}>
       {passwordChips
       ->Array.mapWithIndex((chipType, index) => {
-        if specialCharatersInfoText->LogicUtils.isNonEmptyString && chipType === SpecialChar {
+        if specialCharactersInfoText->LogicUtils.isNonEmptyString && chipType === SpecialChar {
           <ToolTip
             tooltipWidthClass="w-fit"
-            description=specialCharatersInfoText
+            description=specialCharactersInfoText
             toolTipFor={<PasswordChip
               key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle
             />}

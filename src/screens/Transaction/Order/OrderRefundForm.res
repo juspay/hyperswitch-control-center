@@ -10,7 +10,7 @@ let make = (
   ~setShowModal,
   ~requestedRefundAmount,
   ~amountRefunded,
-  ~amoutAvailableToRefund,
+  ~amountAvailableToRefund,
   ~refetch,
 ) => {
   let getURL = useGetURL()
@@ -118,10 +118,10 @@ let make = (
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
-      let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amountAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
         let formatted_amount = Float.toFixedWithPrecision(
-          amoutAvailableToRefund,
+          amountAvailableToRefund,
           ~digits=precisionDigits,
         )
         Dict.set(
@@ -277,7 +277,7 @@ let make = (
             customButtonStyle="w-20 !h-10"
           />
           <FormRenderer.SubmitButton
-            text={"Initiate Refund"} customSumbitButtonStyle="w-50 !h-10" showToolTip=false
+            text={"Initiate Refund"} customSubmitButtonStyle="w-50 !h-10" showToolTip=false
           />
         </div>
       </div>

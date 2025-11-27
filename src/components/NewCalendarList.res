@@ -8,7 +8,7 @@ open NewCalendar
 let make = (
   ~forwardRef as _=?,
   ~changeHighlightCellStyle="",
-  ~calendarContaierStyle="",
+  ~calendarContainerStyle="",
   ~month: option<month>=?,
   ~year: option<int>=?,
   ~onDateClick=?,
@@ -141,7 +141,7 @@ let make = (
 
   let dummyRow = Array.make(~length=count, 1)
   <div
-    className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContaierStyle}`}>
+    className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContainerStyle}`}>
     {dummyRow
     ->Array.mapWithIndex((_item, i) => {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))

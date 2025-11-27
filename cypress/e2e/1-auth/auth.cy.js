@@ -432,7 +432,7 @@ describe("Sign in", () => {
       cy.url().should("contain", "okta.com");
     });
 
-    it(`should automatically log in and redirect to the dashboard after logout once initial Okta login is successfull`, () => {
+    it(`should automatically log in and redirect to the dashboard after logout once initial Okta login is sucessful`, () => {
       cy.visit(`/?auth_id=${auth_id}`);
 
       signinPage.continueWithOktaButton.click();
@@ -507,7 +507,7 @@ describe("Sign in", () => {
 );
 
 describe("Forgot password", () => {
-  it("should verify all components in forgot passowrd page", () => {
+  it("should verify all components in forgot password page", () => {
     cy.visit("/");
     signinPage.forgetPasswordLink.click();
     cy.url().should("include", "/dashboard/forget-password");

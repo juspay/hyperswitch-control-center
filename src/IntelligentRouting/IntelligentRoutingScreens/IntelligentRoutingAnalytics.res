@@ -20,7 +20,7 @@ module TransactionsTable = {
         let url = getURL(
           ~entityName=V1(INTELLIGENT_ROUTING_RECORDS),
           ~methodType=Get,
-          ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
+          ~queryParameters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
         )
         let res = await fetchDetails(url)
 
@@ -90,7 +90,7 @@ module TransactionsTable = {
         offset
         setOffset
         entity={IntelligentRoutingTransactionsEntity.transactionDetailsEntity()}
-        currrentFetchCount={data->Array.length}
+        currentFetchCount={data->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"

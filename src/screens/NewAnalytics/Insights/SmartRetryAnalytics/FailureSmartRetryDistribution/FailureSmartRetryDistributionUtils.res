@@ -143,7 +143,7 @@ let tabs = [
   },
 ]
 
-let defaulGroupBy = {
+let defaultGroupBy = {
   label: "Connector",
   value: Connector->getStringFromVariant,
 }

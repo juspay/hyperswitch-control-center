@@ -197,7 +197,7 @@ This is the main React component for your new page.
         let apiUrl = getURL(
           ~entityName=V1(MY_NEW_ENTITY), // Or V2(MY_NEW_ENTITY)
           ~methodType=Get,
-          // ~queryParamerters=Some(`limit=${resultsPerPage->Int.toString}&offset=${offset->Int.toString}`), // For pagination
+          // ~queryParameters=Some(`limit=${resultsPerPage->Int.toString}&offset=${offset->Int.toString}`), // For pagination
         )
         let responseJson = await fetchDetails(apiUrl)
 
@@ -232,7 +232,7 @@ This is the main React component for your new page.
         totalResults={pageData->Array.length} // For client-side pagination or if API gives total
         offset
         setOffset
-        currrentFetchCount={pageData->Array.length}
+        currentFetchCount={pageData->Array.length}
         defaultColumns={MyNewPageEntity.defaultColumns} // From PageEntity.res
         customColumnMapper={TableAtoms.myNewPageMapDefaultCols} // Atom to be created next
         // Other props as needed...

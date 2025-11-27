@@ -356,8 +356,8 @@ module SourceTargetAccount = {
 module RuleSchemaComponents = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let accordianTitleCss = `${body.lg.semibold} text-nd_gray-800`
-    let accordianContainerCss = "border border-nd_gray-150 rounded-lg"
+    let accordionTitleCss = `${body.lg.semibold} text-nd_gray-800`
+    let accordionContainerCss = "border border-nd_gray-150 rounded-lg"
     <div className="flex flex-col gap-6">
       // source target accounts
       <Accordion
@@ -369,10 +369,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss={`${accordionContainerCss}`}
+        accordionBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
+        titleStyle={`${accordionTitleCss}`}
       />
       // Filters Section
       <Accordion
@@ -384,10 +384,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss={`${accordionContainerCss}`}
+        accordionBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
+        titleStyle={`${accordionTitleCss}`}
       />
       // Identifiers Section
       <Accordion
@@ -399,10 +399,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss={`${accordionContainerCss}`}
+        accordionBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
+        titleStyle={`${accordionTitleCss}`}
       />
       // Rules Section
       <Accordion
@@ -414,10 +414,10 @@ module RuleSchemaComponents = {
             renderContentOnTop: None,
           },
         ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
+        accordionTopContainerCss={`${accordionContainerCss}`}
+        accordionBottomContainerCss="p-4"
         contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
+        titleStyle={`${accordionTitleCss}`}
       />
     </div>
   }

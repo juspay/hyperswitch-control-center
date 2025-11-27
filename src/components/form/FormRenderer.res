@@ -572,11 +572,11 @@ module SubmitButton = {
   @react.component
   let make = (
     ~text="Submit",
-    ~disabledParamter=false,
+    ~disabledParameter=false,
     ~icon=Button.NoIcon,
     ~rightIcon=Button.NoIcon,
     ~loginPageValidator=false,
-    ~customSumbitButtonStyle="",
+    ~customSubmitButtonStyle="",
     ~showToolTip=true,
     ~buttonType=Button.Primary,
     ~loadingText="",
@@ -622,7 +622,7 @@ module SubmitButton = {
       }
     }
 
-    let disabled = hasError || disabledParamter
+    let disabled = hasError || disabledParameter
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
@@ -666,7 +666,7 @@ module SubmitButton = {
         }}
         leftIcon=icon
         rightIcon
-        customButtonStyle={customSumbitButtonStyle}
+        customButtonStyle={customSubmitButtonStyle}
         ?buttonSize
         ?customTextSize
         ?customPaddingClass
@@ -695,7 +695,7 @@ module SubmitButton = {
           }} //either onclick or type_should be called #warning
           leftIcon=icon
           rightIcon
-          customButtonStyle={customSumbitButtonStyle}
+          customButtonStyle={customSubmitButtonStyle}
           ?buttonSize
           ?customHeightClass
           ?textStyle

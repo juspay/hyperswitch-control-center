@@ -166,7 +166,7 @@ let defaultMetric = {
   value: Payment_Processed_Amount->getStringFromVariant,
 }
 
-let defaulGranularity = {
+let defaultGranularity = {
   label: "Daily",
   value: (#G_ONEDAY: NewAnalyticsTypes.granularity :> string),
 }

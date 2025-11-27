@@ -7,7 +7,7 @@ let visibilityColFunc = (
   ~tableCell: Table.cell,
 ) => {
   switch tableCell {
-  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for serch
+  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for search
   | Text(x) | EllipsisText(x, _) | CustomCell(_, x) => (x->JSON.Encode.string->Some, jsonVal)
   | Date(x) => (dateFormatConvertor(x), dateFormatConvertor(x))
   | StartEndDate(start, end) => (
@@ -53,10 +53,10 @@ let filteredData = (
         // either to take this row or not if any filter is present then take row or else drop
         let rowDict = row->Identity.genericTypeToDictOfJson
         let anyMatch = selectedFiltersKeys->Array.find(keys => {
-          // Selected fitler
+          // Selected filter
           switch Dict.get(columnFilter, keys) {
           | Some(selectedArr) => {
-              // selected value of the fitler
+              // selected value of the filter
               let jsonVal = Dict.get(
                 rowDict->JSON.Encode.object->JsonFlattenUtils.flattenObject(false),
                 keys,
@@ -281,7 +281,7 @@ module ChooseColumns = {
     ~showColumnSelector,
     ~isModalView=true,
     ~sortingBasedOnDisabled=true,
-    ~orderdColumnBasedOnDefaultCol: bool=false,
+    ~orderedColumnBasedOnDefaultCol: bool=false,
     ~showSerialNumber=true,
     ~mandatoryOptions=[],
     ~isDraggable=false,
@@ -328,7 +328,7 @@ module ChooseColumns = {
         defaultColumns
         isModalView
         sortingBasedOnDisabled
-        orderdColumnBasedOnDefaultCol
+        orderedColumnBasedOnDefaultCol
         showSerialNumber
         isDraggable
         title

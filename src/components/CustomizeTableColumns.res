@@ -8,7 +8,7 @@ let make = (
   ~showModal,
   ~setShowModal,
   ~isModalView=true,
-  ~orderdColumnBasedOnDefaultCol: bool=false,
+  ~orderedColumnBasedOnDefaultCol: bool=false,
   ~sortingBasedOnDisabled=true,
   ~showSerialNumber=true,
   ~isDraggable=false,
@@ -45,7 +45,7 @@ let make = (
   }
 
   let defaultColumnsString = defaultColumns->Array.map(head => getHeading(head).title)
-  let initalHeadingData = heading->Array.map(head => {
+  let initialHeadingData = heading->Array.map(head => {
     let columnName = getHeading(head).title
     let isDisabled = defaultColumnsString->Array.includes(columnName)
     let options: SelectBox.dropdownOption = {
@@ -63,7 +63,7 @@ let make = (
       heading[index]
     }
     let headers = values->Belt.Array.keepMap(getHeadingCol)
-    let headers = orderdColumnBasedOnDefaultCol
+    let headers = orderedColumnBasedOnDefaultCol
       ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
       : headers
 
@@ -79,7 +79,7 @@ let make = (
     onSubmit
     initialValues
     isModalView
-    options=initalHeadingData
+    options=initialHeadingData
     sortingBasedOnDisabled
     showSerialNumber
     isDraggable

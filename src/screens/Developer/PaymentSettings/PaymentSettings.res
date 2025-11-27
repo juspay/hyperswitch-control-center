@@ -268,7 +268,7 @@ module WebHookSection = {
 
     <ReactFinalForm.Form
       key="auth"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       render={({handleSubmit}) => {
@@ -281,7 +281,7 @@ module WebHookSection = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -433,7 +433,7 @@ module PaymentLinkDomain = {
 
     <ReactFinalForm.Form
       key="payment_link_domain"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       validate={values =>
@@ -448,7 +448,7 @@ module PaymentLinkDomain = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -778,7 +778,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               validateMerchantAccountForm(

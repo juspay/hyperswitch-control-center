@@ -57,7 +57,7 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
-    ~comparitionWidget=false,
+    ~comparisonWidget=false,
     ~selectedTab: option<array<string>>=?,
   ) => {
     let {theme} = React.useContext(ThemeProvider.themeContext)
@@ -616,14 +616,14 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComperator)
+                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComparator)
                   positionArr
                 }
 
               | None => NumericUtils.pretty([0., param.dataMax], 5)
               }
 
-              //NOTE have to implment the NumericUtils.pretty perfactly to make it work
+              //NOTE have to implement the NumericUtils.pretty perfactly to make it work
 
               positions
             },
@@ -694,7 +694,7 @@ module LineChart1D = {
               className="flex flex-row items-center gap-2 w-fit self-end cursor-pointer mr-5 mb-2"
               onClick={_ => {setHideLegend(prev => !prev)}}>
               <Icon
-                name={hideLegend ? "collpase-alt" : "expand-alt"}
+                name={hideLegend ? "collapse-alt" : "expand-alt"}
                 size=12
                 className="text-neutral-400"
               />
@@ -716,7 +716,7 @@ module LineChart1D = {
                 setOffset
                 defaultSort
                 showPagination=false
-                currrentFetchCount={legendData->Array.length}
+                currentFetchCount={legendData->Array.length}
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}

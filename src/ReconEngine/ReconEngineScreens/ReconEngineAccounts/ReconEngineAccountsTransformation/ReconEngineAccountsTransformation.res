@@ -50,8 +50,8 @@ let make = () => {
               ),
             }
           })}
-          accordianTopContainerCss="border border-nd_gray-150 rounded-lg"
-          accordianBottomContainerCss="p-4 !bg-nd_gray-25"
+          accordionTopContainerCss="border border-nd_gray-150 rounded-lg"
+          accordionBottomContainerCss="p-4 !bg-nd_gray-25"
           contentExpandCss="p-0"
           titleStyle={`${body.lg.semibold} text-nd_gray-800`}
           gapClass="flex flex-col gap-8"

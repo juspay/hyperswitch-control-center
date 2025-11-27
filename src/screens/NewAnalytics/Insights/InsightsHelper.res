@@ -296,13 +296,13 @@ module OverViewStat = {
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
     let config = getInfo(~responseKey)
-    let displyValue = valueFormatter(primaryValue, config.valueType, ~currency)
+    let displayValue = valueFormatter(primaryValue, config.valueType, ~currency)
 
     <Card>
       <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto relative">
         <div className="flex justify-between w-full items-end">
           <div className="flex gap-1 items-center">
-            <div className="font-bold text-3xl"> {displyValue->React.string} </div>
+            <div className="font-bold text-3xl"> {displayValue->React.string} </div>
             <div className="scale-[0.9]">
               <RenderIf condition={comparison === EnableComparison}>
                 <StatisticsCard

@@ -10,7 +10,7 @@ type fillColorSeries = {
   stops: ((int, string), (int, string)),
 }
 type tooltipPointer = {followPointer: bool}
-type dataLableStyle = {
+type dataLabelStyle = {
   color: option<string>,
   fontSize: option<string>,
 }
@@ -131,14 +131,14 @@ type xAxis = {
   "type": string,
   // "crosshair": option<JSON.t>,
 }
-type plotLinesLablesStyle = {
+type plotLinesLabelsStyle = {
   color: option<string>,
   fontWeight: option<string>,
   background: option<string>,
 }
-type plotLineLable = {align: option<string>, style: option<plotLinesLablesStyle>}
+type plotLineLabel = {align: option<string>, style: option<plotLinesLabelsStyle>}
 type plotLines = {
-  label: option<plotLineLable>,
+  label: option<plotLineLabel>,
   dashStyle: option<string>,
   value: option<float>,
   width: option<int>,
@@ -148,7 +148,7 @@ type chartCssObject = {
   color: string,
   backgroundColor: string,
 }
-// type yTickPostion
+// type yTickPosition
 
 type tickPositionerYaxis = {dataMin: float, dataMax: float}
 type yAxis = {
@@ -191,8 +191,8 @@ type tooltipPoint = {
 type a
 type b
 
-type plotPostion = {plotLeft: int, plotSizeX: int, plotSizeY: int, plotWidth: int, plotTop: int}
-type toltipPositioner = {chart: plotPostion}
+type plotPosition = {plotLeft: int, plotSizeX: int, plotSizeY: int, plotWidth: int, plotTop: int}
+type toltipPositioner = {chart: plotPosition}
 
 type tooltip = {
   "shared": bool,

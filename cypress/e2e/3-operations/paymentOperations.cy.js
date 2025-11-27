@@ -739,7 +739,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]', {
+    cy.get('[data-date-picker-predefined="predefined-options"]', {
       timeout: 10000,
     }) //Expected to find element, but never found it.
       .should("exist")
@@ -770,7 +770,7 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]', {
+      cy.get('[data-date-picker-predefined="predefined-options"]', {
         timeout: 10000,
       }).within(
         //Expected to find element, but never found it.

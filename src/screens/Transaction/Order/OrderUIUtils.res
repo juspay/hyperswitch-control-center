@@ -56,14 +56,14 @@ let isParentChildFilterMatch = (name, key) => {
   | _ => false
   }
 }
-module RenderAccordian = {
+module RenderAccordion = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
     <Accordion
       initialExpandedArray
       accordion
-      accordianTopContainerCss="border"
-      accordianBottomContainerCss="p-5"
+      accordionTopContainerCss="border"
+      accordionBottomContainerCss="p-5"
       contentExpandCss="px-4 py-3 !border-t-0"
       titleStyle="font-semibold text-bold text-md"
     />
@@ -165,7 +165,7 @@ module NoData = {
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
             ? "There are no payments as of now."
@@ -495,11 +495,11 @@ let isNonEmptyValue = value => {
 
 let orderViewList: OMPSwitchTypes.ompViews = [
   {
-    lable: "All Profiles",
+    label: "All Profiles",
     entity: #Merchant,
   },
   {
-    lable: "Profile",
+    label: "Profile",
     entity: #Profile,
   },
 ]

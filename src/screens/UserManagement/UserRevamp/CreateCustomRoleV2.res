@@ -15,7 +15,7 @@ module RenderPermissionModule = {
       switch currentGroup {
       | Some(groupJson) => {
           let groupDict = groupJson->getDictFromJsonObject
-          getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+          getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
         }
       | None => []
       }
@@ -176,7 +176,7 @@ let make = () => {
         ->getArrayFromDict("parent_groups", [])
         ->Array.filter(groupJson => {
           let groupDict = groupJson->getDictFromJsonObject
-          let scopes = getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+          let scopes = getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
           scopes->Array.length > 0
         })
       valuesDict->Dict.set("parent_groups", parentGroups->JSON.Encode.array)
@@ -214,7 +214,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=${entityTypeString}`),
+        ~queryParameters=Some(`entity_type=${entityTypeString}`),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)

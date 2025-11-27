@@ -195,12 +195,12 @@ let lineColumnGraphTooltipFormatter = (
       let line2Point = this.points->getValueFromArray(2, defaultValue)
 
       // Format each row of the tooltip
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="", ~name="") => {
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisonComponent="", ~name="") => {
         let formattedValue = LogicUtils.valueFormatter(value, metricType, ~currency)
         let key = showNameInTooltip ? name : date
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${key}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${key}${comparisonComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${formattedValue}</div>
         </div>`
       }

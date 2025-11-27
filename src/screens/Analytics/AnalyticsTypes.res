@@ -3,7 +3,7 @@ type infoMetrics =
   | ApiName
   | Status_code
 
-let getStringFromVarient = value =>
+let getStringFromVariant = value =>
   switch value {
   | Latency => "latency"
   | ApiName => "api_name"

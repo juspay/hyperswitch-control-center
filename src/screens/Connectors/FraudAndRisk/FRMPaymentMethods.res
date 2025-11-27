@@ -197,8 +197,8 @@ module CheckBoxRenderer = {
                 renderContentOnTop: None,
               },
             ]}
-            accordianTopContainerCss="border"
-            accordianBottomContainerCss="p-5"
+            accordionTopContainerCss="border"
+            accordionBottomContainerCss="p-5"
             contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
             titleStyle="font-semibold text-bold text-md"
           />
@@ -272,12 +272,12 @@ module PaymentMethodsRenderer = {
 }
 
 @react.component
-let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateFlow: bool) => {
+let make = (~setCurrentStep, ~retrievedValues=None, ~setInitialValues, ~isUpdateFlow: bool) => {
   open FRMInfo
   open FRMUtils
   open LogicUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let initialValues = retrivedValues->Option.getOr(Dict.make()->JSON.Encode.object)
+  let initialValues = retrievedValues->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let onSubmit = (values, _) => {
     open Promise

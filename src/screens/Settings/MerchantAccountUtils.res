@@ -5,7 +5,7 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let parseBussinessProfileJson = (
+let parseBusinessProfileJson = (
   profileRecord: BusinessProfileInterfaceTypesV1.profileEntity_v1,
 ) => {
   let {
@@ -212,7 +212,7 @@ let getCustomHeadersPayload = (values: JSON.t) => {
   customHeaderDict
 }
 
-let getMetdataKeyValuePayload = (values: JSON.t) => {
+let getMetadataKeyValuePayload = (values: JSON.t) => {
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let customMetadataVal = Dict.make()

@@ -9,19 +9,19 @@ module PaymentProcessingDetailsAt = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
       ->manual(connector)
 
-    let initalProcessingAt =
-      initalFormValue.session_token_data.payment_processing_details_at
+    let initialProcessingAt =
+      initialFormValue.session_token_data.payment_processing_details_at
       ->Option.getOr((#Connector: paymentProcessingState :> string))
       ->paymentProcessingMapper
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let (processingAt, setProcessingAt) = React.useState(_ => initalProcessingAt)
+    let (processingAt, setProcessingAt) = React.useState(_ => initialProcessingAt)
 
     let onChangeItem = (event: ReactEvent.Form.t) => {
       let value =
@@ -120,18 +120,18 @@ module Initiative = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
       ->manual(connector)
 
-    let initalInitiative =
-      initalFormValue.session_token_data.initiative
+    let initialInitiative =
+      initialFormValue.session_token_data.initiative
       ->Option.getOr((#ios: initiativeState :> string))
       ->initiativeMapper
-    let (initiative, setInitiative) = React.useState(_ => initalInitiative)
+    let (initiative, setInitiative) = React.useState(_ => initialInitiative)
 
     let onChangeItem = (event: ReactEvent.Form.t) => {
       let value = event->Identity.formReactEventToString->initiativeMapper
@@ -216,14 +216,14 @@ let make = (
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let initalFormValue =
+  let initialFormValue =
     formState.values
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
 
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #manual, connector)
+    let value = applePayCombined(initialFormValue, #manual, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 

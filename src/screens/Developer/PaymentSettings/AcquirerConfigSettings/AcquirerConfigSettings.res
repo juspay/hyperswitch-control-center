@@ -246,7 +246,7 @@ module AcquirerConfigContent = {
           offset
           setOffset
           entity=entityWithEditHandler
-          currrentFetchCount=totalResults
+          currentFetchCount=totalResults
           showPagination={totalResults > resultsPerPage}
           tableLocalFilter=false
           showSerialNumber=false
@@ -277,8 +277,8 @@ let make = () => {
   <div className="py-4 md:py-10 gap-10 h-full flex flex-col">
     <Accordion
       accordion=accordionData
-      accordianTopContainerCss="border overflow-visible border-jp-gray-500 rounded-md dark:border-jp-gray-960"
-      accordianBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
+      accordionTopContainerCss="border overflow-visible border-jp-gray-500 rounded-md dark:border-jp-gray-960"
+      accordionBottomContainerCss="px-4 py-3 md:bg-jp-gray-100 dark:bg-jp-gray-lightgray_background"
       contentExpandCss="!bg-jp-gray-100 dark:!bg-jp-gray-lightgray_background p-0 rounded-md"
       arrowFillColor="#6B7280"
       titleStyle="md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white dark:text-opacity-75 rounded-md"

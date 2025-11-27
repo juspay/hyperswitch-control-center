@@ -18,7 +18,7 @@ let make = () => {
   let (allOptions, setAllOptions) = React.useState(_ => [])
   let (selectedFilter, setSelectedFilter) = React.useState(_ => None)
   let (allFilters, setAllFilters) = React.useState(_ => [])
-  let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
+  let (categoriesSuggestionResponse, setCategoriesSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
   let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
@@ -58,7 +58,7 @@ let make = () => {
         paymentsGroupByNames->getFilterBody,
         Post,
       )
-      setCategorieSuggestionResponse(_ => paymentsResponse)
+      setCategoriesSuggestionResponse(_ => paymentsResponse)
 
       setState(_ => Idle)
     } catch {
@@ -239,7 +239,7 @@ let make = () => {
   }
 
   let viewType = getViewType(~state, ~searchResults)
-  let categorySuggestions = {getCategorySuggestions(categorieSuggestionResponse)}
+  let categorySuggestions = {getCategorySuggestions(categoriesSuggestionResponse)}
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />

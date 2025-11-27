@@ -60,7 +60,7 @@ let make = () => {
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             ~sendMixpanelEvent,
           )}
-          currrentFetchCount={filteredConnectorData->Array.length}
+          currentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
           rightTitleElement={requestAProcessorComponent}
           showAutoScroll=true

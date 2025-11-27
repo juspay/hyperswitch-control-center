@@ -617,14 +617,14 @@ let make = (
       if connectorData->Array.length === 0 {
         Some("Need at least 1 Gateway")
       } else {
-        let isDistibuted = connectorData->Array.every(ele => {
+        let isDistributed = connectorData->Array.every(ele => {
           switch ele {
           | PriorityObject(_) => false
           | VolumeObject(_) => true
           }
         })
 
-        if isDistibuted {
+        if isDistributed {
           let distributionPercentageSum =
             connectorData->Array.reduce(0, (sum, value) =>
               sum + value->AdvancedRoutingUtils.getSplitFromConnectorSelectionData
@@ -846,11 +846,11 @@ let make = (
                           buttonType={isActive ? Primary : Secondary}
                           onClick={_ => {
                             setPageState(_ => Create)
-                            let manipualtedJSONValue =
+                            let manipulatedJSONValue =
                               initialValues->DuplicateAndEditUtils.manipulateInitialValuesForDuplicate
 
                             let rulesValue =
-                              manipualtedJSONValue
+                              manipulatedJSONValue
                               ->getDictFromJsonObject
                               ->getObj("algorithm", Dict.make())
                               ->getDictfromDict("data")
@@ -898,7 +898,7 @@ let make = (
                     text="Save Rule"
                     buttonSize=Button.Small
                     buttonType=Button.Secondary
-                    customSumbitButtonStyle="w-1/5 rounded-xl"
+                    customSubmitButtonStyle="w-1/5 rounded-xl"
                     tooltipWidthClass="w-48"
                   />}
                   submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton

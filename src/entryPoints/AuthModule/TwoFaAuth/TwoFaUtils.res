@@ -18,7 +18,7 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
       | "email" => Dict.set(errors, key, "Please enter your Email ID"->JSON.Encode.string)
       | "password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
       | "create_password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
-      | "comfirm_password" =>
+      | "confirm_password" =>
         Dict.set(errors, key, "Please enter your Password Once Again"->JSON.Encode.string)
       | _ =>
         Dict.set(
@@ -49,7 +49,7 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
     CommonAuthUtils.confirmPasswordCheck(
       value,
       key,
-      "comfirm_password",
+      "confirm_password",
       "create_password",
       valuesDict,
       errors,

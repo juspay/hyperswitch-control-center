@@ -77,7 +77,7 @@ let make: (
   ~rightHeading: React.element=?,
   ~onBackClick: unit => unit=?,
   ~headBgClass: string=?,
-  ~revealFrom: Reveal.postion=?,
+  ~revealFrom: Reveal.position=?,
   ~modalHeadingDescriptionElement: React.element=?,
   ~onCloseClickCustomFun: unit => unit=?,
   ~modalFooter: React.element=?,

@@ -21,7 +21,7 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="", ~svgIconU
     @this
     (this: pointFormatter) => {
       try {
-        let titleComponet = `<div style="font-size: 14px; font-weight: bold;">${title}</div>`
+        let titleComponent = `<div style="font-size: 14px; font-weight: bold;">${title}</div>`
 
         let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, series: {name: ""}}
 
@@ -50,7 +50,7 @@ let tooltipFormatter = (~title, ~metricType, ~currency="", ~suffix="", ~svgIconU
           flex-direction:column;
           justify-content: space-between;
           gap: 7px;">
-              ${titleComponet}
+              ${titleComponent}
               <div style="font-size: 12px; color: #999999;">${primartPoint.x}</div>
               <div style="
                 margin-top: 5px;

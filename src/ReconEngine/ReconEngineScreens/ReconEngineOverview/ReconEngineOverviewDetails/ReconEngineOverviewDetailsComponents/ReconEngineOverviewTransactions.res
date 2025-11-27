@@ -44,7 +44,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
       } else {
         `rule_id=${ruleDetails.rule_id}`
       }
-      let transactionsList = await getTransactions(~queryParamerters=Some(queryString))
+      let transactionsList = await getTransactions(~queryParameters=Some(queryString))
       let transactionsListData = transactionsList->Array.map(Nullable.make)
       setConfiguredReports(_ => transactionsListData)
       setFilteredReports(_ => transactionsListData)
@@ -115,7 +115,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
         totalResults={filteredTransactionsData->Array.length}
         offset
         setOffset
-        currrentFetchCount={configuredTransactions->Array.length}
+        currentFetchCount={configuredTransactions->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
         defaultColumns
         showSerialNumberInCustomizeColumns=false

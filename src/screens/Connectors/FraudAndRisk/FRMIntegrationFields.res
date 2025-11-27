@@ -171,7 +171,7 @@ module IntegrationFieldsForm = {
 let make = (
   ~setCurrentStep,
   ~selectedFRMName,
-  ~retrivedValues=None,
+  ~retrievedValues=None,
   ~setInitialValues,
   ~isUpdateFlow,
 ) => {
@@ -194,7 +194,7 @@ let make = (
 
   let initialValues = React.useMemo(() => {
     open LogicUtils
-    switch retrivedValues {
+    switch retrievedValues {
     | Some(json) => {
         let initialValuesObj = json->getDictFromJsonObject
         let frmAccountDetailsObj =
@@ -216,10 +216,10 @@ let make = (
     | None =>
       generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode})
     }
-  }, [retrivedValues])
+  }, [retrievedValues])
 
   let frmID =
-    retrivedValues
+    retrievedValues
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getString("merchant_connector_id", "")

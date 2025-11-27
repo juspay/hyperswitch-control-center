@@ -1,11 +1,11 @@
-type failreResonsColsTypes =
+type failureReasonsColsTypes =
   | Refund_Reason
   | Refund_Reason_Count
   | Total_Refund_Reason_Count
   | Refund_Reason_Count_Ratio
   | Connector
 
-type failreResonsObjectType = {
+type failureReasonsObjectType = {
   connector: string,
   refund_reason: string,
   refund_reason_count: int,

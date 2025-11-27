@@ -67,7 +67,7 @@ let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {
 let make = (
   ~paymentMethodConfig: PaymentMethodConfigTypes.paymentMethodConfiguration,
   ~config: string="",
-  ~setReferesh: unit => promise<unit>,
+  ~setRefresh: unit => promise<unit>,
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
@@ -153,7 +153,7 @@ let make = (
     try {
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(merchant_connector_id))
       let _ = await updateDetails(url, values, Post)
-      let _ = await setReferesh()
+      let _ = await setRefresh()
       setShowPaymentMthdConfigModal(_ => false)
     } catch {
     | _ => setShowPaymentMthdConfigModal(_ => false)

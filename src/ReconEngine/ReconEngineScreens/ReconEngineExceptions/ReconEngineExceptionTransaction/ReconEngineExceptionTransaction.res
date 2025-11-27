@@ -64,7 +64,7 @@ let make = (~ruleId: string) => {
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
-      let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
+      let exceptionList = await getTransactions(~queryParameters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)
@@ -153,7 +153,7 @@ let make = (~ruleId: string) => {
           totalResults={filteredExceptionData->Array.length}
           offset
           setOffset
-          currrentFetchCount={exceptionData->Array.length}
+          currentFetchCount={exceptionData->Array.length}
           customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
           defaultColumns={defaultColumns}
           showSerialNumberInCustomizeColumns=false

@@ -82,7 +82,7 @@ module ShowOrderDetails = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-black text-sm font-medium"
+                overridingHeadingStyles="text-black text-sm font-medium"
                 textColor="!font-normal !text-jp-gray-700"
               />
             </div>
@@ -410,7 +410,7 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
-    let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
+    let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
 
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
@@ -425,7 +425,7 @@ module OrderActions = {
       }
     })
     React.useEffect(_ => {
-      setAmoutAvailableToRefund(_ =>
+      setAmountAvailableToRefund(_ =>
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
@@ -447,7 +447,7 @@ module OrderActions = {
           setShowModal
           requestedRefundAmount
           amountRefunded
-          amoutAvailableToRefund
+          amountAvailableToRefund
           refetch
         />
       </Modal>
@@ -511,7 +511,7 @@ module FraudRiskBannerDetails = {
               value={getFrmCell(order, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-black text-sm font-medium"
+              overridingHeadingStyles="text-black text-sm font-medium"
               textColor="!font-normal !text-jp-gray-700"
             />
           </div>
@@ -557,7 +557,7 @@ module AuthenticationDetails = {
               value={getAuthenticationCell(order, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-black text-sm font-medium"
+              overridingHeadingStyles="text-black text-sm font-medium"
               textColor="!font-normal !text-jp-gray-700"
             />
           </div>
@@ -655,7 +655,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(id),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
     | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
     }
@@ -691,14 +691,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           ~entityName=V1(ORDERS),
           ~methodType=Get,
           ~id=Some(id),
-          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+          ~queryParameters=Some("force_sync=true&expand_attempts=true"),
         )
       | V2 =>
         getURL(
           ~entityName=V2(V2_ORDERS_LIST),
           ~methodType=Get,
           ~id=Some(id),
-          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+          ~queryParameters=Some("force_sync=true&expand_attempts=true"),
         )
       }
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
@@ -762,7 +762,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           condition={version == V1 &&
           featureFlagDetails.auditTrail &&
           userHasAccess(~groupAccess=AnalyticsView) === Access}>
-          <RenderAccordian
+          <RenderAccordion
             initialExpandedArray=[0]
             accordion={[
               {
@@ -787,7 +787,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
-            <RenderAccordian
+            <RenderAccordion
               initialExpandedArray={isDisputeDataVisible ? [0] : []}
               accordion={[
                 {
@@ -801,7 +801,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             />
           </div>
         </RenderIf>
-        <RenderAccordian
+        <RenderAccordion
           accordion={[
             {
               title: "Customer Details",
@@ -888,7 +888,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             },
           ]}
         />
-        <RenderAccordian
+        <RenderAccordion
           accordion={[
             {
               title: "More Payment Details",
@@ -930,7 +930,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "Payment Method Details",
@@ -950,7 +950,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "External Authentication Details",
@@ -965,7 +965,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "Payment Metadata",
@@ -983,7 +983,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <div className="overflow-scroll">
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "FRM Details",

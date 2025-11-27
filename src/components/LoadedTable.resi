@@ -1,5 +1,5 @@
-type sortTyp = ASC | DSC
-type sortOb = {sortKey: string, sortType: sortTyp}
+type sortType = ASC | DSC
+type sortOb = {sortKey: string, sortType: sortType}
 type checkBoxProps = {
   showCheckBox: bool,
   selectedData: array<JSON.t>,
@@ -43,13 +43,13 @@ let make: (
   ~onEntityClick: 'b => unit=?,
   ~onEntityDoubleClick: 'b => unit=?,
   ~onExpandClickData: 'd=?,
-  ~currrentFetchCount: int,
+  ~currentFetchCount: int,
   ~filters: React.element=?,
   ~showFilterBorder: bool=?,
   ~headBottomMargin: string=?,
   ~removeVerticalLines: bool=?,
   ~removeHorizontalLines: bool=?,
-  ~evenVertivalLines: bool=?,
+  ~evenVerticalLines: bool=?,
   ~showPagination: bool=?,
   ~downloadCsv: React.element=?,
   ~ignoreUrlUpdate: bool=?,

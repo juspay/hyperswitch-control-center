@@ -83,7 +83,7 @@ let make = (
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
+        ~queryParameters=None,
         ~id=Some(currentTransformedEntryDetails.transformation_history_id),
       )
       let transformationHistoryRes = await fetchDetails(url)
@@ -218,7 +218,7 @@ let make = (
                 }}
               />
               <FormRenderer.SubmitButton
-                text="Save Changes" buttonType={Primary} customSumbitButtonStyle="!w-fit mt-4"
+                text="Save Changes" buttonType={Primary} customSubmitButtonStyle="!w-fit mt-4"
               />
             </div>
           </div>

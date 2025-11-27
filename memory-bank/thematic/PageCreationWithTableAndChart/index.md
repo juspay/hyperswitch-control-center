@@ -142,7 +142,7 @@ let make = () => {
           totalResults={tableData->Array.length}
           offset
           setOffset
-          currrentFetchCount={tableData->Array.length}
+          currentFetchCount={tableData->Array.length}
           defaultColumns
           customColumnMapper=yourDataMapDefaultCols
         />

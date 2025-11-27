@@ -6,7 +6,7 @@ type filterConfig = {
   filterValues?: JSON.t, // which all filters will be applicable for the single stats (those keys i.e merchant_id, payment_gateway etc.)
   startTime: string, // start time from when data will fetch  (later can be moved to the parent level)
   endTime: string, // end time till when data should be fetched (later can be moved to the parent level)
-  customFilterValue: string, // custome filter key is the key by which stores the value of the applied customfilter in the url
+  customFilterValue: string, // custom filter key is the key by which stores the value of the applied customfilter in the url
   granularity?: (int, string),
 }
 
@@ -22,9 +22,9 @@ type dataFetcherObj<'a> = {
 type singleStatDataWidgetData = {
   title: string, // title of the single stat
   tooltipText: string, // tooltip of the single stat
-  // deltaTooltipComponent: string => React.element, // delta tooltip hover compoment of the single stat
-  statType: AnalyticsTypesUtils.metricsType, // wheather the metric which we are showing is a Rate, Volume, Latency
-  showDelta: bool, // wheather to show the delta or not
+  // deltaTooltipComponent: string => React.element, // delta tooltip hover component of the single stat
+  statType: AnalyticsTypesUtils.metricsType, // whether the metric which we are showing is a Rate, Volume, Latency
+  showDelta: bool, // whether to show the delta or not
 }
 
 type singleStatEntity<'a> = {

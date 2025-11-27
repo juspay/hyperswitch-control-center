@@ -11,13 +11,13 @@ let getDistinctId = distinctIdWrapper(mixpanel, _)
 @send external identifyWrapper: (mixpanel, string) => unit = "identify"
 let identify = identifyWrapper(mixpanel, ...)
 
-let wasInitialied = ref(false)
+let wasInitialized = ref(false)
 
 @module("mixpanel-browser")
 external initOrig: (string, {..}) => unit = "init"
 
 let init = (str, obj) => {
-  wasInitialied := true
+  wasInitialized := true
   initOrig(str, obj)
 }
 
@@ -25,7 +25,7 @@ let init = (str, obj) => {
 external trackOrig: (string, {..}) => unit = "track"
 
 let track = (str, obj) => {
-  if wasInitialied.contents {
+  if wasInitialized.contents {
     trackOrig(str, obj)
   }
 }

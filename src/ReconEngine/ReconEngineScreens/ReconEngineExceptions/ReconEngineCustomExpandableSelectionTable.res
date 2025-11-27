@@ -123,7 +123,7 @@ module TableBody = {
     <tbody>
       {rowInfo
       ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
-        <CollapsableTableRow
+        <CollapsibleTableRow
           key={Int.toString(rowIndex)}
           item
           rowIndex
@@ -343,7 +343,7 @@ let make = (
           resultsPerPage
           setOffset
           setResultsPerPage
-          currrentFetchCount=totalResults
+          currentFetchCount=totalResults
           actualData=[]
           tableDataLoading=false
           showResultsPerPageSelector=true

@@ -453,13 +453,13 @@ let make = (
               (),
             )
           : actualData
-      let currrentFetchCount = localFilteredData->Array.length
+      let currentFetchCount = localFilteredData->Array.length
 
       open DynamicTableUtils
       let totalResults = if actualData->Array.length < summary.totalCount {
         summary.totalCount
       } else {
-        currrentFetchCount
+        currentFetchCount
       }
       let customizeColumn = if (
         activeColumnsAtom->Option.isSome && entity.allColumns->Option.isSome && totalResults > 0
@@ -533,7 +533,7 @@ let make = (
             hideFilterTopPortals
             showSerialNumber
             totalResults
-            currrentFetchCount
+            currentFetchCount
             offset
             resultsPerPage
             setOffset

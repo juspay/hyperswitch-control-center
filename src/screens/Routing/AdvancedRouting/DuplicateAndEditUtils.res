@@ -65,13 +65,13 @@ let getRulesValue = rulesArray => {
       eachRuleDict->getArrayFromDict("statements", [])->getStatementsArray,
     )
 
-    let isDistibuted =
+    let isDistributed =
       rulesDict
       ->getObj("connectorSelection", Dict.make())
       ->getString("type", "priority")
       ->getIsDistributed
 
-    rulesDict->Dict.set("isDistribute", isDistibuted->JSON.Encode.bool)
+    rulesDict->Dict.set("isDistribute", isDistributed->JSON.Encode.bool)
 
     rulesDict->JSON.Encode.object
   })
