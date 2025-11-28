@@ -1,20 +1,27 @@
 let extractThemeData = themeObj => {
-  let themeDataDict = themeObj->LogicUtils.getDictFromJsonObject
-  let themeData =
-    themeDataDict->LogicUtils.getJsonObjectFromDict("theme_data")->LogicUtils.getDictFromJsonObject
-  let settings =
-    themeData->LogicUtils.getJsonObjectFromDict("settings")->LogicUtils.getDictFromJsonObject
-  let colors =
-    settings->LogicUtils.getJsonObjectFromDict("colors")->LogicUtils.getDictFromJsonObject
-  let sidebarColors =
-    settings->LogicUtils.getJsonObjectFromDict("sidebar")->LogicUtils.getDictFromJsonObject
+  open LogicUtils
+  let themeDataDict = themeObj->getDictFromJsonObject
+  let themeData = themeDataDict->getJsonObjectFromDict("theme_data")->getDictFromJsonObject
+  let settings = themeData->getJsonObjectFromDict("settings")->getDictFromJsonObject
+  let colors = settings->getJsonObjectFromDict("colors")->getDictFromJsonObject
+  let sidebarColors = settings->getJsonObjectFromDict("sidebar")->getDictFromJsonObject
   {
-    "themeName": themeDataDict->LogicUtils.getString("theme_name", ""),
-    "entityType": themeDataDict->LogicUtils.getString("entity_type", ""),
-    "orgId": themeDataDict->LogicUtils.getString("org_id", "All"),
-    "merchantId": themeDataDict->LogicUtils.getString("merchant_id", "All"),
-    "profileId": themeDataDict->LogicUtils.getString("profile_id", "All"),
-    "primaryColor": colors->LogicUtils.getString("primary", "#000"),
-    "sidebarColor": sidebarColors->LogicUtils.getString("primary", "#fff"),
+    "themeName": themeDataDict->getString("theme_name", ""),
+    "entityType": themeDataDict->getString("entity_type", ""),
+    "orgId": themeDataDict->getString("org_id", "All"),
+    "merchantId": themeDataDict->getString("merchant_id", "All"),
+    "profileId": themeDataDict->getString("profile_id", "All"),
+    "primaryColor": colors->getString("primary", "#000"),
+    "sidebarColor": sidebarColors->getString("primary", "#fff"),
   }
+}
+
+// Helper function to render entity rows
+let renderEntityRow = (label, value, entityType, getNameForId) => {
+  <React.Fragment key={label}>
+    <div className="text-nd_gray-500"> {label->React.string} </div>
+    <div>
+      {value != "All" ? getNameForId(entityType)->React.string : `All ${label}s`->React.string}
+    </div>
+  </React.Fragment>
 }

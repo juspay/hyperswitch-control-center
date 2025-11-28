@@ -1,4 +1,6 @@
 open ThemeHelper
+open LogicUtils
+
 type themeObj = {
   theme_id: string,
   theme_name: string,
@@ -34,7 +36,6 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => themeObj = dict => {
-  open LogicUtils
   {
     theme_id: dict->getString("theme_id", ""),
     theme_name: dict->getString("theme_name", ""),
@@ -48,9 +49,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => themeObj = dict => {
 }
 
 let getObjects: JSON.t => array<themeObj> = json => {
-  open LogicUtils
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => tableItemToObjMapper(item->getDictFromJsonObject))
 }
 
@@ -101,12 +101,12 @@ let getCell = (themeObj, colType): Table.cell => {
     | None => Text("All")
     }
   | ThemeColours =>
-    let themeDataDict = themeObj.theme_data->LogicUtils.getDictFromJsonObject
-    let settings = themeDataDict->LogicUtils.getObj("settings", Dict.make())
-    let colors = settings->LogicUtils.getObj("colors", Dict.make())
-    let sidebar = settings->LogicUtils.getObj("sidebar", Dict.make())
-    let primary = colors->LogicUtils.getString("primary", "#006DF9")
-    let sidebar = sidebar->LogicUtils.getString("primary", "#FCFCFD")
+    let themeDataDict = themeObj.theme_data->getDictFromJsonObject
+    let settings = themeDataDict->getObj("settings", Dict.make())
+    let colors = settings->getObj("colors", Dict.make())
+    let sidebar = settings->getObj("sidebar", Dict.make())
+    let primary = colors->getString("primary", "#006DF9")
+    let sidebar = sidebar->getString("primary", "#FCFCFD")
 
     Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
@@ -114,10 +114,9 @@ let getCell = (themeObj, colType): Table.cell => {
 
 let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
   ~uri="theme-list",
-  ~getObjects=json => json->LogicUtils.getArrayFromJson([]),
+  ~getObjects=json => json->getArrayFromJson([]),
   ~defaultColumns=visibleColumns,
   ~allColumns=visibleColumns,
   ~getHeading,
-  ~getCell=(json, colType) =>
-    getCell(tableItemToObjMapper(json->LogicUtils.getDictFromJsonObject), colType),
+  ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
 )
