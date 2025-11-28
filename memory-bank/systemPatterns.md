@@ -52,7 +52,7 @@ type getUrlTypes = (
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
   ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
+  ~queryParameters: option<string>=?,
 ) => string
 ```
 

@@ -152,7 +152,7 @@ let make = (~reconRulesList: array<reconRuleType>) => {
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
       let allTransactions = await getTransactions(
-        ~queryParamerters=Some(
+        ~queryParameters=Some(
           `${queryString}&transaction_status=posted,mismatched,expected,partially_reconciled`,
         ),
       )

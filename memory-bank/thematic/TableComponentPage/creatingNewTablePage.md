@@ -197,7 +197,7 @@ This is the main React component for your new page.
         let apiUrl = getURL(
           ~entityName=V1(MY_NEW_ENTITY), // Or V2(MY_NEW_ENTITY)
           ~methodType=Get,
-          // ~queryParamerters=Some(`limit=${resultsPerPage->Int.toString}&offset=${offset->Int.toString}`), // For pagination
+          // ~queryParameters=Some(`limit=${resultsPerPage->Int.toString}&offset=${offset->Int.toString}`), // For pagination
         )
         let responseJson = await fetchDetails(apiUrl)
 

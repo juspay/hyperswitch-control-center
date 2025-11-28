@@ -69,6 +69,7 @@ type featureFlag = {
   paymentLinkThemeConfigurator: bool,
   devSidebarV2: bool,
   vaultProcessor: bool,
+  devTheme: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -140,6 +141,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paymentLinkThemeConfigurator: dict->getBool("payment_link_theme_configurator", false),
     devSidebarV2: dict->getBool("dev_sidebar_v2", false),
     vaultProcessor: dict->getBool("vault_processor", false),
+    devTheme: dict->getBool("dev_theme", false),
   }
 }
 
