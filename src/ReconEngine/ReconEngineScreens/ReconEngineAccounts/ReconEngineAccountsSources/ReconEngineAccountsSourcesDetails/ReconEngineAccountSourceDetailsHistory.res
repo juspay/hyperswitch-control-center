@@ -92,7 +92,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
         ReconEngineFilterUtils.buildQueryStringFromFilters(
           ~filterValueJson=enhancedFilterValueJson,
         )->String.concat(`&ingestion_id=${config.ingestion_id}`)
-      let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
+      let ingestionHistoryList = await getIngestionHistory(~queryParameters=Some(queryString))
       let ingestionHistoryData = ingestionHistoryList->Array.map(Nullable.make)
       setIngestionHistoryData(_ => ingestionHistoryData)
       setFilteredHistoryData(_ => ingestionHistoryData)

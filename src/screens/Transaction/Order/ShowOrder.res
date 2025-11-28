@@ -655,7 +655,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(id),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
     | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
     }
@@ -691,14 +691,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           ~entityName=V1(ORDERS),
           ~methodType=Get,
           ~id=Some(id),
-          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+          ~queryParameters=Some("force_sync=true&expand_attempts=true"),
         )
       | V2 =>
         getURL(
           ~entityName=V2(V2_ORDERS_LIST),
           ~methodType=Get,
           ~id=Some(id),
-          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+          ~queryParameters=Some("force_sync=true&expand_attempts=true"),
         )
       }
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
