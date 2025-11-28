@@ -13,7 +13,7 @@ let getV2Url = (
   ~queryParamerters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
-  let peymantsBaseURL = "v2/payments"
+  let paymentsBaseURL = "v2/payments"
 
   switch entityName {
   | CUSTOMERS =>
@@ -53,13 +53,30 @@ let getV2Url = (
       switch id {
       | Some(key_id) =>
         switch queryParamerters {
-        | Some(queryParams) => `${peymantsBaseURL}/${key_id}?${queryParams}`
-        | None => `${peymantsBaseURL}/${key_id}/get-intent`
+        | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
+        | None => `${paymentsBaseURL}/${key_id}/get-intent`
         }
       | None =>
         switch queryParamerters {
-        | Some(queryParams) => `${peymantsBaseURL}/list?${queryParams}`
-        | None => `${peymantsBaseURL}/list?limit=100`
+        | Some(queryParams) => `${paymentsBaseURL}/list?${queryParams}`
+        | None => `${paymentsBaseURL}/list?limit=100`
+        }
+      }
+    | _ => ""
+    }
+  | V2_RECOVERY_INVOICES_LIST =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(key_id) =>
+        switch queryParamerters {
+        | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
+        | None => `${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`
+        }
+      | None =>
+        switch queryParamerters {
+        | Some(queryParams) => `${paymentsBaseURL}/recovery-list?${queryParams}`
+        | None => `${paymentsBaseURL}/recovery-list?limit=100`
         }
       }
     | _ => ""
@@ -68,7 +85,7 @@ let getV2Url = (
     switch methodType {
     | Get =>
       switch id {
-      | Some(key_id) => `${peymantsBaseURL}/${key_id}/list_attempts`
+      | Some(key_id) => `${paymentsBaseURL}/${key_id}/list_attempts`
       | None => ""
       }
     | _ => ""
@@ -1372,6 +1389,56 @@ let useGetURL = () => {
           switch queryParamerters {
           | Some(params) => `${userUrl}/role/list/update?${params}`
           | None => ""
+          }
+        | #THEME =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | Post => `${userUrl}/theme`
+          | Put =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | Delete =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
+
+        | #THEME_LIST =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(params) => `${userUrl}/theme/list?${params}`
+            | None => `${userUrl}/theme/list`
+            }
+          | _ => ""
+          }
+
+        | #THEME_BY_LINEAGE =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(params) => `${userUrl}/theme?${params}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
+
+        | #THEME_UPLOAD_ASSET =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
           }
 
         | #NONE => ""
