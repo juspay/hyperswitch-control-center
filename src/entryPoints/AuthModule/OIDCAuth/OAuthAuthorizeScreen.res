@@ -15,7 +15,7 @@ let make = () => {
       setScreenState(_ => Error(errorMsg))
     } else {
       let apiUrl = getURL(~entityName=V1(OIDC_AUTHORIZE), ~methodType=Get)
-      Window.Location.replace(`${apiUrl}${queryString}`)
+      Window.Location.replace(`${apiUrl}?${queryString}`)
     }
   }
 
