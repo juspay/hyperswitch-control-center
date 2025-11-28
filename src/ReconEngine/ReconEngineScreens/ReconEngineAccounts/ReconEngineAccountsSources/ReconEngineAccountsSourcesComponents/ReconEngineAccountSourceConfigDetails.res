@@ -16,7 +16,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~tabIndex: string) =>
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionHistoryList = await getIngestionHistory(
-        ~queryParamerters=Some(`ingestion_id=${config.ingestion_id}`),
+        ~queryParameters=Some(`ingestion_id=${config.ingestion_id}`),
       )
       setIngestionHistoryList(_ => ingestionHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)

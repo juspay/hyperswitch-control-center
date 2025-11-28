@@ -210,5 +210,5 @@ type getUrlTypes = (
   ~reconType: reconType=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
+  ~queryParameters: option<string>=?,
 ) => string

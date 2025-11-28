@@ -120,7 +120,7 @@ module ResetPassword = {
           ~entityName=V1(USERS),
           ~userType=#FORGOT_PASSWORD,
           ~methodType=Post,
-          ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`),
+          ~queryParameters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`),
         )
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)

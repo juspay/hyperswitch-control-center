@@ -25,7 +25,7 @@ let make = (~id) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transformedEntriesList = await getProcessingEntries(
-        ~queryParamerters=Some(`staging_entry_id=${id}`),
+        ~queryParameters=Some(`staging_entry_id=${id}`),
       )
       transformedEntriesList->Array.sort(sortByVersion)
       let currentTransformedEntry =
