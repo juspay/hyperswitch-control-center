@@ -87,10 +87,6 @@ type entityName =
   | THREE_DS_EXEMPTION_RULES
   | HYPERSWITCH_RECON
   | CHAT_BOT
-  | THEME
-  | THEME_LIST
-  | THEME_BY_LINEAGE
-  | THEME_UPLOAD_ASSET
 
 type v2entityNameType =
   | CUSTOMERS

@@ -1164,62 +1164,6 @@ let useGetURL = () => {
           }
         | #NONE => ""
         }
-      /* Themes */
-      | THEME => {
-          let userUrl = "user"
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
-            }
-          | Post => `${userUrl}/theme`
-          | Put =>
-            switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
-            }
-          | Delete =>
-            switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
-            }
-          | _ => ""
-          }
-        }
-      | THEME_LIST => {
-          let userUrl = "user"
-          switch methodType {
-          | Get =>
-            switch queryParamerters {
-            | Some(params) => `${userUrl}/theme/list?${params}`
-            | None => `${userUrl}/theme/list`
-            }
-          | _ => ""
-          }
-        }
-      | THEME_BY_LINEAGE => {
-          let userUrl = "user"
-          switch methodType {
-          | Get =>
-            switch queryParamerters {
-            | Some(params) => `${userUrl}/theme?${params}`
-            | None => `${userUrl}/theme`
-            }
-          | _ => ""
-          }
-        }
-      | THEME_UPLOAD_ASSET => {
-          let userUrl = "user"
-          switch methodType {
-          | Post =>
-            switch id {
-            | Some(themeId) => `${userUrl}/theme/${themeId}`
-            | None => `${userUrl}/theme`
-            }
-          | _ => ""
-          }
-        }
 
       /* INTELLIGENT ROUTING */
       | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`

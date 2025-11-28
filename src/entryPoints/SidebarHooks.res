@@ -204,23 +204,21 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         component: <ProductHeaderComponent />,
       }),
     ])
-  } else if featureFlagDetails.devModularityV2 {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      CustomComponent({
-        component: <ProductHeaderComponent />,
-      }),
-    ])
   }
-  if featureFlagDetails.devTheme {
-    defaultSidebar->Array.pushMany([ThemeSidebarValues.theme])
-  }
+  // } else if featureFlagDetails.devModularityV2 {
+  //   defaultSidebar->Array.pushMany([
+  //     Link({
+  //       name: "Home",
+  //       icon: "nd-home",
+  //       link: "/v2/home",
+  //       access: Access,
+  //       selectedIcon: "nd-fill-home",
+  //     }),
+  //     CustomComponent({
+  //       component: <ProductHeaderComponent />,
+  //     }),
+  //   ])
+  // }
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars
