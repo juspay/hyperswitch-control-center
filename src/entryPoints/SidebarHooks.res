@@ -190,6 +190,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
+
   if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
     defaultSidebar->Array.pushMany([
       Link({
@@ -204,21 +205,20 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         component: <ProductHeaderComponent />,
       }),
     ])
+  } else if featureFlagDetails.devModularityV2 {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
   }
-  // } else if featureFlagDetails.devModularityV2 {
-  //   defaultSidebar->Array.pushMany([
-  //     Link({
-  //       name: "Home",
-  //       icon: "nd-home",
-  //       link: "/v2/home",
-  //       access: Access,
-  //       selectedIcon: "nd-fill-home",
-  //     }),
-  //     CustomComponent({
-  //       component: <ProductHeaderComponent />,
-  //     }),
-  //   ])
-  // }
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars
