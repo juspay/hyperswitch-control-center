@@ -55,6 +55,11 @@ type paymentLinkConfig = {
   ...styleConfig,
 }
 
+type externalVaultConnectorDetails = {
+  vault_connector_id: string,
+  vault_token_selector: option<array<JSON.t>>,
+}
+
 type commonProfileEntity = {
   profile_id: string,
   merchant_id: string,
@@ -87,4 +92,6 @@ type commonProfileEntity = {
   billing_processor_id: option<string>,
   payment_link_config: option<paymentLinkConfig>,
   split_txns_enabled: option<string>,
+  is_external_vault_enabled: option<string>,
+  external_vault_connector_details: option<externalVaultConnectorDetails>,
 }

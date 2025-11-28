@@ -702,6 +702,131 @@ module MerchantCategoryCode = {
   }
 }
 
+module Vault = {
+  @react.component
+  let make = () => {
+    open Typography
+    open HSwitchUtils
+    open FormRenderer
+    open LogicUtils
+    open PaymentSettingsUtils
+    open PaymentSettingsV2Utils
+
+    let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=VaultProcessor,
+    )
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let isBusinessProfileHasVault =
+      vaultConnectorsList->Array.some(item => item.profile_id == profileId)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let isExternalVaultEnabled =
+      formState.values
+      ->getDictFromJsonObject
+      ->getString("is_external_vault_enabled", "")
+      ->vaultStatusFromString
+      ->Option.mapOr(false, isVaultEnabled)
+
+    <div className="border-b border-gray-200 pb-8">
+      <RenderIf condition={isBusinessProfileHasVault}>
+        <DesktopRow itemWrapperClass="mx-1">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+            field={makeFieldInfo(
+              ~name="is_external_vault_enabled",
+              ~label="Enable External Vault",
+              ~customInput=(~input, ~placeholder as _) => {
+                let currentValue = switch input.value->JSON.Classify.classify {
+                | String(str) =>
+                  str
+                  ->vaultStatusFromString
+                  ->Option.mapOr(false, isVaultEnabled)
+                | _ => false
+                }
+                let handleChange = newValue => {
+                  let valueToSet = newValue->vaultStatusStringFromBool
+                  input.onChange(valueToSet->Identity.anyTypeToReactEvent)
+
+                  if !newValue {
+                    form.change("external_vault_connector_details", JSON.Encode.null)
+                  }
+                }
+                <BoolInput.BaseComponent
+                  isSelected={currentValue}
+                  setIsSelected={handleChange}
+                  isDisabled=false
+                  boolCustomClass="rounded-lg"
+                />
+              },
+            )}
+          />
+        </DesktopRow>
+        <RenderIf condition={isExternalVaultEnabled}>
+          <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 !mx-0" itemWrapperClass="mx-1">
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Connectors",
+                ~name="external_vault_connector_details.vault_connector_id",
+                ~customInput=InputFields.selectInput(
+                  ~options=vaultConnectorsList->vaultConnectorDropdownOptions,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                  ~dropdownCustomWidth="!w-full",
+                ),
+                ~isRequired=true,
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Token ",
+                ~name="external_vault_connector_details.vault_token_selector",
+                ~customInput=InputFields.multiSelectInput(
+                  ~showSelectionAsChips=false,
+                  ~options=vaultTokenSelectorDropdownOptions,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                ),
+                ~parse=(~value, ~name as _) => {
+                  let parsedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item => {
+                      [("token_type", item)]->getJsonFromArrayOfJson
+                    })
+
+                  parsedValue->JSON.Encode.array
+                },
+                ~format=(~value, ~name as _) => {
+                  let formattedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item =>
+                      item->getDictFromJsonObject->getString("token_type", "")->JSON.Encode.string
+                    )
+                  formattedValue->JSON.Encode.array
+                },
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+          </DesktopRow>
+        </RenderIf>
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false) => {
   open DeveloperUtils
@@ -731,7 +856,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
       [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
-    defaultFieldsToValidate->Array.push(MaxAutoRetries)
+    defaultFieldsToValidate->Array.pushMany([MaxAutoRetries, VaultProcessorDetails])
     defaultFieldsToValidate
   }
 
@@ -941,6 +1066,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
                       ~description="Allows you to manually re-attempt a failed payment using its original payment ID. You can retry with the same payment method details or provide a different payment method for the new attempt.",
                     )}
                   />
+                </DesktopRow>
+                <DesktopRow>
+                  <Vault />
                 </DesktopRow>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
                   <MerchantCategoryCode />

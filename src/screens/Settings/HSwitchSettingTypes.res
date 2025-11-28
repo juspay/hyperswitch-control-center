@@ -103,6 +103,7 @@ type validationFields =
   | AuthenticationConnectors(array<JSON.t>)
   | ThreeDsRequestorUrl
   | ThreeDsRequestorAppUrl
+  | VaultProcessorDetails
   | UnknownValidateFields(string)
   | MaxAutoRetries
 

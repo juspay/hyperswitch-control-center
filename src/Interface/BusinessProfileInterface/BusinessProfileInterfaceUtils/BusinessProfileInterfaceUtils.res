@@ -143,12 +143,21 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
   }
 }
 
+let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
+  vault_connector_id: externalVaultConnectorDetailsDict->getString("vault_connector_id", ""),
+  vault_token_selector: externalVaultConnectorDetailsDict->getOptionalArrayFromDict(
+    "vault_token_selector",
+  ),
+}
+
 let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
   let jsonDict = input->getDictFromJsonObject
   let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let outgoingWebhookdict = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
+  let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
+
   {
     profile_id: jsonDict->getString("profile_id", ""),
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -201,5 +210,9 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
       ? None
       : Some(paymentLinkConfig->paymentLinkConfigMapper),
     split_txns_enabled: jsonDict->getOptionString("split_txns_enabled"),
+    is_external_vault_enabled: jsonDict->getOptionString("is_external_vault_enabled"),
+    external_vault_connector_details: externalVaultConnectorDetails->isEmptyDict
+      ? None
+      : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
   }
 }
