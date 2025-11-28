@@ -325,6 +325,5 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     attempt_count: order.attempt_count,
     connector_label: order.connector_label,
     split_payments: order.split_payments,
-    is_split_payment: false,
   }
 }

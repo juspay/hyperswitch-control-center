@@ -776,7 +776,12 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     }
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   | AttemptCount => Text(order.attempt_count->Int.toString)
-  | PaymentType => Text(order.is_split_payment ? "Split" : "Standard")
+  | PaymentType =>
+    switch order.is_split_payment {
+    | Some(true) => Text("Split")
+    | Some(false) => Text("Standard")
+    | None => Text("N/A")
+    }
   }
 }
 
