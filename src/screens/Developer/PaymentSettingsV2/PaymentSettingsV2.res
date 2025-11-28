@@ -28,6 +28,7 @@ module InfoViewForWebhooks = {
 @react.component
 let make = () => {
   open Typography
+  open HyperswitchAtom
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -38,6 +39,7 @@ let make = () => {
   let {userInfo: {profileId, merchantId, version}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
 
@@ -52,11 +54,12 @@ let make = () => {
     renderContent: () => <PaymentSettingsThreeDs />,
   }
 
+  let vaultTab: Tabs.tab = {
+    title: "Vault",
+    renderContent: () => <PaymentSettingsVault />,
+  }
+
   let additionalTabs: array<Tabs.tab> = [
-    {
-      title: "Vault",
-      renderContent: () => <PaymentSettingsVault />,
-    },
     {
       title: "Custom Headers",
       renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
@@ -67,10 +70,16 @@ let make = () => {
     },
   ]
 
-  let tabs = if version == V2 && !isBusinessProfileHasThreeds {
-    Array.concat([paymentBehaviourTab], additionalTabs)
+  let finalAdditionalTabs: array<Tabs.tab> = if featureFlagDetails.vaultProcessor {
+    Array.concat([vaultTab], additionalTabs)
   } else {
-    Array.concat(Array.concat([paymentBehaviourTab], [threeDsTab]), additionalTabs)
+    additionalTabs
+  }
+
+  let tabs = if version == V2 && !isBusinessProfileHasThreeds {
+    Array.concat([paymentBehaviourTab], finalAdditionalTabs)
+  } else {
+    Array.concat(Array.concat([paymentBehaviourTab], [threeDsTab]), finalAdditionalTabs)
   }
 
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")

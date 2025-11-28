@@ -101,7 +101,6 @@ let make = () => {
         )
       }}>
       <VaultFields />
-      <FormValuesSpy />
       <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
         <div className="flex justify-end w-full gap-2">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />

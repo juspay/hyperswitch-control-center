@@ -1034,9 +1034,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <DesktopRow>
+                <RenderIf condition={featureFlagDetails.vaultProcessor}>
                   <Vault />
-                </DesktopRow>
+                </RenderIf>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
                   <MerchantCategoryCode />
                 </RenderIf>
