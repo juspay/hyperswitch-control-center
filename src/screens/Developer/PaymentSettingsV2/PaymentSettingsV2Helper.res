@@ -13,6 +13,23 @@ let webhookUrl = FormRenderer.makeFieldInfo(
   ~isRequired=false,
   ~description="To activate this feature, your webhook URL needs manual whitelisting. Reach out to our team for assistance",
 )
+let domainName = isDisabled =>
+  FormRenderer.makeFieldInfo(
+    ~label="Domain Name",
+    ~name="payment_link_config.domain_name",
+    ~placeholder="Enter Domain Name",
+    ~customInput=InputFields.textInput(~autoComplete="off", ~isDisabled, ~customStyle="rounded-xl"),
+    ~description="This domain name will be used to generate payment links.",
+  )
+
+let allowedDomains = isDisabled =>
+  FormRenderer.makeFieldInfo(
+    ~label="Allowed Domain",
+    ~name="payment_link_config.allowed_domains",
+    ~placeholder="Enter Allowed Domain",
+    ~customInput=InputFields.textInput(~autoComplete="off", ~isDisabled, ~customStyle="rounded-xl"),
+    ~description="The allowed domains will be able to embed payment links.",
+  )
 let returnUrl = FormRenderer.makeFieldInfo(
   ~label="Return URL",
   ~name="return_url",
