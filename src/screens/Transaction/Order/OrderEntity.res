@@ -333,7 +333,7 @@ let allColumnsV1 = [
   CardNetwork,
 ]
 
-//Columns array for V1 Orders page
+//Columns array for V2 Orders page
 let allColumnsV2 = [
   Amount,
   AmountCapturable,
