@@ -795,7 +795,7 @@ module Vault = {
 }
 
 @react.component
-let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
+let make = (~webhookOnly=false, ~showFormOnly=false) => {
   open DeveloperUtils
   open APIUtils
   open HSwitchUtils
@@ -812,7 +812,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
-
+  let profileId = businessProfileDetails.profile_id
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
