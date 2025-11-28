@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open WebhooksUtils
   open LogicUtils
+  open WebhooksTypes
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -17,7 +18,7 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => "object_id")
+  let (searchType, setSearchType) = React.useState(_ => ObjectId)
   let (searchTrigger, setSearchTrigger) = React.useState(_ => 0)
   let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 
@@ -31,6 +32,20 @@ let make = () => {
 
   let refreshPage = () => {
     reset()
+  }
+
+  let convertToSearchType = (value: string): searchType => {
+    switch value {
+    | "object_id" => ObjectId
+    | "event_id" => EventId
+    | _ => ObjectId
+    }
+  }
+
+  let searchTypeToString = (search_type: searchType): string =>
+    switch search_type {
+    | ObjectId => "object_id"
+    | EventId => "event_id"
   }
 
   let customUI =
@@ -84,7 +99,7 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->Dict.set(searchType, searchText->JSON.Encode.string)
+        payload->Dict.set(searchTypeToString(searchType), searchText->JSON.Encode.string)
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -166,14 +181,17 @@ let make = () => {
           {label: "Object ID", value: "object_id"},
           {label: "Event ID", value: "event_id"},
         ]
-        selectedType=searchType
-        onTypeChange={value => setSearchType(_ => value)}
-        onEnterPress={() => setSearchTrigger(prev => prev + 1)}
+        selectedType={switch searchType {
+        | ObjectId => "object_id"
+        | EventId => "event_id"
+        }}
+        onTypeChange={value => setSearchType(_ => convertToSearchType(value))}
+        onSubmitSearchDropdown={() => setSearchTrigger(prev => prev + 1)}
         widthClass="w-max"
         showSearchIcon=true
       />}
     />
-  }, [searchText, searchType])
+  }, [searchText, searchType->searchTypeToString])
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />

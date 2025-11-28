@@ -52,3 +52,7 @@ type attemptTable = {
   eventId: string,
   created: string,
 }
+
+type searchType =
+  | EventId
+  | ObjectId

@@ -26,7 +26,7 @@ let make = (
   ~typeSelectorOptions=?,
   ~selectedType=?,
   ~onTypeChange=?,
-  ~onEnterPress=?,
+  ~onSubmitSearchDropdown=?,
 ) => {
   let (prevVal, setPrevVal) = React.useState(_ => "")
   let showPopUp = PopUpState.useShowPopUp()
@@ -58,6 +58,10 @@ let make = (
     onChange("")
   }
 
+  let handleToggleDropdown = _ => {
+    setShowDropdown(prev => !prev)
+  }
+
   let currentLabel = React.useMemo(() => {
     switch (typeSelectorOptions, selectedType) {
     | (Some(options), Some(currentType)) =>
@@ -83,7 +87,7 @@ let make = (
   let handleKeyDown = e => {
     let keyPressed = e->ReactEvent.Keyboard.key
     if keyPressed == "Enter" {
-      onEnterPress->Option.forEach(callback => callback())
+      onSubmitSearchDropdown->Option.forEach(callback => callback())
     }
     onKeyDown(e)
   }
@@ -99,11 +103,13 @@ let make = (
   let exitCross = useLottieJson(exitSearchCross)
   let enterCross = useLottieJson(enterSearchCross)
 
+  let borderColorClass = showDropdown
+    ? "border-nd_primary_blue-500 dark:border-nd_primary_blue-500"
+    : "border-nd_br_gray-200 border-opacity-75 hover:border-opacity-100 focus-within:!border-nd_primary_blue-500 focus-within:!border-opacity-100 dark:border-jp-gray-850"
+
   let containerClass = React.useMemo(() => {
     if showTypeSelector {
-      `${widthClass} relative flex items-center border rounded-lg transition-all duration-200 bg-nd_gray-0 hover:bg-nd_gray-50 dark:bg-jp-gray-lightgray_background ${showDropdown
-          ? "border-nd_primary_blue-500 dark:border-nd_primary_blue-500"
-          : "border-nd_br_gray-200 border-opacity-75 hover:border-opacity-100 focus-within:!border-nd_primary_blue-500 focus-within:!border-opacity-100 dark:border-jp-gray-850"}`
+      `${widthClass} relative flex items-center border rounded-lg transition-all duration-200 bg-nd_gray-0 hover:bg-nd_gray-50 dark:bg-jp-gray-lightgray_background ${borderColorClass}`
     } else {
       `${widthClass} ${borderClass} ${heightClass} flex flex-row items-center justify-between
       dark:bg-jp-gray-lightgray_background
@@ -115,11 +121,7 @@ let make = (
   <div className=containerClass>
     <RenderIf condition={showSearchIcon}>
       <div className={showTypeSelector ? "flex items-center pl-4" : ""}>
-        <Icon
-          name={showTypeSelector ? "search" : "nd-search"}
-          size={showTypeSelector ? 14 : 16}
-          className={showTypeSelector ? "text-gray-400 dark:text-gray-500" : "w-4 h-4"}
-        />
+        <Icon name="nd-search" className="w-4 h-4" />
       </div>
     </RenderIf>
     <input
@@ -160,9 +162,11 @@ let make = (
           <div className="relative">
             <button
               type_="button"
-              onClick={_ => setShowDropdown(prev => !prev)}
+              onClick={handleToggleDropdown}
               className="flex items-center gap-1 px-3 h-10 text-sm text-gray-700 dark:text-gray-300 bg-transparent rounded-r-lg transition-all duration-200 focus:outline-none active:outline-none outline-none border-0 shadow-none active:shadow-none focus:shadow-none active:border-0 focus:border-0 select-none">
-              <span className="whitespace-nowrap text-xs"> {currentLabel->React.string} </span>
+              <span className={Typography.body.sm.regular ++ " whitespace-nowrap"}>
+                {currentLabel->React.string}
+              </span>
               <Icon
                 size=10
                 name="chevron-down"
