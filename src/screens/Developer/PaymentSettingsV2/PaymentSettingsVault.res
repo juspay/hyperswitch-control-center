@@ -7,6 +7,7 @@ module VaultFields = {
     open HSwitchUtils
     open PaymentSettingsV2Helper
     open LogicUtils
+    open PaymentSettingsV2Utils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -18,7 +19,9 @@ module VaultFields = {
     let isExternalVaultEnabled =
       formState.values
       ->getDictFromJsonObject
-      ->getString("is_external_vault_enabled", "") === "enable"
+      ->getString("is_external_vault_enabled", "")
+      ->vaultStatusFromString
+      ->Option.mapOr(false, isVaultEnabled)
 
     <>
       <DesktopRow itemWrapperClass="mx-1">
@@ -42,6 +45,14 @@ module VaultFields = {
               label: `${item.connector_label} - ${item.id}`,
             })
             ->vaultConnectors}
+            errorClass
+            labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+            fieldWrapperClass="max-w-sm"
+          />
+        </DesktopRow>
+        <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4" itemWrapperClass="mx-1">
+          <FieldRenderer
+            field={vaultTokenList}
             errorClass
             labelClass={`text-nd_gray-700 ${body.md.semibold}`}
             fieldWrapperClass="max-w-sm"
@@ -98,6 +109,7 @@ let make = () => {
         )
       }}>
       <VaultFields />
+      <FormValuesSpy />
       <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
         <div className="flex justify-end w-full gap-2">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />

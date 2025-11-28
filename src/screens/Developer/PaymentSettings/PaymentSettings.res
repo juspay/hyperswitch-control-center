@@ -710,6 +710,7 @@ module Vault = {
     open FormRenderer
     open LogicUtils
     open PaymentSettingsUtils
+    open PaymentSettingsV2Utils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -724,7 +725,9 @@ module Vault = {
     let isExternalVaultEnabled =
       formState.values
       ->getDictFromJsonObject
-      ->getString("is_external_vault_enabled", "") === "enable"
+      ->getString("is_external_vault_enabled", "")
+      ->vaultStatusFromString
+      ->Option.mapOr(false, isVaultEnabled)
 
     <div className="border-b border-gray-200 pb-8">
       <RenderIf condition={isBusinessProfileHasVault}>
@@ -737,11 +740,14 @@ module Vault = {
               ~label="Enable External Vault",
               ~customInput=(~input, ~placeholder as _) => {
                 let currentValue = switch input.value->JSON.Classify.classify {
-                | String(str) => str === "enable"
+                | String(str) =>
+                  str
+                  ->vaultStatusFromString
+                  ->Option.mapOr(false, isVaultEnabled)
                 | _ => false
                 }
                 let handleChange = newValue => {
-                  let valueToSet = newValue ? "enable" : "skip"
+                  let valueToSet = newValue->vaultStatusStringFromBool
                   input.onChange(valueToSet->Identity.anyTypeToReactEvent)
 
                   if !newValue {
@@ -790,6 +796,25 @@ module Vault = {
                   ~fixedDropDownDirection=BottomRight,
                   ~dropdownClassName="!max-h-15-rem !overflow-auto",
                 ),
+                ~parse=(~value, ~name as _) => {
+                  let parsedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item => {
+                      [("token_type", item)]->getJsonFromArrayOfJson
+                    })
+
+                  parsedValue->JSON.Encode.array
+                },
+                ~format=(~value, ~name as _) => {
+                  let formattedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item =>
+                      item->getDictFromJsonObject->getString("token_type", "")->JSON.Encode.string
+                    )
+                  formattedValue->JSON.Encode.array
+                },
               )}
               errorClass
               labelClass={`text-nd_gray-700 ${body.md.semibold}`}

@@ -1,6 +1,27 @@
 open PaymentSettingsV2Types
 open LogicUtils
 
+let vaultStatusFromString = str =>
+  switch str {
+  | "enable" => Some(Enable)
+  | "skip" => Some(Skip)
+  | _ => None
+  }
+
+let isVaultEnabled = status =>
+  switch status {
+  | Enable => true
+  | Skip => false
+  }
+
+let vaultStatusStringFromBool = str => {
+  let variant = str ? Enable : Skip
+  switch variant {
+  | Enable => "enable"
+  | Skip => "skip"
+  }
+}
+
 let parseBusinessProfileForPaymentBehaviour = (
   profileRecord: BusinessProfileInterfaceTypes.commonProfileEntity,
 ) => {
@@ -263,14 +284,17 @@ let validateMerchantAccountFormV2 = (
       }
     | VaultProcessorDetails => {
         let isExternalVaultEnabled =
-          getString(valuesDict, "is_external_vault_enabled", "")->getNonEmptyString
+          getString(valuesDict, "is_external_vault_enabled", "")
+          ->vaultStatusFromString
+          ->Option.map(isVaultEnabled)
+          ->Option.getOr(false)
         let vaultProcessorDetailsDict =
           valuesDict->getDictfromDict("external_vault_connector_details")
         let vaultConnectorId =
           vaultProcessorDetailsDict
           ->getString("vault_connector_id", "")
           ->getNonEmptyString
-        if isExternalVaultEnabled == Some("enable") && vaultConnectorId == None {
+        if isExternalVaultEnabled && vaultConnectorId == None {
           Dict.set(
             errors,
             "vault_connector_id",

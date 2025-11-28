@@ -193,8 +193,6 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
     Some(paymentLinkConfigUpdated->Identity.genericTypeToDictOfJson),
   )
 
-  Js.log2("paymentLinkDomainDict", paymentLinkDomainDict)
-
   paymentLinkDomainDict
 }
 

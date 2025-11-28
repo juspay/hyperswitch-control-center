@@ -3,6 +3,10 @@ type options = {
   key: string,
 }
 
+type vaultStatus =
+  | Enable
+  | Skip
+
 type validationFieldsV2 =
   | WebhookDetails
   | ReturnUrl
