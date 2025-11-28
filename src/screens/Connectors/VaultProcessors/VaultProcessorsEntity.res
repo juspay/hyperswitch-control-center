@@ -29,8 +29,8 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   switch colType {
   | Name =>
     CustomCell(
-      <HelperComponents.ConnectorCustomCell
-        connectorName=connector.connector_name connectorType=VaultProcessor
+      <VaultProcessorsHelper.CustomConnectorCellWithDefaultIcon
+        connectorType=VaultProcessor connector
       />,
       "",
     )
