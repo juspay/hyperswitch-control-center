@@ -54,7 +54,7 @@ let make = () => {
       let url = getURL(
         ~entityName=V2(V2_RECOVERY_INVOICES_LIST),
         ~methodType=Get,
-        ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
+        ~queryParameters=Some(filter->FilterUtils.parseFilterDict),
       )
       let res = await fetchDetails(url, ~version=V2)
 

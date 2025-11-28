@@ -25,7 +25,7 @@ let make = (~accountId) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_CONFIG,
-        ~queryParamerters=Some(`account_id=${accountId}`),
+        ~queryParameters=Some(`account_id=${accountId}`),
       )
       let accountUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
