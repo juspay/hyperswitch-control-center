@@ -466,7 +466,13 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
+let settings = (
+  ~isConfigurePmtsEnabled,
+  ~userHasResourceAccess,
+  ~complianceCertificate,
+  ~devModularityV2Enabled,
+  ~devThemeEnabled,
+) => {
   let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
@@ -475,6 +481,11 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+  if !devModularityV2Enabled && devThemeEnabled {
+    settingsLinkArray
+    ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
+    ->ignore
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
