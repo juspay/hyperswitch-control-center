@@ -726,8 +726,7 @@ module Vault = {
       ->getDictFromJsonObject
       ->getString("is_external_vault_enabled", "")
       ->vaultStatusFromString
-      ->Option.map(isVaultEnabled)
-      ->Option.getOr(false)
+      ->Option.mapOr(false, isVaultEnabled)
 
     <div className="border-b border-gray-200 pb-8">
       <RenderIf condition={isBusinessProfileHasVault}>
@@ -743,8 +742,7 @@ module Vault = {
                 | String(str) =>
                   str
                   ->vaultStatusFromString
-                  ->Option.map(isVaultEnabled)
-                  ->Option.getOr(false)
+                  ->Option.mapOr(false, isVaultEnabled)
                 | _ => false
                 }
                 let handleChange = newValue => {

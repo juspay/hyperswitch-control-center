@@ -21,8 +21,7 @@ module VaultFields = {
       ->getDictFromJsonObject
       ->getString("is_external_vault_enabled", "")
       ->vaultStatusFromString
-      ->Option.map(isVaultEnabled)
-      ->Option.getOr(false)
+      ->Option.mapOr(false, isVaultEnabled)
 
     <>
       <DesktopRow itemWrapperClass="mx-1">

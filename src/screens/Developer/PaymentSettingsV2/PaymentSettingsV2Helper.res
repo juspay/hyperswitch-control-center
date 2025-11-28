@@ -76,8 +76,7 @@ let customExternalVaultEnabled = (
   | String(str) =>
     str
     ->vaultStatusFromString
-    ->Option.map(isVaultEnabled)
-    ->Option.getOr(false)
+    ->Option.mapOr(false, isVaultEnabled)
   | _ => false
   }
 
