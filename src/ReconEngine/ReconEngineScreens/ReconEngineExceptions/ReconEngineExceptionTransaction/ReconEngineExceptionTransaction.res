@@ -64,7 +64,7 @@ let make = (~ruleId: string) => {
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
-      let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
+      let exceptionList = await getTransactions(~queryParameters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)
@@ -137,7 +137,7 @@ let make = (~ruleId: string) => {
           title="Exception Entries - Expected & Mismatched"
           actualData={filteredExceptionData}
           entity={hierarchicalTransactionsLoadedTableEntity(
-            `v1/recon-engine/exceptions`,
+            "v1/recon-engine/exceptions/recon",
             ~authorization=userHasAccess(~groupAccess=UsersManage),
           )}
           resultsPerPage=6

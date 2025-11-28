@@ -4,7 +4,7 @@ open ReconEngineExceptionTransactionTypes
 module IgnoreTransactionModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
-    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsUtils
     open ReconEngineExceptionTransactionHelper
 
     <div className="flex flex-col gap-4">
@@ -33,7 +33,7 @@ module IgnoreTransactionModalContent = {
 module ForceReconcileModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
-    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsUtils
     open ReconEngineExceptionTransactionHelper
 
     <div className="flex flex-col gap-4">
@@ -352,7 +352,7 @@ module LinkStagingEntryModalContent = {
       if valuesDict->isEmptyDict {
         errors->Dict.set(
           "staging_entry",
-          "Please select at least one staging entry."->JSON.Encode.string,
+          "Please select at least one transformed entry."->JSON.Encode.string,
         )
       }
       errors->JSON.Encode.object
@@ -378,7 +378,7 @@ module LinkStagingEntryModalContent = {
           screenState
           customLoader={<Shimmer styleClass="h-96 w-full rounded-xl" />}
           customUI={<NewAnalyticsHelper.NoData
-            height="h-96" message="No linkable staging entries found."
+            height="h-96" message="No linkable transformed entries found."
           />}>
           <p className={`${body.lg.semibold} text-nd_gray-700`}>
             {"Select entry to match"->React.string}
@@ -402,7 +402,7 @@ module LinkStagingEntryModalContent = {
             searchFilterElement={<TableSearchFilter
               data={linkableStagingEntries}
               filterLogic
-              placeholder="Search by Staging Entry ID or Entry Type"
+              placeholder="Search by Transformed Entry ID or Entry Type"
               customSearchBarWrapperWidth="w-full"
               customInputBoxWidth="w-full rounded-xl"
               searchVal=searchText
@@ -443,6 +443,7 @@ let make = (
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
+  open ReconEngineExceptionsHelper
   open LogicUtils
   open ReconEngineUtils
   open APIUtils
@@ -514,7 +515,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
     } catch {
     | _ =>
@@ -554,7 +555,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
     } catch {
     | _ =>

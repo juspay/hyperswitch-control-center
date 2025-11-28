@@ -108,6 +108,16 @@ let make = () => {
           renderShow={(_, _) => <BillingProcessorHome />}
         />
       </AccessControl>
+    | list{"vault-processor", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Vault Processor"
+          remainingPath
+          renderList={() => <VaultProcessorsList />}
+          renderNewForm={() => <VaultProcessorsHome />}
+          renderShow={(_, _) => <VaultProcessorsHome />}
+        />
+      </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.frm}
@@ -132,6 +142,14 @@ let make = () => {
             renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
           />
         </FilterContext>
+      </AccessControl>
+    | list{"payment-link-theme"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.paymentLinkThemeConfigurator}
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <SDKProvider>
+          <PaymentLinkThemeConfigurator />
+        </SDKProvider>
       </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>

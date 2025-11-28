@@ -42,7 +42,8 @@ threeds_authenticator=true
 frm=true
 pm_authentication_processor=true
 tax_processor=true
-billing_processor=true
+billing_processor=false
+vault_processor=false
 dispute_analytics=false
 authentication_analytics=false
 performance_monitor=false
@@ -62,6 +63,7 @@ tenant_user=false
 google_pay_direct_flow=false
 sample_data_analytics=false
 acquirer_config_settings=false
+payment_link_theme_configurator=false
 dev_click_to_pay=true
 dev_alt_payment_methods=false
 dev_modularity_v2=false
@@ -71,12 +73,14 @@ dev_vault_v2_product=false
 dev_hypersense_v2_product=false
 dev_intelligent_routing_v2=false
 dev_orchestration_v2_product=false
+dev_sidebar_v2=false
 dev_debit_routing=false
 dev_webhooks=false
 dev_recon_engine_v1=false
 dev_ai_chat_bot=false
 dev_roles_v2=false
 dev_customer=false
+dev_theme=false
 [default.merchant_config]
 [default.merchant_config.whitelist]
 [default.merchant_config.whitelist.dev_recon_engine_v1]

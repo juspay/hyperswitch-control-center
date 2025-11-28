@@ -23,7 +23,7 @@ module RuleWiseStackedBarGraph = {
         } else {
           `rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
         }
-        let transactionsData = await getTransactions(~queryParamerters=Some(queryString))
+        let transactionsData = await getTransactions(~queryParameters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {

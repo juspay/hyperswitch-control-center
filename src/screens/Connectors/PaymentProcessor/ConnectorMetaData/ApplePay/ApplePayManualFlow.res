@@ -2,7 +2,7 @@ open ApplePayIntegrationTypes
 
 module PaymentProcessingDetailsAt = {
   @react.component
-  let make = (~applePayField) => {
+  let make = (~applePayField, ~connector) => {
     open LogicUtils
     open ApplePayIntegrationUtils
     let form = ReactFinalForm.useForm()
@@ -14,7 +14,7 @@ module PaymentProcessingDetailsAt = {
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
-      ->manual
+      ->manual(connector)
 
     let initalProcessingAt =
       initalFormValue.session_token_data.payment_processing_details_at
@@ -32,6 +32,7 @@ module PaymentProcessingDetailsAt = {
           `${ApplePayIntegrationUtils.applePayNameMapper(
               ~name="payment_processing_certificate",
               ~integrationType=Some(#manual),
+              ~connector,
             )}`,
           JSON.Encode.null,
         )
@@ -39,6 +40,7 @@ module PaymentProcessingDetailsAt = {
           `${ApplePayIntegrationUtils.applePayNameMapper(
               ~name="payment_processing_certificate_key",
               ~integrationType=Some(#manual),
+              ~connector,
             )}`,
           JSON.Encode.null,
         )
@@ -53,6 +55,7 @@ module PaymentProcessingDetailsAt = {
           ~formName=`${ApplePayIntegrationUtils.applePayNameMapper(
               ~name=applePayField.name,
               ~integrationType=Some(#manual),
+              ~connector,
             )}`,
           ~fill=textColor.primaryNormal,
           ~onItemChange=onChangeItem,
@@ -70,6 +73,7 @@ module PaymentProcessingDetailsAt = {
                 `${ApplePayIntegrationUtils.applePayNameMapper(
                     ~name="payment_processing_certificate",
                     ~integrationType=Some(#manual),
+                    ~connector,
                   )}`
               },
               ~placeholder={`Enter Processing Certificate`},
@@ -85,6 +89,7 @@ module PaymentProcessingDetailsAt = {
                 `${ApplePayIntegrationUtils.applePayNameMapper(
                     ~name="payment_processing_certificate_key",
                     ~integrationType=Some(#manual),
+                    ~connector,
                   )}`
               },
               ~placeholder={`Enter Processing Key`},
@@ -108,7 +113,7 @@ module PaymentProcessingDetailsAt = {
 
 module Initiative = {
   @react.component
-  let make = (~applePayField) => {
+  let make = (~applePayField, ~connector) => {
     open LogicUtils
     open ApplePayIntegrationUtils
     let form = ReactFinalForm.useForm()
@@ -120,7 +125,7 @@ module Initiative = {
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
-      ->manual
+      ->manual(connector)
 
     let initalInitiative =
       initalFormValue.session_token_data.initiative
@@ -136,6 +141,7 @@ module Initiative = {
           `${ApplePayIntegrationUtils.applePayNameMapper(
               ~name="initiative_context",
               ~integrationType=Some(#manual),
+              ~connector,
             )}`,
           JSON.Encode.null,
         )
@@ -166,6 +172,7 @@ module Initiative = {
             ApplePayIntegrationUtils.applePayNameMapper(
               ~name="initiative",
               ~integrationType=Some(#manual),
+              ~connector,
             )
           },
           ~onItemChange=onChangeItem,
@@ -182,6 +189,7 @@ module Initiative = {
               ApplePayIntegrationUtils.applePayNameMapper(
                 ~name="initiative_context",
                 ~integrationType=Some(#manual),
+                ~connector,
               )
             },
           )}
@@ -198,10 +206,12 @@ let make = (
   ~merchantBusinessCountry,
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
+  ~connector,
 ) => {
   open LogicUtils
   open ApplePayIntegrationUtils
   open ApplePayIntegrationHelper
+
   let form = ReactFinalForm.useForm()
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -211,24 +221,26 @@ let make = (
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
+
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #manual)
+    let value = applePayCombined(initalFormValue, #manual, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
   React.useEffect(() => {
-    let _ = setFormData()
+    setFormData()
     None
   }, [])
+
   let onSubmit = () => {
     let data =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("metadata")
       ->getDictfromDict("apple_pay_combined")
-      ->manual
-    let domainName = data.session_token_data.initiative_context->Option.getOr("")
+      ->manual(connector)
 
+    let domainName = data.session_token_data.initiative_context->Option.getOr("")
     setVefifiedDomainList(_ => [domainName])
     setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     Nullable.null->Promise.resolve
@@ -240,8 +252,8 @@ let make = (
       let {name} = applePayField
       <div key={index->Int.toString}>
         {switch name {
-        | "payment_processing_details_at" => <PaymentProcessingDetailsAt applePayField />
-        | "initiative" => <Initiative applePayField />
+        | "payment_processing_details_at" => <PaymentProcessingDetailsAt applePayField connector />
+        | "initiative" => <Initiative applePayField connector />
         | "initiative_context" => React.null
         | "merchant_business_country" =>
           <FormRenderer.FieldRenderer
@@ -253,6 +265,7 @@ let make = (
                 ApplePayIntegrationUtils.applePayNameMapper(
                   ~name="merchant_business_country",
                   ~integrationType=Some(#manual),
+                  ~connector,
                 )
               },
             )}
@@ -260,7 +273,7 @@ let make = (
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual))}
+            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual), ~connector)}
           />
         }}
       </div>
@@ -282,7 +295,7 @@ let make = (
         onClick={_ => {
           onSubmit()->ignore
         }}
-        buttonState={formState.values->validateManualFlow}
+        buttonState={formState.values->validateManualFlow(~connector)}
       />
     </div>
   </>
