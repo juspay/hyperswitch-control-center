@@ -1,3 +1,5 @@
+open PaymentSettingsV2Utils
+
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
   ~name="max_auto_retries_enabled",
@@ -71,12 +73,16 @@ let customExternalVaultEnabled = (
   ~form: ReactFinalForm.formApi,
 ) => {
   let currentValue = switch input.value->JSON.Classify.classify {
-  | String(str) => str === "enable"
+  | String(str) =>
+    str
+    ->vaultStatusFromString
+    ->Option.map(isVaultEnabled)
+    ->Option.getOr(false)
   | _ => false
   }
 
   let handleChange = newValue => {
-    let valueToSet = newValue ? "enable" : "skip"
+    let valueToSet = newValue->vaultStatusStringFromBool
     input.onChange(valueToSet->Identity.anyTypeToReactEvent)
     if !newValue {
       form.change("external_vault_connector_details", JSON.Encode.null)

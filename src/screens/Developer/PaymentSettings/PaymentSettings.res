@@ -709,6 +709,7 @@ module Vault = {
     open HSwitchUtils
     open FormRenderer
     open LogicUtils
+    open PaymentSettingsV2Utils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -723,7 +724,10 @@ module Vault = {
     let isExternalVaultEnabled =
       formState.values
       ->getDictFromJsonObject
-      ->getString("is_external_vault_enabled", "") === "enable"
+      ->getString("is_external_vault_enabled", "")
+      ->vaultStatusFromString
+      ->Option.map(isVaultEnabled)
+      ->Option.getOr(false)
 
     <div className="border-b border-gray-200 pb-8">
       <RenderIf condition={isBusinessProfileHasVault}>
@@ -736,11 +740,15 @@ module Vault = {
               ~label="Enable External Vault",
               ~customInput=(~input, ~placeholder as _) => {
                 let currentValue = switch input.value->JSON.Classify.classify {
-                | String(str) => str === "enable"
+                | String(str) =>
+                  str
+                  ->vaultStatusFromString
+                  ->Option.map(isVaultEnabled)
+                  ->Option.getOr(false)
                 | _ => false
                 }
                 let handleChange = newValue => {
-                  let valueToSet = newValue ? "enable" : "skip"
+                  let valueToSet = newValue->vaultStatusStringFromBool
                   input.onChange(valueToSet->Identity.anyTypeToReactEvent)
 
                   if !newValue {
