@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open WebhooksUtils
   open LogicUtils
+  open WebhooksTypes
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -17,9 +18,9 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFilterState, setLastFilterState) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->JSON.stringify
-  )
+  let (searchType, setSearchType) = React.useState(_ => ObjectId)
+  let (searchTrigger, setSearchTrigger) = React.useState(_ => 0)
+  let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
@@ -31,6 +32,20 @@ let make = () => {
 
   let refreshPage = () => {
     reset()
+  }
+
+  let convertToSearchType = (value: string): searchType => {
+    switch value {
+    | "object_id" => ObjectId
+    | "event_id" => EventId
+    | _ => ObjectId
+    }
+  }
+
+  let searchTypeToString = (search_type: searchType): string =>
+    switch search_type {
+    | ObjectId => "object_id"
+    | EventId => "event_id"
   }
 
   let customUI =
@@ -84,8 +99,7 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->setOptionString("object_id", Some(searchText))
-        payload->setOptionString("event_id", Some(searchText))
+        payload->Dict.set(searchTypeToString(searchType), searchText->JSON.Encode.string)
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -104,6 +118,13 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
   }
+
+  React.useEffect(() => {
+    if searchText->isNonEmptyString {
+      setOffset(_ => 0)
+    }
+    None
+  }, [searchTrigger])
 
   React.useEffect(() => {
     let currentFilterState = {
@@ -133,7 +154,7 @@ let make = () => {
       setInitialFilters()
     }
     None
-  }, (filterValueJson, offset, searchText))
+  }, (filterValueJson, offset, searchTrigger))
 
   let filtersUI = React.useMemo(() => {
     <Filter
@@ -150,18 +171,31 @@ let make = () => {
       submitInputOnEnter=true
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
-      customLeftView={<HSwitchRemoteFilter.SearchBarFilter
-        placeholder="Search for object ID or event ID"
-        setSearchVal=setSearchText
-        searchVal=searchText
-      />}
       clearFilters={() => reset()}
+      customLeftView={<SearchInput
+        onChange={value => setSearchText(_ => value)}
+        inputText=searchText
+        placeholder="Search by ID"
+        showTypeSelector=true
+        typeSelectorOptions=[
+          {label: "Object ID", value: "object_id"},
+          {label: "Event ID", value: "event_id"},
+        ]
+        selectedType={switch searchType {
+        | ObjectId => "object_id"
+        | EventId => "event_id"
+        }}
+        onTypeChange={value => setSearchType(_ => convertToSearchType(value))}
+        onSubmitSearchDropdown={() => setSearchTrigger(prev => prev + 1)}
+        widthClass="w-max"
+        showSearchIcon=true
+      />}
     />
-  }, [])
+  }, [searchText, searchType->searchTypeToString])
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
-    {filtersUI}
+    <div className="-mb-6"> {filtersUI} </div>
     <PageLoaderWrapper screenState customUI>
       <LoadedTable
         title=" "
