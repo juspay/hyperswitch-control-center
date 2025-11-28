@@ -17,13 +17,10 @@ module NoThemesFound = {
   }
 }
 
-// Helper function to render entity rows
-
 module CurrentThemeCard = {
   @react.component
   let make = (~currentTheme, ~getNameForId) => {
     open Typography
-    // Helper function to render entity rows
 
     {
       switch currentTheme {
