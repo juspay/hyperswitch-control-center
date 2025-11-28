@@ -1334,6 +1334,56 @@ let useGetURL = () => {
           | Some(params) => `${userUrl}/role/list/update?${params}`
           | None => ""
           }
+        | #THEME =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | Post => `${userUrl}/theme`
+          | Put =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | Delete =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
+
+        | #THEME_LIST =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(params) => `${userUrl}/theme/list?${params}`
+            | None => `${userUrl}/theme/list`
+            }
+          | _ => ""
+          }
+
+        | #THEME_BY_LINEAGE =>
+          switch methodType {
+          | Get =>
+            switch queryParamerters {
+            | Some(params) => `${userUrl}/theme?${params}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
+
+        | #THEME_UPLOAD_ASSET =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
 
         | #NONE => ""
         }
