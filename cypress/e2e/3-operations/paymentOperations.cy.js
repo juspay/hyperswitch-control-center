@@ -720,7 +720,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it.skip("should verify all time range filters are displayed in date selector dropdown", () => {
+  it("should verify all time range filters are displayed in date selector dropdown", () => {
     const timeRangeFilters = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -739,9 +739,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]', {
-      timeout: 10000,
-    }) //Expected to find element, but never found it.
+    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+      "be.visible",
+    );
+    cy.get('[data-date-picker-predifined="predefined-options"]')
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -751,7 +752,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it.skip("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
+  it("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
     const predefinedTimeRange = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -770,10 +771,10 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]', {
-        timeout: 10000,
-      }).within(
-        //Expected to find element, but never found it.
+      cy.get('[data-date-picker-predifined="predefined-options"]').should(
+        "be.visible",
+      );
+      cy.get('[data-date-picker-predifined="predefined-options"]').within(
         () => {
           cy.contains(timeRange).click();
         },
@@ -785,7 +786,7 @@ describe("Payment Operations", () => {
     }
   });
 
-  it.skip("should verify applied custom timerange is displayed correctly", () => {
+  it("should verify applied custom timerange is displayed correctly", () => {
     const now = new Date();
     const today = now.getDate();
     const previousMonth = new Date(
@@ -807,7 +808,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-daterange-dropdown-value="Custom Range"]', { timeout: 10000 })
+    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+      "be.visible",
+    );
+    cy.get('[data-daterange-dropdown-value="Custom Range"]')
       .should("exist")
       .should("be.visible")
       .click({ force: true });
@@ -828,9 +832,12 @@ describe("Payment Operations", () => {
     );
   });
 
-  // generate reports
-
   // Views
+  //should be present
+
+  // should switch between different views and verify selected filters from filter dropdown
+
+  // generate reports
 
   // Verify "Open in new tab" button for payment ID
 

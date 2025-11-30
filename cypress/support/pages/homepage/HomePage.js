@@ -96,8 +96,7 @@ class HomePage {
 
   //Profile
   get user_account() {
-    //return cy.get('[id="headlessui-popover-button-:r0:"]');
-    return cy.get('[id="headlessui-popover-button-:rc:"]');
+    return cy.get('[data-icon="nd-dropdown-menu"]');
   }
 
   get user_profile() {
