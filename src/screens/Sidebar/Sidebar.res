@@ -748,9 +748,6 @@ let make = (
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
               <div className="flex flex-col gap-2 p-2.5 pt-0">
-                <div className={`px-3 pb-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
-                  {React.string(activeProduct->getProductDisplayName->String.toUpperCase)}
-                </div>
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
                   switch tabInfo {
