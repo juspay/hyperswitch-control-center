@@ -115,4 +115,7 @@ type order_v1 = {
   attempt_count: int,
   connector_label: string,
   split_payments: Dict.t<JSON.t>,
+  extended_auth_last_applied_at: string,
+  extended_auth_applied: bool,
+  request_extended_auth: bool,
 }

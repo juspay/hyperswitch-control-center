@@ -125,6 +125,9 @@ type order = {
   routing_algorithm_applied?: Dict.t<JSON.t>,
   authentication_applied?: string,
   split_payments: Dict.t<JSON.t>,
+  extended_auth_last_applied_at?: string,
+  extended_auth_applied?: bool,
+  request_extended_auth?: bool,
 }
 
 type ordersObject = {
