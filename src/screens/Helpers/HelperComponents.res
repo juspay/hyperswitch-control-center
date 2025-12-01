@@ -1,3 +1,5 @@
+open Typography
+
 module CopyTextCustomComp = {
   @react.component
   let make = (
@@ -134,19 +136,30 @@ module ConnectorCustomCell = {
     ~connectorName,
     ~connectorType: option<ConnectorTypes.connector>=?,
     ~customIconStyle="w-6 h-6 mr-2",
+    ~showDefaultTag=false,
   ) => {
     let connector_Type = switch connectorType {
     | Some(connectorType) => connectorType
     | None => ConnectorTypes.Processor
     }
     if connectorName->LogicUtils.isNonEmptyString {
-      <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-6`}>
-        <GatewayIcon gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`} />
-        <div>
-          {connectorName
-          ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
-          ->React.string}
+      <div className="flex items-center">
+        <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-6`}>
+          <GatewayIcon
+            gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`}
+          />
+          <div>
+            {connectorName
+            ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
+            ->React.string}
+          </div>
         </div>
+        <RenderIf condition={showDefaultTag}>
+          <div
+            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
+            {"Default"->React.string}
+          </div>
+        </RenderIf>
       </div>
     } else {
       "NA"->React.string
