@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.01.0
+
+### Features
+
+- Theme folder structure , api types and permissions changes ([#3351](https://github.com/juspay/hyperswitch-control-center/pull/3351)) ([`b039eb4`](https://github.com/juspay/hyperswitch-control-center/commit/b039eb410a6d6dc982ae33311178f7d380e6a1f1))
+- Payment settings for vault connector ([#3871](https://github.com/juspay/hyperswitch-control-center/pull/3871)) ([`01e629a`](https://github.com/juspay/hyperswitch-control-center/commit/01e629a7079a8592e9072bdb17322ef06dea416d))
+
+### Bug Fixes
+
+- Profile id not appending in payment settings main submit button ([#3919](https://github.com/juspay/hyperswitch-control-center/pull/3919)) ([`444907d`](https://github.com/juspay/hyperswitch-control-center/commit/444907d62fa25dccdca75eda80cceacbe7716511))
+
+### Miscellaneous Tasks
+
+- Query parameters typo in apiutils ([#3917](https://github.com/juspay/hyperswitch-control-center/pull/3917)) ([`cad848b`](https://github.com/juspay/hyperswitch-control-center/commit/cad848bac386af633616af990c0bea4eb2d846e1))
+
+**Full Changelog:** [`2025.11.28.0...2025.12.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.28.0...2025.12.01.0)
+
+- - -
+
 ## 2025.11.28.0
 
 ### Features
