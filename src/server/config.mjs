@@ -58,15 +58,15 @@ function processConfigList(configList, body, domain, listType) {
       ];
 
     const orgId = checkEnvValues(envOrgIds, configList[key].org_ids).find(
-      (id) => body.org_id === id
+      (id) => body.org_id === id,
     );
     const merchantId = checkEnvValues(
       envMerchantIds,
-      configList[key].merchant_ids
+      configList[key].merchant_ids,
     ).find((id) => body.merchant_id === id);
     const profileId = checkEnvValues(
       envProfileIds,
-      configList[key].profile_ids
+      configList[key].profile_ids,
     ).find((id) => body.profile_id === id);
 
     result[key] = {
@@ -88,7 +88,7 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
       tomlConfig.denylist,
       body,
       domain,
-      "denylist"
+      "denylist",
     );
   }
 
@@ -98,7 +98,7 @@ function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
       tomlConfig.allowlist,
       body,
       domain,
-      "allowlist"
+      "allowlist",
     );
   }
 
@@ -129,7 +129,7 @@ const configHandler = async (
   res,
   isDeployed = false,
   domain = "default",
-  configPath = "dist/server/config/config.toml"
+  configPath = "dist/server/config/config.toml",
 ) => {
   const filePath = isDeployed ? configPath : "config/config.toml";
   try {
@@ -180,7 +180,7 @@ const merchantConfigHandler = async (
   res,
   isDeployed = false,
   domain = "default",
-  configPath = "dist/server/config/config.toml"
+  configPath = "dist/server/config/config.toml",
 ) => {
   const filePath = isDeployed ? configPath : "config/config.toml";
   try {
