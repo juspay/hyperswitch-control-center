@@ -144,7 +144,7 @@ module ConnectorCustomCell = {
     }
     if connectorName->LogicUtils.isNonEmptyString {
       <div className="flex items-center">
-        <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-6`}>
+        <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-4`}>
           <GatewayIcon
             gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`}
           />
