@@ -183,7 +183,7 @@ let make = (
           <Form
             key="pmts-configuration"
             initialValues
-            onSubmit={onSubmit}
+            onSubmit
             validate={valueInput =>
               PaymentMethodConfigUtils.validatePMTsConfig(valueInput, paymentMethodConfig)}>
             <div className="p-5">
