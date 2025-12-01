@@ -254,14 +254,14 @@ let useOMPData = () => {
     }
   }
 
-  let getNameForId = entityType =>
+  let getNameForId = entityType => {
     switch entityType {
     | #Organization => currentOMPName(orgList, userInfo.orgId)
     | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
     | #Profile => currentOMPName(profileList, userInfo.profileId)
     | _ => ""
     }
-
+  }
   (getList, getNameForId)
 }
 

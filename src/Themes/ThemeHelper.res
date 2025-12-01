@@ -18,13 +18,27 @@ module CreateNewThemeButton = {
   @react.component
   let make = () => {
     open Typography
+    open SessionStorage
+    open LogicUtils
 
-    <Button
-      text="Create Theme"
-      buttonType=Primary
-      buttonState=Normal
-      buttonSize=Small
-      customButtonStyle={`${body.md.semibold} py-4`}
-    />
+    let sessionModalValue =
+      sessionStorage.getItem("themeLineageModal")
+      ->Nullable.toOption
+      ->Option.getOr("")
+      ->getBoolFromString(false)
+    let (showModal, setShowModal) = React.useState(_ => sessionModalValue)
+    <>
+      <Button
+        text="Create Theme"
+        buttonType=Primary
+        buttonState=Normal
+        buttonSize=Small
+        customButtonStyle={`${body.md.semibold} py-4`}
+        onClick={_ => {
+          setShowModal(_ => true)
+        }}
+      />
+      <ThemeLineageModal showModal setShowModal />
+    </>
   }
 }
