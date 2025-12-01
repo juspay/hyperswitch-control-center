@@ -1,4 +1,6 @@
 open LottieFiles
+open LogicUtils
+open Typography
 
 type searchTypeOption = {
   label: string,
@@ -24,7 +26,6 @@ let make = (
   ~showSearchIcon=false,
   ~showTypeSelector=false,
   ~typeSelectorOptions=?,
-  ~selectedType=?,
   ~onTypeChange=?,
   ~onSubmitSearchDropdown=?,
 ) => {
@@ -35,6 +36,12 @@ let make = (
 
   let defaultRef = React.useRef(Nullable.null)
   let searchRef = searchRef->Option.getOr(defaultRef)
+
+  let (selectedType, setSelectedType) = React.useState(_ =>
+    typeSelectorOptions->Option.map(options =>
+      getValueFromArray(options, 0, {label: "", value: ""}).value
+    )
+  )
 
   let handleSearch = e => {
     setPrevVal(_ => inputText)
@@ -74,6 +81,7 @@ let make = (
   }, (typeSelectorOptions, selectedType))
 
   let handleTypeChange = value => {
+    setSelectedType(_ => Some(value))
     onTypeChange->Option.forEach(callback => callback(value))
     setShowDropdown(_ => false)
   }
@@ -131,7 +139,7 @@ let make = (
       onChange=handleSearch
       placeholder
       className={showTypeSelector
-        ? "flex-1 px-3 py-2 bg-transparent text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 placeholder:opacity-90 focus:outline-none h-10"
+        ? `flex-1 px-3 py-2 bg-transparent ${body.md.regular} text-gray-700 dark:text-gray-300 placeholder-gray-400 placeholder:opacity-90 focus:outline-none h-10`
         : `rounded-md w-full pl-2 focus:outline-none ${placeholderCss}`}
       autoFocus
       ?form
@@ -142,9 +150,8 @@ let make = (
         <div className="h-6 flex w-6" onClick=clearSearch>
           <ReactSuspenseWrapper loadingText="">
             <Lottie
-              animationData={(prevVal->LogicUtils.isNonEmptyString &&
-                inputText->LogicUtils.isEmptyString) ||
-                (prevVal->LogicUtils.isEmptyString && inputText->LogicUtils.isEmptyString)
+              animationData={(prevVal->isNonEmptyString && inputText->isEmptyString) ||
+                (prevVal->isEmptyString && inputText->isEmptyString)
                 ? exitCross
                 : enterCross}
               autoplay=true
@@ -154,17 +161,16 @@ let make = (
         </div>
       </AddDataAttributes>
     </RenderIf>
-    <RenderIf condition={showTypeSelector}>
-      {switch typeSelectorOptions {
-      | Some(options) =>
-        <>
+    <RenderIf condition={showTypeSelector && typeSelectorOptions->Option.isSome}>
+      {typeSelectorOptions->Option.mapOr(React.null, options =>
+        <div className="flex items-center">
           <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
           <div className="relative">
             <button
               type_="button"
               onClick={handleToggleDropdown}
-              className="flex items-center gap-1 px-3 h-10 text-sm text-gray-700 dark:text-gray-300 bg-transparent rounded-r-lg transition-all duration-200 focus:outline-none active:outline-none outline-none border-0 shadow-none active:shadow-none focus:shadow-none active:border-0 focus:border-0 select-none">
-              <span className={Typography.body.sm.regular ++ " whitespace-nowrap"}>
+              className={`flex items-center gap-1 px-3 h-10 ${body.sm.regular} text-gray-700 dark:text-gray-300 bg-transparent rounded-r-lg transition-all duration-200 focus:outline-none active:outline-none outline-none border-0 shadow-none active:shadow-none focus:shadow-none active:border-0 focus:border-0 select-none`}>
+              <span className={`${body.sm.regular} whitespace-nowrap`}>
                 {currentLabel->React.string}
               </span>
               <Icon
@@ -202,9 +208,8 @@ let make = (
               </div>
             </RenderIf>
           </div>
-        </>
-      | None => React.null
-      }}
+        </div>
+      )}
     </RenderIf>
   </div>
 }

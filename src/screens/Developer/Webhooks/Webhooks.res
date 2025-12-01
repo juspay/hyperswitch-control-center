@@ -46,7 +46,7 @@ let make = () => {
     switch search_type {
     | ObjectId => "object_id"
     | EventId => "event_id"
-  }
+    }
 
   let customUI =
     <NoDataFound message renderType=Painting>
@@ -181,10 +181,6 @@ let make = () => {
           {label: "Object ID", value: "object_id"},
           {label: "Event ID", value: "event_id"},
         ]
-        selectedType={switch searchType {
-        | ObjectId => "object_id"
-        | EventId => "event_id"
-        }}
         onTypeChange={value => setSearchType(_ => convertToSearchType(value))}
         onSubmitSearchDropdown={() => setSearchTrigger(prev => prev + 1)}
         widthClass="w-max"
