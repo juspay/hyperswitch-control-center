@@ -789,6 +789,7 @@ module Vault = {
                 ~label="Vault Token ",
                 ~name="external_vault_connector_details.vault_token_selector",
                 ~customInput=InputFields.multiSelectInput(
+                  ~buttonSize=Button.Large,
                   ~showSelectionAsChips=false,
                   ~options=vaultTokenSelectorDropdownOptions,
                   ~buttonText="Select Field",
