@@ -85,7 +85,7 @@ module AccountComboSelectInput = {
           ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Get,
           ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-          ~queryParamerters=Some(`account_id=${accountId}`),
+          ~queryParameters=Some(`account_id=${accountId}`),
         )
         let res = await fetchDetails(url)
         setTransformationsList(_ => res->getArrayDataFromJson(transformationConfigItemToObjMapper))

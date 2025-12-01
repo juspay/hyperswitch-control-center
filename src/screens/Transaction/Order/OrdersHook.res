@@ -19,7 +19,7 @@ let useFetchOrdersHook = () => {
           let ordersUrl = getURL(
             ~entityName=V2(V2_ORDERS_LIST),
             ~methodType=Get,
-            ~queryParamerters=Some(query),
+            ~queryParameters=Some(query),
           )
           let res = await fetchDetails(ordersUrl)
           res->mapJsonToOrdersObject(paymentInterfaceV2)

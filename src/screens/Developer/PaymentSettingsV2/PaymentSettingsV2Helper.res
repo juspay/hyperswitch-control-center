@@ -1,3 +1,5 @@
+open PaymentSettingsV2Utils
+
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
   ~name="max_auto_retries_enabled",
@@ -49,3 +51,48 @@ let authenticationConnectors = connectorList =>
     ),
     ~isRequired=false,
   )
+
+let vaultConnectors = connectorList => {
+  FormRenderer.makeFieldInfo(
+    ~label="Vault Connectors",
+    ~name="external_vault_connector_details.vault_connector_id",
+    ~customInput=InputFields.selectInput(
+      ~options=connectorList,
+      ~buttonText="Select Field",
+      ~customButtonStyle="!rounded-lg",
+      ~fixedDropDownDirection=BottomRight,
+      ~dropdownClassName="!max-h-15-rem !overflow-auto",
+    ),
+    ~isRequired=true,
+  )
+}
+
+let customExternalVaultEnabled = (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+  ~form: ReactFinalForm.formApi,
+) => {
+  let currentValue = switch input.value->JSON.Classify.classify {
+  | String(str) =>
+    str
+    ->vaultStatusFromString
+    ->Option.mapOr(false, isVaultEnabled)
+  | _ => false
+  }
+
+  let handleChange = newValue => {
+    let valueToSet = newValue->vaultStatusStringFromBool
+    input.onChange(valueToSet->Identity.anyTypeToReactEvent)
+    if !newValue {
+      form.change("external_vault_connector_details", JSON.Encode.null)
+    }
+  }
+
+  <BoolInput.BaseComponent
+    isSelected={currentValue}
+    setIsSelected={handleChange}
+    isDisabled=false
+    boolCustomClass="rounded-lg"
+    toggleEnableColor="bg-nd_primary_blue-450"
+  />
+}

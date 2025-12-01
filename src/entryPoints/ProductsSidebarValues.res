@@ -108,7 +108,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  // Need to be refactored
+
   let productName = activeProduct->getProductDisplayName
 
   sideBarValues->Array.filter(topLevelItem =>

@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.01.0
+
+### Features
+
+- Theme folder structure , api types and permissions changes ([#3351](https://github.com/juspay/hyperswitch-control-center/pull/3351)) ([`b039eb4`](https://github.com/juspay/hyperswitch-control-center/commit/b039eb410a6d6dc982ae33311178f7d380e6a1f1))
+- Payment settings for vault connector ([#3871](https://github.com/juspay/hyperswitch-control-center/pull/3871)) ([`01e629a`](https://github.com/juspay/hyperswitch-control-center/commit/01e629a7079a8592e9072bdb17322ef06dea416d))
+
+### Bug Fixes
+
+- Profile id not appending in payment settings main submit button ([#3919](https://github.com/juspay/hyperswitch-control-center/pull/3919)) ([`444907d`](https://github.com/juspay/hyperswitch-control-center/commit/444907d62fa25dccdca75eda80cceacbe7716511))
+
+### Miscellaneous Tasks
+
+- Query parameters typo in apiutils ([#3917](https://github.com/juspay/hyperswitch-control-center/pull/3917)) ([`cad848b`](https://github.com/juspay/hyperswitch-control-center/commit/cad848bac386af633616af990c0bea4eb2d846e1))
+
+**Full Changelog:** [`2025.11.28.0...2025.12.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.28.0...2025.12.01.0)
+
+- - -
+
+## 2025.11.28.0
+
+### Features
+
+- Wasm changes for vault connector ([#3872](https://github.com/juspay/hyperswitch-control-center/pull/3872)) ([`ee951ff`](https://github.com/juspay/hyperswitch-control-center/commit/ee951ffa37c80f1d6e7243c63f28b61368f77e2d))
+- Add support for `vault connector` type ([#3870](https://github.com/juspay/hyperswitch-control-center/pull/3870)) ([`30863d1`](https://github.com/juspay/hyperswitch-control-center/commit/30863d1151b5e052b485bcb5b53cb95e81f39b19))
+- Enable peach payments in prod ([#3912](https://github.com/juspay/hyperswitch-control-center/pull/3912)) ([`e0daea9`](https://github.com/juspay/hyperswitch-control-center/commit/e0daea985d460006cebd4b30566ae6463e53a80a))
+- Configure pmts - add minimum and maximum amount ([#3900](https://github.com/juspay/hyperswitch-control-center/pull/3900)) ([`3dbefe4`](https://github.com/juspay/hyperswitch-control-center/commit/3dbefe4bb3ae48bc6845ea58408f55afe56e3062))
+- Enable zift connector in prod ([#3915](https://github.com/juspay/hyperswitch-control-center/pull/3915)) ([`f4719ca`](https://github.com/juspay/hyperswitch-control-center/commit/f4719ca26fa730ae64785eef67a3a5ad9e5afd5d))
+
+### Bug Fixes
+
+- Sidebar active product click bugfix ([#3902](https://github.com/juspay/hyperswitch-control-center/pull/3902)) ([`7d16ae1`](https://github.com/juspay/hyperswitch-control-center/commit/7d16ae119ccc775b900594009ed4b24e7365d8ec))
+
+### Miscellaneous Tasks
+
+- Remove decrypted(predecrypt) flow in apple pay and google pay … ([#3894](https://github.com/juspay/hyperswitch-control-center/pull/3894)) ([`394356c`](https://github.com/juspay/hyperswitch-control-center/commit/394356c42741d4ebbc62360bea688183766fe49c))
+
+**Full Changelog:** [`2025.11.26.1...2025.11.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.11.26.1...2025.11.28.0)
+
+- - -
+
 ## 2025.11.26.1
 
 ### Features

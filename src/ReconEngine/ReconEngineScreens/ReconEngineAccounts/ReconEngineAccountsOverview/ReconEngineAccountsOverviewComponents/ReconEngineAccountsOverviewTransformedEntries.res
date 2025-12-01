@@ -74,7 +74,7 @@ let make = (
             ~filterValueJson=enhancedFilterValueJson,
           )->String.concat(`&transformation_history_id=${selectedTransformationHistoryId}`)
 
-        let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
+        let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
         let initialSearchText = stagingEntryId->Option.getOr("")
         let filteredList = filterDataBySearchText(stagingList, initialSearchText)
         if stagingEntryId->Option.isSome {
