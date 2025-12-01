@@ -86,7 +86,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
           `&transformation_id=${config.transformation_id}`,
         )
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(queryString),
+        ~queryParameters=Some(queryString),
       )
       let transformationHistoryData = transformationHistoryList->Array.map(Nullable.make)
       setTransformationHistoryList(_ => transformationHistoryData)

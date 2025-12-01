@@ -31,7 +31,10 @@ let getTotalProcessedEntries = (stagingEntries: array<processingEntryType>): flo
 }
 
 let getTotalEntries = (stagingEntries: array<processingEntryType>): float => {
-  stagingEntries->Array.filter(entry => entry.status != Archived)->Array.length->Int.toFloat
+  stagingEntries
+  ->Array.filter(entry => entry.status != Archived && entry.status != Void)
+  ->Array.length
+  ->Int.toFloat
 }
 
 let cardDetails = (~stagingData: array<processingEntryType>) => {
@@ -107,7 +110,7 @@ let initialDisplayFilters = (~accountOptions) => {
     {label: "Debit", value: "debit"},
   ]
 
-  let statusOptions = getStagingEntryStatusOptions([Processed, Pending, NeedsManualReview])
+  let statusOptions = getStagingEntryStatusOptions([Processed, Pending, NeedsManualReview, Void])
 
   [
     (

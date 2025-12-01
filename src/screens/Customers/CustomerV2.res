@@ -58,7 +58,7 @@ let make = () => {
         let customersUrl = getURL(
           ~entityName=V1(CUSTOMERS_COUNT),
           ~methodType=Get,
-          ~queryParamerters=Some(queryParams),
+          ~queryParameters=Some(queryParams),
         )
 
         let res = await fetchDetails(customersUrl)

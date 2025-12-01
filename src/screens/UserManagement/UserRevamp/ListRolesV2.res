@@ -30,7 +30,7 @@ let make = () => {
         ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters=Some(
+        ~queryParameters=Some(
           `groups=true&entity_type=${(userModuleEntity :> string)->String.toLowerCase}`,
         ),
       )

@@ -94,6 +94,7 @@ type v2entityNameType =
   | V2_CONNECTOR
   | V2_ATTEMPTS_LIST
   | V2_ORDERS_LIST
+  | V2_RECOVERY_INVOICES_LIST
   | PAYMENT_METHOD_LIST
   | RETRIEVE_PAYMENT_METHOD
   | V2_ORDER_FILTERS
@@ -130,6 +131,8 @@ type hyperswitchReconType = [
   | #DOWNLOAD_INGESTION_HISTORY_FILE
   | #METADATA_SCHEMA
   | #AUDIT_TRAIL
+  | #PROCESSING_ENTRY_RESOLUTIONS
+  | #VOID_PROCESSING_ENTRY
   | #NONE
 ]
 
@@ -189,6 +192,10 @@ type userType = [
   | #ACCEPT_INVITATION_HOME
   | #CHECK_TWO_FACTOR_AUTH_STATUS_V2
   | #TERMINATE_ACCEPT_INVITE
+  | #THEME
+  | #THEME_LIST
+  | #THEME_BY_LINEAGE
+  | #THEME_UPLOAD_ASSET
   | #NONE
 ]
 
@@ -204,5 +211,5 @@ type getUrlTypes = (
   ~reconType: reconType=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
+  ~queryParameters: option<string>=?,
 ) => string
