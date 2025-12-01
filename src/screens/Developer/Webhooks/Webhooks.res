@@ -18,8 +18,6 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchType, setSearchType) = React.useState(_ => ObjectId)
-  let (searchTrigger, setSearchTrigger) = React.useState(_ => 0)
   let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
@@ -90,7 +88,7 @@ let make = () => {
     }
   }
 
-  let fetchWebhooks = async () => {
+  let fetchWebhooks = async (~searchType: searchType) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
@@ -120,13 +118,6 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if searchText->isNonEmptyString {
-      setOffset(_ => 0)
-    }
-    None
-  }, [searchTrigger])
-
-  React.useEffect(() => {
     let currentFilterState = {
       let filterDict = Dict.make()
       filterValueJson
@@ -144,19 +135,19 @@ let make = () => {
       if offset !== 0 {
         setOffset(_ => 0)
       } else {
-        fetchWebhooks()->ignore
+        fetchWebhooks(~searchType=ObjectId)->ignore
       }
     } else {
-      fetchWebhooks()->ignore
+      fetchWebhooks(~searchType=ObjectId)->ignore
     }
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       setInitialFilters()
     }
     None
-  }, (filterValueJson, offset, searchTrigger))
+  }, (filterValueJson, offset))
 
-  let filtersUI = React.useMemo(() => {
+  let filtersUI =
     <Filter
       key="0"
       title="Webhooks"
@@ -181,13 +172,17 @@ let make = () => {
           {label: "Object ID", value: "object_id"},
           {label: "Event ID", value: "event_id"},
         ]
-        onTypeChange={value => setSearchType(_ => convertToSearchType(value))}
-        onSubmitSearchDropdown={() => setSearchTrigger(prev => prev + 1)}
+        onSubmitSearchDropdown={value => {
+          let searchTypeValue = convertToSearchType(value->Option.getOr("object_id"))
+          if searchText->isNonEmptyString {
+            setOffset(_ => 0)
+          }
+          fetchWebhooks(~searchType=searchTypeValue)->ignore
+        }}
         widthClass="w-max"
         showSearchIcon=true
       />}
     />
-  }, [searchText, searchType->searchTypeToString])
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />

@@ -26,7 +26,6 @@ let make = (
   ~showSearchIcon=false,
   ~showTypeSelector=false,
   ~typeSelectorOptions=?,
-  ~onTypeChange=?,
   ~onSubmitSearchDropdown=?,
 ) => {
   let (prevVal, setPrevVal) = React.useState(_ => "")
@@ -81,10 +80,6 @@ let make = (
 
   let handleTypeChange = value => {
     setSelectedType(_ => Some(value))
-    switch onTypeChange {
-    | Some(callback) => callback(value)
-    | None => ()
-    }
     setShowDropdown(_ => false)
   }
 
@@ -99,7 +94,7 @@ let make = (
     let keyCode = e->ReactEvent.Keyboard.keyCode
     if keyPressed == "Enter" || keyCode == 13 {
       switch onSubmitSearchDropdown {
-      | Some(callback) => callback()
+      | Some(callback) => callback(selectedType)
       | None => ()
       }
     }
