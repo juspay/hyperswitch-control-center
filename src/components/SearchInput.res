@@ -72,17 +72,19 @@ let make = (
   let currentLabel = React.useMemo(() => {
     switch (typeSelectorOptions, selectedType) {
     | (Some(options), Some(currentType)) =>
-      switch options->Array.find(option => option.value === currentType) {
-      | Some(option) => option.label
-      | None => options->Array.get(0)->Option.mapOr("Type", opt => opt.label)
-      }
+      options
+      ->Array.find(option => option.value === currentType)
+      ->Option.mapOr("Type", opt => opt.label)
     | _ => "Type"
     }
   }, (typeSelectorOptions, selectedType))
 
   let handleTypeChange = value => {
     setSelectedType(_ => Some(value))
-    onTypeChange->Option.forEach(callback => callback(value))
+    switch onTypeChange {
+    | Some(callback) => callback(value)
+    | None => ()
+    }
     setShowDropdown(_ => false)
   }
 
@@ -94,8 +96,12 @@ let make = (
 
   let handleKeyDown = e => {
     let keyPressed = e->ReactEvent.Keyboard.key
-    if keyPressed == "Enter" {
-      onSubmitSearchDropdown->Option.forEach(callback => callback())
+    let keyCode = e->ReactEvent.Keyboard.keyCode
+    if keyPressed == "Enter" || keyCode == 13 {
+      switch onSubmitSearchDropdown {
+      | Some(callback) => callback()
+      | None => ()
+      }
     }
     onKeyDown(e)
   }
