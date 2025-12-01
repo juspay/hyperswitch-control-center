@@ -64,7 +64,7 @@ let make = () => {
             entity={VaultProcessorsEntity.vaultProcessorEntity(
               "vault-processor",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
-              ~businessProfileRecoilVal,
+              ~external_vault_connector_details=businessProfileRecoilVal.external_vault_connector_details,
             )}
             filters={<TableSearchFilter
               data={configuredConnectors->Array.map(Nullable.make)}
