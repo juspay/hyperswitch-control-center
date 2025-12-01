@@ -55,7 +55,10 @@ type paymentLinkConfig = {
   ...styleConfig,
 }
 
-type externalVaultConnectorDetails = {vault_connector_id: string}
+type externalVaultConnectorDetails = {
+  vault_connector_id: string,
+  vault_token_selector: option<array<JSON.t>>,
+}
 
 type commonProfileEntity = {
   profile_id: string,

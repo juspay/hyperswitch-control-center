@@ -67,6 +67,63 @@ let vaultConnectors = connectorList => {
   )
 }
 
+let vault_token_selector_list = [
+  "card_number",
+  "card_cvc",
+  "card_expiry_year",
+  "card_expiry_month",
+  "network_token",
+  "network_token_cryptogram",
+  "network_token_expiry_month",
+  "network_token_expiry_year",
+]
+
+let vaultTokenSelectorDropdownOptions = vault_token_selector_list->Array.map((
+  item
+): SelectBox.dropdownOption => {
+  {
+    label: item->LogicUtils.snakeToTitle,
+    value: item,
+  }
+})
+
+let vaultTokenList = {
+  open LogicUtils
+
+  FormRenderer.makeFieldInfo(
+    ~label="Vault Token ",
+    ~name="external_vault_connector_details.vault_token_selector",
+    ~customInput=InputFields.multiSelectInput(
+      ~showSelectionAsChips=false,
+      ~options=vaultTokenSelectorDropdownOptions,
+      ~buttonText="Select Field",
+      ~customButtonStyle="!rounded-lg",
+      ~fixedDropDownDirection=BottomRight,
+      ~dropdownClassName="!max-h-15-rem !overflow-auto",
+      ~buttonSize=Button.Large,
+    ),
+    ~parse=(~value, ~name as _) => {
+      let parsedValue =
+        value
+        ->getArrayFromJson([])
+        ->Array.map(item => {
+          [("token_type", item)]->getJsonFromArrayOfJson
+        })
+
+      parsedValue->JSON.Encode.array
+    },
+    ~format=(~value, ~name as _) => {
+      let formattedValue =
+        value
+        ->getArrayFromJson([])
+        ->Array.map(item =>
+          item->getDictFromJsonObject->getString("token_type", "")->JSON.Encode.string
+        )
+      formattedValue->JSON.Encode.array
+    },
+  )
+}
+
 let customExternalVaultEnabled = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
