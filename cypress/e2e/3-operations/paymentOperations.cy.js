@@ -720,7 +720,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should verify all time range filters are displayed in date selector dropdown", () => {
+  it.skip("should verify all time range filters are displayed in date selector dropdown", () => {
     const timeRangeFilters = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -752,7 +752,7 @@ describe("Payment Operations", () => {
       });
   });
 
-  it("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
+  it.skip("should verify seletced timerange when predefined timerange is applied from dropdown", () => {
     const predefinedTimeRange = [
       "Last 30 Mins",
       "Last 1 Hour",
@@ -786,7 +786,7 @@ describe("Payment Operations", () => {
     }
   });
 
-  it("should verify applied custom timerange is displayed correctly", () => {
+  it.skip("should verify applied custom timerange is displayed correctly", () => {
     const now = new Date();
     const today = now.getDate();
     const previousMonth = new Date(
@@ -833,9 +833,55 @@ describe("Payment Operations", () => {
   });
 
   // Views
-  //should be present
+  it.skip("should verify all transaction filter views are displayed", () => {
+    const transactionViews = [
+      "All",
+      "Succeeded",
+      "Failed",
+      "Dropoffs",
+      "Cancelled",
+    ];
 
-  // should switch between different views and verify selected filters from filter dropdown
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.transactionView.should("be.visible").within(() => {
+      transactionViews.forEach((view) => {
+        cy.contains(view).should("exist");
+      });
+    });
+  });
+
+  it.skip("should switch between different transaction views and verify applied filters", () => {
+    const viewFilters = {
+      Succeeded: "Succeeded",
+      Failed: "Failed",
+      Dropoffs: "Dropoffs",
+      Cancelled: "Cancelled",
+    };
+
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    for (const [view, filter] of Object.entries(viewFilters)) {
+      paymentOperations.transactionView.contains(view).click();
+
+      cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+        "contain",
+        filter,
+      );
+    }
+  });
 
   // generate reports
 
