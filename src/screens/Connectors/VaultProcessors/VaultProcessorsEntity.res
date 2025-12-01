@@ -39,7 +39,7 @@ let getCell = (
     CustomCell(
       <HelperComponents.ConnectorCustomCell
         connectorName=connector.connector_name
-        connectorType={VaultProcessor}
+        connectorType=VaultProcessor
         showDefaultTag={connector.id == vault_processor_id}
       />,
       "",
