@@ -145,22 +145,6 @@ let getHeadingAndSubHeadingForMismatch = (
   (mismatchHeading, mismatchSubHeading)
 }
 
-let validateReasonField = (values: JSON.t) => {
-  let data = values->getDictFromJsonObject
-  let errors = Dict.make()
-
-  let errorMessage = if data->getString("reason", "")->isEmptyString {
-    "Reason cannot be empty!"
-  } else {
-    ""
-  }
-  if errorMessage->isNonEmptyString {
-    Dict.set(errors, "Error", errorMessage->JSON.Encode.string)
-  }
-
-  errors->JSON.Encode.object
-}
-
 let exceptionTransactionEntryItemToItemMapper = (
   dict
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
@@ -173,6 +157,7 @@ let exceptionTransactionEntryItemToItemMapper = (
     account_name: dict->getString("account_name", ""),
     amount: dict->getFloat("amount", 0.0),
     currency: dict->getString("currency", ""),
+    order_id: dict->getString("order_id", ""),
     status: dict->getString("status", "")->getEntryStatusVariantFromString,
     discarded_status: dict->getOptionString("discarded_status"),
     version: dict->getInt("version", 0),
@@ -193,6 +178,8 @@ let getSumOfAmountWithCurrency = (
 }
 
 let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
+  let discardedDataDict =
+    dict->getDictfromDict("discarded_data")->processingEntryDiscardedDataItemToObjMapper
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -209,6 +196,13 @@ let exceptionTransactionProcessingEntryItemToObjMapper = dict => {
     ->getProcessingEntryStatusVariantFromString,
     transformation_id: dict->getString("transformation_id", ""),
     transformation_history_id: dict->getString("transformation_history_id", ""),
+    order_id: dict->getString("order_id", ""),
+    version: dict->getInt("version", 0),
+    discarded_status: dict->getOptionString("discarded_status"),
+    data: dict->getDictfromDict("data")->processingEntryDataItemToObjMapper,
+    discarded_data: discardedDataDict.status != UnknownProcessingEntryStatus
+      ? Some(discardedDataDict)
+      : None,
   }
 }
 
@@ -223,36 +217,19 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
   let isMetadataChanged = {
     let currentMetadata = currentData->getJsonObjectFromDict("metadata")
-    let currentMetadataJson = currentMetadata
     let initialMetadataJson = initialMetadata->JSON.Encode.object
-    currentMetadataJson->JSON.stringify != initialMetadataJson->JSON.stringify
+    currentMetadata->JSON.stringify != initialMetadataJson->JSON.stringify
   }
+  let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
-  isEntryTypeChanged || isAmountChanged || isEffectiveAtChanged || isMetadataChanged
+  isEntryTypeChanged ||
+  isAmountChanged ||
+  isEffectiveAtChanged ||
+  isMetadataChanged ||
+  isOrderIdChanged
 }
 
-let validateFields = (
-  data: Dict.t<JSON.t>,
-  rules: array<ReconEngineExceptionTransactionTypes.validationRule>,
-): JSON.t => {
-  rules
-  ->Array.filterMap(((fieldName, validator)) => {
-    switch validator(data) {
-    | Some(errorMessage) => Some((fieldName, errorMessage->JSON.Encode.string))
-    | None => None
-    }
-  })
-  ->Dict.fromArray
-  ->JSON.Encode.object
-}
-
-let requiredString = (fieldName: string, errorMsg: string) => {
-  (data: Dict.t<JSON.t>) => data->getString(fieldName, "")->isEmptyString ? Some(errorMsg) : None
-}
-
-let positiveFloat = (fieldName: string, errorMsg: string) => {
-  (data: Dict.t<JSON.t>) => data->getFloat(fieldName, -1.0) <= 0.0 ? Some(errorMsg) : None
-}
+open ReconEngineExceptionsUtils
 
 let validateCreateEntryDetails = (values: JSON.t): JSON.t => {
   let data = values->getDictFromJsonObject
@@ -261,6 +238,7 @@ let validateCreateEntryDetails = (values: JSON.t): JSON.t => {
     ("account", requiredString("account", "Cannot be empty!")),
     ("entry_type", requiredString("entry_type", "Cannot be empty!")),
     ("currency", requiredString("currency", "Cannot be empty!")),
+    ("order_id", requiredString("order_id", "Cannot be empty!")),
     ("effective_at", requiredString("effective_at", "Cannot be empty!")),
     ("amount", positiveFloat("amount", "Should be greater than 0!")),
   ]
@@ -276,6 +254,7 @@ let validateEditEntryDetails = (values: JSON.t, ~initialEntryDetails: entryType)
     ("entry_type", requiredString("entry_type", "Cannot be empty!")),
     ("currency", requiredString("currency", "Cannot be empty!")),
     ("effective_at", requiredString("effective_at", "Cannot be empty!")),
+    ("order_id", requiredString("order_id", "Cannot be empty!")),
     ("amount", positiveFloat("amount", "Should be greater than 0!")),
   ]
 
@@ -294,6 +273,7 @@ let getInitialValuesForEditEntries = (entryDetails: entryType) => {
     ("entry_type", (entryDetails.entry_type :> string)->JSON.Encode.string),
     ("currency", entryDetails.currency->JSON.Encode.string),
     ("amount", entryDetails.amount->JSON.Encode.float),
+    ("order_id", entryDetails.order_id->JSON.Encode.string),
     ("effective_at", entryDetails.effective_at->JSON.Encode.string),
     ("metadata", entryDetails.metadata->getFilteredMetadataFromEntries->JSON.Encode.object),
     (
@@ -304,7 +284,7 @@ let getInitialValuesForEditEntries = (entryDetails: entryType) => {
       },
     ),
   ]
-  fields->Dict.fromArray->JSON.Encode.object
+  fields->getJsonFromArrayOfJson
 }
 
 let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) => {
@@ -316,11 +296,12 @@ let getConvertedEntriesFromStagingEntry = (stagingEntry: processingEntryType) =>
     ("entry_type", stagingEntry.entry_type->JSON.Encode.string),
     ("currency", stagingEntry.currency->JSON.Encode.string),
     ("amount", stagingEntry.amount->JSON.Encode.float),
+    ("order_id", stagingEntry.order_id->JSON.Encode.string),
     ("effective_at", stagingEntry.effective_at->JSON.Encode.string),
     ("metadata", stagingEntry.metadata),
     ("staging_entry_id", stagingEntry.id->JSON.Encode.string),
     ("status", "pending"->JSON.Encode.string),
-    ("data", [("status", "pending"->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object),
+    ("data", [("status", "pending"->JSON.Encode.string)]->getJsonFromArrayOfJson),
     ("entry_key", uniqueId->JSON.Encode.string),
   ]
   ->Dict.fromArray
@@ -331,7 +312,7 @@ let getInitialValuesForNewEntries = () => {
   let todayDate = Js.Date.make()->Js.Date.toISOString
 
   let fields = [("effective_at", todayDate->JSON.Encode.string)]
-  fields->Dict.fromArray->JSON.Encode.object
+  fields->getJsonFromArrayOfJson
 }
 
 let getInnerVariant = (
@@ -355,6 +336,11 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
 
   if initialEntry.amount != updatedEntry.amount {
     let message = `Amount edited from ${updatedEntry.currency} ${initialEntry.amount->Float.toString} to ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.order_id != updatedEntry.order_id {
+    let message = `Order ID changed to ${updatedEntry.order_id} in ${updatedEntry.account_name} account.`
     summary->Array.push(message)
   }
 
@@ -473,6 +459,7 @@ let getExceptionEntryTypeFromEntryType = (
     amount: entry.amount,
     currency: entry.currency,
     status: entry.status,
+    order_id: entry.order_id,
     discarded_status: entry.discarded_status,
     metadata: entry.metadata,
     data: entry.data,
@@ -495,6 +482,7 @@ let getEntryTypeFromExceptionEntryType = (
     transaction_id: entry.transaction_id,
     amount: entry.amount,
     currency: entry.currency,
+    order_id: entry.order_id,
     status: entry.status,
     discarded_status: entry.discarded_status,
     metadata: entry.metadata,
@@ -521,6 +509,7 @@ let constructManualReconciliationBody = (
       ("entry_type", (backendEntry.entry_type :> string)->JSON.Encode.string),
       ("amount", backendEntry.amount->JSON.Encode.float),
       ("currency", backendEntry.currency->JSON.Encode.string),
+      ("order_id", backendEntry.order_id->JSON.Encode.string),
       ("effective_at", backendEntry.effective_at->JSON.Encode.string),
       ("metadata", backendEntry.metadata),
       (
@@ -543,11 +532,11 @@ let constructManualReconciliationBody = (
 
 let getResolutionModalConfig = (
   exceptionStage: ReconEngineExceptionTransactionTypes.exceptionResolutionStage,
-): ReconEngineExceptionTransactionTypes.resolutionConfig => {
+): ReconEngineExceptionsTypes.resolutionConfig => {
   switch exceptionStage {
   | ResolvingException(VoidTransaction) => {
       heading: "Ignore Transaction",
-      description: "This will ignore the transaction in the system and it won't appear in any future reconciliations.",
+      description: "This will remove the transaction from the current Reconciliation.",
       layout: CenterModal,
       closeOnOutsideClick: true,
     }
@@ -559,21 +548,25 @@ let getResolutionModalConfig = (
     }
   | ResolvingException(EditEntry) => {
       heading: "Edit Entry",
+      description: "Allows you to fix data discrepancies in the selected entry.",
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
   | ResolvingException(MarkAsReceived) => {
       heading: "Mark as Received",
+      description: "Allows you to mark that the expected entry has been received.",
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
   | ResolvingException(CreateNewEntry) => {
       heading: "Create New Entry",
+      description: "Manually create an entry when data is missing from either accounts",
       layout: SidePanelModal,
       closeOnOutsideClick: false,
     }
   | ResolvingException(LinkStagingEntriesToTransaction) => {
-      heading: "Match with an existing staging entry",
+      heading: "Match with an existing transformed entry",
+      description: "Allows you to replace the existing entry with the correct transformed entries",
       layout: ExpandedSidePanelModal,
       closeOnOutsideClick: false,
     }
@@ -610,6 +603,7 @@ let getUpdatedEntry = (
     amount: formData->getFloat("amount", entryDetails.amount),
     currency: formData->getString("currency", ""),
     status: statusString->getEntryStatusVariantFromString,
+    order_id: formData->getString("order_id", entryDetails.order_id),
     discarded_status: entryDetails.discarded_status,
     version: entryDetails.version,
     metadata: formData->getJsonObjectFromDict("metadata"),
@@ -636,6 +630,7 @@ let getNewEntry = (
     transaction_id: formData->getString("transaction_id", ""),
     amount: formData->getFloat("amount", 0.0),
     currency: formData->getString("currency", ""),
+    order_id: formData->getString("order_id", ""),
     status: Pending,
     discarded_status: None,
     version: updatedEntriesList->Array.reduce(0, (max, entry) =>
@@ -746,7 +741,7 @@ let getFixEntriesButtons = (
   ~showMarkAsReceivedButton,
   ~setExceptionStage,
   ~setActiveModal,
-): array<ReconEngineExceptionTransactionTypes.buttonConfig> => {
+): array<ReconEngineExceptionsTypes.buttonConfig> => {
   open ReconEngineExceptionTransactionTypes
   [
     {
@@ -755,6 +750,7 @@ let getFixEntriesButtons = (
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(EditEntry),
       onClick: () => setExceptionStage(_ => ResolvingException(EditEntry)),
+      buttonType: Secondary,
     },
     {
       text: "Mark as received",
@@ -762,6 +758,7 @@ let getFixEntriesButtons = (
       iconClass: "text-nd_gray-600",
       condition: showMarkAsReceivedButton,
       onClick: () => setExceptionStage(_ => ResolvingException(MarkAsReceived)),
+      buttonType: Secondary,
     },
     {
       text: "Create new entry",
@@ -772,6 +769,7 @@ let getFixEntriesButtons = (
         setExceptionStage(_ => ResolvingException(CreateNewEntry))
         setActiveModal(_ => Some(CreateEntryModal))
       },
+      buttonType: Secondary,
     },
     {
       text: "Replace Entry",
@@ -779,12 +777,13 @@ let getFixEntriesButtons = (
       iconClass: "text-nd_gray-600",
       condition: isResolutionAvailable(LinkStagingEntriesToTransaction),
       onClick: () => setExceptionStage(_ => ResolvingException(LinkStagingEntriesToTransaction)),
+      buttonType: Secondary,
     },
   ]
 }
 
 let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~setActiveModal): array<
-  ReconEngineExceptionTransactionTypes.buttonConfig,
+  ReconEngineExceptionsTypes.buttonConfig,
 > => {
   open ReconEngineExceptionTransactionTypes
   [
@@ -797,6 +796,7 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
         setExceptionStage(_ => ResolvingException(ForceReconcile))
         setActiveModal(_ => Some(ForceReconcileModal))
       },
+      buttonType: Secondary,
     },
     {
       text: "Ignore Transaction",
@@ -807,11 +807,13 @@ let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~set
         setExceptionStage(_ => ResolvingException(VoidTransaction))
         setActiveModal(_ => Some(IgnoreTransactionModal))
       },
+      buttonType: Secondary,
     },
   ]
 }
 
 let getBottomBarConfig = (~exceptionStage, ~selectedRows, ~setActiveModal) => {
+  open ReconEngineExceptionsTypes
   open ReconEngineExceptionTransactionTypes
   switch exceptionStage {
   | ResolvingException(EditEntry) =>

@@ -28,25 +28,38 @@ module InfoViewForWebhooks = {
 @react.component
 let make = () => {
   open Typography
+  open HyperswitchAtom
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=AuthenticationProcessor,
+  )
+  let {userInfo: {profileId, merchantId, version}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isBusinessProfileHasThreeds =
+    threedsConnectorList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
+  let paymentBehaviourTab: Tabs.tab = {
+    title: "Payment Behaviour",
+    renderContent: () => <PaymentSettingsPaymentBehaviour />,
+  }
 
-  let tabs: array<Tabs.tab> = [
-    {
-      title: "Payment Behaviour",
-      renderContent: () => {
-        <PaymentSettingsPaymentBehaviour />
-      },
-    },
-    {
-      title: "3DS",
-      renderContent: () => <PaymentSettingsThreeDs />,
-    },
+  let threeDsTab: Tabs.tab = {
+    title: "3DS",
+    renderContent: () => <PaymentSettingsThreeDs />,
+  }
+
+  let vaultTab: Tabs.tab = {
+    title: "Vault",
+    renderContent: () => <PaymentSettingsVault />,
+  }
+
+  let additionalTabs: array<Tabs.tab> = [
     {
       title: "Custom Headers",
       renderContent: () => <PaymentSettingsCustomWebhookHeaders />,
@@ -56,6 +69,19 @@ let make = () => {
       renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
     },
   ]
+
+  let finalAdditionalTabs: array<Tabs.tab> = if featureFlagDetails.vaultProcessor {
+    Array.concat([vaultTab], additionalTabs)
+  } else {
+    additionalTabs
+  }
+
+  let tabs = if version == V2 && !isBusinessProfileHasThreeds {
+    Array.concat([paymentBehaviourTab], finalAdditionalTabs)
+  } else {
+    Array.concat(Array.concat([paymentBehaviourTab], [threeDsTab]), finalAdditionalTabs)
+  }
+
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
   let truncatedHashKey = `${hashKeyVal->String.slice(~start=0, ~end=20)}....`
 

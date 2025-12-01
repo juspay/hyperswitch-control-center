@@ -139,6 +139,9 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isMobileView = MatchMedia.useMobileChecker()
+  let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
@@ -164,7 +167,7 @@ let make = () => {
       }
     }
   }
-  let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+  let customStyle = `${primaryNormal} bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full`
   let addItemBtnStyle = "w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = `${roundedClass} border border-1 ${widthClass}`

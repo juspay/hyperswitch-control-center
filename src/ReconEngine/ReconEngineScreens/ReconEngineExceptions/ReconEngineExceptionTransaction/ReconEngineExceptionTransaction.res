@@ -1,3 +1,5 @@
+open Typography
+
 @react.component
 let make = (~ruleId: string) => {
   open LogicUtils
@@ -38,7 +40,8 @@ let make = (~ruleId: string) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase((obj.transaction_status :> string), searchText)
+          isContainingStringLowercase((obj.transaction_status :> string), searchText) ||
+          obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
         | None => false
         }
       })
@@ -61,7 +64,7 @@ let make = (~ruleId: string) => {
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
-      let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
+      let exceptionList = await getTransactions(~queryParameters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)
@@ -119,38 +122,50 @@ let make = (~ruleId: string) => {
   <div className="flex flex-col gap-4">
     <PageLoaderWrapper screenState>
       <div className="flex-shrink-0"> {topFilterUi} </div>
-      <LoadedTableWithCustomColumns
-        title="Exception Entries - Expected & Mismatched"
-        actualData={filteredExceptionData}
-        entity={hierarchicalTransactionsLoadedTableEntity(
-          `v1/recon-engine/exceptions`,
-          ~authorization=userHasAccess(~groupAccess=UsersManage),
-        )}
-        resultsPerPage=6
-        filters={<TableSearchFilter
-          data={exceptionData->Array.map(Nullable.make)}
-          filterLogic
-          placeholder="Search Transaction ID or Status"
-          customSearchBarWrapperWidth="w-full lg:w-1/3"
-          customInputBoxWidth="w-full rounded-xl"
-          searchVal=searchText
-          setSearchVal=setSearchText
-        />}
-        totalResults={filteredExceptionData->Array.length}
-        offset
-        setOffset
-        currrentFetchCount={exceptionData->Array.length}
-        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns={defaultColumns}
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        hideTitle=true
-        remoteSortEnabled=true
-        customizeColumnButtonIcon="nd-filter-horizontal"
-        hideRightTitleElement=true
-        showAutoScroll=true
-        customSeparation=[(2, 3)]
-      />
+      <RenderIf condition={exceptionData->Array.length == 0}>
+        <div className="h-40-vh flex flex-col justify-center items-center gap-2">
+          <p className={`${heading.sm.semibold} text-gray-800`}>
+            {"No exceptions to show."->React.string}
+          </p>
+          <p className={`${body.md.medium} text-gray-500`}>
+            {"All transactions are matched and reconciled successfully across this system."->React.string}
+          </p>
+        </div>
+      </RenderIf>
+      <RenderIf condition={exceptionData->Array.length > 0}>
+        <LoadedTableWithCustomColumns
+          title="Exception Entries - Expected & Mismatched"
+          actualData={filteredExceptionData}
+          entity={hierarchicalTransactionsLoadedTableEntity(
+            "v1/recon-engine/exceptions/recon",
+            ~authorization=userHasAccess(~groupAccess=UsersManage),
+          )}
+          resultsPerPage=6
+          filters={<TableSearchFilter
+            data={exceptionData->Array.map(Nullable.make)}
+            filterLogic
+            placeholder="Search Transaction ID or Order ID or Status"
+            customSearchBarWrapperWidth="w-full lg:w-1/3"
+            customInputBoxWidth="w-full rounded-xl"
+            searchVal=searchText
+            setSearchVal=setSearchText
+          />}
+          totalResults={filteredExceptionData->Array.length}
+          offset
+          setOffset
+          currrentFetchCount={exceptionData->Array.length}
+          customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
+          defaultColumns={defaultColumns}
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          hideTitle=true
+          remoteSortEnabled=true
+          customizeColumnButtonIcon="nd-filter-horizontal"
+          hideRightTitleElement=true
+          showAutoScroll=true
+          customSeparation=[(2, 3)]
+        />
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

@@ -110,7 +110,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(paymentId),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =

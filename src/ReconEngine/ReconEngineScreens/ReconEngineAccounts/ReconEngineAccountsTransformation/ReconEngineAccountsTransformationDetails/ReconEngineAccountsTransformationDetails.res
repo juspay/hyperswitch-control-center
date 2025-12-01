@@ -26,7 +26,7 @@ let make = (~accountId) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-        ~queryParamerters=Some(`account_id=${accountId}`),
+        ~queryParameters=Some(`account_id=${accountId}`),
       )
       let accountUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
@@ -38,6 +38,7 @@ let make = (~accountId) => {
       let accountRes = await fetchDetails(accountUrl)
       let transformationConfigs =
         transformationConfigsRes->getArrayDataFromJson(getTransformationConfigPayloadFromDict)
+      transformationConfigs->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
 
       switch url.search->getTransformationIdFromUrl {

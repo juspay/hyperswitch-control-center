@@ -22,7 +22,9 @@ module OrgTile = {
     let {userInfo: {orgId}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+        sidebarColor: {backgroundColor, secondaryTextColor, borderColor: sidebarBorderColor},
+        border: {borderColor},
+        font: {textColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
 
@@ -100,10 +102,6 @@ module OrgTile = {
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
-    let ringClass = switch isActive {
-    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
-    }
 
     let handleClick = () => {
       if !isActive {
@@ -115,9 +113,9 @@ module OrgTile = {
       onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
       <div
-        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${ringClass} ${isActive
-            ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
-            : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
+        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${isActive
+            ? `bg-white/20 ${borderColor.primaryNormal} ${textColor.primaryNormal}`
+            : `${secondaryTextColor}hover:bg-white/10 border-sidebar-borderColor`}`}>
         <RenderIf condition={isPlatformOrganization}>
           <div
             className={`absolute top-5-px right-5-px w-0 h-0 border-t-[10px] border-l-[10px] ${isActive
@@ -126,7 +124,8 @@ module OrgTile = {
           />
         </RenderIf>
         <span className={body.xs.medium}> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40`}>
+        <div
+          className={`${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -162,6 +161,7 @@ module OrgTile = {
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
             showTooltipOnHover=true
+            toolTipPosition=BottomRight
           />
         </div>
       </div>
@@ -405,7 +405,10 @@ let make = () => {
   }
 
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, hoverColor, borderColor},
+      font: {textColor: {primaryNormal}},
+    },
   } = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrgDetails = async () => {
@@ -522,8 +525,8 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
-          <Icon name="plus" size=20 className={secondaryTextColor} />
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${primaryNormal}`}>
+          <Icon name="plus" size=20 className={primaryNormal} />
         </div>
       </RenderIf>
     </div>

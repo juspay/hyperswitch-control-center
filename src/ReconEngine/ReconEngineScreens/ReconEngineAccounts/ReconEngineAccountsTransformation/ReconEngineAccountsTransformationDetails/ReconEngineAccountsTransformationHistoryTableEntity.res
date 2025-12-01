@@ -3,11 +3,12 @@ open ReconEngineAccountsSourcesEntity
 
 let defaultColumns: array<ReconEngineAccountsSourcesEntity.transformationHistoryColType> = [
   TransformationHistoryId,
+  IngestionHistoryId,
+  Status,
   TotalRecords,
   ProcessedCount,
   IgnoredCount,
   ErrorCount,
-  Status,
   TransformedAt,
   Actions,
 ]

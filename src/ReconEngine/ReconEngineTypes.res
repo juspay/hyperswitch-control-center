@@ -18,6 +18,7 @@ type accountType = {
   expected_credits: balanceType,
   mismatched_debits: balanceType,
   mismatched_credits: balanceType,
+  created_at: string,
 }
 
 type accountRefType = {
@@ -85,6 +86,7 @@ type ingestionConfigType = {
   name: string,
   last_synced_at: string,
   data: JSON.t,
+  created_at: string,
 }
 
 type transformationConfigType = {
@@ -149,6 +151,7 @@ type transactionEntryType = {
   account: accountType,
   amount: balanceType,
   status: entryStatus,
+  order_id: string,
 }
 
 type transactionPostedType =
@@ -187,6 +190,7 @@ type entryType = {
   transaction_id: string,
   amount: float,
   currency: string,
+  order_id: string,
   status: entryStatus,
   discarded_status: option<string>,
   metadata: Js.Json.t,
@@ -205,6 +209,26 @@ type processingEntryStatus =
   | @as("void") Void
   | @as("unknown") UnknownProcessingEntryStatus
 
+@unboxed
+type needsManualReviewType =
+  | @as("no_rules_found") NoRulesFound
+  | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("duplicate_entry") DuplicateEntry
+  | @as("no_expectation_entry_found") NoExpectationEntryFound
+  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
+  | @as("missing_unique_field") MissingUniqueField
+  | UnknownNeedsManualReviewType
+
+type processingEntryDataType = {
+  status: processingEntryStatus,
+  needs_manual_review_type: needsManualReviewType,
+}
+
+type processingEntryDiscardedDataType = {
+  status: processingEntryStatus,
+  reason: string,
+}
+
 type processingEntryType = {
   id: string,
   staging_entry_id: string,
@@ -218,6 +242,11 @@ type processingEntryType = {
   transformation_id: string,
   transformation_history_id: string,
   effective_at: string,
+  order_id: string,
+  version: int,
+  discarded_status: option<string>,
+  data: processingEntryDataType,
+  discarded_data: option<processingEntryDiscardedDataType>,
 }
 
 type processedEntryType = {
@@ -229,4 +258,44 @@ type processedEntryType = {
   expected: string,
   effective_at: string,
   created_at: string,
+}
+
+type metadataFieldType = {
+  identifier: string,
+  field_name: string,
+  field_type: string,
+}
+
+type balanceDirectionFieldType = {
+  identifier: string,
+  credit_values: array<string>,
+  debit_values: array<string>,
+}
+
+type basicFieldIdentifierType = {identifier: string}
+
+type schemaFieldsType = {
+  currency: basicFieldIdentifierType,
+  amount: basicFieldIdentifierType,
+  effective_at: basicFieldIdentifierType,
+  balance_direction: balanceDirectionFieldType,
+  order_id: basicFieldIdentifierType,
+  metadata_fields: array<metadataFieldType>,
+}
+
+type schemaDataType = {
+  schema_type: string,
+  fields: schemaFieldsType,
+  processing_mode: string,
+}
+
+type metadataSchemaType = {
+  id: string,
+  schema_id: string,
+  profile_id: string,
+  account_id: string,
+  schema_data: schemaDataType,
+  version: int,
+  created_at: string,
+  last_modified_at: string,
 }

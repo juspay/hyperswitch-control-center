@@ -12,25 +12,25 @@ module CustomToastElement = {
     | PartiallyReconciled => (
         "Transaction partially reconciled",
         "Please review the exceptions page for details",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/exceptions/${transaction.id}`)}`,
+        `exceptions/recon/${transaction.transaction_id}`,
         "See Exception",
       )
     | Void => (
         "Transaction ignored successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     | Posted => (
         "Transaction matched successfully",
         "Your transaction has been moved to transactions page",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     | _ => (
         "Transaction processed successfully",
         "Please review the transactions page for details",
-        `${GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/transactions/${transaction.id}`)}`,
+        `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
     }
@@ -42,7 +42,7 @@ module CustomToastElement = {
         <div className="flex flex-col gap-2">
           <p className={`${heading.sm.semibold} text-nd_gray-25`}> {message->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-300`}> {description->React.string} </p>
-          <Link to_=link>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`/v1/recon-engine/${link}`)}>
             <p
               className={`${body.md.semibold} text-nd_primary_blue-400 hover:text-nd_primary_blue-300 cursor-pointer`}>
               {linkText->React.string}
@@ -67,7 +67,7 @@ module ResolutionModal = {
     ~exceptionStage: exceptionResolutionStage,
     ~setExceptionStage,
     ~setSelectedRows,
-    ~config: resolutionConfig,
+    ~config: ReconEngineExceptionsTypes.resolutionConfig,
     ~children,
     ~activeModal,
     ~setActiveModal,
@@ -92,14 +92,14 @@ module ResolutionModal = {
     | SidePanelModal => (
         "flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
         "relative h-full flex flex-col overflow-y-auto",
-        "",
-        "",
+        `${heading.sm.semibold} text-nd_gray-700`,
+        `${body.md.regular} text-nd_gray-600 mt-1`,
       )
     | ExpandedSidePanelModal => (
         "flex flex-col justify-start h-screen w-1/2 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background",
         "relative h-full flex flex-col overflow-y-auto",
-        "",
-        "",
+        `${heading.sm.semibold} text-nd_gray-700`,
+        `${body.md.regular} text-nd_gray-600 mt-1`,
       )
     }
 
@@ -287,7 +287,7 @@ module MetadataInput = {
           </span>
         </p>
         <style> {React.string(expandableTableScrollbarCss)} </style>
-        <div className="flex flex-col gap-3 max-h-64 overflow-y-scroll show-scrollbar pr-2">
+        <div className="flex flex-col gap-3 max-h-40 overflow-y-scroll show-scrollbar pr-2">
           {metadataRows
           ->Array.map(row => {
             <div
@@ -364,7 +364,7 @@ let reasonMultiLineTextInputField = (~label) => {
     field={FormRenderer.makeFieldInfo(
       ~label,
       ~name="reason",
-      ~placeholder="Enter reason",
+      ~placeholder="Enter remark",
       ~customInput=InputFields.multiLineTextInput(
         ~isDisabled=false,
         ~rows=Some(4),
@@ -475,6 +475,20 @@ let amountTextInputField = (~disabled: bool=false) => {
   />
 }
 
+let orderIdTextInputField = (~disabled: bool=false) => {
+  <FormRenderer.FieldRenderer
+    labelClass="font-semibold"
+    field={FormRenderer.makeFieldInfo(
+      ~label="Order ID",
+      ~name="order_id",
+      ~placeholder="Enter Order ID",
+      ~customInput=InputFields.textInput(~inputStyle="!rounded-xl", ~isDisabled=disabled),
+      ~isRequired=true,
+      ~disabled,
+    )}
+  />
+}
+
 let effectiveAtDatePickerInputField = () => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
@@ -505,7 +519,7 @@ let metadataCustomInputField = (~disabled: bool=false) => {
 }
 
 let getEntriesSections = (
-  ~groupedEntries: Dict.t<array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>>,
+  ~groupedEntries: Dict.t<array<exceptionResolutionEntryType>>,
   ~accountInfoMap,
   ~detailsFields,
   ~showTotalAmount: bool=true,
@@ -537,7 +551,11 @@ let getEntriesSections = (
         </p>
         <RenderIf condition={showTotalAmount}>
           <div className={`${amountColorClass} ${body.lg.medium}`}>
-            {`${currency} ${totalAmount->Float.toString}`->React.string}
+            {CurrencyFormatUtils.valueFormatter(
+              totalAmount,
+              AmountWithSuffix,
+              ~currency,
+            )->React.string}
           </div>
         </RenderIf>
       </div>
@@ -606,27 +624,9 @@ let getStagingEntrySections = (~stagingEntries, ~stagingEntriesDetailsFields) =>
   ]
 }
 
-module ResolutionButton = {
-  @react.component
-  let make = (~config: ReconEngineExceptionTransactionTypes.buttonConfig) => {
-    <RenderIf condition={config.condition}>
-      <Button
-        buttonState=Normal
-        buttonSize=Medium
-        buttonType=Secondary
-        text={config.text}
-        textWeight={`${body.md.semibold}`}
-        leftIcon={CustomIcon(<Icon name={config.icon} className={config.iconClass} size=16 />)}
-        onClick={_ => config.onClick()}
-        customButtonStyle="!w-fit"
-      />
-    </RenderIf>
-  }
-}
-
 module BottomActionBar = {
   @react.component
-  let make = (~config: ReconEngineExceptionTransactionTypes.bottomBarConfig) => {
+  let make = (~config: ReconEngineExceptionsTypes.bottomBarConfig) => {
     <>
       <p className={`${body.md.semibold} text-nd_gray-500`}> {config.prompt->React.string} </p>
       <Button

@@ -117,7 +117,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
         ~entityName=V1(USERS),
         ~userType=#GROUP_ACCESS_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
+        ~queryParameters=Some(`groups=true`),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
