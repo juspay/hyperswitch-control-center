@@ -491,7 +491,6 @@ let make = () => {
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
         </div>
       </DesktopRow>
-      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
