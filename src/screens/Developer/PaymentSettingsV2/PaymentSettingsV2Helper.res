@@ -100,6 +100,7 @@ let vaultTokenList = {
       ~customButtonStyle="!rounded-lg",
       ~fixedDropDownDirection=BottomRight,
       ~dropdownClassName="!max-h-15-rem !overflow-auto",
+      ~buttonSize=Button.Large,
     ),
     ~parse=(~value, ~name as _) => {
       let parsedValue =
