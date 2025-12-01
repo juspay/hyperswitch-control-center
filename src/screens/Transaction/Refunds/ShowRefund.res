@@ -199,7 +199,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Events and logs",
-              renderContent: () => {
+              renderContent: _ => {
                 <LogsWrapper wrapperFor={#REFUND}>
                   <RefundLogs refundId=id paymentId />
                 </LogsWrapper>

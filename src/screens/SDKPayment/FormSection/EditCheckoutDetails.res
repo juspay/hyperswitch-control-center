@@ -89,7 +89,7 @@ let make = (
         accordion={[
           {
             title: "Authorization & Capture Settings",
-            renderContent: () => {
+            renderContent: _ => {
               <AuthorizationAndCaptureSettings
                 showSetupFutureUsage
                 setShowSetupFutureUsage

@@ -211,7 +211,7 @@ let make = (~showModal, ~setShowModal) => {
               // },
               {
                 title: "Business details ",
-                renderContent: () => {
+                renderContent: _ => {
                   <div>
                     <FormRenderer.FieldRenderer
                       fieldWrapperClass="w-full"

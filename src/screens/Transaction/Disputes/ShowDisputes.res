@@ -230,7 +230,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Events and logs",
-              renderContent: () => {
+              renderContent: _ => {
                 <LogsWrapper wrapperFor={#DISPUTE}>
                   <DisputeLogs disputeId=id paymentId />
                 </LogsWrapper>

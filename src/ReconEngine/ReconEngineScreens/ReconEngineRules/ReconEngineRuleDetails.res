@@ -365,7 +365,7 @@ module RuleSchemaComponents = {
         accordion={[
           {
             title: "Source and Target Accounts",
-            renderContent: () => <SourceTargetAccount rule />,
+            renderContent: _ => <SourceTargetAccount rule />,
             renderContentOnTop: None,
           },
         ]}
@@ -380,7 +380,7 @@ module RuleSchemaComponents = {
         accordion={[
           {
             title: "Filters",
-            renderContent: () => <TriggerRules rule />,
+            renderContent: _ => <TriggerRules rule />,
             renderContentOnTop: None,
           },
         ]}
@@ -395,7 +395,7 @@ module RuleSchemaComponents = {
         accordion={[
           {
             title: "Identifiers",
-            renderContent: () => <SearchIdentifier rule />,
+            renderContent: _ => <SearchIdentifier rule />,
             renderContentOnTop: None,
           },
         ]}
@@ -410,7 +410,7 @@ module RuleSchemaComponents = {
         accordion={[
           {
             title: "Rules",
-            renderContent: () => <MappingRules rule />,
+            renderContent: _ => <MappingRules rule />,
             renderContentOnTop: None,
           },
         ]}
