@@ -1,6 +1,8 @@
 @react.component
 let make = () => {
   open APIUtils
+  open Typography
+
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
 
@@ -29,17 +31,17 @@ let make = () => {
     | Loading =>
       <>
         <Loader />
-        <div className="mt-4 text-gray-600 text-sm">
+        <div className={`mt-4 text-nd_gray-500 ${body.md.medium}`}>
           {"Processing authorization request..."->React.string}
         </div>
       </>
     | Error(_) =>
       <div className="flex flex-col items-center gap-4 p-8">
         <Icon name="close-circle" size=48 className="text-red-600" />
-        <div className="text-xl font-semibold text-gray-800">
-          {"Authorization Failed"->React.string}
+        <div className={`${heading.lg.semibold} text-nd_gray-900`}>
+          {"Authorization failed"->React.string}
         </div>
-        <div className="text-sm text-gray-600 text-center max-w-md">
+        <div className={`text-center max-w-md text-nd_gray-500 ${body.md.medium}`}>
           {errorMessage->React.string}
         </div>
       </div>
