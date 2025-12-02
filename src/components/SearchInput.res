@@ -73,14 +73,19 @@ let make = (
     | (Some(options), Some(currentType)) =>
       options
       ->Array.find(option => option.value === currentType)
-      ->Option.mapOr("Type", opt => opt.label)
-    | _ => "Type"
+      ->Option.mapOr("Select", opt => opt.label)
+    | _ => "Select"
     }
   }, (typeSelectorOptions, selectedType))
 
   let handleTypeChange = value => {
     setSelectedType(_ => Some(value))
     setShowDropdown(_ => false)
+  }
+
+  let handleOptionClick = (event, optionValue) => {
+    ReactEvent.Mouse.preventDefault(event)
+    handleTypeChange(optionValue)
   }
 
   let form = shouldSubmitForm ? None : Some("fakeForm")
@@ -163,54 +168,50 @@ let make = (
       </AddDataAttributes>
     </RenderIf>
     <RenderIf condition={showTypeSelector && typeSelectorOptions->Option.isSome}>
-      {typeSelectorOptions->Option.mapOr(React.null, options =>
-        <div className="flex items-center">
-          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-          <div className="relative">
-            <button
-              type_="button"
-              onClick={handleToggleDropdown}
-              className={`flex items-center gap-1 px-3 h-10 ${body.sm.regular} text-gray-700 dark:text-gray-300 bg-transparent rounded-r-lg transition-all duration-200 focus:outline-none active:outline-none outline-none border-0 shadow-none active:shadow-none focus:shadow-none active:border-0 focus:border-0 select-none`}>
-              <span className={`${body.sm.regular} whitespace-nowrap`}>
-                {currentLabel->React.string}
-              </span>
-              <Icon
-                size=10
-                name="chevron-down"
-                className={`transition-transform duration-200 text-gray-500 ${showDropdown
-                    ? "rotate-180"
-                    : ""}`}
-              />
-            </button>
-            <RenderIf condition=showDropdown>
-              <div
-                ref={dropdownRef->ReactDOM.Ref.domRef}
-                className="absolute right-0 top-full mt-1 bg-white dark:bg-jp-gray-lightgray_background border border-gray-200 dark:border-jp-gray-850 rounded-lg shadow-lg z-50 min-w-28 overflow-hidden">
-                {options
-                ->Array.map(option => {
-                  let isSelected = selectedType->Option.mapOr(false, st => st === option.value)
-                  <button
-                    key={option.value}
-                    type_="button"
-                    onMouseDown={event => {
-                      ReactEvent.Mouse.preventDefault(event)
-                      handleTypeChange(option.value)
-                    }}
-                    className={`w-full px-3 py-2 text-xs text-left transition-colors ${isSelected
-                        ? "bg-gray-100 dark:bg-jp-gray-850 text-gray-700 dark:text-gray-300"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-jp-gray-800"}`}>
-                    <div className="flex items-center justify-between gap-2">
-                      <span> {option.label->React.string} </span>
-                      <Tick isSelected />
-                    </div>
-                  </button>
-                })
-                ->React.array}
-              </div>
-            </RenderIf>
-          </div>
+      <div className="flex items-center">
+        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+        <div className="relative">
+          <button
+            type_="button"
+            onClick={handleToggleDropdown}
+            className={`flex items-center gap-1 px-3 h-10 ${body.sm.regular} text-gray-700 dark:text-gray-300 bg-transparent rounded-r-lg transition-all duration-200 focus:outline-none active:outline-none outline-none border-0 shadow-none active:shadow-none focus:shadow-none active:border-0 focus:border-0 select-none`}>
+            <span className={`${body.sm.regular} whitespace-nowrap`}>
+              {currentLabel->React.string}
+            </span>
+            <Icon
+              size=10
+              name="chevron-down"
+              className={`transition-transform duration-200 text-gray-500 ${showDropdown
+                  ? "rotate-180"
+                  : ""}`}
+            />
+          </button>
+          <RenderIf condition=showDropdown>
+            <div
+              ref={dropdownRef->ReactDOM.Ref.domRef}
+              className="absolute right-0 top-full mt-1 bg-white dark:bg-jp-gray-lightgray_background border border-gray-200 dark:border-jp-gray-850 rounded-lg shadow-lg z-50 min-w-28 overflow-hidden">
+              {typeSelectorOptions
+              ->Option.getOr([{label: "Select", value: ""}])
+              ->Array.map(option => {
+                let isSelected = selectedType->Option.mapOr(false, st => st === option.value)
+                <button
+                  key={option.value}
+                  type_="button"
+                  onMouseDown={event => handleOptionClick(event, option.value)}
+                  className={`w-full px-3 py-2 text-xs text-left transition-colors ${isSelected
+                      ? "bg-gray-100 dark:bg-jp-gray-850 text-gray-700 dark:text-gray-300"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-jp-gray-800"}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span> {option.label->React.string} </span>
+                    <Tick isSelected />
+                  </div>
+                </button>
+              })
+              ->React.array}
+            </div>
+          </RenderIf>
         </div>
-      )}
+      </div>
     </RenderIf>
   </div>
 }

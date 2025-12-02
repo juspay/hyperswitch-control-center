@@ -141,6 +141,19 @@ let make = () => {
     None
   }, (filterValueJson, offset))
 
+  let selectorOptions: array<SearchInput.searchTypeOption> = [
+    {label: "Object ID", value: "object_id"},
+    {label: "Event ID", value: "event_id"},
+  ]
+
+  let handleSearchSubmit = value => {
+    let searchTypeValue = convertToSearchType(value->Option.getOr("object_id"))
+    if searchText->isNonEmptyString {
+      setOffset(_ => 0)
+    }
+    fetchWebhooks(~searchType=searchTypeValue)->ignore
+  }
+
   let filtersUI =
     <Filter
       key="0"
@@ -162,17 +175,8 @@ let make = () => {
         inputText=searchText
         placeholder="Search by ID"
         showTypeSelector=true
-        typeSelectorOptions=[
-          {label: "Object ID", value: "object_id"},
-          {label: "Event ID", value: "event_id"},
-        ]
-        onSubmitSearchDropdown={value => {
-          let searchTypeValue = convertToSearchType(value->Option.getOr("object_id"))
-          if searchText->isNonEmptyString {
-            setOffset(_ => 0)
-          }
-          fetchWebhooks(~searchType=searchTypeValue)->ignore
-        }}
+        typeSelectorOptions=selectorOptions
+        onSubmitSearchDropdown=handleSearchSubmit
         widthClass="w-max"
         showSearchIcon=true
       />}
