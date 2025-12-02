@@ -97,6 +97,7 @@ module SidebarItem = {
     ~isSidebarExpanded,
     ~setOpenItem=_ => (),
     ~onItemClickCustom=_ => (),
+    ~showIcon=false,
   ) => {
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
@@ -148,7 +149,7 @@ module SidebarItem = {
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${hoverColor} ${selectedClass}`}>
-                <SidebarOption name icon isSidebarExpanded isSelected />
+                <SidebarOption name icon isSidebarExpanded isSelected showIcon />
               </div>
             </AddDataAttributes>
           </Link>
@@ -748,9 +749,6 @@ let make = (
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
               <div className="flex flex-col gap-2 p-2.5 pt-0">
-                <div className={`px-3 pb-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
-                  {React.string(activeProduct->getProductDisplayName->String.toUpperCase)}
-                </div>
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
                   switch tabInfo {
@@ -826,6 +824,7 @@ let make = (
                           isSidebarExpanded
                           setOpenItem
                           onItemClickCustom={_ => onItemClickCustom(record)}
+                          showIcon={!devSidebarV2}
                         />
                       }
                     | _ => React.null

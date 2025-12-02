@@ -50,6 +50,14 @@ module VaultFields = {
             fieldWrapperClass="max-w-sm"
           />
         </DesktopRow>
+        <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4" itemWrapperClass="mx-1">
+          <FieldRenderer
+            field={vaultTokenList}
+            errorClass
+            labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+            fieldWrapperClass="max-w-sm"
+          />
+        </DesktopRow>
       </RenderIf>
     </>
   }
