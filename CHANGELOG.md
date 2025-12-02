@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.02.0
+
+### Features
+
+- Add a new field to add vault token in payment settings ([#3907](https://github.com/juspay/hyperswitch-control-center/pull/3907)) ([`3fb7f21`](https://github.com/juspay/hyperswitch-control-center/commit/3fb7f2104fa8d37d97cb26bd883bda2b2c718b94))
+
+### Miscellaneous Tasks
+
+- Add cypress test cases ([#3901](https://github.com/juspay/hyperswitch-control-center/pull/3901)) ([`77f4096`](https://github.com/juspay/hyperswitch-control-center/commit/77f4096317d95d2f05aa6c6a5ec4fe825e016894))
+- Remove disable functionality in vault connector ([#3922](https://github.com/juspay/hyperswitch-control-center/pull/3922)) ([`1498c60`](https://github.com/juspay/hyperswitch-control-center/commit/1498c609879fe464620bfb7ef9ee600fb08fd728))
+
+**Full Changelog:** [`2025.12.01.0...2025.12.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.01.0...2025.12.02.0)
+
+- - -
+
 ## 2025.12.01.0
 
 ### Features
