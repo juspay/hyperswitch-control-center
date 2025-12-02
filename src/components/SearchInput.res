@@ -68,15 +68,11 @@ let make = (
     setShowDropdown(prev => !prev)
   }
 
-  let currentLabel = React.useMemo(() => {
-    switch (typeSelectorOptions, selectedType) {
-    | (Some(options), Some(currentType)) =>
-      options
-      ->Array.find(option => option.value === currentType)
-      ->Option.mapOr("Select", opt => opt.label)
-    | _ => "Select"
-    }
-  }, (typeSelectorOptions, selectedType))
+  let currentLabel =
+    typeSelectorOptions
+    ->Option.getOr([])
+    ->Array.find(option => selectedType->Option.mapOr(false, st => option.value === st))
+    ->Option.mapOr("Select", opt => opt.label)
 
   let handleTypeChange = value => {
     setSelectedType(_ => Some(value))
@@ -194,13 +190,14 @@ let make = (
               ->Option.getOr([{label: "Select", value: ""}])
               ->Array.map(option => {
                 let isSelected = selectedType->Option.mapOr(false, st => st === option.value)
+                let optionClassName = `w-full px-3 py-2 text-xs text-left transition-colors ${isSelected
+                  ? "bg-gray-100 dark:bg-jp-gray-850 text-gray-700 dark:text-gray-300"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-jp-gray-800"}`
                 <button
                   key={option.value}
                   type_="button"
                   onMouseDown={event => handleOptionClick(event, option.value)}
-                  className={`w-full px-3 py-2 text-xs text-left transition-colors ${isSelected
-                      ? "bg-gray-100 dark:bg-jp-gray-850 text-gray-700 dark:text-gray-300"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-jp-gray-800"}`}>
+                  className=optionClassName>
                   <div className="flex items-center justify-between gap-2">
                     <span> {option.label->React.string} </span>
                     <Tick isSelected />
