@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.02.2
+
+### Bug Fixes
+
+- Alignment issue in vault payment settings ([#3936](https://github.com/juspay/hyperswitch-control-center/pull/3936)) ([`f5d96bc`](https://github.com/juspay/hyperswitch-control-center/commit/f5d96bcd5360e2e0c372cf53f5f11e393ea14017))
+
+**Full Changelog:** [`2025.12.02.1...2025.12.02.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.02.1...2025.12.02.2)
+
+- - -
+
 ## 2025.12.02.1
 
 ### Miscellaneous Tasks
