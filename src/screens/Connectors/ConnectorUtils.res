@@ -169,7 +169,6 @@ let connectorList: array<connectorTypes> = [
   Processors(TESOURO),
   Processors(FINIX),
   Processors(ZIFT),
-  Processors(AMAZONPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -895,7 +894,6 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FINIX => "finix"
   | PAYJUSTNOW => "payjustnow"
   | ZIFT => "zift"
-  | AMAZONPAY => "amazonpay"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1083,7 +1081,6 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "tesouro" => Processors(TESOURO)
     | "finix" => Processors(FINIX)
     | "zift" => Processors(ZIFT)
-    | "amazonpay" => Processors(AMAZONPAY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1249,7 +1246,6 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FINIX => finixInfo
   | PAYJUSTNOW => payjustnowInfo
   | ZIFT => ziftInfo
-  | AMAZONPAY => ziftInfo
   }
 }
 
@@ -2191,7 +2187,6 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | FINIX => "Finix"
   | PAYJUSTNOW => "PayJustNow"
   | ZIFT => "Zift"
-  | AMAZONPAY => "Amazon Pay"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
