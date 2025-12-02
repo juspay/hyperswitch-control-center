@@ -13,7 +13,10 @@ type authConnectorDetailsType_v1 = {
   three_ds_requestor_app_url: option<string>,
 }
 
-type externalVaultConnectorDetailsType_v1 = {vault_connector_id: string}
+type externalVaultConnectorDetailsType_v1 = {
+  vault_connector_id: string,
+  vault_token_selector: option<array<JSON.t>>,
+}
 
 type profileEntityRequestType_v1 = {
   profile_name: string,
