@@ -41,15 +41,11 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     amazonPayFieldsArray
     ->Array.mapWithIndex((field, index) => {
       let amazonPayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      let {name} = amazonPayField
       <div key={index->Int.toString}>
-        {switch name {
-        | _ =>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={amazonPayValueInput(~amazonPayField, ~fill=textColor.primaryNormal)}
-          />
-        }}
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={amazonPayValueInput(~amazonPayField, ~fill=textColor.primaryNormal)}
+        />
       </div>
     })
     ->React.array
@@ -65,6 +61,5 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         buttonState={formState.values->AmazonPayIntegrationUtils.validateAmazonPay}
       />
     </div>
-    <FormValuesSpy />
   </div>
 }

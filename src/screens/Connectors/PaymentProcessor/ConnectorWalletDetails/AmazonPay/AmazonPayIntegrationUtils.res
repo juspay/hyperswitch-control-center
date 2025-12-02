@@ -1,7 +1,7 @@
 open LogicUtils
 open AmazonPayIntegrationTypes
 
-let amazonPayRequest = dict => {
+let amazonPayRequestDictToTypeMapper = dict => {
   {
     merchant_id: dict->getString("merchant_id", ""),
     store_id: dict->getString("store_id", ""),
@@ -34,7 +34,7 @@ let validateAmazonPay = (json: JSON.t) => {
     ->getDictFromJsonObject
     ->getDictfromDict("connector_wallets_details")
     ->getDictfromDict("amazon_pay")
-    ->amazonPayRequest
+    ->amazonPayRequestDictToTypeMapper
 
   let isMerchantIdValid = merchant_id->String.length > 0
   let isStoreIdValid = store_id->String.length > 0
