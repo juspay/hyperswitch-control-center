@@ -53,6 +53,4 @@ type attemptTable = {
   created: string,
 }
 
-type searchType =
-  | EventId
-  | ObjectId
+type searchType = [#object_id | #event_id]

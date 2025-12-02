@@ -34,17 +34,11 @@ let make = () => {
 
   let convertToSearchType = (value: string): searchType => {
     switch value {
-    | "object_id" => ObjectId
-    | "event_id" => EventId
-    | _ => ObjectId
+    | "object_id" => #object_id
+    | "event_id" => #event_id
+    | _ => #object_id
     }
   }
-
-  let searchTypeToString = (search_type: searchType): string =>
-    switch search_type {
-    | ObjectId => "object_id"
-    | EventId => "event_id"
-    }
 
   let customUI =
     <NoDataFound message renderType=Painting>
@@ -97,7 +91,7 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->Dict.set(searchTypeToString(searchType), searchText->JSON.Encode.string)
+        payload->Dict.set((searchType :> string), searchText->JSON.Encode.string)
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -135,10 +129,10 @@ let make = () => {
       if offset !== 0 {
         setOffset(_ => 0)
       } else {
-        fetchWebhooks(~searchType=ObjectId)->ignore
+        fetchWebhooks(~searchType=#object_id)->ignore
       }
     } else {
-      fetchWebhooks(~searchType=ObjectId)->ignore
+      fetchWebhooks(~searchType=#object_id)->ignore
     }
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
