@@ -155,7 +155,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#LIST_ROLES_FOR_INVITE,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=${roleEntity}`),
+        ~queryParameters=Some(`entity_type=${roleEntity}`),
       )
       let result = await fetchDetails(url)
       setOptions(_ => result->makeSelectBoxOptions)

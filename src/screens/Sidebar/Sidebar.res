@@ -491,10 +491,16 @@ module ProductTypeSectionItem = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
+    let {onProductSelectClick, activeProduct} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
     let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
-    let handleClick = _ => onProductSelectClick(section.name)
+    let handleClick = _ => {
+      if activeProduct != sectionProductVariant {
+        onProductSelectClick(section.name)
+      }
+    }
 
     <div className="flex flex-col">
       <div
@@ -741,7 +747,10 @@ let make = (
               className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
-              <div className="flex flex-col gap-2 p-2.5 pt-0 ">
+              <div className="flex flex-col gap-2 p-2.5 pt-0">
+                <div className={`px-3 pb-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
+                  {React.string(activeProduct->getProductDisplayName->String.toUpperCase)}
+                </div>
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
                   switch tabInfo {

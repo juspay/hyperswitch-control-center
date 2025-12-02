@@ -1,3 +1,5 @@
+open Typography
+
 module PmtConfigInp = {
   @react.component
   let make = (
@@ -161,6 +163,7 @@ let make = (
     Nullable.null
   }
   let id = `payment_methods_enabled[${payment_method_index->Int.toString}].payment_method_types[${payment_method_types_index->Int.toString}]`
+  let labelClass = `text-nd_gray-700 ${body.xs.medium}`
 
   <>
     <RenderIf condition={showPaymentMthdConfigModal}>
@@ -193,6 +196,24 @@ let make = (
                   label: `Currencies`,
                   options: currencies,
                 })}
+              />
+              <FormRenderer.FieldRenderer
+                labelClass
+                field={FormRenderer.makeFieldInfo(
+                  ~label="Minimum Amount",
+                  ~name=`${id}.minimum_amount`,
+                  ~placeholder="Enter Minimum Amount",
+                  ~customInput=InputFields.numericTextInput(~customStyle="!rounded-xl"),
+                )}
+              />
+              <FormRenderer.FieldRenderer
+                labelClass
+                field={FormRenderer.makeFieldInfo(
+                  ~label="Maximum Amount",
+                  ~name=`${id}.maximum_amount`,
+                  ~placeholder="Enter Maximum Amount",
+                  ~customInput=InputFields.numericTextInput(~customStyle="!rounded-xl"),
+                )}
               />
             </div>
             <hr className="w-full" />

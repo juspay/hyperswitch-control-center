@@ -68,19 +68,19 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
             }
           },
           ~methodType=Get,
-          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       | Refunds =>
         getURL(
           ~entityName=V1(REFUNDS_AGGREGATE),
           ~methodType=Get,
-          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       | Disputes =>
         getURL(
           ~entityName=V1(DISPUTES_AGGREGATE),
           ~methodType=Get,
-          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       }
 

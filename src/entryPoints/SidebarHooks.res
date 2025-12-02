@@ -31,6 +31,9 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
+    vaultProcessor,
+    devModularityV2,
+    devTheme,
   } = featureFlagDetails
   let {
     useIsFeatureEnabledForBlackListMerchant,
@@ -51,6 +54,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isTaxProcessor=taxProcessor,
       ~userHasResourceAccess,
       ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
     ),
     default->analytics(
       disputeAnalytics,
@@ -76,7 +80,13 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
       ~paymentLinkThemeConfigurator,
     ),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
+    settings(
+      ~isConfigurePmtsEnabled=configurePmts,
+      ~userHasResourceAccess,
+      ~complianceCertificate,
+      ~devModularityV2Enabled=devModularityV2,
+      ~devThemeEnabled=devTheme,
+    ),
   ]
 }
 
@@ -178,9 +188,23 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
-
-  if featureFlagDetails.devModularityV2 {
+  if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  } else if featureFlagDetails.devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
         name: "Home",
