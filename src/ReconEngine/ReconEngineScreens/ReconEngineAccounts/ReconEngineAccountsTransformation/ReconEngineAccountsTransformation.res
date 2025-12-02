@@ -42,7 +42,8 @@ let make = () => {
           accordion={accountData->Array.map((account): Accordion.accordion => {
             {
               title: account.account_name,
-              renderContent: _ => <ReconEngineAccountTransformationConfigs account={account} />,
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+                <ReconEngineAccountTransformationConfigs account={account} />,
               renderContentOnTop: Some(
                 () => {
                   <ReconEngineAccountTransformationAccordionOnTop account={account} />

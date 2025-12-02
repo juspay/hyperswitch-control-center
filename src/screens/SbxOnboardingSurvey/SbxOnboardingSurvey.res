@@ -211,7 +211,7 @@ let make = (~showModal, ~setShowModal) => {
               // },
               {
                 title: "Business details ",
-                renderContent: _ => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div>
                     <FormRenderer.FieldRenderer
                       fieldWrapperClass="w-full"

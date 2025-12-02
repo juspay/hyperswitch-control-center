@@ -1,6 +1,6 @@
 type accordion = {
   title: string,
-  renderContent: (unit => unit) => React.element,
+  renderContent: (~currentAccordianState: bool, ~closeAccordionFn: unit => unit) => React.element,
   renderContentOnTop: option<unit => React.element>,
   onItemExpandClick?: unit => unit,
 }
@@ -141,7 +141,7 @@ module AccordionInfo = {
       </div>
       <div
         className={`flex flex-col dark:border-jp-gray-960 border-t dark:hover:bg-jp-gray-900 dark:hover:bg-opacity-25 ${contentClasses}`}>
-        {accordion.renderContent(closeAccordionFn)}
+        {accordion.renderContent(~currentAccordianState=isExpanded, ~closeAccordionFn)}
       </div>
     </div>
   }

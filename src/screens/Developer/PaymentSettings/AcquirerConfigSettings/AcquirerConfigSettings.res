@@ -269,7 +269,8 @@ let make = () => {
   let accordionData: array<Accordion.accordion> = [
     {
       title: "Acquirer Config Settings",
-      renderContent: _ => <AcquirerConfigContent />,
+      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+        <AcquirerConfigContent />,
       renderContentOnTop: None,
     },
   ]

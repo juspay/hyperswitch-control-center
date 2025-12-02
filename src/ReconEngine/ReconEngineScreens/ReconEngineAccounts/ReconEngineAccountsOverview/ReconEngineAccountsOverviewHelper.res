@@ -103,12 +103,13 @@ let getAccordionConfig = (
   [
     {
       title: "Source & Ingestion Config",
-      renderContent: _ => <ReconEngineAccountsOverviewIngestion ingestionHistoryData />,
+      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+        <ReconEngineAccountsOverviewIngestion ingestionHistoryData />,
       renderContentOnTop: Some(() => <SourceIngestionHeader ingestionHistoryData />),
     },
     {
       title: "Transformation Config",
-      renderContent: _ =>
+      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
         <ReconEngineAccountsOverviewTransformation
           ingestionHistoryId=ingestionHistoryData.ingestion_history_id
           setSelectedTransformationHistoryId
@@ -120,7 +121,7 @@ let getAccordionConfig = (
     },
     {
       title: "Transformed Entries",
-      renderContent: _ => {
+      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
         <FilterContext
           key={`recon-engine-accounts-sources-staging-${selectedTransformationHistoryId}`}
           index="recon-engine-accounts-sources-staging">
