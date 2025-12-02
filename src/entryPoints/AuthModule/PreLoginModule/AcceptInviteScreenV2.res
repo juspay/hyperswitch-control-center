@@ -18,7 +18,7 @@ let make = (~onClick) => {
         ~entityName=V1(USERS),
         ~methodType=Post,
         ~userType={#ACCEPT_INVITE_FROM_EMAIL},
-        ~queryParamerters=Some("status_check=true"),
+        ~queryParameters=Some("status_check=true"),
       )
       let res = await updateDetails(url, body, Post)
 
