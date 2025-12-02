@@ -145,6 +145,9 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
 
 let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
   vault_connector_id: externalVaultConnectorDetailsDict->getString("vault_connector_id", ""),
+  vault_token_selector: externalVaultConnectorDetailsDict->getOptionalArrayFromDict(
+    "vault_token_selector",
+  ),
 }
 
 let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {

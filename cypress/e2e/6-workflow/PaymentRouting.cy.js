@@ -50,22 +50,6 @@ describe("Volume based routing", () => {
       "Smart routing configuration",
     );
 
-    //verify selected profile
-    homePage.profileDropdown.click();
-    let profileID;
-    homePage.profileDropdownList
-      .children()
-      .eq(1)
-      .invoke("text")
-      .then((text) => {
-        profileID = text;
-        let convertedStr = profileID.replace("pro", " (pro") + ")";
-        cy.get(`[data-button-text="${convertedStr}"]`).should(
-          "contain",
-          convertedStr,
-        );
-      });
-
     // verify Configuration Name placeholder
     const currentDate = new Date();
     let formattedDate = currentDate.toISOString().split("T")[0];

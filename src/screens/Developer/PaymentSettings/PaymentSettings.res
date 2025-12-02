@@ -709,6 +709,7 @@ module Vault = {
     open HSwitchUtils
     open FormRenderer
     open LogicUtils
+    open PaymentSettingsUtils
     open PaymentSettingsV2Utils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
@@ -770,18 +771,51 @@ module Vault = {
                 ~label="Vault Connectors",
                 ~name="external_vault_connector_details.vault_connector_id",
                 ~customInput=InputFields.selectInput(
-                  ~options=vaultConnectorsList->Array.map((item): SelectBox.dropdownOption => {
-                    {
-                      label: `${item.connector_label} - ${item.id}`,
-                      value: item.id,
-                    }
-                  }),
+                  ~options=vaultConnectorsList->vaultConnectorDropdownOptions,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                  ~dropdownCustomWidth="!w-full",
+                ),
+                ~isRequired=true,
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Token ",
+                ~name="external_vault_connector_details.vault_token_selector",
+                ~customInput=InputFields.multiSelectInput(
+                  ~buttonSize=Button.Large,
+                  ~showSelectionAsChips=false,
+                  ~options=vaultTokenSelectorDropdownOptions,
                   ~buttonText="Select Field",
                   ~customButtonStyle="!rounded-lg",
                   ~fixedDropDownDirection=BottomRight,
                   ~dropdownClassName="!max-h-15-rem !overflow-auto",
                 ),
-                ~isRequired=true,
+                ~parse=(~value, ~name as _) => {
+                  let parsedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item => {
+                      [("token_type", item)]->getJsonFromArrayOfJson
+                    })
+
+                  parsedValue->JSON.Encode.array
+                },
+                ~format=(~value, ~name as _) => {
+                  let formattedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item =>
+                      item->getDictFromJsonObject->getString("token_type", "")->JSON.Encode.string
+                    )
+                  formattedValue->JSON.Encode.array
+                },
               )}
               errorClass
               labelClass={`text-nd_gray-700 ${body.md.semibold}`}
