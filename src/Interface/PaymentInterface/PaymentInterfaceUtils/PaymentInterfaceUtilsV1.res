@@ -187,6 +187,9 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     attempt_count: dict->getInt("attempt_count", 0),
     connector_label: dict->getString("connector_label", "NA"),
     split_payments: dict->getDictfromDict("split_payments"),
+    extended_auth_last_applied_at: dict->getString("extended_auth_last_applied_at", ""),
+    extended_auth_applied: dict->getBool("extended_auth_applied", false),
+    request_extended_auth: dict->getBool("request_extended_auth", false),
   }
 }
 
@@ -325,5 +328,8 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     attempt_count: order.attempt_count,
     connector_label: order.connector_label,
     split_payments: order.split_payments,
+    extended_auth_last_applied_at: order.extended_auth_last_applied_at,
+    extended_auth_applied: order.extended_auth_applied,
+    request_extended_auth: order.request_extended_auth,
   }
 }

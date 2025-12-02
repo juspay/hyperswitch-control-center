@@ -913,11 +913,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       StatementDescriptorSuffix,
                       PaymentExperience,
                       MerchantOrderReferenceId,
+                      ExtendedAuthApplied,
+                      ExtendedAuthLastAppliedAt,
+                      RequestExtendedAuth,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
                     openRefundModal={() => ()}
-                    widthClass="md:w-1/4 w-full"
+                    widthClass="md:w-1/3 w-full"
                     paymentId={orderData.payment_id}
                     border=""
                   />
