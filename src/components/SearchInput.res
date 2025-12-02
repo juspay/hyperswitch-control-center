@@ -116,16 +116,16 @@ let make = (
     ? "border-nd_primary_blue-500 dark:border-nd_primary_blue-500"
     : "border-nd_br_gray-200 border-opacity-75 hover:border-opacity-100 focus-within:!border-nd_primary_blue-500 focus-within:!border-opacity-100 dark:border-jp-gray-850"
 
-  let containerClass = React.useMemo(() => {
-    if showTypeSelector {
-      `${widthClass} relative flex items-center border rounded-lg transition-all duration-200 bg-nd_gray-0 hover:bg-nd_gray-50 dark:bg-jp-gray-lightgray_background ${borderColorClass}`
-    } else {
-      `${widthClass} ${borderClass} ${heightClass} flex flex-row items-center justify-between
+  let containerClass = showTypeSelector
+    ? {
+        `${widthClass} relative flex items-center border rounded-lg transition-all duration-200 bg-nd_gray-0 hover:bg-nd_gray-50 dark:bg-jp-gray-lightgray_background ${borderColorClass}`
+      }
+    : {
+        `${widthClass} ${borderClass} ${heightClass} flex flex-row items-center justify-between
       dark:bg-jp-gray-lightgray_background
       dark:focus-within:border-primary hover:border-opacity-100
       dark:border-jp-gray-850 dark:border-opacity-50 dark:hover:border-opacity-100 ${bgColor}`
-    }
-  }, (showTypeSelector, widthClass, borderClass, heightClass, showDropdown, bgColor))
+      }
 
   <div className=containerClass>
     <RenderIf condition={showSearchIcon}>
