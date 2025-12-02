@@ -3,6 +3,7 @@ type accordion = {
   renderContent: (~currentAccordianState: bool, ~closeAccordionFn: unit => unit) => React.element,
   renderContentOnTop: option<unit => React.element>,
   onItemExpandClick?: unit => unit,
+  onItemCollapseClick?: unit => unit,
 }
 
 type arrowPosition = Left | Right
@@ -93,6 +94,11 @@ module AccordionInfo = {
     let handleClick = _ => {
       if !isExpanded {
         switch accordion.onItemExpandClick {
+        | Some(fn) => fn()
+        | None => ()
+        }
+      } else {
+        switch accordion.onItemCollapseClick {
         | Some(fn) => fn()
         | None => ()
         }
