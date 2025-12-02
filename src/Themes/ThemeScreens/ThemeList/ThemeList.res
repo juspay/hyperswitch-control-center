@@ -19,7 +19,7 @@ let make = () => {
   let fetchTheme = async (~id) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(THEME), ~methodType=Get, ~id=Some(id))
+      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(id), ~userType=#THEME)
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)

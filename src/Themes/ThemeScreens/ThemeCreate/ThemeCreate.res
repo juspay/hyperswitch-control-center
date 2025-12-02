@@ -34,7 +34,7 @@ let make = () => {
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
-      let themeURL = getURL(~entityName=V1(THEME), ~methodType=Post, ~id=None)
+      let themeURL = getURL(~entityName=V1(USERS), ~methodType=Post, ~id=None, ~userType=#THEME)
       let _ = await updateDetails(themeURL, values, Post)
 
       setScreenState(_ => Success)
@@ -74,6 +74,5 @@ let make = () => {
       </div>
       <FormValuesSpy />
     </Form>
-    // <ThemeUploadAssetsModal showModal setShowModal themeID redirectToList />
   </PageLoaderWrapper>
 }

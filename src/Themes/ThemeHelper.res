@@ -118,9 +118,10 @@ module LineageFormContent = {
     let checkThemeExists = async (~entityType) => {
       try {
         let url = getURL(
-          ~entityName=V1(THEME_BY_LINEAGE),
+          ~entityName=V1(USERS),
           ~methodType=Get,
-          ~queryParamerters=Some(`entity_type=${entityType}`),
+          ~userType=#THEME_BY_LINEAGE,
+          ~queryParameters=Some(`entity_type=${entityType}`),
         )
         let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
         let themeID = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("theme_id", "")

@@ -218,9 +218,6 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
       }),
     ])
   }
-  if featureFlagDetails.devTheme {
-    defaultSidebar->Array.pushMany([ThemeSidebarValues.theme])
-  }
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars
