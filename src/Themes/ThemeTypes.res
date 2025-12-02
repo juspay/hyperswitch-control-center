@@ -26,3 +26,9 @@ let entityLevelToLabel = (level: entityType): string => {
   | PROFILE => "Profile Level"
   }
 }
+type themeOption = {
+  label: string,
+  value: string,
+  icon: React.element,
+  desc: string,
+}
