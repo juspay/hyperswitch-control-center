@@ -16,6 +16,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
@@ -23,6 +24,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
+    let hasWorkflowsManageAccess = userHasAccess(~groupAccess=WorkflowsManage) === Access
     [
       {
         title: "Active configuration",
@@ -41,7 +43,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
               />
         },
       },
-    ]
+    ]->Array.filter(tab => {
+      if tab.title === "Manage rules" {
+        hasWorkflowsManageAccess
+      } else {
+        true
+      }
+    })
   }, (routingType, debitRoutingValue))
 
   let fetchRoutingRecords = async activeIds => {
