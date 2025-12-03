@@ -3,6 +3,55 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.03.0
+
+### Features
+
+- Refactor user invitation acceptance flow with enhanced status feedback ([#3867](https://github.com/juspay/hyperswitch-control-center/pull/3867)) ([`23a365a`](https://github.com/juspay/hyperswitch-control-center/commit/23a365a5871f04dda01932eb5108d7adbac22645))
+
+### Miscellaneous Tasks
+
+- Add min and max amount validation in pmts ([#3923](https://github.com/juspay/hyperswitch-control-center/pull/3923)) ([`cd02936`](https://github.com/juspay/hyperswitch-control-center/commit/cd02936e08e016d53ca37d333a98f86a5a4e3c89))
+
+**Full Changelog:** [`2025.12.02.2...2025.12.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.02.2...2025.12.03.0)
+
+- - -
+
+## 2025.12.02.2
+
+### Bug Fixes
+
+- Alignment issue in vault payment settings ([#3936](https://github.com/juspay/hyperswitch-control-center/pull/3936)) ([`f5d96bc`](https://github.com/juspay/hyperswitch-control-center/commit/f5d96bcd5360e2e0c372cf53f5f11e393ea14017))
+
+**Full Changelog:** [`2025.12.02.1...2025.12.02.2`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.02.1...2025.12.02.2)
+
+- - -
+
+## 2025.12.02.1
+
+### Miscellaneous Tasks
+
+- Sidebar bugfix ([#3926](https://github.com/juspay/hyperswitch-control-center/pull/3926)) ([`eef8f7e`](https://github.com/juspay/hyperswitch-control-center/commit/eef8f7ede207b3536e26ee150f47ced723400fdc))
+
+**Full Changelog:** [`2025.12.02.0...2025.12.02.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.02.0...2025.12.02.1)
+
+- - -
+
+## 2025.12.02.0
+
+### Features
+
+- Add a new field to add vault token in payment settings ([#3907](https://github.com/juspay/hyperswitch-control-center/pull/3907)) ([`3fb7f21`](https://github.com/juspay/hyperswitch-control-center/commit/3fb7f2104fa8d37d97cb26bd883bda2b2c718b94))
+
+### Miscellaneous Tasks
+
+- Add cypress test cases ([#3901](https://github.com/juspay/hyperswitch-control-center/pull/3901)) ([`77f4096`](https://github.com/juspay/hyperswitch-control-center/commit/77f4096317d95d2f05aa6c6a5ec4fe825e016894))
+- Remove disable functionality in vault connector ([#3922](https://github.com/juspay/hyperswitch-control-center/pull/3922)) ([`1498c60`](https://github.com/juspay/hyperswitch-control-center/commit/1498c609879fe464620bfb7ef9ee600fb08fd728))
+
+**Full Changelog:** [`2025.12.01.0...2025.12.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.01.0...2025.12.02.0)
+
+- - -
+
 ## 2025.12.01.0
 
 ### Features

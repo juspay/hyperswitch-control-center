@@ -61,6 +61,7 @@ let mapV1ExternalVaultConnectorDetailsToCommonType: option<
   | Some(externalVaultConnectorDetails) =>
     Some({
       vault_connector_id: externalVaultConnectorDetails.vault_connector_id,
+      vault_token_selector: externalVaultConnectorDetails.vault_token_selector,
     })
   | None => None
   }
@@ -164,6 +165,9 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
 
 let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
   vault_connector_id: externalVaultConnectorDetailsDict->getString("vault_connector_id", ""),
+  vault_token_selector: externalVaultConnectorDetailsDict->getOptionalArrayFromDict(
+    "vault_token_selector",
+  ),
 }
 
 let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
