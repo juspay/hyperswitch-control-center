@@ -602,7 +602,7 @@ let make = (
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2} =
+  let {devModularityV2, devSidebarV2, devTheme} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -712,6 +712,7 @@ let make = (
   }
 
   let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
+  let isThemeSelected = linkSelectionCheck(firstPart, "/theme")
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
@@ -856,6 +857,22 @@ let make = (
                       />
                     </div>
                   </Link>
+                  <RenderIf condition={devTheme}>
+                    <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                      <div
+                        className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
+                            ? "bg-sidebar-hoverColor"
+                            : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                        <SidebarOption
+                          name="Theme"
+                          icon="nd-home"
+                          isSidebarExpanded
+                          isSelected={isThemeSelected}
+                          showIcon=true
+                        />
+                      </div>
+                    </Link>
+                  </RenderIf>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
                   </div>
