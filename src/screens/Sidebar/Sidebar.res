@@ -97,6 +97,7 @@ module SidebarItem = {
     ~isSidebarExpanded,
     ~setOpenItem=_ => (),
     ~onItemClickCustom=_ => (),
+    ~showIcon=false,
   ) => {
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
@@ -148,7 +149,7 @@ module SidebarItem = {
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${hoverColor} ${selectedClass}`}>
-                <SidebarOption name icon isSidebarExpanded isSelected />
+                <SidebarOption name icon isSidebarExpanded isSelected showIcon />
               </div>
             </AddDataAttributes>
           </Link>
@@ -491,10 +492,16 @@ module ProductTypeSectionItem = {
     let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let {onProductSelectClick} = React.useContext(ProductSelectionProvider.defaultContext)
+    let {onProductSelectClick, activeProduct} = React.useContext(
+      ProductSelectionProvider.defaultContext,
+    )
     let sectionProductVariant = section.name->getProductVariantFromDisplayName
 
-    let handleClick = _ => onProductSelectClick(section.name)
+    let handleClick = _ => {
+      if activeProduct != sectionProductVariant {
+        onProductSelectClick(section.name)
+      }
+    }
 
     <div className="flex flex-col">
       <div
@@ -741,7 +748,7 @@ let make = (
               className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar mt-4"
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
-              <div className="flex flex-col gap-2 p-2.5 pt-0 ">
+              <div className="flex flex-col gap-2 p-2.5 pt-0">
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
                   switch tabInfo {
@@ -817,6 +824,7 @@ let make = (
                           isSidebarExpanded
                           setOpenItem
                           onItemClickCustom={_ => onItemClickCustom(record)}
+                          showIcon={!devSidebarV2}
                         />
                       }
                     | _ => React.null

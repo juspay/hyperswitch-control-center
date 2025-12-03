@@ -18,7 +18,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
       let accounts = await getAccounts()
       setAccountData(_ => accounts)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(
+        ~queryParameters=Some(
           `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
         ),
       )

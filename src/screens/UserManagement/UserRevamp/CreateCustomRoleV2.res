@@ -214,7 +214,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#ROLE_INFO,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=${entityTypeString}`),
+        ~queryParameters=Some(`entity_type=${entityTypeString}`),
       )
       let res = await fetchDetails(url)
       let modules = getArrayDataFromJson(res, permissionModuleMapper)

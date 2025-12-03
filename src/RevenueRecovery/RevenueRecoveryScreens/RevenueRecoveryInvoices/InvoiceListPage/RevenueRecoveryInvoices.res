@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   open APIUtils
-  open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -53,9 +52,9 @@ let make = () => {
         ->Dict.fromArray
 
       let url = getURL(
-        ~entityName=V2(V2_ORDERS_LIST),
+        ~entityName=V2(V2_RECOVERY_INVOICES_LIST),
         ~methodType=Get,
-        ~queryParamerters=Some(filter->FilterUtils.parseFilterDict),
+        ~queryParameters=Some(filter->FilterUtils.parseFilterDict),
       )
       let res = await fetchDetails(url, ~version=V2)
 
@@ -64,45 +63,7 @@ let make = () => {
 
       let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
       let orderData = orderDataDictArr->Array.map(RevenueRecoveryEntity.itemToObjMapper)
-
-      // Process failed payments to get additional information from process tracker
-      let processedOrderData = await Promise.all(
-        orderData->Array.map(async order => {
-          // TODO: change this later
-          if order.status->RevenueRecoveryOrderUtils.statusVariantMapper == Terminated {
-            try {
-              let processTrackerUrl = getURL(
-                ~entityName=V2(PROCESS_TRACKER),
-                ~methodType=Get,
-                ~id=Some(order.id),
-              )
-              let processTrackerData = await fetchDetails(processTrackerUrl, ~version=V2)
-
-              let processTrackerDataDict = processTrackerData->getDictFromJsonObject
-
-              let status = processTrackerDataDict->getString("status", "")
-
-              if (
-                !(processTrackerDataDict->isEmptyDict) &&
-                status != Finish->schedulerStatusStringMapper
-              ) {
-                {
-                  ...order,
-                  status: Scheduled->statusStringMapper,
-                }
-              } else {
-                order
-              }
-            } catch {
-            | Exn.Error(_) => order
-            }
-          } else {
-            order
-          }
-        }),
-      )
-
-      setData(total, processedOrderData)
+      setData(total, orderData)
     } catch {
     | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
     }

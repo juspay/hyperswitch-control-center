@@ -87,11 +87,11 @@ let make = (
         decisionEngineConfigDict->Dict.set("decision_engine_configs", decisionEngineConfigValues)
       }
 
-      let queryParamerters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
+      let queryParameters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
       let url = getURL(
         ~entityName=V1(CREATE_AUTH_RATE_ROUTING),
         ~methodType=Post,
-        ~queryParamerters=Some(queryParamerters),
+        ~queryParameters=Some(queryParameters),
       )
       let response = await updateDetails(url, decisionEngineConfigDict->JSON.Encode.object, Post)
       if !isActivate {
@@ -121,11 +121,11 @@ let make = (
 
   let setVolumeSplit = async (splitPercentage: int) => {
     try {
-      let queryParamerters = `split=${splitPercentage->Int.toString}`
+      let queryParameters = `split=${splitPercentage->Int.toString}`
       let url = getURL(
         ~entityName=V1(SET_VOLUME_SPLIT),
         ~methodType=Post,
-        ~queryParamerters=Some(queryParamerters),
+        ~queryParameters=Some(queryParameters),
       )
       let _ = await updateDetails(url, JSON.Encode.null, Post)
     } catch {

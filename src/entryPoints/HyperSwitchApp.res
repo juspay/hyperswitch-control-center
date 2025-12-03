@@ -25,7 +25,7 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
@@ -216,7 +216,7 @@ let make = () => {
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
-
+                        | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"

@@ -307,7 +307,7 @@ let make = (
         ~entityName=V1(USERS),
         ~userType=#TERMINATE_TWO_FACTOR_AUTH,
         ~methodType=Get,
-        ~queryParamerters=Some(`skip_two_factor_auth=${skip_2fa->getStringFromBool}`),
+        ~queryParameters=Some(`skip_two_factor_auth=${skip_2fa->getStringFromBool}`),
       )
 
       let response = await fetchDetails(url)
