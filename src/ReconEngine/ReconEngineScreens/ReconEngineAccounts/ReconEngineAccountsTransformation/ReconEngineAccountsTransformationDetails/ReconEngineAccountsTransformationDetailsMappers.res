@@ -78,11 +78,10 @@ module ColumnMappingDisplay = {
 
 @react.component
 let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
-  open APIUtils
   open ReconEngineUtils
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let fetchMetadataSchema = useFetchMetadataSchema()
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Custom)
   let (metadataSchema, setMetadataSchema) = React.useState(_ =>
     Dict.make()->metadataSchemaItemToObjMapper
@@ -91,28 +90,9 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
   let fetchTransformationConfigDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let transformationConfigUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-        ~id=Some(selectedTransformationId),
+      let parsedMetadataSchema = await fetchMetadataSchema(
+        ~transformationId=selectedTransformationId,
       )
-      let transformationConfigsRes = await fetchDetails(transformationConfigUrl)
-      let transformationConfig =
-        transformationConfigsRes->getDictFromJsonObject->getTransformationConfigPayloadFromDict
-
-      let metadataSchemaID =
-        transformationConfig.config->getDictFromJsonObject->getString("metadata_schema_id", "")
-
-      let metadataSchemaURL = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#METADATA_SCHEMA,
-        ~id=Some(metadataSchemaID),
-      )
-      let metadataSchemaRes = await fetchDetails(metadataSchemaURL)
-      let parsedMetadataSchema =
-        metadataSchemaRes->getDictFromJsonObject->metadataSchemaItemToObjMapper
 
       if parsedMetadataSchema.id->isNonEmptyString {
         setMetadataSchema(_ => parsedMetadataSchema)
