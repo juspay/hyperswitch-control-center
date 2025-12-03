@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.03.0
+
+### Features
+
+- Refactor user invitation acceptance flow with enhanced status feedback ([#3867](https://github.com/juspay/hyperswitch-control-center/pull/3867)) ([`23a365a`](https://github.com/juspay/hyperswitch-control-center/commit/23a365a5871f04dda01932eb5108d7adbac22645))
+
+### Miscellaneous Tasks
+
+- Add min and max amount validation in pmts ([#3923](https://github.com/juspay/hyperswitch-control-center/pull/3923)) ([`cd02936`](https://github.com/juspay/hyperswitch-control-center/commit/cd02936e08e016d53ca37d333a98f86a5a4e3c89))
+
+**Full Changelog:** [`2025.12.02.2...2025.12.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.02.2...2025.12.03.0)
+
+- - -
+
 ## 2025.12.02.2
 
 ### Bug Fixes
