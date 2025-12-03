@@ -865,7 +865,7 @@ let make = (
                             : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
                         <SidebarOption
                           name="Theme"
-                          icon="nd-home"
+                          icon="nd-color-palette"
                           isSidebarExpanded
                           isSelected={isThemeSelected}
                           showIcon=true
