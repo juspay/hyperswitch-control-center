@@ -19,6 +19,7 @@ module CardRenderer = {
   open ConnectorTypes
   open ConnectorUtils
   open AdditionalDetailsSidebar
+  open Typography
 
   @react.component
   let make = (
@@ -45,8 +46,8 @@ module CardRenderer = {
       )
     }, [])
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
+    // let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    // let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
     let pmAuthProcessorList = ConnectorListInterface.useFilteredConnectorList(
@@ -132,7 +133,6 @@ module CardRenderer = {
         if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
         } else if showSideModal(method.payment_method_type->getPaymentMethodTypeFromString) {
-          setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
           setSelectedWallet(_ => method)
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
@@ -201,13 +201,16 @@ module CardRenderer = {
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
-    let title = switch paymentMethod->getPaymentMethodFromString {
-    | BankDebit => paymentMethod->snakeToTitle
-    | Wallet => selectedWallet.payment_method_type->snakeToTitle
-    | _ => ""
+    let checkIfAdditionalDetailsRequired = (
+      valueComing: ConnectorTypes.paymentMethodConfigType,
+    ) => {
+      showSideModal(valueComing.payment_method_type->getPaymentMethodTypeFromString)
     }
 
-    let modalHeading = `Additional Details to enable ${title}`
+    let methodsWithoutAdditionalDetails =
+      provider->Array.filter(val => !checkIfAdditionalDetailsRequired(val))
+    let methodsWithAdditionalDetails =
+      provider->Array.filter(val => checkIfAdditionalDetailsRequired(val))
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
@@ -272,122 +275,152 @@ module CardRenderer = {
           {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
         </div>
       </RenderIf>
-      <div className={`grid ${_showAdvancedConfiguration ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
-        {provider
-        ->Array.mapWithIndex((value, i) => {
-          <div key={i->Int.toString}>
-            <div className="flex">
-              <AddDataAttributes
-                attributes=[
-                  (
-                    "data-testid",
-                    `${paymentMethod
-                      ->String.concat("_")
-                      ->String.concat(value.payment_method_type)
-                      ->String.toLowerCase}`,
-                  ),
-                ]>
-                <div className="flex items-center gap-2">
-                  {switch connector->getConnectorNameTypeFromString {
-                  | Processors(KLARNA) =>
-                    <RenderIf
-                      condition={!(
-                        value.payment_experience->Option.getOr("") === "redirect_to_url" &&
-                          initialValues
-                          ->getDictFromJsonObject
-                          ->getDictfromDict("metadata")
-                          ->getString("klarna_region", "") !== "Europe"
-                      )}>
-                      <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                        <CheckBoxIcon isSelected={isSelected(value)} />
-                      </div>
-                    </RenderIf>
+      <div className="flex flex-col gap-8">
+        <RenderIf condition={methodsWithoutAdditionalDetails->Array.length > 0}>
+          <div
+            className={`grid ${_showAdvancedConfiguration ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
+            {methodsWithoutAdditionalDetails
+            ->Array.mapWithIndex((value, i) => {
+              <div key={i->Int.toString}>
+                <div className="flex">
+                  <AddDataAttributes
+                    attributes=[
+                      (
+                        "data-testid",
+                        `${paymentMethod
+                          ->String.concat("_")
+                          ->String.concat(value.payment_method_type)
+                          ->String.toLowerCase}`,
+                      ),
+                    ]>
+                    <div className="flex items-center gap-2">
+                      {switch connector->getConnectorNameTypeFromString {
+                      | Processors(KLARNA) =>
+                        <RenderIf
+                          condition={!(
+                            value.payment_experience->Option.getOr("") === "redirect_to_url" &&
+                              initialValues
+                              ->getDictFromJsonObject
+                              ->getDictfromDict("metadata")
+                              ->getString("klarna_region", "") !== "Europe"
+                          )}>
+                          <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
+                            <CheckBoxIcon isSelected={isSelected(value)} />
+                          </div>
+                        </RenderIf>
 
-                  | _ =>
-                    <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                      <CheckBoxIcon isSelected={isSelected(value)} />
+                      | _ =>
+                        <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
+                          <CheckBoxIcon isSelected={isSelected(value)} />
+                        </div>
+                      }}
+                      {switch (
+                        value.payment_method_type->getPaymentMethodTypeFromString,
+                        paymentMethod->getPaymentMethodFromString,
+                        connector->getConnectorNameTypeFromString,
+                      ) {
+                      | (PayPal, Wallet, Processors(PAYPAL)) =>
+                        <p
+                          className={`${p2RegularTextStyle} cursor-pointer`}
+                          onClick={_ => removeOrAddMethods(value)}>
+                          {value.payment_experience->Option.getOr("") === "redirect_to_url"
+                            ? "PayPal Redirect"->React.string
+                            : "PayPal SDK"->React.string}
+                        </p>
+                      | (Klarna, PayLater, Processors(KLARNA)) =>
+                        <RenderIf
+                          condition={!(
+                            value.payment_experience->Option.getOr("") === "redirect_to_url" &&
+                              initialValues
+                              ->getDictFromJsonObject
+                              ->getDictfromDict("metadata")
+                              ->getString("klarna_region", "") !== "Europe"
+                          )}>
+                          <p
+                            className={`${p2RegularTextStyle} cursor-pointer`}
+                            onClick={_ => removeOrAddMethods(value)}>
+                            {value.payment_experience->Option.getOr("") === "redirect_to_url"
+                              ? "Klarna Checkout"->React.string
+                              : "Klarna SDK"->React.string}
+                          </p>
+                        </RenderIf>
+
+                      | (OpenBankingPIS, _, _) =>
+                        <p
+                          className={`${p2RegularTextStyle} cursor-pointer`}
+                          onClick={_ => removeOrAddMethods(value)}>
+                          {"Open Banking PIS"->React.string}
+                        </p>
+                      | _ =>
+                        <p
+                          className={`${p2RegularTextStyle} cursor-pointer`}
+                          onClick={_ => removeOrAddMethods(value)}>
+                          {React.string(value.payment_method_type->snakeToTitle)}
+                        </p>
+                      }}
                     </div>
-                  }}
-                  {switch (
-                    value.payment_method_type->getPaymentMethodTypeFromString,
-                    paymentMethod->getPaymentMethodFromString,
-                    connector->getConnectorNameTypeFromString,
-                  ) {
-                  | (PayPal, Wallet, Processors(PAYPAL)) =>
-                    <p
-                      className={`${p2RegularTextStyle} cursor-pointer`}
-                      onClick={_ => removeOrAddMethods(value)}>
-                      {value.payment_experience->Option.getOr("") === "redirect_to_url"
-                        ? "PayPal Redirect"->React.string
-                        : "PayPal SDK"->React.string}
-                    </p>
-                  | (Klarna, PayLater, Processors(KLARNA)) =>
-                    <RenderIf
-                      condition={!(
-                        value.payment_experience->Option.getOr("") === "redirect_to_url" &&
-                          initialValues
-                          ->getDictFromJsonObject
-                          ->getDictfromDict("metadata")
-                          ->getString("klarna_region", "") !== "Europe"
-                      )}>
-                      <p
-                        className={`${p2RegularTextStyle} cursor-pointer`}
-                        onClick={_ => removeOrAddMethods(value)}>
-                        {value.payment_experience->Option.getOr("") === "redirect_to_url"
-                          ? "Klarna Checkout"->React.string
-                          : "Klarna SDK"->React.string}
-                      </p>
-                    </RenderIf>
-
-                  | (OpenBankingPIS, _, _) =>
-                    <p
-                      className={`${p2RegularTextStyle} cursor-pointer`}
-                      onClick={_ => removeOrAddMethods(value)}>
-                      {"Open Banking PIS"->React.string}
-                    </p>
-                  | _ =>
-                    <p
-                      className={`${p2RegularTextStyle} cursor-pointer`}
-                      onClick={_ => removeOrAddMethods(value)}>
-                      {React.string(value.payment_method_type->snakeToTitle)}
-                    </p>
-                  }}
+                  </AddDataAttributes>
                 </div>
-              </AddDataAttributes>
+              </div>
+            })
+            ->React.array}
+          </div>
+        </RenderIf>
+        <RenderIf condition={methodsWithAdditionalDetails->Array.length > 0}>
+          <div className="flex flex-col gap-4">
+            <p className={`${body.md.medium} text-grey-700 opacity-50`}>
+              {"Below payment method types requires additional details"->React.string}
+            </p>
+            <div className={`flex flex-col gap-4 `}>
+              {methodsWithAdditionalDetails
+              ->Array.map(value => {
+                <Accordion
+                  key={`${value.payment_method_type}-{i->Int.toString}`}
+                  arrowPosition=Right
+                  initialExpandedArray=[]
+                  accordion={[
+                    {
+                      title: value.payment_method_type,
+                      renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
+                        <AdditionalDetailsSidebarComp
+                          method={Some(selectedWallet)}
+                          setMetaData
+                          updateDetails
+                          paymentMethodsEnabled
+                          paymentMethod
+                          setInitialValues
+                          pmtName={selectedWallet.payment_method_type}
+                          closeAccordionFn
+                        />,
+                      onItemCollapseClick: () => {
+                        removeSelectedWallet()
+                      },
+                      onItemExpandClick: () => {
+                        removeOrAddMethods(value)
+                      },
+                      renderContentOnTop: Some(
+                        () => {
+                          <div className="flex gap-2 items-center cursor-pointer">
+                            <div className="cursor-pointer">
+                              <CheckBoxIcon isSelected={isSelected(value)} />
+                            </div>
+                            <p className={`${p2RegularTextStyle} cursor-pointer`}>
+                              {React.string(value.payment_method_type->snakeToTitle)}
+                            </p>
+                          </div>
+                        },
+                      ),
+                    },
+                  ]}
+                  accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                  contentExpandCss="p-0 "
+                  accordianBottomContainerCss="!p-2 flex justify-between w-full"
+                  gapClass="flex flex-col gap-8"
+                />
+              })
+              ->React.array}
             </div>
           </div>
-        })
-        ->React.array}
-        <RenderIf
-          condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
-            ApplePay ||
-          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
-          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === SamsungPay ||
-          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === Paze ||
-          (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
-          <Modal
-            modalHeading
-            headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-            headBgClass="sticky top-0 z-30 bg-white"
-            showModal={showWalletConfigurationModal}
-            setShowModal={setShowWalletConfigurationModal}
-            onCloseClickCustomFun={removeSelectedWallet}
-            paddingClass=""
-            revealFrom=Reveal.Right
-            modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-            childClass={""}>
-            <AdditionalDetailsSidebarComp
-              method={Some(selectedWallet)}
-              setMetaData
-              setShowWalletConfigurationModal
-              updateDetails
-              paymentMethodsEnabled
-              paymentMethod
-              onCloseClickCustomFun={removeSelectedWallet}
-              setInitialValues
-              pmtName={selectedWallet.payment_method_type}
-            />
-          </Modal>
         </RenderIf>
       </div>
     </div>

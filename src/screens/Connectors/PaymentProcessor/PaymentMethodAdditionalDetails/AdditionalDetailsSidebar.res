@@ -5,13 +5,12 @@ module AdditionalDetailsSidebarComp = {
   let make = (
     ~method: option<ConnectorTypes.paymentMethodConfigType>,
     ~setMetaData,
-    ~setShowWalletConfigurationModal,
     ~updateDetails,
     ~paymentMethodsEnabled,
     ~paymentMethod,
-    ~onCloseClickCustomFun,
     ~setInitialValues,
     ~pmtName: string,
+    ~closeAccordionFn,
   ) => {
     open LogicUtils
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
@@ -35,38 +34,21 @@ module AdditionalDetailsSidebarComp = {
       {switch paymentMethod->getPaymentMethodFromString {
       | BankDebit =>
         <BankDebit
-          setShowWalletConfigurationModal
           update=updatePaymentMethods
           paymentMethod
           paymentMethodType=pmtName
           setInitialValues
+          closeAccordionFn
         />
       | _ => React.null
       }}
       <RenderIf condition={paymentMethod->getPaymentMethodFromString !== BankDebit}>
         {switch pmtName->getPaymentMethodTypeFromString {
-        | ApplePay =>
-          <ApplePayIntegration
-            connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun
-          />
-        | GooglePay =>
-          <GooglePayIntegration
-            connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun
-          />
+        | ApplePay => <ApplePayIntegration connector closeAccordionFn update=updateMetadata />
+        | GooglePay => <GooglePayIntegration connector closeAccordionFn update=updateMetadata />
         | SamsungPay =>
-          <SamsungPayIntegration
-            connector
-            setShowWalletConfigurationModal
-            update=updatePaymentMethods
-            onCloseClickCustomFun
-          />
-        | Paze =>
-          <PazeIntegration
-            connector
-            setShowWalletConfigurationModal
-            update=updatePaymentMethods
-            onCloseClickCustomFun
-          />
+          <SamsungPayIntegration connector closeAccordionFn update=updatePaymentMethods />
+        | Paze => <PazeIntegration connector closeAccordionFn update=updatePaymentMethods />
         | _ => React.null
         }}
       </RenderIf>

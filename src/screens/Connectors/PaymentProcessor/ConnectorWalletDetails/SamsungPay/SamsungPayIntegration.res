@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update) => {
   open APIUtils
   open LogicUtils
   open SamsungPayIntegrationUtils
@@ -83,13 +83,9 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   }, [connector])
   let onSubmit = () => {
     update()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
-  let onCancel = () => {
-    onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
-  }
   let samsungPayFields =
     samsungPayFields
     ->Array.mapWithIndex((field, index) => {
@@ -125,17 +121,16 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       </div>
     </div>}
     sectionHeight="!h-screen">
-    <div className="p-2">
-      {samsungPayFields}
-      <div className={`flex gap-2  justify-end m-2 p-6`}>
-        <Button text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} />
-        <Button
-          onClick={_ => onSubmit()}
-          text="Continue"
-          buttonType={Primary}
-          buttonState={formState.values->SamsungPayIntegrationUtils.validateSamsungPay}
-        />
-      </div>
+    <div className="flex flex-col gap-6 p-6">
+      <div> {samsungPayFields} </div>
+      <Button
+        onClick={_ => onSubmit()}
+        text="Continue"
+        buttonType={Primary}
+        buttonState={formState.values->SamsungPayIntegrationUtils.validateSamsungPay}
+        customButtonStyle="w-full"
+        buttonSize={Small}
+      />
     </div>
   </PageLoaderWrapper>
 }

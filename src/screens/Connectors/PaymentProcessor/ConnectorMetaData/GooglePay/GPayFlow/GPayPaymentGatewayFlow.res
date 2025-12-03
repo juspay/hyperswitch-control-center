@@ -2,9 +2,8 @@
 let make = (
   ~googlePayFields,
   ~googlePayIntegrationType,
-  ~closeModal,
   ~connector,
-  ~setShowWalletConfigurationModal,
+  ~closeAccordionFn,
   ~update,
 ) => {
   open LogicUtils
@@ -50,39 +49,34 @@ let make = (
       ->getMetadataFromConnectorWalletDetailsGooglePay(connector)
       ->Identity.genericTypeToJson
     form.change("metadata.google_pay", metadataDetails)
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
     let _ = update(metadataDetails)
     Nullable.null->Promise.resolve
   }
 
-  <>
-    {googlePayFieldsForPaymentGateway
-    ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={index->Int.toString}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
-          field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
-        />
-      </div>
-    })
-    ->React.array}
-    <div className={`flex gap-2 justify-end mt-4`}>
-      <Button
-        text="Cancel"
-        buttonType={Secondary}
-        onClick={_ => {
-          closeModal()->ignore
-        }}
-      />
-      <Button
-        onClick={_ => {
-          onSubmit()->ignore
-        }}
-        text="Proceed"
-        buttonType={Primary}
-        buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
-      />
+  <div className="flex flex-col gap-6">
+    <div>
+      {googlePayFieldsForPaymentGateway
+      ->Array.mapWithIndex((field, index) => {
+        let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
+        <div key={index->Int.toString}>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
+          />
+        </div>
+      })
+      ->React.array}
     </div>
-  </>
+    <Button
+      onClick={_ => {
+        onSubmit()->ignore
+      }}
+      text="Proceed"
+      buttonType={Primary}
+      buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
+      buttonSize={Small}
+      customButtonStyle="w-full"
+    />
+  </div>
 }

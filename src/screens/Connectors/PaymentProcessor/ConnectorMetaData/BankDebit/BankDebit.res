@@ -68,13 +68,7 @@ module PMAuthProcessorInput = {
 }
 
 @react.component
-let make = (
-  ~setShowWalletConfigurationModal,
-  ~update,
-  ~paymentMethod,
-  ~paymentMethodType,
-  ~setInitialValues,
-) => {
+let make = (~update, ~paymentMethod, ~paymentMethodType, ~setInitialValues, ~closeAccordionFn) => {
   open LogicUtils
   open BankDebitUtils
   let connectorsListPMAuth = ConnectorListInterface.useFilteredConnectorList(
@@ -118,14 +112,15 @@ let make = (
     )
   }
 
+  // todo :check this case
   let closeModal = () => {
     update()
     onCancelClick()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
   let onSubmit = () => {
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
     setInitialValues(_ => formState.values)
     update()
     Nullable.null->Promise.resolve
@@ -148,7 +143,7 @@ let make = (
     )
   }
 
-  <div className="p-4">
+  <div className="flex flex-col gap-6 p-6">
     <FormRenderer.FieldRenderer
       field={valueInput({
         name1: `pm_auth_config.enabled_payment_methods`,
@@ -158,8 +153,14 @@ let make = (
       })}
       labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
     />
-    <div className={`flex gap-2 justify-end mt-4`}>
-      <Button text="Cancel" buttonType={Secondary} onClick={_ => closeModal()} />
+    <div className={`flex gap-6 mt-4 w-full`}>
+      <Button
+        text="Cancel"
+        buttonType={Secondary}
+        onClick={_ => closeModal()}
+        buttonSize={Small}
+        customButtonStyle="w-full"
+      />
       <Button
         onClick={_ => {
           onSubmit()->ignore
@@ -167,6 +168,8 @@ let make = (
         text="Proceed"
         buttonType={Primary}
         buttonState={validateSelectedPMAuth(formState.values, paymentMethodType)}
+        customButtonStyle="w-full"
+        buttonSize={Small}
       />
     </div>
   </div>

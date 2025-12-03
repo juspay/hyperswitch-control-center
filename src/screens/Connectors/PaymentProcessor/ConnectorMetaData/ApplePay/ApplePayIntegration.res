@@ -5,7 +5,7 @@ module Verified = {
     ~setApplePayIntegrationType,
     ~appleIntegrationType,
     ~setApplePayIntegrationSteps,
-    ~setShowWalletConfigurationModal,
+    ~closeAccordionFn,
     ~update,
     ~connector,
   ) => {
@@ -43,7 +43,7 @@ module Verified = {
         formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
 
       let _ = update(metadata)
-      setShowWalletConfigurationModal(_ => false)
+      closeAccordionFn()
     }
     <>
       <div className="p-6 m-2 cursor-pointer">
@@ -107,17 +107,17 @@ module Landing = {
   let make = (
     ~connector,
     ~appleIntegrationType,
-    ~closeModal,
     ~setApplePayIntegrationSteps,
     ~setApplePayIntegrationType,
   ) => {
     open ApplePayIntegrationTypes
     open ApplePayLandingHelper
+    open Typography
 
     let handleConfirmClick = () => {
       setApplePayIntegrationSteps(_ => Configure)
     }
-    <>
+    <div className="flex flex-col gap-6 p-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
@@ -126,33 +126,30 @@ module Landing = {
       | Processors(FIUU)
       | Processors(TESOURO) =>
         <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
           <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
-
       | Processors(WORLDPAYVANTIV) =>
         <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
       | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
-      <div className={`flex gap-2 justify-end m-2 p-6`}>
-        <Button
-          text="Cancel"
-          buttonType={Secondary}
-          onClick={_ => {
-            closeModal()
-          }}
-        />
-        <Button onClick={_ => handleConfirmClick()} text="Continue" buttonType={Primary} />
-      </div>
-    </>
+      <Button
+        onClick={_ => handleConfirmClick()}
+        text="Continue"
+        buttonType={Primary}
+        customButtonStyle="w-full"
+        buttonSize={Small}
+      />
+    </div>
   }
 }
 
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update) => {
   open APIUtils
   open LogicUtils
-  open AdditionalDetailsSidebarHelper
+
   open ApplePayIntegrationTypes
 
   let getURL = useGetURL()
@@ -183,6 +180,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     }
   }, [connector])
 
+  // Chnage this to get for both V1 and V2
   let getProcessorDetails = async () => {
     try {
       setScreenState(_ => Loading)
@@ -208,11 +206,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     } catch {
     | _ => setScreenState(_ => Success)
     }
-  }
-
-  let closeModal = () => {
-    onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
   }
 
   React.useEffect(() => {
@@ -243,19 +236,13 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     </div>}
     sectionHeight="!h-screen">
     <div>
-      <Heading title="Apple Pay" iconName="applepay" />
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(ZEN) =>
-        <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal connector />
+      | Processors(ZEN) => <ApplePayZen applePayFields update closeAccordionFn connector />
       | _ =>
         switch applePayIntegrationStep {
         | Landing =>
           <Landing
-            connector
-            closeModal
-            setApplePayIntegrationSteps
-            appleIntegrationType
-            setApplePayIntegrationType
+            connector setApplePayIntegrationSteps appleIntegrationType setApplePayIntegrationType
           />
         | Configure =>
           switch appleIntegrationType {
@@ -266,6 +253,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               setApplePayIntegrationSteps
               setVefifiedDomainList
               connector
+              appleIntegrationType
             />
           | #manual =>
             <ApplePayManualFlow
@@ -274,13 +262,14 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               setApplePayIntegrationSteps
               setVefifiedDomainList
               connector
+              appleIntegrationType
             />
           }
         | Verify =>
           <Verified
             verifiedDomainList
             setApplePayIntegrationType
-            setShowWalletConfigurationModal
+            closeAccordionFn
             setApplePayIntegrationSteps
             appleIntegrationType
             update

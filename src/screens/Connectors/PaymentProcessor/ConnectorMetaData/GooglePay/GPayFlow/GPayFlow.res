@@ -1,10 +1,9 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update) => {
   open GPayFlowTypes
   open LogicUtils
   open GPayFlowHelper
   open GPayFlowUtils
-  open AdditionalDetailsSidebarHelper
 
   let (googlePayIntegrationType, setGooglePayIntegrationType) = React.useState(_ =>
     #payment_gateway
@@ -66,11 +65,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     None
   }, [connector])
 
-  let closeModal = () => {
-    onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
-  }
-
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
@@ -79,36 +73,21 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       </div>
     </div>}
     sectionHeight="!h-screen">
-    <Heading title="Google Pay" iconName="google_pay" />
     {switch googlePayIntegrationStep {
     | Landing =>
       <Landing
-        googlePayIntegrationType
-        closeModal
-        setGooglePayIntegrationStep
-        setGooglePayIntegrationType
-        connector
+        googlePayIntegrationType setGooglePayIntegrationStep setGooglePayIntegrationType connector
       />
     | Configure =>
       <>
         {switch googlePayIntegrationType {
         | #payment_gateway =>
           <GPayPaymentGatewayFlow
-            googlePayFields
-            googlePayIntegrationType
-            closeModal
-            connector
-            setShowWalletConfigurationModal
-            update
+            googlePayFields googlePayIntegrationType connector closeAccordionFn update
           />
         | #direct =>
           <GPayDirectFlow
-            googlePayFields
-            googlePayIntegrationType
-            closeModal
-            connector
-            setShowWalletConfigurationModal
-            update
+            googlePayFields googlePayIntegrationType connector closeAccordionFn update
           />
         }}
       </>
