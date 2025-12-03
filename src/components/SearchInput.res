@@ -68,11 +68,13 @@ let make = (
     setShowDropdown(prev => !prev)
   }
 
-  let currentLabel =
-    typeSelectorOptions
-    ->Option.getOr([])
-    ->Array.find(option => selectedType->Option.mapOr(false, st => option.value === st))
+  let currentLabel = switch (typeSelectorOptions, selectedType) {
+  | (Some(options), Some(currentType)) =>
+    options
+    ->Array.find(option => option.value === currentType)
     ->Option.mapOr("Select", opt => opt.label)
+  | _ => "Select"
+  }
 
   let handleTypeChange = value => {
     setSelectedType(_ => Some(value))

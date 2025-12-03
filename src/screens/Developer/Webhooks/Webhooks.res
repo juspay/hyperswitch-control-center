@@ -3,7 +3,6 @@ let make = () => {
   open APIUtils
   open WebhooksUtils
   open LogicUtils
-  open WebhooksTypes
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -30,14 +29,6 @@ let make = () => {
 
   let refreshPage = () => {
     reset()
-  }
-
-  let convertToSearchType = (value: string): searchType => {
-    switch value {
-    | "object_id" => #object_id
-    | "event_id" => #event_id
-    | _ => #object_id
-    }
   }
 
   let customUI =
@@ -82,7 +73,7 @@ let make = () => {
     }
   }
 
-  let fetchWebhooks = async (~searchType: searchType) => {
+  let fetchWebhooks = async (~searchType=?) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
@@ -91,7 +82,7 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->Dict.set((searchType :> string), searchText->JSON.Encode.string)
+        payload->Dict.set(searchType->Option.getOr("object_id"), searchText->JSON.Encode.string)
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -124,18 +115,18 @@ let make = () => {
       filterDict->JSON.Encode.object->JSON.stringify
     }
 
-    if currentFilterState !== lastFilterState && searchText === "" {
+    if currentFilterState !== lastFilterState && searchText->isEmptyString {
       setLastFilterState(_ => currentFilterState)
       if offset !== 0 {
         setOffset(_ => 0)
       } else {
-        fetchWebhooks(~searchType=#object_id)->ignore
+        fetchWebhooks()->ignore
       }
     } else {
-      fetchWebhooks(~searchType=#object_id)->ignore
+      fetchWebhooks()->ignore
     }
 
-    if filterValueJson->Dict.keysToArray->Array.length < 1 {
+    if filterValueJson->isEmptyDict {
       setInitialFilters()
     }
     None
@@ -146,12 +137,11 @@ let make = () => {
     {label: "Event ID", value: "event_id"},
   ]
 
-  let handleSearchSubmit = value => {
-    let searchTypeValue = convertToSearchType(value->Option.getOr("object_id"))
+  let handleSearchSubmit = (value: option<string>) => {
     if searchText->isNonEmptyString {
       setOffset(_ => 0)
     }
-    fetchWebhooks(~searchType=searchTypeValue)->ignore
+    fetchWebhooks(~searchType=value->Option.getOr("object_id"))->ignore
   }
 
   let filtersUI =
