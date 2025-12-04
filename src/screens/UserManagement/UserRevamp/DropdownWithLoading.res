@@ -114,7 +114,11 @@ let make = (
             </div>
             <div
               className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"
-              onClick={_ => arrow ? onClickDropDownApi()->ignore : ()}>
+              onClick={_ => {
+                if arrow {
+                  onClickDropDownApi()->ignore
+                }
+              }}>
               <span
                 className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">
                 {buttonValue->React.string}
