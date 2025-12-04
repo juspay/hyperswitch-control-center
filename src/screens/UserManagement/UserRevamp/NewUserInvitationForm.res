@@ -113,23 +113,20 @@ let make = () => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
 
-  // // Track entity type to detect changes
-  // let currentEntityType = formState.values->getDictFromJsonObject->getEntityType
-  // let (previousEntityType, setPreviousEntityType) = React.useState(_ => "")
-  // let form = ReactFinalForm.useForm()
+  // Track entity type to detect changes
+  let currentEntityType = formState.values->getDictFromJsonObject->getEntityType
+  let (previousEntityType, setPreviousEntityType) = React.useState(_ => "")
+  let form = ReactFinalForm.useForm()
 
-  // // Clear dropdown data when entity type changes
-  // React.useEffect(() => {
-  //   if currentEntityType !== previousEntityType && previousEntityType !== "" {
-  //     // Entity type changed - clear options and reset state
-  //     setOptions(_ => []->SelectBox.makeOptions)
-  //     setDropDownLoaderState(_ => DropdownWithLoading.Success)
-  //     // Clear the selected role since it might not be valid for new entity type
-  //     form.change("role_id", JSON.Encode.null)
-  //   }
-  //   setPreviousEntityType(_ => currentEntityType)
-  //   None
-  // }, [currentEntityType])
+  React.useEffect(() => {
+    if currentEntityType !== previousEntityType && previousEntityType->isNonEmptyString {
+      setOptions(_ => []->SelectBox.makeOptions)
+      setDropDownLoaderState(_ => DropdownWithLoading.Success)
+      form.change("role_id", JSON.Encode.null)
+    }
+    setPreviousEntityType(_ => currentEntityType)
+    None
+  }, [currentEntityType])
 
   let getMemberAcessBasedOnRole = async _ => {
     try {
@@ -165,8 +162,6 @@ let make = () => {
 
   let onClickDropDownApi = async () => {
     try {
-      // Clear options to prevent showing old data
-      setOptions(_ => []->SelectBox.makeOptions)
       setDropDownLoaderState(_ => DropdownWithLoading.Loading)
 
       let roleEntity = formState.values->getDictFromJsonObject->getEntityType
