@@ -16,7 +16,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionHistoryList = await getIngestionHistory(
-        ~queryParamerters=Some(`account_id=${account.account_id}`),
+        ~queryParameters=Some(`account_id=${account.account_id}`),
       )
       setIngestionHistoryList(_ => ingestionHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)

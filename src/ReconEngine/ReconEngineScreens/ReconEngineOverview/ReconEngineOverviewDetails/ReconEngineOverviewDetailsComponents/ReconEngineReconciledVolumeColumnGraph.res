@@ -27,7 +27,7 @@ let make = (~ruleId: string) => {
       } else {
         `rule_id=${ruleId}&transaction_status=posted`
       }
-      let transactions = await getTransactions(~queryParamerters=Some(queryString))
+      let transactions = await getTransactions(~queryParameters=Some(queryString))
       setTransactionsData(_ => transactions)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

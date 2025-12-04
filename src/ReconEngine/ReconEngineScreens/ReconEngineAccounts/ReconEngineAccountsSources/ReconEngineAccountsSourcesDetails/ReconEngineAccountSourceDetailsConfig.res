@@ -12,8 +12,15 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
   })
   let showToast = ToastState.useShowToast()
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
+  let fileInputRef = React.useRef(Js.Nullable.null)
   let getURL = APIUtils.useGetURL()
   let updateDetails = APIUtils.useUpdateMethod()
+
+  let clearFileInput = () => {
+    fileInputRef.current
+    ->Nullable.toOption
+    ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
+  }
 
   let handleFileUpload = async ev => {
     try {
@@ -61,10 +68,12 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
         )
         showToast(~message="File uploaded successfully.", ~toastType=ToastSuccess)
         setSelectedFile(_ => None)
+        clearFileInput()
         setIsUploading(_ => false)
       } catch {
       | Exn.Error(_) =>
         showToast(~message="An error occurred while uploading the file.", ~toastType=ToastError)
+        clearFileInput()
         setIsUploading(_ => false)
       }
     }
@@ -74,6 +83,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     if ingestionType == "manual" {
       <div className="mt-10">
         <input
+          ref={fileInputRef->ReactDOM.Ref.domRef}
           type_="file"
           accept=".csv,.ext"
           onChange={ev => ev->handleFileUpload->ignore}
@@ -110,7 +120,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
                     {file["name"]->React.string}
                   </span>
                   <span className={`${body.xs.light} text-nd_gray-500`}>
-                    {((file["size"] / 1024)->Int.toString ++ " KB")->React.string}
+                    {`${(file["size"] / 1024)->Int.toString} KB`->React.string}
                   </span>
                 </div>
                 <Button
@@ -129,18 +139,13 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
     } else {
       <div
         className={`relative p-6 grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-10 border rounded-xl border-nd_gray-200 my-8 items-center`}>
-        <ToolTip
-          toolTipPosition=Bottom
-          description="This feature is available in prod"
-          justifyClass="!absolute !right-3 !top-3"
-          toolTipFor={<div
-            className={`${body.sm.medium} text-nd_gray-400 flex flex-row items-center cursor-not-allowed gap-2`}>
-            <Icon name="nd-edit-pencil" size=16 className="text-nd_primary_blue-500 opacity-60" />
-            <span className={`text-nd_primary_blue-500 opacity-60 ${body.md.medium}`}>
-              {"Edit"->React.string}
-            </span>
-          </div>}
-        />
+        <div
+          className={`${body.sm.medium} text-nd_gray-400 flex flex-row items-center cursor-not-allowed gap-2 absolute right-3 top-3`}>
+          <Icon name="nd-edit-pencil" size=16 className="text-nd_primary_blue-500 opacity-60" />
+          <span className={`text-nd_primary_blue-500 opacity-60 ${body.md.medium}`}>
+            {"Edit"->React.string}
+          </span>
+        </div>
         <div>
           <p className={`${body.md.medium} text-nd_gray-400`}>
             {"Configuration Type"->React.string}
@@ -175,33 +180,27 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading, ~setIsU
             <span className={`${body.md.medium} text-nd_gray-600 mt-2`}> {"-"->React.string} </span>
           }}
         </div>
-        <ToolTip
-          toolTipPosition=Bottom
-          description="This feature is available in prod"
-          contentAlign=Default
-          toolTipFor={<div>
-            <p className={`${body.md.medium} text-nd_gray-400`}> {"File Upload"->React.string} </p>
-            <div className="mt-2">
-              <input
-                disabled=true
-                type_="file"
-                accept=".csv,.ext"
-                onChange={ev => ev->handleFileUpload->ignore}
-                hidden=true
-                id="fileUploadInput"
-              />
-              <label htmlFor="fileUploadInput" className="cursor-not-allowed">
-                <div className="flex flex-row items-center gap-2 cursor-not-allowed">
-                  <Icon name="nd-upload" size=16 className="text-nd_primary_blue-500 opacity-60" />
-                  <div className={`${body.lg.medium} text-nd_primary_blue-500 opacity-60`}>
-                    {"Upload File"->React.string}
-                  </div>
+        <div>
+          <p className={`${body.md.medium} text-nd_gray-400`}> {"File Upload"->React.string} </p>
+          <div className="mt-2">
+            <input
+              disabled=true
+              type_="file"
+              accept=".csv,.ext"
+              onChange={ev => ev->handleFileUpload->ignore}
+              hidden=true
+              id="fileUploadInput"
+            />
+            <label htmlFor="fileUploadInput" className="cursor-not-allowed">
+              <div className="flex flex-row items-center gap-2 cursor-not-allowed">
+                <Icon name="nd-upload" size=16 className="text-nd_primary_blue-500 opacity-60" />
+                <div className={`${body.lg.medium} text-nd_primary_blue-500 opacity-60`}>
+                  {"Upload File"->React.string}
                 </div>
-              </label>
-            </div>
-          </div>}
-          justifyClass=""
-        />
+              </div>
+            </label>
+          </div>
+        </div>
       </div>
     }
   }

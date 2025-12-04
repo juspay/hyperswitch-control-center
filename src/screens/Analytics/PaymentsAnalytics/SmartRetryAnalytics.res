@@ -74,7 +74,8 @@ type colT =
   | TotalSmartRetries
   | SmartRetriedAmount
 
-let constructData = (key, singlestatTimeseriesData: array<paymentsSingleStateSeries>) => {
+let constructData = (key, singlestatTimeseriesData: array<paymentsSingleStateSeries>, currency) => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
   switch key {
   | "successful_smart_retries" =>
     singlestatTimeseriesData->Array.map(ob => (
@@ -85,7 +86,7 @@ let constructData = (key, singlestatTimeseriesData: array<paymentsSingleStateSer
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.smart_retried_amount /. 100.00,
+      ob.smart_retried_amount /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "total_smart_retries" =>
@@ -104,6 +105,9 @@ let getStatData = (
   colType,
   _mode,
 ) => {
+  let currency = singleStatData.currency
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+  let precisionDigits = CurrencyUtils.getAmountPrecisionDigits(currency)
   switch colType {
   | TotalSmartRetries => {
       title: "Smart Retries made",
@@ -116,7 +120,7 @@ let getStatData = (
       delta: {
         singleStatData.total_smart_retries->Int.toFloat
       },
-      data: constructData("total_smart_retries", timeSeriesData),
+      data: constructData("total_smart_retries", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
@@ -131,7 +135,7 @@ let getStatData = (
       delta: {
         singleStatData.successful_smart_retries->Int.toFloat
       },
-      data: constructData("successful_smart_retries", timeSeriesData),
+      data: constructData("successful_smart_retries", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
@@ -139,16 +143,19 @@ let getStatData = (
       title: `Smart Retries Savings`,
       tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.smart_retried_amount /. 100.00,
+        singleStatData.smart_retried_amount /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.smart_retried_amount /. 100.00,
+      value: singleStatData.smart_retried_amount /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.smart_retried_amount /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.smart_retried_amount /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("smart_retried_amount", timeSeriesData),
+      data: constructData("smart_retried_amount", timeSeriesData, currency),
       statType: "Amount",
       showDelta: false,
       label: singleStatData.currency,

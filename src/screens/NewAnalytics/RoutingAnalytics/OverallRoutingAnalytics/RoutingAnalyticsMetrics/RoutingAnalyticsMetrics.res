@@ -3,6 +3,7 @@ open Typography
 module RoutingAnalyticsCard = {
   open APIUtils
   open LogicUtils
+  open CurrencyFormatUtils
   open RoutingAnalyticsMetricsTypes
   open RoutingAnalyticsMetricsUtils
 

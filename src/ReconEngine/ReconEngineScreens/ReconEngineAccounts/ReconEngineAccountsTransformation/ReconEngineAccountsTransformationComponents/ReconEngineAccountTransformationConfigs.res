@@ -15,7 +15,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-        ~queryParamerters=Some(`account_id=${account.account_id}`),
+        ~queryParameters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
       let configs = res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
@@ -43,7 +43,9 @@ let make = (~account: ReconEngineTypes.accountType) => {
       className="grid 2xl:grid-cols-3 xl:grid-cols-2 md:grid-cols-1 gap-6 items-center w-full p-6">
       {configData
       ->Array.map(config => {
-        <ReconEngineAccountTransformationConfigDetails key=config.id config={config} />
+        <ReconEngineAccountTransformationConfigDetails
+          key=config.transformation_id config={config}
+        />
       })
       ->React.array}
     </div>
