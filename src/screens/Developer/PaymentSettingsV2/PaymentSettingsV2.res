@@ -68,6 +68,10 @@ let make = () => {
       title: "Metadata Headers",
       renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
     },
+    {
+      title: "Payment Link",
+      renderContent: () => <PaymentSettingsDomainName />,
+    },
   ]
 
   let finalAdditionalTabs: array<Tabs.tab> = if featureFlagDetails.vaultProcessor {
