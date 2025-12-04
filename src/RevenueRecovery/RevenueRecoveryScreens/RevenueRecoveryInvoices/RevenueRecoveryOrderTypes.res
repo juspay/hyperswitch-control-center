@@ -81,3 +81,28 @@ type recoverySchedulerStatusType =
 type attemptTriggeredByType =
   | INTERNAL
   | EXTERNAL
+
+type recoveryFilterTypes = {
+  connector: array<string>,
+  currency: array<string>,
+  payment_method: array<string>,
+  payment_method_type: array<string>,
+  connector_label: array<string>,
+  card_network: array<string>,
+  customer_id: array<string>,
+  amount: array<string>,
+  merchant_order_reference_id: array<string>,
+}
+
+type recoveryFilter = [
+  | #connector
+  | #payment_method
+  | #currency
+  | #payment_method_type
+  | #connector_label
+  | #card_network
+  | #customer_id
+  | #amount
+  | #merchant_order_reference_id
+  | #unknown
+]

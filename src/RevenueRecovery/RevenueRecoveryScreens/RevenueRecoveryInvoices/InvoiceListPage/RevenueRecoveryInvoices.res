@@ -2,6 +2,8 @@
 let make = () => {
   open LogicUtils
   open APIUtils
+  open HSwitchRemoteFilter
+  open InvoiceListPageUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
@@ -11,9 +13,9 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("recovery_orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (filters, _setFilters) = React.useState(_ => None)
-  let (searchText, _setSearchText) = React.useState(_ => "")
+  let (searchText, setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
+  let (filters, setFilters) = React.useState(_ => None)
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
@@ -110,12 +112,33 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
+  let filtersUI = React.useMemo(() => {
+    <RemoteTableFilters
+      title="Recovery"
+      setFilters
+      endTimeFilterKey={endTimeFilterKey}
+      startTimeFilterKey={startTimeFilterKey}
+      initialFilters
+      initialFixedFilter
+      setOffset
+      submitInputOnEnter=true
+      customLeftView={<SearchBarFilter
+        placeholder="Search for Invoice ID" setSearchVal=setSearchText searchVal=searchText
+      />}
+      entityName={V2(V2_ORDER_FILTERS)}
+      version=V2
+    />
+  }, [searchText])
+
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full w-full min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="List of Invoices" customTitleStyle="py-0 !pt-0" />
+        <PageUtils.PageHeading title="Invoice Recovery Overview" customTitleStyle="py-0 !pt-0" />
       </div>
       <PageLoaderWrapper screenState>
+        <div className="flex">
+          <div className="flex-1"> {filtersUI} </div>
+        </div>
         <LoadedTableWithCustomColumns
           title="Recovery"
           actualData=revenueRecoveryData

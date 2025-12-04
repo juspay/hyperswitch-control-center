@@ -69,7 +69,10 @@ let make = () => {
           entityName="Invoices"
           remainingPath
           access=Access
-          renderList={() => <RevenueRecoveryInvoices />}
+          renderList={() =>
+            <FilterContext key="RecoveryInvoices" index="RecoveryInvoices">
+              <RevenueRecoveryInvoices />
+            </FilterContext>}
           renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
         />
       } else {

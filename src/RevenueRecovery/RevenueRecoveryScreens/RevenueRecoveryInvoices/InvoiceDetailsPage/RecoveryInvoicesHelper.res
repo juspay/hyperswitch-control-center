@@ -98,7 +98,11 @@ module AttemptsHistory = {
   open Typography
   open LogicUtils
   @react.component
-  let make = (~order, ~attemptsList, ~processTracker: option<Dict.t<JSON.t>>) => {
+  let make = (
+    ~order: RevenueRecoveryOrderTypes.order,
+    ~attemptsList,
+    ~processTracker: option<Dict.t<JSON.t>>,
+  ) => {
     let attempts = attemptsList
     let internalAttempts = attempts->Array.filter(isInternalAttempt)
     let merchantAttempts = attempts->Array.filter(isExternalAttempt)
