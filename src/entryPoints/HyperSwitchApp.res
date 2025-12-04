@@ -51,7 +51,6 @@ let make = () => {
     | _ => ()
     }
   }
-  Js.log2("hyperswitchAppsidebars", hyperSwitchAppSidebars)
 
   let setUpDashboard = async () => {
     try {
