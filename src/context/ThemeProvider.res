@@ -91,7 +91,6 @@ let make = (~children) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
   let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
-
   let initialTheme = Light
 
   let (themeState, setThemeBase) = React.useState(() => initialTheme)
@@ -258,6 +257,7 @@ let make = (~children) => {
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
+      Js.log2("Updated theme URLs to: ", val)
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(val.faviconUrl)->ignore
