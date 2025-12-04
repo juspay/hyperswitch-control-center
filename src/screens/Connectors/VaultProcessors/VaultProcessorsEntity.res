@@ -25,12 +25,25 @@ let getHeading = colType => {
 let connectorStatusStyle = connectorStatus =>
   connectorStatus->String.toLowerCase == "active" ? "text-green-700" : "text-grey-800 opacity-50"
 
-let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
+let getCell = (
+  connector: connectorPayloadCommonType,
+  colType,
+  external_vault_connector_details: option<
+    BusinessProfileInterfaceTypes.externalVaultConnectorDetails,
+  >,
+): Table.cell => {
+  let vault_connector_id =
+    external_vault_connector_details
+    ->Option.map(details => details.vault_connector_id)
+    ->Option.getOr("")
+
   switch colType {
   | Name =>
     CustomCell(
       <HelperComponents.ConnectorCustomCell
-        connectorName=connector.connector_name connectorType=VaultProcessor
+        connectorName=connector.connector_name
+        connectorType=VaultProcessor
+        showDefaultTag={connector.id == vault_connector_id}
       />,
       "",
     )
@@ -52,13 +65,21 @@ let getCell = (connector: connectorPayloadCommonType, colType): Table.cell => {
   }
 }
 
-let vaultProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
+let vaultProcessorEntity = (
+  path: string,
+  ~authorization: CommonAuthTypes.authorization,
+  ~external_vault_connector_details: option<
+    BusinessProfileInterfaceTypes.externalVaultConnectorDetails,
+  >,
+) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
-    ~getCell,
+    ~getCell=(connectorPayloadCommonType, colType) => {
+      getCell(connectorPayloadCommonType, colType, external_vault_connector_details)
+    },
     ~dataKey="",
     ~getShowLink={
       connec =>

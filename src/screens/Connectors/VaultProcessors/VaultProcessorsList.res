@@ -7,6 +7,8 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -62,6 +64,7 @@ let make = () => {
             entity={VaultProcessorsEntity.vaultProcessorEntity(
               "vault-processor",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~external_vault_connector_details=businessProfileRecoilVal.external_vault_connector_details,
             )}
             filters={<TableSearchFilter
               data={configuredConnectors->Array.map(Nullable.make)}

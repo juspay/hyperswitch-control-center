@@ -185,5 +185,6 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     routing_algorithm: dict->getDictfromDict("routing_algorithm"),
     routing_algorithm_applied: dict->getDictfromDict("routing_algorithm_applied"),
     authentication_applied: dict->getString("authentication_applied", ""),
+    is_split_payment: dict->getBool("is_split_payment", false),
   }
 }
