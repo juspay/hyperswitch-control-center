@@ -138,7 +138,7 @@ let getPaymentMethodTypes = (dict): paymentMethodConfigType => {
   }
 }
 
-let getPaymentMethodTypesV2 = (dict): ConnectorTypes.paymentMethodConfigTypeV2 => {
+let getPaymentMethodTypesV2 = (dict): paymentMethodConfigTypeV2 => {
   open ConnectorUtils
   {
     payment_method_subtype: dict->getString("payment_method_subtype", ""),
@@ -232,6 +232,100 @@ let mapDictToConnectorPayloadV2 = (dict): connectorPayloadV2 => {
   }
 }
 
+// v1 to common type mappers
+
+let paymentMethodsTypesMapperV1: paymentMethodConfigType => paymentMethodConfigTypeCommon = paymentMethodsTypes => {
+  {
+    payment_method_subtype: paymentMethodsTypes.payment_method_type,
+    payment_experience: paymentMethodsTypes.payment_experience,
+    card_networks: paymentMethodsTypes.card_networks,
+    accepted_countries: paymentMethodsTypes.accepted_countries,
+    accepted_currencies: paymentMethodsTypes.accepted_currencies,
+    minimum_amount: paymentMethodsTypes.minimum_amount,
+    maximum_amount: paymentMethodsTypes.maximum_amount,
+    recurring_enabled: paymentMethodsTypes.recurring_enabled,
+    installment_payment_enabled: paymentMethodsTypes.installment_payment_enabled,
+  }
+}
+
+let paymentMethodsEnabledMapperV1: paymentMethodEnabledType => paymentMethodEnabledTypeCommon = paymentMethodsEnabled => {
+  {
+    payment_method_type: paymentMethodsEnabled.payment_method,
+    payment_method_subtypes: paymentMethodsEnabled.payment_method_types->Array.map(
+      paymentMethodsTypesMapperV1,
+    ),
+  }
+}
+
+let mapV1DictToCommonConnectorPayload: connectorPayload => connectorPayloadCommonType = connectorPayload => {
+  {
+    connector_type: connectorPayload.connector_type,
+    connector_name: connectorPayload.connector_name,
+    connector_label: connectorPayload.connector_label,
+    connector_account_details: connectorPayload.connector_account_details,
+    test_mode: connectorPayload.test_mode,
+    disabled: connectorPayload.disabled,
+    payment_methods_enabled: connectorPayload.payment_methods_enabled->Array.map(
+      paymentMethodsEnabledMapperV1,
+    ),
+    profile_id: connectorPayload.profile_id,
+    id: connectorPayload.merchant_connector_id,
+    frm_configs: switch connectorPayload.frm_configs {
+    | Some(frmConfigs) => frmConfigs
+    | None => []
+    },
+    status: connectorPayload.status,
+    connector_webhook_details: connectorPayload.connector_webhook_details,
+    metadata: connectorPayload.metadata,
+    additional_merchant_data: connectorPayload.additional_merchant_data,
+  }
+}
+
+// v2 to commmon type mappers
+
+let paymentMethodsTypesMapperV2: paymentMethodConfigTypeV2 => paymentMethodConfigTypeCommon = paymentMethodsTypes => {
+  {
+    payment_method_subtype: paymentMethodsTypes.payment_method_subtype,
+    payment_experience: paymentMethodsTypes.payment_experience,
+    card_networks: paymentMethodsTypes.card_networks,
+    accepted_countries: paymentMethodsTypes.accepted_countries,
+    accepted_currencies: paymentMethodsTypes.accepted_currencies,
+    minimum_amount: paymentMethodsTypes.minimum_amount,
+    maximum_amount: paymentMethodsTypes.maximum_amount,
+    recurring_enabled: paymentMethodsTypes.recurring_enabled,
+    installment_payment_enabled: paymentMethodsTypes.installment_payment_enabled,
+  }
+}
+
+let paymentMethodsEnabledMapperV2: paymentMethodEnabledTypeV2 => paymentMethodEnabledTypeCommon = paymentMethodsEnabled => {
+  {
+    payment_method_type: paymentMethodsEnabled.payment_method_type,
+    payment_method_subtypes: paymentMethodsEnabled.payment_method_subtypes->Array.map(
+      paymentMethodsTypesMapperV2,
+    ),
+  }
+}
+
+let mapV2DictToCommonConnectorPayload: connectorPayloadV2 => connectorPayloadCommonType = connectorPayload => {
+  {
+    connector_type: connectorPayload.connector_type,
+    connector_name: connectorPayload.connector_name,
+    connector_label: connectorPayload.connector_label,
+    connector_account_details: connectorPayload.connector_account_details,
+    disabled: connectorPayload.disabled,
+    payment_methods_enabled: connectorPayload.payment_methods_enabled->Array.map(
+      paymentMethodsEnabledMapperV2,
+    ),
+    profile_id: connectorPayload.profile_id,
+    id: connectorPayload.id,
+    frm_configs: connectorPayload.frm_configs,
+    status: connectorPayload.status,
+    connector_webhook_details: connectorPayload.connector_webhook_details,
+    metadata: connectorPayload.metadata,
+    additional_merchant_data: connectorPayload.additional_merchant_data,
+  }
+}
+
 let filter = (connectorType, ~retainInList) => {
   switch (retainInList, connectorType) {
   | (PaymentProcessor, PaymentProcessor)
@@ -240,22 +334,19 @@ let filter = (connectorType, ~retainInList) => {
   | (AuthenticationProcessor, AuthenticationProcessor)
   | (PMAuthProcessor, PMAuthProcessor)
   | (TaxProcessor, TaxProcessor)
-  | (BillingProcessor, BillingProcessor) => true
+  | (BillingProcessor, BillingProcessor)
+  | (VaultProcessor, VaultProcessor) => true
   | _ => false
   }
 }
 
-let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, retainInList) => {
-  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
-}
-
-let filterConnectorListV2 = (items: array<ConnectorTypes.connectorPayloadV2>, retainInList) => {
+let filterConnectorList = (items: array<connectorPayloadCommonType>, retainInList) => {
   items->Array.filter(connector => connector.connector_type->filter(~retainInList))
 }
 
 let mapConnectorPayloadToConnectorType = (
-  ~connectorType=ConnectorTypes.Processor,
-  connectorsList: array<ConnectorTypes.connectorPayload>,
+  ~connectorType=Processor,
+  connectorsList: array<connectorPayloadCommonType>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
@@ -263,30 +354,20 @@ let mapConnectorPayloadToConnectorType = (
 }
 
 let mapConnectorPayloadToConnectorTypeV2 = (
-  ~connectorType=ConnectorTypes.Processor,
-  connectorsList: array<ConnectorTypes.connectorPayloadV2>,
+  ~connectorType=Processor,
+  connectorsList: array<connectorPayloadCommonType>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
   )
 }
 
-let mapJsonArrayToConnectorPayloads = (json, retainInList) => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayload
-    data
-  })
-  ->filterConnectorList(retainInList)
-}
-
-let mapJsonArrayToConnectorPayloadsV2 = (json, retainInList) => {
-  json
-  ->getArrayFromJson([])
-  ->Array.map(connectorJson => {
-    let data = connectorJson->getDictFromJsonObject->mapDictToConnectorPayloadV2
-    data
-  })
-  ->filterConnectorListV2(retainInList)
+let getPaymentMethodsEnabledCommonType: Dict.t<JSON.t> => paymentMethodEnabledTypeCommon = dict => {
+  {
+    payment_method_type: dict->getString("payment_method_type", ""),
+    payment_method_subtypes: dict
+    ->Dict.get("payment_method_types")
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
+    ->getArrayDataFromJson(item => item->getPaymentMethodTypes->paymentMethodsTypesMapperV1),
+  }
 }

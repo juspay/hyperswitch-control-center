@@ -13,7 +13,7 @@ type paymentIntentObject = {
   connector_id: string,
   statement_descriptor_name: string,
   statement_descriptor_suffix: string,
-  created_at: int,
+  created_at: float,
   modified_at: int,
   last_synced: int,
   setup_future_usage: string,
@@ -67,6 +67,7 @@ let visibleColumns = [
   BusinessCountry,
   BusinessLabel,
   AttemptCount,
+  CreatedAt,
 ]
 
 let colMapper = (col: cols) => {
@@ -116,7 +117,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
     connector_id: dict->getString(ConnectorId->colMapper, "NA"),
     statement_descriptor_name: dict->getString(StatementDescriptorName->colMapper, "NA"),
     statement_descriptor_suffix: dict->getString(StatementDescriptorSuffix->colMapper, "NA"),
-    created_at: dict->getInt(CreatedAt->colMapper, 0),
+    created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
     modified_at: dict->getInt(ModifiedAt->colMapper, 0),
     last_synced: dict->getInt(LastSynced->colMapper, 0),
     setup_future_usage: dict->getString(SetupFutureUsage->colMapper, "NA"),
@@ -179,7 +180,7 @@ let getHeading = colType => {
 
 let getCell = (paymentObj, colType): Table.cell => {
   let orderStatus = paymentObj.status->HSwitchOrderUtils.statusVariantMapper
-
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(paymentObj.currency)
   switch colType {
   | PaymentId =>
     CustomCell(
@@ -212,7 +213,8 @@ let getCell = (paymentObj, colType): Table.cell => {
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(paymentObj.amount /. 100.0)->Float.toString} currency={paymentObj.currency}
+        amount={(paymentObj.amount /. conversionFactor)->Float.toString}
+        currency={paymentObj.currency}
       />,
       "",
     )
@@ -220,7 +222,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | AmountCaptured =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(paymentObj.amount_captured /. 100.0)->Float.toString}
+        amount={(paymentObj.amount_captured /. conversionFactor)->Float.toString}
         currency={paymentObj.currency}
       />,
       "",
@@ -231,7 +233,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | ConnectorId => Text(paymentObj.connector_id)
   | StatementDescriptorName => Text(paymentObj.statement_descriptor_name)
   | StatementDescriptorSuffix => Text(paymentObj.statement_descriptor_suffix)
-  | CreatedAt => Text(paymentObj.created_at->Int.toString)
+  | CreatedAt => Date(paymentObj.created_at->DateTimeUtils.unixToISOString)
   | ModifiedAt => Text(paymentObj.modified_at->Int.toString)
   | LastSynced => Text(paymentObj.last_synced->Int.toString)
   | SetupFutureUsage => Text(paymentObj.setup_future_usage)

@@ -20,23 +20,29 @@ let reconTransactions = {
   })
 }
 
-let reconExceptions = {
-  Link({
-    name: "Exceptions",
-    link: `/v1/recon-engine/exceptions`,
+let transformedEntriesExceptions = {
+  SubLevelLink({
+    name: "Transformed Entries",
+    link: "/v1/recon-engine/exceptions/transformed-entries",
     access: Access,
-    icon: "nd-operations",
-    selectedIcon: "nd-operations-fill",
   })
 }
 
-let reconQueue = {
-  Link({
-    name: "Recon Queue",
-    link: `/v1/recon-engine/queue`,
+let reconExceptions = {
+  SubLevelLink({
+    name: "Recon",
+    link: "/v1/recon-engine/exceptions/recon",
     access: Access,
-    icon: "nd-workflow",
-    selectedIcon: "nd-workflow-fill",
+  })
+}
+
+let exceptions = {
+  Section({
+    name: "Exceptions",
+    icon: "nd-operations",
+    showSection: true,
+    links: [reconExceptions, transformedEntriesExceptions],
+    selectedIcon: "nd-operations-fill",
   })
 }
 
@@ -49,7 +55,42 @@ let reconRuleCreation = {
     selectedIcon: "nd-reports-fill",
   })
 }
+
+let sources = {
+  SubLevelLink({
+    name: "Sources",
+    link: "/v1/recon-engine/sources",
+    access: Access,
+  })
+}
+
+let transformation = {
+  SubLevelLink({
+    name: "Transformation",
+    link: "/v1/recon-engine/transformation",
+    access: Access,
+  })
+}
+
+let transformedEntries = {
+  SubLevelLink({
+    name: "Transformed Entries",
+    link: "/v1/recon-engine/transformed-entries",
+    access: Access,
+  })
+}
+
+let reconAccounts = {
+  Section({
+    name: "Data",
+    icon: "nd-connectors",
+    showSection: true,
+    links: [sources, transformation, transformedEntries],
+    selectedIcon: "nd-connectors-fill",
+  })
+}
+
 let reconEngineSidebars = {
-  let sidebar = [reconOverview, reconTransactions, reconExceptions, reconQueue, reconRuleCreation]
+  let sidebar = [reconOverview, reconTransactions, exceptions, reconRuleCreation, reconAccounts]
   sidebar
 }

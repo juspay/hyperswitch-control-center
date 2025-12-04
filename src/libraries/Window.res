@@ -104,6 +104,9 @@ external getPMAuthenticationProcessorConfig: string => JSON.t = "getPMAuthentica
 external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
 
 @val @scope("window")
+external getBillingConnectorConfig: string => JSON.t = "getBillingConnectorConfig"
+
+@val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
 
 @val @scope("window")
@@ -160,6 +163,9 @@ module Location = {
 
   @val @scope(("window", "location"))
   external href: string = "href"
+
+  @val @scope(("window", "location"))
+  external search: string = "search"
 
   @set
   external setHref: (location, string) => unit = "href"
@@ -273,3 +279,21 @@ external validateExtract: (Js.TypedArray2.Uint8Array.t, JSON.t, JSON.t) => JSON.
 
 @val @scope("window")
 external getDefaultConfig: unit => JSON.t = "getDefaultConfig"
+
+module URL = {
+  type t
+  type searchParams
+  @new external make: (string, string) => t = "URL"
+  @get external searchParams: t => searchParams = "searchParams"
+  @send external append: (searchParams, string, string) => unit = "append"
+  @get external href: t => string = "href"
+}
+
+@val @scope("window")
+external paymentLinkWasmInit: 'a => Promise.t<JSON.t> = "paymentLinkInit"
+
+@val @scope("window")
+external validatePaymentLinkConfig: string => string = "validate_payment_link_config"
+
+@val @scope("window")
+external generatePaymentLinkPreview: string => string = "generate_payment_link_preview"

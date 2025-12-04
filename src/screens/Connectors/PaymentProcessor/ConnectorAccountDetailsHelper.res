@@ -287,6 +287,79 @@ module CashToCodeMethods = {
   }
 }
 
+module Payload = {
+  @react.component
+  let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
+    open ConnectorUtils
+    open LogicUtils
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+    let (selectedCountry, setSelectedCountry) = React.useState(_ => "")
+    let (showConfigurationModal, setConfigurationModal) = React.useState(_ => false)
+    let onClickSelectedCountry = country => {
+      setSelectedCountry(_ => country)
+      setConfigurationModal(_ => true)
+    }
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let isSelected = (country): bool => {
+      let formValues =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("connector_account_details")
+        ->getDictfromDict("auth_key_map")
+        ->getDictfromDict(country)
+
+      let wasmValues =
+        dict
+        ->getDictfromDict(country)
+        ->Dict.keysToArray
+
+      wasmValues
+      ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
+      ->Option.isNone
+    }
+    <div>
+      {dict
+      ->Dict.keysToArray
+      ->Array.mapWithIndex((country, index) => {
+        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
+          <div onClick={_ => onClickSelectedCountry(country)}>
+            <CheckBoxIcon isSelected={country->isSelected} />
+          </div>
+          <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
+        </div>
+      })
+      ->React.array}
+      <Modal
+        modalHeading={`Additional Details to enable`}
+        headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
+        showModal={showConfigurationModal}
+        setShowModal={setConfigurationModal}
+        paddingClass=""
+        revealFrom=Reveal.Right
+        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        childClass={""}>
+        <div>
+          <RenderConnectorInputFields
+            details={dict->getDictfromDict(selectedCountry)}
+            name={`connector_account_details.auth_key_map.${selectedCountry}`}
+            connector
+            selectedConnector
+          />
+          <div className="flex flex-col justify-center mt-4">
+            <Button
+              text={"Proceed"} buttonType=Primary onClick={_ => setConfigurationModal(_ => false)}
+            />
+          </div>
+        </div>
+      </Modal>
+    </div>
+  }
+}
+
 module ConnectorConfigurationFields = {
   open ConnectorTypes
   @react.component
@@ -304,6 +377,7 @@ module ConnectorConfigurationFields = {
       {switch connector {
       | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
+      | Processors(PAYLOAD) => <Payload connectorAccountFields connector selectedConnector />
 
       | _ =>
         <RenderConnectorInputFields
@@ -339,6 +413,7 @@ module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -363,7 +438,10 @@ module BusinessProfileRender = {
               },
               ~customStyle="max-h-48",
               ~options={
-                [businessProfileRecoilVal]->MerchantAccountUtils.businessProfileNameDropDownOption
+                MerchantAccountUtils.businessProfileNameDropDownOption(
+                  [businessProfileRecoilVal],
+                  ~profileId,
+                )
               },
               ~buttonText="Select Profile",
             )(
@@ -514,7 +592,9 @@ module ConnectorHeaderWrapper = {
         | _ => false
         }}>
         <HSwitchUtils.AlertBanner
-          bannerText="Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."
+          bannerContent={<p>
+            {"Disclaimer: Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
+          </p>}
           bannerType=Warning
         />
       </RenderIf>

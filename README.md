@@ -154,16 +154,74 @@ Enabling `branding` feature flag enables customization of branding elements like
 
 ---
 
-## Themes
+## Theme Configuration
 
-Themes can now be customized in `ThemesProvider.res` by overriding the values in `newDefaultConfig`. This allows you to update default colors, sidebar styles, button designs, and URLs for the logo and favicon.
+The Hyperswitch Control Center supports comprehensive theme customization to match your brand identity. You can customize colors, typography, buttons, logos, and layout elements through a simple JSON configuration file.
+
+### Local Development
+
+For developers running the control center locally:
+
+1. Navigate to `config/theme.json` in your project directory
+2. Edit the theme configuration according to your brand requirements
+3. Restart the development server to see your changes:
+   ```bash
+   npm run start
+   ```
+
+### Docker/Quickstart Users
+
+For users following the [Quickstart guide](https://github.com/juspay/hyperswitch?tab=readme-ov-file#-local-setup-via-docker-):
+
+1. Update the `dashboard_theme.json` file in your config folder
+2. Re-run the quickstart command to apply the changes:
+   ```bash
+   docker compose up -d
+   ```
+
+### Configuration Options
+
+The theme configuration supports the following customization options:
+
+| Category     | Options                                    | Description                      |
+| ------------ | ------------------------------------------ | -------------------------------- |
+| **Colors**   | `primary`,                                 | Main brand colors and background |
+| **Sidebar**  | `primary`, `textColor`, `textColorPrimary` | Sidebar styling and text colors  |
+| **Buttons**  | `primary`, `secondary`                     | Button colors and hover states   |
+| **Branding** | `logoUrl`, `faviconUrl`                    | Custom logo and favicon URLs     |
+
+### Examples
+
+#### Brand Color Customization
+
+```json
+{
+  "settings": {
+    "colors": {
+      "primary": "#FF6B35"
+    }
+  }
+}
+```
+
+#### Logo and Favicon Setup
+
+```json
+{
+  "urls": {
+    "logoUrl": "https://your-domain.com/logo.png",
+    "faviconUrl": "https://your-domain.com/favicon.ico"
+  }
+}
+```
+
+For a complete theme configuration template, refer to `config/theme.json` in the repository.
 
 ## Enable the features on Run time by overriding the default value
 
 You can override these default values either by exporting them directly
 
 ```
-export default__theme__sidebar_color="#3b0764";
 export default__features__threeds_authenticator=true;
 export default__features__is_live_mode=true;
 
@@ -289,6 +347,46 @@ For a detailed list of changes made in each version, please refer to the [CHANGE
 
 We welcome contributions from the community! If you would like to contribute to Hyperswitch, please follow our contribution guidelines.
 
+---
+
+## Spell Checker
+
+We use [`typos`](https://github.com/crate-ci/typos) to automatically detect and fix spelling mistakes across the codebase, documentation, and configuration files.
+
+### Running Locally
+
+To check for typos across the entire project before committing your changes, run:
+
+```bash
+typos .
+```
+
+To check only a specific folder, for example src/APIUtils, run:
+
+```bash
+typos ./src/APIUtils
+```
+
+If you don’t have typos installed, you can install it via Cargo (requires Rust):
+
+```
+cargo install typos-cli
+```
+
+Alternatively, you can download a precompiled binary from the[releases page](https://github.com/crate-ci/typos/releases).
+
+### Auto-fixing Typos
+
+To automatically fix common typos:
+
+```
+typos --write-changes .
+```
+
+### Ignoring Words, Files, and Folders
+
+You can configure typos to ignore specific words, files, or folders by modifying the `.typos.toml` file.
+
 ### Commit Conventions
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for our commit messages. Each commit message should have a structured format:
@@ -367,40 +465,33 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 ### Steps to Raise a PR from a Branch
 
 1. **Clone the Repository**:
-
    - Clone the main repository to your local machine using the following command:
      ```bash
      git clone https://github.com/juspay/hyperswitch-control-center.git
      ```
 
 2. **Create a New Branch**:
-
    - Create a new branch for your changes directly in the main repository. Please ensure the branch name is descriptive and relates to the feature or bug you're addressing.
      ```bash
      git checkout -b feature/your-feature-name
      ```
 
 3. **Make Changes**:
-
    - Make the necessary changes in the codebase, ensuring that you follow the project's coding guidelines and standards.
 
 4. **Commit Changes**:
-
    - Commit your changes with a clear and descriptive commit message. Please follow conventional commit [guidelines](https://www.conventionalcommits.org/).
 
 5. **Push Changes**:
-
    - Push your changes to the branch in the main repository.
      ```bash
      git push origin feature/your-feature-name
      ```
 
 6. **Create a Pull Request**:
-
    - Navigate to the main repository on GitHub and create a new PR from your branch. Provide a detailed description of the changes, along with any relevant context or screenshots.
 
 7. **Respond to Feedback**:
-
    - Be responsive to feedback from reviewers. Address any comments or suggestions promptly and make the necessary changes as required.
 
 ### Additional Notes

@@ -9,9 +9,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ secrets.AUTO_RELEASE_PAT || github.token }}
 
       - name: Clear Docker cache
@@ -26,7 +26,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 24
 
       - name: Install dependencies
         run: npm install --force
@@ -55,7 +55,13 @@ jobs:
           start: npm run test:start
           # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
 
-      - name: Test Artifacts
+      - name: Artifact - Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage
+
+      - name: Artifact - Test failure screenshots
         uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -9,6 +9,8 @@ module HoverInline: {
     ~leftActionButtons: React.element,
     ~labelTextCustomStyle: string,
     ~customWidth: string,
+    ~showTooltipOnHover: bool=?,
+    ~toolTipPosition: ToolTip.toolTipPosition=?,
   ) => React.element
 }
 @react.component
@@ -31,4 +33,6 @@ let make: (
   ~labelTextCustomStyle: string=?,
   ~customWidth: string=?,
   ~handleClick: unit => unit=?,
+  ~showTooltipOnHover: bool=?,
+  ~toolTipPosition: ToolTip.toolTipPosition=?,
 ) => React.element

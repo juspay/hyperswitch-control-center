@@ -1,0 +1,97 @@
+type webhookDetails = {
+  webhook_version: option<string>,
+  webhook_username: option<string>,
+  webhook_password: option<string>,
+  webhook_url: option<string>,
+  payment_created_enabled: option<bool>,
+  payment_succeeded_enabled: option<bool>,
+  payment_failed_enabled: option<bool>,
+}
+type authConnectorDetailsType = {
+  authentication_connectors: option<array<JSON.t>>,
+  three_ds_requestor_url: option<string>,
+  three_ds_requestor_app_url: option<string>,
+}
+
+type backgroundImage = {
+  url: string,
+  position: string,
+  size: string,
+}
+
+type styleConfig = {
+  theme: option<string>,
+  logo: option<string>,
+  seller_name: option<string>,
+  sdk_layout: option<string>,
+  display_sdk_only: option<bool>,
+  enabled_saved_payment_method: option<bool>,
+  hide_card_nickname_field: option<bool>,
+  show_card_form_by_default: option<bool>,
+  transaction_details: option<JSON.t>,
+  background_image: option<backgroundImage>,
+  details_layout: option<string>,
+  payment_button_text: option<string>,
+  custom_message_for_card_terms: option<string>,
+  payment_button_colour: option<string>,
+  skip_status_screen: option<bool>,
+  payment_button_text_colour: option<string>,
+  background_colour: option<string>,
+  sdk_ui_rules: option<JSON.t>,
+  payment_link_ui_rules: option<JSON.t>,
+  enable_button_only_on_form_ready: option<bool>,
+  payment_form_header_text: option<string>,
+  payment_form_label_type: option<string>,
+  show_card_terms: option<string>,
+  is_setup_mandate_flow: option<bool>,
+  color_icon_card_cvc_error: option<string>,
+}
+
+type paymentLinkConfig = {
+  domain_name: option<string>,
+  allowed_domains: option<JSON.t>,
+  business_specific_configs: option<JSON.t>,
+  branding_visibility: option<bool>,
+  ...styleConfig,
+}
+
+type externalVaultConnectorDetails = {
+  vault_connector_id: string,
+  vault_token_selector: option<array<JSON.t>>,
+}
+
+type commonProfileEntity = {
+  profile_id: string,
+  merchant_id: string,
+  profile_name: string,
+  return_url: option<string>,
+  payment_response_hash_key: option<string>,
+  webhook_details: webhookDetails,
+  authentication_connector_details: option<authConnectorDetailsType>,
+  collect_shipping_details_from_wallet_connector: option<bool>,
+  always_collect_shipping_details_from_wallet_connector: option<bool>,
+  collect_billing_details_from_wallet_connector: option<bool>,
+  always_collect_billing_details_from_wallet_connector: option<bool>,
+  is_connector_agnostic_mit_enabled: option<bool>,
+  is_click_to_pay_enabled: option<bool>,
+  authentication_product_ids: option<JSON.t>,
+  outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
+  is_auto_retries_enabled: option<bool>,
+  max_auto_retries_enabled: option<int>,
+  metadata: option<Dict.t<JSON.t>>,
+  force_3ds_challenge: option<bool>,
+  is_debit_routing_enabled: option<bool>,
+  acquirer_configs: option<array<JSON.t>>,
+  merchant_category_code: option<string>,
+  is_network_tokenization_enabled: option<bool>,
+  always_request_extended_authorization: option<bool>,
+  is_manual_retry_enabled: option<bool>,
+  always_enable_overcapture: option<bool>,
+  collect_billing_details_from_wallet_connector_if_required: option<bool>,
+  collect_shipping_details_from_wallet_connector_if_required: option<bool>,
+  billing_processor_id: option<string>,
+  payment_link_config: option<paymentLinkConfig>,
+  split_txns_enabled: option<string>,
+  is_external_vault_enabled: option<string>,
+  external_vault_connector_details: option<externalVaultConnectorDetails>,
+}

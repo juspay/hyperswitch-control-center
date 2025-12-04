@@ -11,7 +11,7 @@ module VolumeRoutingView = {
     ~routingId,
     ~pageState,
     ~setPageState,
-    ~connectors: array<ConnectorTypes.connectorPayload>,
+    ~connectors: array<ConnectorTypes.connectorPayloadCommonType>,
     ~isActive,
     ~profile,
     ~setFormState,
@@ -98,7 +98,7 @@ module VolumeRoutingView = {
       ->Array.map((item): SelectBox.dropdownOption => {
         {
           label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
-          value: item.merchant_connector_id,
+          value: item.id,
         }
       })
     }, [profile])
@@ -203,15 +203,14 @@ module VolumeRoutingView = {
 let make = (
   ~routingRuleId,
   ~isActive,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profile, setProfile) = React.useState(_ => profileId)
   let (formState, setFormState) = React.useState(_ => RoutingTypes.EditReplica)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
@@ -230,7 +229,7 @@ let make = (
     let routingJsonToDict = routingJson->getDictFromJsonObject
     setFormState(_ => ViewConfig)
     setInitialValues(_ => routingJsonToDict)
-    setProfile(_ => routingJsonToDict->getString("profile_id", businessProfileRecoilVal.profile_id))
+    setProfile(_ => routingJsonToDict->getString("profile_id", profileId))
   }
 
   let getDetails = async _ => {
@@ -270,6 +269,13 @@ let make = (
   let validate = (values: JSON.t) => {
     let errors = Dict.make()
     let dict = values->getDictFromJsonObject
+
+    AdvancedRoutingUtils.validateNameAndDescription(
+      ~dict,
+      ~errors,
+      ~validateFields=[Name, Description],
+    )
+
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
       if gateways->Array.length === 0 {

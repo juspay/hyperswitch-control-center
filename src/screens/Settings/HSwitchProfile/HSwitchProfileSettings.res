@@ -109,7 +109,7 @@ module ResetPassword = {
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
     let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
-    let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
+    let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
 
@@ -120,7 +120,7 @@ module ResetPassword = {
           ~entityName=V1(USERS),
           ~userType=#FORGOT_PASSWORD,
           ~methodType=Post,
-          ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`),
+          ~queryParameters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`),
         )
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)

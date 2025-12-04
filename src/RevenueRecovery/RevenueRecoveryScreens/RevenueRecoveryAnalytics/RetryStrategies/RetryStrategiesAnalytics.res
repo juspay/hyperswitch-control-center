@@ -1,9 +1,10 @@
 open InsightsTypes
-
+open Typography
 open RetryStrategiesAnalyticsUtils
 
 module RetryUpliftCard = {
   open LogicUtils
+  open CurrencyFormatUtils
   @react.component
   let make = (
     ~title: string,
@@ -37,7 +38,9 @@ module RetryUpliftCard = {
 
     <div className="rounded-xl border border-gray-200 p-4 w-full bg-white">
       <div className="flex items-center justify-start gap-2 mb-3">
-        <p className="text-sm text-gray-500 flex items-center"> {title->React.string} </p>
+        <p className={`${body.md.regular} text-gray-500 flex items-center`}>
+          {title->React.string}
+        </p>
         <ToolTip
           description
           toolTipFor={<div className="cursor-pointer">
@@ -48,14 +51,16 @@ module RetryUpliftCard = {
         />
       </div>
       <div className="flex items-center space-x-3 mb-3">
-        <p className="text-3xl font-semibold text-gray-800">
+        <p className={`${heading.xl.semibold} text-gray-800`}>
           {rate->valueFormatter(Rate)->React.string}
         </p>
         {percentageChange}
       </div>
       <div className="border-t border-dashed border-gray-200 my-4" />
-      <p className="text-sm text-gray-500 mb-2"> {"Recovered Orders From :"->React.string} </p>
-      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+      <p className={`${body.sm.regular} text-gray-500 mb-2`}>
+        {"Recovered Orders From :"->React.string}
+      </p>
+      <div className={`flex flex-wrap gap-4 ${body.sm.regular} text-gray-600`}>
         {recovered
         ->Belt.Array.map(recoveredType =>
           <div className="flex items-center space-x-2">
@@ -106,7 +111,7 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-56 rounded-lg" />}
-    customUI={<InsightsHelper.NoData height="h-56 p-0 -m-0" />}>
+    customUI={<NewAnalyticsHelper.NoData height="h-56 p-0 -m-0" />}>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <RetryUpliftCard
         title={StaticRetries->getTitleForColumn}

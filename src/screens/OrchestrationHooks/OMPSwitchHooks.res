@@ -49,7 +49,7 @@ let useUserInfo = () => {
   {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }
 
-let useOrgSwitch = () => {
+let useOrgSwitch = (~setActiveProductValue) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -61,6 +61,10 @@ let useOrgSwitch = () => {
   async (~expectedOrgId, ~currentOrgId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedOrgId !== currentOrgId {
+        switch setActiveProductValue {
+        | Some(fn) => fn(ProductTypes.UnknownProduct)
+        | None => ()
+        }
         let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_ORG, ~methodType=Post)
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
@@ -85,7 +89,7 @@ let useOrgSwitch = () => {
   }
 }
 
-let useMerchantSwitch = () => {
+let useMerchantSwitch = (~setActiveProductValue) => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -97,6 +101,10 @@ let useMerchantSwitch = () => {
   async (~expectedMerchantId, ~currentMerchantId, ~defaultValue, ~version=UserInfoTypes.V1) => {
     try {
       if expectedMerchantId !== currentMerchantId {
+        switch setActiveProductValue {
+        | Some(fn) => fn(ProductTypes.UnknownProduct)
+        | None => ()
+        }
         let body =
           [
             ("merchant_id", expectedMerchantId->JSON.Encode.string),
@@ -174,11 +182,12 @@ let useProfileSwitch = () => {
   }
 }
 
-let useInternalSwitch = () => {
-  let orgSwitch = useOrgSwitch()
-  let merchSwitch = useMerchantSwitch()
+let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productTypes => unit>=?) => {
+  open HyperswitchAtom
+  let orgSwitch = useOrgSwitch(~setActiveProductValue)
+  let merchSwitch = useMerchantSwitch(~setActiveProductValue)
+  let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
-
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()
   async (
@@ -219,6 +228,10 @@ let useInternalSwitch = () => {
       }
     } catch {
     | Exn.Error(e) => {
+        switch setActiveProductValue {
+        | Some(fn) => fn(product_type)
+        | None => ()
+        }
         let err = Exn.message(e)->Option.getOr("Failed to switch!")
         Exn.raiseError(err)
       }
@@ -250,4 +263,25 @@ let useOMPData = () => {
     }
 
   (getList, getNameForId)
+}
+
+let useOMPType = () => {
+  let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.merchantDetailsValueAtom,
+  )
+  let {organization_type} = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.organizationDetailsValueAtom,
+  )
+
+  let isCurrentMerchantPlatform = switch merchant_account_type {
+  | #platform => true
+  | _ => false
+  }
+
+  let isCurrentOrganizationPlatform = switch organization_type {
+  | #platform => true
+  | _ => false
+  }
+
+  (isCurrentMerchantPlatform, isCurrentOrganizationPlatform)
 }

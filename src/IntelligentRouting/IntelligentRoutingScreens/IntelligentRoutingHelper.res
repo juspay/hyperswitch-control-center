@@ -1,4 +1,5 @@
 open IntelligentRoutingTypes
+open NewAnalyticsUtils
 let defaultTimeRange = {minDate: "", maxDate: ""}
 
 let displayLegend = gatewayKeys => {
@@ -27,12 +28,12 @@ let stepperHeading = (~title: string, ~subTitle: string) =>
 let displayDateRange = (~minDate, ~maxDate) => {
   let getDateObj = value => value->DayJs.getDayJsForString
   let date = value => {
-    InsightsUtils.formatDateValue(value, ~includeYear=true)
+    formatDateValue(value, ~includeYear=true)
   }
 
   let time = value => {
     let dateObj = getDateObj(value)
-    dateObj.format("HH:mm")->InsightsUtils.formatTime
+    dateObj.format("HH:mm")->formatTimeString
   }
 
   let diff = DateRangeUtils.getStartEndDiff(minDate, maxDate)
@@ -48,8 +49,8 @@ let displayDateRange = (~minDate, ~maxDate) => {
 
 let getDateTime = value => {
   let dateObj = value->DayJs.getDayJsForString
-  let _date = `${dateObj.month()->InsightsUtils.getMonthName} ${dateObj.format("DD")}`
-  let time = dateObj.format("HH:mm")->InsightsUtils.formatTime
+  let _date = `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+  let time = dateObj.format("HH:mm")->formatTimeString
   `${time}`
 }
 

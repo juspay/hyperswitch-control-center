@@ -1,4 +1,4 @@
-type weight = SemiBold | Medium | Regular | Light
+type weight = SemiBold | Medium | Regular | Light | Bold
 type size = Xxl | Xl | Lg | Md | Sm | Xs
 type variant = Display | Heading | Body | Code
 
@@ -9,6 +9,7 @@ type weightStyles = {
   medium: fontStyle,
   regular: fontStyle,
   light: fontStyle,
+  bold: fontStyle,
 }
 
 type sizeStyles = {

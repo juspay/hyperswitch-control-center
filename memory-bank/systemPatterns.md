@@ -52,7 +52,7 @@ type getUrlTypes = (
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
   ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
+  ~queryParameters: option<string>=?,
 ) => string
 ```
 
@@ -207,13 +207,11 @@ sequenceDiagram
 ## Security Patterns
 
 1. **Authentication**
-
    - Token-based authentication
    - Session management
    - Automatic redirection on auth failure
 
 2. **Authorization**
-
    - Role-based access control
    - Feature-based permissions
    - UI elements conditionally rendered based on permissions

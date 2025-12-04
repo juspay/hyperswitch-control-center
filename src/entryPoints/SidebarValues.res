@@ -163,7 +163,7 @@ let threeDsConnector = (~userHasResourceAccess) => {
 
 let pmAuthenticationProcessor = (~userHasResourceAccess) => {
   SubLevelLink({
-    name: "PM Authentication Processor",
+    name: "PM Auth Processor",
     link: `/pm-authentication-processor`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
@@ -185,6 +185,30 @@ let taxProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let billingProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Billing Processor",
+    link: `/billing-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.billingProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
+let vaultProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Vault Processor",
+    link: `/vault-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.vaultProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -193,6 +217,8 @@ let connectors = (
   ~isThreedsConnectorEnabled,
   ~isPMAuthenticationProcessor,
   ~isTaxProcessor,
+  ~isBillingProcessor,
+  ~isVaultProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -214,6 +240,13 @@ let connectors = (
 
   if isTaxProcessor {
     connectorLinkArray->Array.push(taxProcessor(~userHasResourceAccess))->ignore
+  }
+  if isBillingProcessor {
+    connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+  }
+
+  if isVaultProcessor {
+    connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -254,6 +287,12 @@ let disputeAnalytics = SubLevelLink({
   access: Access,
   searchOptions: [("View Dispute analytics", "")],
 })
+let routingAnalytics = SubLevelLink({
+  name: "Routing",
+  link: `/analytics-routing`,
+  access: Access,
+  searchOptions: [("View routing analytics", "")],
+})
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
@@ -274,6 +313,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
+  routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
 ) => {
@@ -291,6 +331,9 @@ let analytics = (
 
   if performanceMonitorFlag {
     links->Array.push(performanceMonitor)
+  }
+  if routingAnalyticsFlag {
+    links->Array.push(routingAnalytics)
   }
 
   isAnalyticsEnabled
@@ -423,7 +466,13 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
+let settings = (
+  ~isConfigurePmtsEnabled,
+  ~userHasResourceAccess,
+  ~complianceCertificate,
+  ~devModularityV2Enabled,
+  ~devThemeEnabled,
+) => {
   let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
@@ -432,6 +481,11 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+  if !devModularityV2Enabled && devThemeEnabled {
+    settingsLinkArray
+    ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
+    ->ignore
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
@@ -480,12 +534,22 @@ let webhooks = userHasResourceAccess => {
   })
 }
 
+let paymentLinkTheme = {
+  SubLevelLink({
+    name: "Payment Link Theme",
+    link: `/payment-link-theme`,
+    access: Access,
+    searchOptions: [("Configure payment link theme", "")],
+  })
+}
+
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~isPaymentSettingsV2Enabled,
+  ~paymentLinkThemeConfigurator,
 ) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
@@ -494,15 +558,17 @@ let developers = (
   let webhooks = webhooks(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
-  if isWebhooksEnabled {
-    defaultDevelopersOptions->Array.push(webhooks)
-  }
   if isPaymentSettingsV2Enabled {
     defaultDevelopersOptions->Array.push(paymentSettingsV2)
   }
-
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
+  }
+  if isWebhooksEnabled {
+    defaultDevelopersOptions->Array.push(webhooks)
+  }
+  if paymentLinkThemeConfigurator {
+    defaultDevelopersOptions->Array.push(paymentLinkTheme)
   }
 
   isDevelopersEnabled
@@ -610,110 +676,4 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
 
   | _ => emptyComponent
   }
-}
-
-let useGetHsSidebarValues = (~isReconEnabled: bool) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {
-    frm,
-    payOut,
-    recon,
-    default,
-    surcharge: isSurchargeEnabled,
-    isLiveMode,
-    threedsAuthenticator,
-    disputeAnalytics,
-    configurePmts,
-    complianceCertificate,
-    performanceMonitor: performanceMonitorFlag,
-    pmAuthenticationProcessor,
-    taxProcessor,
-    newAnalytics,
-    authenticationAnalytics,
-    devAltPaymentMethods,
-    devWebhooks,
-    threedsExemptionRules,
-    paymentSettingsV2,
-  } = featureFlagDetails
-  let {
-    useIsFeatureEnabledForMerchant,
-    merchantSpecificConfig,
-  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
-  let sidebar = [
-    default->home,
-    default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
-    default->connectors(
-      ~isLiveMode,
-      ~isFrmEnabled=frm,
-      ~isPayoutsEnabled=payOut,
-      ~isThreedsConnectorEnabled=threedsAuthenticator,
-      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-      ~isTaxProcessor=taxProcessor,
-      ~userHasResourceAccess,
-    ),
-    default->analytics(
-      disputeAnalytics,
-      performanceMonitorFlag,
-      isNewAnalyticsEnable,
-      ~authenticationAnalyticsFlag=authenticationAnalytics,
-      ~userHasResourceAccess,
-    ),
-    default->workflow(
-      isSurchargeEnabled,
-      threedsExemptionRules,
-      ~userHasResourceAccess,
-      ~isPayoutEnabled=payOut,
-      ~userEntity,
-    ),
-    devAltPaymentMethods->alternatePaymentMethods,
-    recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
-    default->developers(
-      ~isWebhooksEnabled=devWebhooks,
-      ~userHasResourceAccess,
-      ~checkUserEntity,
-      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
-    ),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
-  ]
-
-  sidebar
-}
-
-let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
-  let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
-  let defaultSidebar = []
-
-  if featureFlagDetails.devModularityV2 {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      CustomComponent({
-        component: <ProductHeaderComponent />,
-      }),
-    ])
-  }
-
-  let sidebarValuesForProduct = switch activeProduct {
-  | Orchestration(V1) => hsSidebars
-  | Recon(V2) => ReconSidebarValues.reconSidebars
-  | Recovery => RevenueRecoverySidebarValues.recoverySidebars
-  | Vault => VaultSidebarValues.vaultSidebars
-  | CostObservability => HypersenseSidebarValues.hypersenseSidebars
-  | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
-  | Orchestration(V2) => orchestratorV2Sidebars
-  | Recon(V1) => ReconEngineSidebarValues.reconEngineSidebars
-  }
-  defaultSidebar->Array.concat(sidebarValuesForProduct)
 }

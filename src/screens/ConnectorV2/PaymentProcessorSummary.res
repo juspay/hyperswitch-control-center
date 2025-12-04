@@ -66,7 +66,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   }
 
   let data = initialValues->getDictFromJsonObject
-  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     data,
   )
@@ -87,6 +87,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
+        | VaultProcessor => Window.getConnectorConfig(connectorName)
         }
         dict
       } else {

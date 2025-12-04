@@ -65,7 +65,7 @@ module Configure3DSRule = {
       {
         let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
-        let keyExtractor = (index, _rule, isDragging) => {
+        let keyExtractor = (index, _rule, isDragging, _) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
           let i = 1
           <AdvancedRouting.Wrapper
@@ -89,7 +89,7 @@ module Configure3DSRule = {
         } else {
           rule
           ->Array.mapWithIndex((rule, index) => {
-            keyExtractor(index, rule, false)
+            keyExtractor(index, rule, false, false)
           })
           ->React.array
         }
@@ -272,7 +272,7 @@ let make = () => {
     AdvancedRoutingUtils.validateNameAndDescription(
       ~dict,
       ~errors,
-      ~validateFields=["name", "description"],
+      ~validateFields=[Name, Description],
     )
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {

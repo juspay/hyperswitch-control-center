@@ -3,7 +3,7 @@ type config = {
   merchantId: option<string>,
   profileId: option<string>,
 }
-type merchantSpecificConfig = {newAnalytics: config}
+type merchantSpecificConfig = {newAnalytics: config, devReconEngineV1: config}
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -52,15 +52,25 @@ type featureFlag = {
   forceCookies: bool,
   authenticationAnalytics: bool,
   devIntelligentRoutingV2: bool,
-  googlePayDecryptionFlow: bool,
+  googlePayDirectFlow: bool,
   devWebhooks: bool,
   sampleDataAnalytics: bool,
   threedsExemptionRules: bool,
   paymentSettingsV2: bool,
   acquirerConfigSettings: bool,
-  devOmpChart: bool,
+  exploreRecipes: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
+  devAiChatBot: bool,
+  routingAnalytics: bool,
+  devRolesV2: bool,
+  devCustomer: bool,
+  devAcceptInvite: bool,
+  billingProcessor: bool,
+  paymentLinkThemeConfigurator: bool,
+  devSidebarV2: bool,
+  vaultProcessor: bool,
+  devTheme: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -115,15 +125,25 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devModularityV2: dict->getBool("dev_modularity_v2", false),
     devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
-    googlePayDecryptionFlow: dict->getBool("google_pay_decryption_flow", false),
+    googlePayDirectFlow: dict->getBool("google_pay_direct_flow", false),
     devWebhooks: dict->getBool("dev_webhooks", false),
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
     acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
     paymentSettingsV2: dict->getBool("payment_settings_v2", false),
+    exploreRecipes: dict->getBool("explore_recipes", false),
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
-    devOmpChart: dict->getBool("dev_omp_chart", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
+    devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
+    routingAnalytics: dict->getBool("routing_analytics", false),
+    devRolesV2: dict->getBool("dev_roles_v2", false),
+    devCustomer: dict->getBool("dev_customer", false),
+    devAcceptInvite: dict->getBool("dev_accept_invite", false),
+    billingProcessor: dict->getBool("billing_processor", false),
+    paymentLinkThemeConfigurator: dict->getBool("payment_link_theme_configurator", false),
+    devSidebarV2: dict->getBool("dev_sidebar_v2", false),
+    vaultProcessor: dict->getBool("vault_processor", false),
+    devTheme: dict->getBool("dev_theme", false),
   }
 }
 
@@ -139,7 +159,16 @@ let configMapper = dict => {
 let merchantSpecificConfig = (config: JSON.t) => {
   open LogicUtils
   let dict = config->getDictFromJsonObject
+
+  let blacklistDict = dict->getDictfromDict("blacklist")
+  let newAnalyticsBlacklist = blacklistDict->getDictfromDict("new_analytics")->configMapper
+
+  let whitelistDict = dict->getDictfromDict("whitelist")
+  let devReconEngineV1Whitelist =
+    whitelistDict->getDictfromDict("dev_recon_engine_v1")->configMapper
+
   {
-    newAnalytics: dict->getDictfromDict("new_analytics")->configMapper,
+    newAnalytics: newAnalyticsBlacklist,
+    devReconEngineV1: devReconEngineV1Whitelist,
   }
 }

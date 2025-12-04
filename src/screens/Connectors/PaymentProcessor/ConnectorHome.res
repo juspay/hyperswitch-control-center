@@ -228,12 +228,14 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorCurrentStepIndicator currentStep stepsArr={stepsArr(~connector)} />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
         <HSwitchUtils.AlertBanner
-          bannerText="This is a test connector and will not be reflected on your payment processor dashboard."
+          bannerContent={<p>
+            {"This is a test connector and will not be reflected on your payment processor dashboard."->React.string}
+          </p>}
           bannerType=Warning
         />
       </RenderIf>
@@ -252,6 +254,10 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <ConnectorAccountDetails setCurrentStep setInitialValues initialValues isUpdateFlow />
         | PaymentMethods =>
           <ConnectorPaymentMethod
+            setCurrentStep connector setInitialValues initialValues isUpdateFlow
+          />
+        | CustomMetadata =>
+          <ConnectorCustomMetadata
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
         | SummaryAndTest

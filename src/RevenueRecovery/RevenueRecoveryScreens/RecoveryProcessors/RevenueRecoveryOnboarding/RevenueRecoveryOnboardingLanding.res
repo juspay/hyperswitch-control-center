@@ -1,5 +1,6 @@
 @react.component
 let make = (~createMerchant) => {
+  open Typography
   open PageUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
@@ -18,7 +19,7 @@ let make = (~createMerchant) => {
       <PageHeading
         customHeadingStyle="flex flex-col items-center"
         title="Never lose revenue to unwarranted churn"
-        customTitleStyle="text-2xl text-center font-bold"
+        customTitleStyle={`${heading.xxl.bold} text-center`}
         customSubTitleStyle="text-fs-16 font-normal text-center max-w-700"
         subTitle="Maximize retention and recover failed transactions with automated retry strategies."
       />

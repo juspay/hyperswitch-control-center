@@ -2,7 +2,6 @@ let useClearRecoilValue = () => {
   open HyperswitchAtom
 
   let setMerchantDetailsValue = merchantDetailsValueAtom->Recoil.useSetRecoilState
-  let setBusinessProfilesAtom = businessProfilesAtom->Recoil.useSetRecoilState
   let setConnectorListAtom = connectorListAtom->Recoil.useSetRecoilState
   let setEnumVariantAtom = enumVariantAtom->Recoil.useSetRecoilState
   let setPaypalAccountStatusAtom = paypalAccountStatusAtom->Recoil.useSetRecoilState
@@ -14,11 +13,21 @@ let useClearRecoilValue = () => {
   let setMerchantListRecoilAtom = merchantListAtom->Recoil.useSetRecoilState
   let setProfileListRecoilAtom = profileListAtom->Recoil.useSetRecoilState
   let setModuleListListRecoilAtom = moduleListRecoil->Recoil.useSetRecoilState
+  //Todo: remove id atom once we start using businessProfileInterface
+  let setBusinessProfileRecoil = businessProfileFromIdAtom->Recoil.useSetRecoilState
+  let setBusinessProfileInterfaceRecoil =
+    businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
 
   let clearRecoilValue = () => {
     setMerchantDetailsValue(_ => JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails)
-    setBusinessProfilesAtom(_ => JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile)
-    setConnectorListAtom(_ => JSON.Encode.null)
+    //Todo: remove id atom once we start using businessProfileInterface
+    setBusinessProfileRecoil(_ =>
+      JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
+    )
+    setBusinessProfileInterfaceRecoil(_ =>
+      JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType
+    )
+    setConnectorListAtom(_ => [])
     setEnumVariantAtom(_ => "")
     setPaypalAccountStatusAtom(_ => PayPalFlowTypes.Connect_paypal_landing)
     setUserPermissionAtom(_ => GroupACLMapper.defaultValueForGroupAccessJson)

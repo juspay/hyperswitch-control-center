@@ -1,7 +1,9 @@
 type accordion = {
   title: string,
-  renderContent: unit => React.element,
+  renderContent: (~currentAccordianState: bool, ~closeAccordionFn: unit => unit) => React.element,
   renderContentOnTop: option<unit => React.element>,
+  onItemExpandClick?: unit => unit,
+  onItemCollapseClick?: unit => unit,
 }
 
 type arrowPosition = Left | Right
@@ -84,12 +86,29 @@ module AccordionInfo = {
     ~expanded=false,
     ~contentExpandCss="",
     ~titleStyle="",
+    ~accordionHeaderTextClass="",
+    ~expandedTitleStyle="",
   ) => {
     let (isExpanded, setIsExpanded) = React.useState(() => expanded)
 
     let handleClick = _ => {
+      if !isExpanded {
+        switch accordion.onItemExpandClick {
+        | Some(fn) => fn()
+        | None => ()
+        }
+      } else {
+        switch accordion.onItemCollapseClick {
+        | Some(fn) => fn()
+        | None => ()
+        }
+      }
       setIsExpanded(prevExpanded => !prevExpanded)
     }
+
+    let closeAccordionFn = () => setIsExpanded(_ => false)
+
+    let titleStyleFull = isExpanded ? `${titleStyle} ${expandedTitleStyle}` : titleStyle
 
     let contentClasses = if isExpanded {
       `flex-wrap bg-white dark:bg-jp-gray-lightgray_background text-lg ${contentExpandCss}`
@@ -97,61 +116,38 @@ module AccordionInfo = {
       "hidden"
     }
 
-    let svgDeg = if isExpanded {
-      "90"
+    let iconRotateAngle = if isExpanded {
+      "rotate-180"
     } else {
-      "0"
+      "rotate-0"
     }
 
     <div
-      className={`overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 ${accordianTopContainerCss}`}>
+      className={`overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 ${accordianTopContainerCss}  `}>
       <div
         onClick={handleClick}
-        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyle} ${accordianBottomContainerCss}`}>
+        className={`flex cursor-pointer items-center font-ibm-plex  bg-white hover:bg-jp-gray-100 dark:bg-jp-gray-950  dark:border-jp-gray-960 ${titleStyleFull} ${accordianBottomContainerCss}`}>
         {if arrowPosition == Left {
-          <svg
-            width="7"
-            height="11"
-            viewBox="0 0 7 11"
-            fill="none"
-            transform={`rotate(${svgDeg})`}
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M-0.000107288 0L6.01489 5.013L-0.000107288 10.025V0Z"
-              fill=arrowFillColor
-            />
-          </svg>
+          <Icon name="nd-angle-down" size=12 className={iconRotateAngle} />
         } else {
           React.null
         }}
         {switch accordion.renderContentOnTop {
         | Some(ui) => ui()
-        | None => <div className="ml-5"> {React.string(accordion.title)} </div>
+        | None =>
+          <div className={`ml-5 ${accordionHeaderTextClass}`}>
+            {React.string(accordion.title)}
+          </div>
         }}
         {if arrowPosition == Right {
-          <svg
-            width="7"
-            height="11"
-            viewBox="0 0 7 11"
-            fill="none"
-            transform={`rotate(${svgDeg})`}
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M-0.000107288 0L6.01489 5.013L-0.000107288 10.025V0Z"
-              fill=arrowFillColor
-            />
-          </svg>
+          <Icon name="nd-angle-down" size=12 className={iconRotateAngle} />
         } else {
           React.null
         }}
       </div>
       <div
         className={`flex flex-col dark:border-jp-gray-960 border-t dark:hover:bg-jp-gray-900 dark:hover:bg-opacity-25 ${contentClasses}`}>
-        {accordion.renderContent()}
+        {accordion.renderContent(~currentAccordianState=isExpanded, ~closeAccordionFn)}
       </div>
     </div>
   }
@@ -168,6 +164,8 @@ let make = (
   ~initialExpandedArray=[],
   ~gapClass="",
   ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
+  ~accordionHeaderTextClass="",
+  ~expandedTitleStyle="",
 ) => {
   <div className={`w-full ${gapClass}`}>
     {accordion
@@ -182,6 +180,8 @@ let make = (
         contentExpandCss
         expanded={initialExpandedArray->Array.includes(i)}
         titleStyle
+        accordionHeaderTextClass
+        expandedTitleStyle
       />
     })
     ->React.array}

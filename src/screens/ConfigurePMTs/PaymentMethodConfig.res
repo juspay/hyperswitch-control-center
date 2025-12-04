@@ -1,3 +1,5 @@
+open Typography
+
 module PmtConfigInp = {
   @react.component
   let make = (
@@ -71,6 +73,8 @@ let make = (
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
+  open LogicUtils
+
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
@@ -88,32 +92,29 @@ let make = (
   open APIUtils
   let getURL = useGetURL()
 
-  let connectorList = ConnectorInterface.useConnectorArrayMapper(
-    ~interface=ConnectorInterface.connectorInterfaceV1,
+  let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 
   let getProcessorDetails = async () => {
-    open LogicUtils
     try {
       setShowPaymentMthdConfigModal(_ => true)
       setScreenState(_ => Loading)
       let paymentMethoConfigUrl = getURL(~entityName=V1(PAYMENT_METHOD_CONFIG), ~methodType=Get)
       let data =
         connectorList
-        ->Array.filter(item =>
-          item.merchant_connector_id === paymentMethodConfig.merchant_connector_id
-        )
+        ->Array.filter(item => item.id === paymentMethodConfig.merchant_connector_id)
         ->getValueFromArray(
           0,
-          ConnectorInterface.mapDictToConnectorPayload(
-            ConnectorInterface.connectorInterfaceV1,
+          ConnectorListInterface.mapDictToConnectorPayload(
+            ConnectorListInterface.connectorInterfaceV1,
             Dict.make(),
           ),
         )
 
+      // converting the common connector payload type to the v1 connector payload type as required to update PMTs
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,
@@ -163,6 +164,7 @@ let make = (
     Nullable.null
   }
   let id = `payment_methods_enabled[${payment_method_index->Int.toString}].payment_method_types[${payment_method_types_index->Int.toString}]`
+  let labelClass = `text-nd_gray-700 ${body.xs.medium}`
 
   <>
     <RenderIf condition={showPaymentMthdConfigModal}>
@@ -178,7 +180,12 @@ let make = (
         setShowModal={setShowPaymentMthdConfigModal}
         modalClass="w-full max-w-lg m-auto !bg-white">
         <PageLoaderWrapper screenState sectionHeight="h-30-vh">
-          <Form key="pmts-configuration" initialValues onSubmit={onSubmit}>
+          <Form
+            key="pmts-configuration"
+            initialValues
+            onSubmit
+            validate={valueInput =>
+              PaymentMethodConfigUtils.validatePMTsConfig(valueInput, paymentMethodConfig)}>
             <div className="p-5">
               <FieldRenderer
                 field={valueInput({
@@ -196,10 +203,38 @@ let make = (
                   options: currencies,
                 })}
               />
+              <FormRenderer.FieldRenderer
+                labelClass
+                field={FormRenderer.makeFieldInfo(
+                  ~label="Minimum Amount",
+                  ~name=`${id}.minimum_amount`,
+                  ~placeholder="Enter Minimum Amount",
+                  ~customInput=InputFields.numericTextInput(
+                    ~customStyle="!rounded-xl",
+                    ~precision=0,
+                  ),
+                  ~isRequired=true,
+                )}
+              />
+              <FormRenderer.FieldRenderer
+                labelClass
+                field={FormRenderer.makeFieldInfo(
+                  ~label="Maximum Amount",
+                  ~name=`${id}.maximum_amount`,
+                  ~placeholder="Enter Maximum Amount",
+                  ~customInput=InputFields.numericTextInput(
+                    ~customStyle="!rounded-xl",
+                    ~precision=0,
+                  ),
+                  ~isRequired=true,
+                )}
+              />
             </div>
             <hr className="w-full" />
             <div className="flex justify-end w-full pr-5 pb-3 mt-5">
-              <FormRenderer.SubmitButton loadingText="Processing..." text="Submit" />
+              <FormRenderer.SubmitButton
+                loadingText="Processing..." text="Submit" showToolTip=false
+              />
             </div>
           </Form>
         </PageLoaderWrapper>

@@ -1,5 +1,7 @@
 open HSwitchSettingTypes
 
+let platformDocsUrl = "https://docs.hyperswitch.io/explore-hyperswitch/account-management/multiple-accounts-and-profiles/platform-org-and-merchant-setup"
+
 let validateAPIKeyForm = (
   values: JSON.t,
   ~setIsDisabled=_ => (),
@@ -21,14 +23,14 @@ let validateAPIKeyForm = (
       | _ => ()
       }
     } else if key == "expiration" && value->String.toLowerCase != "never" {
-      setShowCustomDate(true)
+      setShowCustomDate(_ => true)
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
       if date->LogicUtils.isEmptyString {
         Dict.set(errors, "expiration_date", "Please select expiry date"->JSON.Encode.string)
       }
     } else if key == "expiration" && value->String.toLowerCase == "never" {
-      setShowCustomDate(false)
+      setShowCustomDate(_ => false)
     } else if key == "name" && value->String.length > 64 {
       Dict.set(errors, "name", "Name can't be more than 64 characters"->JSON.Encode.string)
     } else if key == "description" && value->String.length > 256 {
@@ -170,6 +172,7 @@ let webhookUrl = FormRenderer.makeFieldInfo(
   ~placeholder="Enter Webhook URL",
   ~customInput=InputFields.textInput(~autoComplete="off"),
   ~isRequired=false,
+  ~description="To activate this feature, your webhook URL needs manual whitelisting. Reach out to our team for assistance",
 )
 
 let returnUrl = FormRenderer.makeFieldInfo(
@@ -233,11 +236,29 @@ let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
+let domainName = isDisabled =>
+  FormRenderer.makeFieldInfo(
+    ~label="Domain Name",
+    ~name="payment_link_config.domain_name",
+    ~placeholder="Enter Domain Name",
+    ~customInput=InputFields.textInput(~autoComplete="off", ~isDisabled),
+    ~description="This domain name will be used to generate payment links.",
+  )
+
+let allowedDomains = isDisabled =>
+  FormRenderer.makeFieldInfo(
+    ~label="Allowed Domain",
+    ~name="payment_link_config.allowed_domains",
+    ~placeholder="Enter Allowed Domain",
+    ~customInput=InputFields.textInput(~autoComplete="off", ~isDisabled),
+    ~description="The allowed domains will be able to embed payment links.",
+  )
+
 module ErrorUI = {
   @react.component
   let make = (~text) => {
     <div className="flex p-5">
-      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/error.svg`} alt="warning" />
+      <img className="w-12 h-12 my-auto border-gray-100" src={`/icons/warning.svg`} alt="warning" />
       <div className="text-jp-gray-900">
         <div
           className="font-bold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
@@ -273,7 +294,9 @@ module SuccessUI = {
           </div>
           <HSwitchUtils.AlertBanner
             bannerType=Info
-            bannerText="Please note down the API key for your future use as you won't be able to view it later."
+            bannerContent={<p>
+              {"Please note down the API key for your future use as you won't be able to view it later."->React.string}
+            </p>}
           />
         </div>
       </div>
@@ -291,3 +314,19 @@ module SuccessUI = {
     </div>
   }
 }
+
+let elevatedWithAccess = "Your API keys have elevated privileges. You can use them to create new merchants and generate API keys for any merchant within this organization."
+
+let elevatedWithoutAccess = "The API keys shown here have elevated privileges. They can be used to create merchants and generate API keys for any merchant within this organization. Contact your administrator if you require access."
+
+let regularWithAccess = "The API keys shown here include keys you've created yourself, along with keys generated for you by the Platform Merchant account."
+
+let regularWithoutAccess = "The API keys displayed here include keys generated for your account by the Platform Merchant."
+
+let bannerText = (~isPlatformMerchant, ~hasCreateApiKeyAccess: CommonAuthTypes.authorization) =>
+  switch (isPlatformMerchant, hasCreateApiKeyAccess) {
+  | (true, Access) => elevatedWithAccess
+  | (true, NoAccess) => elevatedWithoutAccess
+  | (false, Access) => regularWithAccess
+  | (false, NoAccess) => regularWithoutAccess
+  }

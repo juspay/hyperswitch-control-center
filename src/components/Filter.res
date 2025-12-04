@@ -80,44 +80,6 @@ module ClearFilters = {
   }
 }
 
-module AutoSubmitter = {
-  @react.component
-  let make = (~autoApply, ~submit, ~defaultFilterKeys, ~submitInputOnEnter) => {
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
-    )
-    let form = ReactFinalForm.useForm()
-    let values = formState.values
-    React.useEffect(() => {
-      let onKeyDown = ev => {
-        let keyCode = ev->ReactEvent.Keyboard.keyCode
-        if keyCode === 13 && submitInputOnEnter {
-          form.submit()->ignore
-        }
-      }
-      Window.addEventListener("keydown", onKeyDown)
-      Some(() => Window.removeEventListener("keydown", onKeyDown))
-    }, [])
-
-    React.useEffect(() => {
-      if formState.dirty {
-        let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
-          formState.dirtyFields->Dict.get(key)->Option.getOr(false)
-        })
-
-        // if autoApply is false then still autoApply can work for the default filters
-        if autoApply || defaultFieldsHaveChanged {
-          submit(formState.values, 0)->ignore
-        }
-      }
-
-      None
-    }, [values])
-
-    React.null
-  }
-}
-
 let getStrFromJson = (key, val) => {
   switch val->JSON.Classify.classify {
   | String(str) => str
@@ -360,7 +322,9 @@ let make = (
     </Menu>
 
   <Form onSubmit initialValues=initialValueJson>
-    <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
+    <HelperComponents.AutoSubmitter
+      autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter
+    />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
         <div className="mb-4"> {customLeftView} </div>

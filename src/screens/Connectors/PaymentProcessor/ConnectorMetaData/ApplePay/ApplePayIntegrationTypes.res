@@ -33,7 +33,10 @@ type simplified = {
 }
 
 type applePayIntegrationType = [#manual | #simplified]
-type applePayConfig = [#manual(manual) | #simplified(simplified)]
+type applePayConfig = [
+  | #manual(manual)
+  | #simplified(simplified)
+]
 type applePayIntegrationSteps = Landing | Configure | Verify
 type simplifiedApplePayIntegartionTypes = EnterUrl | DownloadFile | HostUrl
 

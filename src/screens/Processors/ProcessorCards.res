@@ -65,7 +65,6 @@ let make = (
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let urlPathArray = url.path->List.toArray
-  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let connectorTypeName = switch urlPathArray[1] {
   | Some(val) => val->LogicUtils.kebabToSnakeCase
   | _ => ""
@@ -85,7 +84,6 @@ let make = (
     RescriptReactRouter.push(
       GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
     )
-    setShowSideBar(_ => false)
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
 
@@ -129,7 +127,6 @@ let make = (
         </RenderIf>
         <RenderIf
           condition={!featureFlagDetails.isLiveMode &&
-          configuredConnectors->Array.length > 0 &&
           showDummyConnectorButton &&
           urlPrefix == "connectors/new"}>
           <ACLButton

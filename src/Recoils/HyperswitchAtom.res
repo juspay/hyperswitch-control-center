@@ -3,29 +3,32 @@ type accessMapping = {
   resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
 }
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
+
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
 )
 
-let businessProfilesAtom = Recoil.atom(
-  "businessProfileDetails",
-  JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
+let organizationDetailsValueAtom: Recoil.recoilAtom<
+  HSwitchSettingTypes.organizationPayload,
+> = Recoil.atom(
+  "organizationDetailsValue",
+  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
 )
 
-let connectorListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
-  "connectorListAtom",
-  JSON.Encode.null,
-)
+let connectorListAtom: Recoil.recoilAtom<
+  array<ConnectorTypes.connectorPayloadCommonType>,
+> = Recoil.atom("connectorListAtom", [])
+
 //Todo: remove this once we start using businessProfileInterface
 let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
-  JSON.Encode.null->BusinessProfileMapper.businessProfileTypeMapper,
+  JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
 )
 //Todo:remove this after businessProfileInterface is stable
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
-  JSON.Encode.null,
+  JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
 )
 
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")

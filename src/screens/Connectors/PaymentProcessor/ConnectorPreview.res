@@ -161,6 +161,7 @@ module ConnectorSummaryGrid = {
           | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
           | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
+          | VaultProcessor => Window.getConnectorConfig(connectorName)
           | PaymentVas => JSON.Encode.null
           }
           dict
@@ -186,7 +187,7 @@ module ConnectorSummaryGrid = {
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <div
-            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
+            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorInterfaceTableEntity.connectorStatusStyle}`}>
             {connectorInfo.status->String.toUpperCase->React.string}
           </div>
         </AddDataAttributes>
@@ -341,15 +342,12 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
 
-  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     connectorInfoDict,
   )
 
-  let connectorCount =
-    ConnectorInterface.useConnectorArrayMapper(
-      ~interface=ConnectorInterface.connectorInterfaceV1,
-    )->Array.length
+  let connectorCount = ConnectorListInterface.useFilteredConnectorList()->Array.length
 
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors

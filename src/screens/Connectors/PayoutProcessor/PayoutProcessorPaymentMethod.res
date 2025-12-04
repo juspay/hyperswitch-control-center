@@ -110,7 +110,9 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
             <HSwitchUtils.AlertBanner
-              bannerText="Please verify if the payment methods are turned on at the processor end as well."
+              bannerContent={<p>
+                {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
+              </p>}
               bannerType=Warning
             />
             <PaymentMethod.PaymentMethodsRender
@@ -122,6 +124,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
               isPayoutFlow=true
               initialValues
               setInitialValues
+              connectorType=PayoutProcessor
             />
           </div>
         </div>

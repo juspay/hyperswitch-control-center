@@ -1,4 +1,5 @@
-type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview | AutomaticFlow
+type steps =
+  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -37,6 +38,7 @@ type processorTypes =
   | KLARNA
   | GLOBALPAY
   | BLUESNAP
+  | AFFIRM
   | AIRWALLEX
   | WORLDPAY
   | WORLDPAYXML
@@ -70,6 +72,7 @@ type processorTypes =
   | BITPAY
   | CRYPTOPAY
   | CASHTOCODE
+  | CHECKBOOK
   | PAYME
   | GLOBEPAY
   | POWERTRANZ
@@ -97,6 +100,7 @@ type processorTypes =
   | NOVALNET
   | DEUTSCHEBANK
   | NEXIXPAY
+  | NORDEA
   | XENDIT
   | JPMORGAN
   | INESPAY
@@ -106,10 +110,27 @@ type processorTypes =
   | PAYSTACK
   | FACILITAPAY
   | ARCHIPEL
+  | AUTHIPAY
   | WORLDPAYVANTIV
   | BARCLAYCARD
+  | SILVERFLOW
   | TOKENIO
   | PAYLOAD
+  | PAYTM
+  | PHONEPE
+  | FLEXITI
+  | BREADPAY
+  | CALIDA
+  | BLACKHAWKNETWORK
+  | DWOLLA
+  | PAYSAFE
+  | PEACHPAYMENTS
+  | GIGADAT
+  | LOONIO
+  | TESOURO
+  | FINIX
+  | PAYJUSTNOW
+  | ZIFT
 
 type payoutProcessorTypes =
   | ADYEN
@@ -120,9 +141,19 @@ type payoutProcessorTypes =
   | STRIPE
   | WISE
   | NOMUPAY
+  | NUVEI
+  | GIGADAT
+  | LOONIO
+  | WORLDPAY
+  | WORLDPAYXML
 
 type threeDsAuthenticatorTypes =
-  THREEDSECUREIO | NETCETERA | CLICK_TO_PAY_MASTERCARD | JUSPAYTHREEDSSERVER | CLICK_TO_PAY_VISA
+  | THREEDSECUREIO
+  | NETCETERA
+  | CLICK_TO_PAY_MASTERCARD
+  | JUSPAYTHREEDSSERVER
+  | CLICK_TO_PAY_VISA
+  | CARDINAL
 
 type frmTypes =
   | Signifyd
@@ -132,7 +163,9 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
+
+type vaultProcessorTypes = VGS
 
 type connectorTypeVariants =
   | PaymentProcessor
@@ -142,6 +175,7 @@ type connectorTypeVariants =
   | PMAuthProcessor
   | TaxProcessor
   | BillingProcessor
+  | VaultProcessor
 
 type connectorTypes =
   | Processors(processorTypes)
@@ -151,6 +185,7 @@ type connectorTypes =
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | TaxProcessor(taxProcessorTypes)
   | BillingProcessor(billingProcessorTypes)
+  | VaultProcessor(vaultProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -203,6 +238,11 @@ type paymentMethodConfigType = {
 }
 
 type paymentMethodConfigTypeV2 = {
+  payment_method_subtype: string,
+  ...paymentMethodConfigCommonType,
+}
+
+type paymentMethodConfigTypeCommon = {
   payment_method_subtype: string,
   ...paymentMethodConfigCommonType,
 }
@@ -318,8 +358,14 @@ type paymentMethodEnabledTypeV2 = {
   payment_method_subtypes: array<paymentMethodConfigTypeV2>,
 }
 
+type paymentMethodEnabledTypeCommon = {
+  payment_method_type: string,
+  payment_method_subtypes: array<paymentMethodConfigTypeCommon>,
+}
+
 type payment_methods_enabled = array<paymentMethodEnabledType>
 type payment_methods_enabledV2 = array<paymentMethodEnabledTypeV2>
+type payment_methods_enabledCommon = array<paymentMethodEnabledTypeCommon>
 
 type frm_payment_method_type = {
   payment_method_type: string,
@@ -372,6 +418,24 @@ type connectorPayloadV2 = {
   feature_metadata: JSON.t,
 }
 
+type connectorPayloadCommonType = {
+  connector_type: connectorTypeVariants,
+  connector_name: string,
+  connector_label: string,
+  connector_account_details: connectorAuthTypeObj,
+  test_mode?: bool,
+  disabled: bool,
+  payment_methods_enabled: payment_methods_enabledCommon,
+  profile_id: string,
+  metadata: JSON.t,
+  id: string,
+  frm_configs?: array<frm_config>,
+  status: string,
+  connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
+  feature_metadata?: JSON.t,
+}
+
 type connector =
   | FRMPlayer
   | Processor
@@ -380,6 +444,7 @@ type connector =
   | PMAuthenticationProcessor
   | TaxProcessor
   | BillingProcessor
+  | VaultProcessor
 
 type connectorFieldTypes = {
   bodyType: string,

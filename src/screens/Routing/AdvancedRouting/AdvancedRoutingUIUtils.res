@@ -505,26 +505,6 @@ module MakeRuleField = {
   }
 }
 
-let configurationNameInput = makeFieldInfo(
-  ~label="Configuration Name",
-  ~name="name",
-  ~isRequired=true,
-  ~placeholder="Enter Configuration Name",
-  ~customInput=InputFields.textInput(~autoFocus=true),
-)
-let descriptionInput = makeFieldInfo(
-  ~label="Description",
-  ~name="description",
-  ~isRequired=true,
-  ~placeholder="Add a description for your configuration",
-  ~customInput=InputFields.multiLineTextInput(
-    ~isDisabled=false,
-    ~rows=Some(3),
-    ~cols=None,
-    ~customClass="text-sm",
-  ),
-)
-
 module ConfigureRuleButton = {
   @react.component
   let make = (~setShowModal, ~isConfigButtonEnabled) => {

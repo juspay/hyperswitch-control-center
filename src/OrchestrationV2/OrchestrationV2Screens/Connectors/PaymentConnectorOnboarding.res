@@ -28,7 +28,7 @@ let make = () => {
     subSectionId: None,
   })
 
-  let connectorInfoDict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -190,6 +190,7 @@ let make = () => {
       | #authenticateProcessor =>
         <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
+            showPermLink=false
             title="Authenticate Processor"
             subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
             customSubTitleStyle="font-500 font-normal text-nd_gray-700"
@@ -215,6 +216,7 @@ let make = () => {
       | #setupPMTS =>
         <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
+            showPermLink=false
             title="Payment Methods"
             subTitle="Configure your PaymentMethods."
             customSubTitleStyle="font-500 font-normal text-nd_gray-700"
@@ -237,6 +239,7 @@ let make = () => {
       | #setupWebhook =>
         <div className="flex flex-col w-1/2 px-10 mt-8 overflow-y-auto">
           <PageUtils.PageHeading
+            showPermLink=false
             title="Setup Webhook"
             subTitle="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
             customSubTitleStyle="font-medium text-nd_gray-700"

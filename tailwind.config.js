@@ -34,6 +34,7 @@ module.exports = {
       },
       margin: {
         "15-px": "15px",
+        "54-px": "54px",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -43,6 +44,8 @@ module.exports = {
         "8-rem": "8rem",
         "9.5-rem": "9.5rem",
         "12.5-rem": "12.5rem",
+        "14-rem": "14rem",
+        "22-rem": "22rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
         "35-rem": "35rem",
@@ -60,26 +63,44 @@ module.exports = {
         "36-px": "36px",
         "40-px": "40px",
         "68-px": "68px",
+        "84-px": "84px",
         "120-px": "120px",
         "130-px": "130px",
         "195-px": "195px",
+        "344-px": "344px",
+        "400-px": "400px",
+        "590-px": "590px",
+        "650-px": "650px",
+        "700-px": "700px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
         "12.5-rem": "12.5rem",
         onBordingSupplier: "calc(100vh - 300px)",
+        modalContentHeight: "calc(100vh - 140px)",
       },
       padding: {
         "10-px": "10px",
+        "2-px": "2px",
+      },
+      minWidth: {
+        "25-rem": "25rem",
       },
       maxHeight: {
         "15-rem": "15rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
+        "750-px": "750px",
+      },
+      minHeight: {
+        "500-px": "500px",
       },
       inset: {
+        "5-px": "5px",
         "76-px": "76px",
+        "120-px": "120px",
         "180-px": "180px",
+        "500-px": "500px",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -89,12 +110,15 @@ module.exports = {
         extended: "2px",
       },
       width: {
+        "1-px": "1px",
         "90-px": "90px",
         100: "25rem",
         133: "35rem",
         200: "58rem",
         150: "9.375rem",
         "1.1-rem": "1.125rem",
+        "7-rem": "7-rem",
+        "10-rem": "10rem",
         "13.5-rem": "13.5rem",
         "18-rem": "18rem",
         "22-rem": "22rem",
@@ -106,6 +130,7 @@ module.exports = {
         "137-px": "137px",
         "145-px": "145px",
         "147-px": "147px",
+        "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
         "499-px": "499px",
@@ -128,8 +153,10 @@ module.exports = {
         600: "600px",
         700: "700px",
         800: "800px",
+        400: "400px",
       },
       lineHeight: {
+        14: "14px",
         17: "17px",
         18: "18px",
         20: "20px",
@@ -166,10 +193,13 @@ module.exports = {
         focusBoxShadow:
           "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
         cardShadow: "0px 2px 2px 0px rgba(0, 0, 0, 0.04)",
+        rightDrawerShadow:
+          "0px 4px 6px 0px rgba(0,0,0,0.05) , 0px 10px 15px -3px rgba(16,24,40,0.1)",
       },
       fontSize: {
         base: "var(--base-font-size)",
         heading: "var(--base-heading-font-size)",
+        "fs-8": "8px",
         "fs-10": "10px",
         "fs-11": "11px",
         "fs-12": "12px",
@@ -359,6 +389,7 @@ module.exports = {
           border_gray: "#E8E8E8", // need to check this
           secondary_hover: "#EEEEEE",
           test_credentials_bg: "#D9D9D959",
+          text_muted: "#808080",
         },
         hyperswitch_dark_bg: "#212E46",
         light_blue: "#006DF966",
@@ -379,6 +410,7 @@ module.exports = {
 
         /* NEW DESIGN COLORS */
         nd_gray: {
+          0: "#FFFFFF",
           25: "#FCFCFD",
           50: "#F5F7FA",
           100: "#FBFBFB",
@@ -415,25 +447,40 @@ module.exports = {
         nd_green: {
           50: "#ECF4EE",
           100: "#E8F8F5",
+          150: "#F0FDF4",
           200: "#52B87A",
+          300: "#69AF7D",
           400: "#2DA160",
           500: "#11927E",
-          600: "#217645",
+          600: "#25744C",
         },
         nd_red: {
           50: "#FCF1EF",
-          600: "#C91C00",
+          100: "#FDD4CD",
+          200: "#FCB5AA",
           400: "#EC5941",
+          500: "#DD2B0E",
+          600: "#C91C00",
         },
         nd_orange: {
           50: "#FDF1DD",
           100: "#FFE6CC",
+          150: "#FFF7ED",
+          200: "#FFD6A8",
+          300: "#FF6900",
           600: "#9E5400",
         },
         nd_yellow: {
           100: "#FFFBEE",
           200: "#5E4200",
+          300: "#FFDF20",
+          600: "#D08700",
           800: "#998335",
+        },
+        nd_purple: {
+          100: "#FAF5FF",
+          200: "#F3E8FF",
+          300: "#AD46FF",
         },
       },
       borderRadius: {
@@ -442,6 +489,7 @@ module.exports = {
       },
       spacing: {
         DEFAULT: "var(--spacing-padding)",
+        "104-px": "104px",
       },
     },
   },

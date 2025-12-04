@@ -6,6 +6,7 @@ let make = (
 ) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
   let showSidebar = () => {
     setShowSideBar(_ => true)
@@ -23,7 +24,7 @@ let make = (
       buttonSize=Small
       onClick={_ => {
         setDashboardPageState(_ => #HOME)
-        let productUrl = ProductUtils.getProductUrl(~productType, ~url="v2/home")
+        let productUrl = ProductUtils.getProductUrl(~productType, ~isLiveMode)
         RescriptReactRouter.replace(productUrl)
       }}
       customButtonStyle="mt-4"

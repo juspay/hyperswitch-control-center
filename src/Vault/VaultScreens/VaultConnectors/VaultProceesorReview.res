@@ -3,8 +3,7 @@ let make = (~connectorInfo) => {
   open CommonAuthHooks
   open LogicUtils
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-
-  let connectorInfodict = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfodict = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
     connectorInfo->LogicUtils.getDictFromJsonObject,
   )
@@ -28,6 +27,7 @@ let make = (~connectorInfo) => {
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
         | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
+        | VaultProcessor => Window.getConnectorConfig(connectorName)
         | PaymentVas => JSON.Encode.null
         }
         let connectorAccountDict = dict->getDictFromJsonObject->getDictfromDict("connector_auth")

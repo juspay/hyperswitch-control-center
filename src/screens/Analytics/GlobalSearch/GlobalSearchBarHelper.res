@@ -129,6 +129,8 @@ module ShowMoreLink = {
         generateLink("payment-attempts", "sessionizer_payment_attempts")
       | PaymentIntents => generateLink("payment-intents", "payment_intents")
       | SessionizerPaymentIntents => generateLink("payment-intents", "sessionizer_payment_intents")
+      | Payouts => generateLink("payouts-global", "payouts")
+      | PayoutAttempts => generateLink("payout-attempts", "payout_attempts")
       | Refunds => generateLink("refunds-global", "refunds")
       | SessionizerPaymentRefunds => generateLink("refunds-global", "sessionizer_refunds")
       | Disputes => generateLink("dispute-global", "disputes")
@@ -153,6 +155,8 @@ module ShowMoreLink = {
         | SessionizerPaymentDisputes
         | PaymentAttempts
         | PaymentIntents
+        | Payouts
+        | PayoutAttempts
         | Refunds
         | Disputes =>
           <div

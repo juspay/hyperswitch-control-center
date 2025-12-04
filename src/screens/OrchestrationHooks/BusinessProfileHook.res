@@ -1,34 +1,8 @@
-let useFetchBusinessProfiles = () => {
-  open APIUtils
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  let setBusinessProfiles = Recoil.useSetRecoilState(HyperswitchAtom.businessProfilesAtom)
-
-  async _ => {
-    try {
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get)
-      let res = await fetchDetails(url)
-      setBusinessProfiles(_ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
-      Nullable.make(res->BusinessProfileMapper.getArrayOfBusinessProfile)
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-}
-
-let useGetBusinessProflile = profileId => {
-  HyperswitchAtom.businessProfilesAtom
-  ->Recoil.useRecoilValueFromAtom
-  ->Array.find(profile => profile.profile_id == profileId)
-  ->Option.getOr(MerchantAccountUtils.defaultValueForBusinessProfile)
-}
-
 open APIUtils
 open APIUtilsTypes
-let useFetchBusinessProfileFromId = () => {
+open BusinessProfileInterface
+
+let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
@@ -36,11 +10,20 @@ let useFetchBusinessProfileFromId = () => {
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
   async (~profileId) => {
     try {
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
-      let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-      //Todo: remove this once we start using businessProfileInterface
-      setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
-      setBusinessProfileInterfaceRecoil(_ => res)
+      let entityName = switch version {
+      | V1 => V1(BUSINESS_PROFILE)
+      | V2 => V2(BUSINESS_PROFILE)
+      }
+      let url = getURL(~entityName, ~methodType=Get, ~id=profileId)
+      let res = await fetchDetails(url, ~version)
+      //Todo: remove id atom once we start using businessProfileInterface
+      setBusinessProfileRecoil(_ => res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1)
+      let commonTypedData = switch version {
+      | V1 => mapJsonToCommonType(businessProfileInterfaceV1, res)
+
+      | V2 => mapJsonToCommonType(businessProfileInterfaceV2, res)
+      }
+      setBusinessProfileInterfaceRecoil(_ => commonTypedData)
       res
     } catch {
     | Exn.Error(e) => {
@@ -51,19 +34,38 @@ let useFetchBusinessProfileFromId = () => {
   }
 }
 
-let useUpdateBusinessProfile = () => {
+let useUpdateBusinessProfile = (~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let profileId = (
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  ).profile_id
-  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let setBusinessProfileRecoil =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
 
-  async (~body) => {
+  async (~body, ~shouldTransform=false) => {
     try {
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let res = await updateDetails(url, body, Post)
-      setBusinessProfileRecoil(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+      let (entityName, transformedBody, methodType: Fetch.requestMethod) = switch version {
+      | V1 => (
+          V1(BUSINESS_PROFILE),
+          mapJsonToRequestType(businessProfileInterfaceV1, body)->Identity.genericTypeToJson,
+          Post,
+        )
+
+      | V2 => (
+          V2(BUSINESS_PROFILE),
+          mapJsonToRequestType(businessProfileInterfaceV2, body)->Identity.genericTypeToJson,
+          Put,
+        )
+      }
+      let finalBody = shouldTransform ? transformedBody : body
+
+      let url = getURL(~entityName, ~methodType, ~id=Some(profileId))
+      let res = await updateDetails(url, finalBody, methodType)
+      let commonTypedData = switch version {
+      | V1 => mapJsonToCommonType(businessProfileInterfaceV1, res)
+
+      | V2 => mapJsonToCommonType(businessProfileInterfaceV2, res)
+      }
+      setBusinessProfileRecoil(_ => commonTypedData)
       res
     } catch {
     | Exn.Error(e) => {
@@ -72,9 +74,4 @@ let useUpdateBusinessProfile = () => {
       }
     }
   }
-}
-let useBusinessProfileMapper = (~interface) => {
-  let value = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfileFromIdAtomInterface)
-  let data = BusinessProfileInterface.mapJsonToBusinessProfile(interface, value)
-  data
 }

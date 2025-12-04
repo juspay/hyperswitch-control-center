@@ -3,6 +3,8 @@ open LogicUtils
 open AuthRateSummaryUtils
 open BarGraphTypes
 open AuthRateSummaryTypes
+open Typography
+open CurrencyFormatUtils
 
 module LegendItem = {
   @react.component
@@ -69,12 +71,14 @@ let make = (
   <PageLoaderWrapper
     screenState
     customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-48 rounded-lg" />}
-    customUI={<InsightsHelper.NoData height="h-48 p-0 -m-0" />}>
+    customUI={<NewAnalyticsHelper.NoData height="h-48 p-0 -m-0" />}>
     <div className="rounded-xl border border-gray-200 p-4 w-full bg-white">
       <div className="flex items-center justify-start gap-3 mb-4">
-        <p className="text-sm text-gray-500"> {"First Attempt Success rate"->React.string} </p>
+        <p className={`${body.md.regular} text-gray-500`}>
+          {"First Attempt Success rate"->React.string}
+        </p>
       </div>
-      <p className="text-4xl font-semibold text-gray-800">
+      <p className={`${heading.xl.semibold} text-gray-800`}>
         {extractSuccessRate(authRateSummaryData).success_rate_percent
         ->valueFormatter(Rate)
         ->React.string}

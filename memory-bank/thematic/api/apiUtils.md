@@ -56,7 +56,7 @@ type getUrlTypes = (
   ~userRoleTypes: userRoleTypes=?,
   ~reconType: reconType=?,
   ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
+  ~queryParameters: option<string>=?,
 ) => string
 ```
 
@@ -79,7 +79,7 @@ let useGetURL = () => {
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
-    ~queryParamerters: option<string>=None,
+    ~queryParameters: option<string>=None,
   ) => {
     let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
@@ -94,7 +94,7 @@ let useGetURL = () => {
         ~userType,
         ~id,
         ~methodType,
-        ~queryParamerters,
+        ~queryParameters,
         ~profileId,
         ~merchantId,
       )
@@ -116,7 +116,7 @@ let getV2Url = (
   ~id=None,
   ~profileId,
   ~merchantId,
-  ~queryParamerters: option<string>=None,
+  ~queryParameters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
   let peymantsBaseURL = "v2/payments"
@@ -496,27 +496,22 @@ POST   v1/user/create_merchant         - Create merchant
 ## Best Practices
 
 1. **Type-First Approach**
-
    - Always use the proper entity types when constructing URLs
    - Let ReScript's type system validate your API calls
 
 2. **Centralized URL Generation**
-
    - Always use `useGetURL()` for constructing API endpoints
    - Never hardcode URLs in components
 
 3. **Consistent Error Handling**
-
    - Use the `showErrorToast` parameter to control user-facing errors
    - Add specific error handling in components as needed
 
 4. **Request Isolation**
-
    - Wrap each API call in its own try/catch block
    - Avoid chaining multiple API calls without error handling
 
 5. **Response Typing**
-
    - Cast response data to typed structures
    - Use option types for potentially missing values
 

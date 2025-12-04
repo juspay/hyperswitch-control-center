@@ -1,15 +1,29 @@
 open LogicUtils
-open ReconEngineRulesTypes
+open ReconEngineTypes
+open ReconEngineUtils
 
-let ruleItemToObjMapper = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-    rule_description: dict->getString("rule_description", ""),
-    priority: dict->getInt("priority", 0),
-    is_active: dict->getBool("is_active", false),
-    profile_id: dict->getString("profile_id", ""),
-    sources: [],
-    targets: [],
+let getFieldDisplayName = (field: string): string => {
+  if field->String.startsWith("metadata.") {
+    field->String.replace("metadata.", "")->getTitle
+  } else {
+    field->getTitle
   }
+}
+
+let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
+  name,
+  onBlur: _ => (),
+  onChange: _ => (),
+  onFocus: _ => (),
+  value: value->JSON.Encode.string,
+  checked: true,
+}
+
+let createDropdownOption = (~label, ~value) => {
+  SelectBox.label,
+  value,
+}
+
+let getRulePayloadFromDict: Dict.t<JSON.t> => reconRuleType = dict => {
+  dict->reconRuleItemToObjMapper
 }

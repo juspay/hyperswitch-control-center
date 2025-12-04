@@ -457,7 +457,7 @@ module RuleBasedUI = {
             let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
             let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
-            let keyExtractor = (index, _rule, isDragging) => {
+            let keyExtractor = (index, _rule, isDragging, _) => {
               let id = {`${rulesJsonPath}[${Int.toString(index)}]`}
 
               <Wrapper
@@ -480,7 +480,7 @@ module RuleBasedUI = {
             } else {
               rule
               ->Array.mapWithIndex((rule, index) => {
-                keyExtractor(index, rule, false)
+                keyExtractor(index, rule, false, false)
               })
               ->React.array
             }
@@ -518,15 +518,14 @@ let make = (
   ~routingRuleId,
   ~isActive,
   ~setCurrentRouting,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let (profile, setProfile) = React.useState(_ => businessProfileRecoilVal.profile_id)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ =>
     initialValues->Identity.genericTypeToJson
   )
@@ -557,7 +556,7 @@ let make = (
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
-      setProfile(_ => schemaValue->getString("profile_id", businessProfileRecoilVal.profile_id))
+      setProfile(_ => schemaValue->getString("profile_id", profileId))
       setFormState(_ => ViewConfig)
     } catch {
     | Exn.Error(e) =>
@@ -611,12 +610,12 @@ let make = (
     AdvancedRoutingUtils.validateNameAndDescription(
       ~dict,
       ~errors,
-      ~validateFields=["name", "description"],
+      ~validateFields=[Name, Description],
     )
 
     let validateGateways = (connectorData: array<RoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
-        Some("Need atleast 1 Gateway")
+        Some("Need at least 1 Gateway")
       } else {
         let isDistibuted = connectorData->Array.every(ele => {
           switch ele {
@@ -751,7 +750,10 @@ let make = (
         ->Array.map(id => {
           {
             "connector": (
-              connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(id)
+              connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+                id,
+                ~version=V1,
+              )
             ).connector_name,
             "merchant_connector_id": id,
           }
@@ -808,7 +810,7 @@ let make = (
     ->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
-        value: item.merchant_connector_id,
+        value: item.id,
       }
     })
   }, (profile, connectors->Array.length))

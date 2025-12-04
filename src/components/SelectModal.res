@@ -22,6 +22,7 @@ let make = (
   ~showConversionRate=false,
   ~headerTextClass="text-3xl font-semibold tracking-tight",
   ~headerClass="",
+  ~isDraggable=false,
 ) => {
   let maxLengthArray = (arr, setValues) => {
     switch maxSelection {
@@ -47,8 +48,8 @@ let make = (
   )
 
   let len = values->Array.length
-  let buttonText =
-    submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
+  let defaultText = len > 0 ? `${len->Int.toString} ${title} Selected` : "Select"
+  let buttonText = isDraggable ? "Save" : submitButtonText->Option.getOr(defaultText)
 
   React.useEffect(() => {
     if !showModal {
@@ -106,6 +107,7 @@ let make = (
           disableSelect
           isModalView
           sortingBasedOnDisabled
+          isDraggable
         />
       </div>
       {showConversionRate

@@ -40,17 +40,13 @@ module AuthenticationInput = {
       onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
-        let isValid = if value->String.length <= 2 {
+        let regexForProfileName = "^[a-zA-Z0-9_\\-!#$%&'*+.^`|~]+$"
+        let isValid = if value->isEmptyString {
           true
-        } else if (
-          value->isEmptyString ||
-          value->String.length > 64 ||
-          !RegExp.test(RegExp.fromString(regexForProfileName), value)
-        ) {
+        } else if value->String.length > 64 {
           false
         } else {
-          true
+          RegExp.test(RegExp.fromString(regexForProfileName), value)
         }
 
         //If key is empty, then that key is set to null value
@@ -191,41 +187,31 @@ module WebHookAuthenticationHeaders = {
 
 @react.component
 let make = () => {
-  open APIUtils
-  open LogicUtils
   open FormRenderer
-  open PaymentSettingsV2Utils
-
-  let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-
-  let (initialValues, setInitialValues) = React.useState(_ =>
-    businessProfileRecoilVal->parseCustomHeadersFromEntity->JSON.Encode.object
+  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    businessProfileRecoilVal->Identity.genericTypeToJson
+  )
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
   let onSubmit = async (values, _) => {
+    open BusinessProfileInterface
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let valuesDict = values->getDictFromJsonObject
-      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->getCustomHeadersPayload->JSON.Encode.object
-      let _ = await updateDetails(url, body, Post)
-      let response = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+      let response = await updateBusinessProfile(~body=values, ~shouldTransform=true)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setAllowEdit(_ => false)
-      setInitialValues(_ =>
-        response
-        ->BusinessProfileMapper.businessProfileTypeMapper
-        ->parseCustomHeadersFromEntity
-        ->JSON.Encode.object
-      )
+      let updatedInitialValues = switch version {
+      | V1 => mapJsonToCommonType(businessProfileInterfaceV1, response)->Identity.genericTypeToJson
+      | V2 => mapJsonToCommonType(businessProfileInterfaceV2, response)->Identity.genericTypeToJson
+      }
+      setInitialValues(_ => updatedInitialValues)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {

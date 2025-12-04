@@ -124,6 +124,7 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_16" => UR_16
   | "UR_29" => UR_29
   | "UR_33" => UR_33
+  | "UR_35" => UR_35
   | "UR_38" => UR_38
   | "UR_40" => UR_40
   | "UR_41" => UR_41
@@ -139,11 +140,15 @@ let errorSubCodeMapper = (subCode: string) => {
 
 let clearLocalStorage = () => {
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
-  let domain = HyperSwitchEntryUtils.getDomainfromStore()->Option.getOr("")
+  let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")
+  let customTableColumns = HSLocalStorage.getCustomTableColumnsfromLocalStorage()->Option.getOr("")
+
   LocalStorage.clear()
   HyperSwitchEntryUtils.setThemeIdtoStore(themeId) // Preserve theme id in url and login page
-  HyperSwitchEntryUtils.setDomaintoStore(domain) // Preserve domain in url and login page
+  HSLocalStorage.setDomaintoStore(domain) // Preserve domain in url and login page
+  HSLocalStorage.setCustomTableHeadersInLocalStorage(customTableColumns) // Preserve tableColumnsOrder in login page
 }
+
 module ToggleLiveTestMode = {
   open GlobalVars
   open CommonAuthTypes
@@ -191,5 +196,20 @@ module ToggleLiveTestMode = {
       | _ => React.null
       }}
     </>
+  }
+}
+
+let handleSwitchUserQueryParam = (~url: RescriptReactRouter.url) => {
+  switch url.path {
+  | list{orgId, merchantId, profileId, version, "switch", "user"} => {
+      let omp =
+        [orgId, merchantId, profileId, version]
+        ->Array.map(val => val->JSON.Encode.string)
+        ->JSON.Encode.array
+        ->JSON.stringify
+      SessionStorage.sessionStorage.setItem("switch-user-query", url.search)
+      SessionStorage.sessionStorage.setItem("switch-user-omp", omp)
+    }
+  | _ => ()
   }
 }

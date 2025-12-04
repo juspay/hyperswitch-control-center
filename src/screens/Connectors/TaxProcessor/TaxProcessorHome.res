@@ -62,6 +62,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -71,7 +72,7 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = ConnectorInterface.mapDictToConnectorPayload(
+  let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,
     initialValues->LogicUtils.getDictFromJsonObject,
   )
@@ -162,17 +163,14 @@ let make = () => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
 
     if !isUpdateFlow {
-      initialValuesToDict->Dict.set(
-        "profile_id",
-        businessProfileRecoilVal.profile_id->JSON.Encode.string,
-      )
+      initialValuesToDict->Dict.set("profile_id", profileId->JSON.Encode.string)
       initialValuesToDict->Dict.set(
         "connector_label",
         `${connectorName}_${businessProfileRecoilVal.profile_name}`->JSON.Encode.string,
       )
     }
     None
-  }, [connectorName, businessProfileRecoilVal.profile_id])
+  }, [connectorName, profileId])
 
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
@@ -185,11 +183,7 @@ let make = () => {
 
   let updateBusinessProfileDetails = async mcaId => {
     try {
-      let url = getURL(
-        ~entityName=V1(BUSINESS_PROFILE),
-        ~methodType=Post,
-        ~id=Some(businessProfileRecoilVal.profile_id),
-      )
+      let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
       let body = Dict.make()
       body->Dict.set("tax_connector_id", mcaId->JSON.Encode.string)
       body->Dict.set("is_tax_connector_enabled", true->JSON.Encode.bool)
@@ -343,7 +337,7 @@ let make = () => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo={ConnectorInterface.mapDictToConnectorPayload(
+              connectorInfo={ConnectorInterface.mapDictToTypedConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
                 initialValues->LogicUtils.getDictFromJsonObject,
               )}

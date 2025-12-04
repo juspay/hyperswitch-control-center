@@ -15,11 +15,12 @@ module RefundInfo = {
       ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
       ~children=?,
     ) => {
+      let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(data.currency)
       <Section
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <div className="flex items-center">
           <div className="font-bold text-4xl m-3">
-            {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
+            {`${(data.amount /. conversionFactor)->Float.toString} ${data.currency} `->React.string}
           </div>
           {useGetStatus(data)}
         </div>
@@ -89,13 +90,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (orderData, setOrdersData) = React.useState(_ => [])
   let fetchDetails = APIUtils.useGetMethod()
   let showToast = ToastState.useShowToast()
-  let paymentId =
-    refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
-  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
+
   let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchRefundData = async () => {
     try {
       let refundUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Get, ~id=Some(id))
@@ -105,17 +105,18 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedProfileId=profileId,
       )
       let refundData = await fetchDetails(refundUrl)
-      let paymentId =
-        refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+      let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
       let orderUrl = getURL(
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(paymentId),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =
-        [orderData]->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
+        [orderData]
+        ->JSON.Encode.array
+        ->getArrayDataFromJson(PaymentInterfaceUtils.mapDictToPaymentPayload)
       setOrdersData(_ => paymentArray->Array.map(Nullable.make))
       setRefundData(_ => refundData)
       setScreenStateForRefund(_ => Success)
@@ -188,7 +189,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         title="Something Went Wrong!"
         overriddingStylesTitle={`text-3xl font-semibold`}
       />}>
-      <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
+      <RefundInfo orderDict={refundData->getDictFromJsonObject} />
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
@@ -198,7 +199,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Events and logs",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#REFUND}>
                   <RefundLogs refundId=id paymentId />
                 </LogsWrapper>

@@ -182,7 +182,7 @@ module CheckBoxRenderer = {
             accordion={[
               {
                 title: paymentMethodInfo.payment_method->LogicUtils.snakeToTitle,
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <FormField
                       options={flowTypeAllOptions}
@@ -211,7 +211,6 @@ module CheckBoxRenderer = {
 
 module PaymentMethodsRenderer = {
   open FRMUtils
-  open LogicUtils
   @react.component
   let make = (~isUpdateFlow) => {
     let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -226,8 +225,6 @@ module PaymentMethodsRenderer = {
         let response = await fetchConnectorListResponse()
         let connectorsConfig =
           response
-          ->getArrayFromJson([])
-          ->Array.map(getDictFromJsonObject)
           ->FRMUtils.filterList(~removeFromList=FRMPlayer)
           ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator)
           ->getConnectorConfig

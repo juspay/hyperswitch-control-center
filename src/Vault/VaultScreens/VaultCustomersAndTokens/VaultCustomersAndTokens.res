@@ -89,7 +89,7 @@ let make = (~sampleReport, ~setSampleReport) => {
       let customersUrl = getURL(
         ~entityName=V2(CUSTOMERS),
         ~methodType=Get,
-        ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
+        ~queryParameters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
       let response = await fetchDetails(customersUrl, ~version=V2)
       let data = response->JSON.Decode.array->Option.getOr([])
@@ -151,8 +151,8 @@ let make = (~sampleReport, ~setSampleReport) => {
     setFilteredCustomersData(_ => filteredList)
   }, ~wait=200)
 
-  let callMixpanel = eventName => {
-    mixpanelEvent(~eventName)
+  let sendMixpanelEvent = () => {
+    mixpanelEvent(~eventName="vault_view_customer_details")
   }
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-5">
@@ -182,7 +182,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           title="Vault Customers And tokens"
           hideTitle=true
           actualData=filteredCustomersData
-          entity={customersEntity(callMixpanel)}
+          entity={customersEntity(~sendMixpanelEvent)}
           resultsPerPage=20
           filters={<TableSearchFilter
             data={customersData}

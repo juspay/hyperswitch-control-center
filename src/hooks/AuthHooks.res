@@ -4,7 +4,8 @@ let headersForXFeature = (~uri, ~headers) => {
   if (
     uri->String.includes("lottie-files") ||
     uri->String.includes("config/merchant") ||
-    uri->String.includes("config/feature")
+    uri->String.includes("config/feature") ||
+    uri->String.includes("config/theme")
   ) {
     headers->Dict.set("Content-Type", `application/json`)
   } else {
@@ -50,6 +51,15 @@ let getHeaders = (
     if uri->String.includes("dynamic-routing") {
       headers->Dict.set("x-feature", "dynamo-simulator")
     }
+
+    // this header is specific to Chat Bot for session tracking
+    if uri->String.includes("/chat/ai/data") {
+      let sessionKey = "chatbot_session_id"
+      switch SessionStorage.sessionStorage.getItem(sessionKey)->Nullable.toOption {
+      | Some(sessionId) => headers->Dict.set("x-chat-session-id", sessionId)
+      | None => ()
+      }
+    }
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
     headers->Dict.set("X-Merchant-Id", merchantId)
@@ -67,7 +77,7 @@ type betaEndpoint = {
 let useApiFetcher = () => {
   open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-
+  let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
   React.useCallback(
     (
@@ -141,6 +151,7 @@ let useApiFetcher = () => {
               switch authStatus {
               | LoggedIn(_) =>
                 let _ = CommonAuthUtils.clearLocalStorage()
+                let _ = CommonAuthUtils.handleSwitchUserQueryParam(~url)
                 setAuthStateToLogout()
                 AuthUtils.redirectToLogin()
                 resolve(resp)

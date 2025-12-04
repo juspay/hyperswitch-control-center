@@ -113,7 +113,7 @@ module ConfigureSurchargeRule = {
       {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
-        let keyExtractor = (index, _rule, isDragging) => {
+        let keyExtractor = (index, _rule, isDragging, _) => {
           let id = {`algorithm.rules[${Int.toString(index)}]`}
           <AdvancedRouting.Wrapper
             key={index->Int.toString}
@@ -136,7 +136,7 @@ module ConfigureSurchargeRule = {
         } else {
           rule
           ->Array.mapWithIndex((rule, index) => {
-            keyExtractor(index, rule, false)
+            keyExtractor(index, rule, false, false)
           })
           ->React.array
         }
@@ -253,7 +253,7 @@ let make = () => {
 
     let errors = Dict.make()
 
-    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors, ~validateFields=["name"])
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors, ~validateFields=[Name])
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {

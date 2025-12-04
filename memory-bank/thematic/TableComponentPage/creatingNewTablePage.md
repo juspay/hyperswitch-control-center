@@ -197,7 +197,7 @@ This is the main React component for your new page.
         let apiUrl = getURL(
           ~entityName=V1(MY_NEW_ENTITY), // Or V2(MY_NEW_ENTITY)
           ~methodType=Get,
-          // ~queryParamerters=Some(`limit=${resultsPerPage->Int.toString}&offset=${offset->Int.toString}`), // For pagination
+          // ~queryParameters=Some(`limit=${resultsPerPage->Int.toString}&offset=${offset->Int.toString}`), // For pagination
         )
         let responseJson = await fetchDetails(apiUrl)
 
@@ -467,7 +467,6 @@ The `itemToObjMapper` function is crucial for converting raw JSON objects from y
 - **Mapper Signature for `LogicUtils.getArrayDataFromJson`:**
   The `LogicUtils.getArrayDataFromJson(jsonArray, mapperFunc)` utility expects `mapperFunc` to have the signature:
   `Js.Dict.t<JSON.t> => yourRecordType`.
-
   - **Correct `itemToObjMapper` definition:**
     ```rescript
     let itemToObjMapper = (dict: Js.Dict.t<JSON.t>): myNewPageItem => {

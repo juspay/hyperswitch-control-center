@@ -26,7 +26,7 @@ let lineGraphYAxisFormatter = (
     @this
     (this: yAxisFormatter) => {
       let value = this.value->Int.toFloat /. scaleFactor
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(value, statType, ~currency, ~suffix)
       formattedValue
     }
   )->asTooltipPointFormatter
@@ -45,6 +45,11 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     yAxisFormatter,
     legend,
   } = lineGraphOptions
+
+  let legendFormatter = switch lineGraphOptions.legendFormatter {
+  | Some(legendFormatter) => legendFormatter
+  | None => valueFormatter
+  }
 
   let stepInterval = Js.Math.max_int(
     Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 10.0),
@@ -149,9 +154,9 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     legend: {
       ...legend,
       useHTML: true,
-      labelFormatter: valueFormatter,
       symbolPadding: 0,
       symbolWidth: 0,
+      labelFormatter: legendFormatter,
       itemStyle: {
         fontFamily,
         fontSize: "12px",

@@ -144,14 +144,13 @@ module SettingsForm = {
                     <div>
                       <DesktopRow>
                         <FieldRendererWithStyles field={merchantName} />
-                        <FieldRendererWithStyles field={merchantCountryCode} />
-                      </DesktopRow>
-                      <DesktopRow>
                         <FieldRendererWithStyles field={acquirerBin} />
-                        <FieldRendererWithStyles field={acquirerAssignedMerchantId} />
                       </DesktopRow>
                       <DesktopRow>
+                        <FieldRendererWithStyles field={acquirerAssignedMerchantId} />
                         <FieldRendererWithStyles field={acquirerFraudRate} />
+                      </DesktopRow>
+                      <DesktopRow>
                         <FieldRendererWithStyles field={network} />
                       </DesktopRow>
                     </div>
@@ -270,7 +269,8 @@ let make = () => {
   let accordionData: array<Accordion.accordion> = [
     {
       title: "Acquirer Config Settings",
-      renderContent: () => <AcquirerConfigContent />,
+      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+        <AcquirerConfigContent />,
       renderContentOnTop: None,
     },
   ]

@@ -19,7 +19,7 @@ module TransactionViewCard = {
 }
 
 @react.component
-let make = (~entity=TransactionViewTypes.Orders) => {
+let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version=V1) => {
   open APIUtils
   open LogicUtils
   open TransactionViewUtils
@@ -52,29 +52,35 @@ let make = (~entity=TransactionViewTypes.Orders) => {
 
   let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
   let startTime =
-    filterValueJson->getString(OrderUIUtils.startTimeFilterKey, defaultDate.start_time)
-  let endTime = filterValueJson->getString(OrderUIUtils.endTimeFilterKey, defaultDate.end_time)
+    filterValueJson->getString(OrderUIUtils.startTimeFilterKey(version), defaultDate.start_time)
+  let endTime =
+    filterValueJson->getString(OrderUIUtils.endTimeFilterKey(version), defaultDate.end_time)
 
   let getAggregate = async () => {
     try {
       let url = switch entity {
       | Orders =>
         getURL(
-          ~entityName=V1(ORDERS_AGGREGATE),
+          ~entityName={
+            switch version {
+            | V1 => V1(ORDERS_AGGREGATE)
+            | V2 => V2(V2_ORDERS_AGGREGATE)
+            }
+          },
           ~methodType=Get,
-          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       | Refunds =>
         getURL(
           ~entityName=V1(REFUNDS_AGGREGATE),
           ~methodType=Get,
-          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       | Disputes =>
         getURL(
           ~entityName=V1(DISPUTES_AGGREGATE),
           ~methodType=Get,
-          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
       }
 
