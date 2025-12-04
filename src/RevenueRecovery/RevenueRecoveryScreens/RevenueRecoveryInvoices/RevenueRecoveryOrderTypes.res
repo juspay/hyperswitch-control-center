@@ -99,10 +99,7 @@ type recoveryFilter = [
   | #payment_method
   | #currency
   | #payment_method_type
-  | #connector_label
   | #card_network
-  | #customer_id
-  | #amount
   | #merchant_order_reference_id
   | #unknown
 ]

@@ -82,15 +82,12 @@ let make = () => {
         filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
       }
 
-      let newDict = AmountFilterUtils.createAmountQuery(~dict)
-      newDict
+      dict
       ->Dict.toArray
       ->Array.forEach(item => {
         let (key, value) = item
         filters->Dict.set(key, value)
       })
-
-      filters->Dict.delete("amount_filter")
 
       filters
     | _ => {
@@ -108,7 +105,6 @@ let make = () => {
 
   React.useEffect(() => {
     fetchOrders()
-
     None
   }, (offset, filters, searchText))
 

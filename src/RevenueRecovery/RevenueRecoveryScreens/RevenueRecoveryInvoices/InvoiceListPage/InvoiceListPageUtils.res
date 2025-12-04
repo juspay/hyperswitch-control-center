@@ -85,10 +85,7 @@ let getFilterTypeFromString = filterType => {
   | "payment_method" => #payment_method
   | "currency" => #currency
   | "payment_method_type" => #payment_method_type
-  | "connector_label" => #connector_label
   | "card_network" => #card_network
-  | "customer_id" => #customer_id
-  | "amount" => #amount
   | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
   }
@@ -98,18 +95,6 @@ let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
 
   let filtersArr = switch key->getFilterTypeFromString {
-  | #connector_label =>
-    filterValues
-    ->getArrayFromDict((#connector: recoveryFilter :> string), [])
-    ->getStrArrayFromJsonArray
-    ->Array.flatMap(connector => {
-      dict
-      ->getDictfromDict((#connector: recoveryFilter :> string))
-      ->getArrayFromDict(connector, [])
-      ->Array.map(item => {
-        item->getDictFromJsonObject->getString((#connector_label: recoveryFilter :> string), "")
-      })
-    })
   | #payment_method_type =>
     filterValues
     ->getArrayFromDict((#payment_method: recoveryFilter :> string), [])
@@ -149,27 +134,6 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let getOptionsForOrderFilters = (dict, filterValues) => {
-  open LogicUtils
-  filterValues
-  ->getArrayFromDict((#connector: recoveryFilter :> string), [])
-  ->getStrArrayFromJsonArray
-  ->Array.flatMap(connector => {
-    let connectorLabelArr =
-      dict->getDictfromDict((#connector: recoveryFilter :> string))->getArrayFromDict(connector, [])
-    connectorLabelArr->Array.map(item => {
-      let label =
-        item->getDictFromJsonObject->getString((#connector_label: recoveryFilter :> string), "")
-      let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
-      let option: FilterSelectBox.dropdownOption = {
-        label: label->LogicUtils.snakeToTitle,
-        value,
-      }
-      option
-    })
-  })
-}
-
 let getValueFromFilterType = (filter: recoveryFilter) => {
   switch filter {
   | #payment_method => "payment_method_type"
@@ -191,19 +155,8 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setFilterKeys,
     setFilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
 
-  let connectorFilter =
-    filterValues
-    ->getArrayFromDict((#connector: recoveryFilter :> string), [])
-    ->getStrArrayFromJsonArray
-
-  if connectorFilter->Array.length !== 0 {
-    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
-  }
-
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
-      getLabelFromFilterType,
-    )
+    [#payment_method_type, #merchant_order_reference_id]->Array.map(getLabelFromFilterType)
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
 
@@ -230,11 +183,6 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setFilterKeys,
       })
     }
 
-    let options = switch key->getFilterTypeFromString {
-    | #connector_label => getOptionsForOrderFilters(filterDict, filterValues)
-    | _ => values->makeOptions
-    }
-
     let customInput = switch key->getFilterTypeFromString {
     | #customer_id
     | #merchant_order_reference_id =>
@@ -253,7 +201,7 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setFilterKeys,
       }
     | _ =>
       InputFields.filterMultiSelectInput(
-        ~options,
+        ~options=values->makeOptions,
         ~buttonText=`Select ${key->snakeToTitle}`,
         ~showSelectionAsChips=false,
         ~searchable=true,
