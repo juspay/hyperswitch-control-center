@@ -113,7 +113,6 @@ let make = () => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
 
-  // Track entity type to detect changes
   let currentEntityType = formState.values->getDictFromJsonObject->getEntityType
   let (previousEntityType, setPreviousEntityType) = React.useState(_ => "")
   let form = ReactFinalForm.useForm()
@@ -122,6 +121,7 @@ let make = () => {
     if currentEntityType !== previousEntityType && previousEntityType->isNonEmptyString {
       setOptions(_ => []->SelectBox.makeOptions)
       setDropDownLoaderState(_ => DropdownWithLoading.Success)
+      //when new entity type is selected, reset the role_id field
       form.change("role_id", JSON.Encode.null)
     }
     setPreviousEntityType(_ => currentEntityType)
