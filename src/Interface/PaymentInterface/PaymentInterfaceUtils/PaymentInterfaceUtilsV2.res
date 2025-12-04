@@ -178,6 +178,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
     routing_algorithm: dict->getDictfromDict("routing_algorithm"),
     routing_algorithm_applied: dict->getDictfromDict("routing_algorithm_applied"),
     authentication_applied: dict->getString("authentication_applied", ""),
+    is_split_payment: dict->getBool("is_split_payment", false),
   }
 }
 
@@ -309,5 +310,6 @@ let mapPaymentV2ToCommonType: order_v2 => PaymentInterfaceTypes.order = order =>
     routing_algorithm: order.routing_algorithm,
     routing_algorithm_applied: order.routing_algorithm_applied,
     authentication_applied: order.authentication_applied,
+    is_split_payment: order.is_split_payment,
   }
 }

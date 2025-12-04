@@ -1,3 +1,5 @@
+open LogicUtils
+
 let dropdownClassName = (options: array<SelectBox.dropdownOption>) =>
   options->Array.length > 5 ? "h-80" : "h-full"
 
@@ -105,7 +107,6 @@ let encodeConnectorPayload = (typedValue: ConnectorTypes.connectorPayloadCommonT
 }
 
 let pmtConfigFilter = (dict): PaymentMethodConfigTypes.paymentMethodConfigFilters => {
-  open LogicUtils
   {
     profileId: dict->getOptionStrArrayFromDict("profileId"),
     connectorId: dict->getOptionStrArrayFromDict("connectorId"),
@@ -220,7 +221,6 @@ let initialFilters = (
   ~profileId,
 ): array<EntityType.initialFilters<'t>> => {
   open FormRenderer
-  open LogicUtils
 
   open BusinessProfileInterfaceTypes
   let businessProfileNameDropDownOption = arrBusinessProfile =>
@@ -313,4 +313,46 @@ let initialFilters = (
       localFilter: None,
     },
   ]
+}
+
+let validatePMTsConfig = (
+  values: JSON.t,
+  paymentMethodConfig: PaymentMethodConfigTypes.paymentMethodConfiguration,
+) => {
+  let {payment_method_index, payment_method_types_index} = paymentMethodConfig
+
+  let errors = Dict.make()
+  let id = `payment_methods_enabled[${payment_method_index->Int.toString}].payment_method_types[${payment_method_types_index->Int.toString}]`
+
+  let paymentMethodsEnabled =
+    values
+    ->getDictFromJsonObject
+    ->getArrayFromDict("payment_methods_enabled", [])
+    ->getValueFromArray(payment_method_index, JSON.Encode.null)
+    ->getDictFromJsonObject
+
+  let paymentMethodValues =
+    paymentMethodsEnabled
+    ->getArrayFromDict("payment_method_types", [])
+    ->getValueFromArray(payment_method_types_index, JSON.Encode.null)
+    ->getDictFromJsonObject
+
+  let minAmount = paymentMethodValues->getOptionInt("minimum_amount")
+  let maxAmount = paymentMethodValues->getOptionInt("maximum_amount")
+
+  if minAmount == None {
+    errors->Dict.set(`${id}.minimum_amount`, "Please enter a minimum amount"->JSON.Encode.string)
+  }
+
+  if maxAmount == None {
+    errors->Dict.set(`${id}.maximum_amount`, "Please enter a maximum amount"->JSON.Encode.string)
+  }
+
+  if maxAmount == Some(0) || minAmount > maxAmount {
+    errors->Dict.set(
+      `${id}.maximum_amount`,
+      "Maximum amount should be greater than minimum amount"->JSON.Encode.string,
+    )
+  }
+  errors->JSON.Encode.object
 }
