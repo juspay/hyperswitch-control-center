@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.04.0
+
+### Miscellaneous Tasks
+
+- Exposed a function to close accordion ([#3929](https://github.com/juspay/hyperswitch-control-center/pull/3929)) ([`72385d5`](https://github.com/juspay/hyperswitch-control-center/commit/72385d53356a5b4a3fe67acc621be57eea362e3d))
+- Added payment type column in v2 orders page ([#3904](https://github.com/juspay/hyperswitch-control-center/pull/3904)) ([`253eb2f`](https://github.com/juspay/hyperswitch-control-center/commit/253eb2f0cd0ab57ed55d78c08769cf590b37593c))
+
+**Full Changelog:** [`2025.12.03.0...2025.12.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.03.0...2025.12.04.0)
+
+- - -
+
 ## 2025.12.03.0
 
 ### Features
