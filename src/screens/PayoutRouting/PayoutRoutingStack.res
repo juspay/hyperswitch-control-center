@@ -22,31 +22,29 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     let hasWorkflowsManageAccess = userHasAccess(~groupAccess=WorkflowsManage) === Access
-    [
+    let baseTabs = [
       {
         title: "Active configuration",
         renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
-      {
-        title: "Manage rules",
-        renderContent: () => {
-          records->Array.length > 0
-            ? <PayoutHistoryTable records activeRoutingIds />
-            : <DefaultLandingPage
-                height="90%"
-                title="No Routing Rule Configured!"
-                customStyle="py-16"
-                overriddingStylesTitle="text-3xl font-semibold"
-              />
-        },
-      },
-    ]->Array.filter(tab => {
-      if tab.title === "Manage rules" {
-        hasWorkflowsManageAccess
-      } else {
-        true
-      }
-    })
+    ]
+    hasWorkflowsManageAccess
+      ? baseTabs->Array.concat([
+          {
+            title: "Manage rules",
+            renderContent: () => {
+              records->Array.length > 0
+                ? <PayoutHistoryTable records activeRoutingIds />
+                : <DefaultLandingPage
+                    height="90%"
+                    title="No Routing Rule Configured!"
+                    customStyle="py-16"
+                    overriddingStylesTitle="text-3xl font-semibold"
+                  />
+            },
+          },
+        ])
+      : baseTabs
   }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {
