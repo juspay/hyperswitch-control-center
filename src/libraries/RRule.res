@@ -21,8 +21,8 @@ type durationUnit =
 
 type scheduleRuleRecipe = {
   recurrence: option<recurrenceRule>,
-  dateWhitelist: option<array<Date.t>>,
-  dateBlacklist: option<array<Date.t>>,
+  dateAllowList: option<array<Date.t>>,
+  dateDenylist: option<array<Date.t>>,
   durationUnit: durationUnit,
   durationAmount: int,
 }
@@ -42,7 +42,7 @@ let isScheduled: (scheduleRuleRecipe, Date.t, Date.t, Date.t) => bool = (
   endTime,
   currentTime,
 ) => {
-  //check if date in date blacklist
+  //check if date in date denylist
   let getDay = date => {
     Float.toInt(Js.Date.getDay(date))
   }
@@ -187,25 +187,25 @@ let isScheduled: (scheduleRuleRecipe, Date.t, Date.t, Date.t) => bool = (
     byWeek &&
     frequencyCheck
 
-  let isWhitelist = rest => {
-    switch recipe.dateWhitelist {
-    | Some(whitelist) =>
-      switch whitelist->Array.find(x => x == currentTime) {
+  let isInAllowList = rest => {
+    switch recipe.dateAllowList {
+    | Some(allowlist) =>
+      switch allowlist->Array.find(x => x == currentTime) {
       | Some(_a) => true
       | None => rest
       }
     | None => rest
     }
   }
-  let isBlackList = rest => {
-    switch recipe.dateBlacklist {
-    | Some(blacklist) =>
-      switch blacklist->Array.find(x => x == currentTime) {
+  let isInDenyList = rest => {
+    switch recipe.dateDenylist {
+    | Some(denylist) =>
+      switch denylist->Array.find(x => x == currentTime) {
       | Some(_a) => false
       | None => rest
       }
     | None => rest
     }
   }
-  isWhitelist(isBlackList(rest))
+  isInAllowList(isInDenyList(rest))
 }
