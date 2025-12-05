@@ -85,6 +85,14 @@ let getWasmPayoutVariantValues = (wasm, value) => {
   }
 }
 
+let stringToVariantType = (value: string): RoutingTypes.validationFields => {
+  switch value {
+  | "card_bin" => CARD_BIN
+  | "extended_card_bin" => EXTENDED_CARD_BIN
+  | _ => OTHER
+  }
+}
+
 let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
   switch variantType {
   | "number" => Number
@@ -92,6 +100,25 @@ let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
   | "metadata_value" => Metadata_value
   | "str_value" => String_value
   | _ => UnknownVariant("")
+  }
+}
+
+let variantToStringMapper = (variantType: RoutingTypes.variantType) => {
+  switch variantType {
+  | Number => "number"
+  | Enum_variant => "enum_variant"
+  | Metadata_value => "metadata_value"
+  | String_value => "str_value"
+  | UnknownVariant(str) => str
+  }
+}
+
+let getKeyTypeFromValueField: RoutingTypes.validationFields => RoutingTypes.variantType = valueField => {
+  switch valueField {
+  | CARD_BIN
+  | EXTENDED_CARD_BIN =>
+    Number
+  | OTHER => UnknownVariant("")
   }
 }
 
@@ -112,23 +139,35 @@ let statementTypeMapper: Dict.t<JSON.t> => RoutingTypes.statement = dict => {
 }
 
 let conditionTypeMapper = (statementArr: array<JSON.t>) => {
-  let statements = statementArr->Array.reduce([], (acc, statementJson) => {
-    let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
+  statementArr->Array.reduceWithIndex([], (acc, statementJson, index) => {
+    let statementDict = statementJson->getDictFromJsonObject
+    let conditionArray = statementDict->getArrayFromDict("condition", [])
 
-    let arr = conditionArray->Array.mapWithIndex((conditionJson, index) => {
-      let statementDict = conditionJson->getDictFromJsonObject
+    if conditionArray->Array.length > 0 {
+      let conditionStatements = conditionArray->Array.mapWithIndex((
+        conditionJson,
+        conditionIndex,
+      ) => {
+        let conditionDict = conditionJson->getDictFromJsonObject
+        let returnValue: RoutingTypes.statement = {
+          lhs: conditionDict->getString("lhs", ""),
+          comparison: conditionDict->getString("comparison", ""),
+          logical: conditionIndex === 0 ? "OR" : "AND",
+          value: getStatementValue(conditionDict->getDictfromDict("value")),
+        }
+        returnValue
+      })
+      acc->Array.concat(conditionStatements)
+    } else {
       let returnValue: RoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
         comparison: statementDict->getString("comparison", ""),
-        logical: index === 0 ? "OR" : "AND",
+        logical: statementDict->getString("logical", index === 0 ? "OR" : "AND"),
         value: getStatementValue(statementDict->getDictfromDict("value")),
       }
-      returnValue
-    })
-    acc->Array.concat(arr)
+      acc->Array.concat([returnValue])
+    }
   })
-
-  statements
 }
 
 let volumeSplitConnectorSelectionDataMapper: Dict.t<
@@ -310,11 +349,27 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
   }
 }
 
+let validateNumericField = (num, field) => {
+  //** Custom validation for card_bin and extended_card_bin */
+  let fieldType = field->stringToVariantType
+  switch fieldType {
+  | CARD_BIN | EXTENDED_CARD_BIN =>
+    let requiredLength = fieldType == CARD_BIN ? 6 : 8
+    let numAsInt = num->Float.toInt
+    let numAsFloat = numAsInt->Int.toFloat
+    let isInteger = numAsFloat == num
+    let hasCorrectLength = numAsInt->Int.toString->String.length == requiredLength
+
+    num >= 0.0 && isInteger && hasCorrectLength
+  | OTHER => num >= 0.0
+  }
+}
+
 let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
   | String(str) => str->isNonEmptyString
-  | Number(_) => true
+  | Number(num) => validateNumericField(num, statement.lhs)
   | Object(objectValue) => {
       let key = objectValue->getString("key", "")
       let value = objectValue->getString("value", "")
