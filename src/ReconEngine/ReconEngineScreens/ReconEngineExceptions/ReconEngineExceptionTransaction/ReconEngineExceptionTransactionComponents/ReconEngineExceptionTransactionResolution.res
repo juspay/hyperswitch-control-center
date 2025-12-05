@@ -4,7 +4,7 @@ open ReconEngineExceptionTransactionTypes
 module IgnoreTransactionModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
-    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsUtils
     open ReconEngineExceptionTransactionHelper
 
     <div className="flex flex-col gap-4">
@@ -33,7 +33,7 @@ module IgnoreTransactionModalContent = {
 module ForceReconcileModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
-    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsUtils
     open ReconEngineExceptionTransactionHelper
 
     <div className="flex flex-col gap-4">
@@ -443,6 +443,7 @@ let make = (
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
+  open ReconEngineExceptionsHelper
   open LogicUtils
   open ReconEngineUtils
   open APIUtils
@@ -514,7 +515,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
     } catch {
     | _ =>
@@ -554,7 +555,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
     } catch {
     | _ =>

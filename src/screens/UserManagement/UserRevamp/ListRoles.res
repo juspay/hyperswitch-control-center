@@ -22,7 +22,7 @@ let make = () => {
         ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters=userModuleEntity == #Default
+        ~queryParameters=userModuleEntity == #Default
           ? None
           : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )

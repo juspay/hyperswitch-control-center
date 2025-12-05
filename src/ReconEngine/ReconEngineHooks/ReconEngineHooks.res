@@ -7,13 +7,13 @@ let useGetIngestionHistory = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  async (~queryParamerters=None) => {
+  async (~queryParameters=None) => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_HISTORY,
-        ~queryParamerters,
+        ~queryParameters,
       )
       let res = await fetchDetails(url)
       let ingestionHistory = res->getArrayDataFromJson(ingestionHistoryItemToObjMapper)
@@ -32,13 +32,13 @@ let useGetTransactions = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  async (~queryParamerters=None) => {
+  async (~queryParameters=None) => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParamerters,
+        ~queryParameters,
       )
       let res = await fetchDetails(url)
       let transactions = res->getArrayDataFromJson(transactionItemToObjMapper)
@@ -57,13 +57,13 @@ let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  async (~queryParamerters=None) => {
+  async (~queryParameters=None) => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#ACCOUNTS_LIST,
-        ~queryParamerters,
+        ~queryParameters,
       )
       let res = await fetchDetails(url)
       let accounts = res->getArrayDataFromJson(accountItemToObjMapper)
@@ -82,13 +82,13 @@ let useGetProcessingEntries = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  async (~queryParamerters=None) => {
+  async (~queryParameters=None) => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParamerters,
+        ~queryParameters,
       )
       let res = await fetchDetails(url)
       let processedEntries = res->getArrayDataFromJson(processingItemToObjMapper)
@@ -107,13 +107,13 @@ let useGetTransformationHistory = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  async (~queryParamerters=None) => {
+  async (~queryParameters=None) => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters,
+        ~queryParameters,
       )
       let res = await fetchDetails(url)
       let transformationHistory = res->getArrayDataFromJson(transformationHistoryItemToObjMapper)

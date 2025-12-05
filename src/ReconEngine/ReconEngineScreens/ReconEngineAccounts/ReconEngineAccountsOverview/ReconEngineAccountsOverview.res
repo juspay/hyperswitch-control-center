@@ -30,7 +30,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionHistoryList = await getIngestionHistory(
-        ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
+        ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
       )
       ingestionHistoryList->Array.sort(sortByDescendingVersion)
       let latestIngestionHistory =

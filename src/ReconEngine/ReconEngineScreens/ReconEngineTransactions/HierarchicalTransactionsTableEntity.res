@@ -213,7 +213,7 @@ let hierarchicalTransactionsLoadedTableEntity = (
     ~getShowLink={
       connec => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.transaction_id}`),
           ~authorization,
         )
       }

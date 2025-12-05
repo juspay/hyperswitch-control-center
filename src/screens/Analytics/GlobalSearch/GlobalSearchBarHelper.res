@@ -118,8 +118,8 @@ module ShowMoreLink = {
   ) => {
     let totalCount = section.total_results
 
-    let generateLink = (path, domain) => {
-      `${path}?query=${searchText}&domain=${domain}`
+    let generateLink = (path, source) => {
+      `${path}?query=${searchText}&source=${source}`
     }
 
     let onClick = _ => {
@@ -129,7 +129,7 @@ module ShowMoreLink = {
         generateLink("payment-attempts", "sessionizer_payment_attempts")
       | PaymentIntents => generateLink("payment-intents", "payment_intents")
       | SessionizerPaymentIntents => generateLink("payment-intents", "sessionizer_payment_intents")
-      | Payouts => generateLink("payouts-global","payouts")
+      | Payouts => generateLink("payouts-global", "payouts")
       | PayoutAttempts => generateLink("payout-attempts", "payout_attempts")
       | Refunds => generateLink("refunds-global", "refunds")
       | SessionizerPaymentRefunds => generateLink("refunds-global", "sessionizer_refunds")

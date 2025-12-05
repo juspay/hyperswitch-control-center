@@ -44,7 +44,8 @@ let make = () => {
         | Some(obj) =>
           isContainingStringLowercase(obj.staging_entry_id, searchText) ||
           isContainingStringLowercase((obj.status :> string), searchText) ||
-          isContainingStringLowercase(obj.transformation_history_id, searchText)
+          isContainingStringLowercase(obj.transformation_history_id, searchText) ||
+          isContainingStringLowercase(obj.order_id, searchText)
         | None => false
         }
       })
@@ -62,14 +63,14 @@ let make = () => {
       if statusFilter->Array.length == 0 {
         enhancedFilterValueJson->Dict.set(
           "status",
-          ["pending", "processed", "needs_manual_review"]->getJsonFromArrayOfString,
+          ["pending", "processed", "needs_manual_review", "void"]->getJsonFromArrayOfString,
         )
       }
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
 
-      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
+      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
@@ -129,7 +130,7 @@ let make = () => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
+        ~queryParameters=None,
         ~id=Some(transformedEntry.transformation_history_id),
       )
       let res = await fetchDetails(url)
@@ -180,7 +181,7 @@ let make = () => {
           filters={<TableSearchFilter
             data={stagingData->Array.map(Nullable.make)}
             filterLogic
-            placeholder="Search Transformed Entry or Transformation History ID"
+            placeholder="Search Transformation History Id or Order ID"
             customSearchBarWrapperWidth="w-full lg:w-1/3"
             customInputBoxWidth="w-full rounded-xl"
             searchVal=searchText

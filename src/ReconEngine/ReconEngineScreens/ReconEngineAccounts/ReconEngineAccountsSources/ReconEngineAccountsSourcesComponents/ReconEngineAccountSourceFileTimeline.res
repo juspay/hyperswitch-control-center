@@ -53,7 +53,7 @@ let make = (~showModal, ~setShowModal, ~ingestionHistoryId: string) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let queryString = `ingestion_history_id=${ingestionHistoryId}`
-      let ingestionHistoryList = await getIngestionHistory(~queryParamerters=Some(queryString))
+      let ingestionHistoryList = await getIngestionHistory(~queryParameters=Some(queryString))
       if ingestionHistoryList->Array.length > 0 {
         ingestionHistoryList->Array.sort(sortByVersion)
         setIngestionHistoryData(_ => ingestionHistoryList)

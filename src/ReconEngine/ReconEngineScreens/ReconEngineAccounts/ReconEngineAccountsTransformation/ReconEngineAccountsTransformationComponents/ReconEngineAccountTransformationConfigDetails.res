@@ -16,7 +16,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(`transformation_id=${config.transformation_id}`),
+        ~queryParameters=Some(`transformation_id=${config.transformation_id}`),
       )
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)

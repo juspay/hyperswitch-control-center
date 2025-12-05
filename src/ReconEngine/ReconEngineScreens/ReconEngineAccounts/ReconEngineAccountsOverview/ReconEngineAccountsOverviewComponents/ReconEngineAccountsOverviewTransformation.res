@@ -24,7 +24,7 @@ let make = (
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
         let transformationHistoryList = await getTransformationHistory(
-          ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
+          ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
         )
         setTransformationHistoryData(_ => transformationHistoryList)
 
