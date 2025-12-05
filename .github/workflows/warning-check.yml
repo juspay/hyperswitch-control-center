@@ -1,0 +1,26 @@
+name: Warning Check
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    warning-check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run ReScript build (treat warnings as errors)
+              run: npm run re:build
