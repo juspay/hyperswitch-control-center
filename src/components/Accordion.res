@@ -184,8 +184,9 @@ let make = (
   ~accordionHeaderTextClass="",
   ~expandedTitleStyle="",
   ~singleOpen=false,
+  ~initialOpenIndex=-1,
 ) => {
-  let (openIndex, setOpenIndex) = React.useState(_ => -1)
+  let (openIndex, setOpenIndex) = React.useState(_ => initialOpenIndex)
 
   let handleOnToggle = i => {
     setOpenIndex(prev =>

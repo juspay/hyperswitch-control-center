@@ -211,6 +211,8 @@ module CardRenderer = {
     let methodsWithAdditionalDetails =
       provider->Array.filter(val => checkIfAdditionalDetailsRequired(val))
 
+    let initialOpenIndex = methodsWithAdditionalDetails->Array.findIndex(value => isSelected(value))
+
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf
@@ -371,9 +373,10 @@ module CardRenderer = {
               {"Below payment method types requires additional details"->React.string}
             </p>
             <div className={`flex flex-col gap-4 `}>
-              {<Accordion
+              <Accordion
                 arrowPosition=Right
                 initialExpandedArray={[]}
+                initialOpenIndex
                 accordion={methodsWithAdditionalDetails->Array.map(value => {
                   let accordionElem: Accordion.accordion = {
                     title: value.payment_method_type,
@@ -392,11 +395,15 @@ module CardRenderer = {
                       removeSelectedWallet()
                     },
                     onItemExpandClick: () => {
-                      removeOrAddMethods(value)
+                      if !isSelected(value) {
+                        setSelectedWallet(_ => value)
+                      }
                     },
                     renderContentOnTop: Some(
                       () => {
-                        <div className="flex gap-2 items-center cursor-pointer">
+                        <div
+                          className="flex gap-2 items-center cursor-pointer flex-1"
+                          onClick={_ => removeOrAddMethods(value)}>
                           <div className="cursor-pointer">
                             <CheckBoxIcon isSelected={isSelected(value)} />
                           </div>
@@ -414,7 +421,7 @@ module CardRenderer = {
                 accordianBottomContainerCss="!p-2 flex justify-between w-full"
                 gapClass="flex flex-col gap-4"
                 singleOpen=true
-              />}
+              />
             </div>
           </div>
         </RenderIf>
