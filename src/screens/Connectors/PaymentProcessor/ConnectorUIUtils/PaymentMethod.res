@@ -197,7 +197,6 @@ module CardRenderer = {
         "connector_wallets_details",
         connectorWalletsInitialValues->Identity.genericTypeToJson,
       )
-
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
@@ -372,53 +371,50 @@ module CardRenderer = {
               {"Below payment method types requires additional details"->React.string}
             </p>
             <div className={`flex flex-col gap-4 `}>
-              {methodsWithAdditionalDetails
-              ->Array.map(value => {
-                <Accordion
-                  key={`${value.payment_method_type}-{i->Int.toString}`}
-                  arrowPosition=Right
-                  initialExpandedArray=[]
-                  accordion={[
-                    {
-                      title: value.payment_method_type,
-                      renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
-                        <AdditionalDetailsSidebarComp
-                          method={Some(selectedWallet)}
-                          setMetaData
-                          updateDetails
-                          paymentMethodsEnabled
-                          paymentMethod
-                          setInitialValues
-                          pmtName={selectedWallet.payment_method_type}
-                          closeAccordionFn
-                        />,
-                      onItemCollapseClick: () => {
-                        removeSelectedWallet()
-                      },
-                      onItemExpandClick: () => {
-                        removeOrAddMethods(value)
-                      },
-                      renderContentOnTop: Some(
-                        () => {
-                          <div className="flex gap-2 items-center cursor-pointer">
-                            <div className="cursor-pointer">
-                              <CheckBoxIcon isSelected={isSelected(value)} />
-                            </div>
-                            <p className={`${p2RegularTextStyle} cursor-pointer`}>
-                              {React.string(value.payment_method_type->snakeToTitle)}
-                            </p>
-                          </div>
-                        },
-                      ),
+              {<Accordion
+                arrowPosition=Right
+                initialExpandedArray={[]}
+                accordion={methodsWithAdditionalDetails->Array.map(value => {
+                  let accordionElem: Accordion.accordion = {
+                    title: value.payment_method_type,
+                    renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
+                      <AdditionalDetailsSidebarComp
+                        method={Some(selectedWallet)}
+                        setMetaData
+                        updateDetails
+                        paymentMethodsEnabled
+                        paymentMethod
+                        setInitialValues
+                        pmtName={selectedWallet.payment_method_type}
+                        closeAccordionFn
+                      />,
+                    onItemCollapseClick: () => {
+                      removeSelectedWallet()
                     },
-                  ]}
-                  accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
-                  contentExpandCss="p-0 "
-                  accordianBottomContainerCss="!p-2 flex justify-between w-full"
-                  gapClass="flex flex-col gap-8"
-                />
-              })
-              ->React.array}
+                    onItemExpandClick: () => {
+                      removeOrAddMethods(value)
+                    },
+                    renderContentOnTop: Some(
+                      () => {
+                        <div className="flex gap-2 items-center cursor-pointer">
+                          <div className="cursor-pointer">
+                            <CheckBoxIcon isSelected={isSelected(value)} />
+                          </div>
+                          <p className={`${p2RegularTextStyle} cursor-pointer`}>
+                            {React.string(value.payment_method_type->snakeToTitle)}
+                          </p>
+                        </div>
+                      },
+                    ),
+                  }
+                  accordionElem
+                })}
+                accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                contentExpandCss="p-0 "
+                accordianBottomContainerCss="!p-2 flex justify-between w-full"
+                gapClass="flex flex-col gap-4"
+                singleOpen=true
+              />}
             </div>
           </div>
         </RenderIf>
