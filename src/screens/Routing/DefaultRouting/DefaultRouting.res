@@ -21,6 +21,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
     ~retainInList=connectorVariant,
   )
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
@@ -173,15 +174,15 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
           </div>
         }
       </div>
-      <Button
+      <ACLButton
         onClick={_ => {
           openConfirmationPopUp()
         }}
         text="Save Changes"
         buttonSize=Small
         buttonType=Primary
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
         leftIcon={FontAwesome("check")}
-        loadingText="Activating..."
         buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
       />
     </PageLoaderWrapper>

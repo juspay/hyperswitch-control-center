@@ -59,7 +59,7 @@ let make = () => {
   let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
-  let path = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("domain", "")
+  let path = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("source", "")
 
   let clearPageDetails = () => {
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
