@@ -70,7 +70,7 @@ let make = () => {
         ~filterValueJson=enhancedFilterValueJson,
       )
 
-      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
+      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
@@ -130,7 +130,7 @@ let make = () => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
+        ~queryParameters=None,
         ~id=Some(transformedEntry.transformation_history_id),
       )
       let res = await fetchDetails(url)

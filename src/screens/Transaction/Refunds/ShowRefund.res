@@ -110,7 +110,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(paymentId),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =
@@ -199,7 +199,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Events and logs",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#REFUND}>
                   <RefundLogs refundId=id paymentId />
                 </LogsWrapper>

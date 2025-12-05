@@ -52,3 +52,19 @@ let itemToObjectMapper = dict => {
     roleId: dict->getString("role_id", ""),
   }
 }
+
+let parseInvitationStatus = (statusString: string): invitationAcceptanceStatus => {
+  switch statusString {
+  | "AlreadyAccepted" => PreLoginTypes.AlreadyAccepted
+  | "SuccessfullyAccepted" => PreLoginTypes.SuccessfullyAccepted
+  | _ => PreLoginTypes.Unknown
+  }
+}
+
+let getStatusMessage = (status: invitationAcceptanceStatus) => {
+  switch status {
+  | PreLoginTypes.AlreadyAccepted => "Your invitation has already been accepted"
+  | PreLoginTypes.SuccessfullyAccepted => "Invitation accepted successfully!"
+  | PreLoginTypes.Unknown => "Invitation processed"
+  }
+}

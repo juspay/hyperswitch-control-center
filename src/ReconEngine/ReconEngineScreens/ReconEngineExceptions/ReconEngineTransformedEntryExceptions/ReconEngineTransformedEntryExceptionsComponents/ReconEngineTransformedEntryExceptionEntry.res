@@ -83,7 +83,7 @@ let make = (
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
+        ~queryParameters=None,
         ~id=Some(currentTransformedEntryDetails.transformation_history_id),
       )
       let transformationHistoryRes = await fetchDetails(url)

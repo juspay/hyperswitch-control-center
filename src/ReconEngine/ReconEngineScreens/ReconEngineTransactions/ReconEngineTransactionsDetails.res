@@ -16,7 +16,7 @@ let make = (~id) => {
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let transactionsList = await getTransactions(~queryParamerters=Some(`transaction_id=${id}`))
+      let transactionsList = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
       transactionsList->Array.sort(sortByVersion)
       let currentTransaction =
         transactionsList->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)

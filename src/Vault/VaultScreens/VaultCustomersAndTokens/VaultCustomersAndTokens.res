@@ -89,7 +89,7 @@ let make = (~sampleReport, ~setSampleReport) => {
       let customersUrl = getURL(
         ~entityName=V2(CUSTOMERS),
         ~methodType=Get,
-        ~queryParamerters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
+        ~queryParameters=Some(`limit=${limit->Int.toString}&offset=${offset->Int.toString}`),
       )
       let response = await fetchDetails(customersUrl, ~version=V2)
       let data = response->JSON.Decode.array->Option.getOr([])

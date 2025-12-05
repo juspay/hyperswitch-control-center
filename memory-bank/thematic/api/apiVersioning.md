@@ -59,7 +59,7 @@ let getUrl = (
   ~userRoleTypes: userRoleTypes=NONE,
   ~reconType: reconType=#NONE,
   ~hypersenseType: hypersenseType=#NONE,
-  ~queryParamerters: option<string>=None,
+  ~queryParameters: option<string>=None,
 ) => {
   let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
   let connectorBaseURL = `account/${merchantId}/connectors`
@@ -73,7 +73,7 @@ let getUrl = (
       ~userType,
       ~id,
       ~methodType,
-      ~queryParamerters,
+      ~queryParameters,
       ~profileId,
       ~merchantId,
     )
@@ -124,7 +124,7 @@ let getV2Url = (
   ~id=None,
   ~profileId,
   ~merchantId,
-  ~queryParamerters: option<string>=None,
+  ~queryParameters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
   let peymantsBaseURL = "v2/payments"
