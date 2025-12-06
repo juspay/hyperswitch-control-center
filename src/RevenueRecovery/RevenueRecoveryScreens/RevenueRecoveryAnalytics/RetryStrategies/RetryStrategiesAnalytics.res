@@ -4,6 +4,7 @@ open RetryStrategiesAnalyticsUtils
 
 module RetryUpliftCard = {
   open LogicUtils
+  open CurrencyFormatUtils
   @react.component
   let make = (
     ~title: string,

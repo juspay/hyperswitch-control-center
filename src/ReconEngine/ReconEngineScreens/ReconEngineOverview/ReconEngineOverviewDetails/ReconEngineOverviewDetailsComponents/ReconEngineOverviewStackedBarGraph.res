@@ -2,7 +2,7 @@ open Typography
 
 @react.component
 let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
-  open LogicUtils
+  open CurrencyFormatUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -12,7 +12,9 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParameters=Some(
+          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)

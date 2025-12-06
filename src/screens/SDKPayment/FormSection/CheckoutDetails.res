@@ -1,8 +1,14 @@
 @react.component
-let make = (~getClientSecret) => {
+let make = (
+  ~getClientSecret,
+  ~navigationPath="/sdk",
+  ~onSubmitClick=_ => (),
+  ~submitButtonText="Show Preview",
+) => {
   open FormRenderer
   open SDKPaymentHelper
   open SDKPaymentUtils
+  open Typography
   let {
     isGuestMode,
     setIsGuestMode,
@@ -16,6 +22,11 @@ let make = (~getClientSecret) => {
     showBillingAddress,
     setPaymentStatus,
   } = React.useContext(SDKProvider.defaultContext)
+  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
   let (showModal, setShowModal) = React.useState(() => false)
   let showToast = ToastState.useShowToast()
   let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -43,7 +54,8 @@ let make = (~getClientSecret) => {
         ~sendAuthType,
       )
       let _ = await getClientSecret(~typedValues)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=navigationPath))
+      onSubmitClick()
       // To re-render the SDK back again after the payment is completed
       setPaymentStatus(_ => INCOMPLETE)
     } catch {
@@ -68,7 +80,7 @@ let make = (~getClientSecret) => {
     />
     <div className="mt-4">
       <span
-        className="text-nd_primary_blue-500 text-sm font-medium cursor-pointer"
+        className={`${primaryNormal} ${body.md.medium} cursor-pointer`}
         onClick={_ => setShowModal(_ => true)}>
         {"Edit Checkout Details"->React.string}
       </span>
@@ -84,9 +96,10 @@ let make = (~getClientSecret) => {
       />
     </RenderIf>
     <SubmitButton
-      text="Show preview"
+      text=submitButtonText
       disabledParamter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
-        paymentConnectorList->Array.length == 0}
+      paymentConnectorList->Array.length == 0 ||
+      isInternalUser}
       customSumbitButtonStyle="!mt-5 !w-full"
     />
   </Form>

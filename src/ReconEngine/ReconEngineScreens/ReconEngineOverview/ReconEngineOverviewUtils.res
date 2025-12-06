@@ -5,6 +5,7 @@ open ReconEngineAccountsUtils
 open ColumnGraphUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
+open CurrencyFormatUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
@@ -29,7 +30,7 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
     accountData
     ->Array.find(account => account.account_id === accountId)
     ->Option.getOr(Dict.make()->getAccountPayloadFromDict)
-  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
+  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (
@@ -78,6 +79,14 @@ let calculateAccountAmounts = (
         sExpected +. creditAmount,
         tExpected +. debitAmount,
       )
+    | PartiallyReconciled => (
+        sPosted,
+        tPosted,
+        sMismatched,
+        tMismatched,
+        sExpected +. creditAmount,
+        tExpected +. debitAmount,
+      )
     | _ => (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected)
     }
   })
@@ -112,6 +121,7 @@ let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.trans
     | Posted => (posted + 1, mismatched, expected)
     | Mismatched => (posted, mismatched + 1, expected)
     | Expected => (posted, mismatched, expected + 1)
+    | PartiallyReconciled => (posted, mismatched, expected + 1)
     | _ => (posted, mismatched, expected)
     }
   })
@@ -273,9 +283,11 @@ let createColumnGraphCountPayload = (
 
 let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getTransactionStatusOptions([
-    Mismatched,
     Expected,
+    Mismatched,
+    PartiallyReconciled,
     Posted,
+    Void,
   ])
   [
     (

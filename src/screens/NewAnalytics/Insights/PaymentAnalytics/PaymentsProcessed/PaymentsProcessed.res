@@ -5,8 +5,9 @@ open NewAnalyticsHelper
 open InsightsPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 open InsightsPaymentAnalyticsUtils
+open LogicUtils
+
 module TableModule = {
-  open LogicUtils
   open PaymentsProcessedTypes
   @react.component
   let make = (~data, ~className="") => {
@@ -54,8 +55,8 @@ module TableModule = {
 
 module PaymentsProcessedHeader = {
   open InsightsUtils
-  open LogicUtils
   open LogicUtilsTypes
+  open CurrencyFormatUtils
 
   @react.component
   let make = (
@@ -90,10 +91,11 @@ module PaymentsProcessedHeader = {
       ~key=selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled),
     )
 
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
     let (primaryValue, secondaryValue) = if (
       selectedMetric.value->getMetaDataMapper(~currency, ~isSmartRetryEnabled)->isAmountMetric
     ) {
-      (primaryValue /. 100.0, secondaryValue /. 100.0)
+      (primaryValue /. conversionFactor, secondaryValue /. conversionFactor)
     } else {
       (primaryValue, secondaryValue)
     }
@@ -157,7 +159,6 @@ let make = (
     JSON.t,
   >,
 ) => {
-  open LogicUtils
   open APIUtils
   open InsightsUtils
   open NewAnalyticsUtils

@@ -1,5 +1,7 @@
+open ReconEngineTypes
+
 @react.component
-let make = (~ingestionId) => {
+let make = (~ingestionHistoryData: ingestionHistoryType) => {
   open ReconEngineAccountsSourcesTypes
   open LogicUtils
   open APIUtils
@@ -8,19 +10,23 @@ let make = (~ingestionId) => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let fetchApi = AuthHooks.useApiFetcher()
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict
   )
+  let showToast = ToastState.useShowToast()
+  let (showModal, setShowModal) = React.useState(_ => false)
 
-  let fetchIngestionHistoryData = async () => {
+  let fetchIngestionConfigDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionConfigUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_CONFIG,
-        ~id=Some(ingestionId),
+        ~id=Some(ingestionHistoryData.ingestion_id),
       )
       let ingestionConfigRes = await fetchDetails(ingestionConfigUrl)
       let ingestionConfigData =
@@ -35,6 +41,28 @@ let make = (~ingestionId) => {
     }
   }
 
+  let onDownloadClick = async ev => {
+    ev->ReactEvent.Mouse.stopPropagation
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
+        ~methodType=Get,
+        ~id=Some(ingestionHistoryData.id),
+      )
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+      let csvContent = await res->Fetch.Response.text
+      DownloadUtils.download(
+        ~fileName=ingestionHistoryData.file_name,
+        ~content=csvContent,
+        ~fileType="text/csv",
+      )
+      showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
+    } catch {
+    | _ => showToast(~message="Failed to download file. Please try again.", ~toastType=ToastError)
+    }
+  }
+
   let detailsFields: array<ReconEngineAccountsSourcesEntity.ingestionConfigColType> = [
     SourceConfigName,
     ConfigurationType,
@@ -44,23 +72,24 @@ let make = (~ingestionId) => {
 
   let getIngestionButtonActions = [
     {
-      buttonType: ViewFile,
-      onClick: _ => (),
-    },
-    {
       buttonType: Download,
-      onClick: _ => (),
+      onClick: ev => onDownloadClick(ev)->ignore,
+      disabled: false,
     },
     {
       buttonType: Timeline,
-      onClick: _ => (),
+      onClick: ev => {
+        ev->ReactEvent.Mouse.stopPropagation
+        setShowModal(_ => true)
+      },
+      disabled: false,
     },
   ]
 
   React.useEffect(() => {
-    fetchIngestionHistoryData()->ignore
+    fetchIngestionConfigDetails()->ignore
     None
-  }, [ingestionId])
+  }, [ingestionHistoryData.ingestion_id])
 
   <PageLoaderWrapper
     screenState
@@ -83,17 +112,21 @@ let make = (~ingestionId) => {
       </div>
       <div className="flex flex-row gap-4">
         {getIngestionButtonActions
-        ->Array.mapWithIndex((action, index) =>
+        ->Array.mapWithIndex((action, index) => {
           <Button
             key={index->Int.toString}
             buttonType=Secondary
+            buttonState={action.disabled ? Disabled : Normal}
             text={(action.buttonType :> string)}
             onClick={action.onClick}
             customButtonStyle="!w-fit"
           />
-        )
+        })
         ->React.array}
       </div>
+      <ReconEngineAccountSourceFileTimeline
+        showModal setShowModal ingestionHistoryId=ingestionHistoryData.ingestion_history_id
+      />
     </div>
   </PageLoaderWrapper>
 }

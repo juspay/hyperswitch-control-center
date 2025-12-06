@@ -54,7 +54,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       ~entityName=V1(USERS),
       ~userType=#INVITE_MULTIPLE,
       ~methodType=Post,
-      ~queryParamerters=Some(`auth_id=${authId}`),
+      ~queryParameters=Some(`auth_id=${authId}`),
     )
 
     if !email {

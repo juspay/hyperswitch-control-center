@@ -8,13 +8,13 @@ let make = (
   ~moduleName,
   ~description,
 ) => {
+  open LogicUtils
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let isMobileView = MatchMedia.useMobileChecker()
   let (size, widthClass, flexDirectionClass) = React.useMemo(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
   }, [isMobileView])
-  let funnelData =
-    data->Array.get(0)->Option.getOr(JSON.Encode.null)->LogicUtils.getDictFromJsonObject
+  let funnelData = data->Array.get(0)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
   let metrics = metrics->Array.filter(metric => {
     !(metric.disabled->Option.getOr(false))
   })
@@ -32,9 +32,8 @@ let make = (
       | Some(func) => func(funnelData)
       | None => funnelData
       }
-      let currentVol = funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Float.fromInt
-      let previousVol =
-        funnelData->LogicUtils.getInt(previousMetric, currentVol->Float.toInt)->Float.fromInt
+      let currentVol = funnelData->getInt(metric.metric_name_db, 0)->Float.fromInt
+      let previousVol = funnelData->getInt(previousMetric, currentVol->Float.toInt)->Float.fromInt
       Math.log10(currentVol *. 100. /. previousVol) /. 2.0
     })
   }, [funnelData])
@@ -47,12 +46,12 @@ let make = (
     ->Dict.toArray
     ->Array.filter(entry => {
       let (_key, value) = entry
-      value->LogicUtils.getIntFromJson(0) !== 0
+      value->getIntFromJson(0) !== 0
     })
     ->Array.length > 0
   <div className="block m-6 mb-2">
     <div className="font-semibold text-lg text-black dark:text-white">
-      {moduleName->LogicUtils.camelToSnake->LogicUtils.snakeToTitle->React.string}
+      {moduleName->camelToSnake->snakeToTitle->React.string}
     </div>
     {switch description {
     | Some(description) =>
@@ -127,7 +126,7 @@ let make = (
           <div className="flex flex-row justify-center gap-6">
             <div className="flex flex-col items-start">
               {
-                open LogicUtils
+                open CurrencyFormatUtils
                 metrics
                 ->Array.mapWithIndex((metric, i) => {
                   let marginBottom = `${(size *. 1.4)->Float.toString}rem`

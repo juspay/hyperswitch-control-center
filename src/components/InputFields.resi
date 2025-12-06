@@ -330,4 +330,5 @@ let boolInput: (
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let colorPickerInput: (
   ~defaultValue: string=?,
+  ~showErrorWhenEmpty: bool=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
