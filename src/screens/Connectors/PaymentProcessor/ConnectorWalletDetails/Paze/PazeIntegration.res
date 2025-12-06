@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update) => {
   open LogicUtils
   open PazeIntegrationUtils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -43,13 +43,9 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   }, [connector])
   let onSubmit = _ => {
     update()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
-  let onCancel = () => {
-    onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
-  }
   let pazeInputFields =
     pazeFields
     ->Array.mapWithIndex((field, index) => {
@@ -61,16 +57,15 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       </div>
     })
     ->React.array
-  <div className="p-2">
-    {pazeInputFields}
-    <div className={`flex gap-2  justify-end m-2 p-6`}>
-      <Button text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} />
-      <Button
-        onClick={onSubmit}
-        text="Continue"
-        buttonType={Primary}
-        buttonState={formState.values->validatePaze}
-      />
-    </div>
+  <div className="flex flex-col gap-6 p-6">
+    <div> {pazeInputFields} </div>
+    <Button
+      onClick={onSubmit}
+      text="Continue"
+      buttonType={Primary}
+      buttonState={formState.values->validatePaze}
+      customButtonStyle="w-full"
+      buttonSize={Small}
+    />
   </div>
 }
