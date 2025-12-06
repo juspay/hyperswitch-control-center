@@ -212,6 +212,7 @@ type paymentMethodTypes =
   | AliPay
   | WeChatPay
   | DirectCarrierBilling
+  | AmazonPay
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

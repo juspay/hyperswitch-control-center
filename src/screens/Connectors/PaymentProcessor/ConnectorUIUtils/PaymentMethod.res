@@ -92,6 +92,7 @@ module CardRenderer = {
       ((methodVariant === GooglePay ||
       methodVariant === ApplePay ||
       methodVariant === SamsungPay ||
+      methodVariant === AmazonPay ||
       methodVariant === Paze) &&
         {
           switch connector->getConnectorNameTypeFromString(~connectorType) {
@@ -364,6 +365,7 @@ module CardRenderer = {
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === SamsungPay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === Paze ||
+          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === AmazonPay ||
           (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading
