@@ -193,8 +193,8 @@ let make = (
               ->Array.map(option => {
                 let isSelected = selectedType->Option.mapOr(false, st => st === option.value)
                 let optionClassName = `w-full px-3 py-2 text-xs text-left transition-colors ${isSelected
-                  ? "bg-gray-100 dark:bg-jp-gray-850 text-gray-700 dark:text-gray-300"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-jp-gray-800"}`
+                    ? "bg-gray-100 dark:bg-jp-gray-850 text-gray-700 dark:text-gray-300"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-jp-gray-800"}`
                 <button
                   key={option.value}
                   type_="button"

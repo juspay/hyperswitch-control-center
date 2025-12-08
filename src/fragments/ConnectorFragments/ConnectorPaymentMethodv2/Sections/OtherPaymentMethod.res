@@ -56,7 +56,6 @@ let make = (
   //
 
   let form = ReactFinalForm.useForm()
-  // let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
   let (selectedWallet, setSelectedWallet) = React.useState(_ =>
     Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypesV2
   )
