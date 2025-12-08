@@ -46,8 +46,6 @@ module CardRenderer = {
       )
     }, [])
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    // let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    // let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
     let pmAuthProcessorList = ConnectorListInterface.useFilteredConnectorList(
@@ -198,6 +196,26 @@ module CardRenderer = {
         connectorWalletsInitialValues->Identity.genericTypeToJson,
       )
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
+
+      if paymentMethod->getPaymentMethodFromString == BankDebit {
+        let existingPaymentMethodValues =
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("pm_auth_config")
+          ->getArrayFromDict("enabled_payment_methods", [])
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(itemToObjMapper)
+
+        let newPaymentMethodValues =
+          existingPaymentMethodValues->Array.filter(item =>
+            item.payment_method_type !== selectedWallet.payment_method_type
+          )
+
+        form.change(
+          "pm_auth_config.enabled_payment_methods",
+          newPaymentMethodValues->Identity.genericTypeToJson,
+        )
+      }
     }
 
     let checkIfAdditionalDetailsRequired = (
@@ -211,7 +229,9 @@ module CardRenderer = {
     let methodsWithAdditionalDetails =
       provider->Array.filter(val => checkIfAdditionalDetailsRequired(val))
 
-    let initialOpenIndex = methodsWithAdditionalDetails->Array.findIndex(value => isSelected(value))
+    let initialOpenIndex = React.useMemo(() => {
+      methodsWithAdditionalDetails->Array.findIndex(value => isSelected(value))
+    }, [])
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
@@ -369,9 +389,19 @@ module CardRenderer = {
         </RenderIf>
         <RenderIf condition={methodsWithAdditionalDetails->Array.length > 0}>
           <div className="flex flex-col gap-4">
-            <p className={`${body.md.medium} text-grey-700 opacity-50`}>
-              {"Below payment method types requires additional details"->React.string}
-            </p>
+            <RenderIf condition={paymentMethod->getPaymentMethodFromString == BankDebit}>
+              <HSwitchUtils.AlertBanner
+                bannerContent={<p>
+                  {"Below methods can be enabled independently. Add optional payment authenticator if needed."->React.string}
+                </p>}
+                bannerType={Info}
+              />
+            </RenderIf>
+            <RenderIf condition={paymentMethod->getPaymentMethodFromString != BankDebit}>
+              <p className={`${body.md.medium} text-grey-700 opacity-50`}>
+                {"Below payment method types requires additional details"->React.string}
+              </p>
+            </RenderIf>
             <div className={`flex flex-col gap-4 `}>
               <Accordion
                 arrowPosition=Right
@@ -392,20 +422,22 @@ module CardRenderer = {
                         closeAccordionFn
                       />,
                     onItemCollapseClick: () => {
-                      removeSelectedWallet()
+                      if isSelected(value) {
+                        removeOrAddMethods(value)
+                      } else {
+                        removeSelectedWallet()
+                      }
                     },
                     onItemExpandClick: () => {
-                      if !isSelected(value) {
-                        setSelectedWallet(_ => value)
-                      }
+                      removeOrAddMethods(value)
                     },
                     renderContentOnTop: Some(
                       () => {
-                        <div
-                          className="flex gap-2 items-center cursor-pointer flex-1"
-                          onClick={_ => removeOrAddMethods(value)}>
+                        <div className="flex gap-2 items-center cursor-pointer flex-1">
                           <div className="cursor-pointer">
-                            <CheckBoxIcon isSelected={isSelected(value)} />
+                            <CheckBoxIcon
+                              isSelected={isSelected(value)} stopPropagationNeeded=true
+                            />
                           </div>
                           <p className={`${p2RegularTextStyle} cursor-pointer`}>
                             {React.string(value.payment_method_type->snakeToTitle)}
