@@ -825,7 +825,7 @@ let make = (
                           isSidebarExpanded
                           setOpenItem
                           onItemClickCustom={_ => onItemClickCustom(record)}
-                          showIcon={!devSidebarV2}
+                          showIcon=true
                         />
                       }
                     | _ => React.null
