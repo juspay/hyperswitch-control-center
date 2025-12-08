@@ -106,6 +106,8 @@ module MerchantSelection = {
           ~dropdownCustomWidth="!w-full",
           ~textStyle="!text-gray-500",
           ~disableSelect,
+          ~ellipsisOnly=true,
+          ~maxButtonWidth="max-w-200 xl:max-w-xs",
         )(
           ~input={
             ...input,
@@ -213,6 +215,8 @@ module ProfileSelection = {
           ~dropdownCustomWidth="!w-full",
           ~textStyle="!text-gray-500",
           ~disableSelect,
+          ~ellipsisOnly=true,
+          ~maxButtonWidth="max-w-200 xl:max-w-xs",
         )(
           ~input={
             ...input,
