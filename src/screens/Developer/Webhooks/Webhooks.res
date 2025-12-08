@@ -17,9 +17,7 @@ let make = () => {
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
-  let (lastFilterState, setLastFilterState) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->JSON.stringify
-  )
+  let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 
   let webhookURL = businessProfileRecoilVal.webhook_details.webhook_url->Option.getOr("")
 
@@ -75,7 +73,7 @@ let make = () => {
     }
   }
 
-  let fetchWebhooks = async () => {
+  let fetchWebhooks = async (~searchType=?) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
@@ -84,8 +82,7 @@ let make = () => {
 
       let payload = Dict.make()
       if searchText->isNonEmptyString {
-        payload->setOptionString("object_id", Some(searchText))
-        payload->setOptionString("event_id", Some(searchText))
+        payload->Dict.set(searchType->Option.getOr("object_id"), searchText->JSON.Encode.string)
       } else {
         payload->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         payload->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
@@ -118,7 +115,7 @@ let make = () => {
       filterDict->JSON.Encode.object->JSON.stringify
     }
 
-    if currentFilterState !== lastFilterState && searchText === "" {
+    if currentFilterState !== lastFilterState && searchText->isEmptyString {
       setLastFilterState(_ => currentFilterState)
       if offset !== 0 {
         setOffset(_ => 0)
@@ -129,13 +126,25 @@ let make = () => {
       fetchWebhooks()->ignore
     }
 
-    if filterValueJson->Dict.keysToArray->Array.length < 1 {
+    if filterValueJson->isEmptyDict {
       setInitialFilters()
     }
     None
-  }, (filterValueJson, offset, searchText))
+  }, (filterValueJson, offset))
 
-  let filtersUI = React.useMemo(() => {
+  let selectorOptions: array<SearchInput.searchTypeOption> = [
+    {label: "Object ID", value: "object_id"},
+    {label: "Event ID", value: "event_id"},
+  ]
+
+  let handleSearchSubmit = (value: option<string>) => {
+    if searchText->isNonEmptyString {
+      setOffset(_ => 0)
+    }
+    fetchWebhooks(~searchType=value->Option.getOr("object_id"))->ignore
+  }
+
+  let filtersUI =
     <Filter
       key="0"
       title="Webhooks"
@@ -150,18 +159,22 @@ let make = () => {
       submitInputOnEnter=true
       defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
       updateUrlWith={updateExistingKeys}
-      customLeftView={<HSwitchRemoteFilter.SearchBarFilter
-        placeholder="Search for object ID or event ID"
-        setSearchVal=setSearchText
-        searchVal=searchText
-      />}
       clearFilters={() => reset()}
+      customLeftView={<SearchInput
+        onChange={value => setSearchText(_ => value)}
+        inputText=searchText
+        placeholder="Search by ID"
+        showTypeSelector=true
+        typeSelectorOptions=selectorOptions
+        onSubmitSearchDropdown=handleSearchSubmit
+        widthClass="w-max"
+        showSearchIcon=true
+      />}
     />
-  }, [])
 
   <>
     <PageUtils.PageHeading title="Webhooks" subTitle="" />
-    {filtersUI}
+    <div className="-mb-6"> {filtersUI} </div>
     <PageLoaderWrapper screenState customUI>
       <LoadedTable
         title=" "
