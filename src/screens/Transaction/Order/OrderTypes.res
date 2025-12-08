@@ -93,6 +93,7 @@ type colType =
   | CardNetwork
   | MerchantOrderReferenceId
   | AttemptCount
+  | PaymentType
 
 type summaryColType =
   | Created
