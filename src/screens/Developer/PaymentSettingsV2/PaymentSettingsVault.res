@@ -98,23 +98,25 @@ let make = () => {
   }
 
   <PageLoaderWrapper screenState>
-    <Form
-      onSubmit
-      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
-      validate={values => {
-        PaymentSettingsV2Utils.validateMerchantAccountFormV2(
-          ~values,
-          ~isLiveMode=featureFlagDetails.isLiveMode,
-          ~businessProfileRecoilVal,
-        )
-      }}>
-      <VaultFields />
-      <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
-        <div className="flex justify-end w-full gap-2">
-          <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
-        </div>
-      </DesktopRow>
-    </Form>
+    <RenderIf condition={isBusinessProfileHasVault}>
+      <Form
+        onSubmit
+        initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
+        validate={values => {
+          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+            ~values,
+            ~isLiveMode=featureFlagDetails.isLiveMode,
+            ~businessProfileRecoilVal,
+          )
+        }}>
+        <VaultFields />
+        <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
+          <div className="flex justify-end w-full gap-2">
+            <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
+          </div>
+        </DesktopRow>
+      </Form>
+    </RenderIf>
     <RenderIf condition={!isBusinessProfileHasVault}>
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <p className={`text-nd_gray-600 text-center max-w-md ${body.md.medium}`}>
