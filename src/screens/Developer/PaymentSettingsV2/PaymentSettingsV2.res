@@ -36,12 +36,17 @@ let make = () => {
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
+  let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=VaultProcessor,
+  )
   let {userInfo: {profileId, merchantId, version}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
+  let isBusinessProfileHasVault =
+    vaultConnectorsList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let paymentBehaviourTab: Tabs.tab = {
@@ -70,7 +75,9 @@ let make = () => {
     },
   ]
 
-  let finalAdditionalTabs: array<Tabs.tab> = if featureFlagDetails.vaultProcessor {
+  let finalAdditionalTabs: array<Tabs.tab> = if (
+    featureFlagDetails.vaultProcessor && isBusinessProfileHasVault
+  ) {
     Array.concat([vaultTab], additionalTabs)
   } else {
     additionalTabs

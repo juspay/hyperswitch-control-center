@@ -67,19 +67,13 @@ module VaultFields = {
 let make = () => {
   open FormRenderer
 
-  let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
-    ~retainInList=VaultProcessor,
-  )
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
-
+  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let isBusinessProfileHasVault =
-    vaultConnectorsList->Array.some(item => item.profile_id == profileId)
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
   let onSubmit = async (values, _) => {
@@ -98,32 +92,22 @@ let make = () => {
   }
 
   <PageLoaderWrapper screenState>
-    <RenderIf condition={isBusinessProfileHasVault}>
-      <Form
-        onSubmit
-        initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
-        validate={values => {
-          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
-            ~values,
-            ~isLiveMode=featureFlagDetails.isLiveMode,
-            ~businessProfileRecoilVal,
-          )
-        }}>
-        <VaultFields />
-        <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
-          <div className="flex justify-end w-full gap-2">
-            <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
-          </div>
-        </DesktopRow>
-      </Form>
-    </RenderIf>
-    <RenderIf condition={!isBusinessProfileHasVault}>
-      <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <p className={`text-nd_gray-600 text-center max-w-md ${body.md.medium}`}>
-          {"To enable Vault, please configure at least one Vault connector in the Connectors
-          section."->React.string}
-        </p>
-      </div>
-    </RenderIf>
+    <Form
+      onSubmit
+      initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
+      validate={values => {
+        PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+          ~values,
+          ~isLiveMode=featureFlagDetails.isLiveMode,
+          ~businessProfileRecoilVal,
+        )
+      }}>
+      <VaultFields />
+      <DesktopRow wrapperClass="mt-8" itemWrapperClass="mx-1">
+        <div className="flex justify-end w-full gap-2">
+          <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />
+        </div>
+      </DesktopRow>
+    </Form>
   </PageLoaderWrapper>
 }
