@@ -731,7 +731,7 @@ module Vault = {
 
     <div className="border-b border-gray-200 pb-8">
       <RenderIf condition={isBusinessProfileHasVault}>
-        <DesktopRow itemWrapperClass="mx-1">
+        <DesktopRow itemWrapperClass="!mx-4">
           <FieldRenderer
             labelClass="!text-fs-15 !text-grey-700 font-semibold"
             fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
@@ -765,7 +765,7 @@ module Vault = {
           />
         </DesktopRow>
         <RenderIf condition={isExternalVaultEnabled}>
-          <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 !mx-0" itemWrapperClass="mx-1">
+          <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 !mx-0" itemWrapperClass="!mx-4">
             <FieldRenderer
               field={FormRenderer.makeFieldInfo(
                 ~label="Vault Connectors",

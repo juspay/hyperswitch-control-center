@@ -97,6 +97,7 @@ module SidebarItem = {
     ~isSidebarExpanded,
     ~setOpenItem=_ => (),
     ~onItemClickCustom=_ => (),
+    ~showIcon=false,
   ) => {
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
@@ -148,7 +149,7 @@ module SidebarItem = {
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer ${hoverColor} ${selectedClass}`}>
-                <SidebarOption name icon isSidebarExpanded isSelected />
+                <SidebarOption name icon isSidebarExpanded isSelected showIcon />
               </div>
             </AddDataAttributes>
           </Link>
@@ -601,7 +602,7 @@ let make = (
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2} =
+  let {devModularityV2, devSidebarV2, devTheme} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -711,6 +712,7 @@ let make = (
   }
 
   let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
+  let isThemeSelected = linkSelectionCheck(firstPart, "/theme")
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
@@ -748,9 +750,6 @@ let make = (
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {React.string(sidebarScrollbarCss)} </style>
               <div className="flex flex-col gap-2 p-2.5 pt-0">
-                <div className={`px-3 pb-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
-                  {React.string(activeProduct->getProductDisplayName->String.toUpperCase)}
-                </div>
                 {sidebars
                 ->Array.mapWithIndex((tabInfo, index) => {
                   switch tabInfo {
@@ -826,6 +825,7 @@ let make = (
                           isSidebarExpanded
                           setOpenItem
                           onItemClickCustom={_ => onItemClickCustom(record)}
+                          showIcon={!devSidebarV2}
                         />
                       }
                     | _ => React.null
@@ -857,6 +857,22 @@ let make = (
                       />
                     </div>
                   </Link>
+                  <RenderIf condition={devTheme}>
+                    <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                      <div
+                        className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
+                            ? "bg-sidebar-hoverColor"
+                            : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                        <SidebarOption
+                          name="Theme"
+                          icon="nd-color-palette"
+                          isSidebarExpanded
+                          isSelected={isThemeSelected}
+                          showIcon=true
+                        />
+                      </div>
+                    </Link>
+                  </RenderIf>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
                   </div>
