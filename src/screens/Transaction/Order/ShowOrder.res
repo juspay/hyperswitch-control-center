@@ -655,7 +655,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~entityName=V1(ORDERS),
         ~methodType=Get,
         ~id=Some(id),
-        ~queryParamerters=Some("expand_attempts=true"),
+        ~queryParameters=Some("expand_attempts=true"),
       )
     | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
     }
@@ -691,14 +691,14 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           ~entityName=V1(ORDERS),
           ~methodType=Get,
           ~id=Some(id),
-          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+          ~queryParameters=Some("force_sync=true&expand_attempts=true"),
         )
       | V2 =>
         getURL(
           ~entityName=V2(V2_ORDERS_LIST),
           ~methodType=Get,
           ~id=Some(id),
-          ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
+          ~queryParameters=Some("force_sync=true&expand_attempts=true"),
         )
       }
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
@@ -767,7 +767,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "Events and logs",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
                     <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
                   </LogsWrapper>
@@ -792,7 +792,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
               accordion={[
                 {
                   title: "Disputes",
-                  renderContent: () => {
+                  renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                     <Disputes disputesData={orderData.disputes} />
                   },
                   renderContentOnTop: None,
@@ -805,7 +805,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Customer Details",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <div>
                   <ShowOrderDetails
                     sectionTitle="Customer"
@@ -892,7 +892,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "More Payment Details",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <div className="mb-10">
                   <ShowOrderDetails
                     data=orderData
@@ -934,7 +934,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "Payment Method Details",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.payment_method_data
@@ -954,7 +954,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "External Authentication Details",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <AuthenticationDetails order={orderData} />
                   </div>
@@ -969,7 +969,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "Payment Metadata",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
@@ -987,7 +987,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "FRM Details",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
                     <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
                   </div>

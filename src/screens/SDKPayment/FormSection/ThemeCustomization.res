@@ -3,6 +3,7 @@ let make = (~getClientSecret) => {
   open FormRenderer
   open SDKPaymentUtils
   open SDKPaymentHelper
+  open Typography
 
   let {
     sdkThemeInitialValues,
@@ -13,6 +14,9 @@ let make = (~getClientSecret) => {
     isGuestMode,
   } = React.useContext(SDKProvider.defaultContext)
   let showToast = ToastState.useShowToast()
+  let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
 
   let onSubmit = async (values, _) => {
     try {
@@ -41,7 +45,7 @@ let make = (~getClientSecret) => {
     <FieldRenderer field=selectLayoutField fieldWrapperClass="!w-full" />
     <FieldRenderer field=selectLabelsField fieldWrapperClass="!w-full" />
     <FieldRenderer field={enterPrimaryColorValue("#006DF9")} fieldWrapperClass="!w-full" />
-    <div className="flex items-center mt-4 text-nd_primary_blue-500 text-sm font-medium">
+    <div className={`flex items-center mt-4 ${primaryNormal} ${body.md.medium}`}>
       <Icon name="blue-info" className="mt-1" />
       <a
         className="cursor-pointer"

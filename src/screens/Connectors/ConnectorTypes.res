@@ -145,6 +145,7 @@ type payoutProcessorTypes =
   | GIGADAT
   | LOONIO
   | WORLDPAY
+  | WORLDPAYXML
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -164,6 +165,8 @@ type taxProcessorTypes = TAXJAR
 
 type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
+type vaultProcessorTypes = VGS
+
 type connectorTypeVariants =
   | PaymentProcessor
   | PaymentVas
@@ -172,6 +175,7 @@ type connectorTypeVariants =
   | PMAuthProcessor
   | TaxProcessor
   | BillingProcessor
+  | VaultProcessor
 
 type connectorTypes =
   | Processors(processorTypes)
@@ -181,6 +185,7 @@ type connectorTypes =
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | TaxProcessor(taxProcessorTypes)
   | BillingProcessor(billingProcessorTypes)
+  | VaultProcessor(vaultProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -439,6 +444,7 @@ type connector =
   | PMAuthenticationProcessor
   | TaxProcessor
   | BillingProcessor
+  | VaultProcessor
 
 type connectorFieldTypes = {
   bodyType: string,

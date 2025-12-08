@@ -115,8 +115,8 @@ module ActiveSection = {
           </div>
         </div>
         <ACLButton
-          authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-          text="Manage"
+          authorization={userHasAccess(~groupAccess=WorkflowsView)}
+          text="View and Manage"
           buttonType=Secondary
           customButtonStyle="w-4/3"
           buttonSize={Small}

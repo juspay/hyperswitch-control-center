@@ -36,6 +36,7 @@ module AuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
+    let originalKeyRef = React.useRef("")
     let getOutGoingWebhook = () => {
       let outGoingWebhookDict =
         formState.values
@@ -53,6 +54,7 @@ module AuthenticationInput = {
       let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
       setValue(_ => outGoingWebHookValue)
       setKey(_ => outGoingWebhookKey)
+      originalKeyRef.current = outGoingWebhookKey
       None
     }, [])
 
@@ -65,7 +67,19 @@ module AuthenticationInput = {
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => (),
+      onBlur: _ => {
+        if (
+          key->isNonEmptyString &&
+          originalKeyRef.current->isNonEmptyString &&
+          originalKeyRef.current !== key
+        ) {
+          let oldName = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
+          form.change(oldName, JSON.Encode.null)
+          let name = `outgoing_webhook_custom_http_headers.${key}`
+          form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
+        }
+      },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
@@ -81,7 +95,7 @@ module AuthenticationInput = {
           true
         }
         if value->String.length <= 0 {
-          let name = `outgoing_webhook_custom_http_headers.${key}`
+          let name = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
           form.change(name, JSON.Encode.null)
         }
         //Not allow users to enter just integers
@@ -97,9 +111,14 @@ module AuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
+        if key->isNonEmptyString {
+          if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
+            let oldName = `outgoing_webhook_custom_http_headers.${originalKeyRef.current}`
+            form.change(oldName, JSON.Encode.null)
+          }
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
@@ -211,7 +230,11 @@ module WebHookAuthenticationHeaders = {
 
 module WebHookSection = {
   @react.component
-  let make = (~businessProfileDetails, ~setBusinessProfile, ~setScreenState, ~profileId="") => {
+  let make = (
+    ~businessProfileDetails: BusinessProfileInterfaceTypesV1.profileEntity_v1,
+    ~setBusinessProfile,
+    ~setScreenState,
+  ) => {
     open APIUtils
     open LogicUtils
     open FormRenderer
@@ -220,9 +243,8 @@ module WebHookSection = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-
+    let profileId = businessProfileDetails.profile_id
     let onSubmit = async (values, _) => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
@@ -680,14 +702,141 @@ module MerchantCategoryCode = {
   }
 }
 
+module Vault = {
+  @react.component
+  let make = () => {
+    open Typography
+    open HSwitchUtils
+    open FormRenderer
+    open LogicUtils
+    open PaymentSettingsUtils
+    open PaymentSettingsV2Utils
+
+    let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=VaultProcessor,
+    )
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let isBusinessProfileHasVault =
+      vaultConnectorsList->Array.some(item => item.profile_id == profileId)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let isExternalVaultEnabled =
+      formState.values
+      ->getDictFromJsonObject
+      ->getString("is_external_vault_enabled", "")
+      ->vaultStatusFromString
+      ->Option.mapOr(false, isVaultEnabled)
+
+    <div className="border-b border-gray-200 pb-8">
+      <RenderIf condition={isBusinessProfileHasVault}>
+        <DesktopRow itemWrapperClass="!mx-4">
+          <FieldRenderer
+            labelClass="!text-fs-15 !text-grey-700 font-semibold"
+            fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
+            field={makeFieldInfo(
+              ~name="is_external_vault_enabled",
+              ~label="Enable External Vault",
+              ~customInput=(~input, ~placeholder as _) => {
+                let currentValue = switch input.value->JSON.Classify.classify {
+                | String(str) =>
+                  str
+                  ->vaultStatusFromString
+                  ->Option.mapOr(false, isVaultEnabled)
+                | _ => false
+                }
+                let handleChange = newValue => {
+                  let valueToSet = newValue->vaultStatusStringFromBool
+                  input.onChange(valueToSet->Identity.anyTypeToReactEvent)
+
+                  if !newValue {
+                    form.change("external_vault_connector_details", JSON.Encode.null)
+                  }
+                }
+                <BoolInput.BaseComponent
+                  isSelected={currentValue}
+                  setIsSelected={handleChange}
+                  isDisabled=false
+                  boolCustomClass="rounded-lg"
+                />
+              },
+            )}
+          />
+        </DesktopRow>
+        <RenderIf condition={isExternalVaultEnabled}>
+          <DesktopRow wrapperClass="pt-4 flex !flex-col gap-4 !mx-0" itemWrapperClass="!mx-4">
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Connectors",
+                ~name="external_vault_connector_details.vault_connector_id",
+                ~customInput=InputFields.selectInput(
+                  ~options=vaultConnectorsList->vaultConnectorDropdownOptions,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                  ~dropdownCustomWidth="!w-full",
+                ),
+                ~isRequired=true,
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+            <FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="Vault Token ",
+                ~name="external_vault_connector_details.vault_token_selector",
+                ~customInput=InputFields.multiSelectInput(
+                  ~buttonSize=Button.Large,
+                  ~showSelectionAsChips=false,
+                  ~options=vaultTokenSelectorDropdownOptions,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle="!rounded-lg",
+                  ~fixedDropDownDirection=BottomRight,
+                  ~dropdownClassName="!max-h-15-rem !overflow-auto",
+                ),
+                ~parse=(~value, ~name as _) => {
+                  let parsedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item => {
+                      [("token_type", item)]->getJsonFromArrayOfJson
+                    })
+
+                  parsedValue->JSON.Encode.array
+                },
+                ~format=(~value, ~name as _) => {
+                  let formattedValue =
+                    value
+                    ->getArrayFromJson([])
+                    ->Array.map(item =>
+                      item->getDictFromJsonObject->getString("token_type", "")->JSON.Encode.string
+                    )
+                  formattedValue->JSON.Encode.array
+                },
+              )}
+              errorClass
+              labelClass={`text-nd_gray-700 ${body.md.semibold}`}
+              fieldWrapperClass="max-w-sm"
+            />
+          </DesktopRow>
+        </RenderIf>
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
-let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
+let make = (~webhookOnly=false, ~showFormOnly=false) => {
   open DeveloperUtils
   open APIUtils
   open HSwitchUtils
   open MerchantAccountUtils
   open HSwitchSettingTypes
   open FormRenderer
+  open Typography
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
@@ -696,9 +845,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let (businessProfileDetails, setBusinessProfile) = React.useState(_ => businessProfileRecoilVal)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userInfo: {profileId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
-
+  let profileId = businessProfileDetails.profile_id
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
@@ -709,7 +857,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
       [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
-    defaultFieldsToValidate->Array.push(MaxAutoRetries)
+    defaultFieldsToValidate->Array.pushMany([MaxAutoRetries, VaultProcessorDetails])
     defaultFieldsToValidate
   }
 
@@ -735,13 +883,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   }
 
   React.useEffect(() => {
-    if profileId->LogicUtils.isNonEmptyString {
+    if businessProfileRecoilVal.profile_id->LogicUtils.isNonEmptyString {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setBusinessProfile(_ => businessProfileRecoilVal)
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [profileId, businessProfileRecoilVal.profile_name])
+  }, [businessProfileRecoilVal.profile_id, businessProfileRecoilVal.profile_name])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading
@@ -776,10 +924,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
                   />
-                  <InfoViewForWebhooks heading="Profile ID" subHeading=profileId isCopy=true />
+                  <InfoViewForWebhooks
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
+                  />
                 </div>
                 <div className="flex items-center">
-                  <InfoViewForWebhooks heading="Merchant ID" subHeading=merchantId />
+                  <InfoViewForWebhooks
+                    heading="Merchant ID" subHeading=businessProfileDetails.merchant_id
+                  />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
                     subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
@@ -844,7 +996,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <DesktopRow>
+                <DesktopRow wrapperClass="!flex-col">
                   <FieldRenderer
                     labelClass="!text-fs-15 !text-grey-700 font-semibold"
                     fieldWrapperClass="w-full flex justify-between items-center border-t border-gray-200 pt-8"
@@ -852,11 +1004,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~name="is_network_tokenization_enabled",
                       ~label="Network Tokenization",
                       ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
+                        ~isDisabled=true,
                         ~boolCustomClass="rounded-lg",
                       ),
                     )}
                   />
+                  <div className={`${body.md.medium} ml-1 text-jp-gray-text_muted`}>
+                    {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
+                    <a
+                      href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+                      className="text-primary hover:cursor-pointer hover:underline"
+                      target="_blank">
+                      {"Slack"->React.string}
+                    </a>
+                  </div>
                 </DesktopRow>
                 <DesktopRow>
                   <FieldRenderer
@@ -907,6 +1068,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
+                <RenderIf condition={featureFlagDetails.vaultProcessor}>
+                  <Vault />
+                </RenderIf>
                 <RenderIf condition={featureFlagDetails.debitRouting}>
                   <MerchantCategoryCode />
                 </RenderIf>
@@ -964,15 +1128,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <div className={` py-4 md:py-10 h-full flex flex-col `}>
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <WebHookSection businessProfileDetails setBusinessProfile setScreenState profileId />
+            <WebHookSection businessProfileDetails setBusinessProfile setScreenState />
           </div>
         </div>
         <div className="py-4 md:py-10 h-full flex flex-col">
           <div
             className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-            <PaymentSettingsMetadata
-              businessProfileDetails setBusinessProfile setScreenState profileId
-            />
+            <PaymentSettingsMetadata businessProfileDetails setBusinessProfile setScreenState />
           </div>
         </div>
         <RenderIf condition={featureFlagDetails.acquirerConfigSettings}>

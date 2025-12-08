@@ -739,9 +739,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]', {
-      timeout: 10000,
-    }) //Expected to find element, but never found it.
+    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+      "be.visible",
+    );
+    cy.get('[data-date-picker-predifined="predefined-options"]')
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -770,10 +771,10 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]', {
-        timeout: 10000,
-      }).within(
-        //Expected to find element, but never found it.
+      cy.get('[data-date-picker-predifined="predefined-options"]').should(
+        "be.visible",
+      );
+      cy.get('[data-date-picker-predifined="predefined-options"]').within(
         () => {
           cy.contains(timeRange).click();
         },
@@ -807,7 +808,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-daterange-dropdown-value="Custom Range"]', { timeout: 10000 })
+    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+      "be.visible",
+    );
+    cy.get('[data-daterange-dropdown-value="Custom Range"]')
       .should("exist")
       .should("be.visible")
       .click({ force: true });
@@ -828,9 +832,58 @@ describe("Payment Operations", () => {
     );
   });
 
-  // generate reports
-
   // Views
+  it.skip("should verify all transaction filter views are displayed", () => {
+    const transactionViews = [
+      "All",
+      "Succeeded",
+      "Failed",
+      "Dropoffs",
+      "Cancelled",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.transactionView.should("be.visible").within(() => {
+      transactionViews.forEach((view) => {
+        cy.contains(view).should("exist");
+      });
+    });
+  });
+
+  it.skip("should switch between different transaction views and verify applied filters", () => {
+    const viewFilters = {
+      Succeeded: "Succeeded",
+      Failed: "Failed",
+      Dropoffs: "Dropoffs",
+      Cancelled: "Cancelled",
+    };
+
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    for (const [view, filter] of Object.entries(viewFilters)) {
+      paymentOperations.transactionView.contains(view).click();
+
+      cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+        "contain",
+        filter,
+      );
+    }
+  });
+
+  // generate reports
 
   // Verify "Open in new tab" button for payment ID
 
