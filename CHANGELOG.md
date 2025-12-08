@@ -3,6 +3,39 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.08.0
+
+### Features
+
+- Enable users to view rules with workflows view ([#3944](https://github.com/juspay/hyperswitch-control-center/pull/3944)) ([`685786b`](https://github.com/juspay/hyperswitch-control-center/commit/685786bd27588b671236f741fa4033d8687dd5cf))
+- Enhance webhooks search with type-specific filtering ([#3886](https://github.com/juspay/hyperswitch-control-center/pull/3886)) ([`ec83fad`](https://github.com/juspay/hyperswitch-control-center/commit/ec83fad3f16eba4bf05d65310e2549cbcf3322d0))
+
+### Bug Fixes
+
+- Domain name updating from global search ([#3924](https://github.com/juspay/hyperswitch-control-center/pull/3924)) ([`c30f0d6`](https://github.com/juspay/hyperswitch-control-center/commit/c30f0d6da3ac7833c541f71b3f516a87cc294a1d))
+- Themes not showing when modularity and theme feature flag are tu… ([#3942](https://github.com/juspay/hyperswitch-control-center/pull/3942)) ([`44efd97`](https://github.com/juspay/hyperswitch-control-center/commit/44efd9775eee5e689f8a63c6f7ebcdc4317e79e6))
+- Invite user dropdown issue ([#3946](https://github.com/juspay/hyperswitch-control-center/pull/3946)) ([`0f4fb4e`](https://github.com/juspay/hyperswitch-control-center/commit/0f4fb4ef5c6c632c24d9d5b57f56549b66aa75ea))
+
+### Miscellaneous Tasks
+
+- Add cypress tests to run on PR merge ([#3949](https://github.com/juspay/hyperswitch-control-center/pull/3949)) ([`bdbd653`](https://github.com/juspay/hyperswitch-control-center/commit/bdbd653631d94d00ff4f8e230cfb79ae30b38cfb))
+- Refactored tooltip on O/M/P name ([#3943](https://github.com/juspay/hyperswitch-control-center/pull/3943)) ([`5b0af84`](https://github.com/juspay/hyperswitch-control-center/commit/5b0af8469116667e2064876e86e48f29e5f870ab))
+
+**Full Changelog:** [`2025.12.04.0...2025.12.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.04.0...2025.12.08.0)
+
+- - -
+
+## 2025.12.04.0
+
+### Miscellaneous Tasks
+
+- Exposed a function to close accordion ([#3929](https://github.com/juspay/hyperswitch-control-center/pull/3929)) ([`72385d5`](https://github.com/juspay/hyperswitch-control-center/commit/72385d53356a5b4a3fe67acc621be57eea362e3d))
+- Added payment type column in v2 orders page ([#3904](https://github.com/juspay/hyperswitch-control-center/pull/3904)) ([`253eb2f`](https://github.com/juspay/hyperswitch-control-center/commit/253eb2f0cd0ab57ed55d78c08769cf590b37593c))
+
+**Full Changelog:** [`2025.12.03.0...2025.12.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.03.0...2025.12.04.0)
+
+- - -
+
 ## 2025.12.03.0
 
 ### Features
