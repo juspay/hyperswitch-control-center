@@ -76,7 +76,7 @@ let make = () => {
   ]
 
   let finalAdditionalTabs: array<Tabs.tab> = if (
-    featureFlagDetails.vaultProcessor && isBusinessProfileHasVault
+    featureFlagDetails.vaultProcessor && isBusinessProfileHasVault && version == V1
   ) {
     Array.concat([vaultTab], additionalTabs)
   } else {
