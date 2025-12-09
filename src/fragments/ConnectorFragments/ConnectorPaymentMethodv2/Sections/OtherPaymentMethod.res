@@ -228,6 +228,7 @@ let make = (
                             setInitialValues={_ => ()}
                             pmtName={selectedWallet.payment_method_subtype}
                             closeAccordionFn
+                            onCloseClickCustomFun={resetValues}
                           />,
                         onItemExpandClick: () => {
                           onClick(pmtData, i)

@@ -8,6 +8,7 @@ module AdditionalDetailsSidebarComp = {
     ~updateDetails,
     ~paymentMethodsEnabled,
     ~paymentMethod,
+    ~onCloseClickCustomFun,
     ~setInitialValues,
     ~pmtName: string,
     ~closeAccordionFn,
@@ -44,11 +45,22 @@ module AdditionalDetailsSidebarComp = {
       }}
       <RenderIf condition={paymentMethod->getPaymentMethodFromString !== BankDebit}>
         {switch pmtName->getPaymentMethodTypeFromString {
-        | ApplePay => <ApplePayIntegration connector closeAccordionFn update=updateMetadata />
-        | GooglePay => <GooglePayIntegration connector closeAccordionFn update=updateMetadata />
+        | ApplePay =>
+          <ApplePayIntegration
+            connector closeAccordionFn update=updateMetadata onCloseClickCustomFun
+          />
+        | GooglePay =>
+          <GooglePayIntegration
+            connector closeAccordionFn update=updateMetadata onCloseClickCustomFun
+          />
         | SamsungPay =>
-          <SamsungPayIntegration connector closeAccordionFn update=updatePaymentMethods />
-        | Paze => <PazeIntegration connector closeAccordionFn update=updatePaymentMethods />
+          <SamsungPayIntegration
+            connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
+          />
+        | Paze =>
+          <PazeIntegration
+            connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
+          />
         | _ => React.null
         }}
       </RenderIf>

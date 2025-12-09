@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~closeAccordionFn, ~update) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open PazeIntegrationUtils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -46,6 +46,11 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     closeAccordionFn()
   }
 
+  let onCancel = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   let pazeInputFields =
     pazeFields
     ->Array.mapWithIndex((field, index) => {
@@ -59,13 +64,17 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     ->React.array
   <div className="flex flex-col gap-6 p-6">
     <div> {pazeInputFields} </div>
-    <Button
-      onClick={onSubmit}
-      text="Continue"
-      buttonType={Primary}
-      buttonState={formState.values->validatePaze}
-      customButtonStyle="w-full"
-      buttonSize={Small}
-    />
+    <div className={`flex gap-2  justify-end m-2 p-6`}>
+      <Button
+        text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
+      />
+      <Button
+        onClick={onSubmit}
+        text="Continue"
+        buttonType={Primary}
+        customButtonStyle="w-full"
+        buttonState={formState.values->validatePaze}
+      />
+    </div>
   </div>
 }

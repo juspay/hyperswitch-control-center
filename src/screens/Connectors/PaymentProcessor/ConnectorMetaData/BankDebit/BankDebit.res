@@ -77,6 +77,7 @@ let make = (~update, ~paymentMethod, ~paymentMethodType, ~setInitialValues, ~clo
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let form = ReactFinalForm.useForm()
 
   let pmAuthConnectorOptions =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate->dropdownOptions
@@ -89,6 +90,32 @@ let make = (~update, ~paymentMethod, ~paymentMethodType, ~setInitialValues, ~clo
     | Some(connectorData) => connectorData.id
     | None => ""
     }
+  }
+
+  let onCancelClick = () => {
+    let existingPaymentMethodValues =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("pm_auth_config")
+      ->getArrayFromDict("enabled_payment_methods", [])
+      ->JSON.Encode.array
+      ->getArrayDataFromJson(itemToObjMapper)
+
+    let newPaymentMethodValues =
+      existingPaymentMethodValues->Array.filter(item =>
+        item.payment_method_type !== paymentMethodType
+      )
+
+    form.change(
+      "pm_auth_config.enabled_payment_methods",
+      newPaymentMethodValues->Identity.genericTypeToJson,
+    )
+  }
+
+  let closeModal = () => {
+    update()
+    onCancelClick()
+    closeAccordionFn()
   }
 
   let onSubmit = () => {
@@ -124,14 +151,19 @@ let make = (~update, ~paymentMethod, ~paymentMethodType, ~setInitialValues, ~clo
       })}
       labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
     />
-    <Button
-      onClick={_ => {
-        onSubmit()->ignore
-      }}
-      text="Proceed"
-      buttonType={Primary}
-      customButtonStyle="w-full"
-      buttonSize={Small}
-    />
+    <div className={`flex gap-2 justify-end mt-4`}>
+      <Button
+        text="Cancel" buttonType={Secondary} onClick={_ => closeModal()} customButtonStyle="w-full"
+      />
+      <Button
+        onClick={_ => {
+          onSubmit()->ignore
+        }}
+        text="Proceed"
+        buttonType={Primary}
+        buttonState={validateSelectedPMAuth(formState.values, paymentMethodType)}
+        customButtonStyle="w-full"
+      />
+    </div>
   </div>
 }

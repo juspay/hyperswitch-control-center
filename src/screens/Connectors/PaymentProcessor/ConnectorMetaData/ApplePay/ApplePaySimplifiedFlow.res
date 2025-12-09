@@ -200,13 +200,20 @@ let make = (
     </RenderIf>
     <div className="w-full flex gap-2 justify-end p-6">
       <Button
+        text="Go Back"
+        buttonType={Secondary}
+        onClick={_ => {
+          setApplePayIntegrationSteps(_ => Landing)
+        }}
+        customButtonStyle="w-full"
+      />
+      <Button
         text="Verify & Enable"
         buttonType={Primary}
         onClick={_ => {
           onSubmit()->ignore
         }}
         customButtonStyle="w-full"
-        buttonSize={Small}
         buttonState={formState.values->validateSimplifedFlow}
       />
     </div>

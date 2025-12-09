@@ -196,26 +196,6 @@ module CardRenderer = {
         connectorWalletsInitialValues->Identity.genericTypeToJson,
       )
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
-
-      if paymentMethod->getPaymentMethodFromString == BankDebit {
-        let existingPaymentMethodValues =
-          formState.values
-          ->getDictFromJsonObject
-          ->getDictfromDict("pm_auth_config")
-          ->getArrayFromDict("enabled_payment_methods", [])
-          ->JSON.Encode.array
-          ->getArrayDataFromJson(itemToObjMapper)
-
-        let newPaymentMethodValues =
-          existingPaymentMethodValues->Array.filter(item =>
-            item.payment_method_type !== selectedWallet.payment_method_type
-          )
-
-        form.change(
-          "pm_auth_config.enabled_payment_methods",
-          newPaymentMethodValues->Identity.genericTypeToJson,
-        )
-      }
     }
 
     let checkIfAdditionalDetailsRequired = (
@@ -417,6 +397,7 @@ module CardRenderer = {
                         updateDetails
                         paymentMethodsEnabled
                         paymentMethod
+                        onCloseClickCustomFun={removeSelectedWallet}
                         setInitialValues
                         pmtName={selectedWallet.payment_method_type}
                         closeAccordionFn

@@ -41,6 +41,7 @@ module Landing = {
   @react.component
   let make = (
     ~googlePayIntegrationType,
+    ~closeModal,
     ~setGooglePayIntegrationStep,
     ~setGooglePayIntegrationType,
     ~connector,
@@ -61,13 +62,22 @@ module Landing = {
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
       }}
-      <Button
-        onClick={_ => handleConfirmClick()}
-        text="Continue"
-        buttonType={Primary}
-        buttonSize={Small}
-        customButtonStyle="w-full"
-      />
+      <div className={`flex gap-2 justify-end m-2 p-6`}>
+        <Button
+          text="Cancel"
+          buttonType={Secondary}
+          onClick={_ => {
+            closeModal()
+          }}
+          customButtonStyle="w-full"
+        />
+        <Button
+          onClick={_ => handleConfirmClick()}
+          text="Continue"
+          buttonType={Primary}
+          customButtonStyle="w-full"
+        />
+      </div>
     </div>
   }
 }

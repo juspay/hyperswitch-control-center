@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~closeAccordionFn, ~update) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open APIUtils
   open LogicUtils
   open SamsungPayIntegrationUtils
@@ -86,6 +86,11 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     closeAccordionFn()
   }
 
+  let onCancel = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   let samsungPayFields =
     samsungPayFields
     ->Array.mapWithIndex((field, index) => {
@@ -123,14 +128,18 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     sectionHeight="!h-screen">
     <div className="flex flex-col gap-6 p-6">
       <div> {samsungPayFields} </div>
-      <Button
-        onClick={_ => onSubmit()}
-        text="Continue"
-        buttonType={Primary}
-        buttonState={formState.values->SamsungPayIntegrationUtils.validateSamsungPay}
-        customButtonStyle="w-full"
-        buttonSize={Small}
-      />
+      <div className={`flex gap-2  justify-end m-2 p-6`}>
+        <Button
+          text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
+        />
+        <Button
+          onClick={_ => onSubmit()}
+          text="Continue"
+          buttonType={Primary}
+          buttonState={formState.values->SamsungPayIntegrationUtils.validateSamsungPay}
+          customButtonStyle="w-full"
+        />
+      </div>
     </div>
   </PageLoaderWrapper>
 }

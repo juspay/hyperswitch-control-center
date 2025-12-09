@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~closeAccordionFn, ~update) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open GPayFlowTypes
   open LogicUtils
   open GPayFlowHelper
@@ -65,6 +65,11 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     None
   }, [connector])
 
+  let closeModal = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
@@ -76,18 +81,22 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     {switch googlePayIntegrationStep {
     | Landing =>
       <Landing
-        googlePayIntegrationType setGooglePayIntegrationStep setGooglePayIntegrationType connector
+        googlePayIntegrationType
+        closeModal
+        setGooglePayIntegrationStep
+        setGooglePayIntegrationType
+        connector
       />
     | Configure =>
       <>
         {switch googlePayIntegrationType {
         | #payment_gateway =>
           <GPayPaymentGatewayFlow
-            googlePayFields googlePayIntegrationType connector closeAccordionFn update
+            googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
           />
         | #direct =>
           <GPayDirectFlow
-            googlePayFields googlePayIntegrationType connector closeAccordionFn update
+            googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
           />
         }}
       </>

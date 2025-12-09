@@ -2,6 +2,7 @@
 let make = (
   ~googlePayFields,
   ~googlePayIntegrationType,
+  ~closeModal,
   ~connector,
   ~closeAccordionFn,
   ~update,
@@ -68,15 +69,24 @@ let make = (
       })
       ->React.array}
     </div>
-    <Button
-      onClick={_ => {
-        onSubmit()->ignore
-      }}
-      text="Proceed"
-      buttonType={Primary}
-      buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
-      buttonSize={Small}
-      customButtonStyle="w-full"
-    />
+    <div className={`flex gap-2 justify-end mt-4`}>
+      <Button
+        text="Cancel"
+        buttonType={Secondary}
+        onClick={_ => {
+          closeModal()->ignore
+        }}
+        customButtonStyle="w-full"
+      />
+      <Button
+        onClick={_ => {
+          onSubmit()->ignore
+        }}
+        text="Proceed"
+        buttonType={Primary}
+        buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
+        customButtonStyle="w-full"
+      />
+    </div>
   </div>
 }

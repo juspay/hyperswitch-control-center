@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~closeAccordionFn, ~update) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open GooglePayUtils
 
@@ -48,6 +48,11 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     Nullable.null->Promise.resolve
   }
 
+  let closeModal = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   <div className="flex flex-col gap-6">
     <div>
       {googlePayFields
@@ -62,15 +67,24 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
       })
       ->React.array}
     </div>
-    <Button
-      onClick={_ => {
-        onSubmit()->ignore
-      }}
-      text="Proceed"
-      buttonType={Primary}
-      buttonState={formState.values->validateGooglePay(connector)}
-      buttonSize={Small}
-      customButtonStyle="w-full"
-    />
+    <div className={`flex gap-2 justify-end mt-4`}>
+      <Button
+        text="Cancel"
+        buttonType={Secondary}
+        onClick={_ => {
+          closeModal()->ignore
+        }}
+        customButtonStyle="w-full"
+      />
+      <Button
+        onClick={_ => {
+          onSubmit()->ignore
+        }}
+        text="Proceed"
+        buttonType={Primary}
+        buttonState={formState.values->validateGooglePay(connector)}
+        customButtonStyle="w-full"
+      />
+    </div>
   </div>
 }

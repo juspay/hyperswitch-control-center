@@ -88,6 +88,7 @@ module Verified = {
             onClick={_ => {
               setApplePayIntegrationSteps(_ => Landing)
             }}
+            customButtonStyle="w-full"
           />
           <Button
             onClick={_ => {
@@ -95,6 +96,7 @@ module Verified = {
             }}
             text="Proceed"
             buttonType={Primary}
+            customButtonStyle="w-full"
           />
         </div>
       </div>
@@ -107,6 +109,7 @@ module Landing = {
   let make = (
     ~connector,
     ~appleIntegrationType,
+    ~closeModal,
     ~setApplePayIntegrationSteps,
     ~setApplePayIntegrationType,
   ) => {
@@ -134,19 +137,29 @@ module Landing = {
         <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
       | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
-      <Button
-        onClick={_ => handleConfirmClick()}
-        text="Continue"
-        buttonType={Primary}
-        customButtonStyle="w-full"
-        buttonSize={Small}
-      />
+      <div className={`flex gap-2 justify-end m-2 p-6`}>
+        <Button
+          text="Cancel"
+          buttonType={Secondary}
+          onClick={_ => {
+            closeModal()
+          }}
+          customButtonStyle="w-full"
+        />
+        <Button
+          onClick={_ => handleConfirmClick()}
+          text="Continue"
+          buttonType={Primary}
+          customButtonStyle="w-full"
+          buttonSize={Small}
+        />
+      </div>
     </div>
   }
 }
 
 @react.component
-let make = (~connector, ~closeAccordionFn, ~update) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open APIUtils
   open LogicUtils
 
@@ -227,6 +240,11 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     None
   }, [connector])
 
+  let closeModal = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
@@ -237,12 +255,17 @@ let make = (~connector, ~closeAccordionFn, ~update) => {
     sectionHeight="!h-screen">
     <div>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(ZEN) => <ApplePayZen applePayFields update closeAccordionFn connector />
+      | Processors(ZEN) =>
+        <ApplePayZen applePayFields update closeModal closeAccordionFn connector />
       | _ =>
         switch applePayIntegrationStep {
         | Landing =>
           <Landing
-            connector setApplePayIntegrationSteps appleIntegrationType setApplePayIntegrationType
+            connector
+            closeModal
+            setApplePayIntegrationSteps
+            appleIntegrationType
+            setApplePayIntegrationType
           />
         | Configure =>
           switch appleIntegrationType {

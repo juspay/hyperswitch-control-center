@@ -296,15 +296,23 @@ let make = (
       </span>
     </div>
     <div> {applePayManualFields} </div>
-    <Button
-      text="Verify & Enable"
-      buttonType={Primary}
-      onClick={_ => {
-        onSubmit()->ignore
-      }}
-      buttonSize=Small
-      customButtonStyle="w-full"
-      buttonState={formState.values->validateManualFlow(~connector)}
-    />
+    <div className="w-full flex gap-2 justify-end p-6">
+      <Button
+        text="Go Back"
+        buttonType={Secondary}
+        onClick={_ => {
+          setApplePayIntegrationSteps(_ => Landing)
+        }}
+      />
+      <Button
+        text="Verify & Enable"
+        buttonType={Primary}
+        onClick={_ => {
+          onSubmit()->ignore
+        }}
+        customButtonStyle="w-full"
+        buttonState={formState.values->validateManualFlow(~connector)}
+      />
+    </div>
   </div>
 }
