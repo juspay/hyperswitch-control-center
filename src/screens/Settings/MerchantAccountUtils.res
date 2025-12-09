@@ -33,6 +33,8 @@ let parseBussinessProfileJson = (
     is_manual_retry_enabled,
     always_enable_overcapture,
     payment_link_config,
+    is_external_vault_enabled,
+    external_vault_connector_details,
   } = profileRecord
 
   let profileInfo = [("profile_name", profile_name->JSON.Encode.string)]->Dict.fromArray
@@ -42,7 +44,12 @@ let parseBussinessProfileJson = (
   | Some(config) => config
   | None => BusinessProfileInterfaceUtilsV1.paymentLinkConfigMapper(Dict.make())
   }
-  let allowedDomains = paymentLinkConfig.allowed_domains->JSON.Decode.array->Option.getOr([])
+
+  let allowedDomains =
+    paymentLinkConfig.allowed_domains
+    ->Option.getOr(JSON.Encode.null)
+    ->LogicUtils.getArrayFromJson([])
+
   let allowedDomainsString =
     allowedDomains
     ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
@@ -50,7 +57,7 @@ let parseBussinessProfileJson = (
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfig,
-    allowed_domains: allowedDomainsString->JSON.Encode.string,
+    allowed_domains: Some(allowedDomainsString->JSON.Encode.string),
   }
 
   profileInfo->setOptionDict(
@@ -77,6 +84,11 @@ let parseBussinessProfileJson = (
 
   profileInfo->setOptionBool("is_auto_retries_enabled", is_auto_retries_enabled)
   profileInfo->setOptionInt("max_auto_retries_enabled", max_auto_retries_enabled)
+  profileInfo->setOptionString("is_external_vault_enabled", is_external_vault_enabled)
+  profileInfo->setOptionDict(
+    "external_vault_connector_details",
+    Some(external_vault_connector_details->Identity.genericTypeToDictOfJson),
+  )
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -166,12 +178,14 @@ let getPaymentLinkDomainPayload = (values: JSON.t) => {
 
   let paymentLinkConfigUpdated = {
     ...paymentLinkConfigTyped,
-    domain_name: paymentLinkConfig->getString("domain_name", ""),
-    allowed_domains: paymentLinkConfig
-    ->getString("allowed_domains", "")
-    ->String.split(",")
-    ->Array.map(domain => domain->String.trim->JSON.Encode.string)
-    ->JSON.Encode.array,
+    domain_name: paymentLinkConfig->getOptionString("domain_name"),
+    allowed_domains: Some(
+      paymentLinkConfig
+      ->getString("allowed_domains", "")
+      ->String.split(",")
+      ->Array.map(String.trim)
+      ->getJsonFromArrayOfString,
+    ),
   }
 
   paymentLinkDomainDict->setOptionDict(
@@ -346,6 +360,20 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "always_enable_overcapture",
     valuesDict->getOptionBool("always_enable_overcapture"),
   )
+  profileDetailsDict->setOptionString(
+    "is_external_vault_enabled",
+    valuesDict->getOptionString("is_external_vault_enabled"),
+  )
+  profileDetailsDict->setOptionDict(
+    "external_vault_connector_details",
+    !(valuesDict->getDictfromDict("external_vault_connector_details")->isEmptyDict)
+      ? Some(
+          valuesDict
+          ->getDictfromDict("external_vault_connector_details")
+          ->Identity.genericTypeToDictOfJson,
+        )
+      : None,
+  )
 
   let authenticationProductIds = valuesDict->getJsonObjectFromDict("authentication_product_ids")
   if !(authenticationProductIds->getDictFromJsonObject->isEmptyDict) {
@@ -455,6 +483,7 @@ let validationFieldsMapper = key => {
   | UnknownValidateFields(key) => key
   | MaxAutoRetries => "max_auto_retries_enabled"
   | ThreeDsRequestorAppUrl => "three_ds_requestor_app_url"
+  | VaultProcessorDetails => "is_external_vault_enabled"
   }
 }
 
@@ -591,12 +620,30 @@ let validateMerchantAccountForm = (
   fieldsToValidate->Array.forEach(key => {
     switch key {
     | MaxAutoRetries => {
-        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
-        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Int.toString) {
+        let isAutoRetryEnabled = getBool(valuesDict, "is_auto_retries_enabled", false)
+        let value = getFloat(valuesDict, key->validationFieldsMapper, 0.0)
+        if isAutoRetryEnabled && !RegExp.test(%re("/^(?:[1-5])$/"), value->Float.toString) {
           Dict.set(
             errors,
             key->validationFieldsMapper,
-            "Please enter integer value from 1 to 5"->JSON.Encode.string,
+            "Please enter an integer value from 1 to 5"->JSON.Encode.string,
+          )
+        }
+      }
+    | VaultProcessorDetails => {
+        let isExternalVaultEnabled =
+          getString(valuesDict, "is_external_vault_enabled", "")->getNonEmptyString
+        let vaultProcessorDetailsDict =
+          valuesDict->getDictfromDict("external_vault_connector_details")
+        let vaultConnectorId =
+          vaultProcessorDetailsDict
+          ->getString("vault_connector_id", "")
+          ->getNonEmptyString
+        if isExternalVaultEnabled == Some("enable") && vaultConnectorId == None {
+          Dict.set(
+            errors,
+            "vault_connector_id",
+            "Please select a vault connector"->JSON.Encode.string,
           )
         }
       }
@@ -725,6 +772,8 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
   always_enable_overcapture: None,
   billing_processor_id: None,
   payment_link_config: None,
+  is_external_vault_enabled: None,
+  external_vault_connector_details: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

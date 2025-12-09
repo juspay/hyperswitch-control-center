@@ -1,6 +1,13 @@
 open ReconEngineAccountsSourcesEntity
 
-let defaultColumns = [IngestionHistoryId, FileName, IngestionType, ReceivedAt, Status, Actions]
+let defaultColumns: array<ingestionHistoryColType> = [
+  IngestionHistoryId,
+  FileName,
+  IngestionType,
+  ReceivedAt,
+  Status,
+  Actions,
+]
 
 let ingestionHistoryTableEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(

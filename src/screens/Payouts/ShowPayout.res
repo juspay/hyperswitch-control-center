@@ -295,7 +295,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   React.useEffect(() => {
     fetchPayoutsData()->ignore
     None
-  }, [])
+  }, [id])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
@@ -321,7 +321,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion=[
             {
               title: "Customer Details",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <CustomerDetails payoutData />
               },
               renderContentOnTop: None,
@@ -332,7 +332,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion=[
             {
               title: "More Payout Details",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <MorePayoutDetails payoutData />
               },
               renderContentOnTop: None,
@@ -346,7 +346,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion=[
               {
                 title: "Payout Method Details",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={payoutData.payout_method_data
@@ -366,7 +366,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion=[
               {
                 title: "Payout Metadata",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={payoutData.metadata->JSON.stringifyAny->Option.getOr("")}

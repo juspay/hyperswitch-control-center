@@ -1,3 +1,5 @@
+open Typography
+
 module CopyTextCustomComp = {
   @react.component
   let make = (
@@ -134,19 +136,30 @@ module ConnectorCustomCell = {
     ~connectorName,
     ~connectorType: option<ConnectorTypes.connector>=?,
     ~customIconStyle="w-6 h-6 mr-2",
+    ~showDefaultTag=false,
   ) => {
     let connector_Type = switch connectorType {
     | Some(connectorType) => connectorType
     | None => ConnectorTypes.Processor
     }
     if connectorName->LogicUtils.isNonEmptyString {
-      <div className={`flex items-center flex-nowrap break-all whitespace-nowrap mr-6`}>
-        <GatewayIcon gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`} />
-        <div>
-          {connectorName
-          ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
-          ->React.string}
+      <div className="flex items-center">
+        <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-4">
+          <GatewayIcon
+            gateway={connectorName->String.toUpperCase} className={`${customIconStyle}`}
+          />
+          <div>
+            {connectorName
+            ->ConnectorUtils.getDisplayNameForConnector(~connectorType=connector_Type)
+            ->React.string}
+          </div>
         </div>
+        <RenderIf condition={showDefaultTag}>
+          <div
+            className={`border border-nd_gray-200 bg-nd_gray-50 px-2 py-2-px rounded-lg ${body.sm.semibold}`}>
+            {"Default"->React.string}
+          </div>
+        </RenderIf>
       </div>
     } else {
       "NA"->React.string
@@ -166,5 +179,40 @@ module ProfileNameComponent = {
         name: "NA",
       })
     <div className> {(name->LogicUtils.isNonEmptyString ? name : "NA")->React.string} </div>
+  }
+}
+
+module AutoSubmitter = {
+  @react.component
+  let make = (~autoApply, ~submit, ~defaultFilterKeys=[], ~submitInputOnEnter) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    React.useEffect(() => {
+      let onKeyDown = ev => {
+        let keyCode = ev->ReactEvent.Keyboard.keyCode
+        if keyCode === 13 && submitInputOnEnter {
+          form.submit()->ignore
+        }
+      }
+      Window.addEventListener("keydown", onKeyDown)
+      Some(() => Window.removeEventListener("keydown", onKeyDown))
+    }, [])
+
+    React.useEffect(() => {
+      if formState.dirty {
+        let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
+          formState.dirtyFields->Dict.get(key)->Option.getOr(false)
+        })
+        if autoApply || defaultFieldsHaveChanged {
+          submit(formState.values, 0)->ignore
+        }
+      }
+
+      None
+    }, [formState.values])
+
+    React.null
   }
 }

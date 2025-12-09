@@ -13,6 +13,11 @@ type authConnectorDetailsType_v1 = {
   three_ds_requestor_app_url: option<string>,
 }
 
+type externalVaultConnectorDetailsType_v1 = {
+  vault_connector_id: string,
+  vault_token_selector: option<array<JSON.t>>,
+}
+
 type profileEntityRequestType_v1 = {
   profile_name: string,
   return_url: option<JSON.t>,
@@ -36,6 +41,8 @@ type profileEntityRequestType_v1 = {
   always_request_extended_authorization: option<JSON.t>,
   is_manual_retry_enabled: option<JSON.t>,
   always_enable_overcapture: option<JSON.t>,
+  is_external_vault_enabled: option<string>,
+  external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
 }
 type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
 
@@ -46,37 +53,37 @@ type backgroundImage_v1 = {
 }
 
 type styleConfig_v1 = {
-  theme: string,
-  logo: string,
-  seller_name: string,
-  sdk_layout: string,
+  theme: option<string>,
+  logo: option<string>,
+  seller_name: option<string>,
+  sdk_layout: option<string>,
   display_sdk_only: option<bool>,
   enabled_saved_payment_method: option<bool>,
   hide_card_nickname_field: option<bool>,
   show_card_form_by_default: option<bool>,
-  transaction_details: JSON.t,
+  transaction_details: option<JSON.t>,
   background_image: option<backgroundImage_v1>,
   details_layout: option<string>,
-  payment_button_text: string,
-  custom_message_for_card_terms: string,
-  payment_button_colour: string,
+  payment_button_text: option<string>,
+  custom_message_for_card_terms: option<string>,
+  payment_button_colour: option<string>,
   skip_status_screen: option<bool>,
-  payment_button_text_colour: string,
-  background_colour: string,
-  sdk_ui_rules: JSON.t,
-  payment_link_ui_rules: JSON.t,
+  payment_button_text_colour: option<string>,
+  background_colour: option<string>,
+  sdk_ui_rules: option<JSON.t>,
+  payment_link_ui_rules: option<JSON.t>,
   enable_button_only_on_form_ready: option<bool>,
-  payment_form_header_text: string,
+  payment_form_header_text: option<string>,
   payment_form_label_type: option<string>,
   show_card_terms: option<string>,
   is_setup_mandate_flow: option<bool>,
-  color_icon_card_cvc_error: string,
+  color_icon_card_cvc_error: option<string>,
 }
 
 type paymentLinkConfig_v1 = {
-  domain_name: string,
-  allowed_domains: JSON.t,
-  business_specific_configs: JSON.t,
+  domain_name: option<string>,
+  allowed_domains: option<JSON.t>,
+  business_specific_configs: option<JSON.t>,
   branding_visibility: option<bool>,
   ...styleConfig_v1,
 }
@@ -110,4 +117,6 @@ type profileEntity_v1 = {
   always_enable_overcapture: option<bool>,
   billing_processor_id: option<string>,
   payment_link_config: option<paymentLinkConfig_v1>,
+  is_external_vault_enabled: option<string>,
+  external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
 }
