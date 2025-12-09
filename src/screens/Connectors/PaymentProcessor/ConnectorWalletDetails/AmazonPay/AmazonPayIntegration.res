@@ -41,7 +41,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     amazonPayFieldsArray
     ->Array.mapWithIndex((field, index) => {
       let amazonPayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={index->Int.toString}>
+      <div key={`${amazonPayField.name}_${index->Int.toString}`}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
           field={amazonPayValueInput(~amazonPayField, ~fill=textColor.primaryNormal)}
