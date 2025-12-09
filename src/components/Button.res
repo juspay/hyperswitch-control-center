@@ -394,7 +394,7 @@ let make = (
 
   let ellipsisClass = ellipsisOnly ? "truncate" : ""
   let ellipsisParentClass = ellipsisOnly
-    ? maxButtonWidth->LogicUtils.isNonEmptyString ? maxButtonWidth : "max-w-[250px] md:max-w-xs"
+    ? maxButtonWidth->LogicUtils.isNonEmptyString ? maxButtonWidth : "max-w-250 md:max-w-xs"
     : ""
 
   let iconSize = customIconSize->Option.getOr(
