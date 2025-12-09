@@ -44,16 +44,17 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     None
   }, [])
 
+  let closeModal = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   let onSubmit = () => {
     let metadata =
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
     closeAccordionFn()
     let _ = update(metadata)
     Nullable.null->Promise.resolve
-  }
-  let closeModal = () => {
-    onCloseClickCustomFun()
-    closeAccordionFn()
   }
 
   <div className="flex flex-col gap-6">

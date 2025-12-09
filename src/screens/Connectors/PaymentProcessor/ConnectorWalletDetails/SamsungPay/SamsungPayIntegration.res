@@ -128,7 +128,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     sectionHeight="!h-screen">
     <div className="flex flex-col gap-6 p-6">
       <div> {samsungPayFields} </div>
-      <div className={`flex gap-2  justify-end m-2 p-6`}>
+      <div className={`flex gap-2  justify-end`}>
         <Button
           text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
         />

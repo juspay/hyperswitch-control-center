@@ -137,7 +137,7 @@ module Landing = {
         <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
       | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
-      <div className={`flex gap-2 justify-end m-2 p-6`}>
+      <div className={`flex gap-2 justify-end`}>
         <Button
           text="Cancel"
           buttonType={Secondary}
@@ -221,6 +221,11 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }
 
+  let closeModal = () => {
+    onCloseClickCustomFun()
+    closeAccordionFn()
+  }
+
   React.useEffect(() => {
     if connector->String.length > 0 {
       switch connector->ConnectorUtils.getConnectorNameTypeFromString {
@@ -239,11 +244,6 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
     None
   }, [connector])
-
-  let closeModal = () => {
-    onCloseClickCustomFun()
-    closeAccordionFn()
-  }
 
   <PageLoaderWrapper
     screenState={screenState}

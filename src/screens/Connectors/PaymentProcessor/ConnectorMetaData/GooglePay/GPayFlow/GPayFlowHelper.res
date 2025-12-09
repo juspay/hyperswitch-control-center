@@ -62,13 +62,14 @@ module Landing = {
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
       }}
-      <div className={`flex gap-2 justify-end m-2 p-6`}>
+      <div className={`flex gap-2 justify-end`}>
         <Button
           text="Cancel"
           buttonType={Secondary}
           onClick={_ => {
             closeModal()
           }}
+          buttonSize={Small}
           customButtonStyle="w-full"
         />
         <Button
@@ -76,6 +77,7 @@ module Landing = {
           text="Continue"
           buttonType={Primary}
           customButtonStyle="w-full"
+          buttonSize={Small}
         />
       </div>
     </div>

@@ -46,7 +46,7 @@ let make = (~applePayFields, ~update, ~closeModal, ~closeAccordionFn, ~connector
 
   <div className="flex flex-col gap-6 p-6">
     <div> {applePayManualFields} </div>
-    <div className="w-full flex gap-2 justify-end p-6">
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}

@@ -64,7 +64,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     ->React.array
   <div className="flex flex-col gap-6 p-6">
     <div> {pazeInputFields} </div>
-    <div className={`flex gap-2  justify-end m-2 p-6`}>
+    <div className={`flex gap-2  justify-end`}>
       <Button
         text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
       />

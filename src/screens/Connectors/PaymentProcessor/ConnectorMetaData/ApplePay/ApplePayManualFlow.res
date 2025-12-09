@@ -296,7 +296,7 @@ let make = (
       </span>
     </div>
     <div> {applePayManualFields} </div>
-    <div className="w-full flex gap-2 justify-end p-6">
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}

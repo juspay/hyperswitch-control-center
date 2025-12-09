@@ -143,8 +143,8 @@ let make = (
       </div>
     })
     ->React.array
-  <>
-    <div className="flex gap-4 p-6">
+  <div className="p-6">
+    <div className="flex gap-4">
       <Icon
         name="nd-arrow-left "
         onClick={_ => {
@@ -198,7 +198,7 @@ let make = (
       | _ => React.null
       }}
     </RenderIf>
-    <div className="w-full flex gap-2 justify-end p-6">
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}
@@ -217,5 +217,5 @@ let make = (
         buttonState={formState.values->validateSimplifedFlow}
       />
     </div>
-  </>
+  </div>
 }
