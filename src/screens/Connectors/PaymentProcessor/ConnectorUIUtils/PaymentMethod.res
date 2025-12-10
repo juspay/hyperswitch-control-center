@@ -32,6 +32,7 @@ module CardRenderer = {
     ~connector,
     ~initialValues,
     ~setInitialValues,
+    ~isUpdateFlow,
     ~connectorType=Processor,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -210,7 +211,11 @@ module CardRenderer = {
       provider->Array.filter(val => checkIfAdditionalDetailsRequired(val))
 
     let initialOpenIndex = React.useMemo(() => {
-      methodsWithAdditionalDetails->Array.findIndex(value => isSelected(value))
+      if isUpdateFlow {
+        -1
+      } else {
+        methodsWithAdditionalDetails->Array.findIndex(value => isSelected(value))
+      }
     }, [])
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
@@ -384,6 +389,7 @@ module CardRenderer = {
             </RenderIf>
             <div className={`flex flex-col gap-4 `}>
               <Accordion
+                key={paymentMethod}
                 arrowPosition=Right
                 initialExpandedArray={[]}
                 initialOpenIndex
@@ -392,6 +398,7 @@ module CardRenderer = {
                     title: value.payment_method_type,
                     renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
                       <AdditionalDetailsSidebarComp
+                        key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
                         setMetaData
                         updateDetails
@@ -411,6 +418,10 @@ module CardRenderer = {
                     },
                     onItemExpandClick: () => {
                       removeOrAddMethods(value)
+
+                      if showSideModal(value.payment_method_type->getPaymentMethodTypeFromString) {
+                        setSelectedWallet(_ => value)
+                      }
                     },
                     renderContentOnTop: Some(
                       () => {
@@ -457,6 +468,7 @@ module PaymentMethodsRender = {
     ~isPayoutFlow,
     ~initialValues,
     ~setInitialValues,
+    ~isUpdateFlow,
     ~connectorType=Processor,
   ) => {
     let pmts = React.useMemo(() => {
@@ -485,6 +497,7 @@ module PaymentMethodsRender = {
               connector
               initialValues
               setInitialValues
+              isUpdateFlow
               connectorType
             />
           </div>
@@ -500,6 +513,7 @@ module PaymentMethodsRender = {
               connector
               initialValues
               setInitialValues
+              isUpdateFlow
               connectorType
             />
           </div>
