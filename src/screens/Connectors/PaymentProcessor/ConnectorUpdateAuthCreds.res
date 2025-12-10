@@ -44,6 +44,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     }
   }, [connectorInfo.merchant_connector_id])
   let {
+    bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
     connectorWebHookDetails,
@@ -52,16 +53,6 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   } = getConnectorFields(connectorDetails)
 
   let initialValues = React.useMemo(() => {
-    let authType = switch connectorInfo.connector_account_details {
-    | HeaderKey(authKeys) => authKeys.auth_type
-    | BodyKey(bodyKey) => bodyKey.auth_type
-    | SignatureKey(signatureKey) => signatureKey.auth_type
-    | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
-    | CertificateAuth(certificateAuth) => certificateAuth.auth_type
-    | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
-    | NoKey(noKeyAuth) => noKeyAuth.auth_type
-    | UnKnownAuthType(_) => ""
-    }
     [
       (
         "connector_type",
@@ -71,7 +62,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       ),
       (
         "connector_account_details",
-        [("auth_type", authType->JSON.Encode.string)]
+        [("auth_type", bodyType->JSON.Encode.string)]
         ->Dict.fromArray
         ->JSON.Encode.object,
       ),
