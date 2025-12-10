@@ -14,6 +14,8 @@ module CopyTextCustomComp = {
     ~customComponent=None,
   ) => {
     let showToast = ToastState.useShowToast()
+    
+    
 
     let copyVal = switch copyValue {
     | Some(val) => val

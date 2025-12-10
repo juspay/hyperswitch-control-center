@@ -12,6 +12,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   )
   let form = ReactFinalForm.useForm()
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+
   let samsungPayFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
@@ -81,6 +82,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     }
     None
   }, [connector])
+  
   let onSubmit = () => {
     update()
     setShowWalletConfigurationModal(_ => false)
