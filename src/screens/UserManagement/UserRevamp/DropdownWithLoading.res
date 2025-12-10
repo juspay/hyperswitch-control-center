@@ -99,6 +99,7 @@ let make = (
     }
   }, [keyValueFromForm])
 
+  let refDropdownState = ref(false)
   <Menu \"as"="div" className="relative inline-block text-left p-1">
     {_ => <>
       <Menu.Button className="w-full">
@@ -114,7 +115,12 @@ let make = (
             </div>
             <div
               className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"
-              onClick={_ => arrow ? () : onClickDropDownApi()->ignore}>
+              onClick={_ => {
+                refDropdownState.contents = !refDropdownState.contents
+                if refDropdownState.contents {
+                  onClickDropDownApi()->ignore
+                }
+              }}>
               <span
                 className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">
                 {buttonValue->React.string}
