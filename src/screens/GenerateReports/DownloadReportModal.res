@@ -53,6 +53,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
 
   let category = switch entityName {
   | V1(PAYMENT_REPORT) => "Payment"
+  | V1(PAYOUT_REPORT) => "Payout"
   | V1(REFUND_REPORT) => "Refund"
   | V1(DISPUTE_REPORT) => "Dispute"
   | _ => ""

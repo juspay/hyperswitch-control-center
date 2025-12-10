@@ -3,6 +3,24 @@ open LogicUtils
 open ReconEngineTypes
 open ReconEngineUtils
 
+let basicFieldMappingList: array<basicFieldType> = [
+  Currency,
+  Amount,
+  EffectiveAt,
+  BalanceDirection,
+  OrderId,
+]
+
+let getBasicFieldIdentifier = (fields: schemaFieldsType, fieldType: basicFieldType): string => {
+  switch fieldType {
+  | Currency => fields.currency.identifier
+  | Amount => fields.amount.identifier
+  | EffectiveAt => fields.effective_at.identifier
+  | BalanceDirection => fields.balance_direction.identifier
+  | OrderId => fields.order_id.identifier
+  }
+}
+
 let getTransformationConfigPayloadFromDict = dict => {
   dict->transformationConfigItemToObjMapper
 }
@@ -48,7 +66,8 @@ let getHealthyStatus = (~transformationHistoryList: array<transformationHistoryT
 ) => {
   let total = getTotalCount(~transformationHistoryList)->Int.toFloat
   let processed = getProcessedCount(~transformationHistoryList)->Int.toFloat
-  let percentage = total > 0.0 ? valueFormatter(processed *. 100.0 /. total, Rate) : "0%"
+  let percentage =
+    total > 0.0 ? CurrencyFormatUtils.valueFormatter(processed *. 100.0 /. total, Rate) : "0%"
 
   if percentage->Float.fromString >= Some(90.0) || total == 0.0 {
     (percentage, "Healthy", TableUtils.LabelGreen)
@@ -63,7 +82,7 @@ let getTransformationConfigData = (~config: transformationConfigType): array<
   let sourceConfigData: array<transformationConfigDataType> = [
     {
       label: TransformationId,
-      value: config.id,
+      value: config.transformation_id,
       valueType: #text,
     },
     {

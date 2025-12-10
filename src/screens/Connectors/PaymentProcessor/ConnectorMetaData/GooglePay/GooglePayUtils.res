@@ -13,6 +13,7 @@ let getCustomGateWayName = connector => {
   | Processors(GLOBALPAY) => "globalpayments"
   | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) => "cybersource"
   | Processors(FIUU) => "molpay"
+  | Processors(WORLDPAYXML) => "worldpay"
   | _ => connector
   }
 }
@@ -152,6 +153,12 @@ let validateGooglePay = (values, connector) => {
     merchantId->isNonEmptyString &&
     merchantName->isNonEmptyString &&
     tokenizationSpecificationDict->getString("stripe:publishableKey", "")->isNonEmptyString &&
+    allowedAuthMethodsArray->Array.length > 0
+      ? Button.Normal
+      : Button.Disabled
+  | Processors(BRAINTREE) =>
+    merchantId->isNonEmptyString &&
+    merchantName->isNonEmptyString &&
     allowedAuthMethodsArray->Array.length > 0
       ? Button.Normal
       : Button.Disabled

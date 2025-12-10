@@ -16,7 +16,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         </RenderIf>
       </>
     | Processors(NUVEI)
-    | Processors(WORLDPAYVANTIV) =>
+    | Processors(TESOURO) =>
       <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
     | _ => <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
     }}

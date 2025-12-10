@@ -14,7 +14,7 @@ module TabSwitch = {
     | Table => ("bg-white", "shadow-sm", "text-gray-700", "grid-table")
     }
 
-    <div className="bg-gray-100 p-1 rounded-xl flex flex-row gap-2 w-fit">
+    <div className="bg-gray-100 p-1 rounded-xl flex flex-row gap-2 w-fit mt-2">
       <div
         className={`rounded-lg px-3 py-2.5 transition-all duration-200 cursor-pointer ${icon1Bg} ${icon1Shadow}`}
         onClick={_ => setViewType(_ => Graph)}>

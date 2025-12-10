@@ -115,8 +115,8 @@ module ActiveSection = {
           </div>
         </div>
         <ACLButton
-          authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-          text="Manage"
+          authorization={userHasAccess(~groupAccess=WorkflowsView)}
+          text="View and Manage"
           buttonType=Secondary
           customButtonStyle="w-4/3"
           buttonSize={Small}
@@ -185,7 +185,7 @@ let make = (~routingType: array<JSON.t>) => {
   let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)

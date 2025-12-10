@@ -10,11 +10,12 @@ module CurrencyCell = {
 }
 
 let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(refunds.currency)
   switch refundsColType {
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(refunds.amount /. 100.0)->Float.toString} currency={refunds.currency}
+        amount={(refunds.amount /. conversionFactor)->Float.toString} currency={refunds.currency}
       />,
       "",
     )
@@ -45,11 +46,12 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
 }
 
 let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(attempt.currency)
   switch attemptColType {
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(attempt.amount /. 100.0)->Float.toString} currency={attempt.currency}
+        amount={(attempt.amount /. conversionFactor)->Float.toString} currency={attempt.currency}
       />,
       "",
     )
@@ -98,13 +100,15 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
 }
 
 let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderDetais.currency)
   switch frmColType {
   | PaymentId => Text(orderDetais.payment_id)
   | PaymentMethodType => Text(orderDetais.payment_method_type)
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(orderDetais.amount /. 100.0)->Float.toString} currency={orderDetais.currency}
+        amount={(orderDetais.amount /. conversionFactor)->Float.toString}
+        currency={orderDetais.currency}
       />,
       "",
     )
@@ -302,8 +306,8 @@ let defaultColumns: array<colType> = [
   Metadata,
   Created,
 ]
-
-let allColumns = [
+//Columns array for V1 Orders page
+let allColumnsV1 = [
   Amount,
   AmountCapturable,
   AuthenticationType,
@@ -327,6 +331,34 @@ let allColumns = [
   MerchantOrderReferenceId,
   AttemptCount,
   CardNetwork,
+]
+
+//Columns array for V2 Orders page
+let allColumnsV2 = [
+  Amount,
+  AmountCapturable,
+  AuthenticationType,
+  ProfileId,
+  CaptureMethod,
+  ClientSecret,
+  Connector,
+  ConnectorTransactionID,
+  Created,
+  Currency,
+  CustomerId,
+  Description,
+  Email,
+  MerchantId,
+  PaymentId,
+  PaymentMethod,
+  PaymentMethodType,
+  SetupFutureUsage,
+  Status,
+  Metadata,
+  MerchantOrderReferenceId,
+  AttemptCount,
+  CardNetwork,
+  PaymentType,
 ]
 
 let getHeading = (colType: colType) => {
@@ -382,6 +414,7 @@ let getHeading = (colType: colType) => {
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
   | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count")
+  | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
 
@@ -442,7 +475,7 @@ let getHeadingForSummary = summaryColType => {
 
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payment connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
@@ -509,12 +542,13 @@ let getHeadingForOtherDetails = otherDetailsColType => {
 }
 
 let getCellForSummary = (order, summaryColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   switch summaryColType {
   | Created => Date(order.created_at)
   | NetAmount =>
     CustomCell(
       <CurrencyCell
-        amount={(order.net_amount /. 100.0)->Float.toString} currency={order.currency}
+        amount={(order.net_amount /. conversionFactor)->Float.toString} currency={order.currency}
       />,
       "",
     )
@@ -524,7 +558,8 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
-        amount={(order.amount_captured /. 100.0)->Float.toString} currency={order.currency}
+        amount={(order.amount_captured /. conversionFactor)->Float.toString}
+        currency={order.currency}
       />,
       "",
     )
@@ -576,6 +611,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 }
 
 let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   let splittedName = order.name->Option.getOr("")->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
@@ -607,7 +643,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | ShippingPhone => Text(order.shippingPhone)
   | ShippingEmail => Text(order.shippingEmail)
   | BillingAddress => Text(order.billing)
-  | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
+  | AmountCapturable => Currency(order.amount_capturable /. conversionFactor, order.currency)
   | ErrorCode => Text(order.error.error_code)
   | MandateData => Text(order.mandate_data->Option.getOr(""))
   | FRMName => Text(order.frm_message.frm_name)
@@ -624,8 +660,15 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   }
 }
 
+let getAllColumns = (version: UserInfoTypes.version) =>
+  switch version {
+  | V1 => allColumnsV1
+  | V2 => allColumnsV2
+  }
+
 let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   open HelperComponents
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Metadata =>
@@ -672,11 +715,13 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     })
   | Amount =>
     CustomCell(
-      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
+      <CurrencyCell
+        amount={(order.amount /. conversionFactor)->Float.toString} currency={order.currency}
+      />,
       "",
     )
-  | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
-  | AmountReceived => Currency(order.amount_captured /. 100.0, order.currency)
+  | AmountCapturable => Currency(order.amount_capturable /. conversionFactor, order.currency)
+  | AmountReceived => Currency(order.amount_captured /. conversionFactor, order.currency)
   | ClientSecret => Text(order.client_secret)
   | Created => Date(order.created_at)
   | Currency => Text(order.currency)
@@ -731,6 +776,12 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
     }
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   | AttemptCount => Text(order.attempt_count->Int.toString)
+  | PaymentType =>
+    switch order.is_split_payment {
+    | Some(true) => Text("Split")
+    | Some(false) => Text("Standard")
+    | None => Text("N/A")
+    }
   }
 }
 
@@ -743,7 +794,7 @@ let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>
     ~uri=``,
     ~getObjects=getOrders,
     ~defaultColumns,
-    ~allColumns,
+    ~allColumns=getAllColumns(version),
     ~getHeading,
     ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",

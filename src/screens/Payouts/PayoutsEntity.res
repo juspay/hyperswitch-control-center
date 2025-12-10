@@ -167,7 +167,8 @@ let getAttemptHeading = colType => {
   }
 }
 
-let getAttemptCell = (attemptData, colType): Table.cell => {
+let getAttemptCell = (attemptData: payoutAttempts, colType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(attemptData.currency)
   switch colType {
   | AttemptId => DisplayCopyCell(attemptData.attempt_id)
   | Status =>
@@ -188,7 +189,8 @@ let getAttemptCell = (attemptData, colType): Table.cell => {
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(attemptData.amount /. 100.0)->Float.toString} currency={attemptData.currency}
+        amount={(attemptData.amount /. conversionFactor)->Float.toString}
+        currency={attemptData.currency}
       />,
       "",
     )
@@ -381,6 +383,7 @@ let getHeading = (colType: payoutsColType) => {
 }
 
 let getCell = (payoutData, colType: payoutsColType, merchantId, orgId): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(payoutData.currency)
   switch colType {
   | PayoutId =>
     CustomCell(
@@ -404,7 +407,8 @@ let getCell = (payoutData, colType: payoutsColType, merchantId, orgId): Table.ce
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(payoutData.amount /. 100.0)->Float.toString} currency={payoutData.currency}
+        amount={(payoutData.amount /. conversionFactor)->Float.toString}
+        currency={payoutData.currency}
       />,
       "",
     )
@@ -560,11 +564,14 @@ module CurrencyCell = {
   }
 }
 let getCellForSummary = (order, summaryColType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
   switch summaryColType {
   | Created => Date(order.created)
   | AmountReceived =>
     CustomCell(
-      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
+      <CurrencyCell
+        amount={(order.amount /. conversionFactor)->Float.toString} currency={order.currency}
+      />,
       "",
     )
 
@@ -608,7 +615,7 @@ let getHeadingForSummary = summaryColType => {
 
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payout connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")

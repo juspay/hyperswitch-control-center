@@ -2,6 +2,7 @@ type pageStateType = Loading | Failed | Success | NoData
 
 open LogicUtils
 open DynamicSingleStat
+open CurrencyFormatUtils
 
 open HSAnalyticsUtils
 open AnalyticsTypes
@@ -60,7 +61,7 @@ let percentFormat = value => {
 }
 
 let getWeeklySR = dict => {
-  switch dict->LogicUtils.getOptionFloat(WeeklySuccessRate->colMapper) {
+  switch dict->getOptionFloat(WeeklySuccessRate->colMapper) {
   | Some(val) => val->percentFormat
   | _ => "NA"
   }
@@ -143,14 +144,16 @@ let getCell = (paymentTable, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
     shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(paymentTable.currency)
 
   switch colType {
   | SuccessRate => Numeric(paymentTable.payment_success_rate, percentFormat)
   | Count => Numeric(paymentTable.payment_count, usaNumberAbbreviation)
   | SuccessCount => Numeric(paymentTable.payment_success_count, usaNumberAbbreviation)
   | ProcessedAmount =>
-    Numeric(paymentTable.payment_processed_amount /. 100.00, usaNumberAbbreviation)
-  | AvgTicketSize => Numeric(paymentTable.avg_ticket_size /. 100.00, usaNumberAbbreviation)
+    Numeric(paymentTable.payment_processed_amount /. conversionFactor, usaNumberAbbreviation)
+  | AvgTicketSize =>
+    Numeric(paymentTable.avg_ticket_size /. conversionFactor, usaNumberAbbreviation)
   | Connector => Text(paymentTable.connector)
   | PaymentMethod => Text(paymentTable.payment_method)
   | PaymentMethodType => Text(paymentTable.payment_method_type)
@@ -168,7 +171,7 @@ let getCell = (paymentTable, colType): Table.cell => {
 
 let getPaymentTable: JSON.t => array<paymentTableType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -306,7 +309,9 @@ let compareLogic = (firstValue, secondValue) => {
 let constructData = (
   key,
   singlestatTimeseriesData: array<AnalyticsTypes.paymentsSingleStateSeries>,
+  currency,
 ) => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
   switch key {
   | "payment_success_rate" =>
     singlestatTimeseriesData
@@ -327,14 +332,14 @@ let constructData = (
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_processed_amount /. 100.00,
+      ob.payment_processed_amount /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "payment_avg_ticket_size" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_avg_ticket_size /. 100.00,
+      ob.payment_avg_ticket_size /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "retries_count" =>
@@ -346,7 +351,7 @@ let constructData = (
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.retries_amount_processe /. 100.00,
+      ob.retries_amount_processe /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "connector_success_rate" =>
@@ -364,6 +369,9 @@ let getStatData = (
   colType,
   _mode,
 ) => {
+  let currency = singleStatData.currency
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+  let precisionDigits = CurrencyUtils.getAmountPrecisionDigits(currency)
   switch colType {
   | SuccessRate => {
       title: "Overall Success Rate",
@@ -376,7 +384,7 @@ let getStatData = (
       delta: {
         singleStatData.payment_success_rate
       },
-      data: constructData("payment_success_rate", timeSeriesData),
+      data: constructData("payment_success_rate", timeSeriesData, currency),
       statType: "Rate",
       showDelta: false,
     }
@@ -391,7 +399,7 @@ let getStatData = (
       delta: {
         singleStatData.payment_count->Int.toFloat
       },
-      data: constructData("payment_count", timeSeriesData),
+      data: constructData("payment_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
@@ -405,10 +413,13 @@ let getStatData = (
       value: singleStatData.payment_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.payment_success_count->Int.toFloat, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.payment_success_count->Int.toFloat,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("payment_success_count", timeSeriesData),
+      data: constructData("payment_success_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
@@ -416,16 +427,19 @@ let getStatData = (
       title: `Processed Amount`,
       tooltipText: "Sum of amount of all payments with status = succeeded (Please note that there could be payments which could be authorized but not captured. Such payments are not included in the processed amount, because non-captured payments will not be settled to your merchant account by your payment processor)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_processed_amount /. 100.00,
+        singleStatData.payment_processed_amount /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_processed_amount /. 100.00,
+      value: singleStatData.payment_processed_amount /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.payment_processed_amount /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.payment_processed_amount /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("payment_processed_amount", timeSeriesData),
+      data: constructData("payment_processed_amount", timeSeriesData, currency),
       statType: "Amount",
       showDelta: false,
       label: singleStatData.currency,
@@ -434,16 +448,19 @@ let getStatData = (
       title: `Avg Ticket Size`,
       tooltipText: "The total amount for which payments were created divided by the total number of payments created.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_avg_ticket_size /. 100.00,
+        singleStatData.payment_avg_ticket_size /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_avg_ticket_size /. 100.00,
+      value: singleStatData.payment_avg_ticket_size /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.payment_avg_ticket_size /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.payment_avg_ticket_size /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("payment_avg_ticket_size", timeSeriesData),
+      data: constructData("payment_avg_ticket_size", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
       label: singleStatData.currency,
@@ -459,7 +476,7 @@ let getStatData = (
       delta: {
         singleStatData.retries_count->Int.toFloat
       },
-      data: constructData("retries_count", timeSeriesData),
+      data: constructData("retries_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
@@ -474,7 +491,7 @@ let getStatData = (
       delta: {
         singleStatData.retries_count->Int.toFloat
       },
-      data: constructData("retries_count", timeSeriesData),
+      data: constructData("retries_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
@@ -482,16 +499,19 @@ let getStatData = (
       title: `Smart Retries Savings`,
       tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.retries_amount_processe /. 100.00,
+        singleStatData.retries_amount_processe /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.retries_amount_processe /. 100.00,
+      value: singleStatData.retries_amount_processe /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.retries_amount_processe /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.retries_amount_processe /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("retries_amount_processe", timeSeriesData),
+      data: constructData("retries_amount_processe", timeSeriesData, currency),
       statType: "Amount",
       showDelta: false,
     }
@@ -506,7 +526,7 @@ let getStatData = (
       delta: {
         singleStatData.connector_success_rate
       },
-      data: constructData("connector_success_rate", timeSeriesData),
+      data: constructData("connector_success_rate", timeSeriesData, currency),
       statType: "Rate",
       showDelta: false,
     }

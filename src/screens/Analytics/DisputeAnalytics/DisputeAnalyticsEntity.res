@@ -2,7 +2,7 @@ type pageStateType = Loading | Failed | Success | NoData
 
 open LogicUtils
 open DynamicSingleStat
-
+open CurrencyFormatUtils
 open HSAnalyticsUtils
 open AnalyticsTypes
 let domain = "disputes"
@@ -37,7 +37,7 @@ let distribution =
   [
     ("distributionFor", "dispute_error_message"->JSON.Encode.string),
     ("distributionCardinality", "TOP_5"->JSON.Encode.string),
-  ]->LogicUtils.getJsonFromArrayOfJson
+  ]->getJsonFromArrayOfJson
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
   {
@@ -82,7 +82,7 @@ let getCell = (disputeTable: disputeTableType, colType): Table.cell => {
 
 let getDisputeTable: JSON.t => array<disputeTableType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
