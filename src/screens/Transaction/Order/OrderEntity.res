@@ -670,14 +670,12 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | ExtendedAuthLastAppliedAt => Date(order.extended_auth_last_applied_at->Option.getOr("N/A"))
   | ExtendedAuthApplied =>
     switch order.extended_auth_applied {
-    | Some(true) => Text("True")
-    | Some(false) => Text("False")
+    | Some(val) => Text(val->getStringFromBool)
     | None => Text("N/A")
     }
   | RequestExtendedAuth =>
     switch order.request_extended_auth {
-    | Some(true) => Text("True")
-    | Some(false) => Text("False")
+    | Some(val) => Text(val->getStringFromBool)
     | None => Text("N/A")
     }
   }
