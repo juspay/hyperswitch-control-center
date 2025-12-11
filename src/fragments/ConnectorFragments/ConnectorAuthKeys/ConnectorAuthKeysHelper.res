@@ -157,14 +157,6 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
-    let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
-    let (country, setSelectedCountry) = React.useState(_ => "")
-    let selectedCountry = country => {
-      setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
-      setSelectedCountry(_ => country)
-    }
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -188,46 +180,48 @@ module CashToCodeSelectBox = {
       ->Option.isNone
     }
 
-    <div>
-      {opts
-      ->Array.mapWithIndex((country, index) => {
-        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
-          <div onClick={_ => selectedCountry(country)}>
-            <CheckBoxIcon isSelected={country->isSelected} />
-          </div>
-          <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
-        </div>
-      })
-      ->React.array}
-      <Modal
-        modalHeading={`Additional Details to enable`}
-        headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-        showModal={showWalletConfigurationModal}
-        setShowModal={setShowWalletConfigurationModal}
-        paddingClass=""
-        revealFrom=Reveal.Right
-        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-        childClass={""}>
-        <div>
-          <RenderConnectorInputFields
-            details={dict
-            ->getDictfromDict(country)
-            ->getDictfromDict(
-              (selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase,
-            )}
-            name={`connector_account_details.auth_key_map.${country}`}
-            connector
-            selectedConnector
-          />
-          <div className="flex flex-col justify-center mt-4">
-            <Button
-              text={"Proceed"}
-              buttonType=Primary
-              onClick={_ => setShowWalletConfigurationModal(_ => false)}
+    let accordionItems = opts->Array.map(country => {
+      let countryTitle = country->snakeToTitle
+      let isCountrySelected = country->isSelected
+      let accordionItem: Accordion.accordion = {
+        title: "",
+        renderContentOnTop: Some(
+          () =>
+            <div className="flex items-center gap-3 w-full">
+              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <span className="font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme">
+                {countryTitle->React.string}
+              </span>
+            </div>,
+        ),
+        renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+          <div className="p-4 pt-2">
+            <RenderConnectorInputFields
+              details={dict
+              ->getDictfromDict(country)
+              ->getDictfromDict(
+                (selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase,
+              )}
+              name={`connector_account_details.auth_key_map.${country}`}
+              connector
+              selectedConnector
             />
-          </div>
-        </div>
-      </Modal>
+          </div>,
+      }
+      accordionItem
+    })
+
+    <div className="w-full">
+      <Accordion
+        accordion=accordionItems
+        accordianTopContainerCss="mt-4 rounded-lg"
+        accordianBottomContainerCss="p-4"
+        contentExpandCss="px-0 py-0"
+        titleStyle="font-medium text-base text-jp-gray-700 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100"
+        accordionHeaderTextClass="flex-1"
+        gapClass="space-y-3"
+        arrowPosition=Right
+      />
     </div>
   }
 }
