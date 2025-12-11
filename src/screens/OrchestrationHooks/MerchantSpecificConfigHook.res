@@ -15,8 +15,8 @@
  */
 type useMerchantSpecificConfig = {
   fetchMerchantSpecificConfig: unit => promise<unit>,
-  useIsFeatureEnabledForDenyListMerchant: FeatureFlagUtils.config => bool,
-  useIsFeatureEnabledForAllowListMerchant: FeatureFlagUtils.config => bool,
+  isFeatureEnabledForDenyListMerchant: FeatureFlagUtils.config => bool,
+  isFeatureEnabledForAllowListMerchant: FeatureFlagUtils.config => bool,
   merchantSpecificConfig: FeatureFlagUtils.merchantSpecificConfig,
 }
 
@@ -48,13 +48,13 @@ let useMerchantSpecificConfig = () => {
       }
     }
   }
-  let useIsFeatureEnabledForDenyListMerchant = (config: FeatureFlagUtils.config) => {
+  let isFeatureEnabledForDenyListMerchant = (config: FeatureFlagUtils.config) => {
     config.orgId->Option.isNone &&
     config.merchantId->Option.isNone &&
     config.profileId->Option.isNone
   }
 
-  let useIsFeatureEnabledForAllowListMerchant = (config: FeatureFlagUtils.config) => {
+  let isFeatureEnabledForAllowListMerchant = (config: FeatureFlagUtils.config) => {
     config.orgId->Option.isSome ||
     config.merchantId->Option.isSome ||
     config.profileId->Option.isSome
@@ -62,8 +62,8 @@ let useMerchantSpecificConfig = () => {
 
   {
     fetchMerchantSpecificConfig,
-    useIsFeatureEnabledForDenyListMerchant,
-    useIsFeatureEnabledForAllowListMerchant,
+    isFeatureEnabledForDenyListMerchant,
+    isFeatureEnabledForAllowListMerchant,
     merchantSpecificConfig,
   }
 }
