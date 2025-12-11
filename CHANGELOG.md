@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.11.0
+
+### Bug Fixes
+
+- Responsive-css-fix-invite-user ([#3956](https://github.com/juspay/hyperswitch-control-center/pull/3956)) ([`053c646`](https://github.com/juspay/hyperswitch-control-center/commit/053c6460009150e64269136411ef41aa2051f7e3))
+- Sidebar testing bugfixes ([#3957](https://github.com/juspay/hyperswitch-control-center/pull/3957)) ([`6ea88a2`](https://github.com/juspay/hyperswitch-control-center/commit/6ea88a2ea7e8437c7fe9280e15783d42e044e9d5))
+
+### Miscellaneous Tasks
+
+- Rename "Preferred connector" label ([#3970](https://github.com/juspay/hyperswitch-control-center/pull/3970)) ([`71f7ff8`](https://github.com/juspay/hyperswitch-control-center/commit/71f7ff85db876b420a4193877f367f585b1c2b99))
+- Renamed whitelist and blacklist in codebase ([#3928](https://github.com/juspay/hyperswitch-control-center/pull/3928)) ([`7cf2aa4`](https://github.com/juspay/hyperswitch-control-center/commit/7cf2aa4de8d80e269041ee87937b7ccd753d1032))
+
+**Full Changelog:** [`2025.12.10.0...2025.12.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.10.0...2025.12.11.0)
+
+- - -
+
+## 2025.12.10.0
+
+### Features
+
+- WASM changes for googlepay for WorldpayWPG ([#3960](https://github.com/juspay/hyperswitch-control-center/pull/3960)) ([`6fdaf23`](https://github.com/juspay/hyperswitch-control-center/commit/6fdaf2303a4d57e364dc3ab00726d3ba317bab04))
+- Enable ctp visa in prod ([#3963](https://github.com/juspay/hyperswitch-control-center/pull/3963)) ([`1dbc3f7`](https://github.com/juspay/hyperswitch-control-center/commit/1dbc3f7d0bc41da723e74f660a201ca3608f4a77))
+- Add Volt WASM Changes ([#3968](https://github.com/juspay/hyperswitch-control-center/pull/3968)) ([`498ea4e`](https://github.com/juspay/hyperswitch-control-center/commit/498ea4e947d81eb74a21e3745affbfb166e2196b))
+- Update custom gateway name for google pay decryption flow for WorldpayWPG ([#3954](https://github.com/juspay/hyperswitch-control-center/pull/3954)) ([`41cde5f`](https://github.com/juspay/hyperswitch-control-center/commit/41cde5f464398780a6844c2f291e4a9e7491c05a))
+
+### Bug Fixes
+
+- Connector update - not picking `auth_type` from wasm ([#3962](https://github.com/juspay/hyperswitch-control-center/pull/3962)) ([`e323a91`](https://github.com/juspay/hyperswitch-control-center/commit/e323a91a60926cf8bcb6e14fec2d0f2840a34a4f))
+
+### Miscellaneous Tasks
+
+- Use hyperswitch nightly tag for cypress tests ([#3965](https://github.com/juspay/hyperswitch-control-center/pull/3965)) ([`e003f33`](https://github.com/juspay/hyperswitch-control-center/commit/e003f3318b8f2a8222b90e171e51f181d74b6dc0))
+- Remove address column in customers page ([#3825](https://github.com/juspay/hyperswitch-control-center/pull/3825)) ([`07624a6`](https://github.com/juspay/hyperswitch-control-center/commit/07624a6dc1920237328e6edc89beb7185c4b0e47))
+
+**Full Changelog:** [`2025.12.08.0...2025.12.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.08.0...2025.12.10.0)
+
+- - -
+
 ## 2025.12.08.0
 
 ### Features
