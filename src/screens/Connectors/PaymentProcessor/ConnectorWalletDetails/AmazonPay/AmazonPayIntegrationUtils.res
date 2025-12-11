@@ -39,9 +39,5 @@ let validateAmazonPay = (json: JSON.t) => {
   let isMerchantIdValid = merchant_id->isNonEmptyString
   let isStoreIdValid = store_id->isNonEmptyString
 
-  if isMerchantIdValid && isStoreIdValid {
-    Button.Normal
-  } else {
-    Button.Disabled
-  }
+  isMerchantIdValid && isStoreIdValid ? Button.Normal : Button.Disabled
 }
