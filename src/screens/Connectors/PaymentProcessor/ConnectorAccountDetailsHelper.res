@@ -208,7 +208,7 @@ module CashToCodeSelectBox = {
           () =>
             <div className="flex items-center gap-3 w-full">
               <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
-              <span className={`${body.md.semibold}text-nd-gray-700`}>
+              <span className={`${body.sm.semibold} text-nd-gray-600`}>
                 {countryTitle->React.string}
               </span>
             </div>,
@@ -236,7 +236,7 @@ module CashToCodeSelectBox = {
         accordianTopContainerCss="mt-4 rounded-lg"
         accordianBottomContainerCss="p-4"
         contentExpandCss="px-0 py-0"
-        titleStyle="font-medium text-base text-jp-gray-700 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100"
+        titleStyle={`${body.sm.semibold} text-nd-gray-600 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100`}
         accordionHeaderTextClass="flex-1"
         gapClass="space-y-3"
         arrowPosition=Right
