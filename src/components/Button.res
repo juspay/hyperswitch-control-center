@@ -293,6 +293,7 @@ let make = (
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
   ~dataTestId="",
+  ~maxButtonWidth="",
 ) => {
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
@@ -392,7 +393,9 @@ let make = (
   )
 
   let ellipsisClass = ellipsisOnly ? "truncate" : ""
-  let ellipsisParentClass = ellipsisOnly ? "max-w-[250px] md:max-w-xs" : ""
+  let ellipsisParentClass = ellipsisOnly
+    ? maxButtonWidth->LogicUtils.isNonEmptyString ? maxButtonWidth : "max-w-250 md:max-w-xs"
+    : ""
 
   let iconSize = customIconSize->Option.getOr(
     switch buttonSize {
