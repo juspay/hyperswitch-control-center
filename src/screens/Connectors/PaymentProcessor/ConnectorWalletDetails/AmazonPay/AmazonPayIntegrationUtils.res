@@ -36,8 +36,8 @@ let validateAmazonPay = (json: JSON.t) => {
     ->getDictfromDict("amazon_pay")
     ->amazonPayRequestDictToTypeMapper
 
-  let isMerchantIdValid = merchant_id->String.length > 0
-  let isStoreIdValid = store_id->String.length > 0
+  let isMerchantIdValid = merchant_id->isNonEmptyString
+  let isStoreIdValid = store_id->isNonEmptyString
 
   if isMerchantIdValid && isStoreIdValid {
     Button.Normal
