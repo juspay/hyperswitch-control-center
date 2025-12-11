@@ -356,11 +356,9 @@ let validateNumericField = (num, field) => {
   | CARD_BIN | EXTENDED_CARD_BIN =>
     let requiredLength = fieldType == CARD_BIN ? 6 : 8
     let numAsInt = num->Float.toInt
-    let numAsFloat = numAsInt->Int.toFloat
-    let isInteger = numAsFloat == num
     let hasCorrectLength = numAsInt->Int.toString->String.length == requiredLength
 
-    num >= 0.0 && isInteger && hasCorrectLength
+    num >= 0.0 && hasCorrectLength
   | OTHER => num >= 0.0
   }
 }
