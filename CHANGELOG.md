@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.12.0
+
+### Miscellaneous Tasks
+
+- Rename merchant config whitelist blacklist functions ([#3979](https://github.com/juspay/hyperswitch-control-center/pull/3979)) ([`46ccf1f`](https://github.com/juspay/hyperswitch-control-center/commit/46ccf1f65f97b3f387214f05d85cbc6b01953bef))
+- Allowlist feature support in new sidebar ([#3978](https://github.com/juspay/hyperswitch-control-center/pull/3978)) ([`bbc236f`](https://github.com/juspay/hyperswitch-control-center/commit/bbc236f3589d87275329c42e755fb4aac2ec6893))
+
+**Full Changelog:** [`2025.12.11.0...2025.12.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.11.0...2025.12.12.0)
+
+- - -
+
 ## 2025.12.11.0
 
 ### Bug Fixes
