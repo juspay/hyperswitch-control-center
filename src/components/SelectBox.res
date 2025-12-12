@@ -1719,6 +1719,7 @@ module BaseDropdown = {
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
+    ~maxButtonWidth="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -2087,6 +2088,7 @@ module BaseDropdown = {
                           ?allowButtonTextMinWidth
                           ?textStyleClass
                           showBtnTextToolTip
+                          maxButtonWidth
                         />}
                       </div>
                     </AddDataAttributes>
@@ -2414,6 +2416,7 @@ let make = (
   ~customScrollStyle=?,
   ~shouldDisplaySelectedOnTop=false,
   ~placeholderCss="",
+  ~maxButtonWidth="",
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2488,6 +2491,7 @@ let make = (
       ?customScrollStyle
       shouldDisplaySelectedOnTop
       placeholderCss
+      maxButtonWidth
     />
   } else if allowMultiSelect {
     <BaseSelect

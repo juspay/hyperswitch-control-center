@@ -49,7 +49,7 @@ module SidebarOption = {
     let iconColor = isSelected ? `${primaryTextColor}` : `${secondaryTextColor}`
 
     if isSidebarExpanded {
-      <div className="flex items-center gap-2 px-3 py-1.5">
+      <div className="flex items-center gap-5 px-3 py-1.5">
         <RenderIf condition={showIcon}>
           <Icon size=18 name=icon className={iconColor} />
         </RenderIf>
@@ -285,6 +285,7 @@ module NestedSectionItem = {
     ~product,
     ~section: sectionType,
     ~isSectionExpanded,
+    ~isAnySubItemSelected,
     ~textColor,
     ~cursor,
     ~toggleSectionExpansion,
@@ -293,13 +294,23 @@ module NestedSectionItem = {
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
     ~onItemClickCustom,
+    ~showIcon=false,
   ) => {
-    let {globalUIConfig: {sidebarColor: {secondaryTextColor, hoverColor}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
+    let {
+      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
+    } = React.useContext(ThemeProvider.themeContext)
+    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {devSidebarV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
     let sidebarNestedSectionRef = React.useRef(Nullable.null)
     let sectionExpandedAnimation = "rounded-lg transition duration-[250ms] ease-in-out"
+
+    let iconColor = isAnySubItemSelected ? `${primaryTextColor}` : `${secondaryTextColor}`
+    let iconOuterClass = !isSideBarExpanded ? "p-4 rounded-lg" : ""
+    let iconName = isAnySubItemSelected
+      ? section.selectedIcon->Option.getOr(section.icon)
+      : section.icon
 
     <AddDataAttributes
       attributes=[
@@ -313,8 +324,16 @@ module NestedSectionItem = {
               : sectionExpandedAnimation} ${hoverColor}`}
           onClick=toggleSectionExpansion>
           <div className="flex-row items-center select-none min-w-max flex gap-5">
+            <RenderIf condition={showIcon}>
+              <div className={`${isSideBarExpanded ? iconOuterClass : ""}`}>
+                <Icon size=18 name=iconName className=iconColor />
+              </div>
+            </RenderIf>
             <RenderIf condition={isSideBarExpanded}>
-              <div className={`${body.md.medium} ${expandedTextColor} whitespace-nowrap ml-3`}>
+              <div
+                className={`${body.md.medium} ${expandedTextColor} whitespace-nowrap ${showIcon
+                    ? ""
+                    : "ml-3"}`}>
                 {React.string(section.name)}
               </div>
             </RenderIf>
@@ -332,7 +351,9 @@ module NestedSectionItem = {
         <RenderIf condition={isElementShown}>
           <div className="flex flex-1 w-full mt-2">
             <div className="w-8" />
-            <div className="border-l border-nd_gray-200" />
+            <RenderIf condition={devSidebarV2 && !isInternalUser}>
+              <div className="border-l border-nd_gray-200" />
+            </RenderIf>
             <div className="flex flex-col gap-2 w-full leading-20">
               {section.links
               ->Array.mapWithIndex((subLevelItem, index) => {
@@ -368,6 +389,7 @@ module SidebarNestedSection = {
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
     ~onItemClickCustom,
+    ~showIcon=false,
   ) => {
     let {globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor}}} = React.useContext(
       ThemeProvider.themeContext,
@@ -472,6 +494,8 @@ module SidebarNestedSection = {
         isSubLevelItemSelected
         isSideBarExpanded
         onItemClickCustom
+        isAnySubItemSelected
+        showIcon
       />
     </RenderIf>
   }
@@ -602,7 +626,7 @@ let make = (
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2} =
+  let {devModularityV2, devSidebarV2, devTheme} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -712,6 +736,7 @@ let make = (
   }
 
   let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
+  let isThemeSelected = linkSelectionCheck(firstPart, "/theme")
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
@@ -762,6 +787,7 @@ let make = (
                         isSelected
                         isSidebarExpanded
                         setOpenItem
+                        showIcon=true
                       />
                     }
                   | LinkWithTag(record) => {
@@ -787,6 +813,7 @@ let make = (
                         setOpenItem
                         isSectionAutoCollapseEnabled=true
                         onItemClickCustom=None
+                        showIcon=true
                       />
                     </RenderIf>
                   | Heading(headingOptions) =>
@@ -824,7 +851,7 @@ let make = (
                           isSidebarExpanded
                           setOpenItem
                           onItemClickCustom={_ => onItemClickCustom(record)}
-                          showIcon={!devSidebarV2}
+                          showIcon=true
                         />
                       }
                     | _ => React.null
@@ -856,6 +883,22 @@ let make = (
                       />
                     </div>
                   </Link>
+                  <RenderIf condition={devTheme}>
+                    <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                      <div
+                        className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
+                            ? "bg-sidebar-hoverColor"
+                            : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                        <SidebarOption
+                          name="Theme"
+                          icon="nd-color-palette"
+                          isSidebarExpanded
+                          isSelected={isThemeSelected}
+                          showIcon=true
+                        />
+                      </div>
+                    </Link>
+                  </RenderIf>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
                   </div>

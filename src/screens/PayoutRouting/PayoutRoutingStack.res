@@ -13,6 +13,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
@@ -20,25 +21,30 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
-    [
+    let hasWorkflowsManageAccess = userHasAccess(~groupAccess=WorkflowsManage) === Access
+    let baseTabs = [
       {
         title: "Active configuration",
         renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
-      {
-        title: "Manage rules",
-        renderContent: () => {
-          records->Array.length > 0
-            ? <PayoutHistoryTable records activeRoutingIds />
-            : <DefaultLandingPage
-                height="90%"
-                title="No Routing Rule Configured!"
-                customStyle="py-16"
-                overriddingStylesTitle="text-3xl font-semibold"
-              />
-        },
-      },
     ]
+    hasWorkflowsManageAccess
+      ? baseTabs->Array.concat([
+          {
+            title: "Manage rules",
+            renderContent: () => {
+              records->Array.length > 0
+                ? <PayoutHistoryTable records activeRoutingIds />
+                : <DefaultLandingPage
+                    height="90%"
+                    title="No Routing Rule Configured!"
+                    customStyle="py-16"
+                    overriddingStylesTitle="text-3xl font-semibold"
+                  />
+            },
+          },
+        ])
+      : baseTabs
   }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {

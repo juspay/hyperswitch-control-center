@@ -36,11 +36,11 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     devTheme,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForBlackListMerchant,
+    isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
 
   [
     default->home,

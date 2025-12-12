@@ -512,10 +512,12 @@ module ConfigureRuleButton = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-    <Button
+    <ACLButton
       text={"Configure Rule"}
       buttonType=Primary
+      authorization={userHasAccess(~groupAccess=WorkflowsManage)}
       buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
       onClick={_ => {
         setShowModal(_ => true)
@@ -534,6 +536,7 @@ module SaveAndActivateButton = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let handleSaveAndActivate = async _ => {
       try {
@@ -548,9 +551,10 @@ module SaveAndActivateButton = {
         let _err = Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
       }
     }
-    <Button
+    <ACLButton
       text={"Save and Activate Rule"}
       buttonType={Primary}
+      authorization={userHasAccess(~groupAccess=WorkflowsManage)}
       buttonSize=Button.Small
       onClick={_ => {
         handleSaveAndActivate()->ignore
