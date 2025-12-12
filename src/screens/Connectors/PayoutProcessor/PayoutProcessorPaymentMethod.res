@@ -124,6 +124,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
               isPayoutFlow=true
               initialValues
               setInitialValues
+              isUpdateFlow
               connectorType=PayoutProcessor
             />
           </div>

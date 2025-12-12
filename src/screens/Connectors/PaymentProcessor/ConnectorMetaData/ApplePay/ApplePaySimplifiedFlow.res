@@ -6,11 +6,14 @@ let make = (
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
   ~connector,
+  ~appleIntegrationType,
 ) => {
   open LogicUtils
   open APIUtils
   open ApplePayIntegrationHelper
   open ApplePayIntegrationUtils
+  open Typography
+
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
@@ -140,7 +143,19 @@ let make = (
       </div>
     })
     ->React.array
-  <>
+  <div className="p-6">
+    <div className="flex gap-4">
+      <Icon
+        name="nd-arrow-left "
+        onClick={_ => {
+          setApplePayIntegrationSteps(_ => Landing)
+        }}
+        className="cursor-pointer"
+      />
+      <span className={body.lg.semibold}>
+        {appleIntegrationType->getHeadingBasedOnApplePayFlow->React.string}
+      </span>
+    </div>
     <SimplifiedHelper
       customElement={applePaySimplifiedFields}
       heading="Provide your sandbox domain where the verification file will be hosted"
@@ -183,13 +198,14 @@ let make = (
       | _ => React.null
       }}
     </RenderIf>
-    <div className="w-full flex gap-2 justify-end p-6">
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"
@@ -197,8 +213,9 @@ let make = (
         onClick={_ => {
           onSubmit()->ignore
         }}
+        customButtonStyle="w-full"
         buttonState={formState.values->validateSimplifedFlow}
       />
     </div>
-  </>
+  </div>
 }
