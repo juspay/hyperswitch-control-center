@@ -149,23 +149,23 @@ let conditionTypeMapper = (statementArr: array<JSON.t>) => {
         conditionIndex,
       ) => {
         let conditionDict = conditionJson->getDictFromJsonObject
-        let returnValue: RoutingTypes.statement = {
+        let singleStatement: RoutingTypes.statement = {
           lhs: conditionDict->getString("lhs", ""),
           comparison: conditionDict->getString("comparison", ""),
           logical: conditionIndex === 0 ? "OR" : "AND",
           value: getStatementValue(conditionDict->getDictfromDict("value")),
         }
-        returnValue
+        singleStatement
       })
-      acc->Array.concat(conditionStatements)
+      [...acc, ...conditionStatements]
     } else {
-      let returnValue: RoutingTypes.statement = {
+      let singleStatement: RoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
         comparison: statementDict->getString("comparison", ""),
         logical: statementDict->getString("logical", index === 0 ? "OR" : "AND"),
         value: getStatementValue(statementDict->getDictfromDict("value")),
       }
-      acc->Array.concat([returnValue])
+      [...acc, singleStatement]
     }
   })
 }
@@ -356,9 +356,10 @@ let validateNumericField = (num, field) => {
   | CARD_BIN | EXTENDED_CARD_BIN =>
     let requiredLength = fieldType == CARD_BIN ? 6 : 8
     let numAsInt = num->Float.toInt
+    let checkIsInteger = isInteger(num)
     let hasCorrectLength = numAsInt->Int.toString->String.length == requiredLength
 
-    num >= 0.0 && hasCorrectLength
+    num >= 0.0 && checkIsInteger && hasCorrectLength
   | OTHER => num >= 0.0
   }
 }
