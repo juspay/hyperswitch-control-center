@@ -92,7 +92,11 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
 
 let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
 
-let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
+let getAllProductsBasedOnFeatureFlags = (
+  ~featureFlagDetails,
+  ~isFeatureEnabledForAllowListMerchant,
+  ~merchantSpecificConfig: FeatureFlagUtils.merchantSpecificConfig,
+) => {
   let products = [Orchestration(V1)]
 
   if featureFlagDetails.devReconv2Product {
@@ -119,7 +123,10 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
     products->Array.push(Orchestration(V2))->ignore
   }
 
-  if featureFlagDetails.devReconEngineV1 {
+  if (
+    featureFlagDetails.devReconEngineV1 &&
+    isFeatureEnabledForAllowListMerchant(merchantSpecificConfig.devReconEngineV1)
+  ) {
     products->Array.push(Recon(V1))->ignore
   }
 
@@ -160,7 +167,16 @@ let useGetSidebarProductModules = () => {
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
+  let {
+    isFeatureEnabledForAllowListMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+
+  let allProducts = getAllProductsBasedOnFeatureFlags(
+    ~featureFlagDetails,
+    ~isFeatureEnabledForAllowListMerchant,
+    ~merchantSpecificConfig,
+  )
 
   let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (
     productList,
