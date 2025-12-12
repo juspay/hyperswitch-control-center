@@ -13,7 +13,7 @@
  *
  *
  */
-type useMerchantSpecificConfig = {
+type merchantSpecificConfig = {
   fetchMerchantSpecificConfig: unit => promise<unit>,
   isFeatureEnabledForDenyListMerchant: FeatureFlagUtils.config => bool,
   isFeatureEnabledForAllowListMerchant: FeatureFlagUtils.config => bool,
