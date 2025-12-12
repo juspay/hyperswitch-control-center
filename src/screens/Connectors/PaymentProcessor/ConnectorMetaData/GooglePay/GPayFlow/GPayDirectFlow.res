@@ -54,7 +54,7 @@ let make = (
       {googlePayFieldsForDirect
       ->Array.mapWithIndex((field, index) => {
         let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-        <div key={index->Int.toString}>
+        <div key={`${googlePayField.name}-${index->Int.toString}`}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
