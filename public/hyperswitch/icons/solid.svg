@@ -8166,18 +8166,18 @@ License)
       </clipPath>
     </defs>
   </svg>
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" id="nd-color-palette">
+  <svg viewBox="0 0 13 13" fill="none" id="nd-color-palette">
     <path
       d="M1.44969 6.70901C1.61189 3.66364 4.23626 1.30468 7.28162 1.46687C10.3054 1.62792 12.681 3.9822 12.5535 6.65627C12.4636 8.34562 11.0033 9.6577 9.31393 9.56772C8.76858 9.53868 7.99592 9.32701 7.53683 9.73967C7.18259 10.0581 7.11877 10.6571 7.44532 11.0191C7.92265 11.6192 7.49624 12.5838 6.69183 12.5409C3.64646 12.3787 1.2875 9.75438 1.44969 6.70901Z"
-      stroke="#525866" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
     <path
       d="M3.77925 6.41732C3.77925 6.09515 4.04042 5.83398 4.36259 5.83398C4.68475 5.83398 4.94592 6.09515 4.94592 6.41732C4.94592 6.73948 4.68475 7.00065 4.36259 7.00065C4.04042 7.00065 3.77925 6.73948 3.77925 6.41732Z"
-      stroke="#525866" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
     <path
       d="M6.56192 4.23722C6.56192 3.91506 6.82309 3.65389 7.14525 3.65389C7.46742 3.65389 7.72859 3.91506 7.72859 4.23722C7.72859 4.55939 7.46742 4.82056 7.14525 4.82056C6.82309 4.82056 6.56192 4.55939 6.56192 4.23722Z"
-      stroke="#525866" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
     <path
       d="M9.17212 6.41732C9.17212 6.09515 9.43328 5.83398 9.75545 5.83398C10.0776 5.83398 10.3388 6.09515 10.3388 6.41732C10.3388 6.73948 10.0776 7.00065 9.75545 7.00065C9.43328 7.00065 9.17212 6.73948 9.17212 6.41732Z"
-      stroke="#525866" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.17" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 </svg>

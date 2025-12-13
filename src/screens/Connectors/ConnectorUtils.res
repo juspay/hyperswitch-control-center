@@ -241,6 +241,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "alipay" => AliPay
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
+  | "amazon_pay" => AmazonPay
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
