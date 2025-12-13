@@ -95,6 +95,9 @@ let make = () => {
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
       </div>
+      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
+        <TransactionView entity=TransactionViewTypes.Payouts />
+      </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
