@@ -11,7 +11,7 @@ let make = (~remainingPath) => {
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Error fetching theme list"))
     }
   }
   React.useEffect(() => {
@@ -19,7 +19,7 @@ let make = (~remainingPath) => {
     None
   }, [])
 
-  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
+  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
     <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
       <EntityScaffold
         entityName="Themes"

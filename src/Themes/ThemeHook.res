@@ -14,7 +14,7 @@ let useFetchThemeList = (
       let url = getURL(
         ~entityName,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=organization`),
+        ~queryParameters=Some(`entity_type=organization`),
         ~userType,
       )
       let res = await fetchDetails(url, ~version)

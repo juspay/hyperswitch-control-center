@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   open Typography
-  open ThemeHelper
   open ThemeListHelper
 
   let getURL = APIUtils.useGetURL()
@@ -51,7 +50,13 @@ let make = () => {
           </div>
           <RenderIf condition={themeListArray->Array.length > 0}>
             <div>
-              <CreateNewThemeButton />
+              <Button
+                text="Create Theme"
+                buttonType=Primary
+                buttonState=Normal
+                buttonSize=Small
+                customButtonStyle={`${body.md.semibold} py-4`}
+              />
             </div>
           </RenderIf>
         </div>

@@ -44,7 +44,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => themeObj = dict => {
     profile_id: dict->getOptionString("profile_id"),
     org_id: dict->getOptionString("org_id"),
     tenant_id: dict->getOptionString("tenant_id"),
-    theme_data: dict->Dict.get("theme_data")->Option.getOr(JSON.Encode.object(Dict.make())), // fallback to empty object
+    theme_data: dict->getJsonObjectFromDict("theme_data"),
   }
 }
 
@@ -66,7 +66,7 @@ let getHeading = colType => {
   | ThemeColours => Table.makeHeaderInfo(~key, ~title="Theme Colours", ~dataType=TextType)
   }
 }
-
+let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
 // Custom cell rendering for each column
 let getCell = (themeObj, colType): Table.cell => {
   switch colType {
@@ -104,9 +104,9 @@ let getCell = (themeObj, colType): Table.cell => {
     let themeDataDict = themeObj.theme_data->getDictFromJsonObject
     let settings = themeDataDict->getObj("settings", Dict.make())
     let colors = settings->getObj("colors", Dict.make())
-    let sidebar = settings->getObj("sidebar", Dict.make())
-    let primary = colors->getString("primary", "#006DF9")
-    let sidebar = sidebar->getString("primary", "#FCFCFD")
+    let sidebarObj = settings->getObj("sidebar", Dict.make())
+    let primary = colors->getString("primary", newDefaultConfigSettings.colors.primary)
+    let sidebar = sidebarObj->getString("primary", newDefaultConfigSettings.sidebar.primary)
 
     Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
   }

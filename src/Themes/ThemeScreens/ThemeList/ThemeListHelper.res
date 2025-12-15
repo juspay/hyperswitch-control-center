@@ -1,19 +1,35 @@
-open ThemeTypes
 module NoThemesFound = {
   @react.component
   let make = (~themeListArray) => {
     open Typography
     <RenderIf condition={themeListArray->Array.length == 0}>
-      <div className="flex flex-col items-center justify-center text-center mt-[300px]">
+      <div className="flex flex-col items-center justify-center text-center mt-300-px">
         <div className="flex flex-col items-center gap-2 ">
           <p className={`${heading.sm.semibold}`}> {"No Themes Available"->React.string} </p>
           <p className={`${body.md.regular} text-nd_gray-500 mb-6`}>
             {"Create your first theme, Make your dashboard for your personalized look."->React.string}
           </p>
         </div>
-        <ThemeHelper.CreateNewThemeButton />
+        <Button
+          text="Create Theme"
+          buttonType=Primary
+          buttonState=Normal
+          buttonSize=Small
+          customButtonStyle={`${body.md.semibold} py-4`}
+        />
       </div>
     </RenderIf>
+  }
+}
+module RenderEntityRow = {
+  @react.component
+  let make = (~label, ~value, ~entityType, ~getNameForId) => {
+    <React.Fragment key={label}>
+      <div className="text-nd_gray-500"> {label->React.string} </div>
+      <div>
+        {value != "All" ? getNameForId(entityType)->React.string : `All ${label}s`->React.string}
+      </div>
+    </React.Fragment>
   }
 }
 
@@ -35,10 +51,8 @@ module CurrentThemeCard = {
         </div>
       | Some(themeObj) =>
         let themeData = ThemeListUtils.extractThemeData(themeObj)
-        let entityLevelLabel =
-          themeData["entityType"]
-          ->entityTypeToLevel
-          ->entityLevelToLabel
+        let entityLevelLabelEntity: UserInfoTypes.entity =
+          themeData["entityType"]->UserInfoUtils.entityMapper
 
         let entityConfig = [
           ("Organization", themeData["orgId"], #Organization),
@@ -57,14 +71,14 @@ module CurrentThemeCard = {
               </span>
               <span
                 className={`px-3 py-1 rounded-full bg-purple-100 text-purple-700 ${body.xs.semibold}`}>
-                {entityLevelLabel->React.string}
+                {`${(entityLevelLabelEntity :> string)} level`->React.string}
               </span>
             </div>
-            <div className={`grid grid-cols-2  text-gray-600 ${body.md.medium}`}>
+            <div className={`grid grid-cols-2  text-nd_gray-600 ${body.md.medium}`}>
               {entityConfig
-              ->Array.map(((label, value, entityType)) =>
-                ThemeListUtils.renderEntityRow(label, value, entityType, getNameForId)
-              )
+              ->Array.map(((label, value, entityType)) => {
+                <RenderEntityRow label value entityType getNameForId />
+              })
               ->React.array}
             </div>
             <ThemeHelper.OverlappingCircles
