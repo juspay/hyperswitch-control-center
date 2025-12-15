@@ -61,6 +61,13 @@ module AdditionalDetailsSidebarComp = {
           <PazeIntegration
             connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
           />
+        | AmazonPay =>
+          <AmazonPayIntegration
+            connector
+            setShowWalletConfigurationModal
+            update=updatePaymentMethods
+            onCloseClickCustomFun
+          />
         | _ => React.null
         }}
       </RenderIf>

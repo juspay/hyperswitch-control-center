@@ -92,6 +92,7 @@ module CardRenderer = {
       ((methodVariant === GooglePay ||
       methodVariant === ApplePay ||
       methodVariant === SamsungPay ||
+      methodVariant === AmazonPay ||
       methodVariant === Paze) &&
         {
           switch connector->getConnectorNameTypeFromString(~connectorType) {

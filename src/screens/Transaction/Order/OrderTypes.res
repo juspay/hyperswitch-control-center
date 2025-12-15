@@ -157,6 +157,9 @@ type otherDetailsColType =
   | FRMTransactionType
   | FRMStatus
   | MerchantOrderReferenceId
+  | ExtendedAuthLastAppliedAt
+  | ExtendedAuthApplied
+  | RequestExtendedAuth
 
 type optionObj = {
   urlKey: string,
