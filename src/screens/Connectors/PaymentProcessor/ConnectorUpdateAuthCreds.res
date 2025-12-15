@@ -8,12 +8,11 @@ let make = (
   open APIUtils
   open LogicUtils
   open ConnectorAccountDetailsHelper
-  // let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastState.useShowToast()
 
-  // let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) =
     connectorInfo.connector_type
@@ -108,7 +107,6 @@ let make = (
       | _ => ()
       }
       handleConnectorDetailsUpdate()
-
       showToast(~message="Details Updated!", ~toastType=ToastSuccess)
     } catch {
     | _ => showToast(~message="Connector Failed to update", ~toastType=ToastError)
