@@ -185,12 +185,8 @@ module ConnectorSummaryGrid = {
     | _ => true
     }
 
-    let checkCurrentEditState = (section: connectorSummaryEditableSections) => {
-      switch currentActiveSection {
-      | Some(active) => active == section
-      | _ => false
-      }
-    }
+    let checkCurrentEditState = (section: connectorSummaryEditableSections) =>
+      currentActiveSection->Option.mapOr(false, active => active == section)
 
     let handleConnectorDetailsUpdate = () => {
       setCurrentActiveSection(_ => None)

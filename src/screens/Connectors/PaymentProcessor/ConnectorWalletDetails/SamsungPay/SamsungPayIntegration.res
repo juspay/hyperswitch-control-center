@@ -32,6 +32,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       }
     }
   }, [connector])
+
   let setSamsungFormData = () => {
     let initalFormValue =
       formState.values
@@ -80,7 +81,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     }
     None
   }, [connector])
-
   let onSubmit = () => {
     update()
     setShowWalletConfigurationModal(_ => false)

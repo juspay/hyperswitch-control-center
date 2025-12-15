@@ -133,46 +133,19 @@ let make = (
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connectorName])
-  <>
-    // <div
-    //   className="cursor-pointer py-2"
-    //   onClick={_ => {
-    //     mixpanelEvent(~eventName=`processor_update_creds_${connectorName}`)
-    //     setShowFeedbackModal(_ => true)
-    //   }}>
-    //   <ToolTip
-    //     height=""
-    //     description={`Update the ${connectorName} creds`}
-    //     toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
-    //     toolTipPosition=Top
-    //     tooltipWidthClass="w-fit"
-    //   />
-    // </div>
-    // <Modal
-    //   closeOnOutsideClick=true
-    //   modalHeading={`Update Connector ${connectorName}`}
-    //   showModal
-    //   setShowModal=setShowFeedbackModal
-    //   childClass="p-1"
-    //   borderBottom=true
-    //   revealFrom=Reveal.Right
-    //   modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900">
 
-    <Form initialValues validate={validateMandatoryField} onSubmit formClass="w-full py-8">
-      <ConnectorConfigurationFields
-        connector={connectorTypeFromName}
-        connectorAccountFields
-        selectedConnector
-        connectorMetaDataFields
-        connectorWebHookDetails
-        connectorLabelDetailField
-        connectorAdditionalMerchantData
-      />
-      <div className="flex p-1 justify-end mb-2">
-        <FormRenderer.SubmitButton text="Submit" />
-      </div>
-    </Form>
-
-    // </Modal>
-  </>
+  <Form initialValues validate={validateMandatoryField} onSubmit formClass="w-full py-8">
+    <ConnectorConfigurationFields
+      connector={connectorTypeFromName}
+      connectorAccountFields
+      selectedConnector
+      connectorMetaDataFields
+      connectorWebHookDetails
+      connectorLabelDetailField
+      connectorAdditionalMerchantData
+    />
+    <div className="flex p-1 justify-end mb-2">
+      <FormRenderer.SubmitButton text="Submit" />
+    </div>
+  </Form>
 }

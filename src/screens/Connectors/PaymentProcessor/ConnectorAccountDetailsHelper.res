@@ -216,15 +216,6 @@ module CashToCodeSelectBox = {
         </div>
       })
       ->React.array}
-      // <Modal
-      //   modalHeading={`Additional Details to enable`}
-      //   headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-      //   showModal={showWalletConfigurationModal}
-      //   setShowModal={setShowWalletConfigurationModal}
-      //   paddingClass=""
-      //   revealFrom=Reveal.Right
-      //   modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-      //   childClass={""}>
       <div>
         <RenderConnectorInputFields
           details={dict
@@ -242,8 +233,6 @@ module CashToCodeSelectBox = {
           />
         </div>
       </div>
-
-      // </Modal>
     </div>
   }
 }
