@@ -301,19 +301,21 @@ module CardRenderer = {
                     ]>
                     <div className="flex items-center gap-2">
                       {switch connector->getConnectorNameTypeFromString {
-                      | Processors(KLARNA) =>
-                        <RenderIf
-                          condition={!(
+                      | Processors(KLARNA) => {
+                          let klarnaCheck =
                             value.payment_experience->Option.getOr("") === "redirect_to_url" &&
                               initialValues
                               ->getDictFromJsonObject
                               ->getDictfromDict("metadata")
                               ->getString("klarna_region", "") !== "Europe"
-                          )}>
-                          <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
-                            <CheckBoxIcon isSelected={isSelected(value)} />
-                          </div>
-                        </RenderIf>
+
+                          <RenderIf condition={!klarnaCheck}>
+                            <div
+                              onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
+                              <CheckBoxIcon isSelected={isSelected(value)} />
+                            </div>
+                          </RenderIf>
+                        }
 
                       | _ =>
                         <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
@@ -333,23 +335,24 @@ module CardRenderer = {
                             ? "PayPal Redirect"->React.string
                             : "PayPal SDK"->React.string}
                         </p>
-                      | (Klarna, PayLater, Processors(KLARNA)) =>
-                        <RenderIf
-                          condition={!(
+                      | (Klarna, PayLater, Processors(KLARNA)) => {
+                          let klarnaCheck =
                             value.payment_experience->Option.getOr("") === "redirect_to_url" &&
                               initialValues
                               ->getDictFromJsonObject
                               ->getDictfromDict("metadata")
                               ->getString("klarna_region", "") !== "Europe"
-                          )}>
-                          <p
-                            className={`${p2RegularTextStyle} cursor-pointer`}
-                            onClick={_ => removeOrAddMethods(value)}>
-                            {value.payment_experience->Option.getOr("") === "redirect_to_url"
-                              ? "Klarna Checkout"->React.string
-                              : "Klarna SDK"->React.string}
-                          </p>
-                        </RenderIf>
+
+                          <RenderIf condition={!klarnaCheck}>
+                            <p
+                              className={`${p2RegularTextStyle} cursor-pointer`}
+                              onClick={_ => removeOrAddMethods(value)}>
+                              {value.payment_experience->Option.getOr("") === "redirect_to_url"
+                                ? "Klarna Checkout"->React.string
+                                : "Klarna SDK"->React.string}
+                            </p>
+                          </RenderIf>
+                        }
 
                       | (OpenBankingPIS, _, _) =>
                         <p
