@@ -63,10 +63,7 @@ module AdditionalDetailsSidebarComp = {
           />
         | AmazonPay =>
           <AmazonPayIntegration
-            connector
-            setShowWalletConfigurationModal
-            update=updatePaymentMethods
-            onCloseClickCustomFun
+            connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
           />
         | _ => React.null
         }}
