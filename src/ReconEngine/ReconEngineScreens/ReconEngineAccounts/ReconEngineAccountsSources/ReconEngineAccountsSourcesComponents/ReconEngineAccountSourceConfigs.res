@@ -17,7 +17,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#INGESTION_CONFIG,
-        ~queryParamerters=Some(`account_id=${account.account_id}`),
+        ~queryParameters=Some(`account_id=${account.account_id}`),
       )
       let res = await fetchDetails(url)
       let configs = res->getArrayDataFromJson(ReconEngineUtils.ingestionConfigItemToObjMapper)

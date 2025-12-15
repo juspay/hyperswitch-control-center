@@ -23,6 +23,7 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disableFields, setDisableFields) = React.useState(_ => false)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getVolumeSplit = async () => {
     try {
@@ -87,11 +88,11 @@ let make = (
         decisionEngineConfigDict->Dict.set("decision_engine_configs", decisionEngineConfigValues)
       }
 
-      let queryParamerters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
+      let queryParameters = `enable=${isActivate ? "dynamic_connector_selection" : "none"}`
       let url = getURL(
         ~entityName=V1(CREATE_AUTH_RATE_ROUTING),
         ~methodType=Post,
-        ~queryParamerters=Some(queryParamerters),
+        ~queryParameters=Some(queryParameters),
       )
       let response = await updateDetails(url, decisionEngineConfigDict->JSON.Encode.object, Post)
       if !isActivate {
@@ -121,11 +122,11 @@ let make = (
 
   let setVolumeSplit = async (splitPercentage: int) => {
     try {
-      let queryParamerters = `split=${splitPercentage->Int.toString}`
+      let queryParameters = `split=${splitPercentage->Int.toString}`
       let url = getURL(
         ~entityName=V1(SET_VOLUME_SPLIT),
         ~methodType=Post,
-        ~queryParamerters=Some(queryParamerters),
+        ~queryParameters=Some(queryParameters),
       )
       let _ = await updateDetails(url, JSON.Encode.null, Post)
     } catch {
@@ -297,26 +298,29 @@ let make = (
               {switch pageState {
               | Preview =>
                 <div className="flex flex-col md:flex-row gap-4 p-1 mt-5">
-                  <Button
+                  <ACLButton
                     text={"Duplicate and Edit Configuration"}
                     buttonType={isActive ? Primary : Secondary}
+                    authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                     onClick={_ => editConfiguration()}
                     customButtonStyle="w-1/5"
                     buttonState=Normal
                   />
                   <RenderIf condition={!isActive}>
-                    <Button
+                    <ACLButton
                       text={"Activate Configuration"}
                       buttonType={Primary}
+                      authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                       onClick={_ => handleActivateConfiguration(routingRuleId)->ignore}
                       customButtonStyle="w-1/5"
                       buttonState=Normal
                     />
                   </RenderIf>
                   <RenderIf condition={isActive}>
-                    <Button
+                    <ACLButton
                       text={"Deactivate Configuration"}
                       buttonType={Secondary}
+                      authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                       onClick={_ => handleDeactivateConfiguration()->ignore}
                       customButtonStyle="w-1/5"
                       buttonState=Normal

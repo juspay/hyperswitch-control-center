@@ -28,6 +28,7 @@ module InfoViewForWebhooks = {
 @react.component
 let make = () => {
   open Typography
+  open HyperswitchAtom
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -35,11 +36,17 @@ let make = () => {
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
+  let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=VaultProcessor,
+  )
   let {userInfo: {profileId, merchantId, version}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
+  let isBusinessProfileHasVault =
+    vaultConnectorsList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let paymentBehaviourTab: Tabs.tab = {
@@ -50,6 +57,11 @@ let make = () => {
   let threeDsTab: Tabs.tab = {
     title: "3DS",
     renderContent: () => <PaymentSettingsThreeDs />,
+  }
+
+  let vaultTab: Tabs.tab = {
+    title: "Vault",
+    renderContent: () => <PaymentSettingsVault />,
   }
 
   let additionalTabs: array<Tabs.tab> = [
@@ -63,10 +75,20 @@ let make = () => {
     },
   ]
 
-  let tabs = if version == V2 && !isBusinessProfileHasThreeds {
-    Array.concat([paymentBehaviourTab], additionalTabs)
-  } else {
-    Array.concat(Array.concat([paymentBehaviourTab], [threeDsTab]), additionalTabs)
+  let tabs = {
+    let baseTabs = [paymentBehaviourTab]
+
+    if version == V1 || (version == V2 && isBusinessProfileHasThreeds) {
+      baseTabs->Array.push(threeDsTab)
+    }
+
+    if version == V1 && featureFlagDetails.vaultProcessor && isBusinessProfileHasVault {
+      baseTabs->Array.push(vaultTab)
+    }
+
+    baseTabs->Array.pushMany(additionalTabs)
+
+    baseTabs
   }
 
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")

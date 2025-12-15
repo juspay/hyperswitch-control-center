@@ -130,6 +130,8 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
     split_txns_enabled: profileRecord.split_txns_enabled,
     billing_processor_id: None,
     payment_link_config: None,
+    is_external_vault_enabled: None,
+    external_vault_connector_details: None,
   }
 }
 

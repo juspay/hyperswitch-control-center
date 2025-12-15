@@ -23,6 +23,7 @@ type entityName =
   | ORDERS_AGGREGATE
   | REFUNDS_AGGREGATE
   | DISPUTES_AGGREGATE
+  | PAYOUTS_AGGREGATE
   | DEFAULT_FALLBACK
   | SDK_EVENT_LOGS
   | WEBHOOK_EVENTS
@@ -191,6 +192,7 @@ type userType = [
   | #LIST_ROLES_FOR_ROLE_UPDATE
   | #ACCEPT_INVITATION_HOME
   | #CHECK_TWO_FACTOR_AUTH_STATUS_V2
+  | #TERMINATE_ACCEPT_INVITE
   | #THEME
   | #THEME_LIST
   | #THEME_BY_LINEAGE
@@ -210,5 +212,5 @@ type getUrlTypes = (
   ~reconType: reconType=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~hypersenseType: hypersenseType=?,
-  ~queryParamerters: option<string>=?,
+  ~queryParameters: option<string>=?,
 ) => string

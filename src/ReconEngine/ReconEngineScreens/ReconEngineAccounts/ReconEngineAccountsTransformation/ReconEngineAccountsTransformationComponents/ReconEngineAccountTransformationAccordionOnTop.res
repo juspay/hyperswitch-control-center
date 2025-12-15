@@ -17,7 +17,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(`account_id=${account.account_id}`),
+        ~queryParameters=Some(`account_id=${account.account_id}`),
       )
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)

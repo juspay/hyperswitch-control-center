@@ -60,6 +60,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
 let threedsAuthenticatorListForLive: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+  ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
 ]
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
@@ -240,6 +241,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "alipay" => AliPay
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
+  | "amazon_pay" => AmazonPay
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }

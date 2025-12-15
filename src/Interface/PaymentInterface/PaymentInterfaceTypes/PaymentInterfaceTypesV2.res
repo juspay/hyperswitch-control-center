@@ -113,4 +113,5 @@ type order_v2 = {
   routing_algorithm: Dict.t<JSON.t>,
   routing_algorithm_applied: Dict.t<JSON.t>,
   authentication_applied: string,
+  is_split_payment: bool,
 }
