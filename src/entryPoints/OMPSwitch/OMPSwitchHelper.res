@@ -188,9 +188,6 @@ module AddNewOMPButton = {
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
-    let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
 
     <ACLDiv
       authorization={hasOMPCreateAccess}
@@ -204,7 +201,7 @@ module AddNewOMPButton = {
       {<>
         <hr className={customHRTagStyle} />
         <div
-          className={`flex items-center gap-2 px-3.5 py-3 ${customStyle} ${primaryNormal} ${body.md.medium}`}>
+          className={` flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
