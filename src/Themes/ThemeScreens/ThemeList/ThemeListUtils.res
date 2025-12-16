@@ -1,4 +1,10 @@
-let extractThemeData = themeObj => {
+let entityConfig = (themeData: ThemeListType.themeListObj) => [
+  ("Organization", themeData.orgId, #Organization),
+  ("Merchant Account", themeData.merchantId, #Merchant),
+  ("Profile", themeData.profileId, #Profile),
+]
+
+let extractThemeData: _ => ThemeListType.themeListObj = themeObj => {
   open LogicUtils
   let themeDataDict = themeObj->getDictFromJsonObject
   let themeData = themeDataDict->getJsonObjectFromDict("theme_data")->getDictFromJsonObject
@@ -8,12 +14,12 @@ let extractThemeData = themeObj => {
   let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
 
   {
-    "themeName": themeDataDict->getString("theme_name", ""),
-    "entityType": themeDataDict->getString("entity_type", ""),
-    "orgId": themeDataDict->getString("org_id", "All"),
-    "merchantId": themeDataDict->getString("merchant_id", "All"),
-    "profileId": themeDataDict->getString("profile_id", "All"),
-    "primaryColor": colors->getString("primary", newDefaultConfigSettings.colors.primary),
-    "sidebarColor": sidebarColors->getString("primary", newDefaultConfigSettings.sidebar.primary),
+    themeName: themeDataDict->getString("theme_name", ""),
+    entityType: themeDataDict->getString("entity_type", ""),
+    orgId: themeDataDict->getString("org_id", ""),
+    merchantId: themeDataDict->getString("merchant_id", ""),
+    profileId: themeDataDict->getString("profile_id", ""),
+    primaryColor: colors->getString("primary", newDefaultConfigSettings.colors.primary),
+    sidebarColor: sidebarColors->getString("background", newDefaultConfigSettings.sidebar.primary),
   }
 }

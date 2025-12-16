@@ -9,30 +9,26 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
+  let {userInfo: {themeId}} = React.useContext(UserInfoProvider.defaultContext)
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
-  let fetchCurrentTheme = async (~id) => {
+  let fetchCurrentTheme = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(id), ~userType=#THEME)
+      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Theme doesn't exist for this Lineage.")
-        Exn.raiseError(err)
-      }
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Theme doesn't exist for this Lineage"))
     }
   }
 
   React.useEffect(() => {
-    switch themeId {
-    | Some(id) if id->isNonEmptyString => fetchCurrentTheme(~id)->ignore
-    | _ => ()
+    if themeId->isNonEmptyString {
+      fetchCurrentTheme()->ignore
     }
     None
   }, [themeId])

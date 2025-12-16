@@ -27,7 +27,9 @@ module RenderEntityRow = {
     <React.Fragment key={label}>
       <div className="text-nd_gray-500"> {label->React.string} </div>
       <div>
-        {value != "All" ? getNameForId(entityType)->React.string : `All ${label}s`->React.string}
+        {value->String.toLowerCase != "all"
+          ? getNameForId(entityType)->React.string
+          : `All ${label}s`->React.string}
       </div>
     </React.Fragment>
   }
@@ -51,14 +53,9 @@ module CurrentThemeCard = {
         </div>
       | Some(themeObj) =>
         let themeData = ThemeListUtils.extractThemeData(themeObj)
-        let entityLevelLabelEntity: UserInfoTypes.entity =
-          themeData["entityType"]->UserInfoUtils.entityMapper
 
-        let entityConfig = [
-          ("Organization", themeData["orgId"], #Organization),
-          ("Merchant Account", themeData["merchantId"], #Merchant),
-          ("Profile", themeData["profileId"], #Profile),
-        ]
+        let entityLevelLabelEntity: UserInfoTypes.entity =
+          themeData.entityType->UserInfoUtils.entityMapper
 
         <div className="flex flex-col gap-4 mt-4 w-1/2">
           <span className={`${body.lg.semibold} text-nd_gray-800`}>
@@ -66,23 +63,21 @@ module CurrentThemeCard = {
           </span>
           <div className="rounded-xl border border-gray-200 p-4 mb-8 flex flex-col gap-6 ">
             <div className="flex items-center gap-4">
-              <span className={`${body.md.semibold}`}>
-                {themeData["themeName"]->React.string}
-              </span>
+              <span className={`${body.md.semibold}`}> {themeData.themeName->React.string} </span>
               <span
                 className={`px-3 py-1 rounded-full bg-purple-100 text-purple-700 ${body.xs.semibold}`}>
                 {`${(entityLevelLabelEntity :> string)} level`->React.string}
               </span>
             </div>
             <div className={`grid grid-cols-2  text-nd_gray-600 ${body.md.medium}`}>
-              {entityConfig
+              {ThemeListUtils.entityConfig(themeData)
               ->Array.map(((label, value, entityType)) => {
                 <RenderEntityRow label value entityType getNameForId />
               })
               ->React.array}
             </div>
             <ThemeHelper.OverlappingCircles
-              colorA={themeData["primaryColor"]} colorB={themeData["sidebarColor"]}
+              colorA={themeData.primaryColor} colorB={themeData.sidebarColor}
             />
           </div>
         </div>

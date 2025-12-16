@@ -69,37 +69,17 @@ let getHeading = colType => {
 let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
 // Custom cell rendering for each column
 let getCell = (themeObj, colType): Table.cell => {
+  open Table
   switch colType {
   | ThemeName => Text(themeObj.theme_name)
   | ThemeEntity =>
-    let entityLabel = switch themeObj.entity_type {
-    | "organization" => "Organization level"
-    | "merchant" => "Merchant level"
-    | "profile" => "Profile level"
-    | _ => themeObj.entity_type
-    }
-    Text(entityLabel)
+    let entityLabel: UserInfoTypes.entity = themeObj.entity_type->UserInfoUtils.entityMapper
+    Text(`${(entityLabel :> string)} level `)
+  | Tenant => themeObj.tenant_id->Option.mapOr(Text("All Tenant"), id => Text(id))
 
-  | Tenant =>
-    switch themeObj.tenant_id {
-    | Some(id) => Text(id)
-    | None => Text("All Tenants")
-    }
-  | Organization =>
-    switch themeObj.org_id {
-    | Some(id) => Text(id)
-    | None => Text("All")
-    }
-  | Merchant =>
-    switch themeObj.merchant_id {
-    | Some(id) => Text(id)
-    | None => Text("All")
-    }
-  | Profile =>
-    switch themeObj.profile_id {
-    | Some(id) => Text(id)
-    | None => Text("All")
-    }
+  | Organization => themeObj.org_id->Option.mapOr(Text("All Organizations"), id => Text(id))
+  | Merchant => themeObj.merchant_id->Option.mapOr(Text("All Merchants"), id => Text(id))
+  | Profile => themeObj.profile_id->Option.mapOr(Text("All Profiles"), id => Text(id))
   | ThemeColours =>
     let themeDataDict = themeObj.theme_data->getDictFromJsonObject
     let settings = themeDataDict->getObj("settings", Dict.make())
@@ -107,13 +87,12 @@ let getCell = (themeObj, colType): Table.cell => {
     let sidebarObj = settings->getObj("sidebar", Dict.make())
     let primary = colors->getString("primary", newDefaultConfigSettings.colors.primary)
     let sidebar = sidebarObj->getString("primary", newDefaultConfigSettings.sidebar.primary)
-
     Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
 }
 
 let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
-  ~uri="theme-list",
+  ~uri=``,
   ~getObjects=json => json->getArrayFromJson([]),
   ~defaultColumns=visibleColumns,
   ~allColumns=visibleColumns,
