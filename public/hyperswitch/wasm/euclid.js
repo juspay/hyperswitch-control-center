@@ -99,6 +99,15 @@ function handleError(f, args) {
     }
 }
 
+const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
+
+if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
+
+function getStringFromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
+}
+
 function dropObject(idx) {
     if (idx < 132) return;
     heap[idx] = heap_next;
@@ -178,15 +187,6 @@ function debugString(val) {
     }
     // TODO we could test for more things here, like `Set`s and `Map`s.
     return className;
-}
-
-const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
-
-if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
-
-function getStringFromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
 }
 /**
  * This function can be used by the frontend to educate wasm about the forex rates data.
@@ -591,6 +591,28 @@ export function getConnectorConfig(key) {
  * @param {string} key
  * @returns {any}
  */
+export function getBillingConnectorConfig(key) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(key, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.getBillingConnectorConfig(retptr, ptr0, len0);
+        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+        var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+        if (r2) {
+            throw takeObject(r1);
+        }
+        return takeObject(r0);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+    }
+}
+
+/**
+ * @param {string} key
+ * @returns {any}
+ */
 export function getPayoutConnectorConfig(key) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
@@ -880,6 +902,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_entries_3265d4158b33e5dc = function(arg0) {
         const ret = Object.entries(getObject(arg0));
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_error_dc8ef1f9bd914b16 = function(arg0, arg1) {
+        console.error(getStringFromWasm0(arg0, arg1));
     };
     imports.wbg.__wbg_fromCodePoint_f37c25c172f2e8b5 = function() { return handleError(function (arg0) {
         const ret = String.fromCodePoint(arg0 >>> 0);

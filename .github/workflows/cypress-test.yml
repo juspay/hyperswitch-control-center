@@ -2,6 +2,7 @@ name: Cypress Tests
 
 on:
   pull_request:
+  merge_group:
 
 jobs:
   cypress-tests:
@@ -55,7 +56,13 @@ jobs:
           start: npm run test:start
           # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
 
-      - name: Test Artifacts
+      - name: Artifact - Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage
+
+      - name: Artifact - Test failure screenshots
         uses: actions/upload-artifact@v4
         if: failure()
         with:

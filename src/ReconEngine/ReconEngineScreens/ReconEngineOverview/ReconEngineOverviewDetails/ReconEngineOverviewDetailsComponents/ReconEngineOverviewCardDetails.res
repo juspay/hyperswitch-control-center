@@ -17,7 +17,9 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
       let accountData = await getAccounts()
       setAccountData(_ => accountData)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParameters=Some(
+          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)

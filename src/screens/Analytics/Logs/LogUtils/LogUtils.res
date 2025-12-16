@@ -1,14 +1,14 @@
 let sortByCreatedAt = (log1, log2) => {
   open LogicUtils
-  let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Date.fromString
+  let getKey = dict =>
+    dict->getDictFromJsonObject->getString("created_at", "")->Date.fromString->Date.getTime
   let keyA = log1->getKey
   let keyB = log2->getKey
-  compareLogic(keyA, keyB)
+  compareLogic(keyB, keyA)
 }
 
 let reorderLogs = logs => {
   open LogicUtils
-  logs->Array.reverse
 
   // Find the index of the log with "PaymentsCreate" in the "api_flow" field
   let index =
@@ -25,17 +25,13 @@ let reorderLogs = logs => {
         item->getDictFromJsonObject->getString("api_flow", "") == "PaymentsCreate"
       })
 
-      let logs = switch element {
+      switch element {
       | Some(val) => {
           let arr = logs->Array.filter(item => item != val)
-          let newList = [val]->Array.concat(arr)
-          newList->Array.reverse
-          newList
+          [val]->Array.concat(arr)
         }
       | _ => logs
       }
-
-      logs
     }
   }
 }

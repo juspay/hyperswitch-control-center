@@ -3,10 +3,6 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
-  open APIUtils
-
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
@@ -20,18 +16,10 @@ let make = (~id) => {
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let currentTransactionUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~id=Some(id),
-      )
-      let res = await fetchDetails(currentTransactionUrl)
-      let currentTransaction = res->getDictFromJsonObject->getTransactionsPayloadFromDict
-
-      let transactionsList = await getTransactions(
-        ~queryParamerters=Some(`transaction_id=${currentTransaction.transaction_id}`),
-      )
+      let transactionsList = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
+      transactionsList->Array.sort(sortByVersion)
+      let currentTransaction =
+        transactionsList->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
       setCurrentTransactionDetails(_ => currentTransaction)
       setAllTransactionDetails(_ => transactionsList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -44,6 +32,25 @@ let make = (~id) => {
     getTransactionDetails()->ignore
     None
   }, [])
+
+  let detailsFields = React.useMemo(() => {
+    open TransactionsTableEntity
+    switch (
+      currentTransactionDetails.transaction_status,
+      currentTransactionDetails.data.posted_type,
+    ) {
+    | (Posted, Some(ForceReconciled))
+    | (Posted, Some(ManuallyReconciled)) => [
+        TransactionId,
+        Status,
+        Variance,
+        ReconciliationType,
+        CreatedAt,
+        Reason,
+      ]
+    | _ => [TransactionId, Status, Variance, CreatedAt]
+    }
+  }, [currentTransactionDetails])
 
   <div>
     <div className="flex flex-col gap-4 mb-8">
@@ -64,8 +71,10 @@ let make = (~id) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col gap-8">
-        <TransactionDetailInfo currentTransactionDetails={currentTransactionDetails} />
+      <div className="flex flex-col">
+        <TransactionDetailInfo
+          currentTransactionDetails={currentTransactionDetails} detailsFields={detailsFields}
+        />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>
     </PageLoaderWrapper>

@@ -40,7 +40,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
 
 let getObjects: JSON.t => array<failreResonsObjectType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -100,6 +100,7 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
+  open CurrencyFormatUtils
   switch colType {
   | Error_Reason => Text(obj.error_reason)
   | Failure_Reason_Count => Text(obj.failure_reason_count->Int.toString)

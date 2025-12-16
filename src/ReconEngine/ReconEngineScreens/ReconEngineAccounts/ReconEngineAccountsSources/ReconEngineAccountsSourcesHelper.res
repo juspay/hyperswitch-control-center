@@ -196,3 +196,73 @@ module TransformationHistoryActionsComponent = {
     </div>
   }
 }
+
+module IngestionHistoryActionsComponent = {
+  @react.component
+  let make = (~ingestionHistory: ingestionHistoryType) => {
+    open ReconEngineAccountsSourcesTypes
+    open APIUtils
+
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let getURL = useGetURL()
+    let fetchApi = AuthHooks.useApiFetcher()
+    let showToast = ToastState.useShowToast()
+    let {xFeatureRoute, forceCookies} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+    let onDownloadClick = async ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      try {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
+          ~methodType=Get,
+          ~id=Some(ingestionHistory.id),
+        )
+        let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute, ~forceCookies)
+        let csvContent = await res->Fetch.Response.text
+        DownloadUtils.download(
+          ~fileName=ingestionHistory.file_name,
+          ~content=csvContent,
+          ~fileType="text/csv",
+        )
+        showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to download file. Please try again.", ~toastType=ToastError)
+      }
+    }
+
+    let ingestionHistoryIconActions = [
+      {
+        iconType: DownloadIcon,
+        onClick: ev => onDownloadClick(ev)->ignore,
+        disabled: false,
+      },
+      {
+        iconType: ChartIcon,
+        onClick: ev => {
+          ev->ReactEvent.Mouse.stopPropagation
+          setShowModal(_ => true)
+        },
+        disabled: false,
+      },
+    ]
+
+    <div className="flex flex-row gap-4">
+      <ReconEngineAccountSourceFileTimeline
+        showModal setShowModal ingestionHistoryId=ingestionHistory.ingestion_history_id
+      />
+      {ingestionHistoryIconActions
+      ->Array.mapWithIndex((action, index) => {
+        <Icon
+          key={index->Int.toString}
+          name={(action.iconType :> string)}
+          size=16
+          onClick={action.onClick}
+          className={action.disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        />
+      })
+      ->React.array}
+    </div>
+  }
+}

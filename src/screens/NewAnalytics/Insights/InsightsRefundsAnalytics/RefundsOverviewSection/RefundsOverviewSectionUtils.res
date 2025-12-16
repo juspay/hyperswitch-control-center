@@ -1,4 +1,5 @@
 open RefundsOverviewSectionTypes
+open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -19,10 +20,9 @@ let defaultValue =
     pending_refund_count: 0,
   }
   ->Identity.genericTypeToJson
-  ->LogicUtils.getDictFromJsonObject
+  ->getDictFromJsonObject
 
 let parseResponse = (response, key) => {
-  open LogicUtils
   response
   ->getDictFromJsonObject
   ->getArrayFromDict(key, [])
@@ -31,7 +31,6 @@ let parseResponse = (response, key) => {
 }
 
 let getValueFromObj = (data, index, responseKey) => {
-  open LogicUtils
   data
   ->getArrayFromJson([])
   ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
@@ -40,7 +39,7 @@ let getValueFromObj = (data, index, responseKey) => {
 }
 
 let getKey = (id, ~currency="") => {
-  open LogicUtils
+  open CurrencyFormatUtils
   let key = switch id {
   | Total_Refund_Success_Rate => #total_refund_success_rate
   | Successful_Refund_Count => #successful_refund_count
@@ -57,14 +56,13 @@ let getKey = (id, ~currency="") => {
 
 open InsightsTypes
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~currency) => {
-  open LogicUtils
   open NewAnalyticsUtils
 
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant
     let value = switch id {
     | Total_Refund_Processed_Amount =>
-      data->getAmountValue(~id=id->getKey(~currency))->JSON.Encode.float
+      data->getAmountValue(~id=id->getKey(~currency), ~currency)->JSON.Encode.float
     | _ =>
       data
       ->getFloat(id->getStringFromVariant, 0.0)
@@ -106,7 +104,6 @@ let getInfo = (~responseKey: overviewColumns) => {
 }
 
 let modifyStatusCountResponse = response => {
-  open LogicUtils
   let queryData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
 
   let mapDict = Dict.make()

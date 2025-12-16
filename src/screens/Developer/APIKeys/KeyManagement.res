@@ -15,6 +15,7 @@ let make = () => {
   let bannerText = {
     DeveloperUtils.bannerText(
       ~isPlatformMerchant=isCurrentMerchantPlatform,
+      // TODO: Remove `MerchantDetailsManage` permission in future
       ~hasCreateApiKeyAccess=hasAnyGroupAccess(
         userHasAccess(~groupAccess=MerchantDetailsManage),
         userHasAccess(~groupAccess=AccountManage),

@@ -99,7 +99,7 @@ let getHeading = (colType: ruleColType) => {
 let getCell = (rule: rulePayload, colType: ruleColType): Table.cell => {
   switch colType {
   | Priority => Text(rule.priority->Int.toString)
-  | RuleId => Text(rule.rule_id)
+  | RuleId => DisplayCopyCell(rule.rule_id)
   | RuleName => Text(rule.rule_name)
   | RuleDescription => EllipsisText(rule.rule_description, "max-w-xs")
   | Status =>

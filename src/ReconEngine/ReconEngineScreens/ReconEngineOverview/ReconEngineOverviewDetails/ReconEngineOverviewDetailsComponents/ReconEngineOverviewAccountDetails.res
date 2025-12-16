@@ -18,7 +18,9 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
       let accounts = await getAccounts()
       setAccountData(_ => accounts)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParameters=Some(
+          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
+        ),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -48,6 +50,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     let accountTransactionData = processAllTransactionsWithAmounts(
       [ruleDetails],
       allTransactionsData,
+      accountData,
     )
 
     let sourceData = getTransactionsData(accountTransactionData, sourceAccountData.account_id)
@@ -55,11 +58,11 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     (sourceData, targetData)
   }, (allTransactionsData, sourceAccountData.account_id, targetAccountData.account_id))
 
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <PageLoaderWrapper
-      screenState
-      customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
-      customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+  <PageLoaderWrapper
+    screenState
+    customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
+    customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <AccountDetailCard
         accountName={sourceAccountData.account_name}
         otherAccountName={targetAccountData.account_name}
@@ -72,6 +75,6 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
         isSource={false}
         transactionData={targetTransactionData}
       />
-    </PageLoaderWrapper>
-  </div>
+    </div>
+  </PageLoaderWrapper>
 }

@@ -31,6 +31,7 @@ module CardRenderer = {
     ~connector,
     ~initialValues,
     ~setInitialValues,
+    ~connectorType=Processor,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -91,11 +92,14 @@ module CardRenderer = {
       ((methodVariant === GooglePay ||
       methodVariant === ApplePay ||
       methodVariant === SamsungPay ||
+      methodVariant === AmazonPay ||
       methodVariant === Paze) &&
         {
-          switch connector->getConnectorNameTypeFromString {
+          switch connector->getConnectorNameTypeFromString(~connectorType) {
           | Processors(TRUSTPAY)
-          | Processors(STRIPE_TEST) => false
+          | Processors(STRIPE_TEST)
+          | PayoutProcessor(WORLDPAY)
+          | PayoutProcessor(WORLDPAYXML) => false
           | _ => true
           }
         }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
@@ -361,6 +365,7 @@ module CardRenderer = {
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === SamsungPay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === Paze ||
+          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === AmazonPay ||
           (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading
@@ -405,6 +410,7 @@ module PaymentMethodsRender = {
     ~isPayoutFlow,
     ~initialValues,
     ~setInitialValues,
+    ~connectorType=Processor,
   ) => {
     let pmts = React.useMemo(() => {
       (
@@ -432,6 +438,7 @@ module PaymentMethodsRender = {
               connector
               initialValues
               setInitialValues
+              connectorType
             />
           </div>
         | _ =>
@@ -446,6 +453,7 @@ module PaymentMethodsRender = {
               connector
               initialValues
               setInitialValues
+              connectorType
             />
           </div>
         }

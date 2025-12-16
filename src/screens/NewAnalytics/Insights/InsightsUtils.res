@@ -61,12 +61,13 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
   | No_Change => ("#A0A0A0", "")
   }
 
-  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->LogicUtils.valueFormatter(
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->CurrencyFormatUtils.valueFormatter(
       Rate,
     )}</span>`
 }
 
 open LogicUtils
+open CurrencyFormatUtils
 // removes the NA buckets
 let filterQueryData = (query, key) => {
   query->Array.filter(data => {
@@ -203,13 +204,20 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
   )->asTooltipPointFormatter
 }
 
-let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
+let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false, ~currency) => {
   data
   ->getArrayFromJson([])
   ->Array.mapWithIndex((item, index) => {
     let name = getLabelName(~key=yKey, ~index, ~points=item)
     let color = index->getColor
-    getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
+    getLineGraphObj(
+      ~array=item->getArrayFromJson([]),
+      ~key=xKey,
+      ~name,
+      ~color,
+      ~isAmount,
+      ~currency,
+    )
   })
 }
 
