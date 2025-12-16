@@ -113,7 +113,8 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
-
+  let setIssuerNamesList = Recoil.useSetRecoilState(AcquirerConfigAtoms.issuerNamesList)
+  let fetchApi = AuthHooks.useApiFetcher()
   let pageConfig = {
     pageTitle: "3DS Exemption Rules",
     pageSubtitle: "Optimize  3DS strategy by correctly applying 3DS exemptions to offer a seamless experience to the users while balancing fraud",
@@ -128,6 +129,19 @@ let make = () => {
   let (initialValues, _setInitialValues) = React.useState(_ => {
     buildInitial3DSValueFor3DsExemptions->Identity.genericTypeToJson
   })
+
+  let fetchIssuerNameList = async () => {
+    try {
+      let url = `${GlobalVars.getHostUrl}/3ds-exemption/issuerNames.json`
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      let paymentsResponse = await res->(res => res->Fetch.Response.json)
+      let issuerNames =
+        paymentsResponse->getArrayFromJson([])->Array.map(item => item->getStringFromJson(""))
+      setIssuerNamesList(_ => Some(issuerNames))
+    } catch {
+    | _ => setIssuerNamesList(_ => None)
+    }
+  }
 
   let getWasm = async () => {
     try {
@@ -178,6 +192,7 @@ let make = () => {
       setScreenState(_ => Loading)
       await getWasm()
       await activeRoutingDetails()
+      await fetchIssuerNameList()
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) => {
