@@ -869,36 +869,38 @@ let make = (
               <style> {sidebarScrollbarCss->React.string} </style>
               <div className="p-3 pt-0">
                 <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
-                  <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
-                    <div
-                      className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
-                          ? "bg-sidebar-hoverColor"
-                          : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
-                      <SidebarOption
-                        name="Home"
-                        icon="nd-home"
-                        isSidebarExpanded
-                        isSelected={isHomeSelected}
-                        showIcon=true
-                      />
-                    </div>
-                  </Link>
-                  <RenderIf condition={devTheme}>
-                    <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                  <div className="flex flex-col gap-2 mb-2">
+                    <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                       <div
                         className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
                             ? "bg-sidebar-hoverColor"
                             : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
                         <SidebarOption
-                          name="Theme"
-                          icon="nd-color-palette"
+                          name="Home"
+                          icon="nd-home"
                           isSidebarExpanded
-                          isSelected={isThemeSelected}
+                          isSelected={isHomeSelected}
                           showIcon=true
                         />
                       </div>
                     </Link>
-                  </RenderIf>
+                    <RenderIf condition={devTheme}>
+                      <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                        <div
+                          className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isThemeSelected
+                              ? "bg-sidebar-hoverColor"
+                              : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                          <SidebarOption
+                            name="Theme"
+                            icon="nd-color-palette"
+                            isSidebarExpanded
+                            isSelected={isThemeSelected}
+                            showIcon=true
+                          />
+                        </div>
+                      </Link>
+                    </RenderIf>
+                  </div>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
                   </div>
