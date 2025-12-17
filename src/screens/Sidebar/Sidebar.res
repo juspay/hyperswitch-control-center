@@ -754,7 +754,7 @@ let make = (
       <RenderIf condition={showSideBar}>
         <div
           ref={sideBarRef->ReactDOM.Ref.domRef}
-          className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
+          className={`${backgroundColor.sidebarNormal} justify-between flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
           style={width: sidebarWidth}>
           <RenderIf condition={isMobileView}>
             <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
