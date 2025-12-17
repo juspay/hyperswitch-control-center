@@ -56,7 +56,7 @@ module EditEntryModalContent = {
             ~entityName=V1(HYPERSWITCH_RECON),
             ~methodType=Get,
             ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-            ~queryParamerters=Some(`account_id=${entryDetails.account.account_id}`),
+            ~queryParameters=Some(`account_id=${entryDetails.account.account_id}`),
           )
           let res = await fetchDetails(url)
           setTransformationsList(_ =>
@@ -195,7 +195,7 @@ let make = (
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
+        ~queryParameters=None,
         ~id=Some(currentTransformedEntryDetails.transformation_history_id),
       )
       let transformationHistoryRes = await fetchDetails(url)

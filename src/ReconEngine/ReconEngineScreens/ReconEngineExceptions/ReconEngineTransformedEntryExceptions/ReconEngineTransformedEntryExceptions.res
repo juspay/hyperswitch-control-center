@@ -63,7 +63,7 @@ let make = () => {
         ~filterValueJson=enhancedFilterValueJson,
       )
 
-      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
+      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 

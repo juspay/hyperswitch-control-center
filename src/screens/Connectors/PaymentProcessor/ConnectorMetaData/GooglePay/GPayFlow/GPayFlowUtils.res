@@ -13,6 +13,7 @@ let getCustomGateWayName = connector => {
   | Processors(GLOBALPAY) => "globalpayments"
   | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) => "cybersource"
   | Processors(FIUU) => "molpay"
+  | Processors(WORLDPAYXML) => "worldpay"
   | _ => connector
   }
 }
@@ -42,7 +43,6 @@ let tokenizationSpecificationParameters = (
       private_key: dict->getString("private_key", ""),
       recipient_id: dict->getString("recipient_id", ""),
     }
-  | #decryption => {}
   }
 }
 
@@ -139,7 +139,6 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     ->isNonEmptyStringWithoutSpaces
       ? Button.Normal
       : Button.Disabled
-  | #decryption => Button.Normal
   }
 }
 
@@ -227,7 +226,6 @@ let googlePayNameMapper = (
     | _ =>
       `connector_wallets_details.google_pay.provider_details.merchant_info.tokenization_specification.parameters.${name}`
     }
-  | #decryption => ""
   }
 }
 
@@ -262,7 +260,6 @@ let getGooglePayIntegrationTypeFromName = (name: string) => {
   switch name {
   | "PAYMENT_GATEWAY" => #payment_gateway
   | "DIRECT" => #direct
-  | "DECRYPTION" => #decryption
   | _ => #payment_gateway
   }
 }

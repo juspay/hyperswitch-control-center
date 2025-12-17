@@ -26,7 +26,7 @@ let make = () => {
           ~entityName=V1(USERS),
           ~userType=#ROLE_INFO,
           ~methodType=Get,
-          ~queryParamerters=Some(`groups=true`),
+          ~queryParameters=Some(`groups=true`),
         )
         let res = await fetchDetails(url)
         let roleInfo =
