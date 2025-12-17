@@ -2,6 +2,8 @@ module NoThemesFound = {
   @react.component
   let make = (~themeListArray) => {
     open Typography
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
     <RenderIf condition={themeListArray->Array.length == 0}>
       <div className="flex flex-col items-center justify-center text-center mt-300-px">
         <div className="flex flex-col items-center gap-2 ">
@@ -10,12 +12,12 @@ module NoThemesFound = {
             {"Create your first theme, Make your dashboard for your personalized look."->React.string}
           </p>
         </div>
-        <Button
+        <ACLButton
           text="Create Theme"
           buttonType=Primary
-          buttonState=Normal
           buttonSize=Small
-          customButtonStyle={`${body.md.semibold} py-4`}
+          customButtonStyle={`${body.md.semibold} `}
+          authorization={userHasAccess(~groupAccess=ThemeManage)}
         />
       </div>
     </RenderIf>

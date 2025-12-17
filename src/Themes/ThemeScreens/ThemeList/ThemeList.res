@@ -13,6 +13,7 @@ let make = () => {
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let fetchCurrentTheme = async () => {
     try {
@@ -46,12 +47,12 @@ let make = () => {
           </div>
           <RenderIf condition={themeListArray->Array.length > 0}>
             <div>
-              <Button
+              <ACLButton
                 text="Create Theme"
                 buttonType=Primary
-                buttonState=Normal
                 buttonSize=Small
                 customButtonStyle={`${body.md.semibold} py-4`}
+                authorization={userHasAccess(~groupAccess=ThemeManage)}
               />
             </div>
           </RenderIf>

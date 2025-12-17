@@ -50,14 +50,21 @@ let make = (~remainingPath) => {
   }, [])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
-    <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
-      <EntityScaffold
-        entityName="Themes"
-        remainingPath
-        renderList={() => <ThemeList />}
-        renderNewForm={() => <ThemeCreate />}
-        renderShow={(themeId, _) => <ThemeUpdate themeId />}
-      />
-    </AccessControl>
+    <EntityScaffold
+      entityName="Themes"
+      remainingPath
+      renderList={() =>
+        <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
+          <ThemeList />
+        </AccessControl>}
+      renderNewForm={() =>
+        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+          <ThemeCreate />
+        </AccessControl>}
+      renderShow={(themeId, _) =>
+        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+          <ThemeUpdate themeId />
+        </AccessControl>}
+    />
   </PageLoaderWrapper>
 }
