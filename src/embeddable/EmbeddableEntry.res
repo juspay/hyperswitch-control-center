@@ -1,3 +1,14 @@
+module EmbeddableAuthEntry = {
+  @react.component
+  let make = () => {
+    <GlobalProvider>
+      <UserInfoProvider isEmbeddableApp=true>
+        <EmbeddableApp />
+      </UserInfoProvider>
+    </GlobalProvider>
+  }
+}
+
 module EmbeddableEntryComponent = {
   @react.component
   let make = () => {
@@ -31,6 +42,7 @@ module EmbeddableEntryComponent = {
           hypersenseUrl: dict->getString("hypersense_url", ""),
           clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
         }
+        Js.log2("DOMUtils.window", DOMUtils.window)
         DOMUtils.window._env_ = value
         setScreenState(_ => PageLoaderWrapper.Success)
         value
@@ -63,7 +75,7 @@ module EmbeddableEntryComponent = {
 
     <PageLoaderWrapper screenState>
       <div className={`h-full w-full`}>
-        <EmbeddableApp />
+        <EmbeddableAuthEntry />
       </div>
     </PageLoaderWrapper>
   }
@@ -88,9 +100,7 @@ module ContextWrapper = {
             <PopUpContainer>
               <SnackBarContainer>
                 <ToastContainer>
-                  <ModalContainer>
-                    <UserInfoProvider> children </UserInfoProvider>
-                  </ModalContainer>
+                  <ModalContainer> {children} </ModalContainer>
                 </ToastContainer>
               </SnackBarContainer>
             </PopUpContainer>
@@ -102,6 +112,7 @@ module ContextWrapper = {
 }
 
 let renderDashboardAppLibrary = children => {
+  Js.log2("inside renderDashboardAppLibrary", getElementById("app"))
   switch getElementById("app") {
   | Some(container) =>
     open ReactDOM.Client
