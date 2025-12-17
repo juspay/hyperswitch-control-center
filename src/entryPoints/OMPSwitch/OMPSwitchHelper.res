@@ -200,8 +200,7 @@ module AddNewOMPButton = {
       showTooltip={hasOMPCreateAccess == Access}>
       {<>
         <hr className={customHRTagStyle} />
-        <div
-          className={` flex  items-center gap-2 font-medium  px-3.5 py-3 text-sm ${customStyle}`}>
+        <div className={` flex  items-center gap-2 ${body.md.medium} px-3.5 py-3 ${customStyle}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
