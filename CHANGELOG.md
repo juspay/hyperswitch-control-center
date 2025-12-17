@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.17.0
+
+### Features
+
+- Enable airwallex and mollie in prod ([#3991](https://github.com/juspay/hyperswitch-control-center/pull/3991)) ([`52c18bb`](https://github.com/juspay/hyperswitch-control-center/commit/52c18bb1e57710a59a9792f6f9b397458c51a0cd))
+
+**Full Changelog:** [`2025.12.15.0...2025.12.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.15.0...2025.12.17.0)
+
+- - -
+
 ## 2025.12.15.0
 
 ### Features
