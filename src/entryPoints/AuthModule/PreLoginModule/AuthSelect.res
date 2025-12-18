@@ -89,7 +89,9 @@ let make = (~setSelectedAuthId) => {
               ->Array.mapWithIndex((authMethod, index) =>
                 <React.Fragment key={index->Int.toString}>
                   {authMethod->renderComponentForAuthTypes}
-                  <RenderIf condition={index === 0 && authMethods->Array.length !== 2}>
+                  <RenderIf
+                    condition={authMethods->Array.length > 0 &&
+                      index !== authMethods->Array.length - 1}>
                     {PreLoginUtils.divider}
                   </RenderIf>
                 </React.Fragment>
