@@ -63,9 +63,6 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString()->String.split("?")
 
-  Js.log2("Full Request URL:", request.url.toString())
-  Js.log2("Domain from query param array:", arr)
-
   let domainFromQueryParam =
     arr
     ->Array.get(1)
@@ -73,23 +70,14 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->Js.String2.split("=")
     ->Array.get(1)
     ->Option.getOr("")
-  Js.log3(
-    "Domain from domainFromQueryParam :",
-    arr
-    ->Array.get(1)
-    ->Option.getOr("domain="),
-    domainFromQueryParam,
-  )
 
   let xTenantId = request.headers->Dict.get("x-tenant-id")
   let domainFromXTenantId = switch xTenantId->Option.getOr("public") {
   | "public" => "default"
   | value => value
   }
-  Js.log2("Domain from x-tenant-id:", domainFromXTenantId)
 
   let domain = domainFromQueryParam == "" ? domainFromXTenantId : domainFromQueryParam
-  Js.log2("Serving request for domain:", domain)
 
   let path =
     arr
@@ -107,7 +95,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
   } else if path->String.includes("/config/feature") && request.method === "GET" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
-      Js.log2("Serving request for domain inside :", domain)
       configHandler(request, response, true, domain, path)
       ()->(resolve(_))
     })
