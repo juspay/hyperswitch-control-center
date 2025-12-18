@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.18.0
+
+### Bug Fixes
+
+- Cypress test ([#3993](https://github.com/juspay/hyperswitch-control-center/pull/3993)) ([`90a4aa4`](https://github.com/juspay/hyperswitch-control-center/commit/90a4aa4f909578cb7dda9bf9c0d1143650bb97d6))
+- Routing cardbin and extended cardbin specific validations ([#3947](https://github.com/juspay/hyperswitch-control-center/pull/3947)) ([`d9975fb`](https://github.com/juspay/hyperswitch-control-center/commit/d9975fb65f3f421e1005fa8adba188f0dc21a065))
+
+**Full Changelog:** [`2025.12.17.0...2025.12.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.17.0...2025.12.18.0)
+
+- - -
+
 ## 2025.12.17.0
 
 ### Features
