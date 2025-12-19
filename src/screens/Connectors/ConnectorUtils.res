@@ -46,6 +46,7 @@ let payoutConnectorListForLive: array<connectorTypes> = [
   PayoutProcessor(GIGADAT),
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -177,6 +178,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
   Processors(ARCHIPEL),
+  Processors(AIRWALLEX),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -194,6 +196,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(KLARNA),
   Processors(LOONIO),
   Processors(MIFINITY),
+  Processors(MOLLIE),
   Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
@@ -207,6 +210,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(WORLDPAY),
+  Processors(WORLDPAYXML),
   Processors(ZIFT),
   Processors(ZSL),
   Processors(ZEN),
