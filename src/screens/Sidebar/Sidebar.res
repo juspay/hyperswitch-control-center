@@ -297,7 +297,9 @@ module NestedSectionItem = {
     ~showIcon=false,
   ) => {
     let {
-      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
+      globalUIConfig: {
+        sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor, borderColor},
+      },
     } = React.useContext(ThemeProvider.themeContext)
     let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
     let {devSidebarV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -352,7 +354,7 @@ module NestedSectionItem = {
           <div className="flex flex-1 w-full mt-2">
             <div className="w-8" />
             <RenderIf condition={devSidebarV2 && !isInternalUser}>
-              <div className="border-l border-nd_gray-200" />
+              <div className={`border-l ${borderColor} `} />
             </RenderIf>
             <div className="flex flex-col gap-2 w-full leading-20">
               {section.links
@@ -752,7 +754,7 @@ let make = (
       <RenderIf condition={showSideBar}>
         <div
           ref={sideBarRef->ReactDOM.Ref.domRef}
-          className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
+          className={`${backgroundColor.sidebarNormal} justify-between flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
           style={width: sidebarWidth}>
           <RenderIf condition={isMobileView}>
             <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
@@ -869,36 +871,38 @@ let make = (
               <style> {sidebarScrollbarCss->React.string} </style>
               <div className="p-3 pt-0">
                 <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
-                  <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
-                    <div
-                      className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
-                          ? "bg-sidebar-hoverColor"
-                          : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
-                      <SidebarOption
-                        name="Home"
-                        icon="nd-home"
-                        isSidebarExpanded
-                        isSelected={isHomeSelected}
-                        showIcon=true
-                      />
-                    </div>
-                  </Link>
-                  <RenderIf condition={devTheme}>
-                    <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                  <div className="flex flex-col gap-2 mb-2">
+                    <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                       <div
                         className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isHomeSelected
                             ? "bg-sidebar-hoverColor"
                             : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
                         <SidebarOption
-                          name="Theme"
-                          icon="nd-color-palette"
+                          name="Home"
+                          icon="nd-home"
                           isSidebarExpanded
-                          isSelected={isThemeSelected}
+                          isSelected={isHomeSelected}
                           showIcon=true
                         />
                       </div>
                     </Link>
-                  </RenderIf>
+                    <RenderIf condition={devTheme}>
+                      <Link to_={GlobalVars.appendDashboardPath(~url="/theme")}>
+                        <div
+                          className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isThemeSelected
+                              ? "bg-sidebar-hoverColor"
+                              : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                          <SidebarOption
+                            name="Theme"
+                            icon="nd-color-palette"
+                            isSidebarExpanded
+                            isSelected={isThemeSelected}
+                            showIcon=true
+                          />
+                        </div>
+                      </Link>
+                    </RenderIf>
+                  </div>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
                   </div>
@@ -950,46 +954,43 @@ let make = (
             </div>
           </RenderIf>
           <div
-            className={`flex items-center justify-center p-4 border-t ${borderColor} ${hoverColor}`}>
+            className={`flex items-center justify-start p-4 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>
-              <Popover className="relative inline-block text-left">
+              <Popover className="relative w-full text-left">
                 {popoverProps => <>
                   <Popover.Button
                     className={
                       let openClasses = if popoverProps["open"] {
-                        `group border rounded-lg inline-flex items-center ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
+                        `group rounded-lg inline-flex items-center w-full ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
                       } else {
-                        `text-opacity-90 group border rounded-lg inline-flex items-center ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
+                        `text-opacity-90 group rounded-lg inline-flex items-center w-full ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
                       }
                       `${openClasses} border-none`
                     }>
                     {_ => <>
-                      <div className="flex items-center justify-between gap-x-4">
+                      <div className="flex items-center gap-x-4 w-full">
                         <Icon name="nd-user" size=24 />
                         <div
-                          className={`${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
+                          className={`${body.md.medium} text-left dark:text-nd_gray-600 ${secondaryTextColor} flex-1 min-w-0 truncate`}>
                           {email->React.string}
                         </div>
-                        <div className="flex flex-row">
-                          <Icon
-                            name="nd-dropdown-menu"
-                            size=18
-                            className={`cursor-pointer ${secondaryTextColor}`}
-                          />
-                        </div>
+                        <Icon
+                          name="nd-dropdown-menu"
+                          size=18
+                          className={`ml-auto shrink-0 cursor-pointer ${secondaryTextColor}`}
+                        />
                       </div>
                     </>}
                   </Popover.Button>
                   <Transition
                     \"as"="span"
-                    enter={"transition ease-out duration-200"}
+                    enter="transition ease-out duration-200"
                     enterFrom="opacity-0 translate-y-1"
                     enterTo="opacity-100 translate-y-0"
-                    leave={"transition ease-in duration-150"}
+                    leave="transition ease-in duration-150"
                     leaveFrom="opacity-100 translate-y-0"
                     leaveTo="opacity-0 translate-y-1">
-                    <Popover.Panel
-                      className={`absolute !z-30 bottom-[100%] left-1/2 -translate-x-1/2 mb-2`}>
+                    <Popover.Panel className="absolute bottom-full left-0 mb-2 z-30">
                       {panelProps => {
                         <div
                           id="neglectTopbarTheme"

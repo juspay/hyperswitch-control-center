@@ -162,3 +162,5 @@ type pageConfig = {
   entityName: APIUtilsTypes.entityTypeWithVersion,
   mixpanelEvent: string,
 }
+
+type validationFields = CARD_BIN | EXTENDED_CARD_BIN | OTHER
