@@ -4,6 +4,11 @@ type accessMapping = {
 }
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 
+type dashboardDetails = {
+  recon_status: HSwitchSettingTypes.reconStatus,
+  product_type: ProductTypes.productTypes,
+}
+
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
@@ -83,6 +88,14 @@ let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Re
 let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "profileListAtom",
   [ompDefaultValue],
+)
+
+let dashboardDetailsAtom: Recoil.recoilAtom<dashboardDetails> = Recoil.atom(
+  "dashboardDetailsAtom",
+  {
+    recon_status: NotRequested,
+    product_type: UnknownProduct,
+  },
 )
 
 let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(

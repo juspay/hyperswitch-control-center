@@ -186,7 +186,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   open HyperswitchAtom
   let orgSwitch = useOrgSwitch(~setActiveProductValue)
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
-  let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let {product_type} = Recoil.useRecoilValueFromAtom(dashboardDetailsAtom)
   let profileSwitch = useProfileSwitch()
   let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = RescriptReactRouter.useUrl()

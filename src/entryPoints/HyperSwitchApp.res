@@ -20,7 +20,6 @@ let make = () => {
     ProductSelectionProvider.defaultContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
@@ -28,16 +27,17 @@ let make = () => {
   let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
+  let fetchDashboardDetails = DashboardDetailsHook.useFetchDashboardDetails()
   let {
     userInfo: {orgId, merchantId, profileId, roleId, version},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
+  let dashboardDetails = dashboardDetailsAtom->Recoil.useRecoilValueFromAtom
   let isReconEnabled = React.useMemo(() => {
-    merchantDetailsTypedValue.recon_status === Active
-  }, [merchantDetailsTypedValue.merchant_id])
+    dashboardDetails.recon_status === Active
+  }, [dashboardDetails.recon_status])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -62,13 +62,13 @@ let make = () => {
       if featureFlagDetails.paymentLinkThemeConfigurator {
         Window.paymentLinkWasmInit()->ignore
       }
-      let merchantResponse = await fetchMerchantAccountDetails(~version)
+      let dashboardDetails = await fetchDashboardDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
       if !isInternalUser {
         let _ = await fetchMerchantList()
       }
       let _ = await fetchUserGroupACL()
-      setActiveProductValue(merchantResponse.product_type)
+      setActiveProductValue(dashboardDetails.product_type)
       setShowSideBar(_ => true)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
@@ -107,7 +107,7 @@ let make = () => {
   | _ => "-left-180-px"
   }
 
-  let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
+  let showGlobalSearchBar = switch dashboardDetails.product_type {
   | Orchestration(V1) => true
   | _ => false
   }
@@ -155,7 +155,7 @@ let make = () => {
                               userHasAccess(~groupAccess=AccountView),
                             ) == Access &&
                             !checkUserEntity([#Profile]) &&
-                            merchantDetailsTypedValue.product_type == Orchestration(V1)}>
+                            dashboardDetails.product_type == Orchestration(V1)}>
                             <div
                               onClick={_ => onAskPulseClick()}
                               className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"

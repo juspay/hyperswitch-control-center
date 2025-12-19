@@ -6,17 +6,17 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
+  let fetchDashboardDetails = DashboardDetailsHook.useFetchDashboardDetails()
+  let dashboardDetails = HyperswitchAtom.dashboardDetailsAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let isReconEnabled = merchentDetails.recon_status === Active
+  let isReconEnabled = dashboardDetails.recon_status === Active
 
   let onClickForReconRequest = async () => {
     try {
       let url = getURL(~entityName=V1(RECON), ~reconType=#REQUEST, ~methodType=Get)
       let _ = await updateDetails(url, JSON.Encode.null, Post)
-      let _ = await fetchMerchantAccountDetails()
+      let _ = await fetchDashboardDetails()
       showToast(
         ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,
         ~toastType=ToastSuccess,
@@ -93,7 +93,7 @@ let make = () => {
         } else {
           <div
             className={`flex flex-col gap-5 bg-white dark:bg-jp-gray-lightgray_background border-2 rounded dark:border-jp-gray-850 md:gap-5 p-2 md:p-8 h-2/3 items-center justify-center`}>
-            {if merchentDetails.recon_status === Requested {
+            {if dashboardDetails.recon_status === Requested {
               <div
                 className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>
                 {"Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps."->React.string}
