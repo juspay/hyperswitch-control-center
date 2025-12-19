@@ -472,6 +472,21 @@ let useGetURL = () => {
           }
         | _ => `disputes/aggregate`
         }
+      | PAYOUTS_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `payouts/profile/aggregate?${queryParams}`
+            | #Merchant
+            | _ =>
+              `payouts/aggregate?${queryParams}`
+            }
+          | None => `payouts/aggregate`
+          }
+        | _ => `payouts/aggregate`
+        }
       | PAYOUTS =>
         switch methodType {
         | Get =>
@@ -1538,7 +1553,7 @@ let responseHandler = async (
         | _ =>
           showToast(
             ~toastType=ToastError,
-            ~message=errorDict->getString("message", "Error Occured"),
+            ~message=errorDict->getString("message", "Error Occurred"),
             ~autoClose=false,
           )
         }
