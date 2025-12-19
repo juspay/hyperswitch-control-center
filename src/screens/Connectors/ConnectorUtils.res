@@ -46,6 +46,7 @@ let payoutConnectorListForLive: array<connectorTypes> = [
   PayoutProcessor(GIGADAT),
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -176,6 +177,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
   Processors(ARCHIPEL),
+  Processors(AIRWALLEX),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -193,6 +195,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(KLARNA),
   Processors(LOONIO),
   Processors(MIFINITY),
+  Processors(MOLLIE),
   Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
@@ -206,6 +209,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(WORLDPAY),
+  Processors(WORLDPAYXML),
   Processors(ZIFT),
   Processors(ZSL),
   Processors(ZEN),
@@ -448,7 +452,7 @@ let nexinetsInfo = {
 }
 
 let forteInfo = {
-  description: "Payment processor specializing in secure and reliable payment solutions for variuos industries like healthcare.",
+  description: "Payment processor specializing in secure and reliable payment solutions for various industries like healthcare.",
 }
 
 let cryptopayInfo = {
@@ -584,7 +588,7 @@ let juspayThreeDsServerInfo = {
 }
 
 let unknownConnectorInfo = {
-  description: "unkown connector",
+  description: "Unknown connector",
 }
 
 let bankOfAmericaInfo = {
@@ -1449,7 +1453,7 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
   )
   ->Option.getOr({
     payment_method: "unknown",
-    payment_method_type: "unkonwn",
+    payment_method_type: "unknown",
   })
 }
 
