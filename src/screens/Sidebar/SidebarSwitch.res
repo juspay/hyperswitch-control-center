@@ -18,7 +18,7 @@ let make = (~isSidebarExpanded=false) => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let expandedContent = {
     <RenderIf condition={!isInternalUser}>
-      <div className={`flex justify-center ${borderColor} mt-2`}>
+      <div className={`flex justify-center border-b ${borderColor} mt-2`}>
         <MerchantSwitch />
       </div>
     </RenderIf>
