@@ -472,6 +472,21 @@ let useGetURL = () => {
           }
         | _ => `disputes/aggregate`
         }
+      | PAYOUTS_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `payouts/profile/aggregate?${queryParams}`
+            | #Merchant
+            | _ =>
+              `payouts/aggregate?${queryParams}`
+            }
+          | None => `payouts/aggregate`
+          }
+        | _ => `payouts/aggregate`
+        }
       | PAYOUTS =>
         switch methodType {
         | Get =>
@@ -1296,6 +1311,7 @@ let useGetURL = () => {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
+        | #TERMINATE_ACCEPT_INVITE => `${userUrl}/terminate_accept_invite`
 
         // SPT FLOWS (Totp)
         | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
