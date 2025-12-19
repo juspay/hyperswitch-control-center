@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.19.0
+
+### Features
+
+- Enable `worldpay_xml` payment and payout processor in prod ([#3998](https://github.com/juspay/hyperswitch-control-center/pull/3998)) ([`1cac46a`](https://github.com/juspay/hyperswitch-control-center/commit/1cac46a2d7f12171eab9c0844fa78c50752072c9))
+
+### Bug Fixes
+
+- Sidebar bugs related to dynamic and default dashboard theme ([#3996](https://github.com/juspay/hyperswitch-control-center/pull/3996)) ([`8eeaaa0`](https://github.com/juspay/hyperswitch-control-center/commit/8eeaaa052593d4d1111fb8920fa209e0bb16871e))
+
+**Full Changelog:** [`2025.12.18.0...2025.12.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.18.0...2025.12.19.0)
+
+- - -
+
 ## 2025.12.18.0
 
 ### Bug Fixes
