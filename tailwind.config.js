@@ -154,6 +154,8 @@ module.exports = {
         700: "700px",
         800: "800px",
         400: "400px",
+        250: "250px",
+        200: "200px",
       },
       lineHeight: {
         14: "14px",
@@ -233,7 +235,7 @@ module.exports = {
           textColorPrimary: withOpacity("--sidebar-text-color-primary"),
           secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
           hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
-          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 8) / 1)`,
         },
 
         background: {

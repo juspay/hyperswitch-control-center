@@ -125,7 +125,7 @@ module BaseSelect: {
     ~sortingBasedOnDisabled: bool=?,
     ~customMarginStyle: string=?,
     ~listFlexDirection: string=?,
-    ~onApply: JsxEvent.Mouse.t => unit=?,
+    ~onApply: JsxEventU.Mouse.t => unit=?,
     ~showAllSelectedOptions: bool=?,
     ~showDescriptionAsTool: bool=?,
     ~optionClass: string=?,
@@ -307,7 +307,7 @@ module BaseDropdown: {
     ~listFlexDirection: string=?,
     ~ellipsisOnly: bool=?,
     ~isPhoneDropdown: bool=?,
-    ~onApply: JsxEvent.Mouse.t => unit=?,
+    ~onApply: JsxEventU.Mouse.t => unit=?,
     ~showAllSelectedOptions: bool=?,
     ~buttonClickFn: string => unit=?,
     ~toggleChevronState: unit => unit=?,
@@ -334,6 +334,7 @@ module BaseDropdown: {
     ~customSelectionIcon: Button.iconType=?,
     ~placeholderCss: string=?,
     ~reverseSortGroupKeys: bool=?,
+    ~maxButtonWidth: string=?,
   ) => React.element
 }
 module InfraSelectBox: {
@@ -424,7 +425,7 @@ let make: (
   ~customSelectStyle: string=?,
   ~isPhoneDropdown: bool=?,
   ~hasApplyButton: bool=?,
-  ~onApply: JsxEvent.Mouse.t => unit=?,
+  ~onApply: JsxEventU.Mouse.t => unit=?,
   ~showAllSelectedOptions: bool=?,
   ~buttonClickFn: string => unit=?,
   ~showDescriptionAsTool: bool=?,
@@ -445,4 +446,5 @@ let make: (
   ~customScrollStyle: string=?,
   ~shouldDisplaySelectedOnTop: bool=?,
   ~placeholderCss: string=?,
+  ~maxButtonWidth: string=?,
 ) => React.element
