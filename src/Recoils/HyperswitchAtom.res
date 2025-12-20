@@ -25,7 +25,7 @@ let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
   JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
 )
-//Todo:remove this after businessProfileInterface is stable
+
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
