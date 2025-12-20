@@ -272,7 +272,7 @@ let make = () => {
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
-                title: "PM Authentication Porcessor",
+                title: "PM Authentication Processor",
                 link: "/pm-authentication-processor",
               },
         ]
