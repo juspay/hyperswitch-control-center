@@ -9,34 +9,18 @@ let make = (~remainingPath) => {
   let getURL = useGetURL()
   let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
 
-  let fetchThemeList = async (~entityName, ~version, ~userType) => {
-    try {
-      let url = getURL(
-        ~entityName,
-        ~methodType=Get,
-        ~queryParameters=Some(`entity_type=organization`),
-        ~userType,
-      )
-      let res = await fetchDetails(url, ~version)
-      setThemeList(_ => res)
-      res
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-
   let setUpThemeContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if userHasAccess(~groupAccess=ThemeManage) === Access {
-        let _ = await fetchThemeList(
+        let url = getURL(
           ~entityName=V1(USERS),
-          ~version=UserInfoTypes.V1,
+          ~methodType=Get,
+          ~queryParameters=Some(`entity_type=organization`),
           ~userType=#THEME_LIST,
         )
+        let res = await fetchDetails(url, ~version=V1)
+        setThemeList(_ => res)
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
