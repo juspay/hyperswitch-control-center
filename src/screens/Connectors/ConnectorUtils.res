@@ -452,7 +452,7 @@ let nexinetsInfo = {
 }
 
 let forteInfo = {
-  description: "Payment processor specializing in secure and reliable payment solutions for variuos industries like healthcare.",
+  description: "Payment processor specializing in secure and reliable payment solutions for various industries like healthcare.",
 }
 
 let cryptopayInfo = {
@@ -588,7 +588,7 @@ let juspayThreeDsServerInfo = {
 }
 
 let unknownConnectorInfo = {
-  description: "unkown connector",
+  description: "Unknown connector",
 }
 
 let bankOfAmericaInfo = {
@@ -1453,7 +1453,7 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
   )
   ->Option.getOr({
     payment_method: "unknown",
-    payment_method_type: "unkonwn",
+    payment_method_type: "unknown",
   })
 }
 
