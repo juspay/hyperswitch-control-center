@@ -796,7 +796,7 @@ let vgsInfo = {
 }
 
 let payjustnowInStoreInfo = {
-  description: "PayJustNow In-Store is a South African payment connector that enables customers to split in-store purchases into three interest-free monthly installments.",
+  description: "PayJustNow In-Store provides a BNPL solution for online and in-store payments, enabling customers to pay in three interest-free installments while merchants get paid upfront.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
