@@ -1553,7 +1553,7 @@ let responseHandler = async (
         | _ =>
           showToast(
             ~toastType=ToastError,
-            ~message=errorDict->getString("message", "Error Occured"),
+            ~message=errorDict->getString("message", "Error Occurred"),
             ~autoClose=false,
           )
         }
