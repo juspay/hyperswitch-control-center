@@ -1786,7 +1786,11 @@ module BaseDropdown = {
       ->Belt.Array.keepMap(str => {
         transformedOptions
         ->Array.find(x => x.value == str)
-        ->Option.map(x => `${x.optGroup} ${x.label}`)
+        ->Option.map(
+          x => {
+            x.optGroup == "-" ? x.label : `${x.optGroup} ${x.label}`
+          },
+        )
       })
       ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
