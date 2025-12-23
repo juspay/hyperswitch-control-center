@@ -181,8 +181,8 @@ type domainTransactionAmountMismatchStatus =
 type domainTransactionStatus =
   | Expected
   | Posted(domainTransactionPostedStatus)
-  | OverPayment(domainTransactionAmountMismatchStatus)
-  | UnderPayment(domainTransactionAmountMismatchStatus)
+  | OverAmount(domainTransactionAmountMismatchStatus)
+  | UnderAmount(domainTransactionAmountMismatchStatus)
   | DataMismatch
   | Archived
   | Void

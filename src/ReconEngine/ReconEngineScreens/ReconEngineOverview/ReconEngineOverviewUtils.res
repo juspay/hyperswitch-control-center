@@ -63,7 +63,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | UnderPayment(Mismatch) | OverPayment(Mismatch) => (
+    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (
         sPosted,
         tPosted,
         sMismatched +. creditAmount,
@@ -71,7 +71,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | UnderPayment(Expected) | OverPayment(Expected) | Expected => (
+    | UnderAmount(Expected) | OverAmount(Expected) | Expected => (
         sPosted,
         tPosted,
         sMismatched,
@@ -119,8 +119,8 @@ let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.trans
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
     | Posted(_) => (posted + 1, mismatched, expected)
-    | UnderPayment(Mismatch) | OverPayment(Mismatch) => (posted, mismatched + 1, expected)
-    | Expected | UnderPayment(Expected) | OverPayment(Expected) | PartiallyReconciled => (
+    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (posted, mismatched + 1, expected)
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled => (
         posted,
         mismatched,
         expected + 1,
@@ -289,10 +289,10 @@ let initialDisplayFilters = () => {
     Posted(Auto),
     Posted(Manual),
     Posted(Force),
-    OverPayment(Mismatch),
-    OverPayment(Expected),
-    UnderPayment(Mismatch),
-    UnderPayment(Expected),
+    OverAmount(Mismatch),
+    OverAmount(Expected),
+    UnderAmount(Mismatch),
+    UnderAmount(Expected),
     DataMismatch,
     Expected,
     PartiallyReconciled,

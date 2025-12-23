@@ -117,12 +117,12 @@ let getDomainTransactionStatus = (
   | "posted" =>
     let subStatus = dict->getString("sub_status", "")
     Posted(subStatus->getDomainTransactionPostedStatusFromString)
-  | "over_payment" =>
+  | "over_amount" =>
     let subStatus = dict->getString("sub_status", "")
-    OverPayment(subStatus->getDomainTransactionAmountMismatchStatusFromString)
-  | "under_payment" =>
+    OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
+  | "under_amount" =>
     let subStatus = dict->getString("sub_status", "")
-    UnderPayment(subStatus->getDomainTransactionAmountMismatchStatusFromString)
+    UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "data_mismatch" => DataMismatch
   | "archived" => Archived
   | "void" => Void

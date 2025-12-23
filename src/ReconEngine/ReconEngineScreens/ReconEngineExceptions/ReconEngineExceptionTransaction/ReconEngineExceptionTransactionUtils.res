@@ -6,10 +6,10 @@ open ReconEngineTransactionsUtils
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
   let statusOptions = getGroupedTransactionStatusOptions([
-    OverPayment(Mismatch),
-    OverPayment(Expected),
-    UnderPayment(Mismatch),
-    UnderPayment(Expected),
+    OverAmount(Mismatch),
+    OverAmount(Expected),
+    UnderAmount(Mismatch),
+    UnderAmount(Expected),
     DataMismatch,
     Expected,
     PartiallyReconciled,

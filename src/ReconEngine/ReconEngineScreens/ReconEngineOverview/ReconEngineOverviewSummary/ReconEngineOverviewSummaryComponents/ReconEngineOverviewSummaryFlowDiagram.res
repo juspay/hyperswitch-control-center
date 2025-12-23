@@ -151,7 +151,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
       let allTransactions = await getTransactions(
         ~queryParameters=Some(
-          `${queryString}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_payment_mismatch,over_payment_expected,under_payment_mismatch,under_payment_expected,data_mismatch`,
+          `${queryString}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`,
         ),
       )
       let accountTransactionData = processAllTransactionsWithAmounts(

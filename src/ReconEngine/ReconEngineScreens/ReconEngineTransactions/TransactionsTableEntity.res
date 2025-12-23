@@ -62,8 +62,8 @@ let getHeading = (colType: transactionColType) => {
 let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   switch status {
   | Posted(_) => "Posted"
-  | OverPayment(_) => "Over Payment"
-  | UnderPayment(_) => "Under Payment"
+  | OverAmount(_) => "Over Payment"
+  | UnderAmount(_) => "Under Amount"
   | DataMismatch => "Data Mismatch"
   | Expected => "Expected"
   | Archived => "Archived"
@@ -78,11 +78,11 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
     title: status->getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
     | Posted(_) => LabelGreen
-    | OverPayment(Mismatch)
-    | UnderPayment(Mismatch)
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
     | DataMismatch =>
       LabelRed
-    | Expected | UnderPayment(Expected) | OverPayment(Expected) => LabelBlue
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled => LabelOrange
     | Void | UnknownDomainTransactionStatus => LabelLightGray

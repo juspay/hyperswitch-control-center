@@ -61,10 +61,10 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     Posted(Auto),
     Posted(Manual),
     Posted(Force),
-    OverPayment(Mismatch),
-    OverPayment(Expected),
-    UnderPayment(Mismatch),
-    UnderPayment(Expected),
+    OverAmount(Mismatch),
+    OverAmount(Expected),
+    UnderAmount(Mismatch),
+    UnderAmount(Expected),
     DataMismatch,
     Expected,
     PartiallyReconciled,
@@ -134,11 +134,11 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
 
 let getTransactionStatusLabel = (status: domainTransactionStatus): string => {
   switch status {
-  | OverPayment(Mismatch) | UnderPayment(Mismatch) | DataMismatch => "bg-nd_red-50 text-nd_red-600"
+  | OverAmount(Mismatch) | UnderAmount(Mismatch) | DataMismatch => "bg-nd_red-50 text-nd_red-600"
   | Posted(Auto) | Posted(Manual) | Posted(Force) => "bg-nd_green-50 text-nd_green-600"
   | Expected
-  | OverPayment(Expected)
-  | UnderPayment(Expected) => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
+  | OverAmount(Expected)
+  | UnderAmount(Expected) => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
   | Archived => "bg-nd_gray-150 text-nd_gray-600"
   | PartiallyReconciled => "bg-nd_orange-50 text-nd_orange-600"
   | _ => "bg-nd_gray-50 text-nd_gray_600"

@@ -159,8 +159,8 @@ module ExceptionDataDisplay = {
     let mismatchData = React.useMemo(() => {
       switch currentExceptionDetails.transaction_status {
       | DataMismatch
-      | OverPayment(Mismatch)
-      | UnderPayment(Mismatch) =>
+      | OverAmount(Mismatch)
+      | UnderAmount(Mismatch) =>
         entryDetails
         ->Array.filter(entry => entry.status == Mismatched)
         ->Array.map(entry => entry.data)
@@ -171,10 +171,10 @@ module ExceptionDataDisplay = {
 
     let (heading, subHeading) = switch currentExceptionDetails.transaction_status {
     | DataMismatch
-    | OverPayment(Mismatch)
-    | UnderPayment(Mismatch) =>
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch) =>
       getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
-    | Expected | OverPayment(Expected) | UnderPayment(Expected) => (
+    | Expected | OverAmount(Expected) | UnderAmount(Expected) => (
         "Expected",
         `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
             "DD MMM YYYY, hh:mm A",

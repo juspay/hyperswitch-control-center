@@ -376,15 +376,15 @@ let processAllTransactionsWithAmounts = (
       switch t.transaction_status {
       | Expected => true
       | PartiallyReconciled => true
-      | OverPayment(Expected) => true
-      | UnderPayment(Expected) => true
+      | OverAmount(Expected) => true
+      | UnderAmount(Expected) => true
       | _ => false
       }
     )
     let mismatchedTransactions = accountTransactions->Array.filter(t =>
       switch t.transaction_status {
-      | OverPayment(Mismatch) => true
-      | UnderPayment(Mismatch) | DataMismatch => true
+      | OverAmount(Mismatch) => true
+      | UnderAmount(Mismatch) | DataMismatch => true
       | _ => false
       }
     )
