@@ -21,7 +21,7 @@ module CustomToastElement = {
         `transactions/${transaction.transaction_id}`,
         "See Transaction",
       )
-    | Posted => (
+    | Posted(_) => (
         "Transaction matched successfully",
         "Your transaction has been moved to transactions page",
         `transactions/${transaction.transaction_id}`,
@@ -157,19 +157,24 @@ module ExceptionDataDisplay = {
     ~accountInfoMap: Dict.t<accountInfo>=Dict.make(),
   ) => {
     let mismatchData = React.useMemo(() => {
-      if currentExceptionDetails.transaction_status === Mismatched {
+      switch currentExceptionDetails.transaction_status {
+      | DataMismatch
+      | OverPayment(Mismatch)
+      | UnderPayment(Mismatch) =>
         entryDetails
         ->Array.filter(entry => entry.status == Mismatched)
         ->Array.map(entry => entry.data)
         ->LogicUtils.getValueFromArray(0, Js.Json.null)
-      } else {
-        Js.Json.null
+      | _ => Js.Json.null
       }
     }, [currentExceptionDetails.transaction_status])
 
     let (heading, subHeading) = switch currentExceptionDetails.transaction_status {
-    | Mismatched => getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
-    | Expected => (
+    | DataMismatch
+    | OverPayment(Mismatch)
+    | UnderPayment(Mismatch) =>
+      getHeadingAndSubHeadingForMismatch(mismatchData, ~accountInfoMap)
+    | Expected | OverPayment(Expected) | UnderPayment(Expected) => (
         "Expected",
         `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
             "DD MMM YYYY, hh:mm A",

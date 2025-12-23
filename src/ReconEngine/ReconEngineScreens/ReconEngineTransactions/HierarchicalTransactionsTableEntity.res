@@ -56,16 +56,33 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
-let getStatusLabel = (transactionStatus: transactionStatus): cell => {
-  Label({
-    title: (transactionStatus :> string)->String.toUpperCase,
-    color: switch transactionStatus {
-    | Posted => LabelGreen
-    | Mismatched => LabelRed
-    | Expected => LabelBlue
+let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
+  switch status {
+  | Posted(_) => "Posted"
+  | OverPayment(_) => "Over Payment"
+  | UnderPayment(_) => "Under Payment"
+  | DataMismatch => "Data Mismatch"
+  | Expected => "Expected"
+  | Archived => "Archived"
+  | PartiallyReconciled => "Partially Reconciled"
+  | Void => "Void"
+  | UnknownDomainTransactionStatus => "Unknown"
+  }
+}
+
+let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
+  Table.Label({
+    title: status->getDomainTransactionStatusString->String.toUpperCase,
+    color: switch status {
+    | Posted(_) => LabelGreen
+    | OverPayment(Mismatch)
+    | UnderPayment(Mismatch)
+    | DataMismatch =>
+      LabelRed
+    | Expected | UnderPayment(Expected) | OverPayment(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownDomainTransactionStatus => LabelLightGray
     },
   })
 }
@@ -77,8 +94,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
   | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
     switch transaction.discarded_status {
-    | Some(discardedStatus) =>
-      getStatusLabel(discardedStatus->ReconEngineUtils.getTransactionStatusVariantFromString)
+    | Some(status) => getStatusLabel(status)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | EntryId =>

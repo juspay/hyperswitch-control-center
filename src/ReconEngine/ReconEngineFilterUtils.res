@@ -68,16 +68,37 @@ let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>) => {
   queryParts->Array.joinWith("&")
 }
 
-let getTransactionStatusOptions = (statusList: array<transactionStatus>): array<
+let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus): (
+  string,
+  string,
+  string,
+) => {
+  switch status {
+  | Posted(Auto) => ("posted_auto", "Auto", "Posted")
+  | Posted(Manual) => ("posted_manual", "Manual", "Posted")
+  | Posted(Force) => ("posted_force", "Force", "Posted")
+  | OverPayment(Expected) => ("over_payment_expected", "Awaiting Match", "Over Payment")
+  | OverPayment(Mismatch) => ("over_payment_mismatch", "Requires Attention", "Over Payment")
+  | UnderPayment(Expected) => ("under_payment_expected", "Awaiting Match", "Under Payment")
+  | UnderPayment(Mismatch) => ("under_payment_mismatch", "Requires Attention", "Under Payment")
+  | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
+  | Expected => ("expected", "Expected", "Others")
+  | Void => ("void", "Void", "Others")
+  | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
+  | _ => ("", "", "")
+  }
+}
+
+let getGroupedTransactionStatusOptions = (statusList: array<domainTransactionStatus>): array<
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let value: string = (status :> string)
-    let label = (status :> string)->snakeToTitle
+    let (value, label, optGroup) = getTransactionStatusGroupedValueAndLabel(status)
 
     {
       FilterSelectBox.label,
       value,
+      optGroup,
     }
   })
 }

@@ -5,13 +5,21 @@ open ReconEngineUtils
 open ReconEngineTransactionsUtils
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions = getTransactionStatusOptions([Expected, Mismatched, PartiallyReconciled])
+  let statusOptions = getGroupedTransactionStatusOptions([
+    OverPayment(Mismatch),
+    OverPayment(Expected),
+    UnderPayment(Mismatch),
+    UnderPayment(Expected),
+    DataMismatch,
+    Expected,
+    PartiallyReconciled,
+  ])
   [
     (
       {
         field: FormRenderer.makeFieldInfo(
           ~label="transaction_status",
-          ~name="transaction_status",
+          ~name="status",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",

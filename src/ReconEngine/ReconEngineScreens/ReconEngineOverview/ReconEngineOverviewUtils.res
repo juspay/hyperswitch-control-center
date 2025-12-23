@@ -55,7 +55,7 @@ let calculateAccountAmounts = (
     let debitAmount = transaction.debit_amount.value
 
     switch transaction.transaction_status {
-    | Posted => (
+    | Posted(_) => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
         sMismatched,
@@ -63,7 +63,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | Mismatched => (
+    | UnderPayment(Mismatch) | OverPayment(Mismatch) => (
         sPosted,
         tPosted,
         sMismatched +. creditAmount,
@@ -71,7 +71,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | Expected => (
+    | UnderPayment(Expected) | OverPayment(Expected) | Expected => (
         sPosted,
         tPosted,
         sMismatched,
@@ -118,10 +118,13 @@ let calculateAccountAmounts = (
 let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
-    | Posted => (posted + 1, mismatched, expected)
-    | Mismatched => (posted, mismatched + 1, expected)
-    | Expected => (posted, mismatched, expected + 1)
-    | PartiallyReconciled => (posted, mismatched, expected + 1)
+    | Posted(_) => (posted + 1, mismatched, expected)
+    | UnderPayment(Mismatch) | OverPayment(Mismatch) => (posted, mismatched + 1, expected)
+    | Expected | UnderPayment(Expected) | OverPayment(Expected) | PartiallyReconciled => (
+        posted,
+        mismatched,
+        expected + 1,
+      )
     | _ => (posted, mismatched, expected)
     }
   })
@@ -282,11 +285,17 @@ let createColumnGraphCountPayload = (
 }
 
 let initialDisplayFilters = () => {
-  let statusOptions = ReconEngineFilterUtils.getTransactionStatusOptions([
+  let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
+    Posted(Auto),
+    Posted(Manual),
+    Posted(Force),
+    OverPayment(Mismatch),
+    OverPayment(Expected),
+    UnderPayment(Mismatch),
+    UnderPayment(Expected),
+    DataMismatch,
     Expected,
-    Mismatched,
     PartiallyReconciled,
-    Posted,
     Void,
   ])
   [
@@ -294,7 +303,7 @@ let initialDisplayFilters = () => {
       {
         field: FormRenderer.makeFieldInfo(
           ~label="transaction_status",
-          ~name="transaction_status",
+          ~name="status",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",

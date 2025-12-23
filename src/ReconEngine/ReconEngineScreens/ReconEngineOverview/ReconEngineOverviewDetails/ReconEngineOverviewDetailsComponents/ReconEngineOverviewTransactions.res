@@ -23,14 +23,20 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
-          "transaction_status",
+          "status",
           [
             "expected",
-            "mismatched",
-            "posted",
+            "over_payment_mismatch",
+            "under_payment_mismatch",
+            "over_payment_expected",
+            "under_payment_expected",
+            "data_mismatch",
+            "posted_auto",
+            "posted_manual",
+            "posted_force",
             "partially_reconciled",
             "void",
           ]->getJsonFromArrayOfString,

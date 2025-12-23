@@ -97,6 +97,7 @@ type transformationConfigType = {
   name: string,
   config: JSON.t,
   is_active: bool,
+  metadata_schema_id: string,
   created_at: string,
   last_modified_at: string,
   last_transformed_at: string,
@@ -127,7 +128,6 @@ type transactionStatus =
   | @as("archived") Archived
   | @as("void") Void
   | @as("partially_reconciled") PartiallyReconciled
-  | @as("unknown") UnknownTransactionStatus
 
 @unboxed
 type entryDirectionType =
@@ -166,6 +166,29 @@ type transactionDataType = {
   reason: option<string>,
 }
 
+@unboxed
+type domainTransactionPostedStatus =
+  | @as("auto") Auto
+  | @as("manual") Manual
+  | @as("force") Force
+  | UnknownDomainTransactionPostedStatus
+
+@unboxed
+type domainTransactionAmountMismatchStatus =
+  | @as("expected") Expected
+  | @as("mismatch") Mismatch
+
+type domainTransactionStatus =
+  | Expected
+  | Posted(domainTransactionPostedStatus)
+  | OverPayment(domainTransactionAmountMismatchStatus)
+  | UnderPayment(domainTransactionAmountMismatchStatus)
+  | DataMismatch
+  | Archived
+  | Void
+  | PartiallyReconciled
+  | UnknownDomainTransactionStatus
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -174,8 +197,8 @@ type transactionType = {
   credit_amount: balanceType,
   debit_amount: balanceType,
   rule: ruleType,
-  transaction_status: transactionStatus,
-  discarded_status: option<string>,
+  transaction_status: domainTransactionStatus,
+  discarded_status: option<domainTransactionStatus>,
   version: int,
   created_at: string,
   effective_at: string,

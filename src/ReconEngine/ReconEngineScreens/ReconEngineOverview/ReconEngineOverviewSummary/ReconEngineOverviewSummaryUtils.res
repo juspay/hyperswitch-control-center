@@ -204,7 +204,7 @@ let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
 let summarizeTransactions = (ruleTransactions: array<transactionType>): (int, int) => {
   ruleTransactions->Array.reduce((0, 0), ((postedCount, totalCount), t: transactionType) => {
     switch t.transaction_status {
-    | Posted => (postedCount + 1, totalCount + 1)
+    | Posted(_) => (postedCount + 1, totalCount + 1)
     | Archived => (postedCount, totalCount)
     | _ => (postedCount, totalCount + 1)
     }
@@ -365,13 +365,29 @@ let processAllTransactionsWithAmounts = (
       transaction.entries->Array.some(entry => entry.account.account_id === accountId)
     })
 
-    let postedTransactions = accountTransactions->Array.filter(t => t.transaction_status === Posted)
-    let pendingTransactions =
-      accountTransactions->Array.filter(t =>
-        t.transaction_status === Expected || t.transaction_status === PartiallyReconciled
-      )
-    let mismatchedTransactions =
-      accountTransactions->Array.filter(t => t.transaction_status === Mismatched)
+    let postedTransactions = accountTransactions->Array.filter(t =>
+      switch t.transaction_status {
+      | Posted(_) => true
+      | _ => false
+      }
+    )
+
+    let pendingTransactions = accountTransactions->Array.filter(t =>
+      switch t.transaction_status {
+      | Expected => true
+      | PartiallyReconciled => true
+      | OverPayment(Expected) => true
+      | UnderPayment(Expected) => true
+      | _ => false
+      }
+    )
+    let mismatchedTransactions = accountTransactions->Array.filter(t =>
+      switch t.transaction_status {
+      | OverPayment(Mismatch) => true
+      | UnderPayment(Mismatch) | DataMismatch => true
+      | _ => false
+      }
+    )
 
     let (
       postedConfirmationCount,

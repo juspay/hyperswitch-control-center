@@ -101,14 +101,11 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
       let transformationConfig =
         transformationConfigsRes->getDictFromJsonObject->getTransformationConfigPayloadFromDict
 
-      let metadataSchemaID =
-        transformationConfig.config->getDictFromJsonObject->getString("metadata_schema_id", "")
-
       let metadataSchemaURL = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#METADATA_SCHEMA,
-        ~id=Some(metadataSchemaID),
+        ~id=Some(transformationConfig.metadata_schema_id),
       )
       let metadataSchemaRes = await fetchDetails(metadataSchemaURL)
       let parsedMetadataSchema =
