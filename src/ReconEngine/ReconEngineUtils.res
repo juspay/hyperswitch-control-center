@@ -333,9 +333,13 @@ let transactionItemToObjMapper = (dict): transactionType => {
       ->getDictfromDict("data")
       ->getOptionString("reason"),
     },
-    discarded_status: switch dict->getDictfromDict("discarded_status")->getOptionString("status") {
-    | Some(status) =>
-      Some(status->getDomainTransactionStatus(dict->getDictfromDict("discarded_status")))
+    discarded_status: switch dict
+    ->getDictfromDict("discarded_status")
+    ->getOptionString("status")
+    ->Option.map(status =>
+      status->getDomainTransactionStatus(dict->getDictfromDict("discarded_status"))
+    ) {
+    | Some(status) => Some(status)
     | None => None
     },
     version: dict->getInt("version", 0),

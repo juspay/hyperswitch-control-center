@@ -168,15 +168,15 @@ type transactionDataType = {
 
 @unboxed
 type domainTransactionPostedStatus =
-  | @as("auto") Auto
-  | @as("manual") Manual
-  | @as("force") Force
+  | Auto
+  | Manual
+  | Force
   | UnknownDomainTransactionPostedStatus
 
 @unboxed
 type domainTransactionAmountMismatchStatus =
-  | @as("expected") Expected
-  | @as("mismatch") Mismatch
+  | Expected
+  | Mismatch
 
 type domainTransactionStatus =
   | Expected

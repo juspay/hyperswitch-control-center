@@ -73,11 +73,11 @@ module ResolutionModal = {
     ~setActiveModal,
   ) => {
     let showModal = switch (exceptionStage, activeModal) {
-    | (ResolvingException(VoidTransaction), Some(IgnoreTransactionModal)) => true
-    | (ResolvingException(ForceReconcile), Some(ForceReconcileModal)) => true
-    | (ResolvingException(EditEntry), Some(EditEntryModal)) => true
-    | (ResolvingException(CreateNewEntry), Some(CreateEntryModal)) => true
-    | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal)) => true
+    | (ResolvingException(VoidTransaction), Some(IgnoreTransactionModal))
+    | (ResolvingException(ForceReconcile), Some(ForceReconcileModal))
+    | (ResolvingException(EditEntry), Some(EditEntryModal))
+    | (ResolvingException(CreateNewEntry), Some(CreateEntryModal))
+    | (ResolvingException(MarkAsReceived), Some(MarkAsReceivedModal))
     | (ResolvingException(LinkStagingEntriesToTransaction), Some(LinkStagingEntriesModal)) => true
     | _ => false
     }
