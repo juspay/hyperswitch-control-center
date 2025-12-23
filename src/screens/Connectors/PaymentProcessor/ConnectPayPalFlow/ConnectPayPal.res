@@ -342,7 +342,7 @@ let make = (
       }
       setScreenState(_ => Success)
     } catch {
-    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuartion"))
+    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuration"))
     }
   }
 

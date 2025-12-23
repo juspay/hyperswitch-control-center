@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.22.0
+
+### Bug Fixes
+
+- Typos in the html render content ([#4007](https://github.com/juspay/hyperswitch-control-center/pull/4007)) ([`cf79220`](https://github.com/juspay/hyperswitch-control-center/commit/cf792207a7bbb063c3cb04369b343f6b13c6d2d9))
+
+**Full Changelog:** [`2025.12.19.0...2025.12.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.19.0...2025.12.22.0)
+
+- - -
+
 ## 2025.12.19.0
 
 ### Features
