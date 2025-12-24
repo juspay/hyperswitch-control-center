@@ -62,7 +62,7 @@ let getHeading = (colType: transactionColType) => {
 let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   switch status {
   | Posted(_) => "Posted"
-  | OverAmount(_) => "Over Payment"
+  | OverAmount(_) => "Over Amount"
   | UnderAmount(_) => "Under Amount"
   | DataMismatch => "Data Mismatch"
   | Expected => "Expected"
