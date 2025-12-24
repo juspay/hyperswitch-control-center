@@ -1081,6 +1081,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSFORMATION_CONFIG_WITH_METADATA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}/metadata_schema`
+            | None => ""
+            }
+          | _ => ""
+          }
         | #VOID_TRANSACTION =>
           switch methodType {
           | Put =>
@@ -1137,15 +1147,6 @@ let useGetURL = () => {
             | Some(ingestionHistoryId) =>
               `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
             | None => ``
-            }
-          | _ => ""
-          }
-        | #METADATA_SCHEMA =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
-            | None => `${reconBaseURL}/metadata_schemas`
             }
           | _ => ""
           }
