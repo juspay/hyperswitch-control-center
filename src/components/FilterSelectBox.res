@@ -416,22 +416,6 @@ let makeOptions = (options: array<string>, ~isTitle=false): array<dropdownOption
   })
 }
 
-let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) => {
-  let hashMappedOptions = options->Array.reduce(Dict.make(), (
-    acc,
-    ele: dropdownOptionWithoutOptional,
-  ) => {
-    if acc->Dict.get(ele.optGroup)->Option.isNone {
-      acc->Dict.set(ele.optGroup, [ele])
-    } else {
-      acc->Dict.get(ele.optGroup)->Option.getOr([])->Array.push(ele)->ignore
-    }
-    acc
-  })
-
-  hashMappedOptions
-}
-
 module BaseSelect = {
   @react.component
   let make = (
@@ -535,11 +519,6 @@ module BaseSelect = {
       setFilteredOptions(_ => filterOptions)
       None
     }, [searchString])
-
-    let hashMappedOptions = getHashMappedOptionValues(filteredOptions)
-    let isNonGrouped =
-      hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
-    let optgroupKeys = hashMappedOptions->Dict.keysToArray
 
     let onItemClick = (itemDataValue, isDisabled) => e => {
       if !isDisabled {
@@ -826,121 +805,64 @@ module BaseSelect = {
             filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome
           ) {
             <Loader />
-          } else if isNonGrouped {
-            filteredOptions
-            ->Array.mapWithIndex((item, indx) => {
-              let valueToConsider = item.value
-              let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-              let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
-              | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
-              | None => false
-              }
-              let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
-              | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
-              | None => false
-              }
-              let isSelected = index > -1
-              let serialNumber =
-                isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
-              let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
-              <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
-                <ListItem
-                  isDropDown
-                  isSelected
-                  optionSize
-                  isSelectedStateMinus
-                  isPrevSelected
-                  isNextSelected
-                  searchString
-                  onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
-                  text=item.label
-                  labelValue=item.label
-                  multiSelect=true
-                  customLabelStyle
-                  icon=item.icon
-                  leftVacennt
-                  isDisabled={item.isDisabled || disableSelect}
-                  showToggle
-                  customStyle
-                  serialNumber
-                  isMobileView
-                  description=item.description
-                  customMarginStyle
-                  listFlexDirection
-                  dataId=indx
-                  showDescriptionAsTool
-                  optionClass
-                  selectClass
-                  toggleProps
-                  checkboxDimension
-                  iconStroke=item.iconStroke
-                />
-                {switch optionRigthElement {
-                | Some(rightElement) => rightElement
-                | None => React.null
-                }}
-              </div>
-            })
-            ->React.array
           } else {
-            optgroupKeys
-            ->Array.mapWithIndex((groupName, index) => {
-              <React.Fragment key={index->Int.toString}>
-                <h2 className="py-2 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
-                  {groupName->React.string}
-                </h2>
-                {getHashMappedOptionValues(filteredOptions)
-                ->Dict.get(groupName)
-                ->Option.getOr([])
-                ->Array.mapWithIndex((item, indx) => {
-                  let valueToConsider = item.value
-                  let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-                  let isSelected = index > -1
-                  let serialNumber =
-                    isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
-                  let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
-                  <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
-                    <ListItem
-                      isDropDown
-                      isSelected
-                      optionSize
-                      isSelectedStateMinus
-                      isPrevSelected=false
-                      isNextSelected=false
-                      searchString
-                      onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
-                      text=item.label
-                      labelValue=item.label
-                      multiSelect=true
-                      customLabelStyle
-                      icon={item.icon}
-                      leftVacennt
-                      isDisabled={item.isDisabled || disableSelect}
-                      showToggle
-                      customStyle
-                      serialNumber
-                      isMobileView
-                      description={item.description}
-                      customMarginStyle="ml-4 mx-3 py-2 gap-2" // Indent grouped items
-                      listFlexDirection
-                      dataId=indx
-                      showDescriptionAsTool
-                      optionClass
-                      selectClass
-                      toggleProps
-                      checkboxDimension
-                      iconStroke={item.iconStroke}
-                    />
-                    {switch optionRigthElement {
-                    | Some(rightElement) => rightElement
-                    | None => React.null
-                    }}
-                  </div>
-                })
-                ->React.array}
-              </React.Fragment>
-            })
-            ->React.array
+            {
+              filteredOptions
+              ->Array.mapWithIndex((item, indx) => {
+                let valueToConsider = item.value
+                let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
+                let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
+                | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
+                | None => false
+                }
+                let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
+                | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
+                | None => false
+                }
+                let isSelected = index > -1
+                let serialNumber =
+                  isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
+                let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
+                <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
+                  <ListItem
+                    isDropDown
+                    isSelected
+                    optionSize
+                    isSelectedStateMinus
+                    isPrevSelected
+                    isNextSelected
+                    searchString
+                    onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
+                    text=item.label
+                    labelValue=item.label
+                    multiSelect=true
+                    customLabelStyle
+                    icon=item.icon
+                    leftVacennt
+                    isDisabled={item.isDisabled || disableSelect}
+                    showToggle
+                    customStyle
+                    serialNumber
+                    isMobileView
+                    description=item.description
+                    customMarginStyle
+                    listFlexDirection
+                    dataId=indx
+                    showDescriptionAsTool
+                    optionClass
+                    selectClass
+                    toggleProps
+                    checkboxDimension
+                    iconStroke=item.iconStroke
+                  />
+                  {switch optionRigthElement {
+                  | Some(rightElement) => rightElement
+                  | None => React.null
+                  }}
+                </div>
+              })
+              ->React.array
+            }
           }}
         </div>
         <button type_="submit" className="hidden" />
@@ -1205,6 +1127,22 @@ module RenderListItemInBaseRadio = {
     })
     ->React.array
   }
+}
+
+let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) => {
+  let hashMappedOptions = options->Array.reduce(Dict.make(), (
+    acc,
+    ele: dropdownOptionWithoutOptional,
+  ) => {
+    if acc->Dict.get(ele.optGroup)->Option.isNone {
+      acc->Dict.set(ele.optGroup, [ele])
+    } else {
+      acc->Dict.get(ele.optGroup)->Option.getOr([])->Array.push(ele)->ignore
+    }
+    acc
+  })
+
+  hashMappedOptions
 }
 
 let getSortedKeys = hashMappedOptions => {
@@ -1784,13 +1722,7 @@ module BaseDropdown = {
       ->Option.getOr([])
       ->Belt.Array.keepMap(JSON.Decode.string)
       ->Belt.Array.keepMap(str => {
-        transformedOptions
-        ->Array.find(x => x.value == str)
-        ->Option.map(
-          x => {
-            x.optGroup == "-" ? x.label : `${x.optGroup} ${x.label}`
-          },
-        )
+        transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
       ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
