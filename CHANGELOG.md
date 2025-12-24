@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.24.0
+
+### Features
+
+- Add Payjustnowinstore Connector in Dashboard ([#4019](https://github.com/juspay/hyperswitch-control-center/pull/4019)) ([`ea77dae`](https://github.com/juspay/hyperswitch-control-center/commit/ea77daebb9b77ca491e5004d7dab0fd404b6e30e))
+- Add Payjustnowinstore WASM ([#4021](https://github.com/juspay/hyperswitch-control-center/pull/4021)) ([`0be9913`](https://github.com/juspay/hyperswitch-control-center/commit/0be9913f7894cb5b22ba2ed3e28ca7bf11cd1aa1))
+
+**Full Changelog:** [`2025.12.22.0...2025.12.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.22.0...2025.12.24.0)
+
+- - -
+
 ## 2025.12.22.0
 
 ### Bug Fixes
