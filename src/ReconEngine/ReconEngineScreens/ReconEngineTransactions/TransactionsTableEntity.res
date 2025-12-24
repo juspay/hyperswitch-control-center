@@ -75,7 +75,7 @@ let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
 
 let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
-    title: status->getDomainTransactionStatusString->String.toUpperCase,
+    title: status->getDomainTransactionStatusString,
     color: switch status {
     | Posted(_) => LabelGreen
     | OverAmount(Mismatch)

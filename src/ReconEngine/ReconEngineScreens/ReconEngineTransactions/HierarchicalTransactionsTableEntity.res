@@ -56,23 +56,9 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
-let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
-  switch status {
-  | Posted(_) => "Posted"
-  | OverAmount(_) => "Over Amount"
-  | UnderAmount(_) => "Under Amount"
-  | DataMismatch => "Data Mismatch"
-  | Expected => "Expected"
-  | Archived => "Archived"
-  | PartiallyReconciled => "Partially Reconciled"
-  | Void => "Void"
-  | UnknownDomainTransactionStatus => "Unknown"
-  }
-}
-
 let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
-    title: status->getDomainTransactionStatusString->String.toUpperCase,
+    title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
     | Posted(_) => LabelGreen
     | OverAmount(Mismatch)

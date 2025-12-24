@@ -112,17 +112,12 @@ let getDomainTransactionStatus = (
   status: string,
   dict: Js.Dict.t<Js.Json.t>,
 ): domainTransactionStatus => {
+  let subStatus = dict->getString("sub_status", "")
   switch status->String.toLowerCase {
   | "expected" => Expected
-  | "posted" =>
-    let subStatus = dict->getString("sub_status", "")
-    Posted(subStatus->getDomainTransactionPostedStatusFromString)
-  | "over_amount" =>
-    let subStatus = dict->getString("sub_status", "")
-    OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
-  | "under_amount" =>
-    let subStatus = dict->getString("sub_status", "")
-    UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
+  | "posted" => Posted(subStatus->getDomainTransactionPostedStatusFromString)
+  | "over_amount" => OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
+  | "under_amount" => UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "data_mismatch" => DataMismatch
   | "archived" => Archived
   | "void" => Void

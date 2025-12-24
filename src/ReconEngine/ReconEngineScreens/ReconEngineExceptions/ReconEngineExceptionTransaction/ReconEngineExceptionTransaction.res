@@ -41,7 +41,7 @@ let make = (~ruleId: string) => {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
           isContainingStringLowercase(
-            obj.transaction_status->getDomainTransactionStatusString,
+            obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
             searchText,
           ) ||
           obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))

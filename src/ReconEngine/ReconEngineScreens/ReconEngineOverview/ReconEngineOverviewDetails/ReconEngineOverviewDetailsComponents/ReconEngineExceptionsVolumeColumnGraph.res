@@ -22,10 +22,11 @@ let make = (~ruleId: string) => {
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
+      let suffix = `rule_id=${ruleId}&status=over_amount_mismatch,under_amount_mismatch,data_mismatch`
       let queryString = if baseQueryString->isNonEmptyString {
-        `${baseQueryString}&rule_id=${ruleId}&status=over_amount_mismatch,under_amount_mismatch,data_mismatch`
+        `${baseQueryString}&${suffix}`
       } else {
-        `rule_id=${ruleId}&status=over_amount_mismatch,under_amount_mismatch,data_mismatch`
+        suffix
       }
       let transactions = await getTransactions(~queryParameters=Some(queryString))
       setTransactionsData(_ => transactions)
