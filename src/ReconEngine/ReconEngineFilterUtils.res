@@ -77,10 +77,22 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   | Posted(Auto) => ("posted_auto", "Posted Auto", "Posted")
   | Posted(Manual) => ("posted_manual", "Posted Manual", "Posted")
   | Posted(Force) => ("posted_force", "Posted Force", "Posted")
-  | OverAmount(Expected) => ("over_amount_expected", "Over Amount Expected", "Over Amount")
-  | OverAmount(Mismatch) => ("over_amount_mismatch", "Over Amount Mismatch", "Over Amount")
-  | UnderAmount(Expected) => ("under_amount_expected", "Under Amount Expected", "Under Amount")
-  | UnderAmount(Mismatch) => ("under_amount_mismatch", "Under Amount Mismatch", "Under Amount")
+  | OverAmount(Expected) => ("over_amount_expected", "Over Amount Awaiting Match", "Over Amount")
+  | OverAmount(Mismatch) => (
+      "over_amount_mismatch",
+      "Over Amount Requires Attention",
+      "Over Amount",
+    )
+  | UnderAmount(Expected) => (
+      "under_amount_expected",
+      "Under Amount Awaiting Match",
+      "Under Amount",
+    )
+  | UnderAmount(Mismatch) => (
+      "under_amount_mismatch",
+      "Under Amount Requires Attention",
+      "Under Amount",
+    )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
