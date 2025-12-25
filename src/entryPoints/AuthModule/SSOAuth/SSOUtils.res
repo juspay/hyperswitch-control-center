@@ -54,3 +54,31 @@ let ssoDefaultValue = (values: AuthProviderTypes.preLoginType): AuthProviderType
     email_token: values.email_token,
   }
 }
+
+/*
+ Note: This is to show "OR" between the buttons in AuthSelect page 
+ Theres a special case where we are not rendering component in case of magic link as login with password handles both 
+*/
+let shouldRenderMethod = (
+  currentValue: authMethodResponseType,
+  authMethods: array<authMethodResponseType>,
+) => {
+  !(
+    currentValue.auth_method.\"type" == MAGIC_LINK &&
+      authMethods->Array.some(value => value.auth_method.\"type" == PASSWORD)
+  )
+}
+
+let checkToRenderOr = (authMethods: array<authMethodResponseType>, index) => {
+  let shouldRenderOr = ref(false)
+
+  for i in index + 1 to authMethods->Array.length - 1 {
+    if !shouldRenderOr.contents {
+      shouldRenderOr.contents = switch authMethods[i] {
+      | Some(value) => shouldRenderMethod(value, authMethods)
+      | None => false
+      }
+    }
+  }
+  shouldRenderOr.contents
+}

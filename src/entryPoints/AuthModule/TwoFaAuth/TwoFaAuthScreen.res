@@ -3,11 +3,19 @@ let make = (~setAuthStatus) => {
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (_mode, setMode) = React.useState(_ => TestButtonMode)
-  let {isMagicLinkEnabled, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
+  let {
+    isMagicLinkEnabled,
+    checkAuthMethodExists,
+    isPasswordEnabled,
+  } = AuthModuleHooks.useAuthMethods()
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let pageViewEvent = MixpanelHook.usePageView()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let authInitState = LoginWithPassword
+  let authInitState = if isMagicLinkEnabled() && !isPasswordEnabled() {
+    LoginWithEmail
+  } else {
+    LoginWithPassword
+  }
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
   React.useEffect(() => {
