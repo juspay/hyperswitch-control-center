@@ -135,6 +135,8 @@ module ConnectorSummaryGrid = {
     ~getConnectorDetails=None,
   ) => {
     open ConnectorUtils
+    open ConnectorPreviewTypes
+
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfileRecoilVal =
@@ -150,6 +152,7 @@ module ConnectorSummaryGrid = {
       ->connectorTypeTypedValueToStringMapper
       ->connectorTypeTuple
     let {connector_name: connectorName} = connectorInfo
+    let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
 
     let connectorDetails = React.useMemo(() => {
       try {
@@ -180,6 +183,13 @@ module ConnectorSummaryGrid = {
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
+    }
+
+    let checkCurrentEditState = (section: connectorSummaryEditableSections) =>
+      currentActiveSection->Option.mapOr(false, active => active == section)
+
+    let handleConnectorDetailsUpdate = () => {
+      setCurrentActiveSection(_ => None)
     }
 
     <>
@@ -219,11 +229,35 @@ module ConnectorSummaryGrid = {
         </div>
         <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
-            <div className="flex flex-col gap-6 w-5/6  py-8">
-              <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
-            </div>
+            <RenderIf condition={!checkCurrentEditState(AuthenticationKeys)}>
+              <div className="flex flex-col gap-6 w-5/6  py-8">
+                <ConnectorPreviewHelper.PreviewCreds
+                  connectorAccountFields connectorInfo showLabelAndFieldVertically=true
+                />
+              </div>
+            </RenderIf>
             <RenderIf condition={isUpdateFlow}>
-              <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
+              <RenderIf condition={!checkCurrentEditState(AuthenticationKeys)}>
+                <div
+                  className="cursor-pointer py-8"
+                  onClick={_ => {
+                    mixpanelEvent(~eventName=`processor_update_creds_${connectorName}`)
+                    setCurrentActiveSection(_ => Some(AuthenticationKeys))
+                  }}>
+                  <ToolTip
+                    height=""
+                    description={`Update the ${connectorName} creds`}
+                    toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
+                    toolTipPosition=Top
+                    tooltipWidthClass="w-fit"
+                  />
+                </div>
+              </RenderIf>
+              <RenderIf condition={checkCurrentEditState(AuthenticationKeys)}>
+                <ConnectorUpdateAuthCreds
+                  connectorInfo getConnectorDetails handleConnectorDetailsUpdate
+                />
+              </RenderIf>
             </RenderIf>
           </div>
           <RenderIf
