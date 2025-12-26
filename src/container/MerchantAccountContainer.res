@@ -13,9 +13,15 @@ let make = (~setAppScreenState) => {
     userHasResourceAccess,
   } = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {checkUserEntity, userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
+  React.useEffect(() => {
+    if userHasResourceAccess(~resourceAccess=Account) === Access {
+      fetchMerchantAccountDetails(~version)->ignore
+    }
+    None
+  }, [])
   <div>
     {switch url.path->urlPath {
     | list{"home"} => <Home setAppScreenState />

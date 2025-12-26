@@ -23,8 +23,8 @@ let make = () => {
   )
   let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
   let (searchResults, setSearchResults) = React.useState(_ => [])
-  let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
-  let isReconEnabled = merchentDetails.recon_status === Active
+  let dashboardDetails = HyperswitchAtom.dashboardDetailsAtom->Recoil.useRecoilValueFromAtom
+  let isReconEnabled = dashboardDetails.recon_status === Active
   let hswitchTabs = SidebarHooks.useGetHsSidebarValues(~isReconEnabled)
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch, globalSearchFilters} =

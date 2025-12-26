@@ -1,4 +1,5 @@
 open HSwitchSettingTypes
+open ReconUtils
 let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
@@ -18,16 +19,6 @@ let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
 
       info
     })
-
-  let reconStatusMapper = reconStatus => {
-    switch reconStatus->String.toLowerCase {
-    | "notrequested" => NotRequested
-    | "requested" => Requested
-    | "active" => Active
-    | "disabled" => Disabled
-    | _ => NotRequested
-    }
-  }
 
   let payload: merchantPayload = {
     merchant_name: valuesDict->getOptionString("merchant_name"),
@@ -64,7 +55,7 @@ let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
       "redirect_to_merchant_with_http_post",
       true,
     ),
-    recon_status: getString(valuesDict, "recon_status", "")->reconStatusMapper,
+    recon_status: getString(valuesDict, "recon_status", "")->mapStringToReconStatus,
     product_type: getString(
       valuesDict,
       "product_type",

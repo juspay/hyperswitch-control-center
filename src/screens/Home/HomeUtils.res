@@ -163,6 +163,9 @@ module DevResources = {
   @react.component
   let make = () => {
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+    let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+    let hasAccountResourceAccess =
+      userHasResourceAccess(~resourceAccess=UserManagementTypes.Account) == CommonAuthTypes.Access
     let mixpanelEvent = MixpanelHook.useSendEvent()
     <div className="flex flex-col mb-5 gap-6 ">
       <PageHeading
@@ -173,7 +176,7 @@ module DevResources = {
         showPermLink=false
       />
       <div className="flex flex-col md:flex-row  gap-5 ">
-        <RenderIf condition={!checkUserEntity([#Profile])}>
+        <RenderIf condition={!checkUserEntity([#Profile]) && hasAccountResourceAccess}>
           <CardLayout width="" customStyle={"flex-1 rounded-xl p-6 gap-6"}>
             <div className="flex flex-col gap-7 ">
               <CardHeader
