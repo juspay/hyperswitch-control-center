@@ -73,6 +73,10 @@ let make = () => {
       title: "Metadata Headers",
       renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
     },
+    {
+      title: "Payment Link",
+      renderContent: () => <PaymentSettingsDomainName />,
+    },
   ]
 
   let tabs = {
