@@ -5,13 +5,13 @@ module AdditionalDetailsSidebarComp = {
   let make = (
     ~method: option<ConnectorTypes.paymentMethodConfigType>,
     ~setMetaData,
-    ~setShowWalletConfigurationModal,
     ~updateDetails,
     ~paymentMethodsEnabled,
     ~paymentMethod,
     ~onCloseClickCustomFun,
     ~setInitialValues,
     ~pmtName: string,
+    ~closeAccordionFn,
   ) => {
     open LogicUtils
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
@@ -35,11 +35,11 @@ module AdditionalDetailsSidebarComp = {
       {switch paymentMethod->getPaymentMethodFromString {
       | BankDebit =>
         <BankDebit
-          setShowWalletConfigurationModal
           update=updatePaymentMethods
           paymentMethod
           paymentMethodType=pmtName
           setInitialValues
+          closeAccordionFn
         />
       | _ => React.null
       }}
@@ -47,32 +47,23 @@ module AdditionalDetailsSidebarComp = {
         {switch pmtName->getPaymentMethodTypeFromString {
         | ApplePay =>
           <ApplePayIntegration
-            connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun
+            connector closeAccordionFn update=updateMetadata onCloseClickCustomFun
           />
         | GooglePay =>
           <GooglePayIntegration
-            connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun
+            connector closeAccordionFn update=updateMetadata onCloseClickCustomFun
           />
         | SamsungPay =>
           <SamsungPayIntegration
-            connector
-            setShowWalletConfigurationModal
-            update=updatePaymentMethods
-            onCloseClickCustomFun
+            connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
           />
         | Paze =>
           <PazeIntegration
-            connector
-            setShowWalletConfigurationModal
-            update=updatePaymentMethods
-            onCloseClickCustomFun
+            connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
           />
         | AmazonPay =>
           <AmazonPayIntegration
-            connector
-            setShowWalletConfigurationModal
-            update=updatePaymentMethods
-            onCloseClickCustomFun
+            connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
           />
         | _ => React.null
         }}
