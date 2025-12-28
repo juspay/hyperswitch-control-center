@@ -1,6 +1,6 @@
 module InfoField = {
   @react.component
-  let make = (~label, ~str, ~showLabelAndFieldVertically) => {
+  let make = (~label, ~str, ~showLabelAndFieldVertically, ~customValueCss="") => {
     let (containerCss, labelCss, valueCss) = showLabelAndFieldVertically
       ? ("flex-col w-full ", "w-full", "w-full")
       : ("", "flex-[1]", "flex-[3]")
@@ -10,26 +10,7 @@ module InfoField = {
         {label->React.string}
       </h2>
       <h3
-        className={`${valueCss} border p-1.5 bg-gray-50 rounded-lg overflow-scroll whitespace-nowrap`}>
-        {str->React.string}
-      </h3>
-    </div>
-  }
-}
-
-module LabelInfoField = {
-  @react.component
-  let make = (~label, ~str, ~showLabelAndFieldVertically) => {
-    let (containerCss, labelCss, valueCss) = showLabelAndFieldVertically
-      ? ("flex-col w-full ", "w-full", "w-full")
-      : ("", "flex-[1]", "flex-[3]")
-
-    <div className={`flex ${containerCss} items-center w-full`}>
-      <h2 className={`${labelCss} text-base font-semibold text-grey-700 opacity-70`}>
-        {label->React.string}
-      </h2>
-      <h3
-        className={`${valueCss} font-semibold text-base border p-1.5 bg-gray-50 rounded-lg overflow-scroll whitespace-nowrap`}>
+        className={`${valueCss} ${customValueCss} border p-1.5 bg-gray-50 rounded-lg overflow-scroll whitespace-nowrap`}>
         {str->React.string}
       </h3>
     </div>
@@ -57,8 +38,11 @@ module CredsInfoField = {
       })
 
     let connectorLabelField = {
-      <LabelInfoField
-        label="Connector Label" str=connectorInfo.connector_label showLabelAndFieldVertically
+      <InfoField
+        label="Connector Label"
+        str=connectorInfo.connector_label
+        showLabelAndFieldVertically
+        customValueCss="font-semibold text-base"
       />
     }
     Array.concat(authFields, [connectorLabelField])->React.array
