@@ -193,7 +193,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }, [connector])
 
-  // Chnage this to get for both V1 and V2
+  // TODO: Change this to get for both V1 and V2
   let getProcessorDetails = async () => {
     try {
       setScreenState(_ => Loading)
