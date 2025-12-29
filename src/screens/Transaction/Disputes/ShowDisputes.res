@@ -161,7 +161,7 @@ module DisputesInfo = {
       </div>
       <RenderIf condition={disputesData.is_already_refunded}>
         <DisputesHelper.DualRefundsAlert
-          customLearMoreComponent={<DisputesHelper.LearnMoreComponent
+          customLearnMoreComponent={<DisputesHelper.LearnMoreComponent
             disputesData merchantId orgId
           />}
           subText="The chargeback has exceeded the dispute amount. Go to the Payments tab to learn more."

@@ -2,8 +2,9 @@ open Typography
 
 module DualRefundsAlert = {
   @react.component
-  let make = (~subText, ~customLearMoreComponent=React.null) => {
-    <div className="my-4 flex flex-col gap-2 rounded-lg border border-yellow-400 bg-yellow-50 p-4">
+  let make = (~subText, ~customLearnMoreComponent=React.null) => {
+    <div
+      className="my-4 flex flex-col gap-2 rounded-lg border border-nd_yellow-500 bg-nd_yellow-50 p-4">
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-col gap-2">
           <div className="flex flex-row items-center gap-2">
@@ -14,7 +15,7 @@ module DualRefundsAlert = {
           </div>
           <p className={`${body.md.regular} text-nd_gray-600 pl-6`}> {subText->React.string} </p>
         </div>
-        {customLearMoreComponent}
+        {customLearnMoreComponent}
       </div>
     </div>
   }
