@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.24.1
+
+### Features
+
+- Recon engine new transaction statuses ([#4026](https://github.com/juspay/hyperswitch-control-center/pull/4026)) ([`50f0a08`](https://github.com/juspay/hyperswitch-control-center/commit/50f0a08300269788e7ef9bb70a13fbfbe13d55db))
+
+### Bug Fixes
+
+- Recon engine accounts overview transformed entry navigation ([#4006](https://github.com/juspay/hyperswitch-control-center/pull/4006)) ([`0036e2d`](https://github.com/juspay/hyperswitch-control-center/commit/0036e2dd4db45f95a284217e76645f2c17bddf1c))
+
+### Refactors
+
+- Rename recon engine grouped transaction labels ([#4028](https://github.com/juspay/hyperswitch-control-center/pull/4028)) ([`bad141a`](https://github.com/juspay/hyperswitch-control-center/commit/bad141a043d50e8fdde7a262ddb6503a66aab70f))
+
+**Full Changelog:** [`2025.12.24.0...2025.12.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.24.0...2025.12.24.1)
+
+- - -
+
+## 2025.12.24.0
+
+### Features
+
+- Add Payjustnowinstore Connector in Dashboard ([#4019](https://github.com/juspay/hyperswitch-control-center/pull/4019)) ([`ea77dae`](https://github.com/juspay/hyperswitch-control-center/commit/ea77daebb9b77ca491e5004d7dab0fd404b6e30e))
+- Add Payjustnowinstore WASM ([#4021](https://github.com/juspay/hyperswitch-control-center/pull/4021)) ([`0be9913`](https://github.com/juspay/hyperswitch-control-center/commit/0be9913f7894cb5b22ba2ed3e28ca7bf11cd1aa1))
+
+**Full Changelog:** [`2025.12.22.0...2025.12.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.22.0...2025.12.24.0)
+
+- - -
+
 ## 2025.12.22.0
 
 ### Bug Fixes
