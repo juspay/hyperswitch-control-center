@@ -46,7 +46,9 @@ let make = (
     metrixMapper,
   } = singleStatEntity
 
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let jsonTransFormer = switch singleStatEntity {
   | {jsonTransformer} => jsonTransformer
   | _ => (_val, arr) => arr

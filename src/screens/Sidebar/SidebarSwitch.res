@@ -1,7 +1,9 @@
 module OrgMerchantSwitchCollapsed = {
   @react.component
   let make = () => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {state: {commonInfo: {orgId, merchantId}}} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let style = "p-2 mx-auto my-0.5 text-white font-semibold  fs-20 ring-1 ring-blue-800 ring-opacity-15 rounded uppercase "
 
     <div className="flex flex-col gap-2">
@@ -13,7 +15,7 @@ module OrgMerchantSwitchCollapsed = {
 
 @react.component
 let make = (~isSidebarExpanded=false) => {
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {resolvedUserInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let {globalUIConfig: {sidebarColor: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let expandedContent = {

@@ -7,7 +7,8 @@ let make = (~previewOnly=false) => {
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {
-    userInfo: {transactionEntity, merchantId, orgId, version},
+    state: {commonInfo: {merchantId, orgId, version}},
+    resolvedUserInfo: {transactionEntity},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

@@ -20,7 +20,7 @@ let make = (~domain="payments") => {
     ~origin="analytics",
     (),
   )
-  let {checkUserEntity, userInfo: {analyticsEntity}} = React.useContext(
+  let {checkUserEntity, resolvedUserInfo: {analyticsEntity}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let mixpanelEvent = MixpanelHook.useSendEvent()

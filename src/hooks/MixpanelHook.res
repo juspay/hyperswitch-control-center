@@ -4,9 +4,10 @@ let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {userInfo: {email: authInfoEmail, merchantId, name}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    state: {commonInfo: {merchantId}},
+    resolvedUserInfo: {name, email: authInfoEmail},
+  } = React.useContext(UserInfoProvider.defaultContext)
   let deviceId = switch LocalStorage.getItem("deviceId")->Nullable.toOption {
   | Some(id) => id
   | None => authInfoEmail
@@ -99,14 +100,15 @@ let usePageView = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId}}, resolvedUserInfo: {name, email}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let environment = GlobalVars.hostType->getEnvironment
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async (~path) => {
     let mixpanel_token = Window.env.mixpanelToken
-    let {email, merchantId, name} = getUserInfoData()
     let body = {
       "event": "page_view",
       "properties": {

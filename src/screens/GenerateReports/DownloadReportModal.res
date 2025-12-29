@@ -16,11 +16,12 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {version}}, resolvedUserInfo: {transactionEntity}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let defaultDate = getDateFilteredObject(~range=30)
   let {filterValueJson} = FilterContext.filterContext->React.useContext
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
 
   let downloadReport = async body => {
     try {

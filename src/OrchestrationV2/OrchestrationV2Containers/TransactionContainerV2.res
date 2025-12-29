@@ -5,7 +5,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {resolvedUserInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {

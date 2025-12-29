@@ -9,7 +9,7 @@ let make = (~isFromMilestoneCard=false) => {
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
   )
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId}}} = React.useContext(UserInfoProvider.defaultContext)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
 
   let getProdVerifyDetails = async () => {

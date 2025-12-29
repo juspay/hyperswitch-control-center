@@ -22,7 +22,7 @@ let make = (
     showBillingAddress,
     setPaymentStatus,
   } = React.useContext(SDKProvider.defaultContext)
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {resolvedUserInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,

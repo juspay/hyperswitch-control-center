@@ -13,8 +13,7 @@ let make = () => {
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-  let {profileId} = getUserInfoData()
+  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(

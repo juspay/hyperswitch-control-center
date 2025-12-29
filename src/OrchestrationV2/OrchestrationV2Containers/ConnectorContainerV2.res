@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchUtils
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess, _} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,

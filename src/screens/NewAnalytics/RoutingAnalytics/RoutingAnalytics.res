@@ -6,7 +6,7 @@ let make = () => {
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+  let {resolvedUserInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let url = RescriptReactRouter.useUrl()

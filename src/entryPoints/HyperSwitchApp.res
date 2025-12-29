@@ -30,7 +30,8 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {
-    userInfo: {orgId, merchantId, profileId, roleId, version},
+    state: {commonInfo: {orgId, merchantId, profileId, version}},
+    resolvedUserInfo: {roleId},
     checkUserEntity,
   } = React.useContext(UserInfoProvider.defaultContext)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser

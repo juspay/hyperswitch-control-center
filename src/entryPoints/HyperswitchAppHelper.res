@@ -24,7 +24,7 @@ module TestMode = {
   @react.component
   let make = () => {
     let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {resolvedUserInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
     let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
     let showTestMode = !isLiveMode && !isInternalUser

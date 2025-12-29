@@ -250,7 +250,7 @@ module BasicDetailsSection = {
 }
 @react.component
 let make = () => {
-  let {userInfo: {isTwoFactorAuthSetup}} = React.useContext(UserInfoProvider.defaultContext)
+  let {resolvedUserInfo: {isTwoFactorAuthSetup}} = React.useContext(UserInfoProvider.defaultContext)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />

@@ -16,7 +16,7 @@ let make = () => {
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+  let {resolvedUserInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let mixpanelEvent = MixpanelHook.useSendEvent()

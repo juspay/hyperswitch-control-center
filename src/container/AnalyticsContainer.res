@@ -4,7 +4,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+  let {resolvedUserInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {performanceMonitor, disputeAnalytics, authenticationAnalytics, routingAnalytics} =

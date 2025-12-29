@@ -39,7 +39,7 @@ let make = () => {
   let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=VaultProcessor,
   )
-  let {userInfo: {profileId, merchantId, version}} = React.useContext(
+  let {state: {commonInfo: {profileId, merchantId, version}}} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom

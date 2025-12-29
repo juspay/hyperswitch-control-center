@@ -49,7 +49,7 @@ let make = (~children) => {
   let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => IntialPreview)
   let (showSetupFutureUsage, setShowSetupFutureUsage) = React.useState(_ => false)
   let (sendAuthType, setSendAuthType) = React.useState(_ => true)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
 
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")

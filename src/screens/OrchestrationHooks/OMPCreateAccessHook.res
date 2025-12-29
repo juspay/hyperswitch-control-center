@@ -10,7 +10,7 @@ let roleIdVariantMapper: string => adminType = roleId => {
 }
 
 let useOMPCreateAccessHook: array<adminType> => CommonAuthTypes.authorization = allowedRoles => {
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {resolvedUserInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let roleIdTypedValue = roleId->roleIdVariantMapper
 
   allowedRoles->Array.includes(roleIdTypedValue) ? Access : NoAccess

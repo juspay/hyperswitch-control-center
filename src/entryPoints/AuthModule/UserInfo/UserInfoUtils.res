@@ -17,6 +17,16 @@ let defaultValueOfUserInfo = {
   version: V1,
 }
 
+let defaultApplicationState: providerStateType = {
+  commonInfo: {
+    orgId: "",
+    profileId: "",
+    merchantId: "",
+    version: V1,
+  },
+  details: DashboardUser(defaultValueOfUserInfo),
+}
+
 let entityMapper = entity => {
   switch entity->String.toLowerCase {
   | "tenant" => #Tenant
@@ -53,13 +63,14 @@ let versionMapper = version =>
   }
 
 let defaultValueOfUserInfoProvider = {
-  userInfo: defaultValueOfUserInfo,
-  setUserInfoData: _ => (),
-  getUserInfoData: _ => defaultValueOfUserInfo,
+  state: defaultApplicationState,
+  resolvedUserInfo: defaultValueOfUserInfo,
+  setApplicationState: _ => (),
+  setUpdatedDashboardUserInfo: _ => (),
   checkUserEntity: _ => false,
 }
 open LogicUtils
-let itemMapper = dict => {
+let itemMapperToDashboardUserType = dict => {
   email: dict->getString("email", defaultValueOfUserInfo.email),
   isTwoFactorAuthSetup: dict->getBool(
     "is_two_factor_auth_setup",
@@ -77,4 +88,28 @@ let itemMapper = dict => {
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
   themeId: dict->getString("theme_id", ""),
   version: dict->getString("version", "v1")->versionMapper,
+}
+
+let convertValueToDashboardApplicationState = dict => {
+  {
+    commonInfo: {
+      orgId: dict->getString("org_id", ""),
+      profileId: dict->getString("profile_id", ""),
+      merchantId: dict->getString("merchant_id", ""),
+      version: dict->getString("version", "v1")->versionMapper,
+    },
+    details: DashboardUser(dict->itemMapperToDashboardUserType),
+  }
+}
+
+let convertValueToEmbeddableApplicationState = dict => {
+  {
+    commonInfo: {
+      orgId: dict->getString("org_id", ""),
+      profileId: dict->getString("profile_id", ""),
+      merchantId: dict->getString("merchant_id", ""),
+      version: dict->getString("version", "v1")->versionMapper,
+    },
+    details: EmbeddableUser,
+  }
 }

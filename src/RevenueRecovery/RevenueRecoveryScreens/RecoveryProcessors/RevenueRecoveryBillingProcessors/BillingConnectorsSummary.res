@@ -14,7 +14,7 @@ module WebhooksConfiguration = {
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
       ~version=UserInfoTypes.V2,
     )
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -546,7 +546,7 @@ let make = () => {
   open LogicUtils
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId}}} = React.useContext(UserInfoProvider.defaultContext)
 
   let removeFieldsFromRespose = json => {
     let dict = json->getDictFromJsonObject

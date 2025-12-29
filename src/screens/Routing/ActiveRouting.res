@@ -74,7 +74,7 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
-    let {userInfo: {profileId: currentprofileId}} = React.useContext(
+    let {state: {commonInfo: {profileId: currentprofileId}}} = React.useContext(
       UserInfoProvider.defaultContext,
     )
     let activeRoutingType =
@@ -187,7 +187,7 @@ let make = (~routingType: array<JSON.t>) => {
     (
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
   let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)
   let gridClass = totalCards > 1 ? "grid grid-cols-1 lg:grid-cols-2 gap-9" : ""
   <div className={`mt-8 ${gridClass}`}>

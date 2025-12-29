@@ -179,7 +179,9 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId, profileId}, details}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -193,7 +195,17 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+    // let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+
+    let (transactionEntity, analyticsEntity, userEntity) = switch details {
+    | DashboardUser(userInfo) => (
+        userInfo.transactionEntity,
+        userInfo.analyticsEntity,
+        userInfo.userEntity,
+      )
+    | EmbeddableUser => (#Merchant, #Merchant, #Merchant)
+    }
+
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
@@ -1585,7 +1597,9 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1639,7 +1653,9 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()

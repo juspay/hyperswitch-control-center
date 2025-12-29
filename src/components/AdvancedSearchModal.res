@@ -22,7 +22,9 @@ module AdvanceSearch = {
     let showToast = ToastState.useShowToast()
     let {xFeatureRoute, forceCookies} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
 
     let onSubmit = (values, _) => {
       let otherQueries = switch values->JSON.Decode.object {

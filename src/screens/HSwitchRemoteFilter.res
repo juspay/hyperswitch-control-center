@@ -173,8 +173,7 @@ module RemoteTableFilters = {
     open ConnectorUtils
 
     let getURL = useGetURL()
-    let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
-
+    let {resolvedUserInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
     let {
       filterValue,
       updateExistingKeys,
