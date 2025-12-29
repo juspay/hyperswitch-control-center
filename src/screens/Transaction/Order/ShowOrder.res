@@ -412,11 +412,13 @@ module OrderActions = {
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
+    let disputeData = orderData.disputes
 
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
-
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
+    let disputeAmount = ref(0.0)
+
     let _ = refundData->Array.map(ele => {
       if ele.status === "pending" {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
@@ -424,10 +426,18 @@ module OrderActions = {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
+
+    let _ = disputeData->Array.map(ele => {
+      if ele.dispute_status === "dispute_lost" {
+        disputeAmount := disputeAmount.contents +. ele.amount->Float.fromString->Option.getOr(0.0)
+      }
+    })
+
     React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
+        disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
       )
 
