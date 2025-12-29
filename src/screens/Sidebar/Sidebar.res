@@ -669,7 +669,7 @@ let make = (
     switch (List.head(segments), List.tail(segments)) {
     | (Some(segment), Some(rest)) => `/${segment}` ++ buildPathFromSegments(rest)
     | (Some(segment), None) => `/${segment}`
-    | (None, _) => ""
+    | (_, _) => ""
     }
   }
 
