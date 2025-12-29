@@ -206,6 +206,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
+
   if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
     defaultSidebar->Array.pushMany([
       Link({
