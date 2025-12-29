@@ -67,7 +67,6 @@ let getHeading = colType => {
   }
 }
 let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
-// Custom cell rendering for each column
 let getCell = (themeObj, colType): Table.cell => {
   open Table
   switch colType {

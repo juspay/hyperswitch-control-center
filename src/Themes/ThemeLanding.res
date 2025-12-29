@@ -9,7 +9,7 @@ let make = (~remainingPath) => {
   let getURL = useGetURL()
   let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
 
-  let setUpThemeContainer = async () => {
+  let fetchThemeList = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if userHasAccess(~groupAccess=ThemeManage) === Access {
@@ -29,7 +29,7 @@ let make = (~remainingPath) => {
   }
 
   React.useEffect(() => {
-    setUpThemeContainer()->ignore
+    fetchThemeList()->ignore
     None
   }, [])
 
