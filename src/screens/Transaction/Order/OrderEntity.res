@@ -475,7 +475,7 @@ let getHeadingForSummary = summaryColType => {
 
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Preferred connector")
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payment connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")
@@ -538,6 +538,16 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | PMBillingLastName => Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name")
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
+
+  | ExtendedAuthLastAppliedAt =>
+    Table.makeHeaderInfo(
+      ~key="extended_auth_last_applied_at",
+      ~title="Extended Auth Last Applied At",
+    )
+  | ExtendedAuthApplied =>
+    Table.makeHeaderInfo(~key="extended_auth_applied", ~title="Extended Auth Applied")
+  | RequestExtendedAuth =>
+    Table.makeHeaderInfo(~key="request_extended_auth", ~title="Request Extended Auth")
   }
 }
 
@@ -657,6 +667,17 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | PMBillingLastName => Text(order.payment_method_billing_last_name)
   | BillingPhone => Text(`${order.billingPhone}`)
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
+  | ExtendedAuthLastAppliedAt => Date(order.extended_auth_last_applied_at->Option.getOr("N/A"))
+  | ExtendedAuthApplied =>
+    switch order.extended_auth_applied {
+    | Some(val) => Text(val->getStringFromBool)
+    | None => Text("N/A")
+    }
+  | RequestExtendedAuth =>
+    switch order.request_extended_auth {
+    | Some(val) => Text(val->getStringFromBool)
+    | None => Text("N/A")
+    }
   }
 }
 
