@@ -11,7 +11,7 @@ const config = import("./src/server/config.mjs");
 let proxy = [
   {
     context: ["/api"],
-    target: "https://integ.hyperswitch.io/api",
+    target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
@@ -150,6 +150,6 @@ let libBuild = () => {
 module.exports = (env, _argv) => {
   var webpackConfigs = [serverConfig];
   webpackConfigs.push(libBuild(env));
-  console.log("LibApp webpack configs loaded");
+  console.log("Embeddable app webpack configs loaded");
   return webpackConfigs;
 };

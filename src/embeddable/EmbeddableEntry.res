@@ -90,8 +90,7 @@ module ContextWrapper = {
 }
 
 let renderDashboardAppLibrary = children => {
-  Js.log2("inside renderDashboardAppLibrary", getElementById("app"))
-  switch getElementById("app") {
+  switch ReactDOM.querySelector("#app") {
   | Some(container) =>
     open ReactDOM.Client
     open ReactDOM.Client.Root
