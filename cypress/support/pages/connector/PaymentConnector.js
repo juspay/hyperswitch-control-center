@@ -11,10 +11,17 @@ class PaymentConnector {
     return cy.get('[data-button-for="connectNow"]');
   }
 
+  get connectorSearchInput() {
+    return cy.get('[data-testid="search-processor"]');
+  }
+
   get stripeDummyConnector() {
     return cy.get('[data-testid="stripe_test"]');
   }
 
+  get addConnectButton() {
+    return cy.get('[data-button-text="Connect"]');
+  }
   get connectAndProceedButton() {
     return cy.get("[data-button-for=connectAndProceed]");
   }
