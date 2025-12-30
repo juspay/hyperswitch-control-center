@@ -37,7 +37,7 @@ let configMiddleware = (req, res, next) => {
 let libBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
-    app: `./src/entryPoints/EmbeddableEntry.res.js`,
+    app: `./src/embeddable/EmbeddableEntry.res.js`,
   };
   return {
     mode: isDevelopment ? "development" : "production",
@@ -132,7 +132,7 @@ let libBuild = () => {
           },
           // Copy libapp index.html explicitly
           {
-            from: "public/libapp/index.html",
+            from: "public/embeddable-app/index.html",
             to: "index.html",
           },
         ].filter(Boolean),
