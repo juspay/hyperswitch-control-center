@@ -5,7 +5,7 @@ module Provider = {
 }
 type userInfoScreenState = Loading | Success | Error
 @react.component
-let make = (~children) => {
+let make = (~children, ~isEmbeddableApp=false) => {
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (userInfo, setUserInfo) = React.useState(_ => UserInfoUtils.defaultValueOfUserInfo)
   let fetchApi = AuthHooks.useApiFetcher()
