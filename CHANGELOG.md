@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2025.12.30.0
+
+### Features
+
+- Redesigned additional details flow ([#3939](https://github.com/juspay/hyperswitch-control-center/pull/3939)) ([`3b0579e`](https://github.com/juspay/hyperswitch-control-center/commit/3b0579eb26d42b8b61ea4c23abff3b419e6488c0))
+- Added theme list page ([#3893](https://github.com/juspay/hyperswitch-control-center/pull/3893)) ([`55013a6`](https://github.com/juspay/hyperswitch-control-center/commit/55013a6ea728310238b59eb617d7adcff76f72ab))
+
+**Full Changelog:** [`2025.12.24.1...2025.12.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.24.1...2025.12.30.0)
+
+- - -
+
 ## 2025.12.24.1
 
 ### Features
