@@ -132,7 +132,9 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {profileId, version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)

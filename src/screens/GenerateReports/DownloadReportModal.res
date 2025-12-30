@@ -16,9 +16,11 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {getCommonDetails, getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonTokenDetails, getResolvedUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {transactionEntity} = getResolvedUserInfo()
-  let {version} = getCommonDetails()
+  let {version} = getCommonTokenDetails()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let defaultDate = getDateFilteredObject(~range=30)
   let {filterValueJson} = FilterContext.filterContext->React.useContext

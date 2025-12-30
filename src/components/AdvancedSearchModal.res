@@ -24,7 +24,7 @@ module AdvanceSearch = {
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
-    ).getCommonDetails()
+    ).getCommonTokenDetails()
 
     let onSubmit = (values, _) => {
       let otherQueries = switch values->JSON.Decode.object {

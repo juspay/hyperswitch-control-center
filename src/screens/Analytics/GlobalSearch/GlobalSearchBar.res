@@ -21,7 +21,7 @@ let make = () => {
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active

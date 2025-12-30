@@ -42,6 +42,6 @@ type userInfoProviderTypes = {
   setUpdatedDashboardUserInfo: userInfo => unit,
   getResolvedEmbeddableInfo: unit => embeddableInfoType,
   setUpdatedEmbeddableInfo: embeddableInfoType => unit,
-  getCommonDetails: unit => commonInfoType,
+  getCommonTokenDetails: unit => commonInfoType,
   checkUserEntity: array<entity> => bool,
 }

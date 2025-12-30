@@ -6,7 +6,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let {merchantId, orgId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonDetails()
+  ).getCommonTokenDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}

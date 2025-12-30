@@ -20,7 +20,7 @@ let make = (~permaLinkFor=?) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {orgId, merchantId, profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonDetails()
+  ).getCommonTokenDetails()
   let handleDeepLinkClick = () => {
     mixpanelEvent(~eventName="copy_deep_link")
   }

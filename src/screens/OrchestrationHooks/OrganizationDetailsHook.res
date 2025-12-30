@@ -3,7 +3,7 @@ let useFetchOrganizationDetails = () => {
   let fetchDetails = APIUtils.useGetMethod()
   let setOrganizationDetailsValue =
     HyperswitchAtom.organizationDetailsValueAtom->Recoil.useSetRecoilState
-  let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
 
   async () => {
     try {

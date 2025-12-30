@@ -3,7 +3,7 @@ module AdvanceSettings = {
   let make = (~isUpdateFlow, ~frmName, ~renderCountrySelector) => {
     let (isFRMSettings, setIsFRMSettings) = React.useState(_ => isUpdateFlow)
     let form = ReactFinalForm.useForm()
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
 
     let inputLabel: ReactFinalForm.fieldRenderPropsInput = {
       name: `input`,

@@ -66,7 +66,7 @@ let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
 
 let useCommonAuthInfo = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let {name, email, roleId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getResolvedUserInfo()

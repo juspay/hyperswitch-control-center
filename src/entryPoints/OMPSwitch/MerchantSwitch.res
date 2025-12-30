@@ -155,7 +155,7 @@ let make = () => {
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let (showModal, setShowModal) = React.useState(_ => false)
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let isMobileView = MatchMedia.useMobileChecker()

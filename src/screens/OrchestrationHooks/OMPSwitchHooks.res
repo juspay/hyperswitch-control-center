@@ -7,10 +7,10 @@ type userInfo = {
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {getCommonDetails, setUpdatedDashboardUserInfo, getResolvedUserInfo} = React.useContext(
+  let {getCommonTokenDetails, setUpdatedDashboardUserInfo, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {profileId, merchantId} = getCommonDetails()
+  let {profileId, merchantId} = getCommonTokenDetails()
 
   let url = `${Window.env.apiBaseUrl}/user`
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -192,10 +192,10 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
-  let {getCommonDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
+  let {getCommonTokenDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {orgId} = getCommonDetails()
+  let {orgId} = getCommonTokenDetails()
   let url = RescriptReactRouter.useUrl()
   async (
     ~expectedOrgId=None,
@@ -255,7 +255,7 @@ let useOMPData = () => {
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let {orgId, profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonDetails()
+  ).getCommonTokenDetails()
 
   let getList: unit => OMPSwitchTypes.ompList = _ => {
     {

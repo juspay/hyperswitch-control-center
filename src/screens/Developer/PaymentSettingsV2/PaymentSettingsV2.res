@@ -41,7 +41,7 @@ let make = () => {
   )
   let {profileId, merchantId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonDetails()
+  ).getCommonTokenDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)

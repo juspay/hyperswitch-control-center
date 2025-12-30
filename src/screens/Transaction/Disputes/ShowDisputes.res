@@ -52,7 +52,9 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-    let {orgId, merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+    let {orgId, merchantId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonTokenDetails()
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)

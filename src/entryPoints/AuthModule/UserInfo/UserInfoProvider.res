@@ -3,12 +3,14 @@ let defaultContext = React.createContext(UserInfoUtils.defaultValueOfUserInfoPro
 module Provider = {
   let make = React.Context.provider(defaultContext)
 }
+
 type userInfoScreenState = Loading | Success | Error
 @react.component
 let make = (~children) => {
+  open UserInfoUtils
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (applicationState, setApplicationState) = React.useState(_ => UserInfoTypes.DashboardUser(
-    UserInfoUtils.defaultValueOfUserInfo,
+    defaultValueOfUserInfo,
   ))
 
   let fetchApi = AuthHooks.useApiFetcher()
@@ -16,7 +18,7 @@ let make = (~children) => {
 
   let getUserInfo = async () => {
     open LogicUtils
-    open UserInfoUtils
+
     let url = `${Window.env.apiBaseUrl}/user`
     try {
       let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute, ~forceCookies)
@@ -36,24 +38,20 @@ let make = (~children) => {
    *
    * Example: recovery codes remaining.
    */
-  let getResolvedUserInfo = () => {
-    switch applicationState {
-    | DashboardUser(info) => info
-    | EmbeddableUser(_) => UserInfoUtils.defaultValueOfUserInfo // Return default for embeddable user
-    }
-  }
+  let getResolvedUserInfo = () =>
+    applicationState
+    ->getDashboardUser
+    ->Option.mapOr(defaultValueOfUserInfo, info => info)
 
   /*
    * Use this when the component only needs `embeddableInfo` and will not be used for dashboard users.
    * Returns the set `embeddableInfo` for embeddable users and a default value for dashboard users.
    *
    */
-  let getResolvedEmbeddableInfo = () => {
-    switch applicationState {
-    | DashboardUser(_) => UserInfoUtils.defaultValueOfEmbeddedInfo
-    | EmbeddableUser(info) => info // Return default for embeddable user
-    }
-  }
+  let getResolvedEmbeddableInfo = () =>
+    applicationState
+    ->getEmbeddableUserInfo
+    ->Option.mapOr(defaultValueOfEmbeddedInfo, info => info)
 
   /*
    * Updates the dashboard user's `userInfo` in the application state.
@@ -61,6 +59,7 @@ let make = (~children) => {
    * This function only applies to `DashboardUser`. If the current user is an
    * `EmbeddableUser`, the state is returned unchanged.
    */
+
   let setUpdatedDashboardUserInfo = (userInfo: UserInfoTypes.userInfo) => {
     setApplicationState(prevState =>
       switch prevState {
@@ -85,7 +84,7 @@ let make = (~children) => {
     )
   }
 
-  let getCommonDetails: unit => UserInfoTypes.commonInfoType = () => {
+  let getCommonTokenDetails: unit => UserInfoTypes.commonInfoType = () => {
     switch applicationState {
     | DashboardUser(dashboardInfo) => {
         orgId: dashboardInfo.orgId,
@@ -122,7 +121,7 @@ let make = (~children) => {
       setUpdatedDashboardUserInfo,
       getResolvedEmbeddableInfo,
       setUpdatedEmbeddableInfo,
-      getCommonDetails,
+      getCommonTokenDetails,
       checkUserEntity,
     }>
     <RenderIf condition={screenState === Success}> children </RenderIf>

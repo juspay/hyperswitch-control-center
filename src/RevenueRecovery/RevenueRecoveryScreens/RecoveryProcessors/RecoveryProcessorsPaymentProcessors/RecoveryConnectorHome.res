@@ -14,7 +14,9 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let {profileId, merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
   let showToast = ToastState.useShowToast()
 

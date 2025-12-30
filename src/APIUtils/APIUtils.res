@@ -179,8 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getCommonDetails, state} = React.useContext(UserInfoProvider.defaultContext)
-  let {merchantId, profileId} = getCommonDetails()
+  let {getCommonTokenDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonTokenDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -1594,7 +1594,9 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1648,7 +1650,9 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()

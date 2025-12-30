@@ -17,11 +17,11 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {getCommonDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+  let {getCommonTokenDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {orgId, merchantId} = getCommonDetails()
+  let {orgId, merchantId} = getCommonTokenDetails()
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("start_time", "")
 

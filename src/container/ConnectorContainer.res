@@ -11,7 +11,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let setUpConnectoreContainer = async () => {

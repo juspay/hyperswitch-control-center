@@ -13,7 +13,7 @@ let make = (~isPayoutFlow=false) => {
   let {updateExistingKeys, reset, filterValueJson, filterValue} =
     FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
   }, [filterValueJson])

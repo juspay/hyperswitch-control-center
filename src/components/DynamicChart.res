@@ -235,7 +235,9 @@ let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
 
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise

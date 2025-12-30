@@ -112,7 +112,7 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
 
   let pageConfig = {
     pageTitle: "3DS Exemption Rules",

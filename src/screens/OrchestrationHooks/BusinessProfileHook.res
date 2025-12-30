@@ -37,7 +37,7 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
 let useUpdateBusinessProfile = (~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let setBusinessProfileRecoil =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
 

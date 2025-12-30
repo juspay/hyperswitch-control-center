@@ -89,7 +89,7 @@ let make = () => {
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {orgId, merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonDetails()
+  ).getCommonTokenDetails()
   let (selectedOrg, setSelectedOrg) = React.useState(() => orgId)
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)

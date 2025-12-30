@@ -28,7 +28,7 @@ module SettingsForm = {
   let make = (~isAcquirerConfigArrEmpty, ~handleCloseForm, ~editingConfig=None) => {
     open Fetch
     let showToast = ToastState.useShowToast()
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()

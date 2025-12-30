@@ -17,11 +17,11 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {getCommonDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+  let {getCommonTokenDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {merchantId, orgId} = getCommonDetails()
+  let {merchantId, orgId} = getCommonTokenDetails()
 
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("start_time", "")

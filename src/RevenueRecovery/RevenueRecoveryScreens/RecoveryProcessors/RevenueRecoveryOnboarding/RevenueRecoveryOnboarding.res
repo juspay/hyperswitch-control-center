@@ -11,7 +11,9 @@ let make = () => {
     hasConfiguredPaymentConnector ? defaultStepBilling : getDefaultStep(isLiveMode)
   )
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let {profileId, merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
   let activeBusinessProfile = getNameForId(#Profile)

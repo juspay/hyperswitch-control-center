@@ -66,9 +66,11 @@ module RoleAccessOverview = {
 module NoteComponent = {
   @react.component
   let make = () => {
-    let {getCommonDetails, getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+    let {getCommonTokenDetails, getResolvedUserInfo} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
     let {userEntity} = getResolvedUserInfo()
-    let {orgId, merchantId, profileId} = getCommonDetails()
+    let {orgId, merchantId, profileId} = getCommonTokenDetails()
 
     // TODO : Chnage id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {

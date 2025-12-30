@@ -190,7 +190,7 @@ let make = () => {
   open FormRenderer
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,

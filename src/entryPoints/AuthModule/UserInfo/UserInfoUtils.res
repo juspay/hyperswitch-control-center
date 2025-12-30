@@ -73,7 +73,7 @@ let defaultValueOfUserInfoProvider = {
   setApplicationState: _ => (),
   setUpdatedDashboardUserInfo: _ => (),
   setUpdatedEmbeddableInfo: _ => (),
-  getCommonDetails: _ => defaultCommonInfo,
+  getCommonTokenDetails: _ => defaultCommonInfo,
   checkUserEntity: _ => false,
 }
 
@@ -97,3 +97,15 @@ let itemMapperToDashboardUserType = dict => {
   themeId: dict->getString("theme_id", ""),
   version: dict->getString("version", "v1")->versionMapper,
 }
+
+let getDashboardUser = state =>
+  switch state {
+  | DashboardUser(info) => Some(info)
+  | _ => None
+  }
+
+let getEmbeddableUserInfo = state =>
+  switch state {
+  | EmbeddableUser(info) => Some(info)
+  | _ => None
+  }

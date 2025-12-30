@@ -72,7 +72,7 @@ let make = () => {
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 

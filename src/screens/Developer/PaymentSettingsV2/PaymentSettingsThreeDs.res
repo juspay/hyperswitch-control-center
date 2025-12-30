@@ -69,7 +69,9 @@ let make = () => {
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
-  let {profileId, version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {profileId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonTokenDetails()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let isBusinessProfileHasThreeds =
