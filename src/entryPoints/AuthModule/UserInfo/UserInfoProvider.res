@@ -40,7 +40,7 @@ let make = (~children) => {
    */
   let getResolvedUserInfo = () =>
     applicationState
-    ->getDashboardUser
+    ->getDashboardSession
     ->Option.mapOr(defaultValueOfUserInfo, info => info)
 
   /*
@@ -50,7 +50,7 @@ let make = (~children) => {
    */
   let getResolvedEmbeddableInfo = () =>
     applicationState
-    ->getEmbeddableUserInfo
+    ->getEmbeddableSession
     ->Option.mapOr(defaultValueOfEmbeddedInfo, info => info)
 
   /*
@@ -60,7 +60,7 @@ let make = (~children) => {
    * `EmbeddableSession`, the state is returned unchanged.
    */
 
-  let setUpdatedDashboardUserInfo = (userInfo: UserInfoTypes.userInfo) => {
+  let setUpdatedDashboardSessionInfo = (userInfo: UserInfoTypes.userInfo) => {
     setApplicationState(prevState =>
       switch prevState {
       | DashboardSession(_) => DashboardSession(userInfo)
@@ -75,7 +75,7 @@ let make = (~children) => {
    * This function only applies to `EmbeddableSession`. If the current user is an
    * `DashboardSession`, the state is returned unchanged.
    */
-  let setUpdatedEmbeddableInfo = (userInfo: UserInfoTypes.embeddableInfoType) => {
+  let setUpdatedEmbeddableSessionInfo = (userInfo: UserInfoTypes.embeddableInfoType) => {
     setApplicationState(prevState =>
       switch prevState {
       | DashboardSession(_) => prevState
@@ -118,9 +118,9 @@ let make = (~children) => {
       state: applicationState,
       setApplicationState,
       getResolvedUserInfo,
-      setUpdatedDashboardUserInfo,
+      setUpdatedDashboardSessionInfo,
       getResolvedEmbeddableInfo,
-      setUpdatedEmbeddableInfo,
+      setUpdatedEmbeddableSessionInfo,
       getCommonSessionDetails,
       checkUserEntity,
     }>

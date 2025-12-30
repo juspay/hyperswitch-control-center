@@ -9,7 +9,7 @@ let useUserInfo = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let {
     getCommonSessionDetails,
-    setUpdatedDashboardUserInfo,
+    setUpdatedDashboardSessionInfo,
     getResolvedUserInfo,
   } = React.useContext(UserInfoProvider.defaultContext)
   let {profileId, merchantId} = getCommonSessionDetails()
@@ -43,14 +43,14 @@ let useUserInfo = () => {
       ...getResolvedUserInfo(),
       transactionEntity,
     }
-    setUpdatedDashboardUserInfo(updateInfo)
+    setUpdatedDashboardSessionInfo(updateInfo)
   }
   let updateAnalytcisEntity = (analyticsEntity: UserInfoTypes.entity) => {
     let updateInfo = {
       ...getResolvedUserInfo(),
       analyticsEntity,
     }
-    setUpdatedDashboardUserInfo(updateInfo)
+    setUpdatedDashboardSessionInfo(updateInfo)
   }
   {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }

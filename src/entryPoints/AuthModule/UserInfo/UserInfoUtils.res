@@ -71,8 +71,8 @@ let defaultValueOfUserInfoProvider = {
   getResolvedUserInfo: _ => defaultValueOfUserInfo,
   getResolvedEmbeddableInfo: _ => defaultValueOfEmbeddedInfo,
   setApplicationState: _ => (),
-  setUpdatedDashboardUserInfo: _ => (),
-  setUpdatedEmbeddableInfo: _ => (),
+  setUpdatedDashboardSessionInfo: _ => (),
+  setUpdatedEmbeddableSessionInfo: _ => (),
   getCommonSessionDetails: _ => defaultCommonInfo,
   checkUserEntity: _ => false,
 }
@@ -98,13 +98,13 @@ let itemMapperToDashboardUserType = dict => {
   version: dict->getString("version", "v1")->versionMapper,
 }
 
-let getDashboardUser = state =>
+let getDashboardSession = state =>
   switch state {
   | DashboardSession(info) => Some(info)
   | _ => None
   }
 
-let getEmbeddableUserInfo = state =>
+let getEmbeddableSession = state =>
   switch state {
   | EmbeddableSession(info) => Some(info)
   | _ => None

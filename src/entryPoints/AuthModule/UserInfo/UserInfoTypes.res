@@ -40,9 +40,9 @@ type userInfoProviderTypes = {
   state: sessionType,
   setApplicationState: (sessionType => sessionType) => unit,
   getResolvedUserInfo: unit => userInfo,
-  setUpdatedDashboardUserInfo: userInfo => unit,
+  setUpdatedDashboardSessionInfo: userInfo => unit,
   getResolvedEmbeddableInfo: unit => embeddableInfoType,
-  setUpdatedEmbeddableInfo: embeddableInfoType => unit,
+  setUpdatedEmbeddableSessionInfo: embeddableInfoType => unit,
   getCommonSessionDetails: unit => commonInfoType,
   checkUserEntity: array<entity> => bool,
 }
