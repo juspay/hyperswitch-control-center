@@ -8,7 +8,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (screenState, setScreenState) = React.useState(_ => Loading)
-  let {state: {commonInfo: {merchantId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

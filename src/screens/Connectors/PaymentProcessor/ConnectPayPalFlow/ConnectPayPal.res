@@ -241,7 +241,7 @@ let make = (
   let showPopUp = PopUpState.useShowPopUp()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,

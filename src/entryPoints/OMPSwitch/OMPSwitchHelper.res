@@ -360,9 +360,8 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {state: {commonInfo: {merchantId, version}}, checkUserEntity} = React.useContext(
-      UserInfoProvider.defaultContext,
-    )
+    let {getCommonDetails, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+    let {merchantId, version} = getCommonDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
@@ -508,9 +507,7 @@ module ProfileDropdownItem = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {state: {commonInfo: {profileId, version}}} = React.useContext(
-      UserInfoProvider.defaultContext,
-    )
+    let {profileId, version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)

@@ -10,7 +10,7 @@ module AuthorizationAndCaptureSettings = {
     ~sendAuthType,
     ~setSendAuthType,
   ) => {
-    let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let handleIsSelectedForFuture = (val, setFunc) => {
       setInitialValuesForCheckoutForm(_ => {
         SDKPaymentUtils.initialValueForForm(~showSetupFutureUsage=val, ~sendAuthType, ~profileId)

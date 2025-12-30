@@ -179,9 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {state: {commonInfo: {merchantId, profileId}, details}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {getCommonDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -195,15 +194,13 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
-    // let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
-
-    let (transactionEntity, analyticsEntity, userEntity) = switch details {
+    let (transactionEntity, analyticsEntity, userEntity) = switch state {
     | DashboardUser(userInfo) => (
         userInfo.transactionEntity,
         userInfo.analyticsEntity,
         userInfo.userEntity,
       )
-    | EmbeddableUser => (#Merchant, #Merchant, #Merchant)
+    | EmbeddableUser(_) => (#Merchant, #Merchant, #Merchant)
     }
 
     let connectorBaseURL = `account/${merchantId}/connectors`
@@ -1597,9 +1594,7 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1653,9 +1648,7 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()

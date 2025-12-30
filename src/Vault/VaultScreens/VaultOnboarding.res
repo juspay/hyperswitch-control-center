@@ -14,7 +14,7 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()

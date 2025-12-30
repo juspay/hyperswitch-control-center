@@ -524,7 +524,7 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ =>
     initialValues->Identity.genericTypeToJson

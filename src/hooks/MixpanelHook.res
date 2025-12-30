@@ -4,10 +4,11 @@ let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {
-    state: {commonInfo: {merchantId}},
-    resolvedUserInfo: {name, email: authInfoEmail},
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {name, email: authInfoEmail} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
+
   let deviceId = switch LocalStorage.getItem("deviceId")->Nullable.toOption {
   | Some(id) => id
   | None => authInfoEmail
@@ -100,9 +101,9 @@ let usePageView = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {state: {commonInfo: {merchantId}}, resolvedUserInfo: {name, email}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+  let {name, email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+
   let environment = GlobalVars.hostType->getEnvironment
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient

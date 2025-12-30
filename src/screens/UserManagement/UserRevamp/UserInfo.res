@@ -12,10 +12,10 @@ module UserAction = {
       ->LogicUtils.getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
-    let {
-      state: {commonInfo: {orgId, merchantId, profileId}},
-      resolvedUserInfo: {email},
-    } = React.useContext(UserInfoProvider.defaultContext)
+    let {getCommonDetails, getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+    let {email} = getResolvedUserInfo()
+
+    let {orgId, merchantId, profileId} = getCommonDetails()
 
     let decideWhatToShow = {
       if userEmail === email {

@@ -34,9 +34,8 @@ let make = () => {
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let {resolvedUserInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = getResolvedUserInfo()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
 
   let loadInfo = async () => {

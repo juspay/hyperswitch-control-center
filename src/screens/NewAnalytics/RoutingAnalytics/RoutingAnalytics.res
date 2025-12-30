@@ -6,9 +6,8 @@ let make = () => {
 
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let {resolvedUserInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = getResolvedUserInfo()
   let url = RescriptReactRouter.useUrl()
   let featureFlagAtom = HyperswitchAtom.featureFlagAtom
   let {isLiveMode, debitRouting} = featureFlagAtom->Recoil.useRecoilValueFromAtom

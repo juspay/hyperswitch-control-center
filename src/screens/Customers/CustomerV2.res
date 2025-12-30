@@ -14,7 +14,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
-  let {state: {commonInfo: {version}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let {filterValueJson, updateExistingKeys, reset} = React.useContext(FilterContext.filterContext)
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}

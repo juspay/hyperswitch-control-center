@@ -1,16 +1,16 @@
 type userInfo = {
-  getUserInfo: unit => promise<UserInfoTypes.providerStateType>,
+  getUserInfo: unit => promise<UserInfoTypes.userInfo>,
   updateTransactionEntity: UserInfoTypes.entity => unit,
   updateAnalytcisEntity: UserInfoTypes.entity => unit,
 }
+
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {
-    state: {commonInfo: {profileId, merchantId}},
-    setUpdatedDashboardUserInfo,
-    resolvedUserInfo,
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonDetails, setUpdatedDashboardUserInfo, getResolvedUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {profileId, merchantId} = getCommonDetails()
 
   let url = `${Window.env.apiBaseUrl}/user`
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -26,15 +26,8 @@ let useUserInfo = () => {
         ~profileId={profileId},
       )
       let response = await res->(res => res->Fetch.Response.json)
-      let userInfo =
-        response->getDictFromJsonObject->UserInfoUtils.convertValueToDashboardApplicationState
-
-      let themeId = switch userInfo.details {
-      | DashboardUser(dashboardUserInfo) => dashboardUserInfo.themeId
-      | EmbeddableUser => ""
-      }
-
-      HyperSwitchEntryUtils.setThemeIdtoStore(themeId)
+      let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapperToDashboardUserType
+      HyperSwitchEntryUtils.setThemeIdtoStore(userInfo.themeId)
       userInfo
     } catch {
     | Exn.Error(e) => {
@@ -45,14 +38,14 @@ let useUserInfo = () => {
   }
   let updateTransactionEntity = (transactionEntity: UserInfoTypes.entity) => {
     let updateInfo = {
-      ...resolvedUserInfo,
+      ...getResolvedUserInfo(),
       transactionEntity,
     }
     setUpdatedDashboardUserInfo(updateInfo)
   }
   let updateAnalytcisEntity = (analyticsEntity: UserInfoTypes.entity) => {
     let updateInfo = {
-      ...resolvedUserInfo,
+      ...getResolvedUserInfo(),
       analyticsEntity,
     }
     setUpdatedDashboardUserInfo(updateInfo)
@@ -199,8 +192,10 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
-  let {state, setApplicationState} = React.useContext(UserInfoProvider.defaultContext)
-  let {orgId} = state.commonInfo
+  let {getCommonDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {orgId} = getCommonDetails()
   let url = RescriptReactRouter.useUrl()
   async (
     ~expectedOrgId=None,
@@ -213,29 +208,25 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
       let userInfoResFromSwitchOrg = await orgSwitch(
         ~expectedOrgId=expectedOrgId->Option.getOr(orgId),
         ~currentOrgId=orgId,
-        ~defaultValue=state,
+        ~defaultValue=getResolvedUserInfo(),
         ~version,
       )
 
       let userInfoResFromSwitchMerch = await merchSwitch(
-        ~expectedMerchantId=expectedMerchantId->Option.getOr(
-          userInfoResFromSwitchOrg.commonInfo.merchantId,
-        ),
-        ~currentMerchantId=userInfoResFromSwitchOrg.commonInfo.merchantId,
+        ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
+        ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
         ~defaultValue=userInfoResFromSwitchOrg,
         ~version,
       )
 
       let userInfoFromProfile = await profileSwitch(
-        ~expectedProfileId=expectedProfileId->Option.getOr(
-          userInfoResFromSwitchMerch.commonInfo.profileId,
-        ),
-        ~currentProfileId=userInfoResFromSwitchMerch.commonInfo.profileId,
+        ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
+        ~currentProfileId=userInfoResFromSwitchMerch.profileId,
         ~defaultValue=userInfoResFromSwitchMerch,
         ~version,
       )
 
-      setApplicationState(_ => userInfoFromProfile)
+      setApplicationState(_ => DashboardUser(userInfoFromProfile))
 
       if changePath {
         // When the internal switch is triggered from the dropdown,
@@ -262,9 +253,9 @@ let useOMPData = () => {
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-  let {state: {commonInfo: {orgId, profileId, merchantId}}} = React.useContext(
+  let {orgId, profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonDetails()
 
   let getList: unit => OMPSwitchTypes.ompList = _ => {
     {

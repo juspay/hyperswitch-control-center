@@ -57,9 +57,7 @@ module RefundInfo = {
   @react.component
   let make = (~orderDict) => {
     let refundData = itemToObjMapper(orderDict)
-    let {state: {commonInfo: {merchantId, orgId}}} = React.useContext(
-      UserInfoProvider.defaultContext,
-    )
+    let {merchantId, orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
@@ -94,9 +92,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastState.useShowToast()
   let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
 
-  let {
-    state: {commonInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}},
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonDetails()
+
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchRefundData = async () => {
     try {

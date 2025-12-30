@@ -290,7 +290,7 @@ let make = () => {
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
-  let {state: {commonInfo: {version}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,

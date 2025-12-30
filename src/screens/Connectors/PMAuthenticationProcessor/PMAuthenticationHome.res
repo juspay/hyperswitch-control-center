@@ -58,7 +58,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

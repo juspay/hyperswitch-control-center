@@ -446,7 +446,7 @@ module StyleIdSelection = {
     open PaymentLinkThemeConfiguratorTypes
     open BusinessProfileInterfaceUtils
     open Typography
-    let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )

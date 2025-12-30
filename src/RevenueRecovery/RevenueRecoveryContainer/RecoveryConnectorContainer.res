@@ -7,9 +7,7 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
-  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

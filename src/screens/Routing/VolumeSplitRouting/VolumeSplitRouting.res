@@ -213,7 +213,7 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let (formState, setFormState) = React.useState(_ => RoutingTypes.EditReplica)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())

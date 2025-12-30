@@ -39,9 +39,9 @@ let make = () => {
   let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=VaultProcessor,
   )
-  let {state: {commonInfo: {profileId, merchantId, version}}} = React.useContext(
+  let {profileId, merchantId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)

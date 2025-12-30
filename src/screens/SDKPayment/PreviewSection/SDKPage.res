@@ -3,7 +3,7 @@ let make = () => {
   open SDKPaymentUtils
   let getURL = APIUtils.useGetURL()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let {
     keyForReRenderingSDK,

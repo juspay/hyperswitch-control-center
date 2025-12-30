@@ -17,7 +17,7 @@ module ApiEditModal = {
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {state: {commonInfo: {version}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (modalState, setModalState) = React.useState(_ => action)
     let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
@@ -231,7 +231,7 @@ module TableActionsCell = {
     let deleteDetails = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
-    let {state: {commonInfo: {version}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     // TODO: Remove `MerchantDetailsManage` permission in future
@@ -326,7 +326,7 @@ module ApiKeysTable = {
   let make = (~dataNotFoundComponent=?) => {
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
-    let {state: {commonInfo: {version}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let (offset, setOffset) = React.useState(_ => 0)
     let (data, setData) = React.useState(_ => [])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

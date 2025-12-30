@@ -26,21 +26,22 @@ type userInfo = {
   ...commonInfoType,
 }
 
+type embeddableInfoType = {
+  ...commonInfoType,
+}
+
 /* There will be two type of user that can access the dashboard 
  1. DashboardUser - Normal hyperswitch user (Will contain userInfo details)
  2. EmbeddableUser - User accessing via embeddable flow ( As of now kept version as its needed in most of the place to call the api, but details are not provided by the api )
 */
-type detailsInfoType = DashboardUser(userInfo) | EmbeddableUser
-
-type providerStateType = {
-  commonInfo: commonInfoType,
-  details: detailsInfoType,
-}
-
+type detailsInfoType = DashboardUser(userInfo) | EmbeddableUser(embeddableInfoType)
 type userInfoProviderTypes = {
-  state: providerStateType,
+  state: detailsInfoType,
+  setApplicationState: (detailsInfoType => detailsInfoType) => unit,
+  getResolvedUserInfo: unit => userInfo,
   setUpdatedDashboardUserInfo: userInfo => unit,
-  setApplicationState: (providerStateType => providerStateType) => unit,
-  resolvedUserInfo: userInfo,
+  getResolvedEmbeddableInfo: unit => embeddableInfoType,
+  setUpdatedEmbeddableInfo: embeddableInfoType => unit,
+  getCommonDetails: unit => commonInfoType,
   checkUserEntity: array<entity> => bool,
 }

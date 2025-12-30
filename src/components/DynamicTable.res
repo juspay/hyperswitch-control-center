@@ -134,9 +134,8 @@ let make = (
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let showToast = ToastState.useShowToast()
-  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
+
   let localOptions =
     Array.concat(options, popupFilterFields)->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions =

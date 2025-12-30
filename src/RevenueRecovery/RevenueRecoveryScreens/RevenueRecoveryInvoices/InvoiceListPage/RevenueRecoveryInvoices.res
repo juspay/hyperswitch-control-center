@@ -4,9 +4,9 @@ let make = () => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {state: {commonInfo: {merchantId, orgId, profileId}}} = React.useContext(
+  let {merchantId, orgId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}

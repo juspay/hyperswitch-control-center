@@ -20,7 +20,7 @@ let make = (
   let showRefundAddressEmail =
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
-  let {state: {commonInfo: {merchantId, orgId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let isSplitPayment =
     order.connector->String.toLowerCase->isSplitPaymentConnector &&
       !(order.split_payments->isEmptyDict)

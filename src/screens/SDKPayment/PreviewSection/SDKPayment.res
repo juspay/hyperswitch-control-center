@@ -52,9 +52,9 @@ let make = () => {
     clientSecretStatus,
     sdkThemeInitialValues,
   } = React.useContext(SDKProvider.defaultContext)
-  let {state: {commonInfo: {orgId, merchantId, profileId}}} = React.useContext(
+  let {orgId, merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonDetails()
 
   let paymentId = if paymentIdFromUrl->Option.isSome {
     paymentIdFromUrl

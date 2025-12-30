@@ -66,7 +66,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"3ds-authenticators", "new"} => false

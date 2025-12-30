@@ -142,9 +142,7 @@ let make = (
 ) => {
   open LogicUtils
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson

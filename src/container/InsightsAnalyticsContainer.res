@@ -15,9 +15,8 @@ let make = () => {
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let {resolvedUserInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let tempRecallAmountMetrics = async () => {

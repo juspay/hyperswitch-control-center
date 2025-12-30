@@ -83,9 +83,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (bottomChartVisible, setBottomChartVisible) = React.useState(_ => false)
   let (topChartDataLegendData, setTopChartDataLegendData) = React.useState(_ => Loading)
   let (bottomChartDataLegendData, setBottomChartDataLegendData) = React.useState(_ => Loading)
-  let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {merchantId, profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let getGranularity = LineChartUtils.getGranularityNewStr
   let {filterValue} = React.useContext(FilterContext.filterContext)
   let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
@@ -608,9 +606,9 @@ module SDKAnalyticsChartContext = {
     | {jsonTransformer} => jsonTransformer
     | _ => (_val, arr) => arr
     }
-    let {state: {commonInfo: {merchantId, profileId}}} = React.useContext(
+    let {merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
-    )
+    ).getCommonDetails()
     let (topChartData, setTopChartData) = React.useState(_ => Loading)
     let (topChartVisible, setTopChartVisible) = React.useState(_ => false)
     let bottomChartData = Loading

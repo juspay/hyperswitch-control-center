@@ -76,7 +76,7 @@ let make = (
   let ip1 = ReactFinalForm.useField(`name`).input
   let ip2 = ReactFinalForm.useField(`description`).input
   let ip3 = ReactFinalForm.useField(`profile_id`).input
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom

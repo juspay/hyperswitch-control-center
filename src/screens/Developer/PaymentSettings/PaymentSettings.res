@@ -404,7 +404,7 @@ module PaymentLinkDomain = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let (allowEdit, setAllowEdit) = React.useState(_ => false)
-    let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
     let onSubmit = async (values, _) => {
@@ -715,7 +715,7 @@ module Vault = {
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
     )
-    let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let isBusinessProfileHasVault =
       vaultConnectorsList->Array.some(item => item.profile_id == profileId)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

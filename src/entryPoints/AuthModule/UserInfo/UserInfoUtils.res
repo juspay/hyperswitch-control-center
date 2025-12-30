@@ -17,14 +17,18 @@ let defaultValueOfUserInfo = {
   version: V1,
 }
 
-let defaultApplicationState: providerStateType = {
-  commonInfo: {
-    orgId: "",
-    profileId: "",
-    merchantId: "",
-    version: V1,
-  },
-  details: DashboardUser(defaultValueOfUserInfo),
+let defaultValueOfEmbeddedInfo = {
+  orgId: "",
+  profileId: "",
+  merchantId: "",
+  version: V1,
+}
+
+let defaultCommonInfo: commonInfoType = {
+  orgId: "",
+  profileId: "",
+  merchantId: "",
+  version: V1,
 }
 
 let entityMapper = entity => {
@@ -63,12 +67,16 @@ let versionMapper = version =>
   }
 
 let defaultValueOfUserInfoProvider = {
-  state: defaultApplicationState,
-  resolvedUserInfo: defaultValueOfUserInfo,
+  state: DashboardUser(defaultValueOfUserInfo),
+  getResolvedUserInfo: _ => defaultValueOfUserInfo,
+  getResolvedEmbeddableInfo: _ => defaultValueOfEmbeddedInfo,
   setApplicationState: _ => (),
   setUpdatedDashboardUserInfo: _ => (),
+  setUpdatedEmbeddableInfo: _ => (),
+  getCommonDetails: _ => defaultCommonInfo,
   checkUserEntity: _ => false,
 }
+
 open LogicUtils
 let itemMapperToDashboardUserType = dict => {
   email: dict->getString("email", defaultValueOfUserInfo.email),
@@ -88,28 +96,4 @@ let itemMapperToDashboardUserType = dict => {
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
   themeId: dict->getString("theme_id", ""),
   version: dict->getString("version", "v1")->versionMapper,
-}
-
-let convertValueToDashboardApplicationState = dict => {
-  {
-    commonInfo: {
-      orgId: dict->getString("org_id", ""),
-      profileId: dict->getString("profile_id", ""),
-      merchantId: dict->getString("merchant_id", ""),
-      version: dict->getString("version", "v1")->versionMapper,
-    },
-    details: DashboardUser(dict->itemMapperToDashboardUserType),
-  }
-}
-
-let convertValueToEmbeddableApplicationState = dict => {
-  {
-    commonInfo: {
-      orgId: dict->getString("org_id", ""),
-      profileId: dict->getString("profile_id", ""),
-      merchantId: dict->getString("merchant_id", ""),
-      version: dict->getString("version", "v1")->versionMapper,
-    },
-    details: EmbeddableUser,
-  }
 }

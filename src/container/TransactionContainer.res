@@ -5,7 +5,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {resolvedUserInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {transactionEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let {payOut} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {

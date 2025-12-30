@@ -10,7 +10,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let showPopUp = PopUpState.useShowPopUp()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

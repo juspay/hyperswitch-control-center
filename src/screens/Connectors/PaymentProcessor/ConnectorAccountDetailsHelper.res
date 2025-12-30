@@ -413,7 +413,7 @@ module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {state: {commonInfo: {profileId}}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom

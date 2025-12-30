@@ -55,7 +55,7 @@ let make = (~children) => {
   let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantListAtom,
   )
-  let {state: {commonInfo: {version}}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonDetails()
   let (activeProduct, setActiveProduct) = React.useState(_ =>
     currentProductValue->ProductUtils.getProductVariantFromString(~version)
   )
