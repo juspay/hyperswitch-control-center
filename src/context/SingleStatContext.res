@@ -48,7 +48,7 @@ let make = (
 
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let jsonTransFormer = switch singleStatEntity {
   | {jsonTransformer} => jsonTransformer

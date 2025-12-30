@@ -9,7 +9,7 @@ type userInfoScreenState = Loading | Success | Error
 let make = (~children) => {
   open UserInfoUtils
   let (screenState, setScreenState) = React.useState(_ => Loading)
-  let (applicationState, setApplicationState) = React.useState(_ => UserInfoTypes.DashboardUser(
+  let (applicationState, setApplicationState) = React.useState(_ => UserInfoTypes.DashboardSession(
     defaultValueOfUserInfo,
   ))
 
@@ -25,7 +25,7 @@ let make = (~children) => {
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->itemMapperToDashboardUserType
       HyperSwitchEntryUtils.setThemeIdtoStore(userInfo.themeId)
-      setApplicationState(_ => DashboardUser(userInfo))
+      setApplicationState(_ => DashboardSession(userInfo))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => Error)
@@ -56,15 +56,15 @@ let make = (~children) => {
   /*
    * Updates the dashboard user's `userInfo` in the application state.
    *
-   * This function only applies to `DashboardUser`. If the current user is an
-   * `EmbeddableUser`, the state is returned unchanged.
+   * This function only applies to `DashboardSession`. If the current user is an
+   * `EmbeddableSession`, the state is returned unchanged.
    */
 
   let setUpdatedDashboardUserInfo = (userInfo: UserInfoTypes.userInfo) => {
     setApplicationState(prevState =>
       switch prevState {
-      | DashboardUser(_) => DashboardUser(userInfo)
-      | EmbeddableUser(_) => prevState
+      | DashboardSession(_) => DashboardSession(userInfo)
+      | EmbeddableSession(_) => prevState
       }
     )
   }
@@ -72,27 +72,27 @@ let make = (~children) => {
   /*
    * Updates the embeddable user's `emeddableInfo` in the application state.
    *
-   * This function only applies to `EmbeddableUser`. If the current user is an
-   * `DashboardUser`, the state is returned unchanged.
+   * This function only applies to `EmbeddableSession`. If the current user is an
+   * `DashboardSession`, the state is returned unchanged.
    */
   let setUpdatedEmbeddableInfo = (userInfo: UserInfoTypes.embeddableInfoType) => {
     setApplicationState(prevState =>
       switch prevState {
-      | DashboardUser(_) => prevState
-      | EmbeddableUser(_) => EmbeddableUser(userInfo)
+      | DashboardSession(_) => prevState
+      | EmbeddableSession(_) => EmbeddableSession(userInfo)
       }
     )
   }
 
-  let getCommonTokenDetails: unit => UserInfoTypes.commonInfoType = () => {
+  let getCommonSessionDetails: unit => UserInfoTypes.commonInfoType = () => {
     switch applicationState {
-    | DashboardUser(dashboardInfo) => {
+    | DashboardSession(dashboardInfo) => {
         orgId: dashboardInfo.orgId,
         merchantId: dashboardInfo.merchantId,
         profileId: dashboardInfo.profileId,
         version: dashboardInfo.version,
       }
-    | EmbeddableUser(embeddableInfo) => {
+    | EmbeddableSession(embeddableInfo) => {
         orgId: embeddableInfo.orgId,
         merchantId: embeddableInfo.merchantId,
         profileId: embeddableInfo.profileId,
@@ -103,8 +103,8 @@ let make = (~children) => {
 
   let checkUserEntity = (entities: array<UserInfoTypes.entity>) => {
     switch applicationState {
-    | EmbeddableUser(_) => false
-    | DashboardUser(userInfo) => entities->Array.includes(userInfo.userEntity)
+    | DashboardSession(userInfo) => entities->Array.includes(userInfo.userEntity)
+    | EmbeddableSession(_) => false
     }
   }
 
@@ -121,7 +121,7 @@ let make = (~children) => {
       setUpdatedDashboardUserInfo,
       getResolvedEmbeddableInfo,
       setUpdatedEmbeddableInfo,
-      getCommonTokenDetails,
+      getCommonSessionDetails,
       checkUserEntity,
     }>
     <RenderIf condition={screenState === Success}> children </RenderIf>

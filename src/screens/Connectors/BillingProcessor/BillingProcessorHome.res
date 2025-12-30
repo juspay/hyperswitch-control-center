@@ -20,7 +20,7 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let (showConfirmModal, setShowConfirmModal) = React.useState(_ => false)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode

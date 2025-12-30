@@ -13,7 +13,7 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
   let activeBusinessProfile = getNameForId(#Profile)

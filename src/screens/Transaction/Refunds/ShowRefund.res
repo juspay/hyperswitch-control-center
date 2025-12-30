@@ -59,7 +59,7 @@ module RefundInfo = {
     let refundData = itemToObjMapper(orderDict)
     let {merchantId, orgId} = React.useContext(
       UserInfoProvider.defaultContext,
-    ).getCommonTokenDetails()
+    ).getCommonSessionDetails()
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
@@ -96,7 +96,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchRefundData = async () => {

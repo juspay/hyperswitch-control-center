@@ -193,7 +193,7 @@ module MetadataHeaders = {
 @react.component
 let make = () => {
   open FormRenderer
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)

@@ -6,11 +6,11 @@ let make = (~previewOnly=false) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {getCommonTokenDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {merchantId, orgId, version} = getCommonTokenDetails()
+  let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])

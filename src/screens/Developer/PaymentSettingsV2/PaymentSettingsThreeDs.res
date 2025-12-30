@@ -71,7 +71,7 @@ let make = () => {
   )
   let {profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let isBusinessProfileHasThreeds =

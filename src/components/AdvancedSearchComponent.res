@@ -20,7 +20,7 @@ let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>,
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let onSubmit = (values, form: ReactFinalForm.formApi) => {
     open Promise

@@ -134,7 +134,7 @@ let make = () => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let {profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)

@@ -179,8 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getCommonTokenDetails, state} = React.useContext(UserInfoProvider.defaultContext)
-  let {merchantId, profileId} = getCommonTokenDetails()
+  let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonSessionDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -195,12 +195,12 @@ let useGetURL = () => {
     ~queryParameters: option<string>=None,
   ) => {
     let (transactionEntity, analyticsEntity, userEntity) = switch state {
-    | DashboardUser(userInfo) => (
+    | DashboardSession(userInfo) => (
         userInfo.transactionEntity,
         userInfo.analyticsEntity,
         userInfo.userEntity,
       )
-    | EmbeddableUser(_) => (#Merchant, #Merchant, #Merchant)
+    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
     }
 
     let connectorBaseURL = `account/${merchantId}/connectors`
@@ -1596,7 +1596,7 @@ let catchHandler = (
 let useGetMethod = (~showErrorToast=true) => {
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1652,7 +1652,7 @@ let useGetMethod = (~showErrorToast=true) => {
 let useUpdateMethod = (~showErrorToast=true) => {
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()

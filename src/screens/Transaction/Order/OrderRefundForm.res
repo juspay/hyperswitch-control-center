@@ -22,7 +22,7 @@ let make = (
 
   let {merchantId, orgId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
   let isSplitPayment =
     order.connector->String.toLowerCase->isSplitPaymentConnector &&
       !(order.split_payments->isEmptyDict)

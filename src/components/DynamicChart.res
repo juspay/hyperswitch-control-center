@@ -237,7 +237,7 @@ let useChartFetch = (~setStatusDict) => {
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise

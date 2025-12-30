@@ -16,7 +16,7 @@ let make = () => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
   let showToast = ToastState.useShowToast()
 

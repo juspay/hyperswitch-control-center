@@ -20,7 +20,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let connectorTypeFromName =
     connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom

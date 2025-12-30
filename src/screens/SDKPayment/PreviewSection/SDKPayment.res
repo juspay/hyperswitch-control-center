@@ -54,7 +54,7 @@ let make = () => {
   } = React.useContext(SDKProvider.defaultContext)
   let {orgId, merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let paymentId = if paymentIdFromUrl->Option.isSome {
     paymentIdFromUrl

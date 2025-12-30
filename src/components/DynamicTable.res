@@ -136,7 +136,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let localOptions =
     Array.concat(options, popupFilterFields)->Array.filter(item => item.localFilter->Option.isSome)

@@ -31,17 +31,18 @@ type embeddableInfoType = {
 }
 
 /* There will be two type of user that can access the dashboard 
- 1. DashboardUser - Normal hyperswitch user (Will contain userInfo details)
- 2. EmbeddableUser - User accessing via embeddable flow ( As of now kept version as its needed in most of the place to call the api, but details are not provided by the api )
+ 1. DashboardSession - Normal hyperswitch user (Will contain userInfo details)
+ 2. EmbeddableSession - User accessing via embeddable flow ( As of now kept version as its needed in most of the place to call the api, but details are not provided by the api )
 */
-type detailsInfoType = DashboardUser(userInfo) | EmbeddableUser(embeddableInfoType)
+type sessionType = DashboardSession(userInfo) | EmbeddableSession(embeddableInfoType)
+
 type userInfoProviderTypes = {
-  state: detailsInfoType,
-  setApplicationState: (detailsInfoType => detailsInfoType) => unit,
+  state: sessionType,
+  setApplicationState: (sessionType => sessionType) => unit,
   getResolvedUserInfo: unit => userInfo,
   setUpdatedDashboardUserInfo: userInfo => unit,
   getResolvedEmbeddableInfo: unit => embeddableInfoType,
   setUpdatedEmbeddableInfo: embeddableInfoType => unit,
-  getCommonTokenDetails: unit => commonInfoType,
+  getCommonSessionDetails: unit => commonInfoType,
   checkUserEntity: array<entity> => bool,
 }

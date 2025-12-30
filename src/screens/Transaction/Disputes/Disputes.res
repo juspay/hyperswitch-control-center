@@ -16,11 +16,11 @@ let make = () => {
 
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {getCommonTokenDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {orgId, merchantId} = getCommonTokenDetails()
+  let {orgId, merchantId} = getCommonSessionDetails()
   let startTime = filterValueJson->getString("start_time", "")
 
   let handleExtendDateButtonClick = _ => {

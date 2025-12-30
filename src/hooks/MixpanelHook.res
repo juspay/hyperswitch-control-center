@@ -4,7 +4,7 @@ let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let {name, email: authInfoEmail} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getResolvedUserInfo()
@@ -101,7 +101,7 @@ let usePageView = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonTokenDetails()
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let {name, email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
 
   let environment = GlobalVars.hostType->getEnvironment

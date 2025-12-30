@@ -7,10 +7,12 @@ type userInfo = {
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {getCommonTokenDetails, setUpdatedDashboardUserInfo, getResolvedUserInfo} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
-  let {profileId, merchantId} = getCommonTokenDetails()
+  let {
+    getCommonSessionDetails,
+    setUpdatedDashboardUserInfo,
+    getResolvedUserInfo,
+  } = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId, merchantId} = getCommonSessionDetails()
 
   let url = `${Window.env.apiBaseUrl}/user`
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -192,10 +194,10 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
-  let {getCommonTokenDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
+  let {getCommonSessionDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {orgId} = getCommonTokenDetails()
+  let {orgId} = getCommonSessionDetails()
   let url = RescriptReactRouter.useUrl()
   async (
     ~expectedOrgId=None,
@@ -226,7 +228,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
         ~version,
       )
 
-      setApplicationState(_ => DashboardUser(userInfoFromProfile))
+      setApplicationState(_ => DashboardSession(userInfoFromProfile))
 
       if changePath {
         // When the internal switch is triggered from the dropdown,
@@ -255,7 +257,7 @@ let useOMPData = () => {
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let {orgId, profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
-  ).getCommonTokenDetails()
+  ).getCommonSessionDetails()
 
   let getList: unit => OMPSwitchTypes.ompList = _ => {
     {
