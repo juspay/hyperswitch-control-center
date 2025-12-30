@@ -59,9 +59,6 @@ module EmbeddableEntryComponent = {
   }
 }
 
-@val @return(nullable)
-external getElementById: string => option<Dom.element> = "document.getElementById"
-
 module ContextWrapper = {
   %%raw(`require("tailwindcss/tailwind.css")`)
   @react.component
