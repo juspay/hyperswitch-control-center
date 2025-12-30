@@ -14,7 +14,7 @@ let make = () => {
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
-  let setUpConnectoreContainer = async () => {
+  let setUpConnectorContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if (
@@ -32,7 +32,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    setUpConnectoreContainer()->ignore
+    setUpConnectorContainer()->ignore
     None
   }, [])
 
