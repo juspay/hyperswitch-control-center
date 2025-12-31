@@ -762,11 +762,7 @@ let useGetURL = () => {
           }
         | _ => ""
         }
-      | THREE_DS_EXEMPTION_DELETE_RULE =>
-        switch methodType {
-        | Post => `routing/deactivate`
-        | _ => ""
-        }
+      | THREE_DS_EXEMPTION_DELETE_RULE => `routing/deactivate`
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
