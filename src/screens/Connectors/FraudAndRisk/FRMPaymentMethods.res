@@ -215,16 +215,16 @@ module PaymentMethodsRenderer = {
       <div className="flex flex-col gap-4">
         {frmConfigs
         ->Array.mapWithIndex((configInfo, i) => {
-            <RenderIf condition={frmConfigs->Array.length > 0}>
-              <CheckBoxRenderer
-                key={i->Int.toString}
-                frmConfigInfo={configInfo}
-                frmConfigs
-                connectorPaymentMethods={connectorConfig->Dict.get(configInfo.gateway)}
-                isUpdateFlow
-                fromConfigIndex={i->Int.toString}
-              />
-            </RenderIf>
+          <RenderIf condition={frmConfigs->Array.length > 0}>
+            <CheckBoxRenderer
+              key={i->Int.toString}
+              frmConfigInfo={configInfo}
+              frmConfigs
+              connectorPaymentMethods={connectorConfig->Dict.get(configInfo.gateway)}
+              isUpdateFlow
+              fromConfigIndex={i->Int.toString}
+            />
+          </RenderIf>
         })
         ->React.array}
       </div>
