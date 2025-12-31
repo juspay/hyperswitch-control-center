@@ -93,7 +93,7 @@ let make = () => {
 
   let customUI =
     <BluredTableComponent
-      infoText="No connectors configured yet. Try connecting a connector."
+      infoText="No connectors configured yet. Try connecting a connector with payment method as card."
       buttonText="Take me to connectors"
       onClickElement={React.null}
       onClickUrl="connectors"
@@ -103,11 +103,9 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let processorsList =
-        connectorList->Array.filter(item => item.connector_type === PaymentProcessor)
-
-      let connectorsCount = processorsList->Array.length
-      if connectorsCount > 0 {
+      let filteredArrayLength =
+        FRMUtils.filterConnectorArrayByPaymentMethod(~connectorList)->Array.length
+      if filteredArrayLength > 0 {
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
