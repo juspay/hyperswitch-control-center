@@ -19,7 +19,10 @@ module OrgTile = {
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+    let {getCommonSessionDetails, checkUserEntity} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
+    let {orgId} = getCommonSessionDetails()
     let {
       globalUIConfig: {
         sidebarColor: {
@@ -182,7 +185,7 @@ module OrgTileGroup = {
     ~currentlyEditingId,
     ~handleIdUnderEdit,
   ) => {
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
@@ -359,9 +362,11 @@ let make = () => {
   let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, roleId, version}, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId, version} = getCommonSessionDetails()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)

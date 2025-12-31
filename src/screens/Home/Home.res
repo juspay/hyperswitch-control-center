@@ -3,7 +3,7 @@ let make = (~setAppScreenState) => {
   open HomeUtils
   open PageUtils
   let greeting = getGreeting()
-  let {userInfo: {recoveryCodesLeft}} = React.useContext(UserInfoProvider.defaultContext)
+  let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 

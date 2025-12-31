@@ -18,7 +18,9 @@ let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>,
   let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
 
   let onSubmit = (values, form: ReactFinalForm.formApi) => {
     open Promise
