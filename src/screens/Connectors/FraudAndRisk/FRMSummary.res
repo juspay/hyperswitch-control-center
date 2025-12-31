@@ -14,39 +14,6 @@ module InfoField = {
   }
 }
 
-module CredentialsInfo = {
-  open LogicUtils
-  @react.component
-  let make = (~frmFields, ~frmInfo: ConnectorTypes.connectorPayload) => {
-    let authkeys = switch frmInfo.connector_account_details {
-    | HeaderKey(val) => val->Identity.genericTypeToDictOfJson
-    | BodyKey(val) => val->Identity.genericTypeToDictOfJson
-    | SignatureKey(val) => val->Identity.genericTypeToDictOfJson
-    | MultiAuthKey(val) => val->Identity.genericTypeToDictOfJson
-    | CertificateAuth(val) => val->Identity.genericTypeToDictOfJson
-    | NoKey(val) => val->Identity.genericTypeToDictOfJson
-    | CurrencyAuthKey(val) => val.auth_key_map->Identity.genericTypeToDictOfJson
-    | UnKnownAuthType(_) => Dict.make()
-    }
-
-    let authFields =
-      authkeys
-      ->Dict.keysToArray
-      ->Array.filter(ele => ele !== "auth_type")
-      ->Array.map(field => {
-        let value = authkeys->getString(field, "")
-        let label = frmFields->getDictFromJsonObject->getString(field, field)
-        <div className="grid grid-cols-2 md:w-1/2 m-12" key={field}>
-          {label->snakeToTitle->React.string}
-          <div className="flex gap-1"> {value->React.string} </div>
-        </div>
-      })
-      ->React.array
-
-    <div> {authFields} </div>
-  }
-}
-
 module ConfigInfo = {
   open LogicUtils
   open ConnectorTypes
