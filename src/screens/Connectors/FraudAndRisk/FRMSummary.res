@@ -64,6 +64,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues) => {
   open FRMUtils
   open APIUtils
   open ConnectorTypes
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
@@ -100,6 +101,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues) => {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
+
   <PageLoaderWrapper screenState>
     <div>
       <div className="flex justify-between border-b sticky top-0 bg-white pb-2">

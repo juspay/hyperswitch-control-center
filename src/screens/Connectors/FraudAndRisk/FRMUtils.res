@@ -62,7 +62,18 @@ let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType
   let connectorName = connector.connector_name
   let connectorPaymentMethods = connector.payment_methods_enabled
   let pmDict = Dict.make()
-  connectorPaymentMethods->Array.forEach(item => {
+
+  let sortedArray = connectorPaymentMethods->Array.toSorted((a, b) => {
+    if a.payment_method_type == "card" {
+      -1.
+    } else if b.payment_method_type == "card" {
+      1.
+    } else {
+      0.
+    }
+  })
+
+  sortedArray->Array.forEach(item => {
     let pmTypes =
       item.payment_method_subtypes
       ->Array.map(item => item.payment_method_subtype)
@@ -103,10 +114,19 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
   }
 }
 
+let filterConnectorArrayByPaymentMethod = (
+  ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+) => {
+  let filteredArray = connectorList->Array.filter(connector => {
+    connector.payment_methods_enabled->Array.some(item => item.payment_method_type == "card")
+  })
+  filteredArray
+}
+
 let getConnectorConfig = (connectors: array<ConnectorTypes.connectorPayloadCommonType>) => {
   let configDict = Dict.make()
-
-  connectors->Array.forEach(connector => {
+  let filteredConnectors = filterConnectorArrayByPaymentMethod(~connectorList=connectors)
+  filteredConnectors->Array.forEach(connector => {
     let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig
     updateConfigDict(configDict, connectorName, paymentMethodsDict)
   })
@@ -143,10 +163,11 @@ let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   open ConnectorTypes
   paymentMethodsDict
   ->Dict.keysToArray
+  ->Array.filter(item => item == "card")
   ->Array.map(paymentMethodName => {
     {
       payment_method: paymentMethodName,
-      flow: getFlowTypeNameString(PreAuth),
+      flow: "pre",
     }
   })
 }
@@ -161,4 +182,43 @@ let ignoreFields = json => {
   })
   ->Dict.fromArray
   ->JSON.Encode.object
+}
+
+let customAuthtypeInput = (
+  ~input as _: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+  ~paymentMethodName,
+  ~frmConfigInfo: ConnectorTypes.frm_config,
+  ~frmConfigs,
+  ~setConfigJson,
+) => {
+  let isEnabled =
+    frmConfigInfo.payment_methods->Array.some(pm => pm.payment_method === paymentMethodName)
+  let handleToggle = newValue => {
+    if newValue {
+      let newPM: ConnectorTypes.frm_payment_method = {
+        payment_method: paymentMethodName,
+        flow: "pre",
+      }
+      frmConfigInfo.payment_methods->Array.push(newPM)->ignore
+    } else {
+      frmConfigInfo.payment_methods =
+        frmConfigInfo.payment_methods->Array.filter(pm => pm.payment_method !== paymentMethodName)
+    }
+
+    setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
+  }
+
+  <BoolInput.BaseComponent
+    isSelected={isEnabled}
+    setIsSelected={handleToggle}
+    isDisabled=false
+    boolCustomClass="rounded-xl"
+    customToggleHeight="20px"
+    customToggleWidth="36px"
+    customInnerCircleHeight="10px"
+    transformValue="20px"
+    toggleEnableColor="bg-primary"
+    toggleBorder="bg-primary"
+  />
 }
