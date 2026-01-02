@@ -13,7 +13,7 @@
     "build:prod": "npm run build:common && webpack --config webpack.prod.js",
     "build:custom": "npm run build:common && webpack --config webpack.custom.js",
     "build:test": "npm run build:common && webpack --config webpack.prod.js",
-    "re:build": "rescript",
+    "re:build": "rescript build -warn-error +A",
     "re:clean": "rescript clean",
     "re:start": "rescript -w",
     "re:format": "rescript format -all",
