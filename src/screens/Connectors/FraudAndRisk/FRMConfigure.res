@@ -39,7 +39,7 @@ let make = () => {
       setScreenState(_ => Success)
       setCurrentStep(prev => prev->getNextStep)
     } catch {
-    | _ => setScreenState(_ => Error("Error Occured!"))
+    | _ => setScreenState(_ => Error("Error Occurred!"))
     }
   }
 

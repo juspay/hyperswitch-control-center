@@ -85,7 +85,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     } else {
       0
     }
-  }, transformationHistoryId)
+  }, [transformationHistoryId, stagingEntryId])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">
