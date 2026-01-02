@@ -67,6 +67,11 @@ class HomePage {
   }
   //Sidebar
 
+  //V2 Home
+  get homeV2() {
+    return cy.get('[class="flex flex-col gap-2 mb-2"]');
+  }
+
   //Operations
   get operations() {
     return cy.get("[data-testid=operations]");
@@ -74,6 +79,22 @@ class HomePage {
 
   get paymentOperations() {
     return cy.get("[data-testid=payments]");
+  }
+
+  get refundOperations() {
+    return cy.get('[data-testid="refunds"]');
+  }
+
+  get disputesOperations() {
+    return cy.get('[data-testid="disputes"]');
+  }
+
+  get payoutsOperations() {
+    return cy.get('[data-testid="payouts"]');
+  }
+
+  get customers() {
+    return cy.get('[data-testid="customers"]');
   }
 
   //Connectors
@@ -85,6 +106,43 @@ class HomePage {
     return cy.get("[data-testid=paymentprocessors]");
   }
 
+  get payoutConnectors() {
+    return cy.get('[data-testid="payoutprocessors"]');
+  }
+
+  get threeDSConnectors() {
+    return cy.get('[data-testid="3dsauthenticators"]');
+  }
+
+  get frmConnectors() {
+    return cy.get('[data-testid="fraud&risk"]');
+  }
+
+  get pmAuthConnectors() {
+    return cy.get('[data-testid="pmauthprocessor"]');
+  }
+
+  get taxConnectors() {
+    return cy.get('[data-testid="taxprocessor"]');
+  }
+
+  get vaultConnectors() {
+    return cy.get('[data-testid="vaultprocessor"]');
+  }
+
+  //Analytics
+  get analytics() {
+    return cy.get('[data-testid="analytics"]');
+  }
+
+  get paymentsAnalytics() {
+    return cy.get('[data-testid="payments"]');
+  }
+
+  get refundAnalytics() {
+    return cy.get('[data-testid="refunds"]');
+  }
+
   //Workflow
   get workflow() {
     return cy.get('[data-testid="workflow"]');
@@ -92,6 +150,48 @@ class HomePage {
 
   get routing() {
     return cy.get('[data-testid="routing"]');
+  }
+
+  get surchargeRouting() {
+    return cy.get('[data-testid="surcharge"]');
+  }
+
+  get threeDSRouting() {
+    return cy.get('[data-testid="3dsdecisionmanager"]');
+  }
+
+  get payoutRouting() {
+    return cy.get('[data-testid="payoutrouting"]');
+  }
+
+  // Developer
+  get developer() {
+    return cy.get('[data-testid="developers"]');
+  }
+
+  get paymentSettings() {
+    return cy.get('[data-testid="paymentsettings"]');
+  }
+
+  get apiKeys() {
+    return cy.get('[data-testid="apikeys"]');
+  }
+
+  get webhooks() {
+    return cy.get('[data-testid="webhooks"]');
+  }
+  // Settings
+
+  get settings() {
+    return cy.get('[data-testid="settings"]');
+  }
+
+  get configurePMT() {
+    return cy.get('[data-testid="configurepmts"]');
+  }
+
+  get users() {
+    return cy.get('[data-testid="users"]');
   }
 
   //Profile

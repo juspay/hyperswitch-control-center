@@ -107,6 +107,47 @@ describe("Homepage", () => {
       });
   });
 
-  //TODO verify sidebar and navigation
-  it.skip("should verify sidebar menu navigation", () => {});
+  //TO DO do navigation and assert page url for each menu option
+  it.only("should verify sidebar menu options for orchestrator", () => {
+    homePage.homeV2.should("be.visible");
+
+    cy.contains("MY MODULES").should("be.visible");
+
+    cy.get('[data-testid="overview"]').should("be.visible");
+
+    homePage.operations.should("be.visible").click();
+    homePage.paymentOperations.should("be.visible");
+    homePage.refundOperations.should("be.visible");
+    homePage.disputesOperations.should("be.visible");
+    homePage.payoutsOperations.should("be.visible");
+    homePage.customers.should("be.visible");
+
+    homePage.connectors.should("be.visible").click();
+    homePage.paymentProcessors.should("be.visible");
+    homePage.payoutConnectors.should("be.visible");
+    homePage.threeDSConnectors.should("be.visible");
+    homePage.frmConnectors.should("be.visible");
+    homePage.pmAuthConnectors.should("be.visible");
+    homePage.taxConnectors.should("be.visible");
+    homePage.vaultConnectors.should("be.visible");
+
+    homePage.analytics.should("be.visible").click();
+    homePage.paymentsAnalytics.should("be.visible");
+    homePage.refundAnalytics.should("be.visible");
+
+    homePage.workflow.should("be.visible").click();
+    homePage.routing.should("be.visible");
+    homePage.surchargeRouting.should("be.visible");
+    homePage.threeDSRouting.should("be.visible");
+    homePage.payoutRouting.should("be.visible");
+
+    homePage.developer.should("be.visible").click();
+    homePage.paymentSettings.should("be.visible");
+    homePage.apiKeys.should("be.visible");
+    homePage.webhooks.should("be.visible");
+
+    homePage.settings.should("be.visible").click();
+    homePage.configurePMT.should("be.visible");
+    homePage.users.should("be.visible");
+  });
 });
