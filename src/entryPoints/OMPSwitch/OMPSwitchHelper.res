@@ -55,7 +55,7 @@ module PlatformMerchantModalContent = {
             {"Learn more"->React.string}
           </span>
           <span>
-            <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500" />
+            <Icon name="nd-external-link-square" customIconColor="!text-nd_primary_blue-500"/>
           </span>
         </div>
       </div>
@@ -109,7 +109,7 @@ module ListBaseComp = {
                 {headingText->React.string}
               </span>
               <RenderIf condition={isPlatform}>
-                <Icon name="nd_question_mark_circle" size=14 onClick={openPlatformModal} />
+                <Icon name="nd_question_mark_circle" size=14 onClick={openPlatformModal}/>
               </RenderIf>
             </div>
             <ToolTip
@@ -373,7 +373,7 @@ module MerchantDropdownItem = {
     let leftIconCss = {isActive && !isUnderEdit ? "" : isUnderEdit ? "hidden" : "invisible"}
 
     let leftIcon = if isActive && !isUnderEdit {
-      <Icon name="nd-check" className={`${leftIconCss} ${secondaryTextColor}`} />
+      <Icon name="nd-check" size= 14 className={`${leftIconCss} ${secondaryTextColor}`} />
     } else if isActive && isUnderEdit {
       React.null
     } else if !isActive && !isUnderEdit {
