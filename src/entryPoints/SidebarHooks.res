@@ -7,7 +7,8 @@ open HyperswitchAtom
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
@@ -206,6 +207,7 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
+
   if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
     defaultSidebar->Array.pushMany([
       Link({
