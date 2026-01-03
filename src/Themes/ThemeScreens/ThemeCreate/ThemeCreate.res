@@ -20,7 +20,10 @@ let make = () => {
   open ThemeCreateType
   open APIUtils
 
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {orgId, merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let lineage = createLineage(~orgId, ~merchantId, ~profileId)

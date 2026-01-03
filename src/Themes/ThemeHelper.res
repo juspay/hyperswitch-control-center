@@ -1,10 +1,25 @@
+module OverlappingCircles = {
+  @react.component
+  let make = (~colorA: string, ~colorB: string) => {
+    <div className="relative w-9 h-6 flex items-center">
+      <div
+        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
+      />
+      <div
+        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
+      />
+    </div>
+  }
+}
 open ThemeTypes
 open Typography
 module RadioButtons = {
   @react.component
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     open HeadlessUI
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let entities = [
       {
         label: "Organization",
@@ -85,9 +100,9 @@ module LineageFormContent = {
 
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
-    let {userInfo: {merchantId, profileId, themeId}} = React.useContext(
+    let {merchantId, profileId, themeId} = React.useContext(
       UserInfoProvider.defaultContext,
-    )
+    ).getResolvedUserInfo()
 
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
@@ -98,6 +113,7 @@ module LineageFormContent = {
     let formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let (showLoaderSwitchModal, setShowLoaderSwitchModal) = React.useState(_ => false)
     let orgName = getNameForId(#Organization)
     Js.log2("orgName", orgName)
     let (themeExists, setThemeExists) = React.useState(() => false)
@@ -150,6 +166,7 @@ module LineageFormContent = {
       let merchantValue = event->Identity.formReactEventToString
       if merchantValue !== merchantId {
         try {
+          setShowLoaderSwitchModal(_ => true)
           let merchantData = merchantList->Array.find(m => m.id == merchantValue)
           switch merchantData {
           | Some(merchant) => {
@@ -163,6 +180,7 @@ module LineageFormContent = {
             }
           }
           input.onChange(event)
+          setShowLoaderSwitchModal(_ => false)
         } catch {
         | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
         }
@@ -173,7 +191,9 @@ module LineageFormContent = {
       let profileValue = event->Identity.formReactEventToString
       if profileValue !== profileId {
         try {
+          setShowLoaderSwitchModal(_ => true)
           let _ = await internalSwitch(~expectedProfileId=Some(profileValue))
+          setShowLoaderSwitchModal(_ => false)
           input.onChange(event)
         } catch {
         | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
@@ -338,10 +358,10 @@ module LineageFormContent = {
         ->getString("entity_type", "")
       switch step {
       | 0 =>
-        switch entityType->entityTypeToLevel {
-        | ORGANIZATION => handleNext()
-        | MERCHANT => setStep(_ => 1)
-        | PROFILE => setStep(_ => 2)
+        switch entityType->UserInfoUtils.entityMapper {
+        | #Organization => handleNext()
+        | #Merchant => setStep(_ => 1)
+        | #Profile => setStep(_ => 2)
         | _ => ()
         }
       | 1 => handleNext()
@@ -386,6 +406,9 @@ module LineageFormContent = {
         </div>
       </div>
       <FormValuesSpy />
+      <LoaderModal
+        showModal={showLoaderSwitchModal} setShowModal={setShowLoaderSwitchModal} text="Switching"
+      />
     </>
   }
 }
@@ -396,10 +419,12 @@ module ThemeLineageModal = {
     let sessionStepValue =
       sessionStorage.getItem("themeModalStep")->Nullable.toOption->Option.getOr("0")
     let (step, setStep) = React.useState(() => sessionStepValue->Int.fromString->Option.getOr(0))
+
     React.useEffect(() => {
-      SessionStorage.sessionStorage.setItem("themeModalStep", step->Int.toString)
+      sessionStorage.setItem("themeModalStep", step->Int.toString)
       None
     }, [step])
+
     React.useEffect(() => {
       sessionStorage.setItem("themeLineageModal", showModal ? "true" : "false")
       None
@@ -423,66 +448,24 @@ module ThemeLineageModal = {
       }
       Nullable.null
     }
-
-    <Form key="theme-create" onSubmit>
-      <Modal
-        showModal
-        closeOnOutsideClick=false
-        setShowModal
-        modalHeading="Create Theme"
-        modalHeadingClass={`${heading.sm.semibold}`}
-        modalClass="w-1/2 m-auto"
-        childClass="p-0"
-        onCloseClickCustomFun=handleModalClose
-        modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-          {"Select the level you want to create theme."->React.string}
-        </div>}>
-        <LineageFormContent showModal setShowModal step setStep />
-      </Modal>
-    </Form>
-  }
-}
-
-module OverlappingCircles = {
-  @react.component
-  let make = (~colorA: string, ~colorB: string) => {
-    <div className="relative w-9 h-6 flex items-center">
-      <div
-        className="absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
-        style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
-      />
-      <div
-        className="absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
-        style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
-      />
-    </div>
-  }
-}
-
-module CreateNewThemeButton = {
-  @react.component
-  let make = () => {
-    open SessionStorage
-    open LogicUtils
-
-    let sessionModalValue =
-      sessionStorage.getItem("themeLineageModal")
-      ->Nullable.toOption
-      ->Option.getOr("")
-      ->getBoolFromString(false)
-    let (showModal, setShowModal) = React.useState(_ => sessionModalValue)
     <>
-      <Button
-        text="Create Theme"
-        buttonType=Primary
-        buttonState=Normal
-        buttonSize=Small
-        customButtonStyle={`${body.md.semibold} py-4`}
-        onClick={_ => {
-          setShowModal(_ => true)
-        }}
-      />
-      <ThemeLineageModal showModal setShowModal />
+      <Form key="theme-create" onSubmit>
+        <Modal
+          showModal
+          closeOnOutsideClick=false
+          setShowModal
+          modalHeading="Create Theme"
+          modalHeadingClass={`${heading.sm.semibold}`}
+          modalClass="w-1/2 m-auto"
+          childClass="p-0"
+          onCloseClickCustomFun=handleModalClose
+          modalHeadingDescriptionElement={<div
+            className={`${body.md.medium} text-nd_gray-400 mt-2`}>
+            {"Select the level you want to create theme."->React.string}
+          </div>}>
+          <LineageFormContent showModal setShowModal step setStep />
+        </Modal>
+      </Form>
     </>
   }
 }
