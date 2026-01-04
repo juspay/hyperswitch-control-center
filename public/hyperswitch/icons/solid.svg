@@ -7751,7 +7751,7 @@ License)
   <symbol id="nd-alert-triangle-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none">
     <path
       d="M6 6.50005V4.50005M6 8.18755V8.18811M5.30503 1.64186C5.74946 1.45271 6.25054 1.45271 6.69497 1.64186C8.02067 2.20609 11.1523 7.21089 11.0605 8.54858C11.0245 9.07294 10.7647 9.55562 10.3486 9.87107C9.24225 10.7096 2.75774 10.7096 1.65139 9.87107C1.23529 9.55562 0.975452 9.07294 0.939475 8.54858C0.847697 7.21089 3.97931 2.20609 5.30503 1.64186Z"
-      stroke="#DD2B0E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
   <symbol id="nd-calender" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none">
     <path
