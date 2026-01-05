@@ -301,7 +301,7 @@ module NestedSectionItem = {
         sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor, borderColor},
       },
     } = React.useContext(ThemeProvider.themeContext)
-    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let {devSidebarV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
@@ -616,7 +616,7 @@ let make = (
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {activeProduct, onProductSelectClick} = React.useContext(
