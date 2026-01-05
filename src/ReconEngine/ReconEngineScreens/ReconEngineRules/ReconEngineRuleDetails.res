@@ -1,6 +1,5 @@
 open ReconEngineRulesTypes
 open Typography
-open ReconEngineRulesEntity
 open ReconEngineRulesUtils
 let labelCss = `block ${body.md.medium} text-nd_gray-700 mb-2`
 
@@ -59,10 +58,14 @@ module SourceTargetHeader = {
 module SearchIdentifier = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let searchIdentifier =
-      rule.targets
-      ->Array.get(0)
-      ->Option.map(target => target.search_identifier)
+    let searchIdentifier = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => Some(data.search_identifier)
+      | SingleMany(data) => Some(data.search_identifier)
+      | ManySingle(data) => Some(data.search_identifier)
+      }
+    }
 
     <div className="p-6">
       <SourceTargetHeader />
@@ -132,11 +135,14 @@ module SearchIdentifier = {
 module MappingRules = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let mappingRules =
-      rule.targets
-      ->Array.get(0)
-      ->Option.map(target => target.match_rules.rules)
-      ->Option.getOr([])
+    let mappingRules = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => data.match_rules.rules
+      | SingleMany(data) => data.match_rules.rules
+      | ManySingle(data) => data.match_rules.rules
+      }
+    }
 
     <div className="p-6">
       <SourceTargetHeader />
@@ -213,10 +219,14 @@ module TriggerRules = {
     let operatorOptions = getOperatorOptions()
     let fieldOptions = getFieldOptions()
 
-    let triggerData =
-      rule.sources
-      ->Array.get(0)
-      ->Option.map(source => source.trigger)
+    let triggerData = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => Some(data.source_account.trigger)
+      | SingleMany(data) => Some(data.source_account.trigger)
+      | ManySingle(data) => Some(data.source_account.trigger)
+      }
+    }
 
     let triggerField = triggerData->Option.map(trigger => trigger.field)->Option.getOr("")
     let triggerOperator =
@@ -306,10 +316,14 @@ module SourceTargetAccount = {
         createDropdownOption(~label=account.account_name, ~value=account.account_id)
       )
 
-    let sourceAccountId =
-      rule.sources->Array.get(0)->Option.map(source => source.account_id)->Option.getOr("")
-    let targetAccountId =
-      rule.targets->Array.get(0)->Option.map(target => target.account_id)->Option.getOr("")
+    let (sourceAccountId, targetAccountId) = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
+      | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
+      | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
+      }
+    }
 
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
     let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
@@ -458,6 +472,8 @@ module RuleDetailsContent = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  open LogicUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -473,7 +489,9 @@ let make = (~id) => {
         ~id=Some(id),
       )
       let res = await fetchDetails(url)
-      let rule = res->LogicUtils.getDictFromJsonObject->ruleItemToObjMapper
+      let rule = res->getDictFromJsonObject->ruleItemToObjMapper
+      Js.log2("res: ", res)
+      Js.log2("rule: ", rule)
       setRuleData(_ => Some(rule))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
