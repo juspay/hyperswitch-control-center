@@ -1,9 +1,10 @@
+open ReconEngineRulesTypes
+
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: rulePayload) => {
   open LogicUtils
   open ReconEngineOverviewUtils
   open ReconEngineOverviewHelper
-  open ReconEngineAccountsUtils
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -28,16 +29,21 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     }
   }
 
+  let (sourceAccountId, targetAccountId) = switch ruleDetails.strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
+    | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
+    | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
+    }
+  }
+
   let (
     (sourceAccountName, sourceAccountCurrency),
     (targetAccountName, targetAccountCurrency),
   ) = React.useMemo(() => {
-    let source =
-      ruleDetails.sources->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
-    let target =
-      ruleDetails.targets->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
-    let sourceInfo = getAccountNameAndCurrency(accountData, source.account_id)
-    let targetInfo = getAccountNameAndCurrency(accountData, target.account_id)
+    let sourceInfo = getAccountNameAndCurrency(accountData, sourceAccountId)
+    let targetInfo = getAccountNameAndCurrency(accountData, targetAccountId)
     (sourceInfo, targetInfo)
   }, (ruleDetails, accountData))
 
