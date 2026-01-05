@@ -246,11 +246,11 @@ let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileI
   let allowedDomains =
     paymentLinkConfigRecord.allowed_domains
     ->Option.getOr(JSON.Encode.null)
-    ->LogicUtils.getArrayFromJson([])
+    ->getArrayFromJson([])
 
   let allowedDomainsString =
     allowedDomains
-    ->Array.map(domain => domain->JSON.Decode.string->Option.getOr(""))
+    ->Array.map(domain => domain->getStringFromJson(""))
     ->Array.joinWith(",")
 
   {

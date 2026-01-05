@@ -93,7 +93,6 @@ module PaymentLinkDomainFields = {
 @react.component
 let make = () => {
   open APIUtils
-  open LogicUtils
   open FormRenderer
   open MerchantAccountUtils
   open HSwitchSettingTypes
@@ -102,7 +101,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -112,11 +111,9 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let valuesDict = values->getDictFromJsonObject
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
-      let body = valuesDict->JSON.Encode.object->getPaymentLinkDomainPayload->JSON.Encode.object
+      let body = values->getPaymentLinkDomainPayload->JSON.Encode.object
       let _ = await updateDetails(url, body, Post)
-
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
 
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
