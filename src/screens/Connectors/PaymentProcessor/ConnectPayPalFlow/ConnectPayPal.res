@@ -241,7 +241,7 @@ let make = (
   let showPopUp = PopUpState.useShowPopUp()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,
@@ -342,7 +342,7 @@ let make = (
       }
       setScreenState(_ => Success)
     } catch {
-    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuartion"))
+    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuration"))
     }
   }
 

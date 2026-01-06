@@ -2,7 +2,7 @@
 let make = () => {
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
     JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails
   )
