@@ -17,9 +17,11 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity, orgId, merchantId}, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {transactionEntity} = getResolvedUserInfo()
+  let {orgId, merchantId} = getCommonSessionDetails()
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("start_time", "")
 
@@ -94,6 +96,9 @@ let make = () => {
         <RenderIf condition={generateReport && email && payoutData->Array.length > 0}>
           <GenerateReport entityName={V1(PAYOUT_REPORT)} />
         </RenderIf>
+      </div>
+      <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-2 gap-6 my-8">
+        <TransactionView entity=TransactionViewTypes.Payouts />
       </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">

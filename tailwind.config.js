@@ -35,6 +35,7 @@ module.exports = {
       margin: {
         "15-px": "15px",
         "54-px": "54px",
+        "300-px": "300px",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -235,7 +236,7 @@ module.exports = {
           textColorPrimary: withOpacity("--sidebar-text-color-primary"),
           secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
           hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
-          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 8) / 1)`,
         },
 
         background: {

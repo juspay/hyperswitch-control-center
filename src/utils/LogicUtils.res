@@ -1,3 +1,6 @@
+@scope("Number") @val
+external isInteger: float => bool = "isInteger"
+
 let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0

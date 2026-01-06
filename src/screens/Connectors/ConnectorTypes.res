@@ -131,6 +131,8 @@ type processorTypes =
   | FINIX
   | PAYJUSTNOW
   | ZIFT
+  | PAYJUSTNOWINSTORE
+  | AMAZONPAY
 
 type payoutProcessorTypes =
   | ADYEN
@@ -212,6 +214,7 @@ type paymentMethodTypes =
   | AliPay
   | WeChatPay
   | DirectCarrierBilling
+  | AmazonPay
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
