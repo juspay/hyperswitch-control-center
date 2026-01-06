@@ -139,7 +139,7 @@ let make = () => {
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let isMobileView = MatchMedia.useMobileChecker()
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,
