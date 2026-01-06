@@ -11,7 +11,7 @@ beforeEach(function () {
   cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
-const columnSize = 23;
+const columnSize = 24;
 const requiredColumnsSize = 14;
 
 describe("Payment Operations", () => {
