@@ -155,7 +155,7 @@ let make = () => {
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModal, setShowModal) = React.useState(_ => false)
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let isMobileView = MatchMedia.useMobileChecker()
@@ -163,7 +163,9 @@ let make = () => {
   let (arrow, setArrow) = React.useState(_ => false)
   let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, borderColor, secondaryTextColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, borderColor, primaryTextColor, secondaryTextColor},
+    },
   } = React.useContext(ThemeProvider.themeContext)
 
   let switchMerch = async value => {
@@ -254,7 +256,7 @@ let make = () => {
       bottomComponent={<AddNewOMPButton
         user=#Merchant
         setShowModal
-        customStyle={`${backgroundColor.sidebarSecondary} ${borderColor} !border-none`}
+        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
         addItemBtnStyle
         customHRTagStyle={borderColor}
       />}

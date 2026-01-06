@@ -175,7 +175,6 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
@@ -217,35 +216,23 @@ module CashToCodeSelectBox = {
         </div>
       })
       ->React.array}
-      <Modal
-        modalHeading={`Additional Details to enable`}
-        headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-        showModal={showWalletConfigurationModal}
-        setShowModal={setShowWalletConfigurationModal}
-        paddingClass=""
-        revealFrom=Reveal.Right
-        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-        childClass={""}>
-        <div>
-          <RenderConnectorInputFields
-            details={dict
-            ->getDictfromDict(country)
-            ->getDictfromDict(
-              (selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase,
-            )}
-            name={`connector_account_details.auth_key_map.${country}`}
-            connector
-            selectedConnector
+      <div>
+        <RenderConnectorInputFields
+          details={dict
+          ->getDictfromDict(country)
+          ->getDictfromDict((selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase)}
+          name={`connector_account_details.auth_key_map.${country}`}
+          connector
+          selectedConnector
+        />
+        <div className="flex flex-col justify-center mt-4">
+          <Button
+            text={"Proceed"}
+            buttonType=Primary
+            onClick={_ => setShowWalletConfigurationModal(_ => false)}
           />
-          <div className="flex flex-col justify-center mt-4">
-            <Button
-              text={"Proceed"}
-              buttonType=Primary
-              onClick={_ => setShowWalletConfigurationModal(_ => false)}
-            />
-          </div>
         </div>
-      </Modal>
+      </div>
     </div>
   }
 }
@@ -413,7 +400,7 @@ module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom

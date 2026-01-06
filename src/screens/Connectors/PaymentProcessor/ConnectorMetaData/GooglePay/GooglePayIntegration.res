@@ -1,24 +1,23 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  <>
+  <div className="p-6">
     {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-    | Processors(ZEN) =>
-      <GooglePayZen connector update onCloseClickCustomFun setShowWalletConfigurationModal />
+    | Processors(ZEN) => <GooglePayZen connector update onCloseClickCustomFun closeAccordionFn />
     | Processors(CYBERSOURCE) =>
       <>
         <RenderIf condition={!featureFlag.googlePayDirectFlow}>
-          <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
+          <GooglePayFlow connector closeAccordionFn update onCloseClickCustomFun />
         </RenderIf>
         <RenderIf condition={featureFlag.googlePayDirectFlow}>
-          <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
+          <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
         </RenderIf>
       </>
     | Processors(NUVEI)
     | Processors(TESOURO) =>
-      <GPayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
-    | _ => <GooglePayFlow connector setShowWalletConfigurationModal update onCloseClickCustomFun />
+      <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
+    | _ => <GooglePayFlow connector closeAccordionFn update onCloseClickCustomFun />
     }}
-  </>
+  </div>
 }

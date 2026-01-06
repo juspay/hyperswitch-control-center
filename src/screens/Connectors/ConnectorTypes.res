@@ -131,6 +131,8 @@ type processorTypes =
   | FINIX
   | PAYJUSTNOW
   | ZIFT
+  | PAYJUSTNOWINSTORE
+  | AMAZONPAY
 
 type payoutProcessorTypes =
   | ADYEN
