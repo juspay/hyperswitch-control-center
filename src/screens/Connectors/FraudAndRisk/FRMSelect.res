@@ -93,7 +93,7 @@ let make = () => {
 
   let customUI =
     <BluredTableComponent
-      infoText="No connectors configured yet. Try connecting a connector with payment method as card."
+      infoText="No connectors configured yet. Try connecting a connector with card enabled as a payment method."
       buttonText="Take me to connectors"
       onClickElement={React.null}
       onClickUrl="connectors"
