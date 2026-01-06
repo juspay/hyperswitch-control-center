@@ -62,7 +62,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom

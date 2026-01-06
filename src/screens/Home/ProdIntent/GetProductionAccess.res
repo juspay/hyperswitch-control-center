@@ -5,7 +5,7 @@ let make = () => {
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let {hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
     GlobalProvider.defaultContext,
