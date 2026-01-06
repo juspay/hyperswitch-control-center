@@ -403,7 +403,6 @@ module LineageFormContent = {
           />
         </div>
       </div>
-      <FormValuesSpy />
       <LoaderModal
         showModal={showLoaderSwitchModal} setShowModal={setShowLoaderSwitchModal} text="Switching"
       />
