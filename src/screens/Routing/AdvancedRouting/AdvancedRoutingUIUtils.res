@@ -65,6 +65,7 @@ module OperatorInp = {
       let operatorVals = switch keyType->variantTypeMapper {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
+      | FixedNumber => ["EQUAL TO"]
       | Metadata_value => ["EQUAL TO"]
       | String_value => ["EQUAL TO", "NOT EQUAL_TO"]
       | _ => []
