@@ -179,7 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonSessionDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -193,7 +194,15 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+    let (transactionEntity, analyticsEntity, userEntity) = switch state {
+    | DashboardSession(userInfo) => (
+        userInfo.transactionEntity,
+        userInfo.analyticsEntity,
+        userInfo.userEntity,
+      )
+    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    }
+
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
@@ -1585,7 +1594,9 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1639,7 +1650,9 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
