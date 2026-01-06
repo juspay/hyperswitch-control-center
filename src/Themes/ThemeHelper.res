@@ -114,8 +114,6 @@ module LineageFormContent = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let (showLoaderSwitchModal, setShowLoaderSwitchModal) = React.useState(_ => false)
-    let orgName = getNameForId(#Organization)
-    Js.log2("orgName", orgName)
     let (themeExists, setThemeExists) = React.useState(() => false)
     let (updateThemeID, setUpdateThemeID) = React.useState(() => themeId)
     let entityType =

@@ -10,7 +10,7 @@ let make = () => {
 
   let renderOrgTiles = () => {
     <div
-      className="flex flex-col gap-2 items-center py-4 bg-white border-r w-8 bg-nd_gray-50"
+      className="flex flex-col gap-2 items-center py-4 border-r w-8 bg-nd_gray-50"
       style={ReactDOM.Style.make(~backgroundColor=sidebarFromForm.primary, ())}>
       {orgs
       ->Array.mapWithIndex((ele, index) => {
@@ -22,12 +22,13 @@ let make = () => {
             ~color=index === 0 ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor,
             (),
           )}>
-          <span className="text-fs-10 font-medium "> {React.string(ele)} </span>
+          <span className={`${body.xs.medium}`}> {React.string(ele)} </span>
         </div>
       })
       ->React.array}
     </div>
   }
+
   let renderSidebarItem = (item: sidebarItem, index: int) => {
     let textColor = item.active ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor
     let bgColor = item.active ? "rgba(153, 155, 159, 0.1)" : "transparent"

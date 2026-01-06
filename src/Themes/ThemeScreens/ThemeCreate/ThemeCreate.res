@@ -39,7 +39,6 @@ let make = () => {
       setScreenState(_ => Loading)
       let themeURL = getURL(~entityName=V1(USERS), ~methodType=Post, ~id=None, ~userType=#THEME)
       let _ = await updateDetails(themeURL, values, Post)
-
       setScreenState(_ => Success)
       redirectToList()
     } catch {
@@ -66,7 +65,7 @@ let make = () => {
               <div className="border h-3/4 rounded-xl p-8 px-10 flex items-center relative">
                 <div
                   className="absolute top-3 right-3 z-10 bg-white bg-opacity-80 rounded-full p-1 flex items-center justify-center shadow">
-                  <Icon name="eye" size=18 className="text-gray-500 opacity-70" />
+                  <Icon name="eye" size=18 className="text-nd_gray-500 opacity-70" />
                 </div>
                 <ThemeMockDashboard />
               </div>

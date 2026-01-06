@@ -31,19 +31,6 @@ let make = (
   let (toggle, setToggle) = React.useState(() => false)
   let colorPickerRef = React.useRef(Js.Nullable.null)
 
-  React.useEffect(() => {
-    let newColor = switch defaultValue {
-    | Some(val) if val->isNonEmptyString && isValidHexCode(val) => val
-    | _ => getHexColor(input.value)
-    }
-    let upperColor = newColor->String.toUpperCase
-    if upperColor !== color {
-      setColor(_ => upperColor)
-      setIsValid(_ => isValidHexCode(newColor))
-    }
-    None
-  }, (defaultValue, getHexColor(input.value)))
-
   let onChangeComplete = color =>
     switch getDictFromJsonObject(color)->getString("hex", "") {
     | hex => {
