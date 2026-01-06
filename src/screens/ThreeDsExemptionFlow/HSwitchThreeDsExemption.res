@@ -14,7 +14,7 @@ module ActiveRulePreview = {
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
 
     let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
