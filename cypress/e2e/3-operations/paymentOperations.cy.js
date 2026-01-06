@@ -315,6 +315,7 @@ describe("Payment Operations", () => {
       "Merchant ID",
       "Setup Future Usage",
       "Attempt count",
+      "Error Message",
     ];
 
     let merchant_id;
