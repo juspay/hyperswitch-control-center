@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.06.0
+
+### Features
+
+- Add amazon pay connector ([#3735](https://github.com/juspay/hyperswitch-control-center/pull/3735)) ([`5dea775`](https://github.com/juspay/hyperswitch-control-center/commit/5dea775ae0effe6dcb9202184aea2dd3c35ccc6c))
+
+### Miscellaneous Tasks
+
+- Three ds exemption delete rule ([#4041](https://github.com/juspay/hyperswitch-control-center/pull/4041)) ([`0a18d23`](https://github.com/juspay/hyperswitch-control-center/commit/0a18d23721e6874d15955b089ecdd3822d9db2f2))
+
+**Full Changelog:** [`2026.01.01.0...2026.01.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.01.0...2026.01.06.0)
+
+- - -
+
+## 2026.01.01.0
+
+### Miscellaneous Tasks
+
+- Add new dashboard type called embeddable and changed userinfo type ([#4035](https://github.com/juspay/hyperswitch-control-center/pull/4035)) ([`5d49e8d`](https://github.com/juspay/hyperswitch-control-center/commit/5d49e8d0a3782897af563b06b83406f2c1ce5aa1))
+
+**Full Changelog:** [`2025.12.30.0...2026.01.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2025.12.30.0...2026.01.01.0)
+
+- - -
+
 ## 2025.12.30.0
 
 ### Features
