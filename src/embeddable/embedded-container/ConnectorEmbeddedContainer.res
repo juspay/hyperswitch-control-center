@@ -27,7 +27,7 @@ let make = () => {
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
     }
   }
 
