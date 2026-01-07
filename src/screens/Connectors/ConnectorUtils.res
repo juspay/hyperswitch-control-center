@@ -173,6 +173,7 @@ let connectorList: array<connectorTypes> = [
   Processors(ZIFT),
   Processors(PAYJUSTNOWINSTORE),
   Processors(AMAZONPAY),
+  Processors(WORLDPAYMODULAR),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -215,6 +216,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(ZIFT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(WORLDPAYMODULAR),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -804,6 +806,9 @@ let amazonpayinfo = {
   description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience.",
 }
 
+let worldpayModularInfo = {
+  description: "Worldpaymodular is a payment gateway and PSP enabling secure online transactions, It utilizes modular API's of WorldPay.",
+}
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -911,6 +916,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ZIFT => "zift"
   | PAYJUSTNOWINSTORE => "payjustnowinstore"
   | AMAZONPAY => "amazonpay"
+  | WORLDPAYMODULAR => "worldpaymodular"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1267,6 +1273,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | ZIFT => ziftInfo
   | PAYJUSTNOWINSTORE => payjustnowInStoreInfo
   | AMAZONPAY => amazonpayinfo
+  | WORLDPAYMODULAR => worldpayModularInfo
   }
 }
 
@@ -2210,6 +2217,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | PAYJUSTNOWINSTORE => "PayJustNow In-Store"
   | ZIFT => "Zift"
   | AMAZONPAY => "Amazon Pay"
+  | WORLDPAYMODULAR => "Worldpay Modular"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
