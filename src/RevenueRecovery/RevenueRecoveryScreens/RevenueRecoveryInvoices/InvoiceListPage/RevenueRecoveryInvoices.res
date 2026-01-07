@@ -2,6 +2,7 @@
 let make = () => {
   open LogicUtils
   open APIUtils
+
   open HSwitchRemoteFilter
   open InvoiceListPageUtils
   let getURL = useGetURL()
@@ -16,6 +17,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
   let (filters, setFilters) = React.useState(_ => None)
+  let {filterValue} = React.useContext(FilterContext.filterContext)
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
@@ -72,6 +74,7 @@ let make = () => {
   }
 
   let fetchOrders = () => {
+    Js.log2(">>", "fetch")
     let query = switch filters {
     | Some(dict) =>
       let filters = Dict.make()
@@ -104,7 +107,10 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchOrders()
+    if filters->OrderUIUtils.isNonEmptyValue {
+      fetchOrders()
+    }
+
     None
   }, (offset, filters, searchText))
 
@@ -131,10 +137,10 @@ let make = () => {
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Invoice Recovery Overview" customTitleStyle="py-0 !pt-0" />
       </div>
+      <div className="flex">
+        <div className="flex-1"> {filtersUI} </div>
+      </div>
       <PageLoaderWrapper screenState>
-        <div className="flex">
-          <div className="flex-1"> {filtersUI} </div>
-        </div>
         <LoadedTableWithCustomColumns
           title="Recovery"
           actualData=revenueRecoveryData
