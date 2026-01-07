@@ -64,8 +64,8 @@ let getHeading = (colType: transactionColType) => {
 let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   switch status {
   | Posted(Auto) => "Reconciled (Auto)"
-  | Posted(Manual)
-  | Posted(Force) => "Reconciled (Manual)"
+  | Posted(Manual) => "Reconciled (Manual)"
+  | Posted(Force) => "Reconciled (Force)"
   | Posted(_) => "Reconciled"
   | OverAmount(Mismatch) => "Positive Variance (Requires Attention)"
   | OverAmount(Expected) => "Positive Variance (Awaiting Match)"

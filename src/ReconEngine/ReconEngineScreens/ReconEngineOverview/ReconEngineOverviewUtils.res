@@ -288,6 +288,7 @@ let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
     Posted(Auto),
     Posted(Manual),
+    Posted(Force),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),

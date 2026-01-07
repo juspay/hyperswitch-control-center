@@ -74,27 +74,27 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   string,
 ) => {
   switch status {
-  | Posted(Auto) => ("posted_auto", "Automatically Reconciled", "Reconciled")
-  | Posted(Manual) => ("posted_manual,posted_force", "Manually Reconciled", "Reconciled")
-  | Posted(Force) => ("posted_force", "Forcefully Reconciled", "Reconciled")
+  | Posted(Auto) => ("posted_auto", "Reconciled (Auto)", "Reconciled")
+  | Posted(Manual) => ("posted_manual", "Reconciled (Manual)", "Reconciled")
+  | Posted(Force) => ("posted_force", "Reconciled (Force)", "Reconciled")
   | OverAmount(Expected) => (
       "over_amount_expected",
-      "Positive Variance Awaiting Match",
+      "Positive Variance (Awaiting Match)",
       "Positive Variance",
     )
   | OverAmount(Mismatch) => (
       "over_amount_mismatch",
-      "Positive Variance Requires Attention",
+      "Positive Variance (Requires Attention)",
       "Positive Variance",
     )
   | UnderAmount(Expected) => (
       "under_amount_expected",
-      "Negative Variance Awaiting Match",
+      "Negative Variance (Awaiting Match)",
       "Negative Variance",
     )
   | UnderAmount(Mismatch) => (
       "under_amount_mismatch",
-      "Negative Variance Requires Attention",
+      "Negative Variance (Requires Attention)",
       "Negative Variance",
     )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
