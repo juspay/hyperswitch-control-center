@@ -2,7 +2,7 @@
 let make = () => {
   open LogicUtils
   open APIUtils
-
+  open Typography
   open HSwitchRemoteFilter
   open InvoiceListPageUtils
   let getURL = useGetURL()
@@ -136,8 +136,16 @@ let make = () => {
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full w-full min-h-[50vh]`}>
-      <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Invoice Recovery Overview" customTitleStyle="py-0 !pt-0" />
+      <div className="flex justify-between items-center mb-5">
+        <PageUtils.PageHeading
+          title="Invoice Recovery Overview" customTitleStyle="py-0 !pt-0 !text-fs-24"
+        />
+      </div>
+      <RevenueRecoveryInvoiceMetrics />
+      <div className="space-y-1 mb-2 mt-10 mb-3">
+        <h2 className={`${heading.sm.semibold} text-gray-900`}>
+          {"List of Invoices"->React.string}
+        </h2>
       </div>
       <div className="flex">
         <div className="flex-1"> {filtersUI} </div>
