@@ -1,20 +1,4 @@
-type contentRect = {height: float, width: float}
-type resizeObserverEntry = {contentRect: contentRect}
-type resizeObserver
-
-@new @scope("window")
-external createResizeObserver: (array<resizeObserverEntry> => unit) => resizeObserver =
-  "ResizeObserver"
-@send external observeElement: (resizeObserver, Dom.element) => unit = "observe"
-@send external disconnectObserver: resizeObserver => unit = "disconnect"
-
-@get external scrollHeight: Dom.element => int = "scrollHeight"
-@get external offsetHeight: Dom.element => int = "offsetHeight"
-@get external clientHeight: Dom.element => int = "clientHeight"
-@get external scrollWidth: Dom.element => int = "scrollWidth"
-@get external offsetWidth: Dom.element => int = "offsetWidth"
-@get external clientWidth: Dom.element => int = "clientWidth"
-
+open DOMUtils
 open Window
 
 @react.component
