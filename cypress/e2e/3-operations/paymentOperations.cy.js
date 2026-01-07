@@ -833,7 +833,7 @@ describe("Payment Operations", () => {
   });
 
   // Views
-  it.skip("should verify all transaction filter views are displayed", () => {
+  it("should verify all transaction filter views are displayed", () => {
     const transactionViews = [
       "All",
       "Succeeded",
@@ -852,11 +852,11 @@ describe("Payment Operations", () => {
     });
   });
 
-  it.skip("should switch between different transaction views and verify applied filters", () => {
+  it("should switch between different transaction views and verify applied filters", () => {
     const viewFilters = {
       Succeeded: "Succeeded",
       Failed: "Failed",
-      Dropoffs: "Dropoffs",
+      Dropoffs: "Requires Payment Method",
       Cancelled: "Cancelled",
     };
 
@@ -883,9 +883,234 @@ describe("Payment Operations", () => {
     }
   });
 
-  // generate reports
-
   // Verify "Open in new tab" button for payment ID
+  it("should verify open in new tab for a payment", () => {
+    let merchant_id = "";
+
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id).then((response) => {
+          homePage.operations.click();
+          homePage.paymentOperations.click();
+
+          cy.get(
+            '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
+          ).click();
+
+          cy.get('[class="opacity-70 py-1"]')
+            .should("have.attr", "href")
+            .then((href) => {
+              cy.get('[data-table-location="Orders_tr1_td2"]')
+                .invoke("text")
+                .then((orderValue) => {
+                  cy.ompLineage().then((lineage) => {
+                    const expectedUrlPart = `/dashboard/payments/${orderValue}/${lineage.profile_id}/${lineage.merchant_id}/${lineage.org_id}`;
+                    expect(href).to.include(expectedUrlPart);
+                  });
+                });
+            });
+
+          cy.get('[class="opacity-70 py-1"]').should(
+            "have.attr",
+            "target",
+            "_blank",
+          );
+        });
+      });
+  });
 
   // Payment details page
+  it("should verify all components in Payment Details page - 1", () => {
+    cy.ompLineage().then((lineage) => {
+      cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
+      cy.createPaymentAPI(lineage.merchant_id);
+    });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+    cy.get('[data-table-location="Orders_tr1_td1"]').click();
+
+    cy.get('[data-button-text="+ Refund"]').should("be.visible").click();
+    cy.get('[data-input-name="amount"]').type("12.34");
+    cy.get('[data-button-text="Initiate Refund"]').click();
+
+    //Summary section
+    cy.get('[class="font-bold text-lg mb-5"]')
+      .eq(0)
+      .should("contain", "Summary");
+    cy.get('[class="md:text-5xl font-bold"]').should("contain", "123.45 USD");
+    cy.get(
+      '[class="text-sm text-white font-bold px-3 py-2 rounded-md bg-hyperswitch_green dark:bg-opacity-50"]',
+    ).should("contain", "SUCCEEDED");
+    cy.get('[data-button-text="+ Refund"]')
+      .should("be.visible")
+      .should("contain", "+ Refund");
+    cy.get('[data-label="Created"]').should("contain", "Created");
+    cy.get('[data-label="Last Updated"]').should("contain", "Last Updated");
+    cy.get('[data-label="Amount Received"]')
+      .should("contain", "Amount Received")
+      .should("contain", "123.45 USD");
+    cy.get('[data-label="Payment ID"]').should("contain", "Payment ID");
+    cy.get('[data-label="Connector Transaction ID"]').should(
+      "contain",
+      "Connector Transaction ID",
+    );
+    cy.get('[data-label="Error Message"]').should("contain", "Error Message");
+
+    //About Payment section
+    cy.get('[class="font-bold text-lg mb-5"]')
+      .eq(1)
+      .should("contain", "About Payment");
+    cy.get('[data-label="Profile Id"]').should("contain", "Profile Id");
+    cy.get('[data-label="Profile Name"]').should("contain", "Profile Name");
+    cy.get('[data-label="Payment connector"]').should(
+      "contain",
+      "Payment connector",
+    );
+    cy.get('[data-label="Connector Label"]').should(
+      "contain",
+      "Connector Label",
+    );
+    cy.get('[data-label="Payment Method"]').should("contain", "Payment Method");
+    cy.get('[data-label="Payment Method Type"]').should(
+      "contain",
+      "Payment Method Type",
+    );
+    cy.get('[data-label="Auth Type"]').should("contain", "Auth Type");
+    cy.get('[data-label="Card Network"]').should("contain", "Card Network");
+
+    cy.get(
+      '[class="overflow-hidden border bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 border  "]',
+    )
+      .eq(0)
+      .should("contain", "Events and logs");
+
+    //Payment attempts
+    cy.get('[class="flex flex-col gap-4"]')
+      .eq(0)
+      .should("contain", "Payment Attempts");
+
+    const expectedAttemptColumns = [
+      "S.No",
+      "Status",
+      "Amount",
+      "Currency",
+      "Connector",
+      "Payment Method",
+      "Payment Method Type",
+    ];
+
+    cy.get("table thead tr th").each(($el, index) => {
+      cy.wrap($el).should("have.text", expectedAttemptColumns[index]);
+    });
+
+    const expectedAttemptValues = [
+      "1",
+      "CHARGED",
+      "123.45 USD",
+      "USD",
+      "Stripe Dummy",
+      "card",
+      "credit",
+    ];
+
+    cy.get("table tbody tr td").each(($el, index) => {
+      cy.wrap($el).should("have.text", expectedAttemptValues[index]);
+    });
+
+    cy.get('[data-table-location="Attempts_tr1_td1"]').click();
+
+    const expectedValues = {
+      "Attempt ID": "",
+      Status: "CHARGED",
+      Amount: "123.45 USD",
+      Currency: "USD",
+      Connector: "Stripe Dummy",
+      "Payment Method": "card",
+      "Payment Method Type": "credit",
+      "Error Message": "N/A",
+      "Connector Transaction ID": "",
+      "Capture Method": "automatic",
+      "Authentication Type": "three_ds",
+      "Cancellation Reason": "N/A",
+      "Mandate ID": "N/A",
+      "Error Code": "N/A",
+      "Payment Token": "N/A",
+      "Connector Metadata": "N/A",
+      "Payment Experience": "N/A",
+      "Reference ID": "N/A",
+      "Client Source": "N/A",
+      "Client Version": "N/A",
+    };
+    cy.get('[data-expandable-table="Attempts"]').within(() => {
+      Object.entries(expectedValues).forEach(([label, value]) => {
+        cy.get(`[data-label="${label}"]`)
+          .scrollIntoView()
+          .should("be.visible")
+          .should("contain", value);
+      });
+    });
+
+    //Refund attempts
+    cy.get('[class="flex flex-col gap-4"]').eq(1).should("contain", "Refunds");
+
+    const expectedRefundAttemptColumns = [
+      "S.No",
+      "Refund ID",
+      "Payment Id",
+      "Amount",
+      "Refund Status",
+      "Created",
+      "Last Updated",
+    ];
+
+    cy.get('table[data-expandable-table="Refunds"]').within(() => {
+      cy.get("thead tr th").each(($el, index) => {
+        cy.wrap($el).should("have.text", expectedRefundAttemptColumns[index]);
+      });
+    });
+
+    cy.get('[data-table-location="Refunds_tr1_td1"]').click();
+
+    const expectedRefundValues = {
+      "Refund ID": "",
+      "Payment Id": "",
+      "Refund Status": "SUCCEEDED",
+      Amount: "12.34 USD",
+      Currency: "USD",
+      "Refund Reason": "N/A",
+      "Error Message": "N/A",
+    };
+    cy.get('[data-expandable-table="Refunds"]').within(() => {
+      Object.entries(expectedRefundValues).forEach(([label, value]) => {
+        cy.get(`[data-label="${label}"]`)
+          .scrollIntoView()
+          .should("be.visible")
+          .should("contain", value);
+      });
+    });
+  });
+
+  it.only("should verify all components in Payment Details page - 2", () => {
+    cy.ompLineage().then((lineage) => {
+      cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
+      cy.createPaymentAPI(lineage.merchant_id);
+    });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+    cy.get('[data-table-location="Orders_tr1_td1"]').click();
+
+    cy.get('[data-button-text="+ Refund"]').should("be.visible").click();
+    cy.get('[data-input-name="amount"]').type("12.34");
+    cy.get('[data-button-text="Initiate Refund"]').click();
+  });
+
+  // Refund cases amount less , more and equal to payment amount
+
+  // generate reports
 });

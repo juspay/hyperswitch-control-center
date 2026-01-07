@@ -387,7 +387,7 @@ Cypress.Commands.add("createPaymentAPI", (merchant_id) => {
         "api-key": apiKey, // Pass the apiKey here
       },
       body: {
-        amount: 10000,
+        amount: 12345,
         currency: "USD",
         confirm: true,
         capture_method: "automatic",
@@ -592,4 +592,28 @@ Cypress.Commands.add("get_authID_by_email", () => {
     .then((response) => {
       return response.body[0].auth_id;
     });
+});
+
+Cypress.Commands.add("ompLineage", () => {
+  return cy.window().then((win) => {
+    const token = JSON.parse(win.localStorage.getItem("USER_INFO")).token;
+
+    return cy
+      .request({
+        method: "GET",
+        url: "http://localhost:8080/user",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        const { merchant_id, org_id, profile_id } = response.body;
+
+        return {
+          org_id,
+          merchant_id,
+          profile_id,
+        };
+      });
+  });
 });
