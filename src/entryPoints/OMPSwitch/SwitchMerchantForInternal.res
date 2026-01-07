@@ -9,7 +9,7 @@ let make = () => {
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let (value, setValue) = React.useState(() => "")
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let maxStringLength = 50
 
   let (selectedVersion, setSelectedVersion) = React.useState(_ => {

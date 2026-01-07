@@ -17,6 +17,20 @@ let defaultValueOfUserInfo = {
   version: V1,
 }
 
+let defaultValueOfEmbeddedInfo = {
+  orgId: "",
+  profileId: "",
+  merchantId: "",
+  version: V1,
+}
+
+let defaultCommonInfo: commonInfoType = {
+  orgId: "",
+  profileId: "",
+  merchantId: "",
+  version: V1,
+}
+
 let entityMapper = entity => {
   switch entity->String.toLowerCase {
   | "tenant" => #Tenant
@@ -53,13 +67,18 @@ let versionMapper = version =>
   }
 
 let defaultValueOfUserInfoProvider = {
-  userInfo: defaultValueOfUserInfo,
-  setUserInfoData: _ => (),
-  getUserInfoData: _ => defaultValueOfUserInfo,
+  state: DashboardSession(defaultValueOfUserInfo),
+  getResolvedUserInfo: _ => defaultValueOfUserInfo,
+  getResolvedEmbeddableInfo: _ => defaultValueOfEmbeddedInfo,
+  setApplicationState: _ => (),
+  setUpdatedDashboardSessionInfo: _ => (),
+  setUpdatedEmbeddableSessionInfo: _ => (),
+  getCommonSessionDetails: _ => defaultCommonInfo,
   checkUserEntity: _ => false,
 }
+
 open LogicUtils
-let itemMapper = dict => {
+let itemMapperToDashboardUserType = dict => {
   email: dict->getString("email", defaultValueOfUserInfo.email),
   isTwoFactorAuthSetup: dict->getBool(
     "is_two_factor_auth_setup",
@@ -78,3 +97,15 @@ let itemMapper = dict => {
   themeId: dict->getString("theme_id", ""),
   version: dict->getString("version", "v1")->versionMapper,
 }
+
+let getDashboardSession = state =>
+  switch state {
+  | DashboardSession(info) => Some(info)
+  | _ => None
+  }
+
+let getEmbeddableSession = state =>
+  switch state {
+  | EmbeddableSession(info) => Some(info)
+  | _ => None
+  }

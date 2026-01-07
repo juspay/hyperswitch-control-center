@@ -16,7 +16,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let businessProfileValues =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let (initialValues, setInitialValues) = React.useState(_ => initialValues)
   let (pageState, setPageState) = React.useState(() => RoutingTypes.Create)

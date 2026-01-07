@@ -6,7 +6,7 @@ module OrganisationSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
     | #Tenant | #Organization | #Merchant | #Profile => true
@@ -58,7 +58,7 @@ module MerchantSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
@@ -106,6 +106,8 @@ module MerchantSelection = {
           ~dropdownCustomWidth="!w-full",
           ~textStyle="!text-gray-500",
           ~disableSelect,
+          ~ellipsisOnly=true,
+          ~maxButtonWidth="max-w-200 xl:max-w-xs",
         )(
           ~input={
             ...input,
@@ -132,7 +134,7 @@ module ProfileSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -213,6 +215,8 @@ module ProfileSelection = {
           ~dropdownCustomWidth="!w-full",
           ~textStyle="!text-gray-500",
           ~disableSelect,
+          ~ellipsisOnly=true,
+          ~maxButtonWidth="max-w-200 xl:max-w-xs",
         )(
           ~input={
             ...input,

@@ -19,12 +19,18 @@ module OrgTile = {
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+    let {getCommonSessionDetails, checkUserEntity} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
+    let {orgId} = getCommonSessionDetails()
     let {
       globalUIConfig: {
-        sidebarColor: {backgroundColor, secondaryTextColor, borderColor: sidebarBorderColor},
-        border: {borderColor},
-        font: {textColor},
+        sidebarColor: {
+          backgroundColor,
+          primaryTextColor,
+          secondaryTextColor,
+          borderColor: sidebarBorderColor,
+        },
       },
     } = React.useContext(ThemeProvider.themeContext)
 
@@ -102,7 +108,6 @@ module OrgTile = {
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
-
     let handleClick = () => {
       if !isActive {
         orgSwitch(orgID)->ignore
@@ -114,8 +119,8 @@ module OrgTile = {
       className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
       <div
         className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${isActive
-            ? `bg-white/20 ${borderColor.primaryNormal} ${textColor.primaryNormal}`
-            : `${secondaryTextColor}hover:bg-white/10 border-sidebar-borderColor`}`}>
+            ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
+            : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <RenderIf condition={isPlatformOrganization}>
           <div
             className={`absolute top-5-px right-5-px w-0 h-0 border-t-[10px] border-l-[10px] ${isActive
@@ -180,7 +185,7 @@ module OrgTileGroup = {
     ~currentlyEditingId,
     ~handleIdUnderEdit,
   ) => {
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
@@ -357,9 +362,11 @@ let make = () => {
   let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, roleId, version}, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId, version} = getCommonSessionDetails()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
@@ -405,10 +412,7 @@ let make = () => {
   }
 
   let {
-    globalUIConfig: {
-      sidebarColor: {backgroundColor, hoverColor, borderColor},
-      font: {textColor: {primaryNormal}},
-    },
+    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrgDetails = async () => {
@@ -525,8 +529,8 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${primaryNormal}`}>
-          <Icon name="plus" size=20 className={primaryNormal} />
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${secondaryTextColor}`}>
+          <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>
     </div>

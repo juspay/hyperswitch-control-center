@@ -77,7 +77,7 @@ let apiKeys = userHasResourceAccess => {
 let paymentSettings = userHasResourceAccess => {
   SubLevelLink({
     name: "Payment Settings",
-    link: `v2/orchestration/payment-settings`,
+    link: `/v2/orchestration/payment-settings`,
     access: userHasResourceAccess(~resourceAccess=Account),
   })
 }

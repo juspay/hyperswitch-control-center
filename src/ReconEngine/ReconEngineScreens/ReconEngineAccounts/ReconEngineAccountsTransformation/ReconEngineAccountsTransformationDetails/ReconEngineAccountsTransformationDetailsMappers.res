@@ -66,7 +66,7 @@ module ColumnMappingDisplay = {
           {metadataSchema.schema_data.fields.metadata_fields
           ->Array.map(field => {
             <FileAndSystemColumnMapping
-              fileColumn=field.identifier systemColumn={`metadata.${field.field_name}`}
+              fileColumn=field.identifier systemColumn={field.field_name}
             />
           })
           ->React.array}
@@ -101,14 +101,11 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
       let transformationConfig =
         transformationConfigsRes->getDictFromJsonObject->getTransformationConfigPayloadFromDict
 
-      let metadataSchemaID =
-        transformationConfig.config->getDictFromJsonObject->getString("metadata_schema_id", "")
-
       let metadataSchemaURL = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#METADATA_SCHEMA,
-        ~id=Some(metadataSchemaID),
+        ~id=Some(transformationConfig.metadata_schema_id),
       )
       let metadataSchemaRes = await fetchDetails(metadataSchemaURL)
       let parsedMetadataSchema =

@@ -52,4 +52,3 @@ type attemptTable = {
   eventId: string,
   created: string,
 }
-

@@ -36,12 +36,17 @@ let make = () => {
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
-  let {userInfo: {profileId, merchantId, version}} = React.useContext(
-    UserInfoProvider.defaultContext,
+  let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=VaultProcessor,
   )
+  let {profileId, merchantId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
+  let isBusinessProfileHasVault =
+    vaultConnectorsList->Array.some(item => item.profile_id == profileId)
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let paymentBehaviourTab: Tabs.tab = {
@@ -70,16 +75,20 @@ let make = () => {
     },
   ]
 
-  let finalAdditionalTabs: array<Tabs.tab> = if featureFlagDetails.vaultProcessor {
-    Array.concat([vaultTab], additionalTabs)
-  } else {
-    additionalTabs
-  }
+  let tabs = {
+    let baseTabs = [paymentBehaviourTab]
 
-  let tabs = if version == V2 && !isBusinessProfileHasThreeds {
-    Array.concat([paymentBehaviourTab], finalAdditionalTabs)
-  } else {
-    Array.concat(Array.concat([paymentBehaviourTab], [threeDsTab]), finalAdditionalTabs)
+    if version == V1 || (version == V2 && isBusinessProfileHasThreeds) {
+      baseTabs->Array.push(threeDsTab)
+    }
+
+    if version == V1 && featureFlagDetails.vaultProcessor && isBusinessProfileHasVault {
+      baseTabs->Array.push(vaultTab)
+    }
+
+    baseTabs->Array.pushMany(additionalTabs)
+
+    baseTabs
   }
 
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")

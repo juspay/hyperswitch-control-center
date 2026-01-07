@@ -64,7 +64,10 @@ module ChangeRoleSection = {
           deselectDisable=true
           allowMultiSelect=false
           buttonText="Select role"
-          fullLength=true
+          customScrollStyle="max-h-72 overflow-scroll"
+          dropdownContainerStyle="md:w-60 md:max-w-80 rounded-md"
+          ellipsisOnly=true
+          maxButtonWidth="w-40 max-w-40"
         />
         <Button
           text="Update"

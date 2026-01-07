@@ -24,6 +24,7 @@ module PaymentMethodTypes = {
     ~showCheckbox=true,
     ~onClick=None,
     ~formValues: ConnectorTypes.connectorPayloadV2,
+    ~customLabelCss="",
   ) => {
     let handleClick = () => {
       switch onClick {
@@ -47,7 +48,7 @@ module PaymentMethodTypes = {
               )}
             />
           </div>
-          <p className="mt-4"> {label->React.string} </p>
+          <p className={`mt-4 ${customLabelCss}`}> {label->React.string} </p>
         </div>
       </AddDataAttributes>
     </RenderIf>

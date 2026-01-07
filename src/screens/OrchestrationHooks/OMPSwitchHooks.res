@@ -3,10 +3,17 @@ type userInfo = {
   updateTransactionEntity: UserInfoTypes.entity => unit,
   updateAnalytcisEntity: UserInfoTypes.entity => unit,
 }
+
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {
+    getCommonSessionDetails,
+    setUpdatedDashboardSessionInfo,
+    getResolvedUserInfo,
+  } = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId, merchantId} = getCommonSessionDetails()
+
   let url = `${Window.env.apiBaseUrl}/user`
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -17,13 +24,12 @@ let useUserInfo = () => {
         ~method_=Get,
         ~xFeatureRoute,
         ~forceCookies,
-        ~merchantId={userInfo.merchantId},
-        ~profileId={userInfo.profileId},
+        ~merchantId={merchantId},
+        ~profileId={profileId},
       )
       let response = await res->(res => res->Fetch.Response.json)
-      let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
-      let themeId = userInfo.themeId
-      HyperSwitchEntryUtils.setThemeIdtoStore(themeId)
+      let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapperToDashboardUserType
+      HyperSwitchEntryUtils.setThemeIdtoStore(userInfo.themeId)
       userInfo
     } catch {
     | Exn.Error(e) => {
@@ -34,17 +40,17 @@ let useUserInfo = () => {
   }
   let updateTransactionEntity = (transactionEntity: UserInfoTypes.entity) => {
     let updateInfo = {
-      ...userInfo,
+      ...getResolvedUserInfo(),
       transactionEntity,
     }
-    setUserInfoData(updateInfo)
+    setUpdatedDashboardSessionInfo(updateInfo)
   }
   let updateAnalytcisEntity = (analyticsEntity: UserInfoTypes.entity) => {
     let updateInfo = {
-      ...userInfo,
+      ...getResolvedUserInfo(),
       analyticsEntity,
     }
-    setUserInfoData(updateInfo)
+    setUpdatedDashboardSessionInfo(updateInfo)
   }
   {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }
@@ -188,7 +194,10 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
-  let {userInfo, setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {orgId} = getCommonSessionDetails()
   let url = RescriptReactRouter.useUrl()
   async (
     ~expectedOrgId=None,
@@ -199,9 +208,9 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   ) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
-        ~expectedOrgId=expectedOrgId->Option.getOr(userInfo.orgId),
-        ~currentOrgId=userInfo.orgId,
-        ~defaultValue=userInfo,
+        ~expectedOrgId=expectedOrgId->Option.getOr(orgId),
+        ~currentOrgId=orgId,
+        ~defaultValue=getResolvedUserInfo(),
         ~version,
       )
 
@@ -218,7 +227,9 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
         ~defaultValue=userInfoResFromSwitchMerch,
         ~version,
       )
-      setUserInfoData(userInfoFromProfile)
+
+      setApplicationState(_ => DashboardSession(userInfoFromProfile))
+
       if changePath {
         // When the internal switch is triggered from the dropdown,
         // and the current path is "/dashboard/payment/id",
@@ -244,7 +255,9 @@ let useOMPData = () => {
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-  let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {orgId, profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
 
   let getList: unit => OMPSwitchTypes.ompList = _ => {
     {
@@ -256,9 +269,9 @@ let useOMPData = () => {
 
   let getNameForId = entityType =>
     switch entityType {
-    | #Organization => currentOMPName(orgList, userInfo.orgId)
-    | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
-    | #Profile => currentOMPName(profileList, userInfo.profileId)
+    | #Organization => currentOMPName(orgList, orgId)
+    | #Merchant => currentOMPName(merchantList, merchantId)
+    | #Profile => currentOMPName(profileList, profileId)
     | _ => ""
     }
 

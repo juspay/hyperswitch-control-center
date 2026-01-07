@@ -188,9 +188,6 @@ module AddNewOMPButton = {
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
-    let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
-      ThemeProvider.themeContext,
-    )
 
     <ACLDiv
       authorization={hasOMPCreateAccess}
@@ -203,8 +200,7 @@ module AddNewOMPButton = {
       showTooltip={hasOMPCreateAccess == Access}>
       {<>
         <hr className={customHRTagStyle} />
-        <div
-          className={`flex items-center gap-2 px-3.5 py-3 ${customStyle} ${primaryNormal} ${body.md.medium}`}>
+        <div className={` flex  items-center gap-2 ${body.md.medium} px-3.5 py-3 ${customStyle}`}>
           <Icon name="nd-plus" size=15 />
           {`Create new`->React.string}
         </div>
@@ -364,9 +360,10 @@ module MerchantDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {merchantId, version}, checkUserEntity} = React.useContext(
+    let {getCommonSessionDetails, checkUserEntity} = React.useContext(
       UserInfoProvider.defaultContext,
     )
+    let {merchantId, version} = getCommonSessionDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let isMobileView = MatchMedia.useMobileChecker()
@@ -512,7 +509,9 @@ module ProfileDropdownItem = {
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId, version} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
     let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)

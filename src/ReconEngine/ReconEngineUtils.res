@@ -9,7 +9,7 @@ let getTransactionStatusVariantFromString = (status: string): transactionStatus 
   | "archived" => Archived
   | "void" => Void
   | "partially_reconciled" => PartiallyReconciled
-  | _ => UnknownTransactionStatus
+  | _ => Expected
   }
 }
 
@@ -84,6 +84,45 @@ let getAmountPayload = dict => {
   {
     value: dict->getFloat("value", 0.0),
     currency: dict->getString("currency", ""),
+  }
+}
+
+let getDomainTransactionPostedStatusFromString = (
+  status: string,
+): domainTransactionPostedStatus => {
+  switch status->String.toLowerCase {
+  | "auto" => Auto
+  | "manual" => Manual
+  | "force" => Force
+  | _ => UnknownDomainTransactionPostedStatus
+  }
+}
+
+let getDomainTransactionAmountMismatchStatusFromString = (
+  status: string,
+): domainTransactionAmountMismatchStatus => {
+  switch status->String.toLowerCase {
+  | "expected" => Expected
+  | "mismatch" => Mismatch
+  | _ => Mismatch
+  }
+}
+
+let getDomainTransactionStatus = (
+  status: string,
+  dict: Js.Dict.t<Js.Json.t>,
+): domainTransactionStatus => {
+  let subStatus = dict->getString("sub_status", "")
+  switch status->String.toLowerCase {
+  | "expected" => Expected
+  | "posted" => Posted(subStatus->getDomainTransactionPostedStatusFromString)
+  | "over_amount" => OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
+  | "under_amount" => UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
+  | "data_mismatch" => DataMismatch
+  | "archived" => Archived
+  | "void" => Void
+  | "partially_reconciled" => PartiallyReconciled
+  | _ => UnknownDomainTransactionStatus
   }
 }
 
@@ -227,6 +266,7 @@ let transformationConfigItemToObjMapper = (dict): transformationConfigType => {
     config: dict->getJsonObjectFromDict("config"),
     is_active: dict->getBool("is_active", false),
     created_at: dict->getString("created_at", ""),
+    metadata_schema_id: dict->getString("metadata_schema_id", ""),
     last_transformed_at: dict->getString("last_transformed_at", ""),
     last_modified_at: dict->getString("last_modified_at", ""),
   }
@@ -271,8 +311,8 @@ let transactionItemToObjMapper = (dict): transactionType => {
     debit_amount: dict->getDictfromDict("debit_amount")->getAmountPayload,
     rule: dict->getDictfromDict("rule")->reconRuleRefItemToObjMapper,
     transaction_status: dict
-    ->getString("transaction_status", "")
-    ->getTransactionStatusVariantFromString,
+    ->getString("status", "")
+    ->getDomainTransactionStatus(dict),
     data: {
       status: dict
       ->getDictfromDict("data")
@@ -288,7 +328,12 @@ let transactionItemToObjMapper = (dict): transactionType => {
       ->getDictfromDict("data")
       ->getOptionString("reason"),
     },
-    discarded_status: dict->getOptionString("discarded_status"),
+    discarded_status: dict
+    ->getDictfromDict("discarded_status")
+    ->getOptionString("status")
+    ->Option.map(status =>
+      status->getDomainTransactionStatus(dict->getDictfromDict("discarded_status"))
+    ),
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),

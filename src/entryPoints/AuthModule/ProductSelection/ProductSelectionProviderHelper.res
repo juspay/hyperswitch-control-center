@@ -111,7 +111,7 @@ module SelectMerchantBody = {
         values->getDictFromJsonObject->getString("merchant_selected", "")->String.trim
 
       if merchant_selected->isEmptyString {
-        Dict.set(errors, "company_name", "Merchant cannot be emoty"->JSON.Encode.string)
+        Dict.set(errors, "company_name", "Merchant cannot be empty"->JSON.Encode.string)
       }
 
       errors->JSON.Encode.object

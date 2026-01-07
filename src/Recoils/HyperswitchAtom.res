@@ -31,6 +31,8 @@ let businessProfileFromIdAtomInterface = Recoil.atom(
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
 )
 
+let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
+
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
 let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(

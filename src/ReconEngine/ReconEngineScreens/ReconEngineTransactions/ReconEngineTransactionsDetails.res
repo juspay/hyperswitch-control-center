@@ -35,19 +35,9 @@ let make = (~id) => {
 
   let detailsFields = React.useMemo(() => {
     open TransactionsTableEntity
-    switch (
-      currentTransactionDetails.transaction_status,
-      currentTransactionDetails.data.posted_type,
-    ) {
-    | (Posted, Some(ForceReconciled))
-    | (Posted, Some(ManuallyReconciled)) => [
-        TransactionId,
-        Status,
-        Variance,
-        ReconciliationType,
-        CreatedAt,
-        Reason,
-      ]
+    switch currentTransactionDetails.transaction_status {
+    | Posted(Force)
+    | Posted(Manual) => [TransactionId, Status, Variance, ReconciliationType, CreatedAt, Reason]
     | _ => [TransactionId, Status, Variance, CreatedAt]
     }
   }, [currentTransactionDetails])

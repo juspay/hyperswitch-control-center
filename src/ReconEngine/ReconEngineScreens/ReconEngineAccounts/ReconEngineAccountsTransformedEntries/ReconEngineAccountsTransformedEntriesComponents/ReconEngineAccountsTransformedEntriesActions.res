@@ -188,11 +188,14 @@ let make = (~processingEntry: processingEntryType) => {
       iconType: ViewIcon,
       modalContent: MetadataContent(processingEntry.metadata),
     },
-    {
+  ]
+
+  if processingEntry.transformation_history_id->isNonEmptyString {
+    transformedEntriesActions->Array.push({
       iconType: ChartIcon,
       modalContent: LineageContent(processingEntry),
-    },
-  ]
+    })
+  }
 
   let getModalHeading = (content: modalContentType) => {
     switch content {

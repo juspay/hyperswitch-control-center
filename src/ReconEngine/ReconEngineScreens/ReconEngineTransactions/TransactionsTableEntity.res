@@ -1,5 +1,4 @@
 open ReconEngineTypes
-open ReconEngineUtils
 open ReconEngineTransactionsUtils
 open LogicUtils
 
@@ -60,16 +59,33 @@ let getHeading = (colType: transactionColType) => {
   }
 }
 
-let getStatusLabel = (statusString: transactionStatus): Table.cell => {
+let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
+  switch status {
+  | Posted(_) => "Posted"
+  | OverAmount(_) => "Over Amount"
+  | UnderAmount(_) => "Under Amount"
+  | DataMismatch => "Data Mismatch"
+  | Expected => "Expected"
+  | Archived => "Archived"
+  | PartiallyReconciled => "Partially Reconciled"
+  | Void => "Void"
+  | UnknownDomainTransactionStatus => "Unknown"
+  }
+}
+
+let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
-    title: (statusString :> string)->String.toUpperCase,
-    color: switch statusString {
-    | Posted => LabelGreen
-    | Mismatched => LabelRed
-    | Expected => LabelBlue
+    title: status->getDomainTransactionStatusString,
+    color: switch status {
+    | Posted(_) => LabelGreen
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | DataMismatch =>
+      LabelRed
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownDomainTransactionStatus => LabelLightGray
     },
   })
 }
@@ -132,7 +148,7 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     )
   | Status =>
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status->getTransactionStatusVariantFromString)
+    | Some(status) => getStatusLabel(status)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | CreatedAt => Date(transaction.created_at)

@@ -302,3 +302,9 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   body
 }
+
+let getHeadingBasedOnApplePayFlow = applePayIntegrationFlow =>
+  switch applePayIntegrationFlow {
+  | #manual => "iOS Certificate"
+  | #simplified => "Web Domain"
+  }

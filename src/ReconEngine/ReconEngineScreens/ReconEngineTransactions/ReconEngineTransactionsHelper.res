@@ -404,7 +404,10 @@ module AuditTrail = {
           </p>
           <div
             className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {(openedTransaction.transaction_status :> string)->String.toUpperCase->React.string}
+            {openedTransaction.transaction_status
+            ->TransactionsTableEntity.getDomainTransactionStatusString
+            ->String.toUpperCase
+            ->React.string}
           </div>
         </div>
         <Icon
