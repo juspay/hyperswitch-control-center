@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.07.1
+
+### Features
+
+- Embeddable support for cashcode and payload ([#3977](https://github.com/juspay/hyperswitch-control-center/pull/3977)) ([`5ed39cd`](https://github.com/juspay/hyperswitch-control-center/commit/5ed39cdcfcd50f4b5264e7677ae2cfd44208d44c))
+
+**Full Changelog:** [`2026.01.07.0...2026.01.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.07.0...2026.01.07.1)
+
+- - -
+
 ## 2026.01.07.0
 
 ### Features
