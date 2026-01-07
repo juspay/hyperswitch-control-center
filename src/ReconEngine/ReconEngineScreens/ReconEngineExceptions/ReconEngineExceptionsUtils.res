@@ -137,12 +137,14 @@ let validateMetadataFieldValue = (
   if metadataSchema.id->isNonEmptyString {
     let field =
       metadataSchema.schema_data.fields.metadata_fields->Array.find(f => f.identifier == key)
+    let checkEmptyValue = value->String.trim->isEmptyString
+
     switch field {
     | None => None
     | Some(f) =>
-      if f.required && value->String.trim->isEmptyString {
+      if f.required && checkEmptyValue {
         Some("This field is required")
-      } else if value->String.trim->isEmptyString {
+      } else if checkEmptyValue {
         None
       } else {
         switch f.field_type {
