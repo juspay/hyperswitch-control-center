@@ -86,7 +86,7 @@ let make = (~entity: moduleEntity) => {
         renderContent: () =>
           <div className="flex flex-col gap-5 mt-5">
             <div className="rounded-xl border border-gray-200 w-full bg-white">
-              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+              <div className="bg-nd_gray-25 px-4 py-3 border-b border-gray-200 rounded-t-xl">
                 <h2 className="font-medium text-gray-800">
                   {`Error Category : ${category}`->React.string}
                 </h2>
@@ -107,7 +107,7 @@ let make = (~entity: moduleEntity) => {
                   key={index->Int.toString}
                   className="rounded-xl border border-gray-200 w-full bg-white">
                   <div
-                    className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl flex justify-between">
+                    className="bg-nd_gray-25 px-4 py-3 border-b border-gray-200 rounded-t-xl flex justify-between">
                     <h2 className="font-medium text-gray-800"> {title->React.string} </h2>
                     <ToolTip
                       description
@@ -142,9 +142,11 @@ let make = (~entity: moduleEntity) => {
       <h2 className={`${heading.md.semibold} text-gray-900 mb-2`}>
         {entity.title->React.string}
       </h2>
-      <div className="bg-gray-50 text-gray-700 p-3 rounded-md border flex gap-2">
-        <Icon size=15 name="info-circle-unfilled" />
-        {"Smart retries are attempted by targeting specific error groups where the probability of success is highest."->React.string}
+      <div className="bg-nd_gray-100 text-gray-600 px-3 py-2 rounded-lg border flex gap-2">
+        <Icon size=13 name="info-circle-unfilled" />
+        <span className=body.md.regular>
+          {"Smart retries are attempted by targeting specific error groups where the probability of success is highest."->React.string}
+        </span>
       </div>
     </div>
     <PageLoaderWrapper

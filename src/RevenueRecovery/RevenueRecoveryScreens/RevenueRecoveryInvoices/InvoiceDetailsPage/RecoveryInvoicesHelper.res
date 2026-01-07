@@ -2,14 +2,19 @@ module SegmentedProgressBar = {
   open Typography
   open InvoiceDetailsPageUtils
   @react.component
-  let make = (~orderAmount: float, ~amountCaptured: float, ~className: string="") => {
+  let make = (
+    ~orderAmount: float,
+    ~amountCaptured: float,
+    ~className: string="",
+    ~cornerRadius="",
+  ) => {
     let percentage = getAmountPercentage(~orderAmount, ~amountCaptured)
 
     let percentageInt = percentage->Float.toInt
     let percentageString = percentage->Float.toString
 
     <div className={`flex items-center w-fit ${className}`}>
-      <div className="flex-1 flex items-center relative">
+      <div className={`flex-1 flex items-center relative overflow-hidden ${cornerRadius}`}>
         <RenderIf condition={percentageInt > 0}>
           <div
             className="bg-nd_primary_blue-500 h-3 rounded-sm absolute left-0 top-0"
@@ -53,10 +58,10 @@ module AttemptItem = {
             <div className={`w-2 h-2 rounded-full ${dotColor} z-10`} />
           </div>
           <div className="pt-2">
-            <div className={`${body.sm.regular} flex gap-2 text-nd_gray-500 mb-2`}>
+            <div className={`${body.md.semibold} flex gap-2 text-nd_gray-400 mb-2`}>
               {`#${attemptNumber->Int.toString}`->React.string}
               {<Table.DateCell
-                textStyle={`${body.sm.regular} text-nd_gray-500`}
+                textStyle={`${body.md.semibold} text-nd_gray-400`}
                 timestamp={attempt.created}
                 isCard=true
               />}
@@ -67,19 +72,19 @@ module AttemptItem = {
               </span>
               {if attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper == #FAILURE {
                 <>
-                  <div className={`${body.sm.semibold} text-nd_gray-500`}>
+                  <div className={`${body.md.semibold} text-nd_gray-500`}>
                     {"due to"->React.string}
                   </div>
                   <span
                     className="px-2 py-0.5 rounded-md border text-xs bg-nd_gray-100 text-nd_gray-700">
                     {attempt.error->React.string}
                   </span>
-                  <div className={`${body.sm.semibold} text-nd_gray-500`}>
+                  <div className={`${body.md.semibold} text-nd_gray-500`}>
                     {`unable to recover ${attempt.net_amount->formatCurrency} `->React.string}
                   </div>
                 </>
               } else {
-                <div className={`${body.sm.semibold} text-nd_gray-500`}>
+                <div className={`${body.md.semibold} text-nd_gray-500`}>
                   {`${attempt.net_amount->formatCurrency} in this attempt`->React.string}
                 </div>
               }}
@@ -119,10 +124,10 @@ module AttemptsHistory = {
     let status = order.status->statusVariantMapper
 
     <div className="bg-white p-1">
-      <div className={`${heading.md.semibold} text-nd_gray-900 mb-6`}>
-        {"Attempts History"->React.string}
+      <div className={`${heading.md.semibold} text-nd_gray-900 mb-5`}>
+        {"Recovery Attempts"->React.string}
       </div>
-      <div className="pt-4">
+      <div>
         <div className=" cursor-pointer relative">
           <div
             className="border-l-2 border-nd_gray-300 border-dashed absolute left-4 top-8 h-full w-1"
@@ -134,15 +139,15 @@ module AttemptsHistory = {
               <div className="bg-nd_gray-100 p-2 rounded-full border">
                 <Icon name="juspay-logo" size=20 className="text-gray-600" />
               </div>
-              <div className={`${body.md.semibold} text-nd_gray-600 uppercase`}>
+              <div className={`${body.md.semibold} text-nd_gray-500 uppercase`}>
                 {"REVENUE RECOVERY IS ATTEMPTING RETRIES"->React.string}
               </div>
             </div>
-            <div className="flex-1 border-t-1.5 mx-4" />
+            <div className="flex-1 border-t-1.5 border-nd_gray-150 mx-2" />
             <Icon
               name="nd-chevron-arrow-down"
               size=16
-              className={`text-gray-600 ${showInternalRetries
+              className={`text-nd_gray-400 ${showInternalRetries
                   ? "rotate-180"
                   : "-rotate-0"} transition duration-[250ms]`}
             />
@@ -160,7 +165,7 @@ module AttemptsHistory = {
                 <div className="w-9 h-9  relative flex justify-center items-center bg-white">
                   <div className={"w-2 h-2 bg-nd_orange-300 rounded-full"} />
                 </div>
-                <div className={`${body.sm.semibold} text-nd_gray-600`}>
+                <div className={`${body.md.semibold} text-nd_gray-700`}>
                   {`Attempting retries to recover ${(order.order_amount -. order.amount_captured)
                       ->formatCurrency}`->React.string}
                 </div>
@@ -182,23 +187,23 @@ module AttemptsHistory = {
                     <Icon name="nd_recovery-calandar" size=18 className="text-nd_gray-600" />
                   </div>
                   <div className="pt-2">
-                    <div className={`${body.sm.regular} flex gap-2 text-nd_gray-500 mb-2`}>
+                    <div className={`${body.md.semibold} flex gap-2 text-nd_gray-400 mb-2`}>
                       {`#${(internalAttempts->Array.length + 1)->Int.toString} • `->React.string}
                       {<Table.DateCell
-                        textStyle={`${body.sm.regular} text-nd_gray-500 `}
+                        textStyle={`${body.md.semibold} text-nd_gray-400 `}
                         timestamp=convertedTime
                         isCard=true
                       />}
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span
-                        className={`px-1.5 py-0.5 rounded-md ${body.sm.semibold} bg-nd_purple-100 text-nd_purple-300 border border-nd_purple-200`}>
+                        className={`px-1.5 py-0.5 rounded-md ${body.md.semibold} bg-nd_purple-100 text-nd_purple-300 border border-nd_purple-200`}>
                         {"Scheduled"->React.string}
                       </span>
-                      <div className={`${body.sm.semibold} text-nd_gray-500 flex gap-1`}>
+                      <div className={`${body.md.semibold} text-nd_gray-500 flex gap-1`}>
                         {`Retry to recover ${order.order_amount->formatCurrency} on `->React.string}
                         {<Table.DateCell
-                          textStyle={`${body.sm.semibold} text-nd_gray-500`}
+                          textStyle={`${body.md.semibold} text-nd_gray-500`}
                           timestamp=convertedTime
                           isCard=true
                         />}
@@ -256,7 +261,7 @@ module AttemptsHistory = {
                 <div className="bg-nd_gray-100 p-2 rounded-full border">
                   <Icon name="nd-merchant-retires" size=20 className="text-nd_gray-600" />
                 </div>
-                <div className={`${body.md.semibold} text-nd_gray-600 uppercase`}>
+                <div className={`${body.md.semibold} text-nd_gray-500 uppercase`}>
                   {"MERCHANT RETRIES COMPLETED"->React.string}
                 </div>
                 <span
@@ -264,11 +269,11 @@ module AttemptsHistory = {
                   {`${merchantAttempts->Array.length->Int.toString} Retries`->React.string}
                 </span>
               </div>
-              <div className="flex-1 border-t-1.5 mx-4 w-full" />
+              <div className="flex-1 border-t-1.5 border-nd_gray-150 mx-2 w-full" />
               <Icon
                 name="nd-chevron-arrow-down"
                 size=16
-                className={`text-gray-600 ${showExternalRetries
+                className={`text-nd_gray-400 ${showExternalRetries
                     ? "rotate-180"
                     : "-rotate-0"} transition duration-[250ms]`}
               />

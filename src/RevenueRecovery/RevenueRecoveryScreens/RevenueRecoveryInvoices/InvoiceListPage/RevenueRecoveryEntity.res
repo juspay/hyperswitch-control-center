@@ -111,9 +111,9 @@ let allColumns: array<RevenueRecoveryOrderTypes.colType> = [
 
 let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   switch colType {
-  | Id => Table.makeHeaderInfo(~key="Invoice_ID", ~title="Invoice ID")
+  | Id => Table.makeHeaderInfo(~key="Invoice_ID", ~title="Invoice")
   | Status => Table.makeHeaderInfo(~key="Status", ~title="Status")
-  | OrderAmount => Table.makeHeaderInfo(~key="OrderAmount", ~title="Order Amount")
+  | OrderAmount => Table.makeHeaderInfo(~key="OrderAmount", ~title="Amount")
   | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector")
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created")
   | PaymentMethodType => Table.makeHeaderInfo(~key="PaymentMethodType", ~title="Payment Method")

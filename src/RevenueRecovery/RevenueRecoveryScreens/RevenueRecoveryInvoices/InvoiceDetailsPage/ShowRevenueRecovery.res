@@ -16,13 +16,13 @@ module DisplayValues = {
   ) => {
     <AddDataAttributes attributes=[("data-label", heading.title)]>
       <div className="grid grid-cols-10">
-        <div className="flex items-center col-span-3">
-          <div className={`${body.sm.medium} text-nd_gray-500`}>
+        <div className="flex items-center col-span-4">
+          <div className={`${body.md.medium} text-nd_gray-400`}>
             {heading.title->React.string}
           </div>
         </div>
         <div
-          className={`flex-1 flex justify-left ml-4 ${body.md.semibold} text-nd_gray-800 col-span-7`}>
+          className={`flex-1 flex justify-left ml-4 ${body.md.semibold} text-nd_gray-700 col-span-6`}>
           <Table.TableCell
             cell=value
             textAlign=Table.Right
@@ -48,7 +48,7 @@ module OrderDetailsCard = {
     ~detailsFields: array<colType>,
   ) => {
     <div
-      className="bg-white border border-nd_gray-200 rounded-xl px-7 py-6 ml-6 flex flex-col gap-6">
+      className="bg-white border-1.5 border-nd_gray-150 rounded-2xl px-7 py-6 ml-6 flex flex-col gap-6">
       {detailsFields
       ->Array.mapWithIndex((colType, i) => {
         <div key={i->Int.toString}>
@@ -79,10 +79,12 @@ module RecoveryAmountStatus = {
       None
     }
 
+    let formatInitialAmount = amount => amount->CurrencyFormatUtils.valueFormatter(Amount)
+
     switch status {
     | Recovered =>
       <div
-        className="bg-nd_green-150 border border-nd_green-500 rounded-xl p-4 flex items-start gap-3">
+        className="bg-nd_green-150 border-1.5 border-nd_green-70 rounded-2xl p-4 flex items-start gap-3">
         <Icon name="nd-check-circle-outline" size=20 className="mt-0.5" />
         <div className="flex-1">
           <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
@@ -94,24 +96,26 @@ module RecoveryAmountStatus = {
         </div>
       </div>
     | Scheduled | Processing | PartiallyCapturedAndProcessing =>
-      <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
+      <div className="bg-white border-1.5 border-nd_gray-150 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className={`${heading.md.semibold} text-nd_gray-900`}>
-            {`${amountCaptured->formatCurrency} / ${orderAmount->formatCurrency} `->React.string}
-            <span className={`${body.lg.regular} ml-1`}> {"Recovered"->React.string} </span>
+            {`${amountCaptured->formatInitialAmount} / ${orderAmount->formatCurrency} `->React.string}
+            <span className={`${body.md.regular} ml-1`}> {"Recovered"->React.string} </span>
           </div>
         </div>
         <div className="mb-4">
-          <SegmentedProgressBar orderAmount amountCaptured className="w-fit" />
+          <SegmentedProgressBar
+            orderAmount amountCaptured className="w-fit" cornerRadius="rounded-lg"
+          />
         </div>
         {switch scheduledTime {
         | Some(time) =>
           let convertedTime = time->RevenueRecoveryOrderUtils.convertScheduleTimeToUTC
           <>
-            <div className="border-t-2 border-nd_gray-200 my-5" />
-            <div className={`flex items-center gap-2 ${body.md.regular}`}>
+            <div className="border-t border-nd_gray-200 my-5" />
+            <div className={`flex items-center gap-2 ${body.md.semibold}`}>
               <div className="w-2 h-2 bg-nd_orange-300 rounded-full mx-1" />
-              <span className="text-nd_gray-500 flex gap-1">
+              <span className="text-nd_gray-400 flex gap-1">
                 {`Retry to recover ${(orderAmount -. amountCaptured)
                     ->formatCurrency} is scheduled for `->React.string}
                 {<Table.DateCell timestamp=convertedTime isCard=true />}
@@ -123,7 +127,7 @@ module RecoveryAmountStatus = {
       </div>
     | Queued | NoPicked =>
       <div
-        className="bg-nd_gray-100 border border-nd_gray-300 rounded-xl p-4 flex items-start gap-3">
+        className="bg-nd_gray-100 border border-nd_gray-300 rounded-2xl p-4 flex items-start gap-3">
         <Icon name="nd-payment-queued" size=20 className="text-nd_gray-600 mt-0.5" />
         <div className="flex-1">
           <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
@@ -137,7 +141,7 @@ module RecoveryAmountStatus = {
     | Terminated =>
       if amountCaptured > 0.0 {
         <div
-          className="bg-nd_orange-150 border border-nd_orange-200 rounded-xl p-4 flex items-start gap-3">
+          className="bg-nd_orange-150 border border-nd_orange-200 rounded-2xl p-4 flex items-start gap-3">
           <Icon name="nd-payment-partial-captured" size=20 className="text-nd_orange-600 mt-0.5" />
           <div className="flex-1">
             <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
@@ -150,21 +154,21 @@ module RecoveryAmountStatus = {
         </div>
       } else {
         <div
-          className="bg-nd_red-50 border border-nd_red-600 rounded-xl p-4 flex items-start gap-3">
+          className="bg-nd_red-50 border-1.5 border-nd_red-100 rounded-2xl p-4 flex items-start gap-3">
           <Icon name="nd-payment-terminal" size=20 className="text-nd_red-600 mt-0.5" />
           <div className="flex-1">
             <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
               {"Unable to Recover Invoice"->React.string}
             </div>
             <div className={`${body.md.regular} text-nd_gray-600`}>
-              {"This invoice couldn't be recovered."->React.string}
+              {"All retries have been attempted. This invoice couldn't be recovered."->React.string}
             </div>
           </div>
         </div>
       }
     | PartiallyRecovered =>
       <div
-        className="bg-nd_orange-150 border border-nd_orange-200 rounded-xl p-4 flex items-start gap-3">
+        className="bg-nd_orange-150 border border-nd_orange-200 rounded-2xl p-4 flex items-start gap-3">
         <Icon name="nd-payment-partial-captured" size=20 className="text-nd_orange-600 mt-0.5" />
         <div className="flex-1">
           <div className={`${heading.xs.semibold} text-nd_gray-800 mb-1`}>
@@ -176,15 +180,17 @@ module RecoveryAmountStatus = {
         </div>
       </div>
     | Monitoring | Other(_) =>
-      <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
+      <div className="bg-white border-1.5 border-nd_gray-150 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className={`${heading.md.semibold} text-nd_gray-900`}>
             {`${amountCaptured->formatCurrency} / ${orderAmount->formatCurrency} `->React.string}
-            <span className={`${body.lg.regular} ml-1`}> {"Recovered"->React.string} </span>
+            <span className={`${body.md.regular} ml-1`}> {"Recovered"->React.string} </span>
           </div>
         </div>
         <div className="mb-4">
-          <SegmentedProgressBar orderAmount amountCaptured className="w-fit" />
+          <SegmentedProgressBar
+            orderAmount amountCaptured className="w-fit" cornerRadius="rounded-lg"
+          />
         </div>
       </div>
     }
@@ -308,12 +314,8 @@ let make = (~id) => {
       dividerVal=Slash
       childGapClass="gap-2"
     />
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-row justify-between items-center">
-        <div className="flex gap-2 items-center">
-          <PageUtils.PageHeading title="Invoice Recovery Details" />
-        </div>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageUtils.PageHeading title="Invoice Recovery Details" customTitleStyle={"!text-fs-24"} />
       <PageLoaderWrapper
         screenState
         customUI={<NoDataFound

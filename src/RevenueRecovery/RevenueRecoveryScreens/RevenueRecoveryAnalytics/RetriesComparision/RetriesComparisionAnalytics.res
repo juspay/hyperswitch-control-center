@@ -72,7 +72,7 @@ let make = (
   )
 
   <div>
-    <div className="space-y-1 mb-5">
+    <div className="space-y-1 mb-7">
       <h2 className={`${heading.md.semibold} text-gray-900`}> {entity.title->React.string} </h2>
       <p className="text-gray-500">
         {"Static Retries are executed based on predefined rules, whereas Smart Retries are dynamically triggered"->React.string}
@@ -84,7 +84,7 @@ let make = (
       customUI={<NewAnalyticsHelper.NoData height="h-64 p-0 -m-0" />}>
       <div className="grid grid-cols-2 gap-5">
         <div className="rounded-xl border border-gray-200 w-full bg-white">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+          <div className="bg-nd_gray-25 px-4 py-3 border-b border-gray-200 rounded-t-xl">
             <h2 className="font-medium text-gray-800">
               {"Static Current Retries"->React.string}
             </h2>
@@ -94,7 +94,7 @@ let make = (
           </div>
         </div>
         <div className="rounded-xl border border-gray-200 w-full bg-white">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-xl">
+          <div className="bg-nd_gray-25 px-4 py-3 border-b border-gray-200 rounded-t-xl">
             <h2 className="font-medium text-gray-800"> {"Smart Retries"->React.string} </h2>
           </div>
           <div className="p-4">

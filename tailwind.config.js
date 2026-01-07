@@ -449,6 +449,7 @@ module.exports = {
         },
         nd_green: {
           50: "#ECF4EE",
+          70: "#B9F8CF",
           100: "#E8F8F5",
           150: "#F0FDF4",
           200: "#52B87A",
@@ -482,6 +483,7 @@ module.exports = {
         },
         nd_purple: {
           100: "#FAF5FF",
+          150: "#DAB2FF",
           200: "#F3E8FF",
           300: "#AD46FF",
         },
