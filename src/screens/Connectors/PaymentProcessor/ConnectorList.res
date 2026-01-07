@@ -7,38 +7,46 @@ module DummyProcessorBanner = {
     let textStyle = HSwitchUtils.getTextClass((H2, Optional))
     let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
 
-    <RenderIf condition={!featureFlagDetails.isLiveMode && configuredConnectors->Array.length == 0}>
-      <div
-        className="flex flex-col md:flex-row border rounded-md bg-white gap-4 shadow-generic_shadow mb-12">
-        <div className="flex flex-col justify-evenly gap-6 pl-14 pb-14 pt-14 pr-2 md:pr-0">
-          <div className="flex flex-col gap-2.5">
-            <div>
-              <p className={textStyle}> {"No Test Credentials?"->React.string} </p>
-              <p className={textStyle}> {"Connect a Dummy Processor"->React.string} </p>
+    <>
+      <RenderIf
+        condition={!featureFlagDetails.isLiveMode && configuredConnectors->Array.length == 0}>
+        <div
+          className="flex flex-col md:flex-row border rounded-md bg-white gap-4 shadow-generic_shadow mb-12">
+          <div className="flex flex-col justify-evenly gap-6 pl-14 pb-14 pt-14 pr-2 md:pr-0">
+            <div className="flex flex-col gap-2.5">
+              <div>
+                <p className={textStyle}> {"No Test Credentials?"->React.string} </p>
+                <p className={textStyle}> {"Connect a Dummy Processor"->React.string} </p>
+              </div>
+              <p className={subtextStyle}>
+                {"Start simulating payments and refunds with a dummy processor setup."->React.string}
+              </p>
             </div>
-            <p className={subtextStyle}>
-              {"Start simulating payments and refunds with a dummy processor setup."->React.string}
-            </p>
+            <Button
+              text="Connect Now"
+              buttonType={Primary}
+              customButtonStyle="group w-1/5"
+              rightIcon={CustomIcon(
+                <Icon name="thin-right-arrow" size=20 className="cursor-pointer" />,
+              )}
+              onClick={_ => {
+                setProcessorModal(_ => true)
+              }}
+            />
           </div>
-          <Button
-            text="Connect Now"
-            buttonType={Primary}
-            customButtonStyle="group w-1/5"
-            rightIcon={CustomIcon(
-              <Icon name="thin-right-arrow" size=20 className="cursor-pointer" />,
-            )}
-            onClick={_ => {
-              setProcessorModal(_ => true)
-            }}
-          />
+          <RenderIf condition={!isMobileView}>
+            <div className="h-30 md:w-[37rem] justify-end hidden laptop:block">
+              <img alt="dummy-connector" src="/assets/DummyConnectorImage.svg" />
+            </div>
+          </RenderIf>
         </div>
-        <RenderIf condition={!isMobileView}>
-          <div className="h-30 md:w-[37rem] justify-end hidden laptop:block">
-            <img alt="dummy-connector" src="/assets/DummyConnectorImage.svg" />
-          </div>
-        </RenderIf>
-      </div>
-    </RenderIf>
+      </RenderIf>
+      <PageUtils.PageHeading
+        title="Payment Processors"
+        customHeadingStyle="mb-10"
+        subTitle="Connect a test processor and get started with testing your payments"
+      />
+    </>
   }
 }
 
