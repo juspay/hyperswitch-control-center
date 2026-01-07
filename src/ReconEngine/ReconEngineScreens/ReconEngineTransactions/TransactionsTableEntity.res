@@ -177,8 +177,6 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
   }
 }
 
-// http://localhost:9000/dashboard/dashboard/v1/recon-engine/rules/rule_v5muqyx2xwPvRLLysDz7
-
 let transactionsEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
