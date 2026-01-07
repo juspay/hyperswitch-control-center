@@ -118,7 +118,7 @@ let make = (
           </div>
           <Button
             buttonType=Secondary
-            text="View Mappers"
+            text="Column Mapping"
             customButtonStyle="!w-fit"
             onClick={_ => onViewMappersClick(~transformationId=config.transformation_id)->ignore}
           />
