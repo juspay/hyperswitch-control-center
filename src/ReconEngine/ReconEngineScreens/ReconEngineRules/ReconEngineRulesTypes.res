@@ -27,10 +27,6 @@ type searchIdentifierType = {
   target_field: string,
 }
 
-type entryFieldType =
-  | Field(string)
-  | MetadataField({key: string})
-
 type oneToOneSingleSingleSourceType = {
   account_id: string,
   trigger: triggerType,
@@ -62,7 +58,7 @@ type oneToOneSingleManyType = {
 type oneToOneManySingleSourceType = {
   account_id: string,
   trigger: triggerType,
-  grouping_field: entryFieldType,
+  grouping_field: string,
 }
 
 type oneToOneManySingleTargetType = {account_id: string}
@@ -79,7 +75,7 @@ type oneToOneStrategyType =
   | SingleMany(oneToOneSingleManyType)
   | ManySingle(oneToOneManySingleType)
 
-type reconStrategyType = OneToOne(oneToOneStrategyType)
+type reconStrategyType = OneToOne(oneToOneStrategyType) | UnknownReconStrategy
 
 type rulePayload = {
   rule_id: string,

@@ -29,14 +29,10 @@ let make = (~ruleDetails: rulePayload) => {
     }
   }
 
-  let (sourceAccountId, targetAccountId) = switch ruleDetails.strategy {
-  | OneToOne(oneToOne) =>
-    switch oneToOne {
-    | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
-    | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
-    | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
-    }
-  }
+  let (
+    sourceAccountId,
+    targetAccountId,
+  ) = ReconEngineOverviewSummaryUtils.getSourceAndTargetAccountIdsFromRuleDetails(ruleDetails)
 
   let (
     (sourceAccountName, sourceAccountCurrency),

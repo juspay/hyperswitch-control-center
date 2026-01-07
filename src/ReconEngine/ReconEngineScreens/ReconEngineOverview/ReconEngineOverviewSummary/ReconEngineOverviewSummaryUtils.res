@@ -200,6 +200,7 @@ let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>
       | SingleMany(data) => [data.source_account.account_id, data.target_account.account_id]
       | ManySingle(data) => [data.source_account.account_id, data.target_account.account_id]
       }
+    | UnknownReconStrategy => []
     }
   )
   ->getUniqueArray
@@ -254,13 +255,12 @@ let getEdges = (
   ~allTransactions: array<transactionType>,
   ~selectedNodeId,
 ) =>
-  reconRulesList->Array.flatMap(rule =>
+  reconRulesList->Array.flatMap(rule => {
+    let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
     switch rule.strategy {
     | OneToOne(oneToOne) =>
       switch oneToOne {
-      | SingleSingle(data) =>
-        let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
-        [
+      | SingleSingle(data) => [
           makeEdge(
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
@@ -268,9 +268,7 @@ let getEdges = (
             ~selectedNodeId,
           ),
         ]
-      | SingleMany(data) =>
-        let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
-        [
+      | SingleMany(data) => [
           makeEdge(
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
@@ -278,9 +276,7 @@ let getEdges = (
             ~selectedNodeId,
           ),
         ]
-      | ManySingle(data) =>
-        let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
-        [
+      | ManySingle(data) => [
           makeEdge(
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
@@ -289,8 +285,9 @@ let getEdges = (
           ),
         ]
       }
+    | UnknownReconStrategy => []
     }
-  )
+  })
 
 let getTransactionsData = (
   accountTransactionData: Dict.t<accountTransactionData>,
@@ -560,3 +557,17 @@ let getStatusIcon = (statusType: amountType) => {
 
 let allAmountTypes = [ReconciledAmount, PendingAmount, MismatchedAmount]
 let allSubHeaderTypes = [DebitAmount, CreditAmount]
+
+let getSourceAndTargetAccountIdsFromRuleDetails = (
+  ruleDetails: ReconEngineRulesTypes.rulePayload,
+) => {
+  switch ruleDetails.strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
+    | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
+    | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
+    }
+  | UnknownReconStrategy => ("", "")
+  }
+}

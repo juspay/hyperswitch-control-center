@@ -59,7 +59,7 @@ let matchRulesMapper = dict => {
     match_version: dict->getString("match_version", ""),
     rules: dict
     ->getArrayFromDict("rules", [])
-    ->Array.map(item => item->JSON.Decode.object->Option.getOr(Dict.make())->matchRuleMapper),
+    ->Array.map(item => item->getDictFromJsonObject->matchRuleMapper),
   }
 }
 
@@ -74,14 +74,6 @@ let searchIdentifierMapper: Dict.t<JSON.t> => searchIdentifierType = dict => {
 let targetMapper = dict => {
   {
     account_id: dict->getString("account_id", ""),
-  }
-}
-
-let entryFieldMapper: Dict.t<JSON.t> => entryFieldType = dict => {
-  switch dict->getString("field", "") {
-  | "" => Field(dict->getString("value", ""))
-  | "metadata" => MetadataField({key: dict->getString("key", "")})
-  | _ => Field(dict->getString("value", ""))
   }
 }
 
@@ -157,10 +149,7 @@ let oneToOneManySingleSourceMapper: Dict.t<JSON.t> => oneToOneManySingleSourceTy
   {
     account_id: dict->getString("account_id", ""),
     trigger: dict->getJsonObjectFromDict("trigger")->getDictFromJsonObject->triggerMapper,
-    grouping_field: dict
-    ->getJsonObjectFromDict("grouping_field")
-    ->getDictFromJsonObject
-    ->entryFieldMapper,
+    grouping_field: dict->getString("grouping_field", ""),
   }
 }
 
@@ -209,10 +198,7 @@ let oneToOneStrategyMapper: Dict.t<JSON.t> => oneToOneStrategyType = dict => {
 let reconStrategyMapper: Dict.t<JSON.t> => reconStrategyType = dict => {
   switch dict->getString("recon_strategy_type", "") {
   | "one_to_one" => OneToOne(dict->oneToOneStrategyMapper)
-  | _ =>
-    OneToOne(
-      dict->getJsonObjectFromDict("one_to_one")->getDictFromJsonObject->oneToOneStrategyMapper,
-    )
+  | _ => UnknownReconStrategy
   }
 }
 
