@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.07.0
+
+### Features
+
+- Connector account details update ([#3987](https://github.com/juspay/hyperswitch-control-center/pull/3987)) ([`aabd5c9`](https://github.com/juspay/hyperswitch-control-center/commit/aabd5c92d3caadcbdb0ab49662cc297abc8d0845))
+- Add error message in payments view ([#4048](https://github.com/juspay/hyperswitch-control-center/pull/4048)) ([`eb7ec48`](https://github.com/juspay/hyperswitch-control-center/commit/eb7ec48f26ff1af7ca9ea1fbf3f894c3e8cbd4eb))
+
+### Bug Fixes
+
+- Recon v1 sidebar icon color to currentColor ([#4050](https://github.com/juspay/hyperswitch-control-center/pull/4050)) ([`b6f43b7`](https://github.com/juspay/hyperswitch-control-center/commit/b6f43b7559abb8d32d6dbe9cea9934c510e86031))
+
+**Full Changelog:** [`2026.01.06.0...2026.01.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.06.0...2026.01.07.0)
+
+- - -
+
 ## 2026.01.06.0
 
 ### Features
