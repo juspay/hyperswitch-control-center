@@ -6,7 +6,7 @@ module Provider = {
 
 type userInfoScreenState = Loading | Success | Error
 @react.component
-let make = (~children) => {
+let make = (~children, ~isEmbeddableApp=false) => {
   open UserInfoUtils
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (applicationState, setApplicationState) = React.useState(_ => UserInfoTypes.DashboardSession(
