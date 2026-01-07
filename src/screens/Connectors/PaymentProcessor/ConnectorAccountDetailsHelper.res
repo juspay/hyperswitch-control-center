@@ -175,13 +175,7 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
-    let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
-    let (country, setSelectedCountry) = React.useState(_ => "")
-    let selectedCountry = country => {
-      setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
-      setSelectedCountry(_ => country)
-    }
+    open Typography
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -204,35 +198,49 @@ module CashToCodeSelectBox = {
       ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
       ->Option.isNone
     }
+    let accordionItems = opts->Array.map(country => {
+      let countryTitle = country->snakeToTitle
+      let isCountrySelected = country->isSelected
 
-    <div>
-      {opts
-      ->Array.mapWithIndex((country, index) => {
-        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
-          <div onClick={_ => selectedCountry(country)}>
-            <CheckBoxIcon isSelected={country->isSelected} />
-          </div>
-          <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
-        </div>
-      })
-      ->React.array}
-      <div>
-        <RenderConnectorInputFields
-          details={dict
-          ->getDictfromDict(country)
-          ->getDictfromDict((selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase)}
-          name={`connector_account_details.auth_key_map.${country}`}
-          connector
-          selectedConnector
-        />
-        <div className="flex flex-col justify-center mt-4">
-          <Button
-            text={"Proceed"}
-            buttonType=Primary
-            onClick={_ => setShowWalletConfigurationModal(_ => false)}
-          />
-        </div>
-      </div>
+      let accordionItem: Accordion.accordion = {
+        title: "",
+        renderContentOnTop: Some(
+          () =>
+            <div className="flex items-center gap-3 w-full">
+              <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+              <span className={`${body.sm.semibold} text-nd-gray-600`}>
+                {countryTitle->React.string}
+              </span>
+            </div>,
+        ),
+        renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+          <div className="p-4 pt-2">
+            <RenderConnectorInputFields
+              details={dict
+              ->getDictfromDict(country)
+              ->getDictfromDict(
+                (selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase,
+              )}
+              name={`connector_account_details.auth_key_map.${country}`}
+              connector
+              selectedConnector
+            />
+          </div>,
+      }
+      accordionItem
+    })
+
+    <div className="w-full">
+      <Accordion
+        accordion=accordionItems
+        accordianTopContainerCss="mt-4 rounded-lg"
+        accordianBottomContainerCss="p-4"
+        contentExpandCss="px-0 py-0"
+        titleStyle={`${body.sm.semibold} text-nd-gray-600 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100`}
+        accordionHeaderTextClass="flex-1"
+        gapClass="space-y-3"
+        arrowPosition=Right
+      />
     </div>
   }
 }
@@ -279,15 +287,7 @@ module Payload = {
   let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
     open ConnectorUtils
     open LogicUtils
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
-    let (selectedCountry, setSelectedCountry) = React.useState(_ => "")
-    let (showConfigurationModal, setConfigurationModal) = React.useState(_ => false)
-    let onClickSelectedCountry = country => {
-      setSelectedCountry(_ => country)
-      setConfigurationModal(_ => true)
-    }
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -308,41 +308,48 @@ module Payload = {
       ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
       ->Option.isNone
     }
-    <div>
-      {dict
+    let accordionItems =
+      dict
       ->Dict.keysToArray
-      ->Array.mapWithIndex((country, index) => {
-        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
-          <div onClick={_ => onClickSelectedCountry(country)}>
-            <CheckBoxIcon isSelected={country->isSelected} />
-          </div>
-          <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
-        </div>
+      ->Array.map(country => {
+        let countryTitle = country->snakeToTitle
+        let isCountrySelected = country->isSelected
+
+        let accordionItem: Accordion.accordion = {
+          title: "",
+          renderContentOnTop: Some(
+            () =>
+              <div className="flex items-center gap-3 w-full">
+                <CheckBoxIcon isSelected=isCountrySelected stopPropagationNeeded=true />
+                <span className="font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme">
+                  {React.string(countryTitle)}
+                </span>
+              </div>,
+          ),
+          renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+            <div className="p-4 pt-2">
+              <RenderConnectorInputFields
+                details={dict->getDictfromDict(country)}
+                name={`connector_account_details.auth_key_map.${country}`}
+                connector
+                selectedConnector
+              />
+            </div>,
+        }
+        accordionItem
       })
-      ->React.array}
-      <Modal
-        modalHeading={`Additional Details to enable`}
-        headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-        showModal={showConfigurationModal}
-        setShowModal={setConfigurationModal}
-        paddingClass=""
-        revealFrom=Reveal.Right
-        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-        childClass={""}>
-        <div>
-          <RenderConnectorInputFields
-            details={dict->getDictfromDict(selectedCountry)}
-            name={`connector_account_details.auth_key_map.${selectedCountry}`}
-            connector
-            selectedConnector
-          />
-          <div className="flex flex-col justify-center mt-4">
-            <Button
-              text={"Proceed"} buttonType=Primary onClick={_ => setConfigurationModal(_ => false)}
-            />
-          </div>
-        </div>
-      </Modal>
+
+    <div className="w-full space-y-4 ">
+      <Accordion
+        accordion=accordionItems
+        accordianTopContainerCss="mt-2 rounded-lg border border-gray-200"
+        accordianBottomContainerCss="p-4"
+        contentExpandCss="px-0 py-0"
+        titleStyle="font-medium text-base text-jp-gray-700 dark:text-jp-gray-text_darktheme hover:text-jp-gray-800 dark:hover:text-opacity-100"
+        accordionHeaderTextClass="flex-1"
+        gapClass="space-y-4"
+        arrowPosition=Right
+      />
     </div>
   }
 }
