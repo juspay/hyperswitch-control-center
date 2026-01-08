@@ -145,7 +145,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
         color: expectedColor,
       },
       {
-        name: "Posted",
+        name: "Reconciled",
         data: [postedCount->Int.toFloat],
         color: postedColor,
       },
@@ -294,8 +294,8 @@ let initialDisplayFilters = () => {
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
-    Expected,
     PartiallyReconciled,
+    Expected,
     Void,
   ])
   [
