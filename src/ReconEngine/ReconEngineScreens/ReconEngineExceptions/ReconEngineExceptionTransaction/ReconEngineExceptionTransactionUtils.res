@@ -11,8 +11,8 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
-    Expected,
     PartiallyReconciled,
+    Expected,
   ])
   [
     (
@@ -174,6 +174,7 @@ let exceptionTransactionEntryItemToItemMapper = (
     created_at: dict->getString("created_at", Date.make()->Date.toISOString),
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
+    transformation_id: dict->getOptionString("transformation_id"),
   }
 }
 
@@ -218,6 +219,9 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   let currentData = currentValues->getDictFromJsonObject
   let initialMetadata = initialEntryDetails.metadata->getFilteredMetadataFromEntries
 
+  let isAccountChanged = currentData->getString("account", "") != initialEntryDetails.account_id
+  let isTransformationConfigChanged =
+    currentData->getOptionString("transformation_id") != initialEntryDetails.transformation_id
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
@@ -230,6 +234,8 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
+  isAccountChanged ||
+  isTransformationConfigChanged ||
   isEntryTypeChanged ||
   isAmountChanged ||
   isEffectiveAtChanged ||
@@ -239,39 +245,57 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
 
 open ReconEngineExceptionsUtils
 
-let validateCreateEntryDetails = (values: JSON.t): JSON.t => {
-  let data = values->getDictFromJsonObject
-
+let validateEntryDetailsCommon = (
+  data: Dict.t<JSON.t>,
+  ~metadataSchema: metadataSchemaType,
+): Dict.t<JSON.t> => {
   let validationRules = [
     ("account", requiredString("account", "Cannot be empty!")),
+    ("transformation_id", requiredString("transformation_id", "Cannot be empty!")),
     ("entry_type", requiredString("entry_type", "Cannot be empty!")),
     ("currency", requiredString("currency", "Cannot be empty!")),
     ("order_id", requiredString("order_id", "Cannot be empty!")),
     ("effective_at", requiredString("effective_at", "Cannot be empty!")),
-    ("amount", positiveFloat("amount", "Should be greater than 0!")),
-  ]
-
-  validateFields(data, validationRules)
-}
-
-let validateEditEntryDetails = (values: JSON.t, ~initialEntryDetails: entryType): JSON.t => {
-  let data = values->getDictFromJsonObject
-
-  let validationRules = [
-    ("account", requiredString("account", "Cannot be empty!")),
-    ("entry_type", requiredString("entry_type", "Cannot be empty!")),
-    ("currency", requiredString("currency", "Cannot be empty!")),
-    ("effective_at", requiredString("effective_at", "Cannot be empty!")),
-    ("order_id", requiredString("order_id", "Cannot be empty!")),
     ("amount", positiveFloat("amount", "Should be greater than 0!")),
   ]
 
   let fieldErrors = validateFields(data, validationRules)->getDictFromJsonObject
+  if metadataSchema.id->isNonEmptyString {
+    let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
+
+    metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
+      let value = metadataDict->getString(field.identifier, "")
+      let error = validateMetadataFieldValue(field.identifier, value, metadataSchema)
+      switch error {
+      | Some(err) => {
+          let errorKey = `metadata.${field.identifier}`
+          fieldErrors->Dict.set(errorKey, err->JSON.Encode.string)
+        }
+      | None => ()
+      }
+    })
+  }
+
+  fieldErrors
+}
+
+let validateCreateEntryDetails = (values: JSON.t, ~metadataSchema: metadataSchemaType): JSON.t => {
+  let data = values->getDictFromJsonObject
+  let fieldErrors = validateEntryDetailsCommon(data, ~metadataSchema)
+  fieldErrors->JSON.Encode.object
+}
+
+let validateEditEntryDetails = (
+  values: JSON.t,
+  ~initialEntryDetails: entryType,
+  ~metadataSchema: metadataSchemaType,
+): JSON.t => {
+  let data = values->getDictFromJsonObject
+  let fieldErrors = validateEntryDetailsCommon(data, ~metadataSchema)
   let hasChanges = hasFormValuesChanged(values, initialEntryDetails)
   if !hasChanges {
     fieldErrors->Dict.set("No changes", "Please make changes before saving."->JSON.Encode.string)
   }
-
   fieldErrors->JSON.Encode.object
 }
 
@@ -284,6 +308,13 @@ let getInitialValuesForEditEntries = (entryDetails: entryType) => {
     ("order_id", entryDetails.order_id->JSON.Encode.string),
     ("effective_at", entryDetails.effective_at->JSON.Encode.string),
     ("metadata", entryDetails.metadata->getFilteredMetadataFromEntries->JSON.Encode.object),
+    (
+      "transformation_id",
+      switch entryDetails.transformation_id {
+      | Some(id) => id->JSON.Encode.string
+      | None => JSON.Encode.null
+      },
+    ),
     (
       "staging_entry_id",
       switch entryDetails.staging_entry_id {
@@ -336,6 +367,28 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
   string,
 > => {
   let summary = []
+
+  if initialEntry.account_id != updatedEntry.account_id {
+    let message = `Account changed to ${updatedEntry.account_name}.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.transformation_id != updatedEntry.transformation_id {
+    let message = switch (initialEntry.transformation_id, updatedEntry.transformation_id) {
+    | (None, Some(_)) => `Transformation config added.`
+    | (Some(_), None) => `Transformation config removed.`
+    | (Some(_), Some(_)) => `Transformation config changed.`
+    | (None, None) => ""
+    }
+    if message->isNonEmptyString {
+      summary->Array.push(message)
+    }
+  }
+
+  if initialEntry.currency != updatedEntry.currency {
+    let message = `Currency changed to ${updatedEntry.currency} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
 
   if (initialEntry.entry_type :> string) != (updatedEntry.entry_type :> string) {
     let message = `Direction changed to ${(updatedEntry.entry_type :> string)->capitalizeString} in ${updatedEntry.account_name} account.`
@@ -476,6 +529,7 @@ let getExceptionEntryTypeFromEntryType = (
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
     entry_key: randomString(~length=16),
+    transformation_id: entry.transformation_id,
   }
 }
 
@@ -499,6 +553,7 @@ let getEntryTypeFromExceptionEntryType = (
     created_at: entry.created_at,
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
+    transformation_id: entry.transformation_id,
   }
 }
 
@@ -589,7 +644,6 @@ let getResolutionModalConfig = (
 let getUpdatedEntry = (
   ~entryDetails: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
   ~formData,
-  ~accountData: accountRefType,
   ~markAsReceived=false,
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
   let isExpected = entryDetails.status == Expected
@@ -605,8 +659,8 @@ let getUpdatedEntry = (
   {
     entry_id: entryDetails.entry_id,
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
-    account_id: accountData.account_id,
-    account_name: accountData.account_name,
+    account_id: formData->getString("account", ""),
+    account_name: formData->getString("account_name", ""),
     transaction_id: entryDetails.transaction_id,
     amount: formData->getFloat("amount", entryDetails.amount),
     currency: formData->getString("currency", ""),
@@ -620,12 +674,12 @@ let getUpdatedEntry = (
     effective_at: formData->getString("effective_at", entryDetails.effective_at),
     staging_entry_id: entryDetails.staging_entry_id,
     entry_key: entryDetails.entry_key,
+    transformation_id: formData->getOptionString("transformation_id"),
   }
 }
 
 let getNewEntry = (
   ~formData,
-  ~accountData: accountRefType,
   ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
   let uniqueId = randomString(~length=16)
@@ -633,8 +687,8 @@ let getNewEntry = (
   {
     entry_id: "-",
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
-    account_id: accountData.account_id,
-    account_name: accountData.account_name,
+    account_id: formData->getString("account", ""),
+    account_name: formData->getString("account_name", ""),
     transaction_id: formData->getString("transaction_id", ""),
     amount: formData->getFloat("amount", 0.0),
     currency: formData->getString("currency", ""),
@@ -650,6 +704,7 @@ let getNewEntry = (
     effective_at: formData->getString("effective_at", ""),
     staging_entry_id: None,
     entry_key: uniqueId,
+    transformation_id: formData->getOptionString("transformation_id"),
   }
 }
 

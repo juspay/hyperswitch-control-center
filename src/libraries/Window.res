@@ -118,6 +118,9 @@ external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCat
 @val @scope("window")
 external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
 
+@val @scope("window")
+external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,
@@ -264,7 +267,7 @@ module FcWidget = {
 @val @scope("window")
 external fcWidget: 'a = "fcWidget"
 
-type boundingClient = {x: int, y: int, width: int, height: int}
+type boundingClient = {x: int, y: int, width: int, height: int, left: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
 @val @scope("window")
