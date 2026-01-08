@@ -115,7 +115,7 @@ let make = (~accountId) => {
       />
       <div className="flex flex-row items-center gap-4">
         <Button
-          text="View Mapping"
+          text="Column Mapping"
           buttonState=Normal
           buttonType=Secondary
           onClick={_ => setShowModal(_ => true)}
