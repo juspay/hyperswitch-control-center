@@ -93,29 +93,27 @@ let make = () => {
     )
   }, [])
 
-  React.useEffect(() => {
-    let handleAuthMessage = (ev: Dom.event) => {
-      let objectdata = ev->HandlingEvents.convertToCustomEvent
-      switch objectdata.data->JSON.Decode.object {
-      | Some(dict) => {
-          let messageType = dict->LogicUtils.getString("type", "")
-          if messageType->LogicUtils.isNonEmptyString && messageType == "AUTH_TOKEN" {
-            let tokenFromParent = dict->LogicUtils.getString("token", "")
-            if tokenFromParent->LogicUtils.isNonEmptyString {
-              LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
-              setComponentKey(_ => LogicUtils.randomString(~length=10))
-            }
+  let handleAuthMessage = (ev: Dom.event) => {
+    let objectdata = ev->HandlingEvents.convertToCustomEvent
+    switch objectdata.data->JSON.Decode.object {
+    | Some(dict) => {
+        let messageType = dict->LogicUtils.getString("type", "")
+        if messageType->LogicUtils.isNonEmptyString && messageType == "AUTH_TOKEN" {
+          let tokenFromParent = dict->LogicUtils.getString("token", "")
+          if tokenFromParent->LogicUtils.isNonEmptyString {
+            LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
+            setComponentKey(_ => LogicUtils.randomString(~length=10))
           }
         }
-      | None => ()
       }
+    | None => ()
     }
+  }
 
+  React.useEffect(() => {
     addEventListener("message", handleAuthMessage)
     Some(() => removeEventListener("message", handleAuthMessage))
   }, [])
-
-  //
 
   <div id="embeddable-app" ref={ReactDOM.Ref.domRef(contentRef)}>
     <ErrorBoundary key={componentKey}>

@@ -168,7 +168,7 @@ let useApiFetcher = () => {
                   let errorCode = errorDict->getObj("error", Dict.make())->getString("code", "")
 
                   if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_48 {
-                    EmbeddableUtils.sendEventToParentForRefetchToken()
+                    EmbeddableGlobalUtils.sendEventToParentForRefetchToken()
                   } else {
                     switch authStatus {
                     | LoggedIn(_) =>
