@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.08.0
+
+### Miscellaneous Tasks
+
+- Added payment link in revamped payment settings ([#3876](https://github.com/juspay/hyperswitch-control-center/pull/3876)) ([`f00ae10`](https://github.com/juspay/hyperswitch-control-center/commit/f00ae10fb69896e0bb233c45bd26d81f0cf6e380))
+- Embeddable base setup changes ([#3990](https://github.com/juspay/hyperswitch-control-center/pull/3990)) ([`f266aaa`](https://github.com/juspay/hyperswitch-control-center/commit/f266aaa0070af893f5b71b7d1ec04cf9fc7d9e95))
+
+**Full Changelog:** [`2026.01.07.1...2026.01.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.07.1...2026.01.08.0)
+
+- - -
+
+## 2026.01.07.1
+
+### Features
+
+- Embeddable support for cashcode and payload ([#3977](https://github.com/juspay/hyperswitch-control-center/pull/3977)) ([`5ed39cd`](https://github.com/juspay/hyperswitch-control-center/commit/5ed39cdcfcd50f4b5264e7677ae2cfd44208d44c))
+
+**Full Changelog:** [`2026.01.07.0...2026.01.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.07.0...2026.01.07.1)
+
+- - -
+
+## 2026.01.07.0
+
+### Features
+
+- Connector account details update ([#3987](https://github.com/juspay/hyperswitch-control-center/pull/3987)) ([`aabd5c9`](https://github.com/juspay/hyperswitch-control-center/commit/aabd5c92d3caadcbdb0ab49662cc297abc8d0845))
+- Add error message in payments view ([#4048](https://github.com/juspay/hyperswitch-control-center/pull/4048)) ([`eb7ec48`](https://github.com/juspay/hyperswitch-control-center/commit/eb7ec48f26ff1af7ca9ea1fbf3f894c3e8cbd4eb))
+
+### Bug Fixes
+
+- Recon v1 sidebar icon color to currentColor ([#4050](https://github.com/juspay/hyperswitch-control-center/pull/4050)) ([`b6f43b7`](https://github.com/juspay/hyperswitch-control-center/commit/b6f43b7559abb8d32d6dbe9cea9934c510e86031))
+
+**Full Changelog:** [`2026.01.06.0...2026.01.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.06.0...2026.01.07.0)
+
+- - -
+
 ## 2026.01.06.0
 
 ### Features
