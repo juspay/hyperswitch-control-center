@@ -311,3 +311,42 @@ module AttemptsHistory = {
     </div>
   }
 }
+
+module InvoiceAgeBadge = {
+  open Typography
+  open DayJs
+
+  let calculateMonthsOld = (createdDate: string) => {
+    let invoiceDate = createdDate->getDayJsForString
+    let now = getDayJs()
+    let monthsDiff = now.diff(invoiceDate.toString(), "month")
+
+    // Handle edge cases
+    if monthsDiff <= 0 {
+      0
+    } else {
+      monthsDiff
+    }
+  }
+
+  let formatAgeText = (months: int) => {
+    if months == 0 {
+      "Less than 1 month old Invoice"
+    } else {
+      `${months->Int.toString} month old Invoice`
+    }
+  }
+
+  @react.component
+  let make = (~createdDate: string) => {
+    let monthsOld = calculateMonthsOld(createdDate)
+    let ageText = formatAgeText(monthsOld)
+
+    <div className="inline-flex items-center">
+      <span
+        className={`px-3 py-1 ${body.sm.regular} text-nd_gray-900 bg-nd_gray-50 border border-nd_br_gray-200 rounded-lg`}>
+        {ageText->React.string}
+      </span>
+    </div>
+  }
+}
