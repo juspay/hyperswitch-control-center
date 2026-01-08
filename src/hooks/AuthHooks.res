@@ -165,7 +165,7 @@ let useApiFetcher = () => {
                   let errorDict = json->LogicUtils.getDictFromJsonObject
                   let errorObj = errorDict->LogicUtils.getObj("error", Dict.make())
                   let errorCode = errorObj->LogicUtils.getString("code", "")
-                  if errorCode->CommonAuthUtils.errorSubCodeMapper == IR_48 {
+                  if errorCode->CommonAuthUtils.errorSubCodeMapper == IR_48 && isEmbeddableSession {
                     EmbeddableUtils.sendEventToParentForRefetchToken()
                   } else {
                     switch authStatus {
