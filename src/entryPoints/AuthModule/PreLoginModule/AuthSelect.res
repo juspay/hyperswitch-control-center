@@ -12,6 +12,7 @@ let make = (~setSelectedAuthId) => {
   let updateDetails = useUpdateMethod()
   let {isPasswordEnabled, isMagicLinkEnabled} = AuthModuleHooks.useAuthMethods()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)
@@ -101,8 +102,10 @@ let make = (~setSelectedAuthId) => {
                 <React.Fragment key={index->Int.toString}>
                   {authMethod->renderComponentForAuthTypes}
                   <RenderIf
-                    condition={authMethods->SSOUtils.checkToRenderOr(index) &&
-                      index != authMethods->Array.length - 1}>
+                    condition={authMethods->SSOUtils.checkToRenderOr(
+                      index,
+                      featureFlagValues.email,
+                    ) && index != authMethods->Array.length - 1}>
                     {PreLoginUtils.divider}
                   </RenderIf>
                 </React.Fragment>
