@@ -93,17 +93,23 @@ let useApiFetcher = () => {
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,
+      ~isEmbeddableSession=false,
     ) => {
       let token = {
-        switch authStatus {
-        | PreLogin(info) => info.token
-        | LoggedIn(info) =>
-          switch info {
-          | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+        if isEmbeddableSession {
+          Some(AuthUtils.getEmbeddableInfoDetailsFromLocalStorage())
+        } else {
+          switch authStatus {
+          | PreLogin(info) => info.token
+          | LoggedIn(info) =>
+            switch info {
+            | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+            }
+          | _ => None
           }
-        | _ => None
         }
       }
+
       let uri = switch betaEndpointConfig {
       | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
       | None => uri
@@ -148,16 +154,33 @@ let useApiFetcher = () => {
           resp => {
             setReqProgress(p => p - 1)
             if resp->Fetch.Response.status === 401 {
-              switch authStatus {
-              | LoggedIn(_) =>
-                let _ = CommonAuthUtils.clearLocalStorage()
-                let _ = CommonAuthUtils.handleSwitchUserQueryParam(~url)
-                setAuthStateToLogout()
-                AuthUtils.redirectToLogin()
-                resolve(resp)
+              let jsonPromise =
+                resp
+                ->Fetch.Response.clone
+                ->Fetch.Response.json
+                ->catch(_ => resolve(JSON.Encode.null))
 
-              | _ => resolve(resp)
-              }
+              jsonPromise->then(
+                json => {
+                  let errorDict = json->LogicUtils.getDictFromJsonObject
+                  let errorObj = errorDict->LogicUtils.getObj("error", Dict.make())
+                  let errorCode = errorObj->LogicUtils.getString("code", "")
+                  if errorCode->CommonAuthUtils.errorSubCodeMapper == IR_48 {
+                    EmbeddableUtils.sendEventToParentForRefetchToken()
+                  } else {
+                    switch authStatus {
+                    | LoggedIn(_) =>
+                      let _ = CommonAuthUtils.clearLocalStorage()
+                      let _ = CommonAuthUtils.handleSwitchUserQueryParam(~url)
+                      setAuthStateToLogout()
+                      AuthUtils.redirectToLogin()
+
+                    | _ => ()
+                    }
+                  }
+                  resolve(resp)
+                },
+              )
             } else {
               resolve(resp)
             }

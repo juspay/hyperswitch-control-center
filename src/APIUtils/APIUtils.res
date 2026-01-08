@@ -1598,6 +1598,7 @@ let useGetMethod = (~showErrorToast=true) => {
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1630,6 +1631,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
@@ -1654,6 +1656,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1699,6 +1702,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
