@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.08.0
+
+### Miscellaneous Tasks
+
+- Added payment link in revamped payment settings ([#3876](https://github.com/juspay/hyperswitch-control-center/pull/3876)) ([`f00ae10`](https://github.com/juspay/hyperswitch-control-center/commit/f00ae10fb69896e0bb233c45bd26d81f0cf6e380))
+- Embeddable base setup changes ([#3990](https://github.com/juspay/hyperswitch-control-center/pull/3990)) ([`f266aaa`](https://github.com/juspay/hyperswitch-control-center/commit/f266aaa0070af893f5b71b7d1ec04cf9fc7d9e95))
+
+**Full Changelog:** [`2026.01.07.1...2026.01.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.07.1...2026.01.08.0)
+
+- - -
+
 ## 2026.01.07.1
 
 ### Features
