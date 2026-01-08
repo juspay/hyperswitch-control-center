@@ -76,6 +76,8 @@ type betaEndpoint = {
 
 let useApiFetcher = () => {
   open Promise
+  open LogicUtils
+  open CommonAuthUtils
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
@@ -162,16 +164,16 @@ let useApiFetcher = () => {
 
               jsonPromise->then(
                 json => {
-                  let errorDict = json->LogicUtils.getDictFromJsonObject
-                  let errorObj = errorDict->LogicUtils.getObj("error", Dict.make())
-                  let errorCode = errorObj->LogicUtils.getString("code", "")
-                  if errorCode->CommonAuthUtils.errorSubCodeMapper == IR_48 && isEmbeddableSession {
+                  let errorDict = json->getDictFromJsonObject
+                  let errorCode = errorDict->getObj("error", Dict.make())->getString("code", "")
+
+                  if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_48 {
                     EmbeddableUtils.sendEventToParentForRefetchToken()
                   } else {
                     switch authStatus {
                     | LoggedIn(_) =>
-                      let _ = CommonAuthUtils.clearLocalStorage()
-                      let _ = CommonAuthUtils.handleSwitchUserQueryParam(~url)
+                      let _ = clearLocalStorage()
+                      let _ = handleSwitchUserQueryParam(~url)
                       setAuthStateToLogout()
                       AuthUtils.redirectToLogin()
 
