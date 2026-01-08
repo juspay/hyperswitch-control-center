@@ -24,7 +24,13 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      if statusFilter->Array.length === 0 {
+
+      // If posted_manual is selected, automatically add posted_force
+      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
+        statusFilter,
+      )
+
+      if finalStatusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "status",
           [
