@@ -1106,6 +1106,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "zift" => Processors(ZIFT)
     | "payjustnowinstore" => Processors(PAYJUSTNOWINSTORE)
     | "amazonpay" => Processors(AMAZONPAY)
+    | "worldpaymodular" => Processors(WORLDPAYMODULAR)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
