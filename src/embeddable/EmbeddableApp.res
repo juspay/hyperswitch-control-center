@@ -4,6 +4,8 @@ open Window
 @react.component
 let make = () => {
   open HSwitchUtils
+  open LogicUtils
+
   let url = RescriptReactRouter.useUrl()
 
   let contentRef = React.useRef(Js.Nullable.null)
@@ -97,12 +99,12 @@ let make = () => {
     let objectdata = ev->HandlingEvents.convertToCustomEvent
     switch objectdata.data->JSON.Decode.object {
     | Some(dict) => {
-        let messageType = dict->LogicUtils.getString("type", "")
-        if messageType->LogicUtils.isNonEmptyString && messageType == "AUTH_TOKEN" {
-          let tokenFromParent = dict->LogicUtils.getString("token", "")
-          if tokenFromParent->LogicUtils.isNonEmptyString {
+        let messageType = dict->getString("type", "")
+        if messageType->isNonEmptyString && messageType == "AUTH_TOKEN" {
+          let tokenFromParent = dict->getString("token", "")
+          if tokenFromParent->isNonEmptyString {
             LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
-            setComponentKey(_ => LogicUtils.randomString(~length=10))
+            setComponentKey(_ => randomString(~length=10))
           }
         }
       }
