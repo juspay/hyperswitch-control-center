@@ -10,7 +10,7 @@ let getV2Url = (
   ~profileId,
   ~merchantId,
   ~transactionEntity,
-  ~queryParamerters: option<string>=None,
+  ~queryParameters: option<string>=None,
 ) => {
   let connectorBaseURL = "v2/connector-accounts"
   let paymentsBaseURL = "v2/payments"
@@ -52,12 +52,12 @@ let getV2Url = (
     | Get =>
       switch id {
       | Some(key_id) =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
         | None => `${paymentsBaseURL}/${key_id}/get-intent`
         }
       | None =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/list?${queryParams}`
         | None => `${paymentsBaseURL}/list?limit=100`
         }
@@ -69,12 +69,12 @@ let getV2Url = (
     | Get =>
       switch id {
       | Some(key_id) =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
         | None => `${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`
         }
       | None =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/recovery-list?${queryParams}`
         | None => `${paymentsBaseURL}/recovery-list?limit=100`
         }
@@ -103,7 +103,7 @@ let getV2Url = (
   | V2_ORDERS_AGGREGATE =>
     switch methodType {
     | Get =>
-      switch queryParamerters {
+      switch queryParameters {
       | Some(queryParams) =>
         switch transactionEntity {
         | #Merchant => `v2/payments/aggregate?${queryParams}`
@@ -131,7 +131,7 @@ let getV2Url = (
     let userUrl = `user`
     switch userType {
     | #CREATE_MERCHANT =>
-      switch queryParamerters {
+      switch queryParameters {
       | Some(params) => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
       | None => `v2/${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
@@ -179,7 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonSessionDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -191,9 +192,17 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
-    ~queryParamerters: option<string>=None,
+    ~queryParameters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+    let (transactionEntity, analyticsEntity, userEntity) = switch state {
+    | DashboardSession(userInfo) => (
+        userInfo.transactionEntity,
+        userInfo.analyticsEntity,
+        userInfo.userEntity,
+      )
+    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    }
+
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
@@ -238,7 +247,7 @@ let useGetURL = () => {
           switch id {
           | Some(customerId) => `customers/${customerId}`
           | None =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `customers/list?${queryParams}`
             | None => `customers/list?limit=500`
             }
@@ -251,7 +260,7 @@ let useGetURL = () => {
           switch id {
           | Some(customerId) => `customers/${customerId}`
           | None =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `customers/list_with_count?${queryParams}`
             | None => `customers/list_with_count`
             }
@@ -350,7 +359,7 @@ let useGetURL = () => {
         | Get =>
           switch id {
           | Some(key_id) =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `payments/${key_id}?${queryParams}`
             | None => `payments/${key_id}`
             }
@@ -374,7 +383,7 @@ let useGetURL = () => {
       | ORDERS_AGGREGATE =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
             | #Merchant => `payments/aggregate?${queryParams}`
@@ -390,13 +399,13 @@ let useGetURL = () => {
         | Get =>
           switch id {
           | Some(key_id) =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `refunds/${key_id}?${queryParams}`
             | None => `refunds/${key_id}`
             }
 
           | None =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
               | #Merchant => `refunds/list?${queryParams}`
@@ -421,7 +430,7 @@ let useGetURL = () => {
       | REFUNDS_AGGREGATE =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
             | #Profile => `refunds/profile/aggregate?${queryParams}`
@@ -439,7 +448,7 @@ let useGetURL = () => {
           switch id {
           | Some(dispute_id) => `disputes/${dispute_id}`
           | None =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
               | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
@@ -460,7 +469,7 @@ let useGetURL = () => {
       | DISPUTES_AGGREGATE =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(queryParams) =>
             switch transactionEntity {
             | #Profile => `disputes/profile/aggregate?${queryParams}`
@@ -471,6 +480,21 @@ let useGetURL = () => {
           | None => `disputes/aggregate`
           }
         | _ => `disputes/aggregate`
+        }
+      | PAYOUTS_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `payouts/profile/aggregate?${queryParams}`
+            | #Merchant
+            | _ =>
+              `payouts/aggregate?${queryParams}`
+            }
+          | None => `payouts/aggregate`
+          }
+        | _ => `payouts/aggregate`
         }
       | PAYOUTS =>
         switch methodType {
@@ -520,7 +544,7 @@ let useGetURL = () => {
       | CREATE_AUTH_RATE_ROUTING =>
         switch methodType {
         | Post =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(param) =>
             `account/${merchantId}/business_profile/${profileId}/dynamic_routing/success_based/create?${param}`
           | None => ""
@@ -539,7 +563,7 @@ let useGetURL = () => {
       | SET_VOLUME_SPLIT =>
         switch methodType {
         | Post =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(param) =>
             `account/${merchantId}/business_profile/${profileId}/dynamic_routing/set_volume_split?${param}`
           | None => ""
@@ -666,7 +690,7 @@ let useGetURL = () => {
       | API_EVENT_LOGS =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
           | None => ``
           }
@@ -745,6 +769,7 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | THREE_DS_EXEMPTION_DELETE_RULE => `routing/deactivate`
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
@@ -810,7 +835,7 @@ let useGetURL = () => {
       | WEBHOOKS_EVENT_LOGS =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
           | None => `analytics/v1/outgoing_webhook_event_logs`
           }
@@ -819,7 +844,7 @@ let useGetURL = () => {
       | CONNECTOR_EVENT_LOGS =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
           | None => `analytics/v1/connector_event_logs`
           }
@@ -828,7 +853,7 @@ let useGetURL = () => {
       | ROUTING_EVENT_LOGS =>
         switch methodType {
         | Get =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `analytics/v1/profile/routing_event_logs?${params}`
           | None => `analytics/v1/routing_event_logs`
           }
@@ -918,12 +943,12 @@ let useGetURL = () => {
           let userUrl = `user`
           switch userRoleTypes {
           | USER_LIST =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `${userUrl}/user/list?${queryParams}`
             | None => `${userUrl}/user/list`
             }
           | ROLE_LIST =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
             | None => `${userUrl}/role/list`
             }
@@ -962,7 +987,7 @@ let useGetURL = () => {
             switch id {
             | Some(transactionID) => `${reconBaseURL}/transactions/${transactionID}`
             | None =>
-              switch queryParamerters {
+              switch queryParameters {
               | Some(queryParams) => `${reconBaseURL}/transactions?${queryParams}`
               | None => `${reconBaseURL}/transactions`
               }
@@ -974,7 +999,7 @@ let useGetURL = () => {
           | Get =>
             switch id {
             | Some(accountId) =>
-              switch queryParamerters {
+              switch queryParameters {
               | Some(queryParams) => `${reconBaseURL}/accounts/${accountId}/entries?${queryParams}`
               | None => `${reconBaseURL}/accounts/${accountId}/entries`
               }
@@ -994,7 +1019,7 @@ let useGetURL = () => {
         | #PROCESSING_ENTRIES_LIST =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `${reconBaseURL}/staging_entries?${queryParams}`
             | None =>
               switch id {
@@ -1021,7 +1046,7 @@ let useGetURL = () => {
         | #INGESTION_HISTORY =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `${reconBaseURL}/ingestions/history?${queryParams}`
             | None =>
               switch id {
@@ -1038,7 +1063,7 @@ let useGetURL = () => {
             switch id {
             | Some(ingestionId) => `${reconBaseURL}/ingestions/config/${ingestionId}`
             | None =>
-              switch queryParamerters {
+              switch queryParameters {
               | Some(queryParams) => `${reconBaseURL}/ingestions/config?${queryParams}`
               | None => `${reconBaseURL}/ingestions/config`
               }
@@ -1048,7 +1073,7 @@ let useGetURL = () => {
         | #TRANSFORMATION_HISTORY =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `${reconBaseURL}/transformations/history?${queryParams}`
             | None =>
               switch id {
@@ -1066,7 +1091,7 @@ let useGetURL = () => {
             | Some(transformationId) =>
               `${reconBaseURL}/transformations/configs/${transformationId}`
             | None =>
-              switch queryParamerters {
+              switch queryParameters {
               | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
               | None => `${reconBaseURL}/transformations/configs`
               }
@@ -1144,7 +1169,7 @@ let useGetURL = () => {
         | #AUDIT_TRAIL =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(queryParams) => `${reconBaseURL}/audit_trail?${queryParams}`
             | None => `${reconBaseURL}/audit_trail`
             }
@@ -1175,12 +1200,12 @@ let useGetURL = () => {
       /* INTELLIGENT ROUTING */
       | GET_REVIEW_FIELDS => `dynamic-routing/simulate/baseline-review-fields`
       | SIMULATE_INTELLIGENT_ROUTING =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `dynamic-routing/simulate/${merchantId}?${queryParams}`
         | None => `dynamic-routing/simulate/${merchantId}`
         }
       | INTELLIGENT_ROUTING_RECORDS =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `dynamic-routing/simulate/${merchantId}/get-records?${queryParams}`
         | None => `dynamic-routing/simulate/${merchantId}/get-records`
         }
@@ -1195,7 +1220,7 @@ let useGetURL = () => {
       | ERROR_CATEGORY_ANALYSIS => `${recoveryAnalyticsDemo}/analytics/error_category_analysis`
       | RECOVERY_INVOICES => `${recoveryAnalyticsDemo}/list-invoices`
       | RECOVERY_ATTEMPTS =>
-        switch queryParamerters {
+        switch queryParameters {
         | Some(queryParams) => `${recoveryAnalyticsDemo}/list-attempts/${queryParams}`
         | None => `${recoveryAnalyticsDemo}/list-attempts`
         }
@@ -1207,7 +1232,7 @@ let useGetURL = () => {
         switch userType {
         // DASHBOARD LOGIN / SIGNUP
         | #CONNECT_ACCOUNT =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/connect_account?${params}`
           | None => `${userUrl}/connect_account`
           }
@@ -1219,21 +1244,21 @@ let useGetURL = () => {
         | #VERIFY_EMAIL_REQUEST
         | #FORGOT_PASSWORD
         | #ROTATE_PASSWORD =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
         // POST LOGIN QUESTIONARE
         | #SET_METADATA =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
         // USER DATA
         | #USER_DATA =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/data?${params}`
           | None => `${userUrl}/data`
           }
@@ -1243,13 +1268,13 @@ let useGetURL = () => {
         // USER GROUP ACCESS
         | #GET_GROUP_ACL => `${userUrl}/role/v2`
         | #ROLE_INFO =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/parent/list?${params}`
           | None => `${userUrl}/parent/list`
           }
 
         | #GROUP_ACCESS_INFO =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/permission_info?${params}`
           | None => `${userUrl}/permission_info`
           }
@@ -1261,13 +1286,13 @@ let useGetURL = () => {
 
         // INVITATION INSIDE DASHBOARD
         | #RESEND_INVITE =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/user/resend_invite?${params}`
           | None => `${userUrl}/user/resend_invite`
           }
         | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
         | #INVITE_MULTIPLE =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
           }
@@ -1279,7 +1304,7 @@ let useGetURL = () => {
         | #CREATE_ORG => `user/create_org`
         // CREATE MERCHANT
         | #CREATE_MERCHANT =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
@@ -1299,10 +1324,11 @@ let useGetURL = () => {
         | #FROM_EMAIL => `${userUrl}/from_email`
         | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
         | #ACCEPT_INVITE_FROM_EMAIL =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
+        | #TERMINATE_ACCEPT_INVITE => `${userUrl}/terminate_accept_invite`
 
         // SPT FLOWS (Totp)
         | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
@@ -1311,7 +1337,7 @@ let useGetURL = () => {
         | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
         | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
         | #TERMINATE_TWO_FACTOR_AUTH =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/2fa/terminate?${params}`
           | None => `${userUrl}/2fa/terminate`
           }
@@ -1321,7 +1347,7 @@ let useGetURL = () => {
 
         // SPT FLOWS (SSO)
         | #GET_AUTH_LIST =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/auth/list?${params}`
           | None => `${userUrl}/auth/list`
           }
@@ -1330,16 +1356,66 @@ let useGetURL = () => {
 
         // user-management revamp
         | #LIST_ROLES_FOR_INVITE =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/role/list/invite?${params}`
           | None => ""
           }
         | #LIST_INVITATION => `${userUrl}/list/invitation`
         | #USER_DETAILS => `${userUrl}/user`
         | #LIST_ROLES_FOR_ROLE_UPDATE =>
-          switch queryParamerters {
+          switch queryParameters {
           | Some(params) => `${userUrl}/role/list/update?${params}`
           | None => ""
+          }
+        | #THEME =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | Post => `${userUrl}/theme`
+          | Put =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | Delete =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
+
+        | #THEME_LIST =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(params) => `${userUrl}/theme/list?${params}`
+            | None => `${userUrl}/theme/list`
+            }
+          | _ => ""
+          }
+
+        | #THEME_BY_LINEAGE =>
+          switch methodType {
+          | Get =>
+            switch queryParameters {
+            | Some(params) => `${userUrl}/theme?${params}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
+          }
+
+        | #THEME_UPLOAD_ASSET =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}`
+            | None => `${userUrl}/theme`
+            }
+          | _ => ""
           }
 
         | #NONE => ""
@@ -1357,7 +1433,7 @@ let useGetURL = () => {
         ~userType,
         ~id,
         ~methodType,
-        ~queryParamerters,
+        ~queryParameters,
         ~profileId,
         ~merchantId,
         ~transactionEntity,
@@ -1496,7 +1572,7 @@ let responseHandler = async (
         | _ =>
           showToast(
             ~toastType=ToastError,
-            ~message=errorDict->getString("message", "Error Occured"),
+            ~message=errorDict->getString("message", "Error Occurred"),
             ~autoClose=false,
           )
         }
@@ -1528,7 +1604,9 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1582,7 +1660,9 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()

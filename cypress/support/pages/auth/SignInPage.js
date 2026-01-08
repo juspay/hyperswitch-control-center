@@ -45,7 +45,9 @@ class SignInPage {
 
   // 2FA setup
   get headerText2FA() {
-    return cy.get('[class="px-4 text-2xl text-fs-20 font-semibold leading-8"]');
+    return cy.get(
+      '[class="text-fs-24 leading-32 font-semibold font-inter-style"]',
+    );
   }
 
   get instructions2FA() {
@@ -53,9 +55,7 @@ class SignInPage {
   }
 
   get otpBoxHeader() {
-    return cy.get(
-      '[class="text-fs-15 mx-4 opacity-80 text-gray-700 whitespace-nowrap"]',
-    );
+    return cy.get('[class="flex items-center my-4"]');
   }
 
   get otpBox2FA() {

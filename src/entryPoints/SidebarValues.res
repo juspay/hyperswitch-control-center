@@ -197,6 +197,18 @@ let billingProcessor = (~userHasResourceAccess) => {
   })
 }
 
+let vaultProcessor = (~userHasResourceAccess) => {
+  SubLevelLink({
+    name: "Vault Processor",
+    link: `/vault-processor`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.vaultProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -206,6 +218,7 @@ let connectors = (
   ~isPMAuthenticationProcessor,
   ~isTaxProcessor,
   ~isBillingProcessor,
+  ~isVaultProcessor,
   ~userHasResourceAccess,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
@@ -230,6 +243,10 @@ let connectors = (
   }
   if isBillingProcessor {
     connectorLinkArray->Array.push(billingProcessor(~userHasResourceAccess))->ignore
+  }
+
+  if isVaultProcessor {
+    connectorLinkArray->Array.push(vaultProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -449,7 +466,13 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
+let settings = (
+  ~isConfigurePmtsEnabled,
+  ~userHasResourceAccess,
+  ~complianceCertificate,
+  ~devModularityV2Enabled,
+  ~devThemeEnabled,
+) => {
   let settingsLinkArray = []
 
   if isConfigurePmtsEnabled {
@@ -458,6 +481,11 @@ let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCert
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+  if !devModularityV2Enabled && devThemeEnabled {
+    settingsLinkArray
+    ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
+    ->ignore
   }
 
   settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore

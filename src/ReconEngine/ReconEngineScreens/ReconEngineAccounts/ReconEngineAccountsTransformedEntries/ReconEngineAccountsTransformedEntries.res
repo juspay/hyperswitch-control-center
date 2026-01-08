@@ -70,7 +70,7 @@ let make = () => {
         ~filterValueJson=enhancedFilterValueJson,
       )
 
-      let stagingList = await getGetProcessingEntries(~queryParamerters=Some(queryString))
+      let stagingList = await getGetProcessingEntries(~queryParameters=Some(queryString))
       setStagingData(_ => stagingList)
       setFilteredStagingData(_ => stagingList->Array.map(Nullable.make))
 
@@ -126,22 +126,23 @@ let make = () => {
 
   let onEntityClick = async transformedEntry => {
     try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-        ~queryParamerters=None,
-        ~id=Some(transformedEntry.transformation_history_id),
-      )
-      let res = await fetchDetails(url)
-      let transformationHistoryData =
-        res->getDictFromJsonObject->getTransformedEntriesTransformationHistoryPayloadFromDict
-
-      RescriptReactRouter.push(
-        GlobalVars.appendDashboardPath(
-          ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?transformationHistoryId=${transformedEntry.transformation_history_id}&stagingEntryId=${transformedEntry.staging_entry_id}`,
-        ),
-      )
+      if transformedEntry.transformation_history_id->isNonEmptyString {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
+          ~queryParameters=None,
+          ~id=Some(transformedEntry.transformation_history_id),
+        )
+        let res = await fetchDetails(url)
+        let transformationHistoryData =
+          res->getDictFromJsonObject->getTransformedEntriesTransformationHistoryPayloadFromDict
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/transformed-entries/ingestion-history/${transformationHistoryData.ingestion_history_id}?transformationHistoryId=${transformedEntry.transformation_history_id}&stagingEntryId=${transformedEntry.staging_entry_id}`,
+          ),
+        )
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }

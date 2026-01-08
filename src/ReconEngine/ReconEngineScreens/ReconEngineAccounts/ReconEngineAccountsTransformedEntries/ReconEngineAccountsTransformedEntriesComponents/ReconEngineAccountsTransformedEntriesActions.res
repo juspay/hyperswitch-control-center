@@ -72,7 +72,7 @@ module LineageContent = {
           ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Get,
           ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
-          ~queryParamerters=None,
+          ~queryParameters=None,
           ~id=Some(entry.transformation_history_id),
         )
         let res = await fetchDetails(url)
@@ -81,7 +81,7 @@ module LineageContent = {
           ->getDictFromJsonObject
           ->getTransformedEntriesTransformationHistoryPayloadFromDict
         let ingestionHistoryData = await getIngestionHistory(
-          ~queryParamerters=Some(
+          ~queryParameters=Some(
             `ingestion_history_id=${transformationHistoryData.ingestion_history_id}`,
           ),
         )
@@ -188,11 +188,14 @@ let make = (~processingEntry: processingEntryType) => {
       iconType: ViewIcon,
       modalContent: MetadataContent(processingEntry.metadata),
     },
-    {
+  ]
+
+  if processingEntry.transformation_history_id->isNonEmptyString {
+    transformedEntriesActions->Array.push({
       iconType: ChartIcon,
       modalContent: LineageContent(processingEntry),
-    },
-  ]
+    })
+  }
 
   let getModalHeading = (content: modalContentType) => {
     switch content {

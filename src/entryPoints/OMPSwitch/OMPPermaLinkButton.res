@@ -18,9 +18,9 @@ module BuildPermaLinkUrl = {
 @react.component
 let make = (~permaLinkFor=?) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
+  let {orgId, merchantId, profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonSessionDetails()
   let handleDeepLinkClick = () => {
     mixpanelEvent(~eventName="copy_deep_link")
   }

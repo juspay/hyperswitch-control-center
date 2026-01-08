@@ -30,7 +30,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let ingestionHistoryList = await getIngestionHistory(
-        ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
+        ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
       )
       ingestionHistoryList->Array.sort(sortByDescendingVersion)
       let latestIngestionHistory =
@@ -85,7 +85,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
     } else {
       0
     }
-  }, transformationHistoryId)
+  }, [transformationHistoryId, stagingEntryId])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">

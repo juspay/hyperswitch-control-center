@@ -1,10 +1,9 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open GPayFlowTypes
   open LogicUtils
   open GPayFlowHelper
   open GPayFlowUtils
-  open AdditionalDetailsSidebarHelper
 
   let (googlePayIntegrationType, setGooglePayIntegrationType) = React.useState(_ =>
     #payment_gateway
@@ -21,11 +20,10 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       ->getDictfromDict("connector_wallets_details")
     let googlePayDict = connectorWalletDict->getDictfromDict("google_pay")
     if (
-      (connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(WORLDPAYVANTIV) ||
-        connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO)) &&
+      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO) &&
         googlePayDict->Dict.keysToArray->Array.length <= 0
     ) {
-      "DECRYPTION"
+      "DIRECT"
     } else {
       connectorWalletDict->getIntegrationTypeFromConnectorWalletDetailsGooglePay
     }
@@ -69,7 +67,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
   let closeModal = () => {
     onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
   <PageLoaderWrapper
@@ -80,7 +78,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       </div>
     </div>}
     sectionHeight="!h-screen">
-    <Heading title="Google Pay" iconName="google_pay" />
     {switch googlePayIntegrationStep {
     | Landing =>
       <Landing
@@ -89,30 +86,18 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         setGooglePayIntegrationStep
         setGooglePayIntegrationType
         connector
-        update
       />
     | Configure =>
       <>
         {switch googlePayIntegrationType {
         | #payment_gateway =>
           <GPayPaymentGatewayFlow
-            googlePayFields
-            googlePayIntegrationType
-            closeModal
-            connector
-            setShowWalletConfigurationModal
-            update
+            googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
           />
         | #direct =>
           <GPayDirectFlow
-            googlePayFields
-            googlePayIntegrationType
-            closeModal
-            connector
-            setShowWalletConfigurationModal
-            update
+            googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
           />
-        | #decryption => React.null
         }}
       </>
     }}

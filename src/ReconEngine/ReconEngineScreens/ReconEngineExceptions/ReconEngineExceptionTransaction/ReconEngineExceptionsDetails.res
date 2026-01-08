@@ -26,7 +26,7 @@ let make = (~id) => {
   let getExceptionDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let exceptions = await getTransactions(~queryParamerters=Some(`transaction_id=${id}`))
+      let exceptions = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
       exceptions->Array.sort(sortByVersion)
       let currentExceptionDetails =
         exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)

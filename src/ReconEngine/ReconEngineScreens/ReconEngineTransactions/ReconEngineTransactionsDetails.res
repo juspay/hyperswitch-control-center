@@ -16,7 +16,7 @@ let make = (~id) => {
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let transactionsList = await getTransactions(~queryParamerters=Some(`transaction_id=${id}`))
+      let transactionsList = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
       transactionsList->Array.sort(sortByVersion)
       let currentTransaction =
         transactionsList->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
@@ -35,19 +35,9 @@ let make = (~id) => {
 
   let detailsFields = React.useMemo(() => {
     open TransactionsTableEntity
-    switch (
-      currentTransactionDetails.transaction_status,
-      currentTransactionDetails.data.posted_type,
-    ) {
-    | (Posted, Some(ForceReconciled))
-    | (Posted, Some(ManuallyReconciled)) => [
-        TransactionId,
-        Status,
-        Variance,
-        ReconciliationType,
-        CreatedAt,
-        Reason,
-      ]
+    switch currentTransactionDetails.transaction_status {
+    | Posted(Force)
+    | Posted(Manual) => [TransactionId, Status, Variance, ReconciliationType, CreatedAt, Reason]
     | _ => [TransactionId, Status, Variance, CreatedAt]
     }
   }, [currentTransactionDetails])

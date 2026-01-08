@@ -7,7 +7,8 @@ open HyperswitchAtom
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
@@ -31,13 +32,16 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
+    vaultProcessor,
+    devModularityV2,
+    devTheme,
   } = featureFlagDetails
   let {
-    useIsFeatureEnabledForBlackListMerchant,
+    isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
 
   [
     default->home,
@@ -51,6 +55,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isTaxProcessor=taxProcessor,
       ~userHasResourceAccess,
       ~isBillingProcessor=billingProcessor,
+      ~isVaultProcessor=vaultProcessor,
     ),
     default->analytics(
       disputeAnalytics,
@@ -76,13 +81,23 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
       ~paymentLinkThemeConfigurator,
     ),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
+    settings(
+      ~isConfigurePmtsEnabled=configurePmts,
+      ~userHasResourceAccess,
+      ~complianceCertificate,
+      ~devModularityV2Enabled=devModularityV2,
+      ~devThemeEnabled=devTheme,
+    ),
   ]
 }
 
 let useGetOrchestratorSidebars = (~isReconEnabled) => useGetHsSidebarValues(~isReconEnabled)
 
-let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
+let getAllProductsBasedOnFeatureFlags = (
+  ~featureFlagDetails,
+  ~isFeatureEnabledForAllowListMerchant,
+  ~merchantSpecificConfig: FeatureFlagUtils.merchantSpecificConfig,
+) => {
   let products = [Orchestration(V1)]
 
   if featureFlagDetails.devReconv2Product {
@@ -109,7 +124,10 @@ let getAllProductsBasedOnFeatureFlags = (featureFlagDetails: featureFlag) => {
     products->Array.push(Orchestration(V2))->ignore
   }
 
-  if featureFlagDetails.devReconEngineV1 {
+  if (
+    featureFlagDetails.devReconEngineV1 &&
+    isFeatureEnabledForAllowListMerchant(merchantSpecificConfig.devReconEngineV1)
+  ) {
     products->Array.push(Recon(V1))->ignore
   }
 
@@ -150,7 +168,16 @@ let useGetSidebarProductModules = () => {
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let allProducts = getAllProductsBasedOnFeatureFlags(featureFlagDetails)
+  let {
+    isFeatureEnabledForAllowListMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+
+  let allProducts = getAllProductsBasedOnFeatureFlags(
+    ~featureFlagDetails,
+    ~isFeatureEnabledForAllowListMerchant,
+    ~merchantSpecificConfig,
+  )
 
   let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (
     productList,
@@ -178,9 +205,24 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
 
-  if featureFlagDetails.devModularityV2 {
+  if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
+    defaultSidebar->Array.pushMany([
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+      ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess),
+      CustomComponent({
+        component: <ProductHeaderComponent />,
+      }),
+    ])
+  } else if featureFlagDetails.devModularityV2 {
     defaultSidebar->Array.pushMany([
       Link({
         name: "Home",

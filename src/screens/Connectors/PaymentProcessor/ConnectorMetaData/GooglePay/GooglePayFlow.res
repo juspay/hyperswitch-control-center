@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open GooglePayUtils
 
@@ -43,28 +43,30 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let onSubmit = () => {
     let metadata =
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
     let _ = update(metadata)
     Nullable.null->Promise.resolve
   }
 
   let closeModal = () => {
     onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
-  <>
-    {googlePayFields
-    ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={index->Int.toString}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
-          field={googlePayValueInput(~googlePayField)}
-        />
-      </div>
-    })
-    ->React.array}
+  <div className="flex flex-col gap-6">
+    <div>
+      {googlePayFields
+      ->Array.mapWithIndex((field, index) => {
+        let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
+        <div key={`${googlePayField.name}-${index->Int.toString}`}>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={googlePayValueInput(~googlePayField)}
+          />
+        </div>
+      })
+      ->React.array}
+    </div>
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"
@@ -72,6 +74,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         onClick={_ => {
           closeModal()->ignore
         }}
+        customButtonStyle="w-full"
       />
       <Button
         onClick={_ => {
@@ -80,7 +83,8 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         text="Proceed"
         buttonType={Primary}
         buttonState={formState.values->validateGooglePay(connector)}
+        customButtonStyle="w-full"
       />
     </div>
-  </>
+  </div>
 }

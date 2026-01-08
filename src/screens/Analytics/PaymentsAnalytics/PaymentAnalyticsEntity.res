@@ -467,7 +467,7 @@ let getStatData = (
     }
   | TotalSmartRetries => {
       title: "Smart Retries made",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supported currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_count->Int.toFloat,
         deltaTimestampData.currentSr,
@@ -482,7 +482,7 @@ let getStatData = (
     }
   | SuccessfulSmartRetries => {
       title: "Successful Smart Retries",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supported currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_count->Int.toFloat,
         deltaTimestampData.currentSr,
@@ -497,7 +497,7 @@ let getStatData = (
     }
   | SmartRetriedAmount => {
       title: `Smart Retries Savings`,
-      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supported currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_amount_processe /. conversionFactor,
         deltaTimestampData.currentSr,
