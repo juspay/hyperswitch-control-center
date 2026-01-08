@@ -33,15 +33,6 @@ let make = (~id) => {
     None
   }, [])
 
-  let detailsFields = React.useMemo(() => {
-    open TransactionsTableEntity
-    switch currentTransactionDetails.transaction_status {
-    | Posted(Force)
-    | Posted(Manual) => [TransactionId, Status, Variance, ReconciliationType, CreatedAt, Reason]
-    | _ => [TransactionId, Status, Variance, CreatedAt]
-    }
-  }, [currentTransactionDetails])
-
   <div>
     <div className="flex flex-col gap-4 mb-8">
       <BreadCrumbNavigation
@@ -63,7 +54,8 @@ let make = (~id) => {
       />}>
       <div className="flex flex-col">
         <TransactionDetailInfo
-          currentTransactionDetails={currentTransactionDetails} detailsFields={detailsFields}
+          currentTransactionDetails={currentTransactionDetails}
+          detailsFields=[TransactionId, Status, Variance, CreatedAt, RuleName]
         />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>
