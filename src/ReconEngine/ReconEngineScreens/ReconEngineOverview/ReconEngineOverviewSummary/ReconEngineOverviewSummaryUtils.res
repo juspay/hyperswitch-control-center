@@ -28,7 +28,7 @@ let getSummaryStackedBarGraphData = (
         color: expectedColor,
       },
       {
-        name: "Posted",
+        name: "Reconciled",
         data: [postedCount->Int.toFloat],
         color: postedColor,
       },

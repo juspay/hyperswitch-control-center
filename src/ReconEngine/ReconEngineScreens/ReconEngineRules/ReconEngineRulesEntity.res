@@ -1,7 +1,7 @@
 open ReconEngineRulesTypes
 open LogicUtils
 
-let defaultColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleDescription, Status]
+let defaultColumns: array<ruleColType> = [Priority, RuleName, RuleDescription, Status]
 
 let allColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleDescription, Status]
 
