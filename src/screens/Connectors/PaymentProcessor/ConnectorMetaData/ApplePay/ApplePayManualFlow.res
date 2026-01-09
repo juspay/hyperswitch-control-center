@@ -303,6 +303,7 @@ let make = (
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"
