@@ -233,10 +233,7 @@ let makeEdge = (
   let label = getPercentageLabel(~postedCount, ~totalCount)
   let sourceNodeId = `${sourceAccountId}-node`
   let targetNodeId = `${targetAccountId}-node`
-  let isHighlighted = switch selectedNodeId {
-  | Some(id) => id === sourceNodeId || id === targetNodeId
-  | None => false
-  }
+  let isHighlighted = Some(sourceNodeId) == selectedNodeId || Some(targetNodeId) == selectedNodeId
   {
     id: `${sourceAccountId}-to-${targetAccountId}`,
     ReconEngineOverviewSummaryTypes.source: sourceNodeId,
