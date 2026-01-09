@@ -18,6 +18,7 @@ type dimension = [
   | #refund_error_message
   | #refund_reason
   | #authentication_connector
+  | #authentication_status
 ]
 type status = [#charged | #failure | #success | #pending]
 type metrics = [
