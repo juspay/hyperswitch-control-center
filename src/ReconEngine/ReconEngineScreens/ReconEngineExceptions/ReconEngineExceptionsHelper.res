@@ -252,10 +252,7 @@ module MetadataInput = {
                 }
               })}
               buttonText="Add Field"
-              allowMultiSelect=false
-              deselectDisable=false
               isHorizontal=true
-              fullLength=false
             />
           </RenderIf>
         </div>
@@ -313,9 +310,7 @@ module MetadataInput = {
                   <div className="flex-1">
                     {InputFields.textInput(
                       ~inputStyle={
-                        validationError->Option.isSome
-                          ? "!rounded-xl !border-nd_red-500"
-                          : "!rounded-xl"
+                        `!rounded-xl ${validationError->Option.isSome ? "!border-nd_red-500" : ""}`
                       },
                       ~isDisabled=disabled,
                     )(
