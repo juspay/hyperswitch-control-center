@@ -92,26 +92,26 @@ module MetadataInput = {
     }, [metadataSchema.id])
 
     let isSchemaField = (key: string): bool => {
-      if metadataSchema.id->isNonEmptyString {
-        metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
-          field.identifier == key
-        )
-      } else {
-        false
-      }
+      metadataSchema.id->isNonEmptyString
+        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
+            field.identifier == key
+          )
+        : false
     }
 
     let unusedOptionalFields = React.useMemo(() => {
-      if metadataSchema.id->isNonEmptyString {
-        let optionalFields =
-          metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => !field.required)
+      metadataSchema.id->isNonEmptyString
+        ? {
+            let optionalFields =
+              metadataSchema.schema_data.fields.metadata_fields->Array.filter(field =>
+                !field.required
+              )
 
-        optionalFields->Array.filter(field => {
-          !(metadataRows->Array.some(row => row.key == field.identifier))
-        })
-      } else {
-        []
-      }
+            optionalFields->Array.filter(field => {
+              !(metadataRows->Array.some(row => row.key == field.identifier))
+            })
+          }
+        : []
     }, (metadataSchema, metadataRows))
 
     let addOptionalField = (key: string) => {
@@ -135,13 +135,11 @@ module MetadataInput = {
     }
 
     let isRequiredField = (key: string): bool => {
-      if metadataSchema.id->isNonEmptyString {
-        metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
-          field.identifier == key && field.required
-        )
-      } else {
-        false
-      }
+      metadataSchema.id->isNonEmptyString
+        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
+            field.identifier == key && field.required
+          )
+        : false
     }
 
     let updateRowKey = (id: string, newKey: string) => {
