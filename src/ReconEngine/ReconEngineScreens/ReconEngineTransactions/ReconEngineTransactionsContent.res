@@ -78,7 +78,13 @@ let make = (~account: ReconEngineTypes.accountType) => {
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      if statusFilter->Array.length === 0 {
+
+      // If posted_manual is selected, automatically add posted_force
+      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
+        statusFilter,
+      )
+
+      if finalStatusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "status",
           [
@@ -94,6 +100,11 @@ let make = (~account: ReconEngineTypes.accountType) => {
             "partially_reconciled",
             "data_mismatch",
           ]->getJsonFromArrayOfString,
+        )
+      } else {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
         )
       }
 

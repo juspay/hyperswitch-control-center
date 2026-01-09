@@ -76,7 +76,6 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   switch status {
   | Posted(Auto) => ("posted_auto", "Reconciled (Auto)", "Reconciled")
   | Posted(Manual) => ("posted_manual", "Reconciled (Manual)", "Reconciled")
-  | Posted(Force) => ("posted_force", "Reconciled (Force)", "Reconciled")
   | OverAmount(Expected) => (
       "over_amount_expected",
       "Positive Variance (Awaiting Match)",
@@ -102,6 +101,18 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
   | _ => ("", "", "")
+  }
+}
+
+let getMergedPostedTransactionStatusFilter = statusFilter => {
+  if statusFilter->Array.some(v => v->getStringFromJson("") == "posted_manual") {
+    if !(statusFilter->Array.some(v => v->getStringFromJson("") == "posted_force")) {
+      [...statusFilter, "posted_force"->JSON.Encode.string]
+    } else {
+      statusFilter
+    }
+  } else {
+    statusFilter
   }
 }
 
