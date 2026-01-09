@@ -120,7 +120,7 @@ module FlowWithLayoutControls = {
 }
 
 @react.component
-let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
   open LogicUtils
