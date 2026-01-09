@@ -80,9 +80,9 @@ let make = (~children) => {
     children
     <div>
       <div
-        className={`absolute inset-0 overflow-scroll flex flex-col pointer-events-none m-4 items-end grid justify-end content-end no-scrollbar`}>
+        className={`absolute inset-0 overflow-scroll flex flex-col pointer-events-none m-4 items-end justify-end no-scrollbar`}>
         <div
-          className={`flex flex-col font-inter-style pointer-events-auto w-auto self-start w-max max-w-4xl`}>
+          className={`flex flex-col font-inter-style pointer-events-auto self-start w-max max-w-4xl`}>
           {openSnackbar
           ->Array.map(snackbarProps => {
             <Snackbar key={snackbarProps.snackbarKey} snackbarProps hideSnackbar />
