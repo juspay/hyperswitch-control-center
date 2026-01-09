@@ -101,6 +101,11 @@ let make = (~account: ReconEngineTypes.accountType) => {
             "data_mismatch",
           ]->getJsonFromArrayOfString,
         )
+      } else {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
+        )
       }
 
       let sourceQueryString =

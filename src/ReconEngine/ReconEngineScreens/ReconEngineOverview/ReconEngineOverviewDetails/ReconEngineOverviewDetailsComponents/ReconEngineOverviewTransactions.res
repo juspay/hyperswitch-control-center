@@ -47,6 +47,11 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
             "void",
           ]->getJsonFromArrayOfString,
         )
+      } else {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
+        )
       }
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
