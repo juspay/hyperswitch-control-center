@@ -156,10 +156,7 @@ module HyperSwitchEntryComponent = {
       sectionHeight="h-screen"
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
-        {switch url.path {
-        | list{"oauth2", "authorize"} => <OAuthAuthorizeScreen />
-        | _ => <AuthEntry />
-        }}
+        <AuthEntry />
       </div>
     </PageLoaderWrapper>
   }
