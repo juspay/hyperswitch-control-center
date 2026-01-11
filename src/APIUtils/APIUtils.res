@@ -1503,8 +1503,6 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
   let responseHeaders = res->Fetch.Response.headers
 
-  Js.log3("API Response Status:", url, responseStatus)
-
   if responseStatus >= 500 && responseStatus < 600 {
     let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
     let metaData =
