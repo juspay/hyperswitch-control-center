@@ -49,6 +49,7 @@ module RadioGroup = {
   external make: (
     ~\"as": string=?,
     ~value: 't,
+    ~name: string=?,
     ~className: string=?,
     ~onChange: 't => unit,
     ~disabled: bool=?,

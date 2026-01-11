@@ -3,6 +3,7 @@ let make = () => {
   open LogicUtils
   open Typography
   open ThemeListHelper
+  open SessionStorage
 
   let getURL = APIUtils.useGetURL()
   let getMethod = APIUtils.useGetMethod()
@@ -14,6 +15,14 @@ let make = () => {
   let themeListArray = themeList->getArrayFromJson([])
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
+  let sessionModalValue =
+    sessionStorage.getItem("themeLineageModal")
+    ->Nullable.toOption
+    ->Option.getOr("")
+    ->getBoolFromString(false)
+
+  let (showModal, setShowModal) = React.useState(_ => sessionModalValue)
 
   let fetchCurrentTheme = async () => {
     try {
@@ -48,12 +57,14 @@ let make = () => {
           <RenderIf condition={themeListArray->Array.length > 0}>
             <div>
               <ACLButton
-                text="Create Theme"
+                text="Create Themee"
                 buttonType=Primary
                 buttonSize=Small
                 customButtonStyle={`${body.md.semibold} py-4`}
                 authorization={userHasAccess(~groupAccess=ThemeManage)}
+                onClick={_ => setShowModal(_ => true)}
               />
+              <ThemeHelper.ThemeLineageModal showModal setShowModal />
             </div>
           </RenderIf>
         </div>
