@@ -102,10 +102,8 @@ let make = (~children) => {
     if queryString->isEmptyString {
       setScreenState(_ => PageLoaderWrapper.Error("Missing authorization parameters."))
     } else {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       let apiUrl = getURL(~entityName=V1(OIDC_AUTHORIZE), ~methodType=Get)
       Window.Location.replace(`${apiUrl}?${queryString}`)
-      setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
