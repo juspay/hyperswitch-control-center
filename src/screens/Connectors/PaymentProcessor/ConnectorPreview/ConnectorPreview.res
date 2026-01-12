@@ -255,7 +255,10 @@ module ConnectorSummaryGrid = {
               </RenderIf>
               <RenderIf condition={checkCurrentEditState(AuthenticationKeys)}>
                 <ConnectorUpdateAuthCreds
-                  connectorInfo getConnectorDetails handleConnectorDetailsUpdate
+                  connectorInfo
+                  getConnectorDetails
+                  handleConnectorDetailsUpdate
+                  setCurrentActiveSection
                 />
               </RenderIf>
             </RenderIf>

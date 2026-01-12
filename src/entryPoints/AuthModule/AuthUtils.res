@@ -52,6 +52,11 @@ let getUserInfoDetailsFromLocalStorage = () => {
   json->getAuthInfo
 }
 
+let getEmbeddableInfoDetailsFromLocalStorage = () => {
+  open LogicUtils
+  LocalStorage.getItem("EMBEDDABLE_INFO")->getValFromNullableValue("")
+}
+
 let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
   {
     id: None,
