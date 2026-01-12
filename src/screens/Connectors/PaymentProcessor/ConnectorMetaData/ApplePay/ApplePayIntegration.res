@@ -24,12 +24,15 @@ module Verified = {
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
 
+      Js.log2("inside verified data", data)
+
       let applePayData = ApplePayIntegrationUtils.applePay(
         data,
         ~applePayIntegrationType=Some(appleIntegrationType),
         ~connector,
         (),
       )
+      Js.log2("inside verified after applePayData", data)
       switch applePayData {
       | ApplePayCombined(data) =>
         form.change(
@@ -41,6 +44,8 @@ module Verified = {
 
       let metadata =
         formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+
+      Js.log2("inside verified after metadata", metadata)
 
       let _ = update(metadata)
       closeAccordionFn()
@@ -74,6 +79,7 @@ module Verified = {
                       name={"arrow-right"}
                       size={15}
                     />
+                  | #predecrypt => React.null
                   }}
                 </div>
               </div>
@@ -112,20 +118,59 @@ module Landing = {
     ~closeModal,
     ~setApplePayIntegrationSteps,
     ~setApplePayIntegrationType,
+    ~update,
+    ~closeAccordionFn,
   ) => {
     open ApplePayIntegrationTypes
     open ApplePayLandingHelper
     open Typography
 
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+
     let handleConfirmClick = () => {
-      setApplePayIntegrationSteps(_ => Configure)
+      Js.log2("handleConfirmClick", appleIntegrationType)
+      if appleIntegrationType == #predecrypt {
+        open LogicUtils
+
+        let data =
+          formState.values
+          ->getDictFromJsonObject
+          ->getDictfromDict("metadata")
+          ->getDictfromDict("apple_pay_combined")
+
+        let applePayData = ApplePayIntegrationUtils.applePay(
+          data,
+          ~applePayIntegrationType=Some(appleIntegrationType),
+          ~connector,
+          (),
+        )
+        switch applePayData {
+        | ApplePayCombined(data) =>
+          form.change(
+            "metadata.apple_pay_combined",
+            data.apple_pay_combined->Identity.genericTypeToJson,
+          )
+        | _ => ()
+        }
+
+        let metadata =
+          formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+
+        let _ = update(metadata)
+        closeAccordionFn()
+      } else {
+        setApplePayIntegrationSteps(_ => Configure)
+      }
     }
+    // nuvie , adyen , checkout
     <div className="flex flex-col gap-6 p-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE)
-      | Processors(NUVEI)
       | Processors(FIUU)
       | Processors(TESOURO) =>
         <>
@@ -133,8 +178,29 @@ module Landing = {
           <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
           <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
+
+      | Processors(NUVEI) =>
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+          <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
+          <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
+        </>
+
+      | Processors(CHECKOUT) | Processors(ADYEN) =>
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
+          <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
+        </>
+
       | Processors(WORLDPAYVANTIV) =>
-        <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+          <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
+        </>
+
       | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
       <div className={`flex gap-2 justify-end`}>
@@ -266,6 +332,8 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
             setApplePayIntegrationSteps
             appleIntegrationType
             setApplePayIntegrationType
+            update
+            closeAccordionFn
           />
         | Configure =>
           switch appleIntegrationType {
@@ -287,6 +355,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
               connector
               appleIntegrationType
             />
+          | #predecrypt => React.null
           }
         | Verify =>
           <Verified

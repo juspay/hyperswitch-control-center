@@ -183,6 +183,19 @@ let make = (
           )}`}
       />}
     />
+    <FormRenderer.FieldRenderer
+      labelClass="font-semibold !text-hyperswitch_black"
+      fieldWrapperClass="w-full flex justify-between items-center py-6"
+      field={FormRenderer.makeFieldInfo(
+        ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
+        ~label="Enable Pre-decrypt flow",
+        ~customInput=InputFields.boolInput(
+          ~isDisabled=false,
+          ~boolCustomClass="rounded-lg ",
+          ~isCheckBox=true,
+        ),
+      )}
+    />
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>

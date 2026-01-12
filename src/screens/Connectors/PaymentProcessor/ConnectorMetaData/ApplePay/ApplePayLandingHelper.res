@@ -42,3 +42,25 @@ module ApplePayManualLandingCard = {
     </div>
   }
 }
+
+module ApplePayPreDecryptLandingCard = {
+  @react.component
+  let make = (~setApplePayIntegrationType, ~appleIntegrationType) => {
+    <div className="cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #predecrypt)}>
+      <Card
+        heading="Pre decrypt Flow"
+        customCardHeaderStyle="border rounded-md"
+        isSelected={appleIntegrationType === #predecrypt}>
+        <div className={`mt-2 ${body.md.medium}  text-nd_gray-400`}>
+          {"Pre decypt flow"->React.string}
+        </div>
+        // <div className="flex gap-2 mt-4">
+        //   <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+        //   <CustomTag
+        //     tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
+        //   />
+        // </div>
+      </Card>
+    </div>
+  }
+}

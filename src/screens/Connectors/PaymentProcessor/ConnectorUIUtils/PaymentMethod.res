@@ -39,6 +39,7 @@ module CardRenderer = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
+
     let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
       let formValues = formState.values->getDictFromJsonObject
       (
@@ -46,6 +47,7 @@ module CardRenderer = {
         formValues->getDictfromDict("connector_wallets_details"),
       )
     }, [])
+    
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 

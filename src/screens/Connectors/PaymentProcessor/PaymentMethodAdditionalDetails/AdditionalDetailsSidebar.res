@@ -17,6 +17,7 @@ module AdditionalDetailsSidebarComp = {
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
     let updateMetadata = json => {
+      Js.log2("inside updateMetadata function", json)
       setMetaData(_ => json)
       switch method {
       | Some(pmt) => paymentMethodsEnabled->addMethod(paymentMethod, pmt)->updateDetails

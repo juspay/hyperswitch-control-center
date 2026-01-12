@@ -226,6 +226,7 @@ let make = (
 
   let setFormData = () => {
     let value = applePayCombined(initalFormValue, #manual, connector)
+    Js.log2("inside setFormData", value)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -243,10 +244,13 @@ let make = (
       ->manual(connector)
 
     let domainName = data.session_token_data.initiative_context->Option.getOr("")
+
+    Js.log2("inside onSubmit", data)
     setVefifiedDomainList(_ => [domainName])
     setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     Nullable.null->Promise.resolve
   }
+
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
@@ -296,6 +300,19 @@ let make = (
       </span>
     </div>
     <div> {applePayManualFields} </div>
+    <FormRenderer.FieldRenderer
+      labelClass="font-semibold !text-hyperswitch_black"
+      fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
+      field={FormRenderer.makeFieldInfo(
+        ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
+        ~label="Enable Pre-decrypt flow",
+        ~customInput=InputFields.boolInput(
+          ~isDisabled=false,
+          ~boolCustomClass="rounded-lg ",
+          ~isCheckBox=true,
+        ),
+      )}
+    />
     <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
