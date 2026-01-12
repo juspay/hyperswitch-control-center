@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.12.0
+
+### Features
+
+- Update custom gateway name for google pay decryption flow for WorldpayModular ([#4075](https://github.com/juspay/hyperswitch-control-center/pull/4075)) ([`d8d4585`](https://github.com/juspay/hyperswitch-control-center/commit/d8d45859efc5f3bada773b76ff72b48b130df758))
+
+### Bug Fixes
+
+- Sidebar navigation bug ([#4053](https://github.com/juspay/hyperswitch-control-center/pull/4053)) ([`d2b2f8a`](https://github.com/juspay/hyperswitch-control-center/commit/d2b2f8a9faf8390360c84db8211a2b5a1f121d96))
+- Embeddable bug fixes ([#4072](https://github.com/juspay/hyperswitch-control-center/pull/4072)) ([`7210565`](https://github.com/juspay/hyperswitch-control-center/commit/7210565326550f406aee7e22e52c6a7e62f9429c))
+
+### Miscellaneous Tasks
+
+- New api addition for embeddable ([#4063](https://github.com/juspay/hyperswitch-control-center/pull/4063)) ([`d448034`](https://github.com/juspay/hyperswitch-control-center/commit/d4480347a6c6f1efe982076644309c1da22e56d7))
+
+**Full Changelog:** [`2026.01.09.0...2026.01.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.09.0...2026.01.12.0)
+
+- - -
+
 ## 2026.01.09.0
 
 ### Features
