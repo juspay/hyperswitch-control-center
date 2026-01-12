@@ -49,6 +49,7 @@ let make = (
       connectorWalletDetails
       ->getMetadataFromConnectorWalletDetailsGooglePay(connector)
       ->Identity.genericTypeToJson
+
     form.change("metadata.google_pay", metadataDetails)
     closeAccordionFn()
     let _ = update(metadataDetails)
@@ -69,6 +70,19 @@ let make = (
       })
       ->React.array}
     </div>
+    <FormRenderer.FieldRenderer
+      labelClass="font-semibold !text-hyperswitch_black"
+      fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
+      field={FormRenderer.makeFieldInfo(
+        ~name={"connector_wallets_details.google_pay.support_predecrypted_token"},
+        ~label="Enable Pre-decrypt flow",
+        ~customInput=InputFields.boolInput(
+          ~isDisabled=false,
+          ~boolCustomClass="rounded-lg ",
+          ~isCheckBox=true,
+        ),
+      )}
+    />
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"

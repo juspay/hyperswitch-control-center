@@ -24,15 +24,12 @@ module Verified = {
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
 
-      Js.log2("inside verified data", data)
-
       let applePayData = ApplePayIntegrationUtils.applePay(
         data,
         ~applePayIntegrationType=Some(appleIntegrationType),
         ~connector,
         (),
       )
-      Js.log2("inside verified after applePayData", data)
       switch applePayData {
       | ApplePayCombined(data) =>
         form.change(
@@ -44,8 +41,6 @@ module Verified = {
 
       let metadata =
         formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-
-      Js.log2("inside verified after metadata", metadata)
 
       let _ = update(metadata)
       closeAccordionFn()
@@ -131,7 +126,6 @@ module Landing = {
     let form = ReactFinalForm.useForm()
 
     let handleConfirmClick = () => {
-      Js.log2("handleConfirmClick", appleIntegrationType)
       if appleIntegrationType == #predecrypt {
         open LogicUtils
 

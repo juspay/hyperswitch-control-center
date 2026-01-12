@@ -86,20 +86,21 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         setGooglePayIntegrationStep
         setGooglePayIntegrationType
         connector
+        update
+        closeAccordionFn
       />
     | Configure =>
-      <>
-        {switch googlePayIntegrationType {
-        | #payment_gateway =>
-          <GPayPaymentGatewayFlow
-            googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
-          />
-        | #direct =>
-          <GPayDirectFlow
-            googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
-          />
-        }}
-      </>
+      switch googlePayIntegrationType {
+      | #payment_gateway =>
+        <GPayPaymentGatewayFlow
+          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
+        />
+      | #direct =>
+        <GPayDirectFlow
+          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
+        />
+      | #predecrypt => React.null
+      }
     }}
   </PageLoaderWrapper>
 }

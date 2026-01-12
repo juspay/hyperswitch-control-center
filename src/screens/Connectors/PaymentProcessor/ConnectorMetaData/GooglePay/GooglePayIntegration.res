@@ -3,6 +3,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open Typography
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
+  // Nuvei Adyen Checkout
   <div className="flex flex-col gap-6 p-6">
     {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(ZEN) => <GooglePayZen connector update onCloseClickCustomFun closeAccordionFn />

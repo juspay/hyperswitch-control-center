@@ -26,7 +26,11 @@ type zenGooglepay = {
   terminal_uuid: string,
   pay_wall_secret: string,
 }
-type googlePay = {merchant_info: merchantInfo, allowed_payment_methods: allowedPaymentMethods}
+type googlePay = {
+  merchant_info: merchantInfo,
+  allowed_payment_methods: allowedPaymentMethods,
+  support_predecrypted_token: option<bool>,
+}
 type googlePayConfig = Zen(zenGooglepay) | Standard(googlePay)
 
 type inputType = Text | Toggle | Select

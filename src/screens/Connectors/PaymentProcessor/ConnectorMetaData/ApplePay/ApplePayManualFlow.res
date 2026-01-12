@@ -226,7 +226,6 @@ let make = (
 
   let setFormData = () => {
     let value = applePayCombined(initalFormValue, #manual, connector)
-    Js.log2("inside setFormData", value)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -245,7 +244,6 @@ let make = (
 
     let domainName = data.session_token_data.initiative_context->Option.getOr("")
 
-    Js.log2("inside onSubmit", data)
     setVefifiedDomainList(_ => [domainName])
     setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     Nullable.null->Promise.resolve

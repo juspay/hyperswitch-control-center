@@ -37,6 +37,23 @@ module PaymentGatewayFlowLandingCard = {
     </div>
   }
 }
+
+module PaymentGatewayPreDecryptFlow = {
+  @react.component
+  let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
+    <div className="cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #predecrypt)}>
+      <Card heading="Pre-decrypt flow" isSelected={googlePayIntegrationType === #predecrypt}>
+        <div className={`${body.md.medium} mt-2 text-nd_gray-400`}>
+          {"Integrate Google Pay with your payment gateway."->React.string}
+        </div>
+        // <div className="flex gap-2 mt-4">
+        //   <CustomTag tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+        //   <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+        // </div>
+      </Card>
+    </div>
+  }
+}
 module Landing = {
   @react.component
   let make = (
@@ -45,19 +62,57 @@ module Landing = {
     ~setGooglePayIntegrationStep,
     ~setGooglePayIntegrationType,
     ~connector,
+    ~update,
+    ~closeAccordionFn,
   ) => {
     open GPayFlowTypes
+    open LogicUtils
+
+    let form = ReactFinalForm.useForm()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+
     let handleConfirmClick = () => {
-      setGooglePayIntegrationStep(_ => Configure)
+      if googlePayIntegrationType === #predecrypt {
+        let connectorWalletDetails =
+          formState.values->getDictFromJsonObject->getDictfromDict("connector_wallets_details")
+
+        let metadataDetails =
+          connectorWalletDetails
+          ->GPayFlowUtils.getMetadataFromConnectorWalletDetailsGooglePay(connector)
+          ->Identity.genericTypeToJson
+        // Js.log2("metadataDetails", metadataDetails)
+
+        form.change("metadata.google_pay", metadataDetails)
+        let _ = update(metadataDetails)
+        closeAccordionFn()
+      } else {
+        setGooglePayIntegrationStep(_ => Configure)
+      }
     }
+
     <div className="flex flex-col gap-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(TESOURO) =>
-        <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
-      | Processors(NUVEI) =>
-        <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
+      | Processors(TESOURO) => {
+          Js.log("TESOURO")
+          <>
+            <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+            <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
+          </>
+        }
+      | Processors(NUVEI) => {
+          Js.log("NUVEI")
+          <>
+            <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+            <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
+            <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
+          </>
+        }
+
       | _ =>
         <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>

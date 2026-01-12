@@ -2094,7 +2094,6 @@ let getConnectorPaymentMethodDetails = async (
       ->getDictFromJsonObject
       ->getJsonObjectFromDict("payment_methods_enabled")
       ->getPaymentMethodEnabled
-    Js.log2("inside getConnectorPaymentMethodDetails", paymentMethodEnabled)
     setPaymentMethods(_ => paymentMethodEnabled)
     setMetaData(_ => metaData)
     defaultSelectAllCards(

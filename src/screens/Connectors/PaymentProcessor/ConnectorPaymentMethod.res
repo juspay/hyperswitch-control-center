@@ -23,7 +23,6 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
 
   let updateDetails = value => {
-    Js.log2("inside connector payemnt method", value)
     setPaymentMethods(_ => value->Array.copy)
   }
 

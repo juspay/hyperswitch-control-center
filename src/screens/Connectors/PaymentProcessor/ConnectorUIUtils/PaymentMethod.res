@@ -47,7 +47,7 @@ module CardRenderer = {
         formValues->getDictfromDict("connector_wallets_details"),
       )
     }, [])
-    
+
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 

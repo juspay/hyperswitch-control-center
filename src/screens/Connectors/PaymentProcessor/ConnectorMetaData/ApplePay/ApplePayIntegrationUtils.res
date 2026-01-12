@@ -100,7 +100,6 @@ let simplified = (dict, connector): simplified => {
 
 // TODO :check
 let predecryptFlow = (dict): option<bool> => {
-  Js.log2("applePayCombined predecryptFlow", dict)
   dict->getOptionBool("support_predecrypted_token")
 }
 
@@ -112,7 +111,6 @@ let zenApplePayConfig = dict => {
 }
 
 let applePayCombined = (dict, applePayIntegrationType, connector: string) => {
-  Js.log2("applePayCombined", applePayIntegrationType)
   // TODO :check for predecrypt
   let data: applePayConfig = switch applePayIntegrationType {
   | #manual => #manual(dict->manual(connector))
@@ -120,19 +118,24 @@ let applePayCombined = (dict, applePayIntegrationType, connector: string) => {
   | #predecrypt => #predecrypt(dict->predecryptFlow)
   }
 
+  // Preserve support_predecrypted_token from original dict before shadowing
+  let supportPredecryptedToken = dict->getOptionBool("support_predecrypted_token")
+
   let dict = Dict.make()
+
   let _ = switch data {
   | #manual(data) =>
     dict->Dict.set((#manual: applePayIntegrationType :> string), data->Identity.genericTypeToJson)
+    dict->LogicUtils.setOptionBool("support_predecrypted_token", supportPredecryptedToken)
+
   | #simplified(data) =>
     dict->Dict.set(
       (#simplified: applePayIntegrationType :> string),
       data->Identity.genericTypeToJson,
     )
-  | #predecrypt(data) => {
-      Js.log2("applePayCombined inside predecrypt ", data)
-      dict->Dict.set("support_predecrypted_token", true->JSON.Encode.bool)
-    }
+    dict->LogicUtils.setOptionBool("support_predecrypted_token", supportPredecryptedToken)
+
+  | #predecrypt(_) => dict->Dict.set("support_predecrypted_token", true->JSON.Encode.bool)
   }
 
   dict

@@ -34,13 +34,14 @@ type allowedMethodMetadata = {
 type allowedPaymentMethodsMetadata = array<allowedMethodMetadata>
 
 type googlePayMetadata = {
+  support_predecrypted_token:option<bool>,
   merchant_info: merchantInfoMetadata,
   allowed_payment_methods: allowedPaymentMethodsMetadata,
 }
 
 // Type definitions for Google Pay Connector Wallet Details
 
-type googlePayIntegrationType = [#payment_gateway | #direct]
+type googlePayIntegrationType = [#payment_gateway | #direct | #predecrypt]
 type googlePayIntegrationSteps = Landing | Configure
 
 type tokenizationSpecificationParameters = {
