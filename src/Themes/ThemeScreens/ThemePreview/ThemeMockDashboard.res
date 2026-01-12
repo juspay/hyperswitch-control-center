@@ -1,75 +1,20 @@
 open ThemePreviewUtils
 open Typography
-open ThemePreviewTypes
-open ThemeHook
+open ThemePreviewHelper
+
 @react.component
 let make = () => {
-  let (_themeName, _, sidebarFromForm, buttonsFromForm) = useThemeFormValues()
+  let formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
+  let formValues = formState.values->LogicUtils.getDictFromJsonObject
+  let (_themeName, _, sidebarFromForm, buttonsFromForm) = getThemeFormValues(~formValues)
 
   let orgs = ["S", "A"]
 
-  let renderOrgTiles = () => {
-    <div
-      className="flex flex-col gap-2 items-center py-4 border-r w-8 bg-nd_gray-50"
-      style={ReactDOM.Style.make(~backgroundColor=sidebarFromForm.primary, ())}>
-      {orgs
-      ->Array.mapWithIndex((ele, index) => {
-        <div
-          className="flex items-center justify-center w-5 h-5 rounded-md bg-white border text-nd_gray-500"
-          style={ReactDOM.Style.make(
-            ~borderColor=index === 0 ? sidebarFromForm.textColorPrimary : "border",
-            ~backgroundColor=sidebarFromForm.primary,
-            ~color=index === 0 ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor,
-            (),
-          )}>
-          <span className={`${body.xs.medium}`}> {React.string(ele)} </span>
-        </div>
-      })
-      ->React.array}
-    </div>
-  }
-
-  let renderSidebarItem = (item: sidebarItem, index: int) => {
-    let textColor = item.active ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor
-    let bgColor = item.active ? "rgba(153, 155, 159, 0.1)" : "transparent"
-    let fontSize = index === 0 ? "text-fs-10" : "text-fs-10 pl-3"
-
-    <>
-      <div
-        key={item.label}
-        className="flex items-center gap-1 px-2 py-1 mx-2 rounded-md cursor-pointer hover:bg-opacity-75 transition-colors"
-        style={ReactDOM.Style.make(~backgroundColor=bgColor, ~color=textColor, ())}>
-        {index === 0 ? <Icon name="orchestrator-home" size=10 /> : React.null}
-        <span className={`${fontSize} font-medium`}> {React.string(item.label)} </span>
-      </div>
-    </>
-  }
-
-  let renderNavbar = () =>
-    <div className="flex flex-row gap-8 justify-between items-center w-full p-2">
-      <div
-        className="flex items-center border rounded-lg px-3 py-1 bg-white text-fs-10 text-nd_gray-400">
-        <span> {"Profile :"->React.string} </span>
-        <span className="ml-1 font-semibold text-nd_gray-500">
-          {"Test_profile"->React.string}
-        </span>
-        <Icon name="chevron-down" size=10 className="ml-1 text-nd_gray-400" />
-      </div>
-      <div
-        className="flex items-center border rounded-lg px-3 py-1 bg-white text-fs-10 text-nd_gray-400 w-72">
-        <Icon name="search" size=12 className="mr-2 text-nd_gray-400" />
-        <input
-          className="flex-1 outline-none bg-transparent text-fs-10 text-nd_gray-700"
-          placeholder="Search"
-          style={ReactDOM.Style.make(~border="none", ())}
-        />
-        <span className="ml-2 text-fs-8 text-nd_gray-300"> {"⌘ + K"->React.string} </span>
-      </div>
-    </div>
-
   <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-3/4">
     <div className="flex h-full">
-      {renderOrgTiles()}
+      {renderOrgTiles(~sidebarFromForm, orgs)}
       <div
         className="w-36 flex flex-col border-r bg-nd_gray-50"
         style={ReactDOM.Style.make(~backgroundColor=sidebarFromForm.primary, ())}>
@@ -82,7 +27,7 @@ let make = () => {
         </div>
         <nav className="flex-1 py-1 ">
           {sidebarItems
-          ->Array.mapWithIndex(renderSidebarItem)
+          ->Array.mapWithIndex((item, index) => renderSidebarItem(item, index, sidebarFromForm))
           ->React.array}
         </nav>
         <div className="p-3 border-t flex items-center gap-2">

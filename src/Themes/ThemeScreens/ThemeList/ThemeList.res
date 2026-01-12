@@ -3,7 +3,6 @@ let make = () => {
   open LogicUtils
   open Typography
   open ThemeListHelper
-  open SessionStorage
 
   let getURL = APIUtils.useGetURL()
   let getMethod = APIUtils.useGetMethod()
@@ -16,13 +15,7 @@ let make = () => {
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let sessionModalValue =
-    sessionStorage.getItem("themeLineageModal")
-    ->Nullable.toOption
-    ->Option.getOr("")
-    ->getBoolFromString(false)
-
-  let (showModal, setShowModal) = React.useState(_ => sessionModalValue)
+  let (showModal, setShowModal) = React.useState(_ => false)
 
   let fetchCurrentTheme = async () => {
     try {

@@ -1,20 +1,5 @@
 open Typography
 
-module ActionButtons = {
-  @react.component
-  let make = () => {
-    <div className="flex flex-row gap-4 justify-end w-full">
-      <FormRenderer.SubmitButton
-        text="Apply Theme"
-        buttonType=Primary
-        buttonSize={Small}
-        customSumbitButtonStyle={`${body.md.semibold} py-4`}
-        tooltipForWidthClass="w-full"
-      />
-    </div>
-  }
-}
-
 @react.component
 let make = () => {
   open ThemeCreateType
@@ -25,8 +10,8 @@ let make = () => {
   ).getCommonSessionDetails()
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
   let lineage = createLineage(~orgId, ~merchantId, ~profileId)
+  let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
@@ -42,13 +27,14 @@ let make = () => {
       setScreenState(_ => Success)
       redirectToList()
     } catch {
-    | Exn.Error(e) =>
-      showToast(~message="Failed to create theme.", ~toastType=ToastError)
-      let err = Exn.message(e)->Option.getOr("Failed to create")
-      Exn.raiseError(err)
+    | _ => {
+        showToast(~message="Failed to create theme.", ~toastType=ToastError)
+        setScreenState(_ => Error("Failed to create theme."))
+      }
     }
     Nullable.null
   }
+
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={defaultCreate(~lineage)->Identity.genericTypeToJson}>
       <div className="flex flex-col h-screen gap-8">
@@ -69,11 +55,20 @@ let make = () => {
                 </div>
                 <ThemeMockDashboard />
               </div>
-              <ActionButtons />
+              <div className="flex flex-row gap-4 justify-end w-full">
+                <FormRenderer.SubmitButton
+                  text="Apply Theme"
+                  buttonType=Primary
+                  buttonSize={Small}
+                  customSumbitButtonStyle={`${body.md.semibold} py-4`}
+                  tooltipForWidthClass="w-full"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
