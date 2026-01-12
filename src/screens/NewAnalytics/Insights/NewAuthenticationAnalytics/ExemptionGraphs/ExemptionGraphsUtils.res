@@ -236,11 +236,8 @@ let modifyQueryData = data => {
     let connector = valueDict->getString(Authentication_Connector->getStringFromVariant, "NA")
     let groupKey = `${time}_${connector}`
 
-    switch groupedDataDict->Dict.get(groupKey) {
-    | Some(existingArray) =>
-      groupedDataDict->Dict.set(groupKey, existingArray->Array.concat([item]))
-    | None => groupedDataDict->Dict.set(groupKey, [item])
-    }
+    let existingArray = groupedDataDict->Dict.get(groupKey)->Option.getOr([])
+    groupedDataDict->Dict.set(groupKey, existingArray->Array.concat([item]))
   })
 
   let resultDict = Dict.make()
