@@ -34,7 +34,7 @@ type allowedMethodMetadata = {
 type allowedPaymentMethodsMetadata = array<allowedMethodMetadata>
 
 type googlePayMetadata = {
-  support_predecrypted_token:option<bool>,
+  support_predecrypted_token: option<bool>,
   merchant_info: merchantInfoMetadata,
   allowed_payment_methods: allowedPaymentMethodsMetadata,
 }
