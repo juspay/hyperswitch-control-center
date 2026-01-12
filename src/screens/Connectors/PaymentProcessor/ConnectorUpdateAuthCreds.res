@@ -3,6 +3,7 @@ let make = (
   ~connectorInfo: ConnectorTypes.connectorPayload,
   ~getConnectorDetails,
   ~handleConnectorDetailsUpdate,
+  ~setCurrentActiveSection,
 ) => {
   open ConnectorUtils
   open APIUtils
@@ -133,7 +134,10 @@ let make = (
       connectorLabelDetailField
       connectorAdditionalMerchantData
     />
-    <div className="flex p-1 justify-end mb-2">
+    <div className="flex p-1 justify-end mb-2 gap-4">
+      <Button
+        text="Cancel" buttonType={Secondary} onClick={_ => setCurrentActiveSection(_ => None)}
+      />
       <FormRenderer.SubmitButton text="Submit" />
     </div>
   </Form>

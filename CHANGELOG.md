@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.12.0
+
+### Features
+
+- Update custom gateway name for google pay decryption flow for WorldpayModular ([#4075](https://github.com/juspay/hyperswitch-control-center/pull/4075)) ([`d8d4585`](https://github.com/juspay/hyperswitch-control-center/commit/d8d45859efc5f3bada773b76ff72b48b130df758))
+
+### Bug Fixes
+
+- Sidebar navigation bug ([#4053](https://github.com/juspay/hyperswitch-control-center/pull/4053)) ([`d2b2f8a`](https://github.com/juspay/hyperswitch-control-center/commit/d2b2f8a9faf8390360c84db8211a2b5a1f121d96))
+- Embeddable bug fixes ([#4072](https://github.com/juspay/hyperswitch-control-center/pull/4072)) ([`7210565`](https://github.com/juspay/hyperswitch-control-center/commit/7210565326550f406aee7e22e52c6a7e62f9429c))
+
+### Miscellaneous Tasks
+
+- New api addition for embeddable ([#4063](https://github.com/juspay/hyperswitch-control-center/pull/4063)) ([`d448034`](https://github.com/juspay/hyperswitch-control-center/commit/d4480347a6c6f1efe982076644309c1da22e56d7))
+
+**Full Changelog:** [`2026.01.09.0...2026.01.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.09.0...2026.01.12.0)
+
+- - -
+
+## 2026.01.09.0
+
+### Features
+
+- Recon engine add metadata schema validation using transformation config ([#3941](https://github.com/juspay/hyperswitch-control-center/pull/3941)) ([`215c293`](https://github.com/juspay/hyperswitch-control-center/commit/215c293a4adcd690010a856f43676373bc925303))
+- Enable invites for recon v1 merchants ([#4059](https://github.com/juspay/hyperswitch-control-center/pull/4059)) ([`c1f5c0a`](https://github.com/juspay/hyperswitch-control-center/commit/c1f5c0a9dad11f95c516a5e6833bb1a7882b61e7))
+- Integrate worldpaymodular connector ([#4058](https://github.com/juspay/hyperswitch-control-center/pull/4058)) ([`74c89db`](https://github.com/juspay/hyperswitch-control-center/commit/74c89db6c03739175768979a3b7946e42ead435d))
+
+### Bug Fixes
+
+- Removed extra comparison operators for card bin ([#4054](https://github.com/juspay/hyperswitch-control-center/pull/4054)) ([`70821f2`](https://github.com/juspay/hyperswitch-control-center/commit/70821f2f096323d11efe285d816a3fbebf34b167))
+
+### Miscellaneous Tasks
+
+- Recon engine transaction status, transformation and rule changes ([#4061](https://github.com/juspay/hyperswitch-control-center/pull/4061)) ([`64e6c0f`](https://github.com/juspay/hyperswitch-control-center/commit/64e6c0f5d7ed7496f593f8615a5f433c784111ea))
+
+**Full Changelog:** [`2026.01.08.0...2026.01.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.08.0...2026.01.09.0)
+
+- - -
+
 ## 2026.01.08.0
 
 ### Miscellaneous Tasks
