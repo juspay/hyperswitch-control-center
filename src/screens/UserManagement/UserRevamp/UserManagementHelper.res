@@ -6,7 +6,7 @@ module OrganisationSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
     | #Tenant | #Organization | #Merchant | #Profile => true
@@ -58,7 +58,7 @@ module MerchantSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
@@ -68,7 +68,8 @@ module MerchantSelection = {
 
     let v1MerchantList = merchList->Array.filter(merchant => {
       switch merchant.productType {
-      | Some(Orchestration(V1)) => true
+      | Some(Orchestration(V1))
+      | Some(Recon(V1)) => true
       | _ => false
       }
     })
@@ -134,7 +135,7 @@ module ProfileSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,

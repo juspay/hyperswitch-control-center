@@ -132,6 +132,8 @@ type processorTypes =
   | PAYJUSTNOW
   | ZIFT
   | PAYJUSTNOWINSTORE
+  | AMAZONPAY
+  | WORLDPAYMODULAR
 
 type payoutProcessorTypes =
   | ADYEN

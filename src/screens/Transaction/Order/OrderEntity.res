@@ -331,6 +331,7 @@ let allColumnsV1 = [
   MerchantOrderReferenceId,
   AttemptCount,
   CardNetwork,
+  ErrorMessage,
 ]
 
 //Columns array for V2 Orders page
@@ -359,6 +360,7 @@ let allColumnsV2 = [
   AttemptCount,
   CardNetwork,
   PaymentType,
+  ErrorMessage,
 ]
 
 let getHeading = (colType: colType) => {

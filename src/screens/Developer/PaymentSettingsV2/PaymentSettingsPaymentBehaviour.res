@@ -290,7 +290,7 @@ let make = () => {
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -462,20 +462,29 @@ let make = () => {
         />
       </DesktopRow>
       <hr />
-      <DesktopRow itemWrapperClass="mx-1">
+      <DesktopRow wrapperClass="!flex-col" itemWrapperClass="mx-1">
         <FieldRenderer
           labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-          fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 py-8"
+          fieldWrapperClass="w-full flex justify-between items-center border-nd_gray-200 pt-8"
           field={makeFieldInfo(
             ~name="is_network_tokenization_enabled",
             ~label="Network Tokenization",
             ~customInput=InputFields.boolInput(
-              ~isDisabled=false,
+              ~isDisabled=true,
               ~boolCustomClass="rounded-lg",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}
         />
+        <div className={`${body.md.medium} ml-1 text-nd_gray-400 pb-8`}>
+          {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
+          <a
+            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+            className="text-primary hover:cursor-pointer hover:underline"
+            target="_blank">
+            {"Slack"->React.string}
+          </a>
+        </div>
       </DesktopRow>
       <hr />
       <RenderIf condition={featureFlagDetails.debitRouting}>

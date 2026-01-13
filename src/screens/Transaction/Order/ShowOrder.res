@@ -193,7 +193,9 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
       <div className="w-full p-2">
@@ -350,7 +352,9 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
@@ -614,7 +618,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open OrderUIUtils
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

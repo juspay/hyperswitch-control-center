@@ -179,7 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonSessionDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -193,7 +194,15 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+    let (transactionEntity, analyticsEntity, userEntity) = switch state {
+    | DashboardSession(userInfo) => (
+        userInfo.transactionEntity,
+        userInfo.analyticsEntity,
+        userInfo.userEntity,
+      )
+    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    }
+
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
@@ -753,6 +762,7 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | THREE_DS_EXEMPTION_DELETE_RULE => `routing/deactivate`
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
@@ -1081,6 +1091,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSFORMATION_CONFIG_WITH_METADATA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}/metadata_schema`
+            | None => ""
+            }
+          | _ => ""
+          }
         | #VOID_TRANSACTION =>
           switch methodType {
           | Put =>
@@ -1137,15 +1157,6 @@ let useGetURL = () => {
             | Some(ingestionHistoryId) =>
               `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
             | None => ``
-            }
-          | _ => ""
-          }
-        | #METADATA_SCHEMA =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
-            | None => `${reconBaseURL}/metadata_schemas`
             }
           | _ => ""
           }
@@ -1585,7 +1596,10 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1618,6 +1632,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
@@ -1639,7 +1654,10 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1685,6 +1703,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
