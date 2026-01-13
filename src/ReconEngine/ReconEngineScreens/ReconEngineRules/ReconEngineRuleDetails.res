@@ -44,31 +44,6 @@ module RuleIDCopy = {
   }
 }
 
-module SourceTargetHeader = {
-  @react.component
-  let make = () => {
-    let headerCss = `${body.sm.semibold} text-nd_gray-500 uppercase tracking-wide`
-    <div className="flex items-center gap-4 mb-4">
-      <div className="flex-1 max-w-xs flex flex-row gap-2">
-        <Icon
-          name="recon-src-account"
-          size=20
-          className="text-nd_gray-500 border border-nd_gray-150 rounded-md p-0.5"
-        />
-        <div className={`${headerCss}`}> {"Source Account"->React.string} </div>
-      </div>
-      <div className="w-8" />
-      <div className="flex-1 max-w-xs flex flex-row gap-2">
-        <Icon
-          name="recon-target-account"
-          size=20
-          className="text-nd_gray-500 border border-nd_gray-150 rounded-md p-0.5"
-        />
-        <div className={`${headerCss}`}> {"Target Account"->React.string} </div>
-      </div>
-    </div>
-  }
-}
 module SearchIdentifier = {
   @react.component
   let make = (~rule: rulePayload) => {
@@ -82,8 +57,15 @@ module SearchIdentifier = {
     | UnknownReconStrategy => None
     }
 
-    <div className="p-6">
-      <SourceTargetHeader />
+    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-nd_gray-0">
+      <div className="flex flex-col gap-1 items-start">
+        <p className={`${body.lg.semibold} text-nd_gray-800`}>
+          {"How matching records are linked"->React.string}
+        </p>
+        <p className={`${body.md.medium} text-nd_gray-400`}>
+          {"We compare a field from the source account with a field from the target account to identify the same record"->React.string}
+        </p>
+      </div>
       <div className="flex flex-col gap-4">
         {switch searchIdentifier {
         | Some(identifier) =>
@@ -109,8 +91,9 @@ module SearchIdentifier = {
             ),
           ]
 
-          <div className="flex items-center gap-4 py-2">
-            <div className="flex-1 max-w-xs">
+          <div className="flex items-center gap-10">
+            <div className="flex-1 max-w-325">
+              <label className={`${labelCss}`}> {"Source Column"->React.string} </label>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText={getFieldDisplayName(identifier.source_field)}
@@ -120,12 +103,17 @@ module SearchIdentifier = {
                 deselectDisable=true
                 disableSelect=true
                 fullLength=true
+                customButtonStyle="w-147-px h-40-px"
               />
+              <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+                {"This value identifies the record on the source side"->React.string}
+              </p>
             </div>
             <div className="flex items-center">
-              <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+              <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
             </div>
-            <div className="flex-1 max-w-xs">
+            <div className="flex-1 max-w-325">
+              <label className={`${labelCss}`}> {"Target Column"->React.string} </label>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText={getFieldDisplayName(identifier.target_field)}
@@ -135,7 +123,11 @@ module SearchIdentifier = {
                 deselectDisable=true
                 disableSelect=true
                 fullLength=true
+                customButtonStyle="w-147-px h-40-px"
               />
+              <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+                {"We match this value with the source field"->React.string}
+              </p>
             </div>
           </div>
         | None =>
@@ -160,46 +152,61 @@ module MappingRules = {
     | UnknownReconStrategy => []
     }
 
-    <div className="p-6">
-      <RenderIf condition={mappingRules->Array.length === 0}>
-        <div>
-          <p className={`${body.md.semibold} text-center text-nd_gray-500`}>
-            {"No external mapping rules configured"->React.string}
-          </p>
-          <p className={`${body.sm.medium} text-center text-nd_gray-400 mt-2`}>
-            {"By default, Amount, Currency, Order ID, and Transaction Date are used for reconciliation"->React.string}
-          </p>
+    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-nd_gray-0">
+      <div className="flex flex-col gap-1 items-start">
+        <p className={`${body.lg.semibold} text-nd_gray-800`}>
+          {"How matches are validated"->React.string}
+        </p>
+        <p className={`${body.md.medium} text-nd_gray-400`}>
+          {"Once records are identified as related, we check these conditions to confirm if they match"->React.string}
+        </p>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-10">
+          <div className="flex-1 max-w-325 flex flex-row gap-2">
+            <div className={`${body.md.medium} text-nd_gray-700`}>
+              {"Source"->React.string}
+              <span className={`${body.md.regular} text-nd_gray-400 ml-1`}>
+                {"(This value is compared against target value)"->React.string}
+              </span>
+            </div>
+          </div>
+          <div className="w-4" />
+          <div className="flex-1 max-w-325 flex flex-row gap-2">
+            <div className={`${body.md.medium} text-nd_gray-700`}>
+              {"Target"->React.string}
+              <span className={`${body.md.regular} text-nd_gray-400 ml-1`}>
+                {"(This value must match the source value)"->React.string}
+              </span>
+            </div>
+          </div>
         </div>
-      </RenderIf>
-      <RenderIf condition={mappingRules->Array.length > 0}>
-        <SourceTargetHeader />
-        <div className="flex flex-col gap-4">
-          {mappingRules
-          ->Array.mapWithIndex((mapping, index) => {
-            let sourceFieldInput = createFormInput(
-              ~name=`mapping_source_${index->Int.toString}`,
+        {mappingRules
+        ->Array.mapWithIndex((mapping, index) => {
+          let sourceFieldInput = createFormInput(
+            ~name=`mapping_source_${index->Int.toString}`,
+            ~value=mapping.source_field,
+          )
+          let targetFieldInput = createFormInput(
+            ~name=`mapping_target_${index->Int.toString}`,
+            ~value=mapping.target_field,
+          )
+
+          let sourceFieldOptions = [
+            createDropdownOption(
+              ~label=getFieldDisplayName(mapping.source_field),
               ~value=mapping.source_field,
-            )
-            let targetFieldInput = createFormInput(
-              ~name=`mapping_target_${index->Int.toString}`,
+            ),
+          ]
+          let targetFieldOptions = [
+            createDropdownOption(
+              ~label=getFieldDisplayName(mapping.target_field),
               ~value=mapping.target_field,
-            )
-
-            let sourceFieldOptions = [
-              createDropdownOption(
-                ~label=getFieldDisplayName(mapping.source_field),
-                ~value=mapping.source_field,
-              ),
-            ]
-            let targetFieldOptions = [
-              createDropdownOption(
-                ~label=getFieldDisplayName(mapping.target_field),
-                ~value=mapping.target_field,
-              ),
-            ]
-
-            <div key={LogicUtils.randomString(~length=10)} className="flex items-center gap-4 py-2">
-              <div className="flex-1 max-w-xs">
+            ),
+          ]
+          <div className="flex flex-col gap-4" key={LogicUtils.randomString(~length=10)}>
+            <div className="flex items-center gap-10">
+              <div className="flex-1 max-w-325">
                 <SelectBox.BaseDropdown
                   allowMultiSelect=false
                   buttonText={getFieldDisplayName(mapping.source_field)}
@@ -209,12 +216,13 @@ module MappingRules = {
                   deselectDisable=true
                   disableSelect=true
                   fullLength=true
+                  customButtonStyle="w-147-px h-40-px"
                 />
               </div>
               <div className="flex items-center">
-                <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+                <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
               </div>
-              <div className="flex-1 max-w-xs">
+              <div className="flex-1 max-w-325">
                 <SelectBox.BaseDropdown
                   allowMultiSelect=false
                   buttonText={getFieldDisplayName(mapping.target_field)}
@@ -224,13 +232,14 @@ module MappingRules = {
                   deselectDisable=true
                   disableSelect=true
                   fullLength=true
+                  customButtonStyle="w-147-px h-40-px"
                 />
               </div>
             </div>
-          })
-          ->React.array}
-        </div>
-      </RenderIf>
+          </div>
+        })
+        ->React.array}
+      </div>
     </div>
   }
 }
@@ -266,10 +275,10 @@ module TriggerRules = {
     let operatorInput = createFormInput(~name="trigger_operator", ~value=triggerOperator)
     let valueInput = createFormInput(~name="trigger_value", ~value=triggerValue)
 
-    <div className="p-6">
-      <div className="flex flex-row gap-6 max-w-2xl">
-        <div className="flex-1 flex flex-col gap-2">
-          <label className={`${labelCss}`}> {"Field"->React.string} </label>
+    <div className="flex flex-col gap-2">
+      <p className={`${body.md.medium} text-nd_gray-700`}> {"Filters"->React.string} </p>
+      <div className="flex flex-row gap-4">
+        <div className="flex-1 flex flex-col gap-2 max-w-325">
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText={getFieldDisplayName(triggerField)}
@@ -279,34 +288,34 @@ module TriggerRules = {
             deselectDisable=true
             disableSelect=true
             fullLength=true
+            customButtonStyle="w-147-px h-40-px"
           />
         </div>
-        <div className="flex flex-col gap-2 items-center">
-          <label className={`${labelCss}`}> {"Operator"->React.string} </label>
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText={operatorOptions
-            ->Array.find(opt => opt.value === triggerOperator)
-            ->Option.map(opt => opt.label)
-            ->Option.getOr("Select Operator")}
-            input=operatorInput
-            options=operatorOptions
-            hideMultiSelectButtons=true
-            deselectDisable=true
-            disableSelect=true
-            customButtonStyle="w-16"
-          />
-        </div>
-        <div className="flex-1 flex flex-col gap-2">
-          <label className={`${labelCss}`}> {"Value"->React.string} </label>
+        <SelectBox.BaseDropdown
+          allowMultiSelect=false
+          buttonText={operatorOptions
+          ->Array.find(opt => opt.value === triggerOperator)
+          ->Option.map(opt => opt.label)
+          ->Option.getOr("Select Operator")}
+          input=operatorInput
+          options=operatorOptions
+          hideMultiSelectButtons=true
+          deselectDisable=true
+          disableSelect=true
+          customButtonStyle="w-16 h-40-px"
+        />
+        <div className="flex-1 flex flex-col gap-2 max-w-325">
           {InputFields.textInput(
             ~isDisabled=true,
             ~inputStyle="rounded-lg",
-            ~customDashboardClass="h-8 text-sm font-normal",
-            ~onDisabledStyle=`!bg-gray-200 border-none !text-gray-900 ${body.md.semibold}`,
+            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
           )(~input=valueInput, ~placeholder="Enter trigger value")}
         </div>
       </div>
+      <p className={`${body.md.regular} text-nd_gray-500 ml-1 mb-1`}>
+        {"Only records with these matching filters will create expectations"->React.string}
+      </p>
     </div>
   }
 }
@@ -358,115 +367,71 @@ module SourceTargetAccount = {
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
     let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
 
-    <PageLoaderWrapper
-      screenState
-      customUI={<NewAnalyticsHelper.NoData height="h-32" message="No data available." />}
-      customLoader={<Shimmer styleClass="h-32 w-full rounded-b-lg" />}>
-      <div className="flex items-center gap-4 p-6">
-        <div className="flex-1 max-w-xs">
-          <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText={getAccountName(sourceAccountId)}
-            input=sourceAccountInput
-            options={accountOptions}
-            hideMultiSelectButtons=true
-            deselectDisable=true
-            disableSelect=true
-            fullLength=true
-          />
-        </div>
-        <div className="flex items-center mt-8">
-          <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
-        </div>
-        <div className="flex-1 max-w-xs">
-          <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText={getAccountName(targetAccountId)}
-            input=targetAccountInput
-            options={accountOptions}
-            hideMultiSelectButtons=true
-            deselectDisable=true
-            disableSelect=true
-            fullLength=true
-          />
-        </div>
+    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-nd_gray-0">
+      <div className="flex flex-col gap-1 items-start">
+        <p className={`${body.lg.semibold} text-nd_gray-800`}>
+          {"Expectation Creation"->React.string}
+        </p>
+        <p className={`${body.md.medium} text-nd_gray-400`}>
+          {"What should exist on the other side?"->React.string}
+        </p>
       </div>
-    </PageLoaderWrapper>
+      <PageLoaderWrapper
+        screenState
+        customUI={<NewAnalyticsHelper.NoData height="h-32" message="No data available." />}
+        customLoader={<Shimmer styleClass="h-32 w-full rounded-b-lg" />}>
+        <div className="flex items-center gap-10">
+          <div className="flex-1 max-w-325">
+            <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
+            <SelectBox.BaseDropdown
+              allowMultiSelect=false
+              buttonText={getAccountName(sourceAccountId)}
+              input=sourceAccountInput
+              options={accountOptions}
+              hideMultiSelectButtons=true
+              deselectDisable=true
+              disableSelect=true
+              fullLength=true
+              customButtonStyle="w-147-px h-40-px"
+            />
+            <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+              {"Where the original transaction is recorded"->React.string}
+            </p>
+          </div>
+          <div className="flex items-center">
+            <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
+          </div>
+          <div className="flex-1 max-w-325">
+            <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
+            <SelectBox.BaseDropdown
+              allowMultiSelect=false
+              buttonText={getAccountName(targetAccountId)}
+              input=targetAccountInput
+              options={accountOptions}
+              hideMultiSelectButtons=true
+              deselectDisable=true
+              disableSelect=true
+              fullLength=true
+              customButtonStyle="w-147-px h-40-px"
+            />
+            <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+              {"Where the transaction should show up"->React.string}
+            </p>
+          </div>
+        </div>
+        <TriggerRules rule />
+      </PageLoaderWrapper>
+    </div>
   }
 }
 
 module RuleSchemaComponents = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let accordianTitleCss = `${body.lg.semibold} text-nd_gray-800`
-    let accordianContainerCss = "border border-nd_gray-150 rounded-lg"
     <div className="flex flex-col gap-6">
-      // source target accounts
-      <Accordion
-        initialExpandedArray=[0]
-        accordion={[
-          {
-            title: "Source and Target Accounts",
-            renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
-              <SourceTargetAccount rule />,
-            renderContentOnTop: None,
-          },
-        ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
-        contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
-      />
-      // Filters Section
-      <Accordion
-        initialExpandedArray=[0]
-        accordion={[
-          {
-            title: "Filters",
-            renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
-              <TriggerRules rule />,
-            renderContentOnTop: None,
-          },
-        ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
-        contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
-      />
-      // Identifiers Section
-      <Accordion
-        initialExpandedArray=[0]
-        accordion={[
-          {
-            title: "Identifiers",
-            renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
-              <SearchIdentifier rule />,
-            renderContentOnTop: None,
-          },
-        ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
-        contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
-      />
-      // Rules Section
-      <Accordion
-        initialExpandedArray=[0]
-        accordion={[
-          {
-            title: "Rules",
-            renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
-              <MappingRules rule />,
-            renderContentOnTop: None,
-          },
-        ]}
-        accordianTopContainerCss={`${accordianContainerCss}`}
-        accordianBottomContainerCss="p-4"
-        contentExpandCss="p-0"
-        titleStyle={`${accordianTitleCss}`}
-      />
+      <SourceTargetAccount rule />
+      <SearchIdentifier rule />
+      <MappingRules rule />
     </div>
   }
 }
@@ -482,9 +447,9 @@ module RuleDetailsContent = {
       ),
     ]
 
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6">
       <div className="rounded-lg p-6 border border-nd_gray-150">
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-6">
           {fields
           ->Array.map(((label, value)) => {
             <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
@@ -544,7 +509,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="Configure Rule" customHeadingStyle="py-0" />
+      <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
       {switch ruleData {
       | Some(rule) => <RuleDetailsContent rule />
       | None => <div className="bg-white rounded-lg p-6"> {"Rule not found"->React.string} </div>
