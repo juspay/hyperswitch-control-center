@@ -3,7 +3,7 @@ module InfoField = {
   @react.component
   let make = (~label, ~flowTypeValue) => {
     <div className="flex flex-col gap-2 mb-7">
-      <h4 className="text-lg font-semibold underline"> {label->snakeToTitle->React.string} </h4>
+      <h4 className="text-md font-semibold"> {label->snakeToTitle->React.string} </h4>
       <div className="flex flex-col gap-1">
         <h3 className="break-all">
           <span className="font-semibold mr-3"> {"Flow :"->React.string} </span>
@@ -22,7 +22,7 @@ module ConfigInfo = {
   let make = (~frmConfigs) => {
     frmConfigs
     ->Array.mapWithIndex((config, i) => {
-      <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12" key={i->Int.toString}>
+      <div className="grid grid-cols-4 p-8" key={i->Int.toString}>
         <h4 className="text-lg font-semibold"> {config.gateway->snakeToTitle->React.string} </h4>
         <div>
           {config.payment_methods
@@ -59,7 +59,7 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (~initialValues, ~currentStep, ~setInitialValues) => {
+let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDetails) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
@@ -80,10 +80,26 @@ let make = (~initialValues, ~currentStep, ~setInitialValues) => {
   )
 
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
-
+  let connectorType =
+    frmInfo.connector_name->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
+  let frmFields = switch connectorType {
+  | FRM(frmType) => frmType->ConnectorUtils.getFrmInfo
+  | _ => {description: ""}
+  }
   let frmConfigs = switch frmInfo.frm_configs {
   | Some(config) => config
   | _ => []
+  }
+
+  let connectorAccountFields = {
+    let fields = Dict.make()
+    frmFields.validate
+    ->Option.getOr([])
+    ->Array.forEach(field => {
+      let fieldName = field.name->String.replace("connector_account_details.", "")
+      fields->Dict.set(fieldName, field.label->Option.getOr("")->JSON.Encode.string)
+    })
+    fields
   }
 
   let disableFRM = async isFRMDisabled => {
@@ -141,9 +157,26 @@ let make = (~initialValues, ~currentStep, ~setInitialValues) => {
         }}
       </div>
       <div>
-        <div className="grid grid-cols-2 md:w-1/2 m-12">
+        <div className="grid grid-cols-4 p-8 border-b">
           <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
           <div> {frmInfo.profile_id->React.string} </div>
+        </div>
+        <div className="grid grid-cols-4 p-6 border-b">
+          <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
+          <div className="flex flex-col gap-6 col-span-3">
+            <div className="flex gap-12">
+              <div className="flex flex-col gap-6 w-5/6 ">
+                <ConnectorPreviewHelper.PreviewCreds
+                  connectorAccountFields connectorInfo=frmInfo showLabelField=false
+                />
+              </div>
+              <RenderIf condition={currentStep == Preview}>
+                <FRMUpdateAuthCreds
+                  connectorInfo=frmInfo getConnectorDetails=None updateMerchantDetails
+                />
+              </RenderIf>
+            </div>
+          </div>
         </div>
         <RenderIf condition={frmConfigs->Array.length > 0}>
           <ConfigInfo frmConfigs />

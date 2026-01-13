@@ -52,7 +52,7 @@ module CheckBoxRenderer = {
 
     let (isOpen, setIsOpen) = React.useState(_ => initToggleValue)
 
-    let showConfitmation = () => {
+    let showConfirmation = () => {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: "Heads up!",
@@ -90,7 +90,7 @@ module CheckBoxRenderer = {
           }
           setIsOpen(_ => !isOpen)
         } else if isUpdateFlow {
-          showConfitmation()
+          showConfirmation()
         } else {
           frmConfigInfo.payment_methods = []
           setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
@@ -131,10 +131,9 @@ module CheckBoxRenderer = {
           }}
         </div>
       </div>
-      {paymentMethodsConfig
-      ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <RenderIf
-          condition={isOpen && paymentMethodsConfig->Array.length > 0} key={index->Int.toString}>
+      {if isOpen {
+        paymentMethodsConfig
+        ->Array.mapWithIndex((paymentMethodInfo, index) => {
           <div className="flex flex-col border px-5 py-3 ">
             <div className="flex justify-between items-center">
               <p className={`${body.lg.semibold}`}>
@@ -145,7 +144,7 @@ module CheckBoxRenderer = {
                   ~name=`frm_configs[${fromConfigIndex}].payment_methods[${index->Int.toString}].flow`,
                   ~label="",
                   ~customInput=(~input, ~placeholder) =>
-                    customAuthtypeInput(
+                    FRMHelper.customAuthTypeInput(
                       ~input,
                       ~placeholder,
                       ~paymentMethodName=paymentMethodInfo.payment_method,
@@ -165,9 +164,11 @@ module CheckBoxRenderer = {
               </p>
             </RenderIf>
           </div>
-        </RenderIf>
-      })
-      ->React.array}
+        })
+        ->React.array
+      } else {
+        React.null
+      }}
     </div>
   }
 }

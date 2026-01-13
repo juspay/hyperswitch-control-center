@@ -33,6 +33,7 @@ module CredsInfoField = {
     ~authKeys,
     ~connectorAccountFields,
     ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~showLabelField,
   ) => {
     open LogicUtils
     let dict = authKeys->Identity.genericTypeToDictOfJson
@@ -48,7 +49,11 @@ module CredsInfoField = {
     let connectorLabelField = {
       <LabelInfoField label="Connector Label" str=connectorInfo.connector_label />
     }
-    Array.concat(authFields, [connectorLabelField])->React.array
+    if showLabelField {
+      Array.concat(authFields, [connectorLabelField])->React.array
+    } else {
+      authFields->React.array
+    }
   }
 }
 
@@ -81,18 +86,27 @@ module CashtoCodeCredsInfo = {
 
 module PreviewCreds = {
   @react.component
-  let make = (~connectorAccountFields, ~connectorInfo: ConnectorTypes.connectorPayload) => {
+  let make = (
+    ~connectorAccountFields,
+    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~showLabelField=true,
+  ) => {
     switch connectorInfo.connector_account_details {
-    | HeaderKey(authKeys) => <CredsInfoField authKeys connectorAccountFields connectorInfo />
-    | BodyKey(bodyKey) => <CredsInfoField authKeys=bodyKey connectorAccountFields connectorInfo />
+    | HeaderKey(authKeys) =>
+      <CredsInfoField authKeys connectorAccountFields connectorInfo showLabelField />
+    | BodyKey(bodyKey) =>
+      <CredsInfoField authKeys=bodyKey connectorAccountFields connectorInfo showLabelField />
     | SignatureKey(signatureKey) =>
-      <CredsInfoField authKeys=signatureKey connectorAccountFields connectorInfo />
+      <CredsInfoField authKeys=signatureKey connectorAccountFields connectorInfo showLabelField />
     | MultiAuthKey(multiAuthKey) =>
-      <CredsInfoField authKeys=multiAuthKey connectorAccountFields connectorInfo />
+      <CredsInfoField authKeys=multiAuthKey connectorAccountFields connectorInfo showLabelField />
     | CertificateAuth(certificateAuth) =>
-      <CredsInfoField authKeys=certificateAuth connectorAccountFields connectorInfo />
+      <CredsInfoField
+        authKeys=certificateAuth connectorAccountFields connectorInfo showLabelField
+      />
     | CurrencyAuthKey(currencyAuthKey) => <CashtoCodeCredsInfo authKeys=currencyAuthKey />
-    | NoKey(noKeyAuth) => <CredsInfoField authKeys=noKeyAuth connectorAccountFields connectorInfo />
+    | NoKey(noKeyAuth) =>
+      <CredsInfoField authKeys=noKeyAuth connectorAccountFields connectorInfo showLabelField />
     | UnKnownAuthType(_) => React.null
     }
   }

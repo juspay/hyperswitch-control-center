@@ -22,7 +22,7 @@ let toggleDefaultStyle = "mb-2 relative inline-flex flex-shrink-0 h-6 w-12 borde
 let accordionDefaultStyle = "border pointer-events-none inline-block h-3 w-3 rounded-full bg-white dark:bg-white shadow-lg transform ring-0 transition ease-in-out duration-200"
 let size = "w-14 h-14"
 
-let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode) => {
+let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode, ~profileId) => {
   let frmAccountDetailsDict =
     [
       ("auth_type", selectedFRMName->getFRMAuthType->JSON.Encode.string),
@@ -35,6 +35,7 @@ let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode) => {
     ("test_mode", !isLiveMode->JSON.Encode.bool),
     ("connector_account_details", frmAccountDetailsDict),
     ("frm_configs", []->JSON.Encode.array),
+    ("profile_id", profileId->JSON.Encode.string),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
@@ -56,6 +57,35 @@ let getPaymentMethod = paymentMethod => {
     )
 
   (paymentMethodDict->getString("payment_method", ""), pmTypesArr->getUniqueArray)
+}
+let validateRequiredFields = (
+  valuesFlattenJson,
+  ~fields: array<ConnectorTypes.connectorIntegrationField>,
+  ~errors,
+) => {
+  fields->Array.forEach(field => {
+    let key = field.name
+    let value =
+      valuesFlattenJson
+      ->Dict.get(key)
+      ->Option.getOr(""->JSON.Encode.string)
+      ->LogicUtils.getStringFromJson("")
+
+    if field.isRequired->Option.getOr(true) && value->String.length === 0 {
+      Dict.set(errors, key, `Please enter ${field.label->Option.getOr("")}`->JSON.Encode.string)
+    }
+  })
+}
+
+let validate = (~values, ~selectedFRMInfo: ConnectorTypes.integrationFields) => {
+  let errors = Dict.make()
+  let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
+  valuesFlattenJson->validateRequiredFields(
+    ~fields=selectedFRMInfo.validate->Option.getOr([]),
+    ~errors,
+  )
+
+  errors->JSON.Encode.object
 }
 
 let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType) => {
@@ -167,7 +197,7 @@ let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   ->Array.map(paymentMethodName => {
     {
       payment_method: paymentMethodName,
-      flow: "pre",
+      flow: getFlowTypeNameString(PreAuth),
     }
   })
 }
@@ -182,43 +212,4 @@ let ignoreFields = json => {
   })
   ->Dict.fromArray
   ->JSON.Encode.object
-}
-
-let customAuthtypeInput = (
-  ~input as _: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
-  ~paymentMethodName,
-  ~frmConfigInfo: ConnectorTypes.frm_config,
-  ~frmConfigs,
-  ~setConfigJson,
-) => {
-  let isEnabled =
-    frmConfigInfo.payment_methods->Array.some(pm => pm.payment_method === paymentMethodName)
-  let handleToggle = newValue => {
-    if newValue {
-      let newPM: ConnectorTypes.frm_payment_method = {
-        payment_method: paymentMethodName,
-        flow: "pre",
-      }
-      frmConfigInfo.payment_methods->Array.push(newPM)->ignore
-    } else {
-      frmConfigInfo.payment_methods =
-        frmConfigInfo.payment_methods->Array.filter(pm => pm.payment_method !== paymentMethodName)
-    }
-
-    setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
-  }
-
-  <BoolInput.BaseComponent
-    isSelected={isEnabled}
-    setIsSelected={handleToggle}
-    isDisabled=false
-    boolCustomClass="rounded-xl"
-    customToggleHeight="20px"
-    customToggleWidth="36px"
-    customInnerCircleHeight="10px"
-    transformValue="20px"
-    toggleEnableColor="bg-primary"
-    toggleBorder="bg-primary"
-  />
 }
