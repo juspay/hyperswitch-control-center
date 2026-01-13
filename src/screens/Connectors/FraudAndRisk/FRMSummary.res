@@ -167,7 +167,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDeta
             <div className="flex gap-12">
               <div className="flex flex-col gap-6 w-5/6 ">
                 <ConnectorPreviewHelper.PreviewCreds
-                  connectorAccountFields connectorInfo=frmInfo showLabelField=false
+                  connectorAccountFields connectorInfo=frmInfo showConnectorLabelField=false
                 />
               </div>
               <RenderIf condition={currentStep == Preview}>
