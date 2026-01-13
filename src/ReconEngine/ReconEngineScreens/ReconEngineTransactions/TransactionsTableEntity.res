@@ -13,6 +13,7 @@ type transactionColType =
   | CreatedAt
   | ReconciliationType
   | Reason
+  | RuleName
 
 let defaultColumns: array<transactionColType> = [
   TransactionId,
@@ -56,14 +57,20 @@ let getHeading = (colType: transactionColType) => {
   | ReconciliationType =>
     Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
   | Reason => Table.makeHeaderInfo(~key="reason", ~title="Remark")
+  | RuleName => Table.makeHeaderInfo(~key="rule_name", ~title="Rule Name")
   }
 }
 
 let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   switch status {
-  | Posted(_) => "Posted"
-  | OverAmount(_) => "Over Amount"
-  | UnderAmount(_) => "Under Amount"
+  | Posted(Auto) => "Reconciled (Auto)"
+  | Posted(Manual) => "Reconciled (Manual)"
+  | Posted(Force) => "Reconciled (Force)"
+  | Posted(_) => "Reconciled"
+  | OverAmount(Mismatch) => "Positive Variance (Requires Attention)"
+  | OverAmount(Expected) => "Positive Variance (Awaiting Match)"
+  | UnderAmount(Mismatch) => "Negative Variance (Requires Attention)"
+  | UnderAmount(Expected) => "Negative Variance (Awaiting Match)"
   | DataMismatch => "Data Mismatch"
   | Expected => "Expected"
   | Archived => "Archived"
@@ -75,7 +82,7 @@ let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
 
 let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
-    title: status->getDomainTransactionStatusString,
+    title: status->getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
     | Posted(_) => LabelGreen
     | OverAmount(Mismatch)
@@ -158,6 +165,15 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     | None => getReconciledTypeLabel(UnknownTransactionPostedType)
     }
   | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
+  | RuleName =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        displayValue=transaction.rule.rule_name
+        copyValue=Some(transaction.rule.rule_id)
+        url={`/v1/recon-engine/rules/${transaction.rule.rule_id}`}
+      />,
+      "",
+    )
   }
 }
 

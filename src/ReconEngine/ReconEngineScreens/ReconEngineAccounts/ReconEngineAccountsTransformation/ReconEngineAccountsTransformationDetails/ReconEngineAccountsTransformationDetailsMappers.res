@@ -6,37 +6,63 @@ open LogicUtils
 module FileAndSystemColumnMapping = {
   @react.component
   let make = (~fileColumn: string, ~systemColumn: string) => {
-    <div
-      key={systemColumn}
-      className="flex items-center gap-4 p-3 border rounded-lg border-nd_gray-150">
-      <div className="flex-1">
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          buttonText={fileColumn}
-          input={createFormInput(~name=`mapping_file_${systemColumn}`, ~value=fileColumn)}
-          options=[createDropdownOption(~label=fileColumn, ~value=fileColumn)]
-          hideMultiSelectButtons=true
-          deselectDisable=true
-          disableSelect=true
-          fullLength=true
-        />
+    let cardScrollbarCss = `
+      @supports (-webkit-appearance: none){
+        .card-scrollbar {
+            scrollbar-width: auto;
+            scrollbar-color: #CACFD8;
+          }
+      
+        .card-scrollbar::-webkit-scrollbar {
+          display: block;
+          height: 4px;
+          width: 5px;
+        }
+      
+        .card-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #CACFD8;
+          border-radius: 3px;
+        }
+      
+        .card-scrollbar::-webkit-scrollbar-track {
+          display: none;
+        }
+    }`
+
+    <>
+      <style> {React.string(cardScrollbarCss)} </style>
+      <div
+        key={systemColumn}
+        className="flex items-center gap-4 p-3 border rounded-lg border-nd_gray-150 overflow-scroll card-scrollbar">
+        <div className="flex-1">
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={fileColumn}
+            input={createFormInput(~name=`mapping_file_${systemColumn}`, ~value=fileColumn)}
+            options=[createDropdownOption(~label=fileColumn, ~value=fileColumn)]
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+          />
+        </div>
+        <div className="flex items-center">
+          <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+        </div>
+        <div className="flex-1">
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={systemColumn}
+            input={createFormInput(~name=`mapping_system_${systemColumn}`, ~value=systemColumn)}
+            options=[createDropdownOption(~label=systemColumn, ~value=systemColumn)]
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+          />
+        </div>
       </div>
-      <div className="flex items-center">
-        <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
-      </div>
-      <div className="flex-1">
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          buttonText={systemColumn}
-          input={createFormInput(~name=`mapping_system_${systemColumn}`, ~value=systemColumn)}
-          options=[createDropdownOption(~label=systemColumn, ~value=systemColumn)]
-          hideMultiSelectButtons=true
-          deselectDisable=true
-          disableSelect=true
-          fullLength=true
-        />
-      </div>
-    </div>
+    </>
   }
 }
 
@@ -78,11 +104,10 @@ module ColumnMappingDisplay = {
 
 @react.component
 let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
-  open APIUtils
   open ReconEngineUtils
+  open ReconEngineHooks
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let fetchMetadataSchema = useFetchMetadataSchema()
   let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Custom)
   let (metadataSchema, setMetadataSchema) = React.useState(_ =>
     Dict.make()->metadataSchemaItemToObjMapper
@@ -91,25 +116,9 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
   let fetchTransformationConfigDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let transformationConfigUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-        ~id=Some(selectedTransformationId),
+      let parsedMetadataSchema = await fetchMetadataSchema(
+        ~transformationId=selectedTransformationId,
       )
-      let transformationConfigsRes = await fetchDetails(transformationConfigUrl)
-      let transformationConfig =
-        transformationConfigsRes->getDictFromJsonObject->getTransformationConfigPayloadFromDict
-
-      let metadataSchemaURL = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#METADATA_SCHEMA,
-        ~id=Some(transformationConfig.metadata_schema_id),
-      )
-      let metadataSchemaRes = await fetchDetails(metadataSchemaURL)
-      let parsedMetadataSchema =
-        metadataSchemaRes->getDictFromJsonObject->metadataSchemaItemToObjMapper
 
       if parsedMetadataSchema.id->isNonEmptyString {
         setMetadataSchema(_ => parsedMetadataSchema)
@@ -133,7 +142,7 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
     setShowModal
     showModal
     closeOnOutsideClick=true
-    modalHeading="Mappers"
+    modalHeading="Column Mapping"
     modalHeadingDescription="Map columns from your file to the corresponding required system columns"
     modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
     modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white"
