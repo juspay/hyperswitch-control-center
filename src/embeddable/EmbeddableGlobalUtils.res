@@ -22,3 +22,10 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
     clarityBaseUrl: dict->getString("clarity_base_url", "")->getNonEmptyString,
   }
 }
+
+let sendEventToParentForRefetchToken = () => {
+  IframeUtils.handlePostMessage([
+    ("type", JSON.Encode.string("TOKEN_EXPIRED")),
+    ("value", true->JSON.Encode.bool),
+  ])
+}

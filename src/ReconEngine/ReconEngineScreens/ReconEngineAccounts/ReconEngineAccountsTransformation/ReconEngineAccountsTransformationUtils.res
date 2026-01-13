@@ -12,13 +12,17 @@ let basicFieldMappingList: array<basicFieldType> = [
 ]
 
 let getBasicFieldIdentifier = (fields: schemaFieldsType, fieldType: basicFieldType): string => {
-  switch fieldType {
-  | Currency => fields.currency.identifier
-  | Amount => fields.amount.identifier
-  | EffectiveAt => fields.effective_at.identifier
-  | BalanceDirection => fields.balance_direction.identifier
-  | OrderId => fields.order_id.identifier
+  let fieldName = switch fieldType {
+  | Currency => "currency"
+  | Amount => "amount"
+  | EffectiveAt => "effective_at"
+  | BalanceDirection => "balance_direction"
+  | OrderId => "order_id"
   }
+
+  fields.main_fields
+  ->Array.find(field => field.field_name == fieldName)
+  ->Option.mapOr("", field => field.identifier)
 }
 
 let getTransformationConfigPayloadFromDict = dict => {

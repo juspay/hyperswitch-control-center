@@ -39,12 +39,20 @@ module EditEntryModalContent = {
     open APIUtils
     open ReconEngineHooks
     open LogicUtils
+    open ReconEngineExceptionsHelper
+
     let getAccounts = useGetAccounts()
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
+
+    let fetchMetadataSchema = useFetchMetadataSchema()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (accountsList, setAccountsList) = React.useState(_ => [])
     let (transformationsList, setTransformationsList) = React.useState(_ => [])
+    let (metadataSchema, setMetadataSchema) = React.useState(_ =>
+      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+    )
+    let (metadataRows, setMetadataRows) = React.useState(_ => [])
 
     let fetchData = async () => {
       try {
@@ -63,6 +71,10 @@ module EditEntryModalContent = {
             res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
           )
         }
+        if entryDetails.transformation_id->isNonEmptyString {
+          let schema = await fetchMetadataSchema(~transformationId=entryDetails.transformation_id)
+          setMetadataSchema(_ => schema)
+        }
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
@@ -75,8 +87,8 @@ module EditEntryModalContent = {
     }, [])
 
     let validate = React.useCallback(values => {
-      validateEditEntryDetails(values, ~initialEntryDetails=entryDetails)
-    }, [entryDetails])
+      validateEditEntryDetails(values, ~initialEntryDetails=entryDetails, ~metadataSchema)
+    }, (entryDetails, metadataSchema.id))
 
     let initialValues = React.useMemo(() => {
       getInitialValuesForEditEntries(entryDetails)
@@ -91,7 +103,7 @@ module EditEntryModalContent = {
               ~label="Account",
               ~comboCustomInput=accountComboSelectInputField(
                 ~accountsList,
-                ~disabled=true,
+                ~disabled=false,
                 ~setTransformationsList,
                 ~initialAccountId=entryDetails.account.account_id,
               ),
@@ -102,13 +114,22 @@ module EditEntryModalContent = {
               ~isRequired=true,
             )}
           />
-          {transformationConfigSelectInputField(~transformationsList, ~disabled=true)}
+          {transformationConfigSelectInputField(
+            ~transformationsList,
+            ~disabled=false,
+            ~setMetadataSchema,
+          )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(~entryDetails, ~disabled=false)}
           {amountTextInputField(~disabled=false)}
           {orderIdTextInputField(~disabled=false)}
           {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(~disabled=false)}
+          {metadataCustomInputField(
+            ~disabled=false,
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+          )}
           <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
             <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
               <FormRenderer.SubmitButton

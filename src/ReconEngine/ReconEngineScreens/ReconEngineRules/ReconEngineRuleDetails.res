@@ -31,6 +31,20 @@ module StatusBadge = {
   }
 }
 
+module RuleIDCopy = {
+  @react.component
+  let make = (~ruleId: string) => {
+    <div className="flex flex-col gap-2">
+      <div className={`${body.md.medium} text-nd_gray-500`}> {"Rule ID"->React.string} </div>
+      <HelperComponents.CopyTextCustomComp
+        displayValue=Some(ruleId)
+        copyValue=Some(ruleId)
+        customTextCss={`${body.md.semibold} text-nd_gray-600`}
+      />
+    </div>
+  }
+}
+
 module SourceTargetHeader = {
   @react.component
   let make = () => {
@@ -432,7 +446,6 @@ module RuleDetailsContent = {
   let make = (~rule: rulePayload) => {
     let fields = [
       ("Rule Name", rule.rule_name),
-      ("ID", rule.rule_id),
       (
         "Description",
         rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
@@ -447,6 +460,7 @@ module RuleDetailsContent = {
             <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
+          <RuleIDCopy.make ruleId={rule.rule_id} />
           <StatusBadge isActive={rule.is_active} />
         </div>
       </div>
