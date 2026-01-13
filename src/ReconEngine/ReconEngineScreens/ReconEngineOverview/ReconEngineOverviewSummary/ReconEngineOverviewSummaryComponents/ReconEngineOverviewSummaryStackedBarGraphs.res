@@ -1,9 +1,9 @@
 open Typography
-open ReconEngineTypes
+open ReconEngineRulesTypes
 
 module RuleWiseStackedBarGraph = {
   @react.component
-  let make = (~rule: ReconEngineTypes.reconRuleType) => {
+  let make = (~rule: rulePayload) => {
     open CurrencyFormatUtils
     open LogicUtils
 
@@ -83,7 +83,7 @@ module RuleWiseStackedBarGraph = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<rulePayload>) => {
   <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
     {reconRulesList
     ->Array.map(rule => <RuleWiseStackedBarGraph rule key={rule.rule_id} />)
