@@ -1,5 +1,5 @@
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
   open HierarchicalTransactionsTableEntity
 
