@@ -438,13 +438,12 @@ module OrderActions = {
     })
 
     React.useEffect(_ => {
-      setAmoutAvailableToRefund(_ =>
+      let amountToBeRefunded =
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
         disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
-      )
-
+      setAmoutAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
       None
     }, [orderData])
 
