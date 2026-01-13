@@ -59,7 +59,13 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDetails) => {
+let make = (
+  ~initialValues,
+  ~currentStep,
+  ~setInitialValues,
+  ~updateMerchantDetails,
+  ~isUpdateFlow,
+) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
@@ -177,7 +183,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDeta
                   />
                 </div>
               </RenderIf>
-              <RenderIf condition={!showEditForm}>
+              <RenderIf condition={isUpdateFlow && !showEditForm}>
                 <div
                   className="cursor-pointer py-2"
                   onClick={_ => {
@@ -192,7 +198,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDeta
                   />
                 </div>
               </RenderIf>
-              <RenderIf condition={currentStep == Preview && showEditForm}>
+              <RenderIf condition={isUpdateFlow && showEditForm}>
                 <FRMUpdateAuthCreds
                   connectorInfo=frmInfo
                   getConnectorDetails=None
