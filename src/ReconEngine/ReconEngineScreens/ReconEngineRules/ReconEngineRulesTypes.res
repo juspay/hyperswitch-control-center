@@ -10,12 +10,6 @@ type triggerType = {
   value: string,
 }
 
-type sourceType = {
-  id: string,
-  account_id: string,
-  trigger: triggerType,
-}
-
 type matchRuleType = {
   source_field: string,
   target_field: string,
@@ -33,12 +27,55 @@ type searchIdentifierType = {
   target_field: string,
 }
 
-type targetType = {
-  id: string,
+type oneToOneSingleSingleSourceType = {
   account_id: string,
-  match_rules: matchRulesType,
-  search_identifier: searchIdentifierType,
+  trigger: triggerType,
 }
+
+type oneToOneSingleSingleTargetType = {account_id: string}
+
+type oneToOneSingleSingleType = {
+  search_identifier: searchIdentifierType,
+  match_rules: matchRulesType,
+  source_account: oneToOneSingleSingleSourceType,
+  target_account: oneToOneSingleSingleTargetType,
+}
+
+type oneToOneSingleManySourceType = {
+  account_id: string,
+  trigger: triggerType,
+}
+
+type oneToOneSingleManyTargetType = {account_id: string}
+
+type oneToOneSingleManyType = {
+  search_identifier: searchIdentifierType,
+  match_rules: matchRulesType,
+  source_account: oneToOneSingleManySourceType,
+  target_account: oneToOneSingleManyTargetType,
+}
+
+type oneToOneManySingleSourceType = {
+  account_id: string,
+  trigger: triggerType,
+  grouping_field: string,
+}
+
+type oneToOneManySingleTargetType = {account_id: string}
+
+type oneToOneManySingleType = {
+  search_identifier: searchIdentifierType,
+  match_rules: matchRulesType,
+  source_account: oneToOneManySingleSourceType,
+  target_account: oneToOneManySingleTargetType,
+}
+
+type oneToOneStrategyType =
+  | SingleSingle(oneToOneSingleSingleType)
+  | SingleMany(oneToOneSingleManyType)
+  | ManySingle(oneToOneManySingleType)
+
+type reconStrategyType = OneToOne(oneToOneStrategyType) | UnknownReconStrategy
 
 type rulePayload = {
   rule_id: string,
@@ -47,8 +84,9 @@ type rulePayload = {
   priority: int,
   is_active: bool,
   profile_id: string,
-  sources: array<sourceType>,
-  targets: array<targetType>,
+  strategy: reconStrategyType,
+  created_at: string,
+  last_modified_at: string,
 }
 
 type ruleColType =
