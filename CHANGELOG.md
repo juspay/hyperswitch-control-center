@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.13.1
+
+### Refactors
+
+- Recon engine rules v2 api integration ([#4045](https://github.com/juspay/hyperswitch-control-center/pull/4045)) ([`5a4f7f0`](https://github.com/juspay/hyperswitch-control-center/commit/5a4f7f0f380b63a4869f7c96b5776fbbc10304ac))
+
+### Miscellaneous Tasks
+
+- Recon engine merge force posted txns and optional metadata validations ([#4070](https://github.com/juspay/hyperswitch-control-center/pull/4070)) ([`9c67397`](https://github.com/juspay/hyperswitch-control-center/commit/9c6739733343b08504f71c79b274eafcac8573bc))
+
+**Full Changelog:** [`2026.01.13.0...2026.01.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.13.0...2026.01.13.1)
+
+- - -
+
 ## 2026.01.13.0
 
 ### Bug Fixes
