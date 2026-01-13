@@ -1,4 +1,3 @@
-// open ThemePreviewUtils
 open Typography
 open ThemePreviewTypes
 module MockOrgTiles = {
