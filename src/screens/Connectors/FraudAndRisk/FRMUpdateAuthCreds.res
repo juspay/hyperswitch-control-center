@@ -3,6 +3,7 @@ let make = (
   ~connectorInfo: ConnectorTypes.connectorPayload,
   ~getConnectorDetails=None,
   ~updateMerchantDetails,
+  ~setShowEditForm,
 ) => {
   open ConnectorUtils
   open APIUtils
@@ -12,7 +13,6 @@ let make = (
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastState.useShowToast()
 
-  let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   let connectorName = connectorInfo.connector_name
 
   let connectorType = connectorName->getConnectorNameTypeFromString(~connectorType=FRMPlayer)
@@ -48,7 +48,7 @@ let make = (
       | Some(fun) => fun()->ignore
       | _ => ()
       }
-      setShowFeedbackModal(_ => false)
+      setShowEditForm(_ => false)
       showToast(~message="FRM Credentials Updated!", ~toastType=ToastSuccess)
     } catch {
     | _ => showToast(~message="Failed to update FRM credentials", ~toastType=ToastError)
@@ -57,38 +57,15 @@ let make = (
     Nullable.null
   }
 
-  <>
-    <div
-      className="cursor-pointer py-2"
-      onClick={_ => {
-        setShowFeedbackModal(_ => true)
-      }}>
-      <ToolTip
-        height=""
-        description={`Update the ${connectorName} creds`}
-        toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
-        toolTipPosition=Top
-        tooltipWidthClass="w-fit"
-      />
+  <Form
+    onSubmit={onSubmit}
+    initialValues
+    validate={values => FRMUtils.validate(~values, ~selectedFRMInfo)}
+    formClass="w-full py-4">
+    {FRMHelper.frmIntegFormFields(~selectedFRMInfo)}
+    <div className="flex p-1 gap-4 justify-end mt-2">
+      <Button text="Cancel" buttonType={Secondary} onClick={_ => setShowEditForm(_ => false)} />
+      <FormRenderer.SubmitButton text="Submit" />
     </div>
-    <Modal
-      closeOnOutsideClick=true
-      modalHeading={`Update FRM Connector ${connectorName}`}
-      showModal
-      setShowModal=setShowFeedbackModal
-      childClass="p-1"
-      borderBottom=true
-      revealFrom=Reveal.Right
-      modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900">
-      <Form
-        onSubmit={onSubmit}
-        initialValues
-        validate={values => FRMUtils.validate(~values, ~selectedFRMInfo)}>
-        {FRMHelper.frmIntegFormFields(~selectedFRMInfo)}
-        <div className="flex p-1 justify-end mb-2">
-          <FormRenderer.SubmitButton text="Submit" />
-        </div>
-      </Form>
-    </Modal>
-  </>
+  </Form>
 }

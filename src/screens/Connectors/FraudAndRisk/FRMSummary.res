@@ -78,6 +78,8 @@ let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDeta
     ConnectorInterface.connectorInterfaceV1,
     initialValues->getDictFromJsonObject,
   )
+  let (showEditForm, setShowEditForm) = React.useState(_ => false)
+  let connectorName = frmInfo.connector_name
 
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
   let connectorType =
@@ -165,14 +167,37 @@ let make = (~initialValues, ~currentStep, ~setInitialValues, ~updateMerchantDeta
           <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
           <div className="flex flex-col gap-6 col-span-3">
             <div className="flex gap-12">
-              <div className="flex flex-col gap-6 w-5/6 ">
-                <ConnectorPreviewHelper.PreviewCreds
-                  connectorAccountFields connectorInfo=frmInfo showConnectorLabelField=false
-                />
-              </div>
-              <RenderIf condition={currentStep == Preview}>
+              <RenderIf condition={!showEditForm}>
+                <div className="flex flex-col gap-6 w-5/6 ">
+                  <ConnectorPreviewHelper.PreviewCreds
+                    connectorAccountFields
+                    connectorInfo=frmInfo
+                    showConnectorLabelField=false
+                    showLabelAndFieldVertically=true
+                  />
+                </div>
+              </RenderIf>
+              <RenderIf condition={!showEditForm}>
+                <div
+                  className="cursor-pointer py-2"
+                  onClick={_ => {
+                    setShowEditForm(_ => true)
+                  }}>
+                  <ToolTip
+                    height=""
+                    description={`Update the ${connectorName} creds`}
+                    toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
+                    toolTipPosition=Top
+                    tooltipWidthClass="w-fit"
+                  />
+                </div>
+              </RenderIf>
+              <RenderIf condition={currentStep == Preview && showEditForm}>
                 <FRMUpdateAuthCreds
-                  connectorInfo=frmInfo getConnectorDetails=None updateMerchantDetails
+                  connectorInfo=frmInfo
+                  getConnectorDetails=None
+                  updateMerchantDetails
+                  setShowEditForm
                 />
               </RenderIf>
             </div>
