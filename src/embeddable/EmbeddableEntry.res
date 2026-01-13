@@ -1,9 +1,35 @@
 module EmbeddableAuthEntry = {
   @react.component
   let make = () => {
+    open LogicUtils
+
+    let (componentKey, setComponentKey) = React.useState(_ => "")
+
+    let handleAuthMessage = (ev: Dom.event) => {
+      let objectdata = ev->HandlingEvents.convertToCustomEvent
+      switch objectdata.data->JSON.Decode.object {
+      | Some(dict) => {
+          let messageType = dict->getString("type", "")
+          if messageType->isNonEmptyString && messageType == "AUTH_TOKEN" {
+            let tokenFromParent = dict->getString("token", "")
+            if tokenFromParent->isNonEmptyString {
+              LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
+              setComponentKey(_ => randomString(~length=10))
+            }
+          }
+        }
+      | None => ()
+      }
+    }
+
+    React.useEffect(() => {
+      Window.addEventListener("message", handleAuthMessage)
+      Some(() => Window.removeEventListener("message", handleAuthMessage))
+    }, [])
+
     <GlobalProvider>
       <UserInfoProvider isEmbeddableApp=true>
-        <EmbeddableApp />
+        <EmbeddableApp key={componentKey} />
       </UserInfoProvider>
     </GlobalProvider>
   }

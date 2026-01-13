@@ -7,6 +7,7 @@ const webpack = require("webpack");
 const path = require("path");
 const serverConfig = require("./webpack.server");
 const config = import("./src/server/config.mjs");
+const appName = process.env.APP_NAME || "hyperswitch";
 
 let proxy = [
   {
@@ -43,9 +44,9 @@ let libBuild = () => {
     mode: isDevelopment ? "development" : "production",
     entry: entryObj,
     output: {
-      path: path.resolve(__dirname, "dist", "libapp"),
+      path: path.resolve(__dirname, "dist", "embedded"),
       clean: true,
-      publicPath: "/",
+      publicPath: "/embedded/",
       filename: "[name].js",
       // Library output configuration for npm publication
       library: {
@@ -123,11 +124,11 @@ let libBuild = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          // Copy hyperswitch files except index.html
+          // Copy app-specific files except index.html
           {
             from: `public/hyperswitch`,
             globOptions: {
-              ignore: ["**/index.html"], // Don't copy hyperswitch index.html
+              ignore: ["**/index.html"], // Don't copy app index.html
             },
           },
           // Copy libapp index.html explicitly
