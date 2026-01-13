@@ -91,6 +91,7 @@ let make = (~children) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
   let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
+
   let initialTheme = Light
 
   let (themeState, setThemeBase) = React.useState(() => initialTheme)
