@@ -44,10 +44,8 @@ module RadioButtons = {
     let value = input.value->LogicUtils.getStringFromJson("")
 
     <RadioGroup
-      name="theme-create"
       value={value}
       onChange={val => {
-        Js.log2("val", val)
         input.onChange(val->Identity.stringToFormReactEvent)
       }}>
       <div className="flex flex-col gap-4">
@@ -170,6 +168,7 @@ module LineageFormContent = {
           </span>
         </div>,
     )
+
     let merchantField = FormRenderer.makeFieldInfo(
       ~label="Select Merchant",
       ~name="lineage.merchant_id",
@@ -339,10 +338,10 @@ module LineageFormContent = {
 module ThemeLineageModal = {
   @react.component
   let make = (~showModal, ~setShowModal) => {
-    Js.log("theme lineage modal component called")
     open SessionStorage
     open LogicUtils
     open APIUtils
+
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let sessionStepValue =
@@ -367,13 +366,9 @@ module ThemeLineageModal = {
             ("org_id", orgId->JSON.Encode.string),
             ("merchant_id", merchantId->JSON.Encode.string),
             ("profile_id", profileId->JSON.Encode.string),
-          ]
-          ->Dict.fromArray
-          ->JSON.Encode.object,
+          ]->getJsonFromArrayOfJson,
         ),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
+      ]->getJsonFromArrayOfJson
 
     let validateLineageForm = values => {
       let errors = Dict.make()
@@ -466,14 +461,13 @@ module ThemeLineageModal = {
       let savedEntityType = sessionStorage.getItem("entity_type")->Nullable.toOption
       let savedStep = sessionStorage.getItem("themeModalStep")->Nullable.toOption
 
-      switch (savedEntityType, savedStep) {
-      | (Some(entityType), Some(stepStr)) if entityType->isNonEmptyString =>
+      switch (savedEntityType, savedStep, entityType->isNonEmptyString) {
+      | (Some(_), Some(stepStr), true) =>
         setShowModal(_ => true)
         let stepNum = stepStr->Int.fromString->Option.getOr(0)
 
         setStep(_ => stepNum)
 
-        // Check for existing theme if on merchant or profile step
         if stepNum !== 0 {
           let checkEntityType = switch stepNum {
           | 1 => "organization"
@@ -510,7 +504,6 @@ module ThemeLineageModal = {
         </div>}>
         <LineageFormContent showModal setShowModal step setStep themeExists setThemeExists />
       </Modal>
-      <FormValuesSpy />
     </Form>
   }
 }

@@ -106,8 +106,7 @@ let renderImageUploader = (~asset: string, value: option<string>, onChange) => {
 
 let getThemeFormValues = (~formValues) => {
   open LogicUtils
-  // let formValues = formState.values->getDictFromJsonObject
-  let themeName = formValues->getString("theme_name", "Default Theme")
+
   let themeData = formValues->getDictfromDict("theme_data")
   let settings = themeData->getDictfromDict("settings")
 
@@ -142,5 +141,5 @@ let getThemeFormValues = (~formValues) => {
     },
   }
 
-  (themeName, colors, sidebar, buttons)
+  (colors, sidebar, buttons)
 }

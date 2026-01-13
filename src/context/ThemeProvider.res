@@ -257,7 +257,6 @@ let make = (~children) => {
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
-      Js.log2("Updated theme URLs to: ", val)
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(val.faviconUrl)->ignore
