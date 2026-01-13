@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.13.0
+
+### Bug Fixes
+
+- Correction in new analytics formulas ([#4067](https://github.com/juspay/hyperswitch-control-center/pull/4067)) ([`a1c0204`](https://github.com/juspay/hyperswitch-control-center/commit/a1c020492a48b4a19f8cde50bae81e796a3c2cd9))
+
+**Full Changelog:** [`2026.01.12.0...2026.01.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.12.0...2026.01.13.0)
+
+- - -
+
 ## 2026.01.12.0
 
 ### Features
