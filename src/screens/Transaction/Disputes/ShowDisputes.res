@@ -52,7 +52,9 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
@@ -230,7 +232,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Events and logs",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#DISPUTE}>
                   <DisputeLogs disputeId=id paymentId />
                 </LogsWrapper>

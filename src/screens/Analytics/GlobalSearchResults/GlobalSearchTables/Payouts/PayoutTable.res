@@ -61,7 +61,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get(domain)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let searchText = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
-  let path = UrlUtils.useGetFilterDictFromUrl("")->getString("domain", "")
+  let path = UrlUtils.useGetFilterDictFromUrl("")->getString("source", "")
 
   let clearPageDetails = () => {
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray

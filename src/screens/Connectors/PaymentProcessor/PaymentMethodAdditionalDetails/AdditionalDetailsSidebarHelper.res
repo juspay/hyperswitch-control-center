@@ -61,7 +61,12 @@ module InfoCard = {
 
 module Card = {
   @react.component
-  let make = (~heading="", ~isSelected=false, ~children: React.element) => {
+  let make = (
+    ~heading="",
+    ~isSelected=false,
+    ~children: React.element,
+    ~customCardHeaderStyle="",
+  ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -69,7 +74,7 @@ module Card = {
       <div
         className={`relative w-full p-6 rounded flex flex-col justify-between  ${isSelected
             ? `bg-light_blue_bg ${borderColor.primaryNormal} dark: ${borderColor.primaryNormal}`
-            : ""}`}>
+            : ""} ${customCardHeaderStyle} `}>
         <div className="flex justify-between">
           <div
             className={`leading-tight font-semibold text-fs-18 ${isSelected

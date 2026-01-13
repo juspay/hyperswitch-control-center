@@ -29,10 +29,12 @@ let make = () => {
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let {
-    userInfo: {orgId, merchantId, profileId, roleId, version},
-    checkUserEntity,
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
+
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {

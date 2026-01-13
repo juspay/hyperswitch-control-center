@@ -13,10 +13,10 @@
  *
  *
  */
-type useMerchantSpecificConfig = {
+type merchantSpecificConfig = {
   fetchMerchantSpecificConfig: unit => promise<unit>,
-  useIsFeatureEnabledForBlackListMerchant: FeatureFlagUtils.config => bool,
-  useIsFeatureEnabledForWhiteListMerchant: FeatureFlagUtils.config => bool,
+  isFeatureEnabledForDenyListMerchant: FeatureFlagUtils.config => bool,
+  isFeatureEnabledForAllowListMerchant: FeatureFlagUtils.config => bool,
   merchantSpecificConfig: FeatureFlagUtils.merchantSpecificConfig,
 }
 
@@ -25,7 +25,9 @@ let useMerchantSpecificConfig = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let setMerchantSpecificConfig =
     HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useSetRecoilState
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {orgId, merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let merchantSpecificConfig =
     HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useRecoilValueFromAtom
   let fetchMerchantSpecificConfig = async () => {
@@ -48,13 +50,13 @@ let useMerchantSpecificConfig = () => {
       }
     }
   }
-  let useIsFeatureEnabledForBlackListMerchant = (config: FeatureFlagUtils.config) => {
+  let isFeatureEnabledForDenyListMerchant = (config: FeatureFlagUtils.config) => {
     config.orgId->Option.isNone &&
     config.merchantId->Option.isNone &&
     config.profileId->Option.isNone
   }
 
-  let useIsFeatureEnabledForWhiteListMerchant = (config: FeatureFlagUtils.config) => {
+  let isFeatureEnabledForAllowListMerchant = (config: FeatureFlagUtils.config) => {
     config.orgId->Option.isSome ||
     config.merchantId->Option.isSome ||
     config.profileId->Option.isSome
@@ -62,8 +64,8 @@ let useMerchantSpecificConfig = () => {
 
   {
     fetchMerchantSpecificConfig,
-    useIsFeatureEnabledForBlackListMerchant,
-    useIsFeatureEnabledForWhiteListMerchant,
+    isFeatureEnabledForDenyListMerchant,
+    isFeatureEnabledForAllowListMerchant,
     merchantSpecificConfig,
   }
 }

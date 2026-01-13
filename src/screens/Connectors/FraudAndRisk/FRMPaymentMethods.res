@@ -182,7 +182,7 @@ module CheckBoxRenderer = {
             accordion={[
               {
                 title: paymentMethodInfo.payment_method->LogicUtils.snakeToTitle,
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <FormField
                       options={flowTypeAllOptions}

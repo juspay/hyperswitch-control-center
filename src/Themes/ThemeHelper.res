@@ -1,10 +1,26 @@
+module OverlappingCircles = {
+  @react.component
+  let make = (~colorA: string, ~colorB: string) => {
+    <div className="relative w-9 h-6 flex items-center">
+      <div
+        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
+      />
+      <div
+        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
+      />
+    </div>
+  }
+}
+
 open ThemeTypes
 open Typography
 module RadioButtons = {
   @react.component
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     open HeadlessUI
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let entities = [
       {
         label: "Organization",
@@ -28,9 +44,10 @@ module RadioButtons = {
     let value = input.value->LogicUtils.getStringFromJson("")
 
     <RadioGroup
-      name="theme-create"
       value={value}
-      onChange={val => input.onChange(val->Identity.stringToFormReactEvent)}>
+      onChange={val => {
+        input.onChange(val->Identity.stringToFormReactEvent)
+      }}>
       <div className="flex flex-col gap-4">
         <div
           className="flex flex-row gap-2 items-start flex-1 border border-yellow-500 bg-yellow-50 p-4 rounded-lg">
@@ -77,17 +94,12 @@ module RadioButtons = {
 
 module LineageFormContent = {
   @react.component
-  let make = (~showModal=false, ~setShowModal, ~step, ~setStep) => {
-    open LogicUtils
-    open SessionStorage
+  let make = (~showModal=false, ~setShowModal, ~step, ~setStep, ~themeExists, ~setThemeExists) => {
     open UserUtils
-    open APIUtils
 
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
-    let {userInfo: {merchantId, profileId, themeId}} = React.useContext(
+    let {merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
-    )
+    ).getResolvedUserInfo()
 
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
@@ -95,61 +107,14 @@ module LineageFormContent = {
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
     let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
-    let formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-    let orgName = getNameForId(#Organization)
-    Js.log2("orgName", orgName)
-    let (themeExists, setThemeExists) = React.useState(() => false)
-    let (updateThemeID, setUpdateThemeID) = React.useState(() => themeId)
-    let entityType =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("lineage")
-      ->getString("entity_type", "")
 
-    React.useEffect(() => {
-      if entityType->isNonEmptyString {
-        sessionStorage.setItem("entity_type", entityType)
-      }
-      None
-    }, [entityType])
-
-    let checkThemeExists = async (~entityType) => {
-      try {
-        let url = getURL(
-          ~entityName=V1(USERS),
-          ~methodType=Get,
-          ~userType=#THEME_BY_LINEAGE,
-          ~queryParameters=Some(`entity_type=${entityType}`),
-        )
-        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-        let themeID = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("theme_id", "")
-        setUpdateThemeID(_ => themeID)
-        setThemeExists(_ => true)
-      } catch {
-      | _ => setThemeExists(_ => false)
-      }
-    }
-
-    React.useEffect(() => {
-      let checkTheme = async () => {
-        switch step {
-        | 1 =>
-          let _ = await checkThemeExists(~entityType="merchant")
-        | 2 =>
-          let _ = await checkThemeExists(~entityType="profile")
-        | _ => ()
-        }
-      }
-      let _ = checkTheme()
-      None
-    }, [step])
+    let (showLoaderSwitchModal, setShowLoaderSwitchModal) = React.useState(_ => false)
 
     let onMerchantSelect = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       let merchantValue = event->Identity.formReactEventToString
       if merchantValue !== merchantId {
         try {
+          setShowLoaderSwitchModal(_ => true)
           let merchantData = merchantList->Array.find(m => m.id == merchantValue)
           switch merchantData {
           | Some(merchant) => {
@@ -163,6 +128,7 @@ module LineageFormContent = {
             }
           }
           input.onChange(event)
+          setShowLoaderSwitchModal(_ => false)
         } catch {
         | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
         }
@@ -173,7 +139,9 @@ module LineageFormContent = {
       let profileValue = event->Identity.formReactEventToString
       if profileValue !== profileId {
         try {
+          setShowLoaderSwitchModal(_ => true)
           let _ = await internalSwitch(~expectedProfileId=Some(profileValue))
+          setShowLoaderSwitchModal(_ => false)
           input.onChange(event)
         } catch {
         | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
@@ -184,7 +152,9 @@ module LineageFormContent = {
     let entityTypeField = FormRenderer.makeFieldInfo(
       ~label="",
       ~name="lineage.entity_type",
-      ~customInput=(~input, ~placeholder as _) => <RadioButtons input />,
+      ~customInput=(~input, ~placeholder as _) => {
+        <RadioButtons input />
+      },
     )
 
     let orgDisplayField = FormRenderer.makeFieldInfo(
@@ -198,6 +168,7 @@ module LineageFormContent = {
           </span>
         </div>,
     )
+
     let merchantField = FormRenderer.makeFieldInfo(
       ~label="Select Merchant",
       ~name="lineage.merchant_id",
@@ -246,7 +217,7 @@ module LineageFormContent = {
         ),
     )
 
-    let renderStep = _values => {
+    let renderStep = () => {
       switch step {
       | 0 =>
         <FormRenderer.FieldRenderer
@@ -256,6 +227,13 @@ module LineageFormContent = {
           labelClass="!text-black font-medium !-ml-[0.5px]"
         />
       | 1 =>
+        <FormRenderer.FieldRenderer
+          field={orgDisplayField}
+          showErrorOnChange=true
+          errorClass={ProdVerifyModalUtils.errorClass}
+          labelClass="!text-black font-medium"
+        />
+      | 2 =>
         <>
           <FormRenderer.FieldRenderer
             field={orgDisplayField}
@@ -279,7 +257,7 @@ module LineageFormContent = {
             />
           </div>
         </>
-      | 2 =>
+      | 3 =>
         <>
           <FormRenderer.FieldRenderer
             field={orgDisplayField}
@@ -321,44 +299,16 @@ module LineageFormContent = {
       | _ => React.null
       }
     }
-    let handleNext = () => {
-      sessionStorage.removeItem("themeLineageModal")
-      sessionStorage.removeItem("themeModalStep")
-      if themeExists {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/theme/${updateThemeID}`))
-      } else {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/theme/new"))
-      }
-    }
-    let onNext = (values: JSON.t) => {
-      let entityType =
-        values
-        ->getDictFromJsonObject
-        ->getDictfromDict("lineage")
-        ->getString("entity_type", "")
-      switch step {
-      | 0 =>
-        switch entityType->entityTypeToLevel {
-        | ORGANIZATION => handleNext()
-        | MERCHANT => setStep(_ => 1)
-        | PROFILE => setStep(_ => 2)
-        | _ => ()
-        }
-      | 1 => handleNext()
-      | 2 => handleNext()
-      | _ => ()
-      }
-    }
-
-    let values = formState.values
 
     let handleCancel = () => {
       setShowModal(_ => false)
+      setThemeExists(_ => false)
       setStep(_ => 0)
     }
+
     <>
       <div className="flex flex-col h-full w-full p-4 gap-2 ">
-        {renderStep(values)}
+        {renderStep()}
         <RenderIf condition={themeExists}>
           <div
             className="flex flex-row gap-2 items-center flex-1 border border-yellow-500 bg-yellow-50 p-2 rounded-lg">
@@ -376,16 +326,12 @@ module LineageFormContent = {
             buttonSize=Small
             buttonState=Normal
           />
-          <Button
-            text={"Next"}
-            buttonType=Primary
-            buttonSize=Small
-            buttonState=Normal
-            onClick={_ => onNext(values)}
-          />
+          <FormRenderer.SubmitButton text={"Next"} buttonType=Primary buttonSize=Small />
         </div>
       </div>
-      <FormValuesSpy />
+      <LoaderModal
+        showModal={showLoaderSwitchModal} setShowModal={setShowLoaderSwitchModal} text="Switching"
+      />
     </>
   }
 }
@@ -393,38 +339,157 @@ module ThemeLineageModal = {
   @react.component
   let make = (~showModal, ~setShowModal) => {
     open SessionStorage
+    open LogicUtils
+    open APIUtils
+
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
     let sessionStepValue =
       sessionStorage.getItem("themeModalStep")->Nullable.toOption->Option.getOr("0")
     let (step, setStep) = React.useState(() => sessionStepValue->Int.fromString->Option.getOr(0))
-    React.useEffect(() => {
-      SessionStorage.sessionStorage.setItem("themeModalStep", step->Int.toString)
-      None
-    }, [step])
-    React.useEffect(() => {
-      sessionStorage.setItem("themeLineageModal", showModal ? "true" : "false")
-      None
-    }, [showModal])
+    let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+    let {orgId, merchantId, profileId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
+
+    let (themeExists, setThemeExists) = React.useState(() => false)
+    let (updateThemeID, setUpdateThemeID) = React.useState(() => themeId)
+
+    let entityType = sessionStorage.getItem("entity_type")->Nullable.toOption->Option.getOr("")
+
+    let lineageInitialValues =
+      [
+        (
+          "lineage",
+          [
+            ("entity_type", entityType->JSON.Encode.string),
+            ("org_id", orgId->JSON.Encode.string),
+            ("merchant_id", merchantId->JSON.Encode.string),
+            ("profile_id", profileId->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson,
+        ),
+      ]->getJsonFromArrayOfJson
+
+    let validateLineageForm = values => {
+      let errors = Dict.make()
+      let valuesDict = values->getDictFromJsonObject
+      let lineageDict = valuesDict->getDictfromDict("lineage")
+      let entityType = lineageDict->getString("entity_type", "")
+
+      if entityType->isEmptyString {
+        Dict.set(errors, "lineage.entity_type", "Please select an entity type"->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+    let checkThemeExists = async (~entityType) => {
+      try {
+        let url = getURL(
+          ~entityName=V1(USERS),
+          ~methodType=Get,
+          ~userType=#THEME_BY_LINEAGE,
+          ~queryParameters=Some(`entity_type=${entityType}`),
+        )
+        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
+        let themeID = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("theme_id", "")
+        setUpdateThemeID(_ => themeID)
+        setThemeExists(_ => true)
+      } catch {
+      | _ => setThemeExists(_ => false)
+      }
+    }
+
+    let handleNext = () => {
+      sessionStorage.removeItem("themeLineageModal")
+      sessionStorage.removeItem("themeModalStep")
+
+      if themeExists {
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/theme/${updateThemeID}`))
+      } else {
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/theme/new"))
+      }
+    }
 
     let handleModalClose = _ => {
       setShowModal(_ => false)
+      setThemeExists(_ => false)
+      sessionStorage.removeItem("entity_type")
+      sessionStorage.removeItem("themeModalStep")
       setStep(_ => 0)
     }
 
     let onSubmit = async (values, _) => {
-      try {
-        switch values->JSON.Decode.object {
-        | Some(dict) => Js.log2("dict", dict)
-        | None => Js.log("No values submitted")
+      let entityType =
+        values
+        ->getDictFromJsonObject
+        ->getDictfromDict("lineage")
+        ->getString("entity_type", "")
+
+      if entityType->isNonEmptyString {
+        sessionStorage.setItem("entity_type", entityType)
+      }
+
+      switch step {
+      | 0 =>
+        switch entityType->UserInfoUtils.entityMapper {
+        | #Organization => {
+            sessionStorage.setItem("themeModalStep", "1")
+            let _ = await checkThemeExists(~entityType="organization")
+            setStep(_ => 1)
+          }
+        | #Merchant => {
+            sessionStorage.setItem("themeModalStep", "2")
+            let _ = await checkThemeExists(~entityType="merchant")
+            setStep(_ => 2)
+          }
+        | #Profile => {
+            sessionStorage.setItem("themeModalStep", "3")
+            let _ = await checkThemeExists(~entityType="profile")
+            setStep(_ => 3)
+          }
+        | _ => ()
         }
-      } catch {
-      | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
+      | 1 => handleNext()
+      | 2 => handleNext()
+      | 3 => handleNext()
+      | _ => ()
       }
       Nullable.null
     }
 
-    <Form key="theme-create" onSubmit>
+    React.useEffect(() => {
+      let savedEntityType = sessionStorage.getItem("entity_type")->Nullable.toOption
+      let savedStep = sessionStorage.getItem("themeModalStep")->Nullable.toOption
+
+      switch (savedEntityType, savedStep, entityType->isNonEmptyString) {
+      | (Some(_), Some(stepStr), true) =>
+        setShowModal(_ => true)
+        let stepNum = stepStr->Int.fromString->Option.getOr(0)
+
+        setStep(_ => stepNum)
+
+        if stepNum !== 0 {
+          let checkEntityType = switch stepNum {
+          | 1 => "organization"
+          | 2 => "merchant"
+          | 3 => "profile"
+          | _ => ""
+          }
+          if checkEntityType->isNonEmptyString {
+            checkThemeExists(~entityType=checkEntityType)->ignore
+          }
+        }
+
+      | _ => ()
+      }
+      None
+    }, [])
+
+    <Form
+      key="theme-create"
+      validate={validateLineageForm}
+      onSubmit
+      initialValues={lineageInitialValues}>
       <Modal
         showModal
         closeOnOutsideClick=false
@@ -437,7 +502,7 @@ module ThemeLineageModal = {
         modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
           {"Select the level you want to create theme."->React.string}
         </div>}>
-        <LineageFormContent showModal setShowModal step setStep />
+        <LineageFormContent showModal setShowModal step setStep themeExists setThemeExists />
       </Modal>
     </Form>
   }

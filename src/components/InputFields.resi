@@ -35,6 +35,7 @@ let selectInput: (
   ~dropdownClassName: string=?,
   ~descriptionOnHover: bool=?,
   ~buttonSize: Button.buttonSize=?,
+  ~maxButtonWidth: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'b) => React.element
 let infraSelectInput: (
   ~options: array<SelectBox.dropdownOption>,

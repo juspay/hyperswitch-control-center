@@ -1,4 +1,6 @@
 open ThemeHelper
+open LogicUtils
+
 type themeObj = {
   theme_id: string,
   theme_name: string,
@@ -34,7 +36,6 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => themeObj = dict => {
-  open LogicUtils
   {
     theme_id: dict->getString("theme_id", ""),
     theme_name: dict->getString("theme_name", ""),
@@ -43,14 +44,13 @@ let tableItemToObjMapper: Dict.t<JSON.t> => themeObj = dict => {
     profile_id: dict->getOptionString("profile_id"),
     org_id: dict->getOptionString("org_id"),
     tenant_id: dict->getOptionString("tenant_id"),
-    theme_data: dict->Dict.get("theme_data")->Option.getOr(JSON.Encode.object(Dict.make())), // fallback to empty object
+    theme_data: dict->getJsonObjectFromDict("theme_data"),
   }
 }
 
 let getObjects: JSON.t => array<themeObj> = json => {
-  open LogicUtils
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => tableItemToObjMapper(item->getDictFromJsonObject))
 }
 
@@ -66,58 +66,35 @@ let getHeading = colType => {
   | ThemeColours => Table.makeHeaderInfo(~key, ~title="Theme Colours", ~dataType=TextType)
   }
 }
-
-// Custom cell rendering for each column
+let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
 let getCell = (themeObj, colType): Table.cell => {
+  open Table
   switch colType {
   | ThemeName => Text(themeObj.theme_name)
   | ThemeEntity =>
-    let entityLabel = switch themeObj.entity_type {
-    | "organization" => "Organization level"
-    | "merchant" => "Merchant level"
-    | "profile" => "Profile level"
-    | _ => themeObj.entity_type
-    }
-    Text(entityLabel)
+    let entityLabel: UserInfoTypes.entity = themeObj.entity_type->UserInfoUtils.entityMapper
+    Text(`${(entityLabel :> string)} level `)
+  | Tenant => themeObj.tenant_id->Option.mapOr(Text("All Tenant"), id => Text(id))
 
-  | Tenant =>
-    switch themeObj.tenant_id {
-    | Some(id) => Text(id)
-    | None => Text("All Tenants")
-    }
-  | Organization =>
-    switch themeObj.org_id {
-    | Some(id) => Text(id)
-    | None => Text("All")
-    }
-  | Merchant =>
-    switch themeObj.merchant_id {
-    | Some(id) => Text(id)
-    | None => Text("All")
-    }
-  | Profile =>
-    switch themeObj.profile_id {
-    | Some(id) => Text(id)
-    | None => Text("All")
-    }
+  | Organization => themeObj.org_id->Option.mapOr(Text("All Organizations"), id => Text(id))
+  | Merchant => themeObj.merchant_id->Option.mapOr(Text("All Merchants"), id => Text(id))
+  | Profile => themeObj.profile_id->Option.mapOr(Text("All Profiles"), id => Text(id))
   | ThemeColours =>
-    let themeDataDict = themeObj.theme_data->LogicUtils.getDictFromJsonObject
-    let settings = themeDataDict->LogicUtils.getObj("settings", Dict.make())
-    let colors = settings->LogicUtils.getObj("colors", Dict.make())
-    let sidebar = settings->LogicUtils.getObj("sidebar", Dict.make())
-    let primary = colors->LogicUtils.getString("primary", "#006DF9")
-    let sidebar = sidebar->LogicUtils.getString("primary", "#FCFCFD")
-
+    let themeDataDict = themeObj.theme_data->getDictFromJsonObject
+    let settings = themeDataDict->getObj("settings", Dict.make())
+    let colors = settings->getObj("colors", Dict.make())
+    let sidebarObj = settings->getObj("sidebar", Dict.make())
+    let primary = colors->getString("primary", newDefaultConfigSettings.colors.primary)
+    let sidebar = sidebarObj->getString("primary", newDefaultConfigSettings.sidebar.primary)
     Table.CustomCell(<OverlappingCircles colorA=primary colorB=sidebar />, "")
   }
 }
 
 let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
-  ~uri="theme-list",
-  ~getObjects=json => json->LogicUtils.getArrayFromJson([]),
+  ~uri=``,
+  ~getObjects=json => json->getArrayFromJson([]),
   ~defaultColumns=visibleColumns,
   ~allColumns=visibleColumns,
   ~getHeading,
-  ~getCell=(json, colType) =>
-    getCell(tableItemToObjMapper(json->LogicUtils.getDictFromJsonObject), colType),
+  ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
 )

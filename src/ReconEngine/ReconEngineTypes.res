@@ -97,6 +97,7 @@ type transformationConfigType = {
   name: string,
   config: JSON.t,
   is_active: bool,
+  metadata_schema_id: string,
   created_at: string,
   last_modified_at: string,
   last_transformed_at: string,
@@ -127,7 +128,6 @@ type transactionStatus =
   | @as("archived") Archived
   | @as("void") Void
   | @as("partially_reconciled") PartiallyReconciled
-  | @as("unknown") UnknownTransactionStatus
 
 @unboxed
 type entryDirectionType =
@@ -166,6 +166,29 @@ type transactionDataType = {
   reason: option<string>,
 }
 
+@unboxed
+type domainTransactionPostedStatus =
+  | Auto
+  | Manual
+  | Force
+  | UnknownDomainTransactionPostedStatus
+
+@unboxed
+type domainTransactionAmountMismatchStatus =
+  | Expected
+  | Mismatch
+
+type domainTransactionStatus =
+  | Expected
+  | Posted(domainTransactionPostedStatus)
+  | OverAmount(domainTransactionAmountMismatchStatus)
+  | UnderAmount(domainTransactionAmountMismatchStatus)
+  | DataMismatch
+  | Archived
+  | Void
+  | PartiallyReconciled
+  | UnknownDomainTransactionStatus
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -174,8 +197,8 @@ type transactionType = {
   credit_amount: balanceType,
   debit_amount: balanceType,
   rule: ruleType,
-  transaction_status: transactionStatus,
-  discarded_status: option<string>,
+  transaction_status: domainTransactionStatus,
+  discarded_status: option<domainTransactionStatus>,
   version: int,
   created_at: string,
   effective_at: string,
@@ -199,6 +222,7 @@ type entryType = {
   created_at: string,
   effective_at: string,
   staging_entry_id: option<string>,
+  transformation_id: option<string>,
 }
 
 type processingEntryStatus =
@@ -260,32 +284,60 @@ type processedEntryType = {
   created_at: string,
 }
 
+type stringValidationRule =
+  | MaxLength(int)
+  | MinLength(int)
+
+type numberValidationRule =
+  | MinValue(float)
+  | MaxValue(float)
+
+type minorUnitValidationRule =
+  | PositiveOnly
+  | MinValueMinorUnit(int)
+  | MaxValueMinorUnit(int)
+
+type fieldTypeVariant =
+  | StringField(array<stringValidationRule>)
+  | NumberField(array<numberValidationRule>)
+  | CurrencyField
+  | MinorUnitField(array<minorUnitValidationRule>)
+  | DateTimeField
+  | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
+
 type metadataFieldType = {
   identifier: string,
   field_name: string,
-  field_type: string,
+  field_type: fieldTypeVariant,
+  required: bool,
+  description: string,
 }
 
-type balanceDirectionFieldType = {
+type mainFieldType = {
+  field_name: string,
   identifier: string,
-  credit_values: array<string>,
-  debit_values: array<string>,
+  credit_values: option<array<string>>,
+  debit_values: option<array<string>>,
 }
 
-type basicFieldIdentifierType = {identifier: string}
+type uniqueConstraintTypeVariant =
+  | SingleField(string)
+  | UnknownConstraint
+
+type uniqueConstraintType = {
+  unique_constraint_type: uniqueConstraintTypeVariant,
+  description: string,
+}
 
 type schemaFieldsType = {
-  currency: basicFieldIdentifierType,
-  amount: basicFieldIdentifierType,
-  effective_at: basicFieldIdentifierType,
-  balance_direction: balanceDirectionFieldType,
-  order_id: basicFieldIdentifierType,
+  main_fields: array<mainFieldType>,
   metadata_fields: array<metadataFieldType>,
 }
 
 type schemaDataType = {
   schema_type: string,
   fields: schemaFieldsType,
+  unique_constraint: uniqueConstraintType,
   processing_mode: string,
 }
 

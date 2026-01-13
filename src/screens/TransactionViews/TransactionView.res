@@ -82,6 +82,12 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
           ~methodType=Get,
           ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
+      | Payouts =>
+        getURL(
+          ~entityName=V1(PAYOUTS_AGGREGATE),
+          ~methodType=Get,
+          ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
+        )
       }
 
       let response = await fetchDetails(url)
@@ -135,6 +141,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   | Orders => paymentViewsArray
   | Refunds => refundViewsArray
   | Disputes => disputeViewsArray
+  | Payouts => payoutViewsArray
   }
 
   viewsArray

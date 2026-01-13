@@ -19,7 +19,7 @@ module HoverInline = {
       <RenderIf condition={leftIcon->Option.isSome}>
         {leftIcon->Option.getOr(React.null)}
       </RenderIf>
-      <div className="flex flex-col w-full gap-1">
+      <div className="flex flex-col w-full gap-1 ">
         <div className="flex justify-between items-center w-full">
           <RenderIf condition={showTooltipOnHover}>
             <ToolTip
@@ -30,6 +30,9 @@ module HoverInline = {
               toolTipPosition
               enableTooltipDelay=true
               tooltipDelay=800
+              flexClass="flex-1"
+              justifyClass=""
+              customStyle="!px-2 !py-1 !rounded-md"
             />
           </RenderIf>
           <RenderIf condition={!showTooltipOnHover}>

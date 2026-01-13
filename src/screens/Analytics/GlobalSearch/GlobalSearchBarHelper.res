@@ -118,8 +118,8 @@ module ShowMoreLink = {
   ) => {
     let totalCount = section.total_results
 
-    let generateLink = (path, domain) => {
-      `${path}?query=${searchText}&domain=${domain}`
+    let generateLink = (path, source) => {
+      `${path}?query=${searchText}&source=${source}`
     }
 
     let onClick = _ => {

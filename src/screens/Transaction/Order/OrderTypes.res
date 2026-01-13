@@ -93,6 +93,7 @@ type colType =
   | CardNetwork
   | MerchantOrderReferenceId
   | AttemptCount
+  | PaymentType
 
 type summaryColType =
   | Created
@@ -156,6 +157,9 @@ type otherDetailsColType =
   | FRMTransactionType
   | FRMStatus
   | MerchantOrderReferenceId
+  | ExtendedAuthLastAppliedAt
+  | ExtendedAuthApplied
+  | RequestExtendedAuth
 
 type optionObj = {
   urlKey: string,
