@@ -89,20 +89,20 @@ module CardRenderer = {
     }
 
     let showSideModal = methodVariant => {
-      ((methodVariant === GooglePay ||
-      methodVariant === ApplePay ||
-      methodVariant === SamsungPay ||
-      methodVariant === AmazonPay ||
-      methodVariant === Paze) &&
-        {
-          switch connector->getConnectorNameTypeFromString(~connectorType) {
-          | Processors(TRUSTPAY)
-          | Processors(STRIPE_TEST)
-          | PayoutProcessor(WORLDPAY)
-          | PayoutProcessor(WORLDPAYXML) => false
-          | _ => true
-          }
-        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+      switch (connector->getConnectorNameTypeFromString(~connectorType), methodVariant) {
+      | (Processors(AMAZONPAY), AmazonPay) => true
+      | (Processors(TRUSTPAY), _) => false
+      | (Processors(STRIPE_TEST), _) => false
+      | (PayoutProcessor(WORLDPAY), _) => false
+      | (PayoutProcessor(WORLDPAYXML), _) => false
+      | (_, AmazonPay) => false
+      | (_, ApplePay) => true
+      | (_, GooglePay) => true
+      | (_, SamsungPay) => true
+      | (_, Paze) => true
+      | (_, _) => false
+      } ||
+      (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
