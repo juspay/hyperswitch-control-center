@@ -51,7 +51,7 @@ module DummyProcessorBanner = {
 }
 
 @react.component
-let make = (~showDummyProcessorBanner=true) => {
+let make = (~showDummyProcessorBanner=true, ~showTestProcessor=true) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
@@ -166,6 +166,7 @@ let make = (~showDummyProcessorBanner=true) => {
           connectorsAvailableForIntegration
           urlPrefix="connectors/new"
           setProcessorModal
+          showTestProcessor
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal

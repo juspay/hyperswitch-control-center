@@ -44,7 +44,8 @@ let make = () => {
         <EntityScaffold
           entityName="Connectors"
           remainingPath
-          renderList={() => <ConnectorList showDummyProcessorBanner=false />}
+          renderList={() =>
+            <ConnectorList showDummyProcessorBanner=false showTestProcessor=false />}
           renderNewForm={() => <ConnectorHome />}
           renderShow={(_, _) => <ConnectorHome />}
         />
