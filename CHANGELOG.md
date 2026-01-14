@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.14.1
+
+### Miscellaneous Tasks
+
+- Display schema data in column mapping ([#4088](https://github.com/juspay/hyperswitch-control-center/pull/4088)) ([`3f7e0bc`](https://github.com/juspay/hyperswitch-control-center/commit/3f7e0bc1380d638125f683adbc6474ee8e8e25f2))
+- Added linked transaction table ([#4090](https://github.com/juspay/hyperswitch-control-center/pull/4090)) ([`059e0a5`](https://github.com/juspay/hyperswitch-control-center/commit/059e0a572117a5773dffba11c72ffe309c118387))
+
+**Full Changelog:** [`2026.01.14.0...2026.01.14.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.14.0...2026.01.14.1)
+
+- - -
+
 ## 2026.01.14.0
 
 ### Bug Fixes
