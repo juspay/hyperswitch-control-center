@@ -205,6 +205,12 @@ type transactionType = {
   data: transactionDataType,
 }
 
+type linkedTransactionType = {
+  transaction_id: string,
+  created_at: string,
+  transaction_status: domainTransactionStatus,
+}
+
 type entryType = {
   entry_id: string,
   entry_type: entryDirectionType,
@@ -223,6 +229,7 @@ type entryType = {
   effective_at: string,
   staging_entry_id: option<string>,
   transformation_id: option<string>,
+  linked_transaction: option<linkedTransactionType>,
 }
 
 type processingEntryStatus =

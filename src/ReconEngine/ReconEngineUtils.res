@@ -340,6 +340,14 @@ let transactionItemToObjMapper = (dict): transactionType => {
   }
 }
 
+let linkedTransactionItemToObjMapper = dict => {
+  {
+    transaction_id: dict->getString("transaction_id", ""),
+    created_at: dict->getString("created_at", ""),
+    transaction_status: dict->getString("transaction_status", "")->getDomainTransactionStatus(dict),
+  }
+}
+
 let entryItemToObjMapper = dict => {
   {
     entry_id: dict->getString("entry_id", ""),
@@ -359,6 +367,11 @@ let entryItemToObjMapper = dict => {
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
+    linked_transaction: dict
+    ->getDictfromDict("linked_transaction")
+    ->isEmptyDict
+      ? None
+      : Some(dict->getDictfromDict("linked_transaction")->linkedTransactionItemToObjMapper),
   }
 }
 

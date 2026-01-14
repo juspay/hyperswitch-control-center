@@ -115,7 +115,10 @@ module EntryAuditTrailInfo = {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
     open ReconEngineUtils
-
+    let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+    let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+    let pageDetail = pageDetailDict->Dict.get("Entries")->Option.getOr(defaultValue)
+    let (offset, setOffset) = React.useState(_ => pageDetail.offset)
     let mainEntry = React.useMemo(() => {
       entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
@@ -286,6 +289,25 @@ module EntryAuditTrailInfo = {
               getRowDetails
               showSerial=false
               showScrollBar=true
+            />
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition={reconciledEntries->Array.length > 0}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
+          <div className="overflow-visible">
+            <LoadedTable
+              title="Reconciled Entries"
+              hideTitle=true
+              actualData={[mainEntry]->Array.map(Nullable.make)}
+              entity={LinkedTransactionTableEntity.entriesEntityForLinkedTxn()}
+              resultsPerPage=10
+              showSerialNumber=false
+              totalResults={[mainEntry]->Array.length}
+              offset
+              setOffset
+              currrentFetchCount={[mainEntry]->Array.length}
             />
           </div>
         </div>
