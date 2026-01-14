@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.14.0
+
+### Bug Fixes
+
+- Recon engine revert invite ([#4076](https://github.com/juspay/hyperswitch-control-center/pull/4076)) ([`8b44f60`](https://github.com/juspay/hyperswitch-control-center/commit/8b44f60996ed632bf98da66be76d15ee51a6d6d2))
+
+**Full Changelog:** [`2026.01.13.1...2026.01.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.13.1...2026.01.14.0)
+
+- - -
+
 ## 2026.01.13.1
 
 ### Refactors
