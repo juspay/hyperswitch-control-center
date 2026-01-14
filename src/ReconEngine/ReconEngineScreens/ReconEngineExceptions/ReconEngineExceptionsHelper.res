@@ -314,16 +314,20 @@ module TransformationConfigSelectInput = {
     ~input: ReactFinalForm.fieldRenderPropsInput,
   ) => {
     open ReconEngineHooks
+    open ReconEngineUtils
 
     let form = ReactFinalForm.useForm()
     let fetchMetadataSchema = useFetchMetadataSchema()
 
     let handleFetchMetadataSchema = async (transformationId: string) => {
       try {
-        let schema = await fetchMetadataSchema(~transformationId)
+        let schema =
+          (await fetchMetadataSchema(~transformationId))
+          ->getDictFromJsonObject
+          ->metadataSchemaItemToObjMapper
         setMetadataSchema(_ => schema)
       } catch {
-      | _ => setMetadataSchema(_ => Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper)
+      | _ => setMetadataSchema(_ => Dict.make()->metadataSchemaItemToObjMapper)
       }
     }
 
@@ -336,7 +340,7 @@ module TransformationConfigSelectInput = {
         if transformationId->isNonEmptyString {
           handleFetchMetadataSchema(transformationId)->ignore
         } else {
-          setMetadataSchema(_ => Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper)
+          setMetadataSchema(_ => Dict.make()->metadataSchemaItemToObjMapper)
         }
       },
     }

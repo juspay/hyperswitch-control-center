@@ -40,6 +40,7 @@ module EditEntryModalContent = {
     open ReconEngineHooks
     open LogicUtils
     open ReconEngineExceptionsHelper
+    open ReconEngineUtils
 
     let getAccounts = useGetAccounts()
     let getURL = useGetURL()
@@ -50,7 +51,7 @@ module EditEntryModalContent = {
     let (accountsList, setAccountsList) = React.useState(_ => [])
     let (transformationsList, setTransformationsList) = React.useState(_ => [])
     let (metadataSchema, setMetadataSchema) = React.useState(_ =>
-      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+      Dict.make()->metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
 
@@ -68,11 +69,14 @@ module EditEntryModalContent = {
           )
           let res = await fetchDetails(url)
           setTransformationsList(_ =>
-            res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
+            res->getArrayDataFromJson(transformationConfigItemToObjMapper)
           )
         }
         if entryDetails.transformation_id->isNonEmptyString {
-          let schema = await fetchMetadataSchema(~transformationId=entryDetails.transformation_id)
+          let schema =
+            (await fetchMetadataSchema(~transformationId=entryDetails.transformation_id))
+            ->getDictFromJsonObject
+            ->metadataSchemaItemToObjMapper
           setMetadataSchema(_ => schema)
         }
         setScreenState(_ => PageLoaderWrapper.Success)
