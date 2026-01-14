@@ -68,7 +68,7 @@ module FileAndSystemColumnMapping = {
 
 module TabDetails = {
   @react.component
-  let make = (~activeTab, ~metadataSchema, ~jsonMetadataSchema) => {
+  let make = (~activeTab: transformationTabs, ~metadataSchema, ~jsonMetadataSchema) => {
     let schemaData =
       jsonMetadataSchema
       ->getDictFromJsonObject
@@ -77,13 +77,13 @@ module TabDetails = {
 
     <div className="overflow-scroll mt-4">
       {switch activeTab {
-      | "Advanced" =>
+      | #advanced =>
         <div className="p-4">
           <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll py-2">
             <PrettyPrintJson jsonToDisplay={schemaData->JSON.stringify} />
           </div>
         </div>
-      | "Default" | _ =>
+      | #default =>
         <div className="flex flex-col gap-3 py-3 overflow-y-auto h-93-per">
           <div className="flex items-center gap-4">
             <div className="flex-1 mx-2.5">
@@ -129,11 +129,11 @@ module ColumnMappingDisplay = {
     let tabList: array<Tabs.tab> = [
       {
         title: "Default",
-        renderContent: () => <TabDetails activeTab="Default" metadataSchema jsonMetadataSchema />,
+        renderContent: () => <TabDetails activeTab=#default metadataSchema jsonMetadataSchema />,
       },
       {
         title: "Advanced",
-        renderContent: () => <TabDetails activeTab="Advanced" metadataSchema jsonMetadataSchema />,
+        renderContent: () => <TabDetails activeTab=#advanced metadataSchema jsonMetadataSchema />,
       },
     ]
 

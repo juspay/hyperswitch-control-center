@@ -351,3 +351,5 @@ type metadataSchemaType = {
   created_at: string,
   last_modified_at: string,
 }
+
+type transformationTabs = [#default | #advanced]
