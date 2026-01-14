@@ -68,7 +68,7 @@ module FileAndSystemColumnMapping = {
 
 module TabDetails = {
   @react.component
-  let make = (~activeTab: transformationTabs, ~metadataSchema, ~jsonMetadataSchema) => {
+  let make = (~activeTab: columnMappingTabs, ~metadataSchema, ~jsonMetadataSchema) => {
     let schemaData =
       jsonMetadataSchema
       ->getDictFromJsonObject

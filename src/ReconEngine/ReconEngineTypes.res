@@ -352,4 +352,4 @@ type metadataSchemaType = {
   last_modified_at: string,
 }
 
-type transformationTabs = [#default | #advanced]
+type columnMappingTabs = [#default | #advanced]
