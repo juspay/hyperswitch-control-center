@@ -72,8 +72,7 @@ module TabDetails = {
     let schemaData =
       jsonMetadataSchema
       ->getDictFromJsonObject
-      ->Dict.get("schema_data")
-      ->Option.getOr(JSON.Encode.null)
+      ->getJsonObjectFromDict("schema_data")
 
     <div className="overflow-scroll mt-4">
       {switch activeTab {
@@ -144,7 +143,7 @@ module ColumnMappingDisplay = {
         showBorder=false
         includeMargin=false
         lightThemeColor="black"
-        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center font-semibold text-body"
+        defaultClasses={`font-ibm-plex w-max flex flex-auto flex-row items-center justify-center text-body ${body.md.semibold}`}
       />
     </div>
   }
