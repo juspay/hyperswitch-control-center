@@ -89,6 +89,7 @@ type entityName =
   | THREE_DS_EXEMPTION_DELETE_RULE
   | HYPERSWITCH_RECON
   | CHAT_BOT
+  | OIDC_AUTHORIZE
 
 type v2entityNameType =
   | CUSTOMERS
