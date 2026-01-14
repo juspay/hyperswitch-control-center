@@ -86,6 +86,7 @@ module EditEntryModalContent = {
       Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -140,13 +141,14 @@ module EditEntryModalContent = {
     }, [])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
+      <div className="flex flex-col gap-4 mx-4 h-full">
         <Form onSubmit validate initialValues={initialFormValues}>
           {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
           {transformationConfigSelectInputField(
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(
@@ -163,16 +165,16 @@ module EditEntryModalContent = {
             ~metadataSchema,
             ~metadataRows,
             ~setMetadataRows,
+            ~isMetadataLoading,
           )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Save changes"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          <div className="flex justify-end mt-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Save changes"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
@@ -207,6 +209,7 @@ module MarkAsReceivedModalContent = {
       Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -256,13 +259,14 @@ module MarkAsReceivedModalContent = {
     }, [])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
+      <div className="flex flex-col gap-4 mx-4 h-full">
         <Form onSubmit validate initialValues={initialFormValues}>
           {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
           {transformationConfigSelectInputField(
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(
@@ -279,16 +283,16 @@ module MarkAsReceivedModalContent = {
             ~metadataSchema,
             ~metadataRows,
             ~setMetadataRows,
+            ~isMetadataLoading,
           )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Mark as Received"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          <div className="absolute bottom-2 left-0 right-0 bg-white p-2">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Mark as Received"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
@@ -312,6 +316,7 @@ module CreateEntryModalContent = {
       Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -338,13 +343,14 @@ module CreateEntryModalContent = {
     }, [])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
+      <div className="flex flex-col gap-4 mx-4 h-full">
         <Form onSubmit validate initialValues={initialValues}>
           {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
           {transformationConfigSelectInputField(
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField()}
           {currencySelectInputField(
@@ -355,16 +361,20 @@ module CreateEntryModalContent = {
           {amountTextInputField()}
           {orderIdTextInputField()}
           {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(~metadataSchema, ~metadataRows, ~setMetadataRows)}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Create new entry"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          {metadataCustomInputField(
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+            ~isMetadataLoading,
+          )}
+          <div className="absolute bottom-2 left-0 right-0 bg-white p-2">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Create new entry"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
@@ -580,7 +590,7 @@ module LinkStagingEntryModalContent = {
           />
         </PageLoaderWrapper>
         <div
-          className="absolute bottom-4 left-0 right-0 bg-white p-4 flex flex-row gap-3 items-center">
+          className="absolute bottom-2 left-0 right-0 bg-white p-4 flex flex-row gap-3 items-center">
           <Button
             buttonType=Secondary
             buttonSize=Medium

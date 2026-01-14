@@ -84,7 +84,7 @@ module TabDetails = {
           </div>
         </div>
       | "Default" | _ =>
-        <div className="flex flex-col gap-3 py-3">
+        <div className="flex flex-col gap-3 py-3 overflow-y-auto h-93-per">
           <div className="flex items-center gap-4">
             <div className="flex-1 mx-2.5">
               <p className={`${body.lg.medium} text-nd_gray-800`}>

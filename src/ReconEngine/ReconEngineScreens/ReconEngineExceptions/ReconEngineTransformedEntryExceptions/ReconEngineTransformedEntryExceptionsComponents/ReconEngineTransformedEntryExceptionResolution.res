@@ -54,6 +54,7 @@ module EditEntryModalContent = {
       Dict.make()->metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -122,6 +123,7 @@ module EditEntryModalContent = {
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(~entryDetails, ~disabled=false)}
@@ -133,6 +135,7 @@ module EditEntryModalContent = {
             ~metadataSchema,
             ~metadataRows,
             ~setMetadataRows,
+            ~isMetadataLoading,
           )}
           <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
             <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
