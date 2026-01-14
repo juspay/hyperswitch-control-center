@@ -91,14 +91,14 @@ module CardRenderer = {
     let showSideModal = methodVariant => {
       switch (connector->getConnectorNameTypeFromString(~connectorType), methodVariant) {
       | (Processors(AMAZONPAY), AmazonPay) => true
-      | (Processors(TRUSTPAY), _) => false
-      | (Processors(STRIPE_TEST), _) => false
-      | (PayoutProcessor(WORLDPAY), _) => false
-      | (PayoutProcessor(WORLDPAYXML), _) => false
+      | (Processors(TRUSTPAY), _)
+      | (Processors(STRIPE_TEST), _)
+      | (PayoutProcessor(WORLDPAY), _)
+      | (PayoutProcessor(WORLDPAYXML), _)
       | (_, AmazonPay) => false
-      | (_, ApplePay) => true
-      | (_, GooglePay) => true
-      | (_, SamsungPay) => true
+      | (_, ApplePay)
+      | (_, GooglePay)
+      | (_, SamsungPay)
       | (_, Paze) => true
       | (_, _) => false
       } ||
