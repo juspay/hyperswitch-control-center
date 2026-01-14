@@ -106,7 +106,10 @@ module EditEntryModalContent = {
           )
           switch entryDetails.transformation_id {
           | Some(transformationId) => {
-              let schema = await fetchMetadataSchema(~transformationId)
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
               setMetadataSchema(_ => schema)
             }
           | None => ()
@@ -227,7 +230,10 @@ module MarkAsReceivedModalContent = {
 
           switch entryDetails.transformation_id {
           | Some(transformationId) => {
-              let schema = await fetchMetadataSchema(~transformationId)
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
               setMetadataSchema(_ => schema)
             }
           | None => ()
