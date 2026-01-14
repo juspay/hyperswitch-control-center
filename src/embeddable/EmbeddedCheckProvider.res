@@ -89,7 +89,8 @@ let make = (~children) => {
         className="animate-spin"
         parentClass="w-full h-full flex justify-center items-center"
       />
-    | TokenFetchError => <div className="h-screen w-screen flex justify-center items-center p-4">
+    | TokenFetchError =>
+      <div className="h-screen w-screen flex justify-center items-center p-4">
         <div className="max-w-lg w-full rounded-lg shadow-md border border-nd_gray-200 p-8">
           <div className="flex flex-col items-center text-center">
             <div className="mb-6">
