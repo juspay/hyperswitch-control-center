@@ -156,7 +156,6 @@ let getHeadingAndSubHeadingForMismatch = (
 let exceptionTransactionEntryItemToItemMapper = (
   dict
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
-  let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   {
     entry_key: dict->getString("entry_key", randomString(~length=16)),
     entry_id: dict->getString("entry_id", "-"),
@@ -176,9 +175,6 @@ let exceptionTransactionEntryItemToItemMapper = (
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
-    linked_transaction: linkedTransactionDict->isEmptyDict
-      ? None
-      : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
   }
 }
 
@@ -534,7 +530,6 @@ let getExceptionEntryTypeFromEntryType = (
     staging_entry_id: entry.staging_entry_id,
     entry_key: randomString(~length=16),
     transformation_id: entry.transformation_id,
-    linked_transaction: entry.linked_transaction,
   }
 }
 
@@ -559,7 +554,6 @@ let getEntryTypeFromExceptionEntryType = (
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
     transformation_id: entry.transformation_id,
-    linked_transaction: entry.linked_transaction,
   }
 }
 
@@ -681,7 +675,6 @@ let getUpdatedEntry = (
     staging_entry_id: entryDetails.staging_entry_id,
     entry_key: entryDetails.entry_key,
     transformation_id: formData->getOptionString("transformation_id"),
-    linked_transaction: entryDetails.linked_transaction,
   }
 }
 
@@ -712,7 +705,6 @@ let getNewEntry = (
     staging_entry_id: None,
     entry_key: uniqueId,
     transformation_id: formData->getOptionString("transformation_id"),
-    linked_transaction: None,
   }
 }
 

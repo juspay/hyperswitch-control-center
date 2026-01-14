@@ -189,6 +189,12 @@ type domainTransactionStatus =
   | PartiallyReconciled
   | UnknownDomainTransactionStatus
 
+type linkedTransactionType = {
+  transaction_id: string,
+  created_at: string,
+  transaction_status: domainTransactionStatus,
+}
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -203,12 +209,7 @@ type transactionType = {
   created_at: string,
   effective_at: string,
   data: transactionDataType,
-}
-
-type linkedTransactionType = {
-  transaction_id: string,
-  created_at: string,
-  transaction_status: domainTransactionStatus,
+  linked_transaction: option<linkedTransactionType>,
 }
 
 type entryType = {
@@ -229,7 +230,6 @@ type entryType = {
   effective_at: string,
   staging_entry_id: option<string>,
   transformation_id: option<string>,
-  linked_transaction: option<linkedTransactionType>,
 }
 
 type processingEntryStatus =

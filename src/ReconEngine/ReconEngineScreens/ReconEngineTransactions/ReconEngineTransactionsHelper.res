@@ -293,21 +293,21 @@ module EntryAuditTrailInfo = {
           </div>
         </div>
       </RenderIf>
-      <RenderIf condition={mainEntry.linked_transaction->Option.isSome}>
+      <RenderIf condition={openedTransaction.linked_transaction->Option.isSome}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
           <div className="overflow-visible">
             <LoadedTable
               title="Linked Entries"
               hideTitle=true
-              actualData={[mainEntry]->Array.map(Nullable.make)}
+              actualData={[openedTransaction]->Array.map(Nullable.make)}
               entity={LinkedTransactionTableEntity.entriesEntityForLinkedTxn()}
               resultsPerPage=10
               showSerialNumber=false
-              totalResults={[mainEntry]->Array.length}
+              totalResults={[openedTransaction]->Array.length}
               offset
               setOffset
-              currrentFetchCount={[mainEntry]->Array.length}
+              currrentFetchCount={[openedTransaction]->Array.length}
             />
           </div>
         </div>

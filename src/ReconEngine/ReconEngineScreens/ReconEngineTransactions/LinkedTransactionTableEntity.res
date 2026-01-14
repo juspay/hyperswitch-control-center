@@ -17,7 +17,7 @@ let getHeading = (colType: entryColType) => {
   }
 }
 
-let getCell = (entry: entryType, colType: entryColType): Table.cell => {
+let getCell = (entry: transactionType, colType: entryColType): Table.cell => {
   let linkedTransactionEntry =
     entry.linked_transaction->Option.getOr(
       Dict.make()->ReconEngineUtils.linkedTransactionItemToObjMapper,
