@@ -27,11 +27,13 @@ module EmbeddableAuthEntry = {
       Some(() => Window.removeEventListener("message", handleAuthMessage))
     }, [])
 
-    <GlobalProvider>
-      <UserInfoProvider isEmbeddableApp=true>
-        <EmbeddableApp key={componentKey} />
-      </UserInfoProvider>
-    </GlobalProvider>
+    <EmbeddedCheckProvider>
+      <GlobalProvider>
+        <UserInfoProvider isEmbeddableApp=true>
+          <EmbeddableApp key={componentKey} />
+        </UserInfoProvider>
+      </GlobalProvider>
+    </EmbeddedCheckProvider>
   }
 }
 
