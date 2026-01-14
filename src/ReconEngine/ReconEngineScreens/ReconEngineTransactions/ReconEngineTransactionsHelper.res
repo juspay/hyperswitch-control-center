@@ -293,12 +293,12 @@ module EntryAuditTrailInfo = {
           </div>
         </div>
       </RenderIf>
-      <RenderIf condition={reconciledEntries->Array.length > 0}>
+      <RenderIf condition={mainEntry.linked_transaction->Option.isSome}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
           <div className="overflow-visible">
             <LoadedTable
-              title="Reconciled Entries"
+              title="Linked Entries"
               hideTitle=true
               actualData={[mainEntry]->Array.map(Nullable.make)}
               entity={LinkedTransactionTableEntity.entriesEntityForLinkedTxn()}

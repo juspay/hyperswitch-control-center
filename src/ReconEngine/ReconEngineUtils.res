@@ -349,6 +349,7 @@ let linkedTransactionItemToObjMapper = dict => {
 }
 
 let entryItemToObjMapper = dict => {
+  let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   {
     entry_id: dict->getString("entry_id", ""),
     entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
@@ -367,11 +368,9 @@ let entryItemToObjMapper = dict => {
     effective_at: dict->getString("effective_at", ""),
     staging_entry_id: dict->getOptionString("staging_entry_id"),
     transformation_id: dict->getOptionString("transformation_id"),
-    linked_transaction: dict
-    ->getDictfromDict("linked_transaction")
-    ->isEmptyDict
+    linked_transaction: linkedTransactionDict->isEmptyDict
       ? None
-      : Some(dict->getDictfromDict("linked_transaction")->linkedTransactionItemToObjMapper),
+      : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
   }
 }
 
