@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.15.0
+
+### Miscellaneous Tasks
+
+- Bugfix ([#4094](https://github.com/juspay/hyperswitch-control-center/pull/4094)) ([`74e8be5`](https://github.com/juspay/hyperswitch-control-center/commit/74e8be5506fc7e24161ee9fff5ab66ae14659dd7))
+
+**Full Changelog:** [`2026.01.14.1...2026.01.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.14.1...2026.01.15.0)
+
+- - -
+
+## 2026.01.14.1
+
+### Miscellaneous Tasks
+
+- Display schema data in column mapping ([#4088](https://github.com/juspay/hyperswitch-control-center/pull/4088)) ([`3f7e0bc`](https://github.com/juspay/hyperswitch-control-center/commit/3f7e0bc1380d638125f683adbc6474ee8e8e25f2))
+- Added linked transaction table ([#4090](https://github.com/juspay/hyperswitch-control-center/pull/4090)) ([`059e0a5`](https://github.com/juspay/hyperswitch-control-center/commit/059e0a572117a5773dffba11c72ffe309c118387))
+
+**Full Changelog:** [`2026.01.14.0...2026.01.14.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.14.0...2026.01.14.1)
+
+- - -
+
+## 2026.01.14.0
+
+### Bug Fixes
+
+- Recon engine revert invite ([#4076](https://github.com/juspay/hyperswitch-control-center/pull/4076)) ([`8b44f60`](https://github.com/juspay/hyperswitch-control-center/commit/8b44f60996ed632bf98da66be76d15ee51a6d6d2))
+
+**Full Changelog:** [`2026.01.13.1...2026.01.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.13.1...2026.01.14.0)
+
+- - -
+
 ## 2026.01.13.1
 
 ### Refactors

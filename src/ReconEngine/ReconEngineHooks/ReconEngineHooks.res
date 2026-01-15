@@ -127,7 +127,6 @@ let useGetTransformationHistory = () => {
 
 let useFetchMetadataSchema = () => {
   open APIUtils
-  open LogicUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -140,8 +139,7 @@ let useFetchMetadataSchema = () => {
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG_WITH_METADATA,
         ~id=Some(transformationId),
       )
-      let res = await fetchDetails(url)
-      res->getDictFromJsonObject->metadataSchemaItemToObjMapper
+      await fetchDetails(url)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }
