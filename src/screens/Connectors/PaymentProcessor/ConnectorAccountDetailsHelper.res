@@ -410,7 +410,7 @@ module BusinessProfileRender = {
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let hereTextStyle = isUpdateFlow

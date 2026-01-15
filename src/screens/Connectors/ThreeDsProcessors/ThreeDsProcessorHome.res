@@ -65,7 +65,7 @@ let make = () => {
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
