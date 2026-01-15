@@ -38,6 +38,7 @@
     "@eslint/create-config": "0.4.6",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
+    "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^9.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^5.0.1",
