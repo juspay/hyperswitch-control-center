@@ -303,7 +303,7 @@ let linkedTransactionItemToObjMapper = dict => {
   {
     transaction_id: dict->getString("transaction_id", ""),
     created_at: dict->getString("created_at", ""),
-    transaction_status: dict->getString("transaction_status", "")->getDomainTransactionStatus(dict),
+    transaction_status: dict->getString("status", "")->getDomainTransactionStatus(dict),
   }
 }
 
