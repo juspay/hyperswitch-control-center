@@ -74,7 +74,7 @@ module TabDetails = {
       ->getDictFromJsonObject
       ->getJsonObjectFromDict("schema_data")
 
-    <div className="overflow-scroll mt-4">
+    <div className="mt-4">
       {switch activeTab {
       | #advanced =>
         <div className="p-4">
@@ -83,7 +83,7 @@ module TabDetails = {
           </div>
         </div>
       | #default =>
-        <div className="flex flex-col gap-3 py-3 overflow-y-auto h-93-per">
+        <div className="flex flex-col gap-3 py-3">
           <div className="flex items-center gap-4">
             <div className="flex-1 mx-2.5">
               <p className={`${body.lg.medium} text-nd_gray-800`}>
@@ -208,7 +208,7 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
         </div>
       </div>}>
       <div className="h-full relative">
-        <div className="absolute inset-0 overflow-y-auto py-2">
+        <div className="absolute inset-0 overflow-y-auto pb-16">
           <ColumnMappingDisplay metadataSchema jsonMetadataSchema />
         </div>
         <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
