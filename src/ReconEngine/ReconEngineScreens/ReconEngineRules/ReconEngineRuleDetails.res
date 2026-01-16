@@ -57,7 +57,7 @@ module SearchIdentifier = {
     | UnknownReconStrategy => None
     }
 
-    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-nd_gray-0">
+    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
       <div className="flex flex-col gap-1 items-start">
         <p className={`${body.lg.semibold} text-nd_gray-800`}>
           {"How matching records are linked"->React.string}
@@ -93,7 +93,7 @@ module SearchIdentifier = {
 
           <div className="flex items-center gap-10">
             <div className="flex-1 max-w-325">
-              <label className={`${labelCss}`}> {"Source Column"->React.string} </label>
+              <label className=labelCss> {"Source Column"->React.string} </label>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText={getFieldDisplayName(identifier.source_field)}
@@ -113,7 +113,7 @@ module SearchIdentifier = {
               <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
             </div>
             <div className="flex-1 max-w-325">
-              <label className={`${labelCss}`}> {"Target Column"->React.string} </label>
+              <label className=labelCss> {"Target Column"->React.string} </label>
               <SelectBox.BaseDropdown
                 allowMultiSelect=false
                 buttonText={getFieldDisplayName(identifier.target_field)}
@@ -152,7 +152,7 @@ module MappingRules = {
     | UnknownReconStrategy => []
     }
 
-    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-nd_gray-0">
+    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
       <div className="flex flex-col gap-1 items-start">
         <p className={`${body.lg.semibold} text-nd_gray-800`}>
           {"How matches are validated"->React.string}
@@ -295,8 +295,7 @@ module TriggerRules = {
           allowMultiSelect=false
           buttonText={operatorOptions
           ->Array.find(opt => opt.value === triggerOperator)
-          ->Option.map(opt => opt.label)
-          ->Option.getOr("Select Operator")}
+          ->Option.mapOr("Select Operator", opt => opt.label)}
           input=operatorInput
           options=operatorOptions
           hideMultiSelectButtons=true
@@ -367,7 +366,7 @@ module SourceTargetAccount = {
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
     let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
 
-    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-nd_gray-0">
+    <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
       <div className="flex flex-col gap-1 items-start">
         <p className={`${body.lg.semibold} text-nd_gray-800`}>
           {"Expectation Creation"->React.string}
