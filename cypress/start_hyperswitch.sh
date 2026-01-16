@@ -31,6 +31,7 @@ echo "[network_tokenization_service] section removed from $toml_file."
 chmod +x /usr/local/bin/docker-compose
 docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog || {
     echo "Docker Compose failed to start services";
+    docker logs hyperswitch-pg-1;
     docker logs hyperswitch-hyperswitch-server-1;
     docker logs hyperswitch-hyperswitch-web-1;
     exit 1;
