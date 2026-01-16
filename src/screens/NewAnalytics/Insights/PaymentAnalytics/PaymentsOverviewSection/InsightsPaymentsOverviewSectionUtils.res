@@ -8,6 +8,7 @@ let getStringFromVariant = value => {
   | Total_Payment_Processed_Amount => "total_payment_processed_amount"
   | Total_Refund_Processed_Amount => "total_refund_processed_amount"
   | Total_Dispute => "total_dispute"
+  | Total_Authorised_Uncaptured_Count => "payment_intent_count"
   }
 }
 
@@ -18,17 +19,19 @@ let defaultValue =
     total_payment_processed_amount: 0.0,
     total_refund_processed_amount: 0.0,
     total_dispute: 0,
+    total_authorised_uncaptured_count: 0,
   }
   ->Identity.genericTypeToJson
   ->getDictFromJsonObject
 
-let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None) => {
+let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None, ~groupByNames=None) => {
   open InsightsTypes
   InsightsUtils.requestBody(
     ~startTime,
     ~endTime,
     ~delta=entity.requestBodyConfig.delta,
     ~metrics,
+    ~groupByNames,
     ~filter,
   )
 }
@@ -39,6 +42,20 @@ let parseResponse = (response, key) => {
   ->getArrayFromDict(key, [])
   ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
   ->getDictFromJsonObject
+}
+
+let parseResponseAuthorisedUncapturedPayments = (response, key) => {
+  let responseArray =
+    response
+    ->getDictFromJsonObject
+    ->getArrayFromDict(key, [])
+
+  let manualCapture = responseArray->Array.find(data => {
+    let status = data->getDictFromJsonObject->getString("status", "")
+    status == "requires_capture"
+  })
+
+  manualCapture->Option.getOr(Dict.make()->JSON.Encode.object)->getDictFromJsonObject
 }
 
 open InsightsTypes
@@ -56,6 +73,7 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
     | Smart_Retry => #total_success_rate
     | Default => #total_success_rate_without_smart_retries
     }
+  | Total_Authorised_Uncaptured_Count => #total_authorised_uncaptured_count
   | Total_Smart_Retried_Amount =>
     switch (isSmartRetryEnabled, currency->getTypeValue) {
     | (Smart_Retry, #all_currencies) => #total_smart_retried_amount_in_usd
@@ -90,6 +108,10 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currenc
       ->getAmountValue(~id={id->getKey(~currency)}, ~currency)
       ->JSON.Encode.float
     | Total_Dispute =>
+      data
+      ->getFloat(key, 0.0)
+      ->JSON.Encode.float
+    | Total_Authorised_Uncaptured_Count =>
       data
       ->getFloat(key, 0.0)
       ->JSON.Encode.float
@@ -131,6 +153,11 @@ let getInfo = (~responseKey: overviewColumns) => {
   | Total_Dispute => {
       titleText: "All Disputes",
       description: "Total number of disputes irrespective of status in the selected time range",
+      valueType: Volume,
+    }
+  | Total_Authorised_Uncaptured_Count => {
+      titleText: "Authorised Uncaptured Payments Count",
+      description: "Total amount of authorised but uncaptured payments in the selected time range",
       valueType: Volume,
     }
   }
