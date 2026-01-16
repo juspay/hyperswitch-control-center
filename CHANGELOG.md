@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.16.0
+
+### Miscellaneous Tasks
+
+- Recon engine add descriptions in recon rule detail page ([#4079](https://github.com/juspay/hyperswitch-control-center/pull/4079)) ([`8053f59`](https://github.com/juspay/hyperswitch-control-center/commit/8053f595c8e6c1c6028096f620338233b9afeca2))
+
+**Full Changelog:** [`2026.01.15.0...2026.01.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.15.0...2026.01.16.0)
+
+- - -
+
 ## 2026.01.15.0
 
 ### Miscellaneous Tasks
