@@ -1,6 +1,5 @@
 open ReconEngineRulesTypes
 open Typography
-open ReconEngineRulesEntity
 open ReconEngineRulesUtils
 let labelCss = `block ${body.md.medium} text-nd_gray-700 mb-2`
 
@@ -27,6 +26,20 @@ module StatusBadge = {
           {text->React.string}
         </span>
       </div>
+    </div>
+  }
+}
+
+module RuleIDCopy = {
+  @react.component
+  let make = (~ruleId: string) => {
+    <div className="flex flex-col gap-2">
+      <div className={`${body.md.medium} text-nd_gray-500`}> {"Rule ID"->React.string} </div>
+      <HelperComponents.CopyTextCustomComp
+        displayValue=Some(ruleId)
+        copyValue=Some(ruleId)
+        customTextCss={`${body.md.semibold} text-nd_gray-600`}
+      />
     </div>
   }
 }
@@ -59,10 +72,15 @@ module SourceTargetHeader = {
 module SearchIdentifier = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let searchIdentifier =
-      rule.targets
-      ->Array.get(0)
-      ->Option.map(target => target.search_identifier)
+    let searchIdentifier = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => Some(data.search_identifier)
+      | SingleMany(data) => Some(data.search_identifier)
+      | ManySingle(data) => Some(data.search_identifier)
+      }
+    | UnknownReconStrategy => None
+    }
 
     <div className="p-6">
       <SourceTargetHeader />
@@ -132,71 +150,87 @@ module SearchIdentifier = {
 module MappingRules = {
   @react.component
   let make = (~rule: rulePayload) => {
-    let mappingRules =
-      rule.targets
-      ->Array.get(0)
-      ->Option.map(target => target.match_rules.rules)
-      ->Option.getOr([])
+    let mappingRules = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => data.match_rules.rules
+      | SingleMany(data) => data.match_rules.rules
+      | ManySingle(data) => data.match_rules.rules
+      }
+    | UnknownReconStrategy => []
+    }
 
     <div className="p-6">
-      <SourceTargetHeader />
-      <div className="flex flex-col gap-4">
-        {mappingRules
-        ->Array.mapWithIndex((mapping, index) => {
-          let sourceFieldInput = createFormInput(
-            ~name=`mapping_source_${index->Int.toString}`,
-            ~value=mapping.source_field,
-          )
-          let targetFieldInput = createFormInput(
-            ~name=`mapping_target_${index->Int.toString}`,
-            ~value=mapping.target_field,
-          )
-
-          let sourceFieldOptions = [
-            createDropdownOption(
-              ~label=getFieldDisplayName(mapping.source_field),
+      <RenderIf condition={mappingRules->Array.length === 0}>
+        <div>
+          <p className={`${body.md.semibold} text-center text-nd_gray-500`}>
+            {"No external mapping rules configured"->React.string}
+          </p>
+          <p className={`${body.sm.medium} text-center text-nd_gray-400 mt-2`}>
+            {"By default, Amount, Currency, Order ID, and Transaction Date are used for reconciliation"->React.string}
+          </p>
+        </div>
+      </RenderIf>
+      <RenderIf condition={mappingRules->Array.length > 0}>
+        <SourceTargetHeader />
+        <div className="flex flex-col gap-4">
+          {mappingRules
+          ->Array.mapWithIndex((mapping, index) => {
+            let sourceFieldInput = createFormInput(
+              ~name=`mapping_source_${index->Int.toString}`,
               ~value=mapping.source_field,
-            ),
-          ]
-          let targetFieldOptions = [
-            createDropdownOption(
-              ~label=getFieldDisplayName(mapping.target_field),
+            )
+            let targetFieldInput = createFormInput(
+              ~name=`mapping_target_${index->Int.toString}`,
               ~value=mapping.target_field,
-            ),
-          ]
+            )
 
-          <div key={LogicUtils.randomString(~length=10)} className="flex items-center gap-4 py-2">
-            <div className="flex-1 max-w-xs">
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText={getFieldDisplayName(mapping.source_field)}
-                input=sourceFieldInput
-                options=sourceFieldOptions
-                hideMultiSelectButtons=true
-                deselectDisable=true
-                disableSelect=true
-                fullLength=true
-              />
+            let sourceFieldOptions = [
+              createDropdownOption(
+                ~label=getFieldDisplayName(mapping.source_field),
+                ~value=mapping.source_field,
+              ),
+            ]
+            let targetFieldOptions = [
+              createDropdownOption(
+                ~label=getFieldDisplayName(mapping.target_field),
+                ~value=mapping.target_field,
+              ),
+            ]
+
+            <div key={LogicUtils.randomString(~length=10)} className="flex items-center gap-4 py-2">
+              <div className="flex-1 max-w-xs">
+                <SelectBox.BaseDropdown
+                  allowMultiSelect=false
+                  buttonText={getFieldDisplayName(mapping.source_field)}
+                  input=sourceFieldInput
+                  options=sourceFieldOptions
+                  hideMultiSelectButtons=true
+                  deselectDisable=true
+                  disableSelect=true
+                  fullLength=true
+                />
+              </div>
+              <div className="flex items-center">
+                <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
+              </div>
+              <div className="flex-1 max-w-xs">
+                <SelectBox.BaseDropdown
+                  allowMultiSelect=false
+                  buttonText={getFieldDisplayName(mapping.target_field)}
+                  input=targetFieldInput
+                  options=targetFieldOptions
+                  hideMultiSelectButtons=true
+                  deselectDisable=true
+                  disableSelect=true
+                  fullLength=true
+                />
+              </div>
             </div>
-            <div className="flex items-center">
-              <Icon name="nd-arrow-right" size=14 className="text-nd_gray-500" />
-            </div>
-            <div className="flex-1 max-w-xs">
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText={getFieldDisplayName(mapping.target_field)}
-                input=targetFieldInput
-                options=targetFieldOptions
-                hideMultiSelectButtons=true
-                deselectDisable=true
-                disableSelect=true
-                fullLength=true
-              />
-            </div>
-          </div>
-        })
-        ->React.array}
-      </div>
+          })
+          ->React.array}
+        </div>
+      </RenderIf>
     </div>
   }
 }
@@ -213,10 +247,15 @@ module TriggerRules = {
     let operatorOptions = getOperatorOptions()
     let fieldOptions = getFieldOptions()
 
-    let triggerData =
-      rule.sources
-      ->Array.get(0)
-      ->Option.map(source => source.trigger)
+    let triggerData = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => Some(data.source_account.trigger)
+      | SingleMany(data) => Some(data.source_account.trigger)
+      | ManySingle(data) => Some(data.source_account.trigger)
+      }
+    | UnknownReconStrategy => None
+    }
 
     let triggerField = triggerData->Option.map(trigger => trigger.field)->Option.getOr("")
     let triggerOperator =
@@ -306,10 +345,15 @@ module SourceTargetAccount = {
         createDropdownOption(~label=account.account_name, ~value=account.account_id)
       )
 
-    let sourceAccountId =
-      rule.sources->Array.get(0)->Option.map(source => source.account_id)->Option.getOr("")
-    let targetAccountId =
-      rule.targets->Array.get(0)->Option.map(target => target.account_id)->Option.getOr("")
+    let (sourceAccountId, targetAccountId) = switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
+      | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
+      | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
+      }
+    | UnknownReconStrategy => ("", "")
+    }
 
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
     let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
@@ -432,7 +476,6 @@ module RuleDetailsContent = {
   let make = (~rule: rulePayload) => {
     let fields = [
       ("Rule Name", rule.rule_name),
-      ("ID", rule.rule_id),
       (
         "Description",
         rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
@@ -447,6 +490,7 @@ module RuleDetailsContent = {
             <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
           })
           ->React.array}
+          <RuleIDCopy.make ruleId={rule.rule_id} />
           <StatusBadge isActive={rule.is_active} />
         </div>
       </div>
@@ -458,6 +502,8 @@ module RuleDetailsContent = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  open LogicUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -473,7 +519,7 @@ let make = (~id) => {
         ~id=Some(id),
       )
       let res = await fetchDetails(url)
-      let rule = res->LogicUtils.getDictFromJsonObject->ruleItemToObjMapper
+      let rule = res->getDictFromJsonObject->ruleItemToObjMapper
       setRuleData(_ => Some(rule))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

@@ -3,7 +3,6 @@ open ReconEngineTypes
 open ReconEngineTransformedEntryExceptionsTypes
 open LogicUtils
 open ReconEngineUtils
-open ReconEngineExceptionsTypes
 
 let reasonMultiLineTextInputField = (~label) => {
   <FormRenderer.FieldRenderer
@@ -200,35 +199,6 @@ let currencySelectInputField = (
   />
 }
 
-let transformationConfigSelectInputField = (
-  ~transformationsList: array<ReconEngineTypes.transformationConfigType>,
-  ~disabled: bool=false,
-) => {
-  let transformationOptions = transformationsList->Array.map((config): SelectBox.dropdownOption => {
-    {
-      value: config.transformation_id,
-      label: config.name,
-    }
-  })
-
-  <FormRenderer.FieldRenderer
-    labelClass="font-semibold"
-    field={FormRenderer.makeFieldInfo(
-      ~label="Transformation Config",
-      ~name="transformation_id",
-      ~placeholder="Select transformation config",
-      ~customInput=InputFields.selectInput(
-        ~options=transformationOptions,
-        ~fullLength=true,
-        ~buttonText="Select transformation config",
-        ~disableSelect=disabled,
-      ),
-      ~isRequired=true,
-      ~disabled,
-    )}
-  />
-}
-
 let amountTextInputField = (~disabled: bool=false) => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
@@ -273,17 +243,6 @@ let effectiveAtDatePickerInputField = () => {
       ),
       ~isRequired=true,
       ~disabled=false,
-    )}
-  />
-}
-
-let metadataCustomInputField = (~disabled: bool=false) => {
-  <FormRenderer.FieldRenderer
-    field={FormRenderer.makeFieldInfo(~label="", ~name="metadata", ~customInput=(
-      ~input,
-      ~placeholder,
-    ) =>
-      <ReconEngineExceptionTransactionHelper.MetadataInput input placeholder disabled={disabled} />
     )}
   />
 }
@@ -533,7 +492,7 @@ module ResolutionModal = {
   let make = (
     ~exceptionStage: exceptionResolutionStage,
     ~setExceptionStage,
-    ~config: resolutionConfig,
+    ~config: ReconEngineExceptionsTypes.resolutionConfig,
     ~children,
     ~activeModal,
     ~setActiveModal,
