@@ -3,7 +3,6 @@ external env: Dict.t<string> = "env"
 
 let appName = Some("hyperswitch")
 
-let serverPath = "dist/hyperswitch"
 let port = 9000
 
 open NodeJs
@@ -45,12 +44,6 @@ module ServerHandler = {
   external handler: (Http.request, Http.response, options) => Promise.t<unit> = "serve-handler"
 }
 
-if appName === Some("hyperswitch") {
-  let htmlInFs = Fs.readFileSync("dist/hyperswitch/index.html", {"encoding": "utf8"})
-
-  Fs.writeFileSync("dist/hyperswitch/hyperswitch.html", htmlInFs)
-}
-
 type encodeType = {encoding: string}
 
 @module("child_process")
@@ -85,6 +78,12 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->Option.getOr("")
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
+
+  let (serverPath, baseHtmlRoute) = if path->String.startsWith("/embedded") {
+    ("dist", "embedded/index.html")
+  } else {
+    ("dist/hyperswitch", "index.html")
+  }
 
   if path->String.includes("/config/merchant") && request.method === "POST" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
@@ -161,7 +160,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
             headers,
           },
         ],
-        ~rewrites=[makeRewrite(~source="**", ~destination="/index.html")],
+        ~rewrites=[makeRewrite(~source="**", ~destination=baseHtmlRoute)],
       ),
     )
   }

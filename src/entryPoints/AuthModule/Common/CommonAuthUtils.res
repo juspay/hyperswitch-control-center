@@ -119,6 +119,7 @@ let errorSubCodeMapper = (subCode: string) => {
   switch subCode {
   | "HE_02" => HE_02
   | "IR_48" => IR_48
+  | "IR_47" => IR_47
   | "UR_01" => UR_01
   | "UR_03" => UR_03
   | "UR_05" => UR_05
