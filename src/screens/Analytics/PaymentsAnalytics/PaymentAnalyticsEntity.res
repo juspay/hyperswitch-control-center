@@ -201,6 +201,7 @@ let singleStateInitialValue = {
   connector_success_rate: 0.0,
   payment_processed_amount: 0.0,
   payment_avg_ticket_size: 0.0,
+  authorised_uncaptured_payments: 0,
 }
 
 let singleStateSeriesInitialValue = {
@@ -228,6 +229,7 @@ let singleStateItemToObjMapper = json => {
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
+    authorised_uncaptured_payments: 0,
   })
   ->Option.getOr({
     singleStateInitialValue
@@ -254,7 +256,27 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStateItemToObjMapper)
+  let queryData = json->getQueryData
+
+  let authorisedCount =
+    queryData
+    ->Array.map(getDictFromJsonObject)
+    ->Array.find(dict => dict->getString("status", "") == AnalyticsUtils.authorizedStatus)
+    ->Option.mapOr(0, dict => dict->getInt("payment_count", 0))
+
+  if authorisedCount > 0 {
+    [{...singleStateInitialValue, authorised_uncaptured_payments: authorisedCount}]
+  } else {
+    let isStatusGrouped = queryData->Array.some(item => {
+      item->getDictFromJsonObject->getString("status", "") != ""
+    })
+
+    if isStatusGrouped {
+      [{...singleStateInitialValue, authorised_uncaptured_payments: 0}]
+    } else {
+      queryData->Array.map(singleStateItemToObjMapper)
+    }
+  }
 }
 
 let timeSeriesObjMapper = json =>
@@ -270,11 +292,18 @@ type colT =
   | TotalSmartRetries
   | SmartRetriedAmount
   | ConnectorSuccessRate
+  | AuthorisedUncaptured
 
 let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, ConnectorSuccessRate, Count, SuccessCount]->generateDefaultStateColumns,
+    columns: [
+      SuccessRate,
+      ConnectorSuccessRate,
+      Count,
+      SuccessCount,
+      AuthorisedUncaptured,
+    ]->generateDefaultStateColumns,
   },
 ]
 
@@ -386,6 +415,21 @@ let getStatData = (
       },
       data: constructData("payment_success_rate", timeSeriesData, currency),
       statType: "Rate",
+      showDelta: false,
+    }
+  | AuthorisedUncaptured => {
+      title: "Authorised Uncaptured Payments",
+      tooltipText: "Total payments authorised but not captured",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.authorised_uncaptured_payments->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.authorised_uncaptured_payments->Int.toFloat,
+      delta: {
+        singleStatData.authorised_uncaptured_payments->Int.toFloat
+      },
+      data: constructData("payment_count", timeSeriesData, currency),
+      statType: "Volume",
       showDelta: false,
     }
   | Count => {
@@ -539,13 +583,24 @@ let getSingleStatEntity = (metrics, defaultColumns, ~uri) => {
       uri,
       metrics: metrics->getStringListFromArrayDict,
     },
+    {
+      uri,
+      metrics: ["payment_count"],
+      groupByNames: ["status"],
+      prefix: "statusGrouped_",
+    },
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => uri,
+  matrixUriMapper: colType => {
+    switch colType {
+    | AuthorisedUncaptured => `statusGrouped_${uri}`
+    | _ => uri
+    }
+  },
 }
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [

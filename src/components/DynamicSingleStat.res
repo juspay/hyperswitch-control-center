@@ -48,6 +48,7 @@ type singleStatBodyEntity = {
 type urlConfig = {
   uri: string,
   metrics: array<string>,
+  groupByNames?: array<string>,
   prefix?: string,
 }
 type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
@@ -88,6 +89,7 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
+      ~groupByNames=singleStatBodyEntity.groupByNames,
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -288,6 +290,7 @@ let make = (
         let singleStatBodyEntity = {
           filter: ?filterValueFromUrl,
           metrics,
+          groupByNames: ?urlConfig.groupByNames,
           delta: getDelta,
           startDateTime: startTime,
           endDateTime: endTimeFromUrl,
