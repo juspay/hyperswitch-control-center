@@ -794,3 +794,7 @@ let filterMetrics = metrics => {
     metricName != "payments_distribution"
   })
 }
+
+/* Payment Status value for authorised but uncaptured payments in Old Analytics
+ It corresponds to "requires_capture" status in New Analytics */
+let authorizedStatus = "authorized"
