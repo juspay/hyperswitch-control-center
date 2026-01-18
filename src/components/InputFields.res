@@ -32,7 +32,7 @@ let selectInput = (
   ~customButton=React.null,
   ~buttonType=Button.SecondaryFilled,
   ~dropdownCustomWidth="w-80",
-  ~allowButtonTextMinWidth=?,
+  ~allowButtonTextMinWidth=false,
   ~setExtSearchString=_ => (),
   ~textStyleClass=?,
   ~ellipsisOnly=false,
@@ -67,7 +67,7 @@ let selectInput = (
     customButton
     buttonType
     dropdownCustomWidth
-    ?allowButtonTextMinWidth
+    allowButtonTextMinWidth
     setExtSearchString
     ?textStyleClass
     ellipsisOnly
