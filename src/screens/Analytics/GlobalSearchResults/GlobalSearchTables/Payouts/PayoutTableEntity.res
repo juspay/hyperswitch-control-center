@@ -143,7 +143,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
     business_country: dict->getString(BusinessCountry->colMapper, "NA"),
     business_label: dict->getString(BusinessLabel->colMapper, "NA"),
     entity_type: dict->getString(EntityType->colMapper, "NA"),
-    created_at: dict->getString(CreatedAt->colMapper, "NA"),
+    created_at: dict->getString("timestamp", "NA"),
     last_modified_at: dict->getString(LastModifiedAt->colMapper, "NA"),
     additional_payout_method_data: None,
     metadata: None,
@@ -263,7 +263,7 @@ let getCell = (payoutObj, colType): Table.cell => {
   | BusinessCountry => Text(payoutObj.business_country)
   | BusinessLabel => Text(payoutObj.business_label)
   | EntityType => Text(payoutObj.entity_type)
-  | CreatedAt => Text(payoutObj.created_at)
+  | CreatedAt => Date(payoutObj.created_at)
   | LastModifiedAt => Text(payoutObj.last_modified_at)
   | AdditionalPayoutMethodData => Text("N/A")
   | Metadata => Text("N/A")
