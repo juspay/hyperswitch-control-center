@@ -16,6 +16,7 @@ module Provider = {
 let make = (~children) => {
   open Typography
   open LogicUtils
+  open EmbeddableGlobalUtils
 
   let isEmbedded = (): bool => {
     Window.self !== Window.top
@@ -30,18 +31,26 @@ let make = (~children) => {
     let objectdata = ev->HandlingEvents.convertToCustomEvent
     switch objectdata.data->JSON.Decode.object {
     | Some(dict) => {
-        let tokenFromParent = dict->getString("token", "")
+        let tokenFromParent = dict->getOptionString("token")
         let messageType = dict->getString("type", "")
 
-        if messageType->isNonEmptyString && messageType == "AUTH_TOKEN" {
-          if tokenFromParent->isNonEmptyString {
-            LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
-            setComponentKey(_ => randomString(~length=10))
-            setEmbeddedState(_ => Success)
+        switch tokenFromParent {
+        | Some(tokenStringFromParent) =>
+          if messageType->isNonEmptyString {
+            if (
+              messageType->messageToTypeConversion == AUTH_TOKEN &&
+                tokenStringFromParent->isNonEmptyString
+            ) {
+              LocalStorage.setItem("EMBEDDABLE_INFO", tokenStringFromParent)
+              setComponentKey(_ => randomString(~length=10))
+              setEmbeddedState(_ => Success)
+            }
           }
+        | None => ()
         }
-        if messageType == "AUTH_ERROR" {
-          LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
+
+        if messageType->messageToTypeConversion == AUTH_ERROR {
+          LocalStorage.setItem("EMBEDDABLE_INFO", "")
           setEmbeddedState(_ => TokenFetchError)
         }
       }
@@ -70,7 +79,7 @@ let make = (~children) => {
         <div className="max-w-lg w-full rounded-lg shadow-md border border-nd_gray-200 p-8">
           <div className="flex flex-col items-center text-center">
             <div className="mb-6">
-              <Icon name="exclamation-circle" size=25 className="text-blue-500" />
+              <Icon name="exclamation-circle" size=25 className="text-nd_primary_blue-500" />
             </div>
             <div className={`${heading.md.semibold} text-nd_gray-800 mb-3`}>
               {"Direct Link Not Supported"->React.string}
@@ -94,7 +103,7 @@ let make = (~children) => {
         <div className="max-w-lg w-full rounded-lg shadow-md border border-nd_gray-200 p-8">
           <div className="flex flex-col items-center text-center">
             <div className="mb-6">
-              <Icon name="exclamation-circle" size=25 className="text-blue-500" />
+              <Icon name="exclamation-circle" size=25 className="text-nd_primary_blue-500" />
             </div>
             <div className={`${heading.md.semibold} text-nd_gray-800 mb-3`}>
               {"Something went wrong"->React.string}

@@ -35,6 +35,19 @@ let configMiddleware = (req, res, next) => {
   next();
 };
 
+let assetRewriteMiddleware = (req, res, next) => {
+  // Rewrite URLs for static assets - add /embedded/ prefix
+  // This allows shared code to reference assets without /embedded/ prefix
+  if (
+    req.path.match(/\.\w+$/) &&
+    !req.path.startsWith("/embedded") &&
+    !req.path.startsWith("/api")
+  ) {
+    req.url = "/embedded" + req.path;
+  }
+  next();
+};
+
 let libBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
@@ -59,12 +72,16 @@ let libBuild = () => {
       assetModuleFilename: "assets/[name][ext][query]",
     },
     devServer: {
-      port: 5000,
+      static: { directory: path.resolve(__dirname, "dist", "embedded") },
+      port: 9000,
       hot: true,
-      historyApiFallback: true,
+      historyApiFallback: {
+        rewrites: [{ from: /^\/embedded/, to: "/embedded/index.html" }],
+      },
       proxy: proxy,
       setupMiddlewares: (middlewares, devServer) => {
         devServer.app.use(configMiddleware);
+        devServer.app.use(assetRewriteMiddleware);
         return middlewares;
       },
     },
@@ -124,11 +141,12 @@ let libBuild = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          // Copy app-specific files except index.html
+          // Copy hyperswitch files to root (not embedded subfolder)
           {
-            from: `public/hyperswitch`,
+            from: "public/hyperswitch",
+            to: ".",
             globOptions: {
-              ignore: ["**/index.html"], // Don't copy app index.html
+              ignore: ["**/index.html"],
             },
           },
           // Copy libapp index.html explicitly

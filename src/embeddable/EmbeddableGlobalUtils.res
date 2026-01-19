@@ -29,3 +29,11 @@ let sendEventToParentForRefetchToken = () => {
     ("value", true->JSON.Encode.bool),
   ])
 }
+
+let messageToTypeConversion = messageString => {
+  switch messageString->String.toLowerCase {
+  | "auth_token" => EmbeddedTypes.AUTH_TOKEN
+  | "auth_error" => EmbeddedTypes.AUTH_ERROR
+  | str => EmbeddedTypes.Unknown(str)
+  }
+}
