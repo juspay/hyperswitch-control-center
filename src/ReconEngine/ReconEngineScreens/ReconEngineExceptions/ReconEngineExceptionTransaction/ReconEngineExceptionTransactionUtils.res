@@ -232,10 +232,7 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
     let initialMetadataArray = initialMetadata->Dict.toArray
     currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
       currentMetadataArray->Array.some(((key, value)) => {
-        switch initialMetadata->Dict.get(key) {
-        | Some(initialValue) => initialValue != value
-        | None => true
-        }
+        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
       })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
@@ -422,16 +419,14 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
 
   let initialMetadata = initialEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
   initialMetadata->Array.forEach(((key, initialValue)) => {
-    let updatedValue =
+    let updatedValueStr =
       updatedEntry.metadata
       ->getFilteredMetadataFromEntries
-      ->Dict.get(key)
-      ->Option.getOr(""->JSON.Encode.string)
+      ->getString(key, "")
 
-    if initialValue != updatedValue {
-      let message = `Metadata field '${key}' changed from '${initialValue->getStringFromJson(
-          "",
-        )}' to '${updatedValue->getStringFromJson("")}' in ${updatedEntry.account_name} account.`
+    let initialValueStr = initialValue->getStringFromJson("")
+    if initialValueStr != updatedValueStr {
+      let message = `Metadata field '${key}' changed from '${initialValueStr}' to '${updatedValueStr}' in ${updatedEntry.account_name} account.`
       summary->Array.push(message)
     }
   })
