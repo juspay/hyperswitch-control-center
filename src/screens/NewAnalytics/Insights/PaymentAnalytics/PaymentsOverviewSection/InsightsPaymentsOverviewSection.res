@@ -272,18 +272,18 @@ let make = (~entity: moduleEntity) => {
         data responseKey={Total_Smart_Retried_Amount}
       />
       <OverViewStat
-        data
-        responseKey={Total_Authorised_Uncaptured_Count}
-        getInfo
-        getValueFromObj
-        getStringFromVariant
-      />
-      <OverViewStat
         data responseKey={Total_Success_Rate} getInfo getValueFromObj getStringFromVariant
       />
       <OverViewStat
         data
         responseKey={Total_Payment_Processed_Amount}
+        getInfo
+        getValueFromObj
+        getStringFromVariant
+      />
+      <OverViewStat
+        data
+        responseKey={Total_Authorised_Uncaptured_Count}
         getInfo
         getValueFromObj
         getStringFromVariant
