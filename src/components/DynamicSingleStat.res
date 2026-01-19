@@ -368,6 +368,7 @@ let make = (
         let singleStatBodyEntity = {
           filter: ?filterValueFromUrl,
           metrics,
+          groupByNames: ?urlConfig.groupByNames,
           delta: false,
           startDateTime: startTime,
           endDateTime: endTimeFromUrl,

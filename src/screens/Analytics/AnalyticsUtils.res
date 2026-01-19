@@ -795,6 +795,9 @@ let filterMetrics = metrics => {
   })
 }
 
-/* Payment Status value for authorised but uncaptured payments in Old Analytics
- It corresponds to "requires_capture" status in New Analytics */
-let authorizedStatus = "authorized"
+type paymentStatus = [#authorizedUncaptured | #other]
+
+let statusVariantToString = status =>
+  switch status {
+  | #authorizedUncaptured => "authorized"
+  }

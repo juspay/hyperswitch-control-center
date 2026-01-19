@@ -176,6 +176,7 @@ type paymentsSingleState = {
 
 type paymentsSingleStateSeries = {
   ...commonMetrics,
+  authorised_uncaptured_payments: int,
   time_series: string,
 }
 
