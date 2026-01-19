@@ -66,38 +66,85 @@ module FileAndSystemColumnMapping = {
   }
 }
 
+module TabDetails = {
+  @react.component
+  let make = (~activeTab: columnMappingTabs, ~metadataSchema, ~jsonMetadataSchema) => {
+    let schemaData =
+      jsonMetadataSchema
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("schema_data")
+
+    <div className="mt-4">
+      {switch activeTab {
+      | #advanced =>
+        <div className="p-4">
+          <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll py-2">
+            <PrettyPrintJson jsonToDisplay={schemaData->JSON.stringify} />
+          </div>
+        </div>
+      | #default =>
+        <div className="flex flex-col gap-3 py-3">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 mx-2.5">
+              <p className={`${body.lg.medium} text-nd_gray-800`}>
+                {"File column"->React.string}
+              </p>
+            </div>
+            <div />
+            <div className="flex-1 mx-2.5">
+              <p className={`${body.lg.medium} text-nd_gray-800`}>
+                {"System column"->React.string}
+              </p>
+            </div>
+          </div>
+          <div className="w-full">
+            <div className="flex flex-col gap-y-4">
+              {basicFieldMappingList
+              ->Array.map(fieldType => {
+                <FileAndSystemColumnMapping
+                  fileColumn={metadataSchema.schema_data.fields->getBasicFieldIdentifier(fieldType)}
+                  systemColumn={(fieldType :> string)}
+                />
+              })
+              ->React.array}
+              {metadataSchema.schema_data.fields.metadata_fields
+              ->Array.map(field => {
+                <FileAndSystemColumnMapping
+                  fileColumn=field.identifier systemColumn={field.field_name->entryFieldToString}
+                />
+              })
+              ->React.array}
+            </div>
+          </div>
+        </div>
+      }}
+    </div>
+  }
+}
+
 module ColumnMappingDisplay = {
   @react.component
-  let make = (~metadataSchema: metadataSchemaType) => {
-    <div className="flex flex-col gap-3 py-3 overflow-y-auto h-93-per">
-      <div className="flex items-center gap-4 px-6">
-        <div className="flex-1 mx-2.5">
-          <p className={`${body.lg.medium} text-nd_gray-800`}> {"File column"->React.string} </p>
-        </div>
-        <div />
-        <div className="flex-1 mx-2.5">
-          <p className={`${body.lg.medium} text-nd_gray-800`}> {"System column"->React.string} </p>
-        </div>
-      </div>
-      <div className="px-6 w-full">
-        <div className="flex flex-col gap-y-4">
-          {basicFieldMappingList
-          ->Array.map(fieldType => {
-            <FileAndSystemColumnMapping
-              fileColumn={metadataSchema.schema_data.fields->getBasicFieldIdentifier(fieldType)}
-              systemColumn={(fieldType :> string)}
-            />
-          })
-          ->React.array}
-          {metadataSchema.schema_data.fields.metadata_fields
-          ->Array.map(field => {
-            <FileAndSystemColumnMapping
-              fileColumn=field.identifier systemColumn={field.field_name}
-            />
-          })
-          ->React.array}
-        </div>
-      </div>
+  let make = (~metadataSchema: metadataSchemaType, ~jsonMetadataSchema: JSON.t) => {
+    let tabList: array<Tabs.tab> = [
+      {
+        title: "Default",
+        renderContent: () => <TabDetails activeTab=#default metadataSchema jsonMetadataSchema />,
+      },
+      {
+        title: "Advanced",
+        renderContent: () => <TabDetails activeTab=#advanced metadataSchema jsonMetadataSchema />,
+      },
+    ]
+
+    <div className="px-6">
+      <Tabs
+        tabs=tabList
+        disableIndicationArrow=true
+        showBorder=false
+        includeMargin=false
+        lightThemeColor="black"
+        defaultClasses={`font-ibm-plex w-max flex flex-auto flex-row items-center justify-center text-body ${body.md.semibold}`}
+      />
     </div>
   }
 }
@@ -112,13 +159,18 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
   let (metadataSchema, setMetadataSchema) = React.useState(_ =>
     Dict.make()->metadataSchemaItemToObjMapper
   )
+  let (jsonMetadataSchema, setJsonMetadataSchema) = React.useState(_ => JSON.Encode.null)
 
   let fetchTransformationConfigDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let parsedMetadataSchema = await fetchMetadataSchema(
-        ~transformationId=selectedTransformationId,
-      )
+      let jsonMetadataSchema = await fetchMetadataSchema(~transformationId=selectedTransformationId)
+      setJsonMetadataSchema(_ => jsonMetadataSchema)
+
+      let parsedMetadataSchema =
+        jsonMetadataSchema
+        ->getDictFromJsonObject
+        ->metadataSchemaItemToObjMapper
 
       if parsedMetadataSchema.id->isNonEmptyString {
         setMetadataSchema(_ => parsedMetadataSchema)
@@ -156,8 +208,8 @@ let make = (~showModal, ~setShowModal, ~selectedTransformationId: string) => {
         </div>
       </div>}>
       <div className="h-full relative">
-        <div className="absolute inset-0 overflow-y-auto py-2">
-          <ColumnMappingDisplay metadataSchema />
+        <div className="absolute inset-0 overflow-y-auto pb-16">
+          <ColumnMappingDisplay metadataSchema jsonMetadataSchema />
         </div>
         <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
           <Button

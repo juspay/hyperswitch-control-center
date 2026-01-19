@@ -189,6 +189,12 @@ type domainTransactionStatus =
   | PartiallyReconciled
   | UnknownDomainTransactionStatus
 
+type linkedTransactionType = {
+  transaction_id: string,
+  created_at: string,
+  transaction_status: domainTransactionStatus,
+}
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -203,6 +209,7 @@ type transactionType = {
   created_at: string,
   effective_at: string,
   data: transactionDataType,
+  linked_transaction: option<linkedTransactionType>,
 }
 
 type entryType = {
@@ -305,9 +312,13 @@ type fieldTypeVariant =
   | DateTimeField
   | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
 
+type entryField =
+  | String
+  | Metadata(string)
+
 type metadataFieldType = {
   identifier: string,
-  field_name: string,
+  field_name: entryField,
   field_type: fieldTypeVariant,
   required: bool,
   description: string,
@@ -351,3 +362,5 @@ type metadataSchemaType = {
   created_at: string,
   last_modified_at: string,
 }
+
+type columnMappingTabs = [#default | #advanced]

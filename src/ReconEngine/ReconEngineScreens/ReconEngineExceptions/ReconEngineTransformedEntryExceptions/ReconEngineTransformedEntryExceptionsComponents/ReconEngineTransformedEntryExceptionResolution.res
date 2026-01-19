@@ -40,6 +40,7 @@ module EditEntryModalContent = {
     open ReconEngineHooks
     open LogicUtils
     open ReconEngineExceptionsHelper
+    open ReconEngineUtils
 
     let getAccounts = useGetAccounts()
     let getURL = useGetURL()
@@ -50,7 +51,7 @@ module EditEntryModalContent = {
     let (accountsList, setAccountsList) = React.useState(_ => [])
     let (transformationsList, setTransformationsList) = React.useState(_ => [])
     let (metadataSchema, setMetadataSchema) = React.useState(_ =>
-      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+      Dict.make()->metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
     let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
@@ -69,11 +70,14 @@ module EditEntryModalContent = {
           )
           let res = await fetchDetails(url)
           setTransformationsList(_ =>
-            res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
+            res->getArrayDataFromJson(transformationConfigItemToObjMapper)
           )
         }
         if entryDetails.transformation_id->isNonEmptyString {
-          let schema = await fetchMetadataSchema(~transformationId=entryDetails.transformation_id)
+          let schema =
+            (await fetchMetadataSchema(~transformationId=entryDetails.transformation_id))
+            ->getDictFromJsonObject
+            ->metadataSchemaItemToObjMapper
           setMetadataSchema(_ => schema)
         }
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -133,15 +137,14 @@ module EditEntryModalContent = {
             ~setMetadataRows,
             ~isMetadataLoading,
           )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Save changes"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          <div className="flex justify-end my-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Save changes"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
