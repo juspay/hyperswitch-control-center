@@ -268,7 +268,7 @@ let itemToObjMapper = json => {
     [{...singleStateInitialValue, authorised_uncaptured_payments: authorisedCount}]
   } else {
     let isStatusGrouped = queryData->Array.some(item => {
-      item->getDictFromJsonObject->getString("status", "") != ""
+      item->getDictFromJsonObject->getString("status", "")->isNonEmptyString
     })
 
     if isStatusGrouped {
