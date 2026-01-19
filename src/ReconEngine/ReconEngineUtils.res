@@ -482,8 +482,9 @@ let fieldTypeMapper = (dict): fieldTypeVariant => {
 }
 
 let entryFieldFromString = (str: string): entryField => {
-  if str->String.startsWith("metadata.") {
-    let key = str->String.slice(~start=9, ~end=str->String.length)
+  let metadataPrefix = "metadata."
+  if str->String.startsWith(metadataPrefix) {
+    let key = str->String.slice(~start=metadataPrefix->String.length, ~end=str->String.length)
     Metadata(key)
   } else {
     String

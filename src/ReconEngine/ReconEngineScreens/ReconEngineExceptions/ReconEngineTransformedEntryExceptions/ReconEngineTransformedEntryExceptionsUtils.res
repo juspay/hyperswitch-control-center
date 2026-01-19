@@ -187,12 +187,14 @@ let hasFormValuesChanged = (
 
   let isMetadataChanged = {
     let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
-    currentMetadataArray->Array.some(((key, value)) => {
-      switch initialMetadata->Dict.get(key) {
-      | Some(initialValue) => initialValue != value
-      | None => true
-      }
-    })
+    let initialMetadataArray = initialMetadata->Dict.toArray
+    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
+      currentMetadataArray->Array.some(((key, value)) => {
+        switch initialMetadata->Dict.get(key) {
+        | Some(initialValue) => initialValue != value
+        | None => true
+        }
+      })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
   isAccountChanged ||
@@ -233,10 +235,7 @@ let validateEditEntryDetails = (
     let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
 
     metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
-      let fieldKey = switch field.field_name {
-      | Metadata(key) => key
-      | _ => ""
-      }
+      let fieldKey = getFieldNameFromMetadataField(field)
       let value = metadataDict->getString(fieldKey, "")
       let error = ReconEngineExceptionsUtils.validateMetadataFieldValue(
         fieldKey,
@@ -341,9 +340,9 @@ let generateResolutionSummary = (
       ->Option.getOr(""->JSON.Encode.string)
 
     if initialValue != updatedValue {
-      let message = `Metadata field '${key}' changed from '${initialValue->getStringFromJson(
-          "",
-        )}' to '${updatedValue->getStringFromJson("")}'.`
+      let initialStr = initialValue->getStringFromJson("")
+      let updatedStr = updatedValue->getStringFromJson("")
+      let message = `Metadata field '${key}' changed from '${initialStr}' to '${updatedStr}'.`
       summary->Array.push(message)
     }
   })

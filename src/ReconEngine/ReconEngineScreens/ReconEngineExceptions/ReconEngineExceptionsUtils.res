@@ -1,6 +1,13 @@
 open LogicUtils
 open ReconEngineTypes
 
+let getFieldNameFromMetadataField = (field: metadataFieldType): string => {
+  switch field.field_name {
+  | Metadata(key) => key
+  | _ => ""
+  }
+}
+
 let requiredString = (fieldName: string, errorMsg: string) => {
   (data: Dict.t<JSON.t>) => data->getString(fieldName, "")->isEmptyString ? Some(errorMsg) : None
 }

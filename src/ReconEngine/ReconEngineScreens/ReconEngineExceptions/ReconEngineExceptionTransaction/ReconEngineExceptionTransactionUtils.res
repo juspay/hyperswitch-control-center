@@ -229,13 +229,14 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
   let isMetadataChanged = {
     let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
-
-    currentMetadataArray->Array.some(((key, value)) => {
-      switch initialMetadata->Dict.get(key) {
-      | Some(initialValue) => initialValue != value
-      | None => true
-      }
-    })
+    let initialMetadataArray = initialMetadata->Dict.toArray
+    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
+      currentMetadataArray->Array.some(((key, value)) => {
+        switch initialMetadata->Dict.get(key) {
+        | Some(initialValue) => initialValue != value
+        | None => true
+        }
+      })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
@@ -269,10 +270,7 @@ let validateEntryDetailsCommon = (
     let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
 
     metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
-      let fieldKey = switch field.field_name {
-      | Metadata(key) => key
-      | _ => ""
-      }
+      let fieldKey = getFieldNameFromMetadataField(field)
       let value = metadataDict->getString(fieldKey, "")
       let error = validateMetadataFieldValue(fieldKey, value, metadataSchema)
       switch error {

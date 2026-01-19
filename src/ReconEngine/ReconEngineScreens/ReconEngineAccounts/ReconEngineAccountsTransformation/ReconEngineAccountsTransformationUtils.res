@@ -13,7 +13,7 @@ let basicFieldMappingList: array<basicFieldType> = [
 
 let entryFieldToString = (field: entryField): string => {
   switch field {
-  | Metadata(key) => "metadata." ++ key
+  | Metadata(key) => `metadata.${key}`
   | String => ""
   }
 }
