@@ -22,6 +22,26 @@ let getstatusVariantTypeFromString = value => {
   }
 }
 
+let getStringFromStatusVariantType = value => {
+  switch value {
+  | Succeeded => "succeeded"
+  | Failed => "failed"
+  | Cancelled => "cancelled"
+  | Processing => "processing"
+  | RequiresCustomerAction => "requires_customer_action"
+  | RequiresMerchantAction => "requires_merchant_action"
+  | RequiresPaymentMethod => "requires_payment_method"
+  | RequiresConfirmation => "requires_confirmation"
+  | RequiresCapture => "requires_capture"
+  | PartiallyCaptured => "partially_captured"
+  | PartiallyCapturedAndCapturable => "partially_captured_and_capturable"
+  | Full_Refunded => "full_refunded"
+  | Partial_Refunded => "partial_refunded"
+  | Dispute_Present => "dispute_present"
+  | Null => ""
+  }
+}
+
 let paymentLifeCycleResponseMapper = (json: JSON.t, ~isSmartRetryEnabled=true) => {
   let valueDict =
     [

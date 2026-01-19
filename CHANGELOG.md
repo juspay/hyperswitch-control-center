@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.19.0
+
+### Features
+
+- Added audit trail ui for payouts ([#4083](https://github.com/juspay/hyperswitch-control-center/pull/4083)) ([`bd59a1d`](https://github.com/juspay/hyperswitch-control-center/commit/bd59a1dab20b27e912373eebb763f42f58ba39dc))
+
+**Full Changelog:** [`2026.01.16.0...2026.01.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.16.0...2026.01.19.0)
+
+- - -
+
 ## 2026.01.16.0
 
 ### Miscellaneous Tasks
