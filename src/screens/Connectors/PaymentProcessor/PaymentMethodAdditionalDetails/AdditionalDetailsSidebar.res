@@ -40,6 +40,7 @@ module AdditionalDetailsSidebarComp = {
           paymentMethodType=pmtName
           setInitialValues
           closeAccordionFn
+          paymentMethodsEnabled
         />
       | _ => React.null
       }}
