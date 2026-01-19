@@ -111,6 +111,7 @@ let paymentLifeCycleResponseMapper = (json: JSON.t, ~isSmartRetryEnabled=true) =
           valueDict->getInt("smart_retried_failure", 0) + query.count,
         )
       }
+    | RequiresCapture
     | Processing =>
       if includeSmartRetry {
         valueDict->Dict.set("pending", valueDict->getInt("pending", 0) + query.count)
@@ -124,7 +125,6 @@ let paymentLifeCycleResponseMapper = (json: JSON.t, ~isSmartRetryEnabled=true) =
     | RequiresMerchantAction
     | RequiresPaymentMethod
     | RequiresConfirmation
-    | RequiresCapture
     | PartiallyCaptured
     | PartiallyCapturedAndCapturable
     | Null
