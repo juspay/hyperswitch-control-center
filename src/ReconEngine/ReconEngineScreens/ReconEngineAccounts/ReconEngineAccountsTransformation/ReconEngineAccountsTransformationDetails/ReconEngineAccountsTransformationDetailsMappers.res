@@ -110,7 +110,7 @@ module TabDetails = {
               {metadataSchema.schema_data.fields.metadata_fields
               ->Array.map(field => {
                 <FileAndSystemColumnMapping
-                  fileColumn=field.identifier systemColumn={field.field_name}
+                  fileColumn=field.identifier systemColumn={field.field_name->entryFieldToString}
                 />
               })
               ->React.array}

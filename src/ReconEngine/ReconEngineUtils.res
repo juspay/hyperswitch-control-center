@@ -481,10 +481,19 @@ let fieldTypeMapper = (dict): fieldTypeVariant => {
   }
 }
 
+let entryFieldFromString = (str: string): entryField => {
+  if str->String.startsWith("metadata.") {
+    let key = str->String.slice(~start=9, ~end=str->String.length)
+    Metadata(key)
+  } else {
+    String
+  }
+}
+
 let metadataFieldItemToObjMapper = (dict): metadataFieldType => {
   {
     identifier: dict->getString("identifier", ""),
-    field_name: dict->getString("field_name", ""),
+    field_name: dict->getString("field_name", "")->entryFieldFromString,
     field_type: dict->fieldTypeMapper,
     required: dict->getBool("required", false),
     description: dict->getString("description", ""),

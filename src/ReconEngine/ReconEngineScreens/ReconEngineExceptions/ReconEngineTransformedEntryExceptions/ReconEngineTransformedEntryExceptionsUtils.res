@@ -186,10 +186,13 @@ let hasFormValuesChanged = (
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
 
   let isMetadataChanged = {
-    let currentMetadata = currentData->getJsonObjectFromDict("metadata")
-    let currentMetadataJson = currentMetadata
-    let initialMetadataJson = initialMetadata->JSON.Encode.object
-    currentMetadataJson->JSON.stringify != initialMetadataJson->JSON.stringify
+    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
+    currentMetadataArray->Array.some(((key, value)) => {
+      switch initialMetadata->Dict.get(key) {
+      | Some(initialValue) => initialValue != value
+      | None => true
+      }
+    })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
   isAccountChanged ||
@@ -230,15 +233,19 @@ let validateEditEntryDetails = (
     let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
 
     metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
-      let value = metadataDict->getString(field.identifier, "")
+      let fieldKey = switch field.field_name {
+      | Metadata(key) => key
+      | _ => ""
+      }
+      let value = metadataDict->getString(fieldKey, "")
       let error = ReconEngineExceptionsUtils.validateMetadataFieldValue(
-        field.identifier,
+        fieldKey,
         value,
         metadataSchema,
       )
       switch error {
       | Some(err) => {
-          let errorKey = `metadata.${field.identifier}`
+          let errorKey = `metadata.${fieldKey}`
           fieldErrors->Dict.set(errorKey, err->JSON.Encode.string)
         }
       | None => ()
@@ -324,13 +331,22 @@ let generateResolutionSummary = (
     summary->Array.push(message)
   }
 
-  let initialMetadata = currentEntry.metadata->getFilteredMetadataFromEntries->JSON.Encode.object
-  let updatedMetadata = updatedEntry.metadata->getFilteredMetadataFromEntries->JSON.Encode.object
+  let initialMetadata = currentEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
 
-  if initialMetadata->JSON.stringify != updatedMetadata->JSON.stringify {
-    let message = "Metadata fields updated."
-    summary->Array.push(message)
-  }
+  initialMetadata->Array.forEach(((key, initialValue)) => {
+    let updatedValue =
+      updatedEntry.metadata
+      ->getFilteredMetadataFromEntries
+      ->Dict.get(key)
+      ->Option.getOr(""->JSON.Encode.string)
+
+    if initialValue != updatedValue {
+      let message = `Metadata field '${key}' changed from '${initialValue->getStringFromJson(
+          "",
+        )}' to '${updatedValue->getStringFromJson("")}'.`
+      summary->Array.push(message)
+    }
+  })
 
   summary
 }

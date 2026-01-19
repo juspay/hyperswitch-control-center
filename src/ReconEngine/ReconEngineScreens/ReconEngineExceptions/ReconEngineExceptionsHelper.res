@@ -42,6 +42,7 @@ module MetadataInput = {
           {
             id: randomString(~length=10),
             key,
+            displayKey: key,
             value: value->getStringFromJson(""),
           }
         })
@@ -51,20 +52,42 @@ module MetadataInput = {
           metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => field.required)
 
         let requiredRows = requiredFields->Array.map(field => {
+          let fieldKeyName = switch field.field_name {
+          | Metadata(key) => key
+          | _ => ""
+          }
           let existingValue =
             existingRows
-            ->Array.find(row => row.key == field.identifier)
+            ->Array.find(row => row.key == fieldKeyName)
             ->Option.mapOr("", row => row.value)
 
           {
             id: randomString(~length=10),
-            key: field.identifier,
+            key: fieldKeyName,
+            displayKey: field.identifier,
             value: existingValue,
           }
         })
 
-        let optionalRows = existingRows->Array.filter(row => {
-          !(requiredFields->Array.some(field => field.identifier == row.key))
+        let optionalFields =
+          metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => !field.required)
+
+        let optionalRows = optionalFields->Array.map(field => {
+          let fieldKeyName = switch field.field_name {
+          | Metadata(key) => key
+          | _ => ""
+          }
+          let existingValue =
+            existingRows
+            ->Array.find(row => row.key == fieldKeyName)
+            ->Option.mapOr("", row => row.value)
+
+          {
+            id: randomString(~length=10),
+            key: fieldKeyName,
+            displayKey: field.identifier,
+            value: existingValue,
+          }
         })
 
         requiredRows->Array.concat(optionalRows)
@@ -93,9 +116,12 @@ module MetadataInput = {
 
     let isSchemaField = (key: string): bool => {
       metadataSchema.id->isNonEmptyString
-        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
-            field.identifier == key
-          )
+        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field => {
+            switch field.field_name {
+            | Metadata(fieldKey) => fieldKey == key
+            | _ => false
+            }
+          })
         : false
     }
 
@@ -108,17 +134,31 @@ module MetadataInput = {
               )
 
             optionalFields->Array.filter(field => {
-              !(metadataRows->Array.some(row => row.key == field.identifier))
+              switch field.field_name {
+              | Metadata(key) => !(metadataRows->Array.some(row => row.key == key))
+              | _ => false
+              }
             })
           }
         : []
     }, (metadataSchema, metadataRows))
 
     let addOptionalField = (key: string) => {
+      let field = metadataSchema.schema_data.fields.metadata_fields->Array.find(field => {
+        switch field.field_name {
+        | Metadata(fieldKey) => fieldKey == key
+        | _ => false
+        }
+      })
+      let displayKey = switch field {
+      | Some(f) => f.identifier
+      | None => key
+      }
       let newRows = metadataRows->Array.concat([
         {
           id: randomString(~length=10),
           key,
+          displayKey,
           value: "",
         },
       ])
@@ -136,9 +176,12 @@ module MetadataInput = {
 
     let isRequiredField = (key: string): bool => {
       metadataSchema.id->isNonEmptyString
-        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
-            field.identifier == key && field.required
-          )
+        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field => {
+            switch field.field_name {
+            | Metadata(fieldKey) => fieldKey == key && field.required
+            | _ => false
+            }
+          })
         : false
     }
 
@@ -226,9 +269,6 @@ module MetadataInput = {
         <div className="flex flex-row justify-between items-center">
           <p className={`${body.md.semibold} text-nd_gray-700 mb-4`}>
             {"Metadata "->React.string}
-            <span className={`text-nd_gray-400 ${body.md.medium}`}>
-              {"(optional)"->React.string}
-            </span>
           </p>
           <RenderIf condition={!disabled && unusedOptionalFields->Array.length > 0}>
             <SelectBox
@@ -246,8 +286,12 @@ module MetadataInput = {
                 checked: false,
               }
               options={unusedOptionalFields->Array.map((field): SelectBox.dropdownOption => {
+                let fieldValue = switch field.field_name {
+                | Metadata(key) => key
+                | _ => ""
+                }
                 {
-                  value: field.identifier,
+                  value: fieldValue,
                   label: field.identifier ++ " (Optional)",
                 }
               })}
@@ -265,7 +309,8 @@ module MetadataInput = {
         </RenderIf>
         <style> {React.string(expandableTableScrollbarCss)} </style>
         <RenderIf condition={!isMetadataLoading}>
-          <div className="flex flex-col gap-3 max-h-40 overflow-y-scroll show-scrollbar pr-2">
+          <div
+            className="flex flex-col gap-3 min-h-40 max-h-40 overflow-y-scroll show-scrollbar pr-2">
             {metadataRows
             ->Array.map(row => {
               let isRequired = isRequiredField(row.key)
@@ -292,7 +337,7 @@ module MetadataInput = {
                     )(
                       ~input=(
                         {
-                          value: row.key->JSON.Encode.string,
+                          value: row.displayKey->JSON.Encode.string,
                           onChange: e => {
                             let value = ReactEvent.Form.target(e)["value"]
                             updateRowKey(row.id, value)
