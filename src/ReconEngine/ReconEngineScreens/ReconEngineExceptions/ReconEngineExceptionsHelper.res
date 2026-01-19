@@ -52,10 +52,7 @@ module MetadataInput = {
           metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => field.required)
 
         let requiredRows = requiredFields->Array.map(field => {
-          let fieldKeyName = switch field.field_name {
-          | Metadata(key) => key
-          | _ => ""
-          }
+          let fieldKeyName = getFieldNameFromMetadataField(field)
           let existingValue =
             existingRows
             ->Array.find(row => row.key == fieldKeyName)
@@ -73,10 +70,7 @@ module MetadataInput = {
           metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => !field.required)
 
         let optionalRows = optionalFields->Array.map(field => {
-          let fieldKeyName = switch field.field_name {
-          | Metadata(key) => key
-          | _ => ""
-          }
+          let fieldKeyName = getFieldNameFromMetadataField(field)
           let existingValue =
             existingRows
             ->Array.find(row => row.key == fieldKeyName)
@@ -286,12 +280,9 @@ module MetadataInput = {
                 checked: false,
               }
               options={unusedOptionalFields->Array.map((field): SelectBox.dropdownOption => {
-                let fieldValue = switch field.field_name {
-                | Metadata(key) => key
-                | _ => ""
-                }
+                let fieldKeyName = getFieldNameFromMetadataField(field)
                 {
-                  value: fieldValue,
+                  value: fieldKeyName,
                   label: field.identifier ++ " (Optional)",
                 }
               })}
