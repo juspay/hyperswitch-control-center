@@ -45,17 +45,19 @@ let parseResponse = (response, key) => {
 }
 
 let parseResponseAuthorisedUncapturedPayments = (response, key) => {
+  let requiresCaptureStatus = PaymentsLifeCycleUtils.getStringFromStatusVariantType(RequiresCapture)
+
   let responseArray =
     response
     ->getDictFromJsonObject
     ->getArrayFromDict(key, [])
 
-  let manualCapture = responseArray->Array.find(data => {
-    let status = data->getDictFromJsonObject->getString("status", "")
-    status == "requires_capture"
+  responseArray
+  ->Array.find(data => {
+    data->getDictFromJsonObject->getString("status", "") == requiresCaptureStatus
   })
-
-  manualCapture->Option.getOr(Dict.make()->JSON.Encode.object)->getDictFromJsonObject
+  ->Option.getOr(Dict.make()->JSON.Encode.object)
+  ->getDictFromJsonObject
 }
 
 open InsightsTypes
