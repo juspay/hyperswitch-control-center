@@ -106,7 +106,10 @@ module EditEntryModalContent = {
           )
           switch entryDetails.transformation_id {
           | Some(transformationId) => {
-              let schema = await fetchMetadataSchema(~transformationId)
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
               setMetadataSchema(_ => schema)
             }
           | None => ()
@@ -164,7 +167,7 @@ module EditEntryModalContent = {
             ~setMetadataRows,
             ~isMetadataLoading,
           )}
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Save changes"
@@ -227,7 +230,10 @@ module MarkAsReceivedModalContent = {
 
           switch entryDetails.transformation_id {
           | Some(transformationId) => {
-              let schema = await fetchMetadataSchema(~transformationId)
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
               setMetadataSchema(_ => schema)
             }
           | None => ()
@@ -279,7 +285,7 @@ module MarkAsReceivedModalContent = {
             ~setMetadataRows,
             ~isMetadataLoading,
           )}
-          <div className="absolute bottom-2 left-0 right-0 bg-white p-2">
+          <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Mark as Received"
@@ -361,7 +367,7 @@ module CreateEntryModalContent = {
             ~setMetadataRows,
             ~isMetadataLoading,
           )}
-          <div className="absolute bottom-2 left-0 right-0 bg-white p-2">
+          <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Create new entry"
@@ -583,8 +589,7 @@ module LinkStagingEntryModalContent = {
             />}
           />
         </PageLoaderWrapper>
-        <div
-          className="absolute bottom-2 left-0 right-0 bg-white p-4 flex flex-row gap-3 items-center">
+        <div className="flex justify-end gap-3 my-4 items-center">
           <Button
             buttonType=Secondary
             buttonSize=Medium

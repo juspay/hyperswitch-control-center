@@ -299,7 +299,16 @@ let getArrayOfTransactionsEntriesListPayloadType = json => {
   })
 }
 
+let linkedTransactionItemToObjMapper = dict => {
+  {
+    transaction_id: dict->getString("transaction_id", ""),
+    created_at: dict->getString("created_at", ""),
+    transaction_status: dict->getString("status", "")->getDomainTransactionStatus(dict),
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
+  let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -337,6 +346,9 @@ let transactionItemToObjMapper = (dict): transactionType => {
     version: dict->getInt("version", 0),
     created_at: dict->getString("created_at", ""),
     effective_at: dict->getString("effective_at", ""),
+    linked_transaction: linkedTransactionDict->isEmptyDict
+      ? None
+      : Some(linkedTransactionDict->linkedTransactionItemToObjMapper),
   }
 }
 
@@ -469,10 +481,20 @@ let fieldTypeMapper = (dict): fieldTypeVariant => {
   }
 }
 
+let entryFieldFromString = (str: string): entryField => {
+  let metadataPrefix = "metadata."
+  if str->String.startsWith(metadataPrefix) {
+    let key = str->String.slice(~start=metadataPrefix->String.length, ~end=str->String.length)
+    Metadata(key)
+  } else {
+    String
+  }
+}
+
 let metadataFieldItemToObjMapper = (dict): metadataFieldType => {
   {
     identifier: dict->getString("identifier", ""),
-    field_name: dict->getString("field_name", ""),
+    field_name: dict->getString("field_name", "")->entryFieldFromString,
     field_type: dict->fieldTypeMapper,
     required: dict->getBool("required", false),
     description: dict->getString("description", ""),

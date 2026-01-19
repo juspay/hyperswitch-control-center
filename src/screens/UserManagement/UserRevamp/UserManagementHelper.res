@@ -68,8 +68,7 @@ module MerchantSelection = {
 
     let v1MerchantList = merchList->Array.filter(merchant => {
       switch merchant.productType {
-      | Some(Orchestration(V1))
-      | Some(Recon(V1)) => true
+      | Some(Orchestration(V1)) => true
       | _ => false
       }
     })
