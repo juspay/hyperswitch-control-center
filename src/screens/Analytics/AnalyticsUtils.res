@@ -795,7 +795,7 @@ let filterMetrics = metrics => {
   })
 }
 
-type paymentStatus = [#authorizedUncaptured | #other]
+type paymentStatus = [#authorizedUncaptured]
 
 let statusVariantToString = status =>
   switch status {
