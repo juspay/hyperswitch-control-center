@@ -27,27 +27,24 @@ let make = (~children) => {
   let (embeddedState, setEmbeddedState) = React.useState(_ => Loading)
 
   let handleAuthMessage = (ev: Dom.event) => {
-    setComponentKey(_ => "")
-    setEmbeddedState(_ => Loading)
     let objectdata = ev->HandlingEvents.convertToCustomEvent
     switch objectdata.data->JSON.Decode.object {
     | Some(dict) => {
-        let tokenFromParent = dict->getOptionString("token")
         let messageType = dict->getString("type", "")
 
-        switch tokenFromParent {
-        | Some(tokenStringFromParent) =>
-          if messageType->isNonEmptyString {
-            if (
-              messageType->messageToTypeConversion == AUTH_TOKEN &&
-                tokenStringFromParent->isNonEmptyString
-            ) {
+        if messageType->messageToTypeConversion == AUTH_TOKEN {
+          setEmbeddedState(_ => Loading)
+          setComponentKey(_ => "")
+          let tokenFromParent = dict->getOptionString("token")
+          switch tokenFromParent {
+          | Some(tokenStringFromParent) =>
+            if messageType->isNonEmptyString {
               LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
               setComponentKey(_ => randomString(~length=10))
               setEmbeddedState(_ => Success)
             }
+          | None => setEmbeddedState(_ => TokenFetchError)
           }
-        | None => setEmbeddedState(_ => TokenFetchError)
         }
 
         if messageType->messageToTypeConversion == AUTH_ERROR {
