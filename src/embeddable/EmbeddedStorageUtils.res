@@ -1,8 +1,10 @@
-let setEmbeddedTokenToStorage = tokenStringFromParent => {
-  LocalStorage.setItem("EMBEDDABLE_INFO", tokenStringFromParent)
-}
+module LocalStorage = {
+  let setEmbeddedTokenToStorage = tokenStringFromParent => {
+    LocalStorage.setItem("EMBEDDABLE_INFO", tokenStringFromParent)
+  }
 
-let getEmbeddableInfoDetailsFromLocalStorage = () => {
-  open LogicUtils
-  LocalStorage.getItem("EMBEDDABLE_INFO")->getValFromNullableValue("")
+  let getEmbeddedTokenFromStorage = () => {
+    open LogicUtils
+    LocalStorage.getItem("EMBEDDABLE_INFO")->getValFromNullableValue("")
+  }
 }

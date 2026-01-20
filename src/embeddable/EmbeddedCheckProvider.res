@@ -42,7 +42,7 @@ let make = (~children) => {
               messageType->messageToTypeConversion == AUTH_TOKEN &&
                 tokenStringFromParent->isNonEmptyString
             ) {
-              setEmbeddedTokenToStorage(tokenStringFromParent)
+              LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
               setComponentKey(_ => randomString(~length=10))
               setEmbeddedState(_ => Success)
             }
@@ -51,7 +51,7 @@ let make = (~children) => {
         }
 
         if messageType->messageToTypeConversion == AUTH_ERROR {
-          setEmbeddedTokenToStorage("")
+          LocalStorage.setEmbeddedTokenToStorage("")
           setEmbeddedState(_ => TokenFetchError)
         }
       }

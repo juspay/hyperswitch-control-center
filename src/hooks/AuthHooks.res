@@ -78,6 +78,7 @@ let useApiFetcher = () => {
   open Promise
   open LogicUtils
   open CommonAuthUtils
+
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
@@ -101,7 +102,7 @@ let useApiFetcher = () => {
     ) => {
       let token = {
         if isEmbeddableSession {
-          Some(EmbeddedStorageUtils.getEmbeddableInfoDetailsFromLocalStorage())
+          Some(EmbeddedStorageUtils.LocalStorage.getEmbeddedTokenFromStorage())
         } else {
           switch authStatus {
           | PreLogin(info) => info.token
