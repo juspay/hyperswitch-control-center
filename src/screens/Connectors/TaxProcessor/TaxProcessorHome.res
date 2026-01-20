@@ -65,7 +65,7 @@ let make = () => {
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"tax-processor", "new"} => false

@@ -15,7 +15,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, reset} = FilterContext.filterContext->React.useContext
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
   let (searchText, setSearchText) = React.useState(_ => "")
   let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 
