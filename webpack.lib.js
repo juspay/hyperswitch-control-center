@@ -2,6 +2,7 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
 const tailwindcss = require("tailwindcss");
 const webpack = require("webpack");
 const path = require("path");
@@ -163,6 +164,39 @@ let libBuild = () => {
         ].filter(Boolean),
       }),
       isDevelopment && new ReactRefreshWebpackPlugin(),
+      // Brotli compression for JS files in production
+      !isDevelopment &&
+        new CompressionPlugin({
+          filename: "[path][base].br",
+          algorithm: "brotliCompress",
+          test: /\.(js|jsx|ts|tsx)$/,
+          compressionOptions: { level: 11 },
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false,
+        }),
+      // Brotli compression for WASM files in production
+      !isDevelopment &&
+        new CompressionPlugin({
+          filename: "[path][base].br",
+          algorithm: "brotliCompress",
+          test: /\.(wasm)$/,
+          compressionOptions: { level: 11 },
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false,
+        }),
+      // Brotli compression for CSS files in production
+      !isDevelopment &&
+        new CompressionPlugin({
+          filename: "[path][base].br",
+          algorithm: "brotliCompress",
+          test: /\.css$/,
+          compressionOptions: { level: 11 },
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false,
+        }),
     ].filter(Boolean),
   };
 };
