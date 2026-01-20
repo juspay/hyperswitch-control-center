@@ -101,7 +101,7 @@ let useApiFetcher = () => {
     ) => {
       let token = {
         if isEmbeddableSession {
-          Some(AuthUtils.getEmbeddableInfoDetailsFromLocalStorage())
+          Some(EmbeddedStorageUtils.getEmbeddableInfoDetailsFromLocalStorage())
         } else {
           switch authStatus {
           | PreLogin(info) => info.token
@@ -170,7 +170,7 @@ let useApiFetcher = () => {
                   let errorCode = errorDict->getObj("error", Dict.make())->getString("code", "")
 
                   if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_48 {
-                    EmbeddableGlobalUtils.sendEventToParentForRefetchToken()
+                    EmbeddedIframeUtils.sendEventToParentForRefetchToken()
                   } else if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_47 {
                     setEmbeddedStateToError()
                   } else {

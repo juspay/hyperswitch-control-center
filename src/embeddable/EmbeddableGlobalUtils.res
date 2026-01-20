@@ -23,13 +23,6 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
   }
 }
 
-let sendEventToParentForRefetchToken = () => {
-  IframeUtils.handlePostMessage([
-    ("type", JSON.Encode.string("TOKEN_EXPIRED")),
-    ("value", true->JSON.Encode.bool),
-  ])
-}
-
 let messageToTypeConversion = messageString => {
   switch messageString->String.toLowerCase {
   | "auth_token" => EmbeddedTypes.AUTH_TOKEN

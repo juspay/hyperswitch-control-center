@@ -4,6 +4,7 @@ open Window
 @react.component
 let make = () => {
   open HSwitchUtils
+  open EmbeddedIframeUtils
 
   let url = RescriptReactRouter.useUrl()
 
@@ -34,12 +35,11 @@ let make = () => {
     }
 
     // Send dimensions message to parent iframe
-    IframeUtils.handlePostMessage([
-      ("type", JSON.Encode.string("EMBEDDED_COMPONENT_RESIZE")),
-      ("height", finalHeight->JSON.Encode.int),
-      ("width", finalWidth->JSON.Encode.int),
-      ("component", JSON.Encode.string(url.path->urlPath->LogicUtils.getListHead)),
-    ])
+    sendComponentDimensionToParent(
+      finalHeight,
+      finalWidth,
+      url.path->urlPath->LogicUtils.getListHead,
+    )
   }
 
   React.useEffect(() => {
@@ -97,7 +97,7 @@ let make = () => {
     <ErrorBoundary>
       {switch url.path->urlPath {
       | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
-      | _ => <> </>
+      | _ => <NotFoundPage />
       }}
     </ErrorBoundary>
   </div>

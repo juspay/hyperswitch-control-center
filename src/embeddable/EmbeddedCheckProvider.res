@@ -17,6 +17,7 @@ let make = (~children) => {
   open Typography
   open LogicUtils
   open EmbeddableGlobalUtils
+  open EmbeddedStorageUtils
 
   let isEmbedded = (): bool => {
     Window.self !== Window.top
@@ -41,7 +42,7 @@ let make = (~children) => {
               messageType->messageToTypeConversion == AUTH_TOKEN &&
                 tokenStringFromParent->isNonEmptyString
             ) {
-              LocalStorage.setItem("EMBEDDABLE_INFO", tokenStringFromParent)
+              setEmbeddedTokenToStorage(tokenStringFromParent)
               setComponentKey(_ => randomString(~length=10))
               setEmbeddedState(_ => Success)
             }
@@ -50,7 +51,7 @@ let make = (~children) => {
         }
 
         if messageType->messageToTypeConversion == AUTH_ERROR {
-          LocalStorage.setItem("EMBEDDABLE_INFO", "")
+          setEmbeddedTokenToStorage("")
           setEmbeddedState(_ => TokenFetchError)
         }
       }
