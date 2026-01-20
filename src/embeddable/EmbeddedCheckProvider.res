@@ -47,7 +47,7 @@ let make = (~children) => {
               setEmbeddedState(_ => Success)
             }
           }
-        | None => ()
+        | None => setEmbeddedState(_ => TokenFetchError)
         }
 
         if messageType->messageToTypeConversion == AUTH_ERROR {
@@ -55,7 +55,7 @@ let make = (~children) => {
           setEmbeddedState(_ => TokenFetchError)
         }
       }
-    | None => ()
+    | None => setEmbeddedState(_ => TokenFetchError)
     }
   }
 
@@ -93,12 +93,14 @@ let make = (~children) => {
       </div>
     | Success => <React.Fragment key={componentKey}> children </React.Fragment>
     | Loading =>
-      <Icon
-        name="spinner"
-        size=20
-        className="animate-spin"
-        parentClass="w-full h-full flex justify-center items-center"
-      />
+      <div className="h-full w-full flex justify-center items-center">
+        <Icon
+          name="spinner"
+          size=20
+          className="animate-spin"
+          parentClass="w-full h-full flex justify-center items-center"
+        />
+      </div>
     | TokenFetchError =>
       <div className="h-screen w-screen flex justify-center items-center p-4">
         <div className="max-w-lg w-full rounded-lg shadow-md border border-nd_gray-200 p-8">
