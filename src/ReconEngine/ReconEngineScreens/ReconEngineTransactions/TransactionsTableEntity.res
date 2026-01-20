@@ -1,5 +1,4 @@
 open ReconEngineTypes
-open ReconEngineUtils
 open ReconEngineTransactionsUtils
 open LogicUtils
 
@@ -14,6 +13,7 @@ type transactionColType =
   | CreatedAt
   | ReconciliationType
   | Reason
+  | RuleName
 
 let defaultColumns: array<transactionColType> = [
   TransactionId,
@@ -57,19 +57,42 @@ let getHeading = (colType: transactionColType) => {
   | ReconciliationType =>
     Table.makeHeaderInfo(~key="reconciliation_type", ~title="Reconciliation Type")
   | Reason => Table.makeHeaderInfo(~key="reason", ~title="Remark")
+  | RuleName => Table.makeHeaderInfo(~key="rule_name", ~title="Rule Name")
   }
 }
 
-let getStatusLabel = (statusString: transactionStatus): Table.cell => {
+let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
+  switch status {
+  | Posted(Auto) => "Reconciled (Auto)"
+  | Posted(Manual) => "Reconciled (Manual)"
+  | Posted(Force) => "Reconciled (Force)"
+  | Posted(_) => "Reconciled"
+  | OverAmount(Mismatch) => "Positive Variance (Requires Attention)"
+  | OverAmount(Expected) => "Positive Variance (Awaiting Match)"
+  | UnderAmount(Mismatch) => "Negative Variance (Requires Attention)"
+  | UnderAmount(Expected) => "Negative Variance (Awaiting Match)"
+  | DataMismatch => "Data Mismatch"
+  | Expected => "Expected"
+  | Archived => "Archived"
+  | PartiallyReconciled => "Partially Reconciled"
+  | Void => "Void"
+  | UnknownDomainTransactionStatus => "Unknown"
+  }
+}
+
+let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
-    title: (statusString :> string)->String.toUpperCase,
-    color: switch statusString {
-    | Posted => LabelGreen
-    | Mismatched => LabelRed
-    | Expected => LabelBlue
+    title: status->getDomainTransactionStatusString->String.toUpperCase,
+    color: switch status {
+    | Posted(_) => LabelGreen
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | DataMismatch =>
+      LabelRed
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownDomainTransactionStatus => LabelLightGray
     },
   })
 }
@@ -132,7 +155,7 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     )
   | Status =>
     switch transaction.discarded_status {
-    | Some(status) => getStatusLabel(status->getTransactionStatusVariantFromString)
+    | Some(status) => getStatusLabel(status)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | CreatedAt => Date(transaction.created_at)
@@ -142,6 +165,15 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     | None => getReconciledTypeLabel(UnknownTransactionPostedType)
     }
   | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
+  | RuleName =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        displayValue=transaction.rule.rule_name
+        copyValue=Some(transaction.rule.rule_id)
+        url={`/v1/recon-engine/rules/${transaction.rule.rule_id}`}
+      />,
+      "",
+    )
   }
 }
 

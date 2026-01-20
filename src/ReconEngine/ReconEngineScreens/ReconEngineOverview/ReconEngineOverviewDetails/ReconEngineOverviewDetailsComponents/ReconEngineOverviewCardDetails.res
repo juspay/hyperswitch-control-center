@@ -1,9 +1,10 @@
+open ReconEngineRulesTypes
+
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: rulePayload) => {
   open LogicUtils
   open ReconEngineOverviewUtils
   open ReconEngineOverviewHelper
-  open ReconEngineAccountsUtils
 
   let (accountData, setAccountData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -17,7 +18,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
       let accountData = await getAccounts()
       setAccountData(_ => accountData)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(
+        ~queryParameters=Some(
           `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
         ),
       )
@@ -29,15 +30,16 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   }
 
   let (
+    sourceAccountId,
+    targetAccountId,
+  ) = ReconEngineOverviewSummaryUtils.getSourceAndTargetAccountIdsFromRuleDetails(ruleDetails)
+
+  let (
     (sourceAccountName, sourceAccountCurrency),
     (targetAccountName, targetAccountCurrency),
   ) = React.useMemo(() => {
-    let source =
-      ruleDetails.sources->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
-    let target =
-      ruleDetails.targets->getValueFromArray(0, Dict.make()->getAccountRefPayloadFromDict)
-    let sourceInfo = getAccountNameAndCurrency(accountData, source.account_id)
-    let targetInfo = getAccountNameAndCurrency(accountData, target.account_id)
+    let sourceInfo = getAccountNameAndCurrency(accountData, sourceAccountId)
+    let targetInfo = getAccountNameAndCurrency(accountData, targetAccountId)
     (sourceInfo, targetInfo)
   }, (ruleDetails, accountData))
 

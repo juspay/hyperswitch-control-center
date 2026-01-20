@@ -64,7 +64,10 @@ module ChangeRoleSection = {
           deselectDisable=true
           allowMultiSelect=false
           buttonText="Select role"
-          fullLength=true
+          customScrollStyle="max-h-72 overflow-scroll"
+          dropdownContainerStyle="md:w-60 md:max-w-80 rounded-md"
+          ellipsisOnly=true
+          maxButtonWidth="w-40 max-w-40"
         />
         <Button
           text="Update"
@@ -101,7 +104,7 @@ module ResendInviteSection = {
           ~entityName=V1(USERS),
           ~userType=#RESEND_INVITE,
           ~methodType=Post,
-          ~queryParamerters=Some(`auth_id=${authId}`),
+          ~queryParameters=Some(`auth_id=${authId}`),
         )
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
@@ -221,7 +224,7 @@ module ManageUserModal = {
           ~entityName=V1(USERS),
           ~userType=#LIST_ROLES_FOR_ROLE_UPDATE,
           ~methodType=Get,
-          ~queryParamerters=Some(`entity_type=${userInfoValue.entityType}`),
+          ~queryParameters=Some(`entity_type=${userInfoValue.entityType}`),
         )
         let response = await fetchDetails(url)
         setOptions(_ => response->UserUtils.makeSelectBoxOptions)

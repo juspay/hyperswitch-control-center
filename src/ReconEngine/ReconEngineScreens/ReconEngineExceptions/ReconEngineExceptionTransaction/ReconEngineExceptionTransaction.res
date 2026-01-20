@@ -40,7 +40,10 @@ let make = (~ruleId: string) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase((obj.transaction_status :> string), searchText) ||
+          isContainingStringLowercase(
+            obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
+            searchText,
+          ) ||
           obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
         | None => false
         }
@@ -55,16 +58,24 @@ let make = (~ruleId: string) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
       if statusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
-          "transaction_status",
-          ["expected", "mismatched", "partially_reconciled"]->getJsonFromArrayOfString,
+          "status",
+          [
+            "expected",
+            "over_amount_mismatch",
+            "under_amount_mismatch",
+            "over_amount_expected",
+            "under_amount_expected",
+            "data_mismatch",
+            "partially_reconciled",
+          ]->getJsonFromArrayOfString,
         )
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
-      let exceptionList = await getTransactions(~queryParamerters=Some(queryString))
+      let exceptionList = await getTransactions(~queryParameters=Some(queryString))
 
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)
@@ -137,7 +148,7 @@ let make = (~ruleId: string) => {
           title="Exception Entries - Expected & Mismatched"
           actualData={filteredExceptionData}
           entity={hierarchicalTransactionsLoadedTableEntity(
-            `v1/recon-engine/exceptions`,
+            "v1/recon-engine/exceptions/recon",
             ~authorization=userHasAccess(~groupAccess=UsersManage),
           )}
           resultsPerPage=6

@@ -52,6 +52,21 @@ let mapV1AuthConnectorDetailsToCommonType: option<authConnectorDetailsType_v1> =
   }
 }
 
+let mapV1ExternalVaultConnectorDetailsToCommonType: option<
+  externalVaultConnectorDetailsType_v1,
+> => option<
+  BusinessProfileInterfaceTypes.externalVaultConnectorDetails,
+> = externalVaultConnectorDetailsOption => {
+  switch externalVaultConnectorDetailsOption {
+  | Some(externalVaultConnectorDetails) =>
+    Some({
+      vault_connector_id: externalVaultConnectorDetails.vault_connector_id,
+      vault_token_selector: externalVaultConnectorDetails.vault_token_selector,
+    })
+  | None => None
+  }
+}
+
 let getBackgroundImage = backgroundImageDict => {
   {
     url: backgroundImageDict->getString("url", ""),
@@ -148,6 +163,13 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
   }
 }
 
+let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
+  vault_connector_id: externalVaultConnectorDetailsDict->getString("vault_connector_id", ""),
+  vault_token_selector: externalVaultConnectorDetailsDict->getOptionalArrayFromDict(
+    "vault_token_selector",
+  ),
+}
+
 let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
@@ -155,6 +177,7 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let outgoingWebhookHeaders = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let metadataKeyValue = jsonDict->getDictfromDict("metadata")
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
+  let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
   {
     profile_id: jsonDict->getString("profile_id", ""),
     merchant_id: jsonDict->getString("merchant_id", ""),
@@ -200,6 +223,10 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     payment_link_config: paymentLinkConfig->isEmptyDict
       ? None
       : Some(paymentLinkConfig->paymentLinkConfigMapper),
+    is_external_vault_enabled: jsonDict->getOptionString("is_external_vault_enabled"),
+    external_vault_connector_details: externalVaultConnectorDetails->isEmptyDict
+      ? None
+      : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
   }
 }
 
@@ -216,6 +243,15 @@ let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileI
     paymentLinkConfigRecord.background_image->Option.map(bgImage =>
       bgImage->mapV1BackgroundImageToCommonType
     )
+  let allowedDomains =
+    paymentLinkConfigRecord.allowed_domains
+    ->Option.getOr(JSON.Encode.null)
+    ->getArrayFromJson([])
+
+  let allowedDomainsString =
+    allowedDomains
+    ->Array.map(domain => domain->getStringFromJson(""))
+    ->Array.joinWith(",")
 
   {
     theme: paymentLinkConfigRecord.theme,
@@ -245,7 +281,7 @@ let mapV1PaymentLinkConfigToCommonType: paymentLinkConfig_v1 => BusinessProfileI
     color_icon_card_cvc_error: paymentLinkConfigRecord.color_icon_card_cvc_error,
     branding_visibility: paymentLinkConfigRecord.branding_visibility,
     domain_name: paymentLinkConfigRecord.domain_name,
-    allowed_domains: paymentLinkConfigRecord.allowed_domains,
+    allowed_domains: Some(allowedDomainsString->JSON.Encode.string),
     business_specific_configs: paymentLinkConfigRecord.business_specific_configs,
   }
 }
@@ -288,6 +324,8 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
     billing_processor_id: profileRecord.billing_processor_id,
     payment_link_config: paymentLinkConfig,
     split_txns_enabled: None,
+    is_external_vault_enabled: profileRecord.is_external_vault_enabled,
+    external_vault_connector_details: profileRecord.external_vault_connector_details->mapV1ExternalVaultConnectorDetailsToCommonType,
   }
 }
 
@@ -301,6 +339,7 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
   let webhookDetails = dict->getDictfromDict("webhook_details")
   let authProductIds = dict->getJsonObjectFromDict("authentication_product_ids")
+  let externalVaultConnectorDetails = dict->getDictfromDict("external_vault_connector_details")
 
   {
     profile_name: dict->getString("profile_name", ""),
@@ -369,5 +408,9 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
           ->Identity.genericTypeToJson,
         )
       : Some(JSON.Encode.null),
+    is_external_vault_enabled: dict->getOptionString("is_external_vault_enabled"),
+    external_vault_connector_details: externalVaultConnectorDetails->isEmptyDict
+      ? None
+      : Some(externalVaultConnectorDetails->externalVaultConnectorDetailsMapper),
   }
 }

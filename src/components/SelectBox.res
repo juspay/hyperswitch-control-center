@@ -1719,6 +1719,7 @@ module BaseDropdown = {
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
+    ~maxButtonWidth="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -2013,7 +2014,7 @@ module BaseDropdown = {
         size=arrowIconSize
         className={` text-nd_gray-400 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] ${showDropDown
             ? "-rotate-180"
-            : ""} ${disableSelect ? "text-nd_gray-600" : ""}`}
+            : ""} ${disableSelect ? "text-nd_gray-400" : ""}`}
       />
 
     let textStyle = if isSelectTextDark && selectButtonText !== buttonText {
@@ -2087,6 +2088,7 @@ module BaseDropdown = {
                           ?allowButtonTextMinWidth
                           ?textStyleClass
                           showBtnTextToolTip
+                          maxButtonWidth
                         />}
                       </div>
                     </AddDataAttributes>
@@ -2414,6 +2416,7 @@ let make = (
   ~customScrollStyle=?,
   ~shouldDisplaySelectedOnTop=false,
   ~placeholderCss="",
+  ~maxButtonWidth="",
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2488,6 +2491,7 @@ let make = (
       ?customScrollStyle
       shouldDisplaySelectedOnTop
       placeholderCss
+      maxButtonWidth
     />
   } else if allowMultiSelect {
     <BaseSelect

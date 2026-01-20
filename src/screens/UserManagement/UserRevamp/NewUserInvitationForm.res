@@ -66,9 +66,11 @@ module RoleAccessOverview = {
 module NoteComponent = {
   @react.component
   let make = () => {
-    let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+    let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
       UserInfoProvider.defaultContext,
     )
+    let {userEntity} = getResolvedUserInfo()
+    let {orgId, merchantId, profileId} = getCommonSessionDetails()
 
     // TODO : Chnage id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
@@ -155,7 +157,7 @@ let make = () => {
         ~entityName=V1(USERS),
         ~userType=#LIST_ROLES_FOR_INVITE,
         ~methodType=Get,
-        ~queryParamerters=Some(`entity_type=${roleEntity}`),
+        ~queryParameters=Some(`entity_type=${roleEntity}`),
       )
       let result = await fetchDetails(url)
       setOptions(_ => result->makeSelectBoxOptions)

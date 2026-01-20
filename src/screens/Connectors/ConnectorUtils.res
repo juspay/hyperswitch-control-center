@@ -30,6 +30,23 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(GIGADAT),
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
+]
+
+let payoutConnectorListForLive: array<connectorTypes> = [
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CYBERSOURCE),
+  PayoutProcessor(EBANX),
+  PayoutProcessor(PAYPAL),
+  PayoutProcessor(STRIPE),
+  PayoutProcessor(WISE),
+  PayoutProcessor(NOMUPAY),
+  PayoutProcessor(NUVEI),
+  PayoutProcessor(GIGADAT),
+  PayoutProcessor(LOONIO),
+  PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -44,6 +61,7 @@ let threedsAuthenticatorList: array<connectorTypes> = [
 let threedsAuthenticatorListForLive: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
   ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+  ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
 ]
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
@@ -51,6 +69,8 @@ let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProc
 let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 
 let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
+
+let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -151,12 +171,16 @@ let connectorList: array<connectorTypes> = [
   Processors(TESOURO),
   Processors(FINIX),
   Processors(ZIFT),
+  Processors(PAYJUSTNOWINSTORE),
+  Processors(AMAZONPAY),
+  Processors(WORLDPAYMODULAR),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
   Processors(ARCHIPEL),
+  Processors(AIRWALLEX),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -174,6 +198,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(KLARNA),
   Processors(LOONIO),
   Processors(MIFINITY),
+  Processors(MOLLIE),
   Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
@@ -181,13 +206,17 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(PAYPAL),
   Processors(PAYBOX),
   Processors(PAYME),
+  Processors(PEACHPAYMENTS),
   Processors(REDSYS),
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(WORLDPAY),
+  Processors(WORLDPAYXML),
+  Processors(ZIFT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(WORLDPAYMODULAR),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -220,6 +249,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "alipay" => AliPay
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
+  | "amazon_pay" => AmazonPay
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -426,7 +456,7 @@ let nexinetsInfo = {
 }
 
 let forteInfo = {
-  description: "Payment processor specializing in secure and reliable payment solutions for variuos industries like healthcare.",
+  description: "Payment processor specializing in secure and reliable payment solutions for various industries like healthcare.",
 }
 
 let cryptopayInfo = {
@@ -562,7 +592,7 @@ let juspayThreeDsServerInfo = {
 }
 
 let unknownConnectorInfo = {
-  description: "unkown connector",
+  description: "Unknown connector",
 }
 
 let bankOfAmericaInfo = {
@@ -764,6 +794,21 @@ let ziftInfo = {
   description: "Zift is a modern payment technology provider offering embedded and integrated payment solutions for SaaS platforms, POS systems, and businesses of all sizes. With its Payments-as-a-Service (PaaS) model, Zift enables seamless onboarding, transaction processing, and API-driven integrations—helping companies deliver smooth, secure, and scalable payment experiences.",
 }
 
+let vgsInfo = {
+  description: "Very Good Security (VGS) is a data security platform that helps businesses protect sensitive information such as payment card data, personally identifiable information (PII), and other confidential data. VGS provides solutions for data tokenization, encryption, and secure data storage, allowing businesses to reduce their compliance scope and mitigate the risks associated with handling sensitive data.",
+}
+
+let payjustnowInStoreInfo = {
+  description: "PayJustNow In-Store provides a BNPL solution for online and in-store payments, enabling customers to pay in three interest-free installments while merchants get paid upfront.",
+}
+
+let amazonpayinfo = {
+  description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience.",
+}
+
+let worldpayModularInfo = {
+  description: "Worldpaymodular is a payment gateway and PSP enabling secure online transactions, It utilizes modular API's of WorldPay.",
+}
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -869,6 +914,9 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FINIX => "finix"
   | PAYJUSTNOW => "payjustnow"
   | ZIFT => "zift"
+  | PAYJUSTNOWINSTORE => "payjustnowinstore"
+  | AMAZONPAY => "amazonpay"
+  | WORLDPAYMODULAR => "worldpaymodular"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -885,6 +933,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | GIGADAT => "gigadat"
   | LOONIO => "loonio"
   | WORLDPAY => "worldpay"
+  | WORLDPAYXML => "worldpayxml"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -926,6 +975,12 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   }
 }
 
+let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
+  switch vaultProcessor {
+  | VGS => "vgs"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
@@ -937,6 +992,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
     pmAuthenticationConnector->getPMAuthenticationConnectorNameString
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorNameString
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -1048,6 +1104,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "tesouro" => Processors(TESOURO)
     | "finix" => Processors(FINIX)
     | "zift" => Processors(ZIFT)
+    | "payjustnowinstore" => Processors(PAYJUSTNOWINSTORE)
+    | "amazonpay" => Processors(AMAZONPAY)
+    | "worldpaymodular" => Processors(WORLDPAYMODULAR)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1064,6 +1123,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "gigadat" => PayoutProcessor(GIGADAT)
     | "loonio" => PayoutProcessor(LOONIO)
     | "worldpay" => PayoutProcessor(WORLDPAY)
+    | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1097,6 +1157,11 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
+    | _ => UnknownConnector("Not known")
+    }
+  | VaultProcessor =>
+    switch connector {
+    | "vgs" => VaultProcessor(VGS)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -1207,6 +1272,9 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | FINIX => finixInfo
   | PAYJUSTNOW => payjustnowInfo
   | ZIFT => ziftInfo
+  | PAYJUSTNOWINSTORE => payjustnowInStoreInfo
+  | AMAZONPAY => amazonpayinfo
+  | WORLDPAYMODULAR => worldpayModularInfo
   }
 }
 
@@ -1224,6 +1292,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | GIGADAT => gigadatInfo
   | LOONIO => loonioInfo
   | WORLDPAY => worldpayInfo
+  | WORLDPAYXML => worldpayxmlInfo
   }
 }
 
@@ -1264,6 +1333,12 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   }
 }
 
+let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
+  switch vaultProcessor {
+  | VGS => vgsInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
@@ -1274,6 +1349,7 @@ let getConnectorInfo = connector => {
     pmAuthenticationConnector->getOpenBankingProcessorInfo
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorInfo
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -1389,6 +1465,7 @@ let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
   | TaxProcessor(_) => "tax_processor"
   | FRM(_) => "payment_vas"
   | BillingProcessor(_) => "billing_processor"
+  | VaultProcessor(_) => "vault_processor"
   | UnknownConnector(str) => str
   }
 }
@@ -1400,7 +1477,7 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
   )
   ->Option.getOr({
     payment_method: "unknown",
-    payment_method_type: "unkonwn",
+    payment_method_type: "unknown",
   })
 }
 
@@ -2138,7 +2215,10 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TESOURO => "Tesouro"
   | FINIX => "Finix"
   | PAYJUSTNOW => "PayJustNow"
+  | PAYJUSTNOWINSTORE => "PayJustNow In-Store"
   | ZIFT => "Zift"
+  | AMAZONPAY => "Amazon Pay"
+  | WORLDPAYMODULAR => "Worldpay Modular"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2155,6 +2235,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
   | WORLDPAY => "Worldpay"
+  | WORLDPAYXML => "Worldpay WPG"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2193,6 +2274,12 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   }
 }
 
+let getDisplayNameForVaultProcessor = vaultProcessor => {
+  switch vaultProcessor {
+  | VGS => "VGS"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
@@ -2205,6 +2292,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
     pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
   | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
   | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -2219,6 +2307,7 @@ let connectorTypeTuple = connectorType => {
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
   | "billing_processor" => (BillingProcessor, BillingProcessor)
+  | "vault_processor" => (VaultProcessor, VaultProcessor)
   | _ => (PaymentProcessor, Processor)
   }
 }
@@ -2231,6 +2320,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor
   | "billing_processor" => BillingProcessor
+  | "vault_processor" => VaultProcessor
   | "payment_processor"
   | _ =>
     PaymentProcessor
@@ -2246,6 +2336,7 @@ let connectorTypeTypedValueToStringMapper = val => {
   | TaxProcessor => "tax_processor"
   | PaymentProcessor => "payment_processor"
   | BillingProcessor => "billing_processor"
+  | VaultProcessor => "vault_processor"
   }
 }
 

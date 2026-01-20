@@ -56,16 +56,19 @@ let getHeading = (colType: hierarchicalColType) => {
   }
 }
 
-let getStatusLabel = (transactionStatus: transactionStatus): cell => {
-  Label({
-    title: (transactionStatus :> string)->String.toUpperCase,
-    color: switch transactionStatus {
-    | Posted => LabelGreen
-    | Mismatched => LabelRed
-    | Expected => LabelBlue
+let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
+  Table.Label({
+    title: status->TransactionsTableEntity.getDomainTransactionStatusString->String.toUpperCase,
+    color: switch status {
+    | Posted(_) => LabelGreen
+    | OverAmount(Mismatch)
+    | UnderAmount(Mismatch)
+    | DataMismatch =>
+      LabelRed
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled => LabelOrange
-    | _ => LabelLightGray
+    | Void | UnknownDomainTransactionStatus => LabelLightGray
     },
   })
 }
@@ -77,8 +80,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
   | TransactionId => DisplayCopyCell(transaction.transaction_id)
   | Status =>
     switch transaction.discarded_status {
-    | Some(discardedStatus) =>
-      getStatusLabel(discardedStatus->ReconEngineUtils.getTransactionStatusVariantFromString)
+    | Some(status) => getStatusLabel(status)
     | None => getStatusLabel(transaction.transaction_status)
     }
   | EntryId =>
@@ -213,7 +215,7 @@ let hierarchicalTransactionsLoadedTableEntity = (
     ~getShowLink={
       connec => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.id}`),
+          ~url=GlobalVars.appendDashboardPath(~url=`/${path}/${connec.transaction_id}`),
           ~authorization,
         )
       }

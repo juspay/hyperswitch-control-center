@@ -25,21 +25,25 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let {
-    userInfo: {orgId, merchantId, profileId, roleId, version},
-    checkUserEntity,
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
+
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
+
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -62,6 +66,9 @@ let make = () => {
       }
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
+      if !isInternalUser {
+        let _ = await fetchMerchantList()
+      }
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
@@ -122,9 +129,9 @@ let make = () => {
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path={url.path}
+                  path=url.path
+                  isReconEnabled
                   sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
                   productSiebars=productSidebars
                 />
               </RenderIf>
@@ -211,7 +218,7 @@ let make = () => {
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
-
+                        | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"

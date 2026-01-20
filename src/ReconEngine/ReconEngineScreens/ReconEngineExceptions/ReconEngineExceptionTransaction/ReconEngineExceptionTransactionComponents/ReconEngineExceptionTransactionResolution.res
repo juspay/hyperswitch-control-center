@@ -4,7 +4,7 @@ open ReconEngineExceptionTransactionTypes
 module IgnoreTransactionModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
-    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsUtils
     open ReconEngineExceptionTransactionHelper
 
     <div className="flex flex-col gap-4">
@@ -33,7 +33,7 @@ module IgnoreTransactionModalContent = {
 module ForceReconcileModalContent = {
   @react.component
   let make = (~onSubmit, ~setExceptionStage, ~setShowModal) => {
-    open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsUtils
     open ReconEngineExceptionTransactionHelper
 
     <div className="flex flex-col gap-4">
@@ -68,52 +68,117 @@ module EditEntryModalContent = {
     ~onSubmit,
   ) => {
     open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsHelper
     open ReconEngineExceptionTransactionHelper
+    open APIUtils
+    open ReconEngineHooks
+    open LogicUtils
+    open ReconEngineUtils
+
+    let getAccounts = useGetAccounts()
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let fetchMetadataSchema = useFetchMetadataSchema()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (accountsList, setAccountsList) = React.useState(_ => [])
+    let (transformationsList, setTransformationsList) = React.useState(_ => [])
+    let (metadataSchema, setMetadataSchema) = React.useState(_ =>
+      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+    )
+    let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
+
+    let fetchData = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let accountData = await getAccounts()
+        setAccountsList(_ => accountData)
+        if entryDetails.account_id->isNonEmptyString {
+          let url = getURL(
+            ~entityName=V1(HYPERSWITCH_RECON),
+            ~methodType=Get,
+            ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
+            ~queryParameters=Some(`account_id=${entryDetails.account_id}`),
+          )
+          let res = await fetchDetails(url)
+          setTransformationsList(_ =>
+            res->getArrayDataFromJson(transformationConfigItemToObjMapper)
+          )
+          switch entryDetails.transformation_id {
+          | Some(transformationId) => {
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
+              setMetadataSchema(_ => schema)
+            }
+          | None => ()
+          }
+        }
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
+      }
+    }
+
+    React.useEffect(() => {
+      fetchData()->ignore
+      None
+    }, [])
 
     let validate = React.useCallback(values => {
       isNewlyCreatedEntry
-        ? validateCreateEntryDetails(values)
+        ? validateCreateEntryDetails(values, ~metadataSchema)
         : validateEditEntryDetails(
             values,
             ~initialEntryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+            ~metadataSchema,
           )
-    }, (isNewlyCreatedEntry, entryDetails))
+    }, (isNewlyCreatedEntry, entryDetails, metadataSchema.id))
 
-    <div className="flex flex-col gap-4 mx-4">
-      <Form
-        onSubmit
-        validate
-        initialValues={getInitialValuesForEditEntries(
-          entryDetails->getEntryTypeFromExceptionEntryType,
-        )}>
-        {accountSelectInputField(
-          ~isNewlyCreatedEntry,
-          ~entriesList=updatedEntriesList,
-          ~disabled=false,
-        )}
-        {entryTypeSelectInputField(~disabled=false)}
-        {currencySelectInputField(
-          ~entriesList=updatedEntriesList,
-          ~isNewlyCreatedEntry,
-          ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-          ~disabled=false,
-        )}
-        {amountTextInputField(~disabled=false)}
-        {orderIdTextInputField(~disabled=false)}
-        {effectiveAtDatePickerInputField()}
-        {metadataCustomInputField(~disabled=false)}
-        <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-          <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
+    let initialFormValues = React.useMemo(() => {
+      getInitialValuesForEditEntries(entryDetails->getEntryTypeFromExceptionEntryType)
+    }, [])
+
+    <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
+      <div className="flex flex-col gap-4 mx-4 h-full">
+        <Form onSubmit validate initialValues={initialFormValues}>
+          {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+          {transformationConfigSelectInputField(
+            ~transformationsList,
+            ~disabled=false,
+            ~setMetadataSchema,
+            ~setIsMetadataLoading,
+          )}
+          {entryTypeSelectInputField(~disabled=false)}
+          {currencySelectInputField(
+            ~entriesList=updatedEntriesList,
+            ~isNewlyCreatedEntry,
+            ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+            ~disabled=false,
+          )}
+          {amountTextInputField(~disabled=false)}
+          {orderIdTextInputField(~disabled=false)}
+          {effectiveAtDatePickerInputField()}
+          {metadataCustomInputField(
+            ~disabled=false,
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+            ~isMetadataLoading,
+          )}
+          <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Save changes"
               buttonType={Primary}
+              showToolTip=false
               customSumbitButtonStyle="!w-full"
             />
-          </FormRenderer.DesktopRow>
-        </div>
-      </Form>
-    </div>
+          </div>
+        </Form>
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
@@ -127,42 +192,111 @@ module MarkAsReceivedModalContent = {
   ) => {
     open ReconEngineExceptionTransactionUtils
     open ReconEngineExceptionTransactionHelper
+    open ReconEngineExceptionsHelper
+    open APIUtils
+    open ReconEngineHooks
+    open LogicUtils
+    open ReconEngineUtils
 
-    <div className="flex flex-col gap-4 mx-4">
-      <Form
-        onSubmit
-        validate={_ => Dict.make()->JSON.Encode.object}
-        initialValues={getInitialValuesForEditEntries(
-          entryDetails->getEntryTypeFromExceptionEntryType,
-        )}>
-        {accountSelectInputField(
-          ~isNewlyCreatedEntry,
-          ~entriesList=updatedEntriesList,
-          ~disabled=true,
-        )}
-        {entryTypeSelectInputField(~disabled=false)}
-        {currencySelectInputField(
-          ~entriesList=updatedEntriesList,
-          ~isNewlyCreatedEntry,
-          ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-          ~disabled=true,
-        )}
-        {amountTextInputField(~disabled=false)}
-        {orderIdTextInputField(~disabled=false)}
-        {effectiveAtDatePickerInputField()}
-        {metadataCustomInputField(~disabled=false)}
-        <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-          <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
+    let getAccounts = useGetAccounts()
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let fetchMetadataSchema = useFetchMetadataSchema()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (accountsList, setAccountsList) = React.useState(_ => [])
+    let (transformationsList, setTransformationsList) = React.useState(_ => [])
+    let (metadataSchema, setMetadataSchema) = React.useState(_ =>
+      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+    )
+    let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
+
+    let fetchData = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let accountData = await getAccounts()
+        setAccountsList(_ => accountData)
+        if entryDetails.account_id->isNonEmptyString {
+          let url = getURL(
+            ~entityName=V1(HYPERSWITCH_RECON),
+            ~methodType=Get,
+            ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
+            ~queryParameters=Some(`account_id=${entryDetails.account_id}`),
+          )
+          let res = await fetchDetails(url)
+          setTransformationsList(_ =>
+            res->getArrayDataFromJson(transformationConfigItemToObjMapper)
+          )
+
+          switch entryDetails.transformation_id {
+          | Some(transformationId) => {
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
+              setMetadataSchema(_ => schema)
+            }
+          | None => ()
+          }
+        }
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
+      }
+    }
+
+    React.useEffect(() => {
+      fetchData()->ignore
+      None
+    }, [])
+
+    let validate = React.useCallback(values => {
+      validateCreateEntryDetails(values, ~metadataSchema)
+    }, [metadataSchema.id])
+
+    let initialFormValues = React.useMemo(() => {
+      getInitialValuesForEditEntries(entryDetails->getEntryTypeFromExceptionEntryType)
+    }, [])
+
+    <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
+      <div className="flex flex-col gap-4 mx-4 h-full">
+        <Form onSubmit validate initialValues={initialFormValues}>
+          {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+          {transformationConfigSelectInputField(
+            ~transformationsList,
+            ~disabled=false,
+            ~setMetadataSchema,
+            ~setIsMetadataLoading,
+          )}
+          {entryTypeSelectInputField(~disabled=false)}
+          {currencySelectInputField(
+            ~entriesList=updatedEntriesList,
+            ~isNewlyCreatedEntry,
+            ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+            ~disabled=true,
+          )}
+          {amountTextInputField(~disabled=false)}
+          {orderIdTextInputField(~disabled=false)}
+          {effectiveAtDatePickerInputField()}
+          {metadataCustomInputField(
+            ~disabled=false,
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+            ~isMetadataLoading,
+          )}
+          <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Mark as Received"
               buttonType={Primary}
+              showToolTip=false
               customSumbitButtonStyle="!w-full"
             />
-          </FormRenderer.DesktopRow>
-        </div>
-      </Form>
-    </div>
+          </div>
+        </Form>
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
@@ -170,36 +304,81 @@ module CreateEntryModalContent = {
   @react.component
   let make = (~entriesList, ~onSubmit, ~entryDetails) => {
     open ReconEngineExceptionTransactionUtils
+    open ReconEngineExceptionsHelper
     open ReconEngineExceptionTransactionHelper
+    open ReconEngineHooks
 
-    <div className="flex flex-col gap-4 mx-4">
-      <Form
-        onSubmit
-        validate={validateCreateEntryDetails}
-        initialValues={getInitialValuesForNewEntries()}>
-        {accountSelectInputField(~isNewlyCreatedEntry=true, ~entriesList)}
-        {entryTypeSelectInputField()}
-        {currencySelectInputField(
-          ~entriesList,
-          ~isNewlyCreatedEntry=true,
-          ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-        )}
-        {amountTextInputField()}
-        {orderIdTextInputField()}
-        {effectiveAtDatePickerInputField()}
-        {metadataCustomInputField()}
-        <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-          <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
+    let getAccounts = useGetAccounts()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (accountsList, setAccountsList) = React.useState(_ => [])
+    let (transformationsList, setTransformationsList) = React.useState(_ => [])
+    let (metadataSchema, setMetadataSchema) = React.useState(_ =>
+      Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
+    )
+    let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
+
+    let fetchData = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let accountData = await getAccounts()
+        setAccountsList(_ => accountData)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
+      }
+    }
+
+    React.useEffect(() => {
+      fetchData()->ignore
+      None
+    }, [])
+
+    let validate = React.useCallback(values => {
+      validateCreateEntryDetails(values, ~metadataSchema)
+    }, [metadataSchema.id])
+
+    let initialValues = React.useMemo(() => {
+      getInitialValuesForNewEntries()
+    }, [])
+
+    <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
+      <div className="flex flex-col gap-4 mx-4 h-full">
+        <Form onSubmit validate initialValues={initialValues}>
+          {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+          {transformationConfigSelectInputField(
+            ~transformationsList,
+            ~disabled=false,
+            ~setMetadataSchema,
+            ~setIsMetadataLoading,
+          )}
+          {entryTypeSelectInputField()}
+          {currencySelectInputField(
+            ~entriesList,
+            ~isNewlyCreatedEntry=true,
+            ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+          )}
+          {amountTextInputField()}
+          {orderIdTextInputField()}
+          {effectiveAtDatePickerInputField()}
+          {metadataCustomInputField(
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+            ~isMetadataLoading,
+          )}
+          <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Create new entry"
               buttonType={Primary}
+              showToolTip=false
               customSumbitButtonStyle="!w-full"
             />
-          </FormRenderer.DesktopRow>
-        </div>
-      </Form>
-    </div>
+          </div>
+        </Form>
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
@@ -410,8 +589,7 @@ module LinkStagingEntryModalContent = {
             />}
           />
         </PageLoaderWrapper>
-        <div
-          className="absolute bottom-4 left-0 right-0 bg-white p-4 flex flex-row gap-3 items-center">
+        <div className="flex justify-end gap-3 my-4 items-center">
           <Button
             buttonType=Secondary
             buttonSize=Medium
@@ -443,6 +621,7 @@ let make = (
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
+  open ReconEngineExceptionsHelper
   open LogicUtils
   open ReconEngineUtils
   open APIUtils
@@ -514,7 +693,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
     } catch {
     | _ =>
@@ -554,7 +733,7 @@ let make = (
         ~toastDuration=5000,
       )
       RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions"),
+        GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/recon"),
       )
     } catch {
     | _ =>
@@ -569,24 +748,10 @@ let make = (
   let onEditEntrySubmit = async (values, _form: ReactFinalForm.formApi) => {
     let formData = values->getDictFromJsonObject
     let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
-    let selectedAccountId = formData->getString("account", "")
-
     let entryDetails =
       selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
-    let selectedAccountName =
-      updatedEntriesList
-      ->Array.find(entry => entry.account_id == selectedAccountId)
-      ->Option.map(entry => entry.account_name)
-      ->Option.getOr("")
 
-    let updatedEntry = getUpdatedEntry(
-      ~formData,
-      ~accountData={
-        account_id: selectedAccountId,
-        account_name: selectedAccountName,
-      },
-      ~entryDetails,
-    )
+    let updatedEntry = getUpdatedEntry(~formData, ~entryDetails)
     let newEntriesList =
       updatedEntriesList->Array.map(entry =>
         entry.entry_key == updatedEntry.entry_key ? updatedEntry : entry
@@ -601,26 +766,10 @@ let make = (
   let onMarkAsReceivedSubmit = async (values, _form: ReactFinalForm.formApi) => {
     let formData = values->getDictFromJsonObject
     let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
-    let selectedAccountId = formData->getString("account", "")
-
     let entryDetails =
       selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
 
-    let selectedAccountName =
-      updatedEntriesList
-      ->Array.find(entry => entry.account_id == selectedAccountId)
-      ->Option.map(entry => entry.account_name)
-      ->Option.getOr("")
-
-    let updatedEntry = getUpdatedEntry(
-      ~formData,
-      ~accountData={
-        account_id: selectedAccountId,
-        account_name: selectedAccountName,
-      },
-      ~markAsReceived=true,
-      ~entryDetails,
-    )
+    let updatedEntry = getUpdatedEntry(~formData, ~markAsReceived=true, ~entryDetails)
     let newEntriesList =
       updatedEntriesList->Array.map(entry =>
         entry.entry_key == updatedEntry.entry_key ? updatedEntry : entry
@@ -650,21 +799,7 @@ let make = (
 
   let onCreateEntrySubmit = async (values, _form: ReactFinalForm.formApi) => {
     let formData = values->getDictFromJsonObject
-    let selectedAccountId = formData->getString("account", "")
-    let selectedAccountName =
-      updatedEntriesList
-      ->Array.find(entry => entry.account_id == selectedAccountId)
-      ->Option.map(entry => entry.account_name)
-      ->Option.getOr("")
-
-    let newEntry = getNewEntry(
-      ~formData,
-      ~accountData={
-        account_id: selectedAccountId,
-        account_name: selectedAccountName,
-      },
-      ~updatedEntriesList,
-    )
+    let newEntry = getNewEntry(~formData, ~updatedEntriesList)
     setUpdatedEntriesList(_ => updatedEntriesList->Array.concat([newEntry]))
     setExceptionStage(_ => ConfirmResolution(CreateNewEntry))
     Nullable.null

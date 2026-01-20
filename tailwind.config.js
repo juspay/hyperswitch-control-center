@@ -35,6 +35,7 @@ module.exports = {
       margin: {
         "15-px": "15px",
         "54-px": "54px",
+        "300-px": "300px",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -130,6 +131,7 @@ module.exports = {
         "137-px": "137px",
         "145-px": "145px",
         "147-px": "147px",
+        "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
         "499-px": "499px",
@@ -153,6 +155,9 @@ module.exports = {
         700: "700px",
         800: "800px",
         400: "400px",
+        325: "325px",
+        250: "250px",
+        200: "200px",
       },
       lineHeight: {
         14: "14px",
@@ -232,7 +237,7 @@ module.exports = {
           textColorPrimary: withOpacity("--sidebar-text-color-primary"),
           secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
           hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
-          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 8) / 1)`,
         },
 
         background: {
@@ -388,6 +393,7 @@ module.exports = {
           border_gray: "#E8E8E8", // need to check this
           secondary_hover: "#EEEEEE",
           test_credentials_bg: "#D9D9D959",
+          text_muted: "#808080",
         },
         hyperswitch_dark_bg: "#212E46",
         light_blue: "#006DF966",
@@ -445,6 +451,7 @@ module.exports = {
         nd_green: {
           50: "#ECF4EE",
           100: "#E8F8F5",
+          150: "#F0FDF4",
           200: "#52B87A",
           300: "#69AF7D",
           400: "#2DA160",
@@ -462,6 +469,9 @@ module.exports = {
         nd_orange: {
           50: "#FDF1DD",
           100: "#FFE6CC",
+          150: "#FFF7ED",
+          200: "#FFD6A8",
+          300: "#FF6900",
           600: "#9E5400",
         },
         nd_yellow: {
@@ -470,6 +480,11 @@ module.exports = {
           300: "#FFDF20",
           600: "#D08700",
           800: "#998335",
+        },
+        nd_purple: {
+          100: "#FAF5FF",
+          200: "#F3E8FF",
+          300: "#AD46FF",
         },
       },
       borderRadius: {

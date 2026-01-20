@@ -11,7 +11,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let setUpConnectoreContainer = async () => {
@@ -106,6 +106,16 @@ let make = () => {
           renderList={() => <BillingProcessorList />}
           renderNewForm={() => <BillingProcessorHome />}
           renderShow={(_, _) => <BillingProcessorHome />}
+        />
+      </AccessControl>
+    | list{"vault-processor", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Vault Processor"
+          remainingPath
+          renderList={() => <VaultProcessorsList />}
+          renderNewForm={() => <VaultProcessorsHome />}
+          renderShow={(_, _) => <VaultProcessorsHome />}
         />
       </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>

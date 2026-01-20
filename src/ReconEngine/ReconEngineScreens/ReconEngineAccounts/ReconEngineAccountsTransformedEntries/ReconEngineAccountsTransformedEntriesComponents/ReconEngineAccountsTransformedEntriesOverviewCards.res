@@ -18,7 +18,7 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
       | Some(id) => Some(`transformation_history_id=${id}`)
       | None => None
       }
-      let stagingList = await getProcessingEntries(~queryParamerters=queryParams)
+      let stagingList = await getProcessingEntries(~queryParameters=queryParams)
 
       setStagingData(_ => stagingList)
       setScreenState(_ => PageLoaderWrapper.Success)

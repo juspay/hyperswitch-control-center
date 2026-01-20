@@ -1,16 +1,16 @@
 {
-  "name": "payment_link_wasm",
+  "name": "payment_link",
   "type": "module",
-  "description": "WASM bindings for Payment Link Preview",
+  "description": "Payment Link rendering and WASM bindings",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "files": [
-    "payment_link_wasm_bg.wasm",
-    "payment_link_wasm.js",
-    "payment_link_wasm.d.ts"
+    "payment_link_bg.wasm",
+    "payment_link.js",
+    "payment_link.d.ts"
   ],
-  "main": "payment_link_wasm.js",
-  "types": "payment_link_wasm.d.ts",
+  "main": "payment_link.js",
+  "types": "payment_link.d.ts",
   "sideEffects": [
     "./snippets/*"
   ]

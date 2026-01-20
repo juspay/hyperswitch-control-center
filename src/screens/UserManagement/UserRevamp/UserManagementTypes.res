@@ -20,6 +20,8 @@ type groupAccessType =
   | OrganizationManage
   | AccountView
   | AccountManage
+  | ThemeView
+  | ThemeManage
   | UnknownGroupAccess(string)
 
 type resourceAccessType =
@@ -46,6 +48,7 @@ type resourceAccessType =
   | Mandate
   | WebhookEvent
   | Report
+  | Theme
   | UnknownResourceAccess(string)
 
 open CommonAuthTypes
@@ -64,6 +67,8 @@ type groupAccessJsonType = {
   organizationManage: authorization,
   accountView: authorization,
   accountManage: authorization,
+  themeView: authorization,
+  themeManage: authorization,
 }
 
 type getInfoType = {

@@ -26,7 +26,7 @@ let make = (~accountId) => {
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#TRANSFORMATION_CONFIG,
-        ~queryParamerters=Some(`account_id=${accountId}`),
+        ~queryParameters=Some(`account_id=${accountId}`),
       )
       let accountUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
@@ -115,7 +115,7 @@ let make = (~accountId) => {
       />
       <div className="flex flex-row items-center gap-4">
         <Button
-          text="View Mapping"
+          text="Column Mapping"
           buttonState=Normal
           buttonType=Secondary
           onClick={_ => setShowModal(_ => true)}

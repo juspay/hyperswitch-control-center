@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open CurrencyFormatUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
@@ -12,7 +12,7 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(
+        ~queryParameters=Some(
           `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
         ),
       )

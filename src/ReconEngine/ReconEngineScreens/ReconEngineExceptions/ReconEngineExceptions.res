@@ -21,7 +21,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
+      let ruleDetails = res->getArrayDataFromJson(ruleItemToObjMapper)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -51,7 +51,9 @@ let make = () => {
   <div className="flex flex-col gap-4 w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
-        title="Exceptions" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
+        title="Recon Exceptions"
+        customTitleStyle={`${heading.lg.semibold}`}
+        customHeadingStyle="py-0"
       />
       <div className="flex-shrink-0">
         <Button

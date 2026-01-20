@@ -28,7 +28,7 @@ let make = () => {
       let customersUrl = getURL(
         ~entityName=V1(CUSTOMERS),
         ~methodType=Get,
-        ~queryParamerters=Some(queryParams),
+        ~queryParameters=Some(queryParams),
       )
 
       let response = await fetchDetails(customersUrl)

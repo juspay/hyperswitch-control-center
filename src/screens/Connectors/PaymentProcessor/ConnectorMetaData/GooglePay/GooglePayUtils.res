@@ -13,6 +13,7 @@ let getCustomGateWayName = connector => {
   | Processors(GLOBALPAY) => "globalpayments"
   | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) => "cybersource"
   | Processors(FIUU) => "molpay"
+  | Processors(WORLDPAYXML) | Processors(WORLDPAYMODULAR) => "worldpay"
   | _ => connector
   }
 }

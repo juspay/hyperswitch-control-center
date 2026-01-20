@@ -1,8 +1,9 @@
 type accordion = {
   title: string,
-  renderContent: unit => React.element,
+  renderContent: (~currentAccordianState: bool, ~closeAccordionFn: unit => unit) => React.element,
   renderContentOnTop: option<unit => React.element>,
   onItemExpandClick?: unit => unit,
+  onItemCollapseClick?: unit => unit,
 }
 
 type arrowPosition = Left | Right
@@ -87,8 +88,15 @@ module AccordionInfo = {
     ~titleStyle="",
     ~accordionHeaderTextClass="",
     ~expandedTitleStyle="",
+    ~onToggle: unit => unit,
+    ~singleOpen,
   ) => {
     let (isExpanded, setIsExpanded) = React.useState(() => expanded)
+
+    React.useEffect(() => {
+      setIsExpanded(_ => expanded)
+      None
+    }, [expanded])
 
     let handleClick = _ => {
       if !isExpanded {
@@ -96,9 +104,27 @@ module AccordionInfo = {
         | Some(fn) => fn()
         | None => ()
         }
+      } else {
+        switch accordion.onItemCollapseClick {
+        | Some(fn) => fn()
+        | None => ()
+        }
       }
-      setIsExpanded(prevExpanded => !prevExpanded)
+      if singleOpen {
+        onToggle()
+      } else {
+        setIsExpanded(prev => !prev)
+      }
     }
+
+    let closeAccordionFn = () => {
+      if singleOpen {
+        onToggle()
+      } else {
+        setIsExpanded(_ => false)
+      }
+    }
+
     let titleStyleFull = isExpanded ? `${titleStyle} ${expandedTitleStyle}` : titleStyle
 
     let contentClasses = if isExpanded {
@@ -138,7 +164,7 @@ module AccordionInfo = {
       </div>
       <div
         className={`flex flex-col dark:border-jp-gray-960 border-t dark:hover:bg-jp-gray-900 dark:hover:bg-opacity-25 ${contentClasses}`}>
-        {accordion.renderContent()}
+        {accordion.renderContent(~currentAccordianState=isExpanded, ~closeAccordionFn)}
       </div>
     </div>
   }
@@ -157,7 +183,21 @@ let make = (
   ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
   ~accordionHeaderTextClass="",
   ~expandedTitleStyle="",
+  ~singleOpen=false,
+  ~initialOpenIndex=-1,
 ) => {
+  let (openIndex, setOpenIndex) = React.useState(_ => initialOpenIndex)
+
+  let handleOnToggle = i => {
+    setOpenIndex(prev =>
+      if prev == i {
+        -1
+      } else {
+        i
+      }
+    )
+  }
+
   <div className={`w-full ${gapClass}`}>
     {accordion
     ->Array.mapWithIndex((accordion, i) => {
@@ -169,10 +209,12 @@ let make = (
         accordianTopContainerCss
         accordianBottomContainerCss
         contentExpandCss
-        expanded={initialExpandedArray->Array.includes(i)}
+        expanded={singleOpen ? openIndex == i : initialExpandedArray->Array.includes(i)}
+        onToggle={_ => handleOnToggle(i)}
         titleStyle
         accordionHeaderTextClass
         expandedTitleStyle
+        singleOpen
       />
     })
     ->React.array}

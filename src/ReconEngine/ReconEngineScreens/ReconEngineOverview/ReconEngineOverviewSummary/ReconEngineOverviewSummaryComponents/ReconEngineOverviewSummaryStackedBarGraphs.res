@@ -1,9 +1,9 @@
 open Typography
-open ReconEngineTypes
+open ReconEngineRulesTypes
 
 module RuleWiseStackedBarGraph = {
   @react.component
-  let make = (~rule: ReconEngineTypes.reconRuleType) => {
+  let make = (~rule: rulePayload) => {
     open CurrencyFormatUtils
     open LogicUtils
 
@@ -19,11 +19,11 @@ module RuleWiseStackedBarGraph = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
         let queryString = if baseQueryString->isNonEmptyString {
-          `${baseQueryString}&rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
+          `${baseQueryString}&rule_id=${rule.rule_id}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`
         } else {
-          `rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
+          `rule_id=${rule.rule_id}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`
         }
-        let transactionsData = await getTransactions(~queryParamerters=Some(queryString))
+        let transactionsData = await getTransactions(~queryParameters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -83,7 +83,7 @@ module RuleWiseStackedBarGraph = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<rulePayload>) => {
   <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
     {reconRulesList
     ->Array.map(rule => <RuleWiseStackedBarGraph rule key={rule.rule_id} />)

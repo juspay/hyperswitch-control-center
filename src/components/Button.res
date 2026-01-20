@@ -112,7 +112,7 @@ let useGetBgColor = (
       }
 
       switch buttonState {
-      | Disabled => "bg-gray-200 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
+      | Disabled => "bg-nd_gray-50 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
       | _ => `${color} ${hoverCss} focus:outline-none dark:active:shadow-none`
       }
     }
@@ -202,7 +202,7 @@ let useGetTextColor = (
   | SelectTransparent => "text-primary"
   | Dropdown =>
     switch buttonState {
-    | Disabled => "text-jp-2-light-gray-600"
+    | Disabled => "text-nd_gray-500"
     | Loading => "text-jp-2-light-gray-600"
     | _ =>
       if isDropdownOpen {
@@ -293,6 +293,7 @@ let make = (
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
   ~dataTestId="",
+  ~maxButtonWidth="",
 ) => {
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
@@ -392,7 +393,9 @@ let make = (
   )
 
   let ellipsisClass = ellipsisOnly ? "truncate" : ""
-  let ellipsisParentClass = ellipsisOnly ? "max-w-[250px] md:max-w-xs" : ""
+  let ellipsisParentClass = ellipsisOnly
+    ? maxButtonWidth->LogicUtils.isNonEmptyString ? maxButtonWidth : "max-w-250 md:max-w-xs"
+    : ""
 
   let iconSize = customIconSize->Option.getOr(
     switch buttonSize {

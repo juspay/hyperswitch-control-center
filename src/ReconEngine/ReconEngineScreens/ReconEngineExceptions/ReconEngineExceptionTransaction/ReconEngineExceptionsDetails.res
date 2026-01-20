@@ -25,26 +25,16 @@ let make = (~id) => {
 
   let getExceptionDetails = async _ => {
     try {
-      let currentExceptionUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~id=Some(id),
-      )
-      let res = await fetchDetails(currentExceptionUrl)
-      let currentException = res->getDictFromJsonObject->getTransactionsPayloadFromDict
-      let exceptionsList = await getTransactions(
-        ~queryParamerters=Some(`transaction_id=${currentException.transaction_id}`),
-      )
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let exceptions = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
+      exceptions->Array.sort(sortByVersion)
       let currentExceptionDetails =
-        exceptionsList
-        ->Array.filter(txn => txn.id == currentException.id)
-        ->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
+        exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
       let entriesUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
         ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
-        ~id=Some(currentException.transaction_id),
+        ~id=Some(currentExceptionDetails.transaction_id),
       )
       let entriesRes = await fetchDetails(entriesUrl)
       let entriesList = entriesRes->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
@@ -62,7 +52,7 @@ let make = (~id) => {
       let accountData = await getAccounts()
       setEntriesList(_ => entriesDataArray)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
-      setAllExceptionDetails(_ => exceptionsList)
+      setAllExceptionDetails(_ => exceptions)
       setAccountsData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -97,7 +87,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-6">
       <BreadCrumbNavigation
-        path=[{title: "Exceptions", link: `/v1/recon-engine/exceptions`}]
+        path=[{title: "Recon Exceptions", link: "/v1/recon-engine/exceptions/recon"}]
         currentPageTitle=id
         cursorStyle="cursor-pointer"
         customTextClass="text-nd_gray-400"
@@ -106,7 +96,7 @@ let make = (~id) => {
         dividerVal=Slash
         childGapClass="gap-2"
       />
-      <PageUtils.PageHeading title="Exceptions Detail" />
+      <PageUtils.PageHeading title="Recon Exceptions Detail" />
     </div>
     <PageLoaderWrapper
       screenState

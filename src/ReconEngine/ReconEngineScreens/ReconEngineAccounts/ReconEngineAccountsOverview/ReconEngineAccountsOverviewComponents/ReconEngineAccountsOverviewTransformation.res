@@ -24,7 +24,7 @@ let make = (
       setScreenState(_ => PageLoaderWrapper.Loading)
       try {
         let transformationHistoryList = await getTransformationHistory(
-          ~queryParamerters=Some(`ingestion_history_id=${ingestionHistoryId}`),
+          ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
         )
         setTransformationHistoryData(_ => transformationHistoryList)
 
@@ -118,7 +118,7 @@ let make = (
           </div>
           <Button
             buttonType=Secondary
-            text="View Mappers"
+            text="Column Mapping"
             customButtonStyle="!w-fit"
             onClick={_ => onViewMappersClick(~transformationId=config.transformation_id)->ignore}
           />
