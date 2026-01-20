@@ -1,6 +1,6 @@
 type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR | ROUTING
 
-type pageType = [#PAYMENT | #REFUND | #DISPUTE]
+type pageType = [#PAYMENT | #REFUND | #DISPUTE | #PAYOUT]
 
 type eventLogs = Logdetails | Request | Response | Event | Metadata | Unknown
 

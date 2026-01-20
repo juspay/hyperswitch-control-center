@@ -1,5 +1,5 @@
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
   open HierarchicalTransactionsTableEntity
 
@@ -24,7 +24,13 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      if statusFilter->Array.length === 0 {
+
+      // If posted_manual is selected, automatically add posted_force
+      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
+        statusFilter,
+      )
+
+      if finalStatusFilter->Array.length === 0 {
         enhancedFilterValueJson->Dict.set(
           "status",
           [
@@ -40,6 +46,11 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
             "partially_reconciled",
             "void",
           ]->getJsonFromArrayOfString,
+        )
+      } else {
+        enhancedFilterValueJson->Dict.set(
+          "status",
+          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
         )
       }
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(

@@ -576,6 +576,13 @@ let useGetURL = () => {
           `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
         | _ => ""
         }
+
+      /* OIDC */
+      | OIDC_AUTHORIZE =>
+        switch methodType {
+        | Get => `oidc/authorize`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
@@ -1031,8 +1038,8 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
-            | None => `${reconBaseURL}/recon_rules`
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/v2/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules/v2`
             }
           | _ => ""
           }
