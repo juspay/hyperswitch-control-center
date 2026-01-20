@@ -414,7 +414,7 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
-    let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
+    let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
     let disputeData = orderData.disputes
 
@@ -443,7 +443,7 @@ module OrderActions = {
         amountRefunded.contents /. conversionFactor -.
         disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
-      setAmoutAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
+      setAmountAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
       None
     }, [orderData])
 
@@ -460,7 +460,7 @@ module OrderActions = {
           setShowModal
           requestedRefundAmount
           amountRefunded
-          amoutAvailableToRefund
+          amountAvailableToRefund
           refetch
         />
       </Modal>
