@@ -180,24 +180,104 @@ let oneToOneManySingleMapper: Dict.t<JSON.t> => oneToOneManySingleType = dict =>
   }
 }
 
+let getReconStrategyDisplayName = (strategy: reconStrategyType): string => {
+  switch strategy {
+  | OneToOne(_) => "One to One Account"
+  | OneToMany(_) => "One to Many Account"
+  | UnknownReconStrategy => "Unknown"
+  }
+}
+
 let oneToOneStrategyMapper: Dict.t<JSON.t> => oneToOneStrategyType = dict => {
   switch dict->getString("one_to_one_type", "") {
   | "single_single" => SingleSingle(dict->oneToOneSingleSingleMapper)
   | "single_many" => SingleMany(dict->oneToOneSingleManyMapper)
   | "many_single" => ManySingle(dict->oneToOneManySingleMapper)
-  | _ =>
-    SingleSingle(
-      dict
-      ->getJsonObjectFromDict("single_single")
-      ->getDictFromJsonObject
-      ->oneToOneSingleSingleMapper,
-    )
+  | _ => UnknownOneToOneStrategy
+  }
+}
+
+let splitValueMapper: Dict.t<JSON.t> => splitValueType = dict => {
+  {
+    value: dict->getFloat("value", 0.0),
+  }
+}
+
+let oneToManySingleSingleSourceMapper: Dict.t<JSON.t> => oneToManySingleSingleSourceType = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    trigger: dict->getJsonObjectFromDict("trigger")->getDictFromJsonObject->triggerMapper,
+  }
+}
+
+let oneToManySingleSingleTargetMapper: Dict.t<JSON.t> => oneToManySingleSingleTargetType = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    search_identifier: dict
+    ->getJsonObjectFromDict("search_identifier")
+    ->getDictFromJsonObject
+    ->searchIdentifierMapper,
+    match_rules: dict
+    ->getJsonObjectFromDict("match_rules")
+    ->getDictFromJsonObject
+    ->matchRulesMapper,
+  }
+}
+
+let oneToManySingleSingleTargetsMapper: Dict.t<
+  JSON.t,
+> => oneToManySingleSingleTargetsType = dict => {
+  switch dict->getString("split_type", "") {
+  | "percentage" =>
+    Percentage({
+      targets: dict
+      ->getArrayFromDict("targets", [])
+      ->Array.map(item => {
+        let arr = item->getArrayFromJson([])
+        let targetConfig = arr->Array.get(0)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
+        let splitValue = arr->Array.get(1)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
+        (targetConfig->oneToManySingleSingleTargetMapper, splitValue->splitValueMapper)
+      }),
+    })
+  | "fixed" =>
+    Fixed({
+      targets: dict
+      ->getArrayFromDict("targets", [])
+      ->Array.map(item => {
+        let arr = item->getArrayFromJson([])
+        let targetConfig = arr->Array.get(0)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
+        let splitValue = arr->Array.get(1)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
+        (targetConfig->oneToManySingleSingleTargetMapper, splitValue->splitValueMapper)
+      }),
+    })
+  | _ => UnknownTargetsType
+  }
+}
+
+let oneToManySingleSingleMapper: Dict.t<JSON.t> => oneToManySingleSingleType = dict => {
+  {
+    source_account: dict
+    ->getJsonObjectFromDict("source_account")
+    ->getDictFromJsonObject
+    ->oneToManySingleSingleSourceMapper,
+    target_accounts: dict
+    ->getJsonObjectFromDict("target_accounts")
+    ->getDictFromJsonObject
+    ->oneToManySingleSingleTargetsMapper,
+  }
+}
+
+let oneToManyStrategyMapper: Dict.t<JSON.t> => oneToManyStrategyType = dict => {
+  switch dict->getString("one_to_many_type", "") {
+  | "single_single" => SingleSingle(dict->oneToManySingleSingleMapper)
+  | _ => UnknownOneToManyStrategy
   }
 }
 
 let reconStrategyMapper: Dict.t<JSON.t> => reconStrategyType = dict => {
   switch dict->getString("recon_strategy_type", "") {
   | "one_to_one" => OneToOne(dict->oneToOneStrategyMapper)
+  | "one_to_many" => OneToMany(dict->oneToManyStrategyMapper)
   | _ => UnknownReconStrategy
   }
 }

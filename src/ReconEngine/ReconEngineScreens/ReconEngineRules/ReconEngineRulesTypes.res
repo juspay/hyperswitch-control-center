@@ -16,6 +16,13 @@ type matchRuleType = {
   operator: string,
 }
 
+type mappingRulesWithAccount = {
+  match_rules: array<matchRuleType>,
+  target_account_id: string,
+  source_account_name: string,
+  target_account_name: string,
+}
+
 type matchRulesType = {
   match_version: string,
   rules: array<matchRuleType>,
@@ -25,6 +32,19 @@ type searchIdentifierType = {
   search_version: string,
   source_field: string,
   target_field: string,
+}
+
+type targetAccountInfo = {
+  account_id: string,
+  split_value: option<float>,
+  split_type: option<string>,
+}
+
+type searchIdentifierWithAccount = {
+  search_identifier: searchIdentifierType,
+  target_account_id: string,
+  source_account_name: string,
+  target_account_name: string,
 }
 
 type oneToOneSingleSingleSourceType = {
@@ -74,8 +94,37 @@ type oneToOneStrategyType =
   | SingleSingle(oneToOneSingleSingleType)
   | SingleMany(oneToOneSingleManyType)
   | ManySingle(oneToOneManySingleType)
+  | UnknownOneToOneStrategy
 
-type reconStrategyType = OneToOne(oneToOneStrategyType) | UnknownReconStrategy
+type oneToManySingleSingleSourceType = {
+  account_id: string,
+  trigger: triggerType,
+}
+
+type oneToManySingleSingleTargetType = {
+  account_id: string,
+  search_identifier: searchIdentifierType,
+  match_rules: matchRulesType,
+}
+
+type splitValueType = {value: float}
+
+type oneToManySingleSingleTargetsType =
+  | Percentage({targets: array<(oneToManySingleSingleTargetType, splitValueType)>})
+  | Fixed({targets: array<(oneToManySingleSingleTargetType, splitValueType)>})
+  | UnknownTargetsType
+
+type oneToManySingleSingleType = {
+  source_account: oneToManySingleSingleSourceType,
+  target_accounts: oneToManySingleSingleTargetsType,
+}
+
+type oneToManyStrategyType = SingleSingle(oneToManySingleSingleType) | UnknownOneToManyStrategy
+
+type reconStrategyType =
+  | OneToOne(oneToOneStrategyType)
+  | OneToMany(oneToManyStrategyType)
+  | UnknownReconStrategy
 
 type rulePayload = {
   rule_id: string,
@@ -92,6 +141,7 @@ type rulePayload = {
 type ruleColType =
   | RuleId
   | RuleName
+  | RuleType
   | RuleDescription
   | Status
   | Priority

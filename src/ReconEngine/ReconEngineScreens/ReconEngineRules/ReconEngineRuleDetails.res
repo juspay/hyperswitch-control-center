@@ -46,15 +46,66 @@ module RuleIDCopy = {
 
 module SearchIdentifier = {
   @react.component
-  let make = (~rule: rulePayload) => {
-    let searchIdentifier = switch rule.strategy {
+  let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
+    let getAccountName = (accountId: string): string => {
+      accountData
+      ->Array.find(account => account.account_id === accountId)
+      ->Option.map(account => account.account_name)
+      ->Option.getOr("Unknown Account")
+    }
+
+    let searchIdentifiersWithAccounts = switch rule.strategy {
     | OneToOne(oneToOne) =>
       switch oneToOne {
-      | SingleSingle(data) => Some(data.search_identifier)
-      | SingleMany(data) => Some(data.search_identifier)
-      | ManySingle(data) => Some(data.search_identifier)
+      | SingleSingle(data) => [
+          {
+            search_identifier: data.search_identifier,
+            target_account_id: data.target_account.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(data.target_account.account_id),
+          },
+        ]
+      | SingleMany(data) => [
+          {
+            search_identifier: data.search_identifier,
+            target_account_id: data.target_account.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(data.target_account.account_id),
+          },
+        ]
+      | ManySingle(data) => [
+          {
+            search_identifier: data.search_identifier,
+            target_account_id: data.target_account.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(data.target_account.account_id),
+          },
+        ]
+      | UnknownOneToOneStrategy => []
       }
-    | UnknownReconStrategy => None
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) =>
+        switch data.target_accounts {
+        | Percentage({targets}) =>
+          targets->Array.map(((target, _)) => {
+            search_identifier: target.search_identifier,
+            target_account_id: target.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(target.account_id),
+          })
+        | Fixed({targets}) =>
+          targets->Array.map(((target, _)) => {
+            search_identifier: target.search_identifier,
+            target_account_id: target.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(target.account_id),
+          })
+        | UnknownTargetsType => []
+        }
+      | UnknownOneToManyStrategy => []
+      }
+    | UnknownReconStrategy => []
     }
 
     <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
@@ -67,87 +118,162 @@ module SearchIdentifier = {
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        {switch searchIdentifier {
-        | Some(identifier) =>
-          let sourceFieldInput = createFormInput(
-            ~name="search_source_field",
-            ~value=identifier.source_field,
-          )
-          let targetFieldInput = createFormInput(
-            ~name="search_target_field",
-            ~value=identifier.target_field,
-          )
+        <RenderIf condition={searchIdentifiersWithAccounts->Array.length > 0}>
+          {<>
+            {searchIdentifiersWithAccounts
+            ->Array.mapWithIndex((
+              {search_identifier, source_account_name, target_account_name},
+              index,
+            ) => {
+              let identifier = search_identifier
+              let sourceFieldInput = createFormInput(
+                ~name=`search_source_field_${index->Int.toString}`,
+                ~value=identifier.source_field,
+              )
+              let targetFieldInput = createFormInput(
+                ~name=`search_target_field_${index->Int.toString}`,
+                ~value=identifier.target_field,
+              )
 
-          let sourceFieldOptions = [
-            createDropdownOption(
-              ~label=getFieldDisplayName(identifier.source_field),
-              ~value=identifier.source_field,
-            ),
-          ]
-          let targetFieldOptions = [
-            createDropdownOption(
-              ~label=getFieldDisplayName(identifier.target_field),
-              ~value=identifier.target_field,
-            ),
-          ]
+              let sourceFieldOptions = [
+                createDropdownOption(
+                  ~label=getFieldDisplayName(identifier.source_field),
+                  ~value=identifier.source_field,
+                ),
+              ]
+              let targetFieldOptions = [
+                createDropdownOption(
+                  ~label=getFieldDisplayName(identifier.target_field),
+                  ~value=identifier.target_field,
+                ),
+              ]
 
-          <div className="flex items-center gap-10">
-            <div className="flex-1 max-w-325">
-              <label className=labelCss> {"Source Column"->React.string} </label>
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText={getFieldDisplayName(identifier.source_field)}
-                input=sourceFieldInput
-                options=sourceFieldOptions
-                hideMultiSelectButtons=true
-                deselectDisable=true
-                disableSelect=true
-                fullLength=true
-                customButtonStyle="w-147-px h-40-px"
-              />
-              <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
-                {"This value identifies the record on the source side"->React.string}
-              </p>
+              <div key={index->Int.toString} className="flex flex-col gap-3">
+                <div className="flex items-center gap-10">
+                  <div className="flex-1 max-w-325">
+                    <label className=labelCss> {source_account_name->React.string} </label>
+                    <SelectBox.BaseDropdown
+                      allowMultiSelect=false
+                      buttonText={getFieldDisplayName(identifier.source_field)}
+                      input=sourceFieldInput
+                      options=sourceFieldOptions
+                      hideMultiSelectButtons=true
+                      deselectDisable=true
+                      disableSelect=true
+                      fullLength=true
+                      customButtonStyle="w-147-px h-40-px"
+                    />
+                  </div>
+                  <div className="flex items-center mt-6">
+                    <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
+                  </div>
+                  <div className="flex-1 max-w-325">
+                    <label className=labelCss> {target_account_name->React.string} </label>
+                    <SelectBox.BaseDropdown
+                      allowMultiSelect=false
+                      buttonText={getFieldDisplayName(identifier.target_field)}
+                      input=targetFieldInput
+                      options=targetFieldOptions
+                      hideMultiSelectButtons=true
+                      deselectDisable=true
+                      disableSelect=true
+                      fullLength=true
+                      customButtonStyle="w-147-px h-40-px"
+                    />
+                  </div>
+                </div>
+              </div>
+            })
+            ->React.array}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-10">
+                  <div className="flex-1 max-w-325">
+                    <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+                      {"This value identifies the record on the source side"->React.string}
+                    </p>
+                  </div>
+                  <div className="flex items-center" />
+                  <div className="flex-1 max-w-325">
+                    <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-5`}>
+                      {"We match this value with the source field"->React.string}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center">
-              <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
-            </div>
-            <div className="flex-1 max-w-325">
-              <label className=labelCss> {"Target Column"->React.string} </label>
-              <SelectBox.BaseDropdown
-                allowMultiSelect=false
-                buttonText={getFieldDisplayName(identifier.target_field)}
-                input=targetFieldInput
-                options=targetFieldOptions
-                hideMultiSelectButtons=true
-                deselectDisable=true
-                disableSelect=true
-                fullLength=true
-                customButtonStyle="w-147-px h-40-px"
-              />
-              <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
-                {"We match this value with the source field"->React.string}
-              </p>
-            </div>
-          </div>
-        | None =>
+          </>}
+        </RenderIf>
+        <RenderIf condition={searchIdentifiersWithAccounts->Array.length === 0}>
           <div className="text-sm text-jp-gray-500 text-center py-4">
             {"No search identifier configured"->React.string}
           </div>
-        }}
+        </RenderIf>
       </div>
     </div>
   }
 }
+
 module MappingRules = {
   @react.component
-  let make = (~rule: rulePayload) => {
-    let mappingRules = switch rule.strategy {
+  let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
+    let getAccountName = (accountId: string): string => {
+      accountData
+      ->Array.find(account => account.account_id === accountId)
+      ->Option.map(account => account.account_name)
+      ->Option.getOr("Unknown Account")
+    }
+
+    let allMappingRules = switch rule.strategy {
     | OneToOne(oneToOne) =>
       switch oneToOne {
-      | SingleSingle(data) => data.match_rules.rules
-      | SingleMany(data) => data.match_rules.rules
-      | ManySingle(data) => data.match_rules.rules
+      | SingleSingle(data) => [
+          {
+            match_rules: data.match_rules.rules,
+            target_account_id: data.target_account.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(data.target_account.account_id),
+          },
+        ]
+      | SingleMany(data) => [
+          {
+            match_rules: data.match_rules.rules,
+            target_account_id: data.target_account.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(data.target_account.account_id),
+          },
+        ]
+      | ManySingle(data) => [
+          {
+            match_rules: data.match_rules.rules,
+            target_account_id: data.target_account.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(data.target_account.account_id),
+          },
+        ]
+      | UnknownOneToOneStrategy => []
+      }
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) =>
+        switch data.target_accounts {
+        | Percentage({targets}) =>
+          targets->Array.map(((target, _)) => {
+            match_rules: target.match_rules.rules,
+            target_account_id: target.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(target.account_id),
+          })
+        | Fixed({targets}) =>
+          targets->Array.map(((target, _)) => {
+            match_rules: target.match_rules.rules,
+            target_account_id: target.account_id,
+            source_account_name: getAccountName(data.source_account.account_id),
+            target_account_name: getAccountName(target.account_id),
+          })
+        | UnknownTargetsType => []
+        }
+      | UnknownOneToManyStrategy => []
       }
     | UnknownReconStrategy => []
     }
@@ -162,83 +288,107 @@ module MappingRules = {
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-10">
-          <div className="flex-1 max-w-325 flex flex-row gap-2">
-            <div className={`${body.md.medium} text-nd_gray-700`}>
-              {"Source"->React.string}
-              <span className={`${body.md.regular} text-nd_gray-400 ml-1`}>
-                {"(This value is compared against target value)"->React.string}
-              </span>
-            </div>
-          </div>
-          <div className="w-4" />
-          <div className="flex-1 max-w-325 flex flex-row gap-2">
-            <div className={`${body.md.medium} text-nd_gray-700`}>
-              {"Target"->React.string}
-              <span className={`${body.md.regular} text-nd_gray-400 ml-1`}>
-                {"(This value must match the source value)"->React.string}
-              </span>
-            </div>
-          </div>
-        </div>
-        {mappingRules
-        ->Array.mapWithIndex((mapping, index) => {
-          let sourceFieldInput = createFormInput(
-            ~name=`mapping_source_${index->Int.toString}`,
-            ~value=mapping.source_field,
-          )
-          let targetFieldInput = createFormInput(
-            ~name=`mapping_target_${index->Int.toString}`,
-            ~value=mapping.target_field,
-          )
+        <RenderIf condition={allMappingRules->Array.length > 0}>
+          {allMappingRules
+          ->Array.mapWithIndex((
+            {match_rules, source_account_name, target_account_name},
+            targetIndex,
+          ) => {
+            <div key={targetIndex->Int.toString} className="flex flex-col gap-4">
+              <RenderIf condition={match_rules->Array.length > 0}>
+                {match_rules
+                ->Array.mapWithIndex((mapping, ruleIndex) => {
+                  let sourceFieldInput = createFormInput(
+                    ~name=`mapping_source_${targetIndex->Int.toString}_${ruleIndex->Int.toString}`,
+                    ~value=mapping.source_field,
+                  )
+                  let targetFieldInput = createFormInput(
+                    ~name=`mapping_target_${targetIndex->Int.toString}_${ruleIndex->Int.toString}`,
+                    ~value=mapping.target_field,
+                  )
 
-          let sourceFieldOptions = [
-            createDropdownOption(
-              ~label=getFieldDisplayName(mapping.source_field),
-              ~value=mapping.source_field,
-            ),
-          ]
-          let targetFieldOptions = [
-            createDropdownOption(
-              ~label=getFieldDisplayName(mapping.target_field),
-              ~value=mapping.target_field,
-            ),
-          ]
-          <div className="flex flex-col gap-4" key={LogicUtils.randomString(~length=10)}>
-            <div className="flex items-center gap-10">
-              <div className="flex-1 max-w-325">
-                <SelectBox.BaseDropdown
-                  allowMultiSelect=false
-                  buttonText={getFieldDisplayName(mapping.source_field)}
-                  input=sourceFieldInput
-                  options=sourceFieldOptions
-                  hideMultiSelectButtons=true
-                  deselectDisable=true
-                  disableSelect=true
-                  fullLength=true
-                  customButtonStyle="w-147-px h-40-px"
-                />
-              </div>
-              <div className="flex items-center">
-                <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
-              </div>
-              <div className="flex-1 max-w-325">
-                <SelectBox.BaseDropdown
-                  allowMultiSelect=false
-                  buttonText={getFieldDisplayName(mapping.target_field)}
-                  input=targetFieldInput
-                  options=targetFieldOptions
-                  hideMultiSelectButtons=true
-                  deselectDisable=true
-                  disableSelect=true
-                  fullLength=true
-                  customButtonStyle="w-147-px h-40-px"
-                />
+                  let sourceFieldOptions = [
+                    createDropdownOption(
+                      ~label=getFieldDisplayName(mapping.source_field),
+                      ~value=mapping.source_field,
+                    ),
+                  ]
+                  let targetFieldOptions = [
+                    createDropdownOption(
+                      ~label=getFieldDisplayName(mapping.target_field),
+                      ~value=mapping.target_field,
+                    ),
+                  ]
+                  <div className="flex flex-col gap-4" key={LogicUtils.randomString(~length=10)}>
+                    <div className="flex items-center gap-10">
+                      <div className="flex-1 max-w-325">
+                        <label className=labelCss> {source_account_name->React.string} </label>
+                        <SelectBox.BaseDropdown
+                          allowMultiSelect=false
+                          buttonText={getFieldDisplayName(mapping.source_field)}
+                          input=sourceFieldInput
+                          options=sourceFieldOptions
+                          hideMultiSelectButtons=true
+                          deselectDisable=true
+                          disableSelect=true
+                          fullLength=true
+                          customButtonStyle="w-147-px h-40-px"
+                        />
+                      </div>
+                      <div className="flex items-center mt-6">
+                        <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
+                      </div>
+                      <div className="flex-1 max-w-325">
+                        <label className=labelCss> {target_account_name->React.string} </label>
+                        <SelectBox.BaseDropdown
+                          allowMultiSelect=false
+                          buttonText={getFieldDisplayName(mapping.target_field)}
+                          input=targetFieldInput
+                          options=targetFieldOptions
+                          hideMultiSelectButtons=true
+                          deselectDisable=true
+                          disableSelect=true
+                          fullLength=true
+                          customButtonStyle="w-147-px h-40-px"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                })
+                ->React.array}
+              </RenderIf>
+              <RenderIf condition={match_rules->Array.length === 0}>
+                <div className={`${body.md.regular} text-nd_gray-500 text-center py-4`}>
+                  {"No external mapping rules configured. By default amount and currency are matched"->React.string}
+                </div>
+              </RenderIf>
+            </div>
+          })
+          ->React.array}
+          <RenderIf
+            condition={allMappingRules
+            ->Array.map(rules => rules.match_rules)
+            ->Array.flat
+            ->Array.length > 0}>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-10">
+                  <div className="flex-1 max-w-325">
+                    <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+                      {"This value is compared against target value"->React.string}
+                    </p>
+                  </div>
+                  <div className="flex items-center" />
+                  <div className="flex-1 max-w-325">
+                    <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-5`}>
+                      {"This value must match the source value"->React.string}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        })
-        ->React.array}
+          </RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -262,6 +412,12 @@ module TriggerRules = {
       | SingleSingle(data) => Some(data.source_account.trigger)
       | SingleMany(data) => Some(data.source_account.trigger)
       | ManySingle(data) => Some(data.source_account.trigger)
+      | UnknownOneToOneStrategy => None
+      }
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) => Some(data.source_account.trigger)
+      | UnknownOneToManyStrategy => None
       }
     | UnknownReconStrategy => None
     }
@@ -320,27 +476,7 @@ module TriggerRules = {
 }
 module SourceTargetAccount = {
   @react.component
-  let make = (~rule: rulePayload) => {
-    let (accountData, setAccountData) = React.useState(_ => [])
-    let getAccounts = ReconEngineHooks.useGetAccounts()
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
-    let getAccountsData = async _ => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let accountData = await getAccounts()
-        setAccountData(_ => accountData)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-    }
-
-    React.useEffect(() => {
-      getAccountsData()->ignore
-      None
-    }, [])
-
+  let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
     let getAccountName = (accountId: string): string => {
       accountData
       ->Array.find(account => account.account_id === accountId)
@@ -353,18 +489,49 @@ module SourceTargetAccount = {
         createDropdownOption(~label=account.account_name, ~value=account.account_id)
       )
 
-    let (sourceAccountId, targetAccountId) = switch rule.strategy {
+    let (sourceAccountId, targetAccounts) = switch rule.strategy {
     | OneToOne(oneToOne) =>
       switch oneToOne {
-      | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
-      | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
-      | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
+      | SingleSingle(data) => (
+          data.source_account.account_id,
+          [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+        )
+      | SingleMany(data) => (
+          data.source_account.account_id,
+          [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+        )
+      | ManySingle(data) => (
+          data.source_account.account_id,
+          [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+        )
+      | UnknownOneToOneStrategy => ("", [])
       }
-    | UnknownReconStrategy => ("", "")
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) => {
+          let targets = switch data.target_accounts {
+          | Percentage({targets}) =>
+            targets->Array.map(((target, splitVal)) => {
+              account_id: target.account_id,
+              split_value: Some(splitVal.value),
+              split_type: Some("percentage"),
+            })
+          | Fixed({targets}) =>
+            targets->Array.map(((target, splitVal)) => {
+              account_id: target.account_id,
+              split_value: Some(splitVal.value),
+              split_type: Some("fixed"),
+            })
+          | UnknownTargetsType => []
+          }
+          (data.source_account.account_id, targets)
+        }
+      | UnknownOneToManyStrategy => ("", [])
+      }
+    | UnknownReconStrategy => ("", [])
     }
 
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
-    let targetAccountInput = createFormInput(~name="target_account", ~value=targetAccountId)
 
     <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
       <div className="flex flex-col gap-1 items-start">
@@ -375,51 +542,71 @@ module SourceTargetAccount = {
           {"What should exist on the other side?"->React.string}
         </p>
       </div>
-      <PageLoaderWrapper
-        screenState
-        customUI={<NewAnalyticsHelper.NoData height="h-32" message="No data available." />}
-        customLoader={<Shimmer styleClass="h-32 w-full rounded-b-lg" />}>
-        <div className="flex items-center gap-10">
-          <div className="flex-1 max-w-325">
-            <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              buttonText={getAccountName(sourceAccountId)}
-              input=sourceAccountInput
-              options={accountOptions}
-              hideMultiSelectButtons=true
-              deselectDisable=true
-              disableSelect=true
-              fullLength=true
-              customButtonStyle="w-147-px h-40-px"
-            />
-            <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
-              {"Where the original transaction is recorded"->React.string}
-            </p>
-          </div>
-          <div className="flex items-center">
-            <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
-          </div>
-          <div className="flex-1 max-w-325">
-            <label className={`${labelCss}`}> {"Target Account"->React.string} </label>
-            <SelectBox.BaseDropdown
-              allowMultiSelect=false
-              buttonText={getAccountName(targetAccountId)}
-              input=targetAccountInput
-              options={accountOptions}
-              hideMultiSelectButtons=true
-              deselectDisable=true
-              disableSelect=true
-              fullLength=true
-              customButtonStyle="w-147-px h-40-px"
-            />
-            <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
-              {"Where the transaction should show up"->React.string}
-            </p>
-          </div>
+      <div className="flex items-center gap-10">
+        <div className="flex-1 max-w-325">
+          <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
+          <SelectBox.BaseDropdown
+            allowMultiSelect=false
+            buttonText={getAccountName(sourceAccountId)}
+            input=sourceAccountInput
+            options={accountOptions}
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            disableSelect=true
+            fullLength=true
+            customButtonStyle="w-147-px h-40-px"
+          />
+          <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+            {"Where the original transaction is recorded"->React.string}
+          </p>
         </div>
-        <TriggerRules rule />
-      </PageLoaderWrapper>
+        <div className="flex items-center">
+          <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
+        </div>
+        <div className="flex-1 max-w-325">
+          <label className={`${labelCss}`}>
+            {(
+              targetAccounts->Array.length > 1 ? "Target Accounts" : "Target Account"
+            )->React.string}
+          </label>
+          <div className="flex flex-col gap-3">
+            {targetAccounts
+            ->Array.mapWithIndex((targetInfo, index) => {
+              let targetInput = createFormInput(
+                ~name=`target_account_${index->Int.toString}`,
+                ~value=targetInfo.account_id,
+              )
+              let splitText = switch (targetInfo.split_value, targetInfo.split_type) {
+              | (Some(value), Some("percentage")) => ` (${value->Float.toString}%)`
+              | (Some(value), Some("fixed")) => ` (${value->Float.toString})`
+              | _ => ""
+              }
+              <div key={index->Int.toString} className="flex flex-col">
+                <SelectBox.BaseDropdown
+                  allowMultiSelect=false
+                  buttonText={`${getAccountName(targetInfo.account_id)}${splitText}`}
+                  input=targetInput
+                  options={accountOptions}
+                  hideMultiSelectButtons=true
+                  deselectDisable=true
+                  disableSelect=true
+                  fullLength=true
+                  customButtonStyle="w-147-px h-40-px"
+                />
+              </div>
+            })
+            ->React.array}
+          </div>
+          <p className={`${body.md.regular} text-nd_gray-500 mt-2 ml-1`}>
+            {(
+              targetAccounts->Array.length > 1
+                ? "Where the transaction should be split and show up"
+                : "Where the transaction should show up"
+            )->React.string}
+          </p>
+        </div>
+      </div>
+      <TriggerRules rule />
     </div>
   }
 }
@@ -427,10 +614,27 @@ module SourceTargetAccount = {
 module RuleSchemaComponents = {
   @react.component
   let make = (~rule: rulePayload) => {
+    let (accountData, setAccountData) = React.useState(_ => [])
+    let getAccounts = ReconEngineHooks.useGetAccounts()
+
+    let getAccountsData = async () => {
+      try {
+        let accounts = await getAccounts()
+        setAccountData(_ => accounts)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    React.useEffect(() => {
+      getAccountsData()->ignore
+      None
+    }, [])
+
     <div className="flex flex-col gap-6">
-      <SourceTargetAccount rule />
-      <SearchIdentifier rule />
-      <MappingRules rule />
+      <SourceTargetAccount rule accountData />
+      <SearchIdentifier rule accountData />
+      <MappingRules rule accountData />
     </div>
   }
 }
