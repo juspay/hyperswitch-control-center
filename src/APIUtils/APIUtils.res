@@ -1494,6 +1494,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~isEmbeddableSession=false,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -1538,12 +1539,14 @@ let responseHandler = async (
             }
           }
         | 401 =>
-          if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+          if !isEmbeddableSession {
+            if !sessionExpired.contents {
+              showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
 
-            handleLogout()->ignore
-            AuthUtils.redirectToLogin()
-            sessionExpired := true
+              handleLogout()->ignore
+              AuthUtils.redirectToLogin()
+              sessionExpired := true
+            }
           }
 
         | 403 =>
@@ -1651,6 +1654,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>
@@ -1722,6 +1726,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>
