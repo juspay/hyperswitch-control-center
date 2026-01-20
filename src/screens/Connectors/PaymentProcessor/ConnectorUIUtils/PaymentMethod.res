@@ -105,10 +105,12 @@ module CardRenderer = {
     }
 
     let findPaymentMethodIndexInForm = (paymentMethodsEnabledArray, paymentMethod) => {
+      let target = paymentMethod->String.toLowerCase
       paymentMethodsEnabledArray->Array.findIndex(pmJson => {
-        let pmDict = pmJson->getDictFromJsonObject
-        pmDict->getString("payment_method", "")->String.toLowerCase ===
-          paymentMethod->String.toLowerCase
+        pmJson
+        ->getDictFromJsonObject
+        ->getString("payment_method", "")
+        ->String.toLowerCase === target
       })
     }
 
@@ -141,21 +143,23 @@ module CardRenderer = {
       ~paymentMethod,
       ~method: paymentMethodConfigType,
     ) => {
+      let targetMethod = paymentMethod->String.toLowerCase
       let paymentMethodsEnabledArray = formValues->getArrayFromDict("payment_methods_enabled", [])
-
       let updatedPaymentMethodsArray =
         paymentMethodsEnabledArray
         ->Array.map(pmJson => {
           let pmDict = pmJson->getDictFromJsonObject
           let pmMethod = pmDict->getString("payment_method", "")->String.toLowerCase
 
-          if pmMethod === paymentMethod->String.toLowerCase {
-            // Remove from payment_method_types array
+          if pmMethod === targetMethod {
             let paymentMethodTypesArray = pmDict->getArrayFromDict("payment_method_types", [])
+
             let filteredArray = paymentMethodTypesArray->Array.filter(itemJson => {
-              let itemDict = itemJson->getDictFromJsonObject
-              itemDict->getString("payment_method_type", "") !== method.payment_method_type
+              itemJson
+              ->getDictFromJsonObject
+              ->getString("payment_method_type", "") !== method.payment_method_type
             })
+
             let updatedPmDict = pmDict->Dict.copy
             updatedPmDict->Dict.set(
               "payment_method_types",
@@ -167,9 +171,10 @@ module CardRenderer = {
           }
         })
         ->Array.filter(pmJson => {
-          let pmDict = pmJson->getDictFromJsonObject
-          let paymentMethodTypesArray = pmDict->getArrayFromDict("payment_method_types", [])
-          paymentMethodTypesArray->Array.length > 0
+          pmJson
+          ->getDictFromJsonObject
+          ->getArrayFromDict("payment_method_types", [])
+          ->Array.length > 0
         })
 
       form.change("payment_methods_enabled", updatedPaymentMethodsArray->Identity.genericTypeToJson)
@@ -177,19 +182,24 @@ module CardRenderer = {
 
     let addMethodToPaymentMethodTypes = (pmDict, method: paymentMethodConfigType) => {
       let paymentMethodTypesArray = pmDict->getArrayFromDict("payment_method_types", [])
-      let methodExists = paymentMethodTypesArray->Array.some(itemJson => {
-        let itemDict = itemJson->getDictFromJsonObject
-        itemDict->getString("payment_method_type", "") === method.payment_method_type
-      })
+      let methodExists = paymentMethodTypesArray->Array.some(itemJson =>
+        itemJson
+        ->getDictFromJsonObject
+        ->getString("payment_method_type", "") === method.payment_method_type
+      )
 
-      if !methodExists {
+      if methodExists {
+        pmDict->JSON.Encode.object
+      } else {
         let methodJson = method->Identity.genericTypeToJson
         let updatedArray = paymentMethodTypesArray->Array.concat([methodJson])
-        let updatedPmDict = pmDict->Dict.copy
-        updatedPmDict->Dict.set("payment_method_types", updatedArray->Identity.genericTypeToJson)
-        updatedPmDict->JSON.Encode.object
-      } else {
-        pmDict->JSON.Encode.object
+        pmDict
+        ->Dict.copy
+        ->(dict => {
+          dict->Dict.set("payment_method_types", updatedArray->Identity.genericTypeToJson)
+          dict
+        })
+        ->JSON.Encode.object
       }
     }
 

@@ -35,7 +35,6 @@ module AdditionalDetailsSidebarComp = {
       {switch paymentMethod->getPaymentMethodFromString {
       | BankDebit =>
         <BankDebit
-          update=updatePaymentMethods
           paymentMethod
           paymentMethodType=pmtName
           setInitialValues

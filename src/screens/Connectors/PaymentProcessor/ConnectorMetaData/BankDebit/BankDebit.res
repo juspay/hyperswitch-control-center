@@ -9,13 +9,13 @@ module PMAuthProcessorInput = {
     ~isMethodEnabled: bool,
   ) => {
     open LogicUtils
-
+    open BankDebitUtils
     let enabledList = (
       fieldsArray->Array.get(0)->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
     ).input
 
     let currentSelection = {
-      let currentValues = enabledList.value->getArrayDataFromJson(BankDebitUtils.itemToObjMapper)
+      let currentValues = enabledList.value->getArrayDataFromJson(itemToObjMapper)
       switch currentValues->Array.find(item => item.payment_method_type === paymentMethodType) {
       | Some(item) => item.connector_name
       | None => ""
@@ -41,8 +41,7 @@ module PMAuthProcessorInput = {
           }
         }
 
-        let existingPaymentMethodsArray =
-          enabledList.value->getArrayDataFromJson(BankDebitUtils.itemToObjMapper)
+        let existingPaymentMethodsArray = enabledList.value->getArrayDataFromJson(itemToObjMapper)
 
         if value->isNonEmptyString {
           let paymentMethodsObject = value->getPaymentMethodsObject
@@ -85,7 +84,6 @@ module PMAuthProcessorInput = {
 
 @react.component
 let make = (
-  ~update,
   ~paymentMethod,
   ~paymentMethodType,
   ~setInitialValues,
