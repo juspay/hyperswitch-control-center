@@ -55,7 +55,7 @@ let make = (~children) => {
           setEmbeddedState(_ => TokenFetchError)
         }
       }
-    | None => setEmbeddedState(_ => TokenFetchError)
+    | None => ()
     }
   }
 
