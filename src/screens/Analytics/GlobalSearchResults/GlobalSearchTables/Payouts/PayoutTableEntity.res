@@ -104,7 +104,7 @@ let colMapper = (col: cols) => {
   | BusinessCountry => "business_country"
   | BusinessLabel => "business_label"
   | EntityType => "entity_type"
-  | CreatedAt => "created_at"
+  | CreatedAt => "timestamp"
   | LastModifiedAt => "last_modified_at"
   | AdditionalPayoutMethodData => "additional_payout_method_data"
   | Metadata => "metadata"
@@ -143,7 +143,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
     business_country: dict->getString(BusinessCountry->colMapper, "NA"),
     business_label: dict->getString(BusinessLabel->colMapper, "NA"),
     entity_type: dict->getString(EntityType->colMapper, "NA"),
-    created_at: dict->getString("timestamp", "NA"),
+    created_at: dict->getString(CreatedAt->colMapper, "NA"),
     last_modified_at: dict->getString(LastModifiedAt->colMapper, "NA"),
     additional_payout_method_data: None,
     metadata: None,
