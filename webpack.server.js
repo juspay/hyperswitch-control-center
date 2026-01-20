@@ -17,9 +17,6 @@ module.exports = {
     clean: true,
     publicPath: "/",
   },
-  optimization: {
-    splitChunks: false,
-  },
   target: "node",
   plugins: [
     new webpack.DefinePlugin({

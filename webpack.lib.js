@@ -85,36 +85,11 @@ let libBuild = () => {
           terserOptions: {
             compress: {
               drop_console: !isDevelopment,
-              // Enable dead code elimination
-              dead_code: true,
-              // Remove unused code
-              unused: true,
-              // Collapse single-use var definitions
-              collapse_vars: true,
-              // Reduce side-effect-free expressions
-              reduce_funcs: true,
-              reduce_vars: true,
             },
           },
         }),
       ],
       // Track used exports for better tree shaking
-      usedExports: true,
-      // Assume modules have no side effects (allow tree shaking)
-      sideEffects: false,
-      splitChunks: {
-        chunks: "all",
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendors",
-            priority: 10,
-            reuseExistingChunk: true,
-          },
-        },
-      },
-      // Module concatenation (Scope Hoisting) for smaller bundles
-      concatenateModules: !isDevelopment,
     },
     module: {
       rules: [
