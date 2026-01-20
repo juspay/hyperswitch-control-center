@@ -71,7 +71,9 @@ let libBuild = () => {
           },
         }),
       ],
-      splitChunks: true,
+      splitChunks: {
+        chunks: "all",
+      },
     },
     module: {
       rules: [
@@ -117,11 +119,21 @@ let libBuild = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          // Copy hyperswitch files except index.html
+          // Copy hyperswitch files except index.html and assets (assets excluded in production)
           {
             from: `public/hyperswitch`,
             globOptions: {
-              ignore: ["**/index.html"], // Don't copy hyperswitch index.html
+              ignore: isDevelopment
+                ? ["**/index.html"]
+                : [
+                    "**/index.html",
+                    "**/assets/**",
+                    "**/AlternatePaymentMethods/**",
+                    "**/dynamo_wasm/**",
+                    "**/IntelligentRouting/**",
+                    "**/payment_link_wasm/**",
+                    "**/Recon/**",
+                  ], // Exclude assets in production
             },
           },
           // Copy libapp index.html explicitly
