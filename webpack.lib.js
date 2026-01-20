@@ -47,13 +47,6 @@ let libBuild = () => {
       clean: true,
       publicPath: "/",
       filename: "[name].js",
-      // Library output configuration for npm publication
-      library: {
-        name: "HyperswitchCC",
-        type: "umd",
-        umdNamedDefine: true,
-        export: "named",
-      },
       // This ensures assets are properly resolved when the library is used in other projects
       assetModuleFilename: "assets/[name][ext][query]",
     },
@@ -78,6 +71,7 @@ let libBuild = () => {
           },
         }),
       ],
+      splitChunks: true,
     },
     module: {
       rules: [
