@@ -47,66 +47,7 @@ module RuleIDCopy = {
 module SearchIdentifier = {
   @react.component
   let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
-    let getAccountName = (accountId: string): string => {
-      accountData
-      ->Array.find(account => account.account_id === accountId)
-      ->Option.map(account => account.account_name)
-      ->Option.getOr("Unknown Account")
-    }
-
-    let searchIdentifiersWithAccounts = switch rule.strategy {
-    | OneToOne(oneToOne) =>
-      switch oneToOne {
-      | SingleSingle(data) => [
-          {
-            search_identifier: data.search_identifier,
-            target_account_id: data.target_account.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(data.target_account.account_id),
-          },
-        ]
-      | SingleMany(data) => [
-          {
-            search_identifier: data.search_identifier,
-            target_account_id: data.target_account.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(data.target_account.account_id),
-          },
-        ]
-      | ManySingle(data) => [
-          {
-            search_identifier: data.search_identifier,
-            target_account_id: data.target_account.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(data.target_account.account_id),
-          },
-        ]
-      | UnknownOneToOneStrategy => []
-      }
-    | OneToMany(oneToMany) =>
-      switch oneToMany {
-      | SingleSingle(data) =>
-        switch data.target_accounts {
-        | Percentage({targets}) =>
-          targets->Array.map(((target, _)) => {
-            search_identifier: target.search_identifier,
-            target_account_id: target.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(target.account_id),
-          })
-        | Fixed({targets}) =>
-          targets->Array.map(((target, _)) => {
-            search_identifier: target.search_identifier,
-            target_account_id: target.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(target.account_id),
-          })
-        | UnknownTargetsType => []
-        }
-      | UnknownOneToManyStrategy => []
-      }
-    | UnknownReconStrategy => []
-    }
+    let searchIdentifiersWithAccounts = getSearchIdentifiersWithAccounts(rule.strategy, accountData)
 
     <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
       <div className="flex flex-col gap-1 items-start">
@@ -217,66 +158,7 @@ module SearchIdentifier = {
 module MappingRules = {
   @react.component
   let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
-    let getAccountName = (accountId: string): string => {
-      accountData
-      ->Array.find(account => account.account_id === accountId)
-      ->Option.map(account => account.account_name)
-      ->Option.getOr("Unknown Account")
-    }
-
-    let allMappingRules = switch rule.strategy {
-    | OneToOne(oneToOne) =>
-      switch oneToOne {
-      | SingleSingle(data) => [
-          {
-            match_rules: data.match_rules.rules,
-            target_account_id: data.target_account.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(data.target_account.account_id),
-          },
-        ]
-      | SingleMany(data) => [
-          {
-            match_rules: data.match_rules.rules,
-            target_account_id: data.target_account.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(data.target_account.account_id),
-          },
-        ]
-      | ManySingle(data) => [
-          {
-            match_rules: data.match_rules.rules,
-            target_account_id: data.target_account.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(data.target_account.account_id),
-          },
-        ]
-      | UnknownOneToOneStrategy => []
-      }
-    | OneToMany(oneToMany) =>
-      switch oneToMany {
-      | SingleSingle(data) =>
-        switch data.target_accounts {
-        | Percentage({targets}) =>
-          targets->Array.map(((target, _)) => {
-            match_rules: target.match_rules.rules,
-            target_account_id: target.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(target.account_id),
-          })
-        | Fixed({targets}) =>
-          targets->Array.map(((target, _)) => {
-            match_rules: target.match_rules.rules,
-            target_account_id: target.account_id,
-            source_account_name: getAccountName(data.source_account.account_id),
-            target_account_name: getAccountName(target.account_id),
-          })
-        | UnknownTargetsType => []
-        }
-      | UnknownOneToManyStrategy => []
-      }
-    | UnknownReconStrategy => []
-    }
+    let allMappingRules = getMappingRulesWithAccounts(rule.strategy, accountData)
 
     <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
       <div className="flex flex-col gap-1 items-start">
@@ -406,21 +288,7 @@ module TriggerRules = {
     let operatorOptions = getOperatorOptions()
     let fieldOptions = getFieldOptions()
 
-    let triggerData = switch rule.strategy {
-    | OneToOne(oneToOne) =>
-      switch oneToOne {
-      | SingleSingle(data) => Some(data.source_account.trigger)
-      | SingleMany(data) => Some(data.source_account.trigger)
-      | ManySingle(data) => Some(data.source_account.trigger)
-      | UnknownOneToOneStrategy => None
-      }
-    | OneToMany(oneToMany) =>
-      switch oneToMany {
-      | SingleSingle(data) => Some(data.source_account.trigger)
-      | UnknownOneToManyStrategy => None
-      }
-    | UnknownReconStrategy => None
-    }
+    let triggerData = getTriggerData(rule.strategy)
 
     let triggerField = triggerData->Option.map(trigger => trigger.field)->Option.getOr("")
     let triggerOperator =
@@ -474,6 +342,36 @@ module TriggerRules = {
     </div>
   }
 }
+
+module GroupingField = {
+  @react.component
+  let make = (~rule: rulePayload) => {
+    let groupingField = getGroupingField(rule.strategy)
+
+    let groupingFieldInput = createFormInput(
+      ~name="grouping_field",
+      ~value=groupingField->Option.getOr(""),
+    )
+
+    <RenderIf condition={groupingField->Option.isSome}>
+      <div className="flex flex-col gap-2">
+        <p className={`${body.md.medium} text-nd_gray-700`}> {"Grouping Field"->React.string} </p>
+        <div className="flex flex-col gap-2 max-w-325">
+          {InputFields.textInput(
+            ~isDisabled=true,
+            ~inputStyle="rounded-lg",
+            ~customDashboardClass="h-40-px text-sm font-normal",
+            ~onDisabledStyle=`!bg-nd_gray-50 border-nd_gray-200 !text-nd_gray-500 ${body.md.semibold}`,
+          )(~input=groupingFieldInput, ~placeholder="Enter grouping field")}
+        </div>
+        <p className={`${body.md.regular} text-nd_gray-500 ml-1 mb-1`}>
+          {"Transactions with the same value in this field will be grouped together during reconciliation"->React.string}
+        </p>
+      </div>
+    </RenderIf>
+  }
+}
+
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
@@ -489,48 +387,7 @@ module SourceTargetAccount = {
         createDropdownOption(~label=account.account_name, ~value=account.account_id)
       )
 
-    let (sourceAccountId, targetAccounts) = switch rule.strategy {
-    | OneToOne(oneToOne) =>
-      switch oneToOne {
-      | SingleSingle(data) => (
-          data.source_account.account_id,
-          [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
-        )
-      | SingleMany(data) => (
-          data.source_account.account_id,
-          [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
-        )
-      | ManySingle(data) => (
-          data.source_account.account_id,
-          [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
-        )
-      | UnknownOneToOneStrategy => ("", [])
-      }
-    | OneToMany(oneToMany) =>
-      switch oneToMany {
-      | SingleSingle(data) => {
-          let targets = switch data.target_accounts {
-          | Percentage({targets}) =>
-            targets->Array.map(((target, splitVal)) => {
-              account_id: target.account_id,
-              split_value: Some(splitVal.value),
-              split_type: Some("percentage"),
-            })
-          | Fixed({targets}) =>
-            targets->Array.map(((target, splitVal)) => {
-              account_id: target.account_id,
-              split_value: Some(splitVal.value),
-              split_type: Some("fixed"),
-            })
-          | UnknownTargetsType => []
-          }
-          (data.source_account.account_id, targets)
-        }
-      | UnknownOneToManyStrategy => ("", [])
-      }
-    | UnknownReconStrategy => ("", [])
-    }
-
+    let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
     let sourceAccountInput = createFormInput(~name="source_account", ~value=sourceAccountId)
 
     <div className="flex flex-col gap-8 p-6 border border-nd_gray-150 rounded-xl bg-white">
@@ -584,7 +441,7 @@ module SourceTargetAccount = {
               <div key={index->Int.toString} className="flex flex-col">
                 <SelectBox.BaseDropdown
                   allowMultiSelect=false
-                  buttonText={`${getAccountName(targetInfo.account_id)}${splitText}`}
+                  buttonText={getAccountName(targetInfo.account_id)}
                   input=targetInput
                   options={accountOptions}
                   hideMultiSelectButtons=true
@@ -593,6 +450,9 @@ module SourceTargetAccount = {
                   fullLength=true
                   customButtonStyle="w-147-px h-40-px"
                 />
+                <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>
+                  {splitText->React.string}
+                </p>
               </div>
             })
             ->React.array}
@@ -607,6 +467,7 @@ module SourceTargetAccount = {
         </div>
       </div>
       <TriggerRules rule />
+      <GroupingField rule />
     </div>
   }
 }
