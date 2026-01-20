@@ -659,7 +659,6 @@ module PaymentMethodsRender = {
       {keys
       ->Array.mapWithIndex((value, i) => {
         let provider = pmts->getArrayFromDict(value, [])->JSON.Encode.array->getPaymentMethodMapper
-        Js.log2("provider", provider)
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>
           <div key={i->Int.toString}>

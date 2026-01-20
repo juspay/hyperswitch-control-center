@@ -147,7 +147,6 @@ let make = (
   }
 
   let closeModal = () => {
-    update()
     onCancelClick()
     closeAccordionFn()
   }
@@ -155,7 +154,6 @@ let make = (
   let onSubmit = () => {
     closeAccordionFn()
     setInitialValues(_ => formState.values)
-    update()
     Nullable.null->Promise.resolve
   }
 
