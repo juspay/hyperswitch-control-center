@@ -61,13 +61,6 @@ let libBuild = () => {
       clean: true,
       publicPath: "/embedded/",
       filename: "[name].js",
-      // Library output configuration for npm publication
-      library: {
-        name: "HyperswitchCC",
-        type: "umd",
-        umdNamedDefine: true,
-        export: "named",
-      },
       // This ensures assets are properly resolved when the library is used in other projects
       assetModuleFilename: "assets/[name][ext][query]",
     },
@@ -96,6 +89,9 @@ let libBuild = () => {
           },
         }),
       ],
+      splitChunks: {
+        chunks: "all",
+      },
     },
     module: {
       rules: [
@@ -141,12 +137,22 @@ let libBuild = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          // Copy hyperswitch files to root (not embedded subfolder)
+          // Copy hyperswitch files except index.html and assets (assets excluded in production)
           {
             from: "public/hyperswitch",
             to: ".",
             globOptions: {
-              ignore: ["**/index.html"],
+              ignore: isDevelopment
+                ? ["**/index.html"]
+                : [
+                    "**/index.html",
+                    "**/assets/**",
+                    "**/AlternatePaymentMethods/**",
+                    "**/dynamo_wasm/**",
+                    "**/IntelligentRouting/**",
+                    "**/payment_link_wasm/**",
+                    "**/Recon/**",
+                  ], // Exclude assets in production
             },
           },
           // Copy libapp index.html explicitly
