@@ -30,8 +30,8 @@ type payoutsObject = {
   business_country: string,
   business_label: string,
   entity_type: string,
-  created_at: string,
-  last_modified_at: string,
+  created_at: float,
+  last_modified_at: float,
   additional_payout_method_data: option<JSON.t>,
   metadata: option<JSON.t>,
 }
@@ -143,8 +143,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
     business_country: dict->getString(BusinessCountry->colMapper, "NA"),
     business_label: dict->getString(BusinessLabel->colMapper, "NA"),
     entity_type: dict->getString(EntityType->colMapper, "NA"),
-    created_at: dict->getString(CreatedAt->colMapper, "NA"),
-    last_modified_at: dict->getString(LastModifiedAt->colMapper, "NA"),
+    created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
+    last_modified_at: dict->getFloat(LastModifiedAt->colMapper, 0.0),
     additional_payout_method_data: None,
     metadata: None,
   }
@@ -267,8 +267,8 @@ let getCell = (payoutObj, colType): Table.cell => {
   | BusinessCountry => Text(payoutObj.business_country)
   | BusinessLabel => Text(payoutObj.business_label)
   | EntityType => Text(payoutObj.entity_type)
-  | CreatedAt => Date(payoutObj.created_at)
-  | LastModifiedAt => Text(payoutObj.last_modified_at)
+  | CreatedAt => Date(payoutObj.created_at->DateTimeUtils.unixToISOString)
+  | LastModifiedAt => Date(payoutObj.last_modified_at->DateTimeUtils.unixToISOString)
   | AdditionalPayoutMethodData => Text("N/A")
   | Metadata => Text("N/A")
   }
