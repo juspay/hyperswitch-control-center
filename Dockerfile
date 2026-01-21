@@ -6,6 +6,8 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 RUN npm i
 RUN npm run build:prod
+# this needs to be removed and made a separate deployment for this 
+RUN npm run build:embeddedapp
 
 
 
