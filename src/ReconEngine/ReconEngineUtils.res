@@ -565,5 +565,3 @@ let metadataSchemaItemToObjMapper = (dict): metadataSchemaType => {
     last_modified_at: dict->getString("last_modified_at", ""),
   }
 }
-
-// Testing for code owners
