@@ -199,6 +199,7 @@ type paymentMethod =
   | BankTransfer
   | Crypto
   | BankDebit
+  | NetworkToken
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =
@@ -216,6 +217,7 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
+  | NetworkToken
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
