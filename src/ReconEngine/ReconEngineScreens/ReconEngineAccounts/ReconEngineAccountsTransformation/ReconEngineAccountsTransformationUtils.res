@@ -11,6 +11,13 @@ let basicFieldMappingList: array<basicFieldType> = [
   OrderId,
 ]
 
+let entryFieldToString = (field: entryField): string => {
+  switch field {
+  | Metadata(key) => `metadata.${key}`
+  | String => ""
+  }
+}
+
 let getBasicFieldIdentifier = (fields: schemaFieldsType, fieldType: basicFieldType): string => {
   let fieldName = switch fieldType {
   | Currency => "currency"
