@@ -5,7 +5,11 @@ open ProductUtils
 open LogicUtils
 
 let defaultLinkSelectionCheck = (firstPart, tabLink) => {
-  firstPart->removeTrailingSlash === tabLink->removeTrailingSlash
+  let normalizedFirstPart = firstPart->LogicUtils.removeTrailingSlash
+  let normalizedTabLink = tabLink->LogicUtils.removeTrailingSlash
+  // Exact match or prefix match (for detail pages like /route/id)
+  normalizedFirstPart === normalizedTabLink ||
+    normalizedFirstPart->String.startsWith(normalizedTabLink ++ "/")
 }
 
 let getIconSize = buttonType => {
@@ -664,40 +668,16 @@ let make = (
     }
   }
 
-  let level3 = tail => {
-    switch List.tail(tail) {
-    | Some(tail2) =>
-      switch List.head(tail2) {
-      | Some(value2) => `/${value2}`
-      | None => "/"
-      }
-    | None => "/"
-    }
-  }
-
-  let level2 = tail => {
-    switch List.tail(tail) {
-    | Some(tail2) =>
-      switch List.head(tail2) {
-      | Some(value2) => `/${value2}` ++ level3(tail2)
-      | None => "/"
-      }
-    | None => "/"
+  let rec buildPathFromSegments = segments => {
+    switch (List.head(segments), List.tail(segments)) {
+    | (Some(segment), Some(rest)) => `/${segment}` ++ buildPathFromSegments(rest)
+    | (Some(segment), None) => `/${segment}`
+    | (_, _) => ""
     }
   }
 
   let firstPart = switch List.tail(path) {
-  | Some(tail) =>
-    switch List.head(tail) {
-    | Some(x) =>
-      /* condition is added to check for v2 routes . Eg: /v2/${productName}/${routeName} */
-      if x === "v2" || x === "v1" {
-        `/${x}` ++ level2(tail)
-      } else {
-        `/${x}`
-      }
-    | None => "/"
-    }
+  | Some(tail) => buildPathFromSegments(tail)
   | None => "/"
   }
 
