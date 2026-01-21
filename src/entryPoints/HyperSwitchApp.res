@@ -219,6 +219,7 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
                         | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
+                        | (_, list{"users", ..._}) => <UserManagementContainer />
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"

@@ -488,8 +488,6 @@ let settings = (
     ->ignore
   }
 
-  settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
-
   Section({
     name: "Settings",
     icon: "nd-settings",

@@ -618,11 +618,14 @@ let make = (
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
   let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = getCommonSessionDetails()
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {activeProduct, onProductSelectClick} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let handleLogout = APIUtils.useHandleLogout(~eventName="user_signout_manual")
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -740,6 +743,7 @@ let make = (
 
   let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
   let isThemeSelected = linkSelectionCheck(firstPart, "/theme")
+  let isUsersSelected = linkSelectionCheck(firstPart, "/users")
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
@@ -898,6 +902,24 @@ let make = (
                             icon="nd-color-palette"
                             isSidebarExpanded
                             isSelected={isThemeSelected}
+                            showIcon=true
+                          />
+                        </div>
+                      </Link>
+                    </RenderIf>
+                    <RenderIf
+                      condition={userHasAccess(~groupAccess=UsersView) == Access &&
+                        version == UserInfoTypes.V1}>
+                      <Link to_={GlobalVars.appendDashboardPath(~url="/users")}>
+                        <div
+                          className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isUsersSelected
+                              ? "bg-sidebar-hoverColor"
+                              : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                          <SidebarOption
+                            name="Users"
+                            icon="nd-settings"
+                            isSidebarExpanded
+                            isSelected={isUsersSelected}
                             showIcon=true
                           />
                         </div>
