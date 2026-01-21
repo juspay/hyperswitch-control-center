@@ -1,5 +1,6 @@
 open Table
 open Typography
+open LogicUtils
 
 module RowProcessor = {
   let make = (rows: array<array<cell>>, showSerial: bool) => {
@@ -144,7 +145,7 @@ module TableBody = {
           showOptions
           selectedRows
           ?onRowSelect
-          rowData={rowData->Array.get(rowIndex)->Option.getOr(JSON.Encode.null)}
+          rowData={rowData->getValueFromArray(rowIndex, JSON.Encode.null)}
           ?isRowSelectable
         />
       })

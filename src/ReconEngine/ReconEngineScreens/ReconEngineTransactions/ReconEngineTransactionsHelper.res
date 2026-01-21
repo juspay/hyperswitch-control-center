@@ -120,7 +120,7 @@ module EntryAuditTrailInfo = {
     let pageDetail = pageDetailDict->Dict.get("Entries")->Option.getOr(defaultValue)
     let (offset, setOffset) = React.useState(_ => pageDetail.offset)
     let mainEntry = React.useMemo(() => {
-      entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+      entriesList->getValueFromArray(0, Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
 
     let expectedEntries = React.useMemo(() => {
@@ -158,8 +158,7 @@ module EntryAuditTrailInfo = {
     }
 
     let getRowDetails = (rowIndex: int) => {
-      let entry =
-        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->entryItemToObjMapper)
+      let entry = reconciledEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
       let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
