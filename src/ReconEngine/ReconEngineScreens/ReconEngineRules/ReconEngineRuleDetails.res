@@ -375,6 +375,8 @@ module GroupingField = {
 module SourceTargetAccount = {
   @react.component
   let make = (~rule: rulePayload, ~accountData: array<ReconEngineTypes.accountType>) => {
+    open LogicUtils
+
     let getAccountName = (accountId: string): string => {
       accountData
       ->Array.find(account => account.account_id === accountId)
@@ -401,7 +403,7 @@ module SourceTargetAccount = {
       </div>
       <div className="flex items-center gap-10">
         <div className="flex-1 max-w-325">
-          <label className={`${labelCss}`}> {"Source Account"->React.string} </label>
+          <label className=labelCss> {"Source Account"->React.string} </label>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText={getAccountName(sourceAccountId)}
@@ -421,7 +423,7 @@ module SourceTargetAccount = {
           <Icon name="nd-arrow-right" size=16 className="text-nd_gray-500" />
         </div>
         <div className="flex-1 max-w-325">
-          <label className={`${labelCss}`}>
+          <label className=labelCss>
             {(
               targetAccounts->Array.length > 1 ? "Target Accounts" : "Target Account"
             )->React.string}
@@ -450,9 +452,11 @@ module SourceTargetAccount = {
                   fullLength=true
                   customButtonStyle="w-147-px h-40-px"
                 />
-                <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>
-                  {splitText->React.string}
-                </p>
+                <RenderIf condition={splitText->isNonEmptyString}>
+                  <p className={`${body.md.semibold} text-nd_gray-600 my-3`}>
+                    {splitText->React.string}
+                  </p>
+                </RenderIf>
               </div>
             })
             ->React.array}

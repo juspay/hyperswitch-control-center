@@ -56,13 +56,7 @@ let getSearchIdentifiersWithAccounts = (
     switch oneToMany {
     | SingleSingle(data) =>
       switch data.target_accounts {
-      | Percentage({targets}) =>
-        targets->Array.map(((target, _)) => {
-          search_identifier: target.search_identifier,
-          target_account_id: target.account_id,
-          source_account_name: getAccountName(data.source_account.account_id, accountData),
-          target_account_name: getAccountName(target.account_id, accountData),
-        })
+      | Percentage({targets})
       | Fixed({targets}) =>
         targets->Array.map(((target, _)) => {
           search_identifier: target.search_identifier,
@@ -115,13 +109,7 @@ let getMappingRulesWithAccounts = (
     switch oneToMany {
     | SingleSingle(data) =>
       switch data.target_accounts {
-      | Percentage({targets}) =>
-        targets->Array.map(((target, _)) => {
-          match_rules: target.match_rules.rules,
-          target_account_id: target.account_id,
-          source_account_name: getAccountName(data.source_account.account_id, accountData),
-          target_account_name: getAccountName(target.account_id, accountData),
-        })
+      | Percentage({targets})
       | Fixed({targets}) =>
         targets->Array.map(((target, _)) => {
           match_rules: target.match_rules.rules,
@@ -438,8 +426,11 @@ let oneToManySingleSingleTargetsMapper: Dict.t<
       ->getArrayFromDict("targets", [])
       ->Array.map(item => {
         let arr = item->getArrayFromJson([])
-        let targetConfig = arr->Array.get(0)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
-        let splitValue = arr->Array.get(1)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
+        let targetConfig =
+          arr
+          ->getValueFromArray(0, JSON.Encode.null)
+          ->getDictFromJsonObject
+        let splitValue = arr->getValueFromArray(1, JSON.Encode.null)->getDictFromJsonObject
         (targetConfig->oneToManySingleSingleTargetMapper, splitValue->splitValueMapper)
       }),
     })
@@ -449,8 +440,8 @@ let oneToManySingleSingleTargetsMapper: Dict.t<
       ->getArrayFromDict("targets", [])
       ->Array.map(item => {
         let arr = item->getArrayFromJson([])
-        let targetConfig = arr->Array.get(0)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
-        let splitValue = arr->Array.get(1)->Option.getOr(JSON.Encode.null)->getDictFromJsonObject
+        let targetConfig = arr->getValueFromArray(0, JSON.Encode.null)->getDictFromJsonObject
+        let splitValue = arr->getValueFromArray(1, JSON.Encode.null)->getDictFromJsonObject
         (targetConfig->oneToManySingleSingleTargetMapper, splitValue->splitValueMapper)
       }),
     })

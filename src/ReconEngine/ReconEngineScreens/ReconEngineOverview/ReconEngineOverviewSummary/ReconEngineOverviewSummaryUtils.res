@@ -205,11 +205,12 @@ let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>
       switch oneToMany {
       | SingleSingle(data) => {
           let targetAccountIds = switch data.target_accounts {
-          | Percentage({targets}) => targets->Array.map(((target, _)) => target.account_id)
-          | Fixed({targets}) => targets->Array.map(((target, _)) => target.account_id)
+          | Percentage({targets})
+          | Fixed({targets}) =>
+            targets->Array.map(((target, _)) => target.account_id)
           | UnknownTargetsType => []
           }
-          Array.concat([data.source_account.account_id], targetAccountIds)
+          [data.source_account.account_id, ...targetAccountIds]
         }
       | UnknownOneToManyStrategy => []
       }
@@ -300,7 +301,7 @@ let getEdges = (
       switch oneToMany {
       | SingleSingle(data) => {
           let targetAccounts = switch data.target_accounts {
-          | Percentage({targets}) => targets
+          | Percentage({targets})
           | Fixed({targets}) => targets
           | UnknownTargetsType => []
           }
@@ -601,8 +602,9 @@ let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePa
     switch oneToMany {
     | SingleSingle(data) => {
         let targetIds = switch data.target_accounts {
-        | Percentage({targets}) => targets->Array.map(((target, _)) => target.account_id)
-        | Fixed({targets}) => targets->Array.map(((target, _)) => target.account_id)
+        | Percentage({targets})
+        | Fixed({targets}) =>
+          targets->Array.map(((target, _)) => target.account_id)
         | UnknownTargetsType => []
         }
         (data.source_account.account_id, targetIds)

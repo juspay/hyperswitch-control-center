@@ -4,6 +4,7 @@ open ReconEngineRulesTypes
 let make = (~ruleDetails: rulePayload) => {
   open ReconEngineOverviewSummaryUtils
   open ReconEngineOverviewHelper
+  open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -63,9 +64,9 @@ let make = (~ruleDetails: rulePayload) => {
     customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
     customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
     <div
-      className={`grid gap-6 ${targetAccountsData->Array.length > 1
-          ? "grid-cols-1"
-          : "grid-cols-1 lg:grid-cols-2"}`}>
+      className={`grid gap-6 grid-cols-1 ${targetAccountsData->Array.length > 1
+          ? ""
+          : "lg:grid-cols-2"}`}>
       <AccountDetailCard
         accountName={sourceAccountData.account_name}
         otherAccountName={targetAccountsData
@@ -77,9 +78,10 @@ let make = (~ruleDetails: rulePayload) => {
       {targetAccountsData
       ->Array.mapWithIndex((targetAccount, index) => {
         let targetTransactionData =
-          targetAccountsTransactionData
-          ->Array.get(index)
-          ->Option.getOr(Dict.make()->accountTransactionDataToObjMapper)
+          targetAccountsTransactionData->getValueFromArray(
+            index,
+            Dict.make()->accountTransactionDataToObjMapper,
+          )
         <AccountDetailCard
           key={targetAccount.account_id}
           accountName={targetAccount.account_name}
