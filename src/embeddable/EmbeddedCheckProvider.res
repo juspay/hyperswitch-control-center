@@ -65,6 +65,7 @@ let make = (~children) => {
       setEmbeddedState(_ => NotInsideIframe)
       None
     } else {
+      EmbeddedIframeUtils.sendIframeReadyMessageToParent()
       Window.addEventListener("message", handleAuthMessage)
       Some(() => Window.removeEventListener("message", handleAuthMessage))
     }
