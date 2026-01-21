@@ -424,15 +424,17 @@ module OrderActions = {
     let disputeAmount = ref(0.0)
 
     let _ = refundData->Array.map(ele => {
-      if ele.status === "pending" {
+      let refundStatus = ele.status->HSwitchOrderUtils.refundStatusVariantMapper
+      if refundStatus === Pending {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
-      } else if ele.status === "succeeded" {
+      } else if refundStatus === Success {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
 
     let _ = disputeData->Array.map(ele => {
-      if ele.dispute_status === "dispute_lost" {
+      let disputeStatus = ele.dispute_status->DisputesUtils.disputeStatusVariantMapper
+      if disputeStatus === DisputeLost {
         disputeAmount := disputeAmount.contents +. ele.amount->Float.fromString->Option.getOr(0.0)
       }
     })

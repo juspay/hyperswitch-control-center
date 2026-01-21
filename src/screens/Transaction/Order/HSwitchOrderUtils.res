@@ -103,7 +103,7 @@ let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLa
 
 let refundStatusVariantMapper: string => refundStatus = statusLabel => {
   switch statusLabel->String.toUpperCase {
-  | "SUCCESS" => Success
+  | "SUCCESS" | "SUCCEEDED" => Success
   | "PENDING" => Pending
   | "FAILURE" => Failure
   | _ => None
