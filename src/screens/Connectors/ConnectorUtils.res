@@ -231,6 +231,7 @@ let getPaymentMethodFromString = paymentMethod => {
   | "bank_transfer" => BankTransfer
   | "crypto" => Crypto
   | "bank_debit" => BankDebit
+  | "network_token" => NetworkToken
   | _ => UnknownPaymentMethod(paymentMethod)
   }
 }
@@ -250,6 +251,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
   | "amazon_pay" => AmazonPay
+  | "network_token" => NetworkToken
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
