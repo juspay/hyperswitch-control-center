@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.21.0
+
+### Features
+
+- OIDC authentication support in dashboard ([#3908](https://github.com/juspay/hyperswitch-control-center/pull/3908)) ([`3137064`](https://github.com/juspay/hyperswitch-control-center/commit/3137064cab8ce63e816533d5f709942f58d594db))
+
+### Bug Fixes
+
+- Update created_at field mapping to use timestamp and adjust display type in table ([#4107](https://github.com/juspay/hyperswitch-control-center/pull/4107)) ([`f3de2c9`](https://github.com/juspay/hyperswitch-control-center/commit/f3de2c98f4879f56649c95836069133a31309a46))
+
+**Full Changelog:** [`2026.01.19.1...2026.01.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.19.1...2026.01.21.0)
+
+- - -
+
+## 2026.01.19.1
+
+### Bug Fixes
+
+- Recon engine use `field_name` in metadata validations ([#4105](https://github.com/juspay/hyperswitch-control-center/pull/4105)) ([`20076c3`](https://github.com/juspay/hyperswitch-control-center/commit/20076c36adab8a67ae78147f00ce426e74047f0a))
+
+### Miscellaneous Tasks
+
+- Analytics add metric for requires capture payments ([#4097](https://github.com/juspay/hyperswitch-control-center/pull/4097)) ([`0cf885b`](https://github.com/juspay/hyperswitch-control-center/commit/0cf885b292966eeebc0a95d704f5ba9e0dc80821))
+- Added authorised uncaptured payments metric ([#4102](https://github.com/juspay/hyperswitch-control-center/pull/4102)) ([`06a5c41`](https://github.com/juspay/hyperswitch-control-center/commit/06a5c411afe7843a3efb1f2a79c8f8bccf8ec651))
+
+**Full Changelog:** [`2026.01.19.0...2026.01.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.19.0...2026.01.19.1)
+
+- - -
+
+## 2026.01.19.0
+
+### Features
+
+- Added audit trail ui for payouts ([#4083](https://github.com/juspay/hyperswitch-control-center/pull/4083)) ([`bd59a1d`](https://github.com/juspay/hyperswitch-control-center/commit/bd59a1dab20b27e912373eebb763f42f58ba39dc))
+
+**Full Changelog:** [`2026.01.16.0...2026.01.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.16.0...2026.01.19.0)
+
+- - -
+
 ## 2026.01.16.0
 
 ### Miscellaneous Tasks

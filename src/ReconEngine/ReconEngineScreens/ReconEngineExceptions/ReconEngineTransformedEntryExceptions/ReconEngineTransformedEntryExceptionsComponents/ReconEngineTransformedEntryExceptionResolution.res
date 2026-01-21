@@ -137,15 +137,14 @@ module EditEntryModalContent = {
             ~setMetadataRows,
             ~isMetadataLoading,
           )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Save changes"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          <div className="flex justify-end my-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Save changes"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>

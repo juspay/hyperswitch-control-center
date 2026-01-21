@@ -576,6 +576,13 @@ let useGetURL = () => {
           `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
         | _ => ""
         }
+
+      /* OIDC */
+      | OIDC_AUTHORIZE =>
+        switch methodType {
+        | Get => `oidc/authorize`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
