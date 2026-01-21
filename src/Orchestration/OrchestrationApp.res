@@ -81,6 +81,7 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
+    | list{"users", ..._} => <UserManagementContainer />
     | list{"developer-api-keys"} =>
       <AccessControl
         // TODO: Remove `MerchantDetailsView` permission in future

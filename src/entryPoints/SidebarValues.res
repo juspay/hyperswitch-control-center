@@ -472,6 +472,7 @@ let settings = (
   ~complianceCertificate,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
+  ~devUsers,
 ) => {
   let settingsLinkArray = []
 
@@ -486,6 +487,9 @@ let settings = (
     settingsLinkArray
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
+  }
+  if !devUsers {
+    settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
   }
 
   Section({

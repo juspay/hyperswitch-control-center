@@ -632,7 +632,7 @@ let make = (
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2, devTheme} =
+  let {devModularityV2, devSidebarV2, devTheme, devUsers} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -908,8 +908,9 @@ let make = (
                       </Link>
                     </RenderIf>
                     <RenderIf
-                      condition={userHasAccess(~groupAccess=UsersView) == Access &&
-                        version == UserInfoTypes.V1}>
+                      condition={devUsers &&
+                      userHasAccess(~groupAccess=UsersView) == Access &&
+                      version == UserInfoTypes.V1}>
                       <Link to_={GlobalVars.appendDashboardPath(~url="/users")}>
                         <div
                           className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isUsersSelected

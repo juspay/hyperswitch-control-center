@@ -35,6 +35,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     vaultProcessor,
     devModularityV2,
     devTheme,
+    devUsers,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -87,6 +88,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~complianceCertificate,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
+      ~devUsers,
     ),
   ]
 }
