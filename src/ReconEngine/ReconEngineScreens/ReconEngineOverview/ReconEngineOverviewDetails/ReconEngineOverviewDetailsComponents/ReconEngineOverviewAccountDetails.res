@@ -4,6 +4,7 @@ open ReconEngineRulesTypes
 let make = (~ruleDetails: rulePayload) => {
   open ReconEngineOverviewSummaryUtils
   open ReconEngineOverviewHelper
+  open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -33,16 +34,17 @@ let make = (~ruleDetails: rulePayload) => {
     None
   }, [])
 
-  let (sourceAccountId, targetAccountId) = getSourceAndTargetAccountIdsFromRuleDetails(ruleDetails)
+  let (sourceAccountId, targetAccountIds) = getSourceAndAllTargetAccountIds(ruleDetails)
 
-  let (sourceAccountData, targetAccountData) = React.useMemo(() => {
+  let (sourceAccountData, targetAccountsData) = React.useMemo(() => {
     let sourceAccount = getAccountData(accountData, sourceAccountId)
-    let targetAccount = getAccountData(accountData, targetAccountId)
+    let targetAccounts =
+      targetAccountIds->Array.map(targetId => getAccountData(accountData, targetId))
 
-    (sourceAccount, targetAccount)
+    (sourceAccount, targetAccounts)
   }, (ruleDetails, accountData))
 
-  let (sourceTransactionData, targetTransactionData) = React.useMemo(() => {
+  let (sourceTransactionData, targetAccountsTransactionData) = React.useMemo(() => {
     let accountTransactionData = processAllTransactionsWithAmounts(
       [ruleDetails],
       allTransactionsData,
@@ -50,27 +52,45 @@ let make = (~ruleDetails: rulePayload) => {
     )
 
     let sourceData = getTransactionsData(accountTransactionData, sourceAccountData.account_id)
-    let targetData = getTransactionsData(accountTransactionData, targetAccountData.account_id)
+    let targetData =
+      targetAccountsData->Array.map(targetAccount =>
+        getTransactionsData(accountTransactionData, targetAccount.account_id)
+      )
     (sourceData, targetData)
-  }, (allTransactionsData, sourceAccountData.account_id, targetAccountData.account_id))
+  }, (allTransactionsData, sourceAccountData.account_id, targetAccountsData))
 
   <PageLoaderWrapper
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
     customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div
+      className={`grid gap-6 grid-cols-1 ${targetAccountsData->Array.length > 1
+          ? ""
+          : "lg:grid-cols-2"}`}>
       <AccountDetailCard
         accountName={sourceAccountData.account_name}
-        otherAccountName={targetAccountData.account_name}
+        otherAccountName={targetAccountsData
+        ->Array.map(acc => acc.account_name)
+        ->Array.joinWith(", ")}
         isSource={true}
         transactionData={sourceTransactionData}
       />
-      <AccountDetailCard
-        accountName={targetAccountData.account_name}
-        otherAccountName={sourceAccountData.account_name}
-        isSource={false}
-        transactionData={targetTransactionData}
-      />
+      {targetAccountsData
+      ->Array.mapWithIndex((targetAccount, index) => {
+        let targetTransactionData =
+          targetAccountsTransactionData->getValueFromArray(
+            index,
+            Dict.make()->accountTransactionDataToObjMapper,
+          )
+        <AccountDetailCard
+          key={targetAccount.account_id}
+          accountName={targetAccount.account_name}
+          otherAccountName={sourceAccountData.account_name}
+          isSource={false}
+          transactionData={targetTransactionData}
+        />
+      })
+      ->React.array}
     </div>
   </PageLoaderWrapper>
 }
