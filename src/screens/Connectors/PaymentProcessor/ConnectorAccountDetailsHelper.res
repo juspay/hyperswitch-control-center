@@ -303,6 +303,7 @@ module Payload = {
         dict
         ->getDictfromDict(country)
         ->Dict.keysToArray
+        ->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
 
       wasmValues
       ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
@@ -333,6 +334,7 @@ module Payload = {
                 name={`connector_account_details.auth_key_map.${country}`}
                 connector
                 selectedConnector
+                checkRequiredFields={ConnectorUtils.checkAuthKeyMapRequiredFields}
               />
             </div>,
         }
