@@ -1625,6 +1625,14 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   ]->Dict.fromArray
 }
 
+let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merchantId) => {
+  [
+    ("connector_type", connectorType->JSON.Encode.string),
+    ("disabled", !previousConnectorState->JSON.Encode.bool),
+    ("merchant_id", merchantId->JSON.Encode.string),
+  ]->Dict.fromArray
+}
+
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true

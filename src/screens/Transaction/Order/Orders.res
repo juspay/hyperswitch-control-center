@@ -198,7 +198,8 @@ let make = (~previewOnly=false) => {
               entityMapper=UserInfoUtils.transactionEntityMapper
             />
           </Portal>
-          <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
+          <RenderIf
+            condition={generateReport && email && orderData->Array.length > 0 && version == V1}>
             <GenerateReport entityName={V1(PAYMENT_REPORT)} />
           </RenderIf>
         </div>

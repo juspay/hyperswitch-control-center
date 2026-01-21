@@ -270,3 +270,29 @@ module ProcessorStatus = {
     />
   }
 }
+module DisableConnector = {
+  @react.component
+  let make = (~isConnectorDisabled, ~disableConnector) => {
+    let showPopUp = PopUpState.useShowPopUp()
+
+    let showConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action ? ",
+        description: `You are about to ${isConnectorDisabled
+            ? "Enable"
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    <Button
+      text={isConnectorDisabled ? "Enable Processor" : "Disable Processor"}
+      onClick={_ => showConfirmationPopUp()}
+    />
+  }
+}

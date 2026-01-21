@@ -20,7 +20,7 @@ let make = (
   let showRefundAddressEmail =
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
-  let {merchantId, orgId} = React.useContext(
+  let {merchantId, orgId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let isSplitPayment =
@@ -31,7 +31,10 @@ let make = (
 
   let updateRefundDetails = async body => {
     try {
-      let refundsUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Post)
+      let refundsUrl = switch version {
+      | V1 => getURL(~entityName=V1(REFUNDS), ~methodType=Post)
+      | V2 => getURL(~entityName=V2(REFUNDS), ~methodType=Post)
+      }
       let res = await updateDetails(refundsUrl, body, Post)
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
@@ -69,6 +72,15 @@ let make = (
     Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
+    if version == V2 {
+      Dict.set(body, "merchant_id", merchantId->JSON.Encode.string)
+      Dict.set(
+        body,
+        "merchant_reference_id",
+        order.merchant_order_reference_id->Option.getOr("")->JSON.Encode.string,
+      )
+    }
+
     updateRefundDetails(body->JSON.Encode.object)->ignore
     Nullable.null->resolve
   }

@@ -20,3 +20,20 @@ let parseFilterDict = dict => {
   })
   ->Array.joinWith("&")
 }
+
+let parseFilterDictV2 = dict => {
+  dict
+  ->Dict.toArray
+  ->Array.filterMap(((key, value)) => {
+    value->LogicUtils.isNonEmptyString
+      ? {
+          let formattedValue =
+            value->String.startsWith("[") && value->String.endsWith("]")
+              ? value->String.slice(~start=1, ~end=-1)
+              : value
+          formattedValue->LogicUtils.isNonEmptyString ? Some(`${key}=${formattedValue}`) : None
+        }
+      : None
+  })
+  ->Array.joinWith("&")
+}
