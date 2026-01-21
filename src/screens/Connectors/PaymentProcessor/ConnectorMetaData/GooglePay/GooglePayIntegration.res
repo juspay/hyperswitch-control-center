@@ -1,8 +1,9 @@
 @react.component
 let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
+  open Typography
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  <div className="p-6">
+  <div className="flex flex-col gap-6 p-6">
     {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(ZEN) => <GooglePayZen connector update onCloseClickCustomFun closeAccordionFn />
     | Processors(CYBERSOURCE) =>
@@ -11,6 +12,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
           <GooglePayFlow connector closeAccordionFn update onCloseClickCustomFun />
         </RenderIf>
         <RenderIf condition={featureFlag.googlePayDirectFlow}>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
         </RenderIf>
       </>

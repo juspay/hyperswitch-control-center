@@ -20,7 +20,7 @@ module EmbeddableEntryComponent = {
       open LogicUtils
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
-        let value = dict->EmbeddableUtils.getConfigFromDict
+        let value = dict->EmbeddableGlobalUtils.getConfigFromDict
         DOMUtils.window._env_ = value
         setScreenState(_ => PageLoaderWrapper.Success)
         value

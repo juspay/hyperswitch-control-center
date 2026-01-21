@@ -96,6 +96,7 @@ let stringToVariantType = (value: string): RoutingTypes.validationFields => {
 let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
   switch variantType {
   | "number" => Number
+  | "fixed_number" => FixedNumber
   | "enum_variant" => Enum_variant
   | "metadata_value" => Metadata_value
   | "str_value" => String_value
@@ -106,6 +107,7 @@ let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
 let variantToStringMapper = (variantType: RoutingTypes.variantType) => {
   switch variantType {
   | Number => "number"
+  | FixedNumber => "fixed_number"
   | Enum_variant => "enum_variant"
   | Metadata_value => "metadata_value"
   | String_value => "str_value"
@@ -117,7 +119,7 @@ let getKeyTypeFromValueField: RoutingTypes.validationFields => RoutingTypes.vari
   switch valueField {
   | CARD_BIN
   | EXTENDED_CARD_BIN =>
-    Number
+    FixedNumber
   | OTHER => UnknownVariant("")
   }
 }

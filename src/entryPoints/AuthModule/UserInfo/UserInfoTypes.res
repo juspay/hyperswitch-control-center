@@ -45,4 +45,5 @@ type userInfoProviderTypes = {
   setUpdatedEmbeddableSessionInfo: embeddableInfoType => unit,
   getCommonSessionDetails: unit => commonInfoType,
   checkUserEntity: array<entity> => bool,
+  isEmbeddableSession: unit => bool,
 }

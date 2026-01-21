@@ -1,6 +1,13 @@
 open LogicUtils
 open ReconEngineTypes
 
+let getFieldNameFromMetadataField = (field: metadataFieldType): string => {
+  switch field.field_name {
+  | Metadata(key) => key
+  | _ => ""
+  }
+}
+
 let requiredString = (fieldName: string, errorMsg: string) => {
   (data: Dict.t<JSON.t>) => data->getString(fieldName, "")->isEmptyString ? Some(errorMsg) : None
 }
@@ -135,8 +142,12 @@ let validateMetadataFieldValue = (
   metadataSchema: metadataSchemaType,
 ): option<string> => {
   if metadataSchema.id->isNonEmptyString {
-    let field =
-      metadataSchema.schema_data.fields.metadata_fields->Array.find(f => f.identifier == key)
+    let field = metadataSchema.schema_data.fields.metadata_fields->Array.find(f => {
+      switch f.field_name {
+      | Metadata(fieldKey) => fieldKey == key
+      | _ => false
+      }
+    })
     let checkEmptyValue = value->String.trim->isEmptyString
 
     switch field {
