@@ -43,7 +43,7 @@ describe("connector", () => {
   //Setup connector, select payment methods, then assert details page (creds and selected methods) after creation
 });
 
-describe.only("Test live connectors", () => {
+describe("Test live connectors", () => {
   let email;
   const password = Cypress.env("CYPRESS_PASSWORD");
 
