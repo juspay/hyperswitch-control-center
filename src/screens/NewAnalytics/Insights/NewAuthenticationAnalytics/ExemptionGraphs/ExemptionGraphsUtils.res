@@ -20,6 +20,7 @@ let getStringFromVariant = value => {
   | Exemption_Request_Rate => "exemption_request_rate"
   | User_Drop_Off_Rate => "user_drop_off_rate"
   | Time_Bucket => "time_bucket"
+  | Time_Range => "time_range"
   | _ => "unknown"
   }
 }
@@ -38,6 +39,7 @@ let getVariantValueFromString = value => {
   | "authentication_attempt_count" => Authentication_Attempt_Count
   | "exemption_request_rate" => Exemption_Request_Rate
   | "user_drop_off_rate" => User_Drop_Off_Rate
+  | "time_range" => Time_Range
   | "time_bucket" | _ => Time_Bucket
   }
 }
@@ -176,6 +178,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => exemptionGraphsObject = dict => {
       0.0,
     ),
     time_bucket: dict->getString(Time_Bucket->getStringFromVariant, "NA"),
+    time_range: dict->getJsonFromDict(Time_Range->getStringFromVariant),
     authentication_exemption_approved_count: dict->getInt(
       Authentication_Exemption_Approved_Count->getStringFromVariant,
       0,
@@ -211,6 +214,7 @@ let defaulGranularity = {
 let getKey = id => {
   let key = switch id {
   | Time_Bucket => #time_bucket
+  | Time_Range => #time_range
   | Authentication_Connector => #authentication_connector
   | Authentication_Success_Count => #authentication_success_count
   | Authentication_Count => #authentication_count
@@ -253,6 +257,7 @@ let modifyQueryData = data => {
     let totalAuthenticationExemptionRequestedCount = ref(0)
 
     let time = ref("")
+    let timeBucket = ref(JSON.Encode.null)
     let connector = ref("NA")
 
     // Aggregate all counts for this time_bucket + connector group
@@ -260,6 +265,7 @@ let modifyQueryData = data => {
       let itemDict = item->getDictFromJsonObject
 
       time := itemDict->getString(Time_Bucket->getStringFromVariant, "")
+      timeBucket := itemDict->getJsonFromDict(Time_Range->getStringFromVariant)
       connector := itemDict->getString(Authentication_Connector->getStringFromVariant, "NA")
 
       let authStatus = itemDict->getString("authentication_status", "")
@@ -335,6 +341,7 @@ let modifyQueryData = data => {
 
     let resultDict_inner = Dict.make()
     resultDict_inner->Dict.set(Time_Bucket->getStringFromVariant, time.contents->JSON.Encode.string)
+    resultDict_inner->Dict.set(Time_Range->getStringFromVariant, timeBucket.contents)
     resultDict_inner->Dict.set(
       Authentication_Connector->getStringFromVariant,
       connector.contents->JSON.Encode.string,
