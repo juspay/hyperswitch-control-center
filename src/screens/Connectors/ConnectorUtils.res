@@ -231,6 +231,7 @@ let getPaymentMethodFromString = paymentMethod => {
   | "bank_transfer" => BankTransfer
   | "crypto" => Crypto
   | "bank_debit" => BankDebit
+  | "network_token" => NetworkToken
   | _ => UnknownPaymentMethod(paymentMethod)
   }
 }
@@ -250,6 +251,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
   | "amazon_pay" => AmazonPay
+  | "network_token" => NetworkToken
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -1634,6 +1636,13 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
   }
 }
 
+let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
+  switch (connector, fieldName) {
+  | (Processors(PAYLOAD), "processing_account_id") => false
+  | _ => true
+  }
+}
+
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
   let authKeyMap =
@@ -1665,7 +1674,11 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
 
 let checkPayloadFields = (dict, country, valuesFlattenJson) => {
   open LogicUtils
-  let keys = dict->getDictfromDict(country)->Dict.keysToArray
+  let keys =
+    dict
+    ->getDictfromDict(country)
+    ->Dict.keysToArray
+    ->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
 
   keys->Array.every(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
