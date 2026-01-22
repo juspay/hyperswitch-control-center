@@ -317,11 +317,9 @@ module EntryAuditTrailInfo = {
 
 module HierarchicalEntryRenderer = {
   @react.component
-  let make = (~fieldValue: string, ~containerClassName: string="", ~entryClassName: string="") => {
-    <div
-      key={randomString(~length=10)}
-      className={`px-8 py-3.5 w-48 truncate whitespace-nowrap ${entryClassName}`}>
-      {fieldValue->React.string}
+  let make = (~fieldValue: string) => {
+    <div className="px-8 py-3.5">
+      <div className="truncate max-w-48 whitespace-nowrap h-7"> {fieldValue->React.string} </div>
     </div>
   }
 }
