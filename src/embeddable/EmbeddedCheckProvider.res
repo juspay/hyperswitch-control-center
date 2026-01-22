@@ -38,10 +38,13 @@ let make = (~children) => {
           let tokenFromParent = dict->getOptionString("token")
           switch tokenFromParent {
           | Some(tokenStringFromParent) =>
-            if messageType->isNonEmptyString {
+            if tokenStringFromParent->isNonEmptyString {
               LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
               setComponentKey(_ => randomString(~length=10))
               setEmbeddedState(_ => Success)
+            } else {
+              LocalStorage.setEmbeddedTokenToStorage("")
+              setEmbeddedState(_ => TokenFetchError)
             }
           | None => setEmbeddedState(_ => TokenFetchError)
           }
