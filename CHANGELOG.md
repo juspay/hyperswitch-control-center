@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.22.0
+
+### Features
+
+- Integrate one to many recon rule strategy types ([#4114](https://github.com/juspay/hyperswitch-control-center/pull/4114)) ([`d9b8e81`](https://github.com/juspay/hyperswitch-control-center/commit/d9b8e81871614dd442299effe85cb562ac22de07))
+- Added new payment method and payment method type network token ([#4117](https://github.com/juspay/hyperswitch-control-center/pull/4117)) ([`8e0d91b`](https://github.com/juspay/hyperswitch-control-center/commit/8e0d91b63d36f285e2a79c4a35e62c41792337e0))
+
+### Miscellaneous Tasks
+
+- Embedded deployment changes ([#4096](https://github.com/juspay/hyperswitch-control-center/pull/4096)) ([`305697d`](https://github.com/juspay/hyperswitch-control-center/commit/305697d07978e32e8c38169b12d25b48c468df9d))
+- Added codewners for recon module ([#4123](https://github.com/juspay/hyperswitch-control-center/pull/4123)) ([`e9b66ab`](https://github.com/juspay/hyperswitch-control-center/commit/e9b66ab992c1e37b94a92f46288fbd9069e8ff49))
+- Make `processing_account_id` non required field in payload auth keys ([#4122](https://github.com/juspay/hyperswitch-control-center/pull/4122)) ([`61e584b`](https://github.com/juspay/hyperswitch-control-center/commit/61e584b38e36e77ce90031550d282871971dbc2d))
+- Moved file to existing codeowners file ([#4125](https://github.com/juspay/hyperswitch-control-center/pull/4125)) ([`4613ab5`](https://github.com/juspay/hyperswitch-control-center/commit/4613ab588b13b0675a621bdc93dc349e0e1ecee8))
+- Added wasm for network token payment method ([#4119](https://github.com/juspay/hyperswitch-control-center/pull/4119)) ([`05589a1`](https://github.com/juspay/hyperswitch-control-center/commit/05589a1572486b6e75e67a8e71170791e5dd87c0))
+
+**Full Changelog:** [`2026.01.21.0...2026.01.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.21.0...2026.01.22.0)
+
+- - -
+
 ## 2026.01.21.0
 
 ### Features
