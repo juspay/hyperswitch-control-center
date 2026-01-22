@@ -146,12 +146,7 @@ module TransformationHistoryActionsComponent = {
 
     <div className="flex flex-row gap-4">
       <RenderIf condition={transformationHistoryData.data.errors->Array.length > 0}>
-        <Icon
-          name="nd-alert-triangle-outline"
-          className="text-nd_red-500"
-          size=16
-          onClick={ev => onClick(ev)}
-        />
+        <Icon name="nd-alert-triangle-outline" size=16 onClick={ev => onClick(ev)} />
       </RenderIf>
       <style> {React.string(modalScrollbarCss)} </style>
       <Modal
