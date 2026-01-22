@@ -259,7 +259,7 @@ module CopyLinkTableCell = {
     ~customOnCopyClick=() => (),
     ~customTextCss="w-36",
     ~endValue=20,
-    ~showAlertIcon=false,
+    ~leftIcon: Button.iconType=NoIcon,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
@@ -282,9 +282,10 @@ module CopyLinkTableCell = {
     <div className="flex items-center">
       {if displayValue->isNonEmptyString {
         <div className=customParentClass>
-          <RenderIf condition={showAlertIcon}>
-            <Icon name="nd-alert-triangle-outline" size={16} className="text-nd_red-600" />
-          </RenderIf>
+          {switch leftIcon {
+          | CustomIcon(element) => element
+          | _ => React.null
+          }}
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
             <div> {displayValue->React.string} </div>
           </RenderIf>

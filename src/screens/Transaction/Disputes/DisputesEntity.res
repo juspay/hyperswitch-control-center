@@ -92,7 +92,11 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
         url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
-        showAlertIcon={disputesData.is_already_refunded}
+        leftIcon={disputesData.is_already_refunded
+          ? CustomIcon(
+              <Icon name="nd-alert-triangle-outline" size={16} className="text-nd_red-600" />,
+            )
+          : NoIcon}
       />,
       "",
     )
