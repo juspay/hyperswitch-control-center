@@ -1672,19 +1672,48 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
   result->Array.includes(true)
 }
 
-let checkPayloadFields = (dict, country, valuesFlattenJson) => {
+let checkPayloadFields = (dict, valuesFlattenJson) => {
   open LogicUtils
-  let keys =
-    dict
-    ->getDictfromDict(country)
-    ->Dict.keysToArray
-    ->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
 
-  keys->Array.every(field => {
-    let key = `connector_account_details.auth_key_map.${country}.${field}`
-    let value = valuesFlattenJson->getString(key, "")
-    value->String.trim->String.length > 0
+  let countries = dict->Dict.keysToArray
+  // 0: has non required filled but required not filled
+  // 1: has required filled
+  let flags = Js.Vector.make(2, false)
+
+  countries->Array.forEach(country => {
+    let fields =
+      dict
+      ->getDictfromDict(country)
+      ->Dict.keysToArray
+
+    let requiredFields =
+      fields->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
+
+    let nonRequiredFields =
+      fields->Array.filter(field => !checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
+
+    let hasRequiredFilled = requiredFields->Array.some(field => {
+      let key = `connector_account_details.auth_key_map.${country}.${field}`
+      let value = valuesFlattenJson->getString(key, "")
+      value->String.trim->String.length > 0
+    })
+
+    let hasNonRequiredFilled = nonRequiredFields->Array.some(field => {
+      let key = `connector_account_details.auth_key_map.${country}.${field}`
+      let value = valuesFlattenJson->getString(key, "")
+      value->String.trim->String.length > 0
+    })
+
+    if hasNonRequiredFilled && !hasRequiredFilled {
+      flags->Js.Vector.set(0, true)
+    }
+
+    if hasRequiredFilled {
+      flags->Js.Vector.set(1, true)
+    }
   })
+
+  !(flags->Js.Vector.get(0)) && flags->Js.Vector.get(1)
 }
 
 let validateConnectorRequiredFields = (
@@ -1721,19 +1750,9 @@ let validateConnectorRequiredFields = (
 
   | Processors(PAYLOAD) => {
       let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+      let isValid = checkPayloadFields(dict, valuesFlattenJson)
 
-      let indexLength = dict->Dict.keysToArray->Array.length
-      let vector = Js.Vector.make(indexLength, false)
-
-      dict
-      ->Dict.keysToArray
-      ->Array.forEachWithIndex((country, index) => {
-        let res = checkPayloadFields(dict, country, valuesFlattenJson)
-        vector->Js.Vector.set(index, res)
-      })
-
-      Js.Vector.filterInPlace(val => val, vector)
-      if vector->Js.Vector.length === 0 {
+      if !isValid {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
       }
     }
