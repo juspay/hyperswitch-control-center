@@ -11,12 +11,20 @@ export function serveBrotli(
   filePath,
   serverPath,
   XDeploymentId,
-  Etag
+  Etag,
 ) {
   // Check if client accepts Brotli encoding
   const acceptEncoding = req.headers["accept-encoding"] || "";
   const supportsBrotli = acceptEncoding.includes("br");
 
+  console.log(
+    "Accept-Encoding: received",
+    acceptEncoding,
+    "supportsBrotli:",
+    supportsBrotli,
+    "filePath:",
+    filePath,
+  );
   if (!supportsBrotli) {
     return false; // Client doesn't support Brotli
   }
@@ -24,6 +32,7 @@ export function serveBrotli(
   // Build the path to the potentially Brotli-compressed file
   const fullPath = path.join(serverPath, filePath);
   const brotliPath = fullPath + ".br";
+  console.log("Brotli path:", brotliPath, fullPath);
 
   // Check if Brotli version exists
   if (fs.existsSync(brotliPath)) {

@@ -134,6 +134,8 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ~eTag=`"${currentCommitHash}"`,
     )
 
+    Console.log4("Brotli probably not servedserved: for ", path, serverPath, brotliServed)
+
     if !brotliServed {
       // Fall back to regular serve-handler if Brotli not available or not supported
       open ServerHandler
