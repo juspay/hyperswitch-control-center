@@ -25,7 +25,6 @@ module EmbeddableEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value = dict->EmbeddableGlobalUtils.getConfigFromDict
         DOMUtils.window._env_ = value
-        setScreenState(_ => PageLoaderWrapper.Success)
         value
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
@@ -74,8 +73,8 @@ module ContextWrapper = {
 
     <React.Suspense fallback={loader}>
       <ErrorBoundary renderFallback={_ => <div> {React.string("Error")} </div>}>
-        <ThemeProvider>
-          <Recoil.RecoilRoot>
+        <Recoil.RecoilRoot>
+          <ThemeProvider>
             <ErrorBoundary>
               <PopUpContainer>
                 <SnackBarContainer>
@@ -85,8 +84,8 @@ module ContextWrapper = {
                 </SnackBarContainer>
               </PopUpContainer>
             </ErrorBoundary>
-          </Recoil.RecoilRoot>
-        </ThemeProvider>
+          </ThemeProvider>
+        </Recoil.RecoilRoot>
       </ErrorBoundary>
     </React.Suspense>
   }
