@@ -24,13 +24,15 @@ module DualRefundsAlert = {
 module LearnMoreComponent = {
   @react.component
   let make = (~disputesData: DisputeTypes.disputes, ~merchantId, ~orgId) => {
-    <Link
-      to_={GlobalVars.appendDashboardPath(
-        ~url=`/payments/${disputesData.payment_id}/${disputesData.profile_id}/${merchantId->Option.getOr(
-            "",
-          )}/${orgId->Option.getOr("")}`,
-      )}>
-      <p className={`${body.md.semibold} text-nd_yellow-700`}> {"Learn More"->React.string} </p>
-    </Link>
+    <RenderIf condition={merchantId->Option.isSome && orgId->Option.isSome}>
+      <Link
+        to_={GlobalVars.appendDashboardPath(
+          ~url=`/payments/${disputesData.payment_id}/${disputesData.profile_id}/${merchantId->Option.getOr(
+              "",
+            )}/${orgId->Option.getOr("")}`,
+        )}>
+        <p className={`${body.md.semibold} text-nd_yellow-700`}> {"Learn More"->React.string} </p>
+      </Link>
+    </RenderIf>
   }
 }
