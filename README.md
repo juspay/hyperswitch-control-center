@@ -513,6 +513,7 @@ This guide walks you through running Cypress tests locally for the [Hyperswitch 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 - [Cypress](https://docs.cypress.io/app/get-started/install-cypress)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ---
 
