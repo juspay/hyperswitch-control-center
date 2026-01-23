@@ -160,12 +160,8 @@ module CardRenderer = {
               ->getString("payment_method_type", "") !== method.payment_method_type
             })
 
-            let updatedPmDict = pmDict->Dict.copy
-            updatedPmDict->Dict.set(
-              "payment_method_types",
-              filteredArray->Identity.genericTypeToJson,
-            )
-            updatedPmDict->JSON.Encode.object
+            pmDict->Dict.set("payment_method_types", filteredArray->Identity.genericTypeToJson)
+            pmDict->JSON.Encode.object
           } else {
             pmJson
           }
@@ -177,7 +173,7 @@ module CardRenderer = {
           ->Array.length > 0
         })
 
-      form.change("payment_methods_enabled", updatedPaymentMethodsArray->Identity.genericTypeToJson)
+      form.change("payment_methods_enabled", updatedPaymentMethodsArray->JSON.Encode.array)
     }
 
     let addMethodToPaymentMethodTypes = (pmDict, method: paymentMethodConfigType) => {
@@ -194,9 +190,8 @@ module CardRenderer = {
         let methodJson = method->Identity.genericTypeToJson
         let updatedArray = paymentMethodTypesArray->Array.concat([methodJson])
         pmDict
-        ->Dict.copy
         ->(dict => {
-          dict->Dict.set("payment_method_types", updatedArray->Identity.genericTypeToJson)
+          dict->Dict.set("payment_method_types", updatedArray->JSON.Encode.array)
           dict
         })
         ->JSON.Encode.object
@@ -207,7 +202,7 @@ module CardRenderer = {
       let methodJson = method->Identity.genericTypeToJson
       [
         ("payment_method", paymentMethod->JSON.Encode.string),
-        ("payment_method_types", [methodJson]->Identity.genericTypeToJson),
+        ("payment_method_types", [methodJson]->JSON.Encode.array),
       ]
       ->Dict.fromArray
       ->JSON.Encode.object
@@ -235,7 +230,7 @@ module CardRenderer = {
         let newPmJson = createPaymentMethodEntry(paymentMethod, method)
         paymentMethodsEnabledArray->Array.concat([newPmJson])
       }
-      form.change("payment_methods_enabled", updatedPaymentMethodsArray->Identity.genericTypeToJson)
+      form.change("payment_methods_enabled", updatedPaymentMethodsArray->JSON.Encode.array)
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {

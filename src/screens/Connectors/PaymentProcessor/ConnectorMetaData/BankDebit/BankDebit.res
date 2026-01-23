@@ -16,10 +16,9 @@ module PMAuthProcessorInput = {
 
     let currentSelection = {
       let currentValues = enabledList.value->getArrayDataFromJson(itemToObjMapper)
-      switch currentValues->Array.find(item => item.payment_method_type === paymentMethodType) {
-      | Some(item) => item.connector_name
-      | None => ""
-      }
+      currentValues
+      ->Array.find(item => item.payment_method_type === paymentMethodType)
+      ->Option.mapOr("", item => item.connector_name)
     }
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
