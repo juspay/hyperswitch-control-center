@@ -1,7 +1,7 @@
 open ReconEngineTypes
 open ReconEngineDataSourcesEntity
 
-let defaultColumns: array<ReconEngineDataSourcesEntity.transformationHistoryColType> = [
+let defaultColumns: array<transformationHistoryColType> = [
   TransformationHistoryId,
   IngestionHistoryId,
   Status,

@@ -7,6 +7,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   open APIUtils
   open ReconEngineDataSourcesHelper
   open ReconEngineDataSourcesUtils
+  open ReconEngineDataSourcesEntity
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -63,7 +64,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
     }
   }
 
-  let detailsFields: array<ReconEngineDataSourcesEntity.ingestionConfigColType> = [
+  let detailsFields: array<ingestionConfigColType> = [
     SourceConfigName,
     ConfigurationType,
     IngestionId,
@@ -101,11 +102,8 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
         ->Array.map(colType => {
           <DisplayKeyValueParams
             key={LogicUtils.randomString(~length=10)}
-            heading={ReconEngineDataSourcesEntity.getIngestionConfigHeading(colType)}
-            value={ReconEngineDataSourcesEntity.getIngestionConfigCell(
-              ingestionConfigData,
-              colType,
-            )}
+            heading={getIngestionConfigHeading(colType)}
+            value={getIngestionConfigCell(ingestionConfigData, colType)}
           />
         })
         ->React.array}

@@ -31,7 +31,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~tabIndex: string) =>
   }, [config.ingestion_id])
 
   let sourceConfigItems = React.useMemo(() => {
-    ReconEngineDataSourcesUtils.getSourceConfigData(~config, ~ingestionHistoryList)
+    getSourceConfigData(~config, ~ingestionHistoryList)
   }, (config, ingestionHistoryList))
 
   let (_percentage, label, labelColor) = React.useMemo(() => {

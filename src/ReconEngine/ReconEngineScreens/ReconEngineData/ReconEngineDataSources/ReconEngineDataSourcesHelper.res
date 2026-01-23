@@ -202,7 +202,6 @@ module TransformationHistoryActionsComponent = {
 module IngestionHistoryActionsComponent = {
   @react.component
   let make = (~ingestionHistory: ingestionHistoryType) => {
-    open ReconEngineDataSourcesTypes
     open APIUtils
 
     let (showModal, setShowModal) = React.useState(_ => false)

@@ -1,11 +1,11 @@
 open ReconEngineTypes
 open Typography
+open ReconEngineDataSourcesUtils
 
 module TimelineItem = {
   @react.component
   let make = (~item: ingestionHistoryType, ~isLast: bool) => {
     open LogicUtils
-    open ReconEngineDataSourcesUtils
 
     let fileState = getFileTimelineState(item.status, Some(item.discarded_status))
     let config = getTimelineConfig(fileState)
@@ -41,8 +41,6 @@ module TimelineItem = {
 
 @react.component
 let make = (~showModal, ~setShowModal, ~ingestionHistoryId: string) => {
-  open ReconEngineDataSourcesUtils
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ => [

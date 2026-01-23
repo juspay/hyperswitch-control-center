@@ -1,6 +1,7 @@
 open LogicUtils
 open ReconEngineTypes
 open ReconEngineDataSourcesHelper
+open ReconEngineDataUtils
 
 type ingestionConfigColType =
   | SourceConfigName
@@ -103,14 +104,10 @@ let getIngestionHistoryCell = (data: ingestionHistoryType, colType): Table.cell 
   | FileName => Text(data.file_name)
   | IngestionName => Text(data.ingestion_name)
   | IngestionHistoryId => DisplayCopyCell(data.ingestion_history_id)
-  | Status => ReconEngineDataUtils.getStatusLabel(data.status)
+  | Status => getStatusLabel(data.status)
   | IngestionType => Text(data.upload_type)
   | ReceivedAt => Date(data.created_at)
-  | Actions =>
-    CustomCell(
-      <ReconEngineDataSourcesHelper.IngestionHistoryActionsComponent ingestionHistory={data} />,
-      "",
-    )
+  | Actions => CustomCell(<IngestionHistoryActionsComponent ingestionHistory={data} />, "")
   }
 }
 
@@ -153,7 +150,7 @@ let getTransformationHistoryCell = (
   | TransformationHistoryId => DisplayCopyCell(transformationHistoryData.transformation_history_id)
   | IngestionHistoryId => DisplayCopyCell(transformationHistoryData.ingestion_history_id)
   | TransformationName => Text(transformationHistoryData.transformation_name)
-  | Status => ReconEngineDataUtils.getStatusLabel(transformationHistoryData.status)
+  | Status => getStatusLabel(transformationHistoryData.status)
   | CreatedAt => Date(transformationHistoryData.created_at)
   | TransformedAt => Date(transformationHistoryData.processed_at)
   | TransformationStats =>

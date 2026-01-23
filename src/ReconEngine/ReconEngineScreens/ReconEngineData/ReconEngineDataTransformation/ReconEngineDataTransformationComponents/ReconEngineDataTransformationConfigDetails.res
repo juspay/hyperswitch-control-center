@@ -31,7 +31,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
   }, [config.ingestion_id])
 
   let transformationConfigItems = React.useMemo(() => {
-    ReconEngineDataTransformationUtils.getTransformationConfigData(~config)
+    getTransformationConfigData(~config)
   }, [config])
 
   let (_percentage, label, labelColor) = React.useMemo(() => {
