@@ -191,7 +191,7 @@ let metrics: array<LineChartUtils.metricsConfig> = [
   },
   {
     metric_name_db: "authentication_successful",
-    metric_label: "Authentication Successful",
+    metric_label: "Overall Authentication Success",
     thresholdVal: None,
     step_up_threshold: None,
     metric_type: Rate,

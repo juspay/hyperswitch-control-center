@@ -27,6 +27,7 @@ type data = {code: string, message: string, type_: string}
 type subCode =
   | HE_02
   | IR_48
+  | IR_47
   | UR_00
   | UR_01
   | UR_03

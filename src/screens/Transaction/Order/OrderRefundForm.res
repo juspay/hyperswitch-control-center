@@ -10,7 +10,7 @@ let make = (
   ~setShowModal,
   ~requestedRefundAmount,
   ~amountRefunded,
-  ~amoutAvailableToRefund,
+  ~amountAvailableToRefund,
   ~refetch,
 ) => {
   let getURL = useGetURL()
@@ -160,10 +160,10 @@ let make = (
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
-      let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amountAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
         let formatted_amount = Float.toFixedWithPrecision(
-          amoutAvailableToRefund,
+          amountAvailableToRefund,
           ~digits=precisionDigits,
         )
         Dict.set(
