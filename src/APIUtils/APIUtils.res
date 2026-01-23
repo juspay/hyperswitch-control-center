@@ -179,7 +179,8 @@ let getV2Url = (
 }
 
 let useGetURL = () => {
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonSessionDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -193,7 +194,15 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+    let (transactionEntity, analyticsEntity, userEntity) = switch state {
+    | DashboardSession(userInfo) => (
+        userInfo.transactionEntity,
+        userInfo.analyticsEntity,
+        userInfo.userEntity,
+      )
+    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    }
+
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
@@ -567,6 +576,13 @@ let useGetURL = () => {
           `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
         | _ => ""
         }
+
+      /* OIDC */
+      | OIDC_AUTHORIZE =>
+        switch methodType {
+        | Get => `oidc/authorize`
+        | _ => ""
+        }
       /* ANALYTICS V2 */
 
       | ANALYTICS_PAYMENTS_V2 =>
@@ -753,6 +769,7 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | THREE_DS_EXEMPTION_DELETE_RULE => `routing/deactivate`
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
@@ -1021,8 +1038,8 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
-            | None => `${reconBaseURL}/recon_rules`
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/v2/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules/v2`
             }
           | _ => ""
           }
@@ -1078,6 +1095,16 @@ let useGetURL = () => {
               | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
               | None => `${reconBaseURL}/transformations/configs`
               }
+            }
+          | _ => ""
+          }
+        | #TRANSFORMATION_CONFIG_WITH_METADATA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}/metadata_schema`
+            | None => ""
             }
           | _ => ""
           }
@@ -1137,15 +1164,6 @@ let useGetURL = () => {
             | Some(ingestionHistoryId) =>
               `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
             | None => ``
-            }
-          | _ => ""
-          }
-        | #METADATA_SCHEMA =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
-            | None => `${reconBaseURL}/metadata_schemas`
             }
           | _ => ""
           }
@@ -1476,6 +1494,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~isEmbeddableSession=false,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -1520,12 +1539,14 @@ let responseHandler = async (
             }
           }
         | 401 =>
-          if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+          if !isEmbeddableSession {
+            if !sessionExpired.contents {
+              showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
 
-            handleLogout()->ignore
-            AuthUtils.redirectToLogin()
-            sessionExpired := true
+              handleLogout()->ignore
+              AuthUtils.redirectToLogin()
+              sessionExpired := true
+            }
           }
 
         | 403 =>
@@ -1585,7 +1606,10 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1618,6 +1642,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
@@ -1629,6 +1654,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>
@@ -1639,7 +1665,10 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1685,6 +1714,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
@@ -1696,6 +1726,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>

@@ -34,9 +34,8 @@ let make = () => {
 
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = getResolvedUserInfo()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
 
   let loadInfo = async () => {
@@ -86,7 +85,7 @@ let make = () => {
       if isSampleDataEnabled {
         setQueryData(_ => Dict.make()->itemToObjMapperForQueryData)
         setFunnelData(_ => Dict.make()->itemToObjMapperForFunnelData)
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
         let res = await fetchApi(
           paymentsUrl,
           ~method_=Get,
@@ -156,9 +155,10 @@ let make = () => {
             #authentication_attempt_count,
             #authentication_success_count,
             #challenge_flow_count,
+            #challenge_success_count,
+            #challenge_attempt_count,
             #frictionless_flow_count,
             #frictionless_success_count,
-            #challenge_attempt_count,
             #authentication_exemption_approved_count,
             #authentication_exemption_requested_count,
           ],
@@ -211,7 +211,11 @@ let make = () => {
         )
         updatedFilters->Dict.set(
           "authentication_status",
-          ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
+          [
+            "success"->JSON.Encode.string,
+            "pending"->JSON.Encode.string,
+            "failed"->JSON.Encode.string,
+          ]->JSON.Encode.array,
         )
 
         let thirdFunnelRequestBody = InsightsUtils.requestBody(

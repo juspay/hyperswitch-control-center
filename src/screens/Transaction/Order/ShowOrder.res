@@ -193,7 +193,9 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
       <div className="w-full p-2">
@@ -350,7 +352,9 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
@@ -410,27 +414,38 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
-    let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
+    let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
+    let disputeData = orderData.disputes
 
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
-
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
+    let disputeAmount = ref(0.0)
+
     let _ = refundData->Array.map(ele => {
-      if ele.status === "pending" {
+      let refundStatus = ele.status->HSwitchOrderUtils.refundStatusVariantMapper
+      if refundStatus === Pending {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
-      } else if ele.status === "succeeded" {
+      } else if refundStatus === Success {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
+
+    let _ = disputeData->Array.map(ele => {
+      let disputeStatus = ele.dispute_status->DisputesUtils.disputeStatusVariantMapper
+      if disputeStatus === DisputeLost {
+        disputeAmount := disputeAmount.contents +. ele.amount->Float.fromString->Option.getOr(0.0)
+      }
+    })
+
     React.useEffect(_ => {
-      setAmoutAvailableToRefund(_ =>
+      let amountToBeRefunded =
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
+        disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
-      )
-
+      setAmountAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
       None
     }, [orderData])
 
@@ -447,7 +462,7 @@ module OrderActions = {
           setShowModal
           requestedRefundAmount
           amountRefunded
-          amoutAvailableToRefund
+          amountAvailableToRefund
           refetch
         />
       </Modal>
@@ -604,7 +619,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open OrderUIUtils
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

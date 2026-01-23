@@ -95,11 +95,11 @@ module PaymentProcessingDetailsAt = {
               ~placeholder={`Enter Processing Key`},
               ~customInput=InputFields.multiLineTextInput(
                 ~rows=Some(10),
-                ~cols=Some(100),
+                ~cols=None,
                 ~isDisabled=false,
-                ~customClass="",
                 ~leftIcon=React.null,
                 ~maxLength=10000,
+                ~customClass="w-full",
               ),
               ~isRequired=true,
             )}
@@ -207,10 +207,12 @@ let make = (
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
   ~connector,
+  ~appleIntegrationType,
 ) => {
   open LogicUtils
   open ApplePayIntegrationUtils
   open ApplePayIntegrationHelper
+  open Typography
 
   let form = ReactFinalForm.useForm()
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -279,15 +281,29 @@ let make = (
       </div>
     })
     ->React.array
-  <>
-    {applePayManualFields}
-    <div className="w-full flex gap-2 justify-end p-6">
+  <div className="flex flex-col gap-4 p-4 ">
+    <div className="flex gap-2 px-2">
+      <Icon
+        size=16
+        name="nd-arrow-left"
+        className={"cursor-pointer"}
+        onClick={_ => {
+          setApplePayIntegrationSteps(_ => Landing)
+        }}
+      />
+      <span className={body.lg.semibold}>
+        {appleIntegrationType->getHeadingBasedOnApplePayFlow->React.string}
+      </span>
+    </div>
+    <div> {applePayManualFields} </div>
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"
@@ -295,8 +311,9 @@ let make = (
         onClick={_ => {
           onSubmit()->ignore
         }}
+        customButtonStyle="w-full"
         buttonState={formState.values->validateManualFlow(~connector)}
       />
     </div>
-  </>
+  </div>
 }

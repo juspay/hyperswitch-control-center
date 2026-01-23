@@ -10,7 +10,7 @@ let make = (
   ~setShowModal,
   ~requestedRefundAmount,
   ~amountRefunded,
-  ~amoutAvailableToRefund,
+  ~amountAvailableToRefund,
   ~refetch,
 ) => {
   let getURL = useGetURL()
@@ -20,7 +20,9 @@ let make = (
   let showRefundAddressEmail =
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
-  let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, orgId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let isSplitPayment =
     order.connector->String.toLowerCase->isSplitPaymentConnector &&
       !(order.split_payments->isEmptyDict)
@@ -118,10 +120,10 @@ let make = (
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
       let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
-      let remainingAmountInMinorUnits = Math.round(amoutAvailableToRefund *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amountAvailableToRefund *. conversionFactor)
       if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
         let formatted_amount = Float.toFixedWithPrecision(
-          amoutAvailableToRefund,
+          amountAvailableToRefund,
           ~digits=precisionDigits,
         )
         Dict.set(

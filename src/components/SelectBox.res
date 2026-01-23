@@ -2014,7 +2014,7 @@ module BaseDropdown = {
         size=arrowIconSize
         className={` text-nd_gray-400 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] ${showDropDown
             ? "-rotate-180"
-            : ""} ${disableSelect ? "text-nd_gray-600" : ""}`}
+            : ""} ${disableSelect ? "text-nd_gray-400" : ""}`}
       />
 
     let textStyle = if isSelectTextDark && selectButtonText !== buttonText {

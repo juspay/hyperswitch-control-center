@@ -7,7 +7,7 @@ module BuildPermaLinkUrl = {
     )
     let queryParams = Window.Location.search
     let path = `${Window.Location.pathName->Js.String2.replaceByRe(
-        Js.Re.fromString("/dashboard"),
+        Js.Re.fromString(GlobalVars.dashboardPrefix),
         "",
       )}${queryParams}`
     url->Window.URL.searchParams->Window.URL.append("path", path)
@@ -18,9 +18,9 @@ module BuildPermaLinkUrl = {
 @react.component
 let make = (~permaLinkFor=?) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userInfo: {orgId, merchantId, profileId, version}} = React.useContext(
+  let {orgId, merchantId, profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonSessionDetails()
   let handleDeepLinkClick = () => {
     mixpanelEvent(~eventName="copy_deep_link")
   }
