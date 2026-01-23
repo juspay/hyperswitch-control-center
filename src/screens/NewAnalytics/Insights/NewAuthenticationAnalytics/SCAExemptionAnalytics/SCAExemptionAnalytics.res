@@ -30,7 +30,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
         let res = await fetchApi(
           paymentsUrl,
           ~method_=Get,
@@ -51,10 +51,8 @@ let make = (
           ]->getJsonFromArrayOfJson
 
         let scaExemptionResponse = await updateDetails(url, scaExemptionBody, Post)
-        setScreenState(_ => PageLoaderWrapper.Custom)
-
         setData(_ => scaExemptionResponse->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper)
-        setScreenState(_ => PageLoaderWrapper.Custom)
+        setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)

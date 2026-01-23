@@ -12,6 +12,7 @@ type exemptionGraphsCol =
   | Exemption_Request_Rate
   | User_Drop_Off_Rate
   | Time_Bucket
+  | Time_Range
   | Unknown
 
 type responseKeys = [
@@ -22,6 +23,7 @@ type responseKeys = [
   | #authentication_failure_count
   | #authentication_failure_rate
   | #time_bucket
+  | #time_range
   | #authentication_exemption_approved_count
   | #authentication_exemption_requested_count
   | #exemption_approval_rate
@@ -38,6 +40,7 @@ type exemptionGraphsObject = {
   authentication_failure_count: int,
   authentication_failure_rate: float,
   time_bucket: string,
+  time_range: JSON.t,
   authentication_exemption_approved_count: int,
   authentication_exemption_requested_count: int,
   exemption_approval_rate: float,
