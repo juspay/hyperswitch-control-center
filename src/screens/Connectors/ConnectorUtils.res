@@ -1673,7 +1673,6 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
 }
 
 let checkPayloadFields = (dict, country, valuesFlattenJson) => {
-  open LogicUtils
   let keys =
     dict
     ->getDictfromDict(country)
