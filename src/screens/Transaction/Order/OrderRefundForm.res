@@ -31,10 +31,35 @@ let make = (
 
   let updateRefundDetails = async body => {
     try {
-      let refundsUrl = switch version {
-      | V1 => getURL(~entityName=V1(REFUNDS), ~methodType=Post)
-      | V2 => getURL(~entityName=V2(REFUNDS), ~methodType=Post)
+      let refundsUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Post)
+      let res = await updateDetails(refundsUrl, body, Post)
+      let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
+      refetch()->ignore
+      switch refundStatus->statusVariantMapper {
+      | Succeeded =>
+        showToast(~message="Refund successful", ~toastType=ToastSuccess)
+        setShowModal(_ => false)
+      | Failed =>
+        showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
+        setShowModal(_ => false)
+      | _ =>
+        showToast(
+          ~message="Processing your refund. Please check refund status",
+          ~toastType=ToastInfo,
+        )
+        setShowModal(_ => false)
       }
+    } catch {
+    | _ => {
+        showToast(~message="Refund failed", ~toastType=ToastError)
+        setShowModal(_ => false)
+      }
+    }
+  }
+
+  let updateRefundDetailsV2 = async body => {
+    try {
+      let refundsUrl = getURL(~entityName=V2(REFUNDS), ~methodType=Post)
       let res = await updateDetails(refundsUrl, body, Post)
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
@@ -72,16 +97,19 @@ let make = (
     Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
-    if version == V2 {
-      Dict.set(body, "merchant_id", merchantId->JSON.Encode.string)
-      Dict.set(
-        body,
-        "merchant_reference_id",
-        order.merchant_order_reference_id->Option.getOr("")->JSON.Encode.string,
-      )
-    }
 
-    updateRefundDetails(body->JSON.Encode.object)->ignore
+    switch version {
+    | V1 => updateRefundDetails(body->JSON.Encode.object)->ignore
+    | V2 => {
+        Dict.set(body, "merchant_id", merchantId->JSON.Encode.string)
+        Dict.set(
+          body,
+          "merchant_reference_id",
+          order.merchant_order_reference_id->Option.getOr("")->JSON.Encode.string,
+        )
+        updateRefundDetailsV2(body->JSON.Encode.object)->ignore
+      }
+    }
     Nullable.null->resolve
   }
 

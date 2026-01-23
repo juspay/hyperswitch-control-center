@@ -82,12 +82,12 @@ let errorMapper = (dict: dict<JSON.t>) => {
   }
 }
 
+let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
+  `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+}
+
 let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
-
-  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
-    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
-  }
   let amountDict = dict->getDictfromDict("amount")
 
   {

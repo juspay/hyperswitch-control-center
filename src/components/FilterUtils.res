@@ -1,3 +1,5 @@
+open LogicUtils
+
 let parseFilterString = queryString => {
   queryString
   ->decodeURI
@@ -6,7 +8,7 @@ let parseFilterString = queryString => {
     let arr = str->String.split("=")
     let key = arr->Array.get(0)->Option.getOr("-")
     let val = arr->Array.sliceToEnd(~start=1)->Array.joinWith("=")
-    key->LogicUtils.isEmptyString || val->LogicUtils.isEmptyString ? None : Some((key, val))
+    key->isEmptyString || val->isEmptyString ? None : Some((key, val))
   })
   ->Dict.fromArray
 }
@@ -22,18 +24,23 @@ let parseFilterDict = dict => {
 }
 
 let parseFilterDictV2 = dict => {
-  dict
-  ->Dict.toArray
-  ->Array.filterMap(((key, value)) => {
-    value->LogicUtils.isNonEmptyString
+  let removeBrackets = value => {
+    value->String.startsWith("[") && value->String.endsWith("]")
+      ? value->String.slice(~start=1, ~end=-1)
+      : value
+  }
+
+  let formatKeyValuePair = ((key, value)) => {
+    value->isNonEmptyString
       ? {
-          let formattedValue =
-            value->String.startsWith("[") && value->String.endsWith("]")
-              ? value->String.slice(~start=1, ~end=-1)
-              : value
-          formattedValue->LogicUtils.isNonEmptyString ? Some(`${key}=${formattedValue}`) : None
+          let formattedValue = removeBrackets(value)
+          formattedValue->isNonEmptyString ? Some(`${key}=${formattedValue}`) : None
         }
       : None
-  })
+  }
+
+  dict
+  ->Dict.toArray
+  ->Array.filterMap(formatKeyValuePair)
   ->Array.joinWith("&")
 }

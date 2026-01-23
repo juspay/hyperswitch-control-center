@@ -10,6 +10,7 @@ let make = (
   open LogicUtils
   open APIUtils
   open PageLoaderWrapper
+  open Typography
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -182,7 +183,7 @@ let make = (
       ->Array.filter(val => !Array.includes(["credit", "debit"], val))
     : []
 
-  let disableConnector = async isConnectorDisabled => {
+  let disableConnector = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
@@ -196,7 +197,7 @@ let make = (
         ~methodType=Put,
         ~id=Some(merchant_connector_id),
       )
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Put)
+      let res = await updateDetails(url, disableConnectorPayload, Put)
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -224,11 +225,11 @@ let make = (
       <div className={`flex flex-col gap-10 ${topPadding} `}>
         <div>
           <div className="flex flex-row gap-4 justify-between items-center">
-            <div className="flex flex-row gap-4 items-center">
+            <div className="flex gap-4 items-center">
               <GatewayIcon
                 gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
               />
-              <p className={`text-2xl font-semibold break-all`}>
+              <p className={`${heading.lg.semibold} break-all`}>
                 {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
               </p>
             </div>

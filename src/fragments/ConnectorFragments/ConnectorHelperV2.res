@@ -284,7 +284,7 @@ module DisableConnector = {
             : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
         handleConfirm: {
           text: "Confirm",
-          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+          onClick: _ => disableConnector()->ignore,
         },
         handleCancel: {text: "Cancel"},
       })
