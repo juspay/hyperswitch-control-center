@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.01.23.0
+
+### Features
+
+- Flag dual refunds in disputes and refunds validation ([#4034](https://github.com/juspay/hyperswitch-control-center/pull/4034)) ([`e988c60`](https://github.com/juspay/hyperswitch-control-center/commit/e988c602a81ab188e261f1e1cb091199c6fb0df1))
+
+### Bug Fixes
+
+- Graph not appearing when enabling granularity ([#4130](https://github.com/juspay/hyperswitch-control-center/pull/4130)) ([`daa0aae`](https://github.com/juspay/hyperswitch-control-center/commit/daa0aaecfd0f06fb7fbe335fbd19386ca9cb56fe))
+
+### Miscellaneous Tasks
+
+- Embedded fixes for token fetch ([#4128](https://github.com/juspay/hyperswitch-control-center/pull/4128)) ([`5c8e541`](https://github.com/juspay/hyperswitch-control-center/commit/5c8e541f91c9cd271a79faaf79ae3df4085ad08a))
+
+**Full Changelog:** [`2026.01.22.0...2026.01.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.22.0...2026.01.23.0)
+
+- - -
+
 ## 2026.01.22.0
 
 ### Features
