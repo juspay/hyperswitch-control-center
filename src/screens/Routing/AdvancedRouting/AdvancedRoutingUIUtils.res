@@ -1,4 +1,5 @@
 open AdvancedRoutingUtils
+open LogicUtils
 open FormRenderer
 
 module LogicalOps = {
@@ -8,7 +9,7 @@ module LogicalOps = {
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
     React.useEffect(() => {
-      if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
+      if logicalOpsInput.value->getStringFromJson("")->String.length === 0 {
         logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
@@ -18,7 +19,7 @@ module LogicalOps = {
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
       {["AND", "OR"]
       ->Array.mapWithIndex((text, i) => {
-        let active = logicalOpsInput.value->LogicUtils.getStringFromJson("") === text
+        let active = logicalOpsInput.value->getStringFromJson("") === text
         <Button
           key={i->Int.toString}
           text
@@ -55,7 +56,7 @@ module OperatorInp = {
       },
       onFocus: _ => (),
       value: operator.value
-      ->LogicUtils.getStringFromJson("")
+      ->getStringFromJson("")
       ->operatorMapper
       ->operatorTypeToStringMapper
       ->JSON.Encode.string,
@@ -114,18 +115,24 @@ module OperatorInp = {
 module ValueInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~variantValues, ~keyType) => {
+    let lhsField = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+
+    let lhsValue = lhsField.value->getStringFromJson("")
+    let isCardBinField =
+      lhsValue->stringToVariantType == CARD_BIN ||
+        lhsValue->stringToVariantType == EXTENDED_CARD_BIN
 
     React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
-        } else if keyType->variantTypeMapper === String_value {
+        } else if keyType->variantTypeMapper === String_value || isCardBinField {
           "str_value"
         } else {
-          switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
+          switch opField.value->getStringFromJson("")->operatorMapper {
           | IS
           | IS_NOT => "enum_variant"
           | CONTAINS
@@ -135,7 +142,50 @@ module ValueInp = {
         }->Identity.anyTypeToReactEvent,
       )
       None
+    }, (valueField.value, isCardBinField))
+
+    React.useEffect(() => {
+      if isCardBinField {
+        let currentValue = valueField.value
+        switch currentValue->JSON.Classify.classify {
+        | Number(num) => {
+            let stringValue = num->Float.toInt->Int.toString->JSON.Encode.string
+            valueField.onChange(stringValue->Identity.anyTypeToReactEvent)
+          }
+        | _ => ()
+        }
+      }
+      None
     }, [valueField.value])
+
+    let numericInputForCardBin: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ => (),
+      onChange: ev => {
+        let numValue = try {
+          let jsonValue = ev->Identity.genericTypeToJson
+          jsonValue->JSON.Decode.float
+        } catch {
+        | _ => None
+        }
+        let stringValue = switch numValue {
+        | Some(num) => num->Float.toInt->Int.toString->JSON.Encode.string
+        | None => JSON.Encode.string("")
+        }
+        valueField.onChange(stringValue->Identity.anyTypeToReactEvent)
+      },
+      onFocus: _ => (),
+      value: {
+        let strValue = valueField.value->getStringFromJson("")
+        strValue->isNonEmptyString
+          ? switch strValue->Float.fromString {
+            | Some(num) => num->JSON.Encode.float
+            | None => JSON.Encode.null
+            }
+          : JSON.Encode.null
+      },
+      checked: true,
+    }
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -149,7 +199,7 @@ module ValueInp = {
       checked: true,
     }
 
-    switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
+    switch opField.value->getStringFromJson("")->operatorMapper {
     | CONTAINS | NOT_CONTAINS =>
       <SelectBox.BaseDropdown
         allowMultiSelect=true
@@ -162,7 +212,7 @@ module ValueInp = {
         customButtonStyle="!w-full"
       />
     | IS | IS_NOT => {
-        let val = valueField.value->LogicUtils.getStringFromJson("")
+        let val = valueField.value->getStringFromJson("")
         <SelectBox.BaseDropdown
           allowMultiSelect=false
           buttonText={val->String.length === 0 ? "Select Value" : val}
@@ -176,6 +226,7 @@ module ValueInp = {
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
       | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
+      | FixedNumber => <NumericTextInput placeholder={"Enter value"} input=numericInputForCardBin />
       | _ => <NumericTextInput placeholder={"Enter value"} input />
       }
 
@@ -196,7 +247,7 @@ module MetadataInp = {
       name: "string",
       onBlur: _ => {
         let value = valueField.value
-        let val = value->LogicUtils.getStringFromJson("")
+        let val = value->getStringFromJson("")
         let valSplit = String.split(val, ",")
         let arrStr = valSplit->Array.map(item => {
           String.trim(item)
@@ -289,19 +340,18 @@ module FieldInp = {
       | PayoutRouting => Window.getPayoutDescriptionCategory()->Identity.jsonToAnyType
       | _ => Window.getDescriptionCategory()->Identity.jsonToAnyType
       }
-      keyDescriptionMapper->LogicUtils.convertMapObjectToDict
+      keyDescriptionMapper->convertMapObjectToDict
     }, [])
 
     let options = React.useMemo(() =>
       convertedValue
       ->Dict.keysToArray
       ->Array.reduce([], (acc, ele) => {
-        open LogicUtils
         convertedValue
         ->getArrayFromDict(ele, [])
         ->Array.forEach(
           value => {
-            let dictValue = value->LogicUtils.getDictFromJsonObject
+            let dictValue = value->getDictFromJsonObject
             let kindValue = dictValue->getString("kind", "")
             if methodKeys->Array.includes(kindValue) {
               let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
@@ -387,8 +437,8 @@ module RuleFieldBase = {
     }
 
     let methodKeys = React.useMemo(() => {
-      let value = field.value->LogicUtils.getStringFromJson("")
-      if value->LogicUtils.isNonEmptyString {
+      let value = field.value->getStringFromJson("")
+      if value->isNonEmptyString {
         setKeyTypeAndVariants(wasm, value)
       }
       if isFrom3ds {
@@ -541,10 +591,9 @@ module SaveAndActivateButton = {
     let handleSaveAndActivate = async _ => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
-        let currentActivatedFromJson =
-          onSubmitResponse->LogicUtils.getValFromNullableValue(JSON.Encode.null)
+        let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)
         let currentActivatedId =
-          currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+          currentActivatedFromJson->getDictFromJsonObject->getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Exn.Error(e) =>
