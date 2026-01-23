@@ -6,7 +6,7 @@ module Provider = {
 
 type userInfoScreenState = Loading | Success | Error
 @react.component
-let make = (~children) => {
+let make = (~children, ~isEmbeddableApp=false) => {
   open UserInfoUtils
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (applicationState, setApplicationState) = React.useState(_ => UserInfoTypes.DashboardSession(
@@ -108,8 +108,39 @@ let make = (~children) => {
     }
   }
 
+  let isEmbeddableSession = () =>
+    switch applicationState {
+    | DashboardSession(_) => false
+    | EmbeddableSession(_) => true
+    }
+
+  let getEmbeddableUserInfo = async () => {
+    open LogicUtils
+    try {
+      let url = `${Window.env.apiBaseUrl}/embedded`
+      let res = await fetchApi(
+        `${url}`,
+        ~method_=Get,
+        ~xFeatureRoute,
+        ~forceCookies,
+        ~isEmbeddableSession=true,
+      )
+      let response = await res->(res => res->Fetch.Response.json)
+      let info = response->getDictFromJsonObject->UserInfoUtils.itemMapperToEmbeddableSessionType
+      setApplicationState(_ => EmbeddableSession(info))
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => Error)
+    }
+  }
+
   React.useEffect(() => {
-    getUserInfo()->ignore
+    if isEmbeddableApp {
+      getEmbeddableUserInfo()->ignore
+    } else {
+      getUserInfo()->ignore
+    }
+
     None
   }, [])
 
@@ -123,8 +154,9 @@ let make = (~children) => {
       setUpdatedEmbeddableSessionInfo,
       getCommonSessionDetails,
       checkUserEntity,
+      isEmbeddableSession,
     }>
-    <RenderIf condition={screenState === Success}> children </RenderIf>
+    <RenderIf condition={screenState === Success}> {children} </RenderIf>
     <RenderIf condition={screenState === Error}>
       <NoDataFound message="Something went wrong" renderType=Painting />
     </RenderIf>

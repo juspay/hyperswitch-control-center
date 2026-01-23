@@ -145,7 +145,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
         color: expectedColor,
       },
       {
-        name: "Posted",
+        name: "Reconciled",
         data: [postedCount->Int.toFloat],
         color: postedColor,
       },
@@ -288,14 +288,13 @@ let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
     Posted(Auto),
     Posted(Manual),
-    Posted(Force),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
-    Expected,
     PartiallyReconciled,
+    Expected,
     Void,
   ])
   [

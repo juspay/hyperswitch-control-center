@@ -189,6 +189,12 @@ type domainTransactionStatus =
   | PartiallyReconciled
   | UnknownDomainTransactionStatus
 
+type linkedTransactionType = {
+  transaction_id: string,
+  created_at: string,
+  transaction_status: domainTransactionStatus,
+}
+
 type transactionType = {
   id: string,
   transaction_id: string,
@@ -203,6 +209,7 @@ type transactionType = {
   created_at: string,
   effective_at: string,
   data: transactionDataType,
+  linked_transaction: option<linkedTransactionType>,
 }
 
 type entryType = {
@@ -222,6 +229,7 @@ type entryType = {
   created_at: string,
   effective_at: string,
   staging_entry_id: option<string>,
+  transformation_id: option<string>,
 }
 
 type processingEntryStatus =
@@ -283,32 +291,64 @@ type processedEntryType = {
   created_at: string,
 }
 
+type stringValidationRule =
+  | MaxLength(int)
+  | MinLength(int)
+
+type numberValidationRule =
+  | MinValue(float)
+  | MaxValue(float)
+
+type minorUnitValidationRule =
+  | PositiveOnly
+  | MinValueMinorUnit(int)
+  | MaxValueMinorUnit(int)
+
+type fieldTypeVariant =
+  | StringField(array<stringValidationRule>)
+  | NumberField(array<numberValidationRule>)
+  | CurrencyField
+  | MinorUnitField(array<minorUnitValidationRule>)
+  | DateTimeField
+  | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
+
+type entryField =
+  | String
+  | Metadata(string)
+
 type metadataFieldType = {
   identifier: string,
+  field_name: entryField,
+  field_type: fieldTypeVariant,
+  required: bool,
+  description: string,
+}
+
+type mainFieldType = {
   field_name: string,
-  field_type: string,
-}
-
-type balanceDirectionFieldType = {
   identifier: string,
-  credit_values: array<string>,
-  debit_values: array<string>,
+  credit_values: option<array<string>>,
+  debit_values: option<array<string>>,
 }
 
-type basicFieldIdentifierType = {identifier: string}
+type uniqueConstraintTypeVariant =
+  | SingleField(string)
+  | UnknownConstraint
+
+type uniqueConstraintType = {
+  unique_constraint_type: uniqueConstraintTypeVariant,
+  description: string,
+}
 
 type schemaFieldsType = {
-  currency: basicFieldIdentifierType,
-  amount: basicFieldIdentifierType,
-  effective_at: basicFieldIdentifierType,
-  balance_direction: balanceDirectionFieldType,
-  order_id: basicFieldIdentifierType,
+  main_fields: array<mainFieldType>,
   metadata_fields: array<metadataFieldType>,
 }
 
 type schemaDataType = {
   schema_type: string,
   fields: schemaFieldsType,
+  unique_constraint: uniqueConstraintType,
   processing_mode: string,
 }
 
@@ -322,3 +362,5 @@ type metadataSchemaType = {
   created_at: string,
   last_modified_at: string,
 }
+
+type columnMappingTabs = [#default | #advanced]
