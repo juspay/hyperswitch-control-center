@@ -1692,23 +1692,23 @@ let checkPayloadFields = (dict, valuesFlattenJson) => {
     let nonRequiredFields =
       fields->Array.filter(field => !checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
 
-    let hasRequiredFilled = requiredFields->Array.some(field => {
+    let hasAnyRequiredFieldFilled = requiredFields->Array.some(field => {
       let key = `connector_account_details.auth_key_map.${country}.${field}`
       let value = valuesFlattenJson->getString(key, "")
-      value->String.trim->String.length > 0
+      value->String.trim->isNonEmptyString
     })
 
-    let hasNonRequiredFilled = nonRequiredFields->Array.some(field => {
+    let hasNonRequiredFieldFilled = nonRequiredFields->Array.some(field => {
       let key = `connector_account_details.auth_key_map.${country}.${field}`
       let value = valuesFlattenJson->getString(key, "")
-      value->String.trim->String.length > 0
+      value->String.trim->isNonEmptyString
     })
 
-    if hasNonRequiredFilled && !hasRequiredFilled {
+    if hasNonRequiredFieldFilled && !hasAnyRequiredFieldFilled {
       flags->Js.Vector.set(0, true)
     }
 
-    if hasRequiredFilled {
+    if hasAnyRequiredFieldFilled {
       flags->Js.Vector.set(1, true)
     }
   })
