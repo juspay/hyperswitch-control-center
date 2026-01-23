@@ -1,6 +1,6 @@
 open Typography
-open AuditLogTypes
-open AuditLogUtils
+open ReconEngineAuditLogDrawerTypes
+open ReconEngineAuditLogDrawerUtils
 
 module EventCard = {
   @react.component
