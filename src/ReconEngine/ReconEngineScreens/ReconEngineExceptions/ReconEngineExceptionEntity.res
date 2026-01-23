@@ -115,7 +115,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
       </>,
       "",
     )
-  | Actions => CustomCell(<ReconEngineAccountsTransformedEntriesActions processingEntry=data />, "")
+  | Actions => CustomCell(<ReconEngineDataTransformedEntriesActions processingEntry=data />, "")
   }
 }
 
