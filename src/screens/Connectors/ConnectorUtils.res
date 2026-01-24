@@ -1,4 +1,5 @@
 open ConnectorTypes
+open LogicUtils
 
 type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
@@ -1359,7 +1360,6 @@ let getConnectorInfo = connector => {
 }
 
 let acceptedValues = dict => {
-  open LogicUtils
   let values = {
     type_: dict->getString("type", "enable_only"),
     list: dict->getStrArray("list"),
@@ -1368,7 +1368,6 @@ let acceptedValues = dict => {
 }
 
 let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType = dict => {
-  open LogicUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
@@ -1383,12 +1382,10 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
 }
 
 let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
-  open LogicUtils
   getArrayDataFromJson(json, itemProviderMapper)
 }
 
 let itemToObjMapper = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1401,7 +1398,6 @@ let itemToObjMapper = dict => {
 }
 
 let getPaymentMethodEnabled: JSON.t => array<paymentMethodEnabled> = json => {
-  open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
@@ -1438,13 +1434,13 @@ let ignoreFields = (json, id, fields) => {
     json
   } else {
     json
-    ->LogicUtils.getDictFromJsonObject
+    ->getDictFromJsonObject
     ->Dict.toArray
     ->Array.filter(entry => {
       let (key, _val) = entry
       !(fields->Array.includes(key))
     })
-    ->LogicUtils.getJsonFromArrayOfJson
+    ->getJsonFromArrayOfJson
   }
 }
 
@@ -1585,7 +1581,6 @@ let generateInitialValuesDict = (
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
 ) => {
-  open LogicUtils
   let dict = values->getDictFromJsonObject
 
   let connectorAccountDetails =
@@ -1626,7 +1621,15 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   [
     ("connector_type", connectorType->JSON.Encode.string),
     ("disabled", !previousConnectorState->JSON.Encode.bool),
-  ]->Dict.fromArray
+  ]->getJsonFromArrayOfJson
+}
+
+let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merchantId) => {
+  [
+    ("connector_type", connectorType->JSON.Encode.string),
+    ("disabled", !previousConnectorState->JSON.Encode.bool),
+    ("merchant_id", merchantId->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
 }
 
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
@@ -1646,7 +1649,6 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
 }
 
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
-  open LogicUtils
   let authKeyMap =
     connectorAccountFields
     ->getDictfromDict("auth_key_map")
@@ -1655,7 +1657,6 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   convertMapObjectToDict(authKeyMap)
 }
 let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
-  open LogicUtils
   keys->Array.map(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
@@ -1664,7 +1665,6 @@ let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
 }
 
 let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
-  open LogicUtils
   let value = dict->getDictfromDict(country)->Dict.keysToArray
   let result = value->Array.map(method => {
     let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
@@ -1675,7 +1675,6 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
 }
 
 let checkPayloadFields = (dict, country, valuesFlattenJson) => {
-  open LogicUtils
   let keys =
     dict
     ->getDictfromDict(country)
@@ -1698,7 +1697,6 @@ let validateConnectorRequiredFields = (
   connectorLabelDetailField,
   errors,
 ) => {
-  open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   switch connector {
   | Processors(CASHTOCODE) => {
@@ -1814,14 +1812,13 @@ let validateConnectorRequiredFields = (
 }
 
 let getPlaceHolder = label => {
-  `Enter ${label->LogicUtils.snakeToTitle}`
+  `Enter ${label->snakeToTitle}`
 }
 
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])
 let getConnectorFields = connectorDetails => {
-  open LogicUtils
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
@@ -1854,7 +1851,6 @@ let getConnectorFields = connectorDetails => {
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
-  open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   dict
   ->Dict.keysToArray
@@ -1881,7 +1877,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
       valuesFlattenJson
       ->Dict.get(key)
       ->Option.getOr(""->JSON.Encode.string)
-      ->LogicUtils.getStringFromJson("")
+      ->getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
     | Some(regex) => regex->RegExp.fromString->RegExp.test(value)
@@ -1892,7 +1888,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
         labelArr
         ->Array.get(index)
         ->Option.getOr(""->JSON.Encode.string)
-        ->LogicUtils.getStringFromJson("")
+        ->getStringFromJson("")
       Dict.set(errors, key, `Please enter ${errorLabel}`->JSON.Encode.string)
     } else if !validationResult && value->String.length !== 0 {
       let expectedFormat = isLiveMode ? field.liveExpectedFormat : field.testExpectedFormat
@@ -1901,7 +1897,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
     }
   })
 
-  let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+  let profileId = valuesFlattenJson->getString("profile_id", "")
   if profileId->String.length === 0 {
     Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
   }
@@ -1963,7 +1959,6 @@ let getWebhooksUrl = (~connectorName, ~merchantId) => {
 }
 
 let itemToPMAuthMapper = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1973,7 +1968,6 @@ let itemToPMAuthMapper = dict => {
 }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
-  open LogicUtils
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
@@ -2035,7 +2029,6 @@ let defaultSelectAllCards = (
   connector,
   updateDetails,
 ) => {
-  open LogicUtils
   if !isUpdateFlow {
     let config =
       (
@@ -2100,7 +2093,6 @@ let getConnectorPaymentMethodDetails = async (
   ~connector,
   ~updateDetails,
 ) => {
-  open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
     let metaData = initialValues->getDictFromJsonObject->getJsonObjectFromDict("metadata")
@@ -2356,7 +2348,6 @@ let connectorTypeTypedValueToStringMapper = val => {
 }
 
 let sortByName = (c1, c2) => {
-  open LogicUtils
   compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
 }
 
@@ -2373,7 +2364,6 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  open LogicUtils
   let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
   let manual = apple_pay_combined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
@@ -2392,10 +2382,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    LogicUtils.numericArraySortComperator(
-      getDisabledStatus(a) ? 1.0 : 0.0,
-      getDisabledStatus(b) ? 1.0 : 0.0,
-    )
+    numericArraySortComperator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 

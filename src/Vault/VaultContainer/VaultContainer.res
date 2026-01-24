@@ -43,7 +43,10 @@ let make = () => {
         renderNewForm={() => <VaultOnboarding />}
         renderShow={(_, _) =>
           <PaymentProcessorSummary
-            baseUrl="v2/vault/onboarding" showProcessorStatus=false topPadding="!p-0"
+            baseUrl="v2/vault/onboarding"
+            showProcessorStatus=false
+            topPadding="!p-0"
+            showCreditAndDebitOnly=true
           />}
       />
     | list{"v2", "vault", "customers-tokens", ...remainingPath} =>

@@ -54,7 +54,7 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
-        | None => `${paymentsBaseURL}/${key_id}/get-intent`
+        | None => `${paymentsBaseURL}/${key_id}`
         }
       | None =>
         switch queryParameters {
@@ -137,6 +137,7 @@ let getV2Url = (
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+    | #SWITCH_PROFILE_NEW => `v2/${userUrl}/switch/profile`
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
@@ -174,6 +175,11 @@ let getV2Url = (
       }
 
     | _ => `v2/profiles`
+    }
+  | REFUNDS =>
+    switch methodType {
+    | Post => `v2/refunds`
+    | _ => ""
     }
   }
 }
@@ -1311,7 +1317,7 @@ let useGetURL = () => {
           }
         | #SWITCH_ORG => `${userUrl}/switch/org`
         | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
-        | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+        | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => `${userUrl}/switch/profile`
 
         // Org-Merchant-Profile List
         | #LIST_ORG => `${userUrl}/list/org`
