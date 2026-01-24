@@ -385,7 +385,6 @@ let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
   | String(str) =>
-    // For card_bin and extended_card_bin, validate the string as a numeric value
     switch fieldType {
     | CARD_BIN | EXTENDED_CARD_BIN => validateStringNumericField(str, statement.lhs)
     | OTHER => str->isNonEmptyString

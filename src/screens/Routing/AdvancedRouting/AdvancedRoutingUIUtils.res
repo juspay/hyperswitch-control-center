@@ -115,21 +115,17 @@ module OperatorInp = {
 module ValueInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~variantValues, ~keyType) => {
-    let lhsField = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
-    let lhsValue = lhsField.value->getStringFromJson("")
-    let isCardBinField =
-      lhsValue->stringToVariantType == CARD_BIN ||
-        lhsValue->stringToVariantType == EXTENDED_CARD_BIN
+    let isCardBinType = keyType->variantTypeMapper === FixedNumber
 
     React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
-        } else if keyType->variantTypeMapper === String_value || isCardBinField {
+        } else if keyType->variantTypeMapper === String_value || isCardBinType {
           "str_value"
         } else {
           switch opField.value->getStringFromJson("")->operatorMapper {
@@ -142,7 +138,7 @@ module ValueInp = {
         }->Identity.anyTypeToReactEvent,
       )
       None
-    }, (valueField.value, isCardBinField))
+    }, (valueField.value, isCardBinType))
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
