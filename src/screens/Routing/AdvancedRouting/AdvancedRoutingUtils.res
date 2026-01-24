@@ -128,7 +128,7 @@ let getStatementValue: Dict.t<JSON.t> => RoutingTypes.value = valueDict => {
   let valueType = valueDict->getString("type", "")
   let rawValue = valueDict->getJsonObjectFromDict("value")
   let convertedValue =
-    valueType === variantToStringMapper(String_value)
+    valueType->variantTypeMapper === String_value
       ? switch rawValue->JSON.Classify.classify {
         | Number(_) => rawValue->getIntStringFromJson
         | _ => rawValue
