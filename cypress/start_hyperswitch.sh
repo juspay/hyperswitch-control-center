@@ -35,7 +35,7 @@ git checkout "$matched_tag"
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-sed "s|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:${matched_tag}|g" docker-compose.yml > docker-compose.tmp
+sed "s|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:nightly|g" docker-compose.yml > docker-compose.tmp
 mv docker-compose.tmp docker-compose.yml
 
 # Specify the correct file path to the TOML file
