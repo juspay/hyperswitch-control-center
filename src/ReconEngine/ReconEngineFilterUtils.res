@@ -74,30 +74,45 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   string,
 ) => {
   switch status {
-  | Posted(Auto) => ("posted_auto", "Posted Auto", "Posted")
-  | Posted(Manual) => ("posted_manual", "Posted Manual", "Posted")
-  | Posted(Force) => ("posted_force", "Posted Force", "Posted")
-  | OverAmount(Expected) => ("over_amount_expected", "Over Amount Awaiting Match", "Over Amount")
+  | Posted(Auto) => ("posted_auto", "Reconciled (Auto)", "Reconciled")
+  | Posted(Manual) => ("posted_manual", "Reconciled (Manual)", "Reconciled")
+  | OverAmount(Expected) => (
+      "over_amount_expected",
+      "Positive Variance (Awaiting Match)",
+      "Positive Variance",
+    )
   | OverAmount(Mismatch) => (
       "over_amount_mismatch",
-      "Over Amount Requires Attention",
-      "Over Amount",
+      "Positive Variance (Requires Attention)",
+      "Positive Variance",
     )
   | UnderAmount(Expected) => (
       "under_amount_expected",
-      "Under Amount Awaiting Match",
-      "Under Amount",
+      "Negative Variance (Awaiting Match)",
+      "Negative Variance",
     )
   | UnderAmount(Mismatch) => (
       "under_amount_mismatch",
-      "Under Amount Requires Attention",
-      "Under Amount",
+      "Negative Variance (Requires Attention)",
+      "Negative Variance",
     )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
+  | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
-  | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
   | _ => ("", "", "")
+  }
+}
+
+let getMergedPostedTransactionStatusFilter = statusFilter => {
+  if statusFilter->Array.some(v => v->getStringFromJson("") == "posted_manual") {
+    if !(statusFilter->Array.some(v => v->getStringFromJson("") == "posted_force")) {
+      [...statusFilter, "posted_force"->JSON.Encode.string]
+    } else {
+      statusFilter
+    }
+  } else {
+    statusFilter
   }
 }
 

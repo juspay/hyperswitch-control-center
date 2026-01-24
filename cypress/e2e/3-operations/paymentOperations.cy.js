@@ -11,7 +11,7 @@ beforeEach(function () {
   cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
-const columnSize = 23;
+const columnSize = 24;
 const requiredColumnsSize = 14;
 
 describe("Payment Operations", () => {
@@ -315,6 +315,7 @@ describe("Payment Operations", () => {
       "Merchant ID",
       "Setup Future Usage",
       "Attempt count",
+      "Error Message",
     ];
 
     let merchant_id;
@@ -1098,6 +1099,8 @@ describe("Payment Operations", () => {
     });
   });
 
+  // In progress
+  it.skip("should verify all components in Payment Details page - 2", () => {
   //Partial working
 
   it.skip("should verify all components in Payment Details page - 2", () => {

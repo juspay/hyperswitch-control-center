@@ -95,11 +95,11 @@ module PaymentProcessingDetailsAt = {
               ~placeholder={`Enter Processing Key`},
               ~customInput=InputFields.multiLineTextInput(
                 ~rows=Some(10),
-                ~cols=Some(100),
+                ~cols=None,
                 ~isDisabled=false,
-                ~customClass="",
                 ~leftIcon=React.null,
                 ~maxLength=10000,
+                ~customClass="w-full",
               ),
               ~isRequired=true,
             )}
@@ -303,6 +303,7 @@ let make = (
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"

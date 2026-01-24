@@ -60,14 +60,13 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   let statusOptions = getGroupedTransactionStatusOptions([
     Posted(Auto),
     Posted(Manual),
-    Posted(Force),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),
     UnderAmount(Expected),
     DataMismatch,
-    Expected,
     PartiallyReconciled,
+    Expected,
     Void,
   ])
 

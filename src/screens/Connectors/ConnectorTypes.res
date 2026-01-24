@@ -132,6 +132,8 @@ type processorTypes =
   | PAYJUSTNOW
   | ZIFT
   | PAYJUSTNOWINSTORE
+  | AMAZONPAY
+  | WORLDPAYMODULAR
 
 type payoutProcessorTypes =
   | ADYEN
@@ -197,6 +199,7 @@ type paymentMethod =
   | BankTransfer
   | Crypto
   | BankDebit
+  | NetworkToken
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =
@@ -214,6 +217,7 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
+  | NetworkToken
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

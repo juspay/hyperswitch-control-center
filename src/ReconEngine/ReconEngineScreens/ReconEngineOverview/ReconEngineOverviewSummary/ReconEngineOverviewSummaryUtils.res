@@ -28,7 +28,7 @@ let getSummaryStackedBarGraphData = (
         color: expectedColor,
       },
       {
-        name: "Posted",
+        name: "Reconciled",
         data: [postedCount->Int.toFloat],
         color: postedColor,
       },
@@ -190,13 +190,32 @@ let getAccountData = (accountData: array<accountType>, accountId: string): accou
   ->Option.getOr(Dict.make()->getOverviewAccountPayloadFromDict)
 }
 
-let getAllAccountIds = (reconRulesList: array<reconRuleType>) => {
+let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   reconRulesList
   ->Array.flatMap(rule =>
-    Array.concat(
-      rule.sources->Array.map(source => source.account_id),
-      rule.targets->Array.map(target => target.account_id),
-    )
+    switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => [data.source_account.account_id, data.target_account.account_id]
+      | SingleMany(data) => [data.source_account.account_id, data.target_account.account_id]
+      | ManySingle(data) => [data.source_account.account_id, data.target_account.account_id]
+      | UnknownOneToOneStrategy => []
+      }
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) => {
+          let targetAccountIds = switch data.target_accounts {
+          | Percentage({targets})
+          | Fixed({targets}) =>
+            targets->Array.map(((target, _)) => target.account_id)
+          | UnknownTargetsType => []
+          }
+          [data.source_account.account_id, ...targetAccountIds]
+        }
+      | UnknownOneToManyStrategy => []
+      }
+    | UnknownReconStrategy => []
+    }
   )
   ->getUniqueArray
 }
@@ -219,21 +238,18 @@ let getPercentageLabel = (~postedCount, ~totalCount) =>
     "0% Reconciled"
   }
 let makeEdge = (
-  ~source: reconRuleAccountRefType,
-  ~target: reconRuleAccountRefType,
+  ~sourceAccountId: string,
+  ~targetAccountId: string,
   ~ruleTransactions,
   ~selectedNodeId,
 ) => {
   let (postedCount, totalCount) = summarizeTransactions(ruleTransactions)
   let label = getPercentageLabel(~postedCount, ~totalCount)
-  let sourceNodeId = `${source.account_id}-node`
-  let targetNodeId = `${target.account_id}-node`
-  let isHighlighted = switch selectedNodeId {
-  | Some(id) => id === sourceNodeId || id === targetNodeId
-  | None => false
-  }
+  let sourceNodeId = `${sourceAccountId}-node`
+  let targetNodeId = `${targetAccountId}-node`
+  let isHighlighted = Some(sourceNodeId) == selectedNodeId || Some(targetNodeId) == selectedNodeId
   {
-    id: `${source.account_id}-to-${target.account_id}`,
+    id: `${sourceAccountId}-to-${targetAccountId}`,
     ReconEngineOverviewSummaryTypes.source: sourceNodeId,
     target: targetNodeId,
     edgeType: "smoothstep",
@@ -246,20 +262,63 @@ let makeEdge = (
   }
 }
 let getEdges = (
-  ~reconRulesList: array<reconRuleType>,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
   ~allTransactions: array<transactionType>,
   ~selectedNodeId,
 ) =>
-  reconRulesList->Array.flatMap(rule =>
-    rule.sources->Array.flatMap(source =>
-      rule.targets->Array.map(
-        target => {
-          let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
-          makeEdge(~source, ~target, ~ruleTransactions, ~selectedNodeId)
-        },
-      )
-    )
-  )
+  reconRulesList->Array.flatMap(rule => {
+    let ruleTransactions = allTransactions->Array.filter(t => t.rule.rule_id === rule.rule_id)
+    switch rule.strategy {
+    | OneToOne(oneToOne) =>
+      switch oneToOne {
+      | SingleSingle(data) => [
+          makeEdge(
+            ~sourceAccountId=data.source_account.account_id,
+            ~targetAccountId=data.target_account.account_id,
+            ~ruleTransactions,
+            ~selectedNodeId,
+          ),
+        ]
+      | SingleMany(data) => [
+          makeEdge(
+            ~sourceAccountId=data.source_account.account_id,
+            ~targetAccountId=data.target_account.account_id,
+            ~ruleTransactions,
+            ~selectedNodeId,
+          ),
+        ]
+      | ManySingle(data) => [
+          makeEdge(
+            ~sourceAccountId=data.source_account.account_id,
+            ~targetAccountId=data.target_account.account_id,
+            ~ruleTransactions,
+            ~selectedNodeId,
+          ),
+        ]
+      | UnknownOneToOneStrategy => []
+      }
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) => {
+          let targetAccounts = switch data.target_accounts {
+          | Percentage({targets})
+          | Fixed({targets}) => targets
+          | UnknownTargetsType => []
+          }
+          targetAccounts->Array.map(((target, _)) =>
+            makeEdge(
+              ~sourceAccountId=data.source_account.account_id,
+              ~targetAccountId=target.account_id,
+              ~ruleTransactions,
+              ~selectedNodeId,
+            )
+          )
+        }
+      | UnknownOneToManyStrategy => []
+      }
+    | UnknownReconStrategy => []
+    }
+  })
 
 let getTransactionsData = (
   accountTransactionData: Dict.t<accountTransactionData>,
@@ -271,7 +330,7 @@ let getTransactionsData = (
 }
 
 let generateNodesAndEdgesWithTransactionAmounts = (
-  reconRulesList: array<reconRuleType>,
+  reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
   accountsData: array<accountType>,
   accountTransactionData: Dict.t<accountTransactionData>,
   allTransactions: array<transactionType>,
@@ -343,7 +402,7 @@ let makeAmountData = (amount, currency): balanceType => {
 }
 
 let processAllTransactionsWithAmounts = (
-  reconRulesList: array<reconRuleType>,
+  reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
   allTransactions: array<transactionType>,
   accountsData: array<accountType>,
 ) => {
@@ -529,3 +588,29 @@ let getStatusIcon = (statusType: amountType) => {
 
 let allAmountTypes = [ReconciledAmount, PendingAmount, MismatchedAmount]
 let allSubHeaderTypes = [DebitAmount, CreditAmount]
+
+let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePayload) => {
+  switch ruleDetails.strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | SingleMany(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | ManySingle(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | UnknownOneToOneStrategy => ("", [])
+    }
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(data) => {
+        let targetIds = switch data.target_accounts {
+        | Percentage({targets})
+        | Fixed({targets}) =>
+          targets->Array.map(((target, _)) => target.account_id)
+        | UnknownTargetsType => []
+        }
+        (data.source_account.account_id, targetIds)
+      }
+    | UnknownOneToManyStrategy => ("", [])
+    }
+  | UnknownReconStrategy => ("", [])
+  }
+}

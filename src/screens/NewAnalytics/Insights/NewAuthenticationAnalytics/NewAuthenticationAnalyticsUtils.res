@@ -191,7 +191,7 @@ let metrics: array<LineChartUtils.metricsConfig> = [
   },
   {
     metric_name_db: "authentication_successful",
-    metric_label: "Authentication Successful",
+    metric_label: "Overall Authentication Success",
     thresholdVal: None,
     step_up_threshold: None,
     metric_type: Rate,
@@ -244,7 +244,7 @@ let getMetricsData = (queryData: queryDataType) => {
       tooltip_description: "Total number of payments which requires 3DS 2.0 authentication",
     },
     {
-      title: "Authentication Success Rate",
+      title: "Overall Authentication Success Rate",
       name: "authentication",
       value: queryData.authentication_success_count->Int.toFloat /.
       queryData.authentication_count->Int.toFloat *. 100.0,
@@ -252,10 +252,18 @@ let getMetricsData = (queryData: queryDataType) => {
       tooltip_description: "Successful authentication requests over total authentication requests",
     },
     {
+      title: "Authentication Attempt Success Rate",
+      name: "authentication",
+      value: queryData.authentication_success_count->Int.toFloat /.
+      queryData.authentication_attempt_count->Int.toFloat *. 100.0,
+      valueType: Rate,
+      tooltip_description: "Successful authentication requests over total authentication attempt requests",
+    },
+    {
       title: "Challenge Flow Rate",
       name: "authentication",
       value: queryData.challenge_flow_count->Int.toFloat /.
-      queryData.authentication_count->Int.toFloat *. 100.0,
+      queryData.authentication_attempt_count->Int.toFloat *. 100.0,
       valueType: Rate,
       tooltip_description: "Challenge flow requests over total authentication requests",
     },
@@ -263,7 +271,7 @@ let getMetricsData = (queryData: queryDataType) => {
       title: "Frictionless Flow Rate",
       name: "authentication",
       value: queryData.frictionless_flow_count->Int.toFloat /.
-      queryData.authentication_count->Int.toFloat *. 100.0,
+      queryData.authentication_attempt_count->Int.toFloat *. 100.0,
       valueType: Rate,
       tooltip_description: "Frictionless flow requests over total authentication requests",
     },
@@ -295,7 +303,7 @@ let getMetricsData = (queryData: queryDataType) => {
       title: "SCA Exemption request rate",
       name: "3ds_exemption_authentication",
       value: queryData.authentication_exemption_requested_count->Option.getOr(0)->Int.toFloat /.
-      queryData.authentication_count->Int.toFloat *. 100.0,
+      queryData.authentication_attempt_count->Int.toFloat *. 100.0,
       valueType: Rate,
       tooltip_description: "Total no. of Exemptions requested by the merchant / Total no. of Payments initiated",
     },
@@ -306,22 +314,6 @@ let getMetricsData = (queryData: queryDataType) => {
       queryData.authentication_exemption_requested_count->Option.getOr(0)->Int.toFloat *. 100.0,
       valueType: Rate,
       tooltip_description: "Total no. of Exemptions approved by the issuer / Total no. of Exemptions requested by the merchant",
-    },
-    {
-      title: "Chargebacks on Exempted transactions",
-      name: "3ds_exemption_authentication",
-      value: 0.0,
-      valueType: Default,
-      tooltip_description: "Number of chargebacks received for transactions with exemptions",
-    },
-    {
-      title: "Authorization decline rate on exempted transactions",
-      name: "3ds_exemption_authentication",
-      value: (1.0 -.
-      queryData.frictionless_success_count->Int.toFloat /.
-        queryData.frictionless_flow_count->Int.toFloat) *. 100.0,
-      valueType: Rate,
-      tooltip_description: "Percentage of exempted transactions that were declined during authorization",
     },
   ]
 

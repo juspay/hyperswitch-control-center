@@ -148,7 +148,7 @@ module Details = {
 }
 module DisputesInfo = {
   @react.component
-  let make = (~orderDict, ~setDisputeData) => {
+  let make = (~orderDict, ~setDisputeData, ~merchantId, ~orgId) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)
     let connectorName = disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString
 
@@ -161,6 +161,14 @@ module DisputesInfo = {
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
+      <RenderIf condition={disputesData.is_already_refunded}>
+        <DisputesHelper.DualRefundsAlert
+          customLearnMoreComponent={<DisputesHelper.LearnMoreComponent
+            disputesData merchantId orgId
+          />}
+          subText="The chargeback has exceeded the dispute amount. Go to the Payments tab to learn more."
+        />
+      </RenderIf>
       <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
       <RenderIf condition={!showNoteComponentCondition}>
         <DisputesNoteComponent disputesData />
@@ -223,7 +231,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           <div />
         </div>
       </div>
-      <DisputesInfo orderDict={data} setDisputeData />
+      <DisputesInfo orderDict={data} setDisputeData merchantId orgId />
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&

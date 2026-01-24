@@ -124,3 +124,24 @@ let useGetTransformationHistory = () => {
     }
   }
 }
+
+let useFetchMetadataSchema = () => {
+  open APIUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~transformationId: string) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG_WITH_METADATA,
+        ~id=Some(transformationId),
+      )
+      await fetchDetails(url)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}

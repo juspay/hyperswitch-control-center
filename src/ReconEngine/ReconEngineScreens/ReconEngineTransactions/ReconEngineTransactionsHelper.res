@@ -80,7 +80,7 @@ module TransactionDetailInfo = {
 
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
     let widthClass = if isMiniLaptopView {
-      "md:w-1/3 w-1/2"
+      "md:w-1/2 w-full"
     } else {
       customWidthClass
     }
@@ -115,7 +115,10 @@ module EntryAuditTrailInfo = {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
     open ReconEngineUtils
-
+    let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+    let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+    let pageDetail = pageDetailDict->Dict.get("Entries")->Option.getOr(defaultValue)
+    let (offset, setOffset) = React.useState(_ => pageDetail.offset)
     let mainEntry = React.useMemo(() => {
       entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
@@ -183,21 +186,18 @@ module EntryAuditTrailInfo = {
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
     <div className="flex flex-col gap-4 px-2 my-6">
-      {switch (openedTransaction.data.posted_type, openedTransaction.data.reason) {
-      | (Some(postedType), Some(resolutionRemark)) =>
+      <RenderIf condition={openedTransaction.data.reason->Option.isSome}>
         <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
           <div className="flex flex-row justify-between">
             <p className={`${body.lg.semibold} text-nd_gray-700`}>
               {"Resolution Remark"->React.string}
             </p>
-            <TableUtils.TableCell
-              cell={TransactionsTableEntity.getReconciledTypeLabel(postedType)}
-            />
           </div>
-          <p className={`${body.md.medium} text-nd_gray-500`}> {resolutionRemark->React.string} </p>
+          <p className={`${body.md.medium} text-nd_gray-500`}>
+            {openedTransaction.data.reason->Option.getOr("")->React.string}
+          </p>
         </div>
-      | (_, _) => React.null
-      }}
+      </RenderIf>
       <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
@@ -289,6 +289,25 @@ module EntryAuditTrailInfo = {
               getRowDetails
               showSerial=false
               showScrollBar=true
+            />
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition={openedTransaction.linked_transaction->Option.isSome}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
+          <div className="overflow-visible">
+            <LoadedTable
+              title="Linked Entries"
+              hideTitle=true
+              actualData={[openedTransaction]->Array.map(Nullable.make)}
+              entity={LinkedTransactionTableEntity.entriesEntityForLinkedTxn()}
+              resultsPerPage=10
+              showSerialNumber=false
+              totalResults={[openedTransaction]->Array.length}
+              offset
+              setOffset
+              currrentFetchCount={[openedTransaction]->Array.length}
             />
           </div>
         </div>
@@ -398,12 +417,13 @@ module AuditTrail = {
 
     let modalHeading = {
       <div className="flex justify-between border-b">
-        <div className="flex gap-4 items-center m-6">
-          <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
-            {openedTransaction.transaction_id->React.string}
-          </p>
+        <div className="flex items-center m-6 gap-4 w-full">
+          <HelperComponents.CopyTextCustomComp
+            customTextCss={`max-w-36 truncate whitespace-nowrap ${heading.sm.semibold} text-nd_gray-800`}
+            displayValue=Some(openedTransaction.transaction_id)
+          />
           <div
-            className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
+            className={`px-3 py-1 rounded-lg ${body.sm.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
             {openedTransaction.transaction_status
             ->TransactionsTableEntity.getDomainTransactionStatusString
             ->String.toUpperCase

@@ -20,7 +20,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(getRulePayloadFromDict)
+      let ruleDetails = res->getArrayDataFromJson(ruleItemToObjMapper)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
