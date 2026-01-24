@@ -265,8 +265,7 @@ let valueInput = (id, variantValues, keyType) => {
         ~parse=(~value, ~name as _) => {
           value
           ->getOptionFloatFromJson
-          ->Option.map(num => num->JSON.Encode.float)
-          ->Option.getOr(JSON.Encode.null)
+          ->Option.mapOr(JSON.Encode.null, num => num->JSON.Encode.float)
         },
         ~format=(~value, ~name as _) => value->getIntStringFromJson,
       )
