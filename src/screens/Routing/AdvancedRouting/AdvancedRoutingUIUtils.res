@@ -9,7 +9,7 @@ module LogicalOps = {
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
     React.useEffect(() => {
-      if logicalOpsInput.value->getStringFromJson("")->String.length === 0 {
+      if logicalOpsInput.value->getStringFromJson("")->isEmptyString {
         logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
