@@ -1,10 +1,16 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs
 @react.component
-let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
+let make = (
+  ~baseUrl,
+  ~showProcessorStatus=true,
+  ~topPadding="p-6",
+  ~showCreditAndDebitOnly=false,
+) => {
   open ConnectorUtils
   open LogicUtils
   open APIUtils
   open PageLoaderWrapper
+  open Typography
   let (currentActiveSection, setCurrentActiveSection) = React.useState(_ => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -12,7 +18,9 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let updateDetails = useUpdateMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
@@ -70,7 +78,11 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     ConnectorInterface.connectorInterfaceV2,
     data,
   )
-  let {connector_name: connectorName} = connectorInfodict
+  let {
+    connector_name: connectorName,
+    disabled: isConnectorDisabled,
+    id: merchant_connector_id,
+  } = connectorInfodict
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -143,6 +155,7 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     }
     Nullable.null
   }
+
   let validateMandatoryField = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
@@ -162,11 +175,37 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
       errors->JSON.Encode.object,
     )
   }
-  let ignoreKeys =
-    connectorDetails
-    ->getDictFromJsonObject
-    ->Dict.keysToArray
-    ->Array.filter(val => !Array.includes(["credit", "debit"], val))
+
+  let ignoreKeys = showCreditAndDebitOnly
+    ? connectorDetails
+      ->getDictFromJsonObject
+      ->Dict.keysToArray
+      ->Array.filter(val => !Array.includes(["credit", "debit"], val))
+    : []
+
+  let disableConnector = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+
+      let disableConnectorPayload = getDisableConnectorPayloadV2(
+        connectorInfodict.connector_type->connectorTypeTypedValueToStringMapper,
+        isConnectorDisabled,
+        merchantId,
+      )
+      let url = getURL(
+        ~entityName=V2(V2_CONNECTOR),
+        ~methodType=Put,
+        ~id=Some(merchant_connector_id),
+      )
+      let res = await updateDetails(url, disableConnectorPayload, Put)
+      let _ = await fetchConnectorListResponse()
+      setInitialValues(_ => res)
+      setScreenState(_ => PageLoaderWrapper.Success)
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+    } catch {
+    | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Failed to Disable connector!"))
+    }
+  }
 
   <PageLoaderWrapper screenState>
     <BreadCrumbNavigation
@@ -185,13 +224,16 @@ let make = (~baseUrl, ~showProcessorStatus=true, ~topPadding="p-6") => {
     <Form onSubmit initialValues validate=validateMandatoryField>
       <div className={`flex flex-col gap-10 ${topPadding} `}>
         <div>
-          <div className="flex flex-row gap-4 items-center">
-            <GatewayIcon
-              gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
-            />
-            <p className={`text-2xl font-semibold break-all`}>
-              {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
-            </p>
+          <div className="flex flex-row gap-4 justify-between items-center">
+            <div className="flex gap-4 items-center">
+              <GatewayIcon
+                gateway={connectorName->String.toUpperCase} className=" w-10 h-10 rounded-sm"
+              />
+              <p className={`${heading.lg.semibold} break-all`}>
+                {`${connectorName->getDisplayNameForConnector} Summary`->React.string}
+              </p>
+            </div>
+            <ConnectorHelperV2.DisableConnector isConnectorDisabled disableConnector />
           </div>
         </div>
         <div className="flex flex-col gap-12">
