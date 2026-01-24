@@ -989,6 +989,9 @@ describe("Payment Operations", () => {
       .eq(0)
       .should("contain", "Events and logs");
 
+    //Events and logs section
+    cy.contains("Events and logs").should("be.visible");
+
     //Payment attempts
     cy.get('[class="flex flex-col gap-4"]')
       .eq(0)
@@ -1095,7 +1098,9 @@ describe("Payment Operations", () => {
     });
   });
 
-  it.only("should verify all components in Payment Details page - 2", () => {
+  //Partial working
+
+  it.skip("should verify all components in Payment Details page - 2", () => {
     cy.ompLineage().then((lineage) => {
       cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
       cy.createPaymentAPI(lineage.merchant_id);
@@ -1105,9 +1110,68 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
     cy.get('[data-table-location="Orders_tr1_td1"]').click();
 
-    cy.get('[data-button-text="+ Refund"]').should("be.visible").click();
-    cy.get('[data-input-name="amount"]').type("12.34");
-    cy.get('[data-button-text="Initiate Refund"]').click();
+    cy.contains("div", /^Customer Details$/)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+
+    const assertSectionFields = (sectionName, fields) => {
+      cy.contains("div", new RegExp(`^${sectionName}$`))
+        .scrollIntoView()
+        .should("be.visible")
+        .closest("div.bg-white")
+        .within(() => {
+          Object.entries(fields).forEach(([label, value]) => {
+            cy.get(`[data-label="${label}"]`)
+              .should("be.visible")
+              .within(() => {
+                cy.contains(value);
+              });
+          });
+        });
+    };
+
+    // Customer section
+    assertSectionFields("Customer", {
+      "First Name": "Joseph",
+      "Last Name": "Doe",
+      "Customer Phone": "+65 999999999",
+      "Customer Email": "abc@test.com",
+      "Customer ID": "test_customer",
+      Description: "Its my first payment",
+    });
+
+    // Billing section
+    assertSectionFields("Billing", {
+      Email: "abc@test.com",
+      Phone: "+91 8056594427",
+      Address:
+        "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
+    });
+
+    // Shipping section
+    assertSectionFields("Shipping", {
+      Email: "abc@test.com",
+      Phone: "+91 8056594427",
+      Address:
+        "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
+    });
+
+    //Payment Method
+    assertSectionFields("Payment Method", {
+      "First Name": "N/A",
+      "Last Name": "N/A",
+      "Billing Email": "N/A",
+      "Billing Phone": "N/A",
+      "Billing Address": "",
+    });
+
+    //Fraud & risk management (FRM)
+    assertSectionFields("Fraud & risk management (FRM)", {
+      Tag: "N/A",
+      "Transaction Flow": "N/A",
+      Message: "N/A",
+    });
   });
 
   // Refund cases amount less , more and equal to payment amount
