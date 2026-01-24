@@ -217,6 +217,8 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(ZSL),
   Processors(ZEN),
   Processors(WORLDPAYMODULAR),
+  Processors(PAYJUSTNOW),
+  Processors(PAYJUSTNOWINSTORE),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
