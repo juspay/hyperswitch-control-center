@@ -174,8 +174,17 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
-  let outgoingWebhookHeaders = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
-  let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let outgoingWebhookHeadersJson = jsonDict->getJsonFromDict("outgoing_webhook_custom_http_headers")
+  let metadataHeadersJson = jsonDict->getJsonFromDict("metadata")
+  let finalMetadataValue = switch metadataHeadersJson->JSON.Classify.classify {
+  | Object(headers) => Some(headers)
+  | _ => None
+  }
+  let finalOutgoingWebhookHeadersValue = switch outgoingWebhookHeadersJson->JSON.Classify.classify {
+  | Object(headers) => Some(headers)
+  | _ => None
+  }
+
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
   {
@@ -203,10 +212,8 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
-    outgoing_webhook_custom_http_headers: !(outgoingWebhookHeaders->isEmptyDict)
-      ? Some(outgoingWebhookHeaders)
-      : None,
-    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
+    outgoing_webhook_custom_http_headers: finalOutgoingWebhookHeadersValue,
+    metadata: finalMetadataValue,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
@@ -331,11 +338,27 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
 
 let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json => {
   let dict = json->getDictFromJsonObject
-  let outgoingWebhookdict = PaymentSettingsV2Utils.removeEmptyValues(
-    ~dict,
-    ~key="outgoing_webhook_custom_http_headers",
-  )
-  let metadataDict = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key="metadata")
+
+  let outgoingDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
+  | None => Some(JSON.Encode.null)
+  | Some(_) => {
+      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(
+        ~dict,
+        ~key="outgoing_webhook_custom_http_headers",
+      )
+
+      Some(parsedValue->Identity.genericTypeToJson)
+    }
+  }
+
+  let metadataDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
+  | None => Some(JSON.Encode.null)
+  | Some(_) => {
+      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key="metadata")
+      Some(parsedValue->Identity.genericTypeToJson)
+    }
+  }
+
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
   let webhookDetails = dict->getDictfromDict("webhook_details")
   let authProductIds = dict->getJsonObjectFromDict("authentication_product_ids")
@@ -358,8 +381,8 @@ let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json =
     is_debit_routing_enabled: dict
     ->getOptionBool("is_debit_routing_enabled")
     ->convertOptionalBoolToOptionalJson,
-    outgoing_webhook_custom_http_headers: outgoingWebhookdict->BusinessProfileInterfaceUtils.convertDictToOptionalJson,
-    metadata: metadataDict->BusinessProfileInterfaceUtils.convertDictToOptionalJson,
+    outgoing_webhook_custom_http_headers: outgoingDict,
+    metadata: metadataDict,
     is_auto_retries_enabled: dict
     ->getOptionBool("is_auto_retries_enabled")
     ->convertOptionalBoolToOptionalJson,

@@ -153,10 +153,18 @@ let externalVaultConnectorDetailsMapper = externalVaultConnectorDetailsDict => {
 let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
   let jsonDict = input->getDictFromJsonObject
   let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
-  let outgoingWebhookdict = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
-  let metadataKeyValue = jsonDict->getDictfromDict("metadata")
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
+  let outgoingWebhookHeadersJson = jsonDict->getJsonFromDict("outgoing_webhook_custom_http_headers")
+  let finalOutgoingWebhookHeadersValue = switch outgoingWebhookHeadersJson->JSON.Classify.classify {
+  | Object(headers) => Some(headers)
+  | _ => None
+  }
+  let metadataHeadersJson = jsonDict->getJsonFromDict("metadata")
+  let finalMetadataValue = switch metadataHeadersJson->JSON.Classify.classify {
+  | Object(headers) => Some(headers)
+  | _ => None
+  }
 
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -183,12 +191,10 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: Some(jsonDict->getJsonObjectFromDict("authentication_product_ids")),
-    outgoing_webhook_custom_http_headers: !(outgoingWebhookdict->isEmptyDict)
-      ? Some(outgoingWebhookdict)
-      : None,
+    outgoing_webhook_custom_http_headers: finalOutgoingWebhookHeadersValue,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
-    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
+    metadata: finalMetadataValue,
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),

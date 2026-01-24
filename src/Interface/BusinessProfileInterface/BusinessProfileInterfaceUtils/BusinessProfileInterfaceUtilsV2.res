@@ -43,8 +43,16 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
-  let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
-  let metadataKeyValue = jsonDict->getDictfromDict("metadata")
+  let outgoingWebhookHeadersJson = jsonDict->getJsonFromDict("outgoing_webhook_custom_http_headers")
+  let finalOutgoingWebhookHeadersValue = switch outgoingWebhookHeadersJson->JSON.Classify.classify {
+  | Object(headers) => Some(headers)
+  | _ => None
+  }
+  let metadataHeadersJson = jsonDict->getJsonFromDict("metadata")
+  let finalMetadataValue = switch metadataHeadersJson->JSON.Classify.classify {
+  | Object(headers) => Some(headers)
+  | _ => None
+  }
 
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -70,10 +78,8 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
-    outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
-      ? Some(outgoingWebhookHeades)
-      : None,
-    metadata: !(metadataKeyValue->isEmptyDict) ? Some(metadataKeyValue) : None,
+    outgoing_webhook_custom_http_headers: finalOutgoingWebhookHeadersValue,
+    metadata: finalMetadataValue,
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: Some(
       jsonDict
@@ -137,14 +143,27 @@ let mapV2toCommonType: profileEntity_v2 => BusinessProfileInterfaceTypes.commonP
 
 let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json => {
   let dict = json->getDictFromJsonObject
-  let outgoingWebhookdict = PaymentSettingsV2Utils.removeEmptyValues(
-    ~dict,
-    ~key="outgoing_webhook_custom_http_headers",
-  )
-  let metadataDict = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key="metadata")
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
   let webhookDetails = dict->getDictfromDict("webhook_details")
   let authProductIds = dict->getDictfromDict("authentication_product_ids")
+  let outgoingWebhookDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
+  | None => Some(JSON.Encode.null)
+  | Some(_) => {
+      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(
+        ~dict,
+        ~key="outgoing_webhook_custom_http_headers",
+      )
+
+      Some(parsedValue->Identity.genericTypeToJson)
+    }
+  }
+  let metadataDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
+  | None => Some(JSON.Encode.null)
+  | Some(_) => {
+      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key="metadata")
+      Some(parsedValue->Identity.genericTypeToJson)
+    }
+  }
 
   {
     profile_name: dict->getString("profile_name", ""),
@@ -160,12 +179,8 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
     is_debit_routing_enabled: dict
     ->getOptionBool("is_debit_routing_enabled")
     ->convertOptionalBoolToOptionalJson,
-    outgoing_webhook_custom_http_headers: !(outgoingWebhookdict->isEmptyDict)
-      ? Some(outgoingWebhookdict->JSON.Encode.object)
-      : Some(JSON.Encode.null),
-    metadata: !(metadataDict->isEmptyDict)
-      ? Some(metadataDict->JSON.Encode.object)
-      : Some(JSON.Encode.null),
+    outgoing_webhook_custom_http_headers: outgoingWebhookDict,
+    metadata: metadataDict,
     is_click_to_pay_enabled: dict
     ->getOptionBool("is_click_to_pay_enabled")
     ->convertOptionalBoolToOptionalJson,

@@ -8,6 +8,7 @@ module MetadataAuthenticationInput = {
     )
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
+    let originalKeyRef = React.useRef("")
     let getMetadatKeyValues = () => {
       let metadataKeyValueDict =
         formState.values
@@ -20,11 +21,12 @@ module MetadataAuthenticationInput = {
       | _ => ("", "")
       }
     }
-    let keyField = `metadata.${key}`
+
     React.useEffect(() => {
       let (metadataKey, customMetadataVal) = getMetadatKeyValues()
       setValue(_ => customMetadataVal)
       setKey(_ => metadataKey)
+      originalKeyRef.current = metadataKey
       None
     }, [])
 
@@ -32,40 +34,41 @@ module MetadataAuthenticationInput = {
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        let (metadataKey, customMetadataVal) = getMetadatKeyValues()
-
-        //When we try to change just key field.
-        if metadataKey->String.length > 0 {
-          let name = `metadata.${metadataKey}`
-
-          form.change(name, JSON.Encode.null)
-          if key->String.length > 0 {
-            form.change(keyField, customMetadataVal->JSON.Encode.string)
-          }
-        }
-
-        //When we empty the key field , then just put a new key field name, keeping the value field the same.
         if (
-          metadataKey->String.length <= 0 && metaValue->String.length > 0 && key->String.length > 0
+          key->isNonEmptyString &&
+          originalKeyRef.current->isNonEmptyString &&
+          originalKeyRef.current !== key
         ) {
-          form.change(keyField, metaValue->JSON.Encode.string)
+          let oldName = `metadata.${originalKeyRef.current}`
+          form.change(oldName, JSON.Encode.null)
+          let newName = `metadata.${key}`
+          form.change(newName, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         let regexForProfileName = "^[a-zA-Z0-9_\\-!#$%&'*+.^`|~]+$"
-        let isValid = if value->isEmptyString {
+        let isValid = if value->String.length <= 2 {
           true
-        } else if value->String.length > 64 {
+        } else if (
+          value->isEmptyString ||
+          value->String.length > 64 ||
+          !RegExp.test(RegExp.fromString(regexForProfileName), value)
+        ) {
           false
         } else {
-          RegExp.test(RegExp.fromString(regexForProfileName), value)
+          true
         }
         if value->String.length <= 0 {
-          form.change(keyField, JSON.Encode.null)
+          let name = `metadata.${originalKeyRef.current}`
+          form.change(name, JSON.Encode.null)
         }
         //Not allow users to enter just integers
-        value->getOptionIntFromString->Option.isNone && isValid ? setKey(_ => value) : ()
+        switch (value->getOptionIntFromString->Option.isNone, isValid) {
+        | (true, true) => setKey(_ => value)
+        | _ => ()
+        }
       },
       onFocus: _ => (),
       value: key->JSON.Encode.string,
@@ -74,8 +77,14 @@ module MetadataAuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
-          form.change(keyField, metaValue->JSON.Encode.string)
+        if key->isNonEmptyString {
+          if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
+            let oldName = `metadata.${originalKeyRef.current}`
+            form.change(oldName, JSON.Encode.null)
+          }
+          let name = `metadata.${key}`
+          form.change(name, metaValue->JSON.Encode.string)
+          originalKeyRef.current = key
         }
       },
       onChange: ev => {
@@ -111,6 +120,8 @@ module MetadataHeaders = {
   @react.component
   let make = (~setAllowEdit, ~allowEdit) => {
     open LogicUtils
+    open Typography
+
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -135,7 +146,7 @@ module MetadataHeaders = {
     <div className="flex-1">
       <div className="flex flex-row justify-between items-center gap-4 ">
         <p
-          className={`ml-1 text-fs-16 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-600 font-semibold mt-6 `}>
+          className={`ml-1 ${body.lg.semibold} dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-700 mt-6 `}>
           {"Custom Metadata Headers"->React.string}
         </p>
         <RenderIf condition={!(metadataKeyValueDict->isEmptyDict) && isDisabled && !allowEdit}>
@@ -165,8 +176,10 @@ module MetadataHeaders = {
             name="warning-outlined" size=25 className="w-8" onClick={_ => setShowModal(_ => false)}
           />
           <div className="flex flex-col gap-5">
-            <p className="font-bold text-2xl"> {"Edit the Current Configuration"->React.string} </p>
-            <p className=" text-hyperswitch_black opacity-50 font-medium">
+            <p className={`${heading.lg.bold}`}>
+              {"Edit the Current Configuration"->React.string}
+            </p>
+            <p className={`${body.md.medium} text-hyperswitch_black opacity-50`}>
               {"Editing the current configuration will override the current active configuration."->React.string}
             </p>
           </div>
