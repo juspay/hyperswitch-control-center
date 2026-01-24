@@ -30,6 +30,9 @@ if [ -z "$matched_tag" ]; then
     echo "No match found. Falling back to latest GitHub tag: $matched_tag"
 fi
 
+matched_tag="2026.01.19.0"
+echo "Using matched tag: $matched_tag"
+
 # Checkout the matched tag
 git checkout "$matched_tag"
 
