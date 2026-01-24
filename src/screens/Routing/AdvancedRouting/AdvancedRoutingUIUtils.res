@@ -144,49 +144,6 @@ module ValueInp = {
       None
     }, (valueField.value, isCardBinField))
 
-    React.useEffect(() => {
-      if isCardBinField {
-        let currentValue = valueField.value
-        switch currentValue->JSON.Classify.classify {
-        | Number(num) => {
-            let stringValue = num->Float.toInt->Int.toString->JSON.Encode.string
-            valueField.onChange(stringValue->Identity.anyTypeToReactEvent)
-          }
-        | _ => ()
-        }
-      }
-      None
-    }, [valueField.value])
-
-    let numericInputForCardBin: ReactFinalForm.fieldRenderPropsInput = {
-      name: "string",
-      onBlur: _ => (),
-      onChange: ev => {
-        let numValue = try {
-          let jsonValue = ev->Identity.genericTypeToJson
-          jsonValue->JSON.Decode.float
-        } catch {
-        | _ => None
-        }
-        let stringValue = switch numValue {
-        | Some(num) => num->Float.toInt->Int.toString->JSON.Encode.string
-        | None => JSON.Encode.string("")
-        }
-        valueField.onChange(stringValue->Identity.anyTypeToReactEvent)
-      },
-      onFocus: _ => (),
-      value: {
-        let strValue = valueField.value->getStringFromJson("")
-        strValue->isNonEmptyString
-          ? switch strValue->Float.fromString {
-            | Some(num) => num->JSON.Encode.float
-            | None => JSON.Encode.null
-            }
-          : JSON.Encode.null
-      },
-      checked: true,
-    }
-
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => (),
@@ -226,7 +183,7 @@ module ValueInp = {
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
       | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
-      | FixedNumber => <NumericTextInput placeholder={"Enter value"} input=numericInputForCardBin />
+      | FixedNumber => <NumericTextInput placeholder={"Enter value"} input=valueField />
       | _ => <NumericTextInput placeholder={"Enter value"} input />
       }
 
@@ -303,12 +260,28 @@ let valueInput = (id, variantValues, keyType) => {
   } else {
     `value.value`
   }
+
+  let isCardBinType = keyType->variantTypeMapper === FixedNumber
+
+  let valueFieldInfo = isCardBinType
+    ? makeInputFieldInfo(
+        ~name=`${id}.${valuePath}`,
+        ~parse=(~value, ~name as _) => {
+          value
+          ->getOptionFloatFromJson
+          ->Option.map(num => num->JSON.Encode.float)
+          ->Option.getOr(JSON.Encode.null)
+        },
+        ~format=(~value, ~name as _) => value->getIntStringFromJson,
+      )
+    : makeInputFieldInfo(~name=`${id}.${valuePath}`)
+
   makeMultiInputFieldInfoOld(
     ~label="",
     ~comboCustomInput=renderValueInp(keyType, variantValues),
     ~inputFields=[
       makeInputFieldInfo(~name=`${id}.lhs`),
-      makeInputFieldInfo(~name=`${id}.${valuePath}`),
+      valueFieldInfo,
       makeInputFieldInfo(~name=`${id}.comparison`),
       makeInputFieldInfo(~name=`${id}.value.type`),
     ],

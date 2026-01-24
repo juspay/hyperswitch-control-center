@@ -125,9 +125,19 @@ let getKeyTypeFromValueField: RoutingTypes.validationFields => RoutingTypes.vari
 }
 
 let getStatementValue: Dict.t<JSON.t> => RoutingTypes.value = valueDict => {
+  let valueType = valueDict->getString("type", "")
+  let rawValue = valueDict->getJsonObjectFromDict("value")
+  let convertedValue =
+    valueType === "str_value"
+      ? switch rawValue->JSON.Classify.classify {
+        | Number(_) => rawValue->getIntStringFromJson
+        | _ => rawValue
+        }
+      : rawValue
+
   {
-    \"type": valueDict->getString("type", ""),
-    value: valueDict->getJsonObjectFromDict("value"),
+    \"type": valueType,
+    value: convertedValue,
   }
 }
 
