@@ -138,7 +138,7 @@ module ValueInp = {
         }->Identity.anyTypeToReactEvent,
       )
       None
-    }, (valueField.value, isCardBinType))
+    }, [valueField.value])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
