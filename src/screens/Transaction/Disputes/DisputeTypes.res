@@ -15,6 +15,7 @@ type disputes = {
   connector_created_at: string,
   connector_updated_at: string,
   created_at: string,
+  is_already_refunded: bool,
 }
 
 type disputesColsType =

@@ -1,11 +1,13 @@
 module EmbeddableAuthEntry = {
   @react.component
   let make = () => {
-    <GlobalProvider>
-      <UserInfoProvider isEmbeddableApp=true>
-        <EmbeddableApp />
-      </UserInfoProvider>
-    </GlobalProvider>
+    <EmbeddedCheckProvider>
+      <GlobalProvider>
+        <UserInfoProvider isEmbeddableApp=true>
+          <EmbeddableApp />
+        </UserInfoProvider>
+      </GlobalProvider>
+    </EmbeddedCheckProvider>
   }
 }
 
@@ -15,6 +17,7 @@ module EmbeddableEntryComponent = {
     let fetchDetails = APIUtils.useGetMethod()
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
 
     let configEnv = (urlConfig: JSON.t) => {
       open LogicUtils
@@ -22,7 +25,6 @@ module EmbeddableEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value = dict->EmbeddableGlobalUtils.getConfigFromDict
         DOMUtils.window._env_ = value
-        setScreenState(_ => PageLoaderWrapper.Success)
         value
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
@@ -36,6 +38,7 @@ module EmbeddableEntryComponent = {
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
         let _ = configEnv(res) // to set initial env
+        let _ = await getThemesJson(~themesID=None, ~domain=None)
 
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
@@ -71,15 +74,17 @@ module ContextWrapper = {
     <React.Suspense fallback={loader}>
       <ErrorBoundary renderFallback={_ => <div> {React.string("Error")} </div>}>
         <Recoil.RecoilRoot>
-          <ErrorBoundary>
-            <PopUpContainer>
-              <SnackBarContainer>
-                <ToastContainer>
-                  <ModalContainer> {children} </ModalContainer>
-                </ToastContainer>
-              </SnackBarContainer>
-            </PopUpContainer>
-          </ErrorBoundary>
+          <ThemeProvider>
+            <ErrorBoundary>
+              <PopUpContainer>
+                <SnackBarContainer>
+                  <ToastContainer>
+                    <ModalContainer> {children} </ModalContainer>
+                  </ToastContainer>
+                </SnackBarContainer>
+              </PopUpContainer>
+            </ErrorBoundary>
+          </ThemeProvider>
         </Recoil.RecoilRoot>
       </ErrorBoundary>
     </React.Suspense>

@@ -112,7 +112,7 @@ let useGetBgColor = (
       }
 
       switch buttonState {
-      | Disabled => "bg-gray-200 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
+      | Disabled => "bg-nd_gray-50 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
       | _ => `${color} ${hoverCss} focus:outline-none dark:active:shadow-none`
       }
     }
@@ -202,7 +202,7 @@ let useGetTextColor = (
   | SelectTransparent => "text-primary"
   | Dropdown =>
     switch buttonState {
-    | Disabled => "text-jp-2-light-gray-600"
+    | Disabled => "text-nd_gray-500"
     | Loading => "text-jp-2-light-gray-600"
     | _ =>
       if isDropdownOpen {
