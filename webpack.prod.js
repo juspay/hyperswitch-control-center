@@ -2,6 +2,7 @@ const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
 const serverConfig = require("./webpack.server");
 const { execSync } = require("child_process");
 
@@ -35,6 +36,43 @@ const mergeProd = () => {
           // new CssMinimizerPlugin(),
         ],
       },
+      plugins: [
+        // Brotli compression for JS files
+        new CompressionPlugin({
+          filename: "[path][base].br",
+          algorithm: "brotliCompress",
+          test: /\.(js|jsx|ts|tsx)$/,
+          compressionOptions: {
+            level: 11,
+          },
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false,
+        }),
+        new CompressionPlugin({
+          filename: "[path][base].br",
+          algorithm: "brotliCompress",
+          test: /\.(wasm)$/,
+          compressionOptions: {
+            level: 11,
+          },
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false,
+        }),
+        // Brotli compression for CSS files
+        new CompressionPlugin({
+          filename: "[path][base].br",
+          algorithm: "brotliCompress",
+          test: /\.css$/,
+          compressionOptions: {
+            level: 11,
+          },
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false,
+        }),
+      ],
     },
   ]);
 };
