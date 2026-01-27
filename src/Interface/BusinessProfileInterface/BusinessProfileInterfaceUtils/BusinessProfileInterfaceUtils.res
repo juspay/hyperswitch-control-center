@@ -18,6 +18,16 @@ let constructAuthConnectorObject = authConnectorDict => {
   three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
   three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
 }
+let getOptionalHeaders = (jsonDict, key) =>
+  jsonDict
+  ->getJsonFromDict(key)
+  ->(
+    json =>
+      switch json->JSON.Classify.classify {
+      | Object(headers) => Some(headers)
+      | _ => None
+      }
+  )
 
 let convertOptionalBoolToOptionalJson = optBool => {
   let jsonVal = switch optBool {

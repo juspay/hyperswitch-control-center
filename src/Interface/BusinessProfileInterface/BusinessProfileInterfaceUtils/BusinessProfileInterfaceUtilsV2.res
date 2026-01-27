@@ -43,16 +43,9 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
-  let outgoingWebhookHeadersJson = jsonDict->getJsonFromDict("outgoing_webhook_custom_http_headers")
-  let finalOutgoingWebhookHeadersValue = switch outgoingWebhookHeadersJson->JSON.Classify.classify {
-  | Object(headers) => Some(headers)
-  | _ => None
-  }
-  let metadataHeadersJson = jsonDict->getJsonFromDict("metadata")
-  let finalMetadataValue = switch metadataHeadersJson->JSON.Classify.classify {
-  | Object(headers) => Some(headers)
-  | _ => None
-  }
+  let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
+
+  let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
 
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -78,8 +71,8 @@ let mapJsonToBusinessProfileV2 = (values): profileEntity_v2 => {
     ),
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
-    outgoing_webhook_custom_http_headers: finalOutgoingWebhookHeadersValue,
-    metadata: finalMetadataValue,
+    outgoing_webhook_custom_http_headers: outgoingWebhookHeaders,
+    metadata: metadataHeaders,
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: Some(
       jsonDict

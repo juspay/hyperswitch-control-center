@@ -174,16 +174,8 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
-  let outgoingWebhookHeadersJson = jsonDict->getJsonFromDict("outgoing_webhook_custom_http_headers")
-  let metadataHeadersJson = jsonDict->getJsonFromDict("metadata")
-  let finalMetadataValue = switch metadataHeadersJson->JSON.Classify.classify {
-  | Object(headers) => Some(headers)
-  | _ => None
-  }
-  let finalOutgoingWebhookHeadersValue = switch outgoingWebhookHeadersJson->JSON.Classify.classify {
-  | Object(headers) => Some(headers)
-  | _ => None
-  }
+  let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
+  let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
 
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
@@ -212,8 +204,8 @@ let mapJsonToBusinessProfileV1 = (values): profileEntity_v1 => {
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
-    outgoing_webhook_custom_http_headers: finalOutgoingWebhookHeadersValue,
-    metadata: finalMetadataValue,
+    outgoing_webhook_custom_http_headers: outgoingWebhookHeaders,
+    metadata: metadataHeaders,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
