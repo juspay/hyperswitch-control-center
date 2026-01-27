@@ -20,7 +20,7 @@ is_live_mode=false
 feedback=false
 x_feature_route=false
 compliance_certificate=false
-force_cookies=true
+force_cookies=false
 audit_trail=true
 granularity=false
 maintenance_alert=""
@@ -91,6 +91,6 @@ merchant_ids=[]
 profile_ids=[]
 [default.merchant_config.denylist]
 [default.merchant_config.denylist.new_analytics]
-org_ids=["org_CmK51I3VxsZtECpgOVjV"]
+org_ids=[]
 merchant_ids=[]
 profile_ids=[]
