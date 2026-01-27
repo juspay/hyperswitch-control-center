@@ -71,9 +71,8 @@ let make = (~children) => {
         if messageType->messageToTypeConversion == AUTH_TOKEN {
           let backgroundColorFromParent = dict->getOptionString("backgroundColor")
           switch backgroundColorFromParent {
-          | Some(bgColor) if bgColor->isNonEmptyString => setEmbeddableBackgroundColor(_ => Some(
-              bgColor,
-            ))
+          | Some(bgColor) if bgColor->isNonEmptyString =>
+            setEmbeddableBackgroundColor(_ => Some(bgColor))
           | _ => ()
           }
         }
