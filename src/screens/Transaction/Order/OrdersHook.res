@@ -5,7 +5,7 @@ let useFetchOrdersHook = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
-  let {query} = React.useContext(FilterContext.filterContext)
+  let {queryV2} = React.useContext(FilterContext.filterContext)
 
   async (~payload, ~version: UserInfoTypes.version) => {
     try {
@@ -19,7 +19,7 @@ let useFetchOrdersHook = () => {
           let ordersUrl = getURL(
             ~entityName=V2(V2_ORDERS_LIST),
             ~methodType=Get,
-            ~queryParameters=Some(query),
+            ~queryParameters=Some(queryV2),
           )
           let res = await fetchDetails(ordersUrl)
           res->mapJsonToOrdersObject(paymentInterfaceV2)
