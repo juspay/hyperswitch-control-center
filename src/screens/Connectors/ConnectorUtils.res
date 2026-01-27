@@ -206,6 +206,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(NUVEI),
   Processors(PAYPAL),
   Processors(PAYBOX),
+  Processors(PAYLOAD),
   Processors(PAYME),
   Processors(PEACHPAYMENTS),
   Processors(REDSYS),
