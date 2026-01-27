@@ -188,7 +188,7 @@ module CardRenderer = {
         pmDict->JSON.Encode.object
       } else {
         let methodJson = method->Identity.genericTypeToJson
-        let updatedArray = paymentMethodTypesArray->Array.concat([methodJson])
+        let updatedArray = [...paymentMethodTypesArray, methodJson]
         pmDict
         ->(dict => {
           dict->Dict.set("payment_method_types", updatedArray->JSON.Encode.array)
@@ -228,7 +228,7 @@ module CardRenderer = {
         })
       } else {
         let newPmJson = createPaymentMethodEntry(paymentMethod, method)
-        paymentMethodsEnabledArray->Array.concat([newPmJson])
+        [...paymentMethodsEnabledArray, newPmJson]
       }
       form.change("payment_methods_enabled", updatedPaymentMethodsArray->JSON.Encode.array)
     }

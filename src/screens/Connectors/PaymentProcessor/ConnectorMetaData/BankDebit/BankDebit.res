@@ -50,7 +50,7 @@ module PMAuthProcessorInput = {
               item.payment_method_type !== paymentMethodType
             )
 
-          let newPaymentMethodsArray = filteredArray->Array.concat([paymentMethodsObject])
+          let newPaymentMethodsArray = [...filteredArray, paymentMethodsObject]
           enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
         } else {
           let newPaymentMethodsArray =
