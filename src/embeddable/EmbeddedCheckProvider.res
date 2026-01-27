@@ -36,7 +36,7 @@ let make = (~children) => {
     | Some(dict) => {
         let messageType = dict->getString("type", "")
 
-        if messageType->messageToTypeConversion == AUTH_TOKEN {
+        if messageType->messageToTypeConversion == INIT_CONFIG {
           setEmbeddedState(_ => Loading)
           setComponentKey(_ => "")
           let tokenFromParent = dict->getOptionString("token")

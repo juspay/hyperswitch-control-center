@@ -1,1 +1,1 @@
-type iframeMessageTypes = AUTH_TOKEN | AUTH_ERROR | Unknown(string)
+type iframeMessageTypes = INIT_CONFIG | AUTH_ERROR | Unknown(string)
