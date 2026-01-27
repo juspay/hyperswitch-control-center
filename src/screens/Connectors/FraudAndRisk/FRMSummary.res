@@ -91,7 +91,7 @@ let make = (~initialValues, ~currentStep, ~setInitialValues) => {
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
       let url = getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post, ~id=Some(frmID))
-      let res = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableFRMPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)

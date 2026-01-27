@@ -288,6 +288,14 @@ let getFloatFromJson = (json, default) => {
   }
 }
 
+let getIntStringFromJson = json => {
+  switch json->JSON.Classify.classify {
+  | Number(num) => num->Float.toInt->Int.toString->JSON.Encode.string
+  | String(str) => str->JSON.Encode.string
+  | _ => JSON.Encode.string("")
+  }
+}
+
 let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
 
 let getUInt8ArrayFromJson = (json, default) => {
