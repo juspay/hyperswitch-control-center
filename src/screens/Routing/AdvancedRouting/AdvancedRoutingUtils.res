@@ -125,9 +125,19 @@ let getKeyTypeFromValueField: RoutingTypes.validationFields => RoutingTypes.vari
 }
 
 let getStatementValue: Dict.t<JSON.t> => RoutingTypes.value = valueDict => {
+  let valueType = valueDict->getString("type", "")
+  let rawValue = valueDict->getJsonObjectFromDict("value")
+  let convertedValue =
+    valueType->variantTypeMapper === String_value
+      ? switch rawValue->JSON.Classify.classify {
+        | Number(_) => rawValue->getIntStringFromJson
+        | _ => rawValue
+        }
+      : rawValue
+
   {
-    \"type": valueDict->getString("type", ""),
-    value: valueDict->getJsonObjectFromDict("value"),
+    \"type": valueType,
+    value: convertedValue,
   }
 }
 
@@ -351,25 +361,35 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
   }
 }
 
-let validateNumericField = (num, field) => {
-  //** Custom validation for card_bin and extended_card_bin */
+let validateStringNumericField = (str, field) => {
+  //** Custom validation for card_bin and extended_card_bin when value is stored as string */
   let fieldType = field->stringToVariantType
   switch fieldType {
   | CARD_BIN | EXTENDED_CARD_BIN =>
     let requiredLength = fieldType == CARD_BIN ? 6 : 8
-    let numAsInt = num->Float.toInt
-    let hasCorrectLength = numAsInt->Int.toString->String.length == requiredLength
-
-    num >= 0.0 && isInteger(num) && hasCorrectLength
-  | OTHER => num >= 0.0
+    let isValidNumeric =
+      str->isNonEmptyString &&
+        str
+        ->String.split("")
+        ->Array.every(char => {
+          char >= "0" && char <= "9"
+        })
+    let hasCorrectLength = str->String.length == requiredLength
+    isValidNumeric && hasCorrectLength
+  | OTHER => str->isNonEmptyString
   }
 }
 
 let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
+  let fieldType = statement.lhs->stringToVariantType
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
-  | String(str) => str->isNonEmptyString
-  | Number(num) => validateNumericField(num, statement.lhs)
+  | String(str) =>
+    switch fieldType {
+    | CARD_BIN | EXTENDED_CARD_BIN => validateStringNumericField(str, statement.lhs)
+    | OTHER => str->isNonEmptyString
+    }
+  | Number(num) => num >= 0.0
   | Object(objectValue) => {
       let key = objectValue->getString("key", "")
       let value = objectValue->getString("value", "")
