@@ -30,7 +30,7 @@ let make = (~children) => {
   let (componentKey, setComponentKey) = React.useState(_ => "")
   let (embeddedState, setEmbeddedState) = React.useState(_ => Loading)
   let (embeddableBackgroundColor, setEmbeddableBackgroundColor) = React.useState(() => None)
-  let handleAuthMessage = (ev: Dom.event) => {
+  let handleMessage = (ev: Dom.event) => {
     let objectdata = ev->HandlingEvents.convertToCustomEvent
     switch objectdata.data->JSON.Decode.object {
     | Some(dict) => {
@@ -52,29 +52,17 @@ let make = (~children) => {
             }
           | None => setEmbeddedState(_ => TokenFetchError)
           }
-        }
-
-        if messageType->messageToTypeConversion == AUTH_ERROR {
-          LocalStorage.setEmbeddedTokenToStorage("")
-          setEmbeddedState(_ => TokenFetchError)
-        }
-      }
-    | None => ()
-    }
-  }
-
-  let handleBackgroundColorMessage = (ev: Dom.event) => {
-    let objectdata = ev->HandlingEvents.convertToCustomEvent
-    switch objectdata.data->JSON.Decode.object {
-    | Some(dict) => {
-        let messageType = dict->getString("type", "")
-        if messageType->messageToTypeConversion == AUTH_TOKEN {
           let backgroundColorFromParent = dict->getOptionString("backgroundColor")
           switch backgroundColorFromParent {
           | Some(bgColor) if bgColor->isNonEmptyString =>
             setEmbeddableBackgroundColor(_ => Some(bgColor))
           | _ => ()
           }
+        }
+
+        if messageType->messageToTypeConversion == AUTH_ERROR {
+          LocalStorage.setEmbeddedTokenToStorage("")
+          setEmbeddedState(_ => TokenFetchError)
         }
       }
     | None => ()
@@ -91,12 +79,10 @@ let make = (~children) => {
       None
     } else {
       EmbeddedIframeUtils.sendIframeReadyMessageToParent()
-      Window.addEventListener("message", handleAuthMessage)
-      Window.addEventListener("message", handleBackgroundColorMessage)
+      Window.addEventListener("message", handleMessage)
       Some(
         () => {
-          Window.removeEventListener("message", handleAuthMessage)
-          Window.removeEventListener("message", handleBackgroundColorMessage)
+          Window.removeEventListener("message", handleMessage)
         },
       )
     }
