@@ -67,7 +67,7 @@ module MerchantSelection = {
     | #Tenant | #Organization => false
     }
 
-    let v1MerchantList = merchList->Array.filter(merchant =>
+    let merchantList = merchList->Array.filter(merchant =>
       if devUsers {
         merchant.version == Some(V1)
       } else {
@@ -98,7 +98,7 @@ module MerchantSelection = {
           ~options=getMerchantSelectBoxOption(
             ~label="All merchants",
             ~value="all_merchants",
-            ~dropdownList=v1MerchantList,
+            ~dropdownList=merchantList,
             ~showAllSelection=true,
           ),
           ~deselectDisable=true,

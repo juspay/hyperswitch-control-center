@@ -20,7 +20,7 @@ is_live_mode=false
 feedback=false
 x_feature_route=false
 compliance_certificate=false
-force_cookies=false
+force_cookies=true
 audit_trail=true
 granularity=false
 maintenance_alert=""
@@ -82,6 +82,7 @@ dev_roles_v2=false
 dev_customer=false
 dev_accept_invite=true
 dev_theme=false
+dev_users=false
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]
@@ -90,6 +91,6 @@ merchant_ids=[]
 profile_ids=[]
 [default.merchant_config.denylist]
 [default.merchant_config.denylist.new_analytics]
-org_ids=[]
+org_ids=["org_CmK51I3VxsZtECpgOVjV"]
 merchant_ids=[]
 profile_ids=[]
