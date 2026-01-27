@@ -248,7 +248,7 @@ type needsManualReviewType =
   | @as("no_expectation_entry_found") NoExpectationEntryFound
   | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("missing_unique_field") MissingUniqueField
-  | UnknownNeedsManualReviewType
+  | @as("unknown") UnknownNeedsManualReviewType
 
 type processingEntryDataType = {
   status: processingEntryStatus,
