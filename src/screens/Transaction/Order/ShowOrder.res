@@ -920,6 +920,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       ExtendedAuthApplied,
                       ExtendedAuthLastAppliedAt,
                       RequestExtendedAuth,
+                      HyperswitchErrorDescription,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
