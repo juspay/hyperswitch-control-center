@@ -120,7 +120,7 @@ module EntryAuditTrailInfo = {
     let pageDetail = pageDetailDict->Dict.get("Entries")->Option.getOr(defaultValue)
     let (offset, setOffset) = React.useState(_ => pageDetail.offset)
     let mainEntry = React.useMemo(() => {
-      entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+      entriesList->getValueFromArray(0, Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
 
     let expectedEntries = React.useMemo(() => {
@@ -158,8 +158,7 @@ module EntryAuditTrailInfo = {
     }
 
     let getRowDetails = (rowIndex: int) => {
-      let entry =
-        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->entryItemToObjMapper)
+      let entry = reconciledEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
       let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
@@ -318,11 +317,9 @@ module EntryAuditTrailInfo = {
 
 module HierarchicalEntryRenderer = {
   @react.component
-  let make = (~fieldValue: string, ~containerClassName: string="", ~entryClassName: string="") => {
-    <div
-      key={randomString(~length=10)}
-      className={`px-8 py-3.5 w-48 truncate whitespace-nowrap ${entryClassName}`}>
-      {fieldValue->React.string}
+  let make = (~fieldValue: string) => {
+    <div className="px-8 py-3.5">
+      <div className="truncate max-w-48 whitespace-nowrap h-7"> {fieldValue->React.string} </div>
     </div>
   }
 }
