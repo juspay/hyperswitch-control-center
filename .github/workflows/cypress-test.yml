@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          token: ${{ secrets.AUTO_RELEASE_PAT || github.token }}
+          #token: ${{ secrets.AUTO_RELEASE_PAT || github.token }}
 
       - name: Clear Docker cache
         run: |

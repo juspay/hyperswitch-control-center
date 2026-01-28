@@ -1,17 +1,45 @@
 #!/bin/bash
 
+# Clone the repo
 git clone --depth 1 https://github.com/juspay/hyperswitch
 cd hyperswitch
-today=$(date +'%Y.%m.%d')
+
+# Fetch the latest tags from GitHub
 git fetch --tags
-latest_tag=$(git tag --sort=-creatordate | grep "^$today" | head -n 1)
-git checkout "$latest_tag"
+
+# Get the latest 5 tags in the format YYYY.MM.DD.N
+tags=$(git tag --sort=-creatordate | grep -E '^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$' | head -n 5)
+
+# Query Docker Hub for tags
+docker_tags=$(curl -s "https://hub.docker.com/v2/repositories/juspaydotin/hyperswitch-router/tags/" | jq -r '.results[].name')
+
+# Initialize the matched tag
+matched_tag=""
+
+# Loop through the GitHub tags and find a match on Docker Hub
+for tag in $tags; do
+    if echo "$docker_tags" | grep -q "^$tag$"; then
+        matched_tag=$tag
+        break
+    fi
+done
+
+# If no match is found, fallback to the latest GitHub tag
+if [ -z "$matched_tag" ]; then
+    matched_tag=$(echo "$tags" | head -n 1)
+    echo "No match found. Falling back to latest GitHub tag: $matched_tag"
+fi
+
+matched_tag="2026.01.19.0"
+echo "Using matched tag: $matched_tag"
+
+# Checkout the matched tag
+git checkout "$matched_tag"
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-sed 's|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:nightly|g' docker-compose.yml > docker-compose.tmp
+sed "s|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:${matched_tag}|g" docker-compose.yml > docker-compose.tmp
 mv docker-compose.tmp docker-compose.yml
-
 
 # Specify the correct file path to the TOML file
 toml_file="config/docker_compose.toml"  # Adjust the path if necessary
