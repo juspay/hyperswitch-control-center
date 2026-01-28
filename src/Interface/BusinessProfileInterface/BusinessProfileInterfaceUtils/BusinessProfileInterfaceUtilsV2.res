@@ -139,24 +139,11 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
   let webhookDetails = dict->getDictfromDict("webhook_details")
   let authProductIds = dict->getDictfromDict("authentication_product_ids")
-  let outgoingWebhookDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
-  | None => Some(JSON.Encode.null)
-  | Some(_) => {
-      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(
-        ~dict,
-        ~key="outgoing_webhook_custom_http_headers",
-      )
-
-      Some(parsedValue->Identity.genericTypeToJson)
-    }
-  }
-  let metadataDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
-  | None => Some(JSON.Encode.null)
-  | Some(_) => {
-      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key="metadata")
-      Some(parsedValue->Identity.genericTypeToJson)
-    }
-  }
+  let outgoingWebhookDict = getOptionalHeadersWithEmptyValParsing(
+    ~dict,
+    ~key="outgoing_webhook_custom_http_headers",
+  )
+  let metadataDict = getOptionalHeadersWithEmptyValParsing(~dict, ~key="metadata")
 
   {
     profile_name: dict->getString("profile_name", ""),

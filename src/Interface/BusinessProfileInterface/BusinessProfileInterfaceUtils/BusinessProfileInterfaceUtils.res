@@ -29,6 +29,16 @@ let getOptionalHeaders = (jsonDict, key) =>
       }
   )
 
+let getOptionalHeadersWithEmptyValParsing = (~dict, ~key) => {
+  switch dict->Dict.get(key) {
+  | None => Some(JSON.Encode.null)
+  | Some(_) => {
+      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key)
+      Some(parsedValue->Identity.genericTypeToJson)
+    }
+  }
+}
+
 let convertOptionalBoolToOptionalJson = optBool => {
   let jsonVal = switch optBool {
   | Some(value) => value->JSON.Encode.bool
@@ -165,16 +175,8 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
   let authConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let paymentLinkConfig = jsonDict->getDictfromDict("payment_link_config")
   let externalVaultConnectorDetails = jsonDict->getDictfromDict("external_vault_connector_details")
-  let outgoingWebhookHeadersJson = jsonDict->getJsonFromDict("outgoing_webhook_custom_http_headers")
-  let finalOutgoingWebhookHeadersValue = switch outgoingWebhookHeadersJson->JSON.Classify.classify {
-  | Object(headers) => Some(headers)
-  | _ => None
-  }
-  let metadataHeadersJson = jsonDict->getJsonFromDict("metadata")
-  let finalMetadataValue = switch metadataHeadersJson->JSON.Classify.classify {
-  | Object(headers) => Some(headers)
-  | _ => None
-  }
+  let outgoingWebhookHeaders = getOptionalHeaders(jsonDict, "outgoing_webhook_custom_http_headers")
+  let metadataHeaders = getOptionalHeaders(jsonDict, "metadata")
 
   {
     profile_id: jsonDict->getString("profile_id", ""),
@@ -201,10 +203,10 @@ let mapJsontoCommonType: JSON.t => commonProfileEntity = input => {
     is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     is_click_to_pay_enabled: jsonDict->getOptionBool("is_click_to_pay_enabled"),
     authentication_product_ids: Some(jsonDict->getJsonObjectFromDict("authentication_product_ids")),
-    outgoing_webhook_custom_http_headers: finalOutgoingWebhookHeadersValue,
+    outgoing_webhook_custom_http_headers: outgoingWebhookHeaders,
     is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
     max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
-    metadata: finalMetadataValue,
+    metadata: metadataHeaders,
     force_3ds_challenge: jsonDict->getOptionBool("force_3ds_challenge"),
     is_debit_routing_enabled: jsonDict->getOptionBool("is_debit_routing_enabled"),
     acquirer_configs: jsonDict->getOptionalArrayFromDict("acquirer_configs"),

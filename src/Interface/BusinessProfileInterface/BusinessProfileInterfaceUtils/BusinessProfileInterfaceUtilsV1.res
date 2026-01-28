@@ -331,25 +331,12 @@ let mapV1toCommonType: profileEntity_v1 => BusinessProfileInterfaceTypes.commonP
 let commonTypeJsonToV1ForRequest: JSON.t => profileEntityRequestType_v1 = json => {
   let dict = json->getDictFromJsonObject
 
-  let outgoingDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
-  | None => Some(JSON.Encode.null)
-  | Some(_) => {
-      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(
-        ~dict,
-        ~key="outgoing_webhook_custom_http_headers",
-      )
+  let outgoingDict = getOptionalHeadersWithEmptyValParsing(
+    ~dict,
+    ~key="outgoing_webhook_custom_http_headers",
+  )
 
-      Some(parsedValue->Identity.genericTypeToJson)
-    }
-  }
-
-  let metadataDict = switch dict->Dict.get("outgoing_webhook_custom_http_headers") {
-  | None => Some(JSON.Encode.null)
-  | Some(_) => {
-      let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key="metadata")
-      Some(parsedValue->Identity.genericTypeToJson)
-    }
-  }
+  let metadataDict = getOptionalHeadersWithEmptyValParsing(~dict, ~key="metadata")
 
   let authenticationConnectorDetails = dict->getDictfromDict("authentication_connector_details")
   let webhookDetails = dict->getDictfromDict("webhook_details")
