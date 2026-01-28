@@ -35,11 +35,11 @@ module AdditionalDetailsSidebarComp = {
       {switch paymentMethod->getPaymentMethodFromString {
       | BankDebit =>
         <BankDebit
-          update=updatePaymentMethods
           paymentMethod
           paymentMethodType=pmtName
           setInitialValues
           closeAccordionFn
+          paymentMethodsEnabled
         />
       | _ => React.null
       }}
