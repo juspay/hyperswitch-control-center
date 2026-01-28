@@ -75,6 +75,31 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ]
 }
 
+let exceptionTransactionEntryItemToItemMapper = (
+  dict
+): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
+  {
+    entry_key: dict->getString("entry_key", randomString(~length=16)),
+    entry_id: dict->getString("entry_id", "-"),
+    entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
+    transaction_id: dict->getString("transaction_id", ""),
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+    amount: dict->getFloat("amount", 0.0),
+    currency: dict->getString("currency", ""),
+    order_id: dict->getString("order_id", ""),
+    status: dict->getString("status", "")->getEntryStatusVariantFromString,
+    discarded_status: dict->getOptionString("discarded_status"),
+    version: dict->getInt("version", 0),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    data: dict->getJsonObjectFromDict("data"),
+    created_at: dict->getString("created_at", Date.make()->Date.toISOString),
+    effective_at: dict->getString("effective_at", ""),
+    staging_entry_id: dict->getOptionString("staging_entry_id"),
+    transformation_id: dict->getOptionString("transformation_id"),
+  }
+}
+
 let getBalanceByAccountType = (
   entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
   accountType: string,
@@ -96,12 +121,10 @@ let getBalanceByAccountType = (
   | _ => totalCredits +. totalDebits
   }
 
-  let currency = switch entries->Array.get(0) {
-  | Some(entry) => entry.currency
-  | None => ""
-  }
+  let firstEntry =
+    entries->getValueFromArray(0, Dict.make()->exceptionTransactionEntryItemToItemMapper)
 
-  (balance, currency)
+  (balance, firstEntry.currency)
 }
 
 let getHeadingAndSubHeadingForMismatch = (
@@ -151,31 +174,6 @@ let getHeadingAndSubHeadingForMismatch = (
   }
 
   (mismatchHeading, mismatchSubHeading)
-}
-
-let exceptionTransactionEntryItemToItemMapper = (
-  dict
-): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
-  {
-    entry_key: dict->getString("entry_key", randomString(~length=16)),
-    entry_id: dict->getString("entry_id", "-"),
-    entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
-    transaction_id: dict->getString("transaction_id", ""),
-    account_id: dict->getString("account_id", ""),
-    account_name: dict->getString("account_name", ""),
-    amount: dict->getFloat("amount", 0.0),
-    currency: dict->getString("currency", ""),
-    order_id: dict->getString("order_id", ""),
-    status: dict->getString("status", "")->getEntryStatusVariantFromString,
-    discarded_status: dict->getOptionString("discarded_status"),
-    version: dict->getInt("version", 0),
-    metadata: dict->getJsonObjectFromDict("metadata"),
-    data: dict->getJsonObjectFromDict("data"),
-    created_at: dict->getString("created_at", Date.make()->Date.toISOString),
-    effective_at: dict->getString("effective_at", ""),
-    staging_entry_id: dict->getOptionString("staging_entry_id"),
-    transformation_id: dict->getOptionString("transformation_id"),
-  }
 }
 
 let getSumOfAmountWithCurrency = (
@@ -228,9 +226,12 @@ let hasFormValuesChanged = (currentValues: JSON.t, initialEntryDetails: entryTyp
   let isEffectiveAtChanged =
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
   let isMetadataChanged = {
-    let currentMetadata = currentData->getJsonObjectFromDict("metadata")
-    let initialMetadataJson = initialMetadata->JSON.Encode.object
-    currentMetadata->JSON.stringify != initialMetadataJson->JSON.stringify
+    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
+    let initialMetadataArray = initialMetadata->Dict.toArray
+    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
+      currentMetadataArray->Array.some(((key, value)) => {
+        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
+      })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
 
@@ -264,11 +265,12 @@ let validateEntryDetailsCommon = (
     let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
 
     metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
-      let value = metadataDict->getString(field.identifier, "")
-      let error = validateMetadataFieldValue(field.identifier, value, metadataSchema)
+      let fieldKey = getFieldNameFromMetadataField(field)
+      let value = metadataDict->getString(fieldKey, "")
+      let error = validateMetadataFieldValue(fieldKey, value, metadataSchema)
       switch error {
       | Some(err) => {
-          let errorKey = `metadata.${field.identifier}`
+          let errorKey = `metadata.${fieldKey}`
           fieldErrors->Dict.set(errorKey, err->JSON.Encode.string)
         }
       | None => ()
@@ -413,16 +415,19 @@ let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryTyp
     summary->Array.push(message)
   }
 
-  let initialMetadata = initialEntry.metadata->getFilteredMetadataFromEntries
-  let updatedMetadata = updatedEntry.metadata->getFilteredMetadataFromEntries
-  let initialMetadataJson = initialMetadata->JSON.Encode.object
-  let updatedMetadataJson = updatedMetadata->JSON.Encode.object
+  let initialMetadata = initialEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
+  initialMetadata->Array.forEach(((key, initialValue)) => {
+    let updatedValueStr =
+      updatedEntry.metadata
+      ->getFilteredMetadataFromEntries
+      ->getString(key, "")
 
-  if initialMetadataJson->JSON.stringify != updatedMetadataJson->JSON.stringify {
-    let message = `Metadata updated in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)
-  }
-
+    let initialValueStr = initialValue->getStringFromJson("")
+    if initialValueStr != updatedValueStr {
+      let message = `Metadata field '${key}' changed from '${initialValueStr}' to '${updatedValueStr}' in ${updatedEntry.account_name} account.`
+      summary->Array.push(message)
+    }
+  })
   summary
 }
 

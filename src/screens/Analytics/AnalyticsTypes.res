@@ -171,10 +171,12 @@ type commonMetrics = {
 type paymentsSingleState = {
   ...commonMetrics,
   currency: string,
+  authorised_uncaptured_payments: int,
 }
 
 type paymentsSingleStateSeries = {
   ...commonMetrics,
+  authorised_uncaptured_payments: int,
   time_series: string,
 }
 

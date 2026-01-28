@@ -248,7 +248,7 @@ type needsManualReviewType =
   | @as("no_expectation_entry_found") NoExpectationEntryFound
   | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("missing_unique_field") MissingUniqueField
-  | UnknownNeedsManualReviewType
+  | @as("unknown") UnknownNeedsManualReviewType
 
 type processingEntryDataType = {
   status: processingEntryStatus,
@@ -312,9 +312,13 @@ type fieldTypeVariant =
   | DateTimeField
   | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
 
+type entryField =
+  | String
+  | Metadata(string)
+
 type metadataFieldType = {
   identifier: string,
-  field_name: string,
+  field_name: entryField,
   field_type: fieldTypeVariant,
   required: bool,
   description: string,

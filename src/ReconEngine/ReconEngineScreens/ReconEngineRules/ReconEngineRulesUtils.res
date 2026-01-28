@@ -9,6 +9,198 @@ let getFieldDisplayName = (field: string): string => {
   }
 }
 
+let getAccountName = (
+  accountId: string,
+  accountData: array<ReconEngineTypes.accountType>,
+): string => {
+  accountData
+  ->Array.find(account => account.account_id === accountId)
+  ->Option.map(account => account.account_name)
+  ->Option.getOr("Unknown Account")
+}
+
+let getSearchIdentifiersWithAccounts = (
+  strategy: reconStrategyType,
+  accountData: array<ReconEngineTypes.accountType>,
+) => {
+  switch strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => [
+        {
+          search_identifier: data.search_identifier,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
+    | SingleMany(data) => [
+        {
+          search_identifier: data.search_identifier,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
+    | ManySingle(data) => [
+        {
+          search_identifier: data.search_identifier,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
+    | UnknownOneToOneStrategy => []
+    }
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(data) =>
+      switch data.target_accounts {
+      | Percentage({targets})
+      | Fixed({targets}) =>
+        targets->Array.map(((target, _)) => {
+          search_identifier: target.search_identifier,
+          target_account_id: target.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(target.account_id, accountData),
+        })
+      | UnknownTargetsType => []
+      }
+    | UnknownOneToManyStrategy => []
+    }
+  | UnknownReconStrategy => []
+  }
+}
+
+let getMappingRulesWithAccounts = (
+  strategy: reconStrategyType,
+  accountData: array<ReconEngineTypes.accountType>,
+): array<mappingRulesWithAccount> => {
+  switch strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => [
+        {
+          match_rules: data.match_rules.rules,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
+    | SingleMany(data) => [
+        {
+          match_rules: data.match_rules.rules,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
+    | ManySingle(data) => [
+        {
+          match_rules: data.match_rules.rules,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
+    | UnknownOneToOneStrategy => []
+    }
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(data) =>
+      switch data.target_accounts {
+      | Percentage({targets})
+      | Fixed({targets}) =>
+        targets->Array.map(((target, _)) => {
+          match_rules: target.match_rules.rules,
+          target_account_id: target.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(target.account_id, accountData),
+        })
+      | UnknownTargetsType => []
+      }
+    | UnknownOneToManyStrategy => []
+    }
+  | UnknownReconStrategy => []
+  }
+}
+
+let getTriggerData = (strategy: reconStrategyType): option<triggerType> => {
+  switch strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => Some(data.source_account.trigger)
+    | SingleMany(data) => Some(data.source_account.trigger)
+    | ManySingle(data) => Some(data.source_account.trigger)
+    | UnknownOneToOneStrategy => None
+    }
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(data) => Some(data.source_account.trigger)
+    | UnknownOneToManyStrategy => None
+    }
+  | UnknownReconStrategy => None
+  }
+}
+
+let getGroupingField = (strategy: reconStrategyType): option<string> => {
+  switch strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | ManySingle(data) => Some(data.source_account.grouping_field)
+    | _ => None
+    }
+  | _ => None
+  }
+}
+
+let getSourceAndTargetAccountDetails = (strategy: reconStrategyType): (
+  string,
+  array<ReconEngineRulesTypes.targetAccountInfo>,
+) => {
+  switch strategy {
+  | OneToOne(oneToOne) =>
+    switch oneToOne {
+    | SingleSingle(data) => (
+        data.source_account.account_id,
+        [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+      )
+    | SingleMany(data) => (
+        data.source_account.account_id,
+        [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+      )
+    | ManySingle(data) => (
+        data.source_account.account_id,
+        [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+      )
+    | UnknownOneToOneStrategy => ("", [])
+    }
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(data) => {
+        let targets = switch data.target_accounts {
+        | Percentage({targets}) =>
+          targets->Array.map(((target, splitVal)) => {
+            account_id: target.account_id,
+            split_value: Some(splitVal.value),
+            split_type: Some("percentage"),
+          })
+        | Fixed({targets}) =>
+          targets->Array.map(((target, splitVal)) => {
+            account_id: target.account_id,
+            split_value: Some(splitVal.value),
+            split_type: Some("fixed"),
+          })
+        | UnknownTargetsType => []
+        }
+        (data.source_account.account_id, targets)
+      }
+    | UnknownOneToManyStrategy => ("", [])
+    }
+  | UnknownReconStrategy => ("", [])
+  }
+}
+
 let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
   name,
   onBlur: _ => (),
@@ -180,24 +372,107 @@ let oneToOneManySingleMapper: Dict.t<JSON.t> => oneToOneManySingleType = dict =>
   }
 }
 
+let getReconStrategyDisplayName = (strategy: reconStrategyType): string => {
+  switch strategy {
+  | OneToOne(_) => "One to One Account"
+  | OneToMany(_) => "One to Many Account"
+  | UnknownReconStrategy => "Unknown"
+  }
+}
+
 let oneToOneStrategyMapper: Dict.t<JSON.t> => oneToOneStrategyType = dict => {
   switch dict->getString("one_to_one_type", "") {
   | "single_single" => SingleSingle(dict->oneToOneSingleSingleMapper)
   | "single_many" => SingleMany(dict->oneToOneSingleManyMapper)
   | "many_single" => ManySingle(dict->oneToOneManySingleMapper)
-  | _ =>
-    SingleSingle(
-      dict
-      ->getJsonObjectFromDict("single_single")
-      ->getDictFromJsonObject
-      ->oneToOneSingleSingleMapper,
-    )
+  | _ => UnknownOneToOneStrategy
+  }
+}
+
+let splitValueMapper: Dict.t<JSON.t> => splitValueType = dict => {
+  {
+    value: dict->getFloat("value", 0.0),
+  }
+}
+
+let oneToManySingleSingleSourceMapper: Dict.t<JSON.t> => oneToManySingleSingleSourceType = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    trigger: dict->getJsonObjectFromDict("trigger")->getDictFromJsonObject->triggerMapper,
+  }
+}
+
+let oneToManySingleSingleTargetMapper: Dict.t<JSON.t> => oneToManySingleSingleTargetType = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    search_identifier: dict
+    ->getJsonObjectFromDict("search_identifier")
+    ->getDictFromJsonObject
+    ->searchIdentifierMapper,
+    match_rules: dict
+    ->getJsonObjectFromDict("match_rules")
+    ->getDictFromJsonObject
+    ->matchRulesMapper,
+  }
+}
+
+let oneToManySingleSingleTargetsMapper: Dict.t<
+  JSON.t,
+> => oneToManySingleSingleTargetsType = dict => {
+  switch dict->getString("split_type", "") {
+  | "percentage" =>
+    Percentage({
+      targets: dict
+      ->getArrayFromDict("targets", [])
+      ->Array.map(item => {
+        let arr = item->getArrayFromJson([])
+        let targetConfig =
+          arr
+          ->getValueFromArray(0, JSON.Encode.null)
+          ->getDictFromJsonObject
+        let splitValue = arr->getValueFromArray(1, JSON.Encode.null)->getDictFromJsonObject
+        (targetConfig->oneToManySingleSingleTargetMapper, splitValue->splitValueMapper)
+      }),
+    })
+  | "fixed" =>
+    Fixed({
+      targets: dict
+      ->getArrayFromDict("targets", [])
+      ->Array.map(item => {
+        let arr = item->getArrayFromJson([])
+        let targetConfig = arr->getValueFromArray(0, JSON.Encode.null)->getDictFromJsonObject
+        let splitValue = arr->getValueFromArray(1, JSON.Encode.null)->getDictFromJsonObject
+        (targetConfig->oneToManySingleSingleTargetMapper, splitValue->splitValueMapper)
+      }),
+    })
+  | _ => UnknownTargetsType
+  }
+}
+
+let oneToManySingleSingleMapper: Dict.t<JSON.t> => oneToManySingleSingleType = dict => {
+  {
+    source_account: dict
+    ->getJsonObjectFromDict("source_account")
+    ->getDictFromJsonObject
+    ->oneToManySingleSingleSourceMapper,
+    target_accounts: dict
+    ->getJsonObjectFromDict("target_accounts")
+    ->getDictFromJsonObject
+    ->oneToManySingleSingleTargetsMapper,
+  }
+}
+
+let oneToManyStrategyMapper: Dict.t<JSON.t> => oneToManyStrategyType = dict => {
+  switch dict->getString("one_to_many_type", "") {
+  | "single_single" => SingleSingle(dict->oneToManySingleSingleMapper)
+  | _ => UnknownOneToManyStrategy
   }
 }
 
 let reconStrategyMapper: Dict.t<JSON.t> => reconStrategyType = dict => {
   switch dict->getString("recon_strategy_type", "") {
   | "one_to_one" => OneToOne(dict->oneToOneStrategyMapper)
+  | "one_to_many" => OneToMany(dict->oneToManyStrategyMapper)
   | _ => UnknownReconStrategy
   }
 }

@@ -184,6 +184,11 @@ let make = () => {
       </h1>
     </>
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   <div className="flex flex-col gap-10">
     <div className="flex h-full">
       <div className="flex flex-col ">

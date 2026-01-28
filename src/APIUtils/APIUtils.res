@@ -54,7 +54,7 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
-        | None => `${paymentsBaseURL}/${key_id}/get-intent`
+        | None => `${paymentsBaseURL}/${key_id}`
         }
       | None =>
         switch queryParameters {
@@ -137,6 +137,7 @@ let getV2Url = (
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+    | #SWITCH_PROFILE_NEW => `v2/${userUrl}/switch/profile`
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
@@ -174,6 +175,11 @@ let getV2Url = (
       }
 
     | _ => `v2/profiles`
+    }
+  | REFUNDS =>
+    switch methodType {
+    | Post => `v2/refunds`
+    | _ => ""
     }
   }
 }
@@ -574,6 +580,13 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
+        | _ => ""
+        }
+
+      /* OIDC */
+      | OIDC_AUTHORIZE =>
+        switch methodType {
+        | Get => `oidc/authorize`
         | _ => ""
         }
       /* ANALYTICS V2 */
@@ -1304,7 +1317,7 @@ let useGetURL = () => {
           }
         | #SWITCH_ORG => `${userUrl}/switch/org`
         | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
-        | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+        | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => `${userUrl}/switch/profile`
 
         // Org-Merchant-Profile List
         | #LIST_ORG => `${userUrl}/list/org`
@@ -1487,6 +1500,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~isEmbeddableSession=false,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -1531,12 +1545,14 @@ let responseHandler = async (
             }
           }
         | 401 =>
-          if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+          if !isEmbeddableSession {
+            if !sessionExpired.contents {
+              showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
 
-            handleLogout()->ignore
-            AuthUtils.redirectToLogin()
-            sessionExpired := true
+              handleLogout()->ignore
+              AuthUtils.redirectToLogin()
+              sessionExpired := true
+            }
           }
 
         | 403 =>
@@ -1644,6 +1660,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>
@@ -1715,6 +1732,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>

@@ -87,7 +87,7 @@ let getCell = (entry: entryType, colType: entryColType): Table.cell => {
   switch colType {
   | EntryId => Text(entry.entry_id)
   | EntryType => Text((entry.entry_type :> string)->LogicUtils.capitalizeString)
-  | AccountName => Text(entry.account_name)
+  | AccountName => EllipsisText(entry.account_name, "")
   | TransactionId => DisplayCopyCell(entry.transaction_id)
   | Amount => Text(Float.toString(entry.amount))
   | Currency => Text(entry.currency)
