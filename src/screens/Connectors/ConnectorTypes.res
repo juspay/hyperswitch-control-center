@@ -134,6 +134,7 @@ type processorTypes =
   | PAYJUSTNOWINSTORE
   | AMAZONPAY
   | WORLDPAYMODULAR
+  | SANTANDER
 
 type payoutProcessorTypes =
   | ADYEN
