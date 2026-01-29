@@ -103,6 +103,8 @@ module WebHookAuthenticationHeaders = {
   @react.component
   let make = (~setAllowEdit, ~allowEdit) => {
     open LogicUtils
+    open Typography
+
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -115,7 +117,7 @@ module WebHookAuthenticationHeaders = {
     let (isDisabled, setDisabled) = React.useState(_ => true)
 
     let allowEditConfiguration = () => {
-      form.change(`outgoing_webhook_custom_http_headers`, JSON.Encode.null)
+      form.change(`outgoing_webhook_custom_http_headers`, Dict.make()->JSON.Encode.object)
       setAllowEdit(_ => true)
       setShowModal(_ => false)
     }
@@ -130,7 +132,7 @@ module WebHookAuthenticationHeaders = {
     <div className="flex-1">
       <div className="flex flex-row justify-between items-center gap-4 ">
         <p
-          className={`text-fs-16 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-600 font-semibold ml-1 mt-6`}>
+          className={`${body.lg.semibold} dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-nd_gray-700 ml-1 mt-6`}>
           {"Custom Headers"->React.string}
         </p>
         <RenderIf condition={!(outGoingWebhookDict->isEmptyDict) && isDisabled && !allowEdit}>
@@ -160,8 +162,10 @@ module WebHookAuthenticationHeaders = {
             name="warning-outlined" size=25 className="w-8" onClick={_ => setShowModal(_ => false)}
           />
           <div className="flex flex-col gap-5">
-            <p className="font-bold text-2xl"> {"Edit the Current Configuration"->React.string} </p>
-            <p className=" text-hyperswitch_black opacity-50 font-medium">
+            <p className={`${heading.lg.bold}`}>
+              {"Edit the Current Configuration"->React.string}
+            </p>
+            <p className={`${body.md.medium} text-hyperswitch_black opacity-50`}>
               {"Editing the current configuration will override the current active configuration."->React.string}
             </p>
           </div>
