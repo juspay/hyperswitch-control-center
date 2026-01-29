@@ -70,9 +70,11 @@ module TransactionDetails = {
 }
 
 module TransactionDetailInfo = {
+  open ReconEngineTypes
+
   @react.component
   let make = (
-    ~currentTransactionDetails: ReconEngineTypes.transactionType,
+    ~currentTransactionDetails: transactionType,
     ~detailsFields: array<TransactionsTableEntity.transactionColType>,
     ~customWidthClass="w-1/4",
   ) => {
@@ -108,61 +110,39 @@ module EntryAuditTrailInfo = {
   open ReconEngineTypes
 
   @react.component
-  let make = (
-    ~openedTransaction: ReconEngineTypes.transactionType,
-    ~entriesList: array<entryType>=[],
-  ) => {
+  let make = (~openedTransaction: transactionType, ~entriesList: array<entryType>=[]) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
     open ReconEngineUtils
-    let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
-    let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-    let pageDetail = pageDetailDict->Dict.get("Entries")->Option.getOr(defaultValue)
-    let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-    let mainEntry = React.useMemo(() => {
-      entriesList->getValueFromArray(0, Dict.make()->transactionsEntryItemToObjMapperFromDict)
+
+    let accountGroups = React.useMemo(() => {
+      let groupsDict = Dict.make()
+
+      entriesList->Array.forEach(entry => {
+        let accountId = entry.account_id
+        switch groupsDict->Dict.get(accountId) {
+        | Some(existingEntries) =>
+          groupsDict->Dict.set(accountId, existingEntries->Array.concat([entry]))
+        | None => groupsDict->Dict.set(accountId, [entry])
+        }
+      })
+
+      groupsDict
+      ->Dict.toArray
+      ->Array.map(((accountId, entries)) => {
+        let accountName = entries->Array.get(0)->Option.mapOr("", e => e.account_name)
+        {ReconEngineTransactionsTypes.accountId, accountName, entries}
+      })
     }, [entriesList])
 
-    let expectedEntries = React.useMemo(() => {
-      entriesList
-      ->Array.slice(~start=1, ~end=entriesList->Array.length)
-      ->Array.filter(entry =>
-        entry.status == Expected || entry.discarded_status == Some("expected")
-      )
-    }, [entriesList])
+    let (accountExpandedRowsDict, setAccountExpandedRowsDict) = React.useState(_ => Dict.make())
 
-    let reconciledEntries = React.useMemo(() => {
-      entriesList
-      ->Array.slice(~start=1, ~end=entriesList->Array.length)
-      ->Array.filter(entry =>
-        entry.status != Expected && entry.discarded_status != Some("expected")
-      )
-    }, [entriesList])
-
-    let isArchived = mainEntry.status == Archived
-
-    let (hasMetadata, filteredMetadata) = React.useMemo(() => {
-      let filteredMetadata = mainEntry.metadata->getFilteredMetadataFromEntries
-      (filteredMetadata->Dict.keysToArray->Array.length > 0, filteredMetadata)
-    }, [mainEntry.metadata])
-
-    let (isMetadataExpanded, setIsMetadataExpanded) = React.useState(_ => false)
-    let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [])
-
-    let onExpandIconClick = (isExpanded, rowIndex) => {
-      if isExpanded {
-        setExpandedRowIndexArray(prev => prev->Array.filter(index => index !== rowIndex))
-      } else {
-        setExpandedRowIndexArray(prev => prev->Array.concat([rowIndex]))
-      }
-    }
-
-    let getRowDetails = (rowIndex: int) => {
-      let entry = reconciledEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
+    let getRowDetails = (_accountId: string, entries: array<entryType>, rowIndex: int) => {
+      let entry = entries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
       let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
-      <RenderIf condition={rowIndex < reconciledEntries->Array.length}>
+      <RenderIf condition={rowIndex < entries->Array.length}>
         <RenderIf condition={hasEntryMetadata}>
           <div className="p-4">
             <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
@@ -176,14 +156,7 @@ module EntryAuditTrailInfo = {
     }
 
     let heading = detailsFields->Array.map(getHeading)
-    let reconciledRows =
-      reconciledEntries->Array.map(entry =>
-        detailsFields->Array.map(colType => getCell(entry, colType))
-      )
-    let expectedRows =
-      expectedEntries->Array.map(entry =>
-        detailsFields->Array.map(colType => getCell(entry, colType))
-      )
+
     <div className="flex flex-col gap-4 px-2 my-6">
       <RenderIf condition={openedTransaction.data.reason->Option.isSome}>
         <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
@@ -197,80 +170,36 @@ module EntryAuditTrailInfo = {
           </p>
         </div>
       </RenderIf>
-      <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
-        <RenderIf condition={isArchived}>
-          <p
-            className={`${body.sm.semibold} absolute top-0 right-0 bg-nd_gray-50 text-nd_gray-600 px-3 py-2 rounded-bl-lg`}>
-            {"Archived"->React.string}
-          </p>
-        </RenderIf>
-        <div className="flex flex-col">
-          <TransactionDetails
-            data=mainEntry getHeading getCell widthClass="w-1/2" detailsFields isButtonEnabled=true
-          />
-          <RenderIf condition={hasMetadata}>
-            <div className="flex flex-col">
-              <div
-                className="flex flex-row items-center cursor-pointer hover:text-primary transition-colors m"
-                onClick={_ => setIsMetadataExpanded(prev => !prev)}>
-                <p className={`text-primary ${body.lg.semibold}`}>
-                  {"Show metadata"->React.string}
-                </p>
-                <Icon
-                  name={isMetadataExpanded ? "caret-up" : "caret-down"}
-                  size=16
-                  className="text-nd_gray-600"
-                />
-              </div>
-              <RenderIf condition={isMetadataExpanded}>
-                <div className="p-4">
-                  <div
-                    className="w-full bg-nd_gray-50 rounded-lg overflow-y-scroll !max-h-60 py-2 px-6 border ">
-                    <PrettyPrintJson
-                      jsonToDisplay={filteredMetadata->JSON.Encode.object->JSON.stringify}
-                    />
-                  </div>
-                </div>
-              </RenderIf>
-            </div>
-          </RenderIf>
-        </div>
-      </div>
-      <RenderIf condition={expectedEntries->Array.length > 0}>
-        <div className="flex flex-col gap-4">
-          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Expectations"->React.string} </p>
-          <div className="overflow-visible">
-            <CustomExpandableTable
-              title="Expected Entries"
-              tableClass="border rounded-xl overflow-y-auto"
-              borderClass=" "
-              firstColRoundedHeadingClass="rounded-tl-xl"
-              lastColRoundedHeadingClass="rounded-tr-xl"
-              headingBgColor="bg-nd_gray-25"
-              headingFontWeight="font-semibold"
-              headingFontColor="text-nd_gray-400"
-              rowFontColor="text-nd_gray-600"
-              customRowStyle="text-sm"
-              rowFontStyle="font-medium"
-              heading
-              rows=expectedRows
-              onExpandIconClick
-              expandedRowIndexArray
-              getRowDetails
-              showSerial=false
-              showScrollBar=true
-            />
-          </div>
-        </div>
-      </RenderIf>
-      <RenderIf condition={reconciledEntries->Array.length > 0}>
-        <div className="flex flex-col gap-4">
+      {accountGroups
+      ->Array.mapWithIndex((group, groupIndex) => {
+        let accountEntries = group.entries
+        let accountKey = group.accountId
+        let expandedRowIndexArray = accountExpandedRowsDict->Dict.get(accountKey)->Option.getOr([])
+
+        let onAccountExpandIconClick = (isExpanded, rowIndex) => {
+          setAccountExpandedRowsDict(prev => {
+            let newDict = prev->Dict.toArray->Dict.fromArray
+            let currentExpanded = newDict->Dict.get(accountKey)->Option.getOr([])
+            let updatedExpanded = isExpanded
+              ? currentExpanded->Array.filter(idx => idx !== rowIndex)
+              : currentExpanded->Array.concat([rowIndex])
+            newDict->Dict.set(accountKey, updatedExpanded)
+            newDict
+          })
+        }
+
+        let rows =
+          accountEntries->Array.map(entry =>
+            detailsFields->Array.map(colType => getCell(entry, colType))
+          )
+
+        <div key={`${group.accountId}${groupIndex->Int.toString}`} className="flex flex-col gap-2">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
-            {"Reconciled with"->React.string}
+            {group.accountName->React.string}
           </p>
           <div className="overflow-visible">
             <CustomExpandableTable
-              title="Reconciled Entries"
+              title={group.accountName}
               tableClass="border rounded-xl overflow-y-auto"
               borderClass=" "
               firstColRoundedHeadingClass="rounded-tl-xl"
@@ -282,16 +211,17 @@ module EntryAuditTrailInfo = {
               customRowStyle="text-sm"
               rowFontStyle="font-medium"
               heading
-              rows=reconciledRows
-              onExpandIconClick
+              rows
+              onExpandIconClick=onAccountExpandIconClick
               expandedRowIndexArray
-              getRowDetails
+              getRowDetails={rowIndex => getRowDetails(group.accountId, accountEntries, rowIndex)}
               showSerial=false
               showScrollBar=true
             />
           </div>
         </div>
-      </RenderIf>
+      })
+      ->React.array}
       <RenderIf condition={openedTransaction.linked_transaction->Option.isSome}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
@@ -304,8 +234,8 @@ module EntryAuditTrailInfo = {
               resultsPerPage=10
               showSerialNumber=false
               totalResults={[openedTransaction]->Array.length}
-              offset
-              setOffset
+              offset={0}
+              setOffset={_ => ()}
               currrentFetchCount={[openedTransaction]->Array.length}
             />
           </div>
@@ -448,7 +378,7 @@ module AuditTrail = {
         setShowModal
         showModal
         closeOnOutsideClick=true
-        modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
+        modalClass="flex flex-col justify-start h-screen w-2/5 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
         childClass="relative h-full"
         customModalHeading=modalHeading>
         <PageLoaderWrapper
