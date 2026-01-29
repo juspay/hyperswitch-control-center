@@ -160,6 +160,7 @@ type otherDetailsColType =
   | ExtendedAuthLastAppliedAt
   | ExtendedAuthApplied
   | RequestExtendedAuth
+  | HyperswitchErrorDescription
 
 type optionObj = {
   urlKey: string,

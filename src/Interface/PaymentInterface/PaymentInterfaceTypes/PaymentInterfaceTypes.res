@@ -129,6 +129,7 @@ type order = {
   extended_auth_last_applied_at?: string,
   extended_auth_applied?: bool,
   request_extended_auth?: bool,
+  hyperswitch_error_description?: string,
 }
 
 type ordersObject = {
