@@ -184,7 +184,6 @@ let extractTypedConnectorValueFromConfig = (
   ~key,
   ~connectorType: ConnectorTypes.connector,
 ) => {
-  // open LogicUtils
   let connectorArray =
     connectorDict
     ->LogicUtils.getArrayFromDict(key, [])
