@@ -1,9 +1,13 @@
 type embeddedState = Success | NotInsideIframe | TokenFetchError | Loading
 
-type embeddedContextTye = {setEmbeddedStateToError: unit => unit}
+type embeddedContextTye = {
+  setEmbeddedStateToError: unit => unit,
+  embeddableBackgroundColor: option<string>,
+}
 
 let embeddedProviderContext: embeddedContextTye = {
   setEmbeddedStateToError: () => (),
+  embeddableBackgroundColor: None,
 }
 
 let embeddedContext = React.createContext(embeddedProviderContext)
@@ -25,14 +29,14 @@ let make = (~children) => {
 
   let (componentKey, setComponentKey) = React.useState(_ => "")
   let (embeddedState, setEmbeddedState) = React.useState(_ => Loading)
-
-  let handleAuthMessage = (ev: Dom.event) => {
+  let (embeddableBackgroundColor, setEmbeddableBackgroundColor) = React.useState(() => None)
+  let handleMessage = (ev: Dom.event) => {
     let objectdata = ev->HandlingEvents.convertToCustomEvent
     switch objectdata.data->JSON.Decode.object {
     | Some(dict) => {
         let messageType = dict->getString("type", "")
 
-        if messageType->messageToTypeConversion == AUTH_TOKEN {
+        if messageType->messageToTypeConversion == INIT_CONFIG {
           setEmbeddedState(_ => Loading)
           setComponentKey(_ => "")
           let tokenFromParent = dict->getOptionString("token")
@@ -47,6 +51,12 @@ let make = (~children) => {
               setEmbeddedState(_ => TokenFetchError)
             }
           | None => setEmbeddedState(_ => TokenFetchError)
+          }
+          let backgroundColorFromParent = dict->getOptionString("backgroundColor")
+          switch backgroundColorFromParent {
+          | Some(bgColor) if bgColor->isNonEmptyString =>
+            setEmbeddableBackgroundColor(_ => Some(bgColor))
+          | _ => ()
           }
         }
 
@@ -69,12 +79,16 @@ let make = (~children) => {
       None
     } else {
       EmbeddedIframeUtils.sendIframeReadyMessageToParent()
-      Window.addEventListener("message", handleAuthMessage)
-      Some(() => Window.removeEventListener("message", handleAuthMessage))
+      Window.addEventListener("message", handleMessage)
+      Some(
+        () => {
+          Window.removeEventListener("message", handleMessage)
+        },
+      )
     }
   }, [])
 
-  <Provider value={setEmbeddedStateToError: setEmbeddedStateToError}>
+  <Provider value={setEmbeddedStateToError, embeddableBackgroundColor}>
     {switch embeddedState {
     | NotInsideIframe =>
       <div className="h-screen w-screen flex justify-center items-center p-4">
@@ -94,7 +108,7 @@ let make = (~children) => {
       </div>
     | Success => <React.Fragment key={componentKey}> children </React.Fragment>
     | Loading =>
-      <div className="h-full w-full flex justify-center items-center">
+      <div className="h-screen w-screen flex justify-center items-center">
         <Icon
           name="spinner"
           size=20

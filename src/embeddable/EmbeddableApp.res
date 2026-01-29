@@ -6,6 +6,8 @@ let make = () => {
   open HSwitchUtils
   open EmbeddedIframeUtils
 
+  let embeddedContextValue = React.useContext(EmbeddedCheckProvider.embeddedContext)
+
   let url = RescriptReactRouter.useUrl()
 
   let contentRef = React.useRef(Js.Nullable.null)
@@ -93,7 +95,15 @@ let make = () => {
     )
   }, [])
 
-  <div id="embeddable-app" ref={ReactDOM.Ref.domRef(contentRef)}>
+  let bgColor = switch embeddedContextValue.embeddableBackgroundColor {
+  | Some(bgColor) => bgColor
+  | None => "#FFFFFF"
+  }
+
+  <div
+    id="embeddable-app"
+    ref={ReactDOM.Ref.domRef(contentRef)}
+    style={ReactDOM.Style.make(~backgroundColor=bgColor, ())}>
     <ErrorBoundary>
       {switch url.path->urlPath {
       | list{"connectors", ..._} => <ConnectorEmbeddedContainer />

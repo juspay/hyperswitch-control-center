@@ -25,7 +25,7 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.urlConfig = dict
 
 let messageToTypeConversion = messageString => {
   switch messageString->String.toLowerCase {
-  | "auth_token" => EmbeddedTypes.AUTH_TOKEN
+  | "init_config" => EmbeddedTypes.INIT_CONFIG
   | "auth_error" => EmbeddedTypes.AUTH_ERROR
   | str => EmbeddedTypes.Unknown(str)
   }
