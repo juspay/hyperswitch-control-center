@@ -31,20 +31,21 @@ module MetadataAuthenticationInput = {
     }, [])
 
     let form = ReactFinalForm.useForm()
+    let onBlurFunc = () =>
+      if key->isNonEmptyString {
+        if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
+          let oldName = `metadata.${originalKeyRef.current}`
+          form.change(oldName, JSON.Encode.null)
+        }
+        let name = `metadata.${key}`
+        form.change(name, metaValue->JSON.Encode.string)
+        originalKeyRef.current = key
+      }
+
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if (
-          key->isNonEmptyString &&
-          originalKeyRef.current->isNonEmptyString &&
-          originalKeyRef.current !== key
-        ) {
-          let oldName = `metadata.${originalKeyRef.current}`
-          form.change(oldName, JSON.Encode.null)
-          let newName = `metadata.${key}`
-          form.change(newName, metaValue->JSON.Encode.string)
-          originalKeyRef.current = key
-        }
+        onBlurFunc()
       },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
@@ -74,17 +75,7 @@ module MetadataAuthenticationInput = {
     }
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => {
-        if key->isNonEmptyString {
-          if originalKeyRef.current->isNonEmptyString && originalKeyRef.current !== key {
-            let oldName = `metadata.${originalKeyRef.current}`
-            form.change(oldName, JSON.Encode.null)
-          }
-          let name = `metadata.${key}`
-          form.change(name, metaValue->JSON.Encode.string)
-          originalKeyRef.current = key
-        }
-      },
+      onBlur: _ => {onBlurFunc()},
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         setValue(_ => value)
