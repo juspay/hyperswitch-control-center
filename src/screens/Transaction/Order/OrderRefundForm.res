@@ -3,13 +3,14 @@ open APIUtils
 open OrderUtils
 open HSwitchOrderUtils
 open LogicUtils
+open CurrencyUtils
 @react.component
 let make = (
   ~order: PaymentInterfaceTypes.order,
   ~setShowModal,
   ~requestedRefundAmount,
   ~amountRefunded,
-  ~amoutAvailableToRefund,
+  ~amountAvailableToRefund,
   ~refetch,
 ) => {
   let getURL = useGetURL()
@@ -19,18 +20,31 @@ let make = (
   let showRefundAddressEmail =
     showRefundAddressEmailList->Array.includes(order.connector->String.toLowerCase)
 
-  let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, orgId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let isSplitPayment =
     order.connector->String.toLowerCase->isSplitPaymentConnector &&
       !(order.split_payments->isEmptyDict)
   let initiateValue = initialValuesDict(~isSplitPayment, ~order)
   let initiateValueJson = initiateValue->JSON.Encode.object
 
-  let updateRefundDetails = async body => {
+  let conversionFactor = getCurrencyConversionFactor(order.currency)
+  let precisionDigits = getAmountPrecisionDigits(order.currency)
+  let amountFieldWithPrecision = HSwitchOrderUtils.amountFieldWithPrecision(~precisionDigits)
+
+  let updateRefundDetails = async values => {
     try {
       let refundsUrl = getURL(~entityName=V1(REFUNDS), ~methodType=Post)
+
+      let dict = values->getDictFromJsonObject
+      let amount = dict->getFloat("amount", 0.0)
+      Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
+      Dict.set(dict, "payment_id", order.payment_id->JSON.Encode.string)
+      let body = dict->JSON.Encode.object
+
       let res = await updateDetails(refundsUrl, body, Post)
-      let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
+      let refundStatus = res->getDictFromJsonObject->getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {
       | Succeeded =>
@@ -54,17 +68,55 @@ let make = (
     }
   }
 
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(order.currency)
+  let updateRefundDetailsV2 = async values => {
+    try {
+      let refundsUrl = getURL(~entityName=V2(REFUNDS), ~methodType=Post)
+
+      let dict = values->getDictFromJsonObject
+      let amount = dict->getFloat("amount", 0.0)
+      Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
+      Dict.set(dict, "payment_id", order.payment_id->JSON.Encode.string)
+      Dict.set(dict, "merchant_id", merchantId->JSON.Encode.string)
+      Dict.set(
+        dict,
+        "merchant_reference_id",
+        order.merchant_order_reference_id->Option.getOr("")->JSON.Encode.string,
+      )
+      let body = dict->JSON.Encode.object
+
+      let res = await updateDetails(refundsUrl, body, Post)
+      let refundStatus = res->getDictFromJsonObject->getString("status", "")
+      refetch()->ignore
+      switch refundStatus->statusVariantMapper {
+      | Succeeded =>
+        showToast(~message="Refund successful", ~toastType=ToastSuccess)
+        setShowModal(_ => false)
+      | Failed =>
+        showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
+        setShowModal(_ => false)
+      | _ =>
+        showToast(
+          ~message="Processing your refund. Please check refund status",
+          ~toastType=ToastInfo,
+        )
+        setShowModal(_ => false)
+      }
+    } catch {
+    | _ => {
+        showToast(~message="Refund failed", ~toastType=ToastError)
+        setShowModal(_ => false)
+      }
+    }
+  }
 
   let onSubmit = (values, _) => {
     open Promise
     setShowModal(_ => false)
-    let dict = values->LogicUtils.getDictFromJsonObject
-    let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Math.round(amount *. conversionFactor)->JSON.Encode.float)
-    let body = dict
-    Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
-    updateRefundDetails(body->JSON.Encode.object)->ignore
+
+    switch version {
+    | V1 => updateRefundDetails(values)->ignore
+    | V2 => updateRefundDetailsV2(values)->ignore
+    }
     Nullable.null->resolve
   }
 
@@ -91,16 +143,16 @@ let make = (
     })
     if showRefundAddressEmail {
       let metadata = getDictFromJsonObject(values)->getDictfromDict("metadata")
-      let emailValue = metadata->LogicUtils.getString("email", "")
+      let emailValue = metadata->getString("email", "")
       let cryptoAddress = metadata->Dict.get("address")
       let metadataErrors = Dict.make()
       if (
         cryptoAddress->Option.isNone ||
           cryptoAddress
           ->Option.getOr(JSON.Encode.null)
-          ->LogicUtils.getStringFromJson("")
+          ->getStringFromJson("")
           ->String.trim
-          ->LogicUtils.isEmptyString
+          ->isEmptyString
       ) {
         Dict.set(metadataErrors, "address", `Required`->JSON.Encode.string)
       }
@@ -114,16 +166,13 @@ let make = (
     let amountValue = Dict.get(valuesDict, "amount")
     switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
-      if floatVal > amoutAvailableToRefund {
-        let amountSplitArr =
-          Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
-        let decimal = if amountSplitArr->Array.length > 1 {
-          amountSplitArr[1]->Option.getOr("")
-        } else {
-          "00"
-        }
-        let receivedValue = amoutAvailableToRefund->Math.floor->Float.toString
-        let formatted_amount = `${receivedValue}.${decimal}`
+      let enteredAmountInMinorUnits = Math.round(floatVal *. conversionFactor)
+      let remainingAmountInMinorUnits = Math.round(amountAvailableToRefund *. conversionFactor)
+      if enteredAmountInMinorUnits > remainingAmountInMinorUnits {
+        let formatted_amount = Float.toFixedWithPrecision(
+          amountAvailableToRefund,
+          ~digits=precisionDigits,
+        )
         Dict.set(
           errors,
           "amount",
@@ -208,7 +257,7 @@ let make = (
         </div>
         <div className="grid grid-cols-2 gap-8 mb-2">
           <FormRenderer.DesktopRow>
-            <FormRenderer.FieldRenderer field={amountField} labelClass="text-fs-11" />
+            <FormRenderer.FieldRenderer field={amountFieldWithPrecision} labelClass="text-fs-11" />
           </FormRenderer.DesktopRow>
           {switch order.connector
           ->String.toLowerCase

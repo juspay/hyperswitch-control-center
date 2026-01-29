@@ -5,8 +5,9 @@ module Verified = {
     ~setApplePayIntegrationType,
     ~appleIntegrationType,
     ~setApplePayIntegrationSteps,
-    ~setShowWalletConfigurationModal,
+    ~closeAccordionFn,
     ~update,
+    ~connector,
   ) => {
     open ApplePayIntegrationHelper
     open ApplePayIntegrationTypes
@@ -22,9 +23,11 @@ module Verified = {
         ->getDictFromJsonObject
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
+
       let applePayData = ApplePayIntegrationUtils.applePay(
         data,
         ~applePayIntegrationType=Some(appleIntegrationType),
+        ~connector,
         (),
       )
       switch applePayData {
@@ -40,7 +43,7 @@ module Verified = {
         formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
 
       let _ = update(metadata)
-      setShowWalletConfigurationModal(_ => false)
+      closeAccordionFn()
     }
     <>
       <div className="p-6 m-2 cursor-pointer">
@@ -71,7 +74,6 @@ module Verified = {
                       name={"arrow-right"}
                       size={15}
                     />
-                  | #decrypted => React.null
                   }}
                 </div>
               </div>
@@ -86,6 +88,7 @@ module Verified = {
             onClick={_ => {
               setApplePayIntegrationSteps(_ => Landing)
             }}
+            customButtonStyle="w-full"
           />
           <Button
             onClick={_ => {
@@ -93,6 +96,7 @@ module Verified = {
             }}
             text="Proceed"
             buttonType={Primary}
+            customButtonStyle="w-full"
           />
         </div>
       </div>
@@ -108,92 +112,57 @@ module Landing = {
     ~closeModal,
     ~setApplePayIntegrationSteps,
     ~setApplePayIntegrationType,
-    ~update,
   ) => {
     open ApplePayIntegrationTypes
-    open AdditionalDetailsSidebarHelper
+    open ApplePayLandingHelper
+    open Typography
 
     let handleConfirmClick = () => {
-      if appleIntegrationType === #decrypted {
-        update(JSON.Encode.null)->ignore
-        closeModal()
-      } else {
-        setApplePayIntegrationSteps(_ => Configure)
-      }
+      setApplePayIntegrationSteps(_ => Configure)
     }
-    <>
+    <div className="flex flex-col gap-6 p-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE)
-      | Processors(FIUU) =>
-        <div
-          className="p-6 m-2 cursor-pointer"
-          onClick={_ => setApplePayIntegrationType(_ => #simplified)}>
-          <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-              {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <CustomTag
-                tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
-              />
-              <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            </div>
-          </Card>
-        </div>
       | Processors(NUVEI)
-      | Processors(WORLDPAYVANTIV)
+      | Processors(FIUU)
       | Processors(TESOURO) =>
-        <div
-          className="p-6 m-2 cursor-pointer"
-          onClick={_ => setApplePayIntegrationType(_ => #decrypted)}>
-          <Card heading="Decrypted Flow" isSelected={appleIntegrationType === #decrypted}>
-            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-              {"Instantly enable Apple Pay with no information or configuration needed."->React.string}
-            </div>
-            <div className="flex gap-2 mt-4">
-              <CustomTag
-                tagText="No Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-              />
-            </div>
-          </Card>
-        </div>
-      | _ => React.null
+        <>
+          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
+          <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+          <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
+        </>
+      | Processors(WORLDPAYVANTIV) =>
+        <ApplePaySimplifiedLandingCard setApplePayIntegrationType appleIntegrationType />
+      | _ => <ApplePayManualLandingCard setApplePayIntegrationType appleIntegrationType />
       }}
-      <div
-        className="p-6 m-2 cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #manual)}>
-        <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
-          <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-            <CustomSubText />
-          </div>
-          <div className="flex gap-2 mt-4">
-            <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            <CustomTag
-              tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-            />
-          </div>
-        </Card>
-      </div>
-      <div className={`flex gap-2 justify-end m-2 p-6`}>
+      <div className={`flex gap-2 justify-end`}>
         <Button
           text="Cancel"
           buttonType={Secondary}
           onClick={_ => {
             closeModal()
           }}
+          customButtonStyle="w-full"
         />
-        <Button onClick={_ => handleConfirmClick()} text="Continue" buttonType={Primary} />
+        <Button
+          onClick={_ => handleConfirmClick()}
+          text="Continue"
+          buttonType={Primary}
+          customButtonStyle="w-full"
+          buttonSize={Small}
+        />
       </div>
-    </>
+    </div>
   }
 }
 
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open APIUtils
   open LogicUtils
-  open AdditionalDetailsSidebarHelper
+
   open ApplePayIntegrationTypes
 
   let getURL = useGetURL()
@@ -224,6 +193,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     }
   }, [connector])
 
+  // TODO: Change this to get for both V1 and V2
   let getProcessorDetails = async () => {
     try {
       setScreenState(_ => Loading)
@@ -253,7 +223,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
   let closeModal = () => {
     onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
   React.useEffect(() => {
@@ -261,12 +231,11 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
-      | Processors(CYBERSOURCE) =>
-        setApplePayIntegrationType(_ => #simplified)
+      | Processors(CYBERSOURCE)
       | Processors(NUVEI)
       | Processors(WORLDPAYVANTIV)
       | Processors(TESOURO) =>
-        setApplePayIntegrationType(_ => #decrypted)
+        setApplePayIntegrationType(_ => #simplified)
 
       | _ => setApplePayIntegrationType(_ => #manual)
       }
@@ -285,10 +254,9 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     </div>}
     sectionHeight="!h-screen">
     <div>
-      <Heading title="Apple Pay" iconName="applepay" />
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(ZEN) =>
-        <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal />
+        <ApplePayZen applePayFields update closeModal closeAccordionFn connector />
       | _ =>
         switch applePayIntegrationStep {
         | Landing =>
@@ -298,7 +266,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
             setApplePayIntegrationSteps
             appleIntegrationType
             setApplePayIntegrationType
-            update
           />
         | Configure =>
           switch appleIntegrationType {
@@ -309,6 +276,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               setApplePayIntegrationSteps
               setVefifiedDomainList
               connector
+              appleIntegrationType
             />
           | #manual =>
             <ApplePayManualFlow
@@ -316,17 +284,19 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               merchantBusinessCountry
               setApplePayIntegrationSteps
               setVefifiedDomainList
+              connector
+              appleIntegrationType
             />
-          | #decrypted => React.null
           }
         | Verify =>
           <Verified
             verifiedDomainList
             setApplePayIntegrationType
-            setShowWalletConfigurationModal
+            closeAccordionFn
             setApplePayIntegrationSteps
             appleIntegrationType
             update
+            connector
           />
         }
       }}

@@ -15,9 +15,12 @@ let getStringFromVariant = value => {
   | Authentication_Exemption_Requested_Count => "authentication_exemption_requested_count"
   | Exemption_Approval_Rate => "exemption_approval_rate"
   | Authentication_Attempt_Count => "authentication_attempt_count"
+  | Authentication_Failure_Count => "authentication_failure_count"
+  | Authentication_Failure_Rate => "authentication_failure_rate"
   | Exemption_Request_Rate => "exemption_request_rate"
   | User_Drop_Off_Rate => "user_drop_off_rate"
   | Time_Bucket => "time_bucket"
+  | Time_Range => "time_range"
   | _ => "unknown"
   }
 }
@@ -26,6 +29,8 @@ let getVariantValueFromString = value => {
   switch value {
   | "authentication_connector" => Authentication_Connector
   | "authentication_success_count" => Authentication_Success_Count
+  | "authentication_failure_count" => Authentication_Failure_Count
+  | "authentication_failure_rate" => Authentication_Failure_Rate
   | "authentication_count" => Authentication_Count
   | "authentication_success_rate" => Authentication_Success_Rate
   | "authentication_exemption_approved_count" => Authentication_Exemption_Approved_Count
@@ -34,6 +39,7 @@ let getVariantValueFromString = value => {
   | "authentication_attempt_count" => Authentication_Attempt_Count
   | "exemption_request_rate" => Exemption_Request_Rate
   | "user_drop_off_rate" => User_Drop_Off_Rate
+  | "time_range" => Time_Range
   | "time_bucket" | _ => Time_Bucket
   }
 }
@@ -77,7 +83,7 @@ let tooltipFormatter = (
   )->asTooltipPointFormatter
 }
 
-let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
+let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false, ~currency) => {
   if groupByKey->isNonEmptyString {
     let separatorDict = Dict.make()
     data
@@ -108,7 +114,7 @@ let getLineGraphData = (data, ~xKey, ~yKey, ~groupByKey, ~isAmount=false) => {
 
     dataArray
   } else {
-    data->InsightsUtils.getLineGraphData(~xKey, ~yKey, ~isAmount)
+    data->InsightsUtils.getLineGraphData(~xKey, ~yKey, ~isAmount, ~currency)
   }
 }
 
@@ -119,7 +125,7 @@ let exemptionGraphsMapper = (~params: getObjects<JSON.t>): LineGraphTypes.lineGr
   let primaryCategories = data->getCategories(0, yKey)
   let groupByKey = params.groupByKey->Option.getOr("")
 
-  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~groupByKey)
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~groupByKey, ~currency)
   let tooltipFormatter = tooltipFormatter(
     ~title,
     ~metricType=Amount,
@@ -159,11 +165,20 @@ let tableItemToObjMapper: Dict.t<JSON.t> => exemptionGraphsObject = dict => {
       Authentication_Success_Count->getStringFromVariant,
       0,
     ),
+    authentication_failure_count: dict->getInt(
+      Authentication_Failure_Count->getStringFromVariant,
+      0,
+    ),
     authentication_success_rate: dict->getFloat(
       Authentication_Success_Rate->getStringFromVariant,
       0.0,
     ),
+    authentication_failure_rate: dict->getFloat(
+      Authentication_Failure_Rate->getStringFromVariant,
+      0.0,
+    ),
     time_bucket: dict->getString(Time_Bucket->getStringFromVariant, "NA"),
+    time_range: dict->getJsonFromDict(Time_Range->getStringFromVariant),
     authentication_exemption_approved_count: dict->getInt(
       Authentication_Exemption_Approved_Count->getStringFromVariant,
       0,
@@ -199,6 +214,7 @@ let defaulGranularity = {
 let getKey = id => {
   let key = switch id {
   | Time_Bucket => #time_bucket
+  | Time_Range => #time_range
   | Authentication_Connector => #authentication_connector
   | Authentication_Success_Count => #authentication_success_count
   | Authentication_Count => #authentication_count
@@ -215,81 +231,170 @@ let getKey = id => {
 }
 
 let modifyQueryData = data => {
-  let dataDict = Dict.make()
+  // Group by time_bucket and authentication_connector
+  let groupedDataDict = Dict.make()
 
   data->Array.forEach(item => {
     let valueDict = item->getDictFromJsonObject
     let time = valueDict->getString(Time_Bucket->getStringFromVariant, "")
+    let connector = valueDict->getString(Authentication_Connector->getStringFromVariant, "NA")
+    let groupKey = `${time}_${connector}`
 
-    let authenticationCount = valueDict->getInt(Authentication_Count->getKey, 0)
+    let existingArray = groupedDataDict->Dict.get(groupKey)->Option.getOr([])
+    groupedDataDict->Dict.set(groupKey, existingArray->Array.concat([item]))
+  })
 
-    let authenticationSuccessCount = valueDict->getInt(Authentication_Success_Count->getKey, 0)
+  let resultDict = Dict.make()
 
-    let authenticationExemptionApprovedCount =
-      valueDict->getInt(Authentication_Exemption_Approved_Count->getKey, 0)
+  groupedDataDict
+  ->Dict.toArray
+  ->Array.forEach(((groupKey, items)) => {
+    let totalAuthenticationCount = ref(0)
+    let totalAuthenticationSuccessCount = ref(0)
+    let totalAuthenticationAttemptCount = ref(0)
+    let totalAuthenticationFailedCount = ref(0)
+    let totalAuthenticationExemptionApprovedCount = ref(0)
+    let totalAuthenticationExemptionRequestedCount = ref(0)
 
-    let authenticationExemptionRequestedCount =
-      valueDict->getInt(Authentication_Exemption_Requested_Count->getKey, 0)
+    let time = ref("")
+    let timeBucket = ref(JSON.Encode.null)
+    let connector = ref("NA")
 
-    let authenticationAttemptCount = valueDict->getInt(Authentication_Attempt_Count->getKey, 0)
+    // Aggregate all counts for this time_bucket + connector group
+    items->Array.forEach(item => {
+      let itemDict = item->getDictFromJsonObject
 
-    let authenticationSuccessRate = if authenticationCount == 0 {
+      time := itemDict->getString(Time_Bucket->getStringFromVariant, "")
+      timeBucket := itemDict->getJsonFromDict(Time_Range->getStringFromVariant)
+      connector := itemDict->getString(Authentication_Connector->getStringFromVariant, "NA")
+
+      let authStatus = itemDict->getString("authentication_status", "")
+      let count = itemDict->getInt(Authentication_Count->getKey, 0)
+      let attemptCount = itemDict->getInt(Authentication_Attempt_Count->getKey, 0)
+      let successCount = itemDict->getInt(Authentication_Success_Count->getKey, 0)
+      let exemptionApprovedCount =
+        itemDict->getInt(Authentication_Exemption_Approved_Count->getKey, 0)
+      let exemptionRequestedCount =
+        itemDict->getInt(Authentication_Exemption_Requested_Count->getKey, 0)
+
+      totalAuthenticationCount := totalAuthenticationCount.contents + count
+      totalAuthenticationAttemptCount := totalAuthenticationAttemptCount.contents + attemptCount
+      totalAuthenticationSuccessCount := totalAuthenticationSuccessCount.contents + successCount
+      totalAuthenticationExemptionApprovedCount :=
+        totalAuthenticationExemptionApprovedCount.contents + exemptionApprovedCount
+      totalAuthenticationExemptionRequestedCount :=
+        totalAuthenticationExemptionRequestedCount.contents + exemptionRequestedCount
+
+      if authStatus == "failed" {
+        totalAuthenticationFailedCount := totalAuthenticationFailedCount.contents + count
+      }
+    })
+
+    let authenticationSuccessRate = if totalAuthenticationAttemptCount.contents == 0 {
       0.0
     } else {
       let rate =
-        float_of_int(authenticationSuccessCount) /. float_of_int(authenticationCount) *. 100.0
+        float_of_int(totalAuthenticationSuccessCount.contents) /.
+        float_of_int(totalAuthenticationAttemptCount.contents) *. 100.0
       Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
 
-    let exemptionApprovalRate = if authenticationExemptionRequestedCount == 0 {
+    let authenticationFailureRate = if totalAuthenticationAttemptCount.contents == 0 {
       0.0
     } else {
       let rate =
-        float_of_int(authenticationExemptionApprovedCount) /.
-        float_of_int(authenticationExemptionRequestedCount) *. 100.0
+        float_of_int(totalAuthenticationFailedCount.contents) /.
+        float_of_int(totalAuthenticationAttemptCount.contents) *. 100.0
       Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
 
-    let exemptionRequestRate = if authenticationExemptionRequestedCount == 0 {
+    let exemptionApprovalRate = if totalAuthenticationExemptionRequestedCount.contents == 0 {
       0.0
     } else {
       let rate =
-        float_of_int(authenticationExemptionRequestedCount) /.
-        float_of_int(authenticationAttemptCount) *. 100.0
+        float_of_int(totalAuthenticationExemptionApprovedCount.contents) /.
+        float_of_int(totalAuthenticationExemptionRequestedCount.contents) *. 100.0
       Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
-    let userDropOffRate = if authenticationAttemptCount == 0 {
+
+    let exemptionRequestRate = if totalAuthenticationCount.contents == 0 {
       0.0
     } else {
       let rate =
-        float_of_int(authenticationAttemptCount - authenticationSuccessCount) /.
-        float_of_int(authenticationAttemptCount) *. 100.0
+        float_of_int(totalAuthenticationExemptionRequestedCount.contents) /.
+        float_of_int(totalAuthenticationCount.contents) *. 100.0
       Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
     }
-    valueDict->Dict.set(
+
+    let userDropOffRate = if totalAuthenticationAttemptCount.contents == 0 {
+      0.0
+    } else {
+      let dropOffCount =
+        totalAuthenticationAttemptCount.contents -
+        (totalAuthenticationSuccessCount.contents +
+        totalAuthenticationFailedCount.contents)
+      let rate =
+        float_of_int(dropOffCount) /.
+        float_of_int(totalAuthenticationAttemptCount.contents) *. 100.0
+      Float.toFixedWithPrecision(rate, ~digits=2)->Float.fromString->Option.getOr(0.0)
+    }
+
+    let resultDict_inner = Dict.make()
+    resultDict_inner->Dict.set(Time_Bucket->getStringFromVariant, time.contents->JSON.Encode.string)
+    resultDict_inner->Dict.set(Time_Range->getStringFromVariant, timeBucket.contents)
+    resultDict_inner->Dict.set(
+      Authentication_Connector->getStringFromVariant,
+      connector.contents->JSON.Encode.string,
+    )
+    resultDict_inner->Dict.set(
+      Authentication_Count->getStringFromVariant,
+      totalAuthenticationCount.contents->JSON.Encode.int,
+    )
+    resultDict_inner->Dict.set(
+      Authentication_Success_Count->getStringFromVariant,
+      totalAuthenticationSuccessCount.contents->JSON.Encode.int,
+    )
+    resultDict_inner->Dict.set(
+      Authentication_Failure_Count->getStringFromVariant,
+      totalAuthenticationFailedCount.contents->JSON.Encode.int,
+    )
+    resultDict_inner->Dict.set(
+      Authentication_Attempt_Count->getStringFromVariant,
+      totalAuthenticationAttemptCount.contents->JSON.Encode.int,
+    )
+    resultDict_inner->Dict.set(
+      Authentication_Exemption_Approved_Count->getStringFromVariant,
+      totalAuthenticationExemptionApprovedCount.contents->JSON.Encode.int,
+    )
+    resultDict_inner->Dict.set(
+      Authentication_Exemption_Requested_Count->getStringFromVariant,
+      totalAuthenticationExemptionRequestedCount.contents->JSON.Encode.int,
+    )
+    resultDict_inner->Dict.set(
       Authentication_Success_Rate->getStringFromVariant,
       authenticationSuccessRate->JSON.Encode.float,
     )
-
-    valueDict->Dict.set(
+    resultDict_inner->Dict.set(
+      Authentication_Failure_Rate->getStringFromVariant,
+      authenticationFailureRate->JSON.Encode.float,
+    )
+    resultDict_inner->Dict.set(
       Exemption_Approval_Rate->getStringFromVariant,
       exemptionApprovalRate->JSON.Encode.float,
     )
-
-    valueDict->Dict.set(
+    resultDict_inner->Dict.set(
       Exemption_Request_Rate->getStringFromVariant,
       exemptionRequestRate->JSON.Encode.float,
     )
-
-    valueDict->Dict.set(
+    resultDict_inner->Dict.set(
       User_Drop_Off_Rate->getStringFromVariant,
       userDropOffRate->JSON.Encode.float,
     )
 
-    dataDict->Dict.set(time, valueDict)
+    resultDict->Dict.set(groupKey, resultDict_inner->JSON.Encode.object)
   })
 
-  dataDict->Dict.valuesToArray->Array.map(JSON.Encode.object)
+  resultDict->Dict.valuesToArray
 }
 
 let getCell = (obj: exemptionGraphsObject, colType): Table.cell => {
@@ -299,6 +404,7 @@ let getCell = (obj: exemptionGraphsObject, colType): Table.cell => {
   | Exemption_Approval_Rate => Text(obj.exemption_approval_rate->Float.toString ++ "%")
   | Exemption_Request_Rate => Text(obj.exemption_request_rate->Float.toString ++ "%")
   | User_Drop_Off_Rate => Text(obj.user_drop_off_rate->Float.toString ++ "%")
+  | Authentication_Failure_Rate => Text(obj.authentication_failure_rate->Float.toString ++ "%")
   | Time_Bucket => Text(obj.time_bucket->formatDateValue(~includeYear=true))
   | _ => Text("")
   }
@@ -336,8 +442,76 @@ let getHeading = colType => {
       ~title="User Drop Off Rate",
       ~dataType=TextType,
     )
+  | Authentication_Failure_Rate =>
+    Table.makeHeaderInfo(
+      ~key=Authentication_Failure_Rate->getStringFromVariant,
+      ~title="Authentication Failure Rate",
+      ~dataType=TextType,
+    )
   | Time_Bucket =>
     Table.makeHeaderInfo(~key=Time_Bucket->getStringFromVariant, ~title="Date", ~dataType=TextType)
   | _ => Table.makeHeaderInfo(~key="", ~title="", ~dataType=TextType)
+  }
+}
+
+let fillMissingDataPointsForConnectors = (
+  ~data,
+  ~startDate,
+  ~endDate,
+  ~timeKey,
+  ~granularity,
+  ~isoStringToCustomTimeZone,
+  ~granularityEnabled,
+  ~connectorKey="authentication_connector",
+) => {
+  // Extract unique connector names from the data using a dictionary
+  let connectorDict = Dict.make()
+
+  data->Array.forEach(item => {
+    let itemDict = item->getDictFromJsonObject
+    let connectorName = itemDict->getString(connectorKey, "NA")
+    connectorDict->Dict.set(connectorName, true)
+  })
+
+  let uniqueConnectors = connectorDict->Dict.keysToArray
+
+  // For each connector, filter data and fill missing data points
+  let filledDataByConnector = uniqueConnectors->Array.map(connectorName => {
+    let connectorData = data->Array.filter(item => {
+      let itemDict = item->getDictFromJsonObject
+      itemDict->getString(connectorKey, "NA") === connectorName
+    })
+
+    // Fill missing data points with this connector's name
+    let defaultValue = {
+      "authentication_count": 0,
+      "authentication_success_count": 0,
+      "authentication_attempt_count": 0,
+      "authentication_exemption_requested": 0,
+      "authentication_exemption_accepted": 0,
+      "authentication_connector": connectorName,
+      "time_bucket": startDate,
+    }->Identity.genericTypeToJson
+
+    fillMissingDataPoints(
+      ~data=connectorData,
+      ~startDate,
+      ~endDate,
+      ~timeKey,
+      ~defaultValue,
+      ~granularity,
+      ~isoStringToCustomTimeZone,
+      ~granularityEnabled,
+    )
+  })
+
+  filledDataByConnector->Array.flat
+}
+
+let getDataKeyForMetric = metric => {
+  switch metric->getVariantValueFromString {
+  | Authentication_Success_Rate => "authenticationLifeCycleData1"
+  | User_Drop_Off_Rate => "authenticationLifeCycleData2"
+  | _ => "authenticationLifeCycleData3"
   }
 }

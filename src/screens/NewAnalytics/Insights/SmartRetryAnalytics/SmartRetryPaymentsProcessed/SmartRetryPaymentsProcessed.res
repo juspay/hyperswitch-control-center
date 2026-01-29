@@ -56,6 +56,7 @@ module SmartRetryPaymentsProcessedHeader = {
   open InsightsUtils
   open LogicUtils
   open LogicUtilsTypes
+  open CurrencyFormatUtils
 
   @react.component
   let make = (
@@ -84,8 +85,9 @@ module SmartRetryPaymentsProcessedHeader = {
       ~key=selectedMetric.value->getMetaDataMapper,
     )
 
+    let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
     let (primaryValue, secondaryValue) = if selectedMetric.value->isAmountMetric {
-      (primaryValue /. 100.0, secondaryValue /. 100.0)
+      (primaryValue /. conversionFactor, secondaryValue /. conversionFactor)
     } else {
       (primaryValue, secondaryValue)
     }

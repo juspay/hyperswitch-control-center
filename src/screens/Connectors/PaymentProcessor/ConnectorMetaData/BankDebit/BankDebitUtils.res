@@ -16,18 +16,3 @@ let itemToObjMapper = dict => {
     mca_id: dict->getString("mca_id", ""),
   }
 }
-
-let validateSelectedPMAuth = (values, paymentMethodType) => {
-  let existingPaymentMethodValues =
-    values
-    ->getDictFromJsonObject
-    ->getDictfromDict("pm_auth_config")
-    ->getArrayFromDict("enabled_payment_methods", [])
-    ->JSON.Encode.array
-    ->getArrayDataFromJson(itemToObjMapper)
-
-  let newPaymentMethodValues =
-    existingPaymentMethodValues->Array.filter(item => item.payment_method_type == paymentMethodType)
-
-  newPaymentMethodValues->Array.length > 0 ? Button.Normal : Button.Disabled
-}

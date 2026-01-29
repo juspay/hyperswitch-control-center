@@ -35,11 +35,13 @@ let make = (
 ) => {
   open LogicUtils
   open SectionHelper
+  open Typography
   open AdditionalDetailsSidebar
   open ConnectorPaymentMethodV2Utils
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let temp: array<ConnectorTypes.paymentMethodEnabled> = [
     {
       payment_method: "",
@@ -55,13 +57,11 @@ let make = (
   //
 
   let form = ReactFinalForm.useForm()
-  let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
   let (selectedWallet, setSelectedWallet) = React.useState(_ =>
     Dict.make()->ConnectorInterfaceUtils.getPaymentMethodTypesV2
   )
   let (selectedPMTIndex, setSelectedPMTIndex) = React.useState(_ => 0)
 
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let data = formState.values->getDictFromJsonObject
   let connData: ConnectorTypes.connectorPayloadV2 = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV2,
@@ -84,13 +84,7 @@ let make = (
     true
   }
 
-  let title = switch pm->getPMFromString {
-  | BankDebit => pm->snakeToTitle
-  | Wallet => selectedWallet.payment_method_subtype->snakeToTitle
-  | _ => ""
-  }
   let resetValues = () => {
-    setShowWalletConfigurationModal(_ => false)
     // Need to refactor
     form.change("metadata", meteDataInitialValues->Identity.genericTypeToJson)
     form.change(
@@ -114,16 +108,27 @@ let make = (
     if isMetaDataRequired(pmtData.payment_method_subtype, connector) {
       setSelectedWallet(_ => pmtData)
       setSelectedPMTIndex(_ => pmtIndex)
-      setShowWalletConfigurationModal(_ => true)
     }
   }
 
-  let modalHeading = `Additional Details to enable ${title}`
+  let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
+
+  let checkIfAdditionalDetailsRequired = (
+    valueComing: ConnectorTypes.paymentMethodConfigTypeV2,
+  ) => {
+    pmtWithMetaData->Array.includes(valueComing.payment_method_subtype->getPMTFromString)
+  }
+
+  let methodsWithoutAdditionalDetails =
+    availablePM->Array.filter(value => !checkIfAdditionalDetailsRequired(value))
+  let methodsWithAdditionalDetails =
+    availablePM->Array.filter(value => checkIfAdditionalDetailsRequired(value))
 
   {
     if isInEditState {
       <div
-        key={index->Int.toString} className="border border-nd_gray-150 rounded-xl overflow-hidden">
+        key={index->Int.toString}
+        className="flex flex-col border border-nd_gray-150 rounded-xl overflow-hidden ">
         <HeadingSection index pm availablePM pmIndex pmt=pm showSelectAll />
         <RenderIf
           condition={pm->getPMFromString === Wallet &&
@@ -138,97 +143,158 @@ let make = (
             {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
           </div>
         </RenderIf>
-        <div className="flex gap-6 p-6 flex-wrap">
-          {availablePM
-          ->Array.mapWithIndex((pmtData, i) => {
-            let paymentMethodTypeValues = connData.payment_methods_enabled->Array.get(pmIndex)
-            // determine the index of the payment method type from the form state
-            let pmtIndex = switch paymentMethodTypeValues {
-            | Some(pmt) => {
-                let isPMTEnabled =
-                  pmt.payment_method_subtypes->Array.findIndex(val =>
-                    val.payment_method_subtype == pmtData.payment_method_subtype
-                  )
-                isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
+        <div className="flex flex-col gap-6 p-6 w-full">
+          <div className="flex gap-6 flex-wrap">
+            {methodsWithoutAdditionalDetails
+            ->Array.mapWithIndex((pmtData, i) => {
+              // determine the index of the payment method type from the form state
+              let pmtIndex = switch paymentMethodTypeValues {
+              | Some(pmt) => {
+                  let isPMTEnabled =
+                    pmt.payment_method_subtypes->Array.findIndex(val =>
+                      val.payment_method_subtype == pmtData.payment_method_subtype
+                    )
+                  isPMTEnabled == -1 ? pmt.payment_method_subtypes->Array.length : isPMTEnabled
+                }
+              | None => 0
               }
-            | None => 0
-            }
 
-            let label = switch (
-              pmtData.payment_method_subtype->getPMTFromString,
-              pm->getPMFromString,
-              connector->ConnectorUtils.getConnectorNameTypeFromString,
-            ) {
-            | (PayPal, Wallet, Processors(PAYPAL)) =>
-              pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
-                ? "PayPal Redirect"
-                : "PayPal SDK"
-            | (Klarna, PayLater, Processors(KLARNA)) =>
-              pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
-                ? "Klarna Checkout"
-                : "Klarna SDK"
-            | (OpenBankingPIS, _, _) => "Open Banking PIS"
-            | _ => pmtData.payment_method_subtype->snakeToTitle
-            }
+              let label = switch (
+                pmtData.payment_method_subtype->getPMTFromString,
+                pm->getPMFromString,
+                connector->ConnectorUtils.getConnectorNameTypeFromString,
+              ) {
+              | (PayPal, Wallet, Processors(PAYPAL)) =>
+                pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
+                  ? "PayPal Redirect"
+                  : "PayPal SDK"
+              | (Klarna, PayLater, Processors(KLARNA)) =>
+                pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
+                  ? "Klarna Checkout"
+                  : "Klarna SDK"
+              | (OpenBankingPIS, _, _) => "Open Banking PIS"
+              | _ => pmtData.payment_method_subtype->snakeToTitle
+              }
 
-            let showCheckbox = switch (
-              pmtData.payment_method_subtype->getPMTFromString,
-              pm->getPMFromString,
-              connector->ConnectorUtils.getConnectorNameTypeFromString,
-            ) {
-            | (Klarna, PayLater, Processors(KLARNA)) =>
-              !(
-                pmtData.payment_experience->Option.getOr("") == "redirect_to_url" &&
-                  connData->checkKlaranRegion
-              )
+              let showCheckbox = switch (
+                pmtData.payment_method_subtype->getPMTFromString,
+                pm->getPMFromString,
+                connector->ConnectorUtils.getConnectorNameTypeFromString,
+              ) {
+              | (Klarna, PayLater, Processors(KLARNA)) =>
+                !(
+                  pmtData.payment_experience->Option.getOr("") == "redirect_to_url" &&
+                    connData->checkKlaranRegion
+                )
 
-            | _ => true
-            }
+              | _ => true
+              }
 
-            <PaymentMethodTypes
-              pm
-              label
-              pmtData
-              pmIndex
-              pmtIndex
-              connector
-              showCheckbox
-              index=i
-              onClick={Some(() => onClick(pmtData, pmtIndex))}
-              formValues
-            />
-          })
-          ->React.array}
-          <RenderIf
-            condition={pmtWithMetaData->Array.includes(
-              selectedWallet.payment_method_subtype->getPMTFromString,
-            )}>
-            <Modal
-              modalHeading
-              headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
-              headBgClass="sticky top-0 z-30 bg-white"
-              showModal={showWalletConfigurationModal}
-              setShowModal={setShowWalletConfigurationModal}
-              onCloseClickCustomFun={resetValues}
-              paddingClass=""
-              revealFrom=Reveal.Right
-              modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-              childClass={""}>
-              <RenderIf condition={showWalletConfigurationModal}>
-                // Need to refactor
-                <AdditionalDetailsSidebarComp
-                  method={None}
-                  setMetaData={_ => ()}
-                  setShowWalletConfigurationModal
-                  updateDetails={_val => updateDetails(_val)}
-                  paymentMethodsEnabled=temp
-                  paymentMethod={pm}
-                  onCloseClickCustomFun={resetValues}
-                  setInitialValues={_ => ()}
-                  pmtName={selectedWallet.payment_method_subtype}
-                />
-              </RenderIf>
-            </Modal>
+              <PaymentMethodTypes
+                pm
+                label
+                pmtData
+                pmIndex
+                pmtIndex
+                connector
+                showCheckbox
+                index=i
+                onClick={Some(() => onClick(pmtData, pmtIndex))}
+                formValues
+              />
+            })
+            ->React.array}
+          </div>
+          <RenderIf condition={version == V1 && methodsWithAdditionalDetails->Array.length > 0}>
+            <div className="flex flex-col gap-4">
+              <p className={`${body.md.medium} text-grey-700 opacity-50`}>
+                {"Below payment method types requires additional details"->React.string}
+              </p>
+              <div className={`flex flex-col gap-4 w-full`}>
+                {methodsWithAdditionalDetails
+                ->Array.mapWithIndex((pmtData, i) => {
+                  <Accordion
+                    arrowPosition=Right
+                    initialExpandedArray=[]
+                    accordion={[
+                      {
+                        title: pmtData.payment_method_subtype,
+                        renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
+                          <AdditionalDetailsSidebarComp
+                            method={None}
+                            setMetaData={_ => ()}
+                            updateDetails={_val => updateDetails(_val)}
+                            paymentMethodsEnabled=temp
+                            paymentMethod={pm}
+                            setInitialValues={_ => ()}
+                            pmtName={selectedWallet.payment_method_subtype}
+                            closeAccordionFn
+                            onCloseClickCustomFun={resetValues}
+                          />,
+                        onItemExpandClick: () => {
+                          onClick(pmtData, i)
+                        },
+                        onItemCollapseClick: () => {
+                          resetValues()
+                        },
+                        renderContentOnTop: Some(
+                          () => {
+                            let label = switch (
+                              pmtData.payment_method_subtype->getPMTFromString,
+                              pm->getPMFromString,
+                              connector->ConnectorUtils.getConnectorNameTypeFromString,
+                            ) {
+                            | (PayPal, Wallet, Processors(PAYPAL)) =>
+                              pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
+                                ? "PayPal Redirect"
+                                : "PayPal SDK"
+                            | (Klarna, PayLater, Processors(KLARNA)) =>
+                              pmtData.payment_experience->Option.getOr("") == "redirect_to_url"
+                                ? "Klarna Checkout"
+                                : "Klarna SDK"
+                            | (OpenBankingPIS, _, _) => "Open Banking PIS"
+                            | _ => pmtData.payment_method_subtype->snakeToTitle
+                            }
+
+                            let pmtIndex = switch paymentMethodTypeValues {
+                            | Some(pmt) => {
+                                let isPMTEnabled =
+                                  pmt.payment_method_subtypes->Array.findIndex(val =>
+                                    val.payment_method_subtype == pmtData.payment_method_subtype
+                                  )
+                                isPMTEnabled == -1
+                                  ? pmt.payment_method_subtypes->Array.length
+                                  : isPMTEnabled
+                              }
+                            | None => 0
+                            }
+
+                            <PaymentMethodTypes
+                              pm
+                              label
+                              pmtData
+                              pmIndex
+                              pmtIndex
+                              connector
+                              showCheckbox=true
+                              index=i
+                              onClick={Some(() => onClick(pmtData, pmtIndex))}
+                              formValues
+                              customLabelCss="!mt-3"
+                            />
+                          },
+                        ),
+                      },
+                    ]}
+                    accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                    contentExpandCss="p-0 "
+                    accordianBottomContainerCss="!p-2 flex justify-between w-full !font-normal !text-fs-16"
+                    gapClass="flex flex-col gap-8"
+                  />
+                })
+                ->React.array}
+              </div>
+            </div>
           </RenderIf>
         </div>
       </div>

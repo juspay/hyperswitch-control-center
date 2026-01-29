@@ -21,18 +21,18 @@ module InOutComponent = {
         <div className="flex flex-row flex-[1] justify-between items-center">
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.data.inAmount->React.string}
+              {statusItem.reconStatusData.inAmount->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.data.inTxns->React.string}
+              {statusItem.reconStatusData.inTxns->React.string}
             </p>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">
             <p className={`${body.md.semibold} text-nd_gray-600`}>
-              {statusItem.data.outAmount->React.string}
+              {statusItem.reconStatusData.outAmount->React.string}
             </p>
             <p className={`${body.sm.medium} text-nd_gray-400`}>
-              {statusItem.data.outTxns->React.string}
+              {statusItem.reconStatusData.outTxns->React.string}
             </p>
           </div>
         </div>
@@ -120,9 +120,10 @@ module FlowWithLayoutControls = {
 }
 
 @react.component
-let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
   open ReactFlow
+  open LogicUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedNodeId, setSelectedNodeId) = React.useState(_ => None)
@@ -131,6 +132,7 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let (reactFlowNodes, setNodes, onNodesChange) = useNodesState([])
   let (reactFlowEdges, setEdges, onEdgesChange) = useEdgesState([])
+  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
   let handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(prev => {
@@ -145,10 +147,17 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let accountData = await getAccounts()
-      let allTransactions = await getTransactions()
+
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let allTransactions = await getTransactions(
+        ~queryParameters=Some(
+          `${queryString}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`,
+        ),
+      )
       let accountTransactionData = processAllTransactionsWithAmounts(
         reconRulesList,
         allTransactions,
+        accountData,
       )
 
       setAllData(_ => Some((reconRulesList, accountData, accountTransactionData, allTransactions)))
@@ -175,9 +184,11 @@ let make = (~reconRulesList: array<ReconEngineTypes.reconRuleType>) => {
   }
 
   React.useEffect(() => {
-    getAccountsData()->ignore
+    if !(filterValue->isEmptyDict) {
+      getAccountsData()->ignore
+    }
     None
-  }, [])
+  }, [filterValue])
 
   React.useEffect(() => {
     switch allData {

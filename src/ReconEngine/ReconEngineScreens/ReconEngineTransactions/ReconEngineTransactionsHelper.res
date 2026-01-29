@@ -71,17 +71,20 @@ module TransactionDetails = {
 
 module TransactionDetailInfo = {
   @react.component
-  let make = (~currentTransactionDetails: ReconEngineTypes.transactionType) => {
+  let make = (
+    ~currentTransactionDetails: ReconEngineTypes.transactionType,
+    ~detailsFields: array<TransactionsTableEntity.transactionColType>,
+    ~customWidthClass="w-1/4",
+  ) => {
     open TransactionsTableEntity
 
     let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1300px)")
     let widthClass = if isMiniLaptopView {
-      "md:w-1/3 w-1/2"
+      "md:w-1/2 w-full"
     } else {
-      "w-1/4"
+      customWidthClass
     }
     let isArchived = currentTransactionDetails.transaction_status == Archived
-    let detailsFields: array<transactionColType> = [TransactionId, Status, Variance, CreatedAt]
     <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
       <RenderIf condition={isArchived}>
         <p
@@ -105,13 +108,19 @@ module EntryAuditTrailInfo = {
   open ReconEngineTypes
 
   @react.component
-  let make = (~entriesList: array<entryType>=[]) => {
+  let make = (
+    ~openedTransaction: ReconEngineTypes.transactionType,
+    ~entriesList: array<entryType>=[],
+  ) => {
     open EntriesTableEntity
     open ReconEngineTransactionsUtils
     open ReconEngineUtils
-
+    let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+    let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+    let pageDetail = pageDetailDict->Dict.get("Entries")->Option.getOr(defaultValue)
+    let (offset, setOffset) = React.useState(_ => pageDetail.offset)
     let mainEntry = React.useMemo(() => {
-      entriesList->Array.get(0)->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+      entriesList->getValueFromArray(0, Dict.make()->transactionsEntryItemToObjMapperFromDict)
     }, [entriesList])
 
     let expectedEntries = React.useMemo(() => {
@@ -149,8 +158,7 @@ module EntryAuditTrailInfo = {
     }
 
     let getRowDetails = (rowIndex: int) => {
-      let entry =
-        reconciledEntries->Array.get(rowIndex)->Option.getOr(Dict.make()->entryItemToObjMapper)
+      let entry = reconciledEntries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
       let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
@@ -176,7 +184,19 @@ module EntryAuditTrailInfo = {
       expectedEntries->Array.map(entry =>
         detailsFields->Array.map(colType => getCell(entry, colType))
       )
-    <div className="flex flex-col gap-4 mb-6 px-2 mt-6">
+    <div className="flex flex-col gap-4 px-2 my-6">
+      <RenderIf condition={openedTransaction.data.reason->Option.isSome}>
+        <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
+          <div className="flex flex-row justify-between">
+            <p className={`${body.lg.semibold} text-nd_gray-700`}>
+              {"Resolution Remark"->React.string}
+            </p>
+          </div>
+          <p className={`${body.md.medium} text-nd_gray-500`}>
+            {openedTransaction.data.reason->Option.getOr("")->React.string}
+          </p>
+        </div>
+      </RenderIf>
       <div className="w-full border border-nd_gray-150 rounded-xl p-2 relative">
         <RenderIf condition={isArchived}>
           <p
@@ -272,17 +292,34 @@ module EntryAuditTrailInfo = {
           </div>
         </div>
       </RenderIf>
+      <RenderIf condition={openedTransaction.linked_transaction->Option.isSome}>
+        <div className="flex flex-col gap-4">
+          <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
+          <div className="overflow-visible">
+            <LoadedTable
+              title="Linked Entries"
+              hideTitle=true
+              actualData={[openedTransaction]->Array.map(Nullable.make)}
+              entity={LinkedTransactionTableEntity.entriesEntityForLinkedTxn()}
+              resultsPerPage=10
+              showSerialNumber=false
+              totalResults={[openedTransaction]->Array.length}
+              offset
+              setOffset
+              currrentFetchCount={[openedTransaction]->Array.length}
+            />
+          </div>
+        </div>
+      </RenderIf>
     </div>
   }
 }
 
 module HierarchicalEntryRenderer = {
   @react.component
-  let make = (~fieldValue: string, ~containerClassName: string="", ~entryClassName: string="") => {
-    <div
-      key={randomString(~length=10)}
-      className={`px-8 py-3.5 text-sm text-gray-900 w-48 truncate whitespace-nowrap ${entryClassName}`}>
-      {fieldValue->React.string}
+  let make = (~fieldValue: string) => {
+    <div className="px-8 py-3.5">
+      <div className="truncate max-w-48 whitespace-nowrap h-7"> {fieldValue->React.string} </div>
     </div>
   }
 }
@@ -343,13 +380,27 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
+      let reasonText = switch transaction.data.posted_type {
+      | Some(ManuallyReconciled)
+      | Some(ForceReconciled) =>
+        transaction.data.reason
+      | _ => None
+      }
+
       let customComponent = {
         id: transaction.version->Int.toString,
-        customComponent: Some(<TransactionDetailInfo currentTransactionDetails=transaction />),
+        customComponent: Some(
+          <TransactionDetailInfo
+            currentTransactionDetails=transaction
+            detailsFields=[Status, Variance, CreatedAt]
+            customWidthClass="w-1/3"
+          />,
+        ),
         onClick: _ => {
           setOpenedTransaction(_ => transaction)
           setShowModal(_ => true)
         },
+        reasonText,
       }
       customComponent
     })
@@ -363,13 +414,17 @@ module AuditTrail = {
 
     let modalHeading = {
       <div className="flex justify-between border-b">
-        <div className="flex gap-4 items-center m-6">
-          <p className={`text-nd_gray-800 ${heading.sm.semibold}`}>
-            {openedTransaction.transaction_id->React.string}
-          </p>
+        <div className="flex items-center m-6 gap-4 w-full">
+          <HelperComponents.CopyTextCustomComp
+            customTextCss={`max-w-36 truncate whitespace-nowrap ${heading.sm.semibold} text-nd_gray-800`}
+            displayValue=Some(openedTransaction.transaction_id)
+          />
           <div
-            className={`px-3 py-1 rounded-lg ${body.md.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
-            {(openedTransaction.transaction_status :> string)->React.string}
+            className={`px-3 py-1 rounded-lg ${body.sm.semibold} ${openedTransaction.transaction_status->getTransactionStatusLabel}`}>
+            {openedTransaction.transaction_status
+            ->TransactionsTableEntity.getDomainTransactionStatusString
+            ->String.toUpperCase
+            ->React.string}
           </div>
         </div>
         <Icon
@@ -381,13 +436,14 @@ module AuditTrail = {
       </div>
     }
 
-    <div>
-      <div className="mb-6">
-        <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Audit Trail"->React.string} </p>
-        <p className={`text-nd_gray-500 ${body.md.medium}`}>
-          {"This section shows the audit trail of the transaction, including all changes made to it."->React.string}
+    <>
+      <div className="my-8">
+        <p className={`${body.lg.semibold} text-nd_gray-800`}> {"Audit Trail"->React.string} </p>
+        <p className={`text-nd_gray-400 mt-1 ${body.md.medium}`}>
+          {"An immutable history of every version and update made to this transaction"->React.string}
         </p>
       </div>
+      <AuditTrailStepIndicator sections />
       <Modal
         setShowModal
         showModal
@@ -405,7 +461,7 @@ module AuditTrail = {
           <div className="h-full relative">
             <div className="absolute inset-0 overflow-y-auto px-2 pb-20">
               <RenderIf condition={entriesList->Array.length > 0}>
-                <EntryAuditTrailInfo entriesList />
+                <EntryAuditTrailInfo openedTransaction entriesList />
               </RenderIf>
               <RenderIf condition={entriesList->Array.length === 0}>
                 <div className="text-center text-nd_gray-500 py-8">
@@ -425,7 +481,6 @@ module AuditTrail = {
           </div>
         </PageLoaderWrapper>
       </Modal>
-      <AuditTrailStepIndicator sections />
-    </div>
+    </>
   }
 }

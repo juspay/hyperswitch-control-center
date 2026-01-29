@@ -74,9 +74,10 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
-    let {userInfo: {profileId: currentprofileId}} = React.useContext(
+    let {profileId: currentprofileId} = React.useContext(
       UserInfoProvider.defaultContext,
-    )
+    ).getCommonSessionDetails()
+
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -115,8 +116,8 @@ module ActiveSection = {
           </div>
         </div>
         <ACLButton
-          authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-          text="Manage"
+          authorization={userHasAccess(~groupAccess=WorkflowsView)}
+          text="View and Manage"
           buttonType=Secondary
           customButtonStyle="w-4/3"
           buttonSize={Small}
@@ -185,9 +186,9 @@ let make = (~routingType: array<JSON.t>) => {
   let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     ).is_debit_routing_enabled->Option.getOr(false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)
   let gridClass = totalCards > 1 ? "grid grid-cols-1 lg:grid-cols-2 gap-9" : ""
   <div className={`mt-8 ${gridClass}`}>

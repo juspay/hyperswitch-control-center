@@ -1,4 +1,5 @@
 open ConnectorTypes
+open LogicUtils
 
 type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
@@ -30,6 +31,23 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(GIGADAT),
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
+]
+
+let payoutConnectorListForLive: array<connectorTypes> = [
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CYBERSOURCE),
+  PayoutProcessor(EBANX),
+  PayoutProcessor(PAYPAL),
+  PayoutProcessor(STRIPE),
+  PayoutProcessor(WISE),
+  PayoutProcessor(NOMUPAY),
+  PayoutProcessor(NUVEI),
+  PayoutProcessor(GIGADAT),
+  PayoutProcessor(LOONIO),
+  PayoutProcessor(WORLDPAY),
+  PayoutProcessor(WORLDPAYXML),
 ]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
@@ -41,11 +59,19 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(CARDINAL),
 ]
 
-let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+let threedsAuthenticatorListForLive: array<connectorTypes> = [
+  ThreeDsAuthenticator(NETCETERA),
+  ThreeDsAuthenticator(JUSPAYTHREEDSSERVER),
+  ThreeDsAuthenticator(CLICK_TO_PAY_VISA),
+]
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
 let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
+
+let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
+
+let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -90,6 +116,7 @@ let connectorList: array<connectorTypes> = [
   Processors(NOON),
   Processors(NUVEI),
   Processors(OPENNODE),
+  Processors(PAYJUSTNOW),
   Processors(PAYME),
   Processors(PAYU),
   Processors(PEACHPAYMENTS),
@@ -144,12 +171,17 @@ let connectorList: array<connectorTypes> = [
   Processors(LOONIO),
   Processors(TESOURO),
   Processors(FINIX),
+  Processors(ZIFT),
+  Processors(PAYJUSTNOWINSTORE),
+  Processors(AMAZONPAY),
+  Processors(WORLDPAYMODULAR),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
   Processors(ADYEN),
   Processors(AUTHORIZEDOTNET),
   Processors(ARCHIPEL),
+  Processors(AIRWALLEX),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
   Processors(BAMBORA),
@@ -162,22 +194,32 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(COINGATE),
   Processors(DATATRANS),
   Processors(FIUU),
+  Processors(GIGADAT),
   Processors(IATAPAY),
   Processors(KLARNA),
+  Processors(LOONIO),
   Processors(MIFINITY),
+  Processors(MOLLIE),
   Processors(NEXIXPAY),
   Processors(NMI),
   Processors(NOVALNET),
+  Processors(NUVEI),
   Processors(PAYPAL),
   Processors(PAYBOX),
   Processors(PAYME),
+  Processors(PEACHPAYMENTS),
   Processors(REDSYS),
   Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(VOLT),
   Processors(WORLDPAY),
+  Processors(WORLDPAYXML),
+  Processors(ZIFT),
   Processors(ZSL),
   Processors(ZEN),
+  Processors(WORLDPAYMODULAR),
+  Processors(PAYJUSTNOW),
+  Processors(PAYJUSTNOWINSTORE),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -192,6 +234,7 @@ let getPaymentMethodFromString = paymentMethod => {
   | "bank_transfer" => BankTransfer
   | "crypto" => Crypto
   | "bank_debit" => BankDebit
+  | "network_token" => NetworkToken
   | _ => UnknownPaymentMethod(paymentMethod)
   }
 }
@@ -210,6 +253,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "alipay" => AliPay
   | "wechatpay" => WeChatPay
   | "directcarrierbilling" => DirectCarrierBilling
+  | "amazon_pay" => AmazonPay
+  | "network_token" => NetworkToken
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -416,7 +461,7 @@ let nexinetsInfo = {
 }
 
 let forteInfo = {
-  description: "Payment processor specializing in secure and reliable payment solutions for variuos industries like healthcare.",
+  description: "Payment processor specializing in secure and reliable payment solutions for various industries like healthcare.",
 }
 
 let cryptopayInfo = {
@@ -552,7 +597,7 @@ let juspayThreeDsServerInfo = {
 }
 
 let unknownConnectorInfo = {
-  description: "unkown connector",
+  description: "Unknown connector",
 }
 
 let bankOfAmericaInfo = {
@@ -746,6 +791,29 @@ let finixInfo = {
   description: "Discover reliable, end-to-end payments technology for businesses of all types, industries, and sizes. With a single integration for omnichannel payments acceptance Finix offers hundreds of configurable ways for you to create the best payments solution for your business.",
 }
 
+let payjustnowInfo = {
+  description: "PayJustNow is a South African payment connector that enables customers to split online purchases into three interest-free monthly installments.",
+}
+
+let ziftInfo = {
+  description: "Zift is a modern payment technology provider offering embedded and integrated payment solutions for SaaS platforms, POS systems, and businesses of all sizes. With its Payments-as-a-Service (PaaS) model, Zift enables seamless onboarding, transaction processing, and API-driven integrations—helping companies deliver smooth, secure, and scalable payment experiences.",
+}
+
+let vgsInfo = {
+  description: "Very Good Security (VGS) is a data security platform that helps businesses protect sensitive information such as payment card data, personally identifiable information (PII), and other confidential data. VGS provides solutions for data tokenization, encryption, and secure data storage, allowing businesses to reduce their compliance scope and mitigate the risks associated with handling sensitive data.",
+}
+
+let payjustnowInStoreInfo = {
+  description: "PayJustNow In-Store provides a BNPL solution for online and in-store payments, enabling customers to pay in three interest-free installments while merchants get paid upfront.",
+}
+
+let amazonpayinfo = {
+  description: "Amazon Pay is an Alternative Payment Method (APM) connector that allows merchants to accept payments using customers' stored Amazon account details, providing a seamless checkout experience.",
+}
+
+let worldpayModularInfo = {
+  description: "Worldpaymodular is a payment gateway and PSP enabling secure online transactions, It utilizes modular API's of WorldPay.",
+}
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -849,6 +917,11 @@ let getConnectorNameString = (connector: processorTypes) =>
   | LOONIO => "loonio"
   | TESOURO => "tesouro"
   | FINIX => "finix"
+  | PAYJUSTNOW => "payjustnow"
+  | ZIFT => "zift"
+  | PAYJUSTNOWINSTORE => "payjustnowinstore"
+  | AMAZONPAY => "amazonpay"
+  | WORLDPAYMODULAR => "worldpaymodular"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -865,6 +938,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | GIGADAT => "gigadat"
   | LOONIO => "loonio"
   | WORLDPAY => "worldpay"
+  | WORLDPAYXML => "worldpayxml"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -906,6 +980,12 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   }
 }
 
+let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
+  switch vaultProcessor {
+  | VGS => "vgs"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
@@ -917,6 +997,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
     pmAuthenticationConnector->getPMAuthenticationConnectorNameString
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorNameString
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -1022,10 +1103,15 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "dwolla" => Processors(DWOLLA)
     | "paysafe" => Processors(PAYSAFE)
     | "peachpayments" => Processors(PEACHPAYMENTS)
+    | "payjustnow" => Processors(PAYJUSTNOW)
     | "gigadat" => Processors(GIGADAT)
     | "loonio" => Processors(LOONIO)
     | "tesouro" => Processors(TESOURO)
     | "finix" => Processors(FINIX)
+    | "zift" => Processors(ZIFT)
+    | "payjustnowinstore" => Processors(PAYJUSTNOWINSTORE)
+    | "amazonpay" => Processors(AMAZONPAY)
+    | "worldpaymodular" => Processors(WORLDPAYMODULAR)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1042,6 +1128,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "gigadat" => PayoutProcessor(GIGADAT)
     | "loonio" => PayoutProcessor(LOONIO)
     | "worldpay" => PayoutProcessor(WORLDPAY)
+    | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1075,6 +1162,11 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
+    | _ => UnknownConnector("Not known")
+    }
+  | VaultProcessor =>
+    switch connector {
+    | "vgs" => VaultProcessor(VGS)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -1183,6 +1275,11 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | LOONIO => loonioInfo
   | TESOURO => tesouroInfo
   | FINIX => finixInfo
+  | PAYJUSTNOW => payjustnowInfo
+  | ZIFT => ziftInfo
+  | PAYJUSTNOWINSTORE => payjustnowInStoreInfo
+  | AMAZONPAY => amazonpayinfo
+  | WORLDPAYMODULAR => worldpayModularInfo
   }
 }
 
@@ -1200,6 +1297,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | GIGADAT => gigadatInfo
   | LOONIO => loonioInfo
   | WORLDPAY => worldpayInfo
+  | WORLDPAYXML => worldpayxmlInfo
   }
 }
 
@@ -1240,6 +1338,12 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   }
 }
 
+let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
+  switch vaultProcessor {
+  | VGS => vgsInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
@@ -1250,12 +1354,12 @@ let getConnectorInfo = connector => {
     pmAuthenticationConnector->getOpenBankingProcessorInfo
   | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
   | BillingProcessor(billingProcessor) => billingProcessor->getBillingProcessorInfo
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getVaultProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
 
 let acceptedValues = dict => {
-  open LogicUtils
   let values = {
     type_: dict->getString("type", "enable_only"),
     list: dict->getStrArray("list"),
@@ -1264,7 +1368,6 @@ let acceptedValues = dict => {
 }
 
 let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType = dict => {
-  open LogicUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
@@ -1279,12 +1382,10 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
 }
 
 let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
-  open LogicUtils
   getArrayDataFromJson(json, itemProviderMapper)
 }
 
 let itemToObjMapper = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1297,7 +1398,6 @@ let itemToObjMapper = dict => {
 }
 
 let getPaymentMethodEnabled: JSON.t => array<paymentMethodEnabled> = json => {
-  open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
@@ -1334,13 +1434,13 @@ let ignoreFields = (json, id, fields) => {
     json
   } else {
     json
-    ->LogicUtils.getDictFromJsonObject
+    ->getDictFromJsonObject
     ->Dict.toArray
     ->Array.filter(entry => {
       let (key, _val) = entry
       !(fields->Array.includes(key))
     })
-    ->LogicUtils.getJsonFromArrayOfJson
+    ->getJsonFromArrayOfJson
   }
 }
 
@@ -1365,6 +1465,7 @@ let getConnectorType = (connector: ConnectorTypes.connectorTypes) => {
   | TaxProcessor(_) => "tax_processor"
   | FRM(_) => "payment_vas"
   | BillingProcessor(_) => "billing_processor"
+  | VaultProcessor(_) => "vault_processor"
   | UnknownConnector(str) => str
   }
 }
@@ -1376,7 +1477,7 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
   )
   ->Option.getOr({
     payment_method: "unknown",
-    payment_method_type: "unkonwn",
+    payment_method_type: "unknown",
   })
 }
 
@@ -1480,7 +1581,6 @@ let generateInitialValuesDict = (
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
 ) => {
-  open LogicUtils
   let dict = values->getDictFromJsonObject
 
   let connectorAccountDetails =
@@ -1521,7 +1621,15 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   [
     ("connector_type", connectorType->JSON.Encode.string),
     ("disabled", !previousConnectorState->JSON.Encode.bool),
-  ]->Dict.fromArray
+  ]->getJsonFromArrayOfJson
+}
+
+let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merchantId) => {
+  [
+    ("connector_type", connectorType->JSON.Encode.string),
+    ("disabled", !previousConnectorState->JSON.Encode.bool),
+    ("merchant_id", merchantId->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
 }
 
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
@@ -1533,8 +1641,14 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
   }
 }
 
+let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
+  switch (connector, fieldName) {
+  | (Processors(PAYLOAD), "processing_account_id") => false
+  | _ => true
+  }
+}
+
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
-  open LogicUtils
   let authKeyMap =
     connectorAccountFields
     ->getDictfromDict("auth_key_map")
@@ -1543,7 +1657,6 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   convertMapObjectToDict(authKeyMap)
 }
 let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
-  open LogicUtils
   keys->Array.map(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
@@ -1552,7 +1665,6 @@ let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
 }
 
 let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
-  open LogicUtils
   let value = dict->getDictfromDict(country)->Dict.keysToArray
   let result = value->Array.map(method => {
     let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
@@ -1563,8 +1675,11 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
 }
 
 let checkPayloadFields = (dict, country, valuesFlattenJson) => {
-  open LogicUtils
-  let keys = dict->getDictfromDict(country)->Dict.keysToArray
+  let keys =
+    dict
+    ->getDictfromDict(country)
+    ->Dict.keysToArray
+    ->Array.filter(field => checkAuthKeyMapRequiredFields(Processors(PAYLOAD), field))
 
   keys->Array.every(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
@@ -1582,7 +1697,6 @@ let validateConnectorRequiredFields = (
   connectorLabelDetailField,
   errors,
 ) => {
-  open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   switch connector {
   | Processors(CASHTOCODE) => {
@@ -1698,14 +1812,13 @@ let validateConnectorRequiredFields = (
 }
 
 let getPlaceHolder = label => {
-  `Enter ${label->LogicUtils.snakeToTitle}`
+  `Enter ${label->snakeToTitle}`
 }
 
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])
 let getConnectorFields = connectorDetails => {
-  open LogicUtils
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getJsonObjectFromDict("connector_auth")
   let bodyType = switch connectorAccountDict->JSON.Classify.classify {
@@ -1738,7 +1851,6 @@ let getConnectorFields = connectorDetails => {
 }
 
 let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
-  open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   dict
   ->Dict.keysToArray
@@ -1765,7 +1877,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
       valuesFlattenJson
       ->Dict.get(key)
       ->Option.getOr(""->JSON.Encode.string)
-      ->LogicUtils.getStringFromJson("")
+      ->getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
     | Some(regex) => regex->RegExp.fromString->RegExp.test(value)
@@ -1776,7 +1888,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
         labelArr
         ->Array.get(index)
         ->Option.getOr(""->JSON.Encode.string)
-        ->LogicUtils.getStringFromJson("")
+        ->getStringFromJson("")
       Dict.set(errors, key, `Please enter ${errorLabel}`->JSON.Encode.string)
     } else if !validationResult && value->String.length !== 0 {
       let expectedFormat = isLiveMode ? field.liveExpectedFormat : field.testExpectedFormat
@@ -1785,7 +1897,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
     }
   })
 
-  let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+  let profileId = valuesFlattenJson->getString("profile_id", "")
   if profileId->String.length === 0 {
     Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
   }
@@ -1847,7 +1959,6 @@ let getWebhooksUrl = (~connectorName, ~merchantId) => {
 }
 
 let itemToPMAuthMapper = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -1857,7 +1968,6 @@ let itemToPMAuthMapper = dict => {
 }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
-  open LogicUtils
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
@@ -1919,7 +2029,6 @@ let defaultSelectAllCards = (
   connector,
   updateDetails,
 ) => {
-  open LogicUtils
   if !isUpdateFlow {
     let config =
       (
@@ -1984,7 +2093,6 @@ let getConnectorPaymentMethodDetails = async (
   ~connector,
   ~updateDetails,
 ) => {
-  open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
     let metaData = initialValues->getDictFromJsonObject->getJsonObjectFromDict("metadata")
@@ -2113,6 +2221,11 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | LOONIO => "Loonio"
   | TESOURO => "Tesouro"
   | FINIX => "Finix"
+  | PAYJUSTNOW => "PayJustNow"
+  | PAYJUSTNOWINSTORE => "PayJustNow In-Store"
+  | ZIFT => "Zift"
+  | AMAZONPAY => "Amazon Pay"
+  | WORLDPAYMODULAR => "Worldpay Modular"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2129,6 +2242,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | GIGADAT => "Gigadat"
   | LOONIO => "Loonio"
   | WORLDPAY => "Worldpay"
+  | WORLDPAYXML => "Worldpay WPG"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2167,6 +2281,12 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   }
 }
 
+let getDisplayNameForVaultProcessor = vaultProcessor => {
+  switch vaultProcessor {
+  | VGS => "VGS"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
@@ -2179,6 +2299,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
     pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
   | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
   | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -2193,6 +2314,7 @@ let connectorTypeTuple = connectorType => {
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
   | "tax_processor" => (TaxProcessor, TaxProcessor)
   | "billing_processor" => (BillingProcessor, BillingProcessor)
+  | "vault_processor" => (VaultProcessor, VaultProcessor)
   | _ => (PaymentProcessor, Processor)
   }
 }
@@ -2205,6 +2327,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "payment_method_auth" => PMAuthProcessor
   | "tax_processor" => TaxProcessor
   | "billing_processor" => BillingProcessor
+  | "vault_processor" => VaultProcessor
   | "payment_processor"
   | _ =>
     PaymentProcessor
@@ -2220,11 +2343,11 @@ let connectorTypeTypedValueToStringMapper = val => {
   | TaxProcessor => "tax_processor"
   | PaymentProcessor => "payment_processor"
   | BillingProcessor => "billing_processor"
+  | VaultProcessor => "vault_processor"
   }
 }
 
 let sortByName = (c1, c2) => {
-  open LogicUtils
   compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
 }
 
@@ -2241,7 +2364,6 @@ let existsInArray = (element, connectorList) => {
 // Need to refactor
 
 let updateMetaData = (~metaData) => {
-  open LogicUtils
   let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
   let manual = apple_pay_combined->getDictfromDict("manual")
   switch manual->Dict.keysToArray->Array.length > 0 {
@@ -2260,10 +2382,7 @@ let updateMetaData = (~metaData) => {
 
 let sortByDisableField = (arr: array<'a>, getDisabledStatus: 'a => bool) => {
   arr->Array.sort((a, b) =>
-    LogicUtils.numericArraySortComperator(
-      getDisabledStatus(a) ? 1.0 : 0.0,
-      getDisabledStatus(b) ? 1.0 : 0.0,
-    )
+    numericArraySortComperator(getDisabledStatus(a) ? 1.0 : 0.0, getDisabledStatus(b) ? 1.0 : 0.0)
   )
 }
 

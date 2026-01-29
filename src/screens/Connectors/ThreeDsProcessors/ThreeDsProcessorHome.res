@@ -62,10 +62,11 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let updateDetails = useUpdateMethod()
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"3ds-authenticators", "new"} => false
@@ -139,7 +140,7 @@ let make = () => {
       )
 
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -184,7 +185,7 @@ let make = () => {
           ~values,
           ~connector=connectorName,
           ~bodyType,
-          ~isLiveMode={false},
+          ~isLiveMode,
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(

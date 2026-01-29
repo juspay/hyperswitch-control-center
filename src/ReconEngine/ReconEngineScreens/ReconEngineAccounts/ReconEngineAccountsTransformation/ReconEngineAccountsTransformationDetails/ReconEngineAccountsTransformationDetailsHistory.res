@@ -30,7 +30,8 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase((obj.status :> string), searchText) ||
-          isContainingStringLowercase(obj.transformation_history_id, searchText)
+          isContainingStringLowercase(obj.transformation_history_id, searchText) ||
+          isContainingStringLowercase(obj.ingestion_history_id, searchText)
         | None => false
         }
       })
@@ -85,7 +86,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
           `&transformation_id=${config.transformation_id}`,
         )
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(queryString),
+        ~queryParameters=Some(queryString),
       )
       let transformationHistoryData = transformationHistoryList->Array.map(Nullable.make)
       setTransformationHistoryList(_ => transformationHistoryData)
@@ -128,7 +129,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
         filters={<TableSearchFilter
           data={transformationHistoryList}
           filterLogic
-          placeholder="Search by Transformation History ID or Status"
+          placeholder="Search by Transformation History or Ingestion History ID"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full rounded-xl"
           searchVal=searchText

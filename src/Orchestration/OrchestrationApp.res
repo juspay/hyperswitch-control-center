@@ -5,7 +5,7 @@ let make = (~setScreenState) => {
   let url = RescriptReactRouter.useUrl()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
-    useIsFeatureEnabledForBlackListMerchant,
+    isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -29,8 +29,11 @@ let make = (~setScreenState) => {
     | list{"3ds-authenticators", ..._}
     | list{"pm-authentication-processor", ..._}
     | list{"tax-processor", ..._}
+    | list{"billing-processor", ..._}
+    | list{"vault-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
+    | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
@@ -58,7 +61,7 @@ let make = (~setScreenState) => {
     | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
-        useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)}
+        isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="NewAnalytics" index="NewAnalytics">
           <InsightsAnalyticsContainer />
@@ -132,6 +135,18 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=OperationsView)}>
         <PaymentIntentTable />
       </AccessControl>
+    | list{"payouts-global"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.globalSearch}
+        authorization={userHasAccess(~groupAccess=OperationsView)}>
+        <PayoutTable key={url.search} />
+      </AccessControl>
+    | list{"payout-attempts"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.globalSearch}
+        authorization={userHasAccess(~groupAccess=OperationsView)}>
+        <PayoutAttemptTable key={url.search} />
+      </AccessControl>
     | list{"refunds-global"} =>
       <AccessControl
         isEnabled={featureFlagDetails.globalSearch}
@@ -147,7 +162,7 @@ let make = (~setScreenState) => {
     | list{"unauthorized"} => <UnauthorizedPage />
     | list{"chat-bot"} =>
       <AccessControl
-        isEnabled={featureFlagDetails.devAiChatBot}
+        isEnabled={featureFlagDetails.devAiChatBot && !checkUserEntity([#Profile])}
         // TODO: Remove `MerchantDetailsView` permission in future
         authorization={hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsView),

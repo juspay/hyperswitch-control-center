@@ -6,8 +6,8 @@ module OrganisationSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
-
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+    let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
     | #Tenant | #Organization | #Merchant | #Profile => true
     }
@@ -15,6 +15,7 @@ module OrganisationSelection = {
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
         let _ = await internalSwitch(~expectedOrgId=Some(event->Identity.formReactEventToString))
+        form.change("role_id", JSON.Encode.null)
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -57,9 +58,9 @@ module MerchantSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
-
+    let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
     | #Tenant | #Organization => false
@@ -80,7 +81,7 @@ module MerchantSelection = {
           let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
           setShowSwitchingMerchant(_ => false)
         }
-
+        form.change("role_id", JSON.Encode.null)
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -105,6 +106,8 @@ module MerchantSelection = {
           ~dropdownCustomWidth="!w-full",
           ~textStyle="!text-gray-500",
           ~disableSelect,
+          ~ellipsisOnly=true,
+          ~maxButtonWidth="max-w-200 xl:max-w-xs",
         )(
           ~input={
             ...input,
@@ -131,7 +134,7 @@ module ProfileSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -187,7 +190,7 @@ module ProfileSelection = {
           let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
           setShowSwitchingProfile(_ => false)
         }
-
+        form.change("role_id", JSON.Encode.null)
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -212,6 +215,8 @@ module ProfileSelection = {
           ~dropdownCustomWidth="!w-full",
           ~textStyle="!text-gray-500",
           ~disableSelect,
+          ~ellipsisOnly=true,
+          ~maxButtonWidth="max-w-200 xl:max-w-xs",
         )(
           ~input={
             ...input,

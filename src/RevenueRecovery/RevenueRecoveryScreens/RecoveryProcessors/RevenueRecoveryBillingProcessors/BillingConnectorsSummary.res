@@ -14,13 +14,13 @@ module WebhooksConfiguration = {
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
       ~version=UserInfoTypes.V2,
     )
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let (isEditMode, setIsEditMode) = React.useState(_ => false)
     let (merchantBusinessProfileInfo, setMerchantBusinessProfileInfo) = React.useState(() =>
-      JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV2
+      JSON.Encode.null->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
     )
 
     let onSubmit = async (values, _) => {
@@ -47,7 +47,7 @@ module WebhooksConfiguration = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
         setMerchantBusinessProfileInfo(_ =>
-          profile->BusinessProfileInterfaceUtils.mapJsonToBusinessProfileV2
+          profile->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
         )
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -546,7 +546,7 @@ let make = () => {
   open LogicUtils
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let removeFieldsFromRespose = json => {
     let dict = json->getDictFromJsonObject

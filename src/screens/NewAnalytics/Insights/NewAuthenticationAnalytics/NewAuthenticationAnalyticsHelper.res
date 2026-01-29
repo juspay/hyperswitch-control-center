@@ -1,5 +1,6 @@
 open LogicUtils
 open LogicUtilsTypes
+open CurrencyFormatUtils
 
 module StatCard = {
   @react.component
@@ -41,7 +42,7 @@ module Insights = {
         let insightsUrl = getURL(~entityName=V1(ANALYTICS_AUTHENTICATION_V2), ~methodType=Post)
 
         let infoQueryResponse = if isSampleDataEnabled {
-          let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+          let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
           let res = await fetchApi(
             paymentsUrl,
             ~method_=Get,

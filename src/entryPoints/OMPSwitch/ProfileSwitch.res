@@ -6,10 +6,14 @@ module NewProfileCreationModal = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let createNewProfile = async values => {
       try {
-        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+        let url = switch version {
+        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
+        }
         let body = values
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         let _ = await updateDetails(url, body, Post)
@@ -132,13 +136,18 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let {userInfo: {profileId, version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId, version} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
   let isMobileView = MatchMedia.useMobileChecker()
+  let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
 
   let widthClass = isMobileView ? "w-full" : "md:w-[14rem] md:max-w-[20rem]"
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
@@ -164,14 +173,14 @@ let make = () => {
       }
     }
   }
-  let customStyle = "text-primary bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+  let customStyle = `${primaryNormal} bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full`
   let addItemBtnStyle = "w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = `${roundedClass} border border-1 ${widthClass}`
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
-      let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
+      let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true, ~version)
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
@@ -218,11 +227,6 @@ let make = () => {
     listItem
   })
 
-  let bottomComponent = switch version {
-  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
-  | V2 => React.null
-  }
-
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -239,7 +243,7 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent
+      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

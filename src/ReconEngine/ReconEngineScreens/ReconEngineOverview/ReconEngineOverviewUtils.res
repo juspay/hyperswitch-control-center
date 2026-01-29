@@ -5,6 +5,7 @@ open ReconEngineAccountsUtils
 open ColumnGraphUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
+open CurrencyFormatUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
@@ -29,7 +30,7 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
     accountData
     ->Array.find(account => account.account_id === accountId)
     ->Option.getOr(Dict.make()->getAccountPayloadFromDict)
-  (account.account_name, account.currency->LogicUtils.isEmptyString ? "N/A" : account.currency)
+  (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
 let calculateAccountAmounts = (
@@ -54,7 +55,7 @@ let calculateAccountAmounts = (
     let debitAmount = transaction.debit_amount.value
 
     switch transaction.transaction_status {
-    | Posted => (
+    | Posted(_) => (
         sPosted +. creditAmount,
         tPosted +. debitAmount,
         sMismatched,
@@ -62,7 +63,7 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | Mismatched => (
+    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (
         sPosted,
         tPosted,
         sMismatched +. creditAmount,
@@ -70,7 +71,15 @@ let calculateAccountAmounts = (
         sExpected,
         tExpected,
       )
-    | Expected => (
+    | UnderAmount(Expected) | OverAmount(Expected) | Expected => (
+        sPosted,
+        tPosted,
+        sMismatched,
+        tMismatched,
+        sExpected +. creditAmount,
+        tExpected +. debitAmount,
+      )
+    | PartiallyReconciled => (
         sPosted,
         tPosted,
         sMismatched,
@@ -109,9 +118,13 @@ let calculateAccountAmounts = (
 let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
-    | Posted => (posted + 1, mismatched, expected)
-    | Mismatched => (posted, mismatched + 1, expected)
-    | Expected => (posted, mismatched, expected + 1)
+    | Posted(_) => (posted + 1, mismatched, expected)
+    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (posted, mismatched + 1, expected)
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled => (
+        posted,
+        mismatched,
+        expected + 1,
+      )
     | _ => (posted, mismatched, expected)
     }
   })
@@ -132,7 +145,7 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
         color: expectedColor,
       },
       {
-        name: "Posted",
+        name: "Reconciled",
         data: [postedCount->Int.toFloat],
         color: postedColor,
       },
@@ -272,17 +285,24 @@ let createColumnGraphCountPayload = (
 }
 
 let initialDisplayFilters = () => {
-  let statusOptions = ReconEngineFilterUtils.getTransactionStatusOptions([
-    Mismatched,
+  let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
+    Posted(Auto),
+    Posted(Manual),
+    OverAmount(Mismatch),
+    OverAmount(Expected),
+    UnderAmount(Mismatch),
+    UnderAmount(Expected),
+    DataMismatch,
+    PartiallyReconciled,
     Expected,
-    Posted,
+    Void,
   ])
   [
     (
       {
         field: FormRenderer.makeFieldInfo(
           ~label="transaction_status",
-          ~name="transaction_status",
+          ~name="status",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",

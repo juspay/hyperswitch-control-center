@@ -6,11 +6,14 @@ let make = (
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
   ~connector,
+  ~appleIntegrationType,
 ) => {
   open LogicUtils
   open APIUtils
   open ApplePayIntegrationHelper
   open ApplePayIntegrationUtils
+  open Typography
+
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
@@ -19,7 +22,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let form = ReactFinalForm.useForm()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
@@ -29,8 +32,9 @@ let make = (
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
+
   let setFormData = () => {
-    let value = applePayCombined(initalFormValue, #simplified)
+    let value = applePayCombined(initalFormValue, #simplified, connector)
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
@@ -49,7 +53,7 @@ let make = (
         ->getDictFromJsonObject
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
-        ->simplified
+        ->simplified(connector)
       let domainName = data.session_token_data.initiative_context->Option.getOr("")
 
       setVefifiedDomainList(_ => [domainName])
@@ -121,6 +125,7 @@ let make = (
                 ApplePayIntegrationUtils.applePayNameMapper(
                   ~name="merchant_business_country",
                   ~integrationType=Some(#simplified),
+                  ~connector,
                 )
               },
             )}
@@ -128,13 +133,29 @@ let make = (
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)})}
+            field={applePayValueInput(
+              ~applePayField,
+              ~integrationType={Some(#simplified)},
+              ~connector,
+            )}
           />
         }}
       </div>
     })
     ->React.array
-  <>
+  <div className="p-6">
+    <div className="flex gap-4">
+      <Icon
+        name="nd-arrow-left "
+        onClick={_ => {
+          setApplePayIntegrationSteps(_ => Landing)
+        }}
+        className="cursor-pointer"
+      />
+      <span className={body.lg.semibold}>
+        {appleIntegrationType->getHeadingBasedOnApplePayFlow->React.string}
+      </span>
+    </div>
     <SimplifiedHelper
       customElement={applePaySimplifiedFields}
       heading="Provide your sandbox domain where the verification file will be hosted"
@@ -158,6 +179,7 @@ let make = (
         prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
             ~name="initiative_context",
             ~integrationType=Some(#simplified),
+            ~connector,
           )}`}
       />}
     />
@@ -176,13 +198,14 @@ let make = (
       | _ => React.null
       }}
     </RenderIf>
-    <div className="w-full flex gap-2 justify-end p-6">
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"
@@ -190,8 +213,9 @@ let make = (
         onClick={_ => {
           onSubmit()->ignore
         }}
+        customButtonStyle="w-full"
         buttonState={formState.values->validateSimplifedFlow}
       />
     </div>
-  </>
+  </div>
 }

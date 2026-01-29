@@ -8,6 +8,12 @@ type event = {data: string}
 external parent: 't = "parent"
 
 @val @scope("window")
+external self: 't = "self"
+
+@val @scope("window")
+external top: 't = "top"
+
+@val @scope("window")
 external addEventListener: (string, listener<'ev>) => unit = "addEventListener"
 
 @val @scope("window")
@@ -104,6 +110,9 @@ external getPMAuthenticationProcessorConfig: string => JSON.t = "getPMAuthentica
 external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
 
 @val @scope("window")
+external getBillingConnectorConfig: string => JSON.t = "getBillingConnectorConfig"
+
+@val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
 
 @val @scope("window")
@@ -114,6 +123,9 @@ external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCat
 
 @val @scope("window")
 external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
+
+@val @scope("window")
+external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
 module MatchMedia = {
   type matchEvent = {
@@ -261,7 +273,7 @@ module FcWidget = {
 @val @scope("window")
 external fcWidget: 'a = "fcWidget"
 
-type boundingClient = {x: int, y: int, width: int, height: int}
+type boundingClient = {x: int, y: int, width: int, height: int, left: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
 @val @scope("window")
@@ -285,3 +297,12 @@ module URL = {
   @send external append: (searchParams, string, string) => unit = "append"
   @get external href: t => string = "href"
 }
+
+@val @scope("window")
+external paymentLinkWasmInit: 'a => Promise.t<JSON.t> = "paymentLinkInit"
+
+@val @scope("window")
+external validatePaymentLinkConfig: string => string = "validate_payment_link_config"
+
+@val @scope("window")
+external generatePaymentLinkPreview: string => string = "generate_payment_link_preview"

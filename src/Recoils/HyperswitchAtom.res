@@ -16,11 +16,6 @@ let organizationDetailsValueAtom: Recoil.recoilAtom<
   JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
 )
 
-let businessProfilesAtom = Recoil.atom(
-  "businessProfileDetails",
-  JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
-)
-
 let connectorListAtom: Recoil.recoilAtom<
   array<ConnectorTypes.connectorPayloadCommonType>,
 > = Recoil.atom("connectorListAtom", [])
@@ -28,13 +23,15 @@ let connectorListAtom: Recoil.recoilAtom<
 //Todo: remove this once we start using businessProfileInterface
 let businessProfileFromIdAtom = Recoil.atom(
   "businessProfileFromIdAtom",
-  JSON.Encode.null->BusinessProfileMapper.businessProfileTypeMapper,
+  JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
 )
 //Todo:remove this after businessProfileInterface is stable
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
-  JSON.Encode.null,
+  JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
 )
+
+let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
 
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 

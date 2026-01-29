@@ -1,4 +1,5 @@
 open InsightsPaymentsOverviewSectionTypes
+open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -7,6 +8,7 @@ let getStringFromVariant = value => {
   | Total_Payment_Processed_Amount => "total_payment_processed_amount"
   | Total_Refund_Processed_Amount => "total_refund_processed_amount"
   | Total_Dispute => "total_dispute"
+  | Total_Authorised_Uncaptured_Count => "payment_intent_count"
   }
 }
 
@@ -17,23 +19,24 @@ let defaultValue =
     total_payment_processed_amount: 0.0,
     total_refund_processed_amount: 0.0,
     total_dispute: 0,
+    total_authorised_uncaptured_count: 0,
   }
   ->Identity.genericTypeToJson
-  ->LogicUtils.getDictFromJsonObject
+  ->getDictFromJsonObject
 
-let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None) => {
+let getPayload = (~entity, ~metrics, ~startTime, ~endTime, ~filter=None, ~groupByNames=None) => {
   open InsightsTypes
   InsightsUtils.requestBody(
     ~startTime,
     ~endTime,
     ~delta=entity.requestBodyConfig.delta,
     ~metrics,
+    ~groupByNames,
     ~filter,
   )
 }
 
 let parseResponse = (response, key) => {
-  open LogicUtils
   response
   ->getDictFromJsonObject
   ->getArrayFromDict(key, [])
@@ -41,9 +44,25 @@ let parseResponse = (response, key) => {
   ->getDictFromJsonObject
 }
 
+let parseResponseAuthorisedUncapturedPayments = (response, key) => {
+  let requiresCaptureStatus = PaymentsLifeCycleUtils.getStringFromStatusVariantType(RequiresCapture)
+
+  let responseArray =
+    response
+    ->getDictFromJsonObject
+    ->getArrayFromDict(key, [])
+
+  responseArray
+  ->Array.find(data => {
+    data->getDictFromJsonObject->getString("status", "") == requiresCaptureStatus
+  })
+  ->Option.getOr(Dict.make()->JSON.Encode.object)
+  ->getDictFromJsonObject
+}
+
 open InsightsTypes
 let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
-  open LogicUtils
+  open CurrencyFormatUtils
   let key = switch id {
   | Total_Dispute => #total_dispute
   | Total_Refund_Processed_Amount =>
@@ -56,6 +75,7 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
     | Smart_Retry => #total_success_rate
     | Default => #total_success_rate_without_smart_retries
     }
+  | Total_Authorised_Uncaptured_Count => #total_authorised_uncaptured_count
   | Total_Smart_Retried_Amount =>
     switch (isSmartRetryEnabled, currency->getTypeValue) {
     | (Smart_Retry, #all_currencies) => #total_smart_retried_amount_in_usd
@@ -75,7 +95,6 @@ let getKey = (id, ~isSmartRetryEnabled=Smart_Retry, ~currency="") => {
 }
 
 let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currency) => {
-  open LogicUtils
   open NewAnalyticsUtils
   ids->Array.forEach(id => {
     let key = id->getStringFromVariant
@@ -84,13 +103,17 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>, ~metricType, ~currenc
     | Total_Smart_Retried_Amount
     | Total_Payment_Processed_Amount =>
       data
-      ->getAmountValue(~id=id->getKey(~isSmartRetryEnabled=metricType, ~currency))
+      ->getAmountValue(~id=id->getKey(~isSmartRetryEnabled=metricType, ~currency), ~currency)
       ->JSON.Encode.float
     | Total_Refund_Processed_Amount =>
       data
-      ->getAmountValue(~id={id->getKey(~currency)})
+      ->getAmountValue(~id={id->getKey(~currency)}, ~currency)
       ->JSON.Encode.float
     | Total_Dispute =>
+      data
+      ->getFloat(key, 0.0)
+      ->JSON.Encode.float
+    | Total_Authorised_Uncaptured_Count =>
       data
       ->getFloat(key, 0.0)
       ->JSON.Encode.float
@@ -134,11 +157,15 @@ let getInfo = (~responseKey: overviewColumns) => {
       description: "Total number of disputes irrespective of status in the selected time range",
       valueType: Volume,
     }
+  | Total_Authorised_Uncaptured_Count => {
+      titleText: "Authorised Uncaptured Payments Count",
+      description: "Total amount of authorised but uncaptured payments in the selected time range",
+      valueType: Volume,
+    }
   }
 }
 
 let getValueFromObj = (data, index, responseKey) => {
-  open LogicUtils
   data
   ->getArrayFromJson([])
   ->getValueFromArray(index, Dict.make()->JSON.Encode.object)

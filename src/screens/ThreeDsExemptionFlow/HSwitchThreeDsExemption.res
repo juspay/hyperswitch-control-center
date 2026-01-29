@@ -8,7 +8,14 @@ external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   @react.component
-  let make = (~initialRule) => {
+  let make = (~initialRule, ~setInitialRule) => {
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let showPopUp = PopUpState.useShowPopUp()
+    let showToast = ToastState.useShowToast()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
     let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
@@ -18,6 +25,35 @@ module ActiveRulePreview = {
       ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
       ->AdvancedRoutingUtils.ruleInfoTypeMapperForThreeDsExemption
+
+    let deleteCurrentThreedsRule = async () => {
+      try {
+        let url = getURL(~entityName=V1(THREE_DS_EXEMPTION_DELETE_RULE), ~methodType=Post)
+        let body =
+          [
+            ("transaction_type", "three_ds_authentication"->JSON.Encode.string),
+            ("profile_id", profileId->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Post)
+        showToast(
+          ~message="Successfully deleted active 3ds exemption rule",
+          ~toastType=ToastSuccess,
+        )
+        setInitialRule(_ => None)
+      } catch {
+      | _ => showToast(~message="Failed to delete active 3ds exemption rule", ~toastType=ToastError)
+      }
+    }
+
+    let handleDeletePopup = () =>
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm delete?",
+        description: React.string(
+          "Are you sure you want to delete currently active 3DS exemption rule? Deleting the rule will remove its associated settings and configurations, potentially affecting functionality.",
+        ),
+        handleConfirm: {text: "Confirm", onClick: _ => deleteCurrentThreedsRule()->ignore},
+      })
 
     <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
       <div
@@ -29,6 +65,16 @@ module ActiveRulePreview = {
           <p className="text-xl font-semibold text-grey-700">
             {name->capitalizeString->React.string}
           </p>
+          <ACLDiv
+            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+            onClick={_ => handleDeletePopup()}
+            description="Delete existing 3ds exemption rule">
+            <Icon
+              name="delete"
+              size=20
+              className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+            />
+          </ACLDiv>
         </div>
         <p className="text-base font-normal text-grey-700 opacity-50">
           {description->React.string}
@@ -112,7 +158,7 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastState.useShowToast()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let pageConfig = {
     pageTitle: "3DS Exemption Rules",
@@ -257,7 +303,7 @@ let make = () => {
     AdvancedRoutingUtils.validateNameAndDescription(
       ~dict,
       ~errors,
-      ~validateFields=["name", "description"],
+      ~validateFields=[Name, Description],
     )
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
@@ -365,7 +411,7 @@ let make = () => {
       | LANDING =>
         <div className="flex flex-col gap-6">
           <RenderIf condition={initialRule->Option.isSome}>
-            <ActiveRulePreview initialRule />
+            <ActiveRulePreview initialRule setInitialRule />
           </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">

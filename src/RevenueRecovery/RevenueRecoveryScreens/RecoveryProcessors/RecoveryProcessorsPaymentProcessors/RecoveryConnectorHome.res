@@ -14,9 +14,10 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let {profileId, merchantId} = getUserInfoData()
   let showToast = ToastState.useShowToast()
 
   let connectorInfo = initialValues->LogicUtils.getDictFromJsonObject
@@ -149,6 +150,11 @@ let make = () => {
         {`Setup ${connectorName}`->React.string}
       </h1>
     </>
+
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
 
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator titleElement=recoveryTitleElement sections currentStep backClick />

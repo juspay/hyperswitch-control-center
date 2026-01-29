@@ -62,7 +62,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
@@ -88,7 +88,7 @@ let make = () => {
         isConnectorDisabled,
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)

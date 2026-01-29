@@ -22,12 +22,13 @@ let make = (~ruleId: string) => {
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
+      let suffix = `rule_id=${ruleId}&status=posted_auto,posted_manual,posted_force`
       let queryString = if baseQueryString->isNonEmptyString {
-        `${baseQueryString}&rule_id=${ruleId}&transaction_status=posted`
+        `${baseQueryString}&${suffix}`
       } else {
-        `rule_id=${ruleId}&transaction_status=posted`
+        suffix
       }
-      let transactions = await getTransactions(~queryParamerters=Some(queryString))
+      let transactions = await getTransactions(~queryParameters=Some(queryString))
       setTransactionsData(_ => transactions)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

@@ -1,6 +1,10 @@
 open ApplePayIntegrationTypes
 open LogicUtils
-let paymentRequest = (dict, integrationType) => {
+
+let paymentRequest = (dict, integrationType, connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+
   let paymentRequestDict =
     dict
     ->getDictfromDict((integrationType: applePayIntegrationType :> string))
@@ -9,16 +13,30 @@ let paymentRequest = (dict, integrationType) => {
     dict
     ->getDictfromDict((integrationType: applePayIntegrationType :> string))
     ->getDictfromDict("session_token_data")
-  {
-    label: sessionTokenDict->getString("display_name", "apple"),
-    supported_networks: paymentRequestDict->getStrArrayFromDict(
-      "supported_networks",
-      ["visa", "masterCard", "amex", "discover"],
-    ),
-    merchant_capabilities: paymentRequestDict->getStrArrayFromDict(
-      "merchant_capabilities",
-      ["supports3DS"],
-    ),
+
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(BRAINTREE) => {
+      label: paymentRequestDict->getString("label", ""),
+      supported_networks: paymentRequestDict->getStrArrayFromDict(
+        "supported_networks",
+        ["visa", "masterCard", "amex", "discover"],
+      ),
+      merchant_capabilities: paymentRequestDict->getStrArrayFromDict(
+        "merchant_capabilities",
+        ["supports3DS"],
+      ),
+    }
+  | _ => {
+      label: sessionTokenDict->getString("display_name", "apple"),
+      supported_networks: paymentRequestDict->getStrArrayFromDict(
+        "supported_networks",
+        ["visa", "masterCard", "amex", "discover"],
+      ),
+      merchant_capabilities: paymentRequestDict->getStrArrayFromDict(
+        "merchant_capabilities",
+        ["supports3DS"],
+      ),
+    }
   }
 }
 
@@ -57,17 +75,26 @@ let sessionTokenSimplified = (dict): sessionTokenSimplified => {
     merchant_business_country: sessionTokenDict->getOptionString("merchant_business_country"),
   }
 }
-let manual = (dict): manual => {
-  {
-    session_token_data: dict->sessionToken,
-    payment_request_data: dict->paymentRequest(#manual),
+
+let manual = (dict, connector): manual => {
+  open ConnectorUtils
+  open ConnectorTypes
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(BRAINTREE) => {
+      session_token_data: dict->sessionToken,
+      payment_request_data: dict->paymentRequest(#manual, connector),
+    }
+  | _ => {
+      session_token_data: dict->sessionToken,
+      payment_request_data: dict->paymentRequest(#manual, connector),
+    }
   }
 }
 
-let simplified = (dict): simplified => {
+let simplified = (dict, connector): simplified => {
   {
     session_token_data: dict->sessionTokenSimplified,
-    payment_request_data: dict->paymentRequest(#simplified),
+    payment_request_data: dict->paymentRequest(#simplified, connector),
   }
 }
 
@@ -78,11 +105,10 @@ let zenApplePayConfig = dict => {
   }
 }
 
-let applePayCombined = (dict, applePayIntegrationType) => {
+let applePayCombined = (dict, applePayIntegrationType, connector: string) => {
   let data: applePayConfig = switch applePayIntegrationType {
-  | #manual => #manual(dict->manual)
-  | #simplified => #simplified(dict->simplified)
-  | #decrypted => #decrypted
+  | #manual => #manual(dict->manual(connector))
+  | #simplified => #simplified(dict->simplified(connector))
   }
 
   let dict = Dict.make()
@@ -94,7 +120,6 @@ let applePayCombined = (dict, applePayIntegrationType) => {
       (#simplified: applePayIntegrationType :> string),
       data->Identity.genericTypeToJson,
     )
-  | #decrypted => ()
   }
 
   dict
@@ -102,7 +127,7 @@ let applePayCombined = (dict, applePayIntegrationType) => {
 
 let applePay = (
   dict,
-  ~connector: string="",
+  ~connector: string,
   ~applePayIntegrationType: option<applePayIntegrationType>=None,
   (),
 ): applePay => {
@@ -113,21 +138,42 @@ let applePay = (
   | _ => {
       let integrationType = applePayIntegrationType->Option.getOr(#manual)
       let data = {
-        apple_pay_combined: applePayCombined(dict, integrationType)->JSON.Encode.object,
+        apple_pay_combined: applePayCombined(dict, integrationType, connector)->JSON.Encode.object,
       }
       ApplePayCombined(data)
     }
   }
 }
 
-let applePayNameMapper = (~name, ~integrationType: option<applePayIntegrationType>) => {
-  switch name {
-  | `terminal_uuid` => `metadata.apple_pay.${name}`
-  | `pay_wall_secret` => `metadata.apple_pay.${name}`
+let applePayNameMapper = (
+  ~name,
+  ~integrationType: option<applePayIntegrationType>,
+  ~connector: string,
+) => {
+  open ConnectorUtils
+  open ConnectorTypes
+
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(BRAINTREE) =>
+    switch name {
+    | `display_name` =>
+      `metadata.apple_pay_combined.${(integrationType->Option.getOr(
+          #manual,
+        ): applePayIntegrationType :> string)}.payment_request_data.label`
+    | _ =>
+      `metadata.apple_pay_combined.${(integrationType->Option.getOr(
+          #manual,
+        ): applePayIntegrationType :> string)}.payment_request_data.${name}`
+    }
   | _ =>
-    `metadata.apple_pay_combined.${(integrationType->Option.getOr(
-        #manual,
-      ): applePayIntegrationType :> string)}.session_token_data.${name}`
+    switch name {
+    | `terminal_uuid` => `metadata.apple_pay.${name}`
+    | `pay_wall_secret` => `metadata.apple_pay.${name}`
+    | _ =>
+      `metadata.apple_pay_combined.${(integrationType->Option.getOr(
+          #manual,
+        ): applePayIntegrationType :> string)}.session_token_data.${name}`
+    }
   }
 }
 
@@ -194,20 +240,35 @@ let validatePaymentProcessingDetailsAt = data => {
   }
 }
 
-let validateManualFlow = values => {
-  let data =
+let validateManualFlow = (values, ~connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+  let sessionData =
     values
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
     ->sessionToken
-  data->validateInitiative &&
-  data.certificate->Option.isSome &&
-  data.display_name->Option.isSome &&
-  data.merchant_identifier->Option.isSome &&
-  data->validatePaymentProcessingDetailsAt
-    ? Button.Normal
-    : Button.Disabled
+
+  let paymentRequestData =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("apple_pay_combined")
+    ->paymentRequest(#manual, connector)
+
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(BRAINTREE) =>
+    paymentRequestData.label->isNonEmptyString ? Button.Normal : Button.Disabled
+  | _ =>
+    sessionData->validateInitiative &&
+    sessionData.certificate->Option.isSome &&
+    sessionData.display_name->Option.isSome &&
+    sessionData.merchant_identifier->Option.isSome &&
+    sessionData->validatePaymentProcessingDetailsAt
+      ? Button.Normal
+      : Button.Disabled
+  }
 }
 
 let validateSimplifedFlow = values => {
@@ -241,3 +302,9 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   body
 }
+
+let getHeadingBasedOnApplePayFlow = applePayIntegrationFlow =>
+  switch applePayIntegrationFlow {
+  | #manual => "iOS Certificate"
+  | #simplified => "Web Domain"
+  }

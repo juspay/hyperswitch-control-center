@@ -28,7 +28,7 @@ module SettingsForm = {
   let make = (~isAcquirerConfigArrEmpty, ~handleCloseForm, ~editingConfig=None) => {
     open Fetch
     let showToast = ToastState.useShowToast()
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
@@ -269,7 +269,8 @@ let make = () => {
   let accordionData: array<Accordion.accordion> = [
     {
       title: "Acquirer Config Settings",
-      renderContent: () => <AcquirerConfigContentRevamp />,
+      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+        <AcquirerConfigContentRevamp />,
       renderContentOnTop: None,
     },
   ]

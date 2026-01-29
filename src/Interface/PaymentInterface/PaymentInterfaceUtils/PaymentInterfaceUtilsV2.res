@@ -2,26 +2,30 @@ open LogicUtils
 open PaymentInterfaceTypesV2
 
 let attemptsItemToObjMapper = dict => {
-  attempt_id: dict->getString("attempt_id", ""),
-  status: dict->getString("status", ""),
-  amount: dict->getFloat("amount", 0.0),
-  currency: dict->getString("currency", ""),
-  connector: dict->getString("connector", ""),
-  error_message: dict->getString("error_message", ""),
-  payment_method: dict->getString("payment_method", ""),
-  connector_transaction_id: dict->getString("connector_transaction_id", ""),
-  capture_method: dict->getString("capture_method", ""),
-  authentication_type: dict->getString("authentication_type", ""),
-  cancellation_reason: dict->getString("cancellation_reason", ""),
-  mandate_id: dict->getString("mandate_id", ""),
-  error_code: dict->getString("error_code", ""),
-  payment_token: dict->getString("payment_token", ""),
-  connector_metadata: dict->getString("connector_metadata", ""),
-  payment_experience: dict->getString("payment_experience", ""),
-  payment_method_type: dict->getString("payment_method_type", ""),
-  reference_id: dict->getString("reference_id", ""),
-  client_source: dict->getString("client_source", ""),
-  client_version: dict->getString("client_version", ""),
+  let amountDict = dict->getDictfromDict("amount")
+
+  {
+    attempt_id: dict->getString("id", ""),
+    status: dict->getString("status", ""),
+    amount: amountDict->getFloat("amount", 0.0),
+    currency: amountDict->getString("currency", ""),
+    connector: dict->getString("connector", ""),
+    error_message: dict->getString("error_message", ""),
+    payment_method: dict->getString("payment_method", ""),
+    connector_transaction_id: dict->getString("connector_transaction_id", ""),
+    capture_method: dict->getString("capture_method", ""),
+    authentication_type: dict->getString("authentication_type", ""),
+    cancellation_reason: dict->getString("cancellation_reason", ""),
+    mandate_id: dict->getString("mandate_id", ""),
+    error_code: dict->getString("error_code", ""),
+    payment_token: dict->getString("payment_token", ""),
+    connector_metadata: dict->getString("connector_metadata", ""),
+    payment_experience: dict->getString("payment_experience", ""),
+    payment_method_type: dict->getString("payment_method_type", ""),
+    reference_id: dict->getString("reference_id", ""),
+    client_source: dict->getString("client_source", ""),
+    client_version: dict->getString("client_version", ""),
+  }
 }
 
 let getAttempts: JSON.t => array<attempts_v2> = json => {
@@ -78,25 +82,26 @@ let errorMapper = (dict: dict<JSON.t>) => {
   }
 }
 
+let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
+  `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+}
+
 let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
-
-  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
-    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
-  }
+  let amountDict = dict->getDictfromDict("amount")
 
   {
     payment_id: dict->getString("id", ""),
-    merchant_id: dict->getString("merchant_id", ""),
-    net_amount: dict->getFloat("net_amount", 0.0),
+    merchant_id: dict->getString("processor_merchant_id", ""),
+    net_amount: amountDict->getFloat("net_amount", 0.0),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
-    amount: dict->getFloat("amount", 0.0),
-    amount_capturable: dict->getFloat("amount_capturable", 0.0),
-    amount_captured: dict->getFloat("amount_received", 0.0),
+    amount: amountDict->getFloat("order_amount", 0.0),
+    amount_capturable: amountDict->getFloat("amount_capturable", 0.0),
+    amount_captured: amountDict->getFloat("amount_captured", 0.0),
     client_secret: dict->getString("client_secret", ""),
     created_at: dict->getString("created", ""),
-    currency: dict->getString("currency", ""),
+    currency: amountDict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),
     setup_future_usage: dict->getString("setup_future_usage", ""),
@@ -148,7 +153,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
     ->getStringFromNestedDict("billing", "email", ""),
     payment_method_billing_email: dict
     ->getDictfromDict("payment_method_data")
-    ->getStringFromNestedDict("billing", "", ""),
+    ->getString("email", ""),
     billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
     billingPhone: dict
     ->getDictFromNestedDict("billing", "phone")
@@ -172,12 +177,13 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v2 = dict => {
     connector_id: dict->getString("merchant_connector_id", ""),
     disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
-    merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
+    merchant_order_reference_id: dict->getString("merchant_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
     split_payments: dict->getDictfromDict("split_payments"),
     routing_algorithm: dict->getDictfromDict("routing_algorithm"),
     routing_algorithm_applied: dict->getDictfromDict("routing_algorithm_applied"),
     authentication_applied: dict->getString("authentication_applied", ""),
+    is_split_payment: dict->getBool("is_split_payment", false),
   }
 }
 
@@ -309,5 +315,6 @@ let mapPaymentV2ToCommonType: order_v2 => PaymentInterfaceTypes.order = order =>
     routing_algorithm: order.routing_algorithm,
     routing_algorithm_applied: order.routing_algorithm_applied,
     authentication_applied: order.authentication_applied,
+    is_split_payment: order.is_split_payment,
   }
 }

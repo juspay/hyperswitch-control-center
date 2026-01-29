@@ -16,7 +16,7 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let transformationHistoryList = await getTransformationHistory(
-        ~queryParamerters=Some(`transformation_id=${config.transformation_id}`),
+        ~queryParameters=Some(`transformation_id=${config.transformation_id}`),
       )
       setTransformationHistoryList(_ => transformationHistoryList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -42,10 +42,14 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-44" message="No data available." />}
     customLoader={<Shimmer styleClass="h-44 w-full rounded-xl" />}>
-    <Link
-      to_={GlobalVars.appendDashboardPath(
-        ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.transformation_id}`,
-      )}
+    <div
+      onClick={_ => {
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(
+            ~url=`/v1/recon-engine/transformation/${config.account_id}?transformationId=${config.transformation_id}`,
+          ),
+        )
+      }}
       className="p-5 border border-nd_gray-200 rounded-lg hover:border-nd_primary_blue-400 transition-colors duration-200 cursor-pointer">
       <div
         className="flex md:flex-row items-center justify-between gap-4 w-full border-b pb-2 border-nd_gray-150">
@@ -68,6 +72,6 @@ let make = (~config: ReconEngineTypes.transformationConfigType) => {
         })
         ->React.array}
       </div>
-    </Link>
+    </div>
   </PageLoaderWrapper>
 }

@@ -1,5 +1,6 @@
 open PaymentsProcessedTypes
 open LogicUtils
+open CurrencyFormatUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -44,7 +45,8 @@ let paymentsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
+  let lineGraphData =
+    data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric, ~currency)
 
   open LogicUtilsTypes
   let metricType = switch xKey->getVariantValueFromString {
@@ -86,10 +88,12 @@ let paymentsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
+  let currency = dict->getString("currency", "")
   open NewAnalyticsUtils
   {
     payment_processed_amount: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
+      ~currency,
     ),
     payment_processed_count: dict->getInt(Payment_Processed_Count->getStringFromVariant, 0),
     total_payment_processed_amount: dict->getAmountValue(
@@ -105,7 +109,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
 
 let getObjects: JSON.t => array<paymentsProcessedObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

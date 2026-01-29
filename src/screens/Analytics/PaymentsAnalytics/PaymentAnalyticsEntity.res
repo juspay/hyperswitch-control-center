@@ -2,6 +2,7 @@ type pageStateType = Loading | Failed | Success | NoData
 
 open LogicUtils
 open DynamicSingleStat
+open CurrencyFormatUtils
 
 open HSAnalyticsUtils
 open AnalyticsTypes
@@ -60,7 +61,7 @@ let percentFormat = value => {
 }
 
 let getWeeklySR = dict => {
-  switch dict->LogicUtils.getOptionFloat(WeeklySuccessRate->colMapper) {
+  switch dict->getOptionFloat(WeeklySuccessRate->colMapper) {
   | Some(val) => val->percentFormat
   | _ => "NA"
   }
@@ -143,14 +144,16 @@ let getCell = (paymentTable, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
     shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(paymentTable.currency)
 
   switch colType {
   | SuccessRate => Numeric(paymentTable.payment_success_rate, percentFormat)
   | Count => Numeric(paymentTable.payment_count, usaNumberAbbreviation)
   | SuccessCount => Numeric(paymentTable.payment_success_count, usaNumberAbbreviation)
   | ProcessedAmount =>
-    Numeric(paymentTable.payment_processed_amount /. 100.00, usaNumberAbbreviation)
-  | AvgTicketSize => Numeric(paymentTable.avg_ticket_size /. 100.00, usaNumberAbbreviation)
+    Numeric(paymentTable.payment_processed_amount /. conversionFactor, usaNumberAbbreviation)
+  | AvgTicketSize =>
+    Numeric(paymentTable.avg_ticket_size /. conversionFactor, usaNumberAbbreviation)
   | Connector => Text(paymentTable.connector)
   | PaymentMethod => Text(paymentTable.payment_method)
   | PaymentMethodType => Text(paymentTable.payment_method_type)
@@ -168,7 +171,7 @@ let getCell = (paymentTable, colType): Table.cell => {
 
 let getPaymentTable: JSON.t => array<paymentTableType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -198,6 +201,7 @@ let singleStateInitialValue = {
   connector_success_rate: 0.0,
   payment_processed_amount: 0.0,
   payment_avg_ticket_size: 0.0,
+  authorised_uncaptured_payments: 0,
 }
 
 let singleStateSeriesInitialValue = {
@@ -210,6 +214,7 @@ let singleStateSeriesInitialValue = {
   payment_processed_amount: 0.0,
   connector_success_rate: 0.0,
   payment_avg_ticket_size: 0.0,
+  authorised_uncaptured_payments: 0,
 }
 
 let singleStateItemToObjMapper = json => {
@@ -225,6 +230,7 @@ let singleStateItemToObjMapper = json => {
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
+    authorised_uncaptured_payments: 0,
   })
   ->Option.getOr({
     singleStateInitialValue
@@ -244,18 +250,65 @@ let singleStateSeriesItemToObjMapper = json => {
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
+    authorised_uncaptured_payments: 0,
   })
   ->Option.getOr({
     singleStateSeriesInitialValue
   })
 }
 
+open AnalyticsUtils
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStateItemToObjMapper)
+  let queryData = json->getQueryData
+
+  let authorisedCount =
+    queryData
+    ->Array.map(getDictFromJsonObject)
+    ->Array.find(dict =>
+      dict->getString("status", "") == statusVariantToString(#authorizedUncaptured)
+    )
+    ->Option.mapOr(0, dict => dict->getInt("payment_count", 0))
+
+  if authorisedCount > 0 {
+    [{...singleStateInitialValue, authorised_uncaptured_payments: authorisedCount}]
+  } else {
+    let isStatusGrouped = queryData->Array.some(item => {
+      item->getDictFromJsonObject->getString("status", "")->isNonEmptyString
+    })
+
+    if isStatusGrouped {
+      [{...singleStateInitialValue, authorised_uncaptured_payments: 0}]
+    } else {
+      queryData->Array.map(singleStateItemToObjMapper)
+    }
+  }
 }
 
-let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+let timeSeriesObjMapper = json => {
+  let queryData = json->getQueryData
+
+  let authorisedCount =
+    queryData
+    ->Array.map(getDictFromJsonObject)
+    ->Array.find(dict =>
+      dict->getString("status", "") == statusVariantToString(#authorizedUncaptured)
+    )
+    ->Option.mapOr(0, dict => dict->getInt("payment_count", 0))
+
+  if authorisedCount > 0 {
+    [{...singleStateSeriesInitialValue, authorised_uncaptured_payments: authorisedCount}]
+  } else {
+    let isStatusGrouped = queryData->Array.some(item => {
+      item->getDictFromJsonObject->getString("status", "")->isNonEmptyString
+    })
+
+    if isStatusGrouped {
+      [{...singleStateSeriesInitialValue, authorised_uncaptured_payments: 0}]
+    } else {
+      queryData->Array.map(singleStateSeriesItemToObjMapper)
+    }
+  }
+}
 
 type colT =
   | SuccessRate
@@ -267,11 +320,18 @@ type colT =
   | TotalSmartRetries
   | SmartRetriedAmount
   | ConnectorSuccessRate
+  | AuthorisedUncaptured
 
 let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, ConnectorSuccessRate, Count, SuccessCount]->generateDefaultStateColumns,
+    columns: [
+      SuccessRate,
+      ConnectorSuccessRate,
+      Count,
+      SuccessCount,
+      AuthorisedUncaptured,
+    ]->generateDefaultStateColumns,
   },
 ]
 
@@ -306,7 +366,9 @@ let compareLogic = (firstValue, secondValue) => {
 let constructData = (
   key,
   singlestatTimeseriesData: array<AnalyticsTypes.paymentsSingleStateSeries>,
+  currency,
 ) => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
   switch key {
   | "payment_success_rate" =>
     singlestatTimeseriesData
@@ -327,14 +389,14 @@ let constructData = (
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_processed_amount /. 100.00,
+      ob.payment_processed_amount /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "payment_avg_ticket_size" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_avg_ticket_size /. 100.00,
+      ob.payment_avg_ticket_size /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "retries_count" =>
@@ -346,13 +408,18 @@ let constructData = (
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.retries_amount_processe /. 100.00,
+      ob.retries_amount_processe /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "connector_success_rate" =>
     singlestatTimeseriesData
     ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.connector_success_rate))
     ->Array.toSorted(compareLogic)
+  | "authorised_uncaptured_payments" =>
+    singlestatTimeseriesData->Array.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.authorised_uncaptured_payments->Int.toFloat,
+    ))
   | _ => []
   }
 }
@@ -364,11 +431,14 @@ let getStatData = (
   colType,
   _mode,
 ) => {
+  let currency = singleStatData.currency
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+  let precisionDigits = CurrencyUtils.getAmountPrecisionDigits(currency)
   switch colType {
   | SuccessRate => {
       title: "Overall Success Rate",
       tooltipText: "Total successful payments processed out of total payments created (This includes user dropouts at shopping cart and checkout page)",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.payment_success_rate,
         deltaTimestampData.currentSr,
       ),
@@ -376,14 +446,29 @@ let getStatData = (
       delta: {
         singleStatData.payment_success_rate
       },
-      data: constructData("payment_success_rate", timeSeriesData),
+      data: constructData("payment_success_rate", timeSeriesData, currency),
       statType: "Rate",
+      showDelta: false,
+    }
+  | AuthorisedUncaptured => {
+      title: "Authorised Uncaptured Payments",
+      tooltipText: "Total payments authorised but not captured",
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
+        singleStatData.authorised_uncaptured_payments->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.authorised_uncaptured_payments->Int.toFloat,
+      delta: {
+        singleStatData.authorised_uncaptured_payments->Int.toFloat
+      },
+      data: constructData("authorised_uncaptured_payments", timeSeriesData, currency),
+      statType: "Volume",
       showDelta: false,
     }
   | Count => {
       title: "Overall Payments",
       tooltipText: "Total payments initiated",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.payment_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -391,41 +476,47 @@ let getStatData = (
       delta: {
         singleStatData.payment_count->Int.toFloat
       },
-      data: constructData("payment_count", timeSeriesData),
+      data: constructData("payment_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
   | SuccessCount => {
       title: "Success Payments",
       tooltipText: "Total number of payments with status as succeeded. ",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.payment_success_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
       value: singleStatData.payment_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.payment_success_count->Int.toFloat, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.payment_success_count->Int.toFloat,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("payment_success_count", timeSeriesData),
+      data: constructData("payment_success_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
   | ProcessedAmount => {
       title: `Processed Amount`,
       tooltipText: "Sum of amount of all payments with status = succeeded (Please note that there could be payments which could be authorized but not captured. Such payments are not included in the processed amount, because non-captured payments will not be settled to your merchant account by your payment processor)",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_processed_amount /. 100.00,
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
+        singleStatData.payment_processed_amount /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_processed_amount /. 100.00,
+      value: singleStatData.payment_processed_amount /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.payment_processed_amount /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.payment_processed_amount /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("payment_processed_amount", timeSeriesData),
+      data: constructData("payment_processed_amount", timeSeriesData, currency),
       statType: "Amount",
       showDelta: false,
       label: singleStatData.currency,
@@ -433,25 +524,28 @@ let getStatData = (
   | AvgTicketSize => {
       title: `Avg Ticket Size`,
       tooltipText: "The total amount for which payments were created divided by the total number of payments created.",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_avg_ticket_size /. 100.00,
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
+        singleStatData.payment_avg_ticket_size /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_avg_ticket_size /. 100.00,
+      value: singleStatData.payment_avg_ticket_size /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.payment_avg_ticket_size /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.payment_avg_ticket_size /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("payment_avg_ticket_size", timeSeriesData),
+      data: constructData("payment_avg_ticket_size", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
       label: singleStatData.currency,
     }
   | TotalSmartRetries => {
       title: "Smart Retries made",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supported currently)",
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.retries_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -459,14 +553,14 @@ let getStatData = (
       delta: {
         singleStatData.retries_count->Int.toFloat
       },
-      data: constructData("retries_count", timeSeriesData),
+      data: constructData("retries_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
   | SuccessfulSmartRetries => {
       title: "Successful Smart Retries",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supported currently)",
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.retries_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -474,31 +568,34 @@ let getStatData = (
       delta: {
         singleStatData.retries_count->Int.toFloat
       },
-      data: constructData("retries_count", timeSeriesData),
+      data: constructData("retries_count", timeSeriesData, currency),
       statType: "Volume",
       showDelta: false,
     }
   | SmartRetriedAmount => {
       title: `Smart Retries Savings`,
-      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.retries_amount_processe /. 100.00,
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supported currently)",
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
+        singleStatData.retries_amount_processe /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.retries_amount_processe /. 100.00,
+      value: singleStatData.retries_amount_processe /. conversionFactor,
       delta: {
         Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.retries_amount_processe /. 100.00, ~digits=2),
+          Float.toFixedWithPrecision(
+            singleStatData.retries_amount_processe /. conversionFactor,
+            ~digits=precisionDigits,
+          ),
         )
       },
-      data: constructData("retries_amount_processe", timeSeriesData),
+      data: constructData("retries_amount_processe", timeSeriesData, currency),
       statType: "Amount",
       showDelta: false,
     }
   | ConnectorSuccessRate => {
       title: "Confirmed Success Rate",
       tooltipText: "Total successful payments processed out of all user confirmed payments",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.connector_success_rate,
         deltaTimestampData.currentSr,
       ),
@@ -506,7 +603,7 @@ let getStatData = (
       delta: {
         singleStatData.connector_success_rate
       },
-      data: constructData("connector_success_rate", timeSeriesData),
+      data: constructData("connector_success_rate", timeSeriesData, currency),
       statType: "Rate",
       showDelta: false,
     }
@@ -519,13 +616,24 @@ let getSingleStatEntity = (metrics, defaultColumns, ~uri) => {
       uri,
       metrics: metrics->getStringListFromArrayDict,
     },
+    {
+      uri,
+      metrics: ["payment_count"],
+      groupByNames: ["status"],
+      prefix: "statusGrouped_",
+    },
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => uri,
+  matrixUriMapper: colType => {
+    switch colType {
+    | AuthorisedUncaptured => `statusGrouped_${uri}`
+    | _ => uri
+    }
+  },
 }
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
@@ -551,7 +659,7 @@ let chartEntity = (tabKeys, ~uri) =>
   DynamicChart.makeEntity(
     ~uri=String(uri),
     ~filterKeys=tabKeys,
-    ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
+    ~dateFilterKeys=(HSAnalyticsUtils.startTimeFilterKey, HSAnalyticsUtils.endTimeFilterKey),
     ~currentMetrics=("Success Rate", "Volume"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
     ~cardinality=[],
     ~granularity=[],

@@ -13,16 +13,24 @@ module OrgTile = {
   ) => {
     open LogicUtils
     open APIUtils
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {getCommonSessionDetails, checkUserEntity} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
+    let {orgId} = getCommonSessionDetails()
     let {
       globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+        sidebarColor: {
+          backgroundColor,
+          primaryTextColor,
+          secondaryTextColor,
+          borderColor: sidebarBorderColor,
+        },
       },
     } = React.useContext(ThemeProvider.themeContext)
 
@@ -100,11 +108,6 @@ module OrgTile = {
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
-    let ringClass = switch isActive {
-    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
-    }
-
     let handleClick = () => {
       if !isActive {
         orgSwitch(orgID)->ignore
@@ -115,7 +118,7 @@ module OrgTile = {
       onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
       <div
-        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${ringClass} ${isActive
+        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${isActive
             ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
             : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <RenderIf condition={isPlatformOrganization}>
@@ -126,7 +129,8 @@ module OrgTile = {
           />
         </RenderIf>
         <span className={body.xs.medium}> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40`}>
+        <div
+          className={`${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -135,7 +139,7 @@ module OrgTile = {
             showEditIconOnHover=false
             customInputStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} text-sm h-4 ${hoverInput2}`}
             customIconComponent={<ToolTip
-              description={orgID}
+              description="Copy Organization ID"
               customStyle="!whitespace-nowrap"
               toolTipFor={<div className="cursor-pointer">
                 <HelperComponents.CopyTextCustomComp
@@ -146,7 +150,13 @@ module OrgTile = {
               </div>}
               toolTipPosition=ToolTip.Right
             />}
-            showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
+            showEditIcon={isActive &&
+            hasAnyGroupAccess(
+              //TODO: Remove OrganizationManage permission in future
+              userHasAccess(~groupAccess=OrganizationManage),
+              userHasAccess(~groupAccess=AccountManage),
+            ) === Access &&
+            checkUserEntity([#Organization])}
             handleEdit=handleIdUnderEdit
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
@@ -155,6 +165,8 @@ module OrgTile = {
             customWidth="min-w-64"
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
+            showTooltipOnHover=true
+            toolTipPosition=BottomRight
           />
         </div>
       </div>
@@ -173,7 +185,7 @@ module OrgTileGroup = {
     ~currentlyEditingId,
     ~handleIdUnderEdit,
   ) => {
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
@@ -350,8 +362,12 @@ let make = () => {
   let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId, version} = getCommonSessionDetails()
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -396,7 +412,7 @@ let make = () => {
   }
 
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
 
   let fetchOrgDetails = async () => {
@@ -412,7 +428,15 @@ let make = () => {
       let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
       let response = await fetchDetails(url)
       let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
-      if version === V1 && userHasAccess(~groupAccess=OrganizationManage) === Access {
+      if (
+        version === V1 &&
+        hasAnyGroupAccess(
+          //TODO: Remove OrganizationManage permission in future
+          userHasAccess(~groupAccess=OrganizationManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ) === Access &&
+        checkUserEntity([#Organization])
+      ) {
         fetchOrgDetails()->ignore
       }
       orgData->Array.sort(sortByOrgName)
@@ -446,9 +470,13 @@ let make = () => {
       }
     }
   }
-  let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
-  let handleIdUnderEdit = (selectedEditId: option<int>) => {
-    setUnderEdit(_ => selectedEditId)
+  let (currentlyEditingPlatformId, setPlatformUnderEdit) = React.useState(_ => None)
+  let (currentlyEditingStandardId, setStandardUnderEdit) = React.useState(_ => None)
+  let handlePlatformIdUnderEdit = selectedEditId => {
+    setPlatformUnderEdit(_ => selectedEditId)
+  }
+  let handleStandardIdUnderEdit = selectedEditId => {
+    setStandardUnderEdit(_ => selectedEditId)
   }
   let hasPlatformOrg = platformOrgList->Array.length > 0
 
@@ -472,8 +500,8 @@ let make = () => {
           hasPlatformOrg
           orgList=platformOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingPlatformId}
+          handleIdUnderEdit={handlePlatformIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={standardOrgList->Array.length > 0}>
@@ -485,8 +513,8 @@ let make = () => {
           hasPlatformOrg
           orgList=standardOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingStandardId}
+          handleIdUnderEdit={handleStandardIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
@@ -501,7 +529,7 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${secondaryTextColor}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>

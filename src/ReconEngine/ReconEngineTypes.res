@@ -18,6 +18,7 @@ type accountType = {
   expected_credits: balanceType,
   mismatched_debits: balanceType,
   mismatched_credits: balanceType,
+  created_at: string,
 }
 
 type accountRefType = {
@@ -37,6 +38,14 @@ type reconRuleType = {
   sources: array<reconRuleAccountRefType>,
   targets: array<reconRuleAccountRefType>,
 }
+
+@unboxed
+type mismatchType =
+  | @as("amount_mismatch") AmountMismatch
+  | @as("balance_direction_mismatch") BalanceDirectionMismatch
+  | @as("currency_mismatch") CurrencyMismatch
+  | @as("metadata_mismatch") MetadataMismatch
+  | @as("unknown") UnknownMismatchType
 
 type ingestionTransformationStatusType =
   | Pending
@@ -77,6 +86,7 @@ type ingestionConfigType = {
   name: string,
   last_synced_at: string,
   data: JSON.t,
+  created_at: string,
 }
 
 type transformationConfigType = {
@@ -87,6 +97,7 @@ type transformationConfigType = {
   name: string,
   config: JSON.t,
   is_active: bool,
+  metadata_schema_id: string,
   created_at: string,
   last_modified_at: string,
   last_transformed_at: string,
@@ -109,25 +120,30 @@ type ruleType = {
   rule_name: string,
 }
 
+@unboxed
 type transactionStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | UnknownTransactionStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("partially_reconciled") PartiallyReconciled
 
+@unboxed
 type entryDirectionType =
-  | Debit
-  | Credit
+  | @as("debit") Debit
+  | @as("credit") Credit
   | UnknownEntryDirectionType
 
+@unboxed
 type entryStatus =
-  | Posted
-  | Mismatched
-  | Expected
-  | Archived
-  | Pending
-  | UnknownEntryStatus
+  | @as("posted") Posted
+  | @as("mismatched") Mismatched
+  | @as("expected") Expected
+  | @as("archived") Archived
+  | @as("pending") Pending
+  | @as("void") Void
+  | @as("unknown") UnknownEntryStatus
 
 type transactionEntryType = {
   entry_id: string,
@@ -135,6 +151,48 @@ type transactionEntryType = {
   account: accountType,
   amount: balanceType,
   status: entryStatus,
+  order_id: string,
+}
+
+type transactionPostedType =
+  | @as("auto") Reconciled
+  | @as("force_reconciled") ForceReconciled
+  | @as("manually_reconciled") ManuallyReconciled
+  | @as("N/A") UnknownTransactionPostedType
+
+type transactionDataType = {
+  status: transactionStatus,
+  posted_type: option<transactionPostedType>,
+  reason: option<string>,
+}
+
+@unboxed
+type domainTransactionPostedStatus =
+  | Auto
+  | Manual
+  | Force
+  | UnknownDomainTransactionPostedStatus
+
+@unboxed
+type domainTransactionAmountMismatchStatus =
+  | Expected
+  | Mismatch
+
+type domainTransactionStatus =
+  | Expected
+  | Posted(domainTransactionPostedStatus)
+  | OverAmount(domainTransactionAmountMismatchStatus)
+  | UnderAmount(domainTransactionAmountMismatchStatus)
+  | DataMismatch
+  | Archived
+  | Void
+  | PartiallyReconciled
+  | UnknownDomainTransactionStatus
+
+type linkedTransactionType = {
+  transaction_id: string,
+  created_at: string,
+  transaction_status: domainTransactionStatus,
 }
 
 type transactionType = {
@@ -145,35 +203,65 @@ type transactionType = {
   credit_amount: balanceType,
   debit_amount: balanceType,
   rule: ruleType,
-  transaction_status: transactionStatus,
-  discarded_status: option<string>,
+  transaction_status: domainTransactionStatus,
+  discarded_status: option<domainTransactionStatus>,
   version: int,
   created_at: string,
   effective_at: string,
+  data: transactionDataType,
+  linked_transaction: option<linkedTransactionType>,
 }
 
 type entryType = {
   entry_id: string,
   entry_type: entryDirectionType,
+  account_id: string,
   account_name: string,
   transaction_id: string,
   amount: float,
   currency: string,
+  order_id: string,
   status: entryStatus,
   discarded_status: option<string>,
   metadata: Js.Json.t,
+  data: Js.Json.t,
+  version: int,
   created_at: string,
   effective_at: string,
+  staging_entry_id: option<string>,
+  transformation_id: option<string>,
 }
 
 type processingEntryStatus =
-  | Pending
-  | Processed
-  | NeedsManualReview
-  | Archived
-  | UnknownProcessingEntryStatus
+  | @as("pending") Pending
+  | @as("processed") Processed
+  | @as("needs_manual_review") NeedsManualReview
+  | @as("archived") Archived
+  | @as("void") Void
+  | @as("unknown") UnknownProcessingEntryStatus
+
+@unboxed
+type needsManualReviewType =
+  | @as("no_rules_found") NoRulesFound
+  | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("duplicate_entry") DuplicateEntry
+  | @as("no_expectation_entry_found") NoExpectationEntryFound
+  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
+  | @as("missing_unique_field") MissingUniqueField
+  | @as("unknown") UnknownNeedsManualReviewType
+
+type processingEntryDataType = {
+  status: processingEntryStatus,
+  needs_manual_review_type: needsManualReviewType,
+}
+
+type processingEntryDiscardedDataType = {
+  status: processingEntryStatus,
+  reason: string,
+}
 
 type processingEntryType = {
+  id: string,
   staging_entry_id: string,
   account: accountRefType,
   entry_type: string,
@@ -185,6 +273,11 @@ type processingEntryType = {
   transformation_id: string,
   transformation_history_id: string,
   effective_at: string,
+  order_id: string,
+  version: int,
+  discarded_status: option<string>,
+  data: processingEntryDataType,
+  discarded_data: option<processingEntryDiscardedDataType>,
 }
 
 type processedEntryType = {
@@ -197,3 +290,77 @@ type processedEntryType = {
   effective_at: string,
   created_at: string,
 }
+
+type stringValidationRule =
+  | MaxLength(int)
+  | MinLength(int)
+
+type numberValidationRule =
+  | MinValue(float)
+  | MaxValue(float)
+
+type minorUnitValidationRule =
+  | PositiveOnly
+  | MinValueMinorUnit(int)
+  | MaxValueMinorUnit(int)
+
+type fieldTypeVariant =
+  | StringField(array<stringValidationRule>)
+  | NumberField(array<numberValidationRule>)
+  | CurrencyField
+  | MinorUnitField(array<minorUnitValidationRule>)
+  | DateTimeField
+  | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
+
+type entryField =
+  | String
+  | Metadata(string)
+
+type metadataFieldType = {
+  identifier: string,
+  field_name: entryField,
+  field_type: fieldTypeVariant,
+  required: bool,
+  description: string,
+}
+
+type mainFieldType = {
+  field_name: string,
+  identifier: string,
+  credit_values: option<array<string>>,
+  debit_values: option<array<string>>,
+}
+
+type uniqueConstraintTypeVariant =
+  | SingleField(string)
+  | UnknownConstraint
+
+type uniqueConstraintType = {
+  unique_constraint_type: uniqueConstraintTypeVariant,
+  description: string,
+}
+
+type schemaFieldsType = {
+  main_fields: array<mainFieldType>,
+  metadata_fields: array<metadataFieldType>,
+}
+
+type schemaDataType = {
+  schema_type: string,
+  fields: schemaFieldsType,
+  unique_constraint: uniqueConstraintType,
+  processing_mode: string,
+}
+
+type metadataSchemaType = {
+  id: string,
+  schema_id: string,
+  profile_id: string,
+  account_id: string,
+  schema_data: schemaDataType,
+  version: int,
+  created_at: string,
+  last_modified_at: string,
+}
+
+type columnMappingTabs = [#default | #advanced]
