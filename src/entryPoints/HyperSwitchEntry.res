@@ -7,6 +7,7 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
+    let setConnectorListForLive = connectorListForLiveAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {
@@ -99,7 +100,9 @@ module HyperSwitchEntryComponent = {
           )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
+        let connectorListForLive = res->FeatureFlagUtils.connectorListForLive
         setFeatureFlag(_ => featureFlags)
+        setConnectorListForLive(_ => connectorListForLive)
         let configValues = configEnv(res) // to set initial env
         let _ = await getThemesJson(~themesID=themeId, ~domain)
         // Delay added on Expecting feature flag recoil gets updated

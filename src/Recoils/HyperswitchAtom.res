@@ -39,6 +39,9 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
+let connectorListForLiveAtom: Recoil.recoilAtom<
+  FeatureFlagUtils.connectorListForLive,
+> = Recoil.atom("connectorListForLive", JSON.Encode.null->FeatureFlagUtils.connectorListForLive)
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
