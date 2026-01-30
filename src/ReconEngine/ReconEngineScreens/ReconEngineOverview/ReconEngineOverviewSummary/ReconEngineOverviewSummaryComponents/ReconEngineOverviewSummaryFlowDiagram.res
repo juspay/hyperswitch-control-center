@@ -211,12 +211,12 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
     None
   }, [selectedNodeId])
 
-  <div className="border rounded-xl border-nd_gray-200">
+  <div className="border rounded-xl border-nd_gray-200 resize-y overflow-auto h-30-rem">
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-30-rem" message="No data available." />}
       customLoader={<Shimmer styleClass="h-30-rem w-full rounded-b-xl" />}>
-      <div className="h-30-rem overflow-hidden">
+      <div className="h-full overflow-hidden">
         <ReactFlowProvider>
           <FlowWithLayoutControls
             nodes={reactFlowNodes}
