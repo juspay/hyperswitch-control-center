@@ -220,13 +220,12 @@ let make = (
                       {
                         title: pmtData.payment_method_subtype,
                         renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
-                          <AdditionalDetailsSidebarComp
+                          <AdditionalDetailsSidebar
                             method={None}
                             setMetaData={_ => ()}
                             updateDetails={_val => updateDetails(_val)}
                             paymentMethodsEnabled=temp
                             paymentMethod={pm}
-                            setInitialValues={_ => ()}
                             pmtName={selectedWallet.payment_method_subtype}
                             closeAccordionFn
                             onCloseClickCustomFun={resetValues}
