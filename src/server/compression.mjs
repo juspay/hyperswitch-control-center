@@ -32,7 +32,7 @@ export function serveCompressed(
 
   const fullPath = path.join(serverPath, filePath);
 
-  // Priority 1: Try Brotli compression if supported
+  //   Priority 1: Try Brotli compression if supported
   if (supportsBrotli) {
     const brotliPath = fullPath + ".br";
     if (fs.existsSync(brotliPath)) {
@@ -56,7 +56,7 @@ export function serveCompressed(
         res,
         gzipPath,
         filePath,
-        "gz",
+        "gzip",
         XDeploymentId,
         Etag,
       );
