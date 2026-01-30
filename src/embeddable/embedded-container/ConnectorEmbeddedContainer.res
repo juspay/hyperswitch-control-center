@@ -50,8 +50,8 @@ let make = () => {
               showRequestConnectorBtn=false
               showDummyConnectorButton=false
             />}
-          renderNewForm={() => <ConnectorHome />}
-          renderShow={(_, _) => <ConnectorHome />}
+          renderNewForm={() => <ConnectorHome showBreadCrumbWarning=false />}
+          renderShow={(_, _) => <ConnectorHome showBreadCrumbWarning=false />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
