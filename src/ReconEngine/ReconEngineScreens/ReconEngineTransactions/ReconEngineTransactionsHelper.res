@@ -121,8 +121,7 @@ module EntryAuditTrailInfo = {
       entriesList->Array.forEach(entry => {
         let accountId = entry.account_id
         switch groupsDict->Dict.get(accountId) {
-        | Some(existingEntries) =>
-          groupsDict->Dict.set(accountId, existingEntries->Array.concat([entry]))
+        | Some(existingEntries) => groupsDict->Dict.set(accountId, [...existingEntries, entry])
         | None => groupsDict->Dict.set(accountId, [entry])
         }
       })
@@ -130,7 +129,8 @@ module EntryAuditTrailInfo = {
       groupsDict
       ->Dict.toArray
       ->Array.map(((accountId, entries)) => {
-        let accountName = entries->Array.get(0)->Option.mapOr("", e => e.account_name)
+        let entry = entries->getValueFromArray(0, Dict.make()->entryItemToObjMapper)
+        let accountName = entry.account_name
         {ReconEngineTransactionsTypes.accountId, accountName, entries}
       })
     }, [entriesList])
@@ -178,13 +178,12 @@ module EntryAuditTrailInfo = {
 
         let onAccountExpandIconClick = (isExpanded, rowIndex) => {
           setAccountExpandedRowsDict(prev => {
-            let newDict = prev->Dict.toArray->Dict.fromArray
-            let currentExpanded = newDict->Dict.get(accountKey)->Option.getOr([])
+            let currentExpanded = prev->Dict.get(accountKey)->Option.getOr([])
             let updatedExpanded = isExpanded
               ? currentExpanded->Array.filter(idx => idx !== rowIndex)
               : currentExpanded->Array.concat([rowIndex])
-            newDict->Dict.set(accountKey, updatedExpanded)
-            newDict
+            prev->Dict.set(accountKey, updatedExpanded)
+            prev
           })
         }
 
