@@ -25,15 +25,15 @@ external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
 @module("./health.mjs")
 external healthReadinessHandler: (Http.request, Http.response) => unit = "healthReadinessHandler"
 
-@module("./brotli.mjs")
-external serveBrotli: (
+@module("./compression.mjs")
+external serveCompressed: (
   ~request: Http.request,
   ~response: Http.response,
   ~filePath: string,
   ~servePath: string,
   ~xDeploymentId: string,
   ~eTag: string,
-) => bool = "serveBrotli"
+) => bool = "serveCompressed"
 
 module ServerHandler = {
   type rewrite = {source: string, destination: string}
@@ -143,7 +143,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ->Js.Json.stringifyAny,
     )
     // Try to serve Brotli-compressed version first
-    let brotliServed = serveBrotli(
+    let brotliServed = serveCompressed(
       ~request,
       ~response,
       ~filePath=path,
