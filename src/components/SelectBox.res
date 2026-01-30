@@ -1320,21 +1320,36 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
   hashMappedOptions
 }
 
-let getSortedKeys = (hashMappedOptions, ~reverseSort=false) => {
-  hashMappedOptions
-  ->Dict.keysToArray
-  ->Array.toSorted((a, b) => {
-    switch (a, b) {
-    | ("-", _) => 1.
-    | (_, "-") => -1.
-    | (_, _) =>
-      if reverseSort {
-        String.compare(b, a)
-      } else {
-        String.compare(a, b)
+let getSortedKeys = (hashMappedOptions, ~reverseSort=false, ~customSortOrder=?) => {
+  let keys = hashMappedOptions->Dict.keysToArray
+
+  switch customSortOrder {
+  | Some(order) =>
+    keys->Array.toSorted((a, b) => {
+      let aIndex = order->Array.findIndex(item => item === a)
+      let bIndex = order->Array.findIndex(item => item === b)
+
+      switch (aIndex, bIndex) {
+      | (-1, -1) => String.compare(a, b)
+      | (-1, _) => 1.
+      | (_, -1) => -1.
+      | (_, _) => Float.fromInt(aIndex - bIndex)
       }
-    }
-  })
+    })
+  | None =>
+    keys->Array.toSorted((a, b) => {
+      switch (a, b) {
+      | ("-", _) => 1.
+      | (_, "-") => -1.
+      | (_, _) =>
+        if reverseSort {
+          String.compare(b, a)
+        } else {
+          String.compare(a, b)
+        }
+      }
+    })
+  }
 }
 
 module BaseRadio = {
@@ -1383,6 +1398,7 @@ module BaseRadio = {
     ~customSelectionIcon=Button.NoIcon,
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
+    ~customSortOrder=?,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1394,7 +1410,7 @@ module BaseRadio = {
       hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
 
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ =>
-      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys)
+      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
     )
 
     let (searchString, setSearchString) = React.useState(() => "")
@@ -1506,12 +1522,15 @@ module BaseRadio = {
           let optgroupKeysForSearch = getSortedKeys(
             hashMappedSearchedOptions,
             ~reverseSort=reverseSortGroupKeys,
+            ~customSortOrder?,
           )
           setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
-        setOptgroupKeys(_ => getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys))
+        setOptgroupKeys(_ =>
+          getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
+        )
         options
       }
     }, (searchString, options, selectedString))
@@ -1720,6 +1739,7 @@ module BaseDropdown = {
     ~placeholderCss="",
     ~reverseSortGroupKeys=false,
     ~maxButtonWidth="",
+    ~customSortOrder=?,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1997,6 +2017,7 @@ module BaseDropdown = {
         customSearchStyle
         placeholderCss
         reverseSortGroupKeys
+        ?customSortOrder
       />
     }
 

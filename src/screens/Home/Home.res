@@ -6,6 +6,7 @@ let make = (~setAppScreenState) => {
   let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   <>
     <div className="flex flex-col gap-4">
@@ -21,9 +22,14 @@ let make = (~setAppScreenState) => {
         customTitleStyle="!text-fs-24 !font-semibold"
         customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1"
       />
-      <ControlCenter />
-      <RenderIf condition={featureFlagDetails.exploreRecipes}>
-        <ExploreWorkflowsSection />
+      <RenderIf condition={isCurrentMerchantPlatform}>
+        <PlatformOverview />
+      </RenderIf>
+      <RenderIf condition={!isCurrentMerchantPlatform}>
+        <ControlCenter />
+        <RenderIf condition={featureFlagDetails.exploreRecipes}>
+          <ExploreWorkflowsSection />
+        </RenderIf>
       </RenderIf>
       <DevResources />
     </div>

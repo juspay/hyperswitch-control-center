@@ -113,7 +113,7 @@ module ListBaseComp = {
               </RenderIf>
             </div>
             <ToolTip
-              description="Organisation Chart"
+              description="Organization Chart"
               customStyle="!whitespace-nowrap"
               toolTipFor={<button
                 className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}

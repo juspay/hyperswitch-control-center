@@ -16,6 +16,7 @@ let currentOMPName = (list: array<ompListTypes>, id: string) => {
 let ompTypeMapper = (ompType: string): ompType => {
   switch ompType {
   | "platform" => #platform
+  | "connected" => #connected
   | "standard" => #standard
   | _ => #standard
   }
@@ -24,7 +25,8 @@ let ompTypeMapper = (ompType: string): ompType => {
 let ompTypeHeading = (ompType: ompType): string => {
   switch ompType {
   | #platform => "Platform Merchant"
-  | #standard => "Merchants"
+  | #connected => "Connected Merchants"
+  | #standard => "Standard Merchants"
   }
 }
 
