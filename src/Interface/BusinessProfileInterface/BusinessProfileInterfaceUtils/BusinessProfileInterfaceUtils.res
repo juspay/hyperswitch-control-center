@@ -30,13 +30,14 @@ let getOptionalHeaders = (jsonDict, key) =>
   )
 
 let getOptionalHeadersWithEmptyValParsing = (~dict, ~key) => {
-  switch dict->Dict.get(key) {
-  | None => Some(JSON.Encode.null)
-  | Some(_) => {
+  Some(
+    dict
+    ->Dict.get(key)
+    ->Option.mapOr(JSON.Encode.null, _ => {
       let parsedValue = PaymentSettingsV2Utils.removeEmptyValues(~dict, ~key)
-      Some(parsedValue->Identity.genericTypeToJson)
-    }
-  }
+      parsedValue->Identity.genericTypeToJson
+    }),
+  )
 }
 
 let convertOptionalBoolToOptionalJson = optBool => {
