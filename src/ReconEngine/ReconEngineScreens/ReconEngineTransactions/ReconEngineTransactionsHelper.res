@@ -147,7 +147,7 @@ module EntryAuditTrailInfo = {
       )
       let entry = group.entries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-      let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
+      let hasEntryMetadata = !(filteredEntryMetadata->isEmptyDict)
 
       <RenderIf condition={rowIndex < group.entries->Array.length}>
         <RenderIf condition={hasEntryMetadata}>
