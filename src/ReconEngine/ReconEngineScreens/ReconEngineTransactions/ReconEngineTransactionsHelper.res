@@ -116,33 +116,40 @@ module EntryAuditTrailInfo = {
     open ReconEngineUtils
 
     let accountGroups = React.useMemo(() => {
-      let groupsDict = Dict.make()
-
-      entriesList->Array.forEach(entry => {
+      let groupedByAccount = entriesList->Array.reduce(Dict.make(), (acc, entry) => {
         let accountId = entry.account_id
-        switch groupsDict->Dict.get(accountId) {
-        | Some(existingEntries) => groupsDict->Dict.set(accountId, [...existingEntries, entry])
-        | None => groupsDict->Dict.set(accountId, [entry])
-        }
+        let existing = acc->getvalFromDict(accountId)->Option.getOr([])
+        acc->Dict.set(accountId, [...existing, entry])
+        acc
       })
 
-      groupsDict
+      groupedByAccount
       ->Dict.toArray
       ->Array.map(((accountId, entries)) => {
         let entry = entries->getValueFromArray(0, Dict.make()->entryItemToObjMapper)
         let accountName = entry.account_name
-        {ReconEngineTransactionsTypes.accountId, accountName, entries}
+        ({accountId, accountName, entries}: ReconEngineTransactionsTypes.accountGroup)
       })
     }, [entriesList])
 
-    let (accountExpandedRowsDict, setAccountExpandedRowsDict) = React.useState(_ => Dict.make())
+    let heading = detailsFields->Array.map(getHeading)
 
-    let getRowDetails = (_accountId: string, entries: array<entryType>, rowIndex: int) => {
-      let entry = entries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
+    let getSectionRowDetails = (sectionIndex: int, rowIndex: int) => {
+      let group = accountGroups->getValueFromArray(
+        sectionIndex,
+        (
+          {
+            accountId: "",
+            accountName: "",
+            entries: [],
+          }: ReconEngineTransactionsTypes.accountGroup
+        ),
+      )
+      let entry = group.entries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
       let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
       let hasEntryMetadata = filteredEntryMetadata->Dict.keysToArray->Array.length > 0
 
-      <RenderIf condition={rowIndex < entries->Array.length}>
+      <RenderIf condition={rowIndex < group.entries->Array.length}>
         <RenderIf condition={hasEntryMetadata}>
           <div className="p-4">
             <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
@@ -155,7 +162,18 @@ module EntryAuditTrailInfo = {
       </RenderIf>
     }
 
-    let heading = detailsFields->Array.map(getHeading)
+    let sections = accountGroups->Array.map(group => {
+      open ReconEngineExceptionTransactionTypes
+      {
+        titleElement: <p className={`text-nd_gray-800 ${body.lg.semibold} mb-2`}>
+          {group.accountName->React.string}
+        </p>,
+        rows: group.entries->Array.map(entry =>
+          detailsFields->Array.map(colType => getCell(entry, colType))
+        ),
+        rowData: group.entries->Array.map(entry => entry->Identity.genericTypeToJson),
+      }
+    })
 
     <div className="flex flex-col gap-4 px-2 my-6">
       <RenderIf condition={openedTransaction.data.reason->Option.isSome}>
@@ -170,57 +188,9 @@ module EntryAuditTrailInfo = {
           </p>
         </div>
       </RenderIf>
-      {accountGroups
-      ->Array.mapWithIndex((group, groupIndex) => {
-        let accountEntries = group.entries
-        let accountKey = group.accountId
-        let expandedRowIndexArray = accountExpandedRowsDict->Dict.get(accountKey)->Option.getOr([])
-
-        let onAccountExpandIconClick = (isExpanded, rowIndex) => {
-          setAccountExpandedRowsDict(prev => {
-            let currentExpanded = prev->Dict.get(accountKey)->Option.getOr([])
-            let updatedExpanded = isExpanded
-              ? currentExpanded->Array.filter(idx => idx !== rowIndex)
-              : currentExpanded->Array.concat([rowIndex])
-            prev->Dict.set(accountKey, updatedExpanded)
-            prev
-          })
-        }
-
-        let rows =
-          accountEntries->Array.map(entry =>
-            detailsFields->Array.map(colType => getCell(entry, colType))
-          )
-
-        <div key={`${group.accountId}${groupIndex->Int.toString}`} className="flex flex-col gap-2">
-          <p className={`text-nd_gray-800 ${body.lg.semibold}`}>
-            {group.accountName->React.string}
-          </p>
-          <div className="overflow-visible">
-            <CustomExpandableTable
-              title={group.accountName}
-              tableClass="border rounded-xl overflow-y-auto"
-              borderClass=" "
-              firstColRoundedHeadingClass="rounded-tl-xl"
-              lastColRoundedHeadingClass="rounded-tr-xl"
-              headingBgColor="bg-nd_gray-25"
-              headingFontWeight="font-semibold"
-              headingFontColor="text-nd_gray-400"
-              rowFontColor="text-nd_gray-600"
-              customRowStyle="text-sm"
-              rowFontStyle="font-medium"
-              heading
-              rows
-              onExpandIconClick=onAccountExpandIconClick
-              expandedRowIndexArray
-              getRowDetails={rowIndex => getRowDetails(group.accountId, accountEntries, rowIndex)}
-              showSerial=false
-              showScrollBar=true
-            />
-          </div>
-        </div>
-      })
-      ->React.array}
+      <ReconEngineCustomExpandableSelectionTable
+        title="" heading getSectionRowDetails showScrollBar=true showOptions=false sections
+      />
       <RenderIf condition={openedTransaction.linked_transaction->Option.isSome}>
         <div className="flex flex-col gap-4">
           <p className={`text-nd_gray-800 ${body.lg.semibold}`}> {"Linked with"->React.string} </p>
