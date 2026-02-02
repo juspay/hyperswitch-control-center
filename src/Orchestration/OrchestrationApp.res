@@ -10,6 +10,7 @@ let make = (~setScreenState) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -40,20 +41,26 @@ let make = (~setScreenState) => {
     | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
     | list{"sdk"} =>
-      <ConnectorContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <ConnectorContainer />
+      </AccessControl>
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
     | list{"payouts", ..._} =>
-      <TransactionContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <TransactionContainer />
+      </AccessControl>
     | list{"analytics-payments"}
     | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
     | list{"analytics-routing", ..._} =>
-      <AnalyticsContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <AnalyticsContainer />
+      </AccessControl>
 
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
@@ -121,6 +128,12 @@ let make = (~setScreenState) => {
           userHasAccess(~groupAccess=AccountManage),
         )}>
         <HSwitchSettings />
+      </AccessControl>
+    | list{"organization-settings"} =>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=AccountManage)}
+        isEnabled={checkUserEntity([#Organization])}>
+        <OrganizationSettings />
       </AccessControl>
     | list{"search"} => <SearchResultsPage />
     | list{"payment-attempts"} =>

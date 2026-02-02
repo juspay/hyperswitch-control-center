@@ -10,6 +10,15 @@ module NewMerchantCreationModal = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let getMerchantList = MerchantListHook.useFetchMerchantList()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let (_, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+    let {allowConnectedMerchants} = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
+
+    let enableMerchantType =
+      allowConnectedMerchants &&
+      isCurrentOrganizationPlatform &&
+      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access
+
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
@@ -74,9 +83,31 @@ module NewMerchantCreationModal = {
       ~isRequired=true,
     )
 
+    let merchantTypeOptions: array<SelectBox.dropdownOption> = [
+      {label: "Connected", value: "connected", description: "Merchant managed by your platform"},
+      {
+        label: "Standard",
+        value: "standard",
+        description: "Independent merchant with direct access",
+      },
+    ]
+
+    let merchantType = FormRenderer.makeFieldInfo(
+      ~label="Merchant Type",
+      ~name="merchant_account_type",
+      ~customInput=InputFields.radioInput(
+        ~options=merchantTypeOptions,
+        ~buttonText="",
+        ~deselectDisable=true,
+        ~customStyle="gap-3 max-w-40",
+      ),
+      ~isRequired=true,
+    )
+
     let validateForm = (values: JSON.t) => {
       let errors = Dict.make()
-      let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
+      let valuesDict = values->getDictFromJsonObject
+      let companyName = valuesDict->getString("company_name", "")->String.trim
       let isDuplicate =
         merchantList->Array.some(merchant =>
           merchant.name->String.toLowerCase == companyName->String.toLowerCase
@@ -98,6 +129,13 @@ module NewMerchantCreationModal = {
         Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)
       }
 
+      if enableMerchantType {
+        let merchantAccountType = valuesDict->getString("merchant_account_type", "")
+        if merchantAccountType->isEmptyString {
+          Dict.set(errors, "merchant_account_type", "Merchant type is required"->JSON.Encode.string)
+        }
+      }
+
       errors->JSON.Encode.object
     }
 
@@ -116,7 +154,7 @@ module NewMerchantCreationModal = {
         <hr />
         <Form key="new-merchant-creation" onSubmit validate={validateForm} initialValues>
           <div className="flex flex-col h-full w-full">
-            <div className="py-10">
+            <div className="py-10 flex flex-col gap-4">
               <FormRenderer.DesktopRow>
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
@@ -126,6 +164,17 @@ module NewMerchantCreationModal = {
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />
               </FormRenderer.DesktopRow>
+              <RenderIf condition={enableMerchantType}>
+                <FormRenderer.DesktopRow>
+                  <FormRenderer.FieldRenderer
+                    fieldWrapperClass="w-full"
+                    field={merchantType}
+                    showErrorOnChange=true
+                    errorClass={ProdVerifyModalUtils.errorClass}
+                    labelClass="!text-black font-medium !-ml-[0.5px]"
+                  />
+                </FormRenderer.DesktopRow>
+              </RenderIf>
             </div>
             <hr className="mt-4" />
             <div className="flex justify-end w-full p-3">
@@ -267,7 +316,9 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
-      reverseSortGroupKeys=true
+      customSortOrder={[#platform, #connected, #standard]->Array.map(ompType =>
+        ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+      )}
     />
     <RenderIf condition={showModal}>
       <NewMerchantCreationModal setShowModal showModal />
