@@ -134,12 +134,12 @@ let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): a
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let value: string = (status :> string)->camelToSnake
-    let label = (status :> string)->camelCaseToTitle
+    let statusString = (status :> string)
+    let label = statusString->snakeToTitle
 
     {
       FilterSelectBox.label,
-      value,
+      value: statusString,
     }
   })
 }

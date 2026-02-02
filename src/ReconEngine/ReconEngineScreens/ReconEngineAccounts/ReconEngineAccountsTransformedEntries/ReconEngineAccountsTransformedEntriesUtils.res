@@ -37,19 +37,31 @@ let getTotalEntries = (stagingEntries: array<processingEntryType>): float => {
   ->Int.toFloat
 }
 
+let getViewStatusFilter = (view: transformedEntriesViewType): string => {
+  switch view {
+  | AllViewType => "pending,processed,needs_manual_review,void"
+  | ProcessedViewType => "processed"
+  | NeedsManualReviewViewType => "needs_manual_review"
+  | UnknownTransformedEntriesViewType => ""
+  }
+}
+
 let cardDetails = (~stagingData: array<processingEntryType>) => {
   [
     {
       title: "Total Records",
       value: valueFormatter(getTotalEntries(stagingData), Volume),
+      viewType: AllViewType,
     },
     {
       title: "Processed",
       value: valueFormatter(getTotalProcessedEntries(stagingData), Volume),
+      viewType: ProcessedViewType,
     },
     {
       title: "Needs Manual Review",
       value: valueFormatter(getTotalNeedsManualReviewEntries(stagingData), Volume),
+      viewType: NeedsManualReviewViewType,
     },
     {
       title: "% Valid",
@@ -57,6 +69,7 @@ let cardDetails = (~stagingData: array<processingEntryType>) => {
         getTotalProcessedEntries(stagingData) /. getTotalEntries(stagingData) *. 100.0,
         Rate,
       ),
+      viewType: UnknownTransformedEntriesViewType,
     },
   ]
 }
