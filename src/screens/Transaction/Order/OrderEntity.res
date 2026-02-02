@@ -550,6 +550,12 @@ let getHeadingForOtherDetails = otherDetailsColType => {
     Table.makeHeaderInfo(~key="extended_auth_applied", ~title="Extended Auth Applied")
   | RequestExtendedAuth =>
     Table.makeHeaderInfo(~key="request_extended_auth", ~title="Request Extended Auth")
+  | HyperswitchErrorDescription =>
+    Table.makeHeaderInfo(
+      ~key="hyperswitch_error_description",
+      ~title="Hyperswitch Error Description",
+      ~description="This is a derived property by Hyperswitch based on the PSP and Issuer Errors(If available)",
+    )
   }
 }
 
@@ -680,6 +686,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
     | Some(val) => Text(val->getStringFromBool)
     | None => Text("N/A")
     }
+  | HyperswitchErrorDescription => Text(order.hyperswitch_error_description->Option.getOr(""))
   }
 }
 

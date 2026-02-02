@@ -6,10 +6,14 @@ module NewProfileCreationModal = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let createNewProfile = async values => {
       try {
-        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+        let url = switch version {
+        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
+        }
         let body = values
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         let _ = await updateDetails(url, body, Post)
@@ -176,7 +180,7 @@ let make = () => {
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
-      let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
+      let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true, ~version)
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
@@ -223,11 +227,6 @@ let make = () => {
     listItem
   })
 
-  let bottomComponent = switch version {
-  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
-  | V2 => React.null
-  }
-
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -244,7 +243,7 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent
+      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState

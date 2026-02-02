@@ -128,43 +128,22 @@ module ConfiguratorForm = {
                 <style> {React.string(configuratorScrollbarCss)} </style>
                 <div
                   className="flex flex-col gap-3 rounded-lg border border-nd_gray-300 p-4 h-650-px overflow-scroll configurator-scrollbar !m-0">
-                  <FieldRenderer field={makeBackgroundImageField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer field={makeLogoField()} fieldWrapperClass="!w-full" />
-                  <FieldRenderer field={makeReturnUrlField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer field={makePaymentButtonTextField()} fieldWrapperClass="!w-full" />
                   <FieldRenderer
                     field={makeCustomMessageForCardTermsField()} fieldWrapperClass="!w-full"
                   />
-                  <FieldRenderer
-                    field={makeMaxItemsVisibleAfterCollapseField()} fieldWrapperClass="!w-full"
-                  />
                   <div className="flex flex-row">
-                    <FieldRenderer field={makeDisplaySdkOnlyField()} fieldWrapperClass="!w-full" />
-                    <FieldRenderer
-                      field={makeEnabledSavedPaymentMethodField()} fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row">
+                    <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
                     <FieldRenderer
                       field={makeHideCardNicknameField()} fieldWrapperClass="!w-full"
                     />
-                    <FieldRenderer
-                      field={makeShowCardFormByDefaultField()} fieldWrapperClass="!w-full"
-                    />
                   </div>
                   <div className="flex flex-row">
+                    <FieldRenderer field={makeDisplaySdkOnlyField()} fieldWrapperClass="!w-full" />
                     <FieldRenderer
                       field={makeBrandingVisibilityField()} fieldWrapperClass="!w-full"
                     />
-                    <FieldRenderer
-                      field={makeSkipStatusScreenField()} fieldWrapperClass="!w-full"
-                    />
-                  </div>
-                  <div className="flex flex-row">
-                    <FieldRenderer
-                      field={makeIsSetupMandateFlowField()} fieldWrapperClass="!w-full"
-                    />
-                    <FieldRenderer field={makeShowCardTermsField()} fieldWrapperClass="!w-full" />
                   </div>
                   <div className="flex flex-row gap-4">
                     <FieldRenderer

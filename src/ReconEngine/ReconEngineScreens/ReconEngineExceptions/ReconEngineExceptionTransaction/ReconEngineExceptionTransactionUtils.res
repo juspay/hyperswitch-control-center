@@ -75,6 +75,31 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ]
 }
 
+let exceptionTransactionEntryItemToItemMapper = (
+  dict
+): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
+  {
+    entry_key: dict->getString("entry_key", randomString(~length=16)),
+    entry_id: dict->getString("entry_id", "-"),
+    entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
+    transaction_id: dict->getString("transaction_id", ""),
+    account_id: dict->getString("account_id", ""),
+    account_name: dict->getString("account_name", ""),
+    amount: dict->getFloat("amount", 0.0),
+    currency: dict->getString("currency", ""),
+    order_id: dict->getString("order_id", ""),
+    status: dict->getString("status", "")->getEntryStatusVariantFromString,
+    discarded_status: dict->getOptionString("discarded_status"),
+    version: dict->getInt("version", 0),
+    metadata: dict->getJsonObjectFromDict("metadata"),
+    data: dict->getJsonObjectFromDict("data"),
+    created_at: dict->getString("created_at", Date.make()->Date.toISOString),
+    effective_at: dict->getString("effective_at", ""),
+    staging_entry_id: dict->getOptionString("staging_entry_id"),
+    transformation_id: dict->getOptionString("transformation_id"),
+  }
+}
+
 let getBalanceByAccountType = (
   entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
   accountType: string,
@@ -96,12 +121,10 @@ let getBalanceByAccountType = (
   | _ => totalCredits +. totalDebits
   }
 
-  let currency = switch entries->Array.get(0) {
-  | Some(entry) => entry.currency
-  | None => ""
-  }
+  let firstEntry =
+    entries->getValueFromArray(0, Dict.make()->exceptionTransactionEntryItemToItemMapper)
 
-  (balance, currency)
+  (balance, firstEntry.currency)
 }
 
 let getHeadingAndSubHeadingForMismatch = (
@@ -151,31 +174,6 @@ let getHeadingAndSubHeadingForMismatch = (
   }
 
   (mismatchHeading, mismatchSubHeading)
-}
-
-let exceptionTransactionEntryItemToItemMapper = (
-  dict
-): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
-  {
-    entry_key: dict->getString("entry_key", randomString(~length=16)),
-    entry_id: dict->getString("entry_id", "-"),
-    entry_type: dict->getString("entry_type", "")->getEntryTypeVariantFromString,
-    transaction_id: dict->getString("transaction_id", ""),
-    account_id: dict->getString("account_id", ""),
-    account_name: dict->getString("account_name", ""),
-    amount: dict->getFloat("amount", 0.0),
-    currency: dict->getString("currency", ""),
-    order_id: dict->getString("order_id", ""),
-    status: dict->getString("status", "")->getEntryStatusVariantFromString,
-    discarded_status: dict->getOptionString("discarded_status"),
-    version: dict->getInt("version", 0),
-    metadata: dict->getJsonObjectFromDict("metadata"),
-    data: dict->getJsonObjectFromDict("data"),
-    created_at: dict->getString("created_at", Date.make()->Date.toISOString),
-    effective_at: dict->getString("effective_at", ""),
-    staging_entry_id: dict->getOptionString("staging_entry_id"),
-    transformation_id: dict->getOptionString("transformation_id"),
-  }
 }
 
 let getSumOfAmountWithCurrency = (
