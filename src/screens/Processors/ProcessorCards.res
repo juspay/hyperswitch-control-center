@@ -2,8 +2,8 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
-  let make = (~connectorList, ~setShowModal) => {
-    <RenderIf condition={connectorList->Array.length === 0}>
+  let make = (~connectorList, ~setShowModal, ~showRequestConnectorBtn=true) => {
+    <RenderIf condition={connectorList->Array.length === 0 && showRequestConnectorBtn}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
@@ -58,6 +58,8 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
+  ~showRequestConnectorBtn=true,
+  ~showDummyConnectorButton=true,
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -149,9 +151,7 @@ let make = (
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
-          className={`grid gap-x-5 gap-y-6 ${showDummyConnectorButton
-              ? "2xl:grid-cols-4 lg:grid-cols-3"
-              : ""} md:grid-cols-2 grid-cols-1 mb-5`}>
+          className="grid gap-x-5 gap-y-6 2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
@@ -193,7 +193,7 @@ let make = (
           ->React.array}
         </div>
       </RenderIf>
-      <RequestConnector connectorList setShowModal />
+      <RequestConnector connectorList setShowModal showRequestConnectorBtn />
     </>
   }
 
@@ -211,8 +211,8 @@ let make = (
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
           ~heading="Connect a new processor",
-          ~showRequestConnectorBtn=true,
-          ~showDummyConnectorButton=true,
+          ~showRequestConnectorBtn,
+          ~showDummyConnectorButton,
           (),
         )}
       </div>

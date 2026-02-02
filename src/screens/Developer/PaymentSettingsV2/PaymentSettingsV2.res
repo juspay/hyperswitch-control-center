@@ -27,7 +27,6 @@ module InfoViewForWebhooks = {
 }
 @react.component
 let make = () => {
-  open Typography
   open HyperswitchAtom
 
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
@@ -63,6 +62,10 @@ let make = () => {
     title: "Vault",
     renderContent: () => <PaymentSettingsVault />,
   }
+  let paymentLinkTab: Tabs.tab = {
+    title: "Payment Link",
+    renderContent: () => <PaymentSettingsDomainName />,
+  }
 
   let additionalTabs: array<Tabs.tab> = [
     {
@@ -72,10 +75,6 @@ let make = () => {
     {
       title: "Metadata Headers",
       renderContent: () => <PaymentSettingsCustomMetadataHeaders />,
-    },
-    {
-      title: "Payment Link",
-      renderContent: () => <PaymentSettingsDomainName />,
     },
   ]
 
@@ -91,7 +90,9 @@ let make = () => {
     }
 
     baseTabs->Array.pushMany(additionalTabs)
-
+    if version == V1 {
+      baseTabs->Array.push(paymentLinkTab)
+    }
     baseTabs
   }
 
@@ -100,10 +101,10 @@ let make = () => {
 
   <div className="flex flex-col gap-8">
     <div className="flex flex-col gap-2">
-      <p className={`${heading.md.semibold} ml-4`}> {"Payment settings"->React.string} </p>
-      <p className={`${body.md.medium} text-nd_gray-400 ml-4`}>
-        {"Set up and monitor transaction webhooks for real-time notifications."->React.string}
-      </p>
+      <PageUtils.PageHeading
+        title="Payment settings"
+        subTitle="Set up and monitor transaction webhooks for real-time notifications."
+      />
     </div>
     <div className={`flex flex-col`}>
       <div className="flex">

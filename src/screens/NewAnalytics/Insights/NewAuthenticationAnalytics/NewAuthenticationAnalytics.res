@@ -211,7 +211,11 @@ let make = () => {
         )
         updatedFilters->Dict.set(
           "authentication_status",
-          ["success"->JSON.Encode.string, "failed"->JSON.Encode.string]->JSON.Encode.array,
+          [
+            "success"->JSON.Encode.string,
+            "pending"->JSON.Encode.string,
+            "failed"->JSON.Encode.string,
+          ]->JSON.Encode.array,
         )
 
         let thirdFunnelRequestBody = InsightsUtils.requestBody(

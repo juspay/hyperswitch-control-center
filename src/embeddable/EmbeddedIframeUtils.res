@@ -13,3 +13,7 @@ let sendComponentDimensionToParent = (finalHeight, finalWidth, urlPath) => {
     ("component", JSON.Encode.string(urlPath)),
   ])
 }
+
+let sendIframeReadyMessageToParent = () => {
+  IframeUtils.handlePostMessage([("type", JSON.Encode.string("EMBEDDED_IFRAME_READY"))])
+}

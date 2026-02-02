@@ -151,6 +151,11 @@ let make = () => {
       </h1>
     </>
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   <div className="flex flex-row gap-x-6">
     <VerticalStepIndicator titleElement=recoveryTitleElement sections currentStep backClick />
     {switch currentStep->getSectionVariant {
