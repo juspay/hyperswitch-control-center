@@ -164,7 +164,7 @@ module PlatformOverview = {
     <div className="flex flex-col md:flex-row gap-5 w-1/2">
       <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
         <div className="flex flex-col gap-4">
-          <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
+          <img alt="platform-merchant-account" src="/assets/PlatformMerchantAccount.svg" />
           <CardHeader
             heading="Platform Merchant Account"
             subHeading="Platform merchant can create API keys for connected merchants and act on their behalf. This enables you to initiate and manage payments seamlessly for all connected accounts."
