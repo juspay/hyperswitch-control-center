@@ -4,7 +4,6 @@ open ReconEngineRulesTypes
 module RuleWiseStackedBarGraph = {
   @react.component
   let make = (~rule: rulePayload) => {
-    open ReconEngineOverviewSummaryTypes
     open ReconEngineOverviewSummaryUtils
     open CurrencyFormatUtils
     open LogicUtils
@@ -54,26 +53,6 @@ module RuleWiseStackedBarGraph = {
       None
     }, [filterValue])
 
-    let handleBarClick = (seriesName: string) => {
-      let seriesType = seriesName->seriesTypeFromString
-      let statusFilter = seriesType->getStatusFilter
-      if statusFilter->isNonEmptyString {
-        switch seriesType {
-        | MismatchedSeriesType | ExpectedSeriesType => {
-            let filterQueryString = `rule_id=${rule.rule_id}&status=${statusFilter}`
-
-            RescriptReactRouter.push(
-              GlobalVars.appendDashboardPath(
-                ~url=`/v1/recon-engine/exceptions/recon?${filterQueryString}`,
-              ),
-            )
-          }
-        | ReconciledSeriesType
-        | UnknownSeriesType => ()
-        }
-      }
-    }
-
     <PageLoaderWrapper
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-44" message="No data available." />}
@@ -92,7 +71,8 @@ module RuleWiseStackedBarGraph = {
               ~yMax=totalTransactions,
               ~labelItemDistance={isMiniLaptopView ? 45 : 80},
               ~pointWidth=12,
-              ~onPointClick=handleBarClick,
+              ~onPointClick=seriesName =>
+                ReconEngineOverviewUtils.handleBarClick(~rule, seriesName),
             )}
           />
         </div>

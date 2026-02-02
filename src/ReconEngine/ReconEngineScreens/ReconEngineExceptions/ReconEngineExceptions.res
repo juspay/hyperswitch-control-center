@@ -96,7 +96,7 @@ let make = () => {
       <RenderIf condition={reconRulesList->Array.length > 0}>
         <Tabs
           tabs
-          initialIndex=?{Some(initialTabIndex)}
+          initialIndex={initialTabIndex}
           showBorder=true
           includeMargin=false
           defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center !text-red-500 ${body.lg.semibold}`}

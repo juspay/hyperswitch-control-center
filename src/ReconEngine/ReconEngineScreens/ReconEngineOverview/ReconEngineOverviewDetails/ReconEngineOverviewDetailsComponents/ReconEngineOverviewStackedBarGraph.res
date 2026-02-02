@@ -3,8 +3,6 @@ open Typography
 @react.component
 let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open CurrencyFormatUtils
-  open ReconEngineOverviewSummaryUtils
-  open LogicUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -44,25 +42,6 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     None
   }, [])
 
-  let handleBarClick = (seriesName: string) => {
-    let seriesType = seriesName->seriesTypeFromString
-    let statusFilter = seriesType->getStatusFilter
-    if statusFilter->isNonEmptyString {
-      switch seriesType {
-      | MismatchedSeriesType | ExpectedSeriesType => {
-          let filterQueryString = `rule_id=${ruleDetails.rule_id}&status=${statusFilter}`
-          RescriptReactRouter.push(
-            GlobalVars.appendDashboardPath(
-              ~url=`/v1/recon-engine/exceptions/recon?${filterQueryString}`,
-            ),
-          )
-        }
-      | ReconciledSeriesType
-      | UnknownSeriesType => ()
-      }
-    }
-  }
-
   <PageLoaderWrapper
     screenState
     customUI={<NewAnalyticsHelper.NoData height="h-40" message="No data available" />}
@@ -80,7 +59,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
             ~yMax=totalTransactions,
             ~labelItemDistance={isMiniLaptopView ? 45 : 90},
             ~pointWidth=12,
-            ~onPointClick=handleBarClick,
+            ~onPointClick=seriesName =>
+              ReconEngineOverviewUtils.handleBarClick(~rule=ruleDetails, seriesName),
           )}
         />
       </div>

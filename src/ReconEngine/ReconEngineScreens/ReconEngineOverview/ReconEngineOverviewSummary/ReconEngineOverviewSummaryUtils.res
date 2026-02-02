@@ -614,21 +614,3 @@ let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePa
   | UnknownReconStrategy => ("", [])
   }
 }
-
-let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.seriesType => {
-  switch str {
-  | "Reconciled" => ReconciledSeriesType
-  | "Mismatched" => MismatchedSeriesType
-  | "Expected" => ExpectedSeriesType
-  | _ => UnknownSeriesType
-  }
-}
-
-let getStatusFilter = (seriesType: ReconEngineOverviewSummaryTypes.seriesType): string => {
-  switch seriesType {
-  | ReconciledSeriesType => "posted_auto,posted_manual,posted_force"
-  | MismatchedSeriesType => "over_amount_mismatch,under_amount_mismatch"
-  | ExpectedSeriesType => "expected,over_amount_expected,under_amount_expected,partially_reconciled"
-  | UnknownSeriesType => ""
-  }
-}
