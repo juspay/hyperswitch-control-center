@@ -46,6 +46,15 @@ let getViewStatusFilter = (view: transformedEntriesViewType): string => {
   }
 }
 
+let getViewTypeFromStatus = (status: string): transformedEntriesViewType => {
+  switch status {
+  | "processed" => ProcessedViewType
+  | "needs_manual_review" => NeedsManualReviewViewType
+  | "pending,processed,needs_manual_review,void" => AllViewType
+  | _ => UnknownTransformedEntriesViewType
+  }
+}
+
 let cardDetails = (~stagingData: array<processingEntryType>) => {
   [
     {

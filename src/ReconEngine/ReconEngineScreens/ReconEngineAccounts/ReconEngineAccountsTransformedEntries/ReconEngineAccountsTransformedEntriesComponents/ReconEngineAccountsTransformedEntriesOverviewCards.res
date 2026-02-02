@@ -54,9 +54,25 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   }
 
   let settingActiveView = () => {
-    let appliedStatusFilter = filterValueJson->LogicUtils.getArrayFromDict(customFilterKey, [])
+    let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
+    let appliedStatusArray = appliedStatusFilter->getStrArrayFromJsonArray
 
-    if appliedStatusFilter->Array.length == 0 {
+    let allViewStatuses = AllViewType->getViewStatusFilter->String.split(",")
+    let isAllView =
+      appliedStatusArray->Array.toSorted(compareLogic) ==
+        allViewStatuses->Array.toSorted(compareLogic)
+
+    if isAllView {
+      setActiveView(_ => AllViewType)
+    } else if appliedStatusFilter->Array.length == 1 {
+      let status =
+        appliedStatusFilter
+        ->getValueFromArray(0, ""->JSON.Encode.string)
+        ->getStringFromJson("")
+
+      let viewType = status->getViewTypeFromStatus
+      setActiveView(_ => viewType)
+    } else {
       setActiveView(_ => UnknownTransformedEntriesViewType)
     }
   }
@@ -69,7 +85,7 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
   React.useEffect(() => {
     settingActiveView()
     None
-  }, [filterKeys])
+  }, [filterValueJson])
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-2">
     {cardDetails(~stagingData)
