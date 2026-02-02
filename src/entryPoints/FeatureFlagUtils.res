@@ -191,9 +191,8 @@ let extractTypedConnectorValueFromConfig = (
       item
       ->JSON.Decode.string
       ->Option.getOr("")
-    )
-    ->Array.map(item =>
-      item->String.toLowerCase->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+      ->String.toLowerCase
+      ->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
     )
     ->Array.filter(item => item != UnknownConnector("Not known"))
   connectorArray
