@@ -50,6 +50,8 @@ let assetRewriteMiddleware = (req, res, next) => {
 
 let libBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
+  const checkCoverage = process.env.CHECK_COVERAGE === "true";
+
   let entryObj = {
     app: `./src/embeddable/EmbeddableEntry.res.js`,
   };
@@ -118,15 +120,19 @@ let libBuild = () => {
           test: /\.ttf$/,
           use: ["file-loader"],
         },
-        {
-          test: /\.js$/,
-          use: {
-            loader: "@jsdevtools/coverage-istanbul-loader",
-            options: { esModules: true },
-          },
-          enforce: "post",
-          exclude: /node_modules|\.spec\.js$/,
-        },
+        ...(checkCoverage
+          ? [
+              {
+                test: /\.js$/,
+                use: {
+                  loader: "@jsdevtools/coverage-istanbul-loader",
+                  options: { esModules: true },
+                },
+                enforce: "post",
+                exclude: /node_modules|\.spec\.js$/,
+              },
+            ]
+          : []),
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/, // Fonts
           type: "asset/resource",
