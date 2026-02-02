@@ -32,7 +32,7 @@ module MockSidebarItem = {
   ) => {
     let textColor = item.active ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor
     let bgColor = item.active ? "rgba(153, 155, 159, 0.1)" : "transparent"
-    let fontSize = index === 0 ? "text-fs-10" : "text-fs-10 pl-3"
+    let padding = index === 0 ? "" : "pl-3"
 
     <>
       <div
@@ -40,7 +40,7 @@ module MockSidebarItem = {
         className="flex items-center gap-1 px-2 py-1 mx-2 rounded-md cursor-pointer hover:bg-opacity-75 transition-colors"
         style={ReactDOM.Style.make(~backgroundColor=bgColor, ~color=textColor, ())}>
         {index === 0 ? <Icon name="orchestrator-home" size=10 /> : React.null}
-        <span className={`${fontSize} font-medium`}> {React.string(item.label)} </span>
+        <span className={`${body.xs.medium} ${padding} `}> {React.string(item.label)} </span>
       </div>
     </>
   }
@@ -51,18 +51,18 @@ module MockNavbar = {
   let make = () =>
     <div className="flex flex-row gap-8 justify-between items-center w-full p-2">
       <div
-        className="flex items-center border rounded-lg px-3 py-1 bg-white text-fs-10 text-nd_gray-400">
+        className={`flex items-center border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400`}>
         <span> {"Profile :"->React.string} </span>
-        <span className="ml-1 font-semibold text-nd_gray-500">
+        <span className={`ml-1 ${body.xs.semibold} text-nd_gray-500`}>
           {"Test_profile"->React.string}
         </span>
         <Icon name="chevron-down" size=10 className="ml-1 text-nd_gray-400" />
       </div>
       <div
-        className="flex items-center border rounded-lg px-3 py-1 bg-white text-fs-10 text-nd_gray-400 w-72">
+        className={`flex items-center border rounded-lg px-3 py-1 bg-white ${body.xs.regular} text-nd_gray-400 w-72`}>
         <Icon name="search" size=12 className="mr-2 text-nd_gray-400" />
         <input
-          className="flex-1 outline-none bg-transparent text-fs-10 text-nd_gray-700"
+          className={`flex-1 outline-none bg-transparent ${body.xs.regular} text-nd_gray-700`}
           placeholder="Search"
           style={ReactDOM.Style.make(~border="none", ())}
         />
