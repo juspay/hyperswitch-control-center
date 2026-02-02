@@ -1,5 +1,5 @@
 open LogicUtils
-open AuditLogTypes
+open ReconEngineAuditLogDrawerTypes
 
 let parseAccountData = (json: JSON.t): accountData => {
   let dict = json->getDictFromJsonObject
