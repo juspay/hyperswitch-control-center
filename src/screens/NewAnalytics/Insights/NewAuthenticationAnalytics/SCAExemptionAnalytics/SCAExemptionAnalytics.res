@@ -17,7 +17,7 @@ let make = (
   let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ =>
-    JSON.Encode.null->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper
+    []->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -29,7 +29,7 @@ let make = (
   let getPaymentLieCycleData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      if isSampleDataEnabled {
+      let primaryResponse = if isSampleDataEnabled {
         let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
         let res = await fetchApi(
           paymentsUrl,
@@ -38,10 +38,8 @@ let make = (
           ~forceCookies=false,
         )
         let paymentsResponse = await res->(res => res->Fetch.Response.json)
-        let scaExemptionData =
-          paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("exemptionSankeyChartData")
-        setData(_ => scaExemptionData->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper)
-        setScreenState(_ => PageLoaderWrapper.Success)
+
+        paymentsResponse->getDictFromJsonObject->getJsonObjectFromDict("exemptionSankeyChartData")
       } else {
         let url = getURL(~entityName=V1(ANALYTICS_SCA_EXEMPTION_SANKEY), ~methodType=Post)
         let scaExemptionBody =
@@ -50,9 +48,15 @@ let make = (
             ("endTime", endTimeVal->JSON.Encode.string),
           ]->getJsonFromArrayOfJson
 
-        let scaExemptionResponse = await updateDetails(url, scaExemptionBody, Post)
-        setData(_ => scaExemptionResponse->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper)
+        await updateDetails(url, scaExemptionBody, Post)
+      }
+      let primaryData = primaryResponse->getArrayFromJson([])
+      if primaryData->Array.length > 0 {
+        let mappedData = primaryData->SCAExemptionAnalyticsUtils.scaExemptionResponseMapper
+        setData(_ => mappedData)
         setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
