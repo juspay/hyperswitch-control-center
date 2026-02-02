@@ -6,6 +6,7 @@ let make = () => {
   open LogicUtils
   open ReconEngineRulesUtils
 
+  let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
@@ -48,6 +49,21 @@ let make = () => {
     None
   }, [])
 
+  let initialTabIndex = React.useMemo(() => {
+    let urlSearch = url.search
+    if urlSearch->isNonEmptyString {
+      let urlParams = urlSearch->getDictFromUrlSearchParams
+      urlParams
+      ->Dict.get("rule_id")
+      ->Option.mapOr(0, ruleId => {
+        let index = reconRulesList->Array.findIndex(rule => rule.rule_id === ruleId)
+        index >= 0 ? index : 0
+      })
+    } else {
+      0
+    }
+  }, (url.search, reconRulesList))
+
   <div className="flex flex-col gap-4 w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
@@ -80,6 +96,7 @@ let make = () => {
       <RenderIf condition={reconRulesList->Array.length > 0}>
         <Tabs
           tabs
+          initialIndex=?{Some(initialTabIndex)}
           showBorder=true
           includeMargin=false
           defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center !text-red-500 ${body.lg.semibold}`}

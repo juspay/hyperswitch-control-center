@@ -13,12 +13,17 @@ let make = (~ruleId: string) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineHooks.useGetTransactions()
-  let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {
+    updateExistingKeys,
+    filterValueJson,
+    filterValue,
+    filterKeys,
+    setfilterKeys,
+  } = React.useContext(FilterContext.filterContext)
   let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
   let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
 
@@ -96,6 +101,26 @@ let make = (~ruleId: string) => {
   )
 
   React.useEffect(() => {
+    let urlSearch = url.search
+    if urlSearch->isNonEmptyString {
+      let urlParams = urlSearch->getDictFromUrlSearchParams
+      let filtersToApply = Dict.make()
+
+      urlParams
+      ->Dict.get("status")
+      ->Option.mapOr((), value => {
+        let formattedValue = value->String.includes(",") ? `[${value}]` : value
+        filtersToApply->Dict.set("status", formattedValue)
+      })
+
+      if !(filtersToApply->isEmptyDict) {
+        updateExistingKeys(filtersToApply)
+        if !(filterKeys->Array.includes("status")) {
+          filterKeys->Array.push("status")
+          setfilterKeys(_ => filterKeys)
+        }
+      }
+    }
     setInitialFilters()
     None
   }, [])
