@@ -6,8 +6,9 @@ let useFetchOrganizationList = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-  let setOrganizationDetailsValue =
-    HyperswitchAtom.organizationDetailsValueAtom->Recoil.useSetRecoilState
+  let setOrganizationDetailsValue = Recoil.useSetRecoilState(
+    HyperswitchAtom.organizationDetailsValueAtom,
+  )
   let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
@@ -31,10 +32,10 @@ let useFetchOrganizationList = () => {
         })
 
       switch currentOrgFromList {
-      | Some(orgJson) => {
-          let orgDetails = orgJson->OrganizationDetailsMapper.getOrganizationDetails
-          setOrganizationDetailsValue(_ => orgDetails)
-        }
+      | Some(orgJson) =>
+        setOrganizationDetailsValue(_ =>
+          orgJson->getDictFromJsonObject->OMPSwitchUtils.orgItemToObjMapper
+        )
       | None => ()
       }
 

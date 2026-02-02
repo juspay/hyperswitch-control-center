@@ -9,11 +9,9 @@ let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayl
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
 )
 
-let organizationDetailsValueAtom: Recoil.recoilAtom<
-  HSwitchSettingTypes.organizationPayload,
-> = Recoil.atom(
+let organizationDetailsValueAtom: Recoil.recoilAtom<OMPSwitchTypes.ompListTypes> = Recoil.atom(
   "organizationDetailsValue",
-  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
+  ompDefaultValue,
 )
 
 let connectorListAtom: Recoil.recoilAtom<

@@ -1,8 +1,12 @@
+open Typography
+
 module NewMerchantCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
     open LogicUtils
+    open OMPSwitchTypes
+
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -84,10 +88,14 @@ module NewMerchantCreationModal = {
     )
 
     let merchantTypeOptions: array<SelectBox.dropdownOption> = [
-      {label: "Connected", value: "connected", description: "Merchant managed by your platform"},
       {
-        label: "Standard",
-        value: "standard",
+        label: (#connected: ompType :> string)->capitalizeString,
+        value: (#connected: ompType :> string),
+        description: "Merchant managed by your platform",
+      },
+      {
+        label: (#standard: ompType :> string)->capitalizeString,
+        value: (#standard: ompType :> string),
         description: "Independent merchant with direct access",
       },
     ]
@@ -161,7 +169,7 @@ module NewMerchantCreationModal = {
                   field={merchantName}
                   showErrorOnChange=true
                   errorClass={ProdVerifyModalUtils.errorClass}
-                  labelClass="!text-black font-medium !-ml-[0.5px]"
+                  labelClass={`!text-black !-ml-[0.5px] ${body.sm.medium}`}
                 />
               </FormRenderer.DesktopRow>
               <RenderIf condition={enableMerchantType}>
@@ -171,7 +179,7 @@ module NewMerchantCreationModal = {
                     field={merchantType}
                     showErrorOnChange=true
                     errorClass={ProdVerifyModalUtils.errorClass}
-                    labelClass="!text-black font-medium !-ml-[0.5px]"
+                    labelClass={`!text-black !-ml-[0.5px] ${body.sm.medium}`}
                   />
                 </FormRenderer.DesktopRow>
               </RenderIf>

@@ -44,6 +44,38 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
+  let standardModules = !isCurrentMerchantPlatform
+    ? [
+        default->connectors(
+          ~isLiveMode,
+          ~isFrmEnabled=frm,
+          ~isPayoutsEnabled=payOut,
+          ~isThreedsConnectorEnabled=threedsAuthenticator,
+          ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+          ~isTaxProcessor=taxProcessor,
+          ~userHasResourceAccess,
+          ~isBillingProcessor=billingProcessor,
+          ~isVaultProcessor=vaultProcessor,
+        ),
+        default->analytics(
+          disputeAnalytics,
+          performanceMonitorFlag,
+          isNewAnalyticsEnable,
+          routingAnalytics,
+          ~authenticationAnalyticsFlag=authenticationAnalytics,
+          ~userHasResourceAccess,
+        ),
+        default->workflow(
+          isSurchargeEnabled,
+          threedsExemptionRules,
+          ~userHasResourceAccess,
+          ~isPayoutEnabled=payOut,
+          ~userEntity,
+        ),
+        devAltPaymentMethods->alternatePaymentMethods,
+      ]
+    : []
+
   [
     default->home,
     default->operations(
@@ -52,39 +84,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),
-    ...{
-      !isCurrentMerchantPlatform
-        ? [
-            default->connectors(
-              ~isLiveMode,
-              ~isFrmEnabled=frm,
-              ~isPayoutsEnabled=payOut,
-              ~isThreedsConnectorEnabled=threedsAuthenticator,
-              ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-              ~isTaxProcessor=taxProcessor,
-              ~userHasResourceAccess,
-              ~isBillingProcessor=billingProcessor,
-              ~isVaultProcessor=vaultProcessor,
-            ),
-            default->analytics(
-              disputeAnalytics,
-              performanceMonitorFlag,
-              isNewAnalyticsEnable,
-              routingAnalytics,
-              ~authenticationAnalyticsFlag=authenticationAnalytics,
-              ~userHasResourceAccess,
-            ),
-            default->workflow(
-              isSurchargeEnabled,
-              threedsExemptionRules,
-              ~userHasResourceAccess,
-              ~isPayoutEnabled=payOut,
-              ~userEntity,
-            ),
-            devAltPaymentMethods->alternatePaymentMethods,
-          ]
-        : []
-    },
+    ...standardModules,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(
       ~isWebhooksEnabled=devWebhooks,

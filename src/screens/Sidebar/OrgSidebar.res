@@ -331,8 +331,7 @@ module NewOrgCreationModal = {
 @react.component
 let make = () => {
   open OMPSwitchUtils
-  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-  let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
+  let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
@@ -470,9 +469,7 @@ let make = () => {
         </div>
       </RenderIf>
     </div>
-    <RenderIf condition={showAddOrgModal}>
-      <NewOrgCreationModal setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} />
-    </RenderIf>
+    <NewOrgCreationModal setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} />
     <LoaderModal
       showModal={showSwitchingOrg}
       setShowModal={setShowSwitchingOrg}

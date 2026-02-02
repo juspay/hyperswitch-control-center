@@ -282,17 +282,12 @@ let useOMPType = () => {
   let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
-  let {organization_type} = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.organizationDetailsValueAtom,
-  )
+  let orgDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.organizationDetailsValueAtom)
 
-  let isCurrentMerchantPlatform = switch merchant_account_type {
-  | #platform => true
-  | _ => false
-  }
+  let isCurrentMerchantPlatform = merchant_account_type == #platform ? true : false
 
-  let isCurrentOrganizationPlatform = switch organization_type {
-  | #platform => true
+  let isCurrentOrganizationPlatform = switch orgDetails.type_ {
+  | Some(#platform) => true
   | _ => false
   }
 
