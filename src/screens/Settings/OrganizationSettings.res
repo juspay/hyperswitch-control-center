@@ -221,8 +221,6 @@ let make = () => {
   let (showInfoModal, setShowInfoModal) = React.useState(_ => false)
   let (isUnderEdit, setIsUnderEdit) = React.useState(_ => false)
 
-  // Js.log2("organizationDetails", organizationDetails)
-
   React.useEffect(() => {
     if orgList->Array.length === 0 {
       fetchOrganizationList()->ignore

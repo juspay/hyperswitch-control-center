@@ -1341,12 +1341,7 @@ let getSortedKeys = (hashMappedOptions, ~reverseSort=false, ~customSortOrder=?) 
       switch (a, b) {
       | ("-", _) => 1.
       | (_, "-") => -1.
-      | (_, _) =>
-        if reverseSort {
-          String.compare(b, a)
-        } else {
-          String.compare(a, b)
-        }
+      | (_, _) => reverseSort ? String.compare(b, a) : String.compare(a, b)
       }
     })
   }
