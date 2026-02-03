@@ -124,7 +124,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ()->(resolve(_))
     })
   } else {
-    // Try to serve Brotli-compressed version first
+    // Try to serve Brotli/Gzip-compressed version first
     let compressedServed = serveCompressed(
       ~request,
       ~response,
@@ -135,7 +135,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     )
 
     if !compressedServed {
-      // Fall back to regular serve-handler if Brotli not available or not supported
+      // Fall back to regular serve-handler if Brotli/Gzip not available or not supported
       open ServerHandler
 
       let cache = if request.url.toString()->String.endsWith(".svg") {
