@@ -124,24 +124,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ()->(resolve(_))
     })
   } else {
-    // log all headers but remove tokens for security
-    Js.log3(
-      "Request Headers for testing: ",
-      path,
-      request.headers
-      ->Dict.toArray
-      ->Array.map(((key, value)) =>
-        if (
-          key->String.toLowerCase->String.includes("accept-encoding") ||
-            key->String.toLowerCase->String.includes("accept-language")
-        ) {
-          (key, value)
-        } else {
-          (key, "*****Redacted*****")
-        }
-      )
-      ->Js.Json.stringifyAny,
-    )
     // Try to serve Brotli-compressed version first
     let brotliServed = serveCompressed(
       ~request,
