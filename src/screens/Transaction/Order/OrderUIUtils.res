@@ -9,6 +9,7 @@ type filterTypes = {
   card_network: array<string>,
   card_discovery: array<string>,
   customer_id: array<string>,
+  customer_email: array<string>,
   amount: array<string>,
   merchant_order_reference_id: array<string>,
 }
@@ -24,6 +25,7 @@ type filter = [
   | #card_network
   | #card_discovery
   | #customer_id
+  | #customer_email
   | #amount
   | #merchant_order_reference_id
   | #unknown
@@ -41,6 +43,7 @@ let getFilterTypeFromString = filterType => {
   | "card_network" => #card_network
   | "card_discovery" => #card_discovery
   | "customer_id" => #customer_id
+  | "customer_email" => #customer_email
   | "amount" => #amount
   | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
@@ -316,6 +319,7 @@ let itemToObjMapper = dict => {
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     card_discovery: dict->getArrayFromDict("card_discovery", [])->getStrArrayFromJsonArray,
     customer_id: [],
+    customer_email: [],
     amount: [],
     merchant_order_reference_id: [],
   }
@@ -339,7 +343,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+    [#payment_method_type, #customer_id, #customer_email, #amount, #merchant_order_reference_id]->Array.map(
       getLabelFromFilterType,
     )
 
@@ -378,6 +382,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
 
     let customInput = switch key->getFilterTypeFromString {
     | #customer_id
+    | #customer_email
     | #merchant_order_reference_id =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
