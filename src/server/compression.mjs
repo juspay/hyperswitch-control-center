@@ -20,16 +20,6 @@ export function serveCompressed(
   const supportsBrotli = acceptEncoding.includes("br");
   const supportsGzip = acceptEncoding.includes("gzip");
 
-  console.log(
-    "Checking compression support: ",
-    req.headers["accept-encoding"],
-    acceptEncoding,
-    "Brotli:",
-    supportsBrotli,
-    "Gzip:",
-    supportsGzip,
-  );
-
   const fullPath = path.join(serverPath, filePath);
 
   //   Priority 1: Try Brotli compression if supported
@@ -112,11 +102,6 @@ function serveCompressedFile(
       "Cache-Control":
         ext === ".svg" ? "max-age=3600, must-revalidate" : "no-cache",
     });
-
-    res.end(content);
-    console.log(
-      `Successfully served ${encoding}-compressed file: ${compressedPath}`,
-    );
     return true;
   } catch (error) {
     console.error(`Error serving ${encoding}-compressed file:`, error);
