@@ -56,7 +56,7 @@ let make = () => {
           <span className={`${body.xs.medium} text-nd_gray-400`}>
             {"Card Heading goes here"->React.string}
           </span>
-          <div className="flex flex-row gap-2 mt-2 font-semibold text-fs-8">
+          <div className={`flex flex-row gap-2 mt-2 ${body.xs.semibold}`}>
             <button
               className="px-2 py-3 h-4 rounded flex items-center justify-between cursor-pointer"
               style={ReactDOM.Style.make(

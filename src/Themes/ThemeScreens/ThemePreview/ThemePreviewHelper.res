@@ -66,7 +66,9 @@ module MockNavbar = {
           placeholder="Search"
           style={ReactDOM.Style.make(~border="none", ())}
         />
-        <span className="ml-2 text-fs-8 text-nd_gray-300"> {"⌘ + K"->React.string} </span>
+        <span className={`ml-2 ${body.xs.regular} text-nd_gray-300`}>
+          {"⌘ + K"->React.string}
+        </span>
       </div>
     </div>
 }
