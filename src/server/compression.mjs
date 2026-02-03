@@ -72,7 +72,6 @@ function serveCompressedFile(
   try {
     const stats = fs.statSync(compressedPath);
     const content = fs.readFileSync(compressedPath);
-
     // Determine content type based on original file extension
     const ext = path.extname(originalFilePath).toLowerCase();
     let contentType = "application/octet-stream";
@@ -81,16 +80,11 @@ function serveCompressedFile(
       contentType = "application/javascript";
     } else if (ext === ".css") {
       contentType = "text/css";
-    } else if (ext === ".html") {
-      contentType = "text/html";
-    } else if (ext === ".json") {
-      contentType = "application/json";
-    } else if (ext === ".svg") {
-      contentType = "image/svg+xml";
     } else if (ext === ".wasm") {
       contentType = "application/wasm";
+    } else {
+      return false;
     }
-
     // Set headers for compressed content
     res.writeHead(200, {
       "Content-Type": contentType,

@@ -80,7 +80,7 @@ const mergeProd = () => {
       },
       plugins: [
         // Compression for JS/TS files (both Brotli and Gzip)
-        ...createCompressionPlugins(/\.(js|jsx|ts|tsx)$/, "JS/TS files"),
+        ...createCompressionPlugins(/\.(js|mjs)$/, "JS/TS files"),
 
         // Compression for WASM files (both Brotli and Gzip)
         ...createCompressionPlugins(/\.(wasm)$/, "WASM files"),
