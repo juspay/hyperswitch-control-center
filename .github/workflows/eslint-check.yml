@@ -10,10 +10,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.AUTO_RELEASE_PAT || github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3

@@ -8,7 +8,7 @@ let make = () => {
 
   switch url.path->HSwitchUtils.urlPath {
   | list{"v1", "recon-engine", "sources", "ingestion-history", ingestionHistoryId} =>
-    <ReconEngineAccountsOverview
+    <ReconEngineDataOverview
       breadCrumbNavigationPath={breadCrumbNavigationPath} ingestionHistoryId={ingestionHistoryId}
     />
   | list{"v1", "recon-engine", "sources", ...remainingPath} =>
@@ -16,8 +16,8 @@ let make = () => {
       entityName="IngestionHistory"
       remainingPath
       access=Access
-      renderList={() => <ReconEngineAccountsSources />}
-      renderShow={(accountId, _) => <ReconEngineAccountSourceDetails accountId={accountId} />}
+      renderList={() => <ReconEngineDataSources />}
+      renderShow={(accountId, _) => <ReconEngineDataSourceDetails accountId={accountId} />}
     />
   | _ => React.null
   }

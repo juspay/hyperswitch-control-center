@@ -1,7 +1,7 @@
 open LogicUtils
 open ReconEngineOverviewTypes
 open ReconEngineTypes
-open ReconEngineAccountsUtils
+open ReconEngineDataUtils
 open ColumnGraphUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
@@ -288,7 +288,6 @@ let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
     Posted(Auto),
     Posted(Manual),
-    Posted(Force),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),

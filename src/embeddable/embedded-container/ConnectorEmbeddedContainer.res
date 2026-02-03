@@ -44,9 +44,14 @@ let make = () => {
         <EntityScaffold
           entityName="Connectors"
           remainingPath
-          renderList={() => <ConnectorList showDummyProcessorBanner=false />}
-          renderNewForm={() => <ConnectorHome />}
-          renderShow={(_, _) => <ConnectorHome />}
+          renderList={() =>
+            <ConnectorList
+              showDummyProcessorBanner=false
+              showRequestConnectorBtn=false
+              showDummyConnectorButton=false
+            />}
+          renderNewForm={() => <ConnectorHome showBreadCrumbWarning=false />}
+          renderShow={(_, _) => <ConnectorHome showBreadCrumbWarning=false />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />

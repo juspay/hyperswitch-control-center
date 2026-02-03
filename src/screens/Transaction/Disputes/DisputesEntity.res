@@ -92,6 +92,11 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
         url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
+        leftIcon={disputesData.is_already_refunded
+          ? CustomIcon(
+              <Icon name="nd-alert-triangle-outline" size={16} className="text-nd_red-600" />,
+            )
+          : NoIcon}
       />,
       "",
     )
@@ -155,6 +160,7 @@ let itemToObjMapper = dict => {
     connector_created_at: dict->getString("connector_created_at", ""),
     connector_updated_at: dict->getString("connector_updated_at", ""),
     created_at: dict->getString("created_at", ""),
+    is_already_refunded: dict->getBool("is_already_refunded", false),
   }
 }
 

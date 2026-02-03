@@ -7,6 +7,7 @@ const webpack = require("webpack");
 const path = require("path");
 const serverConfig = require("./webpack.server");
 const config = import("./src/server/config.mjs");
+const appName = process.env.APP_NAME || "hyperswitch";
 
 let proxy = [
   {
@@ -34,8 +35,23 @@ let configMiddleware = (req, res, next) => {
   next();
 };
 
+let assetRewriteMiddleware = (req, res, next) => {
+  // Rewrite URLs for static assets - add /embedded/ prefix
+  // This allows shared code to reference assets without /embedded/ prefix
+  if (
+    req.path.match(/\.\w+$/) &&
+    !req.path.startsWith("/embedded") &&
+    !req.path.startsWith("/api")
+  ) {
+    req.url = "/embedded" + req.path;
+  }
+  next();
+};
+
 let libBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
+  const checkCoverage = process.env.CHECK_COVERAGE === "true";
+
   let entryObj = {
     app: `./src/embeddable/EmbeddableEntry.res.js`,
   };
@@ -43,9 +59,9 @@ let libBuild = () => {
     mode: isDevelopment ? "development" : "production",
     entry: entryObj,
     output: {
-      path: path.resolve(__dirname, "dist", "libapp"),
+      path: path.resolve(__dirname, "dist", "embedded"),
       clean: true,
-      publicPath: "/",
+      publicPath: "/embedded/",
       filename: "[name].js",
       // Library output configuration for npm publication
       library: {
@@ -58,12 +74,16 @@ let libBuild = () => {
       assetModuleFilename: "assets/[name][ext][query]",
     },
     devServer: {
-      port: 5000,
+      static: { directory: path.resolve(__dirname, "dist", "embedded") },
+      port: 9000,
       hot: true,
-      historyApiFallback: true,
+      historyApiFallback: {
+        rewrites: [{ from: /^\/embedded/, to: "/embedded/index.html" }],
+      },
       proxy: proxy,
       setupMiddlewares: (middlewares, devServer) => {
         devServer.app.use(configMiddleware);
+        devServer.app.use(assetRewriteMiddleware);
         return middlewares;
       },
     },
@@ -100,15 +120,19 @@ let libBuild = () => {
           test: /\.ttf$/,
           use: ["file-loader"],
         },
-        {
-          test: /\.js$/,
-          use: {
-            loader: "@jsdevtools/coverage-istanbul-loader",
-            options: { esModules: true },
-          },
-          enforce: "post",
-          exclude: /node_modules|\.spec\.js$/,
-        },
+        ...(checkCoverage
+          ? [
+              {
+                test: /\.js$/,
+                use: {
+                  loader: "@jsdevtools/coverage-istanbul-loader",
+                  options: { esModules: true },
+                },
+                enforce: "post",
+                exclude: /node_modules|\.spec\.js$/,
+              },
+            ]
+          : []),
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/, // Fonts
           type: "asset/resource",
@@ -123,11 +147,12 @@ let libBuild = () => {
       new CopyPlugin({
         patterns: [
           { from: "public/common" },
-          // Copy hyperswitch files except index.html
+          // Copy hyperswitch files to root (not embedded subfolder)
           {
-            from: `public/hyperswitch`,
+            from: "public/hyperswitch",
+            to: ".",
             globOptions: {
-              ignore: ["**/index.html"], // Don't copy hyperswitch index.html
+              ignore: ["**/index.html"],
             },
           },
           // Copy libapp index.html explicitly
