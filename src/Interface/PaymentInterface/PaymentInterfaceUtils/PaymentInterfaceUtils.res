@@ -103,6 +103,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     amount_captured: dict->getFloat("amount_received", 0.0),
     client_secret: dict->getString("client_secret", ""),
     created_at: dict->getString("created", ""),
+    modified_at: dict->getString("modified_at", ""),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),

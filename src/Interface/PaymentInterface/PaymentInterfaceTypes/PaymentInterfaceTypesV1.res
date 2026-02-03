@@ -60,6 +60,7 @@ type order_v1 = {
   amount_received: float,
   client_secret: string,
   created: string,
+  modified_at: string,
   last_updated: string,
   currency: string,
   customer_id: string,
