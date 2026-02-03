@@ -50,7 +50,7 @@ let make = () => {
           <RenderIf condition={themeListArray->Array.length > 0}>
             <div>
               <ACLButton
-                text="Create Themee"
+                text="Create Theme"
                 buttonType=Primary
                 buttonSize=Small
                 customButtonStyle={`${body.md.semibold} py-4`}

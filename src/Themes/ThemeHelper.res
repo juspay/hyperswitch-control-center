@@ -224,14 +224,13 @@ module LineageFormContent = {
           field={entityTypeField}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
-          labelClass="!text-black font-medium !-ml-[0.5px]"
         />
       | 1 =>
         <FormRenderer.FieldRenderer
           field={orgDisplayField}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
-          labelClass="!text-black font-medium"
+          labelClass={`${body.sm.semibold} `}
         />
       | 2 =>
         <>
@@ -239,7 +238,7 @@ module LineageFormContent = {
             field={orgDisplayField}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
-            labelClass="!text-black font-medium"
+            labelClass={`${body.sm.semibold}`}
           />
           <div className="relative pl-8">
             <div
@@ -253,7 +252,7 @@ module LineageFormContent = {
               field={merchantField}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass="!text-black font-medium"
+              labelClass={`${body.sm.semibold} `}
             />
           </div>
         </>
@@ -263,7 +262,7 @@ module LineageFormContent = {
             field={orgDisplayField}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
-            labelClass="!text-black font-medium"
+            labelClass={`${body.sm.semibold} `}
           />
           <div className="relative pl-8">
             <div
@@ -277,7 +276,7 @@ module LineageFormContent = {
               field={merchantField}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass="!text-black font-medium"
+              labelClass={`${body.sm.semibold} `}
             />
           </div>
           <div className="relative pl-16">
@@ -292,7 +291,7 @@ module LineageFormContent = {
               field={profileField}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
-              labelClass="!text-black font-medium"
+              labelClass={`${body.sm.semibold} `}
             />
           </div>
         </>
@@ -391,7 +390,7 @@ module ThemeLineageModal = {
           ~queryParameters=Some(`entity_type=${entityType}`),
         )
         let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-        let themeID = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("theme_id", "")
+        let themeID = res->getDictFromJsonObject->getString("theme_id", "")
         setUpdateThemeID(_ => themeID)
         setThemeExists(_ => true)
       } catch {

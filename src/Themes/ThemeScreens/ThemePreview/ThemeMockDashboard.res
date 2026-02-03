@@ -30,7 +30,7 @@ let make = () => {
         </nav>
         <div className="p-3 border-t flex items-center gap-2">
           <span
-            className="rounded-full bg-nd_gray-600 w-4 h-4 flex items-center justify-center text-fs-10 text-white">
+            className={`rounded-full bg-nd_gray-600 w-4 h-4 flex items-center justify-center ${body.xs.medium} text-white`}>
             <Icon name="user" size=8 />
           </span>
           <span
