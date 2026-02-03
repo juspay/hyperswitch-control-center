@@ -1,4 +1,5 @@
 open Typography
+open OMPSwitchHelper
 
 module NewMerchantCreationModal = {
   @react.component
@@ -69,49 +70,6 @@ module NewMerchantCreationModal = {
       createNewMerchant(dict->JSON.Encode.object)
     }
 
-    let merchantName = FormRenderer.makeFieldInfo(
-      ~label="Merchant Name",
-      ~name="company_name",
-      ~customInput=(~input, ~placeholder as _) =>
-        InputFields.textInput()(
-          ~input={
-            ...input,
-            onChange: event =>
-              ReactEvent.Form.target(event)["value"]
-              ->String.trimStart
-              ->Identity.stringToFormReactEvent
-              ->input.onChange,
-          },
-          ~placeholder="Eg: My New Merchant",
-        ),
-      ~isRequired=true,
-    )
-
-    let merchantTypeOptions: array<SelectBox.dropdownOption> = [
-      {
-        label: (#connected: ompType :> string)->capitalizeString,
-        value: (#connected: ompType :> string),
-        description: "Merchant managed by your platform",
-      },
-      {
-        label: (#standard: ompType :> string)->capitalizeString,
-        value: (#standard: ompType :> string),
-        description: "Independent merchant with direct access",
-      },
-    ]
-
-    let merchantType = FormRenderer.makeFieldInfo(
-      ~label="Merchant Type",
-      ~name="merchant_account_type",
-      ~customInput=InputFields.radioInput(
-        ~options=merchantTypeOptions,
-        ~buttonText="",
-        ~deselectDisable=true,
-        ~customStyle="gap-3 max-w-40",
-      ),
-      ~isRequired=true,
-    )
-
     let validateForm = (values: JSON.t) => {
       let errors = Dict.make()
       let valuesDict = values->getDictFromJsonObject
@@ -176,7 +134,7 @@ module NewMerchantCreationModal = {
                 <FormRenderer.DesktopRow>
                   <FormRenderer.FieldRenderer
                     fieldWrapperClass="w-full"
-                    field={merchantType}
+                    field={merchantTypeField}
                     showErrorOnChange=true
                     errorClass={ProdVerifyModalUtils.errorClass}
                     labelClass={`!text-black !-ml-[0.5px] ${body.sm.medium}`}
@@ -208,7 +166,6 @@ module NewMerchantCreationModal = {
 @react.component
 let make = () => {
   open OMPSwitchUtils
-  open OMPSwitchHelper
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
@@ -328,9 +285,7 @@ let make = () => {
         ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
       )}
     />
-    <RenderIf condition={showModal}>
-      <NewMerchantCreationModal setShowModal showModal />
-    </RenderIf>
+    <NewMerchantCreationModal setShowModal showModal />
     <LoaderModal
       showModal={showSwitchingMerch}
       setShowModal={setShowSwitchingMerch}

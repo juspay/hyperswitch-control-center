@@ -40,7 +40,7 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
-  let (_, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -195,7 +195,7 @@ let make = () => {
 
                         <div className="flex md:gap-4 gap-2 items-center">
                           {logoElement}
-                          <RenderIf condition={!isCurrentOrganizationPlatform}>
+                          <RenderIf condition={!isCurrentMerchantPlatform}>
                             <ProfileSwitch />
                           </RenderIf>
                           <LiveMode />
