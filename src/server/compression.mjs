@@ -96,6 +96,7 @@ function serveCompressedFile(
       "Cache-Control":
         ext === ".svg" ? "max-age=3600, must-revalidate" : "no-cache",
     });
+    res.end(content);
     return true;
   } catch (error) {
     console.error(`Error serving ${encoding}-compressed file:`, error);
