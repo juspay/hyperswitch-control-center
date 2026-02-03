@@ -103,6 +103,3 @@ function serveCompressedFile(
     return false;
   }
 }
-
-// Backward compatibility: export serveBrotli as alias
-export const serveBrotli = serveCompressed;

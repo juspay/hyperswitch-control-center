@@ -125,7 +125,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     })
   } else {
     // Try to serve Brotli-compressed version first
-    let brotliServed = serveCompressed(
+    let compressedServed = serveCompressed(
       ~request,
       ~response,
       ~filePath=path,
@@ -134,7 +134,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ~eTag=`"${currentCommitHash}"`,
     )
 
-    if !brotliServed {
+    if !compressedServed {
       // Fall back to regular serve-handler if Brotli not available or not supported
       open ServerHandler
 
