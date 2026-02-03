@@ -137,7 +137,7 @@ module AccountsList = {
 @react.component
 let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
-  open ReconEngineAccountsUtils
+  open ReconEngineDataUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
