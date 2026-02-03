@@ -16,7 +16,7 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 COPY --from=base /usr/src/app/dist /usr/src/app/dist
-RUN ls -la /usr/src/app/dist/hyperswitch
+
 COPY --from=base /usr/src/app/package*.json ./
 RUN apk add --no-cache bash
 
