@@ -414,27 +414,38 @@ module Disputes = {
 module OrderActions = {
   @react.component
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
-    let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
+    let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
+    let disputeData = orderData.disputes
 
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
-
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
+    let disputeAmount = ref(0.0)
+
     let _ = refundData->Array.map(ele => {
-      if ele.status === "pending" {
+      let refundStatus = ele.status->HSwitchOrderUtils.refundStatusVariantMapper
+      if refundStatus === Pending {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
-      } else if ele.status === "succeeded" {
+      } else if refundStatus === Success {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
+
+    let _ = disputeData->Array.map(ele => {
+      let disputeStatus = ele.dispute_status->DisputesUtils.disputeStatusVariantMapper
+      if disputeStatus === DisputeLost {
+        disputeAmount := disputeAmount.contents +. ele.amount->Float.fromString->Option.getOr(0.0)
+      }
+    })
+
     React.useEffect(_ => {
-      setAmoutAvailableToRefund(_ =>
+      let amountToBeRefunded =
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
+        disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
-      )
-
+      setAmountAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
       None
     }, [orderData])
 
@@ -451,7 +462,7 @@ module OrderActions = {
           setShowModal
           requestedRefundAmount
           amountRefunded
-          amoutAvailableToRefund
+          amountAvailableToRefund
           refetch
         />
       </Modal>
@@ -628,6 +639,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
+        ~version,
       )
       let res = await fetchDetails(url)
       let order = switch version {
@@ -661,7 +673,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~id=Some(id),
         ~queryParameters=Some("expand_attempts=true"),
       )
-    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    | V2 =>
+      getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("expand_attempts=true"),
+      )
     }
 
     fetchOrderDetails(accountUrl)->ignore
@@ -684,7 +702,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     status !== Failed &&
     status !== Cancelled &&
     status !== Expired &&
-    status !== CancelledPostCapture
+    status !== CancelledPostCapture &&
+    status !== RequiresPaymentMethod
   }, [orderData])
 
   let refreshStatus = async () => {
@@ -920,6 +939,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       ExtendedAuthApplied,
                       ExtendedAuthLastAppliedAt,
                       RequestExtendedAuth,
+                      HyperswitchErrorDescription,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}

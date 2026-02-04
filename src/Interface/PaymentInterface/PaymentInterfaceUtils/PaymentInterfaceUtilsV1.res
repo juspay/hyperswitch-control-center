@@ -190,6 +190,10 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     extended_auth_last_applied_at: dict->getString("extended_auth_last_applied_at", ""),
     extended_auth_applied: dict->getBool("extended_auth_applied", false),
     request_extended_auth: dict->getBool("request_extended_auth", false),
+    hyperswitch_error_description: dict
+    ->getDictfromDict("error_details")
+    ->getDictfromDict("unified_details")
+    ->getString("description", ""),
   }
 }
 
@@ -331,5 +335,6 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     extended_auth_last_applied_at: order.extended_auth_last_applied_at,
     extended_auth_applied: order.extended_auth_applied,
     request_extended_auth: order.request_extended_auth,
+    hyperswitch_error_description: order.hyperswitch_error_description,
   }
 }

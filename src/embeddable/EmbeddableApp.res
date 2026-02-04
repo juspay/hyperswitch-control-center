@@ -4,12 +4,11 @@ open Window
 @react.component
 let make = () => {
   open HSwitchUtils
-  open LogicUtils
+  open EmbeddedIframeUtils
 
   let url = RescriptReactRouter.useUrl()
 
   let contentRef = React.useRef(Js.Nullable.null)
-  let (componentKey, setComponentKey) = React.useState(_ => "")
 
   let measureAndSendDimensions = rootElement => {
     // Get height dimensions - PRIORITIZING SCROLL HEIGHT
@@ -36,12 +35,11 @@ let make = () => {
     }
 
     // Send dimensions message to parent iframe
-    IframeUtils.handlePostMessage([
-      ("type", JSON.Encode.string("EMBEDDED_COMPONENT_RESIZE")),
-      ("height", finalHeight->JSON.Encode.int),
-      ("width", finalWidth->JSON.Encode.int),
-      ("component", JSON.Encode.string(url.path->urlPath->LogicUtils.getListHead)),
-    ])
+    sendComponentDimensionToParent(
+      finalHeight,
+      finalWidth,
+      url.path->urlPath->LogicUtils.getListHead,
+    )
   }
 
   React.useEffect(() => {
@@ -95,33 +93,11 @@ let make = () => {
     )
   }, [])
 
-  let handleAuthMessage = (ev: Dom.event) => {
-    let objectdata = ev->HandlingEvents.convertToCustomEvent
-    switch objectdata.data->JSON.Decode.object {
-    | Some(dict) => {
-        let messageType = dict->getString("type", "")
-        if messageType->isNonEmptyString && messageType == "AUTH_TOKEN" {
-          let tokenFromParent = dict->getString("token", "")
-          if tokenFromParent->isNonEmptyString {
-            LocalStorage.setItem("EMBEDDABLE_INFO", tokenFromParent)
-            setComponentKey(_ => randomString(~length=10))
-          }
-        }
-      }
-    | None => ()
-    }
-  }
-
-  React.useEffect(() => {
-    addEventListener("message", handleAuthMessage)
-    Some(() => removeEventListener("message", handleAuthMessage))
-  }, [])
-
   <div id="embeddable-app" ref={ReactDOM.Ref.domRef(contentRef)}>
-    <ErrorBoundary key={componentKey}>
+    <ErrorBoundary>
       {switch url.path->urlPath {
       | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
-      | _ => <> </>
+      | _ => <NotFoundPage />
       }}
     </ErrorBoundary>
   </div>

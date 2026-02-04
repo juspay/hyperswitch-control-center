@@ -28,7 +28,7 @@ let make = (~reconRulesList) => {
     None
   }, [])
 
-  <div className="flex flex-col gap-8 mt-8">
+  <div className="flex flex-col gap-8 mt-8 pb-40">
     <div className="flex flex-row justify-end">
       <DynamicFilter
         title="ReconEngineOverviewSummaryFilters"
