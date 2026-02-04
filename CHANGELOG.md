@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.04.0
+
+### Refactors
+
+- Rename recon engine accounts to recon engine data ([#4141](https://github.com/juspay/hyperswitch-control-center/pull/4141)) ([`3af9428`](https://github.com/juspay/hyperswitch-control-center/commit/3af942840e3a632a333ea992b726df6b28f4453e))
+
+**Full Changelog:** [`2026.02.03.0...2026.02.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.03.0...2026.02.04.0)
+
+- - -
+
+## 2026.02.03.0
+
+### Bug Fixes
+
+- Fixed bugs in revamped payment settings ([#4152](https://github.com/juspay/hyperswitch-control-center/pull/4152)) ([`9a386c6`](https://github.com/juspay/hyperswitch-control-center/commit/9a386c660fa1f70e7ee7034954f20dc90cd14525))
+- Payload optional `processing_account_id` validations ([#4134](https://github.com/juspay/hyperswitch-control-center/pull/4134)) ([`8300845`](https://github.com/juspay/hyperswitch-control-center/commit/8300845a33866810cbe6a5a724f054f15e21d09e))
+
+### Refactors
+
+- Move recon audit logs to ReconEngineScreens ([#4137](https://github.com/juspay/hyperswitch-control-center/pull/4137)) ([`7183fb9`](https://github.com/juspay/hyperswitch-control-center/commit/7183fb9dda42b5e9b736f7e4f3662cd5731ba708))
+
+### Miscellaneous Tasks
+
+- Build fail issue fixes ([#4178](https://github.com/juspay/hyperswitch-control-center/pull/4178)) ([`d43cec2`](https://github.com/juspay/hyperswitch-control-center/commit/d43cec20e48925cf01b588a05f764d82e233c9b9))
+
+**Full Changelog:** [`2026.01.30.0...2026.02.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.30.0...2026.02.03.0)
+
+- - -
+
 ## 2026.01.23.0
 
 ### Features
