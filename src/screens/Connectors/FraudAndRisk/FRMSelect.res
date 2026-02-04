@@ -20,6 +20,7 @@ module NewProcessorCards = {
       )
     }
     let unConfiguredFRMCount = unConfiguredFRMs->Array.length
+    let configuredFRMCount = configuredFRMs->Array.length
 
     let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
@@ -68,7 +69,7 @@ module NewProcessorCards = {
 
     let headerText = "Connect a new fraud & risk management player"
 
-    <RenderIf condition={unConfiguredFRMCount > 0}>
+    <RenderIf condition={configuredFRMCount < 1}>
       <div className="flex flex-col gap-4"> {unConfiguredFRMs->descriptedFRMs(headerText)} </div>
     </RenderIf>
   }
