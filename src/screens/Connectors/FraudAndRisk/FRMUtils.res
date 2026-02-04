@@ -36,9 +36,7 @@ let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode, ~profileId) => {
     ("connector_account_details", frmAccountDetailsDict),
     ("frm_configs", []->JSON.Encode.array),
     ("profile_id", profileId->JSON.Encode.string),
-  ]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ]->getJsonFromArrayOfJson
 }
 
 let parseFRMConfig = json => {

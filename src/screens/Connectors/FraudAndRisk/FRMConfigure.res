@@ -56,10 +56,10 @@ let make = () => {
       [
         ("data", "signifyd"->JSON.Encode.string),
         ("type", "single"->JSON.Encode.string),
-      ]->Dict.fromArray
+      ]->getJsonFromArrayOfJson
     let body =
       [
-        ("frm_routing_algorithm", info->JSON.Encode.object),
+        ("frm_routing_algorithm", info),
         ("merchant_id", merchantId->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
     let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
