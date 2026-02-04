@@ -135,7 +135,7 @@ const getCopyPatterns = (isDevelopment) => [
     to: "index.html",
   },
 ];
-lae;
+
 const getPlugins = (isDevelopment) => {
   const plugins = [
     new MiniCssExtractPlugin(),
