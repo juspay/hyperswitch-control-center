@@ -62,6 +62,7 @@ type colType =
   | ConnectorTransactionID
   | ClientSecret
   | Created
+  | Modified
   | Currency
   | CustomerId
   | Description

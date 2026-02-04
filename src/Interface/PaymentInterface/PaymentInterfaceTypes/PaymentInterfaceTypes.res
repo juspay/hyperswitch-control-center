@@ -67,6 +67,7 @@ type order = {
   amount_captured: float,
   client_secret: string,
   created_at: string,
+  modified_at: string,
   last_updated?: string,
   currency: string,
   customer_id: string,
