@@ -1,5 +1,7 @@
 open FRMInfo
 open FRMTypes
+open ConnectorUtils
+open LogicUtils
 
 @val external btoa: string => string = "btoa"
 @val external atob: string => string = "atob"
@@ -24,12 +26,10 @@ let size = "w-14 h-14"
 
 let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode, ~profileId) => {
   let frmAccountDetailsDict =
-    [
-      ("auth_type", selectedFRMName->getFRMAuthType->JSON.Encode.string),
-    ]->LogicUtils.getJsonFromArrayOfJson
+    [("auth_type", selectedFRMName->getFRMAuthType->JSON.Encode.string)]->getJsonFromArrayOfJson
 
   [
-    ("connector_name", selectedFRMName->ConnectorUtils.getConnectorNameString->JSON.Encode.string),
+    ("connector_name", selectedFRMName->getConnectorNameString->JSON.Encode.string),
     ("connector_type", "payment_vas"->JSON.Encode.string),
     ("disabled", false->JSON.Encode.bool),
     ("test_mode", !isLiveMode->JSON.Encode.bool),
@@ -46,8 +46,6 @@ let parseFRMConfig = json => {
 }
 
 let getPaymentMethod = paymentMethod => {
-  open LogicUtils
-
   let paymentMethodDict = paymentMethod->getDictFromJsonObject
   let paymentMethodTypeArr = paymentMethodDict->getArrayFromDict("payment_method_types", [])
 
@@ -65,13 +63,9 @@ let validateRequiredFields = (
 ) => {
   fields->Array.forEach(field => {
     let key = field.name
-    let value =
-      valuesFlattenJson
-      ->Dict.get(key)
-      ->Option.getOr(""->JSON.Encode.string)
-      ->LogicUtils.getStringFromJson("")
+    let value = valuesFlattenJson->getString(key, "")
 
-    if field.isRequired->Option.getOr(true) && value->String.length === 0 {
+    if field.isRequired->Option.getOr(true) && value->isEmptyString {
       Dict.set(errors, key, `Please enter ${field.label->Option.getOr("")}`->JSON.Encode.string)
     }
   })
@@ -94,9 +88,9 @@ let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType
   let pmDict = Dict.make()
 
   let sortedArray = connectorPaymentMethods->Array.toSorted((a, b) => {
-    if a.payment_method_type == "card" {
+    if a.payment_method_type->getPaymentMethodFromString == Card {
       -1.
-    } else if b.payment_method_type == "card" {
+    } else if b.payment_method_type->getPaymentMethodFromString == Card {
       1.
     } else {
       0.
@@ -107,7 +101,7 @@ let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType
     let pmTypes =
       item.payment_method_subtypes
       ->Array.map(item => item.payment_method_subtype)
-      ->LogicUtils.getUniqueArray
+      ->getUniqueArray
     let (pmName, pmTypes) = (item.payment_method_type, pmTypes)
 
     pmDict->Dict.set(pmName, pmTypes)
@@ -116,7 +110,6 @@ let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType
 }
 
 let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) => {
-  open LogicUtils
   switch prevPaymentMethodsDict->Dict.get(pmName) {
   | Some(prevPmTypes) => {
       let pmTypesArr = prevPmTypes->Array.concat(currentPmTypes)
@@ -148,7 +141,9 @@ let filterConnectorArrayByPaymentMethod = (
   ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
 ) => {
   let filteredArray = connectorList->Array.filter(connector => {
-    connector.payment_methods_enabled->Array.some(item => item.payment_method_type == "card")
+    connector.payment_methods_enabled->Array.some(item =>
+      item.payment_method_type->getPaymentMethodFromString == Card
+    )
   })
   filteredArray
 }
@@ -193,7 +188,7 @@ let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   open ConnectorTypes
   paymentMethodsDict
   ->Dict.keysToArray
-  ->Array.filter(item => item == "card")
+  ->Array.filter(item => item->getPaymentMethodFromString == Card)
   ->Array.map(paymentMethodName => {
     {
       payment_method: paymentMethodName,
@@ -204,7 +199,7 @@ let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
 
 let ignoreFields = json => {
   json
-  ->LogicUtils.getDictFromJsonObject
+  ->getDictFromJsonObject
   ->Dict.toArray
   ->Array.filter(entry => {
     let (key, _val) = entry

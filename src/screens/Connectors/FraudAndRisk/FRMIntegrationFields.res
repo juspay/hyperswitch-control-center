@@ -15,25 +15,6 @@ module IntegrationFieldsForm = {
     | _ => isUpdateFlow ? "Update" : "Connect and Finish"
     }
 
-    let validateRequiredFields = (
-      valuesFlattenJson,
-      ~fields: array<ConnectorTypes.connectorIntegrationField>,
-      ~errors,
-    ) => {
-      fields->Array.forEach(field => {
-        let key = field.name
-        let value =
-          valuesFlattenJson
-          ->Dict.get(key)
-          ->Option.getOr(""->JSON.Encode.string)
-          ->LogicUtils.getStringFromJson("")
-
-        if field.isRequired->Option.getOr(true) && value->String.length === 0 {
-          Dict.set(errors, key, `Please enter ${field.label->Option.getOr("")}`->JSON.Encode.string)
-        }
-      })
-    }
-
     let validateCountryCurrency = (valuesFlattenJson, ~errors) => {
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
       if profileId->String.length <= 0 {
@@ -46,7 +27,7 @@ module IntegrationFieldsForm = {
       let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       //checking for required fields
-      valuesFlattenJson->validateRequiredFields(
+      valuesFlattenJson->FRMUtils.validateRequiredFields(
         ~fields=selectedFRMInfo.validate->Option.getOr([]),
         ~errors,
       )

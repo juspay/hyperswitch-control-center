@@ -70,6 +70,7 @@ let make = (
   open FRMUtils
   open APIUtils
   open ConnectorTypes
+  open Typography
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -170,7 +171,7 @@ let make = (
           <div> {frmInfo.profile_id->React.string} </div>
         </div>
         <div className="grid grid-cols-4 p-6 border-b">
-          <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
+          <h4 className={`${heading.sm.semibold}`}> {"Credentials"->React.string} </h4>
           <div className="flex flex-col gap-6 col-span-3">
             <div className="flex gap-12">
               <RenderIf condition={!showEditForm}>
@@ -199,12 +200,7 @@ let make = (
                 </div>
               </RenderIf>
               <RenderIf condition={isUpdateFlow && showEditForm}>
-                <FRMUpdateAuthCreds
-                  connectorInfo=frmInfo
-                  getConnectorDetails=None
-                  updateMerchantDetails
-                  setShowEditForm
-                />
+                <FRMUpdateAuthCreds connectorInfo=frmInfo updateMerchantDetails setShowEditForm />
               </RenderIf>
             </div>
           </div>

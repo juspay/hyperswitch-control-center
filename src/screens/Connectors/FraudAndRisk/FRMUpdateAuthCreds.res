@@ -1,7 +1,6 @@
 @react.component
 let make = (
   ~connectorInfo: ConnectorTypes.connectorPayload,
-  ~getConnectorDetails=None,
   ~updateMerchantDetails,
   ~setShowEditForm,
 ) => {
@@ -44,10 +43,6 @@ let make = (
       )
       let _ = await updateAPIHook(url, values, Post)
       let _ = await updateMerchantDetails()
-      switch getConnectorDetails {
-      | Some(fun) => fun()->ignore
-      | _ => ()
-      }
       setShowEditForm(_ => false)
       showToast(~message="FRM Credentials Updated!", ~toastType=ToastSuccess)
     } catch {

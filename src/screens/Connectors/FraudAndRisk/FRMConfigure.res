@@ -50,6 +50,7 @@ let make = () => {
     | _ => setScreenState(_ => Error("Error Occurred!"))
     }
   }
+
   let updateMerchantDetails = async () => {
     let info =
       [
@@ -60,14 +61,12 @@ let make = () => {
       [
         ("frm_routing_algorithm", info->JSON.Encode.object),
         ("merchant_id", merchantId->JSON.Encode.string),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
+      ]->getJsonFromArrayOfJson
     let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
     try {
       let _ = await updateDetails(url, body, Post)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => Error("Failed to update merchant details"))
     }
     Nullable.null
   }

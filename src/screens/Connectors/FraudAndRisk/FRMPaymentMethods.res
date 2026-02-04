@@ -29,6 +29,7 @@ module CheckBoxRenderer = {
   open FRMUtils
   open FormRenderer
   open Typography
+  open LogicUtils
   @react.component
   let make = (
     ~fromConfigIndex,
@@ -99,10 +100,8 @@ module CheckBoxRenderer = {
       }
     }
 
-    let paymentMethodsConfig = switch connectorPaymentMethods {
-    | Some(paymentMethods) => paymentMethods->generateFRMPaymentMethodsConfig
-    | _ => []
-    }
+    let paymentMethodsConfig =
+      connectorPaymentMethods->mapOptionOrDefault([], generateFRMPaymentMethodsConfig)
 
     React.useEffect(() => {
       if isOpen && !isUpdateFlow {
@@ -115,9 +114,9 @@ module CheckBoxRenderer = {
     <div>
       <div
         className="w-full px-5 py-3 bg-light-gray-bg flex items-center gap-3 justify-between border">
-        <div className="flex font-semibold text-bold text-lg gap-2 items-center">
+        <div className={`flex ${heading.sm.semibold} gap-2 items-center`}>
           <GatewayIcon gateway={frmConfigInfo.gateway->String.toUpperCase} className="w-10 h-10" />
-          {frmConfigInfo.gateway->LogicUtils.snakeToTitle->React.string}
+          {frmConfigInfo.gateway->snakeToTitle->React.string}
         </div>
         <div className="mt-2">
           {if isToggleDisabled {
@@ -131,13 +130,13 @@ module CheckBoxRenderer = {
           }}
         </div>
       </div>
-      {if isOpen {
-        paymentMethodsConfig
+      <RenderIf condition={isOpen}>
+        {paymentMethodsConfig
         ->Array.mapWithIndex((paymentMethodInfo, index) => {
           <div className="flex flex-col border px-5 py-3 ">
             <div className="flex justify-between items-center">
               <p className={`${body.lg.semibold}`}>
-                {paymentMethodInfo.payment_method->LogicUtils.snakeToTitle->React.string}
+                {paymentMethodInfo.payment_method->snakeToTitle->React.string}
               </p>
               <FormRenderer.FieldRenderer
                 field={makeFieldInfo(
@@ -165,10 +164,8 @@ module CheckBoxRenderer = {
             </RenderIf>
           </div>
         })
-        ->React.array
-      } else {
-        React.null
-      }}
+        ->React.array}
+      </RenderIf>
     </div>
   }
 }
