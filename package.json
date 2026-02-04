@@ -13,7 +13,7 @@
     "build:prod": "npm run build:common && webpack --config webpack.prod.js",
     "build:custom": "npm run build:common && webpack --config webpack.custom.js",
     "build:test": "npm run build:common && cross-env CHECK_COVERAGE=true webpack --config webpack.prod.js",
-    "build:embeddedapp": "npm run build:common && webpack --config webpack.lib.js",
+    "build:embeddedapp": "npm run build:common && cross-env NODE_ENV=production webpack --config webpack.lib.js",
     "start:embeddedapp": "cross-env APP_VERSION=$npm_package_version webpack serve --config webpack.lib.js",
     "build:serve:embeddedapp": "npm run build:embeddedapp && node dist/server/server.js",
     "re:build": "rescript",
