@@ -343,9 +343,13 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #customer_email, #amount, #merchant_order_reference_id]->Array.map(
-      getLabelFromFilterType,
-    )
+    [
+      #payment_method_type,
+      #customer_id,
+      #customer_email,
+      #amount,
+      #merchant_order_reference_id,
+    ]->Array.map(getLabelFromFilterType)
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
 

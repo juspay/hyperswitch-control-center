@@ -128,19 +128,6 @@ let make = (~previewOnly=false) => {
         //to delete unused keys
         filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         
-        switch dict->Dict.get("customer_email") {
-        | Some(emailValue) =>
-          switch emailValue->JSON.Decode.string {
-          | Some(emailStr) if emailStr->String.trim->isNonEmptyString =>
-            filters->Dict.set(
-              "customer_email",
-              [emailStr->String.trim->JSON.Encode.string]->JSON.Encode.array,
-            )
-          | _ => ()
-          }
-        | None => ()
-        }
-        
         filters
         ->getOrdersList
         ->ignore

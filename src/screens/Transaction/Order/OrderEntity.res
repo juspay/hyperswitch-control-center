@@ -300,7 +300,6 @@ let defaultColumns: array<colType> = [
   PaymentMethodType,
   CardNetwork,
   ConnectorTransactionID,
-  Email,
   MerchantOrderReferenceId,
   Description,
   Metadata,
@@ -393,7 +392,6 @@ let getHeading = (colType: colType) => {
   | PaymentToken => Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token")
   | Shipping => Table.makeHeaderInfo(~key="shipping", ~title="Shipping")
   | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing")
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email")
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl")
@@ -508,7 +506,6 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
   | PaymentExperience =>
     Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience")
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email")
   | FirstName => Table.makeHeaderInfo(~key="firstName", ~title="First Name")
   | LastName => Table.makeHeaderInfo(~key="lastName", ~title="Last Name")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Customer Phone")
