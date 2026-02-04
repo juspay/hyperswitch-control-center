@@ -507,11 +507,11 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
   | PaymentExperience =>
     Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience")
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email")
   | FirstName => Table.makeHeaderInfo(~key="firstName", ~title="First Name")
   | LastName => Table.makeHeaderInfo(~key="lastName", ~title="Last Name")
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Customer Phone")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
   | ShippingAddress => Table.makeHeaderInfo(~key="shipping", ~title="Address")
   | ShippingEmail => Table.makeHeaderInfo(~key="shipping", ~title="Email")
