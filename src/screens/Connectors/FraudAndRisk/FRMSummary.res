@@ -1,12 +1,13 @@
 module InfoField = {
   open LogicUtils
+  open Typography
   @react.component
   let make = (~label, ~flowTypeValue) => {
     <div className="flex flex-col gap-2 mb-7">
-      <h4 className="text-md font-semibold"> {label->snakeToTitle->React.string} </h4>
+      <h4 className={`${body.lg.semibold}`}> {label->snakeToTitle->React.string} </h4>
       <div className="flex flex-col gap-1">
         <h3 className="break-all">
-          <span className="font-semibold mr-3"> {"Flow :"->React.string} </span>
+          <span className={`${body.lg.semibold} mr-3`}> {"Flow :"->React.string} </span>
           {flowTypeValue->React.string}
         </h3>
       </div>
