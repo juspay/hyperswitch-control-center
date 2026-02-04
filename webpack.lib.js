@@ -160,9 +160,6 @@ const getPlugins = (isDevelopment) => {
 const libBuild = () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
 
-  let entryObj = {
-    app: `./src/embeddable/EmbeddableEntry.res.js`,
-  };
   return {
     mode: isDevelopment ? "development" : "production",
     entry: {
