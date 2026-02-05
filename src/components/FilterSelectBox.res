@@ -449,7 +449,7 @@ module BaseSelect = {
     ~isMobileView=false,
     ~isModalView=false,
     ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
-    ~hasApplyButton=false,
+    ~hasApplyButton=true,
     ~setShowDropDown=?,
     ~dropdownCustomWidth="w-full md:max-w-md min-w-[10rem]",
     ~sortingBasedOnDisabled=true,
@@ -533,10 +533,12 @@ module BaseSelect = {
           Array.concat(saneValue, [itemDataValue])
         }
         onSelect(data)
-        switch onBlur {
-        | Some(fn) =>
-          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
-        | None => ()
+        if !hasApplyButton {
+          switch onBlur {
+          | Some(fn) =>
+            "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
+          | None => ()
+          }
         }
       }
     }
@@ -557,10 +559,12 @@ module BaseSelect = {
       }
 
       onSelect(newValues)
-      switch onBlur {
-      | Some(fn) =>
-        "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
-      | None => ()
+      if !hasApplyButton {
+        switch onBlur {
+        | Some(fn) =>
+          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
+        | None => ()
+        }
       }
     }
 
@@ -1534,7 +1538,7 @@ module BaseDropdown = {
     ~descriptionOnHover=false,
     ~addDynamicValue=false,
     ~showMatchingRecordsText=true,
-    ~hasApplyButton=false,
+    ~hasApplyButton=true,
     ~dropdownCustomWidth=?,
     ~customMarginStyle=?,
     ~customButtonLeftIcon: option<Button.iconType>=?,
