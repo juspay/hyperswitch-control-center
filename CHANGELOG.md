@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.05.0
+
+### Miscellaneous Tasks
+
+- Modified column addition in payments ([#4182](https://github.com/juspay/hyperswitch-control-center/pull/4182)) ([`533ef25`](https://github.com/juspay/hyperswitch-control-center/commit/533ef25d1fca4f9ee6b5fd3f2bee05b7cfb55cf4))
+
+**Full Changelog:** [`2026.02.04.0...2026.02.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.04.0...2026.02.05.0)
+
+- - -
+
 ## 2026.02.04.0
 
 ### Refactors
