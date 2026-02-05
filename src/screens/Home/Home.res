@@ -2,6 +2,7 @@
 let make = (~setAppScreenState) => {
   open HomeUtils
   open PageUtils
+  open Typography
   let greeting = getGreeting()
   let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -19,8 +20,8 @@ let make = (~setAppScreenState) => {
       <PageHeading
         title={`${greeting}, it's great to see you!`}
         subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
-        customTitleStyle="!text-fs-24 !font-semibold"
-        customSubTitleStyle="text-fs-16 text-nd_gray-400 !opacity-100 font-medium !mt-1"
+        customTitleStyle={`!${heading.lg.semibold}`}
+        customSubTitleStyle={`text-nd_gray-400 !opacity-100 !mt-1" ${body.lg.medium}`}
       />
       <RenderIf condition={isCurrentMerchantPlatform}>
         <PlatformOverview />

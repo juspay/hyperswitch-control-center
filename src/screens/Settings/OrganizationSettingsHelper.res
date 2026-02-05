@@ -100,7 +100,7 @@ module NewPlatformCreationModal = {
                   field={organizationName}
                   showErrorOnChange=true
                   errorClass={ProdVerifyModalUtils.errorClass}
-                  labelClass="!text-black font-medium !-ml-[0.5px]"
+                  labelClass={`!text-black font-medium !-ml-[0.5px] ${body.sm.medium}`}
                 />
               </FormRenderer.DesktopRow>
             </div>
