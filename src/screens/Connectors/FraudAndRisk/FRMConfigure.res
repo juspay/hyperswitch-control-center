@@ -27,7 +27,8 @@ let make = () => {
   }
 
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
-
+  let displayNameForConnector =
+    frmName->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
@@ -110,7 +111,7 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
       <BreadCrumbNavigation
-        path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
+        path currentPageTitle={displayNameForConnector} cursorStyle="cursor-pointer"
       />
       <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr=FRMInfo.stepsArr />
