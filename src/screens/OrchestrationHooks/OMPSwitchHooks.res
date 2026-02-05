@@ -167,7 +167,10 @@ let useProfileSwitch = () => {
     try {
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
-        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
+        let url = switch version {
+        | V1 => getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
+        | V2 => getURL(~entityName=V2(USERS), ~userType=#SWITCH_PROFILE_NEW, ~methodType=Post)
+        }
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         mixpanelEvent(~eventName=`switch_profile`, ~metadata=expectedProfileId->JSON.Encode.string)

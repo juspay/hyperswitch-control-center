@@ -3,6 +3,63 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.05.0
+
+### Miscellaneous Tasks
+
+- Modified column addition in payments ([#4182](https://github.com/juspay/hyperswitch-control-center/pull/4182)) ([`533ef25`](https://github.com/juspay/hyperswitch-control-center/commit/533ef25d1fca4f9ee6b5fd3f2bee05b7cfb55cf4))
+
+**Full Changelog:** [`2026.02.04.0...2026.02.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.04.0...2026.02.05.0)
+
+- - -
+
+## 2026.02.04.0
+
+### Refactors
+
+- Rename recon engine accounts to recon engine data ([#4141](https://github.com/juspay/hyperswitch-control-center/pull/4141)) ([`3af9428`](https://github.com/juspay/hyperswitch-control-center/commit/3af942840e3a632a333ea992b726df6b28f4453e))
+
+**Full Changelog:** [`2026.02.03.0...2026.02.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.03.0...2026.02.04.0)
+
+- - -
+
+## 2026.02.03.0
+
+### Bug Fixes
+
+- Fixed bugs in revamped payment settings ([#4152](https://github.com/juspay/hyperswitch-control-center/pull/4152)) ([`9a386c6`](https://github.com/juspay/hyperswitch-control-center/commit/9a386c660fa1f70e7ee7034954f20dc90cd14525))
+- Payload optional `processing_account_id` validations ([#4134](https://github.com/juspay/hyperswitch-control-center/pull/4134)) ([`8300845`](https://github.com/juspay/hyperswitch-control-center/commit/8300845a33866810cbe6a5a724f054f15e21d09e))
+
+### Refactors
+
+- Move recon audit logs to ReconEngineScreens ([#4137](https://github.com/juspay/hyperswitch-control-center/pull/4137)) ([`7183fb9`](https://github.com/juspay/hyperswitch-control-center/commit/7183fb9dda42b5e9b736f7e4f3662cd5731ba708))
+
+### Miscellaneous Tasks
+
+- Build fail issue fixes ([#4178](https://github.com/juspay/hyperswitch-control-center/pull/4178)) ([`d43cec2`](https://github.com/juspay/hyperswitch-control-center/commit/d43cec20e48925cf01b588a05f764d82e233c9b9))
+
+**Full Changelog:** [`2026.01.30.0...2026.02.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.30.0...2026.02.03.0)
+
+- - -
+
+## 2026.01.23.0
+
+### Features
+
+- Flag dual refunds in disputes and refunds validation ([#4034](https://github.com/juspay/hyperswitch-control-center/pull/4034)) ([`e988c60`](https://github.com/juspay/hyperswitch-control-center/commit/e988c602a81ab188e261f1e1cb091199c6fb0df1))
+
+### Bug Fixes
+
+- Graph not appearing when enabling granularity ([#4130](https://github.com/juspay/hyperswitch-control-center/pull/4130)) ([`daa0aae`](https://github.com/juspay/hyperswitch-control-center/commit/daa0aaecfd0f06fb7fbe335fbd19386ca9cb56fe))
+
+### Miscellaneous Tasks
+
+- Embedded fixes for token fetch ([#4128](https://github.com/juspay/hyperswitch-control-center/pull/4128)) ([`5c8e541`](https://github.com/juspay/hyperswitch-control-center/commit/5c8e541f91c9cd271a79faaf79ae3df4085ad08a))
+
+**Full Changelog:** [`2026.01.22.0...2026.01.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.01.22.0...2026.01.23.0)
+
+- - -
+
 ## 2026.01.22.0
 
 ### Features

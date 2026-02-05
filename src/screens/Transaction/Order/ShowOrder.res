@@ -639,6 +639,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
+        ~version,
       )
       let res = await fetchDetails(url)
       let order = switch version {
@@ -672,7 +673,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~id=Some(id),
         ~queryParameters=Some("expand_attempts=true"),
       )
-    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    | V2 =>
+      getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("expand_attempts=true"),
+      )
     }
 
     fetchOrderDetails(accountUrl)->ignore
@@ -695,7 +702,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     status !== Failed &&
     status !== Cancelled &&
     status !== Expired &&
-    status !== CancelledPostCapture
+    status !== CancelledPostCapture &&
+    status !== RequiresPaymentMethod
   }, [orderData])
 
   let refreshStatus = async () => {
@@ -931,6 +939,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       ExtendedAuthApplied,
                       ExtendedAuthLastAppliedAt,
                       RequestExtendedAuth,
+                      HyperswitchErrorDescription,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}

@@ -566,12 +566,11 @@ module ProfileDropdownItem = {
     let onSubmit = async (newProfileName: string) => {
       try {
         let body = [("profile_name", newProfileName->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let accountUrl = getURL(
-          ~entityName=V1(BUSINESS_PROFILE),
-          ~methodType=Post,
-          ~id=Some(profileId),
-        )
-        let res = await updateDetails(accountUrl, body, Post)
+        let accountUrl = switch version {
+        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
+        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Put, ~id=Some(profileId))
+        }
+        let res = await updateDetails(accountUrl, body, version == V2 ? Put : Post)
         setBusinessProfileRecoil(_ =>
           res->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
         )
@@ -600,8 +599,7 @@ module ProfileDropdownItem = {
           hasAnyGroupAccess(
             userHasAccess(~groupAccess=MerchantDetailsManage),
             userHasAccess(~groupAccess=AccountManage),
-          ) === Access &&
-          version == V1}
+          ) === Access}
           showEditIconOnHover={!isMobileView}
           onSubmit
           labelTextCustomStyle={` truncate max-w-28  ${isActive ? " text-nd_gray-700" : ""}`}

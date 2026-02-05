@@ -67,6 +67,7 @@ type order = {
   amount_captured: float,
   client_secret: string,
   created_at: string,
+  modified_at: string,
   last_updated?: string,
   currency: string,
   customer_id: string,
@@ -129,6 +130,7 @@ type order = {
   extended_auth_last_applied_at?: string,
   extended_auth_applied?: bool,
   request_extended_auth?: bool,
+  hyperswitch_error_description?: string,
 }
 
 type ordersObject = {

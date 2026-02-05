@@ -34,8 +34,6 @@ let make = (
     CreatedAt,
   ]
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
 
@@ -161,11 +159,6 @@ let make = (
       selectedRows
       onRowSelect=handleRowSelect
       sections=tableSections
-      offset
-      setOffset
-      resultsPerPage
-      setResultsPerPage
-      totalResults={updatedEntriesList->Array.length}
       ?isRowSelectable
     />
     <RenderIf

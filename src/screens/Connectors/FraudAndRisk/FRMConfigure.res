@@ -13,6 +13,10 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let frmID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+  let {profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let updateDetails = useUpdateMethod()
 
   let initStep = PaymentMethods
 
@@ -26,7 +30,11 @@ let make = () => {
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(~selectedFRMName=frmName, ~isLiveMode=featureFlagDetails.isLiveMode)
+      generateInitialValuesDict(
+        ~selectedFRMName=frmName,
+        ~isLiveMode=featureFlagDetails.isLiveMode,
+        ~profileId,
+      )
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
     frmName
@@ -41,6 +49,26 @@ let make = () => {
     } catch {
     | _ => setScreenState(_ => Error("Error Occurred!"))
     }
+  }
+
+  let updateMerchantDetails = async () => {
+    let info =
+      [
+        ("data", "signifyd"->JSON.Encode.string),
+        ("type", "single"->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+    let body =
+      [
+        ("frm_routing_algorithm", info),
+        ("merchant_id", merchantId->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+    let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
+    try {
+      let _ = await updateDetails(url, body, Post)
+    } catch {
+    | _ => setScreenState(_ => Error("Failed to update merchant details"))
+    }
+    Nullable.null
   }
 
   React.useEffect(() => {
@@ -91,6 +119,7 @@ let make = () => {
             setInitialValues
             retrivedValues=Some(initialValues)
             isUpdateFlow
+            updateMerchantDetails
           />
         | PaymentMethods =>
           <FRMPaymentMethods
@@ -98,7 +127,9 @@ let make = () => {
           />
         | SummaryAndTest
         | Preview =>
-          <FRMSummary initialValues setInitialValues currentStep />
+          <FRMSummary
+            initialValues setInitialValues currentStep updateMerchantDetails isUpdateFlow
+          />
         | _ => React.null
         }}
       </div>
