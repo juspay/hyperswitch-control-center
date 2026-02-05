@@ -6,9 +6,12 @@ let make = () => {
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)
+  let {vaultProcessorsLiveListFromConfig} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let requestAProcessorComponent = {
     <div className="-mt-8">
@@ -43,7 +46,11 @@ let make = () => {
     mixpanelEvent(~eventName="vault_view_connector_details")
   }
 
-  let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
+  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
+    ? vaultProcessorsLiveListFromConfig->Array.length > 0
+        ? vaultProcessorsLiveListFromConfig
+        : ConnectorUtils.vaultProcessorList
+    : ConnectorUtils.vaultProcessorList
 
   <PageLoaderWrapper screenState>
     <RenderIf condition={configuredConnectors->Array.length > 0}>
