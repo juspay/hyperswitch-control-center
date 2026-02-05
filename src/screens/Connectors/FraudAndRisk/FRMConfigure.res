@@ -52,9 +52,13 @@ let make = () => {
   }
 
   let updateMerchantDetails = async () => {
+    let frmName =
+      frmName
+      ->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
+      ->ConnectorUtils.getConnectorNameString
     let info =
       [
-        ("data", "signifyd"->JSON.Encode.string),
+        ("data", frmName->JSON.Encode.string),
         ("type", "single"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
     let body =
