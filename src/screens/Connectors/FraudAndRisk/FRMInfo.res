@@ -1,8 +1,8 @@
 open FRMTypes
 let frmList: array<ConnectorTypes.connectorTypes> = [
+  FRM(CybersourceDecisionManager),
   FRM(Signifyd),
   FRM(Riskifyed),
-  FRM(CybersourceDecisionManager),
 ]
 
 let flowTypeList = [PreAuth]

@@ -1,10 +1,11 @@
 @react.component
 let make = () => {
-  open FRMUtils
   open APIUtils
   open ConnectorTypes
+  open ConnectorUtils
   open LogicUtils
   open FRMInfo
+
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
@@ -30,7 +31,7 @@ let make = () => {
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(
+      FRMUtils.generateInitialValuesDict(
         ~selectedFRMName=frmName,
         ~isLiveMode=featureFlagDetails.isLiveMode,
         ~profileId,
@@ -54,8 +55,8 @@ let make = () => {
   let updateMerchantDetails = async () => {
     let frmName =
       frmName
-      ->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
-      ->ConnectorUtils.getConnectorNameString
+      ->getConnectorNameTypeFromString(~connectorType=FRMPlayer)
+      ->getConnectorNameString
     let info =
       [
         ("data", frmName->JSON.Encode.string),
@@ -112,7 +113,7 @@ let make = () => {
         path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
       />
       <RenderIf condition={currentStep !== Preview}>
-        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr=FRMInfo.stepsArr />
       </RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
