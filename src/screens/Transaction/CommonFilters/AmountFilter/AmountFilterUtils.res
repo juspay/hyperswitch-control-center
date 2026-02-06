@@ -77,16 +77,11 @@ let validateAmount = dict => {
 }
 
 let createAmountQuery = (~dict) => {
+  Js.log2("dict", dict)
   let hasAmountError = validateAmount(dict)
   let startAmount = dict->getvalFromDict("start_amount")
   let endAmount = dict->getvalFromDict("end_amount")
-
-  let isAmountFilterUsed = switch (startAmount, endAmount) {
-  | (Some(startVal), _) => !(startVal->isNullJson)
-  | (_, Some(endVal)) => !(endVal->isNullJson)
-  | _ => false
-  }
-
+  let isAmountFilterUsed = startAmount->Option.isSome || endAmount->Option.isSome
   if !hasAmountError && isAmountFilterUsed {
     let encodeAmount = value => value->mapOptionOrDefault(JSON.Encode.null, encodeFloatOrDefault)
     dict->Dict.set(
