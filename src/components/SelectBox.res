@@ -1884,6 +1884,16 @@ module BaseDropdown = {
     | TopLeft | TopRight => "mb-12"
     }
 
+    // Ensure dropdown keeps a stable width on open/close.
+    let dropdownWidthClass =
+      if fullLength {
+        "w-full"
+      } else if isMobileView {
+        "w-full"
+      } else {
+        dropdownCustomWidth->Option.getOr("w-80")
+      }
+
     let onRadioOptionSelect = ev => {
       newInputRadio.onChange(ev)
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
@@ -1913,7 +1923,6 @@ module BaseDropdown = {
         color: condition ? BadgeBlue : NoBadge,
       }
     }, [newInputSelect.value])
-    let widthClass = isMobileView ? "w-full" : dropdownCustomWidth->Option.getOr("")
 
     let optionsElement = if allowMultiSelect {
       <BaseSelect
@@ -2142,9 +2151,7 @@ module BaseDropdown = {
                   dropDirection == BottomMiddle ||
                   dropDirection == BottomRight
                     ? "origin-top"
-                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} rounded-lg dark:bg-jp-gray-950 ${fullLength
-                    ? "w-full"
-                    : ""}`}
+                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} rounded-lg dark:bg-jp-gray-950 ${dropdownWidthClass}`}
                 ref={dropdownRef->ReactDOM.Ref.domRef}>
                 optionsElement
                 {showCustomBtnAtEnd ? customButton : React.null}
@@ -2157,7 +2164,7 @@ module BaseDropdown = {
           }
         } else if !isInitialRender && isGrowDown && !isMobileView {
           <div
-            className={`${marginTop} absolute animate-growUp ${widthClass} ${dropDirection ==
+            className={`${marginTop} absolute animate-growUp ${dropdownWidthClass} ${dropDirection ==
                 BottomLeft ||
               dropDirection == BottomMiddle ||
               dropDirection == BottomRight
