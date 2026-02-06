@@ -38,7 +38,22 @@ type bar = {
   pointWidth: int,
   borderRadius: int,
 }
-type plotOptions = {bar: bar}
+
+type pointClickEvent = {
+  point: {"series": {"name": string, "index": int}, "index": int, "category": string},
+}
+
+type clickEvents = {click: option<pointClickEvent => unit>}
+
+type pointEvents = {events: option<clickEvents>}
+
+type seriesOptions = {point: option<pointEvents>}
+
+type plotOptions = {
+  bar: bar,
+  series: option<seriesOptions>,
+}
+
 type labels = {
   align: align,
   style: style,
