@@ -7,6 +7,7 @@ let make = (
   ~customWrapperClassName="",
   ~defaultValue=?,
   ~showErrorWhenEmpty=true,
+  ~colorSquarePosition="",
 ) => {
   open LogicUtils
 
@@ -74,6 +75,13 @@ let make = (
           ? "border-red-500"
           : ""} ${customInputClassName}`}
       onClick={_ => setToggle(prev => !prev)}>
+      <RenderIf condition={colorSquarePosition === "left"}>
+        <div
+          {...DOMUtils.domProps({"data-color": isValid ? color : initialColor})}
+          className="h-5 w-5 border mr-2 rounded-md shadow-sm border-jp-gray-500 dark:border-jp-gray-960"
+          style={ReactDOMStyle.make(~backgroundColor=isValid ? color : initialColor, ())}
+        />
+      </RenderIf>
       <input
         value={color}
         onBlur={handleBlur}
