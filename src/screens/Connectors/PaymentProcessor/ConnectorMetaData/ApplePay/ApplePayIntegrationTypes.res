@@ -32,7 +32,6 @@ type simplified = {
   payment_request_data: paymentRequestData,
 }
 
-
 type applePayIntegrationType = [#manual | #simplified | #predecrypt]
 type applePayConfig = [
   | #manual(manual)

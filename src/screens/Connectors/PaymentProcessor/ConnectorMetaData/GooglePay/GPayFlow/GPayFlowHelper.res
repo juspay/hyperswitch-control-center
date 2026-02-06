@@ -94,11 +94,13 @@ module Landing = {
 
     <div className="flex flex-col gap-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(TESOURO) => <>
+      | Processors(TESOURO) =>
+        <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
-      | Processors(NUVEI) => <>
+      | Processors(NUVEI) =>
+        <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
