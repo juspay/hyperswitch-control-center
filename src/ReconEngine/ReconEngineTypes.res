@@ -183,6 +183,7 @@ type domainTransactionStatus =
   | Posted(domainTransactionPostedStatus)
   | OverAmount(domainTransactionAmountMismatchStatus)
   | UnderAmount(domainTransactionAmountMismatchStatus)
+  | Missing
   | DataMismatch
   | Archived
   | Void
@@ -244,10 +245,13 @@ type processingEntryStatus =
 type needsManualReviewType =
   | @as("no_rules_found") NoRulesFound
   | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("duplicate_entry") DuplicateEntry
   | @as("no_expectation_entry_found") NoExpectationEntryFound
-  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
+  | @as("multiple_excepted_entries_found") MultipleExceptedEntriesFound
+  | @as("missing_match_field") MissingMatchField
   | @as("missing_unique_field") MissingUniqueField
+  | @as("missing_grouping_field") MissingGroupingField
   | @as("unknown") UnknownNeedsManualReviewType
 
 type processingEntryDataType = {
