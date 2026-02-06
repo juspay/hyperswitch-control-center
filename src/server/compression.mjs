@@ -1,4 +1,3 @@
-import { Console } from "console";
 import fs from "fs";
 import path from "path";
 
@@ -93,8 +92,7 @@ function serveCompressedFile(
       ETag: Etag,
       "Content-Length": stats.size,
       Vary: "Accept-Encoding",
-      "Cache-Control":
-        ext === ".svg" ? "max-age=3600, must-revalidate" : "no-cache",
+      "Cache-Control": "no-cache",
     });
     res.end(content);
     return true;
