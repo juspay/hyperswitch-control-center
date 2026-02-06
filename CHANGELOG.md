@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.06.0
+
+### Miscellaneous Tasks
+
+- Frm connector flow changes ([#4040](https://github.com/juspay/hyperswitch-control-center/pull/4040)) ([`87a1fd8`](https://github.com/juspay/hyperswitch-control-center/commit/87a1fd80f29f04f3ef24e94b37171b45b80ffd1a))
+- Platform support dashboard ([#4171](https://github.com/juspay/hyperswitch-control-center/pull/4171)) ([`c92619c`](https://github.com/juspay/hyperswitch-control-center/commit/c92619cecf8e286b76cc32228a343f40d574d5d0))
+
+**Full Changelog:** [`2026.02.05.0...2026.02.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.05.0...2026.02.06.0)
+
+- - -
+
 ## 2026.02.05.0
 
 ### Miscellaneous Tasks
