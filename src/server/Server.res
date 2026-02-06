@@ -25,6 +25,16 @@ external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
 @module("./health.mjs")
 external healthReadinessHandler: (Http.request, Http.response) => unit = "healthReadinessHandler"
 
+@module("./compression.mjs")
+external serveCompressed: (
+  ~request: Http.request,
+  ~response: Http.response,
+  ~filePath: string,
+  ~servePath: string,
+  ~xDeploymentId: string,
+  ~eTag: string,
+) => bool = "serveCompressed"
+
 module ServerHandler = {
   type rewrite = {source: string, destination: string}
   type header = {key: string, value: string}
@@ -114,55 +124,70 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ()->(resolve(_))
     })
   } else {
-    open ServerHandler
-
-    let cache = if request.url.toString()->String.endsWith(".svg") {
-      "max-age=3600, must-revalidate"
-    } else {
-      "no-cache"
-    }
-
-    let newRequest = {
-      ...request,
-      url: path->NodeJs.Http.asUrl,
-    }
-    let headers = [
-      {
-        key: "X-Deployment-Id",
-        value: currentCommitHash,
-      },
-      {
-        key: "Cache-Control",
-        value: cache,
-      },
-      {
-        key: "Access-Control-Allow-Origin",
-        value: "*",
-      },
-      {
-        key: "Access-Control-Allow-Headers",
-        value: "*",
-      },
-      {
-        key: "ETag",
-        value: `"${currentCommitHash}"`,
-      },
-    ]
-
-    handler(
-      newRequest,
-      response,
-      makeOptions(
-        ~public=serverPath,
-        ~headers=[
-          {
-            source: "**",
-            headers,
-          },
-        ],
-        ~rewrites=[makeRewrite(~source="**", ~destination=baseHtmlRoute)],
-      ),
+    // Try to serve Brotli/Gzip-compressed version first
+    let compressedServed = serveCompressed(
+      ~request,
+      ~response,
+      ~filePath=path,
+      ~servePath=serverPath,
+      ~xDeploymentId=currentCommitHash,
+      ~eTag=`"${currentCommitHash}"`,
     )
+
+    if !compressedServed {
+      // Fall back to regular serve-handler if Brotli/Gzip not available or not supported
+      open ServerHandler
+
+      let cache = if request.url.toString()->String.endsWith(".svg") {
+        "max-age=3600, must-revalidate"
+      } else {
+        "no-cache"
+      }
+
+      let newRequest = {
+        ...request,
+        url: path->NodeJs.Http.asUrl,
+      }
+      let headers = [
+        {
+          key: "X-Deployment-Id",
+          value: currentCommitHash,
+        },
+        {
+          key: "Cache-Control",
+          value: cache,
+        },
+        {
+          key: "Access-Control-Allow-Origin",
+          value: "*",
+        },
+        {
+          key: "Access-Control-Allow-Headers",
+          value: "*",
+        },
+        {
+          key: "ETag",
+          value: `"${currentCommitHash}"`,
+        },
+      ]
+
+      handler(
+        newRequest,
+        response,
+        makeOptions(
+          ~public=serverPath,
+          ~headers=[
+            {
+              source: "**",
+              headers,
+            },
+          ],
+          ~rewrites=[makeRewrite(~source="**", ~destination=baseHtmlRoute)],
+        ),
+      )
+    } else {
+      Promise.resolve()
+    }
   }
 }
 let serverHandlerWrapper = (req, res) => {
