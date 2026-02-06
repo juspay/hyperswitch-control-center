@@ -98,7 +98,9 @@ let googlePay = (dict, connector: string) => {
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
   let standGooglePayConfig = {
-    support_predecrypted_token: merchantInfoDict->getOptionBool("support_predecrypted_token"),
+    support_predecrypted_token: merchantInfoDict->getOptionBool(
+      "support_predecrypted_token",
+    ),
     merchant_info: merchantInfoDict->merchantInfo,
     allowed_payment_methods: [allowedPaymentMethodDict->allowedPaymentMethod(connector)],
   }

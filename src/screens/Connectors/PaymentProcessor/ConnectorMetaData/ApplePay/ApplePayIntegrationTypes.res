@@ -32,7 +32,6 @@ type simplified = {
   payment_request_data: paymentRequestData,
 }
 
-// type predecrypt = {support_predecrypted_token: option<bool>}
 
 type applePayIntegrationType = [#manual | #simplified | #predecrypt]
 type applePayConfig = [

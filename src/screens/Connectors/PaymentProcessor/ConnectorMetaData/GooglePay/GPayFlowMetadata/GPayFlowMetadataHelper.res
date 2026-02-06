@@ -1,25 +1,6 @@
 open Typography
 open AdditionalDetailsSidebarHelper
 
-module DirectFlowLandingCard = {
-  @react.component
-  let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
-    <div className="cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
-      <Card heading="Direct" isSelected={googlePayIntegrationType === #direct}>
-        <div className={`${body.md.medium}  text-nd_gray-400 mt-2`}>
-          {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
-        </div>
-        <div className="flex gap-2 mt-4">
-          <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-          <CustomTag
-            tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-          />
-        </div>
-      </Card>
-    </div>
-  }
-}
-
 module PaymentGatewayFlowLandingCard = {
   @react.component
   let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
@@ -65,7 +46,6 @@ module Landing = {
     ~closeModal,
     ~setGooglePayIntegrationStep,
     ~setGooglePayIntegrationType,
-    ~connector,
     ~update,
     ~closeAccordionFn,
   ) => {
@@ -75,15 +55,10 @@ module Landing = {
 
     let handleConfirmClick = () => {
       if googlePayIntegrationType === #predecrypt {
-        form.change(
-          "connector_wallets_details.google_pay.support_predecrypted_token",
-          true->JSON.Encode.bool,
-        )
         let connectorWalletDetails =
           [
             ("support_predecrypted_token", true->JSON.Encode.bool),
           ]->LogicUtils.getJsonFromArrayOfJson
-
         form.change("metadata.google_pay", connectorWalletDetails)
         let _ = update(connectorWalletDetails)
         closeAccordionFn()
@@ -93,24 +68,8 @@ module Landing = {
     }
 
     <div className="flex flex-col gap-6">
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-      | Processors(TESOURO) => <>
-          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
-          <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
-        </>
-      | Processors(NUVEI) => <>
-          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
-          <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
-          <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
-        </>
-
-      | _ =>
-        <>
-          <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
-          <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
-          <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
-        </>
-      }}
+      <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
+      <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
       <div className={`flex gap-2 justify-end`}>
         <Button
           text="Cancel"

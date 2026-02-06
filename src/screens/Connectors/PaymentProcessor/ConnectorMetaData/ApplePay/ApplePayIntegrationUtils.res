@@ -98,7 +98,6 @@ let simplified = (dict, connector): simplified => {
   }
 }
 
-// TODO :check
 let predecryptFlow = (dict): option<bool> => {
   dict->getOptionBool("support_predecrypted_token")
 }
@@ -111,14 +110,12 @@ let zenApplePayConfig = dict => {
 }
 
 let applePayCombined = (dict, applePayIntegrationType, connector: string) => {
-  // TODO :check for predecrypt
   let data: applePayConfig = switch applePayIntegrationType {
   | #manual => #manual(dict->manual(connector))
   | #simplified => #simplified(dict->simplified(connector))
   | #predecrypt => #predecrypt(dict->predecryptFlow)
   }
 
-  // Preserve support_predecrypted_token from original dict before shadowing
   let supportPredecryptedToken = dict->getOptionBool("support_predecrypted_token")
 
   let dict = Dict.make()

@@ -159,7 +159,6 @@ module Landing = {
         setApplePayIntegrationSteps(_ => Configure)
       }
     }
-    // nuvie , adyen , checkout
     <div className="flex flex-col gap-6 p-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)

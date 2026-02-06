@@ -84,7 +84,7 @@ let googlePay = (
   ~googlePayIntegrationType: GPayFlowTypes.googlePayIntegrationType,
 ) => {
   {
-    // support_predecrypted_token: dict->getOptionBool("support_predecrypted_token"),
+    support_predecrypted_token: dict->getOptionBool("support_predecrypted_token"),
     provider_details: {
       merchant_info: dict
       ->getDictfromDict("provider_details")
@@ -160,7 +160,6 @@ let directFields = [
 
 let getMetadataFromConnectorWalletDetailsGooglePay = (dict, connector) => {
   open ConnectorUtils
-  Js.log2("inside getmetadatafromconnector", dict)
   let googlePayDict = dict->getDictfromDict("google_pay")
 
   let merchantInfoDict =
