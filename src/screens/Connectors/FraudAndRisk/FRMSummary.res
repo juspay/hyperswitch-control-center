@@ -134,7 +134,9 @@ let make = (
         <div className="flex gap-2 items-center">
           <GatewayIcon gateway={String.toUpperCase(frmInfo.connector_name)} className=size />
           <h2 className="text-xl font-semibold">
-            {frmInfo.connector_name->capitalizeString->React.string}
+            {frmInfo.connector_name
+            ->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
+            ->React.string}
           </h2>
         </div>
         {switch currentStep {

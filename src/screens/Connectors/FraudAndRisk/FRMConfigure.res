@@ -1,10 +1,11 @@
 @react.component
 let make = () => {
-  open FRMUtils
   open APIUtils
   open ConnectorTypes
+  open ConnectorUtils
   open LogicUtils
   open FRMInfo
+
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
@@ -26,11 +27,12 @@ let make = () => {
   }
 
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
-
+  let displayNameForConnector =
+    frmName->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(
+      FRMUtils.generateInitialValuesDict(
         ~selectedFRMName=frmName,
         ~isLiveMode=featureFlagDetails.isLiveMode,
         ~profileId,
@@ -52,9 +54,13 @@ let make = () => {
   }
 
   let updateMerchantDetails = async () => {
+    let frmName =
+      frmName
+      ->getConnectorNameTypeFromString(~connectorType=FRMPlayer)
+      ->getConnectorNameString
     let info =
       [
-        ("data", "signifyd"->JSON.Encode.string),
+        ("data", frmName->JSON.Encode.string),
         ("type", "single"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
     let body =
@@ -105,10 +111,10 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
       <BreadCrumbNavigation
-        path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
+        path currentPageTitle={displayNameForConnector} cursorStyle="cursor-pointer"
       />
       <RenderIf condition={currentStep !== Preview}>
-        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr=FRMInfo.stepsArr />
       </RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {

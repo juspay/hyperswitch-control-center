@@ -5,13 +5,6 @@ module NewProcessorCards = {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let frmAvailableForIntegration = frmList
-    let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
-      configuredFRMs
-      ->Array.find(item =>
-        item->ConnectorUtils.getConnectorNameString === total->ConnectorUtils.getConnectorNameString
-      )
-      ->Option.isNone
-    )
 
     let handleClick = frmName => {
       mixpanelEvent(~eventName=`connect_frm_${frmName}`)
@@ -19,7 +12,7 @@ module NewProcessorCards = {
         GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
     }
-    let unConfiguredFRMCount = unConfiguredFRMs->Array.length
+    let configuredFRMCount = configuredFRMs->Array.length
 
     let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
@@ -27,10 +20,12 @@ module NewProcessorCards = {
           className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
           {heading->React.string}
         </h2>
-        <div className="grid gap-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
+        <div className="grid gap-4 lg:grid-cols-3 grid-cols-1 mb-5">
           {frmList
           ->Array.mapWithIndex((frm, i) => {
             let frmName = frm->ConnectorUtils.getConnectorNameString
+            let frmDisplayName =
+              frmName->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
             let frmInfo = frm->ConnectorUtils.getConnectorInfo
 
             <CardUtils.CardLayout key={Int.toString(i)} width="w-full">
@@ -39,7 +34,7 @@ module NewProcessorCards = {
                   gateway={frmName->String.toUpperCase} className="w-10 h-10 rounded-lg"
                 />
                 <h1 className="text-xl font-semibold break-all">
-                  {frmName->LogicUtils.capitalizeString->React.string}
+                  {frmDisplayName->React.string}
                 </h1>
               </div>
               <div className="overflow-hidden text-gray-400 flex-1 mb-6">
@@ -68,8 +63,10 @@ module NewProcessorCards = {
 
     let headerText = "Connect a new fraud & risk management player"
 
-    <RenderIf condition={unConfiguredFRMCount > 0}>
-      <div className="flex flex-col gap-4"> {unConfiguredFRMs->descriptedFRMs(headerText)} </div>
+    <RenderIf condition={configuredFRMCount == 0}>
+      <div className="flex flex-col gap-4">
+        {frmAvailableForIntegration->descriptedFRMs(headerText)}
+      </div>
     </RenderIf>
   }
 }

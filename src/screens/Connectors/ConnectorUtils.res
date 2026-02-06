@@ -737,6 +737,33 @@ let riskifyedInfo = {
     },
   ],
 }
+
+let cyberSourceDecisionManagerInfo = {
+  description: "Comprehensive fraud management solution for businesses to detect and prevent fraudulent transactions in real-time.",
+  validate: [
+    {
+      placeholder: "Enter Api key",
+      label: "Api key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Merchant Id",
+      label: "Merchant Id",
+      name: "connector_account_details.key1",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Shared Secret",
+      label: "Shared Secret",
+      name: "connector_account_details.api_secret",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
 let archipelInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
 }
@@ -955,6 +982,7 @@ let getFRMNameString = (frm: frmTypes) => {
   switch frm {
   | Signifyd => "signifyd"
   | Riskifyed => "riskified"
+  | CybersourceDecisionManager => "cybersourcedecisionmanager"
   }
 }
 
@@ -1145,6 +1173,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
+    | "cybersourcedecisionmanager" => FRM(CybersourceDecisionManager)
     | _ => UnknownConnector("Not known")
     }
   | PMAuthenticationProcessor =>
@@ -1314,6 +1343,7 @@ let getFrmInfo = frm =>
   switch frm {
   | Signifyd => signifydInfo
   | Riskifyed => riskifyedInfo
+  | CybersourceDecisionManager => cyberSourceDecisionManagerInfo
   }
 
 let getOpenBankingProcessorInfo = (
@@ -2277,6 +2307,7 @@ let getDisplayNameForFRMConnector = frmConnector =>
   switch frmConnector {
   | Signifyd => "Signifyd"
   | Riskifyed => "Riskified"
+  | CybersourceDecisionManager => "Cybersource Decision Manager"
   }
 
 let getDisplayNameForOpenBankingProcessor = pmAuthenticationConnector => {
