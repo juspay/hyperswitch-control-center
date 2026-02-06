@@ -60,6 +60,7 @@ type order_v1 = {
   amount_received: float,
   client_secret: string,
   created: string,
+  modified_at: string,
   last_updated: string,
   currency: string,
   customer_id: string,
@@ -118,4 +119,5 @@ type order_v1 = {
   extended_auth_last_applied_at: string,
   extended_auth_applied: bool,
   request_extended_auth: bool,
+  hyperswitch_error_description: string,
 }

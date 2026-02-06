@@ -162,6 +162,7 @@ type threeDsAuthenticatorTypes =
 type frmTypes =
   | Signifyd
   | Riskifyed
+  | CybersourceDecisionManager
 
 type pmAuthenticationProcessorTypes = PLAID
 
