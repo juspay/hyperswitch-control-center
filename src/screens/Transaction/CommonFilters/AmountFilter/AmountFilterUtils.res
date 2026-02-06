@@ -77,7 +77,6 @@ let validateAmount = dict => {
 }
 
 let createAmountQuery = (~dict) => {
-  Js.log2("dict", dict)
   let hasAmountError = validateAmount(dict)
   let startAmount = dict->getvalFromDict("start_amount")
   let endAmount = dict->getvalFromDict("end_amount")
