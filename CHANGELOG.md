@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.06.1
+
+### Features
+
+- Added new frm connector cybersourcedecisionmanager ([#4193](https://github.com/juspay/hyperswitch-control-center/pull/4193)) ([`9f875a2`](https://github.com/juspay/hyperswitch-control-center/commit/9f875a2240cd4be36a0f1daf321ee3383fcf92a1))
+
+**Full Changelog:** [`2026.02.06.0...2026.02.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.06.0...2026.02.06.1)
+
+- - -
+
 ## 2026.02.06.0
 
 ### Miscellaneous Tasks
