@@ -56,14 +56,23 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       "",
     )
   | Currency => Text(attempt.currency)
-  | Connector =>
-    CustomCell(
-      <HelperComponents.ConnectorCustomCell
-        connectorName=attempt.connector
-        connectorType={ConnectorUtils.connectorTypeFromConnectorName(attempt.connector)}
-      />,
-      "",
-    )
+  | ConnectorTransactionID =>
+  CustomCell(
+    {
+      let displayVal = switch attempt.connector_transaction_id->isNonEmptyString {
+      | true => Some(attempt.connector_transaction_id)
+      | false => None
+      }
+
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=displayVal
+        showEmptyAsNA=true
+      />
+    },
+    "",
+  )
+
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
@@ -82,7 +91,18 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
     })
   | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
-  | AttemptId => DisplayCopyCell(attempt.attempt_id)
+  | AttemptId =>
+    let displayVal = switch attempt.attempt_id->isNonEmptyString {
+    | true => Some(attempt.attempt_id)
+    | false => None
+    }
+
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap" displayValue=displayVal showEmptyAsNA=true
+      />,
+      "",
+    )
   | ErrorMessage => Text(attempt.error_message)
   | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
   | CaptureMethod => Text(attempt.capture_method)
@@ -569,13 +589,18 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | NetAmount =>
     CustomCell(
       <CurrencyCell
-        amount={(order.net_amount /. conversionFactor)->Float.toString} currency={order.currency}
+        amount={(order.net_amount /. conversionFactor)->Float.toString}
+        currency={order.currency}
       />,
       "",
     )
   | LastUpdated => Date(order.last_updated->Option.getOr(""))
   | PaymentId => DisplayCopyCell(order.payment_id)
-  | Currency => Text(order.currency)
+  | Currency =>
+    switch order.currency->isNonEmptyString {
+    | true => Text(order.currency)
+    | false => Text("N/A")
+    }
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
@@ -589,10 +614,16 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ProductName => Text(order.product_name->Option.getOr(""))
   | ErrorMessage => Text(order.error.error_message)
   | ConnectorTransactionID =>
+    let displayVal = switch order.connector_payment_id->isNonEmptyString {
+    | true => Some(order.connector_payment_id)
+    | false => None
+    }
+
     CustomCell(
       <HelperComponents.CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_payment_id)
+        displayValue=displayVal
+        showEmptyAsNA=true
       />,
       "",
     )
@@ -732,24 +763,22 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       title: order.status->String.toUpperCase,
       color: switch orderStatus {
       | Succeeded
-      | PartiallyCaptured =>
-        LabelGreen
+      | PartiallyCaptured => LabelGreen
       | Failed
       | Cancelled
-      | CancelledPostCapture =>
-        LabelRed
+      | CancelledPostCapture => LabelRed
       | Processing
       | RequiresCustomerAction
       | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelBlue
+      | RequiresPaymentMethod => LabelBlue
       | _ => LabelLightGray
       },
     })
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(order.amount /. conversionFactor)->Float.toString} currency={order.currency}
+        amount={(order.amount /. conversionFactor)->Float.toString}
+        currency={order.currency}
       />,
       "",
     )
@@ -760,8 +789,22 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | Modified => Date(order.modified_at)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
-  | MandateId => Text(order.mandate_id->Option.getOr(""))
+  | Description =>
+    CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
+  | MandateId =>
+    let displayVal = switch order.mandate_id->Option.getOr("")->isNonEmptyString {
+    | true => Some(order.mandate_id->Option.getOr(""))
+    | false => None
+    }
+
+    CustomCell(
+      <CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=displayVal
+        showEmptyAsNA=true
+      />,
+      "",
+    )
   | MandateData => Text(order.mandate_data->Option.getOr(""))
   | SetupFutureUsage => Text(order.setup_future_usage)
   | OffSession => Text(order.customer_present)
@@ -785,10 +828,16 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | ErrorCode => Text(order.error.error_code)
   | ErrorMessage => Text(order.error.error_message)
   | ConnectorTransactionID =>
+    let displayVal = switch order.connector_payment_id->isNonEmptyString {
+    | true => Some(order.connector_payment_id)
+    | false => None
+    }
+
     CustomCell(
       <CopyTextCustomComp
         customTextCss="w-36 truncate whitespace-nowrap"
-        displayValue=Some(order.connector_payment_id)
+        displayValue=displayVal
+        showEmptyAsNA=true
       />,
       "",
     )
