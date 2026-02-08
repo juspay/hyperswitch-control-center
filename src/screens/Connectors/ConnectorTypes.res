@@ -219,6 +219,8 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
+  | Pix
+  | Boleto
   | NetworkToken
   | UnknownPaymentMethodType(string)
 

@@ -247,6 +247,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
+  | "pix" => Pix
+  | "boleto" => Boleto
   | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
@@ -2110,7 +2112,7 @@ let defaultSelectAllCards = (
           ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
-      | BankTransfer | BankRedirect => {
+      | BankRedirect => {
           let arr =
             config
             ->getArrayFromDict(val.payment_method_type, [])
