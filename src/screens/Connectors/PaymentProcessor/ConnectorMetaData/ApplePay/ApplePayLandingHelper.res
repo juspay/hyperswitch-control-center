@@ -4,10 +4,14 @@ open Typography
 module ApplePaySimplifiedLandingCard = {
   @react.component
   let make = (~setApplePayIntegrationType, ~appleIntegrationType) => {
+     let shadowClass = appleIntegrationType === #simplified ?
+      "shadow-cardSelectedShadow"
+      :"shadow-md"
+
     <div className=" cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #simplified)}>
       <Card
         heading="Web Domain"
-        customCardHeaderStyle="border rounded-md"
+        customCardHeaderStyle=`border rounded-md !bg-white ${shadowClass}`
         isSelected={appleIntegrationType === #simplified}>
         <div className={`mt-2 ${body.md.medium}  text-nd_gray-400`}>
           {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
@@ -24,10 +28,15 @@ module ApplePaySimplifiedLandingCard = {
 module ApplePayManualLandingCard = {
   @react.component
   let make = (~setApplePayIntegrationType, ~appleIntegrationType) => {
+      let shadowClass = appleIntegrationType === #manual ?
+      "shadow-cardSelectedShadow"
+      :"shadow-md"
+
+
     <div className="cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #manual)}>
       <Card
         heading="iOS Certificate"
-        customCardHeaderStyle="border rounded-md"
+        customCardHeaderStyle=`border rounded-md !bg-white ${shadowClass}`
         isSelected={appleIntegrationType === #manual}>
         <div className={` mt-2 ${body.md.medium}  text-nd_gray-400`}>
           <CustomSubText />
@@ -46,20 +55,18 @@ module ApplePayManualLandingCard = {
 module ApplePayPreDecryptLandingCard = {
   @react.component
   let make = (~setApplePayIntegrationType, ~appleIntegrationType) => {
+      let shadowClass = appleIntegrationType === #predecrypt ?
+      "shadow-cardSelectedShadow"
+      :"shadow-md"
+      
     <div className="cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #predecrypt)}>
       <Card
-        heading="Pre decrypt Flow"
-        customCardHeaderStyle="border rounded-md"
+        heading="Pre Decrypted Token"
+        customCardHeaderStyle=`border rounded-md !bg-white ${shadowClass}`
         isSelected={appleIntegrationType === #predecrypt}>
         <div className={`mt-2 ${body.md.medium}  text-nd_gray-400`}>
-          {"Pre decypt flow"->React.string}
+          {"Enable Apple Pay by securely decrypting the Apple Pay payment token on your end."->React.string}
         </div>
-        // <div className="flex gap-2 mt-4">
-        //   <CustomTag tagText="For Web & Mobile" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-        //   <CustomTag
-        //     tagText="Additional Details Required" tagSize=4 tagLeftIcon=Some("ellipse-green")
-        //   />
-        // </div>
       </Card>
     </div>
   }
