@@ -123,14 +123,14 @@ let applePayCombined = (dict, applePayIntegrationType, connector: string) => {
   let _ = switch data {
   | #manual(data) =>
     dict->Dict.set((#manual: applePayIntegrationType :> string), data->Identity.genericTypeToJson)
-    dict->LogicUtils.setOptionBool("support_predecrypted_token", supportPredecryptedToken)
+    dict->setOptionBool("support_predecrypted_token", supportPredecryptedToken)
 
   | #simplified(data) =>
     dict->Dict.set(
       (#simplified: applePayIntegrationType :> string),
       data->Identity.genericTypeToJson,
     )
-    dict->LogicUtils.setOptionBool("support_predecrypted_token", supportPredecryptedToken)
+    dict->setOptionBool("support_predecrypted_token", supportPredecryptedToken)
 
   | #predecrypt(_) => dict->Dict.set("support_predecrypted_token", true->JSON.Encode.bool)
   }
