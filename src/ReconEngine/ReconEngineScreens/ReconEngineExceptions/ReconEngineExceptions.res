@@ -56,8 +56,7 @@ let make = () => {
       urlParams
       ->Dict.get("rule_id")
       ->Option.mapOr(0, ruleId => {
-        let index = reconRulesList->Array.findIndex(rule => rule.rule_id === ruleId)
-        index >= 0 ? index : 0
+        reconRulesList->Array.findIndexOpt(rule => rule.rule_id === ruleId)->Option.getOr(0)
       })
     } else {
       0
