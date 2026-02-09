@@ -320,5 +320,5 @@ let getHeadingBasedOnApplePayFlow = applePayIntegrationFlow =>
   switch applePayIntegrationFlow {
   | #manual => "iOS Certificate"
   | #simplified => "Web Domain"
-  | #predecrypt => "Pre decrypt flow"
+  | #predecrypt => "Pre decrypted Token"
   }
