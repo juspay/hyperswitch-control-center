@@ -219,7 +219,6 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
                         | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
-                        | (_, list{"users", ..._}) => <UserManagementContainer />
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"
@@ -248,6 +247,13 @@ let make = () => {
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+                        // TODO: Move this up after devUsers stabilizes and the User module is fully decoupled from orchestration.
+                        | (_, list{"users", ..._}) =>
+                          <AccessControl
+                            isEnabled={version == V1}
+                            authorization={userHasAccess(~groupAccess=UsersView)}>
+                            <UserManagementContainer />
+                          </AccessControl>
                         | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>

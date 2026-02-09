@@ -488,7 +488,7 @@ let settings = (
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
-  if !devUsers {
+  if !(devUsers && devModularityV2Enabled) {
     settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
   }
 
