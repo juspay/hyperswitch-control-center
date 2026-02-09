@@ -6,7 +6,7 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userEntity} = getResolvedUserInfo()
   let {
@@ -43,37 +43,49 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+
+  let standardModules = !isCurrentMerchantPlatform
+    ? [
+        default->connectors(
+          ~isLiveMode,
+          ~isFrmEnabled=frm,
+          ~isPayoutsEnabled=payOut,
+          ~isThreedsConnectorEnabled=threedsAuthenticator,
+          ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+          ~isTaxProcessor=taxProcessor,
+          ~userHasResourceAccess,
+          ~isBillingProcessor=billingProcessor,
+          ~isVaultProcessor=vaultProcessor,
+        ),
+        default->analytics(
+          disputeAnalytics,
+          performanceMonitorFlag,
+          isNewAnalyticsEnable,
+          routingAnalytics,
+          ~authenticationAnalyticsFlag=authenticationAnalytics,
+          ~userHasResourceAccess,
+        ),
+        default->workflow(
+          isSurchargeEnabled,
+          threedsExemptionRules,
+          ~userHasResourceAccess,
+          ~isPayoutEnabled=payOut,
+          ~userEntity,
+        ),
+        devAltPaymentMethods->alternatePaymentMethods,
+      ]
+    : []
 
   [
     default->home,
-    default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
-    default->connectors(
-      ~isLiveMode,
-      ~isFrmEnabled=frm,
+    default->operations(
+      ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
-      ~isThreedsConnectorEnabled=threedsAuthenticator,
-      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-      ~isTaxProcessor=taxProcessor,
-      ~userHasResourceAccess,
-      ~isBillingProcessor=billingProcessor,
-      ~isVaultProcessor=vaultProcessor,
-    ),
-    default->analytics(
-      disputeAnalytics,
-      performanceMonitorFlag,
-      isNewAnalyticsEnable,
-      routingAnalytics,
-      ~authenticationAnalyticsFlag=authenticationAnalytics,
-      ~userHasResourceAccess,
-    ),
-    default->workflow(
-      isSurchargeEnabled,
-      threedsExemptionRules,
-      ~userHasResourceAccess,
-      ~isPayoutEnabled=payOut,
       ~userEntity,
+      ~isCurrentMerchantPlatform,
     ),
-    devAltPaymentMethods->alternatePaymentMethods,
+    ...standardModules,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
@@ -81,10 +93,13 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~checkUserEntity,
       ~isPaymentSettingsV2Enabled=paymentSettingsV2,
       ~paymentLinkThemeConfigurator,
+      ~isCurrentMerchantPlatform,
     ),
     settings(
       ~isConfigurePmtsEnabled=configurePmts,
       ~userHasResourceAccess,
+      ~userHasAccess,
+      ~checkUserEntity,
       ~complianceCertificate,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,

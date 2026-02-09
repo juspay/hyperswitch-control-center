@@ -86,21 +86,33 @@ let alternatePaymentMethods = isApmEnabled =>
       })
     : emptyComponent
 
-let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
-  let payments = payments(userHasResourceAccess)
-  let refunds = refunds(userHasResourceAccess)
-  let disputes = disputes(userHasResourceAccess)
+let operations = (
+  isOperationsEnabled,
+  ~userHasResourceAccess,
+  ~isPayoutsEnabled,
+  ~userEntity,
+  ~isCurrentMerchantPlatform,
+) => {
   let customers = customers(userHasResourceAccess)
-  let payouts = payouts(userHasResourceAccess)
 
-  let links = [payments, refunds, disputes]
-  let isCustomersEnabled = userEntity !== #Profile
+  let links = if isCurrentMerchantPlatform {
+    [customers]
+  } else {
+    let payments = payments(userHasResourceAccess)
+    let refunds = refunds(userHasResourceAccess)
+    let disputes = disputes(userHasResourceAccess)
+    let payouts = payouts(userHasResourceAccess)
 
-  if isPayoutsEnabled {
-    links->Array.push(payouts)->ignore
-  }
-  if isCustomersEnabled {
-    links->Array.push(customers)->ignore
+    let links = [payments, refunds, disputes]
+    let isCustomersEnabled = userEntity !== #Profile
+
+    if isPayoutsEnabled {
+      links->Array.push(payouts)->ignore
+    }
+    if isCustomersEnabled {
+      links->Array.push(customers)->ignore
+    }
+    links
   }
 
   isOperationsEnabled
@@ -466,9 +478,25 @@ let complianceCertificateSection = {
   })
 }
 
+let organizationSettings = (userHasAccess, checkUserEntity) => {
+  SubLevelLink({
+    name: "Organization Settings",
+    link: `/organization-settings`,
+    access: {
+      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access &&
+        checkUserEntity([#Organization])
+        ? Access
+        : NoAccess
+    },
+    searchOptions: [("Organization settings", "")],
+  })
+}
+
 let settings = (
   ~isConfigurePmtsEnabled,
   ~userHasResourceAccess,
+  ~userHasAccess,
+  ~checkUserEntity,
   ~complianceCertificate,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
@@ -487,6 +515,9 @@ let settings = (
     settingsLinkArray
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
+  }
+  if userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access {
+    settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
   }
   if !(devUsers && devModularityV2Enabled) {
     settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
@@ -552,25 +583,32 @@ let developers = (
   ~checkUserEntity,
   ~isPaymentSettingsV2Enabled,
   ~paymentLinkThemeConfigurator,
+  ~isCurrentMerchantPlatform,
 ) => {
-  let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
-  let paymentSettings = paymentSettings(userHasResourceAccess)
-  let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
-  let webhooks = webhooks(userHasResourceAccess)
 
-  let defaultDevelopersOptions = [paymentSettings]
-  if isPaymentSettingsV2Enabled {
-    defaultDevelopersOptions->Array.push(paymentSettingsV2)
-  }
-  if !isProfileUser {
-    defaultDevelopersOptions->Array.push(apiKeys)
-  }
-  if isWebhooksEnabled {
-    defaultDevelopersOptions->Array.push(webhooks)
-  }
-  if paymentLinkThemeConfigurator {
-    defaultDevelopersOptions->Array.push(paymentLinkTheme)
+  let links = if isCurrentMerchantPlatform {
+    [apiKeys]
+  } else {
+    let isProfileUser = checkUserEntity([#Profile])
+    let paymentSettings = paymentSettings(userHasResourceAccess)
+    let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
+    let webhooks = webhooks(userHasResourceAccess)
+
+    let defaultDevelopersOptions = [paymentSettings]
+    if isPaymentSettingsV2Enabled {
+      defaultDevelopersOptions->Array.push(paymentSettingsV2)
+    }
+    if !isProfileUser {
+      defaultDevelopersOptions->Array.push(apiKeys)
+    }
+    if isWebhooksEnabled {
+      defaultDevelopersOptions->Array.push(webhooks)
+    }
+    if paymentLinkThemeConfigurator {
+      defaultDevelopersOptions->Array.push(paymentLinkTheme)
+    }
+    defaultDevelopersOptions
   }
 
   isDevelopersEnabled
@@ -578,7 +616,7 @@ let developers = (
         name: "Developers",
         icon: "nd-developers",
         showSection: true,
-        links: defaultDevelopersOptions,
+        links,
       })
     : emptyComponent
 }
