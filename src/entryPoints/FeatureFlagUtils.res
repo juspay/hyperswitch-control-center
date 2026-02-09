@@ -71,6 +71,7 @@ type featureFlag = {
   devSidebarV2: bool,
   vaultProcessor: bool,
   devTheme: bool,
+  allowConnectedMerchants: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -144,6 +145,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devSidebarV2: dict->getBool("dev_sidebar_v2", false),
     vaultProcessor: dict->getBool("vault_processor", false),
     devTheme: dict->getBool("dev_theme", false),
+    allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
   }
 }
 

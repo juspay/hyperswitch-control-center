@@ -1,4 +1,5 @@
 open Typography
+open LogicUtils
 
 module PlatformMerchantModalContent = {
   @react.component
@@ -113,7 +114,7 @@ module ListBaseComp = {
               </RenderIf>
             </div>
             <ToolTip
-              description="Organisation Chart"
+              description="Organization Chart"
               customStyle="!whitespace-nowrap"
               toolTipFor={<button
                 className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
@@ -345,7 +346,6 @@ module OMPViews = {
 module MerchantDropdownItem = {
   @react.component
   let make = (~merchantName, ~productType, ~index: int, ~currentId, ~switchMerch) => {
-    open LogicUtils
     open APIUtils
     open ProductUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
@@ -499,7 +499,6 @@ module MerchantDropdownItem = {
 module ProfileDropdownItem = {
   @react.component
   let make = (~profileName, ~index: int, ~currentId, ~profileSwitch) => {
-    open LogicUtils
     open APIUtils
     let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
     let handleIdUnderEdit = (selectedEditId: option<int>) => {
@@ -702,3 +701,79 @@ let generateDropdownOptionsCustomComponent: (
   })
   options
 }
+
+module MerchantTypeCard = {
+  @react.component
+  let make = (~header, ~subtext, ~description, ~isSelected, ~onClick) => {
+    let ringClass = isSelected
+      ? "border-blue-811 ring-blue-811/20 ring-offset-0 ring-2"
+      : "ring-grey-outline"
+
+    <div
+      className={`flex items-center gap-x-2.5 border ${ringClass} rounded-lg p-4 transition-shadow  cursor-pointer justify-between`}
+      onClick>
+      <div className="flex items-center gap-x-2.5">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h3 className={`text-nd_gray-700 ${body.md.medium}`}> {header->React.string} </h3>
+            <ToolTip
+              description
+              toolTipFor={<Icon size=14 name="nd-info-circle" />}
+              justifyClass="justify-start"
+              toolTipPosition=Right
+            />
+          </div>
+          <p className={`text-nd_gray-400 ${body.md.regular}`}> {subtext->React.string} </p>
+        </div>
+      </div>
+      <Icon name={isSelected ? "blue-circle" : "hollow-circle"} customHeight="20" />
+    </div>
+  }
+}
+
+let merchantName = FormRenderer.makeFieldInfo(
+  ~label="Merchant Name",
+  ~name="company_name",
+  ~customInput=(~input, ~placeholder as _) =>
+    InputFields.textInput()(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trimStart
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder="Eg: My New Merchant",
+    ),
+  ~isRequired=true,
+)
+
+let merchantTypeCardInput = {
+  (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
+    let currentValue = input.value->getStringFromJson("")
+    <div className="flex flex-col gap-3 w-full">
+      {OMPSwitchUtils.merchantTypeOptions
+      ->Array.map(item => {
+        let valueStr = item.value
+        let isSelected = currentValue == valueStr
+        <MerchantTypeCard
+          key={valueStr}
+          header={item.label}
+          subtext={item.labelDescription->Option.getOr("")}
+          description={item.description->Option.getOr("")}
+          isSelected
+          onClick={_ => input.onChange(valueStr->JSON.Encode.string->Identity.anyTypeToReactEvent)}
+        />
+      })
+      ->React.array}
+    </div>
+  }
+}
+
+let merchantTypeField = FormRenderer.makeFieldInfo(
+  ~name="merchant_account_type",
+  ~label="Merchant Type",
+  ~isRequired=true,
+  ~customInput=merchantTypeCardInput,
+)
