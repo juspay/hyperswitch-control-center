@@ -87,13 +87,13 @@ module Landing = {
             closeModal()
           }}
           buttonSize={Small}
-        customButtonStyle="w-full"
+          customButtonStyle="w-full"
         />
         <Button
           onClick={_ => handleConfirmClick()}
           text="Continue"
           buttonType={Primary}
-           customButtonStyle="w-full"
+          customButtonStyle="w-full"
           buttonSize={Small}
         />
       </div>

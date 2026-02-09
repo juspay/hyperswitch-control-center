@@ -93,7 +93,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
       switch googlePayIntegrationType {
       | #payment_gateway =>
         <GPayPaymentGatewayFlow
-          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update 
+          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
         />
       | #direct =>
         <GPayDirectFlow
