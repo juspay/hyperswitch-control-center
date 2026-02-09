@@ -33,25 +33,15 @@ let pixFieldInput = (~pixField: CommonConnectorTypes.inputField, ~fill) => {
 }
 
 let validatePixFields = (json: JSON.t) => {
-  let {client_id, client_secret, pix_key_value, pix_key_type, merchant_city, merchant_name} =
-    json
-    ->getDictFromJsonObject
-    ->getDictFromNestedDict("metadata", "pix")
-    ->pixRequestToDictMapper
+  let pixFields =
+    json->getDictFromJsonObject->getDictFromNestedDict("metadata", "pix")->pixRequestToDictMapper
 
-  let isClientIdValid = client_id->isNonEmptyString
-  let isClientSecretValid = client_secret->isNonEmptyString
-  let isPixKeyValueValid = pix_key_value->isNonEmptyString
-  let isPixKeyTypeValid = pix_key_type->isNonEmptyString
-  let isMerchantCityValid = merchant_city->isNonEmptyString
-  let isMerchantNameValid = merchant_name->isNonEmptyString
-
-  isClientIdValid &&
-  isClientSecretValid &&
-  isPixKeyValueValid &&
-  isPixKeyTypeValid &&
-  isMerchantCityValid &&
-  isMerchantNameValid
+  pixFields.client_id->isNonEmptyString &&
+  pixFields.client_secret->isNonEmptyString &&
+  pixFields.pix_key_value->isNonEmptyString &&
+  pixFields.pix_key_type->isNonEmptyString &&
+  pixFields.merchant_city->isNonEmptyString &&
+  pixFields.merchant_name->isNonEmptyString
     ? Button.Normal
     : Button.Disabled
 }

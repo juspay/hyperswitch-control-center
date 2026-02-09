@@ -31,18 +31,16 @@ let boletoValueInput = (~boletoField: CommonConnectorTypes.inputField, ~fill) =>
 }
 
 let validateBoletoFields = (json: JSON.t) => {
-  let {client_id, client_secret, workspace_id, covenant_code} =
+  let boletoFields =
     json
     ->getDictFromJsonObject
     ->getDictFromNestedDict("metadata", "boleto")
     ->boletorequestToDictMapper
 
-  let isClientIdValid = client_id->isNonEmptyString
-  let isClientSecretValid = client_secret->isNonEmptyString
-  let isWorkspaceIdValid = workspace_id->isNonEmptyString
-  let isCovenantCodeValid = covenant_code->isNonEmptyString
-
-  isClientIdValid && isClientSecretValid && isWorkspaceIdValid && isCovenantCodeValid
+  boletoFields.client_id->isNonEmptyString &&
+  boletoFields.client_secret->isNonEmptyString &&
+  boletoFields.workspace_id->isNonEmptyString &&
+  boletoFields.covenant_code->isNonEmptyString
     ? Button.Normal
     : Button.Disabled
 }

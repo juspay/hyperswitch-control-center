@@ -57,9 +57,10 @@ let make = (
         <AmazonPayIntegration
           connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
         />
-      | Pix => <PixFields connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+      | Pix =>
+        <PixIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | Boleto =>
-        <BoletoFields connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+        <BoletoIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
 
       | _ => React.null
       }}
