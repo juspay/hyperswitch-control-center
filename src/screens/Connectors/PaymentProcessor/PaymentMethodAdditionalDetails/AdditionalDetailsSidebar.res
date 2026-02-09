@@ -16,7 +16,6 @@ let make = (
 
   let updateMetadata = json => {
     setMetaData(_ => json)
-    Js.log2("paymentMethodsEnabled in updateMetadata", paymentMethodsEnabled)
     switch method {
     | Some(pmt) => paymentMethodsEnabled->addMethod(paymentMethod, pmt)->updateDetails
     | _ => ()

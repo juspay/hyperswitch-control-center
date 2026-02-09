@@ -33,7 +33,7 @@ let boletoValueInput = (~boletoField: CommonConnectorTypes.inputField, ~fill) =>
 }
 
 let validateBoletoFields = (json: JSON.t) => {
-  let {client_id, client_secret, workspace_id, covenant_code, pix_key_value, pix_key_type} =
+  let {client_id, client_secret, workspace_id, covenant_code, _} =
     json
     ->getDictFromJsonObject
     ->getDictfromDict("metadata")
@@ -44,15 +44,8 @@ let validateBoletoFields = (json: JSON.t) => {
   let isClientSecretValid = client_secret->isNonEmptyString
   let isWorkspaceIdValid = workspace_id->isNonEmptyString
   let isCovenantCodeValid = covenant_code->isNonEmptyString
-  let isPixKeyValueValid = pix_key_value->isNonEmptyString
-  let isPixKeyTypeValid = pix_key_type->isNonEmptyString
 
-  isClientIdValid &&
-  isClientSecretValid &&
-  isWorkspaceIdValid &&
-  isCovenantCodeValid &&
-  isPixKeyValueValid &&
-  isPixKeyTypeValid
+  isClientIdValid && isClientSecretValid && isWorkspaceIdValid && isCovenantCodeValid
     ? Button.Normal
     : Button.Disabled
 }
