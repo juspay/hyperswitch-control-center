@@ -406,7 +406,12 @@ module CardRenderer = {
             </p>
             <RenderIf
               condition={paymentMethod->getPaymentMethodFromString !== Wallet &&
-                paymentMethod->getPaymentMethodFromString !== BankDebit}>
+              paymentMethod->getPaymentMethodFromString !== BankDebit &&
+              !(
+                connector->getConnectorNameTypeFromString == Processors(SANTANDER) &&
+                  (paymentMethod->getPaymentMethodFromString === BankTransfer ||
+                    paymentMethod->getPaymentMethodFromString === Voucher)
+              )}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),

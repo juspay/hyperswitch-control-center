@@ -202,6 +202,7 @@ type paymentMethod =
   | Crypto
   | BankDebit
   | NetworkToken
+  | Voucher
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =

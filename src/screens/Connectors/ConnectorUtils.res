@@ -236,6 +236,7 @@ let getPaymentMethodFromString = paymentMethod => {
   | "crypto" => Crypto
   | "bank_debit" => BankDebit
   | "network_token" => NetworkToken
+  | "voucher" => Voucher
   | _ => UnknownPaymentMethod(paymentMethod)
   }
 }
