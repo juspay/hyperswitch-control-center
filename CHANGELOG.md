@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.06.1
+
+### Features
+
+- Added new frm connector cybersourcedecisionmanager ([#4193](https://github.com/juspay/hyperswitch-control-center/pull/4193)) ([`9f875a2`](https://github.com/juspay/hyperswitch-control-center/commit/9f875a2240cd4be36a0f1daf321ee3383fcf92a1))
+
+**Full Changelog:** [`2026.02.06.0...2026.02.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.06.0...2026.02.06.1)
+
+- - -
+
+## 2026.02.06.0
+
+### Miscellaneous Tasks
+
+- Frm connector flow changes ([#4040](https://github.com/juspay/hyperswitch-control-center/pull/4040)) ([`87a1fd8`](https://github.com/juspay/hyperswitch-control-center/commit/87a1fd80f29f04f3ef24e94b37171b45b80ffd1a))
+- Platform support dashboard ([#4171](https://github.com/juspay/hyperswitch-control-center/pull/4171)) ([`c92619c`](https://github.com/juspay/hyperswitch-control-center/commit/c92619cecf8e286b76cc32228a343f40d574d5d0))
+
+**Full Changelog:** [`2026.02.05.0...2026.02.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.05.0...2026.02.06.0)
+
+- - -
+
+## 2026.02.05.0
+
+### Miscellaneous Tasks
+
+- Modified column addition in payments ([#4182](https://github.com/juspay/hyperswitch-control-center/pull/4182)) ([`533ef25`](https://github.com/juspay/hyperswitch-control-center/commit/533ef25d1fca4f9ee6b5fd3f2bee05b7cfb55cf4))
+
+**Full Changelog:** [`2026.02.04.0...2026.02.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.04.0...2026.02.05.0)
+
+- - -
+
+## 2026.02.04.0
+
+### Refactors
+
+- Rename recon engine accounts to recon engine data ([#4141](https://github.com/juspay/hyperswitch-control-center/pull/4141)) ([`3af9428`](https://github.com/juspay/hyperswitch-control-center/commit/3af942840e3a632a333ea992b726df6b28f4453e))
+
+**Full Changelog:** [`2026.02.03.0...2026.02.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.03.0...2026.02.04.0)
+
+- - -
+
 ## 2026.02.03.0
 
 ### Bug Fixes
