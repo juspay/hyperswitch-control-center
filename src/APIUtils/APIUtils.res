@@ -1309,6 +1309,8 @@ let useGetURL = () => {
 
         // CREATE_ORG
         | #CREATE_ORG => `user/create_org`
+        // CREATE_PLATFORM
+        | #CREATE_PLATFORM => `user/create_platform`
         // CREATE MERCHANT
         | #CREATE_MERCHANT =>
           switch queryParameters {
