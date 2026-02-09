@@ -780,7 +780,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | NextAction => Text(order.next_action)
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error.error_code)
-  | ErrorMessage => Text(order.error.error_message)
+  | ErrorMessage => EllipsisText(order.error.error_message,"w-40")
   | ConnectorTransactionID =>
     CustomCell(
       <CopyTextCustomComp
