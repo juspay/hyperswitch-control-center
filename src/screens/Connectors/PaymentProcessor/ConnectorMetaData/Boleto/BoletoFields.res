@@ -2,6 +2,7 @@
 let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open BoletoUtils
+  open Typography
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -45,7 +46,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
       let boletoField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       <div key={`${boletoField.name}_${index->Int.toString}`}>
         <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
+          labelClass={`${body.sm.semibold} !text-hyperswitch_black`}
           field={boletoValueInput(~boletoField, ~fill=textColor.primaryNormal)}
         />
       </div>

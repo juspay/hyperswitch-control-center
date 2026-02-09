@@ -2,6 +2,7 @@
 let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open PixUtils
+  open Typography
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -39,21 +40,21 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     onCloseClickCustomFun()
     closeAccordionFn()
   }
-  let amazonPayFields =
+  let pixFields =
     pixFieldsArray
     ->Array.mapWithIndex((field, index) => {
       let pixField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       <div key={`${pixField.name}_${index->Int.toString}`}>
         <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
-          field={amazonPayValueInput(~amazonPayField=pixField, ~fill=textColor.primaryNormal)}
+          labelClass={`${body.sm.semibold} !text-hyperswitch_black`}
+          field={pixFieldInput(~pixField, ~fill=textColor.primaryNormal)}
         />
       </div>
     })
     ->React.array
 
   <div className="flex flex-col gap-6 p-6">
-    <div> {amazonPayFields} </div>
+    <div> {pixFields} </div>
     <div className={`flex gap-2 justify-end`}>
       <Button
         text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"

@@ -7,8 +7,6 @@ let boletorequestToDictMapper = dict => {
     client_secret: dict->getString("client_secret", ""),
     workspace_id: dict->getString("workspace_id", ""),
     covenant_code: dict->getString("covenant_code", ""),
-    pix_key_value: dict->getString("pix_key_value", ""),
-    pix_key_type: dict->getString("pix_key_type", ""),
   }
 }
 
@@ -33,11 +31,10 @@ let boletoValueInput = (~boletoField: CommonConnectorTypes.inputField, ~fill) =>
 }
 
 let validateBoletoFields = (json: JSON.t) => {
-  let {client_id, client_secret, workspace_id, covenant_code, _} =
+  let {client_id, client_secret, workspace_id, covenant_code} =
     json
     ->getDictFromJsonObject
-    ->getDictfromDict("metadata")
-    ->getDictfromDict("boleto")
+    ->getDictFromNestedDict("metadata", "boleto")
     ->boletorequestToDictMapper
 
   let isClientIdValid = client_id->isNonEmptyString
