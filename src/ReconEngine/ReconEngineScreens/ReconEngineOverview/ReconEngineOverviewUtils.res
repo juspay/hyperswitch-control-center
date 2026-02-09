@@ -321,10 +321,10 @@ let initialDisplayFilters = () => {
 }
 
 let seriesTypeFromString = (str: string): ReconEngineOverviewSummaryTypes.seriesType => {
-  switch str {
-  | "Reconciled" => ReconciledSeriesType
-  | "Mismatched" => MismatchedSeriesType
-  | "Expected" => ExpectedSeriesType
+  switch str->String.toLowerCase {
+  | "reconciled" => ReconciledSeriesType
+  | "mismatched" => MismatchedSeriesType
+  | "expected" => ExpectedSeriesType
   | _ => UnknownSeriesType
   }
 }

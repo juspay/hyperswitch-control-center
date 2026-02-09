@@ -132,6 +132,37 @@ let make = (~ruleId: string) => {
     None
   }, [filterValue])
 
+  let urlPathString = url.path->List.toArray->Array.joinWith("/")
+
+  let customUpdateUrlWith = React.useMemo(() => {
+    dict => {
+      updateExistingKeys(dict)
+
+      let filteredDict =
+        dict
+        ->Dict.toArray
+        ->Array.filter(((key, _value)) => {
+          key !== startTimeFilterKey && key !== endTimeFilterKey
+        })
+
+      let filteredArray = [
+        ("rule_id", ruleId),
+        ...filteredDict->Array.map(item => {
+          let (key, value) = item
+          (key, value)
+        }),
+      ]
+
+      let queryString = filteredArray->Dict.fromArray->FilterUtils.parseFilterDictV2
+      let finalUrl = if queryString->isNonEmptyString {
+        `/${urlPathString}?${queryString}`
+      } else {
+        `/${urlPathString}`
+      }
+      RescriptReactRouter.push(finalUrl)
+    }
+  }, [urlPathString, ruleId])
+
   let topFilterUi = {
     <div className="flex flex-row -ml-1.5">
       <DynamicFilter
@@ -146,7 +177,7 @@ let make = (~ruleId: string) => {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=filterKeys
         key="ReconEngineExceptionTransactionFilters"
-        updateUrlWith=updateExistingKeys
+        updateUrlWith=customUpdateUrlWith
         filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
