@@ -78,7 +78,7 @@ let getStackedBarGraphOptions = (
             events: Some({
               click: Some(
                 event => {
-                  let seriesName = event.point["series"]["name"]
+                  let seriesName = event.point.series.name
                   clickHandler(seriesName)
                 },
               ),

@@ -39,9 +39,18 @@ type bar = {
   borderRadius: int,
 }
 
-type pointClickEvent = {
-  point: {"series": {"name": string, "index": int}, "index": int, "category": string},
+type series = {
+  name: string,
+  index: int,
 }
+
+type pointClickEventPoint = {
+  series: series,
+  index: int,
+  category: string,
+}
+
+type pointClickEvent = {point: pointClickEventPoint}
 
 type clickEvents = {click: option<pointClickEvent => unit>}
 
