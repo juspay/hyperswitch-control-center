@@ -79,7 +79,7 @@ let make = (
         ~customInput=InputFields.boolInput(
           ~isDisabled=false,
           ~boolCustomClass="rounded-lg ",
-          ~isCheckBox=true,
+          ~isCheckBox=false,
         ),
       )}
     />

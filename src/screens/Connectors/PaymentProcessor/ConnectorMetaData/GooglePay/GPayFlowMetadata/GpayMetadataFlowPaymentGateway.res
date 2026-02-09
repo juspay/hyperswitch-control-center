@@ -53,7 +53,7 @@ let make = (~connector, ~googlePayFields, ~closeAccordionFn, ~update, ~closeModa
         ~customInput=InputFields.boolInput(
           ~isDisabled=false,
           ~boolCustomClass="rounded-lg ",
-          ~isCheckBox=true,
+          ~isCheckBox=false,
         ),
       )}
     />
