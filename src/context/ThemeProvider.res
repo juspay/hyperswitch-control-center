@@ -1,5 +1,7 @@
 type theme = Light | Dark
 
+open LogicUtils
+
 let defaultSetter = _ => ()
 
 type themeType = LightTheme
@@ -20,7 +22,7 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     colors: {
       primary: "#006DF9",
       secondary: "#303E5F",
-      background: "#006df9",
+      background: "#f7f8fa",
     },
     sidebar: {
       primary: "#FCFCFD",
@@ -122,7 +124,6 @@ let make = (~children) => {
   }
 
   let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    open LogicUtils
     let dict = uiConfg->getDictFromJsonObject
     let settings = dict->getDictfromDict("settings")
     let url = dict->getDictfromDict("urls")
@@ -233,7 +234,6 @@ let make = (~children) => {
     }
   }
   let updateThemeURLs = themesData => {
-    open LogicUtils
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
@@ -275,6 +275,11 @@ let make = (~children) => {
     defaultStyle
   }
 
+  let applyThemeConfig = (config: JSON.t) => {
+    updateThemeURLs(config)->ignore
+    configCustomDomainTheme(config)->ignore
+  }
+
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
@@ -311,16 +316,32 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         }
       }
-      updateThemeURLs(themeJson)->ignore
-      configCustomDomainTheme(themeJson)->ignore
+      applyThemeConfig(themeJson)
       themeJson
     } catch {
     | _ => {
         let defaultStyle = getDefaultStyle()
-        updateThemeURLs(defaultStyle)->ignore
-        configCustomDomainTheme(defaultStyle)->ignore
+        applyThemeConfig(defaultStyle)
         defaultStyle
       }
+    }
+  }
+
+  let handleInitConfigMessage = (ev: Dom.event) => {
+    open EmbeddableGlobalUtils
+    try {
+      let objectdata = ev->HandlingEvents.convertToCustomEvent
+      let dict = objectdata.data->getDictFromJsonObject
+      switch dict->getOptionString("type")->Option.map(messageToTypeConversion) {
+      | Some(INIT_CONFIG) => {
+          let initConfigJson = dict->getJsonObjectFromDict("init_config")
+          let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
+          applyThemeConfig(themeValues)
+        }
+      | _ => ()
+      }
+    } catch {
+    | _ => ()
     }
   }
 
@@ -333,7 +354,13 @@ let make = (~children) => {
       getThemesJson,
       logoURL: contextLogoUrl,
     }
-  }, (theme, setTheme, contextLogoUrl))
+  }, (theme, setTheme, contextLogoUrl, getThemesJson))
+
+  // Listen globally for INIT_CONFIG from SDK to configure embeddable theme
+  React.useEffect(() => {
+    Window.addEventListener("message", handleInitConfigMessage)
+    Some(() => Window.removeEventListener("message", handleInitConfigMessage))
+  }, [])
   React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
@@ -344,7 +371,7 @@ let make = (~children) => {
   <Parent value>
     <div className=themeClassName>
       <div
-        className="bg-jp-gray-100 dark:bg-jp-gray-darkgray_background text-gray-700 dark:text-gray-200 red:bg-red">
+        className={`${value.globalUIConfig.backgroundColor} text-gray-700 dark:text-gray-200 red:bg-red`}>
         children
       </div>
     </div>
