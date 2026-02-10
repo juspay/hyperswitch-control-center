@@ -70,6 +70,7 @@ let make = (
       })
       ->React.array}
     </div>
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
     <FormRenderer.FieldRenderer
       labelClass="font-semibold !text-hyperswitch_black"
       fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
@@ -83,6 +84,7 @@ let make = (
         ),
       )}
     />
+    </RenderIf>
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"

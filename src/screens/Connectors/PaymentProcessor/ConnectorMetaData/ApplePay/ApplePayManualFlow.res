@@ -298,10 +298,11 @@ let make = (
       </span>
     </div>
     <div> {applePayManualFields} </div>
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForApplePay(connector)}>
     <FormRenderer.FieldRenderer
       labelClass="font-semibold !text-hyperswitch_black"
       fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
-      field={FormRenderer.makeFieldInfo(
+      field={FormRenderer.makeFieldInfo(  
         ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
         ~label="Enable pre decrypted token",
         ~customInput=InputFields.boolInput(
@@ -311,6 +312,7 @@ let make = (
         ),
       )}
     />
+    </RenderIf>
     <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
