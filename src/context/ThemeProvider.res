@@ -356,7 +356,6 @@ let make = (~children) => {
     }
   }, (theme, setTheme, contextLogoUrl, getThemesJson))
 
-  // Listen globally for INIT_CONFIG from SDK to configure embeddable theme
   React.useEffect(() => {
     Window.addEventListener("message", handleInitConfigMessage)
     Some(() => Window.removeEventListener("message", handleInitConfigMessage))
