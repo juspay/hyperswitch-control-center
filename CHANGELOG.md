@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.10.0
+
+### Miscellaneous Tasks
+
+- Compression changes for embedded ([#4188](https://github.com/juspay/hyperswitch-control-center/pull/4188)) ([`bcb011d`](https://github.com/juspay/hyperswitch-control-center/commit/bcb011db677838723194a601e8aa511a5e1cbddb))
+
+**Full Changelog:** [`2026.02.06.1...2026.02.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.06.1...2026.02.10.0)
+
+- - -
+
 ## 2026.02.06.1
 
 ### Features
