@@ -121,13 +121,13 @@ const getModuleRules = () => {
   return rules;
 };
 
-const getCopyPatterns = (isDevelopment) => [
+const getCopyPatterns = () => [
   { from: "public/common" },
   {
     from: "public/hyperswitch",
     to: ".",
     globOptions: {
-      ignore: ["**/index.html", ...(isDevelopment ? [] : ["**/assets/**"])],
+      ignore: ["**/index.html"],
     },
   },
   {
@@ -140,7 +140,7 @@ const getPlugins = (isDevelopment) => {
   const plugins = [
     new MiniCssExtractPlugin(),
     new CopyPlugin({
-      patterns: getCopyPatterns(isDevelopment),
+      patterns: getCopyPatterns(),
     }),
   ];
 

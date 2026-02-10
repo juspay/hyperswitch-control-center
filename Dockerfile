@@ -4,10 +4,10 @@ WORKDIR /usr/src/app
 COPY . .
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
+ARG BUILD_TYPE=prod
+
 RUN npm i
-RUN npm run build:prod
-# this needs to be removed and made a separate deployment for this 
-RUN npm run build:embeddedapp
+RUN if [ "$BUILD_TYPE" = "embeddedapp" ]; then npm run build:embeddedapp; else npm run build:prod; fi
 
 
 
