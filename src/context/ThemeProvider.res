@@ -14,8 +14,9 @@ type customUIConfig = {
   getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
 }
+open HyperSwitchConfigTypes
 
-let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
+let newDefaultConfig: customStylesTheme = {
   settings: {
     colors: {
       primary: "#006DF9",
@@ -60,6 +61,14 @@ let newDefaultConfig: HyperSwitchConfigTypes.customStylesTheme = {
     faviconUrl: Some("/HyperswitchFavicon.png"),
     logoUrl: Some(""),
   },
+}
+
+let defaultEmailConfig: emailConfig = {
+  entity_name: "Hyperswitch",
+  entity_logo_url: "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png",
+  primary_color: "#006DF9",
+  foreground_color: "#111326",
+  background_color: "#FFFFFF",
 }
 
 let themeContext = {

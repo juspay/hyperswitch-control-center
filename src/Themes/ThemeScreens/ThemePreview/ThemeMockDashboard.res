@@ -1,6 +1,7 @@
 open ThemePreviewUtils
 open Typography
 open ThemePreviewHelper
+open ThemePreviewTypes
 
 @react.component
 let make = () => {
@@ -12,7 +13,7 @@ let make = () => {
 
   <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-3/4">
     <div className="flex h-full">
-      <MockOrgTiles sidebarFromForm orgs=["S", "A"] />
+      <MockOrgTiles sidebarFromForm orgs=mockValues.orgs />
       <div
         className="w-36 flex flex-col border-r bg-nd_gray-50"
         style={ReactDOM.Style.make(~backgroundColor=sidebarFromForm.primary, ())}>
@@ -20,7 +21,7 @@ let make = () => {
           <div
             className={`${body.xs.semibold}`}
             style={ReactDOM.Style.make(~color=sidebarFromForm.textColor, ())}>
-            {React.string("Merchant Tester")}
+            {React.string(mockValues.merchantName)}
           </div>
         </div>
         <nav className="flex-1 py-1">
@@ -36,7 +37,7 @@ let make = () => {
           <span
             className={`text-nd_gray-600 truncate ${body.xs.medium}`}
             style={ReactDOM.Style.make(~color=sidebarFromForm.textColor, ())}>
-            {"test@gmail.com"->React.string}
+            {React.string(mockValues.userEmail)}
           </span>
           <Icon name="chevron-down" size=10 className="text-nd_gray-400" />
         </div>
@@ -45,16 +46,16 @@ let make = () => {
         <MockNavbar />
         <div className="p-2">
           <span className={`text-nd_gray-800 ${body.sm.semibold}`}>
-            {React.string("Page Heading")}
+            {React.string(mockValues.pageHeading)}
           </span>
           <p className={`text-nd_gray-600 mb-4 ${body.xs.medium}`}>
-            {React.string("Page Descriptions will go here")}
+            {React.string(mockValues.pageDescription)}
           </p>
         </div>
         <div className="p-2 m-2 rounded-lg border-nd_gray-50 border flex flex-col gap-0.5">
-          <span className={`${body.xs.semibold}`}> {"Card Heading"->React.string} </span>
+          <span className={`${body.xs.semibold}`}> {React.string(mockValues.cardHeading)} </span>
           <span className={`${body.xs.medium} text-nd_gray-400`}>
-            {"Card Heading goes here"->React.string}
+            {React.string(mockValues.cardDescription)}
           </span>
           <div className={`flex flex-row gap-2 mt-2 ${body.xs.semibold}`}>
             <button
@@ -64,7 +65,7 @@ let make = () => {
                 ~color=buttonsFromForm.primary.textColor,
                 (),
               )}>
-              {React.string("Primary Button")}
+              {React.string(mockValues.primaryButtonText)}
             </button>
             <button
               className="px-2 py-3 rounded h-4 flex justify-between items-center cursor-pointer"
@@ -73,7 +74,7 @@ let make = () => {
                 ~color=buttonsFromForm.secondary.textColor,
                 (),
               )}>
-              {React.string("Secondary Button")}
+              {React.string(mockValues.secondaryButtonText)}
             </button>
           </div>
         </div>

@@ -59,11 +59,10 @@ module RadioButtons = {
         {entities
         ->Array.map(option =>
           <RadioGroup.Option \"as"="div" key=option.value value=option.value>
-            {checked =>
+            {checked => {
+              let borderClass = checked["checked"] ? "border-primary" : "border-gray-200"
               <div
-                className={"flex items-center justify-between border rounded-lg p-4 cursor-pointer transition " ++ (
-                  checked["checked"] ? "border-primary" : "border-gray-200 bg-white"
-                )}>
+                className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition ${borderClass}`}>
                 <div className="flex items-center gap-4 w-full">
                   <div>
                     <div
@@ -83,7 +82,8 @@ module RadioButtons = {
                     <input type_="radio" checked={checked["checked"]} className="accent-primary" />
                   </div>
                 </div>
-              </div>}
+              </div>
+            }}
           </RadioGroup.Option>
         )
         ->React.array}
@@ -344,8 +344,8 @@ module ThemeLineageModal = {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let sessionStepValue =
-      sessionStorage.getItem("themeModalStep")->Nullable.toOption->Option.getOr("0")
-    let (step, setStep) = React.useState(() => sessionStepValue->Int.fromString->Option.getOr(0))
+      sessionStorage.getItem("themeModalStep")->getOptionalFromNullable->Option.getOr("0")
+    let (step, setStep) = React.useState(() => sessionStepValue->getIntFromString(0))
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
@@ -354,7 +354,8 @@ module ThemeLineageModal = {
     let (themeExists, setThemeExists) = React.useState(() => false)
     let (updateThemeID, setUpdateThemeID) = React.useState(() => themeId)
 
-    let entityType = sessionStorage.getItem("entity_type")->Nullable.toOption->Option.getOr("")
+    let entityType =
+      sessionStorage.getItem("entity_type")->getOptionalFromNullable->Option.getOr("")
 
     let lineageInitialValues =
       [
@@ -448,9 +449,10 @@ module ThemeLineageModal = {
           }
         | _ => ()
         }
-      | 1 => handleNext()
-      | 2 => handleNext()
-      | 3 => handleNext()
+      | 1
+      | 2
+      | 3 =>
+        handleNext()
       | _ => ()
       }
       Nullable.null

@@ -31,15 +31,16 @@ module MockSidebarItem = {
     ~sidebarFromForm: HyperSwitchConfigTypes.sidebarConfig,
   ) => {
     let textColor = item.active ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor
-    let bgColor = item.active ? "rgba(153, 155, 159, 0.1)" : "transparent"
     let padding = index === 0 ? "" : "pl-3"
 
     <>
       <div
         key={item.label}
-        className="flex items-center gap-1 px-2 py-1 mx-2 rounded-md cursor-pointer hover:bg-opacity-75 transition-colors"
-        style={ReactDOM.Style.make(~backgroundColor=bgColor, ~color=textColor, ())}>
-        {index === 0 ? <Icon name="orchestrator-home" size=10 /> : React.null}
+        className={`flex items-center gap-1 px-2 py-1 mx-2 rounded-md cursor-pointer hover:bg-opacity-75 transition-colors `}
+        style={ReactDOM.Style.make(~color=textColor, ())}>
+        <RenderIf condition={index == 0}>
+          <Icon name="orchestrator-home" size=10 />
+        </RenderIf>
         <span className={`${body.xs.medium} ${padding} `}> {React.string(item.label)} </span>
       </div>
     </>

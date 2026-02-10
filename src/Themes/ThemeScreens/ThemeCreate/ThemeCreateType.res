@@ -1,13 +1,6 @@
 open ThemeTypes
 open HyperSwitchConfigTypes
 
-type emailConfig = {
-  entity_name: string,
-  entity_logo_url: string,
-  primary_color: string,
-  foreground_color: string,
-  background_color: string,
-}
 type themeCreate = {
   entity_type: string,
   tenant_id: string,
@@ -68,56 +61,13 @@ let defaultCreate = (~lineage: lineage) => {
   profile_id: lineage.profile_id,
   theme_name: "Default Theme",
   theme_data: {
-    settings: {
-      colors: {
-        primary: "#006DF9",
-        secondary: "#303E5F",
-        background: "#006df9",
-      },
-      sidebar: {
-        primary: "#FCFCFD",
-        textColor: "#525866",
-        textColorPrimary: "#1C6DEA",
-      },
-      typography: {
-        fontFamily: "Roboto, sans-serif",
-        fontSize: "14px",
-        headingFontSize: "24px",
-        textColor: "#006DF9",
-        linkColor: "#3498db",
-        linkHoverColor: "#005ED6",
-      },
-      buttons: {
-        primary: {
-          backgroundColor: "#1272f9",
-          textColor: "#ffffff",
-          hoverBackgroundColor: "#0860dd",
-        },
-        secondary: {
-          backgroundColor: "#f3f3f3",
-          textColor: "#626168",
-          hoverBackgroundColor: "#fcfcfd",
-        },
-      },
-      borders: {
-        defaultRadius: "4px",
-        borderColor: "#1272F9",
-      },
-      spacing: {
-        padding: "16px",
-        margin: "16px",
-      },
-    },
-    urls: {
-      faviconUrl: Some("/HyperswitchFavicon.png"),
-      logoUrl: Some(""),
-    },
+    ThemeProvider.newDefaultConfig
   },
   email_config: Some({
-    entity_name: lineage.entity_type,
-    entity_logo_url: "/HyperswitchFavicon.png",
-    primary_color: "#006DF9",
-    foreground_color: "#006DF9",
-    background_color: "#006df9",
+    entity_name: ThemeProvider.defaultEmailConfig.entity_name,
+    entity_logo_url: ThemeProvider.defaultEmailConfig.entity_logo_url,
+    primary_color: ThemeProvider.defaultEmailConfig.primary_color,
+    foreground_color: ThemeProvider.defaultEmailConfig.foreground_color,
+    background_color: ThemeProvider.defaultEmailConfig.background_color,
   }),
 }
