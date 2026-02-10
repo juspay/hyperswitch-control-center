@@ -151,7 +151,9 @@ let make = (
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
-          className="grid gap-x-5 gap-y-6 grid-cols-[repeat(auto-fit,minmax(min(16rem,100%),1fr))] mb-5 auto-rows-fr">
+          // Cap the max track width so pages with only 1-2 connectors (e.g. Tax, PM Auth) don't render
+          // giant stretched cards on wide screens.
+          className="grid gap-x-5 gap-y-6 grid-cols-[repeat(auto-fit,minmax(min(16rem,100%),22rem))] justify-start mb-5 auto-rows-fr">
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
