@@ -9,10 +9,7 @@ module BrandSettings = {
       ~label="Primary Color",
       ~name="theme_data.settings.colors.primary",
       ~placeholder="Enter Primary Color.",
-      ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
-        ~defaultValue=colorsFromForm.primary,
-      ),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=colorsFromForm.primary),
     )
 
     let themeNameField = makeFieldInfo(
@@ -40,29 +37,20 @@ module SidebarSettings = {
       ~label="Background Color",
       ~name="theme_data.settings.sidebar.primary",
       ~placeholder="Enter sidebar background color.",
-      ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
-        ~defaultValue=sidebarFromForm.primary,
-      ),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=sidebarFromForm.primary),
     )
 
     let textColorSidebar = makeFieldInfo(
       ~label="Text Color",
       ~name="theme_data.settings.sidebar.textColor",
       ~placeholder="Enter sidebar text color.",
-      ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
-        ~defaultValue=sidebarFromForm.textColor,
-      ),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=sidebarFromForm.textColor),
     )
     let activeItemColor = makeFieldInfo(
       ~label="Active Item Color",
       ~name="theme_data.settings.sidebar.textColorPrimary",
       ~placeholder="Enter active item color.",
-      ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
-        ~defaultValue=sidebarFromForm.textColorPrimary,
-      ),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=sidebarFromForm.textColorPrimary),
     )
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Sidebar Settings")} </div>
@@ -83,23 +71,18 @@ module ButtonSettings = {
       ~label="Background",
       ~name="theme_data.settings.buttons.primary.backgroundColor",
       ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
         ~defaultValue=buttonsFromForm.primary.backgroundColor,
       ),
     )
     let primaryButtonTextColor = makeFieldInfo(
       ~label="Text Color",
       ~name="theme_data.settings.buttons.primary.textColor",
-      ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
-        ~defaultValue=buttonsFromForm.primary.textColor,
-      ),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=buttonsFromForm.primary.textColor),
     )
     let primaryButtonHoverBackground = makeFieldInfo(
       ~label="Hover Background",
       ~name="theme_data.settings.buttons.primary.hoverBackgroundColor",
       ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
         ~defaultValue=buttonsFromForm.primary.hoverBackgroundColor,
       ),
     )
@@ -108,23 +91,18 @@ module ButtonSettings = {
       ~label="Background",
       ~name="theme_data.settings.buttons.secondary.backgroundColor",
       ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
         ~defaultValue=buttonsFromForm.secondary.backgroundColor,
       ),
     )
     let secondaryButtonTextColor = makeFieldInfo(
       ~label="Text Color",
       ~name="theme_data.settings.buttons.secondary.textColor",
-      ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
-        ~defaultValue=buttonsFromForm.secondary.textColor,
-      ),
+      ~customInput=InputFields.colorPickerInput(~defaultValue=buttonsFromForm.secondary.textColor),
     )
     let secondaryButtonHoverBackground = makeFieldInfo(
       ~label="Hover Background",
       ~name="theme_data.settings.buttons.secondary.hoverBackgroundColor",
       ~customInput=InputFields.colorPickerInput(
-        ~colorSquarePosition="left",
         ~defaultValue=buttonsFromForm.secondary.hoverBackgroundColor,
       ),
     )

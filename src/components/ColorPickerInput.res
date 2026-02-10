@@ -7,7 +7,6 @@ let make = (
   ~customWrapperClassName="",
   ~defaultValue=?,
   ~showErrorWhenEmpty=true,
-  ~colorSquarePosition="",
 ) => {
   open LogicUtils
 
