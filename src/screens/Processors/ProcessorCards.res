@@ -151,7 +151,7 @@ let make = (
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
-          className="grid gap-x-5 gap-y-6 2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
+          className="grid gap-x-5 gap-y-6 grid-cols-[repeat(auto-fit,minmax(min(16rem,100%),1fr))] mb-5 auto-rows-fr">
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
@@ -162,15 +162,15 @@ let make = (
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => ()}
               key={i->string_of_int}
-              className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
+              className="border p-6 gap-4 bg-white rounded flex flex-col justify-between h-full"
               dataAttrStr=connectorName>
               <div className="flex flex-col gap-3 items-start">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                <p className={`${p1MediumTextStyle} break-all`}>
+                <p className={`${p1MediumTextStyle} break-words line-clamp-2 min-h-[2.5rem]`}>
                   {connectorName->getDisplayNameForConnector(~connectorType)->React.string}
                 </p>
               </div>
-              <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+              <p className="overflow-hidden text-gray-400 line-clamp-3 min-h-[4.5rem]">
                 {connectorInfo.description->React.string}
               </p>
               <ACLButton
