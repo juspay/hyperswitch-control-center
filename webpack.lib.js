@@ -8,7 +8,7 @@ const tailwindcss = require("tailwindcss");
 const serverConfig = require("./webpack.server");
 const config = import("./src/server/config.mjs");
 
-const DEV_SERVER_PORT = 9000;
+const DEV_SERVER_PORT = 9001;
 
 const createCompressionPlugins = (test) => [
   new CompressionPlugin({
@@ -57,20 +57,8 @@ const configMiddleware = (req, res, next) => {
   next();
 };
 
-const assetRewriteMiddleware = (req, _res, next) => {
-  if (
-    req.path.match(/\.\w+$/) &&
-    !req.path.startsWith("/embedded") &&
-    !req.path.startsWith("/api")
-  ) {
-    req.url = "/embedded" + req.path;
-  }
-  next();
-};
-
 const setupMiddlewares = (middlewares, devServer) => {
   devServer.app.use(configMiddleware);
-  devServer.app.use(assetRewriteMiddleware);
   return middlewares;
 };
 
@@ -169,7 +157,7 @@ const libBuild = () => {
     output: {
       path: path.resolve(__dirname, "dist", "embedded"),
       clean: true,
-      publicPath: "/embedded/",
+      publicPath: "/",
       filename: "[name].js",
       library: {
         name: "HyperswitchCC",
@@ -184,7 +172,7 @@ const libBuild = () => {
       port: DEV_SERVER_PORT,
       hot: true,
       historyApiFallback: {
-        rewrites: [{ from: /^\/embedded/, to: "/embedded/index.html" }],
+        rewrites: [{ from: /^\/embedded/, to: "/index.html" }],
       },
       proxy: proxyConfig,
       setupMiddlewares,

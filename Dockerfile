@@ -8,10 +8,6 @@ ARG BUILD_TYPE=prod
 
 RUN npm i
 RUN if [ "$BUILD_TYPE" = "embeddedapp" ]; then npm run build:embeddedapp; else npm run build:prod; fi
-
-
-
-
 FROM node:18-alpine
 
 WORKDIR /usr/src/app
@@ -27,5 +23,5 @@ RUN chown -R appuser:appgroup /usr/src/app
 
 USER appuser
 
-EXPOSE 8080 9000
+EXPOSE 8080 9000 9001
 CMD [ "/bin/bash", "-c", "npm run serve" ]
