@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.10.1
+
+### Features
+
+- Add new connector santander ([#4166](https://github.com/juspay/hyperswitch-control-center/pull/4166)) ([`e8b727a`](https://github.com/juspay/hyperswitch-control-center/commit/e8b727ab201a97b685ac322eb75611b7bff09e22))
+
+**Full Changelog:** [`2026.02.10.0...2026.02.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.10.0...2026.02.10.1)
+
+- - -
+
+## 2026.02.10.0
+
+### Miscellaneous Tasks
+
+- Compression changes for embedded ([#4188](https://github.com/juspay/hyperswitch-control-center/pull/4188)) ([`bcb011d`](https://github.com/juspay/hyperswitch-control-center/commit/bcb011db677838723194a601e8aa511a5e1cbddb))
+
+**Full Changelog:** [`2026.02.06.1...2026.02.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.06.1...2026.02.10.0)
+
+- - -
+
 ## 2026.02.06.1
 
 ### Features
