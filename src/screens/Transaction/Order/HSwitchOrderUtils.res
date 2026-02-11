@@ -103,7 +103,7 @@ let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLa
 
 let refundStatusVariantMapper: string => refundStatus = statusLabel => {
   switch statusLabel->String.toUpperCase {
-  | "SUCCESS" => Success
+  | "SUCCESS" | "SUCCEEDED" => Success
   | "PENDING" => Pending
   | "FAILURE" => Failure
   | _ => None
@@ -259,6 +259,7 @@ module CopyLinkTableCell = {
     ~customOnCopyClick=() => (),
     ~customTextCss="w-36",
     ~endValue=20,
+    ~leftIcon: Button.iconType=NoIcon,
   ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let showToast = ToastState.useShowToast()
@@ -281,6 +282,10 @@ module CopyLinkTableCell = {
     <div className="flex items-center">
       {if displayValue->isNonEmptyString {
         <div className=customParentClass>
+          {switch leftIcon {
+          | CustomIcon(element) => element
+          | _ => React.null
+          }}
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
             <div> {displayValue->React.string} </div>
           </RenderIf>

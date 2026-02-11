@@ -31,7 +31,6 @@ module CardRenderer = {
     ~setMetaData,
     ~connector,
     ~initialValues,
-    ~setInitialValues,
     ~isUpdateFlow,
     ~connectorType=Processor,
   ) => {
@@ -68,7 +67,6 @@ module CardRenderer = {
       isProfileIdConfiguredPMAuth
 
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
-
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
     let standardProviders =
       paymentObj.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
@@ -88,21 +86,152 @@ module CardRenderer = {
         obj.payment_experience == selectedMethod.payment_experience
     }
 
-    let showSideModal = methodVariant => {
-      ((methodVariant === GooglePay ||
-      methodVariant === ApplePay ||
-      methodVariant === SamsungPay ||
-      methodVariant === AmazonPay ||
-      methodVariant === Paze) &&
-        {
-          switch connector->getConnectorNameTypeFromString(~connectorType) {
-          | Processors(TRUSTPAY)
-          | Processors(STRIPE_TEST)
-          | PayoutProcessor(WORLDPAY)
-          | PayoutProcessor(WORLDPAYXML) => false
-          | _ => true
+    let showAdditionalDetails = methodVariant => {
+      switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
+      | (Pix, Processors(SANTANDER)) | (Boleto, Processors(SANTANDER)) => true
+      | _ =>
+        ((methodVariant === GooglePay ||
+        methodVariant === ApplePay ||
+        methodVariant === SamsungPay ||
+        methodVariant === AmazonPay ||
+        methodVariant === Paze) &&
+          {
+            switch connector->getConnectorNameTypeFromString(~connectorType) {
+            | Processors(TRUSTPAY)
+            | Processors(STRIPE_TEST)
+            | PayoutProcessor(WORLDPAY)
+            | PayoutProcessor(WORLDPAYXML) => false
+            | _ => true
+            }
+          }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+      }
+    }
+
+    let findPaymentMethodIndexInForm = (paymentMethodsEnabledArray, paymentMethod) => {
+      let target = paymentMethod->String.toLowerCase
+      paymentMethodsEnabledArray->Array.findIndex(pmJson => {
+        pmJson
+        ->getDictFromJsonObject
+        ->getString("payment_method", "")
+        ->String.toLowerCase === target
+      })
+    }
+
+    let removePMAuthConfigForMethod = (
+      ~form: ReactFinalForm.formApi,
+      ~formValues,
+      ~paymentMethodType,
+    ) => {
+      let pmAuthConfig = formValues->getDictfromDict("pm_auth_config")
+      let existingPaymentMethodValues =
+        pmAuthConfig
+        ->getArrayFromDict("enabled_payment_methods", [])
+        ->JSON.Encode.array
+        ->getArrayDataFromJson(BankDebitUtils.itemToObjMapper)
+
+      let newPaymentMethodValues =
+        existingPaymentMethodValues->Array.filter(item =>
+          item.payment_method_type !== paymentMethodType
+        )
+
+      form.change(
+        "pm_auth_config.enabled_payment_methods",
+        newPaymentMethodValues->Identity.genericTypeToJson,
+      )
+    }
+
+    let removeMethodFromForm = (
+      ~form: ReactFinalForm.formApi,
+      ~formValues,
+      ~paymentMethod,
+      ~method: paymentMethodConfigType,
+    ) => {
+      let targetMethod = paymentMethod->getPaymentMethodFromString
+      let paymentMethodsEnabledArray = formValues->getArrayFromDict("payment_methods_enabled", [])
+      let updatedPaymentMethodsArray =
+        paymentMethodsEnabledArray
+        ->Array.map(pmJson => {
+          let pmDict = pmJson->getDictFromJsonObject
+          let pmMethod = pmDict->getString("payment_method", "")->getPaymentMethodFromString
+
+          if pmMethod === targetMethod {
+            let paymentMethodTypesArray = pmDict->getArrayFromDict("payment_method_types", [])
+
+            let filteredArray = paymentMethodTypesArray->Array.filter(itemJson => {
+              itemJson
+              ->getDictFromJsonObject
+              ->getString("payment_method_type", "") !== method.payment_method_type
+            })
+
+            pmDict->Dict.set("payment_method_types", filteredArray->Identity.genericTypeToJson)
+            pmDict->JSON.Encode.object
+          } else {
+            pmJson
           }
-        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+        })
+        ->Array.filter(pmJson => {
+          pmJson
+          ->getDictFromJsonObject
+          ->getArrayFromDict("payment_method_types", [])
+          ->Array.length > 0
+        })
+
+      form.change("payment_methods_enabled", updatedPaymentMethodsArray->JSON.Encode.array)
+    }
+
+    let addMethodToPaymentMethodTypes = (pmDict, method: paymentMethodConfigType) => {
+      let paymentMethodTypesArray = pmDict->getArrayFromDict("payment_method_types", [])
+      let methodExists = paymentMethodTypesArray->Array.some(itemJson =>
+        itemJson
+        ->getDictFromJsonObject
+        ->getString("payment_method_type", "") === method.payment_method_type
+      )
+
+      if methodExists {
+        pmDict->JSON.Encode.object
+      } else {
+        let methodJson = method->Identity.genericTypeToJson
+        let updatedArray = [...paymentMethodTypesArray, methodJson]
+        pmDict
+        ->(dict => {
+          dict->Dict.set("payment_method_types", updatedArray->JSON.Encode.array)
+          dict
+        })
+        ->JSON.Encode.object
+      }
+    }
+
+    let createPaymentMethodEntry = (paymentMethod, method: paymentMethodConfigType) => {
+      let methodJson = method->Identity.genericTypeToJson
+      [
+        ("payment_method", paymentMethod->JSON.Encode.string),
+        ("payment_method_types", [methodJson]->JSON.Encode.array),
+      ]->getJsonFromArrayOfJson
+    }
+
+    let addMethodToForm = (
+      ~form: ReactFinalForm.formApi,
+      ~formValues,
+      ~paymentMethod,
+      ~method: paymentMethodConfigType,
+    ) => {
+      let paymentMethodsEnabledArray = formValues->getArrayFromDict("payment_methods_enabled", [])
+      let existingPmIndex = findPaymentMethodIndexInForm(paymentMethodsEnabledArray, paymentMethod)
+
+      let updatedPaymentMethodsArray = if existingPmIndex >= 0 {
+        paymentMethodsEnabledArray->Array.mapWithIndex((pmJson, index) => {
+          if index === existingPmIndex {
+            let pmDict = pmJson->getDictFromJsonObject
+            addMethodToPaymentMethodTypes(pmDict, method)
+          } else {
+            pmJson
+          }
+        })
+      } else {
+        let newPmJson = createPaymentMethodEntry(paymentMethod, method)
+        [...paymentMethodsEnabledArray, newPmJson]
+      }
+      form.change("payment_methods_enabled", updatedPaymentMethodsArray->JSON.Encode.array)
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
@@ -129,10 +258,34 @@ module CardRenderer = {
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
+      | (_, BankDebit, _) => {
+          let isSelectedInState =
+            standardProviders->Array.some(obj => checkPaymentMethodType(obj, method))
+          let formValues = formState.values->getDictFromJsonObject
+
+          if isSelectedInState {
+            let updatedPaymentMethods =
+              paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)
+            updatedPaymentMethods->updateDetails
+            removeMethodFromForm(~form, ~formValues, ~paymentMethod, ~method)
+            removePMAuthConfigForMethod(
+              ~form,
+              ~formValues,
+              ~paymentMethodType=method.payment_method_type,
+            )
+          } else {
+            let updatedPaymentMethods = paymentMethodsEnabled->addMethod(paymentMethod, method)
+            updatedPaymentMethods->updateDetails
+            addMethodToForm(~form, ~formValues, ~paymentMethod, ~method)
+          }
+        }
+
       | _ =>
         if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
-        } else if showSideModal(method.payment_method_type->getPaymentMethodTypeFromString) {
+        } else if (
+          showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString)
+        ) {
           setSelectedWallet(_ => method)
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
@@ -203,7 +356,7 @@ module CardRenderer = {
     let checkIfAdditionalDetailsRequired = (
       valueComing: ConnectorTypes.paymentMethodConfigType,
     ) => {
-      showSideModal(valueComing.payment_method_type->getPaymentMethodTypeFromString)
+      showAdditionalDetails(valueComing.payment_method_type->getPaymentMethodTypeFromString)
     }
 
     let methodsWithoutAdditionalDetails =
@@ -219,6 +372,30 @@ module CardRenderer = {
       }
     }, [])
 
+    let handleBankDebitCheckboxClick = (~method) => _ => {
+      if paymentMethod->getPaymentMethodFromString === BankDebit {
+        removeOrAddMethods(method)
+      }
+    }
+
+    let handleOnItemExpandClick = method => () => {
+      if paymentMethod->getPaymentMethodFromString !== BankDebit {
+        removeOrAddMethods(method)
+      }
+
+      if showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString) {
+        setSelectedWallet(_ => method)
+      }
+    }
+
+    let handleOnItemCollapseClick = method => () => {
+      if isSelected(method) && paymentMethod->getPaymentMethodFromString != BankDebit {
+        removeOrAddMethods(method)
+      } else {
+        removeSelectedWallet()
+      }
+    }
+
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf
@@ -229,7 +406,12 @@ module CardRenderer = {
             </p>
             <RenderIf
               condition={paymentMethod->getPaymentMethodFromString !== Wallet &&
-                paymentMethod->getPaymentMethodFromString !== BankDebit}>
+              paymentMethod->getPaymentMethodFromString !== BankDebit &&
+              !(
+                connector->getConnectorNameTypeFromString == Processors(SANTANDER) &&
+                  (paymentMethod->getPaymentMethodFromString === BankTransfer ||
+                    paymentMethod->getPaymentMethodFromString === Voucher)
+              )}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),
@@ -401,7 +583,7 @@ module CardRenderer = {
                   let accordionElem: Accordion.accordion = {
                     title: value.payment_method_type,
                     renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
-                      <AdditionalDetailsSidebarComp
+                      <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
                         setMetaData
@@ -409,35 +591,33 @@ module CardRenderer = {
                         paymentMethodsEnabled
                         paymentMethod
                         onCloseClickCustomFun={removeSelectedWallet}
-                        setInitialValues
                         pmtName={selectedWallet.payment_method_type}
                         closeAccordionFn
                       />,
-                    onItemCollapseClick: () => {
-                      if isSelected(value) {
-                        removeOrAddMethods(value)
-                      } else {
-                        removeSelectedWallet()
-                      }
-                    },
-                    onItemExpandClick: () => {
-                      removeOrAddMethods(value)
-
-                      if showSideModal(value.payment_method_type->getPaymentMethodTypeFromString) {
-                        setSelectedWallet(_ => value)
-                      }
-                    },
+                    onItemCollapseClick: handleOnItemCollapseClick(value),
+                    onItemExpandClick: handleOnItemExpandClick(value),
                     renderContentOnTop: Some(
                       () => {
-                        <div className="flex gap-2 items-center cursor-pointer flex-1">
-                          <div className="cursor-pointer">
-                            <CheckBoxIcon
-                              isSelected={isSelected(value)} stopPropagationNeeded=true
-                            />
+                        <div
+                          className="flex gap-2 items-center cursor-pointer flex-1 justify-between w-full">
+                          <div className="flex gap-2 items-center">
+                            <div className="cursor-pointer">
+                              <CheckBoxIcon
+                                isSelected={isSelected(value)}
+                                setIsSelected={handleBankDebitCheckboxClick(~method=value)}
+                                stopPropagationNeeded=true
+                              />
+                            </div>
+                            <p className={`${p2RegularTextStyle} cursor-pointer`}>
+                              {value.payment_method_type->snakeToTitle->React.string}
+                            </p>
                           </div>
-                          <p className={`${p2RegularTextStyle} cursor-pointer`}>
-                            {React.string(value.payment_method_type->snakeToTitle)}
-                          </p>
+                          <RenderIf
+                            condition={paymentMethod->getPaymentMethodFromString === BankDebit}>
+                            <p className={`${body.sm.medium} text-grey-700 opacity-50 mr-2`}>
+                              {"Optional Configuraiton"->React.string}
+                            </p>
+                          </RenderIf>
                         </div>
                       },
                     ),
@@ -471,7 +651,6 @@ module PaymentMethodsRender = {
     ~setMetaData,
     ~isPayoutFlow,
     ~initialValues,
-    ~setInitialValues,
     ~isUpdateFlow,
     ~connectorType=Processor,
   ) => {
@@ -500,7 +679,6 @@ module PaymentMethodsRender = {
               setMetaData
               connector
               initialValues
-              setInitialValues
               isUpdateFlow
               connectorType
             />
@@ -516,7 +694,6 @@ module PaymentMethodsRender = {
               setMetaData
               connector
               initialValues
-              setInitialValues
               isUpdateFlow
               connectorType
             />

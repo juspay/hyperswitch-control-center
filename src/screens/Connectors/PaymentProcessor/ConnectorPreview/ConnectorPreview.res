@@ -399,7 +399,7 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
