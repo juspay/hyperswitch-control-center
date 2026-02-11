@@ -194,6 +194,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(COINGATE),
   Processors(DATATRANS),
+  Processors(FINIX),
   Processors(FIUU),
   Processors(GIGADAT),
   Processors(IATAPAY),
