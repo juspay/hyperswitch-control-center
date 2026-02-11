@@ -3,11 +3,10 @@ external env: Dict.t<string> = "env"
 
 @val external appName: string = "APP_NAME"
 
-let port =
-  switch appName {
-  | "embedded" => 9001
-  | _ => 9000
-  }
+let port = switch appName {
+| "embedded" => 9001
+| _ => 9000
+}
 
 open NodeJs
 
