@@ -90,3 +90,6 @@ type edgeType = {
 type viewType =
   | Graph
   | Table
+
+type seriesType =
+  ReconciledSeriesType | MismatchedSeriesType | ExpectedSeriesType | UnknownSeriesType
