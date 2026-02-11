@@ -165,7 +165,7 @@ let make = (~showOnBoarding) => {
               <Button
                 text="Download Reports"
                 buttonType={Secondary}
-                leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=14 />)}
+                leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" className="text-nd_gray-600" size=14 />)}
                 onClick={_ => {
                   mixpanelEvent(~eventName="recon_generate_reports_download")
                   downloadReport()->ignore
