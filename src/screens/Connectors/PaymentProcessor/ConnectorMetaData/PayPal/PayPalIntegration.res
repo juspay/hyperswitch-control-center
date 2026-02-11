@@ -52,7 +52,6 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         </div>
       })
       ->React.array}
-      <FormValuesSpy />
     </div>
     <div className="flex gap-2 justify-end">
       <Button
