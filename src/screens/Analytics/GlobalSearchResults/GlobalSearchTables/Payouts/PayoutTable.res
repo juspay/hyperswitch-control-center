@@ -148,60 +148,135 @@ let make = () => {
       let data = rawData->Array.map(item => {
         let dict = item->getDictFromJsonObject
         let newDict = Dict.make()
-        
+
         // Use destination_currency if currency is not available, as per SQL alias "destination_currency AS currency"
         let currency = dict->getString("currency", dict->getString("destination_currency", ""))
         let amount = dict->getFloat("amount", 0.0)
 
-        let amountDivider = switch currency {
-        | "BHD" | "IQD" | "JOD" | "KWD" | "LYD" | "OMR" | "TND" => 1000.0
-        | "BIF" | "CLP" | "DJF" | "GNF" | "JPY" | "KMF" | "KRW" | "MGA" | "PYG" | "RWF" | "UGX" | "VND" | "VUV" | "XAF" | "XOF" | "XPF" => 1.0
-        | _ => 100.0
-        }
+        let formattedAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
+          ~amount,
+          ~currency,
+        )
 
-        let formattedAmount = amount /. amountDivider
-
-        newDict->Dict.set("payout_id", dict->getvalFromDict("payout_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payout_attempt_id", dict->getvalFromDict("payout_attempt_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("connector_payout_id", dict->getvalFromDict("connector_payout_id")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "payout_id",
+          dict->getvalFromDict("payout_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payout_attempt_id",
+          dict->getvalFromDict("payout_attempt_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector_payout_id",
+          dict->getvalFromDict("connector_payout_id")->Option.getOr(JSON.Encode.null),
+        )
         newDict->Dict.set("status", dict->getvalFromDict("status")->Option.getOr(JSON.Encode.null))
         newDict->Dict.set("amount", formattedAmount->JSON.Encode.float)
-        newDict->Dict.set("source_currency", dict->getvalFromDict("source_currency")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("destination_currency", dict->getvalFromDict("destination_currency")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payout_type", dict->getvalFromDict("payout_type")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("attempt_count", dict->getvalFromDict("attempt_count")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("is_eligible", dict->getvalFromDict("is_eligible")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("connector", dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payout_method_id", dict->getvalFromDict("payout_method_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("profile_id", dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("merchant_id", dict->getvalFromDict("merchant_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("organization_id", dict->getvalFromDict("organization_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("customer_id", dict->getvalFromDict("customer_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("recurring", dict->getvalFromDict("recurring")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("auto_fulfill", dict->getvalFromDict("auto_fulfill")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("priority", dict->getvalFromDict("priority")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("description", dict->getvalFromDict("description")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("error_code", dict->getvalFromDict("error_code")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("error_message", dict->getvalFromDict("error_message")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("business_country", dict->getvalFromDict("business_country")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("business_label", dict->getvalFromDict("business_label")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("entity_type", dict->getvalFromDict("entity_type")->Option.getOr(JSON.Encode.null))
-        
+        newDict->Dict.set(
+          "source_currency",
+          dict->getvalFromDict("source_currency")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "destination_currency",
+          dict->getvalFromDict("destination_currency")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payout_type",
+          dict->getvalFromDict("payout_type")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "attempt_count",
+          dict->getvalFromDict("attempt_count")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "is_eligible",
+          dict->getvalFromDict("is_eligible")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector",
+          dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payout_method_id",
+          dict->getvalFromDict("payout_method_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "profile_id",
+          dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "merchant_id",
+          dict->getvalFromDict("merchant_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "organization_id",
+          dict->getvalFromDict("organization_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "customer_id",
+          dict->getvalFromDict("customer_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "recurring",
+          dict->getvalFromDict("recurring")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "auto_fulfill",
+          dict->getvalFromDict("auto_fulfill")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "priority",
+          dict->getvalFromDict("priority")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "description",
+          dict->getvalFromDict("description")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "error_code",
+          dict->getvalFromDict("error_code")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "error_message",
+          dict->getvalFromDict("error_message")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "business_country",
+          dict->getvalFromDict("business_country")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "business_label",
+          dict->getvalFromDict("business_label")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "entity_type",
+          dict->getvalFromDict("entity_type")->Option.getOr(JSON.Encode.null),
+        )
+
         let createdAt = dict->getFloat("created_at", 0.0)
         if createdAt != 0.0 {
-          newDict->Dict.set("created_at", DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string)
+          newDict->Dict.set(
+            "created_at",
+            DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string,
+          )
         } else {
-           newDict->Dict.set("created_at", JSON.Encode.null)
+          newDict->Dict.set("created_at", JSON.Encode.null)
         }
 
         let lastModifiedAt = dict->getFloat("last_modified_at", 0.0)
         if lastModifiedAt != 0.0 {
-          newDict->Dict.set("last_modified_at", DateTimeUtils.unixToISOString(lastModifiedAt)->JSON.Encode.string)
+          newDict->Dict.set(
+            "last_modified_at",
+            DateTimeUtils.unixToISOString(lastModifiedAt)->JSON.Encode.string,
+          )
         } else {
-           newDict->Dict.set("last_modified_at", JSON.Encode.null)
+          newDict->Dict.set("last_modified_at", JSON.Encode.null)
         }
 
-        newDict->Dict.set("metadata", dict->getvalFromDict("metadata")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "metadata",
+          dict->getvalFromDict("metadata")->Option.getOr(JSON.Encode.null),
+        )
 
         newDict->JSON.Encode.object
       })

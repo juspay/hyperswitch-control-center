@@ -142,56 +142,119 @@ let make = () => {
       let data = rawData->Array.map(item => {
         let dict = item->getDictFromJsonObject
         let newDict = Dict.make()
-        
+
         let currency = dict->getString("currency", "")
         let totalAmount = dict->getFloat("total_amount", 0.0)
         let refundAmount = dict->getFloat("refund_amount", 0.0)
 
-        let amountDivider = switch currency {
-        | "BHD" | "IQD" | "JOD" | "KWD" | "LYD" | "OMR" | "TND" => 1000.0
-        | "BIF" | "CLP" | "DJF" | "GNF" | "JPY" | "KMF" | "KRW" | "MGA" | "PYG" | "RWF" | "UGX" | "VND" | "VUV" | "XAF" | "XOF" | "XPF" => 1.0
-        | _ => 100.0
-        }
+        let formattedTotalAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
+          ~amount=totalAmount,
+          ~currency,
+        )
+        let formattedRefundAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
+          ~amount=refundAmount,
+          ~currency,
+        )
 
-        let formattedTotalAmount = totalAmount /. amountDivider
-        let formattedRefundAmount = refundAmount /. amountDivider
-
-        newDict->Dict.set("internal_reference_id", dict->getvalFromDict("internal_reference_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("refund_id", dict->getvalFromDict("refund_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payment_id", dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("merchant_id", dict->getvalFromDict("merchant_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("connector_transaction_id", dict->getvalFromDict("connector_transaction_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("connector", dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "internal_reference_id",
+          dict->getvalFromDict("internal_reference_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "refund_id",
+          dict->getvalFromDict("refund_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payment_id",
+          dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "merchant_id",
+          dict->getvalFromDict("merchant_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector_transaction_id",
+          dict->getvalFromDict("connector_transaction_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector",
+          dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null),
+        )
         newDict->Dict.set("total_amount", formattedTotalAmount->JSON.Encode.float)
-        newDict->Dict.set("currency", dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "currency",
+          dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null),
+        )
         newDict->Dict.set("refund_amount", formattedRefundAmount->JSON.Encode.float)
-        newDict->Dict.set("refund_status", dict->getvalFromDict("refund_status")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("connector_refund_id", dict->getvalFromDict("connector_refund_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("external_reference_id", dict->getvalFromDict("external_reference_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("refund_reason", dict->getvalFromDict("refund_reason")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("refund_type", dict->getvalFromDict("refund_type")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("sent_to_gateway", dict->getvalFromDict("sent_to_gateway")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("refund_error_message", dict->getvalFromDict("refund_error_message")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("metadata", dict->getvalFromDict("metadata")->Option.getOr(JSON.Encode.null))
-        
+        newDict->Dict.set(
+          "refund_status",
+          dict->getvalFromDict("refund_status")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector_refund_id",
+          dict->getvalFromDict("connector_refund_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "external_reference_id",
+          dict->getvalFromDict("external_reference_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "refund_reason",
+          dict->getvalFromDict("refund_reason")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "refund_type",
+          dict->getvalFromDict("refund_type")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "sent_to_gateway",
+          dict->getvalFromDict("sent_to_gateway")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "refund_error_message",
+          dict->getvalFromDict("refund_error_message")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "metadata",
+          dict->getvalFromDict("metadata")->Option.getOr(JSON.Encode.null),
+        )
+
         let createdAt = dict->getFloat("created_at", 0.0)
         if createdAt != 0.0 {
-          newDict->Dict.set("created_at", DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string)
+          newDict->Dict.set(
+            "created_at",
+            DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string,
+          )
         } else {
-           newDict->Dict.set("created_at", JSON.Encode.null)
+          newDict->Dict.set("created_at", JSON.Encode.null)
         }
 
         let modifiedAt = dict->getFloat("modified_at", 0.0)
         if modifiedAt != 0.0 {
-          newDict->Dict.set("modified_at", DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string)
+          newDict->Dict.set(
+            "modified_at",
+            DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string,
+          )
         } else {
-           newDict->Dict.set("modified_at", JSON.Encode.null)
+          newDict->Dict.set("modified_at", JSON.Encode.null)
         }
 
-        newDict->Dict.set("description", dict->getvalFromDict("description")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("attempt_id", dict->getvalFromDict("attempt_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("refund_error_code", dict->getvalFromDict("refund_error_code")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("profile_id", dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "description",
+          dict->getvalFromDict("description")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "attempt_id",
+          dict->getvalFromDict("attempt_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "refund_error_code",
+          dict->getvalFromDict("refund_error_code")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "profile_id",
+          dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null),
+        )
 
         newDict->JSON.Encode.object
       })

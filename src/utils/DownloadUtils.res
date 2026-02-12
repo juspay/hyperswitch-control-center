@@ -22,7 +22,7 @@ let downloadOld = (~fileName, ~content) => {
 
 let convertArrayToCSVWithCustomHeaders = (arr: array<JSON.t>, headers: array<string>) => {
   open LogicUtils
-  
+
   if arr->Array.length === 0 {
     headers->Array.joinWith(",") ++ "\n"
   } else {
@@ -54,8 +54,12 @@ let convertArrayToCSVWithCustomHeaders = (arr: array<JSON.t>, headers: array<str
             str
           | None => ""
           }
-          
-          if value->String.includes(",") || value->String.includes("\"") || value->String.includes("\n") {
+
+          if (
+            value->String.includes(",") ||
+            value->String.includes("\"") ||
+            value->String.includes("\n")
+          ) {
             let escapedValue = stringReplaceAll(value, "\"", "\"\"")
             `"${escapedValue}"`
           } else {

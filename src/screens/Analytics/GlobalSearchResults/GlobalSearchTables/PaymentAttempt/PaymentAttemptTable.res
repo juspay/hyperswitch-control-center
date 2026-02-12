@@ -140,64 +140,127 @@ let make = () => {
       let data = rawData->Array.map(item => {
         let dict = item->getDictFromJsonObject
         let newDict = Dict.make()
-        
+
         let currency = dict->getString("currency", "")
         let amount = dict->getFloat("amount", 0.0)
         let amountToCapture = dict->getFloat("amount_to_capture", 0.0)
 
-        let amountDivider = switch currency {
-        | "BHD" | "IQD" | "JOD" | "KWD" | "LYD" | "OMR" | "TND" => 1000.0
-        | "BIF" | "CLP" | "DJF" | "GNF" | "JPY" | "KMF" | "KRW" | "MGA" | "PYG" | "RWF" | "UGX" | "VND" | "VUV" | "XAF" | "XOF" | "XPF" => 1.0
-        | _ => 100.0
-        }
+        let formattedAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
+          ~amount,
+          ~currency,
+        )
+        let formattedAmountToCapture = CurrencyUtils.convertCurrencyFromLowestDenomination(
+          ~amount=amountToCapture,
+          ~currency,
+        )
 
-        let formattedAmount = amount /. amountDivider
-        let formattedAmountToCapture = amountToCapture /. amountDivider
-
-        newDict->Dict.set("payment_id", dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("attempt_id", dict->getvalFromDict("attempt_id")->Option.getOr(JSON.Encode.null)) // Using attempt_id directly here if available, or fall back logic
+        newDict->Dict.set(
+          "payment_id",
+          dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "attempt_id",
+          dict->getvalFromDict("attempt_id")->Option.getOr(JSON.Encode.null),
+        ) // Using attempt_id directly here if available, or fall back logic
         newDict->Dict.set("status", dict->getvalFromDict("status")->Option.getOr(JSON.Encode.null))
         newDict->Dict.set("amount", formattedAmount->JSON.Encode.float)
-        newDict->Dict.set("currency", dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("connector", dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null)) 
-        newDict->Dict.set("connector_transaction_id", dict->getvalFromDict("connector_transaction_id")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "currency",
+          dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector",
+          dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "connector_transaction_id",
+          dict->getvalFromDict("connector_transaction_id")->Option.getOr(JSON.Encode.null),
+        )
         newDict->Dict.set("amount_to_capture", formattedAmountToCapture->JSON.Encode.float)
-        
+
         let createdAt = dict->getFloat("created_at", 0.0)
         if createdAt != 0.0 {
-          newDict->Dict.set("created_at", DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string)
+          newDict->Dict.set(
+            "created_at",
+            DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string,
+          )
         } else {
-           newDict->Dict.set("created_at", JSON.Encode.null)
+          newDict->Dict.set("created_at", JSON.Encode.null)
         }
-        newDict->Dict.set("error_message", dict->getvalFromDict("error_message")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("capture_method", dict->getvalFromDict("capture_method")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("authentication_type", dict->getvalFromDict("authentication_type")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payment_method", dict->getvalFromDict("payment_method")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payment_method_type", dict->getvalFromDict("payment_method_type")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("business_sub_label", dict->getvalFromDict("business_sub_label")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payment_method_data", dict->getvalFromDict("payment_method_data")->Option.getOr(JSON.Encode.null))
-        let cardNetwork = dict->getJsonObjectFromDict("payment_method_data")->getDictFromJsonObject->getJsonObjectFromDict("card")->getDictFromJsonObject->getString("card_network", "")
+        newDict->Dict.set(
+          "error_message",
+          dict->getvalFromDict("error_message")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "capture_method",
+          dict->getvalFromDict("capture_method")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "authentication_type",
+          dict->getvalFromDict("authentication_type")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payment_method",
+          dict->getvalFromDict("payment_method")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payment_method_type",
+          dict->getvalFromDict("payment_method_type")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "business_sub_label",
+          dict->getvalFromDict("business_sub_label")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payment_method_data",
+          dict->getvalFromDict("payment_method_data")->Option.getOr(JSON.Encode.null),
+        )
+        let cardNetwork =
+          dict
+          ->getJsonObjectFromDict("payment_method_data")
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("card")
+          ->getDictFromJsonObject
+          ->getString("card_network", "")
         if cardNetwork != "" {
-             newDict->Dict.set("card_network", cardNetwork->JSON.Encode.string)
+          newDict->Dict.set("card_network", cardNetwork->JSON.Encode.string)
         } else {
-             newDict->Dict.set("card_network", JSON.Encode.null)
+          newDict->Dict.set("card_network", JSON.Encode.null)
         }
-        let cardHolderName = dict->getJsonObjectFromDict("payment_method_data")->getDictFromJsonObject->getJsonObjectFromDict("card")->getDictFromJsonObject->getString("card_holder_name", "")
+        let cardHolderName =
+          dict
+          ->getJsonObjectFromDict("payment_method_data")
+          ->getDictFromJsonObject
+          ->getJsonObjectFromDict("card")
+          ->getDictFromJsonObject
+          ->getString("card_holder_name", "")
         if cardHolderName != "" {
-             newDict->Dict.set("card_holder_name", cardHolderName->JSON.Encode.string)
+          newDict->Dict.set("card_holder_name", cardHolderName->JSON.Encode.string)
         } else {
-             newDict->Dict.set("card_holder_name", JSON.Encode.null)
+          newDict->Dict.set("card_holder_name", JSON.Encode.null)
         }
         let modifiedAt = dict->getFloat("modified_at", 0.0)
         if modifiedAt != 0.0 {
-          newDict->Dict.set("modified_at", DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string)
+          newDict->Dict.set(
+            "modified_at",
+            DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string,
+          )
         } else {
-           newDict->Dict.set("modified_at", JSON.Encode.null)
+          newDict->Dict.set("modified_at", JSON.Encode.null)
         }
 
-        newDict->Dict.set("error_code", dict->getvalFromDict("error_code")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("payment_method_id", dict->getvalFromDict("payment_method_id")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("profile_id", dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null))
+        newDict->Dict.set(
+          "error_code",
+          dict->getvalFromDict("error_code")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "payment_method_id",
+          dict->getvalFromDict("payment_method_id")->Option.getOr(JSON.Encode.null),
+        )
+        newDict->Dict.set(
+          "profile_id",
+          dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null),
+        )
 
         newDict->JSON.Encode.object
       })
