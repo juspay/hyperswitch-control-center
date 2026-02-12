@@ -6,6 +6,7 @@ let make = () => {
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)
   let mixpanelEvent = MixpanelHook.useSendEvent()
