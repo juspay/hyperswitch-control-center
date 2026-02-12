@@ -83,7 +83,7 @@ dev_customer=false
 dev_accept_invite=true
 dev_theme=false
 [default.connector_list_for_live]
-paymentProcessors = ["adyen","authorizedotnet","archipel","airwallex","bankofamerica","bluesnap","bambora","braintree","calida","checkout","cryptopay","cashtocode","cybersource","coingate","datatrans","fiuu","gigadat","iatapay","klarna","loonio","mifinity","mollie","nexixpay","nmi","novalnet","nuvei","paypal","paybox","payme","peachpayments","redsys","stripe","trustpay","volt","worldpay","worldpayxml","zift","zsl","zen","worldpaymodular","payjustnow","payjustnowinstore"]
+paymentProcessors = ["adyen","authorizedotnet","archipel","airwallex","bankofamerica","bluesnap","bambora","braintree","calida","checkout","cryptopay","cashtocode","cybersource","coingate","datatrans","fiuu","gigadat","iatapay","klarna","loonio","mifinity","mollie","nexixpay","nmi","novalnet","nuvei","paypal","paybox","payme","peachpayments","redsys","stripe","trustpay","volt","worldpay","worldpayxml","zift","zsl","zen","worldpaymodular","payjustnow","payjustnowinstore","payload","finix"]
 threedsAuthProcessors = ["netcetera","juspaythreedsserver","ctp_visa"]
 payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml"]
 vaultProcessors = ["vgs"]

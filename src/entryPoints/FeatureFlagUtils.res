@@ -184,13 +184,13 @@ let extractTypedConnectorValueFromConfig = (
   ~key,
   ~connectorType: ConnectorTypes.connector,
 ) => {
+  open LogicUtils
   let connectorArray =
     connectorDict
-    ->LogicUtils.getArrayFromDict(key, [])
+    ->getArrayFromDict(key, [])
     ->Array.map(item =>
       item
-      ->JSON.Decode.string
-      ->Option.getOr("")
+      ->getStringFromJson("")
       ->String.toLowerCase
       ->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
     )
