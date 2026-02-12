@@ -93,7 +93,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
   let (serverPath, baseHtmlRoute) = if appName == "embedded" {
-    ("dist/embedded", "index.html")
+    ("dist", "embedded/index.html")
   } else {
     ("dist/hyperswitch", "index.html")
   }

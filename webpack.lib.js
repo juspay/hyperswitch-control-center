@@ -57,8 +57,21 @@ const configMiddleware = (req, res, next) => {
   next();
 };
 
+const assetRewriteMiddleware = (req, _res, next) => {
+  if (req.path.startsWith("/embedded")) {
+    req.url = req.path.replace(/^\/embedded/, "");
+  } else if (
+    req.path.startsWith("/assets/") ||
+    req.path.startsWith("/lottie-files/")
+  ) {
+    req.url = `/embedded${req.path}`;
+  }
+  next();
+};
+
 const setupMiddlewares = (middlewares, devServer) => {
   devServer.app.use(configMiddleware);
+  devServer.app.use(assetRewriteMiddleware);
   return middlewares;
 };
 
@@ -157,7 +170,7 @@ const libBuild = () => {
     output: {
       path: path.resolve(__dirname, "dist", "embedded"),
       clean: true,
-      publicPath: "/",
+      publicPath: "/embedded/",
       filename: "[name].js",
       library: {
         name: "HyperswitchCC",
@@ -172,7 +185,7 @@ const libBuild = () => {
       port: DEV_SERVER_PORT,
       hot: true,
       historyApiFallback: {
-        rewrites: [{ from: /^\/embedded/, to: "/index.html" }],
+        rewrites: [{ from: /^\/embedded/, to: "/embedded/index.html" }],
       },
       proxy: proxyConfig,
       setupMiddlewares,
