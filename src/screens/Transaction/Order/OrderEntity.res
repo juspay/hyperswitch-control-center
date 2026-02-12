@@ -96,6 +96,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | ReferenceID => Text(attempt.reference_id)
   | ClientSource => Text(attempt.client_source)
   | ClientVersion => Text(attempt.client_version)
+  | HyperswitchErrorDescription => Text(attempt.hyperswitch_error_description->Option.getOr(""))
   }
 }
 
@@ -207,6 +208,7 @@ let attemptDetailsField = [
   ReferenceID,
   ClientSource,
   ClientVersion,
+  HyperswitchErrorDescription,
 ]
 
 let getRefundHeading = (refundsColType: refundsColType) => {
@@ -256,6 +258,12 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
   | ReferenceID => Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID")
   | ClientSource => Table.makeHeaderInfo(~key="client_source", ~title="Client Source")
   | ClientVersion => Table.makeHeaderInfo(~key="client_version", ~title="Client Version")
+  | HyperswitchErrorDescription =>
+    Table.makeHeaderInfo(
+      ~key="hyperswitch_error_description",
+      ~title="Hyperswitch Error Description",
+      ~description="This is a derived property by Hyperswitch based on the PSP and Issuer Errors(If available)",
+    )
   }
 }
 
@@ -780,7 +788,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | NextAction => Text(order.next_action)
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error.error_code)
-  | ErrorMessage => EllipsisText(order.error.error_message,"w-40")
+  | ErrorMessage => EllipsisText(order.error.error_message, "w-40")
   | ConnectorTransactionID =>
     CustomCell(
       <CopyTextCustomComp
