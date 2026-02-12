@@ -580,14 +580,12 @@ let ruleItemToObjMapper: Dict.t<JSON.t> => rulePayload = dict => {
     is_active: dict->getBool("is_active", false),
     profile_id: dict->getString("profile_id", ""),
     strategy: dict
-    ->getJsonObjectFromDict("strategy")
-    ->getDictFromJsonObject
+    ->getDictfromDict("strategy")
     ->reconStrategyMapper,
     created_at: dict->getString("created_at", ""),
     last_modified_at: dict->getString("last_modified_at", ""),
     aging_config: dict
-    ->getJsonObjectFromDict("aging_config")
-    ->getDictFromJsonObject
+    ->getDictfromDict("aging_config")
     ->agingConfigMapper,
   }
 }
