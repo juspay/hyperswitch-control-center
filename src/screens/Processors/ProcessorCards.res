@@ -151,8 +151,6 @@ let make = (
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
-          // Cap the max track width so pages with only 1-2 connectors (e.g. Tax, PM Auth) don't render
-          // giant stretched cards on wide screens.
           className="grid gap-x-5 gap-y-6 grid-cols-[repeat(auto-fit,minmax(min(16rem,100%),22rem))] justify-start mb-5 auto-rows-fr">
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
@@ -168,11 +166,11 @@ let make = (
               dataAttrStr=connectorName>
               <div className="flex flex-col gap-3 items-start">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                <p className={`${p1MediumTextStyle} break-words line-clamp-2 min-h-[2.5rem]`}>
+                <p className={`${p1MediumTextStyle} break-words line-clamp-2 min-h-2.5-rem`}>
                   {connectorName->getDisplayNameForConnector(~connectorType)->React.string}
                 </p>
               </div>
-              <p className="overflow-hidden text-gray-400 line-clamp-3 min-h-[4.5rem]">
+              <p className="overflow-hidden text-gray-400 line-clamp-3 min-h-4.5-rem">
                 {connectorInfo.description->React.string}
               </p>
               <ACLButton

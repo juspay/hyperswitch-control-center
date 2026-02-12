@@ -94,6 +94,8 @@ module.exports = {
         "750-px": "750px",
       },
       minHeight: {
+        "2.5-rem": "2.5rem",
+        "4.5-rem": "4.5rem",
         "500-px": "500px",
       },
       inset: {
@@ -149,7 +151,6 @@ module.exports = {
         "72-px": "72px",
       },
       maxWidth: {
-        // Allow dashboard content to grow on large screens, but stop at ~27" QHD width (2560px).
         fixedPageWidth: "160rem",
         860: "860px",
         600: "600px",
