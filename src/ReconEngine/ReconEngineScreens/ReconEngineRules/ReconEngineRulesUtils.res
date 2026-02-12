@@ -50,6 +50,14 @@ let getSearchIdentifiersWithAccounts = (
           target_account_name: getAccountName(data.target_account.account_id, accountData),
         },
       ]
+    | ManyMany(data) => [
+        {
+          search_identifier: data.search_identifier,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
     | UnknownOneToOneStrategy => []
     }
   | OneToMany(oneToMany) =>
@@ -103,6 +111,14 @@ let getMappingRulesWithAccounts = (
           target_account_name: getAccountName(data.target_account.account_id, accountData),
         },
       ]
+    | ManyMany(data) => [
+        {
+          match_rules: data.match_rules.rules,
+          target_account_id: data.target_account.account_id,
+          source_account_name: getAccountName(data.source_account.account_id, accountData),
+          target_account_name: getAccountName(data.target_account.account_id, accountData),
+        },
+      ]
     | UnknownOneToOneStrategy => []
     }
   | OneToMany(oneToMany) =>
@@ -132,6 +148,7 @@ let getTriggerData = (strategy: reconStrategyType): option<triggerType> => {
     | SingleSingle(data) => Some(data.source_account.trigger)
     | SingleMany(data) => Some(data.source_account.trigger)
     | ManySingle(data) => Some(data.source_account.trigger)
+    | ManyMany(data) => Some(data.source_account.trigger)
     | UnknownOneToOneStrategy => None
     }
   | OneToMany(oneToMany) =>
@@ -148,6 +165,7 @@ let getGroupingField = (strategy: reconStrategyType): option<string> => {
   | OneToOne(oneToOne) =>
     switch oneToOne {
     | ManySingle(data) => Some(data.source_account.grouping_field)
+    | ManyMany(data) => Some(data.source_account.grouping_field)
     | _ => None
     }
   | _ => None
@@ -170,6 +188,10 @@ let getSourceAndTargetAccountDetails = (strategy: reconStrategyType): (
         [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
       )
     | ManySingle(data) => (
+        data.source_account.account_id,
+        [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
+      )
+    | ManyMany(data) => (
         data.source_account.account_id,
         [{account_id: data.target_account.account_id, split_value: None, split_type: None}],
       )
@@ -372,11 +394,60 @@ let oneToOneManySingleMapper: Dict.t<JSON.t> => oneToOneManySingleType = dict =>
   }
 }
 
+let oneToOneManyManySourceMapper: Dict.t<JSON.t> => oneToOneManyManySourceType = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+    trigger: dict->getJsonObjectFromDict("trigger")->getDictFromJsonObject->triggerMapper,
+    grouping_field: dict->getString("grouping_field", ""),
+  }
+}
+
+let oneToOneManyManyTargetMapper: Dict.t<JSON.t> => oneToOneManyManyTargetType = dict => {
+  {
+    account_id: dict->getString("account_id", ""),
+  }
+}
+
+let oneToOneManyManyMapper: Dict.t<JSON.t> => oneToOneManyManyType = dict => {
+  {
+    search_identifier: dict
+    ->getJsonObjectFromDict("search_identifier")
+    ->getDictFromJsonObject
+    ->searchIdentifierMapper,
+    match_rules: dict
+    ->getJsonObjectFromDict("match_rules")
+    ->getDictFromJsonObject
+    ->matchRulesMapper,
+    source_account: dict
+    ->getJsonObjectFromDict("source_account")
+    ->getDictFromJsonObject
+    ->oneToOneManyManySourceMapper,
+    target_account: dict
+    ->getJsonObjectFromDict("target_account")
+    ->getDictFromJsonObject
+    ->oneToOneManyManyTargetMapper,
+  }
+}
+
 let getReconStrategyDisplayName = (strategy: reconStrategyType): string => {
   switch strategy {
-  | OneToOne(_) => "One to One Account"
-  | OneToMany(_) => "One to Many Account"
-  | UnknownReconStrategy => "Unknown"
+  | OneToOne(SingleSingle(_)) => "One to One Account + Single Single Transaction"
+  | OneToOne(SingleMany(_)) => "One to One Account + Single Many Transaction"
+  | OneToOne(ManySingle(_)) => "One to One Account + Many Single Transaction"
+  | OneToOne(ManyMany(_)) => "One to One Account + Many Many Transaction"
+  | OneToMany(SingleSingle(_)) => "One to Many Account + Single Single Transaction"
+  | UnknownReconStrategy
+  | OneToOne(UnknownOneToOneStrategy)
+  | OneToMany(UnknownOneToManyStrategy) => "Unknown"
+  }
+}
+
+let getReconAgingConfigDisplayName = (agingConfig: agingConfigType): string => {
+  switch agingConfig.aging_config_type {
+  | WithThreshold(threshold) =>
+    `${threshold.value->Int.toString} ${threshold.threshold_type->snakeToTitle}`
+  | NoAging => "No Aging"
+  | UnknownAgingConfigType => "Unknown"
   }
 }
 
@@ -385,6 +456,7 @@ let oneToOneStrategyMapper: Dict.t<JSON.t> => oneToOneStrategyType = dict => {
   | "single_single" => SingleSingle(dict->oneToOneSingleSingleMapper)
   | "single_many" => SingleMany(dict->oneToOneSingleManyMapper)
   | "many_single" => ManySingle(dict->oneToOneManySingleMapper)
+  | "many_many" => ManyMany(dict->oneToOneManyManyMapper)
   | _ => UnknownOneToOneStrategy
   }
 }
@@ -477,6 +549,28 @@ let reconStrategyMapper: Dict.t<JSON.t> => reconStrategyType = dict => {
   }
 }
 
+let agingConfigWithThresholdMapper: Dict.t<JSON.t> => agingConfigWithThreshold = dict => {
+  {
+    threshold_type: dict->getString("threshold_type", ""),
+    value: dict->getInt("value", 0),
+  }
+}
+
+let agingConfigMapper: Dict.t<JSON.t> => agingConfigType = dict => {
+  switch dict->getString("aging_config_type", "") {
+  | "with_threshold" => {
+      aging_config_type: WithThreshold(
+        dict
+        ->getJsonObjectFromDict("threshold")
+        ->getDictFromJsonObject
+        ->agingConfigWithThresholdMapper,
+      ),
+    }
+  | "no_aging" => {aging_config_type: NoAging}
+  | _ => {aging_config_type: UnknownAgingConfigType}
+  }
+}
+
 let ruleItemToObjMapper: Dict.t<JSON.t> => rulePayload = dict => {
   {
     rule_id: dict->getString("rule_id", ""),
@@ -491,5 +585,9 @@ let ruleItemToObjMapper: Dict.t<JSON.t> => rulePayload = dict => {
     ->reconStrategyMapper,
     created_at: dict->getString("created_at", ""),
     last_modified_at: dict->getString("last_modified_at", ""),
+    aging_config: dict
+    ->getJsonObjectFromDict("aging_config")
+    ->getDictFromJsonObject
+    ->agingConfigMapper,
   }
 }
