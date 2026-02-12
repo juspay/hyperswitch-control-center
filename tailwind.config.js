@@ -92,6 +92,7 @@ module.exports = {
         "25-rem": "25rem",
         "30-rem": "30rem",
         "750-px": "750px",
+        "890-px": "890px",
       },
       minHeight: {
         "500-px": "500px",
