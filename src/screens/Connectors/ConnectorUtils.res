@@ -175,6 +175,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYJUSTNOWINSTORE),
   Processors(AMAZONPAY),
   Processors(WORLDPAYMODULAR),
+  Processors(SANTANDER),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -193,6 +194,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(COINGATE),
   Processors(DATATRANS),
+  Processors(FINIX),
   Processors(FIUU),
   Processors(GIGADAT),
   Processors(IATAPAY),
@@ -206,6 +208,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(NUVEI),
   Processors(PAYPAL),
   Processors(PAYBOX),
+  Processors(PAYLOAD),
   Processors(PAYME),
   Processors(PEACHPAYMENTS),
   Processors(REDSYS),
@@ -235,6 +238,7 @@ let getPaymentMethodFromString = paymentMethod => {
   | "crypto" => Crypto
   | "bank_debit" => BankDebit
   | "network_token" => NetworkToken
+  | "voucher" => Voucher
   | _ => UnknownPaymentMethod(paymentMethod)
   }
 }
@@ -246,6 +250,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
+  | "pix" => Pix
+  | "boleto" => Boleto
   | "klarna" => Klarna
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
@@ -737,6 +743,33 @@ let riskifyedInfo = {
     },
   ],
 }
+
+let cyberSourceDecisionManagerInfo = {
+  description: "Comprehensive fraud management solution for businesses to detect and prevent fraudulent transactions in real-time.",
+  validate: [
+    {
+      placeholder: "Enter Api key",
+      label: "Api key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Merchant Id",
+      label: "Merchant Id",
+      name: "connector_account_details.key1",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Shared Secret",
+      label: "Shared Secret",
+      name: "connector_account_details.api_secret",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
 let archipelInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
 }
@@ -814,6 +847,11 @@ let amazonpayinfo = {
 let worldpayModularInfo = {
   description: "Worldpaymodular is a payment gateway and PSP enabling secure online transactions, It utilizes modular API's of WorldPay.",
 }
+
+let santanderInfo = {
+  description: "Banco Santander is a Spanish multinational financial services group founded in 1857, with a global retail and commercial banking presence across Europe and the Americas, serving millions of customers with banking, credit, investment, and payment services.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -922,6 +960,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYJUSTNOWINSTORE => "payjustnowinstore"
   | AMAZONPAY => "amazonpay"
   | WORLDPAYMODULAR => "worldpaymodular"
+  | SANTANDER => "santander"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -955,6 +994,7 @@ let getFRMNameString = (frm: frmTypes) => {
   switch frm {
   | Signifyd => "signifyd"
   | Riskifyed => "riskified"
+  | CybersourceDecisionManager => "cybersourcedecisionmanager"
   }
 }
 
@@ -1112,6 +1152,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "payjustnowinstore" => Processors(PAYJUSTNOWINSTORE)
     | "amazonpay" => Processors(AMAZONPAY)
     | "worldpaymodular" => Processors(WORLDPAYMODULAR)
+    | "santander" => Processors(SANTANDER)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1145,6 +1186,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
+    | "cybersourcedecisionmanager" => FRM(CybersourceDecisionManager)
     | _ => UnknownConnector("Not known")
     }
   | PMAuthenticationProcessor =>
@@ -1280,6 +1322,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | PAYJUSTNOWINSTORE => payjustnowInStoreInfo
   | AMAZONPAY => amazonpayinfo
   | WORLDPAYMODULAR => worldpayModularInfo
+  | SANTANDER => santanderInfo
   }
 }
 
@@ -1314,6 +1357,7 @@ let getFrmInfo = frm =>
   switch frm {
   | Signifyd => signifydInfo
   | Riskifyed => riskifyedInfo
+  | CybersourceDecisionManager => cyberSourceDecisionManagerInfo
   }
 
 let getOpenBankingProcessorInfo = (
@@ -2071,7 +2115,7 @@ let defaultSelectAllCards = (
           ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
-      | BankTransfer | BankRedirect => {
+      | BankRedirect => {
           let arr =
             config
             ->getArrayFromDict(val.payment_method_type, [])
@@ -2244,6 +2288,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ZIFT => "Zift"
   | AMAZONPAY => "Amazon Pay"
   | WORLDPAYMODULAR => "Worldpay Modular"
+  | SANTANDER => "Santander"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2277,6 +2322,7 @@ let getDisplayNameForFRMConnector = frmConnector =>
   switch frmConnector {
   | Signifyd => "Signifyd"
   | Riskifyed => "Riskified"
+  | CybersourceDecisionManager => "Cybersource Decision Manager"
   }
 
 let getDisplayNameForOpenBankingProcessor = pmAuthenticationConnector => {

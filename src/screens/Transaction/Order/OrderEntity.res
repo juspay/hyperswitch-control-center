@@ -304,6 +304,7 @@ let defaultColumns: array<colType> = [
   Description,
   Metadata,
   Created,
+  Modified,
 ]
 //Columns array for V1 Orders page
 let allColumnsV1 = [
@@ -316,6 +317,7 @@ let allColumnsV1 = [
   Connector,
   ConnectorTransactionID,
   Created,
+  Modified,
   Currency,
   CustomerId,
   Description,
@@ -374,6 +376,7 @@ let getHeading = (colType: colType) => {
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
+  | Modified => Table.makeHeaderInfo(~key="modified_at", ~title="Modified")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
@@ -751,6 +754,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | AmountReceived => Currency(order.amount_captured /. conversionFactor, order.currency)
   | ClientSecret => Text(order.client_secret)
   | Created => Date(order.created_at)
+  | Modified => Date(order.modified_at)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | Description => CustomCell(<EllipsisText displayValue={order.description} endValue={5} />, "")
@@ -776,7 +780,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | NextAction => Text(order.next_action)
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error.error_code)
-  | ErrorMessage => Text(order.error.error_message)
+  | ErrorMessage => EllipsisText(order.error.error_message,"w-40")
   | ConnectorTransactionID =>
     CustomCell(
       <CopyTextCustomComp
