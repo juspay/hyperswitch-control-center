@@ -127,7 +127,6 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        
         filters
         ->getOrdersList
         ->ignore
