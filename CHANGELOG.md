@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.13.0
+
+### Features
+
+- Recon engine add many many recon rule types ([#4215](https://github.com/juspay/hyperswitch-control-center/pull/4215)) ([`3b09922`](https://github.com/juspay/hyperswitch-control-center/commit/3b09922525cd7f3f06ffee8467879cea5612c3af))
+
+**Full Changelog:** [`2026.02.12.0...2026.02.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.12.0...2026.02.13.0)
+
+- - -
+
 ## 2026.02.12.0
 
 ### Features
