@@ -33,11 +33,17 @@ let make = () => {
     [
       {
         title: "Overview",
-        renderContent: () => <ReconEngineOverviewSummary reconRulesList />,
+        renderContent: () =>
+          <FilterContext key="recon-engine-overview-summary" index="recon-engine-overview-summary">
+            <ReconEngineOverviewSummary reconRulesList />
+          </FilterContext>,
       },
       ...reconRulesList->Array.map(ruleDetails => {
         title: ruleDetails.rule_name,
-        renderContent: () => <ReconEngineOverviewDetails ruleDetails />,
+        renderContent: () =>
+          <FilterContext key="recon-engine-overview-details" index="recon-engine-overview-details">
+            <ReconEngineOverviewDetails ruleDetails />
+          </FilterContext>,
       }),
     ]
   }, [reconRulesList])
