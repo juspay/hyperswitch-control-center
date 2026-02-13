@@ -143,3 +143,78 @@ let getTransactionStatusLabel = (status: domainTransactionStatus): string => {
   | _ => "bg-nd_gray-50 text-nd_gray_600"
   }
 }
+
+let getTransactionsTransformationHistoryPayloadFromDict = dict => {
+  dict->transformationHistoryItemToObjMapper
+}
+
+let getTransactionsIngestionHistoryPayloadFromDict = dict => {
+  dict->ingestionHistoryItemToObjMapper
+}
+
+let getTransactionsProcessingEntryPayloadFromDict = dict => {
+  dict->processingItemToObjMapper
+}
+
+let getLineageSections = (
+  ~ingestionHistoryData: ingestionHistoryType,
+  ~transformationHistoryData: transformationHistoryType,
+  ~processingEntry: processingEntryType,
+  ~entry: entryType,
+) => [
+  {
+    lineageSectionTitle: "Source",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "File Name",
+        lineageFieldValue: ingestionHistoryData.file_name,
+        lineageFileCopyable: false,
+      },
+      {
+        lineageFieldLabel: "Ingestion Id",
+        lineageFieldValue: ingestionHistoryData.ingestion_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+  {
+    lineageSectionTitle: "Transformation",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "Transformation Name",
+        lineageFieldValue: transformationHistoryData.transformation_name,
+        lineageFileCopyable: false,
+      },
+      {
+        lineageFieldLabel: "Transformation ID",
+        lineageFieldValue: transformationHistoryData.transformation_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+  {
+    lineageSectionTitle: "Transformed Entry",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "Transformed Entry Id",
+        lineageFieldValue: processingEntry.staging_entry_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+  {
+    lineageSectionTitle: "Entry",
+    lineageSectionFields: [
+      {
+        lineageFieldLabel: "Entry Id",
+        lineageFieldValue: entry.entry_id,
+        lineageFileCopyable: true,
+      },
+      {
+        lineageFieldLabel: "Order Id",
+        lineageFieldValue: entry.order_id,
+        lineageFileCopyable: true,
+      },
+    ],
+  },
+]
