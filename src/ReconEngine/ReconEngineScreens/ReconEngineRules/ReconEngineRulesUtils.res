@@ -427,7 +427,7 @@ let getReconStrategyDisplayName = (strategy: reconStrategyType): string => {
 }
 
 let getReconAgingConfigDisplayName = (agingConfig: agingConfigType): string => {
-  switch agingConfig.aging_config_type {
+  switch agingConfig {
   | WithThreshold(threshold) =>
     `${threshold.value->Int.toString} ${threshold.threshold_type->snakeToTitle}`
   | NoAging => "No Aging"
@@ -538,15 +538,10 @@ let agingConfigWithThresholdMapper: Dict.t<JSON.t> => agingConfigWithThreshold =
 
 let agingConfigMapper: Dict.t<JSON.t> => agingConfigType = dict => {
   switch dict->getString("aging_config_type", "") {
-  | "with_threshold" => {
-      aging_config_type: WithThreshold(
-        dict
-        ->getDictfromDict("threshold")
-        ->agingConfigWithThresholdMapper,
-      ),
-    }
-  | "no_aging" => {aging_config_type: NoAging}
-  | _ => {aging_config_type: UnknownAgingConfigType}
+  | "with_threshold" =>
+    WithThreshold(dict->getDictfromDict("threshold")->agingConfigWithThresholdMapper)
+  | "no_aging" => NoAging
+  | _ => UnknownAgingConfigType
   }
 }
 

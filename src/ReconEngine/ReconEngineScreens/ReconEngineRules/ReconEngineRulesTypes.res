@@ -144,10 +144,7 @@ type reconStrategyType =
 
 type agingConfigWithThreshold = {threshold_type: string, value: int}
 
-type agingConfigTypeVariant =
-  NoAging | WithThreshold(agingConfigWithThreshold) | UnknownAgingConfigType
-
-type agingConfigType = {aging_config_type: agingConfigTypeVariant}
+type agingConfigType = NoAging | WithThreshold(agingConfigWithThreshold) | UnknownAgingConfigType
 
 type rulePayload = {
   rule_id: string,
