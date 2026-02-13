@@ -94,6 +94,8 @@ module.exports = {
         "750-px": "750px",
       },
       minHeight: {
+        "2.5-rem": "2.5rem",
+        "4.5-rem": "4.5rem",
         "500-px": "500px",
       },
       inset: {
@@ -149,7 +151,7 @@ module.exports = {
         "72-px": "72px",
       },
       maxWidth: {
-        fixedPageWidth: "82.75rem",
+        fixedPageWidth: "160rem",
         860: "860px",
         600: "600px",
         700: "700px",
