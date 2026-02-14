@@ -100,7 +100,7 @@ module HyperSwitchEntryComponent = {
           )}` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        let connectorListForLive = res->FeatureFlagUtils.connectorListForLive
+        let connectorListForLive = res->ConnectorListForLiveFromConfigUtils.connectorListForLive
         setFeatureFlag(_ => featureFlags)
         setConnectorListForLive(_ => connectorListForLive)
         let configValues = configEnv(res) // to set initial env

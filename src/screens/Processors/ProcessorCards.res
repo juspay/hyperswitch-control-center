@@ -102,12 +102,7 @@ let make = (
     ~showDummyConnectorButton=false,
     (),
   ) => {
-    let connectorListSorted = if connectorList->Array.length > 0 {
-      let sortedConnectors = connectorList->Array.toSorted(sortByName)
-      sortedConnectors
-    } else {
-      connectorList
-    }
+    let connectorListSorted = connectorList->Array.toSorted(sortByName)
 
     <>
       <AddDataAttributes
