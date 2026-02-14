@@ -35,6 +35,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     vaultProcessor,
     devModularityV2,
     devTheme,
+    devUsers,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -102,6 +103,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~complianceCertificate,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
+      ~devUsers,
     ),
   ]
 }
@@ -232,6 +234,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         access: Access,
         selectedIcon: "nd-fill-home",
       }),
+      Link({
+        name: "Users",
+        icon: "nd-user",
+        link: "/users",
+        access: Access,
+        selectedIcon: "nd-user",
+      }),
       ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess),
       CustomComponent({
         component: <ProductHeaderComponent />,
@@ -245,6 +254,13 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         link: "/v2/home",
         access: Access,
         selectedIcon: "nd-fill-home",
+      }),
+      Link({
+        name: "Users",
+        icon: "nd-user",
+        link: "/users",
+        access: Access,
+        selectedIcon: "nd-user",
       }),
       CustomComponent({
         component: <ProductHeaderComponent />,
