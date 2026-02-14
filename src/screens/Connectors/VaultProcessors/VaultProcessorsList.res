@@ -6,7 +6,11 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let {vaultProcessorsLiveListFromConfig} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
@@ -48,7 +52,11 @@ let make = () => {
     getConnectorList()->ignore
     None
   }, [])
-
+  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
+    ? vaultProcessorsLiveListFromConfig->Array.length > 0
+        ? vaultProcessorsLiveListFromConfig
+        : ConnectorUtils.vaultProcessorList
+    : ConnectorUtils.vaultProcessorList
   <div>
     <PageUtils.PageHeading
       title={"Vault Processor"} subTitle={"Connect and configure Vault Processor"}
@@ -88,7 +96,7 @@ let make = () => {
             ConnectorTypes.VaultProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.vaultProcessorList
+          connectorsAvailableForIntegration
           urlPrefix="vault-processor/new"
           connectorType=ConnectorTypes.VaultProcessor
         />
