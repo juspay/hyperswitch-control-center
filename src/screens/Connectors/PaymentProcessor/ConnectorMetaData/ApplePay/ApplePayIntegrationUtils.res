@@ -98,6 +98,10 @@ let simplified = (dict, connector): simplified => {
   }
 }
 
+let predecryptFlow = (dict): option<bool> => {
+  dict->getOptionBool("support_predecrypted_token")
+}
+
 let zenApplePayConfig = dict => {
   {
     terminal_uuid: dict->getOptionString("terminal_uuid"),
@@ -109,17 +113,26 @@ let applePayCombined = (dict, applePayIntegrationType, connector: string) => {
   let data: applePayConfig = switch applePayIntegrationType {
   | #manual => #manual(dict->manual(connector))
   | #simplified => #simplified(dict->simplified(connector))
+  | #predecrypt => #predecrypt(dict->predecryptFlow)
   }
 
+  let supportPredecryptedToken = dict->getOptionBool("support_predecrypted_token")
+
   let dict = Dict.make()
+
   let _ = switch data {
   | #manual(data) =>
     dict->Dict.set((#manual: applePayIntegrationType :> string), data->Identity.genericTypeToJson)
+    dict->setOptionBool("support_predecrypted_token", supportPredecryptedToken)
+
   | #simplified(data) =>
     dict->Dict.set(
       (#simplified: applePayIntegrationType :> string),
       data->Identity.genericTypeToJson,
     )
+    dict->setOptionBool("support_predecrypted_token", supportPredecryptedToken)
+
+  | #predecrypt(_) => dict->Dict.set("support_predecrypted_token", true->JSON.Encode.bool)
   }
 
   dict
@@ -307,4 +320,5 @@ let getHeadingBasedOnApplePayFlow = applePayIntegrationFlow =>
   switch applePayIntegrationFlow {
   | #manual => "iOS Certificate"
   | #simplified => "Web Domain"
+  | #predecrypt => "Pre decrypted Token"
   }
