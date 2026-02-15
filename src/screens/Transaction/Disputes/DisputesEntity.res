@@ -102,18 +102,29 @@ let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
     )
   | PaymentId =>
     CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.payment_id)
-      />,
+      {
+        let displayVal = switch disputesData.payment_id->isNonEmptyString {
+        | true => Some(disputesData.payment_id)
+        | false => None
+        }
+
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=displayVal showEmptyAsNA=true
+        />
+      },
       "",
     )
   | AttemptId =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
-      />,
-      "",
-    )
+    if disputesData.attempt_id->isNonEmptyString {
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-36 truncate whitespace-nowrap" displayValue=Some(disputesData.attempt_id)
+        />,
+        "",
+      )
+    } else {
+      Text("NA")
+    }
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStatus =>
