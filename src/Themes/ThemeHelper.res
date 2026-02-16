@@ -242,7 +242,7 @@ module LineageFormContent = {
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-[50px] w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
             />
             <div
               className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
@@ -266,7 +266,7 @@ module LineageFormContent = {
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-[50px] w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
             />
             <div
               className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
@@ -281,7 +281,7 @@ module LineageFormContent = {
           </div>
           <div className="relative pl-16">
             <div
-              className="absolute left-12 top-0 bottom-0 h-[50px] w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
             />
             <div
               className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"

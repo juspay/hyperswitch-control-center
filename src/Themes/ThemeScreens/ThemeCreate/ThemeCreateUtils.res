@@ -1,0 +1,46 @@
+open ThemeTypes
+
+// TODO to update tenant_id once we get it from userinfo
+let createLineage = (~orgId, ~merchantId, ~profileId) => {
+  let entityType = SessionStorage.sessionStorage.getItem("entity_type")->Nullable.toOption
+  switch entityType->Option.getOr("")->UserInfoUtils.entityMapper {
+  | #Tenant => {
+      entity_type: "tenant",
+      tenant_id: "public",
+      org_id: None,
+      merchant_id: None,
+      profile_id: None,
+    }
+  | #Organization => {
+      entity_type: "organization",
+      tenant_id: "public",
+      org_id: Some(orgId),
+      merchant_id: None,
+      profile_id: None,
+    }
+  | #Merchant => {
+      Js.log("Creating lineage for merchant")
+      {
+        entity_type: "merchant",
+        tenant_id: "public",
+        org_id: Some(orgId),
+        merchant_id: Some(merchantId),
+        profile_id: None,
+      }
+    }
+  | #Profile => {
+      entity_type: "profile",
+      tenant_id: "public",
+      org_id: Some(orgId),
+      merchant_id: Some(merchantId),
+      profile_id: Some(profileId),
+    }
+  | _ => {
+      entity_type: "profile",
+      tenant_id: "public",
+      org_id: Some(orgId),
+      merchant_id: Some(merchantId),
+      profile_id: Some(profileId),
+    }
+  }
+}
