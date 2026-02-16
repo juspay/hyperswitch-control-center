@@ -90,6 +90,7 @@ type entityName =
   | HYPERSWITCH_RECON
   | CHAT_BOT
   | OIDC_AUTHORIZE
+  | PAYMENTS_LIST
 
 type v2entityNameType =
   | CUSTOMERS

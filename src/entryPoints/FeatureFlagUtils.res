@@ -72,6 +72,7 @@ type featureFlag = {
   vaultProcessor: bool,
   devTheme: bool,
   allowConnectedMerchants: bool,
+  devOpensearch: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -146,6 +147,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     vaultProcessor: dict->getBool("vault_processor", false),
     devTheme: dict->getBool("dev_theme", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
+    devOpensearch: dict->getBool("dev_opensearch", false),
   }
 }
 

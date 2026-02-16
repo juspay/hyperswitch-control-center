@@ -792,6 +792,17 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
         }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
+        }
       | PAYOUT_REPORT =>
         switch transactionEntity {
         | #Tenant
