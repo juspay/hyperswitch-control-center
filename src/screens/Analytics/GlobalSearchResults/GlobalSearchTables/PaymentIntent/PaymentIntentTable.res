@@ -145,7 +145,7 @@ let make = () => {
     <div className="flex justify-between items-center mb-4">
       <PageUtils.PageHeading title="Payment Intent" />
       <Button
-        text={`Export current page (${rawData->Array.length->Int.toString} records)`}
+        text={`Download (${rawData->Array.length->Int.toString} records)`}
         buttonType={Primary}
         leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
         onClick={_ => downloadData()}
