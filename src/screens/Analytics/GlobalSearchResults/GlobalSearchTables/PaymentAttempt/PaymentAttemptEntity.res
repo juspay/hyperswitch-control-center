@@ -14,7 +14,7 @@ type paymentAttemptObject = {
   statement_descriptor_name: string,
   statement_descriptor_suffix: string,
   created_at: float,
-  modified_at: int,
+  modified_at: float,
   last_synced: int,
   setup_future_usage: string,
   off_session: string,
@@ -55,6 +55,10 @@ type paymentAttemptObject = {
   client_version: string,
   profile_id: string,
   organization_id: string,
+  payment_method_data: JSON.t,
+  card_network: string,
+  card_holder_name: string,
+  error_code: string,
 }
 
 type cols =
@@ -112,6 +116,10 @@ type cols =
   | ClientVersion
   | ProfileId
   | OrganizationId
+  | PaymentMethodData
+  | CardNetwork
+  | CardHolderName
+  | ErrorCode
 
 let visibleColumns = [
   PaymentId,
@@ -181,11 +189,18 @@ let colMapper = (col: cols) => {
   | ClientVersion => "client_version"
   | ProfileId => "profile_id"
   | OrganizationId => "organization_id"
+  | PaymentMethodData => "payment_method_data"
+  | CardNetwork => "card_network"
+  | CardHolderName => "card_holder_name"
+  | ErrorCode => "error_code"
   }
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
   open LogicUtils
+
+  let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")->getDictFromJsonObject
+  let cardData = paymentMethodData->getJsonObjectFromDict("card")->getDictFromJsonObject
 
   {
     payment_id: dict->getString(PaymentId->colMapper, "NA"),
@@ -201,7 +216,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
     statement_descriptor_name: dict->getString(StatementDescriptorName->colMapper, "NA"),
     statement_descriptor_suffix: dict->getString(StatementDescriptorSuffix->colMapper, "NA"),
     created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
-    modified_at: dict->getInt(ModifiedAt->colMapper, 0),
+    modified_at: dict->getFloat(ModifiedAt->colMapper, 0.0),
     last_synced: dict->getInt(LastSynced->colMapper, 0),
     setup_future_usage: dict->getString(SetupFutureUsage->colMapper, "NA"),
     off_session: dict->getString(OffSession->colMapper, "NA"),
@@ -242,6 +257,10 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
     client_version: dict->getString(ClientVersion->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
     organization_id: dict->getString(OrganizationId->colMapper, "NA"),
+    payment_method_data: dict->getJsonObjectFromDict("payment_method_data"),
+    card_network: cardData->getString("card_network", "NA"),
+    card_holder_name: cardData->getString("card_holder_name", "NA"),
+    error_code: dict->getString(ErrorCode->colMapper, "NA"),
   }
 }
 
@@ -319,10 +338,15 @@ let getHeading = colType => {
   | ClientVersion => Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=TextType)
   | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
   | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
+  | PaymentMethodData =>
+    Table.makeHeaderInfo(~key, ~title="Payment Method Data", ~dataType=TextType)
+  | CardNetwork => Table.makeHeaderInfo(~key, ~title="Card Network", ~dataType=TextType)
+  | CardHolderName => Table.makeHeaderInfo(~key, ~title="Card Holder Name", ~dataType=TextType)
+  | ErrorCode => Table.makeHeaderInfo(~key, ~title="Error Code", ~dataType=TextType)
   }
 }
 
-let getCell = (paymentObj, colType): Table.cell => {
+let getCell = (paymentObj: paymentAttemptObject, colType): Table.cell => {
   let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(paymentObj.currency)
   switch colType {
   | PaymentId =>
@@ -332,7 +356,7 @@ let getCell = (paymentObj, colType): Table.cell => {
         displayValue={paymentObj.payment_id}
         copyValue={Some(paymentObj.payment_id)}
       />,
-      "",
+      paymentObj.payment_id,
     )
   | MerchantId => Text(paymentObj.merchant_id)
   | Status =>
@@ -367,7 +391,7 @@ let getCell = (paymentObj, colType): Table.cell => {
         amount={(paymentObj.amount /. conversionFactor)->Float.toString}
         currency={paymentObj.currency}
       />,
-      "",
+      (paymentObj.amount /. conversionFactor)->Float.toString,
     )
   | Currency => Text(paymentObj.currency)
   | AmountCaptured =>
@@ -376,7 +400,7 @@ let getCell = (paymentObj, colType): Table.cell => {
         amount={(paymentObj.amount_captured /. conversionFactor)->Float.toString}
         currency={paymentObj.currency}
       />,
-      "",
+      (paymentObj.amount_captured /. conversionFactor)->Float.toString,
     )
   | CustomerId => Text(paymentObj.customer_id)
   | Description => Text(paymentObj.description)
@@ -385,7 +409,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | StatementDescriptorName => Text(paymentObj.statement_descriptor_name)
   | StatementDescriptorSuffix => Text(paymentObj.statement_descriptor_suffix)
   | CreatedAt => Date(paymentObj.created_at->DateTimeUtils.unixToISOString)
-  | ModifiedAt => Text(paymentObj.modified_at->Int.toString)
+  | ModifiedAt => Date(paymentObj.modified_at->DateTimeUtils.unixToISOString)
   | LastSynced => Text(paymentObj.last_synced->Int.toString)
   | SetupFutureUsage => Text(paymentObj.setup_future_usage)
   | OffSession => Text(paymentObj.off_session)
@@ -412,7 +436,20 @@ let getCell = (paymentObj, colType): Table.cell => {
   | CaptureOn => Text(paymentObj.capture_on)
   | AuthenticationType => Text(paymentObj.authentication_type)
   | CancellationReason => Text(paymentObj.cancellation_reason)
-  | AmountToCapture => Text(paymentObj.amount_to_capture)
+  | AmountToCapture => {
+      let amountToCapture = paymentObj.amount_to_capture->LogicUtils.getFloatFromString(0.0)
+      let formattedAmountToCapture = CurrencyUtils.convertCurrencyFromLowestDenomination(
+        ~amount=amountToCapture,
+        ~currency=paymentObj.currency,
+      )
+      CustomCell(
+        <OrderEntity.CurrencyCell
+          amount={formattedAmountToCapture->Float.toString}
+          currency={paymentObj.currency}
+        />,
+        formattedAmountToCapture->Float.toString,
+      )
+    }
   | MandateId => Text(paymentObj.mandate_id)
   | PaymentMethodType => Text(paymentObj.payment_method_type)
   | PaymentExperience => Text(paymentObj.payment_experience)
@@ -426,6 +463,10 @@ let getCell = (paymentObj, colType): Table.cell => {
   | ClientVersion => Text(paymentObj.client_version)
   | ProfileId => Text(paymentObj.profile_id)
   | OrganizationId => Text(paymentObj.organization_id)
+  | PaymentMethodData => Text(paymentObj.payment_method_data->JSON.stringify)
+  | CardNetwork => Text(paymentObj.card_network)
+  | CardHolderName => Text(paymentObj.card_holder_name)
+  | ErrorCode => Text(paymentObj.error_code)
   }
 }
 
@@ -445,3 +486,74 @@ let tableEntity = EntityType.makeEntity(
       )
   },
 )
+
+let getColFromKey = (key: string): option<cols> => {
+  switch key {
+  | "payment_id" => Some(PaymentId)
+  | "attempt_id" => Some(AttemptId)
+  | "status" => Some(Status)
+  | "amount" => Some(Amount)
+  | "currency" => Some(Currency)
+  | "connector" => Some(Connector)
+  | "connector_transaction_id" => Some(ConnectorTransactionId)
+  | "amount_to_capture" => Some(AmountToCapture)
+  | "created_at" => Some(CreatedAt)
+  | "error_message" => Some(ErrorMessage)
+  | "capture_method" => Some(CaptureMethod)
+  | "authentication_type" => Some(AuthenticationType)
+  | "payment_method" => Some(PaymentMethod)
+  | "payment_method_type" => Some(PaymentMethodType)
+  | "payment_method_data" => Some(PaymentMethodData)
+  | "card_network" => Some(CardNetwork)
+  | "modified_at" => Some(ModifiedAt)
+  | "error_code" => Some(ErrorCode)
+  | "payment_method_id" => Some(PaymentMethodId)
+  | "card_holder_name" => Some(CardHolderName)
+  | "profile_id" => Some(ProfileId)
+  | _ => None
+  }
+}
+
+
+let allColumns = [
+  PaymentId,
+  AttemptId,
+  Status,
+  Amount,
+  Currency,
+  Connector,
+  ConnectorTransactionId,
+  AmountToCapture,
+  CreatedAt,
+  ErrorMessage,
+  CaptureMethod,
+  AuthenticationType,
+  PaymentMethod,
+  PaymentMethodType,
+  PaymentMethodData,
+  CardNetwork,
+  ModifiedAt,
+  ErrorCode,
+  PaymentMethodId,
+  CardHolderName,
+  ProfileId,
+]
+
+
+let csvHeaders = allColumns->Array.map(col => {
+  let {key, title} = col->getHeading
+  (key, title)
+})
+
+let itemToCSVMapping = (obj: paymentAttemptObject): JSON.t => {
+  let newDict = Dict.make()
+
+  allColumns->Array.forEach(col => {
+    let {key} = col->getHeading
+    let value = obj->getCell(col)->TableUtils.getTableCellValue
+    newDict->Dict.set(key, value->JSON.Encode.string)
+  })
+
+  newDict->JSON.Encode.object
+}
+

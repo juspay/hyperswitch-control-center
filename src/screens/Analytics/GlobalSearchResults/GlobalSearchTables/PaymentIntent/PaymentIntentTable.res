@@ -1,3 +1,4 @@
+open LogicUtils
 module PreviewTable = {
   @react.component
   let make = (~data) => {
@@ -46,6 +47,7 @@ module PreviewTable = {
 let make = () => {
   open APIUtils
   open PaymentIntentEntity
+  let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -111,122 +113,29 @@ let make = () => {
   }, (offset, searchText))
 
   let downloadData = () => {
-    open LogicUtils
     try {
-      let csvHeaders = [
-        "payment_id",
-        "attempt_id",
-        "status",
-        "amount",
-        "currency",
-        "customer_id",
-        "created_at",
-        "metadata",
-        "setup_future_usage",
-        "statement_descriptor_name",
-        "description",
-        "business_country",
-        "business_label",
-        "modified_at",
-        "merchant_order_reference_id",
-        "profile_id",
-      ]
-
-      let data = rawData->Array.map(item => {
-        let dict = item->getDictFromJsonObject
-        let newDict = Dict.make()
-
-        let currency = dict->getString("currency", "")
-        let amount = dict->getFloat("amount", 0.0)
-
-        let formattedAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
-          ~amount,
-          ~currency,
-        )
-
-        newDict->Dict.set(
-          "payment_id",
-          dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "attempt_id",
-          dict->getvalFromDict("active_attempt_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set("status", dict->getvalFromDict("status")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("amount", formattedAmount->JSON.Encode.float)
-        newDict->Dict.set(
-          "currency",
-          dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "customer_id",
-          dict->getvalFromDict("customer_id")->Option.getOr(JSON.Encode.null),
-        )
-
-        let createdAt = dict->getFloat("created_at", 0.0)
-        if createdAt != 0.0 {
-          newDict->Dict.set(
-            "created_at",
-            DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string,
-          )
-        } else {
-          newDict->Dict.set("created_at", JSON.Encode.null)
-        }
-
-        newDict->Dict.set(
-          "metadata",
-          dict->getvalFromDict("metadata")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "setup_future_usage",
-          dict->getvalFromDict("setup_future_usage")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "statement_descriptor_name",
-          dict->getvalFromDict("statement_descriptor_name")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "description",
-          dict->getvalFromDict("description")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "business_country",
-          dict->getvalFromDict("business_country")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "business_label",
-          dict->getvalFromDict("business_label")->Option.getOr(JSON.Encode.null),
-        )
-
-        let modifiedAt = dict->getFloat("modified_at", 0.0)
-        if modifiedAt != 0.0 {
-          newDict->Dict.set(
-            "modified_at",
-            DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string,
-          )
-        } else {
-          newDict->Dict.set("modified_at", JSON.Encode.null)
-        }
-        newDict->Dict.set(
-          "merchant_order_reference_id",
-          dict->getvalFromDict("merchant_order_reference_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "profile_id",
-          dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null),
-        )
-
-        newDict->JSON.Encode.object
+      let csvHeadersKeys = csvHeaders->Array.map(item => {
+        let (key, _) = item
+        key
+      })
+      let csvCustomHeaders = csvHeaders->Array.map(item => {
+        let (_, title) = item
+        title
       })
 
-      let csvContent = data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeaders)
+      let data = rawData->Array.map(item => {
+        item->getDictFromJsonObject->tableItemToObjMapper->itemToCSVMapping
+      })
+
+      let csvContent =
+        data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeadersKeys, csvCustomHeaders)
       DownloadUtils.download(
-        ~fileName=`payment_intents_${searchText}.csv`,
+        ~fileName={`payment_intents_${searchText}.csv`},
         ~content=csvContent,
         ~fileType="text/csv",
       )
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to download CSV", ~toastType=ToastError)
     }
   }
 
@@ -236,7 +145,7 @@ let make = () => {
     <div className="flex justify-between items-center mb-4">
       <PageUtils.PageHeading title="Payment Intent" />
       <Button
-        text="Download"
+        text={`Export current page (${rawData->Array.length->Int.toString} records)`}
         buttonType={Primary}
         leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
         onClick={_ => downloadData()}

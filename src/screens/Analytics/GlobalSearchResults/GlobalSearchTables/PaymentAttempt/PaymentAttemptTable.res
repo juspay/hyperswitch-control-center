@@ -1,3 +1,4 @@
+open LogicUtils
 module PreviewTable = {
   open PaymentAttemptEntity
   open GlobalSearchTypes
@@ -46,6 +47,7 @@ module PreviewTable = {
 let make = () => {
   open APIUtils
   open PaymentAttemptEntity
+  let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -111,168 +113,29 @@ let make = () => {
   }, (offset, searchText))
 
   let downloadData = () => {
-    open LogicUtils
     try {
-      let csvHeaders = [
-        "payment_id",
-        "attempt_id",
-        "status",
-        "amount",
-        "currency",
-        "connector",
-        "connector_transaction_id",
-        "amount_to_capture",
-        "created_at",
-        "error_message",
-        "capture_method",
-        "authentication_type",
-        "payment_method",
-        "payment_method_type",
-        "payment_method_data",
-        "card_network",
-        "modified_at",
-        "error_code",
-        "payment_method_id",
-        "card_holder_name",
-        "profile_id",
-      ]
-
-      let data = rawData->Array.map(item => {
-        let dict = item->getDictFromJsonObject
-        let newDict = Dict.make()
-
-        let currency = dict->getString("currency", "")
-        let amount = dict->getFloat("amount", 0.0)
-        let amountToCapture = dict->getFloat("amount_to_capture", 0.0)
-
-        let formattedAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
-          ~amount,
-          ~currency,
-        )
-        let formattedAmountToCapture = CurrencyUtils.convertCurrencyFromLowestDenomination(
-          ~amount=amountToCapture,
-          ~currency,
-        )
-
-        newDict->Dict.set(
-          "payment_id",
-          dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "attempt_id",
-          dict->getvalFromDict("attempt_id")->Option.getOr(JSON.Encode.null),
-        ) // Using attempt_id directly here if available, or fall back logic
-        newDict->Dict.set("status", dict->getvalFromDict("status")->Option.getOr(JSON.Encode.null))
-        newDict->Dict.set("amount", formattedAmount->JSON.Encode.float)
-        newDict->Dict.set(
-          "currency",
-          dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector",
-          dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector_transaction_id",
-          dict->getvalFromDict("connector_transaction_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set("amount_to_capture", formattedAmountToCapture->JSON.Encode.float)
-
-        let createdAt = dict->getFloat("created_at", 0.0)
-        if createdAt != 0.0 {
-          newDict->Dict.set(
-            "created_at",
-            DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string,
-          )
-        } else {
-          newDict->Dict.set("created_at", JSON.Encode.null)
-        }
-        newDict->Dict.set(
-          "error_message",
-          dict->getvalFromDict("error_message")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "capture_method",
-          dict->getvalFromDict("capture_method")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "authentication_type",
-          dict->getvalFromDict("authentication_type")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "payment_method",
-          dict->getvalFromDict("payment_method")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "payment_method_type",
-          dict->getvalFromDict("payment_method_type")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "business_sub_label",
-          dict->getvalFromDict("business_sub_label")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "payment_method_data",
-          dict->getvalFromDict("payment_method_data")->Option.getOr(JSON.Encode.null),
-        )
-        let cardNetwork =
-          dict
-          ->getJsonObjectFromDict("payment_method_data")
-          ->getDictFromJsonObject
-          ->getJsonObjectFromDict("card")
-          ->getDictFromJsonObject
-          ->getString("card_network", "")
-        if cardNetwork != "" {
-          newDict->Dict.set("card_network", cardNetwork->JSON.Encode.string)
-        } else {
-          newDict->Dict.set("card_network", JSON.Encode.null)
-        }
-        let cardHolderName =
-          dict
-          ->getJsonObjectFromDict("payment_method_data")
-          ->getDictFromJsonObject
-          ->getJsonObjectFromDict("card")
-          ->getDictFromJsonObject
-          ->getString("card_holder_name", "")
-        if cardHolderName != "" {
-          newDict->Dict.set("card_holder_name", cardHolderName->JSON.Encode.string)
-        } else {
-          newDict->Dict.set("card_holder_name", JSON.Encode.null)
-        }
-        let modifiedAt = dict->getFloat("modified_at", 0.0)
-        if modifiedAt != 0.0 {
-          newDict->Dict.set(
-            "modified_at",
-            DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string,
-          )
-        } else {
-          newDict->Dict.set("modified_at", JSON.Encode.null)
-        }
-
-        newDict->Dict.set(
-          "error_code",
-          dict->getvalFromDict("error_code")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "payment_method_id",
-          dict->getvalFromDict("payment_method_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "profile_id",
-          dict->getvalFromDict("profile_id")->Option.getOr(JSON.Encode.null),
-        )
-
-        newDict->JSON.Encode.object
+      let csvHeadersKeys = csvHeaders->Array.map(item => {
+        let (key, _) = item
+        key
+      })
+      let csvCustomHeaders = csvHeaders->Array.map(item => {
+        let (_, title) = item
+        title
       })
 
-      let csvContent = data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeaders)
+      let data = rawData->Array.map(item => {
+        item->getDictFromJsonObject->tableItemToObjMapper->itemToCSVMapping
+      })
+
+      let csvContent =
+        data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeadersKeys, csvCustomHeaders)
       DownloadUtils.download(
-        ~fileName=`payment_attempts_${searchText}.csv`,
+        ~fileName={`payment_attempts_${searchText}.csv`},
         ~content=csvContent,
         ~fileType="text/csv",
       )
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to download CSV", ~toastType=ToastError)
     }
   }
 
@@ -281,7 +144,7 @@ let make = () => {
     <div className="flex justify-between items-center mb-4">
       <PageUtils.PageHeading title="Payment Attempt" />
       <Button
-        text="Download"
+        text={`Export current page (${rawData->Array.length->Int.toString} records)`}
         buttonType={Primary}
         leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
         onClick={_ => downloadData()}

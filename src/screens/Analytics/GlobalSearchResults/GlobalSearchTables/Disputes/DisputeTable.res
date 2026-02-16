@@ -1,3 +1,4 @@
+open LogicUtils
 module PreviewTable = {
   open DisputeTableEntity
   open ResultsTableUtils
@@ -46,6 +47,7 @@ module PreviewTable = {
 let make = () => {
   open APIUtils
   open DisputeTableEntity
+  let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -111,118 +113,29 @@ let make = () => {
   }, (offset, searchText))
 
   let downloadData = () => {
-    open LogicUtils
     try {
-      let csvHeaders = [
-        "dispute_id",
-        "payment_id",
-        "connector_dispute_id",
-        "connector",
-        "amount",
-        "currency",
-        "dispute_stage",
-        "dispute_status",
-        "connector_status",
-        "connector_reason",
-        "connector_reason_code",
-        "created_at",
-        "modified_at",
-        "challenge_required_by",
-        "evidence",
-      ]
-
-      let data = rawData->Array.map(item => {
-        let dict = item->getDictFromJsonObject
-        let newDict = Dict.make()
-
-        let currency = dict->getString("currency", "")
-        let amount = dict->getFloat("amount", 0.0)
-        let formattedAmount = CurrencyUtils.convertCurrencyFromLowestDenomination(
-          ~amount,
-          ~currency,
-        )
-
-        newDict->Dict.set(
-          "dispute_id",
-          dict->getvalFromDict("dispute_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "payment_id",
-          dict->getvalFromDict("payment_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector_dispute_id",
-          dict->getvalFromDict("connector_dispute_id")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector",
-          dict->getvalFromDict("connector")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set("amount", formattedAmount->JSON.Encode.float)
-        newDict->Dict.set(
-          "currency",
-          dict->getvalFromDict("currency")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "dispute_stage",
-          dict->getvalFromDict("dispute_stage")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "dispute_status",
-          dict->getvalFromDict("dispute_status")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector_status",
-          dict->getvalFromDict("connector_status")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector_reason",
-          dict->getvalFromDict("connector_reason")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "connector_reason_code",
-          dict->getvalFromDict("connector_reason_code")->Option.getOr(JSON.Encode.null),
-        )
-
-        let createdAt = dict->getFloat("created_at", 0.0)
-        if createdAt != 0.0 {
-          newDict->Dict.set(
-            "created_at",
-            DateTimeUtils.unixToISOString(createdAt)->JSON.Encode.string,
-          )
-        } else {
-          newDict->Dict.set("created_at", JSON.Encode.null)
-        }
-
-        let modifiedAt = dict->getFloat("modified_at", 0.0)
-        if modifiedAt != 0.0 {
-          newDict->Dict.set(
-            "modified_at",
-            DateTimeUtils.unixToISOString(modifiedAt)->JSON.Encode.string,
-          )
-        } else {
-          newDict->Dict.set("modified_at", JSON.Encode.null)
-        }
-        newDict->Dict.set(
-          "challenge_required_by",
-          dict->getvalFromDict("challenge_required_by")->Option.getOr(JSON.Encode.null),
-        )
-        newDict->Dict.set(
-          "evidence",
-          dict->getvalFromDict("evidence")->Option.getOr(JSON.Encode.null),
-        )
-
-        newDict->JSON.Encode.object
+      let csvHeadersKeys = csvHeaders->Array.map(item => {
+        let (key, _) = item
+        key
+      })
+      let csvCustomHeaders = csvHeaders->Array.map(item => {
+        let (_, title) = item
+        title
       })
 
-      let csvContent = data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeaders)
+      let data = rawData->Array.map(item => {
+        item->getDictFromJsonObject->tableItemToObjMapper->itemToCSVMapping
+      })
+
+      let csvContent =
+        data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeadersKeys, csvCustomHeaders)
       DownloadUtils.download(
-        ~fileName=`disputes_${searchText}.csv`,
+        ~fileName={`disputes_${searchText}.csv`},
         ~content=csvContent,
         ~fileType="text/csv",
       )
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to download CSV", ~toastType=ToastError)
     }
   }
 
@@ -232,7 +145,7 @@ let make = () => {
     <div className="flex justify-between items-center mb-4">
       <PageUtils.PageHeading title="Disputes" />
       <Button
-        text="Download"
+        text={`Export current page (${rawData->Array.length->Int.toString} records)`}
         buttonType={Primary}
         leftIcon={Button.CustomIcon(<Icon name="nd-download-bar-down" size=16 />)}
         onClick={_ => downloadData()}

@@ -14,62 +14,38 @@ let download = (~fileName, ~content, ~fileType) => {
   a->Webapi.Dom.Element.setAttribute("download", fileName)
   a->clickElement
 }
-type imageType = [#svg | #png | #jpeg | #jpg]
+
+@module("papaparse")
+external unparse: {"fields": array<string>, "data": array<array<string>>} => string = "unparse"
 
 let downloadOld = (~fileName, ~content) => {
   download(~fileName, ~content, ~fileType="text/plain")
 }
 
-let convertArrayToCSVWithCustomHeaders = (arr: array<JSON.t>, headers: array<string>) => {
+let getJsonString = json => {
+  switch json->JSON.Classify.classify {
+  | String(s) => s
+  | Number(f) => f->Float.toString
+  | Bool(b) => b ? "true" : "false"
+  | _ => json == JSON.Encode.null ? "" : JSON.stringify(json)
+  }
+}
+
+let convertArrayToCSVWithCustomHeaders = (
+  arr: array<JSON.t>,
+  headers: array<string>,
+  customHeaders: array<string>,
+) => {
   open LogicUtils
 
-  if arr->Array.length === 0 {
-    headers->Array.joinWith(",") ++ "\n"
-  } else {
-    let rows =
-      arr
-      ->Array.map(item => {
-        let dict = item->getDictFromJsonObject
-        headers
-        ->Array.map(key => {
-          let value = switch dict->Dict.get(key) {
-          | Some(json) =>
-            let str = switch json->JSON.Decode.string {
-            | Some(s) => s
-            | None =>
-              switch json->JSON.Decode.float {
-              | Some(f) => f->Float.toString
-              | None =>
-                switch json->JSON.Decode.bool {
-                | Some(b) => b ? "true" : "false"
-                | None =>
-                  if json == JSON.Encode.null {
-                    ""
-                  } else {
-                    JSON.stringify(json)
-                  }
-                }
-              }
-            }
-            str
-          | None => ""
-          }
+  let fields = customHeaders->Array.length > 0 ? customHeaders : headers
 
-          if (
-            value->String.includes(",") ||
-            value->String.includes("\"") ||
-            value->String.includes("\n")
-          ) {
-            let escapedValue = stringReplaceAll(value, "\"", "\"\"")
-            `"${escapedValue}"`
-          } else {
-            value
-          }
-        })
-        ->Array.joinWith(",")
-      })
-      ->Array.joinWith("\n")
+  let data = arr->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    headers->Array.map(key => {
+      dict->Dict.get(key)->Option.mapOr("", getJsonString)
+    })
+  })
 
-    headers->Array.joinWith(",") ++ "\n" ++ rows
-  }
+  unparse({"fields": fields, "data": data})
 }

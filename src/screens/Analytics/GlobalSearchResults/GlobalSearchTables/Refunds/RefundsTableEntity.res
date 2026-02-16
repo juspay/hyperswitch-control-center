@@ -18,7 +18,7 @@ type refundsObject = {
   refund_error_message: string,
   refund_arn: string,
   created_at: float,
-  modified_at: int,
+  modified_at: float,
   description: string,
   attempt_id: string,
   refund_reason: string,
@@ -27,6 +27,7 @@ type refundsObject = {
   timestamp: string,
   profile_id: string,
   organization_id: string,
+  metadata: JSON.t,
 }
 
 type cols =
@@ -42,7 +43,7 @@ type cols =
   | TotalAmount
   | Currency
   | RefundAmount
-  | Refundstatus
+  | RefundStatus
   | SentToGateway
   | RefundErrorMessage
   | RefundArn
@@ -56,11 +57,12 @@ type cols =
   | Timestamp
   | ProfileId
   | OrganizationId
+  | Metadata
 
 let visibleColumns = [
   RefundId,
   PaymentId,
-  Refundstatus,
+  RefundStatus,
   TotalAmount,
   Currency,
   Connector,
@@ -81,7 +83,7 @@ let colMapper = (col: cols) => {
   | TotalAmount => "total_amount"
   | Currency => "currency"
   | RefundAmount => "refund_amount"
-  | Refundstatus => "refund_status"
+  | RefundStatus => "refund_status"
   | SentToGateway => "sent_to_gateway"
   | RefundErrorMessage => "refund_error_message"
   | RefundArn => "refund_arn"
@@ -95,6 +97,7 @@ let colMapper = (col: cols) => {
   | Timestamp => "timestamp"
   | ProfileId => "profile_id"
   | OrganizationId => "organization_id"
+  | Metadata => "metadata"
   }
 }
 
@@ -114,13 +117,14 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     total_amount: dict->getFloat(TotalAmount->colMapper, 0.0),
     currency: dict->getString(Currency->colMapper, "NA"),
     refund_amount: dict->getFloat(RefundAmount->colMapper, 0.0),
-    refund_status: dict->getString(Refundstatus->colMapper, "NA"),
+    refund_status: dict->getString(RefundStatus->colMapper, "NA"),
     sent_to_gateway: dict->getBool(SentToGateway->colMapper, false),
     refund_error_message: dict->getString(RefundErrorMessage->colMapper, "NA"),
     refund_arn: dict->getString(RefundArn->colMapper, "NA"),
     created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
-    modified_at: dict->getInt(ModifiedAt->colMapper, 0),
+    modified_at: dict->getFloat(ModifiedAt->colMapper, 0.0),
     description: dict->getString(Description->colMapper, "NA"),
+
     attempt_id: dict->getString(AttemptId->colMapper, "NA"),
     refund_reason: dict->getString(RefundReason->colMapper, "NA"),
     refund_error_code: dict->getString(RefundErrorCode->colMapper, "NA"),
@@ -128,6 +132,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
     organization_id: dict->getString(OrganizationId->colMapper, "NA"),
+    metadata: dict->getJsonObjectFromDict("metadata"),
   }
 }
 
@@ -159,7 +164,7 @@ let getHeading = colType => {
   | TotalAmount => Table.makeHeaderInfo(~key, ~title="Total Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
   | RefundAmount => Table.makeHeaderInfo(~key, ~title="Refund Amount", ~dataType=TextType)
-  | Refundstatus => Table.makeHeaderInfo(~key, ~title="Refund Status", ~dataType=TextType)
+  | RefundStatus => Table.makeHeaderInfo(~key, ~title="Refund Status", ~dataType=TextType)
   | SentToGateway => Table.makeHeaderInfo(~key, ~title="Sent To Gateway", ~dataType=TextType)
   | RefundErrorMessage =>
     Table.makeHeaderInfo(~key, ~title="Refund Error Message", ~dataType=TextType)
@@ -174,10 +179,12 @@ let getHeading = colType => {
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType)
   | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
   | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
+  | Metadata => Table.makeHeaderInfo(~key, ~title="Metadata", ~dataType=TextType)
   }
 }
 
-let getCell = (refundsObj, colType): Table.cell => {
+let getCell = (refundsObj: refundsObject, colType): Table.cell => {
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(refundsObj.currency)
   switch colType {
   | InternalReferenceId => Text(refundsObj.internal_reference_id)
   | RefundId =>
@@ -187,7 +194,7 @@ let getCell = (refundsObj, colType): Table.cell => {
         displayValue={refundsObj.refund_id}
         copyValue={Some(refundsObj.refund_id)}
       />,
-      "",
+      refundsObj.refund_id,
     )
   | PaymentId => Text(refundsObj.payment_id)
   | MerchantId => Text(refundsObj.merchant_id)
@@ -199,19 +206,21 @@ let getCell = (refundsObj, colType): Table.cell => {
   | TotalAmount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(refundsObj.total_amount /. 100.0)->Float.toString} currency={refundsObj.currency}
+        amount={(refundsObj.total_amount /. conversionFactor)->Float.toString}
+        currency={refundsObj.currency}
       />,
-      "",
+      (refundsObj.total_amount /. conversionFactor)->Float.toString,
     )
   | Currency => Text(refundsObj.currency)
   | RefundAmount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(refundsObj.refund_amount /. 100.0)->Float.toString} currency={refundsObj.currency}
+        amount={(refundsObj.refund_amount /. conversionFactor)->Float.toString}
+        currency={refundsObj.currency}
       />,
-      "",
+      (refundsObj.refund_amount /. conversionFactor)->Float.toString,
     )
-  | Refundstatus =>
+  | RefundStatus =>
     let refundStatus = refundsObj.refund_status->HSwitchOrderUtils.refundStatusVariantMapper
     Label({
       title: refundsObj.refund_status->String.toUpperCase,
@@ -226,7 +235,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | RefundErrorMessage => Text(refundsObj.refund_error_message)
   | RefundArn => Text(refundsObj.refund_arn)
   | CreatedAt => Date(refundsObj.created_at->DateTimeUtils.unixToISOString)
-  | ModifiedAt => Text(refundsObj.modified_at->Int.toString)
+  | ModifiedAt => Date(refundsObj.modified_at->DateTimeUtils.unixToISOString)
   | Description => Text(refundsObj.description)
   | AttemptId => Text(refundsObj.attempt_id)
   | RefundReason => Text(refundsObj.refund_reason)
@@ -235,6 +244,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | Timestamp => Date(refundsObj.timestamp)
   | ProfileId => Text(refundsObj.profile_id)
   | OrganizationId => Text(refundsObj.organization_id)
+  | Metadata => Text(refundsObj.metadata->JSON.stringify)
   }
 }
 
@@ -254,3 +264,76 @@ let tableEntity = EntityType.makeEntity(
       )
   },
 )
+
+let getColFromKey = (key: string): option<cols> => {
+  switch key {
+  | "internal_reference_id" => Some(InternalReferenceId)
+  | "refund_id" => Some(RefundId)
+  | "payment_id" => Some(PaymentId)
+  | "merchant_id" => Some(MerchantId)
+  | "connector_transaction_id" => Some(ConnectorTransactionId)
+  | "connector" => Some(Connector)
+  | "total_amount" => Some(TotalAmount)
+  | "currency" => Some(Currency)
+  | "refund_amount" => Some(RefundAmount)
+  | "refund_status" => Some(RefundStatus)
+  | "connector_refund_id" => Some(ConnectorRefundId)
+  | "external_reference_id" => Some(ExternalReferenceId)
+  | "refund_reason" => Some(RefundReason)
+  | "refund_type" => Some(RefundType)
+  | "sent_to_gateway" => Some(SentToGateway)
+  | "refund_error_message" => Some(RefundErrorMessage)
+  | "metadata" => Some(Metadata)
+  | "created_at" => Some(CreatedAt)
+  | "modified_at" => Some(ModifiedAt)
+  | "description" => Some(Description)
+  | "attempt_id" => Some(AttemptId)
+  | "refund_error_code" => Some(RefundErrorCode)
+  | "profile_id" => Some(ProfileId)
+  | _ => None
+  }
+}
+
+let allColumns = [
+  InternalReferenceId,
+  RefundId,
+  PaymentId,
+  MerchantId,
+  ConnectorTransactionId,
+  Connector,
+  TotalAmount,
+  Currency,
+  RefundAmount,
+  RefundStatus,
+  ConnectorRefundId,
+  ExternalReferenceId,
+  RefundReason,
+  RefundType,
+  SentToGateway,
+  RefundErrorMessage,
+  Metadata,
+  CreatedAt,
+  ModifiedAt,
+  Description,
+  AttemptId,
+  RefundErrorCode,
+  ProfileId,
+]
+
+let csvHeaders = allColumns->Array.map(col => {
+  let {key, title} = col->getHeading
+  (key, title)
+})
+
+let itemToCSVMapping = (obj: refundsObject): JSON.t => {
+  let newDict = Dict.make()
+
+  allColumns->Array.forEach(col => {
+    let {key} = col->getHeading
+    let value = obj->getCell(col)->TableUtils.getTableCellValue
+    newDict->Dict.set(key, value->JSON.Encode.string)
+  })
+
+  newDict->JSON.Encode.object
+}
+

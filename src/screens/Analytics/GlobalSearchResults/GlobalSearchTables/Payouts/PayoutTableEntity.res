@@ -8,7 +8,8 @@ type payoutsObject = {
   connector_payout_id: string,
   status: string,
   amount: float,
-  currency: string,
+  source_currency: string,
+  destination_currency: string,
   payout_type: string,
   confirm: bool,
   attempt_count: int,
@@ -32,8 +33,8 @@ type payoutsObject = {
   entity_type: string,
   created_at: float,
   last_modified_at: float,
-  additional_payout_method_data: option<JSON.t>,
-  metadata: option<JSON.t>,
+  additional_payout_method_data: JSON.t,
+  metadata: JSON.t,
 }
 
 type cols =
@@ -44,7 +45,8 @@ type cols =
   | ConnectorPayoutId
   | Status
   | Amount
-  | Currency
+  | SourceCurrency
+  | DestinationCurrency
   | PayoutType
   | Confirm
   | AttemptCount
@@ -71,7 +73,15 @@ type cols =
   | AdditionalPayoutMethodData
   | Metadata
 
-let visibleColumns = [PayoutId, PayoutAttemptId, Amount, Currency, Status, Connector, CreatedAt]
+let visibleColumns = [
+  PayoutId,
+  PayoutAttemptId,
+  Amount,
+  DestinationCurrency,
+  Status,
+  Connector,
+  CreatedAt,
+]
 
 let colMapper = (col: cols) => {
   switch col {
@@ -82,7 +92,8 @@ let colMapper = (col: cols) => {
   | ConnectorPayoutId => "connector_payout_id"
   | Status => "status"
   | Amount => "amount"
-  | Currency => "destination_currency"
+  | SourceCurrency => "source_currency"
+  | DestinationCurrency => "destination_currency"
   | PayoutType => "payout_type"
   | Confirm => "confirm"
   | AttemptCount => "attempt_count"
@@ -121,7 +132,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
     connector_payout_id: dict->getString(ConnectorPayoutId->colMapper, "NA"),
     status: dict->getString(Status->colMapper, "NA"),
     amount: dict->getFloat(Amount->colMapper, 0.0),
-    currency: dict->getString(Currency->colMapper, "NA"),
+    source_currency: dict->getString(SourceCurrency->colMapper, "NA"),
+    destination_currency: dict->getString(DestinationCurrency->colMapper, "NA"),
     payout_type: dict->getString(PayoutType->colMapper, "NA"),
     confirm: dict->getBool(Confirm->colMapper, false),
     attempt_count: dict->getInt(AttemptCount->colMapper, 0),
@@ -145,8 +157,10 @@ let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
     entity_type: dict->getString(EntityType->colMapper, "NA"),
     created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
     last_modified_at: dict->getFloat(LastModifiedAt->colMapper, 0.0),
-    additional_payout_method_data: None,
-    metadata: None,
+    additional_payout_method_data: dict->getJsonObjectFromDict(
+      AdditionalPayoutMethodData->colMapper,
+    ),
+    metadata: dict->getJsonObjectFromDict(Metadata->colMapper),
   }
 }
 
@@ -171,7 +185,9 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key, ~title="Connector Payout Id", ~dataType=TextType)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
-  | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
+  | SourceCurrency => Table.makeHeaderInfo(~key, ~title="Source Currency", ~dataType=TextType)
+  | DestinationCurrency =>
+    Table.makeHeaderInfo(~key, ~title="Destination Currency", ~dataType=TextType)
   | PayoutType => Table.makeHeaderInfo(~key, ~title="Payout Type", ~dataType=TextType)
   | Confirm => Table.makeHeaderInfo(~key, ~title="Confirm", ~dataType=TextType)
   | AttemptCount => Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType)
@@ -201,9 +217,9 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (payoutObj, colType): Table.cell => {
+let getCell = (payoutObj: payoutsObject, colType): Table.cell => {
   let payoutStatus = payoutObj.status->HSwitchOrderUtils.statusVariantMapper
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(payoutObj.currency)
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(payoutObj.destination_currency)
 
   switch colType {
   | PayoutId =>
@@ -213,7 +229,7 @@ let getCell = (payoutObj, colType): Table.cell => {
         displayValue={payoutObj.payout_id}
         copyValue={Some(payoutObj.payout_id)}
       />,
-      "",
+      payoutObj.payout_id,
     )
   | PayoutAttemptId => Text(payoutObj.payout_attempt_id)
   | PayoutLinkId => Text(payoutObj.payout_link_id)
@@ -241,11 +257,12 @@ let getCell = (payoutObj, colType): Table.cell => {
     CustomCell(
       <OrderEntity.CurrencyCell
         amount={(payoutObj.amount /. conversionFactor)->Float.toString}
-        currency={payoutObj.currency}
+        currency={payoutObj.destination_currency}
       />,
-      "",
+      (payoutObj.amount /. conversionFactor)->Float.toString,
     )
-  | Currency => Text(payoutObj.currency)
+  | SourceCurrency => Text(payoutObj.source_currency)
+  | DestinationCurrency => Text(payoutObj.destination_currency)
   | PayoutType => Text(payoutObj.payout_type)
   | Confirm => Text(payoutObj.confirm->LogicUtils.getStringFromBool)
   | AttemptCount => Text(payoutObj.attempt_count->Int.toString)
@@ -269,8 +286,9 @@ let getCell = (payoutObj, colType): Table.cell => {
   | EntityType => Text(payoutObj.entity_type)
   | CreatedAt => Date(payoutObj.created_at->DateTimeUtils.unixToISOString)
   | LastModifiedAt => Date(payoutObj.last_modified_at->DateTimeUtils.unixToISOString)
-  | AdditionalPayoutMethodData => Text("N/A")
-  | Metadata => Text("N/A")
+  | AdditionalPayoutMethodData => Text(payoutObj.additional_payout_method_data->JSON.stringify)
+
+  | Metadata => Text(payoutObj.metadata->JSON.stringify)
   }
 }
 
@@ -290,3 +308,88 @@ let tableEntity = EntityType.makeEntity(
       )
   },
 )
+
+let getColFromKey = (key: string): option<cols> => {
+  switch key {
+  | "payout_id" => Some(PayoutId)
+  | "payout_attempt_id" => Some(PayoutAttemptId)
+  | "connector_payout_id" => Some(ConnectorPayoutId)
+  | "status" => Some(Status)
+  | "amount" => Some(Amount)
+  | "source_currency" => Some(SourceCurrency)
+  | "destination_currency" => Some(DestinationCurrency)
+  | "payout_type" => Some(PayoutType)
+  | "attempt_count" => Some(AttemptCount)
+  | "is_eligible" => Some(IsEligible)
+  | "connector" => Some(Connector)
+  | "payout_method_id" => Some(PayoutMethodId)
+  | "profile_id" => Some(ProfileId)
+  | "merchant_id" => Some(MerchantId)
+  | "organization_id" => Some(OrganizationId)
+  | "customer_id" => Some(CustomerId)
+  | "recurring" => Some(Recurring)
+  | "auto_fulfill" => Some(AutoFulfill)
+  | "priority" => Some(Priority)
+  | "description" => Some(Description)
+  | "error_code" => Some(ErrorCode)
+  | "error_message" => Some(ErrorMessage)
+  | "business_country" => Some(BusinessCountry)
+  | "business_label" => Some(BusinessLabel)
+  | "entity_type" => Some(EntityType)
+  | "created_at" => Some(CreatedAt)
+  | "last_modified_at" => Some(LastModifiedAt)
+  | "metadata" => Some(Metadata)
+  | _ => None
+  }
+}
+
+
+let allColumns = [
+  PayoutId,
+  PayoutAttemptId,
+  ConnectorPayoutId,
+  Status,
+  Amount,
+  SourceCurrency,
+  DestinationCurrency,
+  PayoutType,
+  AttemptCount,
+  IsEligible,
+  Connector,
+  PayoutMethodId,
+  ProfileId,
+  MerchantId,
+  OrganizationId,
+  CustomerId,
+  Recurring,
+  AutoFulfill,
+  Priority,
+  Description,
+  ErrorCode,
+  ErrorMessage,
+  BusinessCountry,
+  BusinessLabel,
+  EntityType,
+  CreatedAt,
+  LastModifiedAt,
+  Metadata,
+]
+
+
+let csvHeaders = allColumns->Array.map(col => {
+  let {key, title} = col->getHeading
+  (key, title)
+})
+
+let itemToCSVMapping = (obj: payoutsObject): JSON.t => {
+  let newDict = Dict.make()
+
+  allColumns->Array.forEach(col => {
+    let {key} = col->getHeading
+    let value = obj->getCell(col)->TableUtils.getTableCellValue
+    newDict->Dict.set(key, value->JSON.Encode.string)
+  })
+
+  newDict->JSON.Encode.object
+}
+
