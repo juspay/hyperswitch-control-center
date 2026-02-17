@@ -1,5 +1,6 @@
 let domain = "payment_attempts"
 
+open LogicUtils
 type paymentAttemptObject = {
   payment_id: string,
   merchant_id: string,
@@ -197,7 +198,7 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
-  open LogicUtils
+
 
   let paymentMethodData = dict->getDictfromDict("payment_method_data")
   let cardData = paymentMethodData->getDictfromDict("card")
@@ -265,9 +266,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
 }
 
 let getObjects: JSON.t => array<paymentAttemptObject> = json => {
-  open LogicUtils
+
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -420,7 +421,7 @@ let getCell = (paymentObj: paymentAttemptObject, colType): Table.cell => {
   | AttemptCount => Text(paymentObj.attempt_count->Int.toString)
   | SignFlag => Text(paymentObj.sign_flag->Int.toString)
   | Timestamp => Text(paymentObj.timestamp)
-  | Confirm => Text(paymentObj.confirm->LogicUtils.getStringFromBool)
+  | Confirm => Text(paymentObj.confirm->getStringFromBool)
   | MultipleCaptureCount => Text(paymentObj.multiple_capture_count->Int.toString)
   | AttemptId => Text(paymentObj.attempt_id)
   | SaveToLocker => Text(paymentObj.save_to_locker)
@@ -437,7 +438,7 @@ let getCell = (paymentObj: paymentAttemptObject, colType): Table.cell => {
   | AuthenticationType => Text(paymentObj.authentication_type)
   | CancellationReason => Text(paymentObj.cancellation_reason)
   | AmountToCapture => {
-      let amountToCapture = paymentObj.amount_to_capture->LogicUtils.getFloatFromString(0.0)
+      let amountToCapture = paymentObj.amount_to_capture->getFloatFromString(0.0)
       let formattedAmountToCapture = CurrencyUtils.convertCurrencyFromLowestDenomination(
         ~amount=amountToCapture,
         ~currency=paymentObj.currency,

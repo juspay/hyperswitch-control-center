@@ -1,5 +1,6 @@
 let domain = "payouts"
 
+open LogicUtils
 type payoutsObject = {
   payout_id: string,
   payout_attempt_id: string,
@@ -123,7 +124,7 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
-  open LogicUtils
+
   {
     payout_id: dict->getString(PayoutId->colMapper, "NA"),
     payout_attempt_id: dict->getString(PayoutAttemptId->colMapper, "NA"),
@@ -165,9 +166,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => payoutsObject = dict => {
 }
 
 let getObjects: JSON.t => array<payoutsObject> = json => {
-  open LogicUtils
+
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -264,17 +265,17 @@ let getCell = (payoutObj: payoutsObject, colType): Table.cell => {
   | SourceCurrency => Text(payoutObj.source_currency)
   | DestinationCurrency => Text(payoutObj.destination_currency)
   | PayoutType => Text(payoutObj.payout_type)
-  | Confirm => Text(payoutObj.confirm->LogicUtils.getStringFromBool)
+  | Confirm => Text(payoutObj.confirm->getStringFromBool)
   | AttemptCount => Text(payoutObj.attempt_count->Int.toString)
-  | IsEligible => Text(payoutObj.is_eligible->LogicUtils.getStringFromBool)
+  | IsEligible => Text(payoutObj.is_eligible->getStringFromBool)
   | Connector => Text(payoutObj.connector)
   | PayoutMethodId => Text(payoutObj.payout_method_id)
   | ProfileId => Text(payoutObj.profile_id)
   | MerchantId => Text(payoutObj.merchant_id)
   | OrganizationId => Text(payoutObj.organization_id)
   | CustomerId => Text(payoutObj.customer_id)
-  | Recurring => Text(payoutObj.recurring->LogicUtils.getStringFromBool)
-  | AutoFulfill => Text(payoutObj.auto_fulfill->LogicUtils.getStringFromBool)
+  | Recurring => Text(payoutObj.recurring->getStringFromBool)
+  | AutoFulfill => Text(payoutObj.auto_fulfill->getStringFromBool)
   | Priority => Text(payoutObj.priority)
   | Description => Text(payoutObj.description)
   | ErrorCode => Text(payoutObj.error_code)

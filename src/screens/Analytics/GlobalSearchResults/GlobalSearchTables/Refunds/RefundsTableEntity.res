@@ -1,5 +1,6 @@
 let domain = "refunds"
 
+open LogicUtils
 type refundsObject = {
   internal_reference_id: string,
   refund_id: string,
@@ -102,7 +103,7 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
-  open LogicUtils
+
 
   {
     internal_reference_id: dict->getString(InternalReferenceId->colMapper, "NA"),
@@ -136,9 +137,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
 }
 
 let getObjects: JSON.t => array<refundsObject> = json => {
-  open LogicUtils
+
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -230,7 +231,7 @@ let getCell = (refundsObj: refundsObject, colType): Table.cell => {
       | _ => LabelLightGray
       },
     })
-  | SentToGateway => Text(refundsObj.sent_to_gateway->LogicUtils.getStringFromBool)
+  | SentToGateway => Text(refundsObj.sent_to_gateway->getStringFromBool)
   | RefundErrorMessage => Text(refundsObj.refund_error_message)
   | RefundArn => Text(refundsObj.refund_arn)
   | CreatedAt => Date(refundsObj.created_at->DateTimeUtils.unixToISOString)

@@ -1,5 +1,6 @@
 let domain = "payment_intents"
 
+open LogicUtils
 type paymentIntentObject = {
   payment_id: string,
   merchant_id: string,
@@ -117,7 +118,7 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
-  open LogicUtils
+
 
   let paymentMethodData = dict->getDictfromDict("payment_method_data")
   let cardData = paymentMethodData->getDictfromDict("card")
@@ -158,10 +159,10 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
 }
 
 let getObjects: JSON.t => array<paymentIntentObject> = json => {
-  open LogicUtils
+
 
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

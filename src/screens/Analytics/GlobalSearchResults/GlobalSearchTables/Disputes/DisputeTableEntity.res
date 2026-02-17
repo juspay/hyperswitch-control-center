@@ -1,5 +1,6 @@
 let domain = "disputes"
 
+open LogicUtils
 type disputesObject = {
   dispute_id: string,
   dispute_amount: float,
@@ -96,7 +97,7 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
-  open LogicUtils
+
   {
     dispute_id: dict->getString(DisputeId->colMapper, "NA"),
     dispute_amount: dict->getFloat(DisputeAmount->colMapper, 0.0),
@@ -127,9 +128,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
 }
 
 let getObjects: JSON.t => array<disputesObject> = json => {
-  open LogicUtils
+
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

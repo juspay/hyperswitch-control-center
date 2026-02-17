@@ -34,7 +34,7 @@ let convertArrayToCSVWithCustomHeaders = (
   let data = arr->Array.map(item => {
     let dict = item->getDictFromJsonObject
     headers->Array.map(key => {
-      dict->getString(key,"")
+      dict->getString(key, "")
     })
   })
 
