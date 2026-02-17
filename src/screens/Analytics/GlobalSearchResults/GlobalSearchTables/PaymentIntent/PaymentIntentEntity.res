@@ -118,8 +118,6 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
-
-
   let paymentMethodData = dict->getDictfromDict("payment_method_data")
   let cardData = paymentMethodData->getDictfromDict("card")
 
@@ -159,8 +157,6 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
 }
 
 let getObjects: JSON.t => array<paymentIntentObject> = json => {
-
-
   json
   ->getArrayFromJson([])
   ->Array.map(item => {

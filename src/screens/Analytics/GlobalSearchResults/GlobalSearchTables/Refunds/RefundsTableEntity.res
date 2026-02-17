@@ -103,8 +103,6 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
-
-
   {
     internal_reference_id: dict->getString(InternalReferenceId->colMapper, "NA"),
     refund_id: dict->getString(RefundId->colMapper, "NA"),
@@ -137,7 +135,6 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
 }
 
 let getObjects: JSON.t => array<refundsObject> = json => {
-
   json
   ->getArrayFromJson([])
   ->Array.map(item => {

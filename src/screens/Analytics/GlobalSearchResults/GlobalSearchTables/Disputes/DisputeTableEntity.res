@@ -97,7 +97,6 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
-
   {
     dispute_id: dict->getString(DisputeId->colMapper, "NA"),
     dispute_amount: dict->getFloat(DisputeAmount->colMapper, 0.0),
@@ -128,7 +127,6 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
 }
 
 let getObjects: JSON.t => array<disputesObject> = json => {
-
   json
   ->getArrayFromJson([])
   ->Array.map(item => {
