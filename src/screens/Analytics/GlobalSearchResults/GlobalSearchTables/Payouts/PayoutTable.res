@@ -115,13 +115,12 @@ let make = () => {
 
   let downloadData = () => {
     try {
-      let csvHeadersKeys = csvHeaders->Array.map(item => {
-        let (key, _) = item
-        key
-      })
-      let csvCustomHeaders = csvHeaders->Array.map(item => {
-        let (_, title) = item
-        title
+      let (csvHeadersKeys, csvCustomHeaders) = csvHeaders->Array.reduce(([], []), (
+        acc,
+        (key, title),
+      ) => {
+        let (keys, titles) = acc
+        (keys->Array.concat([key]), titles->Array.concat([title]))
       })
 
       let data = rawData->Array.map(item => {

@@ -22,15 +22,6 @@ let downloadOld = (~fileName, ~content) => {
   download(~fileName, ~content, ~fileType="text/plain")
 }
 
-let getJsonString = json => {
-  switch json->JSON.Classify.classify {
-  | String(s) => s
-  | Number(f) => f->Float.toString
-  | Bool(b) => b ? "true" : "false"
-  | _ => json == JSON.Encode.null ? "" : JSON.stringify(json)
-  }
-}
-
 let convertArrayToCSVWithCustomHeaders = (
   arr: array<JSON.t>,
   headers: array<string>,
@@ -43,7 +34,7 @@ let convertArrayToCSVWithCustomHeaders = (
   let data = arr->Array.map(item => {
     let dict = item->getDictFromJsonObject
     headers->Array.map(key => {
-      dict->Dict.get(key)->Option.mapOr("", getJsonString)
+      dict->getString(key,"")
     })
   })
 

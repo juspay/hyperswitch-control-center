@@ -124,7 +124,6 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
     modified_at: dict->getFloat(ModifiedAt->colMapper, 0.0),
     description: dict->getString(Description->colMapper, "NA"),
-
     attempt_id: dict->getString(AttemptId->colMapper, "NA"),
     refund_reason: dict->getString(RefundReason->colMapper, "NA"),
     refund_error_code: dict->getString(RefundErrorCode->colMapper, "NA"),
@@ -326,14 +325,12 @@ let csvHeaders = allColumns->Array.map(col => {
 })
 
 let itemToCSVMapping = (obj: refundsObject): JSON.t => {
-  let newDict = Dict.make()
-
-  allColumns->Array.forEach(col => {
+  allColumns
+  ->Array.reduce(Dict.make(), (dict, col) => {
     let {key} = col->getHeading
     let value = obj->getCell(col)->TableUtils.getTableCellValue
-    newDict->Dict.set(key, value->JSON.Encode.string)
+    dict->Dict.set(key, value->JSON.Encode.string)
+    dict
   })
-
-  newDict->JSON.Encode.object
+  ->JSON.Encode.object
 }
-

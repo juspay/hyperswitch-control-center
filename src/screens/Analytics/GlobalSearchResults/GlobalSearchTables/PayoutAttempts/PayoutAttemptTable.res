@@ -108,7 +108,6 @@ let make = () => {
     )
   }, (offset, searchText))
 
-  
   open ResultsTableUtils
   <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
     <PageUtils.PageHeading title="Payout Attempts" />

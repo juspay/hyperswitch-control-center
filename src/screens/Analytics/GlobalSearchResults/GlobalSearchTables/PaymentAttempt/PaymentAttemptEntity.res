@@ -199,8 +199,8 @@ let colMapper = (col: cols) => {
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
   open LogicUtils
 
-  let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")->getDictFromJsonObject
-  let cardData = paymentMethodData->getJsonObjectFromDict("card")->getDictFromJsonObject
+  let paymentMethodData = dict->getDictfromDict("payment_method_data")
+  let cardData = paymentMethodData->getDictfromDict("card")
 
   {
     payment_id: dict->getString(PaymentId->colMapper, "NA"),
@@ -444,8 +444,7 @@ let getCell = (paymentObj: paymentAttemptObject, colType): Table.cell => {
       )
       CustomCell(
         <OrderEntity.CurrencyCell
-          amount={formattedAmountToCapture->Float.toString}
-          currency={paymentObj.currency}
+          amount={formattedAmountToCapture->Float.toString} currency={paymentObj.currency}
         />,
         formattedAmountToCapture->Float.toString,
       )
@@ -514,7 +513,6 @@ let getColFromKey = (key: string): option<cols> => {
   }
 }
 
-
 let allColumns = [
   PaymentId,
   AttemptId,
@@ -539,21 +537,18 @@ let allColumns = [
   ProfileId,
 ]
 
-
 let csvHeaders = allColumns->Array.map(col => {
   let {key, title} = col->getHeading
   (key, title)
 })
 
 let itemToCSVMapping = (obj: paymentAttemptObject): JSON.t => {
-  let newDict = Dict.make()
-
-  allColumns->Array.forEach(col => {
+  allColumns
+  ->Array.reduce(Dict.make(), (dict, col) => {
     let {key} = col->getHeading
     let value = obj->getCell(col)->TableUtils.getTableCellValue
-    newDict->Dict.set(key, value->JSON.Encode.string)
+    dict->Dict.set(key, value->JSON.Encode.string)
+    dict
   })
-
-  newDict->JSON.Encode.object
+  ->JSON.Encode.object
 }
-

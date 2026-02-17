@@ -343,7 +343,6 @@ let getColFromKey = (key: string): option<cols> => {
   }
 }
 
-
 let allColumns = [
   PayoutId,
   PayoutAttemptId,
@@ -375,21 +374,18 @@ let allColumns = [
   Metadata,
 ]
 
-
 let csvHeaders = allColumns->Array.map(col => {
   let {key, title} = col->getHeading
   (key, title)
 })
 
 let itemToCSVMapping = (obj: payoutsObject): JSON.t => {
-  let newDict = Dict.make()
-
-  allColumns->Array.forEach(col => {
+  allColumns
+  ->Array.reduce(Dict.make(), (dict, col) => {
     let {key} = col->getHeading
     let value = obj->getCell(col)->TableUtils.getTableCellValue
-    newDict->Dict.set(key, value->JSON.Encode.string)
+    dict->Dict.set(key, value->JSON.Encode.string)
+    dict
   })
-
-  newDict->JSON.Encode.object
+  ->JSON.Encode.object
 }
-

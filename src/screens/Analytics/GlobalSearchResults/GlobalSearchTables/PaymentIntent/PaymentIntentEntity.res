@@ -116,13 +116,11 @@ let colMapper = (col: cols) => {
   }
 }
 
-
-
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
   open LogicUtils
 
-  let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")->getDictFromJsonObject
-  let cardData = paymentMethodData->getJsonObjectFromDict("card")->getDictFromJsonObject
+  let paymentMethodData = dict->getDictfromDict("payment_method_data")
+  let cardData = paymentMethodData->getDictfromDict("card")
 
   {
     payment_id: dict->getString(PaymentId->colMapper, "NA"),
@@ -351,13 +349,12 @@ let csvHeaders = allColumns->Array.map(col => {
 })
 
 let itemToCSVMapping = (obj: paymentIntentObject): JSON.t => {
-  let newDict = Dict.make()
-
-  allColumns->Array.forEach(col => {
+  allColumns
+  ->Array.reduce(Dict.make(), (dict, col) => {
     let {key} = col->getHeading
     let value = obj->getCell(col)->TableUtils.getTableCellValue
-    newDict->Dict.set(key, value->JSON.Encode.string)
+    dict->Dict.set(key, value->JSON.Encode.string)
+    dict
   })
-
-  newDict->JSON.Encode.object
+  ->JSON.Encode.object
 }
