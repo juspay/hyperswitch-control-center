@@ -1,9 +1,9 @@
 @react.component
 let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
-  open GPayFlowTypes
   open LogicUtils
-  open GPayFlowHelper
-  open GPayFlowUtils
+  open GooglePayUtils
+  open GPayFlowTypes
+  open GPayFlowMetadataHelper
 
   let (googlePayIntegrationType, setGooglePayIntegrationType) = React.useState(_ =>
     #payment_gateway
@@ -13,38 +13,20 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let integrationType = React.useMemo(() => {
-    let connectorWalletDict =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("connector_wallets_details")
-    let googlePayDict = connectorWalletDict->getDictfromDict("google_pay")
-    if (
-      connector->ConnectorUtils.getConnectorNameTypeFromString == Processors(TESOURO) &&
-        googlePayDict->Dict.keysToArray->Array.length <= 0
-    ) {
-      "DIRECT"
-    } else {
-      connectorWalletDict->getIntegrationTypeFromConnectorWalletDetailsGooglePay
-    }
-  }, [])
 
   let googlePayFields = React.useMemo(() => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      if connector->isNonEmptyString {
-        let dict =
-          Window.getConnectorConfig(connector)
-          ->getDictFromJsonObject
-          ->getDictfromDict("connector_wallets_details")
-          ->getArrayFromDict("google_pay", [])
-        setScreenState(_ => PageLoaderWrapper.Success)
-
-        dict
+      let dict = if connector->isNonEmptyString {
+        Window.getConnectorConfig(connector)
+        ->getDictFromJsonObject
+        ->getDictfromDict("metadata")
+        ->getArrayFromDict("google_pay", [])
       } else {
-        setScreenState(_ => PageLoaderWrapper.Success)
         []
       }
+      setScreenState(_ => PageLoaderWrapper.Success)
+      dict
     } catch {
     | Exn.Error(e) => {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to load connector configuration"))
@@ -54,14 +36,19 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }, [connector])
 
-  let setIntegrationType = () => {
-    if connector->isNonEmptyString {
-      setGooglePayIntegrationType(_ => integrationType->getGooglePayIntegrationTypeFromName)
-    }
-  }
+  let initialGooglePayDict = React.useMemo(() => {
+    formState.values->getDictFromJsonObject->getDictfromDict("metadata")
+  }, [])
 
+  let form = ReactFinalForm.useForm()
   React.useEffect(() => {
-    setIntegrationType()
+    if connector->isNonEmptyString {
+      let value = googlePay(initialGooglePayDict->getDictfromDict("google_pay"), connector)
+      switch value {
+      | Standard(data) => form.change("metadata.google_pay", data->Identity.genericTypeToJson)
+      | _ => ()
+      }
+    }
     None
   }, [connector])
 
@@ -85,21 +72,16 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         closeModal
         setGooglePayIntegrationStep
         setGooglePayIntegrationType
-        connector
         update
         closeAccordionFn
       />
     | Configure =>
       switch googlePayIntegrationType {
       | #payment_gateway =>
-        <GPayPaymentGatewayFlow
-          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
+        <GpayMetadataFlowPaymentGateway
+          googlePayFields connector closeAccordionFn update closeModal
         />
-      | #direct =>
-        <GPayDirectFlow
-          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
-        />
-      | #predecrypt => React.null
+      | _ => React.null
       }
     }}
   </PageLoaderWrapper>

@@ -199,6 +199,7 @@ module.exports = {
         cardShadow: "0px 2px 2px 0px rgba(0, 0, 0, 0.04)",
         rightDrawerShadow:
           "0px 4px 6px 0px rgba(0,0,0,0.05) , 0px 10px 15px -3px rgba(16,24,40,0.1)",
+        cardSelectedShadow: "0px 3px 16px 3px rgba(190, 219, 255, 0.6)",
       },
       fontSize: {
         base: "var(--base-font-size)",
