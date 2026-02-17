@@ -618,7 +618,7 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           switch id {
-          // Need to write seperate enum for info api
+          // Need to write separate enum for info api
           | Some(domain) =>
             switch analyticsEntity {
             | #Tenant
@@ -944,7 +944,7 @@ let useGetURL = () => {
       /* PMTS COUNTRY-CURRENCY DETAILS */
       | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
 
-      /* USER MANGEMENT REVAMP */
+      /* USER MANAGEMENT REVAMP */
       | USER_MANAGEMENT => {
           let userUrl = `user`
           switch userRoleTypes {
