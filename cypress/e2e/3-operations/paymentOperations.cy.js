@@ -126,11 +126,11 @@ describe("Payment Operations", () => {
             "Payment Method Type",
             "Card Network",
             "Connector Transaction ID",
-            "Customer Email",
             "Merchant Order Reference Id",
             "Description",
             "Metadata",
             "Created",
+            "Modified",
           ];
           cy.get("table thead tr th").each(($el, index) => {
             cy.wrap($el).should("have.text", expectedHeaders[index]);
@@ -167,16 +167,13 @@ describe("Payment Operations", () => {
             response.body.connector_transaction_id,
           );
           cy.get(`[data-table-location="Orders_tr1_td11"]`).contains(
-            response.body.email,
-          );
-          cy.get(`[data-table-location="Orders_tr1_td12"]`).contains(
             response.body.merchant_order_reference_id,
           );
           cy.get(`[class="text-sm font-extrabold cursor-pointer"]`).click();
-          cy.get(`[data-table-location="Orders_tr1_td13"]`).contains(
+          cy.get(`[data-table-location="Orders_tr1_td12"]`).contains(
             response.body.description,
           );
-          cy.get(`[data-table-location="Orders_tr1_td14"]`).contains(
+          cy.get(`[data-table-location="Orders_tr1_td13"]`).contains(
             JSON.stringify(response.body.metadata),
           );
         });
@@ -194,9 +191,9 @@ describe("Payment Operations", () => {
         "Payment Method Type",
         "Payment Method",
         "Payment ID",
-        "Customer Email",
         "Description",
         "Created",
+        "Modified",
         "Connector Transaction ID",
         "Connector",
         "Profile Id",
@@ -210,6 +207,7 @@ describe("Payment Operations", () => {
         "Merchant ID",
         "Setup Future Usage",
         "Attempt count",
+        "Error Message",
       ],
       optional: [
         "AmountCapturable",
@@ -221,6 +219,7 @@ describe("Payment Operations", () => {
         "Merchant ID",
         "Setup Future Usage",
         "Attempt count",
+        "Error Message",
       ],
       mandatory: [
         "Card Network",
@@ -230,9 +229,9 @@ describe("Payment Operations", () => {
         "Payment Method Type",
         "Payment Method",
         "Payment ID",
-        "Customer Email",
         "Description",
         "Created",
+        "Modified",
         "Connector Transaction ID",
         "Connector",
         "Profile Id",
@@ -299,9 +298,9 @@ describe("Payment Operations", () => {
       "Payment Method Type",
       "Payment Method",
       "Payment ID",
-      "Customer Email",
       "Description",
       "Created",
+      "Modified",
       "Connector Transaction ID",
       "Connector",
       "Profile Id",
@@ -390,11 +389,11 @@ describe("Payment Operations", () => {
       "Payment Method Type",
       "Card Network",
       "Connector Transaction ID",
-      "Customer Email",
       "Merchant Order Reference Id",
       "Description",
       "Metadata",
       "Created",
+      "Modified",
       "AmountCapturable",
       "Authentication Type",
       "Capture Method",
@@ -404,6 +403,7 @@ describe("Payment Operations", () => {
       "Merchant ID",
       "Setup Future Usage",
       "Attempt count",
+      "Error Message",
     ];
 
     let merchant_id;
@@ -740,10 +740,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+    cy.get('[data-date-picker-predefined="predefined-options"]').should(
       "be.visible",
     );
-    cy.get('[data-date-picker-predifined="predefined-options"]')
+    cy.get('[data-date-picker-predefined="predefined-options"]')
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -772,10 +772,10 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]').should(
+      cy.get('[data-date-picker-predefined="predefined-options"]').should(
         "be.visible",
       );
-      cy.get('[data-date-picker-predifined="predefined-options"]').within(
+      cy.get('[data-date-picker-predefined="predefined-options"]').within(
         () => {
           cy.contains(timeRange).click();
         },
@@ -809,7 +809,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+    cy.get('[data-date-picker-predefined="predefined-options"]').should(
       "be.visible",
     );
     cy.get('[data-daterange-dropdown-value="Custom Range"]')
