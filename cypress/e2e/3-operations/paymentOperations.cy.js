@@ -740,10 +740,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+    cy.get('[data-date-picker-predefined="predefined-options"]').should(
       "be.visible",
     );
-    cy.get('[data-date-picker-predifined="predefined-options"]')
+    cy.get('[data-date-picker-predefined="predefined-options"]')
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -772,10 +772,10 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predifined="predefined-options"]').should(
+      cy.get('[data-date-picker-predefined="predefined-options"]').should(
         "be.visible",
       );
-      cy.get('[data-date-picker-predifined="predefined-options"]').within(
+      cy.get('[data-date-picker-predefined="predefined-options"]').within(
         () => {
           cy.contains(timeRange).click();
         },
@@ -809,7 +809,7 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predifined="predefined-options"]').should(
+    cy.get('[data-date-picker-predefined="predefined-options"]').should(
       "be.visible",
     );
     cy.get('[data-daterange-dropdown-value="Custom Range"]')
