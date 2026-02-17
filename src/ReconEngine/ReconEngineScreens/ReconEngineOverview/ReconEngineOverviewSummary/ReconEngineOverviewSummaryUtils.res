@@ -199,6 +199,7 @@ let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>
       | SingleSingle(data) => [data.source_account.account_id, data.target_account.account_id]
       | SingleMany(data) => [data.source_account.account_id, data.target_account.account_id]
       | ManySingle(data) => [data.source_account.account_id, data.target_account.account_id]
+      | ManyMany(data) => [data.source_account.account_id, data.target_account.account_id]
       | UnknownOneToOneStrategy => []
       }
     | OneToMany(oneToMany) =>
@@ -288,6 +289,14 @@ let getEdges = (
           ),
         ]
       | ManySingle(data) => [
+          makeEdge(
+            ~sourceAccountId=data.source_account.account_id,
+            ~targetAccountId=data.target_account.account_id,
+            ~ruleTransactions,
+            ~selectedNodeId,
+          ),
+        ]
+      | ManyMany(data) => [
           makeEdge(
             ~sourceAccountId=data.source_account.account_id,
             ~targetAccountId=data.target_account.account_id,
@@ -596,6 +605,7 @@ let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePa
     | SingleSingle(data) => (data.source_account.account_id, [data.target_account.account_id])
     | SingleMany(data) => (data.source_account.account_id, [data.target_account.account_id])
     | ManySingle(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | ManyMany(data) => (data.source_account.account_id, [data.target_account.account_id])
     | UnknownOneToOneStrategy => ("", [])
     }
   | OneToMany(oneToMany) =>
