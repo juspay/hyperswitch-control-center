@@ -15,9 +15,6 @@ let download = (~fileName, ~content, ~fileType) => {
   a->clickElement
 }
 
-@module("papaparse")
-external unparse: {"fields": array<string>, "data": array<array<string>>} => string = "unparse"
-
 let downloadOld = (~fileName, ~content) => {
   download(~fileName, ~content, ~fileType="text/plain")
 }
@@ -38,5 +35,5 @@ let convertArrayToCSVWithCustomHeaders = (
     })
   })
 
-  unparse({"fields": fields, "data": data})
+  PapaParse.unparse({"fields": fields, "data": data})
 }
