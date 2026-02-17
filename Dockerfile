@@ -17,7 +17,9 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 COPY --from=base /usr/src/app/dist /usr/src/app/dist
 COPY --from=base /usr/src/app/package*.json ./
-RUN apk add --no-cache bash && apk add --no-cache --upgrade openssl=3.6.1
+RUN apk update \
+    && apk add --no-cache bash \
+    && apk add --no-cache --upgrade openssl
 
 # Create non-root user and switch to it
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
