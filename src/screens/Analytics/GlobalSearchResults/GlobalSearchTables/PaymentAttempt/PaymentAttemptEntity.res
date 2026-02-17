@@ -256,9 +256,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
     client_version: dict->getString(ClientVersion->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
     organization_id: dict->getString(OrganizationId->colMapper, "NA"),
-    payment_method_data: dict->getJsonObjectFromDict("payment_method_data"),
-    card_network: cardData->getString("card_network", "NA"),
-    card_holder_name: cardData->getString("card_holder_name", "NA"),
+    payment_method_data: dict->getJsonObjectFromDict(PaymentMethodData->colMapper),
+    card_network: cardData->getString(CardNetwork->colMapper, "NA"),
+    card_holder_name: cardData->getString(CardHolderName->colMapper, "NA"),
     error_code: dict->getString(ErrorCode->colMapper, "NA"),
   }
 }
@@ -543,7 +543,8 @@ let csvHeaders = allColumns->Array.map(col => {
 let itemToCSVMapping = (obj: paymentAttemptObject): JSON.t => {
   allColumns
   ->Array.reduce(Dict.make(), (dict, col) => {
-    let {key} = col->getHeading
+    let key = col->colMapper
+
     let value = obj->getCell(col)->TableUtils.getTableCellValue
     dict->Dict.set(key, value->JSON.Encode.string)
     dict

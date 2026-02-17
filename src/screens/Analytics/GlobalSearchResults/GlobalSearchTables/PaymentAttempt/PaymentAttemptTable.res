@@ -1,4 +1,3 @@
-open LogicUtils
 module PreviewTable = {
   open PaymentAttemptEntity
   open GlobalSearchTypes
@@ -113,29 +112,14 @@ let make = () => {
   }, (offset, searchText))
 
   let downloadData = () => {
-    try {
-      let (csvHeadersKeys, csvCustomHeaders) = csvHeaders->Array.reduce(([], []), (
-        acc,
-        (key, title),
-      ) => {
-        let (keys, titles) = acc
-        (keys->Array.concat([key]), titles->Array.concat([title]))
-      })
-
-      let data = rawData->Array.map(item => {
-        item->getDictFromJsonObject->tableItemToObjMapper->itemToCSVMapping
-      })
-
-      let csvContent =
-        data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeadersKeys, csvCustomHeaders)
-      DownloadUtils.download(
-        ~fileName={`payment_attempts_${searchText}.csv`},
-        ~content=csvContent,
-        ~fileType="text/csv",
-      )
-    } catch {
-    | _ => showToast(~message="Failed to download CSV", ~toastType=ToastError)
-    }
+    DownloadUtils.downloadTableAsCsv(
+      ~csvHeaders,
+      ~rawData,
+      ~tableItemToObjMapper,
+      ~itemToCSVMapping,
+      ~fileName={`payment_attempts_${searchText}.csv`},
+      ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
+    )
   }
 
   open ResultsTableUtils

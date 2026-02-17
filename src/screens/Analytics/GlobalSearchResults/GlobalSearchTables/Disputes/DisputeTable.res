@@ -77,7 +77,7 @@ let make = () => {
       let (data, total) = await fetchTableData(~updateDetails, ~offset, ~query={searchText}, ~path)
 
       let arr = Array.make(~length=offset, Dict.make())
-      if data->Array.length == 0 && total <= offset {
+      if data->isEmptyArray && total <= offset {
         setOffset(_ => 0)
       }
 
@@ -113,29 +113,14 @@ let make = () => {
   }, (offset, searchText))
 
   let downloadData = () => {
-    try {
-      let (csvHeadersKeys, csvCustomHeaders) = csvHeaders->Array.reduce(([], []), (
-        acc,
-        (key, title),
-      ) => {
-        let (keys, titles) = acc
-        (keys->Array.concat([key]), titles->Array.concat([title]))
-      })
-
-      let data = rawData->Array.map(item => {
-        item->getDictFromJsonObject->tableItemToObjMapper->itemToCSVMapping
-      })
-
-      let csvContent =
-        data->DownloadUtils.convertArrayToCSVWithCustomHeaders(csvHeadersKeys, csvCustomHeaders)
-      DownloadUtils.download(
-        ~fileName={`disputes_${searchText}.csv`},
-        ~content=csvContent,
-        ~fileType="text/csv",
-      )
-    } catch {
-    | _ => showToast(~message="Failed to download CSV", ~toastType=ToastError)
-    }
+    DownloadUtils.downloadTableAsCsv(
+      ~csvHeaders,
+      ~rawData,
+      ~tableItemToObjMapper,
+      ~itemToCSVMapping,
+      ~fileName={`disputes_${searchText}.csv`},
+      ~toast=(~message, ~toastType) => showToast(~message, ~toastType),
+    )
   }
 
   open ResultsTableUtils

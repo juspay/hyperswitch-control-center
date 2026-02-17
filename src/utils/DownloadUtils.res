@@ -37,3 +37,32 @@ let convertArrayToCSVWithCustomHeaders = (
 
   PapaParse.unparse({"fields": fields, "data": data})
 }
+
+let downloadTableAsCsv = (
+  ~csvHeaders: array<(string, string)>,
+  ~rawData: array<JSON.t>,
+  ~tableItemToObjMapper: Dict.t<JSON.t> => 'entity,
+  ~itemToCSVMapping: 'entity => JSON.t,
+  ~fileName: string,
+  ~toast: (~message: string, ~toastType: ToastState.toastType) => unit,
+) => {
+  open LogicUtils
+  try {
+    let (csvHeadersKeys, csvCustomHeaders) = csvHeaders->Array.reduce(([], []), (
+      acc,
+      (key, title),
+    ) => {
+      let (keys, titles) = acc
+      (keys->Array.concat([key]), titles->Array.concat([title]))
+    })
+
+    let data = rawData->Array.map(item => {
+      item->getDictFromJsonObject->tableItemToObjMapper->itemToCSVMapping
+    })
+
+    let csvContent = convertArrayToCSVWithCustomHeaders(data, csvHeadersKeys, csvCustomHeaders)
+    download(~fileName, ~content=csvContent, ~fileType="text/csv")
+  } catch {
+  | _ => toast(~message="Failed to download CSV", ~toastType=ToastState.ToastError)
+  }
+}

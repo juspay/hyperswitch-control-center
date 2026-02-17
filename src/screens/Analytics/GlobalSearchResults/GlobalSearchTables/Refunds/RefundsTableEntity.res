@@ -325,7 +325,7 @@ let csvHeaders = allColumns->Array.map(col => {
 let itemToCSVMapping = (obj: refundsObject): JSON.t => {
   allColumns
   ->Array.reduce(Dict.make(), (dict, col) => {
-    let {key} = col->getHeading
+    let key = col->colMapper
     let value = obj->getCell(col)->TableUtils.getTableCellValue
     dict->Dict.set(key, value->JSON.Encode.string)
     dict
