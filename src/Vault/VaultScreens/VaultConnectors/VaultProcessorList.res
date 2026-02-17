@@ -1,9 +1,18 @@
 @react.component
-let make = () => {
+let make = (~isOrchestrationVault=false) => {
+  open Typography
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let connectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
+  )
+  let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
+  let filteredconnectorListFromRecoil = connectorListFromRecoil->Array.filter(connector =>
+    connectorsAvailableForIntegration
+    ->Array.find(item =>
+      item == ConnectorUtils.getConnectorNameTypeFromString(connector.connector_name)
+    )
+    ->Option.isSome
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -12,22 +21,22 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let requestAProcessorComponent = {
     <div className="-mt-8">
-      <VaultProcessorCards.CantFindProcessor showRequestConnectorBtn=true />
+      <VaultProcessorCards.CantFindProcessor showRequestConnectorBtn=true isOrchestrationVault />
     </div>
   }
 
   let getConnectorListAndUpdateState = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      connectorListFromRecoil->Array.reverse
+      filteredconnectorListFromRecoil->Array.reverse
       let list = ConnectorListInterface.mapConnectorPayloadToConnectorType(
         ConnectorListInterface.connectorInterfaceV2,
         ConnectorTypes.Processor,
-        connectorListFromRecoil,
+        filteredconnectorListFromRecoil,
       )
       setConfiguredConnectors(_ => list)
 
-      setFilteredConnectorData(_ => connectorListFromRecoil->Array.map(Nullable.make))
+      setFilteredConnectorData(_ => filteredconnectorListFromRecoil->Array.map(Nullable.make))
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -37,17 +46,24 @@ let make = () => {
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, [connectorListFromRecoil->Array.length])
+  }, [filteredconnectorListFromRecoil->Array.length])
 
   let sendMixpanelEvent = () => {
-    mixpanelEvent(~eventName="vault_view_connector_details")
+    mixpanelEvent(
+      ~eventName={
+        isOrchestrationVault
+          ? "orchestration_vault_view_connector_details"
+          : "vault_view_connector_details"
+      },
+    )
   }
 
-  let connectorsAvailableForIntegration = VaultConnectorUtils.connectorListForVault
-
-  <PageLoaderWrapper screenState>
-    <RenderIf condition={configuredConnectors->Array.length > 0}>
-      <div className="mt-12">
+  <div className="flex flex-col gap-4 mt-4">
+    <PageLoaderWrapper screenState>
+      <p className={`${body.md.medium} text-nd_gray-400`}>
+        {"When vaulting a card directly, you can also tokenize the cards at any of the following payment connectors by passing the corresponding Merchant Connector Id"->React.string}
+      </p>
+      <RenderIf condition={configuredConnectors->Array.length > 0}>
         <LoadedTable
           title="Connected Processors"
           actualData=filteredConnectorData
@@ -59,18 +75,27 @@ let make = () => {
             "v2/vault/onboarding",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             ~sendMixpanelEvent,
+            ~isOrchestrationVault,
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
-          rightTitleElement={requestAProcessorComponent}
+          rightTitleElement={!isOrchestrationVault ? requestAProcessorComponent : React.null}
           showAutoScroll=true
         />
-      </div>
-    </RenderIf>
-    <RenderIf condition={configuredConnectors->Array.length == 0}>
-      <div className="-mt-4">
-        <VaultProcessorCards configuredConnectors connectorsAvailableForIntegration />
-      </div>
-    </RenderIf>
-  </PageLoaderWrapper>
+      </RenderIf>
+      <RenderIf condition={!isOrchestrationVault}>
+        <VaultProcessorCards
+          configuredConnectors connectorsAvailableForIntegration isOrchestrationVault
+        />
+      </RenderIf>
+      <RenderIf condition={isOrchestrationVault}>
+        <ProcessorCards
+          configuredConnectors
+          connectorsAvailableForIntegration
+          urlPrefix="connectors/new"
+          showDummyConnectorButton=false
+        />
+      </RenderIf>
+    </PageLoaderWrapper>
+  </div>
 }

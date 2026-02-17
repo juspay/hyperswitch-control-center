@@ -118,7 +118,7 @@ module CustomerInfo = {
 
 module VaultedPaymentMethodsTable = {
   @react.component
-  let make = (~sampleReport) => {
+  let make = (~sampleReport, ~isOrchestrationVault=false) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -186,7 +186,13 @@ module VaultedPaymentMethodsTable = {
         onEntityClick={val => {
           setPaymentId(_ => val.id)
           setShowModal(_ => true)
-          mixpanelEvent(~eventName="vault_view_vaulted_payment_method_details")
+          mixpanelEvent(
+            ~eventName={
+              isOrchestrationVault
+                ? "orchestration_vault_view_vaulted_payment_method_details"
+                : "vault_view_vaulted_payment_method_details"
+            },
+          )
         }}
         currrentFetchCount={tableData->Array.length}
         showAutoScroll=true
@@ -205,7 +211,7 @@ module VaultedPaymentMethodsTable = {
 
 module VaultedPaymentMethods = {
   @react.component
-  let make = (~sampleReport) => {
+  let make = (~sampleReport, ~isOrchestrationVault) => {
     <>
       <div className="flex flex-col gap-1 mb-6">
         <p className="text-xl font-semibold"> {"Vaulted Payment Method"->React.string} </p>
@@ -213,13 +219,13 @@ module VaultedPaymentMethods = {
           {"Click on an entry to view detailed information about a vaulted payment method."->React.string}
         </p>
       </div>
-      <VaultedPaymentMethodsTable sampleReport />
+      <VaultedPaymentMethodsTable sampleReport isOrchestrationVault />
     </>
   }
 }
 
 @react.component
-let make = (~id, ~sampleReport) => {
+let make = (~id, ~sampleReport, ~isOrchestrationVault=false) => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
@@ -271,7 +277,14 @@ let make = (~id, ~sampleReport) => {
         <div className="flex items-center">
           <div>
             <BreadCrumbNavigation
-              path=[{title: "Customers", link: "/v2/vault/customers-tokens"}]
+              path=[
+                {
+                  title: "Customers",
+                  link: {
+                    isOrchestrationVault ? "/vault-customers-tokens" : "/v2/vault/customers-tokens"
+                  },
+                },
+              ]
               currentPageTitle=id
               cursorStyle="cursor-pointer"
             />
@@ -281,7 +294,7 @@ let make = (~id, ~sampleReport) => {
       <div className="mb-8">
         <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
       </div>
-      <VaultedPaymentMethods sampleReport />
+      <VaultedPaymentMethods sampleReport isOrchestrationVault />
     </div>
   </PageLoaderWrapper>
 }

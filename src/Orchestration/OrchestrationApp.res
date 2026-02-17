@@ -44,6 +44,9 @@ let make = (~setScreenState) => {
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
       </AccessControl>
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
+      <OrchestrationVaultContainer />
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}

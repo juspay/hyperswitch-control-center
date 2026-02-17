@@ -8,10 +8,15 @@ module NoDataFoundComponent = {
     ~setOffset,
     ~total,
     ~fieldArray,
+    ~isOrchestrationVault=false,
   ) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleSampleReportButtonClick = () => {
-      mixpanelEvent(~eventName="vault_get_sample_data")
+      mixpanelEvent(
+        ~eventName={
+          isOrchestrationVault ? "orchestration_vault_get_sample_data" : "vault_get_sample_data"
+        },
+      )
       let response = VaultSampleData.customersList
       let data = response->JSON.Decode.array->Option.getOr([])
       let arr = Array.make(~length=offset, Dict.make())
@@ -65,7 +70,7 @@ module NoDataFoundComponent = {
   }
 }
 @react.component
-let make = (~sampleReport, ~setSampleReport) => {
+let make = (~sampleReport, ~setSampleReport, ~isOrchestrationVault=false) => {
   open PageUtils
   open APIUtils
   open VaultCustomersEntity
@@ -152,7 +157,13 @@ let make = (~sampleReport, ~setSampleReport) => {
   }, ~wait=200)
 
   let sendMixpanelEvent = () => {
-    mixpanelEvent(~eventName="vault_view_customer_details")
+    mixpanelEvent(
+      ~eventName={
+        isOrchestrationVault
+          ? "orchestration_vault_view_customer_details"
+          : "vault_view_customer_details"
+      },
+    )
   }
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-5">
@@ -169,6 +180,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           setOffset
           total
           fieldArray
+          isOrchestrationVault
         />
       </RenderIf>
       <RenderIf condition={customersData->Array.length > 0}>
@@ -182,7 +194,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           title="Vault Customers And tokens"
           hideTitle=true
           actualData=filteredCustomersData
-          entity={customersEntity(~sendMixpanelEvent)}
+          entity={customersEntity(~sendMixpanelEvent, ~isOrchestrationVault)}
           resultsPerPage=20
           filters={<TableSearchFilter
             data={customersData}

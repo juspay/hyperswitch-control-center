@@ -18,14 +18,14 @@ let getV2Url = (
   switch entityName {
   | CUSTOMERS =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | CUSTOMERS_COUNT =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list_with_count"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list_with_count"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | V2_CONNECTOR =>
@@ -116,10 +116,10 @@ let getV2Url = (
     }
   | PAYMENT_METHOD_LIST =>
     switch id {
-    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
-  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
+  | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
     | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`

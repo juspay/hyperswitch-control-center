@@ -1,35 +1,15 @@
 let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
-module RequestConnector = {
-  @react.component
-  let make = (~connectorList, ~setShowModal) => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-
-    let handleClick = () => {
-      mixpanelEvent(~eventName="vault_request_processor")
-      setShowModal(_ => true)
-    }
-    <RenderIf condition={connectorList->Array.length === 0}>
-      <div
-        className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
-        <div className="mb-8 mt-4 max-w-full h-auto">
-          <img alt="notfound" src={`${LogicUtils.useUrlPrefix()}/notfound.svg`} />
-        </div>
-        <p className="jp-grey-700 opacity-50">
-          {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
-        </p>
-        <Button text={"Request a processor"} buttonType=Primary onClick={_ => handleClick()} />
-      </div>
-    </RenderIf>
-  }
-}
-
 module CantFindProcessor = {
   @react.component
-  let make = (~showRequestConnectorBtn) => {
+  let make = (~showRequestConnectorBtn, ~isOrchestrationVault) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleClick = () => {
-      mixpanelEvent(~eventName="vault_request_processor")
+      mixpanelEvent(
+        ~eventName={
+          isOrchestrationVault ? "orchestration_vault_request_processor" : "vault_request_processor"
+        },
+      )
       "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
     }
     <RenderIf condition={showRequestConnectorBtn}>
@@ -51,6 +31,7 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
+  ~isOrchestrationVault=false,
 ) => {
   open ConnectorUtils
 
@@ -64,11 +45,19 @@ let make = (
       configuredConnectors->Array.find(item => item === total)->Option.isNone
     )
 
+  let redirectEndpoint = isOrchestrationVault
+    ? "connectors/new?name="
+    : "v2/vault/onboarding/new?name="
+
   let handleClick = connectorName => {
-    mixpanelEvent(~eventName=`vault_connector_click_${connectorName}`)
-    setShowSideBar(_ => false)
+    mixpanelEvent(
+      ~eventName=`${isOrchestrationVault
+          ? `orchestration_vault_connector_click_`
+          : `vault_connector_click_`}${connectorName}`,
+    )
+    setShowSideBar(_ => isOrchestrationVault ? true : false)
     RescriptReactRouter.push(
-      GlobalVars.appendDashboardPath(~url=`v2/vault/onboarding/new?name=${connectorName}`),
+      GlobalVars.appendDashboardPath(~url=`${redirectEndpoint}${connectorName}`),
     )
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
@@ -141,7 +130,9 @@ let make = (
           })
           ->React.array}
         </RenderIf>
-        <VaultConnectorHelper.VaultRequestProcessorCard />
+        <RenderIf condition={configuredConnectors->Array.length === 0}>
+          <VaultConnectorHelper.VaultRequestProcessorCard />
+        </RenderIf>
       </div>
     </>
   }
