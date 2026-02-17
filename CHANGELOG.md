@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.13.0
+
+### Features
+
+- Recon engine add many many recon rule types ([#4215](https://github.com/juspay/hyperswitch-control-center/pull/4215)) ([`3b09922`](https://github.com/juspay/hyperswitch-control-center/commit/3b09922525cd7f3f06ffee8467879cea5612c3af))
+
+**Full Changelog:** [`2026.02.12.0...2026.02.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.12.0...2026.02.13.0)
+
+- - -
+
+## 2026.02.12.0
+
+### Features
+
+- Enable `payload` and `finix` payment processors in prod ([#4112](https://github.com/juspay/hyperswitch-control-center/pull/4112)) ([`41fba13`](https://github.com/juspay/hyperswitch-control-center/commit/41fba135c46b7b8e3d03a9a192d19351edc7008f))
+- Remove Email field from payment llist. ([#4197](https://github.com/juspay/hyperswitch-control-center/pull/4197)) ([`294673c`](https://github.com/juspay/hyperswitch-control-center/commit/294673c4c6bc1f87bd381f7691413300b0202f63))
+
+### Miscellaneous Tasks
+
+- Add point click types in stacked bar graph ([#4175](https://github.com/juspay/hyperswitch-control-center/pull/4175)) ([`eacfb01`](https://github.com/juspay/hyperswitch-control-center/commit/eacfb01e03f8457bc1b2df01023c87e6506c0f2d))
+
+**Full Changelog:** [`2026.02.10.1...2026.02.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.10.1...2026.02.12.0)
+
+- - -
+
 ## 2026.02.10.1
 
 ### Features

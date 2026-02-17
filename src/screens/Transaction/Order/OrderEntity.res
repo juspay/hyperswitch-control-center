@@ -300,7 +300,6 @@ let defaultColumns: array<colType> = [
   PaymentMethodType,
   CardNetwork,
   ConnectorTransactionID,
-  Email,
   MerchantOrderReferenceId,
   Description,
   Metadata,
@@ -322,7 +321,6 @@ let allColumnsV1 = [
   Currency,
   CustomerId,
   Description,
-  Email,
   MerchantId,
   PaymentId,
   PaymentMethod,
@@ -350,7 +348,6 @@ let allColumnsV2 = [
   Currency,
   CustomerId,
   Description,
-  Email,
   MerchantId,
   PaymentId,
   PaymentMethod,
@@ -379,7 +376,7 @@ let getHeading = (colType: colType) => {
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
-  | Modified => Table.makeHeaderInfo(~key="modified_at", ~title="Modified", ~showSort=true)
+  | Modified => Table.makeHeaderInfo(~key="modified_at", ~title="Modified")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
@@ -783,7 +780,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
   | NextAction => Text(order.next_action)
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error.error_code)
-  | ErrorMessage => Text(order.error.error_message)
+  | ErrorMessage => EllipsisText(order.error.error_message, "w-40")
   | ConnectorTransactionID =>
     CustomCell(
       <CopyTextCustomComp
