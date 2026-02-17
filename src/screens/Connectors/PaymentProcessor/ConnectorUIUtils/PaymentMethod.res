@@ -87,20 +87,24 @@ module CardRenderer = {
     }
 
     let showAdditionalDetails = methodVariant => {
-      ((methodVariant === GooglePay ||
-      methodVariant === ApplePay ||
-      methodVariant === SamsungPay ||
-      methodVariant === AmazonPay ||
-      methodVariant === Paze) &&
-        {
-          switch connector->getConnectorNameTypeFromString(~connectorType) {
-          | Processors(TRUSTPAY)
-          | Processors(STRIPE_TEST)
-          | PayoutProcessor(WORLDPAY)
-          | PayoutProcessor(WORLDPAYXML) => false
-          | _ => true
-          }
-        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+      switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
+      | (Pix, Processors(SANTANDER)) | (Boleto, Processors(SANTANDER)) => true
+      | _ =>
+        ((methodVariant === GooglePay ||
+        methodVariant === ApplePay ||
+        methodVariant === SamsungPay ||
+        methodVariant === AmazonPay ||
+        methodVariant === Paze) &&
+          {
+            switch connector->getConnectorNameTypeFromString(~connectorType) {
+            | Processors(TRUSTPAY)
+            | Processors(STRIPE_TEST)
+            | PayoutProcessor(WORLDPAY)
+            | PayoutProcessor(WORLDPAYXML) => false
+            | _ => true
+            }
+          }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+      }
     }
 
     let findPaymentMethodIndexInForm = (paymentMethodsEnabledArray, paymentMethod) => {
@@ -402,7 +406,12 @@ module CardRenderer = {
             </p>
             <RenderIf
               condition={paymentMethod->getPaymentMethodFromString !== Wallet &&
-                paymentMethod->getPaymentMethodFromString !== BankDebit}>
+              paymentMethod->getPaymentMethodFromString !== BankDebit &&
+              !(
+                connector->getConnectorNameTypeFromString == Processors(SANTANDER) &&
+                  (paymentMethod->getPaymentMethodFromString === BankTransfer ||
+                    paymentMethod->getPaymentMethodFromString === Voucher)
+              )}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),
