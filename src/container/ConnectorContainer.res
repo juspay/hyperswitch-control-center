@@ -208,6 +208,9 @@ let make = () => {
           <SDKPage />
         </SDKProvider>
       </AccessControl>
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
+      <OrchestrationVaultContainer />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}
