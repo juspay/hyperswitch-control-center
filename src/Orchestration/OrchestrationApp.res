@@ -40,13 +40,12 @@ let make = (~setScreenState) => {
     | list{"payment-settings", ..._}
     | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
-    | list{"sdk"} =>
+    | list{"sdk"}
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
       </AccessControl>
-    | list{"vault-onboarding", ..._}
-    | list{"vault-customers-tokens", ..._} =>
-      <OrchestrationVaultContainer />
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
