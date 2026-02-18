@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.18.1
+
+### Features
+
+- Add error_description for payment attempts ([#4213](https://github.com/juspay/hyperswitch-control-center/pull/4213)) ([`f94e25d`](https://github.com/juspay/hyperswitch-control-center/commit/f94e25d6be49f88a440871a1c48a2e4b1d7284fb))
+
+### Miscellaneous Tasks
+
+- Moved vault under orchestration ([#4228](https://github.com/juspay/hyperswitch-control-center/pull/4228)) ([`c263c98`](https://github.com/juspay/hyperswitch-control-center/commit/c263c98a4fedb64acfe9176d33304a9eed3d3a60))
+- Add missing PR's in change log ([#4233](https://github.com/juspay/hyperswitch-control-center/pull/4233)) ([`363ba1a`](https://github.com/juspay/hyperswitch-control-center/commit/363ba1a7619dca59db961da60210555967109a61))
+- Upgrade openssl package ([#4236](https://github.com/juspay/hyperswitch-control-center/pull/4236)) ([`2b82007`](https://github.com/juspay/hyperswitch-control-center/commit/2b82007fc358930c2e443b4b2f7eccd1be41ac0e))
+
+**Full Changelog:** [`2026.02.18.0...2026.02.18.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.18.0...2026.02.18.1)
+
+- - -
+
 ## 2026.02.18.0
 
 ### Features
