@@ -500,6 +500,7 @@ let settings = (
   ~complianceCertificate,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
+  ~devUsers,
 ) => {
   let settingsLinkArray = []
 
@@ -515,10 +516,11 @@ let settings = (
     ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
     ->ignore
   }
-
-  settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
   if userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access {
     settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
+  }
+  if !(devUsers && devModularityV2Enabled) {
+    settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
   }
 
   Section({

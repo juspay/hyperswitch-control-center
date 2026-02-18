@@ -250,6 +250,13 @@ let make = () => {
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
                         | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+                        // TODO: Move this up after devUsers stabilizes and the User module is fully decoupled from orchestration.
+                        | (_, list{"users", ..._}) =>
+                          <AccessControl
+                            isEnabled={version == V1}
+                            authorization={userHasAccess(~groupAccess=UsersView)}>
+                            <UserManagementContainer />
+                          </AccessControl>
                         | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>
