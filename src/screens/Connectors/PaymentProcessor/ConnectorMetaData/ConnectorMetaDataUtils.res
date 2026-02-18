@@ -2,6 +2,7 @@ let metaDataInputKeysToIgnore = [
   "google_pay",
   "apple_pay",
   "zen_apple_pay",
+  "paypal_sdk",
   "account_id",
   "boleto",
   "pix",

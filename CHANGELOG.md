@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.18.0
+
+### Features
+
+- Add `client_id` in paypal sdk for braintree connector ([#4205](https://github.com/juspay/hyperswitch-control-center/pull/4205)) ([`bb19ceb`](https://github.com/juspay/hyperswitch-control-center/commit/bb19cebdd36f92ccb081ae32b4af2ca32429741d))
+
+### Bug Fixes
+
+- Update failing test cases ([#4223](https://github.com/juspay/hyperswitch-control-center/pull/4223)) ([`7c8a21f`](https://github.com/juspay/hyperswitch-control-center/commit/7c8a21f4e3203c61fa6f65e4d241e37a706c4be3))
+- Grid layout for connectors and dummy processors ([#4211](https://github.com/juspay/hyperswitch-control-center/pull/4211)) ([`6aba874`](https://github.com/juspay/hyperswitch-control-center/commit/6aba87486482f989e3d295f6b8d3f2bb0d100563))
+
+**Full Changelog:** [`2026.02.13.0...2026.02.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.13.0...2026.02.18.0)
+
+- - -
+
 ## 2026.02.13.0
 
 ### Features
