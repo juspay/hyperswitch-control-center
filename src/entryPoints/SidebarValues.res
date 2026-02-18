@@ -412,6 +412,36 @@ let surcharge = userHasResourceAccess => {
   })
 }
 
+let vaultOnboarding = userHasResourceAccess => SubLevelLink({
+  name: "Configuration",
+  link: `/vault-onboarding`,
+  access: userHasResourceAccess(~resourceAccess=Connector),
+  searchOptions: [("Vault onboarding", "")],
+})
+
+let vaultCustomerAndTokens = userHasResourceAccess => SubLevelLink({
+  name: "Customers & Tokens",
+  link: `/vault-customers-tokens`,
+  access: userHasResourceAccess(~resourceAccess=Connector),
+  searchOptions: [("Manage vault customers and tokens", "")],
+})
+
+let vault = (isVaultEnabled, ~userHasResourceAccess) => {
+  let defaultVault = [
+    vaultOnboarding(userHasResourceAccess),
+    vaultCustomerAndTokens(userHasResourceAccess),
+  ]
+
+  isVaultEnabled
+    ? Section({
+        name: "Vault",
+        icon: "vault-home",
+        showSection: true,
+        links: defaultVault,
+      })
+    : emptyComponent
+}
+
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
