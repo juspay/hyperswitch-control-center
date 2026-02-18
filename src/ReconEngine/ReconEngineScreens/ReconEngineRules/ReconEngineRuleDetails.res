@@ -513,11 +513,12 @@ module RuleDetailsContent = {
         "Description",
         rule.rule_description->LogicUtils.isNonEmptyString ? rule.rule_description : "NA",
       ),
+      ("Aging Threshold", getReconAgingConfigDisplayName(rule.aging_config)),
     ]
 
     <div className="flex flex-col gap-6">
       <div className="rounded-lg p-6 border border-nd_gray-150">
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           {fields
           ->Array.map(((label, value)) => {
             <FieldDisplay key={LogicUtils.randomString(~length=10)} label={label} value={value} />
