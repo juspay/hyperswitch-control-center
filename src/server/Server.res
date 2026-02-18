@@ -67,9 +67,6 @@ external execSync: (string, encodeType) => string = "execSync"
 let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
-  // Log the full incoming request URL
-  Js.log2("Incoming request URL", request.url)
-
   let arr = request.url.toString()->String.split("?")
 
   let domainFromQueryParam =
@@ -130,14 +127,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
       ()->(resolve(_))
     })
   } else {
-    // Log request details for debugging
-    Js.log("=== Request Details ===")
-    Js.log2("originalPath", arr->Array.get(0)->Option.getOr(""))
-    Js.log2("parsedPath", path)
-    Js.log2("serverPath", serverPath)
-    Js.log2("baseHtmlRoute", baseHtmlRoute)
-    Js.log2("appName", appName)
-
     // Try to serve Brotli/Gzip-compressed version first
     let compressedServed = serveCompressed(
       ~request,

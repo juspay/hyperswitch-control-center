@@ -21,7 +21,6 @@ export function serveCompressed(
   const supportsGzip = acceptEncoding.includes("gzip");
 
   const fullPath = path.join(serverPath, filePath);
-console.log("=== Compression Serve ===", { serverPath, filePath, fullPath, fileExists: fs.existsSync(fullPath) });
 
   //   Priority 1: Try Brotli compression if supported
   if (supportsBrotli) {
