@@ -10,6 +10,7 @@ let make = () => {
   let (sampleReport, setSampleReport) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
+  let setIsOrchestrationVault = Recoil.useSetRecoilState(HyperswitchAtom.orchestrationVaultAtom)
 
   let setUpVaultContainer = async () => {
     try {
@@ -28,6 +29,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
+    setIsOrchestrationVault(_ => true)
     setUpVaultContainer()->ignore
     None
   }, [])
@@ -39,7 +41,7 @@ let make = () => {
         entityName="VaultConnector"
         remainingPath
         access=Access
-        renderList={() => <VaultConfiguration isOrchestrationVault=true />}
+        renderList={() => <VaultConfiguration />}
         renderNewForm={() => <VaultOnboarding />}
       />
     | list{"vault-customers-tokens", ...remainingPath} =>
@@ -47,9 +49,8 @@ let make = () => {
         entityName="Vault"
         remainingPath
         access=Access
-        renderList={() =>
-          <VaultCustomersAndTokens sampleReport setSampleReport isOrchestrationVault=true />}
-        renderShow={(id, _) => <VaultCustomerSummary id sampleReport isOrchestrationVault=true />}
+        renderList={() => <VaultCustomersAndTokens sampleReport setSampleReport />}
+        renderShow={(id, _) => <VaultCustomerSummary id sampleReport />}
       />
     | _ => React.null
     }}

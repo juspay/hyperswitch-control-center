@@ -2,13 +2,15 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module CantFindProcessor = {
   @react.component
-  let make = (~showRequestConnectorBtn, ~isOrchestrationVault) => {
+  let make = (~showRequestConnectorBtn) => {
+    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleClick = () => {
       mixpanelEvent(
-        ~eventName={
-          isOrchestrationVault ? "orchestration_vault_request_processor" : "vault_request_processor"
-        },
+        ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+          ~isOrchestrationVault,
+          ~eventName="vault_request_processor",
+        ),
       )
       "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
     }
@@ -31,7 +33,6 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
-  ~isOrchestrationVault=false,
 ) => {
   open ConnectorUtils
 
@@ -39,6 +40,7 @@ let make = (
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
@@ -51,11 +53,12 @@ let make = (
 
   let handleClick = connectorName => {
     mixpanelEvent(
-      ~eventName=`${isOrchestrationVault
-          ? `orchestration_vault_connector_click_`
-          : `vault_connector_click_`}${connectorName}`,
+      ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+        ~isOrchestrationVault,
+        ~eventName=`vault_connector_click_${connectorName}`,
+      ),
     )
-    setShowSideBar(_ => isOrchestrationVault ? true : false)
+    setShowSideBar(_ => isOrchestrationVault)
     RescriptReactRouter.push(
       GlobalVars.appendDashboardPath(~url=`${redirectEndpoint}${connectorName}`),
     )

@@ -8,14 +8,15 @@ module NoDataFoundComponent = {
     ~setOffset,
     ~total,
     ~fieldArray,
-    ~isOrchestrationVault=false,
   ) => {
+    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleSampleReportButtonClick = () => {
       mixpanelEvent(
-        ~eventName={
-          isOrchestrationVault ? "orchestration_vault_get_sample_data" : "vault_get_sample_data"
-        },
+        ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+          ~isOrchestrationVault,
+          ~eventName="vault_get_sample_data",
+        ),
       )
       let response = VaultSampleData.customersList
       let data = response->JSON.Decode.array->Option.getOr([])
@@ -70,7 +71,7 @@ module NoDataFoundComponent = {
   }
 }
 @react.component
-let make = (~sampleReport, ~setSampleReport, ~isOrchestrationVault=false) => {
+let make = (~sampleReport, ~setSampleReport) => {
   open PageUtils
   open APIUtils
   open VaultCustomersEntity
@@ -80,6 +81,7 @@ let make = (~sampleReport, ~setSampleReport, ~isOrchestrationVault=false) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => [])
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -158,11 +160,10 @@ let make = (~sampleReport, ~setSampleReport, ~isOrchestrationVault=false) => {
 
   let sendMixpanelEvent = () => {
     mixpanelEvent(
-      ~eventName={
-        isOrchestrationVault
-          ? "orchestration_vault_view_customer_details"
-          : "vault_view_customer_details"
-      },
+      ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+        ~isOrchestrationVault,
+        ~eventName="vault_view_customer_details",
+      ),
     )
   }
   <PageLoaderWrapper screenState>
@@ -180,7 +181,6 @@ let make = (~sampleReport, ~setSampleReport, ~isOrchestrationVault=false) => {
           setOffset
           total
           fieldArray
-          isOrchestrationVault
         />
       </RenderIf>
       <RenderIf condition={customersData->Array.length > 0}>

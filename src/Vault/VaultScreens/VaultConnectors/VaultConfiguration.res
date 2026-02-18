@@ -1,5 +1,5 @@
 @react.component
-let make = (~isOrchestrationVault=false) => {
+let make = () => {
   open Typography
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
@@ -37,7 +37,7 @@ let make = (~isOrchestrationVault=false) => {
         title: "",
         tabElement: vaultPspTokenizationTabElement,
         renderContent: () => {
-          <VaultProcessorList isOrchestrationVault />
+          <VaultProcessorList />
         },
       },
       {

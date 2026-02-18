@@ -118,7 +118,7 @@ module CustomerInfo = {
 
 module VaultedPaymentMethodsTable = {
   @react.component
-  let make = (~sampleReport, ~isOrchestrationVault=false) => {
+  let make = (~sampleReport) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -126,6 +126,7 @@ module VaultedPaymentMethodsTable = {
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
     let pageDetail = pageDetailDict->Dict.get("vaultedPaymentMethods")->Option.getOr(defaultValue)
     let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -187,11 +188,10 @@ module VaultedPaymentMethodsTable = {
           setPaymentId(_ => val.id)
           setShowModal(_ => true)
           mixpanelEvent(
-            ~eventName={
-              isOrchestrationVault
-                ? "orchestration_vault_view_vaulted_payment_method_details"
-                : "vault_view_vaulted_payment_method_details"
-            },
+            ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+              ~isOrchestrationVault,
+              ~eventName="vault_view_vaulted_payment_method_details",
+            ),
           )
         }}
         currrentFetchCount={tableData->Array.length}
@@ -211,7 +211,7 @@ module VaultedPaymentMethodsTable = {
 
 module VaultedPaymentMethods = {
   @react.component
-  let make = (~sampleReport, ~isOrchestrationVault) => {
+  let make = (~sampleReport) => {
     <>
       <div className="flex flex-col gap-1 mb-6">
         <p className="text-xl font-semibold"> {"Vaulted Payment Method"->React.string} </p>
@@ -219,13 +219,13 @@ module VaultedPaymentMethods = {
           {"Click on an entry to view detailed information about a vaulted payment method."->React.string}
         </p>
       </div>
-      <VaultedPaymentMethodsTable sampleReport isOrchestrationVault />
+      <VaultedPaymentMethodsTable sampleReport />
     </>
   }
 }
 
 @react.component
-let make = (~id, ~sampleReport, ~isOrchestrationVault=false) => {
+let make = (~id, ~sampleReport) => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
@@ -233,6 +233,7 @@ let make = (~id, ~sampleReport, ~isOrchestrationVault=false) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
   let defaultObject = Dict.make()->VaultCustomersEntity.itemToObjMapper
+  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -294,7 +295,7 @@ let make = (~id, ~sampleReport, ~isOrchestrationVault=false) => {
       <div className="mb-8">
         <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
       </div>
-      <VaultedPaymentMethods sampleReport isOrchestrationVault />
+      <VaultedPaymentMethods sampleReport />
     </div>
   </PageLoaderWrapper>
 }

@@ -1,5 +1,5 @@
 @react.component
-let make = (~isOrchestrationVault=false) => {
+let make = () => {
   open Typography
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
@@ -15,14 +15,17 @@ let make = (~isOrchestrationVault=false) => {
     ->Option.isSome
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let requestAProcessorComponent = {
-    <div className="-mt-8">
-      <VaultProcessorCards.CantFindProcessor showRequestConnectorBtn=true isOrchestrationVault />
-    </div>
+    <RenderIf condition={!isOrchestrationVault}>
+      <div className="-mt-8">
+        <VaultProcessorCards.CantFindProcessor showRequestConnectorBtn=true />
+      </div>
+    </RenderIf>
   }
 
   let getConnectorListAndUpdateState = async () => {
@@ -50,11 +53,10 @@ let make = (~isOrchestrationVault=false) => {
 
   let sendMixpanelEvent = () => {
     mixpanelEvent(
-      ~eventName={
-        isOrchestrationVault
-          ? "orchestration_vault_view_connector_details"
-          : "vault_view_connector_details"
-      },
+      ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+        ~isOrchestrationVault,
+        ~eventName="vault_view_connector_details",
+      ),
     )
   }
 
@@ -79,14 +81,12 @@ let make = (~isOrchestrationVault=false) => {
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
-          rightTitleElement={!isOrchestrationVault ? requestAProcessorComponent : React.null}
+          rightTitleElement={requestAProcessorComponent}
           showAutoScroll=true
         />
       </RenderIf>
       <RenderIf condition={!isOrchestrationVault}>
-        <VaultProcessorCards
-          configuredConnectors connectorsAvailableForIntegration isOrchestrationVault
-        />
+        <VaultProcessorCards configuredConnectors connectorsAvailableForIntegration />
       </RenderIf>
       <RenderIf condition={isOrchestrationVault}>
         <ProcessorCards
