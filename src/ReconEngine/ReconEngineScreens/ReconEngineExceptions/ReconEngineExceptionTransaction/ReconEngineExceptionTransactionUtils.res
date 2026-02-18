@@ -13,6 +13,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
     DataMismatch,
     PartiallyReconciled,
     Expected,
+    Missing,
   ])
   [
     (
