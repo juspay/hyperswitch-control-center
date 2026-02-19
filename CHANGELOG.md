@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.19.0
+
+### Features
+
+- Recon engine add new transaction and staging entry statuses ([#4196](https://github.com/juspay/hyperswitch-control-center/pull/4196)) ([`5d3ccc5`](https://github.com/juspay/hyperswitch-control-center/commit/5d3ccc50b04229c088ed708a64876c7c45fbe771))
+- Implement CSV download functionality for global search result tables ([#4207](https://github.com/juspay/hyperswitch-control-center/pull/4207)) ([`fb7816d`](https://github.com/juspay/hyperswitch-control-center/commit/fb7816d3e6fae57169c54bf4d2c9cf66f2b4b7f0))
+
+### Miscellaneous Tasks
+
+- Refactored defaultThemeConfig ([#4220](https://github.com/juspay/hyperswitch-control-center/pull/4220)) ([`3c282d8`](https://github.com/juspay/hyperswitch-control-center/commit/3c282d876d1585d77e220ffbf2900d8d61410b83))
+
+**Full Changelog:** [`2026.02.18.1...2026.02.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.18.1...2026.02.19.0)
+
+- - -
+
 ## 2026.02.18.1
 
 ### Features
