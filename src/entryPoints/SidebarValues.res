@@ -625,7 +625,7 @@ let developers = (
     let webhooks = webhooks(userHasResourceAccess)
 
     let defaultDevelopersOptions = []
-    
+
     if isRevampedPaymentSettingsEnabled {
       defaultDevelopersOptions->Array.push(paymentSettingsRevamped)->ignore
     } else {
