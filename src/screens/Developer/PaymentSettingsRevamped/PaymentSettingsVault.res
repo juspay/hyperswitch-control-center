@@ -5,9 +5,9 @@ module VaultFields = {
   let make = () => {
     open FormRenderer
     open HSwitchUtils
-    open PaymentSettingsV2Helper
+    open PaymentSettingsRevampedHelper
     open LogicUtils
-    open PaymentSettingsV2Utils
+    open PaymentSettingsRevampedUtils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -96,7 +96,7 @@ let make = () => {
       onSubmit
       initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       validate={values => {
-        PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+        PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
           ~values,
           ~isLiveMode=featureFlagDetails.isLiveMode,
           ~businessProfileRecoilVal,

@@ -78,11 +78,11 @@ module WebhooksConfiguration = {
     <PageLoaderWrapper screenState sectionHeight="h-28">
       <Form
         initialValues={businessProfileRecoilVal
-        ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
+        ->PaymentSettingsRevampedUtils.parseBusinessProfileForPaymentBehaviour
         ->Identity.genericTypeToJson}
         onSubmit
         validate={values => {
-          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+          PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
             ~values,
             ~isLiveMode=featureFlagDetails.isLiveMode,
             ~businessProfileRecoilVal,

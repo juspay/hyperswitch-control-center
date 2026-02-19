@@ -1,4 +1,4 @@
-open PaymentSettingsV2Types
+open PaymentSettingsRevampedTypes
 open LogicUtils
 
 let vaultStatusFromString = str =>

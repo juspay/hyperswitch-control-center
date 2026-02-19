@@ -173,15 +173,15 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <EntityScaffold
-        entityName="PaymentSettings"
-        remainingPath
-        renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
-      />
-    | list{"payment-settings-new", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.paymentSettingsV2} authorization=Access>
+      <AccessControl isEnabled={featureFlagDetails.revampedPaymentSettings} authorization=Access>
         <EntityScaffold
-          entityName="PaymentSettingsV2" remainingPath renderList={() => <PaymentSettingsV2 />}
+          entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettingsRevamped />}
+        />
+      </AccessControl>
+    | list{"payment-settings-old", ...remainingPath} =>
+      <AccessControl isEnabled={!featureFlagDetails.revampedPaymentSettings} authorization=Access>
+        <EntityScaffold
+          entityName="PaymentSettingsOld" remainingPath renderList={() => <PaymentSettings />}
         />
       </AccessControl>
 

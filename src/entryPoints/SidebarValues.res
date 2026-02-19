@@ -572,15 +572,16 @@ let apiKeys = userHasResourceAccess => {
 let paymentSettings = userHasResourceAccess => {
   SubLevelLink({
     name: "Payment Settings",
-    link: `/payment-settings`,
+    link: `/payment-settings-old`,
     access: userHasResourceAccess(~resourceAccess=Account),
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
-let paymentSettingsV2 = userHasResourceAccess => {
+
+let paymentSettingsRevamped = userHasResourceAccess => {
   SubLevelLink({
-    name: "Payment Settings V2",
-    link: `/payment-settings-new`,
+    name: "Payment Settings",
+    link: `/payment-settings`,
     access: userHasResourceAccess(~resourceAccess=Account),
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
@@ -609,7 +610,7 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
-  ~isPaymentSettingsV2Enabled,
+  ~isRevampedPaymentSettingsEnabled,
   ~paymentLinkThemeConfigurator,
   ~isCurrentMerchantPlatform,
 ) => {
@@ -620,13 +621,17 @@ let developers = (
   } else {
     let isProfileUser = checkUserEntity([#Profile])
     let paymentSettings = paymentSettings(userHasResourceAccess)
-    let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
+    let paymentSettingsRevamped = paymentSettingsRevamped(userHasResourceAccess)
     let webhooks = webhooks(userHasResourceAccess)
 
-    let defaultDevelopersOptions = [paymentSettings]
-    if isPaymentSettingsV2Enabled {
-      defaultDevelopersOptions->Array.push(paymentSettingsV2)
+    let defaultDevelopersOptions = []
+    
+    if isRevampedPaymentSettingsEnabled {
+      defaultDevelopersOptions->Array.push(paymentSettingsRevamped)->ignore
+    } else {
+      defaultDevelopersOptions->Array.push(paymentSettings)->ignore
     }
+
     if !isProfileUser {
       defaultDevelopersOptions->Array.push(apiKeys)
     }
