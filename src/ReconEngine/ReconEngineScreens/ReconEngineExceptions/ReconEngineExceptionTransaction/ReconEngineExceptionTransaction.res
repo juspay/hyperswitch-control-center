@@ -136,7 +136,7 @@ let make = (~ruleId: string) => {
           <p className={`${heading.sm.semibold} text-gray-800`}>
             {"No exceptions to show."->React.string}
           </p>
-          <p className={`${body.md.medium} text-gray-500`}>
+          <p className={`${body.md.medium} text-nd_gray-500`}>
             {"All transactions are matched successfully across this system."->React.string}
           </p>
         </div>

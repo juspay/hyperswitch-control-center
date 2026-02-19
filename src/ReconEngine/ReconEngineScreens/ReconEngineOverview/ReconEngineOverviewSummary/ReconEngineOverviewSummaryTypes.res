@@ -49,7 +49,7 @@ type reconStatusData = {
 
 type nodeData = {
   label: string,
-  accountType: string,
+  accountType: accountTypeVariant,
   statusData: array<reconStatusData>,
   selected: bool,
   onNodeClick: option<unit => unit>,

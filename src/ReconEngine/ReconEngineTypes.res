@@ -3,10 +3,16 @@ type balanceType = {
   currency: string,
 }
 
+@unboxed
+type accountTypeVariant =
+  | @as("credit") Credit
+  | @as("debit") Debit
+  | UnknownAccountTypeVariant
+
 type accountType = {
   account_name: string,
   account_id: string,
-  account_type: string,
+  account_type: accountTypeVariant,
   profile_id: string,
   currency: string,
   initial_balance: balanceType,

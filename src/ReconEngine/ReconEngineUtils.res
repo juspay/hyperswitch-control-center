@@ -139,11 +139,19 @@ let getDomainTransactionStatus = (
   }
 }
 
+let getAccountTypeVariantFromString = (accountType: string): accountTypeVariant => {
+  switch accountType->String.toLowerCase {
+  | "credit" => Credit
+  | "debit" => Debit
+  | _ => UnknownAccountTypeVariant
+  }
+}
+
 let accountItemToObjMapper = dict => {
   {
     account_name: dict->getString("account_name", ""),
     account_id: dict->getString("account_id", ""),
-    account_type: dict->getString("account_type", ""),
+    account_type: dict->getString("account_type", "")->getAccountTypeVariantFromString,
     profile_id: dict->getString("profile_id", ""),
     currency: dict->getDictfromDict("initial_balance")->getString("currency", ""),
     initial_balance: dict
