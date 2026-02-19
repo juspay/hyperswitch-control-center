@@ -181,11 +181,20 @@ module Location = {
 }
 
 module Navigator = {
+  type browserType =
+    | Edge
+    | Opera
+    | Chrome
+    | Safari
+    | Firefox
+    | InternetExplorer
+    | Unknown
+
   @val @scope(("window", "navigator"))
   external userAgent: string = "userAgent"
 
   @val @scope(("window", "navigator"))
-  external browserName: string = "appName"
+  external browserNameRaw: string = "appName"
 
   @val @scope(("window", "navigator"))
   external browserVersion: string = "appVersion"
@@ -195,6 +204,69 @@ module Navigator = {
 
   @val @scope(("window", "navigator"))
   external browserLanguage: string = "language"
+
+  let browserName: browserType = {
+    let ua = userAgent
+    if ua->String.includes("Edg/") || ua->String.includes("Edge/") {
+      Edge
+    } else if ua->String.includes("OPR/") || ua->String.includes("Opera/") {
+      Opera
+    } else if ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")) {
+      Chrome
+    } else if ua->String.includes("Safari/") && !(ua->String.includes("Chrome/")) {
+      Safari
+    } else if ua->String.includes("Firefox/") {
+      Firefox
+    } else if ua->String.includes("MSIE ") || ua->String.includes("Trident/") {
+      InternetExplorer
+    } else if browserNameRaw == "Netscape" {
+      Unknown
+    } else {
+      Unknown
+    }
+  }
+
+  let getBrowserVersion = {
+    let ua = userAgent
+    let extractVersion = (pattern: string) => {
+      let parts = ua->String.split(pattern)
+      if parts->Array.length > 1 {
+        let rest = parts->LogicUtils.getValueFromArray(1, "")
+        let versionParts = rest->String.split(" ")
+        if versionParts->Array.length > 0 {
+          let version = versionParts->LogicUtils.getValueFromArray(0, "")
+          let cleanVersion = version->String.split("/")->LogicUtils.getValueFromArray(0, "")
+          cleanVersion
+        } else {
+          "Unknown"
+        }
+      } else {
+        "Unknown"
+      }
+    }
+
+    if ua->String.includes("Edg/") {
+      extractVersion("Edg/")
+    } else if ua->String.includes("Edge/") {
+      extractVersion("Edge/")
+    } else if ua->String.includes("OPR/") {
+      extractVersion("OPR/")
+    } else if ua->String.includes("Opera/") {
+      extractVersion("Opera/")
+    } else if ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")) {
+      extractVersion("Chrome/")
+    } else if ua->String.includes("Version/") && ua->String.includes("Safari/") {
+      extractVersion("Version/")
+    } else if ua->String.includes("Firefox/") {
+      extractVersion("Firefox/")
+    } else if ua->String.includes("MSIE ") {
+      extractVersion("MSIE ")
+    } else if ua->String.includes("rv:") && ua->String.includes("Trident/") {
+      extractVersion("rv:")
+    } else {
+      "Unknown"
+    }
+  }
 }
 
 module Screen = {

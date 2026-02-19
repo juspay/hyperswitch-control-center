@@ -2,7 +2,7 @@ type browserDetailsObject = {
   userAgent: string,
   browserVersion: string,
   platform: string,
-  browserName: string,
+  browserName: Window.Navigator.browserType,
   browserLanguage: string,
   screenHeight: string,
   screenWidth: string,
