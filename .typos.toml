@@ -5,6 +5,9 @@ extend-ignore-re = [
     "\\bnd[-_][a-zA-Z0-9_-]+"  # matches nd-alert-triangle-outline, nd_gray-100
 ]
 
+[files]
+extend-exclude = ["CHANGELOG.md"]
+
 [default.extend-identifiers]
 ABD = "ABD"  # Aberdeenshire, UK ISO 3166-2 code
 ACTIVITE = "ACTIVITE" # French translation of activity
@@ -38,7 +41,17 @@ THA = "THA"  # Thailand country code
 TTO = "TTO" # Trinidad and Tobago country code
 WS = "WS" # Samoa country code
 ws = "ws" # Web socket
+ist = "ist" # abbreviation for indian standard time
+aci = "aci" # abbreviation for connector
+aciInfo = "aciInfo" # abbreviation for connector info
 ws2ipdef = "ws2ipdef" # WinSock Extension
 ws2tcpip = "ws2tcpip" # WinSock Extension
 ZAR = "ZAR"  # South African Rand currency code
 JOD = "JOD" # Jordan currency code
+IST = "IST" # abbreviation for indian standard time
+ACI = "ACI" # Abbreviation for connector
+som = "som" # abbreviation for Kyrgyzstani som
+utcToIST = "utcToIST" # function to convert utc to indian standard time
+utcToISTDate = "utcToISTDate" # function to convert utc date to indian standard time date
+istTime="istTime" # function to get time in indian standard time
+idx = "idx" # common abbreviation for index
