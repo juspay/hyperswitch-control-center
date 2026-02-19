@@ -11,10 +11,22 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let getAllTransactionsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Expected,
+          Missing,
+          OverAmount(Expected),
+          UnderAmount(Expected),
+          PartiallyReconciled,
+          Posted(Auto),
+          Posted(Manual),
+          Posted(Force),
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          DataMismatch,
+        ])->Array.joinWith(",")
       let transactionsData = await getTransactions(
-        ~queryParameters=Some(
-          `rule_id=${ruleDetails.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`,
-        ),
+        ~queryParameters=Some(`rule_id=${ruleDetails.rule_id}&status=${statusList}`),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)

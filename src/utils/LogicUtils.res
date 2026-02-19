@@ -647,6 +647,8 @@ let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).for
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
 
+let isEmptyArray = arr => arr->Array.length === 0
+
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {
     str->String.slice(~start=0, ~end=-1)
