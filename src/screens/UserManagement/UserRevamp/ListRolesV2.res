@@ -74,7 +74,7 @@ let make = () => {
         <TableSearchFilter
           data={matrixData.roles->Array.map(role => Nullable.make(role))}
           filterLogic={filterLogicForRoles}
-          placeholder="Search by role name"
+          placeholder="Search by Role"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full text-sm rounded-lg"
           searchVal=searchText
