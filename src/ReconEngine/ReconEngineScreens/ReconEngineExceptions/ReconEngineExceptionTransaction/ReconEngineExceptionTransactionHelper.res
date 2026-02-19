@@ -180,6 +180,12 @@ module ExceptionDataDisplay = {
             "DD MMM YYYY, hh:mm A",
           )}`,
       )
+    | Missing => (
+        "Missing",
+        `This transaction is marked as expected since ${currentExceptionDetails.created_at->DateTimeUtils.getFormattedDate(
+            "DD MMM YYYY, hh:mm A",
+          )}`,
+      )
     | PartiallyReconciled => (
         "Partially Reconciled",
         "Please review the details and take necessary actions.",

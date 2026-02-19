@@ -1,1 +1,19 @@
-let connectorListForVault: array<ConnectorTypes.connectorTypes> = [Processors(STRIPE)]
+let connectorListForVault: array<ConnectorTypes.connectorTypes> = [
+  Processors(ADYEN),
+  Processors(ARCHIPEL),
+  Processors(AUTHORIZEDOTNET),
+  Processors(BAMBORA_APAC),
+  Processors(BANKOFAMERICA),
+  Processors(CHECKOUT),
+  Processors(CYBERSOURCE),
+  Processors(DATATRANS),
+  Processors(MOLLIE),
+  Processors(NEXIXPAY),
+  Processors(NMI),
+  Processors(NOVALNET),
+  Processors(PAYPAL),
+  Processors(STRIPE),
+  Processors(TESOURO),
+  Processors(WELLSFARGO),
+  Processors(WORLDPAY),
+]
