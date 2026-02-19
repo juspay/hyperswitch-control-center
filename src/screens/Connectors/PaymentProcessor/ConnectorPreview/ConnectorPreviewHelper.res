@@ -145,19 +145,13 @@ module PreviewCreds = {
 
 module EnableDisableConnectorToggle = {
   @react.component
-  let make = (
-    ~updateStepValue=ConnectorTypes.IntegFields,
-    ~disableConnector,
-    ~isConnectorDisabled,
-    ~pageName="connector",
-  ) => {
+  let make = (~disableConnector, ~isConnectorDisabled) => {
     let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Disabled" : "Enabled"
 
     <div className="flex gap-2 items-center">
       <BoolInput.BaseComponent
         isSelected={!isConnectorDisabled}
         setIsSelected={_ => disableConnector(isConnectorDisabled)->ignore}
-        isDisabled=false
         boolCustomClass="rounded-xl"
         customToggleHeight="20px"
         customToggleWidth="36px"
