@@ -151,9 +151,10 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
       let statusList =
         ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
-          Posted(Auto),
           Posted(Manual),
-          Posted(Force),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(Force),
           Expected,
           Missing,
           PartiallyReconciled,

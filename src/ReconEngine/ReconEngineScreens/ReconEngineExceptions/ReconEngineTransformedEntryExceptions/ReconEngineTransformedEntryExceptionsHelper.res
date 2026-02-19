@@ -279,7 +279,7 @@ module CustomToastElement = {
         `exceptions/transformed-entries/${processingEntry.staging_entry_id}`,
         "See Entry",
       )
-    | _ => (
+    | Archived | UnknownProcessingEntryStatus => (
         "Transformed entry processed successfully",
         "The entry has been moved to transformation entry page",
         `transformed-entries/ingestion-history/${ingestionHistoryId}?transformationHistoryId=${processingEntry.transformation_history_id}&stagingEntryId=${processingEntry.staging_entry_id}`,

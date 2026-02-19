@@ -137,7 +137,7 @@ let make = (~ruleId: string) => {
             {"No exceptions to show."->React.string}
           </p>
           <p className={`${body.md.medium} text-gray-500`}>
-            {"All transactions are matched and reconciled successfully across this system."->React.string}
+            {"All transactions are matched successfully across this system."->React.string}
           </p>
         </div>
       </RenderIf>

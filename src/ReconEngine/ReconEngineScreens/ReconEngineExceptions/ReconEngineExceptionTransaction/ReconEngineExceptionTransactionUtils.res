@@ -119,7 +119,7 @@ let getBalanceByAccountType = (
   let balance = switch accountType->String.toLowerCase {
   | "credit" => totalCredits -. totalDebits
   | "debit" => totalDebits -. totalCredits
-  | _ => totalCredits +. totalDebits
+  | _ => 0.0
   }
 
   let firstEntry =
@@ -610,8 +610,8 @@ let getResolutionModalConfig = (
       closeOnOutsideClick: true,
     }
   | ResolvingException(ForceReconcile) => {
-      heading: "Force Reconcile",
-      description: "This action will mark the transaction as reconciled.",
+      heading: "Force Match",
+      description: "This action will mark the transaction as matched.",
       layout: CenterModal,
       closeOnOutsideClick: true,
     }
