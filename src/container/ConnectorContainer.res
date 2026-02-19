@@ -173,13 +173,13 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.revampedPaymentSettings} authorization=Access>
+      <AccessControl isEnabled={featureFlagDetails.paymentSettingsRevamped} authorization=Access>
         <EntityScaffold
           entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettingsRevamped />}
         />
       </AccessControl>
     | list{"payment-settings-old", ...remainingPath} =>
-      <AccessControl isEnabled={!featureFlagDetails.revampedPaymentSettings} authorization=Access>
+      <AccessControl isEnabled={!featureFlagDetails.paymentSettingsRevamped} authorization=Access>
         <EntityScaffold
           entityName="PaymentSettingsOld" remainingPath renderList={() => <PaymentSettings />}
         />

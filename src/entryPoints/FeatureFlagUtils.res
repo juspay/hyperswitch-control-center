@@ -56,7 +56,7 @@ type featureFlag = {
   devWebhooks: bool,
   sampleDataAnalytics: bool,
   threedsExemptionRules: bool,
-  revampedPaymentSettings: bool,
+  paymentSettingsRevamped: bool,
   acquirerConfigSettings: bool,
   exploreRecipes: bool,
   devOrchestrationV2Product: bool,
@@ -147,7 +147,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devTheme: dict->getBool("dev_theme", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
     devVault: dict->getBool("dev_vault", false),
-    revampedPaymentSettings: dict->getBool("revamped_payment_settings", false),
+    paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
   }
 }
 
