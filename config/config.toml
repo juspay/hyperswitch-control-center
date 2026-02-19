@@ -57,7 +57,6 @@ surcharge=true
 dispute_evidence_upload=false
 recon=true
 recon_v2=false
-payment_settings_v2=false
 custom_webhook_headers=true
 tenant_user=false
 google_pay_direct_flow=false
