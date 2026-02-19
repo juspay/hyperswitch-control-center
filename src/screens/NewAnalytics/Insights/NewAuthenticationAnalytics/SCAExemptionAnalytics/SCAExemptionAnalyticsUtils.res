@@ -11,6 +11,10 @@ let sankeyBlueFlow = "#BCD7FA"
 let sankeyYellowNode = "#D99530"
 let sankeyYellowFlow = "#F5D9A8"
 
+let incrementCounter = (dict, key, count) => {
+  dict->Dict.set(key, dict->getInt(key, 0) + count)
+}
+
 let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
   let countersDict =
     [
@@ -39,40 +43,23 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
     let exemptionRequestedValue = itemDict->getOptionBool("exemption_requested")
     let exemptionAcceptedValue = itemDict->getOptionBool("exemption_accepted")
 
-    countersDict->Dict.set(
-      "total_3ds_payments",
-      countersDict->getInt("total_3ds_payments", 0) + count,
-    )
+    incrementCounter(countersDict, "total_3ds_payments", count)
 
     let isExemptionRequested = exemptionRequestedValue->Option.getOr(false)
 
-    let isExemptionAccepted = switch (exemptionRequestedValue, exemptionAcceptedValue) {
-    | (Some(true), Some(true)) => true
-    | _ => false
-    }
+    let isExemptionAccepted =
+      exemptionRequestedValue->Option.getOr(false) && exemptionAcceptedValue->Option.getOr(false)
 
     if isExemptionRequested {
-      countersDict->Dict.set(
-        "exemption_requested",
-        countersDict->getInt("exemption_requested", 0) + count,
-      )
+      incrementCounter(countersDict, "exemption_requested", count)
     } else {
-      countersDict->Dict.set(
-        "exemption_not_requested",
-        countersDict->getInt("exemption_not_requested", 0) + count,
-      )
+      incrementCounter(countersDict, "exemption_not_requested", count)
     }
 
     if isExemptionRequested && isExemptionAccepted {
-      countersDict->Dict.set(
-        "exemption_accepted",
-        countersDict->getInt("exemption_accepted", 0) + count,
-      )
+      incrementCounter(countersDict, "exemption_accepted", count)
     } else if isExemptionRequested {
-      countersDict->Dict.set(
-        "exemption_rejected",
-        countersDict->getInt("exemption_rejected", 0) + count,
-      )
+      incrementCounter(countersDict, "exemption_rejected", count)
     }
 
     let exemptionPath = if isExemptionRequested && isExemptionAccepted {
@@ -87,92 +74,44 @@ let scaExemptionResponseMapper = (sankeyDataArray: array<JSON.t>) => {
     switch authStatus {
     | "success" =>
       switch exemptionPath {
-      | "exemptionAcceptedPath" =>
-        countersDict->Dict.set(
-          "accepted_auth_success",
-          countersDict->getInt("accepted_auth_success", 0) + count,
-        )
+      | "exemptionAcceptedPath" => incrementCounter(countersDict, "accepted_auth_success", count)
       | "exemptionRejectedPath" =>
-        countersDict->Dict.set(
-          "rejected_3ds_completed",
-          countersDict->getInt("rejected_3ds_completed", 0) + count,
-        )
-        countersDict->Dict.set(
-          "challenge_auth_success",
-          countersDict->getInt("challenge_auth_success", 0) + count,
-        )
+        incrementCounter(countersDict, "rejected_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_success", count)
       | "exemptionNotRequestedPath" =>
-        countersDict->Dict.set(
-          "not_requested_3ds_completed",
-          countersDict->getInt("not_requested_3ds_completed", 0) + count,
-        )
-        countersDict->Dict.set(
-          "challenge_auth_success",
-          countersDict->getInt("challenge_auth_success", 0) + count,
-        )
+        incrementCounter(countersDict, "not_requested_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_success", count)
       | _ => ()
       }
 
     | "failed" =>
       switch exemptionPath {
-      | "exemptionAcceptedPath" =>
-        countersDict->Dict.set(
-          "accepted_auth_failure",
-          countersDict->getInt("accepted_auth_failure", 0) + count,
-        )
+      | "exemptionAcceptedPath" => incrementCounter(countersDict, "accepted_auth_failure", count)
       | "exemptionRejectedPath" =>
-        countersDict->Dict.set(
-          "rejected_3ds_completed",
-          countersDict->getInt("rejected_3ds_completed", 0) + count,
-        )
-        countersDict->Dict.set(
-          "challenge_auth_failure",
-          countersDict->getInt("challenge_auth_failure", 0) + count,
-        )
+        incrementCounter(countersDict, "rejected_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_failure", count)
       | "exemptionNotRequestedPath" =>
-        countersDict->Dict.set(
-          "not_requested_3ds_completed",
-          countersDict->getInt("not_requested_3ds_completed", 0) + count,
-        )
-        countersDict->Dict.set(
-          "challenge_auth_failure",
-          countersDict->getInt("challenge_auth_failure", 0) + count,
-        )
+        incrementCounter(countersDict, "not_requested_3ds_completed", count)
+        incrementCounter(countersDict, "challenge_auth_failure", count)
       | _ => ()
       }
 
     | "pending" => {
         switch exemptionPath {
         | "exemptionRejectedPath" =>
-          countersDict->Dict.set(
-            "rejected_3ds_incomplete",
-            countersDict->getInt("rejected_3ds_incomplete", 0) + count,
-          )
+          incrementCounter(countersDict, "rejected_3ds_incomplete", count)
         | "exemptionNotRequestedPath" =>
-          countersDict->Dict.set(
-            "not_requested_3ds_incomplete",
-            countersDict->getInt("not_requested_3ds_incomplete", 0) + count,
-          )
+          incrementCounter(countersDict, "not_requested_3ds_incomplete", count)
         | _ => ()
         }
 
-        countersDict->Dict.set(
-          "challenge_incomplete_auth_failure",
-          countersDict->getInt("challenge_incomplete_auth_failure", 0) + count,
-        )
+        incrementCounter(countersDict, "challenge_incomplete_auth_failure", count)
       }
     | _ =>
       switch exemptionPath {
-      | "exemptionRejectedPath" =>
-        countersDict->Dict.set(
-          "rejected_3ds_incomplete",
-          countersDict->getInt("rejected_3ds_incomplete", 0) + count,
-        )
+      | "exemptionRejectedPath" => incrementCounter(countersDict, "rejected_3ds_incomplete", count)
       | "exemptionNotRequestedPath" =>
-        countersDict->Dict.set(
-          "not_requested_3ds_incomplete",
-          countersDict->getInt("not_requested_3ds_incomplete", 0) + count,
-        )
+        incrementCounter(countersDict, "not_requested_3ds_incomplete", count)
       | _ => ()
       }
     }
