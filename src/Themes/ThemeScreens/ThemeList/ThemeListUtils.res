@@ -11,7 +11,7 @@ let extractThemeData: _ => ThemeListType.themeListObj = themeObj => {
   let settings = themeData->getJsonObjectFromDict("settings")->getDictFromJsonObject
   let colors = settings->getJsonObjectFromDict("colors")->getDictFromJsonObject
   let sidebarColors = settings->getJsonObjectFromDict("sidebar")->getDictFromJsonObject
-  let newDefaultConfigSettings = ThemeProvider.newDefaultConfig.settings
+  let newDefaultConfigSettings = ThemeProvider.fallbackThemeConfig.settings
 
   {
     themeName: themeDataDict->getString("theme_name", ""),

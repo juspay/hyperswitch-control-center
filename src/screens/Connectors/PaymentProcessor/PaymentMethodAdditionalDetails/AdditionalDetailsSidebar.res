@@ -57,6 +57,12 @@ let make = (
         <AmazonPayIntegration
           connector closeAccordionFn update=updatePaymentMethods onCloseClickCustomFun
         />
+      | Pix =>
+        <PixIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+      | Boleto =>
+        <BoletoIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
+      | PayPal =>
+        <PayPalIntegration connector closeAccordionFn update=updateMetadata onCloseClickCustomFun />
       | _ => React.null
       }}
     </RenderIf>

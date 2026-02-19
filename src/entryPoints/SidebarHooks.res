@@ -35,6 +35,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     vaultProcessor,
     devModularityV2,
     devTheme,
+    devVault,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -72,6 +73,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
           ~isPayoutEnabled=payOut,
           ~userEntity,
         ),
+        devVault->vault(~userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
       ]
     : []
