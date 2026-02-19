@@ -1,9 +1,12 @@
 @val @scope("process")
 external env: Dict.t<string> = "env"
 
-let appName = Some("hyperswitch")
+@val external appName: string = "APP_NAME"
 
-let port = 9000
+let port = switch appName {
+| "embedded" => 9001
+| _ => 9000
+}
 
 open NodeJs
 
@@ -89,7 +92,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
-  let (serverPath, baseHtmlRoute) = if path->String.startsWith("/embedded") {
+  let (serverPath, baseHtmlRoute) = if appName == "embedded" {
     ("dist", "embedded/index.html")
   } else {
     ("dist/hyperswitch", "index.html")
