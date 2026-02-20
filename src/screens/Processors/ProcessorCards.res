@@ -2,8 +2,8 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
-  let make = (~connectorList, ~showRequestConnectorBtn=true) => {
-    <RenderIf condition={connectorList->Array.length === 0 && showRequestConnectorBtn}>
+  let make = (~connectorList) => {
+    <RenderIf condition={connectorList->Array.length === 0}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
@@ -26,7 +26,6 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
-  ~showRequestConnectorBtn=true,
   ~showDummyConnectorButton=true,
 ) => {
   open ConnectorUtils
@@ -64,7 +63,6 @@ let make = (
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     ~heading: string,
-    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -159,7 +157,7 @@ let make = (
           ->React.array}
         </div>
       </RenderIf>
-      <RequestConnector connectorList showRequestConnectorBtn />
+      <RequestConnector connectorList />
     </>
   }
 
@@ -177,7 +175,6 @@ let make = (
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
           ~heading="Connect a new processor",
-          ~showRequestConnectorBtn,
           ~showDummyConnectorButton,
           (),
         )}
@@ -186,13 +183,7 @@ let make = (
     <RenderIf condition={showTestProcessor}>
       {showTestProcessor
       ->dummyConnectorList
-      ->descriptedConnectors(
-        ~heading="",
-        ~showRequestConnectorBtn=false,
-        ~showSearch=false,
-        ~showDummyConnectorButton=false,
-        (),
-      )}
+      ->descriptedConnectors(~heading="", ~showSearch=false, ~showDummyConnectorButton=false, ())}
     </RenderIf>
   </RenderIf>
 }

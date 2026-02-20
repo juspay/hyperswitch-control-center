@@ -51,11 +51,7 @@ module DummyProcessorBanner = {
 }
 
 @react.component
-let make = (
-  ~showDummyProcessorBanner=true,
-  ~showRequestConnectorBtn=true,
-  ~showDummyConnectorButton=true,
-) => {
+let make = (~showDummyProcessorBanner=true, ~showDummyConnectorButton=true) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -161,7 +157,6 @@ let make = (
           connectorsAvailableForIntegration
           urlPrefix="connectors/new"
           setProcessorModal
-          showRequestConnectorBtn
           showDummyConnectorButton
         />
         <RenderIf condition={processorModal}>
