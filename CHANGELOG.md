@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.20.0
+
+### Bug Fixes
+
+- Change connector enable disable UI ([#4218](https://github.com/juspay/hyperswitch-control-center/pull/4218)) ([`7585e0d`](https://github.com/juspay/hyperswitch-control-center/commit/7585e0d7cfa16432c76277dfb1f443595c267f86))
+- Update roles search placeholder text ([#4200](https://github.com/juspay/hyperswitch-control-center/pull/4200)) ([`396bcff`](https://github.com/juspay/hyperswitch-control-center/commit/396bcffa2f1e6231a9d36fc484672681efd70eb9))
+- Remove dots from users search placeholder ([#4199](https://github.com/juspay/hyperswitch-control-center/pull/4199)) ([`2774270`](https://github.com/juspay/hyperswitch-control-center/commit/2774270df5b2f7993881c697fa67cce63fa9832f))
+- Sca exemption sankey correction ([#4174](https://github.com/juspay/hyperswitch-control-center/pull/4174)) ([`acc4f26`](https://github.com/juspay/hyperswitch-control-center/commit/acc4f26dee8381bdcc1714ec8e8cd1450d69394f))
+
+### Miscellaneous Tasks
+
+- Changes for embedded deployment ([#4202](https://github.com/juspay/hyperswitch-control-center/pull/4202)) ([`7eff4b3`](https://github.com/juspay/hyperswitch-control-center/commit/7eff4b38dc7540f01f38279dcaae42bdf8174ad6))
+
+**Full Changelog:** [`2026.02.19.0...2026.02.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.19.0...2026.02.20.0)
+
+- - -
+
 ## 2026.02.19.0
 
 ### Features
