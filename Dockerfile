@@ -3,14 +3,10 @@ WORKDIR /usr/src/app
 COPY . .
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
+ARG BUILD_TYPE=prod
+
 RUN npm i
-RUN npm run build:prod
-# this needs to be removed and made a separate deployment for this 
-RUN npm run build:embeddedapp
-
-
-
-
+RUN if [ "$BUILD_TYPE" = "embeddedapp" ]; then npm run build:embeddedapp; else npm run build:prod; fi
 FROM node:18-alpine
 
 WORKDIR /usr/src/app
@@ -29,5 +25,5 @@ RUN chown -R appuser:appgroup /usr/src/app
 
 USER appuser
 
-EXPOSE 8080 9000
+EXPOSE 9000 9001
 CMD [ "/bin/bash", "-c", "npm run serve" ]

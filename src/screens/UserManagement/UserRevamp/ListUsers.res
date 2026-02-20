@@ -96,7 +96,7 @@ let make = () => {
         filters={<TableSearchFilter
           data={usersData}
           filterLogic=filterLogicForUsers
-          placeholder="Search by name or email.."
+          placeholder="Search by name or email"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full"
           searchVal=searchText
