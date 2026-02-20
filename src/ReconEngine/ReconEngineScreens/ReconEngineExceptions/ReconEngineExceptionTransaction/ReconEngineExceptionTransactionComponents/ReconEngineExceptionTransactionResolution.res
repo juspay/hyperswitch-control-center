@@ -142,32 +142,38 @@ module EditEntryModalContent = {
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
       <div className="flex flex-col gap-4 mx-4 h-full">
-        <Form onSubmit validate initialValues={initialFormValues}>
-          {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
-          {transformationConfigSelectInputField(
-            ~transformationsList,
-            ~disabled=false,
-            ~setMetadataSchema,
-            ~setIsMetadataLoading,
-          )}
-          {entryTypeSelectInputField(~disabled=false)}
-          {currencySelectInputField(
-            ~entriesList=updatedEntriesList,
-            ~isNewlyCreatedEntry,
-            ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-            ~disabled=false,
-          )}
-          {amountTextInputField(~disabled=false)}
-          {orderIdTextInputField(~disabled=false)}
-          {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(
-            ~disabled=false,
-            ~metadataSchema,
-            ~metadataRows,
-            ~setMetadataRows,
-            ~isMetadataLoading,
-          )}
-          <div className="flex justify-end my-4">
+        <Form
+          onSubmit
+          validate
+          initialValues={initialFormValues}
+          formClass="h-full flex flex-col justify-between">
+          <div className="flex flex-col max-h-890-px overflow-y-auto">
+            {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+            {transformationConfigSelectInputField(
+              ~transformationsList,
+              ~disabled=false,
+              ~setMetadataSchema,
+              ~setIsMetadataLoading,
+            )}
+            {entryTypeSelectInputField(~disabled=false)}
+            {currencySelectInputField(
+              ~entriesList=updatedEntriesList,
+              ~isNewlyCreatedEntry,
+              ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+              ~disabled=false,
+            )}
+            {amountTextInputField(~disabled=false)}
+            {orderIdTextInputField(~disabled=false)}
+            {effectiveAtDatePickerInputField()}
+            {metadataCustomInputField(
+              ~disabled=false,
+              ~metadataSchema,
+              ~metadataRows,
+              ~setMetadataRows,
+              ~isMetadataLoading,
+            )}
+          </div>
+          <div className="my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Save changes"
@@ -260,32 +266,38 @@ module MarkAsReceivedModalContent = {
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
       <div className="flex flex-col gap-4 mx-4 h-full">
-        <Form onSubmit validate initialValues={initialFormValues}>
-          {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
-          {transformationConfigSelectInputField(
-            ~transformationsList,
-            ~disabled=false,
-            ~setMetadataSchema,
-            ~setIsMetadataLoading,
-          )}
-          {entryTypeSelectInputField(~disabled=false)}
-          {currencySelectInputField(
-            ~entriesList=updatedEntriesList,
-            ~isNewlyCreatedEntry,
-            ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-            ~disabled=true,
-          )}
-          {amountTextInputField(~disabled=false)}
-          {orderIdTextInputField(~disabled=false)}
-          {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(
-            ~disabled=false,
-            ~metadataSchema,
-            ~metadataRows,
-            ~setMetadataRows,
-            ~isMetadataLoading,
-          )}
-          <div className="flex justify-end my-4">
+        <Form
+          onSubmit
+          validate
+          initialValues={initialFormValues}
+          formClass="h-full flex flex-col justify-between">
+          <div className="flex flex-col max-h-890-px overflow-y-auto">
+            {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+            {transformationConfigSelectInputField(
+              ~transformationsList,
+              ~disabled=false,
+              ~setMetadataSchema,
+              ~setIsMetadataLoading,
+            )}
+            {entryTypeSelectInputField(~disabled=false)}
+            {currencySelectInputField(
+              ~entriesList=updatedEntriesList,
+              ~isNewlyCreatedEntry,
+              ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+              ~disabled=true,
+            )}
+            {amountTextInputField(~disabled=false)}
+            {orderIdTextInputField(~disabled=false)}
+            {effectiveAtDatePickerInputField()}
+            {metadataCustomInputField(
+              ~disabled=false,
+              ~metadataSchema,
+              ~metadataRows,
+              ~setMetadataRows,
+              ~isMetadataLoading,
+            )}
+          </div>
+          <div className="my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Mark as Received"
@@ -344,30 +356,36 @@ module CreateEntryModalContent = {
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
       <div className="flex flex-col gap-4 mx-4 h-full">
-        <Form onSubmit validate initialValues={initialValues}>
-          {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
-          {transformationConfigSelectInputField(
-            ~transformationsList,
-            ~disabled=false,
-            ~setMetadataSchema,
-            ~setIsMetadataLoading,
-          )}
-          {entryTypeSelectInputField()}
-          {currencySelectInputField(
-            ~entriesList,
-            ~isNewlyCreatedEntry=true,
-            ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-          )}
-          {amountTextInputField()}
-          {orderIdTextInputField()}
-          {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(
-            ~metadataSchema,
-            ~metadataRows,
-            ~setMetadataRows,
-            ~isMetadataLoading,
-          )}
-          <div className="flex justify-end my-4">
+        <Form
+          onSubmit
+          validate
+          initialValues={initialValues}
+          formClass="h-full flex flex-col justify-between">
+          <div className="flex flex-col max-h-890-px overflow-y-auto">
+            {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+            {transformationConfigSelectInputField(
+              ~transformationsList,
+              ~disabled=false,
+              ~setMetadataSchema,
+              ~setIsMetadataLoading,
+            )}
+            {entryTypeSelectInputField()}
+            {currencySelectInputField(
+              ~entriesList,
+              ~isNewlyCreatedEntry=true,
+              ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
+            )}
+            {amountTextInputField()}
+            {orderIdTextInputField()}
+            {effectiveAtDatePickerInputField()}
+            {metadataCustomInputField(
+              ~metadataSchema,
+              ~metadataRows,
+              ~setMetadataRows,
+              ~isMetadataLoading,
+            )}
+          </div>
+          <div className="my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Create new entry"
