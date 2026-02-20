@@ -71,6 +71,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
             ~yMax=totalTransactions,
             ~labelItemDistance={isMiniLaptopView ? 45 : 90},
             ~pointWidth=12,
+            ~onPointClick=seriesName =>
+              ReconEngineOverviewUtils.handleBarClick(~rule=ruleDetails, seriesName),
           )}
         />
       </div>

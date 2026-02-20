@@ -29,7 +29,9 @@ let make = () => {
       {
         title: account.account_name,
         renderContent: () =>
-          <FilterContext key="recon-engine-transaction" index="recon-engine-transaction">
+          <FilterContext
+            key={`recon-engine-transaction-${account.account_id}`}
+            index={`recon-engine-transaction-${account.account_id}`}>
             <ReconEngineTransactionsContent account />
           </FilterContext>,
       }
