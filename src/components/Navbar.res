@@ -36,7 +36,6 @@ let make = (
   ~midUiActionsCustomClass="",
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (isAppearancePopupOpen, setIsAppearancePopupOpen) = React.useState(_ => false)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -101,7 +100,6 @@ let make = (
       <div className="md:ml-5 ml-2">
         <PortalCapture key="navbarSecondRow" name="navbarSecondRow" />
       </div>
-      <HSwitchFeedBackModal modalHeading="We'd love to hear from you!" setShowModal showModal />
     </div>
 
   | LoggedOut => React.null

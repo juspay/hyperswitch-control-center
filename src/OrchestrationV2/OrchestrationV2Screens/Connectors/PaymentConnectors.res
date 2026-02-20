@@ -4,9 +4,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {showFeedbackModal, setShowFeedbackModal, setShowSideBar} = React.useContext(
-    GlobalProvider.defaultContext,
-  )
+  let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
@@ -115,14 +113,6 @@ let make = () => {
         </div>
       </RenderIf>
       <div className="flex flex-col gap-14">
-        <RenderIf condition={showFeedbackModal}>
-          <HSwitchFeedBackModal
-            showModal={showFeedbackModal}
-            setShowModal={setShowFeedbackModal}
-            modalHeading="Tell us about your integration experience"
-            feedbackVia="connected_a_connector"
-          />
-        </RenderIf>
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"

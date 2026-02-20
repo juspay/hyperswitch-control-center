@@ -2,7 +2,7 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
-  let make = (~connectorList, ~setShowModal, ~showRequestConnectorBtn=true) => {
+  let make = (~connectorList, ~showRequestConnectorBtn=true) => {
     <RenderIf condition={connectorList->Array.length === 0 && showRequestConnectorBtn}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
@@ -12,39 +12,7 @@ module RequestConnector = {
         <p className="jp-grey-700 opacity-50">
           {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
         </p>
-        <Button
-          text={"Request a processor"} buttonType=Primary onClick={_ => setShowModal(_ => true)}
-        />
       </div>
-    </RenderIf>
-  }
-}
-
-module CantFindProcessor = {
-  @react.component
-  let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-
-    <RenderIf condition={showRequestConnectorBtn}>
-      <ACLButton
-        // TODO: Remove `MerchantDetailsManage` permission in future
-        authorization={hasAnyGroupAccess(
-          userHasAccess(~groupAccess=MerchantDetailsManage),
-          userHasAccess(~groupAccess=AccountManage),
-        )}
-        text="Request a Processor"
-        buttonType={Secondary}
-        buttonSize={Large}
-        textStyle="text-jp-gray-900"
-        onClick={_ => setShowModal(_ => true)}
-        leftIcon={CustomIcon(
-          <Icon
-            name="new-window"
-            size=16
-            className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-          />,
-        )}
-      />
     </RenderIf>
   }
 }
@@ -77,7 +45,6 @@ let make = (
       configuredConnectors->Array.find(item => item === total)->Option.isNone
     )
 
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
   let searchRef = React.useRef(Nullable.null)
 
@@ -148,7 +115,6 @@ let make = (
             onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
-        <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div className={`grid gap-x-5 gap-y-6 ${customStyleClass} md:grid-cols-2 grid-cols-1 mb-5`}>
@@ -193,7 +159,7 @@ let make = (
           ->React.array}
         </div>
       </RenderIf>
-      <RequestConnector connectorList setShowModal showRequestConnectorBtn />
+      <RequestConnector connectorList showRequestConnectorBtn />
     </>
   }
 
@@ -216,14 +182,6 @@ let make = (
           (),
         )}
       </div>
-      <RenderIf condition={showModal}>
-        <HSwitchFeedBackModal
-          modalHeading="Request a processor"
-          setShowModal
-          showModal
-          modalType={RequestConnectorModal}
-        />
-      </RenderIf>
     </RenderIf>
     <RenderIf condition={showTestProcessor}>
       {showTestProcessor

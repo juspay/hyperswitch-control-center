@@ -2,13 +2,7 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
-  let make = (~connectorList, ~setShowModal) => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-
-    let handleClick = () => {
-      mixpanelEvent(~eventName="orchestration_v2_request_processor")
-      setShowModal(_ => true)
-    }
+  let make = (~connectorList) => {
     <RenderIf condition={connectorList->Array.length === 0}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
@@ -18,38 +12,7 @@ module RequestConnector = {
         <p className="jp-grey-700 opacity-50">
           {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
         </p>
-        <Button text={"Request a processor"} buttonType=Primary onClick={_ => handleClick()} />
       </div>
-    </RenderIf>
-  }
-}
-
-module CantFindProcessor = {
-  @react.component
-  let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-
-    <RenderIf condition={showRequestConnectorBtn}>
-      <ACLButton
-        // TODO: Remove `MerchantDetailsManage` permission in future
-        authorization={hasAnyGroupAccess(
-          userHasAccess(~groupAccess=MerchantDetailsManage),
-          userHasAccess(~groupAccess=AccountManage),
-        )}
-        text="Request a Processor"
-        buttonType={NonFilled}
-        buttonSize={Large}
-        textStyle="text-nd_gray-600 font-semibold !py-2.5 pr-4 pl-2"
-        onClick={_ => setShowModal(_ => true)}
-        leftIcon={CustomIcon(
-          <Icon
-            name="nd-plus"
-            size=16
-            className="text-nd_gray-600 fill-opacity-50 dark:jp-gray-text_darktheme"
-          />,
-        )}
-        customIconMargin="ml-4"
-      />
     </RenderIf>
   }
 }
@@ -72,7 +35,6 @@ let make = (
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let searchRef = React.useRef(Nullable.null)
   let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
-  let (showModal, setShowModal) = React.useState(_ => false)
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
@@ -95,7 +57,6 @@ let make = (
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     ~heading: string,
-    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -147,7 +108,6 @@ let make = (
               onClick={_ => setProcessorModal(_ => true)}
             />
           </RenderIf>
-          <CantFindProcessor showRequestConnectorBtn setShowModal />
         </div>
       </div>
       <div className={`grid gap-x-5 gap-y-6 ${customStyleClass} md:grid-cols-2 grid-cols-1 mb-5`}>
@@ -196,27 +156,15 @@ let make = (
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
           ~heading="Connect a new processor",
-          ~showRequestConnectorBtn=true,
           ~showDummyConnectorButton=true,
           (),
         )}
       </div>
     </RenderIf>
-    <RenderIf condition={showModal}>
-      <HSwitchFeedBackModal
-        modalHeading="Request a processor" setShowModal showModal modalType={RequestConnectorModal}
-      />
-    </RenderIf>
     <RenderIf condition={showTestProcessor}>
       {showTestProcessor
       ->dummyConnectorList
-      ->descriptedConnectors(
-        ~heading="",
-        ~showRequestConnectorBtn=false,
-        ~showSearch=false,
-        ~showDummyConnectorButton=false,
-        (),
-      )}
+      ->descriptedConnectors(~heading="", ~showSearch=false, ~showDummyConnectorButton=false, ())}
     </RenderIf>
   </RenderIf>
 }

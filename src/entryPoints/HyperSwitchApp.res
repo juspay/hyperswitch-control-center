@@ -8,12 +8,7 @@ let make = () => {
   open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
-  let {
-    showFeedbackModal,
-    setShowFeedbackModal,
-    dashboardPageState,
-    setDashboardPageState,
-  } = React.useContext(GlobalProvider.defaultContext)
+  let {dashboardPageState, setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {activeProduct, setActiveProductValue} = React.useContext(
@@ -256,13 +251,6 @@ let make = () => {
                     </div>
                   </div>
                 </div>
-                <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-                  <HSwitchFeedBackModal
-                    modalHeading="We'd love to hear from you!"
-                    showModal={showFeedbackModal}
-                    setShowModal={setShowFeedbackModal}
-                  />
-                </RenderIf>
                 <RenderIf condition={!featureFlagDetails.isLiveMode}>
                   <ProdIntentForm />
                 </RenderIf>

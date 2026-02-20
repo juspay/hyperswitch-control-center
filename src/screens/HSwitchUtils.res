@@ -91,40 +91,6 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getBodyForFeedBack = (~email, ~values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal) => {
-  open HSwitchFeedBackModalUtils
-  let valueDict = values->getDictFromJsonObject
-  let rating = valueDict->getInt("rating", 1)
-
-  let bodyFields = [("email", email->JSON.Encode.string)]
-
-  switch modalType {
-  | FeedBackModal =>
-    bodyFields
-    ->Array.pushMany([
-      ("category", valueDict->getString("category", "")->JSON.Encode.string),
-      ("description", valueDict->getString("feedbacks", "")->JSON.Encode.string),
-      ("rating", rating->Float.fromInt->JSON.Encode.float),
-    ])
-    ->ignore
-  | RequestConnectorModal =>
-    bodyFields
-    ->Array.pushMany([
-      ("category", "request_connector"->JSON.Encode.string),
-      (
-        "description",
-        `[${valueDict->getString("connector_name", "")}]-[${valueDict->getString(
-            "description",
-            "",
-          )}]`->JSON.Encode.string,
-      ),
-    ])
-    ->ignore
-  }
-
-  bodyFields->Dict.fromArray
-}
-
 let getMetaData = (newMetadata, metaData) => {
   switch newMetadata {
   | Some(data) => data

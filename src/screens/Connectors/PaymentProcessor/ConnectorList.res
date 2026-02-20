@@ -58,7 +58,6 @@ let make = (
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
@@ -130,14 +129,6 @@ let make = (
         <DummyProcessorBanner setProcessorModal configuredConnectors />
       </RenderIf>
       <div className="flex flex-col gap-14">
-        <RenderIf condition={showFeedbackModal}>
-          <HSwitchFeedBackModal
-            showModal={showFeedbackModal}
-            setShowModal={setShowFeedbackModal}
-            modalHeading="Tell us about your integration experience"
-            feedbackVia="connected_a_connector"
-          />
-        </RenderIf>
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"

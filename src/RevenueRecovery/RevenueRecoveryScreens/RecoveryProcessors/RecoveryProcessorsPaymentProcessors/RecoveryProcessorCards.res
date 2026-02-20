@@ -2,7 +2,7 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
-  let make = (~connectorList, ~setShowModal) => {
+  let make = (~connectorList) => {
     <RenderIf condition={connectorList->Array.length === 0}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
@@ -12,23 +12,6 @@ module RequestConnector = {
         <p className="jp-grey-700 opacity-50">
           {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
         </p>
-        <Button
-          text={"Request a processor"} buttonType=Primary onClick={_ => setShowModal(_ => true)}
-        />
-      </div>
-    </RenderIf>
-  }
-}
-
-module CantFindProcessor = {
-  @react.component
-  let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    <RenderIf condition={showRequestConnectorBtn}>
-      <div
-        className="flex flex-row items-center gap-2 text-primary cursor-pointer"
-        onClick={_ => setShowModal(_ => true)}>
-        <ToolTip />
-        {"Request a processor"->React.string}
       </div>
     </RenderIf>
   }
@@ -55,7 +38,6 @@ let make = (
       configuredConnectors->Array.find(item => item === total)->Option.isNone
     )
 
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
   let searchRef = React.useRef(Nullable.null)
 
@@ -81,7 +63,6 @@ let make = (
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     ~heading: string,
-    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -135,7 +116,6 @@ let make = (
             onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
-        <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
@@ -167,7 +147,7 @@ let make = (
           ->React.array}
         </div>
       </RenderIf>
-      <RequestConnector connectorList setShowModal />
+      <RequestConnector connectorList />
     </>
   }
 
@@ -186,30 +166,15 @@ let make = (
         <div className="flex flex-col gap-4">
           {connectorListFiltered->descriptedConnectors(
             ~heading="Connect a new processor",
-            ~showRequestConnectorBtn=true,
             ~showDummyConnectorButton=false,
             (),
           )}
         </div>
-        <RenderIf condition={showModal}>
-          <HSwitchFeedBackModal
-            modalHeading="Request a processor"
-            setShowModal
-            showModal
-            modalType={RequestConnectorModal}
-          />
-        </RenderIf>
       </RenderIf>
       <RenderIf condition={showTestProcessor}>
         {showTestProcessor
         ->dummyConnectorList
-        ->descriptedConnectors(
-          ~heading="",
-          ~showRequestConnectorBtn=false,
-          ~showSearch=false,
-          ~showDummyConnectorButton=false,
-          (),
-        )}
+        ->descriptedConnectors(~heading="", ~showSearch=false, ~showDummyConnectorButton=false, ())}
       </RenderIf>
     </RenderIf>
   </div>
