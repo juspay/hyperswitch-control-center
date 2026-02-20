@@ -98,10 +98,35 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
     )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
   | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
+  | Missing => ("missing", "Missing", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
   | _ => ("", "", "")
   }
+}
+
+let getProcessingEntryStatusValueAndLabel = (status: processingEntryStatus): (string, string) => {
+  let value: string = (status :> string)->camelToSnake
+  let label = (status :> string)->snakeToTitle
+  (value, label)
+}
+
+let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingEntryStatus>): array<
+  string,
+> => {
+  statusList->Array.map(status => {
+    let (value, _) = getProcessingEntryStatusValueAndLabel(status)
+    value
+  })
+}
+
+let getTransactionStatusValueFromStatusList = (statusList: array<domainTransactionStatus>): array<
+  string,
+> => {
+  statusList->Array.map(status => {
+    let (value, _, _) = getTransactionStatusGroupedValueAndLabel(status)
+    value
+  })
 }
 
 let getMergedPostedTransactionStatusFilter = statusFilter => {
@@ -134,12 +159,11 @@ let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): a
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let statusString = (status :> string)
-    let label = statusString->snakeToTitle
+    let (value, label) = getProcessingEntryStatusValueAndLabel(status)
 
     {
       FilterSelectBox.label,
-      value: statusString,
+      value,
     }
   })
 }

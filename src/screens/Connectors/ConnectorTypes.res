@@ -134,6 +134,7 @@ type processorTypes =
   | PAYJUSTNOWINSTORE
   | AMAZONPAY
   | WORLDPAYMODULAR
+  | SANTANDER
 
 type payoutProcessorTypes =
   | ADYEN
@@ -201,6 +202,7 @@ type paymentMethod =
   | Crypto
   | BankDebit
   | NetworkToken
+  | Voucher
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =
@@ -218,6 +220,8 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
+  | Pix
+  | Boleto
   | NetworkToken
   | UnknownPaymentMethodType(string)
 
