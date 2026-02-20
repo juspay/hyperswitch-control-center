@@ -60,7 +60,7 @@ module RadioButtons = {
         ->Array.map(option =>
           <RadioGroup.Option \"as"="div" key=option.value value=option.value>
             {checked => {
-              let borderClass = checked["checked"] ? "border-primary" : "border-gray-200"
+              let borderClass = checked["checked"] ? "border-primary" : "border-nd_gray-200"
               <div
                 className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition ${borderClass}`}>
                 <div className="flex items-center gap-4 w-full">

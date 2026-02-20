@@ -9,7 +9,7 @@ let sidebarItems = [
 
 let getThemeFormValues = (~formValues) => {
   open LogicUtils
-  let defaultThemeSettings = ThemeProvider.newDefaultConfig.settings
+  let defaultThemeSettings = ThemeProvider.fallbackThemeConfig.settings
   let themeData = formValues->getDictfromDict("theme_data")
   let settings = themeData->getDictfromDict("settings")
   let colorsDict = settings->getDictfromDict("colors")

@@ -1,5 +1,6 @@
 open ThemeTypes
 open HyperSwitchConfigTypes
+open ThemeProvider
 
 type themeCreate = {
   entity_type: string,
@@ -20,13 +21,9 @@ let defaultCreate = (~lineage: lineage) => {
   profile_id: lineage.profile_id,
   theme_name: "Default Theme",
   theme_data: {
-    ThemeProvider.newDefaultConfig
+    fallbackThemeConfig
   },
   email_config: Some({
-    entity_name: ThemeProvider.defaultEmailConfig.entity_name,
-    entity_logo_url: ThemeProvider.defaultEmailConfig.entity_logo_url,
-    primary_color: ThemeProvider.defaultEmailConfig.primary_color,
-    foreground_color: ThemeProvider.defaultEmailConfig.foreground_color,
-    background_color: ThemeProvider.defaultEmailConfig.background_color,
+    defaultEmailConfig
   }),
 }
