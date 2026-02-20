@@ -24,6 +24,7 @@ module CredsInfoField = {
     ~connectorAccountFields,
     ~connectorInfo: ConnectorTypes.connectorPayload,
     ~showLabelAndFieldVertically,
+    ~showConnectorLabelField,
   ) => {
     open LogicUtils
     let dict = authKeys->Identity.genericTypeToDictOfJson
@@ -45,7 +46,9 @@ module CredsInfoField = {
         customValueCss="font-semibold text-base"
       />
     }
-    Array.concat(authFields, [connectorLabelField])->React.array
+    showConnectorLabelField
+      ? Array.concat(authFields, [connectorLabelField])->React.array
+      : authFields->React.array
   }
 }
 
@@ -82,33 +85,80 @@ module PreviewCreds = {
     ~connectorAccountFields,
     ~connectorInfo: ConnectorTypes.connectorPayload,
     ~showLabelAndFieldVertically=false,
+    ~showConnectorLabelField=true,
   ) => {
     switch connectorInfo.connector_account_details {
     | HeaderKey(authKeys) =>
-      <CredsInfoField authKeys connectorAccountFields connectorInfo showLabelAndFieldVertically />
+      <CredsInfoField
+        authKeys
+        connectorAccountFields
+        connectorInfo
+        showLabelAndFieldVertically
+        showConnectorLabelField
+      />
     | BodyKey(bodyKey) =>
       <CredsInfoField
-        authKeys=bodyKey connectorAccountFields connectorInfo showLabelAndFieldVertically
+        authKeys=bodyKey
+        connectorAccountFields
+        connectorInfo
+        showLabelAndFieldVertically
+        showConnectorLabelField
       />
     | SignatureKey(signatureKey) =>
       <CredsInfoField
-        authKeys=signatureKey connectorAccountFields connectorInfo showLabelAndFieldVertically
+        authKeys=signatureKey
+        connectorAccountFields
+        connectorInfo
+        showLabelAndFieldVertically
+        showConnectorLabelField
       />
     | MultiAuthKey(multiAuthKey) =>
       <CredsInfoField
-        authKeys=multiAuthKey connectorAccountFields connectorInfo showLabelAndFieldVertically
+        authKeys=multiAuthKey
+        connectorAccountFields
+        connectorInfo
+        showLabelAndFieldVertically
+        showConnectorLabelField
       />
     | CertificateAuth(certificateAuth) =>
       <CredsInfoField
-        authKeys=certificateAuth connectorAccountFields connectorInfo showLabelAndFieldVertically
+        authKeys=certificateAuth
+        connectorAccountFields
+        connectorInfo
+        showLabelAndFieldVertically
+        showConnectorLabelField
       />
     | CurrencyAuthKey(currencyAuthKey) =>
       <CashtoCodeCredsInfo authKeys=currencyAuthKey showLabelAndFieldVertically />
     | NoKey(noKeyAuth) =>
       <CredsInfoField
-        authKeys=noKeyAuth connectorAccountFields connectorInfo showLabelAndFieldVertically
+        authKeys=noKeyAuth
+        connectorAccountFields
+        connectorInfo
+        showLabelAndFieldVertically
+        showConnectorLabelField
       />
     | UnKnownAuthType(_) => React.null
     }
+  }
+}
+
+module EnableDisableConnectorToggle = {
+  @react.component
+  let make = (~disableConnector, ~isConnectorDisabled) => {
+    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Disabled" : "Enabled"
+
+    <div className="flex gap-2 items-center">
+      <BoolInput.BaseComponent
+        isSelected={!isConnectorDisabled}
+        setIsSelected={_ => disableConnector(isConnectorDisabled)->ignore}
+        boolCustomClass="rounded-xl"
+        customToggleHeight="20px"
+        customToggleWidth="36px"
+        customInnerCircleHeight="10px"
+        transformValue="20px"
+      />
+      <span> {connectorStatusAvailableToSwitch->React.string} </span>
+    </div>
   }
 }

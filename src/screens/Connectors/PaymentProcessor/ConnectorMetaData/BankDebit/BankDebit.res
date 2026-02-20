@@ -26,40 +26,24 @@ module PMAuthProcessorInput = {
       onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
-        let getPaymentMethodsObject = connector => {
-          open BankDebitTypes
-          {
-            payment_method: paymentMethod,
-            payment_method_type: paymentMethodType,
-            connector_name: connector,
-            mca_id: getPMConnectorId(
-              connector->ConnectorUtils.getConnectorNameTypeFromString(
-                ~connectorType=PMAuthenticationProcessor,
-              ),
-            ),
-          }
-        }
 
         let existingPaymentMethodsArray = enabledList.value->getArrayDataFromJson(itemToObjMapper)
 
-        if value->isNonEmptyString {
-          let paymentMethodsObject = value->getPaymentMethodsObject
+        let filteredArray =
+          existingPaymentMethodsArray->Array.filter(item =>
+            item.payment_method_type !== paymentMethodType
+          )
 
-          let filteredArray =
-            existingPaymentMethodsArray->Array.filter(item =>
-              item.payment_method_type !== paymentMethodType
-            )
+        let newPaymentMethodsArray = if value->isNonEmptyString {
+          let paymentMethodsObject =
+            value->getPaymentMethodsObject(paymentMethod, paymentMethodType, getPMConnectorId)
 
-          let newPaymentMethodsArray = [...filteredArray, paymentMethodsObject]
-          enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
+          [...filteredArray, paymentMethodsObject]
         } else {
-          let newPaymentMethodsArray =
-            existingPaymentMethodsArray->Array.filter(item =>
-              item.payment_method_type !== paymentMethodType
-            )
-
-          enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
+          filteredArray
         }
+
+        enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
       },
       onFocus: _ => (),
       value: currentSelection->JSON.Encode.string,
@@ -82,13 +66,7 @@ module PMAuthProcessorInput = {
 }
 
 @react.component
-let make = (
-  ~paymentMethod,
-  ~paymentMethodType,
-  ~setInitialValues,
-  ~closeAccordionFn,
-  ~paymentMethodsEnabled,
-) => {
+let make = (~paymentMethod, ~paymentMethodType, ~closeAccordionFn, ~paymentMethodsEnabled) => {
   open LogicUtils
   open BankDebitUtils
   open Typography
@@ -150,7 +128,6 @@ let make = (
 
   let onSubmit = () => {
     closeAccordionFn()
-    setInitialValues(_ => formState.values)
     Nullable.null->Promise.resolve
   }
 

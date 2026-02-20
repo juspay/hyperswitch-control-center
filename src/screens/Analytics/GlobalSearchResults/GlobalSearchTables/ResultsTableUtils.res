@@ -19,7 +19,7 @@ let useGetData = () => {
   ) => {
     let body = query->GlobalSearchBarUtils.generateQuery
     body->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-    body->Dict.set("count", 10->Int.toFloat->JSON.Encode.float)
+    body->Dict.set("count", 50->Int.toFloat->JSON.Encode.float)
 
     try {
       let url = getURL(~entityName=V1(GLOBAL_SEARCH), ~methodType=Post, ~id=Some(path))

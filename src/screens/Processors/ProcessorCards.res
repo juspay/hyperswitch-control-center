@@ -149,8 +149,7 @@ let make = (
         <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorListSorted->Array.length > 0}>
-        <div
-          className="grid gap-x-5 gap-y-6 2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
+        <div className={`grid gap-x-5 gap-y-6 ${customStyleClass} md:grid-cols-2 grid-cols-1 mb-5`}>
           {connectorListSorted
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString

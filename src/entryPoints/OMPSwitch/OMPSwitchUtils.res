@@ -1,8 +1,9 @@
 open OMPSwitchTypes
+open LogicUtils
 
 let ompDefaultValue: (string, string) => ompListTypes = (currUserId, currUserName) => {
   id: currUserId,
-  name: {currUserName->LogicUtils.isEmptyString ? currUserId : currUserName},
+  name: {currUserName->isEmptyString ? currUserId : currUserName},
   type_: #standard,
 }
 
@@ -16,6 +17,7 @@ let currentOMPName = (list: array<ompListTypes>, id: string) => {
 let ompTypeMapper = (ompType: string): ompType => {
   switch ompType {
   | "platform" => #platform
+  | "connected" => #connected
   | "standard" => #standard
   | _ => #standard
   }
@@ -24,12 +26,12 @@ let ompTypeMapper = (ompType: string): ompType => {
 let ompTypeHeading = (ompType: ompType): string => {
   switch ompType {
   | #platform => "Platform Merchant"
-  | #standard => "Merchants"
+  | #connected => "Connected Merchants"
+  | #standard => "Standard Merchants"
   }
 }
 
 let orgItemToObjMapper: dict<JSON.t> => ompListTypes = dict => {
-  open LogicUtils
   {
     id: dict->getString("org_id", ""),
     name: {
@@ -41,8 +43,7 @@ let orgItemToObjMapper: dict<JSON.t> => ompListTypes = dict => {
   }
 }
 
-let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict => {
-  open LogicUtils
+let merchantItemToObjMapper: Dict.t<'t> => ompListTypes = dict => {
   {
     id: dict->getString("merchant_id", ""),
     name: {
@@ -61,7 +62,6 @@ let merchantItemToObjMapper: Dict.t<'t> => OMPSwitchTypes.ompListTypes = dict =>
 }
 
 let profileItemToObjMapper = dict => {
-  open LogicUtils
   {
     id: dict->getString("profile_id", ""),
     name: {
@@ -108,7 +108,6 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
 }
 
 let keyExtractorForMerchantid = item => {
-  open LogicUtils
   let dict = item->getDictFromJsonObject
   dict->getString("merchant_id", "")
 }
@@ -118,7 +117,7 @@ let userSwitch = (~ompData: array<string>, ~path) => {
     orgId: ompData->Array.get(0),
     merchantId: ompData->Array.get(1),
     profileId: ompData->Array.get(2),
-    version: ompData->LogicUtils.getValueFromArray(3, "")->UserInfoUtils.versionMapper,
+    version: ompData->getValueFromArray(3, "")->UserInfoUtils.versionMapper,
     path,
   }
   if data.profileId->Option.isSome {
@@ -127,3 +126,18 @@ let userSwitch = (~ompData: array<string>, ~path) => {
     None
   }
 }
+
+let merchantTypeOptions: array<SelectBox.dropdownOption> = [
+  {
+    label: `${(#connected: ompType :> string)->capitalizeString} Merchant`,
+    value: (#connected: ompType :> string),
+    labelDescription: "Merchant managed by the platform",
+    description: "Connected merchants are onboarded under a Platform Organization. Both the connected merchant and the platform merchant can perform operations for the connected merchant, with the platform merchant able to act on their behalf. Features such as shared customers and payment methods are also supported.",
+  },
+  {
+    label: `${(#standard: ompType :> string)->capitalizeString} Merchant`,
+    value: (#standard: ompType :> string),
+    labelDescription: "Independent merchant within the organization",
+    description: "Standard merchants are independent within a Platform Organization. The platform merchant can generate their API keys, but all other operations for the standard merchant are handled independently.",
+  },
+]

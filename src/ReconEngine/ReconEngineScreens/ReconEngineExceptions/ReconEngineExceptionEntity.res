@@ -118,7 +118,7 @@ let getProcessingCell = (data: processingEntryType, colType): Table.cell => {
       </>,
       "",
     )
-  | Actions => CustomCell(<ReconEngineAccountsTransformedEntriesActions processingEntry=data />, "")
+  | Actions => CustomCell(<ReconEngineDataTransformedEntriesActions processingEntry=data />, "")
   | ExceptionType => EllipsisText((data.data.needs_manual_review_type :> string)->snakeToTitle, "")
   }
 }

@@ -19,12 +19,9 @@ describe("Homepage", () => {
   };
 
   it("should verify all components on homepage", () => {
-    homePage.subHeaderText
-      .should("be.visible")
-      .and(
-        "have.text",
-        "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
-      );
+    cy.contains(
+      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+    ).should("be.visible");
 
     homePage.orgIcon.should("be.visible");
     homePage.merchantDropdown.should("be.visible");

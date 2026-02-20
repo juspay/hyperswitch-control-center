@@ -31,7 +31,6 @@ module CardRenderer = {
     ~setMetaData,
     ~connector,
     ~initialValues,
-    ~setInitialValues,
     ~isUpdateFlow,
     ~connectorType=Processor,
   ) => {
@@ -88,20 +87,26 @@ module CardRenderer = {
     }
 
     let showAdditionalDetails = methodVariant => {
-      ((methodVariant === GooglePay ||
-      methodVariant === ApplePay ||
-      methodVariant === SamsungPay ||
-      methodVariant === AmazonPay ||
-      methodVariant === Paze) &&
-        {
-          switch connector->getConnectorNameTypeFromString(~connectorType) {
-          | Processors(TRUSTPAY)
-          | Processors(STRIPE_TEST)
-          | PayoutProcessor(WORLDPAY)
-          | PayoutProcessor(WORLDPAYXML) => false
-          | _ => true
-          }
-        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+      switch (methodVariant, connector->getConnectorNameTypeFromString(~connectorType)) {
+      | (Pix, Processors(SANTANDER))
+      | (Boleto, Processors(SANTANDER))
+      | (PayPal, Processors(BRAINTREE)) => true
+      | _ =>
+        ((methodVariant === GooglePay ||
+        methodVariant === ApplePay ||
+        methodVariant === SamsungPay ||
+        methodVariant === AmazonPay ||
+        methodVariant === Paze) &&
+          {
+            switch connector->getConnectorNameTypeFromString(~connectorType) {
+            | Processors(TRUSTPAY)
+            | Processors(STRIPE_TEST)
+            | PayoutProcessor(WORLDPAY)
+            | PayoutProcessor(WORLDPAYXML) => false
+            | _ => true
+            }
+          }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
+      }
     }
 
     let findPaymentMethodIndexInForm = (paymentMethodsEnabledArray, paymentMethod) => {
@@ -143,13 +148,13 @@ module CardRenderer = {
       ~paymentMethod,
       ~method: paymentMethodConfigType,
     ) => {
-      let targetMethod = paymentMethod->String.toLowerCase
+      let targetMethod = paymentMethod->getPaymentMethodFromString
       let paymentMethodsEnabledArray = formValues->getArrayFromDict("payment_methods_enabled", [])
       let updatedPaymentMethodsArray =
         paymentMethodsEnabledArray
         ->Array.map(pmJson => {
           let pmDict = pmJson->getDictFromJsonObject
-          let pmMethod = pmDict->getString("payment_method", "")->String.toLowerCase
+          let pmMethod = pmDict->getString("payment_method", "")->getPaymentMethodFromString
 
           if pmMethod === targetMethod {
             let paymentMethodTypesArray = pmDict->getArrayFromDict("payment_method_types", [])
@@ -203,9 +208,7 @@ module CardRenderer = {
       [
         ("payment_method", paymentMethod->JSON.Encode.string),
         ("payment_method_types", [methodJson]->JSON.Encode.array),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
+      ]->getJsonFromArrayOfJson
     }
 
     let addMethodToForm = (
@@ -371,6 +374,30 @@ module CardRenderer = {
       }
     }, [])
 
+    let handleBankDebitCheckboxClick = (~method) => _ => {
+      if paymentMethod->getPaymentMethodFromString === BankDebit {
+        removeOrAddMethods(method)
+      }
+    }
+
+    let handleOnItemExpandClick = method => () => {
+      if paymentMethod->getPaymentMethodFromString !== BankDebit {
+        removeOrAddMethods(method)
+      }
+
+      if showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString) {
+        setSelectedWallet(_ => method)
+      }
+    }
+
+    let handleOnItemCollapseClick = method => () => {
+      if isSelected(method) && paymentMethod->getPaymentMethodFromString != BankDebit {
+        removeOrAddMethods(method)
+      } else {
+        removeSelectedWallet()
+      }
+    }
+
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf
@@ -381,7 +408,12 @@ module CardRenderer = {
             </p>
             <RenderIf
               condition={paymentMethod->getPaymentMethodFromString !== Wallet &&
-                paymentMethod->getPaymentMethodFromString !== BankDebit}>
+              paymentMethod->getPaymentMethodFromString !== BankDebit &&
+              !(
+                connector->getConnectorNameTypeFromString == Processors(SANTANDER) &&
+                  (paymentMethod->getPaymentMethodFromString === BankTransfer ||
+                    paymentMethod->getPaymentMethodFromString === Voucher)
+              )}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),
@@ -553,7 +585,7 @@ module CardRenderer = {
                   let accordionElem: Accordion.accordion = {
                     title: value.payment_method_type,
                     renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
-                      <AdditionalDetailsSidebarComp
+                      <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
                         setMetaData
@@ -561,46 +593,20 @@ module CardRenderer = {
                         paymentMethodsEnabled
                         paymentMethod
                         onCloseClickCustomFun={removeSelectedWallet}
-                        setInitialValues
                         pmtName={selectedWallet.payment_method_type}
                         closeAccordionFn
                       />,
-                    onItemCollapseClick: () => {
-                      if paymentMethod->getPaymentMethodFromString === BankDebit {
-                        removeSelectedWallet()
-                      } else if isSelected(value) {
-                        removeOrAddMethods(value)
-                      } else {
-                        removeSelectedWallet()
-                      }
-                    },
-                    onItemExpandClick: () => {
-                      if paymentMethod->getPaymentMethodFromString !== BankDebit {
-                        removeOrAddMethods(value)
-                      }
-
-                      if (
-                        showAdditionalDetails(
-                          value.payment_method_type->getPaymentMethodTypeFromString,
-                        )
-                      ) {
-                        setSelectedWallet(_ => value)
-                      }
-                    },
+                    onItemCollapseClick: handleOnItemCollapseClick(value),
+                    onItemExpandClick: handleOnItemExpandClick(value),
                     renderContentOnTop: Some(
                       () => {
-                        let handleCheckboxClick = _ => {
-                          if paymentMethod->getPaymentMethodFromString === BankDebit {
-                            removeOrAddMethods(value)
-                          }
-                        }
                         <div
                           className="flex gap-2 items-center cursor-pointer flex-1 justify-between w-full">
                           <div className="flex gap-2 items-center">
                             <div className="cursor-pointer">
                               <CheckBoxIcon
                                 isSelected={isSelected(value)}
-                                setIsSelected={handleCheckboxClick}
+                                setIsSelected={handleBankDebitCheckboxClick(~method=value)}
                                 stopPropagationNeeded=true
                               />
                             </div>
@@ -647,7 +653,6 @@ module PaymentMethodsRender = {
     ~setMetaData,
     ~isPayoutFlow,
     ~initialValues,
-    ~setInitialValues,
     ~isUpdateFlow,
     ~connectorType=Processor,
   ) => {
@@ -676,7 +681,6 @@ module PaymentMethodsRender = {
               setMetaData
               connector
               initialValues
-              setInitialValues
               isUpdateFlow
               connectorType
             />
@@ -692,7 +696,6 @@ module PaymentMethodsRender = {
               setMetaData
               connector
               initialValues
-              setInitialValues
               isUpdateFlow
               connectorType
             />

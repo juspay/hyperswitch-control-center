@@ -183,6 +183,7 @@ let validationFieldsReverseMapperV2 = value => {
   | "is_auto_retries_enabled" => AutoRetry
   | "authentication_connector_details" => AuthenticationConnectorDetails
   | "is_external_vault_enabled" => VaultProcessorDetails
+  | "max_auto_retries_enabled" => MaxAutoRetries
   | _ => UnknownValidateFields(value)
   }
 }
@@ -199,23 +200,13 @@ let validateMerchantAccountFormV2 = (
 
   valuesDictArray->Array.forEach(key => {
     switch key->validationFieldsReverseMapperV2 {
-    | AutoRetry => {
-        let value = valuesDict->getOptionBool(key)
-        switch value {
-        | Some(true) =>
-          let value = getInt(valuesDict, "max_auto_retries_enabled", 0)
-          if !RegExp.test(%re("/^(?:[1-5])$/"), value->Int.toString) {
-            Dict.set(
-              errors,
-              "max_auto_retries_enabled",
-              "Please enter integer value from 1 to 5"->JSON.Encode.string,
-            )
-          }
-
-        | _ => ()
+    | MaxAutoRetries => {
+        let isAutoRetryEnabled = getBool(valuesDict, "is_auto_retries_enabled", false)
+        let value = getFloat(valuesDict, key, 0.0)
+        if isAutoRetryEnabled && !RegExp.test(%re("/^(?:[1-5])$/"), value->Float.toString) {
+          Dict.set(errors, key, "Please enter an integer value from 1 to 5"->JSON.Encode.string)
         }
       }
-
     | WebhookDetails => {
         let value =
           valuesDict

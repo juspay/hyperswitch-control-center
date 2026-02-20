@@ -16,3 +16,20 @@ let itemToObjMapper = dict => {
     mca_id: dict->getString("mca_id", ""),
   }
 }
+
+let getPaymentMethodsObject = (
+  connectorName: string,
+  paymentMethod: string,
+  paymentMethodType: string,
+  getPMConnectorId,
+) => {
+  open ConnectorUtils
+  {
+    payment_method: paymentMethod,
+    payment_method_type: paymentMethodType,
+    connector_name: connectorName,
+    mca_id: getPMConnectorId(
+      connectorName->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor),
+    ),
+  }
+}
