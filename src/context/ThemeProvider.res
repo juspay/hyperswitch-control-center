@@ -14,6 +14,7 @@ type customUIConfig = {
   getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
 }
+open HyperSwitchConfigTypes
 
 // Fallback theme when theme.json fails to load or lacks properties. Keep in sync with config/theme.json.
 let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
@@ -61,6 +62,14 @@ let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
     faviconUrl: Some("/HyperswitchFavicon.png"),
     logoUrl: Some(""),
   },
+}
+
+let defaultEmailConfig: emailConfig = {
+  entity_name: "Hyperswitch",
+  entity_logo_url: "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png",
+  primary_color: "#006DF9",
+  foreground_color: "#111326",
+  background_color: "#FFFFFF",
 }
 
 let themeContext = {

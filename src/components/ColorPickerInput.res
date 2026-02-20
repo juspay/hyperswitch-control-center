@@ -93,7 +93,6 @@ let make = (
         placeholder="#FFFFFF"
       />
       <div
-        {...DOMUtils.domProps({"data-color": isValid ? color : initialColor})}
         className="h-5 w-5 border ml-2 rounded-sm border-jp-gray-500 dark:border-jp-gray-960"
         style={ReactDOMStyle.make(~backgroundColor=isValid ? color : initialColor, ())}
       />

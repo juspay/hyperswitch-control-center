@@ -15,6 +15,8 @@ let make = () => {
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
+  let (showModal, setShowModal) = React.useState(_ => false)
+
   let fetchCurrentTheme = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -53,7 +55,9 @@ let make = () => {
                 buttonSize=Small
                 customButtonStyle={`${body.md.semibold} py-4`}
                 authorization={userHasAccess(~groupAccess=ThemeManage)}
+                onClick={_ => setShowModal(_ => true)}
               />
+              <ThemeHelper.ThemeLineageModal showModal setShowModal />
             </div>
           </RenderIf>
         </div>
