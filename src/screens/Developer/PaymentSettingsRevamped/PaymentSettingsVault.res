@@ -1,4 +1,5 @@
 open Typography
+open PaymentSettingsRevampedUtils
 
 module VaultFields = {
   @react.component
@@ -7,7 +8,6 @@ module VaultFields = {
     open HSwitchUtils
     open PaymentSettingsRevampedHelper
     open LogicUtils
-    open PaymentSettingsRevampedUtils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,
@@ -96,7 +96,7 @@ let make = () => {
       onSubmit
       initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       validate={values => {
-        PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
+        validateMerchantAccountFormV2(
           ~values,
           ~isLiveMode=featureFlagDetails.isLiveMode,
           ~businessProfileRecoilVal,

@@ -177,7 +177,7 @@ let make = () => {
         <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
           <AccessControl authorization=Access>
             <EntityScaffold
-              entityName="PaymentSettingsRevamoed"
+              entityName="PaymentSettingsRevamped"
               remainingPath
               renderList={() => <PaymentSettingsRevamped />}
             />

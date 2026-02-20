@@ -1,3 +1,4 @@
+open PaymentSettingsRevampedUtils
 module ThreeDsRequestorUrl = {
   @react.component
   let make = () => {
@@ -16,7 +17,7 @@ module ThreeDsRequestorUrl = {
         ~customInput=InputFields.textInput(
           ~autoComplete="off",
           ~customStyle="rounded-xl",
-          ~isDisabled=PaymentSettingsRevampedUtils.isAuthConnectorArrayEmpty(formState.values),
+          ~isDisabled=isAuthConnectorArrayEmpty(formState.values),
         ),
         ~isRequired=false,
       )}
@@ -44,7 +45,7 @@ module ThreeDsAppUrl = {
         ~customInput=InputFields.textInput(
           ~autoComplete="off",
           ~customStyle="rounded-xl",
-          ~isDisabled=PaymentSettingsRevampedUtils.isAuthConnectorArrayEmpty(formState.values),
+          ~isDisabled=isAuthConnectorArrayEmpty(formState.values),
         ),
         ~isRequired=false,
       )}
@@ -98,7 +99,7 @@ let make = () => {
       onSubmit
       initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
       validate={values => {
-        PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
+        validateMerchantAccountFormV2(
           ~values,
           ~isLiveMode=featureFlagDetails.isLiveMode,
           ~businessProfileRecoilVal,
