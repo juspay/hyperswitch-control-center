@@ -1,11 +1,9 @@
 open LogicUtils
-open ReconEngineOverviewTypes
 open ReconEngineTypes
-open ReconEngineAccountsUtils
+open ReconEngineDataUtils
 open ColumnGraphUtils
 open NewAnalyticsUtils
 open ReconEngineUtils
-open CurrencyFormatUtils
 
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
@@ -33,94 +31,16 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
   (account.account_name, account.currency->isEmptyString ? "N/A" : account.currency)
 }
 
-let calculateAccountAmounts = (
-  transactionsData: array<ReconEngineTypes.transactionType>,
-  ~sourceAccountName: string,
-  ~sourceAccountCurrency: string,
-  ~targetAccountName: string,
-  ~targetAccountCurrency: string,
-) => {
-  let (
-    sourcePosted,
-    targetPosted,
-    sourceMismatched,
-    targetMismatched,
-    sourceExpected,
-    targetExpected,
-  ) = transactionsData->Array.reduce((0.0, 0.0, 0.0, 0.0, 0.0, 0.0), (
-    (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected),
-    transaction,
-  ) => {
-    let creditAmount = transaction.credit_amount.value
-    let debitAmount = transaction.debit_amount.value
-
-    switch transaction.transaction_status {
-    | Posted(_) => (
-        sPosted +. creditAmount,
-        tPosted +. debitAmount,
-        sMismatched,
-        tMismatched,
-        sExpected,
-        tExpected,
-      )
-    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (
-        sPosted,
-        tPosted,
-        sMismatched +. creditAmount,
-        tMismatched +. debitAmount,
-        sExpected,
-        tExpected,
-      )
-    | UnderAmount(Expected) | OverAmount(Expected) | Expected => (
-        sPosted,
-        tPosted,
-        sMismatched,
-        tMismatched,
-        sExpected +. creditAmount,
-        tExpected +. debitAmount,
-      )
-    | PartiallyReconciled => (
-        sPosted,
-        tPosted,
-        sMismatched,
-        tMismatched,
-        sExpected +. creditAmount,
-        tExpected +. debitAmount,
-      )
-    | _ => (sPosted, tPosted, sMismatched, tMismatched, sExpected, tExpected)
-    }
-  })
-
-  let totalSourceAmount = sourcePosted +. sourceMismatched +. sourceExpected
-  let totalTargetAmount = targetPosted +. targetMismatched
-  let variance = Math.abs(totalSourceAmount -. totalTargetAmount)
-
-  [
-    {
-      cardTitle: `Expectations from ${sourceAccountName}`,
-      cardValue: totalSourceAmount->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
-    },
-    {
-      cardTitle: `Received by ${targetAccountName}`,
-      cardValue: totalTargetAmount->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
-    },
-    {
-      cardTitle: "Net Variance",
-      cardValue: variance->valueFormatter(AmountWithSuffix, ~suffix=sourceAccountCurrency),
-    },
-    {
-      cardTitle: `Missing in ${targetAccountName}`,
-      cardValue: targetExpected->valueFormatter(AmountWithSuffix, ~suffix=targetAccountCurrency),
-    },
-  ]
-}
-
 let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
   transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
     | Posted(_) => (posted + 1, mismatched, expected)
-    | UnderAmount(Mismatch) | OverAmount(Mismatch) => (posted, mismatched + 1, expected)
-    | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled => (
+    | UnderAmount(Mismatch) | OverAmount(Mismatch) | DataMismatch => (
+        posted,
+        mismatched + 1,
+        expected,
+      )
+    | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled | Missing => (
         posted,
         mismatched,
         expected + 1,
@@ -295,6 +215,7 @@ let initialDisplayFilters = () => {
     DataMismatch,
     PartiallyReconciled,
     Expected,
+    Missing,
     Void,
   ])
   [

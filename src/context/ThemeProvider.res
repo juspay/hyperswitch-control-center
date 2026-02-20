@@ -16,7 +16,8 @@ type customUIConfig = {
 }
 open HyperSwitchConfigTypes
 
-let newDefaultConfig: customStylesTheme = {
+// Fallback theme when theme.json fails to load or lacks properties. Keep in sync with config/theme.json.
+let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
   settings: {
     colors: {
       primary: "#006DF9",
@@ -26,7 +27,7 @@ let newDefaultConfig: customStylesTheme = {
     sidebar: {
       primary: "#FCFCFD",
       textColor: "#525866",
-      textColorPrimary: "#050506",
+      textColorPrimary: "#1C6DEA",
     },
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -142,7 +143,7 @@ let make = (~children) => {
     let spacing = settings->getDictfromDict("spacing")
     let colorsBtnPrimary = settings->getDictfromDict("buttons")->getDictfromDict("primary")
     let colorsBtnSecondary = settings->getDictfromDict("buttons")->getDictfromDict("secondary")
-    let {settings: defaultSettings, _} = newDefaultConfig
+    let {settings: defaultSettings, _} = fallbackThemeConfig
     let value: HyperSwitchConfigTypes.customStylesTheme = {
       settings: {
         colors: {
@@ -278,8 +279,8 @@ let make = (~children) => {
 
   let getDefaultStyle = () => {
     let defaultStyle = {
-      "settings": newDefaultConfig.settings,
-      "urls": newDefaultConfig.urls,
+      "settings": fallbackThemeConfig.settings,
+      "urls": fallbackThemeConfig.urls,
     }->Identity.genericTypeToJson
     defaultStyle
   }

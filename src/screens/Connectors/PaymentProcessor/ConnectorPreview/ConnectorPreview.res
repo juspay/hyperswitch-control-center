@@ -399,21 +399,18 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+      showToast(
+        ~message=`Connector has been successfully ${isConnectorDisabled ? "Enabled" : "Disabled"}`,
+        ~toastType=ToastSuccess,
+      )
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
-
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    }
 
   let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
 
@@ -439,10 +436,6 @@ let make = (
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
-              <div
-                className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-                {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-              </div>
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>
@@ -456,7 +449,10 @@ let make = (
                     isUpdateFlow
                     setInitialValues
                   />
-                | (_, _) => <MenuOption disableConnector isConnectorDisabled />
+                | (_, _) =>
+                  <ConnectorPreviewHelper.EnableDisableConnectorToggle
+                    disableConnector isConnectorDisabled
+                  />
                 }}
               </RenderIf>
             </div>

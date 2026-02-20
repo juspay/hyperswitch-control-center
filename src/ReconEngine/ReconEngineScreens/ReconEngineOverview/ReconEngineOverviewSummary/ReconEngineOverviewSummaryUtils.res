@@ -199,6 +199,21 @@ let getAllAccountIds = (reconRulesList: array<ReconEngineRulesTypes.rulePayload>
       | SingleSingle(data) => [data.source_account.account_id, data.target_account.account_id]
       | SingleMany(data) => [data.source_account.account_id, data.target_account.account_id]
       | ManySingle(data) => [data.source_account.account_id, data.target_account.account_id]
+      | ManyMany(data) => [data.source_account.account_id, data.target_account.account_id]
+      | UnknownOneToOneStrategy => []
+      }
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) => {
+          let targetAccountIds = switch data.target_accounts {
+          | Percentage({targets})
+          | Fixed({targets}) =>
+            targets->Array.map(((target, _)) => target.account_id)
+          | UnknownTargetsType => []
+          }
+          [data.source_account.account_id, ...targetAccountIds]
+        }
+      | UnknownOneToManyStrategy => []
       }
     | UnknownReconStrategy => []
     }
@@ -281,6 +296,34 @@ let getEdges = (
             ~selectedNodeId,
           ),
         ]
+      | ManyMany(data) => [
+          makeEdge(
+            ~sourceAccountId=data.source_account.account_id,
+            ~targetAccountId=data.target_account.account_id,
+            ~ruleTransactions,
+            ~selectedNodeId,
+          ),
+        ]
+      | UnknownOneToOneStrategy => []
+      }
+    | OneToMany(oneToMany) =>
+      switch oneToMany {
+      | SingleSingle(data) => {
+          let targetAccounts = switch data.target_accounts {
+          | Percentage({targets})
+          | Fixed({targets}) => targets
+          | UnknownTargetsType => []
+          }
+          targetAccounts->Array.map(((target, _)) =>
+            makeEdge(
+              ~sourceAccountId=data.source_account.account_id,
+              ~targetAccountId=target.account_id,
+              ~ruleTransactions,
+              ~selectedNodeId,
+            )
+          )
+        }
+      | UnknownOneToManyStrategy => []
       }
     | UnknownReconStrategy => []
     }
@@ -400,6 +443,7 @@ let processAllTransactionsWithAmounts = (
     let pendingTransactions = accountTransactions->Array.filter(t =>
       switch t.transaction_status {
       | Expected
+      | Missing
       | PartiallyReconciled
       | OverAmount(Expected)
       | UnderAmount(Expected) => true
@@ -555,16 +599,29 @@ let getStatusIcon = (statusType: amountType) => {
 let allAmountTypes = [ReconciledAmount, PendingAmount, MismatchedAmount]
 let allSubHeaderTypes = [DebitAmount, CreditAmount]
 
-let getSourceAndTargetAccountIdsFromRuleDetails = (
-  ruleDetails: ReconEngineRulesTypes.rulePayload,
-) => {
+let getSourceAndAllTargetAccountIds = (ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   switch ruleDetails.strategy {
   | OneToOne(oneToOne) =>
     switch oneToOne {
-    | SingleSingle(data) => (data.source_account.account_id, data.target_account.account_id)
-    | SingleMany(data) => (data.source_account.account_id, data.target_account.account_id)
-    | ManySingle(data) => (data.source_account.account_id, data.target_account.account_id)
+    | SingleSingle(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | SingleMany(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | ManySingle(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | ManyMany(data) => (data.source_account.account_id, [data.target_account.account_id])
+    | UnknownOneToOneStrategy => ("", [])
     }
-  | UnknownReconStrategy => ("", "")
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(data) => {
+        let targetIds = switch data.target_accounts {
+        | Percentage({targets})
+        | Fixed({targets}) =>
+          targets->Array.map(((target, _)) => target.account_id)
+        | UnknownTargetsType => []
+        }
+        (data.source_account.account_id, targetIds)
+      }
+    | UnknownOneToManyStrategy => ("", [])
+    }
+  | UnknownReconStrategy => ("", [])
   }
 }

@@ -183,11 +183,18 @@ type domainTransactionStatus =
   | Posted(domainTransactionPostedStatus)
   | OverAmount(domainTransactionAmountMismatchStatus)
   | UnderAmount(domainTransactionAmountMismatchStatus)
+  | Missing
   | DataMismatch
   | Archived
   | Void
   | PartiallyReconciled
   | UnknownDomainTransactionStatus
+
+type linkedTransactionType = {
+  transaction_id: string,
+  created_at: string,
+  transaction_status: domainTransactionStatus,
+}
 
 type transactionType = {
   id: string,
@@ -203,6 +210,7 @@ type transactionType = {
   created_at: string,
   effective_at: string,
   data: transactionDataType,
+  linked_transaction: option<linkedTransactionType>,
 }
 
 type entryType = {
@@ -237,11 +245,14 @@ type processingEntryStatus =
 type needsManualReviewType =
   | @as("no_rules_found") NoRulesFound
   | @as("staging_entry_currency_mismatch") StagingEntryCurrencyMismatch
+  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
   | @as("duplicate_entry") DuplicateEntry
   | @as("no_expectation_entry_found") NoExpectationEntryFound
-  | @as("missing_search_identifier_value") MissingSearchIdentifierValue
+  | @as("multiple_excepted_entries_found") MultipleExceptedEntriesFound
+  | @as("missing_match_field") MissingMatchField
   | @as("missing_unique_field") MissingUniqueField
-  | UnknownNeedsManualReviewType
+  | @as("missing_grouping_field") MissingGroupingField
+  | @as("unknown") UnknownNeedsManualReviewType
 
 type processingEntryDataType = {
   status: processingEntryStatus,
@@ -305,9 +316,13 @@ type fieldTypeVariant =
   | DateTimeField
   | BalanceDirectionField({credit_values: array<string>, debit_values: array<string>})
 
+type entryField =
+  | String
+  | Metadata(string)
+
 type metadataFieldType = {
   identifier: string,
-  field_name: string,
+  field_name: entryField,
   field_type: fieldTypeVariant,
   required: bool,
   description: string,
@@ -351,3 +366,5 @@ type metadataSchemaType = {
   created_at: string,
   last_modified_at: string,
 }
+
+type columnMappingTabs = [#default | #advanced]

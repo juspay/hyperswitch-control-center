@@ -64,6 +64,7 @@ google_pay_direct_flow=false
 sample_data_analytics=false
 acquirer_config_settings=false
 payment_link_theme_configurator=false
+allow_connected_merchants=false
 dev_click_to_pay=true
 dev_alt_payment_methods=false
 dev_modularity_v2=false
@@ -82,6 +83,7 @@ dev_roles_v2=false
 dev_customer=false
 dev_accept_invite=true
 dev_theme=false
+dev_vault=false
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]

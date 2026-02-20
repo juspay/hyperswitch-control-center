@@ -29,6 +29,10 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
   client_source: dict->getString("client_source", ""),
   client_version: dict->getString("client_version", ""),
+  hyperswitch_error_description: dict
+  ->getDictfromDict("error_details")
+  ->getDictfromDict("unified_details")
+  ->getString("description", ""),
 }
 
 let getAttempts: JSON.t => array<attempts> = json => {
@@ -103,6 +107,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     amount_captured: dict->getFloat("amount_received", 0.0),
     client_secret: dict->getString("client_secret", ""),
     created_at: dict->getString("created", ""),
+    modified_at: dict->getString("modified_at", ""),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
     description: dict->getString("description", ""),

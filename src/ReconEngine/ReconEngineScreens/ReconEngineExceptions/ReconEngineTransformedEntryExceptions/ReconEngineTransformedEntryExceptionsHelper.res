@@ -458,6 +458,10 @@ module ExceptionDataDisplay = {
         "Currency Mismatch",
         "The currency of the transformed entry does not match the expected currency.",
       )
+    | MissingSearchIdentifierValue => (
+        "Missing Search Identifier Value",
+        "The transformed entry is missing a required search identifier value.",
+      )
     | DuplicateEntry => (
         "Duplicate Entry",
         "The transformed entry is identified as a duplicate of an existing entry.",
@@ -466,13 +470,21 @@ module ExceptionDataDisplay = {
         "No Expectation Entry Found",
         "No corresponding expectation entry was found for the transformed entry.",
       )
-    | MissingSearchIdentifierValue => (
-        "Missing Search Identifier Value",
-        "The transformed entry is missing a required search identifier value.",
+    | MultipleExceptedEntriesFound => (
+        "Multiple Excepted Entries Found",
+        "Multiple excepted entries were found for the transformed entry.",
+      )
+    | MissingMatchField => (
+        "Missing Match Field",
+        "The transformed entry is missing a required match field.",
       )
     | MissingUniqueField => (
         "Missing Unique Field",
         "The transformed entry is missing a unique field required for processing.",
+      )
+    | MissingGroupingField => (
+        "Missing Grouping Field",
+        "The transformed entry is missing a required grouping field.",
       )
     | UnknownNeedsManualReviewType => (
         "Unknown",
