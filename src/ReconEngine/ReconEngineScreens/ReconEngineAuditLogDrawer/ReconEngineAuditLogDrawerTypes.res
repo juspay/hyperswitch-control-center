@@ -34,9 +34,10 @@ type auditEvent =
   | StagingEntriesCreated(stagingEntriesEventType)
   | StagingEntryNeedsManualReview(stagingEntriesEventType)
   | ExpectationsCreated(commonEventData)
+  | TransactionsMatched(commonEventData)
   | TransactionsReconciled(commonEventData)
   | TransactionsMismatched(commonEventData)
-  | NoAuditEvent
+  | UnknownAuditEvent
 
 type eventType =
   | EventSuccess

@@ -63,10 +63,10 @@ let getHeading = (colType: transactionColType) => {
 
 let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   switch status {
-  | Posted(Auto) => "Reconciled (Auto)"
-  | Posted(Manual) => "Reconciled (Manual)"
-  | Posted(Force) => "Reconciled (Force)"
-  | Posted(_) => "Reconciled"
+  | Posted(Manual) => "Posted (Manual)"
+  | Matched(Auto) => "Matched (Auto)"
+  | Matched(Manual) => "Matched (Manual)"
+  | Matched(Force) => "Matched (Force)"
   | OverAmount(Mismatch) => "Positive Variance (Requires Attention)"
   | OverAmount(Expected) => "Positive Variance (Awaiting Match)"
   | UnderAmount(Mismatch) => "Negative Variance (Requires Attention)"
@@ -75,8 +75,12 @@ let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   | Expected => "Expected"
   | Missing => "Missing"
   | Archived => "Archived"
-  | PartiallyReconciled => "Partially Reconciled"
+  | PartiallyReconciled => "Partially Matched"
   | Void => "Void"
+  | Posted(UnknownDomainTransactionPostedStatus)
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
   | UnknownDomainTransactionStatus => "Unknown"
   }
 }
@@ -85,7 +89,7 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
   Table.Label({
     title: status->getDomainTransactionStatusString->String.toUpperCase,
     color: switch status {
-    | Posted(_) => LabelGreen
+    | Posted(Manual) | Matched(Force) | Matched(Manual) | Matched(Auto) => LabelGreen
     | OverAmount(Mismatch)
     | UnderAmount(Mismatch)
     | DataMismatch =>
@@ -93,19 +97,25 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
     | PartiallyReconciled | Missing => LabelOrange
-    | Void | UnknownDomainTransactionStatus => LabelLightGray
+    | Void
+    | UnknownDomainTransactionStatus
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) =>
+      LabelLightGray
     },
   })
 }
 
-let getReconciledTypeLabel = (statusString: transactionPostedType): Table.cell => {
+let getReconciledTypeLabel = (statusString: matchedDataType): Table.cell => {
   Table.Label({
     title: (statusString :> string)->String.toUpperCase,
     color: switch statusString {
-    | ForceReconciled => LabelOrange
-    | ManuallyReconciled => LabelGray
-    | Reconciled => LabelBlue
-    | _ => LabelLightGray
+    | Force => LabelOrange
+    | Manual => LabelGray
+    | Auto => LabelBlue
+    | UnknownMatchedDataType => LabelLightGray
     },
   })
 }
@@ -161,9 +171,9 @@ let getCell = (transaction: transactionType, colType: transactionColType): Table
     }
   | CreatedAt => Date(transaction.created_at)
   | ReconciliationType =>
-    switch transaction.data.posted_type {
-    | Some(postedType) => getReconciledTypeLabel(postedType)
-    | None => getReconciledTypeLabel(UnknownTransactionPostedType)
+    switch transaction.data.matched_data_type {
+    | Some(matchedDataType) => getReconciledTypeLabel(matchedDataType)
+    | None => getReconciledTypeLabel(UnknownMatchedDataType)
     }
   | Reason => EllipsisText(transaction.data.reason->Option.getOr("N/A"), "max-w-96")
   | RuleName =>

@@ -138,7 +138,7 @@ let getFileTimelineState = (
   | (Processing, _) => FileProcessing
   | (Pending, _) => FileReceived
   | (Failed, _) => FileRejected
-  | _ => UnknownState
+  | _ => UnknownFileTimelineState
   }
 }
 
@@ -194,7 +194,7 @@ let getTimelineConfig = (
         backgroundColor: "bg-nd_red-50",
       },
     }
-  | UnknownState => {
+  | UnknownFileTimelineState => {
       statusText: "Unknown",
       icon: {name: "help", color: "text-nd_gray-400"},
       container: {

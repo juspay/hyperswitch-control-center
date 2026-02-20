@@ -55,4 +55,4 @@ type fileTimelineState =
   | FileProcessing
   | FileReceived
   | FileRejected
-  | UnknownState
+  | UnknownFileTimelineState

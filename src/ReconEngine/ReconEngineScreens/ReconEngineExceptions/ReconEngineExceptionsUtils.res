@@ -4,7 +4,7 @@ open ReconEngineTypes
 let getFieldNameFromMetadataField = (field: metadataFieldType): string => {
   switch field.field_name {
   | Metadata(key) => key
-  | _ => ""
+  | String => ""
   }
 }
 
@@ -61,6 +61,7 @@ let validateStringField = (value: string, rules: array<stringValidationRule>): o
         value->String.length > maxLen
           ? Some(`Maximum length is ${maxLen->Int.toString} characters`)
           : None
+      | UnknownStringValidationRule => None
       }
     }
   })
@@ -79,6 +80,7 @@ let validateNumberField = (value: string, rules: array<numberValidationRule>): o
           numValue < minVal ? Some(`Minimum value is ${minVal->Float.toString}`) : None
         | MaxValue(maxVal) =>
           numValue > maxVal ? Some(`Maximum value is ${maxVal->Float.toString}`) : None
+        | UnknownNumberValidationRule => None
         }
       }
     })
@@ -101,6 +103,7 @@ let validateMinorUnitField = (value: string, rules: array<minorUnitValidationRul
           intValue < minVal ? Some(`Minimum value is ${minVal->Int.toString}`) : None
         | MaxValueMinorUnit(maxVal) =>
           intValue > maxVal ? Some(`Maximum value is ${maxVal->Int.toString}`) : None
+        | UnknownMinorUnitValidationRule => None
         }
       }
     })
@@ -145,7 +148,7 @@ let validateMetadataFieldValue = (
     let field = metadataSchema.schema_data.fields.metadata_fields->Array.find(f => {
       switch f.field_name {
       | Metadata(fieldKey) => fieldKey == key
-      | _ => false
+      | String => false
       }
     })
     let checkEmptyValue = value->String.trim->isEmptyString
@@ -166,6 +169,7 @@ let validateMetadataFieldValue = (
         | DateTimeField => validateDateTimeField(value)
         | BalanceDirectionField({credit_values, debit_values}) =>
           validateBalanceDirectionField(value, credit_values, debit_values)
+        | UnknownFieldType => None
         }
       }
     }

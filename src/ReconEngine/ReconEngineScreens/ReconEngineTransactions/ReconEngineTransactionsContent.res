@@ -79,8 +79,8 @@ let make = (~account: ReconEngineTypes.accountType) => {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
 
-      // If posted_manual is selected, automatically add posted_force
-      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
+      // If matched_manual is selected, automatically add matched_force
+      let finalStatusFilter = ReconEngineFilterUtils.getMergedMatchedTransactionStatusFilter(
         statusFilter,
       )
 
@@ -91,9 +91,10 @@ let make = (~account: ReconEngineTypes.accountType) => {
         UnderAmount(Mismatch),
         OverAmount(Expected),
         UnderAmount(Expected),
-        Posted(Auto),
         Posted(Manual),
-        Posted(Force),
+        Matched(Auto),
+        Matched(Manual),
+        Matched(Force),
         Void,
         PartiallyReconciled,
         DataMismatch,
