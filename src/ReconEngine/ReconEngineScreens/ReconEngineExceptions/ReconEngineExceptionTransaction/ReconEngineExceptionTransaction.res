@@ -64,24 +64,22 @@ let make = (~ruleId: string) => {
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      let statusList = ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+        Expected,
+        Missing,
+        OverAmount(Mismatch),
+        UnderAmount(Mismatch),
+        OverAmount(Expected),
+        UnderAmount(Expected),
+        DataMismatch,
+        PartiallyReconciled,
+      ])
       if statusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set(
-          "status",
-          [
-            "expected",
-            "over_amount_mismatch",
-            "under_amount_mismatch",
-            "over_amount_expected",
-            "under_amount_expected",
-            "data_mismatch",
-            "partially_reconciled",
-          ]->getJsonFromArrayOfString,
-        )
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
       let exceptionList = await getTransactions(~queryParameters=Some(queryString))
-
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)
       setFilteredExceptionData(_ => exceptionDataList)

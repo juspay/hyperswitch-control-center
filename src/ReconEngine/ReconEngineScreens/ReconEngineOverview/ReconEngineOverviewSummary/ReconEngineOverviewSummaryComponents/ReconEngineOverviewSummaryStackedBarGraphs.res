@@ -19,10 +19,25 @@ module RuleWiseStackedBarGraph = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+        let statusList =
+          ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+            Posted(Auto),
+            Posted(Manual),
+            Posted(Force),
+            Expected,
+            Missing,
+            PartiallyReconciled,
+            OverAmount(Mismatch),
+            OverAmount(Expected),
+            UnderAmount(Mismatch),
+            UnderAmount(Expected),
+            DataMismatch,
+          ])->Array.joinWith(",")
+
         let queryString = if baseQueryString->isNonEmptyString {
-          `${baseQueryString}&rule_id=${rule.rule_id}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`
+          `${baseQueryString}&rule_id=${rule.rule_id}&status=${statusList}`
         } else {
-          `rule_id=${rule.rule_id}&status=posted_auto,posted_manual,posted_force,expected,partially_reconciled,over_amount_mismatch,over_amount_expected,under_amount_mismatch,under_amount_expected,data_mismatch`
+          `rule_id=${rule.rule_id}&status=${statusList}`
         }
         let transactionsData = await getTransactions(~queryParameters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)

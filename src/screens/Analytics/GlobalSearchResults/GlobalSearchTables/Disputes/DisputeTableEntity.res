@@ -1,10 +1,13 @@
 let domain = "disputes"
 
+open LogicUtils
 type disputesObject = {
   dispute_id: string,
   dispute_amount: float,
+  amount: float,
   currency: string,
   dispute_status: string,
+  dispute_stage: string,
   payment_id: string,
   attempt_id: string,
   merchant_id: string,
@@ -16,7 +19,7 @@ type disputesObject = {
   connector_created_at: int,
   connector_updated_at: int,
   created_at: float,
-  modified_at: int,
+  modified_at: float,
   connector: string,
   evidence: string,
   profile_id: string,
@@ -29,8 +32,10 @@ type disputesObject = {
 type cols =
   | DisputeId
   | DisputeAmount
+  | Amount
   | Currency
   | DisputeStatus
+  | DisputeStage
   | PaymentId
   | AttemptId
   | MerchantId
@@ -65,8 +70,10 @@ let colMapper = (col: cols) => {
   switch col {
   | DisputeId => "dispute_id"
   | DisputeAmount => "dispute_amount"
+  | Amount => "amount"
   | Currency => "currency"
   | DisputeStatus => "dispute_status"
+  | DisputeStage => "dispute_stage"
   | PaymentId => "payment_id"
   | AttemptId => "attempt_id"
   | MerchantId => "merchant_id"
@@ -90,12 +97,13 @@ let colMapper = (col: cols) => {
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
-  open LogicUtils
   {
     dispute_id: dict->getString(DisputeId->colMapper, "NA"),
     dispute_amount: dict->getFloat(DisputeAmount->colMapper, 0.0),
+    amount: dict->getFloat(Amount->colMapper, 0.0),
     currency: dict->getString(Currency->colMapper, "NA"),
     dispute_status: dict->getString(DisputeStatus->colMapper, "NA"),
+    dispute_stage: dict->getString(DisputeStage->colMapper, "NA"),
     payment_id: dict->getString(PaymentId->colMapper, "NA"),
     attempt_id: dict->getString(AttemptId->colMapper, "NA"),
     merchant_id: dict->getString(MerchantId->colMapper, "NA"),
@@ -107,7 +115,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
     connector_created_at: dict->getInt(ConnectorCreatedAt->colMapper, 0),
     connector_updated_at: dict->getInt(ConnectorUpdatedAt->colMapper, 0),
     created_at: dict->getFloat(CreatedAt->colMapper, 0.0),
-    modified_at: dict->getInt(ModifiedAt->colMapper, 0),
+    modified_at: dict->getFloat(ModifiedAt->colMapper, 0.0),
     connector: dict->getString(Connector->colMapper, "NA"),
     evidence: dict->getString(Evidence->colMapper, "NA"),
     profile_id: dict->getString(ProfileId->colMapper, "NA"),
@@ -119,9 +127,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
 }
 
 let getObjects: JSON.t => array<disputesObject> = json => {
-  open LogicUtils
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -132,8 +139,10 @@ let getHeading = colType => {
   switch colType {
   | DisputeId => Table.makeHeaderInfo(~key, ~title="Dispute Id", ~dataType=TextType)
   | DisputeAmount => Table.makeHeaderInfo(~key, ~title="Dispute Amount", ~dataType=TextType)
+  | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
   | DisputeStatus => Table.makeHeaderInfo(~key, ~title="Dispute Status", ~dataType=TextType)
+  | DisputeStage => Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=TextType)
   | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType)
   | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType)
   | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType)
@@ -162,8 +171,9 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (disputeObj, colType): Table.cell => {
+let getCell = (disputeObj: disputesObject, colType): Table.cell => {
   let disputeStatus = disputeObj.dispute_status->HSwitchOrderUtils.statusVariantMapper
+  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(disputeObj.currency)
 
   switch colType {
   | DisputeId =>
@@ -173,14 +183,23 @@ let getCell = (disputeObj, colType): Table.cell => {
         displayValue={disputeObj.dispute_id}
         copyValue={Some(disputeObj.dispute_id)}
       />,
-      "",
+      disputeObj.dispute_id,
     )
   | DisputeAmount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(disputeObj.dispute_amount /. 100.0)->Float.toString} currency={disputeObj.currency}
+        amount={(disputeObj.dispute_amount /. conversionFactor)->Float.toString}
+        currency={disputeObj.currency}
       />,
-      "",
+      (disputeObj.dispute_amount /. conversionFactor)->Float.toString,
+    )
+  | Amount =>
+    CustomCell(
+      <OrderEntity.CurrencyCell
+        amount={(disputeObj.amount /. conversionFactor)->Float.toString}
+        currency={disputeObj.currency}
+      />,
+      (disputeObj.amount /. conversionFactor)->Float.toString,
     )
   | Currency => Text(disputeObj.currency)
   | DisputeStatus =>
@@ -201,6 +220,7 @@ let getCell = (disputeObj, colType): Table.cell => {
       | _ => LabelLightGray
       },
     })
+  | DisputeStage => Text(disputeObj.dispute_stage)
   | PaymentId => Text(disputeObj.payment_id)
   | AttemptId => Text(disputeObj.attempt_id)
   | MerchantId => Text(disputeObj.merchant_id)
@@ -212,7 +232,7 @@ let getCell = (disputeObj, colType): Table.cell => {
   | ConnectorCreatedAt => Text(disputeObj.connector_created_at->Int.toString)
   | ConnectorUpdatedAt => Text(disputeObj.connector_updated_at->Int.toString)
   | CreatedAt => Date(disputeObj.created_at->DateTimeUtils.unixToISOString)
-  | ModifiedAt => Text(disputeObj.modified_at->Int.toString)
+  | ModifiedAt => Date(disputeObj.modified_at->DateTimeUtils.unixToISOString)
   | Connector => Text(disputeObj.connector)
   | Evidence => Text(disputeObj.evidence)
   | ProfileId => Text(disputeObj.profile_id)
@@ -239,3 +259,58 @@ let tableEntity = EntityType.makeEntity(
       )
   },
 )
+
+let getColFromKey = (key: string): option<cols> => {
+  switch key {
+  | "dispute_id" => Some(DisputeId)
+  | "payment_id" => Some(PaymentId)
+  | "connector_dispute_id" => Some(ConnectorDisputeId)
+  | "connector" => Some(Connector)
+  | "amount" => Some(Amount)
+  | "currency" => Some(Currency)
+  | "dispute_stage" => Some(DisputeStage)
+  | "dispute_status" => Some(DisputeStatus)
+  | "connector_status" => Some(ConnectorStatus)
+  | "connector_reason" => Some(ConnectorReason)
+  | "connector_reason_code" => Some(ConnectorReasonCode)
+  | "created_at" => Some(CreatedAt)
+  | "modified_at" => Some(ModifiedAt)
+  | "challenge_required_by" => Some(ChallengeRequiredBy)
+  | "evidence" => Some(Evidence)
+  | _ => None
+  }
+}
+
+let allColumns = [
+  DisputeId,
+  PaymentId,
+  ConnectorDisputeId,
+  Connector,
+  Amount,
+  Currency,
+  DisputeStage,
+  DisputeStatus,
+  ConnectorStatus,
+  ConnectorReason,
+  ConnectorReasonCode,
+  CreatedAt,
+  ModifiedAt,
+  ChallengeRequiredBy,
+  Evidence,
+]
+
+let csvHeaders = allColumns->Array.map(col => {
+  let {key, title} = col->getHeading
+  (key, title)
+})
+
+let itemToCSVMapping = (obj: disputesObject): JSON.t => {
+  allColumns
+  ->Array.reduce(Dict.make(), (dict, col) => {
+    let key = col->colMapper
+    let value = obj->getCell(col)->TableUtils.getTableCellValue
+    dict->Dict.set(key, value->JSON.Encode.string)
+    dict
+  })
+  ->JSON.Encode.object
+}

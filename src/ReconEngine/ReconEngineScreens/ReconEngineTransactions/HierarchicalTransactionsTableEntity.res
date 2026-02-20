@@ -67,7 +67,7 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
       LabelRed
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
-    | PartiallyReconciled => LabelOrange
+    | PartiallyReconciled | Missing => LabelOrange
     | Void | UnknownDomainTransactionStatus => LabelLightGray
     },
   })
