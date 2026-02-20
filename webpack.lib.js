@@ -8,7 +8,7 @@ const tailwindcss = require("tailwindcss");
 const serverConfig = require("./webpack.server");
 const config = import("./src/server/config.mjs");
 
-const DEV_SERVER_PORT = 9000;
+const DEV_SERVER_PORT = 9001;
 
 const createCompressionPlugins = (test) => [
   new CompressionPlugin({
@@ -58,12 +58,13 @@ const configMiddleware = (req, res, next) => {
 };
 
 const assetRewriteMiddleware = (req, _res, next) => {
-  if (
-    req.path.match(/\.\w+$/) &&
-    !req.path.startsWith("/embedded") &&
-    !req.path.startsWith("/api")
+  if (req.path.startsWith("/embedded")) {
+    req.url = req.path.replace(/^\/embedded/, "");
+  } else if (
+    req.path.startsWith("/assets/") ||
+    req.path.startsWith("/lottie-files/")
   ) {
-    req.url = "/embedded" + req.path;
+    req.url = `/embedded${req.path}`;
   }
   next();
 };
@@ -121,13 +122,13 @@ const getModuleRules = () => {
   return rules;
 };
 
-const getCopyPatterns = (isDevelopment) => [
+const getCopyPatterns = () => [
   { from: "public/common" },
   {
     from: "public/hyperswitch",
     to: ".",
     globOptions: {
-      ignore: ["**/index.html", ...(isDevelopment ? [] : ["**/assets/**"])],
+      ignore: ["**/index.html"],
     },
   },
   {
@@ -140,7 +141,7 @@ const getPlugins = (isDevelopment) => {
   const plugins = [
     new MiniCssExtractPlugin(),
     new CopyPlugin({
-      patterns: getCopyPatterns(isDevelopment),
+      patterns: getCopyPatterns(),
     }),
   ];
 

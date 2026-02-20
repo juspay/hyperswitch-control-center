@@ -8,4 +8,13 @@ type scaExemption = {
   threeDSIncomplete: int,
   authSuccess: int,
   authFailure: int,
+  notRequested3dsCompleted: int,
+  notRequested3dsIncomplete: int,
+  rejected3dsCompleted: int,
+  rejected3dsIncomplete: int,
+  acceptedAuthSuccess: int,
+  acceptedAuthFailure: int,
+  challengeAuthSuccess: int,
+  challengeAuthFailure: int,
+  challengeIncompleteAuthFailure: int,
 }
