@@ -45,11 +45,7 @@ let make = () => {
           entityName="Connectors"
           remainingPath
           renderList={() =>
-            <ConnectorList
-              showDummyProcessorBanner=false
-              showRequestConnectorBtn=false
-              showDummyConnectorButton=false
-            />}
+            <ConnectorList showDummyProcessorBanner=false showDummyConnectorButton=false />}
           renderNewForm={() => <ConnectorHome showBreadCrumbWarning=false />}
           renderShow={(_, _) => <ConnectorHome showBreadCrumbWarning=false />}
         />

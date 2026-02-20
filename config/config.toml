@@ -17,7 +17,6 @@ branding=false
 mixpanel=false
 test_live_toggle=false
 is_live_mode=false
-feedback=false
 x_feature_route=false
 compliance_certificate=false
 force_cookies=false
