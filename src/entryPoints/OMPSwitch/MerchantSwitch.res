@@ -240,13 +240,22 @@ let make = () => {
         currentId=item.id
         switchMerch
       />
-    let listItem: OMPSwitchTypes.ompListTypesCustom = {
+
+    let baseItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
-      type_: item.type_->Option.getOr(#standard),
       customComponent,
     }
-    listItem
+    
+    let withType: OMPSwitchTypes.ompListTypesCustom = switch item.type_ {
+    | Some(t) => {...baseItem, type_: t}
+    | None => baseItem
+    }
+    
+    switch item.productType {
+    | Some(pt) => {...withType, productType: pt}
+    | None => withType
+    }
   })
 
   <div className="w-fit flex flex-col gap-4">
