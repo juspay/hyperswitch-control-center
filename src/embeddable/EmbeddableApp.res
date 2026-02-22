@@ -7,7 +7,7 @@ let make = () => {
   open EmbeddedIframeUtils
 
   let url = RescriptReactRouter.useUrl()
-
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let contentRef = React.useRef(Js.Nullable.null)
 
   let measureAndSendDimensions = rootElement => {
@@ -93,7 +93,7 @@ let make = () => {
     )
   }, [])
 
-  <div id="embeddable-app" ref={ReactDOM.Ref.domRef(contentRef)}>
+  <div id={`embeddable-app`} className={backgroundColor} ref={ReactDOM.Ref.domRef(contentRef)}>
     <ErrorBoundary>
       {switch url.path->urlPath {
       | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
