@@ -72,6 +72,7 @@ let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
 let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
+let vaultProcessorListV2: array<connectorTypes> = [VaultProcessor(HSVAULT)]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -1023,6 +1024,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
 let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => "vgs"
+  | HSVAULT => "hsvault"
   }
 }
 
@@ -1385,6 +1387,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
 let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => vgsInfo
+  | HSVAULT => vgsInfo
   }
 }
 
@@ -2348,6 +2351,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
 let getDisplayNameForVaultProcessor = vaultProcessor => {
   switch vaultProcessor {
   | VGS => "VGS"
+  | HSVAULT => "HS Vault"
   }
 }
 

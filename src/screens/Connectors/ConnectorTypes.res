@@ -170,7 +170,7 @@ type taxProcessorTypes = TAXJAR
 
 type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
 
-type vaultProcessorTypes = VGS
+type vaultProcessorTypes = VGS | HSVAULT
 
 type connectorTypeVariants =
   | PaymentProcessor

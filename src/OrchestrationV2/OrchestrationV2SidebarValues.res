@@ -52,8 +52,19 @@ let paymentProcessor = (_isLiveMode, userHasResourceAccess) => {
   })
 }
 
+let vaultProcessor = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Vault Processors",
+    link: `/v2/orchestration/vault-processors`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+  })
+}
+
 let connectors = (isConnectorsEnabled, ~isLiveMode, ~userHasResourceAccess) => {
-  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
+  let connectorLinkArray = [
+    paymentProcessor(isLiveMode, userHasResourceAccess),
+    vaultProcessor(userHasResourceAccess),
+  ]
 
   isConnectorsEnabled
     ? Section({

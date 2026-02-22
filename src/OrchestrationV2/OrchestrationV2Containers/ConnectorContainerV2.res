@@ -50,6 +50,17 @@ let make = () => {
             />}
         />
       </AccessControl>
+    | list{"v2", "orchestration", "vault-processors", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Vault Processors"
+          remainingPath
+          renderList={() => <VaultProcessors />}
+          renderNewForm={() => <VaultProcessorOnboarding />}
+          renderShow={(_, _) =>
+            <VaultProcessorSummary baseUrl="v2/orchestration/vault-processors" />}
+        />
+      </AccessControl>
     | list{"v2", "orchestration", "payment-settings", ..._} => <PaymentSettingsRevamped />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
