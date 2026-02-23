@@ -11,20 +11,17 @@ let extractTypedConnectorValueFromConfig = (
   ~connectorType: ConnectorTypes.connector,
 ) => {
   open LogicUtils
-  let connectorArray =
-    connectorDict
-    ->getArrayFromDict(key, [])
-    ->Array.map(item =>
-      item
-      ->getStringFromJson("")
-      ->String.toLowerCase
-      ->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
-    )
-    ->Array.filter(item => item != UnknownConnector("Not known"))
 
-  connectorArray->Array.reduce([], (acc, item) => {
-    acc->Array.some(accItem => accItem == item) ? acc : acc->Array.concat([item])
-  })
+  connectorDict
+  ->getArrayFromDict(key, [])
+  ->Array.map(item =>
+    item
+    ->getStringFromJson("")
+    ->String.toLowerCase
+  )
+  ->removeDuplicate
+  ->Array.map(item => ConnectorUtils.getConnectorNameTypeFromString(~connectorType, item))
+  ->Array.filter(item => item != UnknownConnector("Not known"))
 }
 
 let connectorListForLive = (list: JSON.t) => {
