@@ -4,7 +4,7 @@ module PaymentLinkDomainFields = {
     open Typography
     open FormRenderer
     open LogicUtils
-    open PaymentSettingsV2Helper
+    open PaymentSettingsRevampedHelper
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (isDisabled, setDisabled) = React.useState(_ => true)

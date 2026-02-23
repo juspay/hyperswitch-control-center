@@ -115,6 +115,7 @@ let getDomainTransactionStatus = (
   let subStatus = dict->getString("sub_status", "")
   switch status->String.toLowerCase {
   | "expected" => Expected
+  | "missing" => Missing
   | "posted" => Posted(subStatus->getDomainTransactionPostedStatusFromString)
   | "over_amount" => OverAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)
   | "under_amount" => UnderAmount(subStatus->getDomainTransactionAmountMismatchStatusFromString)

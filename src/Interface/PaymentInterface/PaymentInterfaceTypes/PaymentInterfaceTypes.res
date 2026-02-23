@@ -38,6 +38,7 @@ type attempts = {
   reference_id: string,
   client_source: string,
   client_version: string,
+  hyperswitch_error_description?: string,
 }
 
 type frmMessage = {

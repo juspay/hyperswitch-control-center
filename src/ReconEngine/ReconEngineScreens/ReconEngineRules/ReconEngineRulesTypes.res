@@ -90,10 +90,26 @@ type oneToOneManySingleType = {
   target_account: oneToOneManySingleTargetType,
 }
 
+type oneToOneManyManySourceType = {
+  account_id: string,
+  trigger: triggerType,
+  grouping_field: string,
+}
+
+type oneToOneManyManyTargetType = {account_id: string}
+
+type oneToOneManyManyType = {
+  search_identifier: searchIdentifierType,
+  match_rules: matchRulesType,
+  source_account: oneToOneManyManySourceType,
+  target_account: oneToOneManyManyTargetType,
+}
+
 type oneToOneStrategyType =
   | SingleSingle(oneToOneSingleSingleType)
   | SingleMany(oneToOneSingleManyType)
   | ManySingle(oneToOneManySingleType)
+  | ManyMany(oneToOneManyManyType)
   | UnknownOneToOneStrategy
 
 type oneToManySingleSingleSourceType = {
@@ -126,6 +142,10 @@ type reconStrategyType =
   | OneToMany(oneToManyStrategyType)
   | UnknownReconStrategy
 
+type agingConfigWithThreshold = {threshold_type: string, value: int}
+
+type agingConfigType = NoAging | WithThreshold(agingConfigWithThreshold) | UnknownAgingConfigType
+
 type rulePayload = {
   rule_id: string,
   rule_name: string,
@@ -136,6 +156,7 @@ type rulePayload = {
   strategy: reconStrategyType,
   created_at: string,
   last_modified_at: string,
+  aging_config: agingConfigType,
 }
 
 type ruleColType =

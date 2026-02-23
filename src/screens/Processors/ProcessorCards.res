@@ -105,6 +105,7 @@ let make = (
     if connectorList->Array.length > 0 {
       connectorList->Array.sort(sortByName)
     }
+    let customStyleClass = showTestProcessor ? "" : "2xl:grid-cols-4 lg:grid-cols-3"
     <>
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
@@ -150,8 +151,7 @@ let make = (
         <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
-        <div
-          className="grid gap-x-5 gap-y-6 2xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
+        <div className={`grid gap-x-5 gap-y-6 ${customStyleClass} md:grid-cols-2 grid-cols-1 mb-5`}>
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
