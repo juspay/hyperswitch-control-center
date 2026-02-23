@@ -1024,7 +1024,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
 let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => "vgs"
-  | HSVAULT => "hsvault"
+  | HSVAULT => "hyperswitch_vault"
   }
 }
 
@@ -1211,6 +1211,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | VaultProcessor =>
     switch connector {
     | "vgs" => VaultProcessor(VGS)
+    | "hyperswitch_vault" => VaultProcessor(HSVAULT)
     | _ => UnknownConnector("Not known")
     }
   }

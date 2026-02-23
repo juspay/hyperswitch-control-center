@@ -82,6 +82,7 @@ let make = () => {
             "v2/orchestration/vault-processors",
             ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             ~sendMixpanelEvent=() => (),
+            ~connectorType=ConnectorTypes.VaultProcessor,
           )}
           currrentFetchCount={filteredConnectorData->Array.length}
           collapseTableRow=false
@@ -93,24 +94,6 @@ let make = () => {
         connectorsAvailableForIntegration
         urlPrefix="v2/orchestration/vault-processors/new"
       />
-      // <RenderIf condition={filteredConnectorData->Array.length === 0}>
-      //   <div className="flex flex-col items-center gap-6 p-12 bg-white border rounded-lg">
-      //     <p className="text-nd_gray-400 text-base font-medium">
-      //       {"No vault processors connected yet."->React.string}
-      //     </p>
-      //     <ACLButton
-      //       authorization={userHasAccess(~groupAccess=ConnectorsManage)}
-      //       text="Connect Vault"
-      //       buttonType=Primary
-      //       onClick={_ =>
-      //         RescriptReactRouter.push(
-      //           GlobalVars.appendDashboardPath(
-      //             ~url=`/v2/orchestration/vault-processors/new?name=${VaultProcessorUtilsV2.vaultConnectorName}`,
-      //           ),
-      //         )}
-      //     />
-      //   </div>
-      // </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

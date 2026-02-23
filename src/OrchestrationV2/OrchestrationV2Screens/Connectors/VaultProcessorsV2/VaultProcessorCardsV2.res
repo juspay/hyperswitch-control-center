@@ -5,7 +5,7 @@ let make = (
   ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
   ~configuredConnectors: array<ConnectorTypes.connectorTypes>,
   ~showAllConnectors=true,
-  ~connectorType=ConnectorTypes.Processor,
+  ~connectorType=ConnectorTypes.VaultProcessor,
   ~setProcessorModal=_ => (),
   ~urlPrefix: string,
   ~showTestProcessor=false,

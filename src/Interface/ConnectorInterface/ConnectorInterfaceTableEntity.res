@@ -95,13 +95,14 @@ let connectorEntity = (
   path: string,
   ~authorization: CommonAuthTypes.authorization,
   ~sendMixpanelEvent,
+  ~connectorType=Processor,
 ) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
-    ~getCell=getTableCell(~connectorType=Processor),
+    ~getCell=getTableCell(~connectorType),
     ~dataKey="",
     ~getShowLink={
       connec => {

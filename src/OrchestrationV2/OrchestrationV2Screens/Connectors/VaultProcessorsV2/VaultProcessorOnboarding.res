@@ -63,11 +63,35 @@ let make = () => {
     }
   }
 
+  let merchantRequest = {
+    "external_vault_connector_details": {
+      "vault_connector_id": "mca_R8RweFpIDEr2oNZ4ADYu",
+      "vault_sdk": "hyperswitch_sdk",
+      "vault_token_selector": [
+        {
+          "token_type": "card_number",
+        },
+        {
+          "token_type": "card_expiry_year",
+        },
+        {
+          "token_type": "card_expiry_month",
+        },
+      ],
+    },
+  }->Identity.genericTypeToJson
+
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Post, ~id=None)
+      let businessprofileUrl = getURL(
+        ~entityName=V2(BUSINESS_PROFILE),
+        ~methodType=Put,
+        ~id=Some(profileId),
+      )
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
+      let _ = await updateAPIHook(businessprofileUrl, merchantRequest, Put, ~version=V2)
       setInitialValues(_ => response)
       fetchConnectorListResponse()->ignore
       let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
@@ -128,8 +152,6 @@ let make = () => {
         {"Setup Hyperswitch Vault"->React.string}
       </h1>
     </>
-
-  Js.log2("updatedInitialVal", updatedInitialVal)
 
   <div className="flex flex-col gap-10">
     <div className="flex h-full">
