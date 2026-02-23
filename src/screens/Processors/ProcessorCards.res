@@ -103,6 +103,7 @@ let make = (
     (),
   ) => {
     let connectorListSorted = connectorList->Array.toSorted(sortByName)
+    let customStyleClass = showTestProcessor ? "" : "2xl:grid-cols-4 lg:grid-cols-3"
 
     <>
       <AddDataAttributes

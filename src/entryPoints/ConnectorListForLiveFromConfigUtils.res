@@ -21,7 +21,10 @@ let extractTypedConnectorValueFromConfig = (
       ->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
     )
     ->Array.filter(item => item != UnknownConnector("Not known"))
-  connectorArray
+
+  connectorArray->Array.reduce([], (acc, item) => {
+    acc->Array.some(accItem => accItem == item) ? acc : acc->Array.concat([item])
+  })
 }
 
 let connectorListForLive = (list: JSON.t) => {
