@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.23.0
+
+### Refactors
+
+- Update routes for Payment Settings V2 ([#4241](https://github.com/juspay/hyperswitch-control-center/pull/4241)) ([`6d40578`](https://github.com/juspay/hyperswitch-control-center/commit/6d40578b908af7e36c8ebc727704b8bb56f7c8f6))
+
+**Full Changelog:** [`2026.02.20.0...2026.02.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.20.0...2026.02.23.0)
+
+- - -
+
 ## 2026.02.20.0
 
 ### Bug Fixes

@@ -38,7 +38,6 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
-    | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}
