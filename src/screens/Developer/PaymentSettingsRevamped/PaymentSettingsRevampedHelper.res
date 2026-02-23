@@ -1,4 +1,4 @@
-open PaymentSettingsV2Utils
+open PaymentSettingsRevampedUtils
 
 let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~label="Max Auto Retries",
