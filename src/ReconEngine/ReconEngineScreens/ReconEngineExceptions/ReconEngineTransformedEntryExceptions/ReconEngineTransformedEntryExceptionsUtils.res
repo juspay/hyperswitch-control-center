@@ -522,7 +522,7 @@ let downloadBulkActionReport = (bulkActionResponses: array<bulkActionResponse>) 
   let csvContent = PapaParse.unparse({"fields": headers, "data": data})
   let timestamp = Js.Date.now()->Js.Float.toString
   DownloadUtils.download(
-    ~fileName=`bulk_transformed_entry_ignore_report_${timestamp}.csv`,
+    ~fileName=`bulk_ignore_transformed_entry_report_${timestamp}.csv`,
     ~content=csvContent,
     ~fileType="text/csv",
   )

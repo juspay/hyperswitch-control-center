@@ -381,7 +381,7 @@ let downloadBulkActionReport = (
   let timestamp = Js.Date.now()->Js.Float.toString
 
   DownloadUtils.download(
-    ~fileName=`${(action :> string)}_report_${timestamp}.csv`,
+    ~fileName=`${(action :> string)}_transaction_report_${timestamp}.csv`,
     ~content=csvContent,
     ~fileType="text/csv",
   )
