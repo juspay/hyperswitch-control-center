@@ -333,7 +333,6 @@ let make = (~children) => {
     try {
       let objectdata = ev->HandlingEvents.convertToCustomEvent
       let dict = objectdata.data->getDictFromJsonObject
-      Js.log2("dict", dict)
       switch dict->getOptionString("type")->Option.map(messageToTypeConversion) {
       | Some(INIT_CONFIG) => {
           let initConfigJson = dict->getJsonObjectFromDict("init_config")
@@ -356,7 +355,7 @@ let make = (~children) => {
       getThemesJson,
       logoURL: contextLogoUrl,
     }
-  }, (theme, setTheme, contextLogoUrl, getThemesJson))
+  }, (theme, setTheme, contextLogoUrl))
 
   React.useEffect(() => {
     Window.addEventListener("message", handleInitConfigMessage)
