@@ -34,8 +34,8 @@ module TestMode = {
         className="absolute w-fit max-w-fixedPageWidth bg-white flex flex-col items-center -top-11">
         <div
           className="bg-nd_orange-100 px-4 py-[6px] rounded-br-md rounded-bl-md w-fit flex gap-2 items-center">
-          <Icon name="nd-toast-info" size=14 customIconColor="text-nd_yellow-200 text-fs-12" />
-          <p className="text-nd_yellow-200 text-base leading-5 font-medium text-nowrap">
+          <Icon name="nd-toast-info" size=14 customIconColor="text-nd_yellow-900 text-fs-12" />
+          <p className="text-nd_yellow-900 text-base leading-5 font-medium text-nowrap">
             {"You're in Test Mode"->React.string}
           </p>
           <GetProductionAccess />
