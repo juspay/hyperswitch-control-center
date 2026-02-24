@@ -352,7 +352,6 @@ module ThemeLineageModal = {
     ).getCommonSessionDetails()
 
     let (themeExists, setThemeExists) = React.useState(() => false)
-    let (updateThemeID, setUpdateThemeID) = React.useState(() => themeId)
 
     let entityType =
       sessionStorage.getItem("entity_type")->getOptionalFromNullable->Option.getOr("")
@@ -390,9 +389,7 @@ module ThemeLineageModal = {
           ~userType=#THEME_BY_LINEAGE,
           ~queryParameters=Some(`entity_type=${entityType}`),
         )
-        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
-        let themeID = res->getDictFromJsonObject->getString("theme_id", "")
-        setUpdateThemeID(_ => themeID)
+        let _ = await fetchDetails(url, ~version=UserInfoTypes.V1)
         setThemeExists(_ => true)
       } catch {
       | _ => setThemeExists(_ => false)
@@ -404,7 +401,7 @@ module ThemeLineageModal = {
       sessionStorage.removeItem("themeModalStep")
 
       if themeExists {
-        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/theme/${updateThemeID}`))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/theme/${themeId}`))
       } else {
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/theme/new"))
       }
@@ -470,12 +467,7 @@ module ThemeLineageModal = {
         setStep(_ => stepNum)
 
         if stepNum !== 0 {
-          let checkEntityType = switch stepNum {
-          | 1 => "organization"
-          | 2 => "merchant"
-          | 3 => "profile"
-          | _ => ""
-          }
+          let checkEntityType = ThemeFeatureUtils.getEntityTypeFromStep(stepNum)
           if checkEntityType->isNonEmptyString {
             checkThemeExists(~entityType=checkEntityType)->ignore
           }

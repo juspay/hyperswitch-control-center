@@ -2,6 +2,14 @@ open ThemeTypes
 open HyperSwitchConfigTypes
 open ThemeProvider
 
+type themeCreateSettings = {
+  colors: colorPalette,
+  sidebar: sidebarConfig,
+  buttons: buttonConfig,
+}
+
+type themeCreateData = {settings: themeCreateSettings}
+
 type themeCreate = {
   entity_type: string,
   tenant_id: string,
@@ -9,7 +17,7 @@ type themeCreate = {
   merchant_id: option<string>,
   profile_id: option<string>,
   theme_name: string,
-  theme_data: customStylesTheme,
+  theme_data: themeCreateData,
   email_config: option<emailConfig>,
 }
 
@@ -21,9 +29,11 @@ let defaultCreate = (~lineage: lineage) => {
   profile_id: lineage.profile_id,
   theme_name: "Default Theme",
   theme_data: {
-    fallbackThemeConfig
+    settings: {
+      colors: {fallbackThemeConfig.settings.colors},
+      sidebar: {fallbackThemeConfig.settings.sidebar},
+      buttons: {fallbackThemeConfig.settings.buttons},
+    },
   },
-  email_config: Some({
-    defaultEmailConfig
-  }),
+  email_config: Some(defaultEmailConfig),
 }
