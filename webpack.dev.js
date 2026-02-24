@@ -17,7 +17,7 @@ let proxy = [
   {
     context: ["/api/v2"],
     target: "http://localhost:8082",
-    pathRewrite: { "^/api/v2": "" },
+    pathRewrite: { "^/api": "" },
     changeOrigin: true,
   },
   {
