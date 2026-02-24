@@ -1,5 +1,5 @@
 @react.component
-let make = (~previewOnly=false) => {
+let make = (~previewOnly=false, ~showAdditionalFeatures=true) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
@@ -187,23 +187,25 @@ let make = (~previewOnly=false) => {
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
-        <div className="flex gap-4">
-          <Portal to="OrdersOMPView">
-            <OMPSwitchHelper.OMPViews
-              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-              selectedEntity={transactionEntity}
-              onChange={updateTransactionEntity}
-              entityMapper=UserInfoUtils.transactionEntityMapper
-            />
-          </Portal>
-          <RenderIf
-            condition={generateReport && email && orderData->Array.length > 0 && version == V1}>
-            <GenerateReport entityName={V1(PAYMENT_REPORT)} />
-          </RenderIf>
+      <RenderIf condition={showAdditionalFeatures}>
+        <div className="flex justify-between items-center">
+          <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
+          <div className="flex gap-4">
+            <Portal to="OrdersOMPView">
+              <OMPSwitchHelper.OMPViews
+                views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+                selectedEntity={transactionEntity}
+                onChange={updateTransactionEntity}
+                entityMapper=UserInfoUtils.transactionEntityMapper
+              />
+            </Portal>
+            <RenderIf
+              condition={generateReport && email && orderData->Array.length > 0 && version == V1}>
+              <GenerateReport entityName={V1(PAYMENT_REPORT)} />
+            </RenderIf>
+          </div>
         </div>
-      </div>
+      </RenderIf>
       <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-6 my-8">
         <TransactionView entity=TransactionViewTypes.Orders version />
       </div>
