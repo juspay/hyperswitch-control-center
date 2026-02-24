@@ -8112,7 +8112,7 @@ License)
   <symbol id="nd-download-down" viewBox="0 0 16 16" fill="none">
     <path
       d="M2 9.99935C2 11.8403 3.49238 13.3327 5.33333 13.3327H10.6667C12.5076 13.3327 14 11.8403 14 9.99935M6 8.12499C6.4935 8.78299 7.066 9.3772 7.70429 9.89442C7.79061 9.96437 7.89531 9.99935 8 9.99935M10 8.12499C9.5065 8.78299 8.934 9.3772 8.29571 9.89442C8.20939 9.96437 8.10469 9.99935 8 9.99935M8 9.99935V2.66602"
-      stroke="#717784" stroke-width="1.52" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.52" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 
   <symbol id="nd-graph-chart-gantt" viewBox="0 0 16 16" fill="none">

@@ -19,6 +19,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (selectedRows, setSelectedRows) = React.useState(_ => [])
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
@@ -159,15 +160,25 @@ let make = () => {
             filters={<TableSearchFilter
               data={stagingData->Array.map(Nullable.make)}
               filterLogic
-              placeholder="Search Staging Entry ID or Order ID or Status"
+              placeholder="Search Transformed Entry ID or Order ID or Status"
               customSearchBarWrapperWidth="w-full lg:w-1/3"
               customInputBoxWidth="w-full rounded-xl"
               searchVal=searchText
               setSearchVal=setSearchText
             />}
+            checkBoxProps={{
+              showCheckBox: true,
+              selectedData: selectedRows,
+              setSelectedData: setSelectedRows,
+            }}
           />
         </RenderIf>
       </div>
     </PageLoaderWrapper>
+    <RenderIf condition={selectedRows->isNonEmptyArray}>
+      <ReconEngineTransformedEntryBulkActions
+        selectedRows={selectedRows->Array.map(json => json->Identity.jsonToAnyType)} setSelectedRows
+      />
+    </RenderIf>
   </div>
 }
