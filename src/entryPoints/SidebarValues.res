@@ -412,6 +412,36 @@ let surcharge = userHasResourceAccess => {
   })
 }
 
+let vaultOnboarding = userHasResourceAccess => SubLevelLink({
+  name: "Configuration",
+  link: `/vault-onboarding`,
+  access: userHasResourceAccess(~resourceAccess=Connector),
+  searchOptions: [("Vault onboarding", "")],
+})
+
+let vaultCustomerAndTokens = userHasResourceAccess => SubLevelLink({
+  name: "Customers & Tokens",
+  link: `/vault-customers-tokens`,
+  access: userHasResourceAccess(~resourceAccess=Connector),
+  searchOptions: [("Manage vault customers and tokens", "")],
+})
+
+let vault = (isVaultEnabled, ~userHasResourceAccess) => {
+  let defaultVault = [
+    vaultOnboarding(userHasResourceAccess),
+    vaultCustomerAndTokens(userHasResourceAccess),
+  ]
+
+  isVaultEnabled
+    ? Section({
+        name: "Vault",
+        icon: "vault-home",
+        showSection: true,
+        links: defaultVault,
+      })
+    : emptyComponent
+}
+
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
@@ -547,14 +577,6 @@ let paymentSettings = userHasResourceAccess => {
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
-let paymentSettingsV2 = userHasResourceAccess => {
-  SubLevelLink({
-    name: "Payment Settings V2",
-    link: `/payment-settings-new`,
-    access: userHasResourceAccess(~resourceAccess=Account),
-    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
-  })
-}
 
 let webhooks = userHasResourceAccess => {
   SubLevelLink({
@@ -579,7 +601,6 @@ let developers = (
   ~isWebhooksEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
-  ~isPaymentSettingsV2Enabled,
   ~paymentLinkThemeConfigurator,
   ~isCurrentMerchantPlatform,
 ) => {
@@ -590,13 +611,10 @@ let developers = (
   } else {
     let isProfileUser = checkUserEntity([#Profile])
     let paymentSettings = paymentSettings(userHasResourceAccess)
-    let paymentSettingsV2 = paymentSettingsV2(userHasResourceAccess)
     let webhooks = webhooks(userHasResourceAccess)
 
     let defaultDevelopersOptions = [paymentSettings]
-    if isPaymentSettingsV2Enabled {
-      defaultDevelopersOptions->Array.push(paymentSettingsV2)
-    }
+
     if !isProfileUser {
       defaultDevelopersOptions->Array.push(apiKeys)
     }

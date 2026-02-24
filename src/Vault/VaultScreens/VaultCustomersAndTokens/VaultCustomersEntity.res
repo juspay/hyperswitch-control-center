@@ -61,7 +61,7 @@ let getCustomers: JSON.t => array<customers> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let customersEntity = (~sendMixpanelEvent) => {
+let customersEntity = (~sendMixpanelEvent, ~isOrchestrationVault) => {
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getCustomers,
@@ -73,7 +73,11 @@ let customersEntity = (~sendMixpanelEvent) => {
     ~getShowLink={
       customerData => {
         sendMixpanelEvent()
-        GlobalVars.appendDashboardPath(~url=`/v2/vault/customers-tokens/${customerData.id}`)
+        GlobalVars.appendDashboardPath(
+          ~url=`${isOrchestrationVault
+              ? "/vault-customers-tokens/"
+              : "/v2/vault/customers-tokens/"}${customerData.id}`,
+        )
       }
     },
   )
