@@ -710,7 +710,7 @@ module Vault = {
     open FormRenderer
     open LogicUtils
     open PaymentSettingsUtils
-    open PaymentSettingsV2Utils
+    open PaymentSettingsRevampedUtils
 
     let vaultConnectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=VaultProcessor,

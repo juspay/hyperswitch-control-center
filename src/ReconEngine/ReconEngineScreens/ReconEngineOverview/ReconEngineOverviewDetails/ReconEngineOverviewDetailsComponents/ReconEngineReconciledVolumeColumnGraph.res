@@ -22,7 +22,14 @@ let make = (~ruleId: string) => {
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
         ~filterValueJson=enhancedFilterValueJson,
       )
-      let suffix = `rule_id=${ruleId}&status=posted_auto,posted_manual,posted_force`
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Posted(Auto),
+          Posted(Manual),
+          Posted(Force),
+        ])->Array.joinWith(",")
+
+      let suffix = `rule_id=${ruleId}&status=${statusList}`
       let queryString = if baseQueryString->isNonEmptyString {
         `${baseQueryString}&${suffix}`
       } else {

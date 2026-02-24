@@ -28,13 +28,13 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     devAltPaymentMethods,
     devWebhooks,
     threedsExemptionRules,
-    paymentSettingsV2,
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
     vaultProcessor,
     devModularityV2,
     devTheme,
+    devVault,
     devUsers,
   } = featureFlagDetails
   let {
@@ -73,6 +73,7 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
           ~isPayoutEnabled=payOut,
           ~userEntity,
         ),
+        devVault->vault(~userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
       ]
     : []
@@ -91,7 +92,6 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
       ~isWebhooksEnabled=devWebhooks,
       ~userHasResourceAccess,
       ~checkUserEntity,
-      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
       ~paymentLinkThemeConfigurator,
       ~isCurrentMerchantPlatform,
     ),
