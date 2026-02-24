@@ -9,15 +9,7 @@ type colType =
   | PaymentMethods
   | MerchantConnectorId
 
-let defaultColumns = [
-  Name,
-  MerchantConnectorId,
-  ConnectorLabel,
-  Status,
-  Disabled,
-  Actions,
-  PaymentMethods,
-]
+let defaultColumns = [Name, MerchantConnectorId, ConnectorLabel, Status, Disabled, Actions]
 
 let getHeading = colType => {
   switch colType {

@@ -36,8 +36,8 @@ let getConnectorConfig = () => {
     "connector_auth": {
       "SignatureKey": {
         "api_key": "API Key",
-        "api_secret": "API Secret",
-        "key1": "Key1",
+        "api_secret": "Profile Id",
+        "key1": "Publishable Key",
       },
     },
   }->Identity.genericTypeToJson

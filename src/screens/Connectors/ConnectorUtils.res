@@ -72,7 +72,7 @@ let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
 let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
-let vaultProcessorListV2: array<connectorTypes> = [VaultProcessor(HSVAULT)]
+let vaultProcessorListV2: array<connectorTypes> = [VaultProcessor(HYPERSWITCHVAULT)]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -852,6 +852,9 @@ let worldpayModularInfo = {
 let santanderInfo = {
   description: "Banco Santander is a Spanish multinational financial services group founded in 1857, with a global retail and commercial banking presence across Europe and the Americas, serving millions of customers with banking, credit, investment, and payment services.",
 }
+let hyperswitchVaultInfo = {
+  description: "Hyperswitch Vault is a secure and compliant payment data storage solution that enables businesses to safely store and manage sensitive payment information, such as credit card details, while reducing PCI DSS scope and ensuring seamless integration with payment processors.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -1024,7 +1027,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
 let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => "vgs"
-  | HSVAULT => "hyperswitch_vault"
+  | HYPERSWITCHVAULT => "hyperswitch_vault"
   }
 }
 
@@ -1211,7 +1214,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | VaultProcessor =>
     switch connector {
     | "vgs" => VaultProcessor(VGS)
-    | "hyperswitch_vault" => VaultProcessor(HSVAULT)
+    | "hyperswitch_vault" => VaultProcessor(HYPERSWITCHVAULT)
     | _ => UnknownConnector("Not known")
     }
   }
@@ -1388,7 +1391,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
 let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => vgsInfo
-  | HSVAULT => vgsInfo
+  | HYPERSWITCHVAULT => hyperswitchVaultInfo
   }
 }
 
@@ -2352,7 +2355,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
 let getDisplayNameForVaultProcessor = vaultProcessor => {
   switch vaultProcessor {
   | VGS => "VGS"
-  | HSVAULT => "HS Vault"
+  | HYPERSWITCHVAULT => "Hyperswitch Vault"
   }
 }
 
