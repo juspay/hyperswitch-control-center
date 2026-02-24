@@ -93,7 +93,7 @@ let make = () => {
     )
   }, [])
 
-  <div id={`embeddable-app`} className={backgroundColor} ref={ReactDOM.Ref.domRef(contentRef)}>
+  <div id="embeddable-app" className={backgroundColor} ref={ReactDOM.Ref.domRef(contentRef)}>
     <ErrorBoundary>
       {switch url.path->urlPath {
       | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
