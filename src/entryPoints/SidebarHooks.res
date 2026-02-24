@@ -224,48 +224,42 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
+  if featureFlagDetails.devModularityV2 {
+    // show Home when modularity is enabled
+    defaultSidebar->Array.push(
+      Link({
+        name: "Home",
+        icon: "nd-home",
+        link: "/v2/home",
+        access: Access,
+        selectedIcon: "nd-fill-home",
+      }),
+    )
 
-  if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      Link({
-        name: "Users",
-        icon: "nd-user",
-        link: "/users",
-        access: Access,
-        selectedIcon: "nd-user",
-      }),
-      ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess),
+    // Show Users only if devUsers flag is enabled
+    if featureFlagDetails.devUsers {
+      defaultSidebar->Array.push(
+        Link({
+          name: "Users",
+          icon: "nd-user",
+          link: "/users",
+          access: Access,
+          selectedIcon: "nd-user",
+        }),
+      )
+    }
+
+    // Show Theme only if devTheme flag is enabled
+    if featureFlagDetails.devTheme {
+      defaultSidebar->Array.push(ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess))
+    }
+
+    // Always show product header when modularity is enabled
+    defaultSidebar->Array.push(
       CustomComponent({
         component: <ProductHeaderComponent />,
       }),
-    ])
-  } else if featureFlagDetails.devModularityV2 {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      Link({
-        name: "Users",
-        icon: "nd-user",
-        link: "/users",
-        access: Access,
-        selectedIcon: "nd-user",
-      }),
-      CustomComponent({
-        component: <ProductHeaderComponent />,
-      }),
-    ])
+    )
   }
 
   let sidebarValuesForProduct = switch activeProduct {
