@@ -303,7 +303,24 @@ module ChooseColumns = {
       }
     }
 
-    let colTypeArray = retrieveColumnValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
+    let dedupeColumns = columns =>
+      columns->Array.reduce([], (acc, column) =>
+        acc->Array.includes(column) ? acc : acc->Array.concat([column])
+      )
+
+    let storedColumnLabels = retrieveColumnValueFromLocalStorage(title)
+    let storedColumnTypeArray =
+      storedColumnLabels
+      ->Belt.Array.keepMap(getHeadingCol)
+      ->dedupeColumns
+
+    let reconciledColumnTypeArray =
+      defaultColumns->Array.reduce(storedColumnTypeArray, (acc, column) =>
+        acc->Array.includes(column) ? acc : acc->Array.concat([column])
+      )
+
+    let reconciledColumnLabels =
+      reconciledColumnTypeArray->Array.map(column => getHeading(column).title)
 
     let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
@@ -311,8 +328,12 @@ module ChooseColumns = {
     }, [setVisibleColumns])
 
     React.useEffect(() => {
-      if !{colTypeArray->Array.length === 0} {
-        setColumns(_ => colTypeArray)
+      if !{storedColumnTypeArray->Array.length === 0} {
+        setColumns(_ => reconciledColumnTypeArray)
+
+        if reconciledColumnLabels->Array.toString !== storedColumnLabels->Array.toString {
+          setColumnValueInLocalStorage(reconciledColumnLabels, title)
+        }
       }
       None
     }, [])

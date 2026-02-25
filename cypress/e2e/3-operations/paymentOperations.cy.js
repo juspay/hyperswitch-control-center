@@ -434,6 +434,55 @@ describe("Payment Operations", () => {
     });
   });
 
+  it("should auto-restore newly added mandatory columns from stale local storage", () => {
+    const staleOrdersColumns = [
+      "Payment ID",
+      "Connector",
+      "Profile Id",
+      "Amount",
+      "Payment Status",
+      "Payment Method",
+      "Payment Method Type",
+      "Card Network",
+      "Connector Transaction ID",
+      "Merchant Order Reference Id",
+      "Description",
+      "Metadata",
+      "Created",
+    ];
+
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    cy.window().then((win) => {
+      win.localStorage.setItem(
+        "tableColumnsOrder",
+        JSON.stringify({
+          orders: staleOrdersColumns.join(","),
+        }),
+      );
+    });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    cy.get(`[data-table-heading="Modified"]`).should("exist");
+
+    cy.window().then((win) => {
+      const tableColumnsOrder = JSON.parse(
+        win.localStorage.getItem("tableColumnsOrder"),
+      );
+      expect(tableColumnsOrder.orders.split(",")).to.include("Modified");
+    });
+  });
+
   // Search bar
   it("should display correct payment when searched with payment ID", () => {
     let merchant_id;
