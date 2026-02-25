@@ -443,6 +443,7 @@ let processAllTransactionsWithAmounts = (
     let pendingTransactions = accountTransactions->Array.filter(t =>
       switch t.transaction_status {
       | Expected
+      | Missing
       | PartiallyReconciled
       | OverAmount(Expected)
       | UnderAmount(Expected) => true

@@ -7874,7 +7874,7 @@ License)
   <symbol id="nd-download-bar-down" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M11.0837 11.6673H2.91699M3.50033 5.93292C4.40774 7.1599 5.46778 8.26191 6.65364 9.21176C6.75537 9.29324 6.87785 9.33398 7.00033 9.33398M10.5003 5.93292C9.59291 7.1599 8.53287 8.26191 7.34701 9.21176C7.24528 9.29324 7.1228 9.33398 7.00033 9.33398M7.00033 9.33398V2.33398"
-      stroke="#525866" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
   <symbol id="nd-filter-lines" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M6.00098 9H12.001M8.25098 13.5H9.75098M3.00098 4.5H15.001" stroke="#525866" stroke-width="1.67143"

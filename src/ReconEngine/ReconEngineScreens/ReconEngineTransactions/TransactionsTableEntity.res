@@ -73,6 +73,7 @@ let getDomainTransactionStatusString = (status: domainTransactionStatus) => {
   | UnderAmount(Expected) => "Negative Variance (Awaiting Match)"
   | DataMismatch => "Data Mismatch"
   | Expected => "Expected"
+  | Missing => "Missing"
   | Archived => "Archived"
   | PartiallyReconciled => "Partially Reconciled"
   | Void => "Void"
@@ -91,7 +92,7 @@ let getStatusLabel = (status: domainTransactionStatus): Table.cell => {
       LabelRed
     | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
     | Archived => LabelGray
-    | PartiallyReconciled => LabelOrange
+    | PartiallyReconciled | Missing => LabelOrange
     | Void | UnknownDomainTransactionStatus => LabelLightGray
     },
   })

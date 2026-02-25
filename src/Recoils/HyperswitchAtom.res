@@ -89,3 +89,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)

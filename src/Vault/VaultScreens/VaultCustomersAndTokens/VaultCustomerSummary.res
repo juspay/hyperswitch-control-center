@@ -126,6 +126,7 @@ module VaultedPaymentMethodsTable = {
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
     let pageDetail = pageDetailDict->Dict.get("vaultedPaymentMethods")->Option.getOr(defaultValue)
     let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -186,7 +187,12 @@ module VaultedPaymentMethodsTable = {
         onEntityClick={val => {
           setPaymentId(_ => val.id)
           setShowModal(_ => true)
-          mixpanelEvent(~eventName="vault_view_vaulted_payment_method_details")
+          mixpanelEvent(
+            ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
+              ~isOrchestrationVault,
+              ~eventName="vault_view_vaulted_payment_method_details",
+            ),
+          )
         }}
         currrentFetchCount={tableData->Array.length}
         showAutoScroll=true
@@ -227,6 +233,7 @@ let make = (~id, ~sampleReport) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
   let defaultObject = Dict.make()->VaultCustomersEntity.itemToObjMapper
+  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -271,7 +278,14 @@ let make = (~id, ~sampleReport) => {
         <div className="flex items-center">
           <div>
             <BreadCrumbNavigation
-              path=[{title: "Customers", link: "/v2/vault/customers-tokens"}]
+              path=[
+                {
+                  title: "Customers",
+                  link: {
+                    isOrchestrationVault ? "/vault-customers-tokens" : "/v2/vault/customers-tokens"
+                  },
+                },
+              ]
               currentPageTitle=id
               cursorStyle="cursor-pointer"
             />
