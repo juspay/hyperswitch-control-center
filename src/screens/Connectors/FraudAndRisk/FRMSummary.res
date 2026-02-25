@@ -142,8 +142,7 @@ let make = (
         | Preview =>
           <div className="flex gap-6 items-center">
             <ConnectorPreviewHelper.EnableDisableConnectorToggle
-              disableConnector={disableFRM}
-              isConnectorDisabled={isfrmDisabled}
+              disableConnector={disableFRM} isConnectorDisabled={isfrmDisabled}
             />
           </div>
         | _ =>
