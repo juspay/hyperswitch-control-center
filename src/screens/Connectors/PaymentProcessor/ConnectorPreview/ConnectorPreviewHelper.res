@@ -146,12 +146,28 @@ module PreviewCreds = {
 module EnableDisableConnectorToggle = {
   @react.component
   let make = (~disableConnector, ~isConnectorDisabled) => {
+    let showPopUp = PopUpState.useShowPopUp()
     let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Disabled" : "Enabled"
+
+    let openConfirmationPopUp = () => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action?",
+        description: `You are about to ${isConnectorDisabled
+            ? "enable"
+            : "disable"} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
 
     <div className="flex gap-2 items-center">
       <BoolInput.BaseComponent
         isSelected={!isConnectorDisabled}
-        setIsSelected={_ => disableConnector(isConnectorDisabled)->ignore}
+        setIsSelected={_ => openConfirmationPopUp()}
         boolCustomClass="rounded-xl"
         customToggleHeight="20px"
         customToggleWidth="36px"
