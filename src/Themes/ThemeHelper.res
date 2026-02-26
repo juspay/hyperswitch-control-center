@@ -333,7 +333,9 @@ module ThemeLineageModal = {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let sessionStepValue =
-      sessionStorage.getItem("themeModalStep")->getOptionalFromNullable->Option.getOr("0")
+      sessionStorage.getItem("themeModalStep")
+      ->getOptionalFromNullable
+      ->Option.getOr("entityselection")
     let (step, setStep) = React.useState(() => sessionStepValue->getVariantfromString)
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let showToast = ToastState.useShowToast()
