@@ -21,26 +21,6 @@ module RadioButtons = {
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     open HeadlessUI
     let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let entities = [
-      {
-        label: "Organization",
-        value: "organization",
-        icon: <Icon name="organization-entity" size=20 />,
-        desc: "Change themes to all merchants and profiles",
-      },
-      {
-        label: "Merchant",
-        value: "merchant",
-        icon: <Icon name="merchant-entity" size=20 />,
-        desc: "Change themes to specific merchant and its profiles",
-      },
-      {
-        label: "Profile",
-        value: "profile",
-        icon: <Icon name="profile-entity" size=20 />,
-        desc: "Change themes to specific profile only",
-      },
-    ]
     let value = input.value->LogicUtils.getStringFromJson("")
 
     <RadioGroup
@@ -50,13 +30,13 @@ module RadioButtons = {
       }}>
       <div className="flex flex-col gap-4">
         <div
-          className="flex flex-row gap-2 items-start flex-1 border border-yellow-500 bg-yellow-50 p-4 rounded-lg">
+          className="flex flex-row gap-2 items-start flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-4 rounded-lg">
           <Icon name="nd-info-circle" size=20 />
           <span className={`text-nd_gray-600 ${body.md.regular}`}>
             {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
           </span>
         </div>
-        {entities
+        {ThemeFeatureUtils.entities
         ->Array.map(option =>
           <RadioGroup.Option \"as"="div" key=option.value value=option.value>
             {checked => {
@@ -92,11 +72,80 @@ module RadioButtons = {
   }
 }
 
+let entityTypeField = FormRenderer.makeFieldInfo(
+  ~label="",
+  ~name="lineage.entity_type",
+  ~customInput=(~input, ~placeholder as _) => {
+    <RadioButtons input />
+  },
+)
+
+let orgDisplayField = (~getNameForId) =>
+  FormRenderer.makeFieldInfo(
+    ~label="Current Organisation",
+    ~name="display.organization_name",
+    ~customInput=(~input as _, ~placeholder as _) =>
+      <div
+        className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 flex items-center">
+        <span className="text-nd_gray-600 font-medium">
+          {getNameForId(#Organization)->React.string}
+        </span>
+      </div>,
+  )
+
+let merchantField = (~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect) =>
+  FormRenderer.makeFieldInfo(~label="Select Merchant", ~name="lineage.merchant_id", ~customInput=(
+    ~input,
+    ~placeholder as _,
+  ) =>
+    InputFields.selectInput(
+      ~options=UserUtils.getMerchantSelectBoxOption(
+        ~label="All merchants",
+        ~value="all_merchants",
+        ~dropdownList=merchantList,
+      ),
+      ~buttonText=`${getNameForId(#Merchant)}- ${merchantId}`,
+      ~deselectDisable=true,
+      ~fullLength=true,
+    )(
+      ~input={
+        ...input,
+        onChange: {
+          event => {
+            onMerchantSelect(event, input)->ignore
+          }
+        },
+      },
+      ~placeholder="Select a merchant",
+    )
+  )
+
+let profileField = (~getNameForId, ~profileList, ~profileId, ~onProfileSelect) =>
+  FormRenderer.makeFieldInfo(~label="Select Profile", ~name="lineage.profile_id", ~customInput=(
+    ~input,
+    ~placeholder as _,
+  ) =>
+    InputFields.selectInput(
+      ~options=UserUtils.getMerchantSelectBoxOption(
+        ~label="All profiles",
+        ~value="all_profiles",
+        ~dropdownList=profileList,
+      ),
+      ~buttonText=`${getNameForId(#Profile)}- ${profileId}`,
+      ~deselectDisable=true,
+      ~fullLength=true,
+    )(
+      ~input={
+        ...input,
+        onChange: event => {onProfileSelect(event, input)->ignore},
+      },
+      ~placeholder="Select a profile",
+    )
+  )
+
 module LineageFormContent = {
   @react.component
   let make = (~showModal=false, ~setShowModal, ~step, ~setStep, ~themeExists, ~setThemeExists) => {
-    open UserUtils
-
     let {merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getResolvedUserInfo()
@@ -149,74 +198,6 @@ module LineageFormContent = {
       }
     }
 
-    let entityTypeField = FormRenderer.makeFieldInfo(
-      ~label="",
-      ~name="lineage.entity_type",
-      ~customInput=(~input, ~placeholder as _) => {
-        <RadioButtons input />
-      },
-    )
-
-    let orgDisplayField = FormRenderer.makeFieldInfo(
-      ~label="Current Organisation",
-      ~name="display.organization_name",
-      ~customInput=(~input as _, ~placeholder as _) =>
-        <div
-          className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 flex items-center">
-          <span className="text-nd_gray-600 font-medium">
-            {getNameForId(#Organization)->React.string}
-          </span>
-        </div>,
-    )
-
-    let merchantField = FormRenderer.makeFieldInfo(
-      ~label="Select Merchant",
-      ~name="lineage.merchant_id",
-      ~customInput=(~input, ~placeholder as _) =>
-        InputFields.selectInput(
-          ~options=getMerchantSelectBoxOption(
-            ~label="All merchants",
-            ~value="all_merchants",
-            ~dropdownList=merchantList,
-          ),
-          ~buttonText=`${getNameForId(#Merchant)}- ${merchantId}`,
-          ~deselectDisable=true,
-          ~fullLength=true,
-        )(
-          ~input={
-            ...input,
-            onChange: {
-              event => {
-                onMerchantSelect(event, input)->ignore
-              }
-            },
-          },
-          ~placeholder="Select a merchant",
-        ),
-    )
-
-    let profileField = FormRenderer.makeFieldInfo(
-      ~label="Select Profile",
-      ~name="lineage.profile_id",
-      ~customInput=(~input, ~placeholder as _) =>
-        InputFields.selectInput(
-          ~options=getMerchantSelectBoxOption(
-            ~label="All profiles",
-            ~value="all_profiles",
-            ~dropdownList=profileList,
-          ),
-          ~buttonText=`${getNameForId(#Profile)}- ${profileId}`,
-          ~deselectDisable=true,
-          ~fullLength=true,
-        )(
-          ~input={
-            ...input,
-            onChange: event => {onProfileSelect(event, input)->ignore},
-          },
-          ~placeholder="Select a profile",
-        ),
-    )
-
     let renderStep = () => {
       switch step {
       | 0 =>
@@ -227,7 +208,7 @@ module LineageFormContent = {
         />
       | 1 =>
         <FormRenderer.FieldRenderer
-          field={orgDisplayField}
+          field={orgDisplayField(~getNameForId)}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
           labelClass={`${body.sm.semibold} `}
@@ -235,7 +216,7 @@ module LineageFormContent = {
       | 2 =>
         <>
           <FormRenderer.FieldRenderer
-            field={orgDisplayField}
+            field={orgDisplayField(~getNameForId)}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
             labelClass={`${body.sm.semibold}`}
@@ -249,7 +230,7 @@ module LineageFormContent = {
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
-              field={merchantField}
+              field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
               labelClass={`${body.sm.semibold} `}
@@ -259,7 +240,7 @@ module LineageFormContent = {
       | 3 =>
         <>
           <FormRenderer.FieldRenderer
-            field={orgDisplayField}
+            field={orgDisplayField(~getNameForId)}
             showErrorOnChange=true
             errorClass={ProdVerifyModalUtils.errorClass}
             labelClass={`${body.sm.semibold} `}
@@ -273,7 +254,7 @@ module LineageFormContent = {
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
-              field={merchantField}
+              field={merchantField(~getNameForId, ~merchantList, ~merchantId, ~onMerchantSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
               labelClass={`${body.sm.semibold} `}
@@ -288,7 +269,7 @@ module LineageFormContent = {
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
-              field={profileField}
+              field={profileField(~getNameForId, ~profileList, ~profileId, ~onProfileSelect)}
               showErrorOnChange=true
               errorClass={ProdVerifyModalUtils.errorClass}
               labelClass={`${body.sm.semibold} `}
@@ -310,7 +291,7 @@ module LineageFormContent = {
         {renderStep()}
         <RenderIf condition={themeExists}>
           <div
-            className="flex flex-row gap-2 items-center flex-1 border border-yellow-500 bg-yellow-50 p-2 rounded-lg">
+            className="flex flex-row gap-2 items-center flex-1 border border-nd_yellow-500 bg-nd_yellow-50 p-2 rounded-lg">
             <Icon name="nd-info-circle" size=14 className="text-nd_gray-500" />
             <span className={`text-nd_gray-600 ${body.sm.regular}`}>
               {"A theme already exists for this lineage entity level. Continue to override."->React.string}
@@ -347,6 +328,7 @@ module ThemeLineageModal = {
       sessionStorage.getItem("themeModalStep")->getOptionalFromNullable->Option.getOr("0")
     let (step, setStep) = React.useState(() => sessionStepValue->getIntFromString(0))
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+    let showToast = ToastState.useShowToast()
     let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
@@ -416,41 +398,45 @@ module ThemeLineageModal = {
     }
 
     let onSubmit = async (values, _) => {
-      let entityType =
-        values
-        ->getDictFromJsonObject
-        ->getDictfromDict("lineage")
-        ->getString("entity_type", "")
+      try {
+        let entityType =
+          values
+          ->getDictFromJsonObject
+          ->getDictfromDict("lineage")
+          ->getString("entity_type", "")
 
-      if entityType->isNonEmptyString {
-        sessionStorage.setItem("entity_type", entityType)
-      }
+        if entityType->isNonEmptyString {
+          sessionStorage.setItem("entity_type", entityType)
+        }
 
-      switch step {
-      | 0 =>
-        switch entityType->UserInfoUtils.entityMapper {
-        | #Organization => {
-            sessionStorage.setItem("themeModalStep", "1")
-            let _ = await checkThemeExists(~entityType="organization")
-            setStep(_ => 1)
+        switch step {
+        | 0 =>
+          switch entityType->UserInfoUtils.entityMapper {
+          | #Organization => {
+              sessionStorage.setItem("themeModalStep", "1")
+              let _ = await checkThemeExists(~entityType="organization")
+              setStep(_ => 1)
+            }
+          | #Merchant => {
+              sessionStorage.setItem("themeModalStep", "2")
+              let _ = await checkThemeExists(~entityType="merchant")
+              setStep(_ => 2)
+            }
+          | #Profile => {
+              sessionStorage.setItem("themeModalStep", "3")
+              let _ = await checkThemeExists(~entityType="profile")
+              setStep(_ => 3)
+            }
+          | _ => ()
           }
-        | #Merchant => {
-            sessionStorage.setItem("themeModalStep", "2")
-            let _ = await checkThemeExists(~entityType="merchant")
-            setStep(_ => 2)
-          }
-        | #Profile => {
-            sessionStorage.setItem("themeModalStep", "3")
-            let _ = await checkThemeExists(~entityType="profile")
-            setStep(_ => 3)
-          }
+        | 1
+        | 2
+        | 3 =>
+          handleNext()
         | _ => ()
         }
-      | 1
-      | 2
-      | 3 =>
-        handleNext()
-      | _ => ()
+      } catch {
+      | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
       }
       Nullable.null
     }

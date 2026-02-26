@@ -15,7 +15,8 @@ module MockOrgTiles = {
             ~backgroundColor=sidebarFromForm.primary,
             ~color=index === 0 ? sidebarFromForm.textColorPrimary : sidebarFromForm.textColor,
             (),
-          )}>
+          )}
+          key={index->Int.toString}>
           <span className={`${body.xs.medium}`}> {React.string(ele)} </span>
         </div>
       })

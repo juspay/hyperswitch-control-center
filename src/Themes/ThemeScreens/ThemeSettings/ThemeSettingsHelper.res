@@ -4,7 +4,7 @@ open Typography
 module BrandSettings = {
   @react.component
   let make = (~colorsFromForm: HyperSwitchConfigTypes.colorPalette) => {
-    let labelClass = `${body.md.medium} text-gray-700`
+    let labelClass = `${body.md.medium} text-nd_gray-700`
     let primaryColor = makeFieldInfo(
       ~label="Primary Color",
       ~name="theme_data.settings.colors.primary",
@@ -32,7 +32,7 @@ module BrandSettings = {
 module SidebarSettings = {
   @react.component
   let make = (~sidebarFromForm: HyperSwitchConfigTypes.sidebarConfig) => {
-    let labelClass = `${body.md.medium} text-gray-700`
+    let labelClass = `${body.md.medium} text-nd_gray-700`
     let backgroundSidebar = makeFieldInfo(
       ~label="Background Color",
       ~name="theme_data.settings.sidebar.primary",
@@ -66,7 +66,7 @@ module SidebarSettings = {
 module ButtonSettings = {
   @react.component
   let make = (~buttonsFromForm: HyperSwitchConfigTypes.buttonConfig) => {
-    let labelClass = `${body.md.medium} text-gray-700`
+    let labelClass = `${body.md.medium} text-nd_gray-700`
     let primaryButtonBackground = makeFieldInfo(
       ~label="Background",
       ~name="theme_data.settings.buttons.primary.backgroundColor",
