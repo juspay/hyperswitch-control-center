@@ -65,3 +65,60 @@ let getSearchresults = (result: GlobalSearchTypes.defaultResult) => {
 
   (results, result.searchText)
 }
+
+let downloadSectionData = (~section: GlobalSearchTypes.resultType, ~searchText, ~toast) => {
+  open GlobalSearchTypes
+  let rawData = section.results->Array.map(item => {
+    item.texts->Array.get(0)->Option.getOr(JSON.Encode.null)
+  })
+
+  let download = (~csvHeaders, ~tableItemToObjMapper, ~itemToCSVMapping, ~fileNamePrefix) => {
+    DownloadUtils.downloadTableAsCsv(
+      ~csvHeaders,
+      ~rawData,
+      ~tableItemToObjMapper,
+      ~itemToCSVMapping,
+      ~fileName=`${fileNamePrefix}_${searchText}.csv`,
+      ~toast,
+    )
+  }
+
+  switch section.section {
+  | PaymentIntents | SessionizerPaymentIntents =>
+    download(
+      ~csvHeaders=PaymentIntentEntity.csvHeaders,
+      ~tableItemToObjMapper=PaymentIntentEntity.tableItemToObjMapper,
+      ~itemToCSVMapping=PaymentIntentEntity.itemToCSVMapping,
+      ~fileNamePrefix="payment_intents",
+    )
+  | PaymentAttempts | SessionizerPaymentAttempts =>
+    download(
+      ~csvHeaders=PaymentAttemptEntity.csvHeaders,
+      ~tableItemToObjMapper=PaymentAttemptEntity.tableItemToObjMapper,
+      ~itemToCSVMapping=PaymentAttemptEntity.itemToCSVMapping,
+      ~fileNamePrefix="payment_attempts",
+    )
+  | Payouts =>
+    download(
+      ~csvHeaders=PayoutTableEntity.csvHeaders,
+      ~tableItemToObjMapper=PayoutTableEntity.tableItemToObjMapper,
+      ~itemToCSVMapping=PayoutTableEntity.itemToCSVMapping,
+      ~fileNamePrefix="payouts",
+    )
+  | Refunds | SessionizerPaymentRefunds =>
+    download(
+      ~csvHeaders=RefundsTableEntity.csvHeaders,
+      ~tableItemToObjMapper=RefundsTableEntity.tableItemToObjMapper,
+      ~itemToCSVMapping=RefundsTableEntity.itemToCSVMapping,
+      ~fileNamePrefix="refunds",
+    )
+  | Disputes | SessionizerPaymentDisputes =>
+    download(
+      ~csvHeaders=DisputeTableEntity.csvHeaders,
+      ~tableItemToObjMapper=DisputeTableEntity.tableItemToObjMapper,
+      ~itemToCSVMapping=DisputeTableEntity.itemToCSVMapping,
+      ~fileNamePrefix="disputes",
+    )
+  | PayoutAttempts | Others | Default | Local => ()
+  }
+}
