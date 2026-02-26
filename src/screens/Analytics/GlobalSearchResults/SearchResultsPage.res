@@ -62,7 +62,20 @@ module DownloadButton = {
 
     let downloadData = () => {
       let toast = (~message, ~toastType) => showToast(~message, ~toastType)
-      downloadSectionData(~section, ~searchText, ~toast)
+      let rawData = section.results->Array.map(item => {
+        item.texts->getValueFromArray(0, JSON.Encode.null)
+      })
+
+      getDownloadConfig(section.section)->Option.mapOr((), config => {
+        DownloadUtils.downloadTableAsCsv(
+          ~csvHeaders=config.csvHeaders,
+          ~rawData,
+          ~tableItemToObjMapper=config.mapToCsvRow,
+          ~itemToCSVMapping=x => x,
+          ~fileName=`${config.fileNamePrefix}_${searchText}.csv`,
+          ~toast,
+        )
+      })
     }
 
     <RenderIf
