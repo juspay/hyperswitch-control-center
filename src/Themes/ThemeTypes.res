@@ -1,3 +1,10 @@
+@unboxed
+type stepValue =
+  | @as("entityselection") EntitySelection
+  | @as("orgview") OrgView
+  | @as("merchantlevelconfig") MerchantLevelConfig
+  | @as("profilelevelconfig") ProfileLevelConfig
+
 type lineage = {
   entity_type: string,
   tenant_id: string,

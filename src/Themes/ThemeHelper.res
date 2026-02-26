@@ -16,6 +16,8 @@ module OverlappingCircles = {
 
 open ThemeTypes
 open Typography
+open ThemeFeatureUtils
+
 module RadioButtons = {
   @react.component
   let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
@@ -36,7 +38,7 @@ module RadioButtons = {
             {`You can only create theme for ${orgId} here. To create theme to another organisation, please switch the organisation.`->React.string}
           </span>
         </div>
-        {ThemeFeatureUtils.entities
+        {entities
         ->Array.map(option =>
           <RadioGroup.Option \"as"="div" key=option.value value=option.value>
             {checked => {
@@ -145,7 +147,14 @@ let profileField = (~getNameForId, ~profileList, ~profileId, ~onProfileSelect) =
 
 module LineageFormContent = {
   @react.component
-  let make = (~showModal=false, ~setShowModal, ~step, ~setStep, ~themeExists, ~setThemeExists) => {
+  let make = (
+    ~showModal=false,
+    ~setShowModal,
+    ~step: ThemeTypes.stepValue,
+    ~setStep,
+    ~themeExists,
+    ~setThemeExists,
+  ) => {
     let {merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getResolvedUserInfo()
@@ -200,20 +209,20 @@ module LineageFormContent = {
 
     let renderStep = () => {
       switch step {
-      | 0 =>
+      | EntitySelection =>
         <FormRenderer.FieldRenderer
           field={entityTypeField}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
         />
-      | 1 =>
+      | OrgView =>
         <FormRenderer.FieldRenderer
           field={orgDisplayField(~getNameForId)}
           showErrorOnChange=true
           errorClass={ProdVerifyModalUtils.errorClass}
           labelClass={`${body.sm.semibold} `}
         />
-      | 2 =>
+      | MerchantLevelConfig =>
         <>
           <FormRenderer.FieldRenderer
             field={orgDisplayField(~getNameForId)}
@@ -237,7 +246,7 @@ module LineageFormContent = {
             />
           </div>
         </>
-      | 3 =>
+      | ProfileLevelConfig =>
         <>
           <FormRenderer.FieldRenderer
             field={orgDisplayField(~getNameForId)}
@@ -276,14 +285,13 @@ module LineageFormContent = {
             />
           </div>
         </>
-      | _ => React.null
       }
     }
 
     let handleCancel = () => {
       setShowModal(_ => false)
       setThemeExists(_ => false)
-      setStep(_ => 0)
+      setStep(_ => EntitySelection)
     }
 
     <>
@@ -326,7 +334,7 @@ module ThemeLineageModal = {
     let fetchDetails = useGetMethod()
     let sessionStepValue =
       sessionStorage.getItem("themeModalStep")->getOptionalFromNullable->Option.getOr("0")
-    let (step, setStep) = React.useState(() => sessionStepValue->getIntFromString(0))
+    let (step, setStep) = React.useState(() => sessionStepValue->getVariantfromString)
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let showToast = ToastState.useShowToast()
     let {orgId, merchantId, profileId} = React.useContext(
@@ -394,7 +402,7 @@ module ThemeLineageModal = {
       setThemeExists(_ => false)
       sessionStorage.removeItem("entity_type")
       sessionStorage.removeItem("themeModalStep")
-      setStep(_ => 0)
+      setStep(_ => EntitySelection)
     }
 
     let onSubmit = async (values, _) => {
@@ -410,30 +418,29 @@ module ThemeLineageModal = {
         }
 
         switch step {
-        | 0 =>
+        | EntitySelection =>
           switch entityType->UserInfoUtils.entityMapper {
           | #Organization => {
-              sessionStorage.setItem("themeModalStep", "1")
+              sessionStorage.setItem("themeModalStep", "orgview")
               let _ = await checkThemeExists(~entityType="organization")
-              setStep(_ => 1)
+              setStep(_ => OrgView)
             }
           | #Merchant => {
-              sessionStorage.setItem("themeModalStep", "2")
+              sessionStorage.setItem("themeModalStep", "merchantlevelconfig")
               let _ = await checkThemeExists(~entityType="merchant")
-              setStep(_ => 2)
+              setStep(_ => MerchantLevelConfig)
             }
           | #Profile => {
-              sessionStorage.setItem("themeModalStep", "3")
+              sessionStorage.setItem("themeModalStep", "profilelevelconfig")
               let _ = await checkThemeExists(~entityType="profile")
-              setStep(_ => 3)
+              setStep(_ => ProfileLevelConfig)
             }
           | _ => ()
           }
-        | 1
-        | 2
-        | 3 =>
+        | OrgView
+        | MerchantLevelConfig
+        | ProfileLevelConfig =>
           handleNext()
-        | _ => ()
         }
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
@@ -448,12 +455,12 @@ module ThemeLineageModal = {
       switch (savedEntityType, savedStep, entityType->isNonEmptyString) {
       | (Some(_), Some(stepStr), true) =>
         setShowModal(_ => true)
-        let stepNum = stepStr->Int.fromString->Option.getOr(0)
+        let stepNum = stepStr->getVariantfromString
 
         setStep(_ => stepNum)
 
-        if stepNum !== 0 {
-          let checkEntityType = ThemeFeatureUtils.getEntityTypeFromStep(stepNum)
+        if stepNum !== EntitySelection {
+          let checkEntityType = getEntityTypeFromStep(stepNum)
           if checkEntityType->isNonEmptyString {
             checkThemeExists(~entityType=checkEntityType)->ignore
           }
