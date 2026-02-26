@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.26.0
+
+### Features
+
+- Move user module out and enable invite for v1 products ([#4127](https://github.com/juspay/hyperswitch-control-center/pull/4127)) ([`b9e1d74`](https://github.com/juspay/hyperswitch-control-center/commit/b9e1d747f59ab430a6692b711624aaca0ee4e20c))
+
+**Full Changelog:** [`2026.02.23.0...2026.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.23.0...2026.02.26.0)
+
+- - -
+
 ## 2026.02.23.0
 
 ### Refactors
