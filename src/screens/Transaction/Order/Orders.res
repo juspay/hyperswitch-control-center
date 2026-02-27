@@ -6,9 +6,12 @@ let make = (~previewOnly=false, ~showAdditionalFeatures=true) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity, isEmbeddableSession} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    getCommonSessionDetails,
+    getResolvedUserInfo,
+    checkUserEntity,
+    isEmbeddableSession,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
