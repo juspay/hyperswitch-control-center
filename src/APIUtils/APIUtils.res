@@ -122,7 +122,7 @@ let getV2Url = (
   | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
