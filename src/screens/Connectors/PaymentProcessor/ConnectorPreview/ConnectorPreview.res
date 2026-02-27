@@ -408,7 +408,11 @@ let make = (
         ~toastType=ToastSuccess,
       )
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+    | Exn.Error(_) =>
+      showToast(
+        ~message=`Failed to ${isConnectorDisabled ? "Enable" : "Disable"} connector!`,
+        ~toastType=ToastError,
+      )
     }
   }
 
