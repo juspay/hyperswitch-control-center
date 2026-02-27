@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.02.27.0
+
+### Bug Fixes
+
+- Local timezone support for routing and api events ([#4256](https://github.com/juspay/hyperswitch-control-center/pull/4256)) ([`baab182`](https://github.com/juspay/hyperswitch-control-center/commit/baab182d532677e644a6a1b8724a9398a1662666))
+- Increase endValue for payment and refund ID columns in tables ([#4251](https://github.com/juspay/hyperswitch-control-center/pull/4251)) ([`f58eafa`](https://github.com/juspay/hyperswitch-control-center/commit/f58eafa2e1dfda10ada169fdb9493e9e500c6d2f))
+
+**Full Changelog:** [`2026.02.26.0...2026.02.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.26.0...2026.02.27.0)
+
+- - -
+
+## 2026.02.26.0
+
+### Features
+
+- Move user module out and enable invite for v1 products ([#4127](https://github.com/juspay/hyperswitch-control-center/pull/4127)) ([`b9e1d74`](https://github.com/juspay/hyperswitch-control-center/commit/b9e1d747f59ab430a6692b711624aaca0ee4e20c))
+
+**Full Changelog:** [`2026.02.23.0...2026.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.23.0...2026.02.26.0)
+
+- - -
+
+## 2026.02.23.0
+
+### Refactors
+
+- Update routes for Payment Settings V2 ([#4241](https://github.com/juspay/hyperswitch-control-center/pull/4241)) ([`6d40578`](https://github.com/juspay/hyperswitch-control-center/commit/6d40578b908af7e36c8ebc727704b8bb56f7c8f6))
+
+**Full Changelog:** [`2026.02.20.0...2026.02.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.20.0...2026.02.23.0)
+
+- - -
+
 ## 2026.02.20.0
 
 ### Bug Fixes
