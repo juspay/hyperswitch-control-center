@@ -71,7 +71,12 @@ const configMiddleware = (req, res, next) => {
 };
 
 const assetRewriteMiddleware = (req, _res, next) => {
-  if (req.path.startsWith("/embedded")) {
+  // Only rewrite asset paths, not application routes
+  // Application routes are handled by historyApiFallback
+  if (
+    req.path.startsWith("/embedded/assets/") ||
+    req.path.startsWith("/embedded/lottie-files/")
+  ) {
     req.url = req.path.replace(/^\/embedded/, "");
   } else if (
     req.path.startsWith("/assets/") ||

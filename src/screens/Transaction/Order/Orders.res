@@ -6,7 +6,7 @@ let make = (~previewOnly=false, ~showAdditionalFeatures=true) => {
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity, isEmbeddableSession} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
@@ -234,6 +234,7 @@ let make = (~previewOnly=false, ~showAdditionalFeatures=true) => {
           remoteSortEnabled=true
           showAutoScroll=true
           isDraggable=true
+          hideCustomisableColumnButton={isEmbeddableSession()}
         />
       </PageLoaderWrapper>
     </div>
