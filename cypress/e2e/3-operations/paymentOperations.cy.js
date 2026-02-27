@@ -138,9 +138,11 @@ describe("Payment Operations", () => {
 
           // Payment details in table row
           cy.get(`[data-table-location="Orders_tr1_td1"]`).contains("1");
-          cy.get(`[data-table-location="Orders_tr1_td2"]`)
-            .contains("...")
-            .click();
+          cy.get(`[data-table-location="Orders_tr1_td2"]`).then(($td) => {
+            if ($td.find(".text-blue-811").length > 0) {
+              cy.wrap($td).find(".text-blue-811").click();
+            }
+          });
           cy.get(`[data-table-location="Orders_tr1_td2"]`).contains(
             response.body.payment_id,
           );
@@ -463,9 +465,11 @@ describe("Payment Operations", () => {
       .then((text) => {
         paymentOperations.searchBox.type(text + "{enter}");
 
-        cy.get(
-          '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
-        ).click();
+        cy.get(`[data-table-location="Orders_tr1_td2"]`).then(($td) => {
+          if ($td.find(".text-blue-811").length > 0) {
+            cy.wrap($td).find(".text-blue-811").click();
+          }
+        });
 
         cy.get('[data-table-location="Orders_tr1_td2"]').should(
           "contain",
@@ -488,9 +492,11 @@ describe("Payment Operations", () => {
       .then((text) => {
         paymentOperations.searchBox.type(text + "{enter}");
 
-        cy.get(
-          '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
-        ).click();
+        cy.get(`[data-table-location="Orders_tr1_td2"]`).then(($td) => {
+          if ($td.find(".text-blue-811").length > 0) {
+            cy.wrap($td).find(".text-blue-811").click();
+          }
+        });
 
         cy.get('[data-table-location="Orders_tr1_td2"]').should(
           "contain",

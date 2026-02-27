@@ -34,9 +34,9 @@ let rules: RoutingTypes.rule = {
   statements: statementObject,
 }
 
-let buildInitial3DSValue: threeDsRoutingType = {
-  name: `3DS Rule-${RoutingUtils.getCurrentUTCTime()}`,
-  description: `This is a Three-Ds Rule created at ${RoutingUtils.currentTimeInUTC}`,
+let getInitial3DSValue = (~currentDate, ~currentTime): threeDsRoutingType => {
+  name: `3DS Rule-${currentDate}`,
+  description: `This is a Three-Ds Rule created at ${currentTime}`,
   algorithm: {
     rules: [rules],
     defaultSelection: {

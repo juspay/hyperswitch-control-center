@@ -720,6 +720,7 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
         url={`/payments/${order.payment_id}/${order.profile_id}/${merchantId}/${orgId}`}
         displayValue={order.payment_id}
         copyValue={Some(order.payment_id)}
+        endValue={HSwitchOrderUtils.idCellEndValue}
       />,
       "",
     )
