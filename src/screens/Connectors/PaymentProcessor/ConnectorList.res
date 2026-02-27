@@ -72,7 +72,7 @@ let make = (
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {paymentProcessorsLiveListFromConfig} =
+  let {paymentProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
@@ -123,9 +123,7 @@ let make = (
   }, ~wait=200)
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? paymentProcessorsLiveListFromConfig->Array.length > 0
-        ? paymentProcessorsLiveListFromConfig
-        : connectorListForLive
+    ? paymentProcessorsLiveList
     : connectorList
 
   <div>

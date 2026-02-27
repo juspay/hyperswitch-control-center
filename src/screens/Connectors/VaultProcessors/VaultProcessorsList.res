@@ -8,7 +8,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let {vaultProcessorsLiveListFromConfig} =
+  let {vaultProcessorsLiveList} =
     HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
 
   let businessProfileRecoilVal =
@@ -53,9 +53,7 @@ let make = () => {
     None
   }, [])
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? vaultProcessorsLiveListFromConfig->Array.length > 0
-        ? vaultProcessorsLiveListFromConfig
-        : ConnectorUtils.vaultProcessorList
+    ? vaultProcessorsLiveList
     : ConnectorUtils.vaultProcessorList
   <div>
     <PageUtils.PageHeading

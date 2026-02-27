@@ -1,10 +1,3 @@
-type connectorListForLive = {
-  paymentProcessorsLiveListFromConfig: array<ConnectorTypes.connectorTypes>,
-  payoutProcessorsLiveListFromConfig: array<ConnectorTypes.connectorTypes>,
-  threeDsAuthenticatorProcessorsLiveListFromConfig: array<ConnectorTypes.connectorTypes>,
-  vaultProcessorsLiveListFromConfig: array<ConnectorTypes.connectorTypes>,
-}
-
 let extractTypedConnectorValueFromConfig = (
   ~connectorDict,
   ~key,
@@ -20,40 +13,53 @@ let extractTypedConnectorValueFromConfig = (
     ->String.toLowerCase
   )
   ->removeDuplicate
-  ->Array.map(item => ConnectorUtils.getConnectorNameTypeFromString(~connectorType, item))
-  ->Array.filter(item => item != UnknownConnector("Not known"))
+  ->Array.filterMap(item => {
+    let itemToType = ConnectorUtils.getConnectorNameTypeFromString(~connectorType, item)
+    itemToType != UnknownConnector("Not known") ? Some(itemToType) : None
+  })
 }
 
-let connectorListForLive = (list: JSON.t) => {
+let getConnectorListForLive = (
+  list: JSON.t,
+): ConnectorListForLiveFromConfigTypes.connectorListForLive => {
   open LogicUtils
+  open ConnectorUtils
   let connectorDict = list->getDictFromJsonObject->getDictfromDict("connector_list_for_live")
-  let paymentsProcessorListForLive = extractTypedConnectorValueFromConfig(
+  let paymentsProcessorListForLiveFromConfig = extractTypedConnectorValueFromConfig(
     ~connectorDict,
     ~key="paymentProcessors",
     ~connectorType=Processor,
   )
 
-  let payoutProcessorListForLive = extractTypedConnectorValueFromConfig(
+  let payoutProcessorListForLiveFromConfig = extractTypedConnectorValueFromConfig(
     ~connectorDict,
     ~key="payoutProcessors",
     ~connectorType=PayoutProcessor,
   )
-  let threeDsAuthenticatorProcessorsForLive = extractTypedConnectorValueFromConfig(
+  let threeDsAuthenticatorProcessorsForLiveFromConfig = extractTypedConnectorValueFromConfig(
     ~connectorDict,
     ~key="threedsAuthProcessors",
     ~connectorType=ThreeDsAuthenticator,
   )
 
-  let vaultProcessorListForLive = extractTypedConnectorValueFromConfig(
+  let vaultProcessorListForLiveFromConfig = extractTypedConnectorValueFromConfig(
     ~connectorDict,
     ~key="vaultProcessors",
     ~connectorType=VaultProcessor,
   )
 
   {
-    paymentProcessorsLiveListFromConfig: paymentsProcessorListForLive,
-    payoutProcessorsLiveListFromConfig: payoutProcessorListForLive,
-    threeDsAuthenticatorProcessorsLiveListFromConfig: threeDsAuthenticatorProcessorsForLive,
-    vaultProcessorsLiveListFromConfig: vaultProcessorListForLive,
+    paymentProcessorsLiveList: paymentsProcessorListForLiveFromConfig->Array.length > 0
+      ? paymentsProcessorListForLiveFromConfig
+      : connectorListForLive,
+    payoutProcessorsLiveList: payoutProcessorListForLiveFromConfig->Array.length > 0
+      ? payoutProcessorListForLiveFromConfig
+      : payoutConnectorListForLive,
+    threeDsAuthenticatorProcessorsLiveList: threeDsAuthenticatorProcessorsForLiveFromConfig->Array.length > 0
+      ? threeDsAuthenticatorProcessorsForLiveFromConfig
+      : threedsAuthenticatorListForLive,
+    vaultProcessorsLiveList: vaultProcessorListForLiveFromConfig->Array.length > 0
+      ? vaultProcessorListForLiveFromConfig
+      : vaultProcessorList,
   }
 }
