@@ -150,7 +150,7 @@ module LineageFormContent = {
   let make = (
     ~showModal=false,
     ~setShowModal,
-    ~step: ThemeTypes.stepValue,
+    ~step: ThemeTypes.lineageSelectionSteps,
     ~setStep,
     ~themeExists,
     ~setThemeExists,
@@ -336,7 +336,7 @@ module ThemeLineageModal = {
       sessionStorage.getItem("themeModalStep")
       ->getOptionalFromNullable
       ->Option.getOr("entityselection")
-    let (step, setStep) = React.useState(() => sessionStepValue->getVariantfromString)
+    let (step, setStep) = React.useState(() => sessionStepValue->getStepVariantfromString)
     let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let showToast = ToastState.useShowToast()
     let {orgId, merchantId, profileId} = React.useContext(
@@ -457,12 +457,12 @@ module ThemeLineageModal = {
       switch (savedEntityType, savedStep, entityType->isNonEmptyString) {
       | (Some(_), Some(stepStr), true) =>
         setShowModal(_ => true)
-        let stepNum = stepStr->getVariantfromString
+        let stepVariant = stepStr->getStepVariantfromString
 
-        setStep(_ => stepNum)
+        setStep(_ => stepVariant)
 
-        if stepNum !== EntitySelection {
-          let checkEntityType = getEntityTypeFromStep(stepNum)
+        if stepVariant !== EntitySelection {
+          let checkEntityType = getEntityTypeFromStep(stepVariant)
           if checkEntityType->isNonEmptyString {
             checkThemeExists(~entityType=checkEntityType)->ignore
           }

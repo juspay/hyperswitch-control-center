@@ -1,4 +1,4 @@
-let getVariantfromString = (stepString: string): ThemeTypes.stepValue => {
+let getStepVariantfromString = (stepString: string): ThemeTypes.lineageSelectionSteps => {
   switch stepString {
   | "entityselection" => EntitySelection
   | "orgview" => OrgView
@@ -8,8 +8,8 @@ let getVariantfromString = (stepString: string): ThemeTypes.stepValue => {
   }
 }
 
-let getEntityTypeFromStep = (stepNum: ThemeTypes.stepValue) =>
-  switch stepNum {
+let getEntityTypeFromStep = (stepVariant: ThemeTypes.lineageSelectionSteps) =>
+  switch stepVariant {
   | OrgView => "organization"
   | MerchantLevelConfig => "merchant"
   | ProfileLevelConfig => "profile"

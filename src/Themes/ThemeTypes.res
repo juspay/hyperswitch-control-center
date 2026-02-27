@@ -1,5 +1,5 @@
 @unboxed
-type stepValue =
+type lineageSelectionSteps =
   | @as("entityselection") EntitySelection
   | @as("orgview") OrgView
   | @as("merchantlevelconfig") MerchantLevelConfig
