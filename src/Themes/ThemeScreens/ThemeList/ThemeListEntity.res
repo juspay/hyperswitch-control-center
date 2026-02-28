@@ -90,11 +90,24 @@ let getCell = (themeObj, colType): Table.cell => {
   }
 }
 
-let themeTableEntity: EntityType.entityType<cols, Js.Json.t> = EntityType.makeEntity(
-  ~uri=``,
-  ~getObjects=json => json->getArrayFromJson([]),
-  ~defaultColumns=visibleColumns,
-  ~allColumns=visibleColumns,
-  ~getHeading,
-  ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
-)
+let themeTableEntity = (~orgId) =>
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects=json => json->getArrayFromJson([]),
+    ~defaultColumns=visibleColumns,
+    ~allColumns=visibleColumns,
+    ~getHeading,
+    ~getCell=(json, colType) => getCell(tableItemToObjMapper(json->getDictFromJsonObject), colType),
+    ~getShowLink={
+      theme => {
+        let themeDict = theme->getDictFromJsonObject
+        let merchantId = themeDict->getString("merchant_id", "no_merchant")
+        let profileId = themeDict->getString("profile_id", "no_profile")
+        let url = `/theme/${themeDict->getString(
+            "theme_id",
+            "",
+          )}/key=${profileId}+${merchantId}+${orgId}`
+        GlobalVars.appendDashboardPath(~url)
+      }
+    },
+  )

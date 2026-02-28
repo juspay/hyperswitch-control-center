@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~themeIdFromUserInfo) => {
   open LogicUtils
   open Typography
   open ThemeListHelper
@@ -9,32 +9,41 @@ let make = () => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  // let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (showModal, setShowModal) = React.useState(_ => false)
+  let themeIdRef = React.useRef(themeIdFromUserInfo)
+  themeIdRef.current = themeIdFromUserInfo
 
   let fetchCurrentTheme = async () => {
+    let currentThemeId = themeIdRef.current
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=V1(USERS), ~methodType=Get, ~id=Some(themeId), ~userType=#THEME)
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Get,
+        ~id=Some(currentThemeId),
+        ~userType=#THEME,
+      )
       let res = await getMethod(url)
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Theme doesn't exist for this Lineage"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
   React.useEffect(() => {
-    if themeId->isNonEmptyString {
+    if themeIdFromUserInfo->isNonEmptyString {
       fetchCurrentTheme()->ignore
     }
     None
-  }, [themeId])
+  }, [themeIdFromUserInfo])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col h-screen gap-8">
@@ -68,7 +77,7 @@ let make = () => {
             title="List of created themes"
             hideTitle=false
             actualData={themeListArray->Array.map(Nullable.make)}
-            entity=ThemeListEntity.themeTableEntity
+            entity={ThemeListEntity.themeTableEntity(~orgId)}
             resultsPerPage=20
             showSerialNumber=true
             totalResults={themeListArray->Array.length}

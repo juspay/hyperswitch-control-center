@@ -508,94 +508,38 @@ module ThemeLineageModal = {
   }
 }
 
-module OverlappingCircles = {
-  @react.component
-  let make = (~colorA: string, ~colorB: string) => {
-    <div className="relative w-9 h-6 flex items-center">
-      <div
-        className="absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
-        style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
-      />
-      <div
-        className="absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md"
-        style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
-      />
-    </div>
-  }
-}
-
-module CreateNewThemeButton = {
-  @react.component
-  let make = () => {
-    open SessionStorage
-    open LogicUtils
-
-    let sessionModalValue =
-      sessionStorage.getItem("themeLineageModal")
-      ->Nullable.toOption
-      ->Option.getOr("")
-      ->getBoolFromString(false)
-    let (showModal, setShowModal) = React.useState(_ => sessionModalValue)
-    <>
-      <Button
-        text="Create Theme"
-        buttonType=Primary
-        buttonState=Normal
-        buttonSize=Small
-        customButtonStyle={`${body.md.semibold} py-4`}
-        onClick={_ => {
-          setShowModal(_ => true)
-        }}
-      />
-      <ThemeLineageModal showModal setShowModal />
-    </>
-  }
-}
 module ThemeUploadAssetsModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~themeID, ~redirectToList) => {
+  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList, ~isUpdateFlow=false) => {
     open APIUtils
     open LogicUtils
     let showToast = ToastState.useShowToast()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
-    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Loading)
+    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
     let fetchDetails = useGetMethod()
-    let iconFileInput = (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-      <MultipleFileUpload
-        input
-        fileType=".png,.jpg,.jpeg"
-        allowMultiFileSelect=false
-        showUploadtoast=false
-        widthClass="w-full"
-        heightClass="h-20"
-      />
+    let (selectedIcon, setSelectedIcon) = React.useState(_ => None)
+    let (selectedFavicon, setSelectedFavicon) = React.useState(_ => None)
+    let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
+
+    let {getUserInfo} = OMPSwitchHooks.useUserInfo()
+    let {setApplicationState} = React.useContext(UserInfoProvider.defaultContext)
+    let form = ReactFinalForm.useForm()
+    let handleIconChange = ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) => setSelectedIcon(_ => Some(file))
+      | None => ()
+      }
     }
 
-    let faviconFileInput = (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-      <MultipleFileUpload
-        input
-        fileType=".ico,.png"
-        allowMultiFileSelect=false
-        showUploadtoast=false
-        widthClass="w-full"
-        heightClass="h-20"
-      />
+    let handleFaviconChange = ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) => setSelectedFavicon(_ => Some(file))
+      | None => ()
+      }
     }
-
-    let iconField = FormRenderer.makeFieldInfo(
-      ~label="Icon",
-      ~name="icon",
-      ~customInput=iconFileInput,
-      ~isRequired=true,
-    )
-
-    let faviconField = FormRenderer.makeFieldInfo(
-      ~label="Favicon",
-      ~name="favicon",
-      ~customInput=faviconFileInput,
-      ~isRequired=true,
-    )
 
     let uploadAsset = async (~assetFile, ~assetName) => {
       let formData = FormDataUtils.formData()
@@ -604,7 +548,7 @@ module ThemeUploadAssetsModal = {
       let url = getURL(
         ~entityName=V1(USERS),
         ~methodType=Post,
-        ~id=Some(themeID),
+        ~id=Some(themeId),
         ~userType=#THEME_UPLOAD_ASSET,
       )
       await updateDetails(
@@ -621,7 +565,7 @@ module ThemeUploadAssetsModal = {
         let url = getURL(
           ~entityName=V1(USERS),
           ~methodType=Get,
-          ~id=Some(`${themeID}`),
+          ~id=Some(`${themeId}`),
           ~userType=#THEME,
         )
         let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
@@ -630,11 +574,12 @@ module ThemeUploadAssetsModal = {
       | _ => JSON.Encode.null
       }
     }
+
     let updateThemeWithAssetUrls = async (~iconName, ~faviconName) => {
       let currentThemeData = await getThemeByThemeId()
       let baseUrl = GlobalVars.getHostUrl
-      let iconUrl = `${baseUrl}/themes/${themeID}/${iconName}`
-      let faviconUrl = `${baseUrl}/themes/${themeID}/${faviconName}`
+      let iconUrl = `https://app.hyperswitch.io/themes/${themeId}/${iconName}`
+      let faviconUrl = `https://app.hyperswitch.io/themes/${themeId}/${faviconName}`
 
       let currentThemeDict = currentThemeData->getDictFromJsonObject
       let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
@@ -649,63 +594,65 @@ module ThemeUploadAssetsModal = {
       let updateUrl = getURL(
         ~entityName=V1(USERS),
         ~methodType=Put,
-        ~id=Some(themeID),
+        ~id=Some(themeId),
         ~userType=#THEME,
       )
       await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
     }
 
-    let onSubmit = async (values, _) => {
+    let handleUpload = async (~isUpdateFlow=false) => {
+      // switch (selectedIcon, selectedFavicon) {
+      // | (Some(iconFile), Some(faviconFile)) =>
       try {
         setScreenState(_ => Loading)
-
-        let valuesDict = values->getDictFromJsonObject
-        let iconFiles = valuesDict->getArrayFromDict("icon", [])
-        let faviconFiles = valuesDict->getArrayFromDict("favicon", [])
-
-        if iconFiles->Array.length > 0 && faviconFiles->Array.length > 0 {
-          let iconFile = iconFiles->Array.get(0)->Option.getOr(JSON.Encode.null)
-          let faviconFile = faviconFiles->Array.get(0)->Option.getOr(JSON.Encode.null)
-
-          if iconFile !== JSON.Encode.null && faviconFile !== JSON.Encode.null {
-            let iconName = "logo.png"
-            let faviconName = "favicon.png"
-
-            let _ = await uploadAsset(~assetFile=iconFile, ~assetName=iconName)
-            let _ = await uploadAsset(~assetFile=faviconFile, ~assetName=faviconName)
-
-            let _ = await updateThemeWithAssetUrls(~iconName, ~faviconName)
-
-            showToast(
-              ~message="Theme has been created with assets",
-              ~toastType=ToastState.ToastSuccess,
-            )
-            setShowModal(_ => false)
-            redirectToList()
-          } else {
-            showToast(
-              ~message="Please select valid files for both icon and favicon",
-              ~toastType=ToastState.ToastError,
-            )
-          }
-        } else {
-          showToast(
-            ~message="Please upload both icon and favicon files",
-            ~toastType=ToastState.ToastError,
+        let iconName = "logo.png"
+        let faviconName = "favicon.png"
+        if selectedIcon->Option.isSome {
+          let _ = await uploadAsset(~assetFile=selectedIcon, ~assetName=iconName)
+        }
+        if selectedFavicon->Option.isSome {
+          let _ = await uploadAsset(~assetFile=selectedFavicon, ~assetName=faviconName)
+        }
+        if isUpdateFlow {
+          form.change(
+            "urls.logoUrl",
+            `https://app.hyperswitch.io/themes/${themeId}/${iconName}`->Identity.genericTypeToJson,
+          )
+          form.change(
+            "urls.faviconUrl",
+            `https://app.hyperswitch.io/themes/${themeId}/${faviconName}`->Identity.genericTypeToJson,
           )
         }
 
+        if !isUpdateFlow {
+          let _ = await updateThemeWithAssetUrls(~iconName, ~faviconName)
+          // let res = await getUserInfo()
+          // let {themeId: themeIdFromUserInfo} = res
+          // setApplicationState(_ => DashboardSession(res))
+          // let _ = await getThemesJson(~themesID=Some(themeIdFromUserInfo))
+        }
+
+        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
         setScreenState(_ => Success)
+        setShowModal(_ => false)
+        redirectToList()
       } catch {
       | Exn.Error(e) =>
         let err = Exn.message(e)->Option.getOr("Failed to upload assets!")
         showToast(~message=err, ~toastType=ToastState.ToastError)
-        setScreenState(_ => Error("Failed to Upload theme assets."))
+        setScreenState(_ => Success)
       }
-      Nullable.null
+      // | _ =>
+      //   showToast(
+      //     ~message="Please upload both icon and favicon files",
+      //     ~toastType=ToastState.ToastError,
+      //   )
+      // }
     }
 
-    let handleCancel = () => {
+    let handleCancel = async () => {
+      // let {themeId: themeIdFromUserInfo} = await getUserInfo()
+      // let _ = await getThemesJson(~themesID=Some(themeId))
       setShowModal(_ => false)
       showToast(
         ~message="Theme has been created. You can upload assets later",
@@ -714,54 +661,101 @@ module ThemeUploadAssetsModal = {
       redirectToList()
     }
 
-    <Form key="theme-upload-assets" onSubmit>
-      <Modal
-        showModal
-        closeOnOutsideClick=false
-        setShowModal
-        modalHeading="Upload Assets"
-        modalHeadingClass={`${heading.sm.semibold}`}
-        modalClass="w-1/2 m-auto"
-        childClass="p-0"
-        modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
-          {"Upload icon and favicon files for your theme."->React.string}
-        </div>}>
-        <div className="p-6 space-y-6">
-          <div className="space-y-4">
-            <FormRenderer.FieldRenderer
-              field=iconField labelClass={`${body.md.medium} text-gray-700`}
-            />
-            <div className={`${body.sm.regular} text-gray-500`}>
-              {"Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"->React.string}
+    <Modal
+      showModal
+      closeOnOutsideClick=false
+      setShowModal
+      modalHeading="Upload Assets"
+      modalHeadingClass={`${heading.sm.semibold}`}
+      modalClass="w-1/2 m-auto"
+      childClass="p-0"
+      modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
+        {"Upload icon and favicon files for your theme."->React.string}
+      </div>}>
+      <div className="p-2">
+        <div className="flex flex-col gap-4 p-4">
+          <div className="flex justify-between gap-4">
+            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
+              {"Icon"->React.string}
+              <ToolTip
+                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+                description="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
+                toolTipPosition=Right
+              />
             </div>
-          </div>
-          <div className="space-y-4">
-            <FormRenderer.FieldRenderer
-              field=faviconField labelClass={`${body.md.medium} text-gray-700`}
+            <input
+              type_="file"
+              accept=".png,.jpg,.jpeg"
+              hidden=true
+              onChange={handleIconChange}
+              id="iconInput"
             />
-            <div className={`${body.sm.regular} text-gray-500`}>
-              {"Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"->React.string}
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button
-              text="Cancel"
-              buttonType=Secondary
-              buttonState=Normal
-              buttonSize=Small
-              onClick={_ => handleCancel()}
-              customButtonStyle={`${body.md.semibold} py-2 px-4`}
-            />
-            <FormRenderer.SubmitButton
-              text="Save & Upload"
-              buttonType=Primary
-              loadingText="Uploading..."
-              buttonSize=Small
-              customSumbitButtonStyle={`${body.md.semibold} py-2 px-4`}
-            />
+            <label
+              htmlFor="iconInput"
+              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4 ">
+              <Icon name="nd-upload-file" />
+            </label>
+            {switch selectedIcon {
+            | Some(file) =>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                <Icon name="file-icon" size=16 />
+                <span> {file["name"]->React.string} </span>
+              </div>
+            | None => React.null
+            }}
           </div>
         </div>
-      </Modal>
-    </Form>
+        <div className="flex flex-col gap-4 p-4">
+          <div className="flex justify-between gap-4">
+            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
+              {"Favicon"->React.string}
+              <ToolTip
+                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+                description="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
+                toolTipPosition=Right
+              />
+            </div>
+            <input
+              type_="file"
+              accept=".png,.jpg,.jpeg"
+              hidden=true
+              onChange={handleFaviconChange}
+              id="faviconInput"
+            />
+            <label
+              htmlFor="faviconInput"
+              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
+              <Icon name="nd-upload-file" />
+            </label>
+            {switch selectedFavicon {
+            | Some(file) =>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                <Icon name="file-icon" size=16 />
+                <span> {file["name"]->React.string} </span>
+              </div>
+            | None => React.null
+            }}
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <Button
+            text="Skip for now"
+            buttonType=Secondary
+            buttonState=Normal
+            buttonSize=Small
+            onClick={_ => handleCancel()->ignore}
+            customButtonStyle={`${body.md.semibold} py-2 px-4`}
+          />
+          <Button
+            text="Save & Upload"
+            buttonType=Primary
+            buttonState={screenState == Loading ? Loading : Normal}
+            buttonSize=Small
+            onClick={_ => handleUpload()->ignore}
+            customButtonStyle={`${body.md.semibold} py-2 px-4`}
+          />
+        </div>
+      </div>
+    </Modal>
   }
 }

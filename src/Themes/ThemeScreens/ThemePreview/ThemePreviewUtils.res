@@ -46,3 +46,15 @@ let getThemeFormValues = (~formValues) => {
 
   (colors, sidebar, buttons)
 }
+
+let getThemeUrls = (~formValues) => {
+  open LogicUtils
+
+  let themeData = formValues->getDictfromDict("theme_data")
+  let urls = themeData->getDictfromDict("urls")
+
+  let logoUrl = urls->getOptionString("logoUrl")
+  let faviconUrl = urls->getOptionString("faviconUrl")
+
+  (logoUrl, faviconUrl)
+}

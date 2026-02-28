@@ -8,6 +8,9 @@ let make = (~remainingPath) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
+  let {themeId: themeIdFromUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
 
   let fetchThemeList = async () => {
     try {
@@ -39,16 +42,44 @@ let make = (~remainingPath) => {
       remainingPath
       renderList={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
-          <ThemeList />
+          <ThemeList themeIdFromUserInfo />
         </AccessControl>}
       renderNewForm={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeCreate />
         </AccessControl>}
-      renderShow={(themeId, _) =>
-        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
-          <ThemeUpdate themeId />
-        </AccessControl>}
+      renderShow={(themeId, remainingPath) => {
+        switch remainingPath {
+        | Some(val) => {
+            let [extractedProfileId, extractedMerchantId, extractedOrgId] =
+              val->String.replace("key=", "")->String.trim->String.split("+")
+
+            let profileId = if extractedProfileId == "no_profile" {
+              None
+            } else {
+              Some(extractedProfileId)
+            }
+            let merchantId = if extractedMerchantId == "no_merchant" {
+              None
+            } else {
+              Some(extractedMerchantId)
+            }
+            let orgId = if extractedOrgId == "no_org" {
+              None
+            } else {
+              Some(extractedOrgId)
+            }
+
+            <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+              <ThemeUpdate themeId orgId merchantId profileId />
+            </AccessControl>
+          }
+        | None =>
+          <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+            <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
+          </AccessControl>
+        }
+      }}
     />
   </PageLoaderWrapper>
 }

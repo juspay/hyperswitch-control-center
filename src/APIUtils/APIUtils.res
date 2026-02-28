@@ -1411,6 +1411,15 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #THEME_CONFIG_VERSION =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(themeId) => `${userUrl}/theme/${themeId}/version`
+            | None => `${userUrl}/theme/version`
+            }
+          | _ => ""
+          }
 
         | #NONE => ""
         }
