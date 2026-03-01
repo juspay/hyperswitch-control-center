@@ -44,7 +44,7 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={defaultCreate(~lineage)->Identity.genericTypeToJson}>
-      <div className="flex flex-col h-screen gap-8">
+      <div className="flex flex-col h-screen gap-8 bg-red">
         <div className="flex flex-col flex-1 h-full">
           <PageUtils.PageHeading
             title="Theme Configuration"

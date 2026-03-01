@@ -15,7 +15,10 @@ let make = (~children, ~isEmbeddableApp=false) => {
 
   let fetchApi = AuthHooks.useApiFetcher()
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  // React.useEffect(() => {
+  //   Js.log2("UserInfoProvider mounted with default context value>>>", defaultContext)
+  //   None
+  // }, [defaultContext])
   let getUserInfo = async () => {
     open LogicUtils
 

@@ -28,6 +28,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
   open APIUtils
   open ThemeUpdateUtils
   open LogicUtils
+  // let {orgId, merchantId, profileId} = React.useContext(
+  //   UserInfoProvider.defaultContext,
+  // ).getCommonSessionDetails()
 
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let lineage = createLineage(
@@ -153,8 +156,8 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
       let valuesDict = values->getDictFromJsonObject
       let iconName = "logo.png"
       let faviconName = "favicon.png"
-      let iconUrl = `https://integ.hyperswitch.io/themes/${themeId}/${iconName}`
-      let faviconUrl = `https://integ.hyperswitch.io/themes/${themeId}/${faviconName}`
+      let iconUrl = `https://app.hyperswitch.io/themes/${themeId}/${iconName}`
+      let faviconUrl = `https://app.hyperswitch.io/themes/${themeId}/${faviconName}`
       let urlsDict = Dict.make()
 
       // Upload logo if selected from form values

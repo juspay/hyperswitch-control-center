@@ -38,6 +38,7 @@ let make = () => {
   let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
+  Js.log3("logoUrl in app and themeconfigVersion", logoURL, themeConfigVersion)
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
@@ -49,6 +50,7 @@ let make = () => {
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
     try {
+      Js.log2("applying theme for themeId>>", themeId)
       let _ = await getThemesJson(~themesID=themeId)
     } catch {
     | _ => ()
