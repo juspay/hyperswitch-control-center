@@ -128,7 +128,7 @@ module Details = {
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType, merchantId, orgId)}
+                  value={getCell(data, colType, merchantId, orgId, ~profileId="")}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"
@@ -169,7 +169,14 @@ module DisputesInfo = {
           subText="The chargeback has exceeded the dispute amount. Go to the Payments tab to learn more."
         />
       </RenderIf>
-      <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
+      <Details
+        data=disputesData
+        getHeading
+        getCell={(data, colType, merchantId, orgId, ~profileId) =>
+          getCell(data, colType, merchantId, orgId, ~profileId)}
+        detailsFields=allColumns
+        setDisputeData
+      />
       <RenderIf condition={!showNoteComponentCondition}>
         <DisputesNoteComponent disputesData />
       </RenderIf>

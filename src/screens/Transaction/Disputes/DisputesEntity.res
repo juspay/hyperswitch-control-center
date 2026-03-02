@@ -82,14 +82,17 @@ let amountValue = (amount, currency) => {
   `${amountInFloat->Float.toString} ${currency}`
 }
 
-let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
+let getCell = (disputesData, colType, merchantId, orgId, ~profileId=""): Table.cell => {
   open DisputesUtils
   open HelperComponents
+  let effectiveProfileId =
+    disputesData.profile_id->isNonEmptyString ? disputesData.profile_id : profileId
+
   switch colType {
   | DisputeId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
+        url={`/disputes/${disputesData.dispute_id}/${effectiveProfileId}/${merchantId}/${orgId}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
         leftIcon={disputesData.is_already_refunded
@@ -175,7 +178,8 @@ let disputesEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType, merchantId, orgId),
+    ~getCell=(disputes, disputesColsType) =>
+      getCell(disputes, disputesColsType, merchantId, orgId, ~profileId=""),
     ~dataKey="",
     ~getShowLink={
       disputesData =>
