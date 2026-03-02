@@ -86,6 +86,23 @@ let make = (
     connectorInfo.metadata,
   ))
 
+  let prepareValuesForSubmit = values => {
+    let valuesDict = values->getDictFromJsonObject
+    switch valuesDict->Dict.get("metadata") {
+    | Some(metadataJson) =>
+      let metadataDict = metadataJson->getDictFromJsonObject
+      metadataDict->Dict.toArray->Array.forEach(((key, value)) => {
+        switch value->JSON.Decode.string {
+        | Some(str) if str === "" => metadataDict->Dict.set(key, JSON.Encode.null)
+        | _ => ()
+        }
+      })
+      valuesDict->Dict.set("metadata", metadataDict->JSON.Encode.object)
+    | None => ()
+    }
+    valuesDict->JSON.Encode.object
+  }
+
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(
@@ -93,7 +110,7 @@ let make = (
         ~methodType=Post,
         ~id=Some(connectorInfo.merchant_connector_id),
       )
-      let _ = await updateAPIHook(url, values, Post)
+      let _ = await updateAPIHook(url, prepareValuesForSubmit(values), Post)
       switch getConnectorDetails {
       | Some(fun) => fun()->ignore
       | _ => ()
