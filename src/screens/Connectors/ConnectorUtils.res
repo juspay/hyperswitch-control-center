@@ -1711,18 +1711,22 @@ let checkCashtoCodeFields = (dict, valuesFlattenJson) => {
 
     methods->Array.forEach(method => {
       let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
-      
-      let isAnyFieldFilledInMethod = keys->Array.some(field => {
-        let key = `connector_account_details.auth_key_map.${country}.${field}`
-        let value = valuesFlattenJson->getString(key, "")
-        value->String.trim->isNonEmptyString
-      })
 
-      let isMethodFullyFilled = keys->Array.every(field => {
-        let key = `connector_account_details.auth_key_map.${country}.${field}`
-        let value = valuesFlattenJson->getString(key, "")
-        value->String.trim->isNonEmptyString
-      })
+      let isAnyFieldFilledInMethod = keys->Array.some(
+        field => {
+          let key = `connector_account_details.auth_key_map.${country}.${field}`
+          let value = valuesFlattenJson->getString(key, "")
+          value->String.trim->isNonEmptyString
+        },
+      )
+
+      let isMethodFullyFilled = keys->Array.every(
+        field => {
+          let key = `connector_account_details.auth_key_map.${country}.${field}`
+          let value = valuesFlattenJson->getString(key, "")
+          value->String.trim->isNonEmptyString
+        },
+      )
 
       if isAnyFieldFilledInMethod && !isMethodFullyFilled {
         flags->Js.Vector.set(0, true) // Invalid state: partially filled method
