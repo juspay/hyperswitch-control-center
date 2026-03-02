@@ -6,7 +6,7 @@ let itemsContainerCss = "flex flex-col items-start w-full md:w-auto"
 
 module ChangeRoleSection = {
   @react.component
-  let make = (~defaultRole, ~options) => {
+  let make = (~defaultRole, ~options, ~setScreenState) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -34,6 +34,7 @@ module ChangeRoleSection = {
 
     let updateRole = async () => {
       try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType={#UPDATE_ROLE})
         let body =
           [
@@ -41,10 +42,14 @@ module ChangeRoleSection = {
             ("role_id", userRole->JSON.Encode.string),
           ]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
+        setScreenState(_ => PageLoaderWrapper.Success)
         showToast(~message="Role successfully updated!", ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
-      | _ => showToast(~message="Failed to update the role", ~toastType=ToastError)
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message="Failed to update the role", ~toastType=ToastError)
+        }
       }
     }
 
@@ -83,7 +88,7 @@ module ChangeRoleSection = {
 
 module ResendInviteSection = {
   @react.component
-  let make = (~invitationStatus) => {
+  let make = (~invitationStatus, ~setScreenState) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -100,6 +105,7 @@ module ResendInviteSection = {
 
     let resendInvite = async () => {
       try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(
           ~entityName=V1(USERS),
           ~userType=#RESEND_INVITE,
@@ -108,10 +114,13 @@ module ResendInviteSection = {
         )
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
+        setScreenState(_ => PageLoaderWrapper.Success)
         showToast(~message="Invite resend. Please check your email.", ~toastType=ToastSuccess)
       } catch {
-      | _ =>
-        showToast(~message="Failed to send the invite. Please try again!", ~toastType=ToastError)
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message="Failed to send the invite. Please try again!", ~toastType=ToastError)
+        }
       }
     }
 
@@ -135,7 +144,7 @@ module ResendInviteSection = {
 
 module DeleteUserRole = {
   @react.component
-  let make = (~setShowModal) => {
+  let make = (~setShowModal, ~setScreenState) => {
     open APIUtils
     open LogicUtils
     let getURL = useGetURL()
@@ -151,13 +160,18 @@ module DeleteUserRole = {
 
     let deleteUser = async () => {
       try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType={#USER_DELETE})
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete)
+        setScreenState(_ => PageLoaderWrapper.Success)
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
-      | _ => showToast(~message=`Failed to delete the user.`, ~toastType=ToastError)
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message=`Failed to delete the user.`, ~toastType=ToastError)
+        }
       }
     }
 
@@ -194,17 +208,17 @@ module DeleteUserRole = {
 
 module ManageUserModalBody = {
   @react.component
-  let make = (~options, ~defaultRole, ~invitationStatus, ~setShowModal) => {
+  let make = (~options, ~defaultRole, ~invitationStatus, ~setShowModal, ~setScreenState) => {
     <div className="flex flex-col gap-16 p-2">
       <p className="text-gray-600 text-start">
         {"Perform various user-related actions such as modifying roles, removing users, or sending a new invitation."->React.string}
       </p>
       <div className="flex flex-col gap-6 ">
-        <ChangeRoleSection options defaultRole />
+        <ChangeRoleSection options defaultRole setScreenState />
         <hr />
-        <ResendInviteSection invitationStatus />
+        <ResendInviteSection invitationStatus setScreenState />
         <hr />
-        <DeleteUserRole setShowModal />
+        <DeleteUserRole setShowModal setScreenState />
       </div>
     </div>
   }
@@ -217,9 +231,11 @@ module ManageUserModal = {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let (options, setOptions) = React.useState(_ => [])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let fetchListOfRoles = async () => {
       try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(
           ~entityName=V1(USERS),
           ~userType=#LIST_ROLES_FOR_ROLE_UPDATE,
@@ -228,8 +244,12 @@ module ManageUserModal = {
         )
         let response = await fetchDetails(url)
         setOptions(_ => response->UserUtils.makeSelectBoxOptions)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => setOptions(_ => [userInfoValue.roleId]->SelectBox.makeOptions)
+      | _ => {
+          setOptions(_ => [userInfoValue.roleId]->SelectBox.makeOptions)
+          setScreenState(_ => PageLoaderWrapper.Success)
+        }
       }
     }
 
@@ -244,13 +264,22 @@ module ManageUserModal = {
       modalHeadingClass=h2OptionalStyle
       setShowModal
       closeOnOutsideClick=true
-      modalClass="m-auto !bg-white md:w-2/5 w-full">
-      <ManageUserModalBody
-        options
-        defaultRole={userInfoValue.roleId}
-        invitationStatus={userInfoValue.status}
-        setShowModal
-      />
+      modalClass="m-auto !bg-white md:w-2/5 w-full min-h-96">
+      <PageLoaderWrapper
+        screenState
+        customLoader={<div className="h-full min-h-96 flex flex-col justify-center items-center">
+          <div className="animate-spin mb-1">
+            <Icon name="spinner" size=20 />
+          </div>
+        </div>}>
+        <ManageUserModalBody
+          options
+          defaultRole={userInfoValue.roleId}
+          invitationStatus={userInfoValue.status}
+          setShowModal
+          setScreenState
+        />
+      </PageLoaderWrapper>
     </Modal>
   }
 }
