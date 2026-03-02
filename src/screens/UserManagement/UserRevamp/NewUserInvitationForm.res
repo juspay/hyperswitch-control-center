@@ -203,7 +203,7 @@ let make = () => {
         {switch roleTypeValue {
         | Some(role) =>
           <>
-            <p className={`${p1MediumTextClass} !font-semibold py-2 text-wrap`}>
+            <p className={`${p1MediumTextClass} !font-semibold py-2`}>
               {`Role Description - '${roleNameValue->snakeToTitle}'`->React.string}
             </p>
             <PageLoaderWrapper screenState>
