@@ -513,7 +513,7 @@ module ProfileDropdownItem = {
     ).getCommonSessionDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (_, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
@@ -539,15 +539,22 @@ module ProfileDropdownItem = {
         }
       }
     }
-    let validateInput = (profileName: string) => {
+    let validateInput = (newProfileName: string) => {
       let errors = Dict.make()
       let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let errorMessage = if profileName->isEmptyString {
+      let isDuplicate =
+        profileList->Array.some(profile =>
+          profile.name->String.toLowerCase == newProfileName->String.toLowerCase &&
+            profile.id != currentId
+        )
+      let errorMessage = if newProfileName->isEmptyString {
         "Profile name cannot be empty"
-      } else if profileName->String.length > 64 {
+      } else if newProfileName->String.length > 64 {
         "Profile name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
+      } else if !RegExp.test(RegExp.fromString(regexForProfileName), newProfileName) {
         "Profile name should not contain special characters"
+      } else if isDuplicate {
+        "Profile with this name already exists"
       } else {
         ""
       }

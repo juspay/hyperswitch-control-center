@@ -1,6 +1,11 @@
 module NewProfileCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getProfileList) => {
+  let make = (
+    ~setShowModal,
+    ~showModal,
+    ~getProfileList,
+    ~profileList: array<OMPSwitchTypes.ompListTypes>,
+  ) => {
     open APIUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -62,6 +67,10 @@ module NewProfileCreationModal = {
       let errors = Dict.make()
       let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
       let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+      let isDuplicate =
+        profileList->Array.some(profile =>
+          profile.name->String.toLowerCase == profileName->String.toLowerCase
+        )
 
       let errorMessage = if profileName->isEmptyString {
         "Profile name cannot be empty"
@@ -69,6 +78,8 @@ module NewProfileCreationModal = {
         "Profile name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
         "Profile name should not contain special characters"
+      } else if isDuplicate {
+        "Profile with this name already exists"
       } else {
         ""
       }
@@ -253,7 +264,7 @@ let make = () => {
       placeholderCss="text-fs-13"
     />
     <RenderIf condition={showModal}>
-      <NewProfileCreationModal setShowModal showModal getProfileList />
+      <NewProfileCreationModal setShowModal showModal getProfileList profileList />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingProfile}
