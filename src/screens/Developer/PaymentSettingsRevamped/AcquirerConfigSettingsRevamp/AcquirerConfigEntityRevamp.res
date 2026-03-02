@@ -47,11 +47,20 @@ let merchantName = makeAlphanumericInputField(
   ~placeholder="Enter Merchant Name",
 )
 
-let acquirerBin = makeNumericInputField(
+let acquirerBin = makeFieldInfo(
   ~label="Acquirer Bin",
   ~name="acquirer_bin",
   ~placeholder="Enter Acquirer Bin",
-  ~maxLength=20,
+  ~customInput=(~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
+    let handleChange = event => {
+      let value = ReactEvent.Form.target(event)["value"]
+      let filteredValue = value->String.replaceRegExp(%re("/[^0-9]/g"), "")
+      input.onChange(filteredValue->Identity.stringToFormReactEvent)
+    }
+
+    <TextInput input={...input, onChange: handleChange} placeholder autoComplete="off" maxLength=20 />
+  },
+  ~isRequired=true,
 )
 
 let acquirerFraudRate = makeNumericInputField(

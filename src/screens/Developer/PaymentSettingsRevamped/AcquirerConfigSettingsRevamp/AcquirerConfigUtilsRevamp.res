@@ -56,18 +56,13 @@ let validateAcquirerConfigForm = (values, keys) => {
       }
 
     | "acquirer_bin" =>
-      let binValue = valuesDict->getOptionFloat(key)
-      switch binValue {
-      | Some(binValue) =>
-        if binValue->Float.toString->String.includes(".") {
-          key->setFieldError("Acquirer BIN must be a whole number")
-        } else {
-          let binLength = binValue->Float.toString->String.length
-          if binLength < 5 || binLength > 20 {
-            key->setFieldError("Acquirer BIN must be between 5 and 20 digits")
-          }
-        }
-      | None => key->setFieldError("This field is required")
+      let binValue = valuesDict->getString(key, "")
+      if binValue->LogicUtils.isEmptyString {
+        key->setFieldError("This field is required")
+      } else if binValue->String.length > 20 {
+        key->setFieldError("Length should be less than 20 characters")
+      } else if binValue->String.length < 5 {
+        key->setFieldError("Acquirer BIN must be at least 5 digits")
       }
     | _ =>
       if value === "" {
