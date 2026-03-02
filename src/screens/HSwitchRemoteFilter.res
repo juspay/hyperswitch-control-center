@@ -102,7 +102,8 @@ module SearchBarFilter = {
     let (baseValue, setBaseValue) = React.useState(_ => "")
     let onChange = ev => {
       let value = ReactEvent.Form.target(ev)["value"]
-      setBaseValue(_ => value)
+      let filteredValue = value->String.replaceRegExp(%re("/[^a-zA-Z0-9_-]/g"), "")
+      setBaseValue(_ => filteredValue)
     }
 
     React.useEffect(() => {
