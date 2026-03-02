@@ -93,7 +93,9 @@ let make = (
     | None => Dict.make()
     }
 
-    metadataDict->Dict.toArray->Array.forEach(((key, value)) => {
+    metadataDict
+    ->Dict.toArray
+    ->Array.forEach(((key, value)) => {
       switch value->JSON.Decode.string {
       | Some(str) if str === "" => metadataDict->Dict.set(key, JSON.Encode.null)
       | _ => ()
