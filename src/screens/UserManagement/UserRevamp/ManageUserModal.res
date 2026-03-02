@@ -19,6 +19,7 @@ module ChangeRoleSection = {
       ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
+      ->decodeURIComponent
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -97,6 +98,7 @@ module ResendInviteSection = {
       ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
+      ->decodeURIComponent
 
     let resendInvite = async () => {
       try {
@@ -148,6 +150,7 @@ module DeleteUserRole = {
       ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
+      ->decodeURIComponent
 
     let deleteUser = async () => {
       try {
