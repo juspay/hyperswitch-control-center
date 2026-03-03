@@ -178,8 +178,7 @@ let disputesEntity = (merchantId, orgId) =>
     ~defaultColumns,
     ~allColumns,
     ~getHeading,
-    ~getCell=(disputes, disputesColsType) =>
-      getCell(disputes, disputesColsType, merchantId, orgId, ~profileId=""),
+    ~getCell=(disputes, disputesColsType) => getCell(disputes, disputesColsType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
       disputesData =>
