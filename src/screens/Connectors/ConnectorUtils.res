@@ -2063,6 +2063,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         : connectorAdditionalMerchantData->JSON.Encode.object,
     ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
+    ("disabled", dict->getBool("disabled", false)->JSON.Encode.bool),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
       "pm_auth_config",
