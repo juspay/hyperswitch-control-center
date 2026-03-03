@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.03.0
+
+### Features
+
+- Add new connector `revolv3` ([#4278](https://github.com/juspay/hyperswitch-control-center/pull/4278)) ([`3838078`](https://github.com/juspay/hyperswitch-control-center/commit/3838078c263c8e1f0f23f7148fa5cfa1ab0da3bc))
+
+### Bug Fixes
+
+- Default column update in local storage fix ([#4269](https://github.com/juspay/hyperswitch-control-center/pull/4269)) ([`19c6728`](https://github.com/juspay/hyperswitch-control-center/commit/19c6728363d5e9ea073cac9219803ea7c219652e))
+
+**Full Changelog:** [`2026.03.02.0...2026.03.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.02.0...2026.03.03.0)
+
+- - -
+
+## 2026.03.02.0
+
+### Features
+
+- Added theme lineage and create screens ([#3931](https://github.com/juspay/hyperswitch-control-center/pull/3931)) ([`03766ec`](https://github.com/juspay/hyperswitch-control-center/commit/03766ec82ca7afd5d1fc6d56069f2961458f73d1))
+
+### Bug Fixes
+
+- Toggle disable state ([#4265](https://github.com/juspay/hyperswitch-control-center/pull/4265)) ([`3951b33`](https://github.com/juspay/hyperswitch-control-center/commit/3951b33a06606f31827c360dc25b1e693434f07d))
+
+### Miscellaneous Tasks
+
+- Vault endpoint update to v1 for payment methods api ([#4244](https://github.com/juspay/hyperswitch-control-center/pull/4244)) ([`59f0b6b`](https://github.com/juspay/hyperswitch-control-center/commit/59f0b6b0b392be2cd878fd462f472e985728e873))
+
+**Full Changelog:** [`2026.02.27.0...2026.03.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.27.0...2026.03.02.0)
+
+- - -
+
 ## 2026.02.27.0
 
 ### Bug Fixes
