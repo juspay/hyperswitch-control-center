@@ -25,14 +25,14 @@ let make = () => {
   let prodAccess = switch isProdIntentCompleted {
   | Some(_) =>
     <div
-      className={`flex items-center gap-2 text-nd_yellow-200  ${cursorStyles}  whitespace-nowrap rounded-lg justify-between `}
+      className={`flex items-center gap-2 text-nd_yellow-900  ${cursorStyles}  whitespace-nowrap rounded-lg justify-between `}
       onClick={_ => {
         if !isProdIntent {
           setShowProdIntentForm(_ => true)
           mixpanelEvent(~eventName)
         }
       }}>
-      <div className={`text-nd_yellow-200 ${textStyles} !font-semibold `}>
+      <div className={`text-nd_yellow-900 ${textStyles} !font-semibold `}>
         {productionAccessString->React.string}
       </div>
     </div>
