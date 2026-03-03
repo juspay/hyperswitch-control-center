@@ -261,7 +261,7 @@ let make = (~children) => {
       }
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(val.faviconUrl)->ignore
+      configureFavIcon(val.faviconUrl)
       setContextLogoUrl(_ => val.logoUrl)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
@@ -277,8 +277,8 @@ let make = (~children) => {
   }
 
   let applyThemeConfig = (config: JSON.t) => {
-    updateThemeURLs(config)->ignore
-    configCustomDomainTheme(config)->ignore
+    updateThemeURLs(config)
+    configCustomDomainTheme(config)
   }
 
   let getThemesJson = async (~themesID, ~domain=None) => {
