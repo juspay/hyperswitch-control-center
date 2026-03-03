@@ -129,6 +129,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         let exists = acc->Array.some(t => t.transaction_id == transaction.transaction_id)
         exists ? acc : acc->Array.concat([transaction])
       })
+      uniqueTransactions->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
 
       setConfiguredTransactions(_ => uniqueTransactions)
       setFilteredReports(_ => uniqueTransactions->Array.map(Nullable.make))
