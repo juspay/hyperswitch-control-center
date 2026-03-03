@@ -135,6 +135,7 @@ type processorTypes =
   | AMAZONPAY
   | WORLDPAYMODULAR
   | SANTANDER
+  | REVOLV3
 
 type payoutProcessorTypes =
   | ADYEN
