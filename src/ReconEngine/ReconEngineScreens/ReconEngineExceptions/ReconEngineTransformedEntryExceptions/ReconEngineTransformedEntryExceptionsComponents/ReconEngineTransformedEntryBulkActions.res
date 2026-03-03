@@ -208,10 +208,7 @@ let make = (~selectedRows, ~setSelectedRows) => {
             title="Bulk Action Summary"
             hideTitle=true
             actualData={bulkActionResponses->Array.map(Nullable.make)}
-            entity={ReconEngineBulkActionTableEntity.bulkActionSummaryLoadedTableEntity(
-              `v1/recon-engine/transformed-entries`,
-              ~authorization=Access,
-            )}
+            entity={ReconEngineBulkActionTableEntity.bulkActionTransformedEntrySummaryLoadedTableEntity()}
             resultsPerPage={bulkActionResponses->Array.length}
             showSerialNumber=false
             totalResults={bulkActionResponses->Array.length}

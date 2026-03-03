@@ -263,10 +263,7 @@ let make = (
             title="Bulk Action Summary"
             hideTitle=true
             actualData={bulkActionResponses->Array.map(Nullable.make)}
-            entity={ReconEngineBulkActionTableEntity.bulkActionSummaryLoadedTableEntity(
-              `v1/recon-engine/transactions`,
-              ~authorization=Access,
-            )}
+            entity={ReconEngineBulkActionTableEntity.bulkActionTransactionSummaryLoadedTableEntity()}
             resultsPerPage={bulkActionResponses->Array.length}
             showSerialNumber=false
             totalResults={bulkActionResponses->Array.length}

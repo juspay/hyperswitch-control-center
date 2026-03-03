@@ -38,7 +38,7 @@ type bulkActionStatusType =
   | @as("unknown") UnknownBulkActionStatus
 
 type bulkActionResponse = {
-  entity_id: string,
+  logical_id: option<string>,
   bulk_action_status: bulkActionStatusType,
   bulk_action_status_detail: option<string>,
 }

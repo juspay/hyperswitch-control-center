@@ -358,7 +358,7 @@ let bulkActionResponseToObjMapper = (response): bulkActionResponse => {
   }
 
   {
-    entity_id: response->getString("entity_id", ""),
+    logical_id: response->getOptionString("logical_id"),
     bulk_action_status: status,
     bulk_action_status_detail: statusDetail,
   }
@@ -371,7 +371,7 @@ let downloadBulkActionReport = (
   let headers = ["ID", "Status", "Status Detail"]
   let data = bulkActionResponses->Array.map(item => {
     [
-      item.entity_id,
+      item.logical_id->Option.getOr("N/A"),
       (item.bulk_action_status :> string)->String.toUpperCase,
       item.bulk_action_status_detail->Option.getOr(""),
     ]
