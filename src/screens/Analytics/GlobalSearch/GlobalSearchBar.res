@@ -241,7 +241,7 @@ let make = () => {
   let viewType = getViewType(~state, ~searchResults)
   let categorySuggestions = {getCategorySuggestions(categorieSuggestionResponse)}
 
-  <div className="w-max">
+  <div className="w-max" dataTestId="global-search">
     <SearchBox openModalOnClickHandler />
     <RenderIf condition={showModal}>
       <ModalWrapper showModal setShowModal>

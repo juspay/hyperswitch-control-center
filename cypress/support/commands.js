@@ -157,6 +157,7 @@ Cypress.Commands.add("enable_email_feature_flag", () => {
       },
       features: {
         email: true,
+        global_search: true,
       },
     },
   }).as("getFeatureData");
