@@ -3,11 +3,11 @@ module OverlappingCircles = {
   let make = (~colorA: string, ~colorB: string) => {
     <div className="relative w-9 h-6 flex items-center">
       <div
-        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
         style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
       />
       <div
-        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
         style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
       />
     </div>
@@ -496,9 +496,50 @@ module ThemeLineageModal = {
   }
 }
 
+module FileUploadField = {
+  @react.component
+  let make = (
+    ~label,
+    ~inputId,
+    ~acceptTypes,
+    ~tooltipDescription,
+    ~selectedFile,
+    ~onFileChange,
+  ) => {
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex justify-between gap-4">
+        <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
+          {label->React.string}
+          <ToolTip
+            toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+            description=tooltipDescription
+            toolTipPosition=Right
+          />
+        </div>
+        <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
+        <div className="flex gap-4">
+          <label
+            htmlFor=inputId
+            className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
+            <Icon name="nd-upload-file" />
+          </label>
+          {switch selectedFile {
+          | Some(file) =>
+            <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+              <Icon name="file-icon" size=16 />
+              <span> {file["name"]->React.string} </span>
+            </div>
+          | None => React.null
+          }}
+        </div>
+      </div>
+    </div>
+  }
+}
+
 module ThemeUploadAssetsModal = {
   @react.component
-  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList, ~isUpdateFlow=false) => {
+  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
     open APIUtils
     open LogicUtils
     let showToast = ToastState.useShowToast()
@@ -508,19 +549,12 @@ module ThemeUploadAssetsModal = {
     let fetchDetails = useGetMethod()
     let (selectedIcon, setSelectedIcon) = React.useState(_ => None)
     let (selectedFavicon, setSelectedFavicon) = React.useState(_ => None)
-    let form = ReactFinalForm.useForm()
-    let handleIconChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setSelectedIcon(_ => Some(file))
-      | None => ()
-      }
-    }
+    let baseUrl = GlobalVars.getHostUrl
 
-    let handleFaviconChange = ev => {
+    let handleFileChange = setter => ev => {
       let files = ReactEvent.Form.target(ev)["files"]
       switch files[0] {
-      | Some(file) => setSelectedFavicon(_ => Some(file))
+      | Some(file) => setter(_ => Some(file))
       | None => ()
       }
     }
@@ -558,11 +592,9 @@ module ThemeUploadAssetsModal = {
       | _ => JSON.Encode.null
       }
     }
-    Js.log2("baseUrl", GlobalVars.getHostUrl)
 
     let updateThemeWithAssetUrls = async (~iconName, ~faviconName) => {
       let currentThemeData = await getThemeByThemeId()
-      let baseUrl = GlobalVars.getHostUrl
 
       let iconUrl = `${baseUrl}/themes/${themeId}/${iconName}`
       let faviconUrl = `${baseUrl}/themes/${themeId}/${faviconName}`
@@ -586,7 +618,7 @@ module ThemeUploadAssetsModal = {
       await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
     }
 
-    let handleUpload = async (~isUpdateFlow=false) => {
+    let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
         let iconName = "logo.png"
@@ -597,20 +629,7 @@ module ThemeUploadAssetsModal = {
         if selectedFavicon->Option.isSome {
           let _ = await uploadAsset(~assetFile=selectedFavicon, ~assetName=faviconName)
         }
-        if isUpdateFlow {
-          form.change(
-            "urls.logoUrl",
-            `https://integ.hyperswitch.io/themes/${themeId}/${iconName}`->Identity.genericTypeToJson,
-          )
-          form.change(
-            "urls.faviconUrl",
-            `https://integ.hyperswitch.io/themes/${themeId}/${faviconName}`->Identity.genericTypeToJson,
-          )
-        }
-
-        if !isUpdateFlow {
-          let _ = await updateThemeWithAssetUrls(~iconName, ~faviconName)
-        }
+        let _ = await updateThemeWithAssetUrls(~iconName, ~faviconName)
 
         showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
         setScreenState(_ => Success)
@@ -643,88 +662,42 @@ module ThemeUploadAssetsModal = {
       modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
         {"Upload icon and favicon files for your theme."->React.string}
       </div>}>
-      <div className="p-2">
-        <div className="flex flex-col gap-4 p-4">
-          <div className="flex justify-between gap-4">
-            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
-              {"Icon"->React.string}
-              <ToolTip
-                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-                description="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
-                toolTipPosition=Right
-              />
-            </div>
-            <input
-              type_="file"
-              accept=".png,.jpg,.jpeg"
-              hidden=true
-              onChange={handleIconChange}
-              id="iconInput"
+      <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
+        <div className="p-2">
+          <FileUploadField
+            label="Icon"
+            inputId="iconInput"
+            acceptTypes=".png,.jpg,.jpeg"
+            tooltipDescription="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
+            selectedFile=selectedIcon
+            onFileChange={handleFileChange(setSelectedIcon)}
+          />
+          <FileUploadField
+            label="Favicon"
+            inputId="faviconInput"
+            acceptTypes=".png,.ico,.jpg,.jpeg"
+            tooltipDescription="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
+            selectedFile=selectedFavicon
+            onFileChange={handleFileChange(setSelectedFavicon)}
+          />
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <Button
+              text="Skip for now"
+              buttonType=Secondary
+              buttonState=Normal
+              buttonSize=Small
+              onClick={_ => handleCancel()->ignore}
             />
-            <label
-              htmlFor="iconInput"
-              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4 ">
-              <Icon name="nd-upload-file" />
-            </label>
-            {switch selectedIcon {
-            | Some(file) =>
-              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                <Icon name="file-icon" size=16 />
-                <span> {file["name"]->React.string} </span>
-              </div>
-            | None => React.null
-            }}
+            <Button
+              text="Save & Upload"
+              buttonType=Primary
+              buttonState={Normal}
+              buttonSize=Small
+              onClick={_ => handleUpload()->ignore}
+            />
           </div>
         </div>
-        <div className="flex flex-col gap-4 p-4">
-          <div className="flex justify-between gap-4">
-            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
-              {"Favicon"->React.string}
-              <ToolTip
-                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-                description="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
-                toolTipPosition=Right
-              />
-            </div>
-            <input
-              type_="file"
-              accept=".png,.jpg,.jpeg"
-              hidden=true
-              onChange={handleFaviconChange}
-              id="faviconInput"
-            />
-            <label
-              htmlFor="faviconInput"
-              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
-              <Icon name="nd-upload-file" />
-            </label>
-            {switch selectedFavicon {
-            | Some(file) =>
-              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                <Icon name="file-icon" size=16 />
-                <span> {file["name"]->React.string} </span>
-              </div>
-            | None => React.null
-            }}
-          </div>
-        </div>
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <Button
-            text="Skip for now"
-            buttonType=Secondary
-            buttonState=Normal
-            buttonSize=Small
-            onClick={_ => handleCancel()->ignore}
-          />
-          <Button
-            text="Save & Upload"
-            buttonType=Primary
-            buttonState={Normal}
-            buttonSize=Small
-            onClick={_ => handleUpload()->ignore}
-          />
-        </div>
-      </div>
+      </PageLoaderWrapper>
     </Modal>
   }
 }

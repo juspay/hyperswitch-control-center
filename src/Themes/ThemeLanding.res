@@ -42,7 +42,7 @@ let make = (~remainingPath) => {
       remainingPath
       renderList={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
-          <ThemeList />
+          <ThemeList themeIdFromUserInfo />
         </AccessControl>}
       renderNewForm={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>

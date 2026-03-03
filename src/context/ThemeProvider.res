@@ -269,16 +269,15 @@ let make = (~children) => {
         ),
       }
 
-      // Append version to URLs if they are not default values
       let logoUrlWithVersion = switch val.logoUrl {
       | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
-        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
       | other => other
       }
 
       let faviconUrlWithVersion = switch val.faviconUrl {
       | Some(url) if url !== "/HyperswitchFavicon.png" =>
-        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
       | other => other
       }
 
@@ -321,7 +320,10 @@ let make = (~children) => {
             ->LogicUtils.getDictFromJsonObject
             ->LogicUtils.getString("theme_config_version", "")
           HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
-          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json?version=${themeConfigVersion}`
+          let url = ThemeFeatureUtils.appendVersionParam(
+            `${GlobalVars.getHostUrl}/api/user/theme/${id}`,
+            ~version=Some(themeConfigVersion),
+          )
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,

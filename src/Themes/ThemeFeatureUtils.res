@@ -1,3 +1,10 @@
+let appendVersionParam = (url, ~version) => {
+  switch version {
+  | Some(v) if v->LogicUtils.isNonEmptyString => `${url}?version=${v}`
+  | _ => url
+  }
+}
+
 let getStepVariantfromString = (stepString: string): ThemeTypes.lineageSelectionSteps => {
   switch stepString {
   | "entityselection" => EntitySelection

@@ -9,8 +9,6 @@ let make = (~themeIdFromUserInfo) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
-  let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  // let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
