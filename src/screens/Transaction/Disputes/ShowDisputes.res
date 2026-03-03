@@ -127,7 +127,7 @@ module Details = {
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType, merchantId, orgId, ~profileId="")}
+                  value={getCell(data, colType, merchantId, orgId)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"
