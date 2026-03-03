@@ -244,7 +244,6 @@ let make = (~children) => {
     }
   }
   let updateThemeURLs = (~themesData, ~themeConfigVersion=None) => {
-    open LogicUtils
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
@@ -284,8 +283,8 @@ let make = (~children) => {
 
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(val.faviconUrl)
-      setContextLogoUrl(_ => val.logoUrl)
+      configureFavIcon(faviconUrlWithVersion)
+      setContextLogoUrl(_ => logoUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -300,7 +299,7 @@ let make = (~children) => {
   }
 
   let applyThemeConfig = (config: JSON.t) => {
-    updateThemeURLs(config)
+    updateThemeURLs(~themesData=config)
     configCustomDomainTheme(config)
   }
 
