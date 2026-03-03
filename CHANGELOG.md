@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.03.0
+
+### Features
+
+- Add new connector `revolv3` ([#4278](https://github.com/juspay/hyperswitch-control-center/pull/4278)) ([`3838078`](https://github.com/juspay/hyperswitch-control-center/commit/3838078c263c8e1f0f23f7148fa5cfa1ab0da3bc))
+
+### Bug Fixes
+
+- Default column update in local storage fix ([#4269](https://github.com/juspay/hyperswitch-control-center/pull/4269)) ([`19c6728`](https://github.com/juspay/hyperswitch-control-center/commit/19c6728363d5e9ea073cac9219803ea7c219652e))
+
+**Full Changelog:** [`2026.03.02.0...2026.03.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.02.0...2026.03.03.0)
+
+- - -
+
 ## 2026.03.02.0
 
 ### Features
