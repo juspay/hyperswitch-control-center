@@ -242,7 +242,7 @@ let make = (~children) => {
     | _ => Exn.raiseError("Error on configuring favicon")
     }
   }
-  let updateThemeURLs = themesData => {
+  let updateThemeURLs = (~themesData, ~themeConfigVersion=None) => {
     open LogicUtils
     open HyperSwitchConfigTypes
     try {
@@ -268,10 +268,25 @@ let make = (~children) => {
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
+
+      // Append version to URLs if they are not default values
+      let logoUrlWithVersion = switch val.logoUrl {
+      | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
+        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
+      | other => other
+      }
+
+      let faviconUrlWithVersion = switch val.faviconUrl {
+      | Some(url) if url !== "/HyperswitchFavicon.png" =>
+        Some(`${url}?version=${themeConfigVersion->Option.getOr("")}`)
+      | other => other
+      }
+
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(val.faviconUrl)->ignore
-      setContextLogoUrl(_ => val.logoUrl)
+      configureFavIcon(faviconUrlWithVersion)->ignore
+      setContextLogoUrl(_ => logoUrlWithVersion)
+      // setContextFaviconUrl(_ => faviconUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -285,12 +300,28 @@ let make = (~children) => {
     defaultStyle
   }
 
+  let getThemeConfigVersion = async (~themeId) => {
+    try {
+      let url = `${GlobalVars.getHostUrl}/api/user/theme/${themeId}/version`
+      let response = await fetchApi(url, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      await response->(res => res->Fetch.Response.json)
+    } catch {
+    | _ => JSON.Encode.null
+    }
+  }
+
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
         if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
           let id = themesID->Option.getOr("")
-          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json`
+          let versionApiResponse = await getThemeConfigVersion(~themeId=id)
+          let themeConfigVersion =
+            versionApiResponse
+            ->LogicUtils.getDictFromJsonObject
+            ->LogicUtils.getString("theme_config_version", "")
+          HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
+          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json?version=${themeConfigVersion}`
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
@@ -321,13 +352,14 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         }
       }
-      updateThemeURLs(themeJson)->ignore
+      let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
+      updateThemeURLs(~themesData={themeJson}, ~themeConfigVersion)->ignore
       configCustomDomainTheme(themeJson)->ignore
       themeJson
     } catch {
     | _ => {
         let defaultStyle = getDefaultStyle()
-        updateThemeURLs(defaultStyle)->ignore
+        updateThemeURLs(~themesData=defaultStyle)->ignore
         configCustomDomainTheme(defaultStyle)->ignore
         defaultStyle
       }

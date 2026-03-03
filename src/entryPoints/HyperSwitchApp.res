@@ -35,6 +35,7 @@ let make = () => {
   let {roleId} = getResolvedUserInfo()
   let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
 
+  let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
@@ -189,10 +190,15 @@ let make = () => {
                       headerLeftActions={
                         let logoElement = switch logoURL {
                         | Some(url) if url->LogicUtils.isNonEmptyString =>
-                          <img className="h-8 w-auto object-contain" alt="image" src={url} />
+                          <div className="flex md:gap-4 gap-2 items-center">
+                            <img
+                              className="h-8 w-auto object-contain"
+                              alt="image"
+                              src={`${url}?version=${themeConfigVersion->Option.getOr("")}`}
+                            />
+                          </div>
                         | _ => React.null
                         }
-
                         <div className="flex md:gap-4 gap-2 items-center">
                           {logoElement}
                           <RenderIf condition={!isCurrentMerchantPlatform}>

@@ -495,3 +495,236 @@ module ThemeLineageModal = {
     </Form>
   }
 }
+
+module ThemeUploadAssetsModal = {
+  @react.component
+  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList, ~isUpdateFlow=false) => {
+    open APIUtils
+    open LogicUtils
+    let showToast = ToastState.useShowToast()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
+    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
+    let fetchDetails = useGetMethod()
+    let (selectedIcon, setSelectedIcon) = React.useState(_ => None)
+    let (selectedFavicon, setSelectedFavicon) = React.useState(_ => None)
+    let form = ReactFinalForm.useForm()
+    let handleIconChange = ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) => setSelectedIcon(_ => Some(file))
+      | None => ()
+      }
+    }
+
+    let handleFaviconChange = ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) => setSelectedFavicon(_ => Some(file))
+      | None => ()
+      }
+    }
+
+    let uploadAsset = async (~assetFile, ~assetName) => {
+      let formData = FormDataUtils.formData()
+      FormDataUtils.append(formData, "asset_name", assetName)
+      FormDataUtils.append(formData, "asset_data", assetFile)
+      let url = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Post,
+        ~id=Some(themeId),
+        ~userType=#THEME_UPLOAD_ASSET,
+      )
+      await updateDetails(
+        ~bodyFormData=formData,
+        ~headers=Dict.make(),
+        url,
+        Dict.make()->JSON.Encode.object,
+        Post,
+        ~contentType=AuthHooks.Unknown,
+      )
+    }
+    let getThemeByThemeId = async () => {
+      try {
+        let url = getURL(
+          ~entityName=V1(USERS),
+          ~methodType=Get,
+          ~id=Some(`${themeId}`),
+          ~userType=#THEME,
+        )
+        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
+        res
+      } catch {
+      | _ => JSON.Encode.null
+      }
+    }
+    Js.log2("baseUrl", GlobalVars.getHostUrl)
+
+    let updateThemeWithAssetUrls = async (~iconName, ~faviconName) => {
+      let currentThemeData = await getThemeByThemeId()
+      let baseUrl = GlobalVars.getHostUrl
+
+      let iconUrl = `${baseUrl}/themes/${themeId}/${iconName}`
+      let faviconUrl = `${baseUrl}/themes/${themeId}/${faviconName}`
+
+      let currentThemeDict = currentThemeData->getDictFromJsonObject
+      let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
+
+      let updatedUrls = Dict.make()
+      updatedUrls->Dict.set("logoUrl", iconUrl->JSON.Encode.string)
+      updatedUrls->Dict.set("faviconUrl", faviconUrl->JSON.Encode.string)
+
+      currentThemeDataDict->Dict.set("urls", updatedUrls->JSON.Encode.object)
+      currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
+
+      let updateUrl = getURL(
+        ~entityName=V1(USERS),
+        ~methodType=Put,
+        ~id=Some(themeId),
+        ~userType=#THEME,
+      )
+      await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
+    }
+
+    let handleUpload = async (~isUpdateFlow=false) => {
+      try {
+        setScreenState(_ => Loading)
+        let iconName = "logo.png"
+        let faviconName = "favicon.png"
+        if selectedIcon->Option.isSome {
+          let _ = await uploadAsset(~assetFile=selectedIcon, ~assetName=iconName)
+        }
+        if selectedFavicon->Option.isSome {
+          let _ = await uploadAsset(~assetFile=selectedFavicon, ~assetName=faviconName)
+        }
+        if isUpdateFlow {
+          form.change(
+            "urls.logoUrl",
+            `https://integ.hyperswitch.io/themes/${themeId}/${iconName}`->Identity.genericTypeToJson,
+          )
+          form.change(
+            "urls.faviconUrl",
+            `https://integ.hyperswitch.io/themes/${themeId}/${faviconName}`->Identity.genericTypeToJson,
+          )
+        }
+
+        if !isUpdateFlow {
+          let _ = await updateThemeWithAssetUrls(~iconName, ~faviconName)
+        }
+
+        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => Success)
+        setShowModal(_ => false)
+        redirectToList()
+      } catch {
+      | _ =>
+        showToast(~message="Failed to upload assets!", ~toastType=ToastState.ToastError)
+        setScreenState(_ => Success)
+      }
+    }
+
+    let handleCancel = () => {
+      setShowModal(_ => false)
+      showToast(
+        ~message="Theme has been created. You can upload assets later",
+        ~toastType=ToastState.ToastInfo,
+      )
+      redirectToList()
+    }
+
+    <Modal
+      showModal
+      closeOnOutsideClick=false
+      setShowModal
+      modalHeading="Upload Assets"
+      modalHeadingClass={`${heading.sm.semibold}`}
+      modalClass="w-1/2 m-auto"
+      childClass="p-0"
+      modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
+        {"Upload icon and favicon files for your theme."->React.string}
+      </div>}>
+      <div className="p-2">
+        <div className="flex flex-col gap-4 p-4">
+          <div className="flex justify-between gap-4">
+            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
+              {"Icon"->React.string}
+              <ToolTip
+                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+                description="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
+                toolTipPosition=Right
+              />
+            </div>
+            <input
+              type_="file"
+              accept=".png,.jpg,.jpeg"
+              hidden=true
+              onChange={handleIconChange}
+              id="iconInput"
+            />
+            <label
+              htmlFor="iconInput"
+              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4 ">
+              <Icon name="nd-upload-file" />
+            </label>
+            {switch selectedIcon {
+            | Some(file) =>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                <Icon name="file-icon" size=16 />
+                <span> {file["name"]->React.string} </span>
+              </div>
+            | None => React.null
+            }}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4 p-4">
+          <div className="flex justify-between gap-4">
+            <div className={`flex ${body.md.medium} text-gray-700 gap-2 items-center`}>
+              {"Favicon"->React.string}
+              <ToolTip
+                toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+                description="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
+                toolTipPosition=Right
+              />
+            </div>
+            <input
+              type_="file"
+              accept=".png,.jpg,.jpeg"
+              hidden=true
+              onChange={handleFaviconChange}
+              id="faviconInput"
+            />
+            <label
+              htmlFor="faviconInput"
+              className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
+              <Icon name="nd-upload-file" />
+            </label>
+            {switch selectedFavicon {
+            | Some(file) =>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                <Icon name="file-icon" size=16 />
+                <span> {file["name"]->React.string} </span>
+              </div>
+            | None => React.null
+            }}
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <Button
+            text="Skip for now"
+            buttonType=Secondary
+            buttonState=Normal
+            buttonSize=Small
+            onClick={_ => handleCancel()->ignore}
+          />
+          <Button
+            text="Save & Upload"
+            buttonType=Primary
+            buttonState={Normal}
+            buttonSize=Small
+            onClick={_ => handleUpload()->ignore}
+          />
+        </div>
+      </div>
+    </Modal>
+  }
+}

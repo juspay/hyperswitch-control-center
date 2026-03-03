@@ -141,13 +141,8 @@ module IconSettings = {
     ~setSelectedFaviconFile,
     ~themeConfigVersion,
   ) => {
-    Js.log2("logoUrl", logoUrl)
-    Js.log2("faviconUrl", faviconUrl)
-
     let (previewLogoImage, setPreviewLogoImage) = React.useState(() => true)
     let (previewFaviconImage, setPreviewFaviconImage) = React.useState(() => true)
-
-    let form = ReactFinalForm.useForm()
 
     let handleLogoFileChange = ev => {
       let files = ReactEvent.Form.target(ev)["files"]
@@ -171,7 +166,6 @@ module IconSettings = {
       | None => ""
       }
     }, [logoUrl])
-
 
     let handleRemoveLogo = async () => {
       Js.log("Removing logo")
