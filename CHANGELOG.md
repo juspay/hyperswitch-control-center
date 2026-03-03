@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.02.0
+
+### Features
+
+- Added theme lineage and create screens ([#3931](https://github.com/juspay/hyperswitch-control-center/pull/3931)) ([`03766ec`](https://github.com/juspay/hyperswitch-control-center/commit/03766ec82ca7afd5d1fc6d56069f2961458f73d1))
+
+### Bug Fixes
+
+- Toggle disable state ([#4265](https://github.com/juspay/hyperswitch-control-center/pull/4265)) ([`3951b33`](https://github.com/juspay/hyperswitch-control-center/commit/3951b33a06606f31827c360dc25b1e693434f07d))
+
+### Miscellaneous Tasks
+
+- Vault endpoint update to v1 for payment methods api ([#4244](https://github.com/juspay/hyperswitch-control-center/pull/4244)) ([`59f0b6b`](https://github.com/juspay/hyperswitch-control-center/commit/59f0b6b0b392be2cd878fd462f472e985728e873))
+
+**Full Changelog:** [`2026.02.27.0...2026.03.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.27.0...2026.03.02.0)
+
+- - -
+
+## 2026.02.27.0
+
+### Bug Fixes
+
+- Local timezone support for routing and api events ([#4256](https://github.com/juspay/hyperswitch-control-center/pull/4256)) ([`baab182`](https://github.com/juspay/hyperswitch-control-center/commit/baab182d532677e644a6a1b8724a9398a1662666))
+- Increase endValue for payment and refund ID columns in tables ([#4251](https://github.com/juspay/hyperswitch-control-center/pull/4251)) ([`f58eafa`](https://github.com/juspay/hyperswitch-control-center/commit/f58eafa2e1dfda10ada169fdb9493e9e500c6d2f))
+
+**Full Changelog:** [`2026.02.26.0...2026.02.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.26.0...2026.02.27.0)
+
+- - -
+
+## 2026.02.26.0
+
+### Features
+
+- Move user module out and enable invite for v1 products ([#4127](https://github.com/juspay/hyperswitch-control-center/pull/4127)) ([`b9e1d74`](https://github.com/juspay/hyperswitch-control-center/commit/b9e1d747f59ab430a6692b711624aaca0ee4e20c))
+
+**Full Changelog:** [`2026.02.23.0...2026.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.02.23.0...2026.02.26.0)
+
+- - -
+
 ## 2026.02.23.0
 
 ### Refactors
