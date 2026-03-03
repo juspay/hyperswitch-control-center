@@ -127,10 +127,7 @@ let userSwitch = (~ompData: array<string>, ~path) => {
   }
 }
 
-let isDuplicateOmpName = (
-  list: array<ompListTypes>,
-  ~name: string,
-) => {
+let isDuplicateOmpName = (list: array<ompListTypes>, ~name: string) => {
   list->Array.some(item => item.name->String.toLowerCase == name->String.toLowerCase)
 }
 
