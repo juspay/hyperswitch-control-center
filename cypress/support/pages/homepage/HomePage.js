@@ -43,7 +43,7 @@ class HomePage {
   }
 
   get globalSearchInput() {
-    return cy.get('[data-testid="global-search"]');
+    return cy.get('[class="w-max"]');
   }
 
   get productionAccessBanner() {
