@@ -253,7 +253,7 @@ let make = (
             }}
           </div>
           <div className={`${headerStyle} opacity-40 flex gap-1`}>
-            {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
+            <TableUtils.DateCell timestamp={createdTime} />
           </div>
         </div>
       </div>

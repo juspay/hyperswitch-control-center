@@ -6,7 +6,6 @@ module NewMerchantCreationModal = {
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
     open LogicUtils
-    open OMPSwitchTypes
 
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -74,22 +73,11 @@ module NewMerchantCreationModal = {
       let errors = Dict.make()
       let valuesDict = values->getDictFromJsonObject
       let companyName = valuesDict->getString("company_name", "")->String.trim
-      let isDuplicate =
-        merchantList->Array.some(merchant =>
-          merchant.name->String.toLowerCase == companyName->String.toLowerCase
-        )
-      let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let errorMessage = if companyName->isEmptyString {
-        "Merchant name cannot be empty"
-      } else if companyName->String.length > 64 {
-        "Merchant name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
-        "Merchant name should not contain special characters"
-      } else if isDuplicate {
-        "Merchant with this name already exists"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=companyName,
+        ~list=merchantList,
+        ~entityLabel="Merchant",
+      )
 
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)

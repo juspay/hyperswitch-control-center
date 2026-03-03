@@ -84,6 +84,7 @@ dev_customer=false
 dev_accept_invite=true
 dev_theme=false
 dev_vault=false
+dev_users=false
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]

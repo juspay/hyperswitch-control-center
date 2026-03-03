@@ -179,3 +179,18 @@ let useIsoStringToCustomTimeZoneInFloat = () => {
   }, [zone])
   isoStringToCustomTimezoneInFloat
 }
+
+let useGetTimeInCustomTimeZone = () => {
+  let (zone, _setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
+
+  React.useCallback((format, ~includeTimeZone=false) => {
+    let nowIso = Js.Date.make()->Js.Date.toISOString
+    let selectedTimeZoneData = TimeZoneData.getTimeZoneData(zone)
+    let selectedTimeZoneAlias = selectedTimeZoneData.region
+    let selectedTimeZoneTitle = selectedTimeZoneData.title
+    let timezoneConvertedString = convertTimeZone(nowIso, selectedTimeZoneAlias)
+    let customDateTimeString: dateTimeString = en_USStringToDateTimeObject(timezoneConvertedString)
+    let formattedDate = formattedDateTimeString(customDateTimeString, format)
+    includeTimeZone ? `${formattedDate} ${selectedTimeZoneTitle}` : formattedDate
+  }, [zone])
+}

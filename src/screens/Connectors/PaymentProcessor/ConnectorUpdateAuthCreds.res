@@ -72,6 +72,7 @@ let make = (
       ),
       ("connector_webhook_details", connectorInfo.connector_webhook_details),
       ("connector_label", connectorInfo.connector_label->JSON.Encode.string),
+      ("disabled", connectorInfo.disabled->JSON.Encode.bool),
       ("metadata", connectorInfo.metadata),
       (
         "additional_merchant_data",
@@ -83,6 +84,7 @@ let make = (
   }, (
     connectorInfo.connector_webhook_details,
     connectorInfo.connector_label,
+    connectorInfo.disabled,
     connectorInfo.metadata,
   ))
 

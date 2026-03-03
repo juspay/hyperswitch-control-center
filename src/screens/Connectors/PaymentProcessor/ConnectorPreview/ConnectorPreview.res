@@ -72,6 +72,7 @@ module DeleteConnectorMenu = {
   }
 }
 
+// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -408,7 +409,10 @@ let make = (
         ~toastType=ToastSuccess,
       )
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+    | Exn.Error(_) => {
+        showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
