@@ -176,6 +176,7 @@ let connectorList: array<connectorTypes> = [
   Processors(AMAZONPAY),
   Processors(WORLDPAYMODULAR),
   Processors(SANTANDER),
+  Processors(REVOLV3),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -852,6 +853,10 @@ let santanderInfo = {
   description: "Banco Santander is a Spanish multinational financial services group founded in 1857, with a global retail and commercial banking presence across Europe and the Americas, serving millions of customers with banking, credit, investment, and payment services.",
 }
 
+let revolv3Info = {
+  description: "Revolv3 is a specialized, AI-driven payment orchestration platform designed to maximize subscription billing approval rates and reduce involuntary churn for e-commerce merchant.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -961,6 +966,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | AMAZONPAY => "amazonpay"
   | WORLDPAYMODULAR => "worldpaymodular"
   | SANTANDER => "santander"
+  | REVOLV3 => "revolv3"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1153,6 +1159,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "amazonpay" => Processors(AMAZONPAY)
     | "worldpaymodular" => Processors(WORLDPAYMODULAR)
     | "santander" => Processors(SANTANDER)
+    | "revolv3" => Processors(REVOLV3)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1323,6 +1330,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | AMAZONPAY => amazonpayinfo
   | WORLDPAYMODULAR => worldpayModularInfo
   | SANTANDER => santanderInfo
+  | REVOLV3 => revolv3Info
   }
 }
 
@@ -2055,6 +2063,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
         : connectorAdditionalMerchantData->JSON.Encode.object,
     ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
+    ("disabled", dict->getBool("disabled", false)->JSON.Encode.bool),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
       "pm_auth_config",
@@ -2289,6 +2298,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | AMAZONPAY => "Amazon Pay"
   | WORLDPAYMODULAR => "Worldpay Modular"
   | SANTANDER => "Santander"
+  | REVOLV3 => "Revolv3"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
