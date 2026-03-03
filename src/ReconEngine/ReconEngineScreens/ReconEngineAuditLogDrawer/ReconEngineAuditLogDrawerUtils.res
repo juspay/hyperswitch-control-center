@@ -135,9 +135,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
   | TransactionsReconciled({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
-      title: count === 1
-        ? "1 Transaction Reconciled"
-        : `${count->Int.toString} Transactions Reconciled`,
+      title: count === 1 ? "1 Transaction Posted" : `${count->Int.toString} Transactions Posted`,
       description: {
         let accountNames =
           accounts

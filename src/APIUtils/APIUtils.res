@@ -1201,6 +1201,16 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #TRANSACTION_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transactions/bulk_operations`
+          | _ => ""
+          }
+        | #STAGING_ENTRY_BULK_OPERATIONS =>
+          switch methodType {
+          | Post => `${reconBaseURL}/staging_entries/bulk_operations`
+          | _ => ""
+          }
         | #NONE => ""
         }
 

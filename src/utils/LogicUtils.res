@@ -649,6 +649,8 @@ let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
 
 let isEmptyArray = arr => arr->Array.length === 0
 
+let isNonEmptyArray = arr => arr->Array.length > 0
+
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {
     str->String.slice(~start=0, ~end=-1)

@@ -362,3 +362,168 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
   ->Dict.fromArray
   ->JSON.Encode.object
 }
+
+let bulkActionVoidingModalConfig = (~count: int) => {
+  bulkActionModal: {
+    modalHeading: "Ignore Entry",
+    modalDescription: `This will permanently ignore ${count->Int.toString} transformed entry(s). These actions cannot be undone. Are you sure you want to proceed?`,
+    modalConfirmButtonText: "Ignore Entry",
+    modalConfirmButtonType: Delete,
+    modalLoadingText: "Ignoring transformed entry(s)...",
+  },
+}
+
+let getBulkActionModalConfig = (~action: actionType, ~count: int): bulkActionModalConfig => {
+  switch action {
+  | BulkTransformedEntryVoid => bulkActionVoidingModalConfig(~count)
+  | UnknownBulkTransformedEntryActionType => {
+      bulkActionModal: {
+        modalHeading: "",
+        modalDescription: "",
+        modalConfirmButtonText: "",
+        modalConfirmButtonType: Secondary,
+        modalLoadingText: "",
+      },
+    }
+  }
+}
+
+let bulkActionVoidingSuccessModalConfig = (
+  ~successCount: int,
+  ~failedCount: int,
+  ~skippedCount: int,
+  ~totalCount: int,
+): bulkActionModalConfig => {
+  if successCount == totalCount {
+    {
+      bulkActionModal: {
+        modalHeading: "Transformed Entries Ignored",
+        modalDescription: "All transformed entries were ignored successfully. This summary will be cleared after you close this window.",
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-check-circle-outline",
+        bulkActionIconClass: "text-nd_green-500",
+      },
+    }
+  } else if failedCount + skippedCount == totalCount {
+    {
+      bulkActionModal: {
+        modalHeading: "Ignoring Failed",
+        modalDescription: "Selected transformed entries could not be ignored. This summary will be cleared after you close this window.",
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-multiple-cross",
+        bulkActionIconClass: "text-nd_red-400",
+      },
+    }
+  } else {
+    {
+      bulkActionModal: {
+        modalHeading: "Ignoring Completed with Errors",
+        modalDescription: `${successCount->Int.toString}/${totalCount->Int.toString} transformed entry(s) were ignored successfully. This summary will be cleared after you close this window.`,
+        modalConfirmButtonText: "Download Voiding Report",
+        modalConfirmButtonType: Primary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {
+        bulkActionIconName: "nd-alert-circle",
+        bulkActionIconClass: "text-nd_orange-300",
+      },
+    }
+  }
+}
+
+let getBulkActionSuccessModalConfig = (
+  action: actionType,
+  successCount: int,
+  failedCount: int,
+  skippedCount: int,
+  totalCount: int,
+): bulkActionModalConfig => {
+  switch action {
+  | BulkTransformedEntryVoid =>
+    bulkActionVoidingSuccessModalConfig(~successCount, ~failedCount, ~skippedCount, ~totalCount)
+  | UnknownBulkTransformedEntryActionType => {
+      bulkActionModal: {
+        modalHeading: "",
+        modalDescription: "",
+        modalConfirmButtonText: "",
+        modalConfirmButtonType: Secondary,
+        modalLoadingText: "",
+      },
+      bulkActionIcon: {bulkActionIconName: "", bulkActionIconClass: ""},
+    }
+  }
+}
+
+let bulkActionReasonMultiLineTextInputField = (~label) => {
+  <FormRenderer.FieldRenderer
+    labelClass="font-semibold"
+    field={FormRenderer.makeFieldInfo(
+      ~label,
+      ~name="reason",
+      ~placeholder="Enter remark",
+      ~customInput=InputFields.multiLineTextInput(
+        ~isDisabled=false,
+        ~rows=Some(4),
+        ~cols=Some(50),
+        ~maxLength=500,
+        ~customClass="!h-28 !rounded-xl",
+      ),
+      ~isRequired=false,
+    )}
+  />
+}
+
+open ReconEngineTransactionsTypes
+
+let getBulkActionStatusType = (status: string): bulkActionStatusType => {
+  switch status {
+  | "success" => BulkActionSuccess
+  | "failed" => BulkActionFailed
+  | "skipped" => BulkActionSkipped
+  | _ => UnknownBulkActionStatus
+  }
+}
+
+let bulkActionResponseToObjMapper = (response): bulkActionResponse => {
+  let status = response->getString("status", "")->getBulkActionStatusType
+
+  let statusDetail = switch status {
+  | BulkActionFailed => response->getOptionString("error")
+  | BulkActionSkipped => response->getOptionString("reason")
+  | BulkActionSuccess => Some("Processed successfully")
+  | UnknownBulkActionStatus => None
+  }
+
+  {
+    logical_id: response->getOptionString("logical_id"),
+    bulk_action_status: status,
+    bulk_action_status_detail: statusDetail,
+  }
+}
+
+let downloadBulkActionReport = (bulkActionResponses: array<bulkActionResponse>) => {
+  let headers = ["ID", "Status", "Status Detail"]
+  let data = bulkActionResponses->Array.map(item => {
+    [
+      item.logical_id->Option.getOr("N/A"),
+      (item.bulk_action_status :> string)->String.toUpperCase,
+      item.bulk_action_status_detail->Option.getOr(""),
+    ]
+  })
+
+  let csvContent = PapaParse.unparse({"fields": headers, "data": data})
+  let timestamp = Js.Date.now()->Js.Float.toString
+  DownloadUtils.download(
+    ~fileName=`bulk_ignore_transformed_entry_report_${timestamp}.csv`,
+    ~content=csvContent,
+    ~fileType="text/csv",
+  )
+}
