@@ -393,22 +393,11 @@ module MerchantDropdownItem = {
 
     let validateInput = (merchantName: string) => {
       let errors = Dict.make()
-      let regexForMerchantName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let isDuplicate =
-        merchantList->Array.some(merchant =>
-          merchant.name->String.toLowerCase == merchantName->String.toLowerCase
-        )
-      let errorMessage = if merchantName->isEmptyString {
-        "Merchant name cannot be empty"
-      } else if merchantName->String.length > 64 {
-        "Merchant name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForMerchantName), merchantName) {
-        "Merchant name should not contain special characters"
-      } else if isDuplicate {
-        "Merchant with this name already exists"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=merchantName,
+        ~list=merchantList,
+        ~entityLabel="Merchant",
+      )
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "merchant_name", errorMessage->JSON.Encode.string)
       }
@@ -541,23 +530,11 @@ module ProfileDropdownItem = {
     }
     let validateInput = (newProfileName: string) => {
       let errors = Dict.make()
-      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let isDuplicate =
-        profileList->Array.some(profile =>
-          profile.name->String.toLowerCase == newProfileName->String.toLowerCase &&
-            profile.id != currentId
-        )
-      let errorMessage = if newProfileName->isEmptyString {
-        "Profile name cannot be empty"
-      } else if newProfileName->String.length > 64 {
-        "Profile name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), newProfileName) {
-        "Profile name should not contain special characters"
-      } else if isDuplicate {
-        "Profile with this name already exists"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=newProfileName,
+        ~list=profileList,
+        ~entityLabel="Profile",
+      )
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
       }

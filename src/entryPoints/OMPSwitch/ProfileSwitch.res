@@ -66,23 +66,11 @@ module NewProfileCreationModal = {
       open LogicUtils
       let errors = Dict.make()
       let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
-      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let isDuplicate =
-        profileList->Array.some(profile =>
-          profile.name->String.toLowerCase == profileName->String.toLowerCase
-        )
-
-      let errorMessage = if profileName->isEmptyString {
-        "Profile name cannot be empty"
-      } else if profileName->String.length > 64 {
-        "Profile name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
-        "Profile name should not contain special characters"
-      } else if isDuplicate {
-        "Profile with this name already exists"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=profileName,
+        ~list=profileList,
+        ~entityLabel="Profile",
+      )
 
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
