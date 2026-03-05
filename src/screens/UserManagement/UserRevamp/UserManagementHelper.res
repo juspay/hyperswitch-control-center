@@ -6,7 +6,7 @@ module OrganisationSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
     | #Tenant | #Organization | #Merchant | #Profile => true
@@ -58,7 +58,8 @@ module MerchantSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {devUsers} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
@@ -66,12 +67,13 @@ module MerchantSelection = {
     | #Tenant | #Organization => false
     }
 
-    let v1MerchantList = merchList->Array.filter(merchant => {
-      switch merchant.productType {
-      | Some(Orchestration(V1)) => true
-      | _ => false
+    let merchantList = merchList->Array.filter(merchant =>
+      if devUsers {
+        merchant.version == Some(V1)
+      } else {
+        merchant.productType == Some(Orchestration(V1))
       }
-    })
+    )
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
@@ -96,7 +98,7 @@ module MerchantSelection = {
           ~options=getMerchantSelectBoxOption(
             ~label="All merchants",
             ~value="all_merchants",
-            ~dropdownList=v1MerchantList,
+            ~dropdownList=merchantList,
             ~showAllSelection=true,
           ),
           ~deselectDisable=true,
@@ -134,7 +136,7 @@ module ProfileSelection = {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+    let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,

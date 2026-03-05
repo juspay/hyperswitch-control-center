@@ -32,6 +32,6 @@ let make = () => {
         </div>
       </RenderIf>
     </div>
-    <AuditLogDrawer showDrawer />
+    <ReconEngineAuditLogDrawer showDrawer />
   </>
 }

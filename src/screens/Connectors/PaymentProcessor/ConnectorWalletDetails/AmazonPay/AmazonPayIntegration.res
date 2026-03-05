@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
+let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open AmazonPayIntegrationUtils
 
@@ -30,12 +30,12 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
   let onSubmit = () => {
     update()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
   let onCancel = () => {
     onCloseClickCustomFun()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
   let amazonPayFields =
     amazonPayFieldsArray
@@ -50,14 +50,17 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     })
     ->React.array
 
-  <div className="p-2">
-    {amazonPayFields}
-    <div className={`flex gap-2  justify-end m-2 p-6`}>
-      <Button text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} />
+  <div className="flex flex-col gap-6 p-6">
+    <div> {amazonPayFields} </div>
+    <div className={`flex gap-2 justify-end`}>
+      <Button
+        text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
+      />
       <Button
         onClick={_ => onSubmit()}
         text="Continue"
         buttonType={Primary}
+        customButtonStyle="w-full"
         buttonState={formState.values->AmazonPayIntegrationUtils.validateAmazonPay}
       />
     </div>

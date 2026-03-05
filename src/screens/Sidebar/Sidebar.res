@@ -297,9 +297,11 @@ module NestedSectionItem = {
     ~showIcon=false,
   ) => {
     let {
-      globalUIConfig: {sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor}},
+      globalUIConfig: {
+        sidebarColor: {primaryTextColor, secondaryTextColor, hoverColor, borderColor},
+      },
     } = React.useContext(ThemeProvider.themeContext)
-    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let {devSidebarV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
@@ -352,7 +354,7 @@ module NestedSectionItem = {
           <div className="flex flex-1 w-full mt-2">
             <div className="w-8" />
             <RenderIf condition={devSidebarV2 && !isInternalUser}>
-              <div className="border-l border-nd_gray-200" />
+              <div className={`border-l ${borderColor} `} />
             </RenderIf>
             <div className="flex flex-col gap-2 w-full leading-20">
               {section.links
@@ -420,6 +422,7 @@ module SidebarNestedSection = {
     React.useEffect(() => {
       if isSideBarExpanded {
         setIsSectionExpanded(_ => isAnySubItemSelected)
+        setOpenItem(_ => "")
       } else {
         setIsSectionExpanded(_ => false)
       }
@@ -614,19 +617,22 @@ let make = (
   let {
     globalUIConfig: {sidebarColor: {backgroundColor, secondaryTextColor, hoverColor, borderColor}},
   } = React.useContext(ThemeProvider.themeContext)
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = getCommonSessionDetails()
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {showSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {activeProduct, onProductSelectClick} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let handleLogout = APIUtils.useHandleLogout(~eventName="user_signout_manual")
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2, devTheme} =
+  let {devModularityV2, devSidebarV2, devTheme, devUsers} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -737,6 +743,7 @@ let make = (
 
   let isHomeSelected = linkSelectionCheck(firstPart, "/v2/home")
   let isThemeSelected = linkSelectionCheck(firstPart, "/theme")
+  let isUsersSelected = linkSelectionCheck(firstPart, "/users")
 
   <div className={`${backgroundColor.sidebarNormal} flex group relative `}>
     <div
@@ -752,7 +759,7 @@ let make = (
       <RenderIf condition={showSideBar}>
         <div
           ref={sideBarRef->ReactDOM.Ref.domRef}
-          className={`${backgroundColor.sidebarNormal} flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
+          className={`${backgroundColor.sidebarNormal} justify-between flex h-full flex-col transition-all duration-100 border-r ${borderColor} relative inset-0`}
           style={width: sidebarWidth}>
           <RenderIf condition={isMobileView}>
             <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
@@ -900,6 +907,25 @@ let make = (
                         </div>
                       </Link>
                     </RenderIf>
+                    <RenderIf
+                      condition={devUsers &&
+                      userHasAccess(~groupAccess=UsersView) == Access &&
+                      version == UserInfoTypes.V1}>
+                      <Link to_={GlobalVars.appendDashboardPath(~url="/users")}>
+                        <div
+                          className={`${body.md.medium} ${secondaryTextColor} relative overflow-hidden flex flex-row rounded-lg items-center cursor-pointer hover:transition hover:duration-300 ${isUsersSelected
+                              ? "bg-sidebar-hoverColor"
+                              : ""} ${isSidebarExpanded ? "" : "mx-1"} ${hoverColor}`}>
+                          <SidebarOption
+                            name="Users"
+                            icon="nd-settings"
+                            isSidebarExpanded
+                            isSelected={isUsersSelected}
+                            showIcon=true
+                          />
+                        </div>
+                      </Link>
+                    </RenderIf>
                   </div>
                   <div className={`${body.sm.semibold} px-3 py-2 text-nd_gray-400 tracking-widest`}>
                     {React.string("My Modules"->String.toUpperCase)}
@@ -952,46 +978,43 @@ let make = (
             </div>
           </RenderIf>
           <div
-            className={`flex items-center justify-center p-4 border-t ${borderColor} ${hoverColor}`}>
+            className={`flex items-center justify-start p-4 border-t ${borderColor} ${hoverColor}`}>
             <RenderIf condition={isSidebarExpanded}>
-              <Popover className="relative inline-block text-left">
+              <Popover className="relative w-full text-left">
                 {popoverProps => <>
                   <Popover.Button
                     className={
                       let openClasses = if popoverProps["open"] {
-                        `group border rounded-lg inline-flex items-center ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
+                        `group rounded-lg inline-flex items-center w-full ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
                       } else {
-                        `text-opacity-90 group border rounded-lg inline-flex items-center ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
+                        `text-opacity-90 group rounded-lg inline-flex items-center w-full ${body.lg.medium} hover:text-opacity-100 focus:outline-none`
                       }
                       `${openClasses} border-none`
                     }>
                     {_ => <>
-                      <div className="flex items-center justify-between gap-x-4">
+                      <div className="flex items-center gap-x-4 w-full">
                         <Icon name="nd-user" size=24 />
                         <div
-                          className={`${body.md.medium} text-left text-nd_gray-600 dark:text-nd_gray-600 text-ellipsis overflow-hidden`}>
+                          className={`${body.md.medium} text-left dark:text-nd_gray-600 ${secondaryTextColor} flex-1 min-w-0 truncate`}>
                           {email->React.string}
                         </div>
-                        <div className="flex flex-row">
-                          <Icon
-                            name="nd-dropdown-menu"
-                            size=18
-                            className={`cursor-pointer ${secondaryTextColor}`}
-                          />
-                        </div>
+                        <Icon
+                          name="nd-dropdown-menu"
+                          size=18
+                          className={`ml-auto shrink-0 cursor-pointer ${secondaryTextColor}`}
+                        />
                       </div>
                     </>}
                   </Popover.Button>
                   <Transition
                     \"as"="span"
-                    enter={"transition ease-out duration-200"}
+                    enter="transition ease-out duration-200"
                     enterFrom="opacity-0 translate-y-1"
                     enterTo="opacity-100 translate-y-0"
-                    leave={"transition ease-in duration-150"}
+                    leave="transition ease-in duration-150"
                     leaveFrom="opacity-100 translate-y-0"
                     leaveTo="opacity-0 translate-y-1">
-                    <Popover.Panel
-                      className={`absolute !z-30 bottom-[100%] left-1/2 -translate-x-1/2 mb-2`}>
+                    <Popover.Panel className="absolute bottom-full left-0 mb-2 z-30">
                       {panelProps => {
                         <div
                           id="neglectTopbarTheme"
@@ -999,6 +1022,9 @@ let make = (
                           <MenuOption
                             onClick={_ => {
                               panelProps["close"]()
+                              if isMobileView {
+                                setIsSidebarExpanded(_ => false)
+                              }
                               RescriptReactRouter.replace(
                                 GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
                               )

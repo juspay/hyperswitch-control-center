@@ -42,14 +42,14 @@ let getRoutingTypeName = (routingType: RoutingTypes.routingType) => {
   }
 }
 
-let getRoutingNameString = (~routingType) => {
+let getRoutingNameString = (~routingType, ~currentDate) => {
   let routingText = routingType->getRoutingTypeName
-  `${routingText->capitalizeString} Based Routing-${RoutingUtils.getCurrentUTCTime()}`
+  `${routingText->capitalizeString} Based Routing-${currentDate}`
 }
 
-let getRoutingDescriptionString = (~routingType) => {
+let getRoutingDescriptionString = (~routingType, ~currentTime) => {
   let routingText = routingType->getRoutingTypeName
-  `This is a ${routingText} based routing created at ${RoutingUtils.currentTimeInUTC}`
+  `This is a ${routingText} based routing created at ${currentTime}`
 }
 
 let getWasmKeyType = (wasm, value) => {
@@ -85,9 +85,18 @@ let getWasmPayoutVariantValues = (wasm, value) => {
   }
 }
 
+let stringToVariantType = (value: string): RoutingTypes.validationFields => {
+  switch value {
+  | "card_bin" => CARD_BIN
+  | "extended_card_bin" => EXTENDED_CARD_BIN
+  | _ => OTHER
+  }
+}
+
 let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
   switch variantType {
   | "number" => Number
+  | "fixed_number" => FixedNumber
   | "enum_variant" => Enum_variant
   | "metadata_value" => Metadata_value
   | "str_value" => String_value
@@ -95,10 +104,40 @@ let variantTypeMapper: string => RoutingTypes.variantType = variantType => {
   }
 }
 
+let variantToStringMapper = (variantType: RoutingTypes.variantType) => {
+  switch variantType {
+  | Number => "number"
+  | FixedNumber => "fixed_number"
+  | Enum_variant => "enum_variant"
+  | Metadata_value => "metadata_value"
+  | String_value => "str_value"
+  | UnknownVariant(str) => str
+  }
+}
+
+let getKeyTypeFromValueField: RoutingTypes.validationFields => RoutingTypes.variantType = valueField => {
+  switch valueField {
+  | CARD_BIN
+  | EXTENDED_CARD_BIN =>
+    FixedNumber
+  | OTHER => UnknownVariant("")
+  }
+}
+
 let getStatementValue: Dict.t<JSON.t> => RoutingTypes.value = valueDict => {
+  let valueType = valueDict->getString("type", "")
+  let rawValue = valueDict->getJsonObjectFromDict("value")
+  let convertedValue =
+    valueType->variantTypeMapper === String_value
+      ? switch rawValue->JSON.Classify.classify {
+        | Number(_) => rawValue->getIntStringFromJson
+        | _ => rawValue
+        }
+      : rawValue
+
   {
-    \"type": valueDict->getString("type", ""),
-    value: valueDict->getJsonObjectFromDict("value"),
+    \"type": valueType,
+    value: convertedValue,
   }
 }
 
@@ -112,23 +151,35 @@ let statementTypeMapper: Dict.t<JSON.t> => RoutingTypes.statement = dict => {
 }
 
 let conditionTypeMapper = (statementArr: array<JSON.t>) => {
-  let statements = statementArr->Array.reduce([], (acc, statementJson) => {
-    let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
+  statementArr->Array.reduceWithIndex([], (acc, statementJson, index) => {
+    let statementDict = statementJson->getDictFromJsonObject
+    let conditionArray = statementDict->getArrayFromDict("condition", [])
 
-    let arr = conditionArray->Array.mapWithIndex((conditionJson, index) => {
-      let statementDict = conditionJson->getDictFromJsonObject
-      let returnValue: RoutingTypes.statement = {
+    if conditionArray->Array.length > 0 {
+      let conditionStatements = conditionArray->Array.mapWithIndex((
+        conditionJson,
+        conditionIndex,
+      ) => {
+        let conditionDict = conditionJson->getDictFromJsonObject
+        let singleStatement: RoutingTypes.statement = {
+          lhs: conditionDict->getString("lhs", ""),
+          comparison: conditionDict->getString("comparison", ""),
+          logical: conditionIndex === 0 ? "OR" : "AND",
+          value: getStatementValue(conditionDict->getDictfromDict("value")),
+        }
+        singleStatement
+      })
+      [...acc, ...conditionStatements]
+    } else {
+      let singleStatement: RoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
         comparison: statementDict->getString("comparison", ""),
-        logical: index === 0 ? "OR" : "AND",
+        logical: statementDict->getString("logical", index === 0 ? "OR" : "AND"),
         value: getStatementValue(statementDict->getDictfromDict("value")),
       }
-      returnValue
-    })
-    acc->Array.concat(arr)
+      [...acc, singleStatement]
+    }
   })
-
-  statements
 }
 
 let volumeSplitConnectorSelectionDataMapper: Dict.t<
@@ -310,11 +361,35 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
   }
 }
 
+let validateStringNumericField = (str, field) => {
+  //** Custom validation for card_bin and extended_card_bin when value is stored as string */
+  let fieldType = field->stringToVariantType
+  switch fieldType {
+  | CARD_BIN | EXTENDED_CARD_BIN =>
+    let requiredLength = fieldType == CARD_BIN ? 6 : 8
+    let isValidNumeric =
+      str->isNonEmptyString &&
+        str
+        ->String.split("")
+        ->Array.every(char => {
+          char >= "0" && char <= "9"
+        })
+    let hasCorrectLength = str->String.length == requiredLength
+    isValidNumeric && hasCorrectLength
+  | OTHER => str->isNonEmptyString
+  }
+}
+
 let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
+  let fieldType = statement.lhs->stringToVariantType
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
-  | String(str) => str->isNonEmptyString
-  | Number(_) => true
+  | String(str) =>
+    switch fieldType {
+    | CARD_BIN | EXTENDED_CARD_BIN => validateStringNumericField(str, statement.lhs)
+    | OTHER => str->isNonEmptyString
+    }
+  | Number(num) => num >= 0.0
   | Object(objectValue) => {
       let key = objectValue->getString("key", "")
       let value = objectValue->getString("value", "")
@@ -484,9 +559,9 @@ let defaultAlgorithmData: RoutingTypes.algorithmData = {
   },
 }
 
-let initialValues: RoutingTypes.advancedRouting = {
-  name: getRoutingNameString(~routingType=ADVANCED),
-  description: getRoutingDescriptionString(~routingType=ADVANCED),
+let getInitialValues = (~currentDate, ~currentTime): RoutingTypes.advancedRouting => {
+  name: getRoutingNameString(~routingType=ADVANCED, ~currentDate),
+  description: getRoutingDescriptionString(~routingType=ADVANCED, ~currentTime),
   algorithm: {
     data: defaultAlgorithmData,
     \"type": "",

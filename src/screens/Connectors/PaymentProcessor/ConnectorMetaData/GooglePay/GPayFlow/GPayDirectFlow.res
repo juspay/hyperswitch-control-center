@@ -4,7 +4,7 @@ let make = (
   ~googlePayIntegrationType,
   ~closeModal,
   ~connector,
-  ~setShowWalletConfigurationModal,
+  ~closeAccordionFn,
   ~update,
 ) => {
   open LogicUtils
@@ -39,7 +39,7 @@ let make = (
   let onSubmit = () => {
     let metadata =
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
     let _ = update(metadata)
     Nullable.null->Promise.resolve
   }
@@ -49,18 +49,20 @@ let make = (
     directFields->Array.includes(typedData.name)
   })
 
-  <>
-    {googlePayFieldsForDirect
-    ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={index->Int.toString}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
-          field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
-        />
-      </div>
-    })
-    ->React.array}
+  <div className="flex flex-col gap-6">
+    <div>
+      {googlePayFieldsForDirect
+      ->Array.mapWithIndex((field, index) => {
+        let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
+        <div key={`${googlePayField.name}-${index->Int.toString}`}>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
+          />
+        </div>
+      })
+      ->React.array}
+    </div>
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"
@@ -68,6 +70,7 @@ let make = (
         onClick={_ => {
           closeModal()->ignore
         }}
+        customButtonStyle="w-full"
       />
       <Button
         onClick={_ => {
@@ -76,7 +79,8 @@ let make = (
         text="Proceed"
         buttonType={Primary}
         buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
+        customButtonStyle="w-full"
       />
     </div>
-  </>
+  </div>
 }
