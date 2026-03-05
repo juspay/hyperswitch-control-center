@@ -8,6 +8,12 @@ type event = {data: string}
 external parent: 't = "parent"
 
 @val @scope("window")
+external self: 't = "self"
+
+@val @scope("window")
+external top: 't = "top"
+
+@val @scope("window")
 external addEventListener: (string, listener<'ev>) => unit = "addEventListener"
 
 @val @scope("window")
@@ -117,6 +123,9 @@ external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCat
 
 @val @scope("window")
 external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
+
+@val @scope("window")
+external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
 module MatchMedia = {
   type matchEvent = {
@@ -264,7 +273,7 @@ module FcWidget = {
 @val @scope("window")
 external fcWidget: 'a = "fcWidget"
 
-type boundingClient = {x: int, y: int, width: int, height: int}
+type boundingClient = {x: int, y: int, width: int, height: int, left: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
 @val @scope("window")

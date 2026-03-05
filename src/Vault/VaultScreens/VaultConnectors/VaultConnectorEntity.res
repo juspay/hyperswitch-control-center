@@ -97,7 +97,22 @@ let connectorEntity = (
   path: string,
   ~authorization: CommonAuthTypes.authorization,
   ~sendMixpanelEvent,
+  ~isOrchestrationVault=false,
 ) => {
+  let getShowLink = !isOrchestrationVault
+    ? Some(
+        connec => {
+          sendMixpanelEvent()
+          GroupAccessUtils.linkForGetShowLinkViaAccess(
+            ~url=GlobalVars.appendDashboardPath(
+              ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
+            ),
+            ~authorization,
+          )
+        },
+      )
+    : None
+
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],
@@ -105,16 +120,6 @@ let connectorEntity = (
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
-    ~getShowLink={
-      connec => {
-        sendMixpanelEvent()
-        GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
-          ),
-          ~authorization,
-        )
-      }
-    },
+    ~getShowLink?,
   )
 }

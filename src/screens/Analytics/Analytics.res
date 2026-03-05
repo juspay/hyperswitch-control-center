@@ -531,7 +531,7 @@ let make = (
   let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {

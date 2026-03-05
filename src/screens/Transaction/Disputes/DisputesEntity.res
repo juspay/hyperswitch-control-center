@@ -82,16 +82,24 @@ let amountValue = (amount, currency) => {
   `${amountInFloat->Float.toString} ${currency}`
 }
 
-let getCell = (disputesData, colType, merchantId, orgId): Table.cell => {
+let getCell = (disputesData, colType, merchantId, orgId, ~profileId=""): Table.cell => {
   open DisputesUtils
   open HelperComponents
+  let effectiveProfileId =
+    disputesData.profile_id->isNonEmptyString ? disputesData.profile_id : profileId
+
   switch colType {
   | DisputeId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}/${merchantId}/${orgId}`}
+        url={`/disputes/${disputesData.dispute_id}/${effectiveProfileId}/${merchantId}/${orgId}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
+        leftIcon={disputesData.is_already_refunded
+          ? CustomIcon(
+              <Icon name="nd-alert-triangle-outline" size={16} className="text-nd_red-600" />,
+            )
+          : NoIcon}
       />,
       "",
     )
@@ -155,6 +163,7 @@ let itemToObjMapper = dict => {
     connector_created_at: dict->getString("connector_created_at", ""),
     connector_updated_at: dict->getString("connector_updated_at", ""),
     created_at: dict->getString("created_at", ""),
+    is_already_refunded: dict->getBool("is_already_refunded", false),
   }
 }
 

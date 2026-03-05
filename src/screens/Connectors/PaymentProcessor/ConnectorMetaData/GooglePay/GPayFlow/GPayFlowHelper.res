@@ -4,8 +4,7 @@ open AdditionalDetailsSidebarHelper
 module DirectFlowLandingCard = {
   @react.component
   let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
-    <div
-      className="p-6 m-2 cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
+    <div className="cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
       <Card heading="Direct" isSelected={googlePayIntegrationType === #direct}>
         <div className={`${body.md.medium}  text-nd_gray-400 mt-2`}>
           {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
@@ -25,8 +24,7 @@ module PaymentGatewayFlowLandingCard = {
   @react.component
   let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
     <div
-      className="p-6 m-2 cursor-pointer"
-      onClick={_ => setGooglePayIntegrationType(_ => #payment_gateway)}>
+      className="cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #payment_gateway)}>
       <Card heading="Payment Gateway" isSelected={googlePayIntegrationType === #payment_gateway}>
         <div className={`${body.md.medium} mt-2 text-nd_gray-400`}>
           {"Integrate Google Pay with your payment gateway."->React.string}
@@ -52,7 +50,7 @@ module Landing = {
     let handleConfirmClick = () => {
       setGooglePayIntegrationStep(_ => Configure)
     }
-    <>
+    <div className="flex flex-col gap-6">
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(TESOURO) =>
         <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
@@ -64,16 +62,24 @@ module Landing = {
           <DirectFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
         </>
       }}
-      <div className={`flex gap-2 justify-end m-2 p-6`}>
+      <div className={`flex gap-2 justify-end`}>
         <Button
           text="Cancel"
           buttonType={Secondary}
           onClick={_ => {
             closeModal()
           }}
+          buttonSize={Small}
+          customButtonStyle="w-full"
         />
-        <Button onClick={_ => handleConfirmClick()} text="Continue" buttonType={Primary} />
+        <Button
+          onClick={_ => handleConfirmClick()}
+          text="Continue"
+          buttonType={Primary}
+          customButtonStyle="w-full"
+          buttonSize={Small}
+        />
       </div>
-    </>
+    </div>
   }
 }

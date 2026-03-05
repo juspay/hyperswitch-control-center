@@ -9,11 +9,9 @@ let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayl
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
 )
 
-let organizationDetailsValueAtom: Recoil.recoilAtom<
-  HSwitchSettingTypes.organizationPayload,
-> = Recoil.atom(
+let organizationDetailsValueAtom: Recoil.recoilAtom<OMPSwitchTypes.ompListTypes> = Recoil.atom(
   "organizationDetailsValue",
-  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
+  ompDefaultValue,
 )
 
 let connectorListAtom: Recoil.recoilAtom<
@@ -30,6 +28,8 @@ let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
 )
+
+let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
 
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
@@ -89,3 +89,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)

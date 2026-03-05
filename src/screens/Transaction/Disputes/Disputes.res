@@ -16,9 +16,11 @@ let make = () => {
 
   let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity, orgId, merchantId}, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {transactionEntity} = getResolvedUserInfo()
+  let {orgId, merchantId} = getCommonSessionDetails()
   let startTime = filterValueJson->getString("start_time", "")
 
   let handleExtendDateButtonClick = _ => {
@@ -61,7 +63,7 @@ let make = () => {
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
-        setDisputesData(_ => disputesValue->Array.map(Nullable.make))
+        setDisputesData(_ => disputesValue)
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)
@@ -127,12 +129,18 @@ let make = () => {
       <TransactionView entity=TransactionViewTypes.Disputes />
     </div>
     <div className="flex-1"> {filtersUI} </div>
+    <RenderIf
+      condition={disputesData->Array.some(dispute => {
+        dispute.is_already_refunded
+      })}>
+      <DisputesHelper.DualRefundsAlert subText="Click on Dispute ID to learn more" />
+    </RenderIf>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">
         <LoadedTableWithCustomColumns
           title="Disputes"
           hideTitle=true
-          actualData=disputesData
+          actualData={disputesData->Array.map(Nullable.make)}
           entity={DisputesEntity.disputesEntity(merchantId, orgId)}
           resultsPerPage=10
           showSerialNumber=true

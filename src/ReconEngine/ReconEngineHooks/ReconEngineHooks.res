@@ -42,7 +42,7 @@ let useGetTransactions = () => {
       )
       let res = await fetchDetails(url)
       let transactions = res->getArrayDataFromJson(transactionItemToObjMapper)
-      transactions->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
+      transactions->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       transactions
     } catch {
     | _ => Exn.raiseError("Something went wrong")
@@ -119,6 +119,27 @@ let useGetTransformationHistory = () => {
       let transformationHistory = res->getArrayDataFromJson(transformationHistoryItemToObjMapper)
       transformationHistory->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       transformationHistory
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useFetchMetadataSchema = () => {
+  open APIUtils
+
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
+
+  async (~transformationId: string) => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#TRANSFORMATION_CONFIG_WITH_METADATA,
+        ~id=Some(transformationId),
+      )
+      await fetchDetails(url)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

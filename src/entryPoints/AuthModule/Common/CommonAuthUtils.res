@@ -59,7 +59,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
 
 let isValidEmail = value =>
   !RegExp.test(
-    %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
+    %re(`/^(([^<>()[\]\.,;:\s@"{}\/\\]+(\.[^<>()[\]\.,;:\s@"{}\/\\]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
 
@@ -118,6 +118,8 @@ let parseErrorMessage = errorMessage => {
 let errorSubCodeMapper = (subCode: string) => {
   switch subCode {
   | "HE_02" => HE_02
+  | "IR_48" => IR_48
+  | "IR_47" => IR_47
   | "UR_01" => UR_01
   | "UR_03" => UR_03
   | "UR_05" => UR_05
@@ -134,6 +136,7 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_06" => UR_06
   | "UR_37" => UR_37
   | "UR_39" => UR_39
+
   | _ => UR_00
   }
 }

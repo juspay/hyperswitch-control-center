@@ -7,12 +7,12 @@ let make = () => {
   ]
   switch url.path->HSwitchUtils.urlPath {
   | list{"v1", "recon-engine", "transformed-entries", "ingestion-history", ingestionHistoryId} =>
-    <ReconEngineAccountsOverview breadCrumbNavigationPath ingestionHistoryId={ingestionHistoryId} />
+    <ReconEngineDataOverview breadCrumbNavigationPath ingestionHistoryId={ingestionHistoryId} />
   | list{"v1", "recon-engine", "transformed-entries"} =>
     <FilterContext
       key="recon-engine-accounts-transformed-entries"
       index="recon-engine-accounts-transformed-entries">
-      <ReconEngineAccountsTransformedEntries />
+      <ReconEngineDataTransformedEntries />
     </FilterContext>
   | _ => React.null
   }

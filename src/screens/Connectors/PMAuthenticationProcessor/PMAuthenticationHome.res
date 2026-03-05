@@ -1,3 +1,4 @@
+// TODO: Remove this module - replaced by ConnectorPreviewHelper.EnableDisableConnectorToggle
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -58,7 +59,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -90,13 +91,16 @@ let make = () => {
         isConnectorDisabled,
       )
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
-      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
     } catch {
-    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+    | Exn.Error(_) => {
+        showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
@@ -235,20 +239,10 @@ let make = () => {
     )
   }
 
-  let connectorStatusStyle = connectorStatus =>
-    switch connectorStatus {
-    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    }
-
   let summaryPageButton = switch currentStep {
   | Preview =>
     <div className="flex gap-6 items-center">
-      <div
-        className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
-        {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-      </div>
-      <MenuOption disableConnector isConnectorDisabled />
+      <ConnectorPreviewHelper.EnableDisableConnectorToggle disableConnector isConnectorDisabled />
     </div>
   | _ =>
     <Button
@@ -272,7 +266,7 @@ let make = () => {
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
-                title: "PM Authentication Porcessor",
+                title: "PM Authentication Processor",
                 link: "/pm-authentication-processor",
               },
         ]

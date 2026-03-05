@@ -5,11 +5,8 @@ const homePage = new HomePage();
 
 beforeEach(function () {
   const email = helper.generateUniqueEmail();
-  cy.visit_signupPage();
-  cy.sign_up_with_email(email, Cypress.env("CYPRESS_PASSWORD"));
-  cy.url().should("include", "/dashboard/home");
-  homePage.enterMerchantName.type("Test_merchant");
-  homePage.onboardingSubmitButton.click();
+  cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+  cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
 describe("Users", () => {

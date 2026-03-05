@@ -35,6 +35,7 @@ module.exports = {
       margin: {
         "15-px": "15px",
         "54-px": "54px",
+        "300-px": "300px",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -62,6 +63,7 @@ module.exports = {
         "32-px": "32px",
         "36-px": "36px",
         "40-px": "40px",
+        "50-px": "50px",
         "68-px": "68px",
         "84-px": "84px",
         "120-px": "120px",
@@ -154,6 +156,7 @@ module.exports = {
         700: "700px",
         800: "800px",
         400: "400px",
+        325: "325px",
         250: "250px",
         200: "200px",
       },
@@ -235,7 +238,7 @@ module.exports = {
           textColorPrimary: withOpacity("--sidebar-text-color-primary"),
           secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
           hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
-          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 8) / 1)`,
         },
 
         background: {
@@ -473,10 +476,13 @@ module.exports = {
           600: "#9E5400",
         },
         nd_yellow: {
+          50: "#FEFCE8",
           100: "#FFFBEE",
           200: "#5E4200",
           300: "#FFDF20",
+          500: "#EFB100",
           600: "#D08700",
+          700: "#A65F00",
           800: "#998335",
         },
         nd_purple: {

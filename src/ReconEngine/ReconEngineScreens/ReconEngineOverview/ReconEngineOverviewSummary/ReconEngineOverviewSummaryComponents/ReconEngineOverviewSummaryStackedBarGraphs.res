@@ -1,9 +1,9 @@
 open Typography
-open ReconEngineTypes
+open ReconEngineRulesTypes
 
 module RuleWiseStackedBarGraph = {
   @react.component
-  let make = (~rule: ReconEngineTypes.reconRuleType) => {
+  let make = (~rule: rulePayload) => {
     open CurrencyFormatUtils
     open LogicUtils
 
@@ -18,10 +18,25 @@ module RuleWiseStackedBarGraph = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+        let statusList =
+          ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+            Posted(Auto),
+            Posted(Manual),
+            Posted(Force),
+            Expected,
+            Missing,
+            PartiallyReconciled,
+            OverAmount(Mismatch),
+            OverAmount(Expected),
+            UnderAmount(Mismatch),
+            UnderAmount(Expected),
+            DataMismatch,
+          ])->Array.joinWith(",")
+
         let queryString = if baseQueryString->isNonEmptyString {
-          `${baseQueryString}&rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
+          `${baseQueryString}&rule_id=${rule.rule_id}&status=${statusList}`
         } else {
-          `rule_id=${rule.rule_id}&transaction_status=posted,mismatched,expected,partially_reconciled`
+          `rule_id=${rule.rule_id}&status=${statusList}`
         }
         let transactionsData = await getTransactions(~queryParameters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)
@@ -83,7 +98,7 @@ module RuleWiseStackedBarGraph = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<rulePayload>) => {
   <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
     {reconRulesList
     ->Array.map(rule => <RuleWiseStackedBarGraph rule key={rule.rule_id} />)

@@ -1,3 +1,6 @@
+@scope("Number") @val
+external isInteger: float => bool = "isInteger"
+
 let isEmptyString = str => str->String.length === 0
 
 let isNonEmptyString = str => str->String.length > 0
@@ -282,6 +285,14 @@ let getFloatFromJson = (json, default) => {
   | String(str) => getFloatFromString(str, default)
   | Number(floatValue) => floatValue
   | _ => default
+  }
+}
+
+let getIntStringFromJson = json => {
+  switch json->JSON.Classify.classify {
+  | Number(num) => num->Float.toInt->Int.toString->JSON.Encode.string
+  | String(str) => str->JSON.Encode.string
+  | _ => JSON.Encode.string("")
   }
 }
 
@@ -635,6 +646,8 @@ let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).for
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
+
+let isEmptyArray = arr => arr->Array.length === 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

@@ -87,7 +87,9 @@ let make = () => {
   open Typography
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {orgId, merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let (selectedOrg, setSelectedOrg) = React.useState(() => orgId)
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)

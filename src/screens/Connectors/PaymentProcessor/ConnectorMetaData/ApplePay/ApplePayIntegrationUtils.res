@@ -160,10 +160,14 @@ let applePayNameMapper = (
       `metadata.apple_pay_combined.${(integrationType->Option.getOr(
           #manual,
         ): applePayIntegrationType :> string)}.payment_request_data.label`
-    | _ =>
+    | `supported_networks` | `merchant_capabilities` =>
       `metadata.apple_pay_combined.${(integrationType->Option.getOr(
           #manual,
         ): applePayIntegrationType :> string)}.payment_request_data.${name}`
+    | _ =>
+      `metadata.apple_pay_combined.${(integrationType->Option.getOr(
+          #manual,
+        ): applePayIntegrationType :> string)}.session_token_data.${name}`
     }
   | _ =>
     switch name {
@@ -302,3 +306,9 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   body
 }
+
+let getHeadingBasedOnApplePayFlow = applePayIntegrationFlow =>
+  switch applePayIntegrationFlow {
+  | #manual => "iOS Certificate"
+  | #simplified => "Web Domain"
+  }

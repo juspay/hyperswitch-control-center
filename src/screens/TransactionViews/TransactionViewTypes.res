@@ -1,3 +1,13 @@
-type operationsTypes = Orders | Refunds | Disputes
+type operationsTypes = Orders | Refunds | Disputes | Payouts
 
-type viewTypes = All | Succeeded | Failed | Dropoffs | Cancelled | Pending | None
+type viewTypes =
+  | All
+  | Succeeded
+  | Failed
+  | Dropoffs
+  | Cancelled
+  | Pending
+  | Expired
+  | Reversed
+  | RequiresCapture
+  | None
