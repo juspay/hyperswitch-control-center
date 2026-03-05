@@ -15,7 +15,7 @@ let defaultValue = {
   setPaymentResult: _ => (),
   showSetupFutureUsage: false,
   setShowSetupFutureUsage: _ => (),
-  sendAuthType: true,
+  sendAuthType: false,
   setSendAuthType: _ => (),
   errorMessage: "",
   setErrorMessage: _ => (),
@@ -48,7 +48,7 @@ let make = (~children) => {
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
   let (clientSecretStatus, setClientSecretStatus) = React.useState(_ => IntialPreview)
   let (showSetupFutureUsage, setShowSetupFutureUsage) = React.useState(_ => false)
-  let (sendAuthType, setSendAuthType) = React.useState(_ => true)
+  let (sendAuthType, setSendAuthType) = React.useState(_ => false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let (paymentResult, setPaymentResult) = React.useState(_ => JSON.Encode.null)
