@@ -5,8 +5,8 @@ open ProductUtils
 open LogicUtils
 
 let defaultLinkSelectionCheck = (firstPart, tabLink) => {
-  let normalizedFirstPart = firstPart->LogicUtils.removeTrailingSlash
-  let normalizedTabLink = tabLink->LogicUtils.removeTrailingSlash
+  let normalizedFirstPart = firstPart->removeTrailingSlash
+  let normalizedTabLink = tabLink->removeTrailingSlash
   // Exact match or prefix match (for detail pages like /route/id)
   normalizedFirstPart === normalizedTabLink ||
     normalizedFirstPart->String.startsWith(normalizedTabLink ++ "/")
@@ -671,16 +671,8 @@ let make = (
     }
   }
 
-  let rec buildPathFromSegments = segments => {
-    switch (List.head(segments), List.tail(segments)) {
-    | (Some(segment), Some(rest)) => `/${segment}` ++ buildPathFromSegments(rest)
-    | (Some(segment), None) => `/${segment}`
-    | (_, _) => ""
-    }
-  }
-
   let firstPart = switch List.tail(path) {
-  | Some(tail) => buildPathFromSegments(tail)
+  | Some(tail) => `/${tail->List.toArray->Array.joinWith("/")}`
   | None => "/"
   }
 
