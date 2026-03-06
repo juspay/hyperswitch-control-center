@@ -32,6 +32,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(LOONIO),
   PayoutProcessor(WORLDPAY),
   PayoutProcessor(WORLDPAYXML),
+  PayoutProcessor(TRUELAYER),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -857,6 +858,10 @@ let revolv3Info = {
   description: "Revolv3 is a specialized, AI-driven payment orchestration platform designed to maximize subscription billing approval rates and reduce involuntary churn for e-commerce merchant.",
 }
 
+let truelayerInfo = {
+  description: "A leading open banking payments and financial data platform that enables secure, real-time bank-to-bank payments, identity verification and direct access to bank account data via authorised APIs.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -984,6 +989,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | LOONIO => "loonio"
   | WORLDPAY => "worldpay"
   | WORLDPAYXML => "worldpayxml"
+  | TRUELAYER => "truelayer"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1177,6 +1183,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "loonio" => PayoutProcessor(LOONIO)
     | "worldpay" => PayoutProcessor(WORLDPAY)
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
+    | "truelayer" => PayoutProcessor(TRUELAYER)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1349,6 +1356,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | LOONIO => loonioInfo
   | WORLDPAY => worldpayInfo
   | WORLDPAYXML => worldpayxmlInfo
+  | TRUELAYER => truelayerInfo
   }
 }
 
@@ -2316,6 +2324,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | LOONIO => "Loonio"
   | WORLDPAY => "Worldpay"
   | WORLDPAYXML => "Worldpay WPG"
+  | TRUELAYER => "Truelayer"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
