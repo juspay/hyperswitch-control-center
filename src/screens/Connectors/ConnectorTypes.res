@@ -151,6 +151,7 @@ type payoutProcessorTypes =
   | LOONIO
   | WORLDPAY
   | WORLDPAYXML
+  | TRUELAYER
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
