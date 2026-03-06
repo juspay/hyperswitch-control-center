@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.06.0
+
+### Features
+
+- Update 'Modified' column to enable sorting in payments table ([#4243](https://github.com/juspay/hyperswitch-control-center/pull/4243)) ([`405dc73`](https://github.com/juspay/hyperswitch-control-center/commit/405dc735bbd1bc4ee8254ac0ae71396bfe3b9164))
+
+**Full Changelog:** [`2026.03.04.0...2026.03.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.04.0...2026.03.06.0)
+
+- - -
+
 ## 2026.03.04.0
 
 ### Features
