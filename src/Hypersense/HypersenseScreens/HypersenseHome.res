@@ -1,25 +1,8 @@
 @react.component
 let make = () => {
-  open APIUtils
-  open LogicUtils
   open PageUtils
 
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
-  let onExploreClick = async () => {
-    let hypersenseTokenUrl = getURL(
-      ~entityName=V1(HYPERSENSE),
-      ~methodType=Get,
-      ~hypersenseType=#TOKEN,
-    )
-    let res = await fetchDetails(hypersenseTokenUrl)
-    let token = res->getDictFromJsonObject->getString("token", "")
-    mixpanelEvent(~eventName="cost_observability-redirect")
-    let url = `${Window.env.hypersenseUrl}?auth_token=${token}`
-    url->Window._open
-  }
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
     <object
@@ -41,7 +24,8 @@ let make = () => {
         text="Explore Cost Observability"
         onClick={_ => {
           mixpanelEvent(~eventName="cost_observability_explore")
-          onExploreClick()->ignore
+          mixpanelEvent(~eventName="cost_observability-redirect")
+          "https://eu.hyperswitch.io/cost-observability/home"->Window._open
         }}
         customTextPaddingClass="pr-0"
         rightIcon={CustomIcon(<Icon name="nd-angle-right" size=16 className="cursor-pointer" />)}
