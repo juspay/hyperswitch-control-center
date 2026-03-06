@@ -279,7 +279,8 @@ let itemToObjMapper = json => {
     if isStatusGrouped {
       [{...singleStateInitialValue, authorised_uncaptured_payments: 0}]
     } else {
-      queryData->Array.map(singleStateItemToObjMapper)
+      let arr = queryData->Array.map(singleStateItemToObjMapper)
+      arr->Array.length > 0 ? arr : [singleStateInitialValue]
     }
   }
 }
