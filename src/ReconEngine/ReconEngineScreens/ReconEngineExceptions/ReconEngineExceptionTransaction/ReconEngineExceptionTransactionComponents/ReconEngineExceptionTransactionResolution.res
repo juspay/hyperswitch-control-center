@@ -86,6 +86,7 @@ module EditEntryModalContent = {
       Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -105,7 +106,10 @@ module EditEntryModalContent = {
           )
           switch entryDetails.transformation_id {
           | Some(transformationId) => {
-              let schema = await fetchMetadataSchema(~transformationId)
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
               setMetadataSchema(_ => schema)
             }
           | None => ()
@@ -137,13 +141,14 @@ module EditEntryModalContent = {
     }, [])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
+      <div className="flex flex-col gap-4 mx-4 h-full">
         <Form onSubmit validate initialValues={initialFormValues}>
           {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
           {transformationConfigSelectInputField(
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(
@@ -160,16 +165,16 @@ module EditEntryModalContent = {
             ~metadataSchema,
             ~metadataRows,
             ~setMetadataRows,
+            ~isMetadataLoading,
           )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Save changes"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          <div className="flex justify-end my-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Save changes"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
@@ -204,6 +209,7 @@ module MarkAsReceivedModalContent = {
       Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -224,7 +230,10 @@ module MarkAsReceivedModalContent = {
 
           switch entryDetails.transformation_id {
           | Some(transformationId) => {
-              let schema = await fetchMetadataSchema(~transformationId)
+              let schema =
+                (await fetchMetadataSchema(~transformationId))
+                ->getDictFromJsonObject
+                ->metadataSchemaItemToObjMapper
               setMetadataSchema(_ => schema)
             }
           | None => ()
@@ -250,13 +259,14 @@ module MarkAsReceivedModalContent = {
     }, [])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
+      <div className="flex flex-col gap-4 mx-4 h-full">
         <Form onSubmit validate initialValues={initialFormValues}>
           {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
           {transformationConfigSelectInputField(
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(
@@ -273,16 +283,16 @@ module MarkAsReceivedModalContent = {
             ~metadataSchema,
             ~metadataRows,
             ~setMetadataRows,
+            ~isMetadataLoading,
           )}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Mark as Received"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          <div className="flex justify-end my-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Mark as Received"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
@@ -306,6 +316,7 @@ module CreateEntryModalContent = {
       Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper
     )
     let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -332,13 +343,14 @@ module CreateEntryModalContent = {
     }, [])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
+      <div className="flex flex-col gap-4 mx-4 h-full">
         <Form onSubmit validate initialValues={initialValues}>
           {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
           {transformationConfigSelectInputField(
             ~transformationsList,
             ~disabled=false,
             ~setMetadataSchema,
+            ~setIsMetadataLoading,
           )}
           {entryTypeSelectInputField()}
           {currencySelectInputField(
@@ -349,16 +361,20 @@ module CreateEntryModalContent = {
           {amountTextInputField()}
           {orderIdTextInputField()}
           {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(~metadataSchema, ~metadataRows, ~setMetadataRows)}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Create new entry"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          {metadataCustomInputField(
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+            ~isMetadataLoading,
+          )}
+          <div className="flex justify-end my-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Create new entry"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>
@@ -409,8 +425,6 @@ module LinkStagingEntryModalContent = {
     let (filteredStagingEntries, setFilteredStagingEntries) = React.useState(_ => [])
     let (selectedRows, setSelectedRows) = React.useState(_ => [])
     let (searchText, setSearchText) = React.useState(_ => "")
-    let (offset, setOffset) = React.useState(_ => 0)
-    let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
 
     let filterLogic = ReactDebounce.useDebounced(ob => {
       let (searchText, arr) = ob
@@ -531,11 +545,6 @@ module LinkStagingEntryModalContent = {
           selectedRows
           onRowSelect={_ => ()}
           sections=entriesTableSections
-          offset=0
-          setOffset={_ => ()}
-          resultsPerPage=10
-          setResultsPerPage={_ => ()}
-          totalResults=1
         />
         <PageLoaderWrapper
           screenState
@@ -556,11 +565,6 @@ module LinkStagingEntryModalContent = {
             selectedRows
             onRowSelect={handleRowSelect}
             sections=stagingEntriesTableSections
-            offset
-            setOffset
-            resultsPerPage
-            setResultsPerPage
-            totalResults={filteredStagingEntries->Array.length}
             showSearchFilter=true
             searchFilterElement={<TableSearchFilter
               data={linkableStagingEntries}
@@ -573,8 +577,7 @@ module LinkStagingEntryModalContent = {
             />}
           />
         </PageLoaderWrapper>
-        <div
-          className="absolute bottom-4 left-0 right-0 bg-white p-4 flex flex-row gap-3 items-center">
+        <div className="flex justify-end gap-3 my-4 items-center">
           <Button
             buttonType=Secondary
             buttonSize=Medium

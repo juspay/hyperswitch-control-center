@@ -1,6 +1,8 @@
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
+let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
+  open ReconEngineFilterUtils
+  open ReconEngineTypes
   open HierarchicalTransactionsTableEntity
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
@@ -24,22 +26,30 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
-      if statusFilter->Array.length === 0 {
+
+      // If posted_manual is selected, automatically add posted_force
+      let finalStatusFilter = getMergedPostedTransactionStatusFilter(statusFilter)
+      let statusList = getTransactionStatusValueFromStatusList([
+        Expected,
+        Missing,
+        OverAmount(Mismatch),
+        UnderAmount(Mismatch),
+        OverAmount(Expected),
+        UnderAmount(Expected),
+        DataMismatch,
+        PartiallyReconciled,
+        Posted(Auto),
+        Posted(Manual),
+        Posted(Force),
+        Void,
+      ])
+
+      if finalStatusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
+      } else {
         enhancedFilterValueJson->Dict.set(
           "status",
-          [
-            "expected",
-            "over_amount_mismatch",
-            "under_amount_mismatch",
-            "over_amount_expected",
-            "under_amount_expected",
-            "data_mismatch",
-            "posted_auto",
-            "posted_manual",
-            "posted_force",
-            "partially_reconciled",
-            "void",
-          ]->getJsonFromArrayOfString,
+          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
         )
       }
       let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(

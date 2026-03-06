@@ -134,6 +134,8 @@ type processorTypes =
   | PAYJUSTNOWINSTORE
   | AMAZONPAY
   | WORLDPAYMODULAR
+  | SANTANDER
+  | REVOLV3
 
 type payoutProcessorTypes =
   | ADYEN
@@ -161,6 +163,7 @@ type threeDsAuthenticatorTypes =
 type frmTypes =
   | Signifyd
   | Riskifyed
+  | CybersourceDecisionManager
 
 type pmAuthenticationProcessorTypes = PLAID
 
@@ -199,6 +202,8 @@ type paymentMethod =
   | BankTransfer
   | Crypto
   | BankDebit
+  | NetworkToken
+  | Voucher
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =
@@ -216,6 +221,9 @@ type paymentMethodTypes =
   | WeChatPay
   | DirectCarrierBilling
   | AmazonPay
+  | Pix
+  | Boleto
+  | NetworkToken
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

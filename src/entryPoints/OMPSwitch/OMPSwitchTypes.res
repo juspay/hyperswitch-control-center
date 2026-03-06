@@ -1,4 +1,4 @@
-type ompType = [#platform | #standard]
+type ompType = [#platform | #connected | #standard]
 
 // TODO: remove productType optional
 type ompListTypes = {

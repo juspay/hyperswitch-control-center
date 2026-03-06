@@ -30,7 +30,7 @@ let scaExemptionChartEntity: chartEntity<
 let authenticationSuccessEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#authentication_count, #authentication_success_count],
+    metrics: [#authentication_attempt_count, #authentication_success_count],
     groupBy: [#authentication_connector],
   },
   title: "Authentication Success Rate",
@@ -51,8 +51,8 @@ let authenticationSuccessChartEntity: chartEntity<
 let userDropOffRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#authentication_attempt_count, #authentication_success_count],
-    groupBy: [#authentication_connector],
+    metrics: [#authentication_attempt_count, #authentication_success_count, #authentication_count],
+    groupBy: [#authentication_connector, #authentication_status],
   },
   title: "User Drop-off Rate",
   description: "Breakdown of user drop-off rates by device type",
@@ -92,7 +92,7 @@ let exemptionApprovalRateChartEntity: chartEntity<
 let exemptionRequestRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#authentication_exemption_requested_count, #authentication_attempt_count],
+    metrics: [#authentication_exemption_requested_count, #authentication_count],
   },
   title: "Exemption Request Rate",
   description: "Breakdown of exemption request rates",
@@ -119,6 +119,7 @@ let authenticationSummaryEntity: moduleEntity = {
       #authentication_exemption_approved_count,
       #authentication_attempt_count,
     ],
+    groupBy: [#authentication_connector, #authentication_status],
   },
   title: "Authentication Summary",
   description: "Breakdown of ThreeDS 2.0 Journey",

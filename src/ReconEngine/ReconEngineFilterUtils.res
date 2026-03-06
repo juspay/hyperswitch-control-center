@@ -76,7 +76,6 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
   switch status {
   | Posted(Auto) => ("posted_auto", "Reconciled (Auto)", "Reconciled")
   | Posted(Manual) => ("posted_manual", "Reconciled (Manual)", "Reconciled")
-  | Posted(Force) => ("posted_force", "Reconciled (Force)", "Reconciled")
   | OverAmount(Expected) => (
       "over_amount_expected",
       "Positive Variance (Awaiting Match)",
@@ -99,9 +98,46 @@ let getTransactionStatusGroupedValueAndLabel = (status: domainTransactionStatus)
     )
   | DataMismatch => ("data_mismatch", "Data Mismatch", "Others")
   | PartiallyReconciled => ("partially_reconciled", "Partially Reconciled", "Others")
+  | Missing => ("missing", "Missing", "Others")
   | Expected => ("expected", "Expected", "Others")
   | Void => ("void", "Void", "Others")
   | _ => ("", "", "")
+  }
+}
+
+let getProcessingEntryStatusValueAndLabel = (status: processingEntryStatus): (string, string) => {
+  let value: string = (status :> string)->camelToSnake
+  let label = (status :> string)->snakeToTitle
+  (value, label)
+}
+
+let getProcessingEntryStatusValueFromStatusList = (statusList: array<processingEntryStatus>): array<
+  string,
+> => {
+  statusList->Array.map(status => {
+    let (value, _) = getProcessingEntryStatusValueAndLabel(status)
+    value
+  })
+}
+
+let getTransactionStatusValueFromStatusList = (statusList: array<domainTransactionStatus>): array<
+  string,
+> => {
+  statusList->Array.map(status => {
+    let (value, _, _) = getTransactionStatusGroupedValueAndLabel(status)
+    value
+  })
+}
+
+let getMergedPostedTransactionStatusFilter = statusFilter => {
+  if statusFilter->Array.some(v => v->getStringFromJson("") == "posted_manual") {
+    if !(statusFilter->Array.some(v => v->getStringFromJson("") == "posted_force")) {
+      [...statusFilter, "posted_force"->JSON.Encode.string]
+    } else {
+      statusFilter
+    }
+  } else {
+    statusFilter
   }
 }
 
@@ -123,8 +159,7 @@ let getStagingEntryStatusOptions = (statusList: array<processingEntryStatus>): a
   FilterSelectBox.dropdownOption,
 > => {
   statusList->Array.map(status => {
-    let value: string = (status :> string)->camelToSnake
-    let label = (status :> string)->camelCaseToTitle
+    let (value, label) = getProcessingEntryStatusValueAndLabel(status)
 
     {
       FilterSelectBox.label,

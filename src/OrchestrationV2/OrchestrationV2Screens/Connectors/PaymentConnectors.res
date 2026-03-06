@@ -4,7 +4,9 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
+  let {showFeedbackModal, setShowFeedbackModal, setShowSideBar} = React.useContext(
+    GlobalProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
@@ -41,6 +43,7 @@ let make = () => {
 
   React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
+    setShowSideBar(_ => true)
     None
   }, [connectorsList->Array.length])
 

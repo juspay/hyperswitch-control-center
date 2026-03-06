@@ -8,6 +8,12 @@ type event = {data: string}
 external parent: 't = "parent"
 
 @val @scope("window")
+external self: 't = "self"
+
+@val @scope("window")
+external top: 't = "top"
+
+@val @scope("window")
 external addEventListener: (string, listener<'ev>) => unit = "addEventListener"
 
 @val @scope("window")

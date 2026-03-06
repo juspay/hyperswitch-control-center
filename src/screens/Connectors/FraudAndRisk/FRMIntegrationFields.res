@@ -1,46 +1,4 @@
-module AdvanceSettings = {
-  @react.component
-  let make = (~isUpdateFlow, ~frmName, ~renderCountrySelector) => {
-    let (isFRMSettings, setIsFRMSettings) = React.useState(_ => isUpdateFlow)
-    let form = ReactFinalForm.useForm()
-    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-
-    let inputLabel: ReactFinalForm.fieldRenderPropsInput = {
-      name: `input`,
-      onBlur: _ => (),
-      onChange: ev => {
-        let value = ev->Identity.formReactEventToBool
-        setIsFRMSettings(_ => value)
-      },
-      onFocus: _ => (),
-      value: {isFRMSettings->JSON.Encode.bool},
-      checked: true,
-    }
-
-    React.useEffect(() => {
-      if !isUpdateFlow {
-        form.change("profile_id", profileId->JSON.Encode.string)
-      }
-      None
-    }, [profileId])
-    <>
-      <div className="flex gap-2 items-center p-2">
-        <BoolInput input={inputLabel} isDisabled={isUpdateFlow} boolCustomClass="rounded-full" />
-        <p className="font-semibold !text-black opacity-50 ">
-          {"Show advanced settings"->React.string}
-        </p>
-      </div>
-      <RenderIf condition={renderCountrySelector && isFRMSettings}>
-        <ConnectorAccountDetailsHelper.BusinessProfileRender
-          isUpdateFlow selectedConnector={frmName}
-        />
-      </RenderIf>
-    </>
-  }
-}
-
 module IntegrationFieldsForm = {
-  open FRMUtils
   @react.component
   let make = (
     ~selectedFRMName,
@@ -49,7 +7,6 @@ module IntegrationFieldsForm = {
     ~renderCountrySelector=true,
     ~pageState=PageLoaderWrapper.Success,
     ~setCurrentStep,
-    ~frmName,
     ~isUpdateFlow,
   ) => {
     let buttonText = switch pageState {
@@ -58,55 +15,19 @@ module IntegrationFieldsForm = {
     | _ => isUpdateFlow ? "Update" : "Connect and Finish"
     }
 
-    let validateRequiredFields = (
-      valuesFlattenJson,
-      ~fields: array<ConnectorTypes.connectorIntegrationField>,
-      ~errors,
-    ) => {
-      fields->Array.forEach(field => {
-        let key = field.name
-        let value =
-          valuesFlattenJson
-          ->Dict.get(key)
-          ->Option.getOr(""->JSON.Encode.string)
-          ->LogicUtils.getStringFromJson("")
-
-        if field.isRequired->Option.getOr(true) && value->String.length === 0 {
-          Dict.set(errors, key, `Please enter ${field.label->Option.getOr("")}`->JSON.Encode.string)
-        }
-      })
-    }
-
     let validateCountryCurrency = (valuesFlattenJson, ~errors) => {
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
       if profileId->String.length <= 0 {
         Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
       }
     }
-
     let selectedFRMInfo = selectedFRMName->ConnectorUtils.getConnectorInfo
-
-    let validate = values => {
-      let errors = Dict.make()
-      let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-      //checking for required fields
-      valuesFlattenJson->validateRequiredFields(
-        ~fields=selectedFRMInfo.validate->Option.getOr([]),
-        ~errors,
-      )
-
-      if renderCountrySelector {
-        valuesFlattenJson->validateCountryCurrency(~errors)
-      }
-
-      errors->JSON.Encode.object
-    }
 
     let validateMandatoryField = values => {
       let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       //checking for required fields
-      valuesFlattenJson->validateRequiredFields(
+      valuesFlattenJson->FRMUtils.validateRequiredFields(
         ~fields=selectedFRMInfo.validate->Option.getOr([]),
         ~errors,
       )
@@ -122,30 +43,7 @@ module IntegrationFieldsForm = {
       <div className="flex">
         <div className="grid grid-cols-2 flex-1 gap-5">
           <div className="flex flex-col gap-3">
-            <AdvanceSettings isUpdateFlow frmName renderCountrySelector />
-            {selectedFRMInfo.validate
-            ->Option.getOr([])
-            ->Array.mapWithIndex((field, index) => {
-              let parse =
-                field.encodeToBase64->Option.getOr(false) ? base64Parse : leadingSpaceStrParser
-              let format = field.encodeToBase64->Option.getOr(false) ? Some(base64Format) : None
-              <div key={index->Int.toString}>
-                <FormRenderer.FieldRenderer
-                  labelClass="font-semibold !text-black"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label=field.label->Option.getOr(""),
-                    ~name={field.name},
-                    ~placeholder=field.placeholder->Option.getOr(""),
-                    ~description=field.description->Option.getOr(""),
-                    ~isRequired=true,
-                    ~parse,
-                    ~format?,
-                  )}
-                />
-                <ConnectorAccountDetailsHelper.ErrorValidation fieldName={field.name} validate />
-              </div>
-            })
-            ->React.array}
+            {FRMHelper.frmIntegFormFields(~selectedFRMInfo)}
           </div>
           <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
             {if pageState === Loading {
@@ -174,23 +72,21 @@ let make = (
   ~retrivedValues=None,
   ~setInitialValues,
   ~isUpdateFlow,
+  ~updateMerchantDetails,
 ) => {
   open FRMUtils
   open FRMInfo
   open APIUtils
   open Promise
-  open CommonAuthHooks
 
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
-
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let initialValues = React.useMemo(() => {
     open LogicUtils
@@ -214,7 +110,11 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode})
+      generateInitialValuesDict(
+        ~selectedFRMName,
+        ~isLiveMode={featureFlagDetails.isLiveMode},
+        ~profileId,
+      )
     }
   }, [retrivedValues])
 
@@ -236,28 +136,6 @@ let make = (
     getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post)
   } else {
     getURL(~entityName=V1(FRAUD_RISK_MANAGEMENT), ~methodType=Post, ~id=Some(frmID))
-  }
-
-  let updateMerchantDetails = async () => {
-    let info =
-      [
-        ("data", "signifyd"->JSON.Encode.string),
-        ("type", "single"->JSON.Encode.string),
-      ]->Dict.fromArray
-    let body =
-      [
-        ("frm_routing_algorithm", info->JSON.Encode.object),
-        ("merchant_id", merchantId->JSON.Encode.string),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
-    let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
-    try {
-      let _ = await updateDetails(url, body, Post)
-    } catch {
-    | _ => ()
-    }
-    Nullable.null
   }
 
   let setFRMValues = async body => {
@@ -297,6 +175,6 @@ let make = (
   }
 
   <IntegrationFieldsForm
-    selectedFRMName initialValues onSubmit pageState isUpdateFlow setCurrentStep frmName
+    selectedFRMName initialValues onSubmit pageState isUpdateFlow setCurrentStep
   />
 }

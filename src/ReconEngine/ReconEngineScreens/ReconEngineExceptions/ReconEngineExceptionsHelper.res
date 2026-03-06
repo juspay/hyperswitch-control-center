@@ -30,6 +30,7 @@ module MetadataInput = {
     ~metadataSchema: ReconEngineTypes.metadataSchemaType,
     ~metadataRows: array<metadataRow>,
     ~setMetadataRows: (array<metadataRow> => array<metadataRow>) => unit,
+    ~isMetadataLoading: bool,
   ) => {
     let (validationErrors, setValidationErrors) = React.useState(_ => Dict.make())
 
@@ -41,6 +42,7 @@ module MetadataInput = {
           {
             id: randomString(~length=10),
             key,
+            displayKey: key,
             value: value->getStringFromJson(""),
           }
         })
@@ -50,20 +52,36 @@ module MetadataInput = {
           metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => field.required)
 
         let requiredRows = requiredFields->Array.map(field => {
+          let fieldKeyName = getFieldNameFromMetadataField(field)
           let existingValue =
             existingRows
-            ->Array.find(row => row.key == field.identifier)
+            ->Array.find(row => row.key == fieldKeyName)
             ->Option.mapOr("", row => row.value)
 
           {
             id: randomString(~length=10),
-            key: field.identifier,
+            key: fieldKeyName,
+            displayKey: field.identifier,
             value: existingValue,
           }
         })
 
-        let optionalRows = existingRows->Array.filter(row => {
-          !(requiredFields->Array.some(field => field.identifier == row.key))
+        let optionalFields =
+          metadataSchema.schema_data.fields.metadata_fields->Array.filter(field => !field.required)
+
+        let optionalRows = optionalFields->Array.map(field => {
+          let fieldKeyName = getFieldNameFromMetadataField(field)
+          let existingValue =
+            existingRows
+            ->Array.find(row => row.key == fieldKeyName)
+            ->Option.mapOr("", row => row.value)
+
+          {
+            id: randomString(~length=10),
+            key: fieldKeyName,
+            displayKey: field.identifier,
+            value: existingValue,
+          }
         })
 
         requiredRows->Array.concat(optionalRows)
@@ -90,11 +108,51 @@ module MetadataInput = {
       None
     }, [metadataSchema.id])
 
-    let addNewRow = () => {
+    let isSchemaField = (key: string): bool => {
+      metadataSchema.id->isNonEmptyString
+        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field => {
+            switch field.field_name {
+            | Metadata(fieldKey) => fieldKey == key
+            | _ => false
+            }
+          })
+        : false
+    }
+
+    let unusedOptionalFields = React.useMemo(() => {
+      metadataSchema.id->isNonEmptyString
+        ? {
+            let optionalFields =
+              metadataSchema.schema_data.fields.metadata_fields->Array.filter(field =>
+                !field.required
+              )
+
+            optionalFields->Array.filter(field => {
+              switch field.field_name {
+              | Metadata(key) => !(metadataRows->Array.some(row => row.key == key))
+              | _ => false
+              }
+            })
+          }
+        : []
+    }, (metadataSchema, metadataRows))
+
+    let addOptionalField = (key: string) => {
+      let field = metadataSchema.schema_data.fields.metadata_fields->Array.find(field => {
+        switch field.field_name {
+        | Metadata(fieldKey) => fieldKey == key
+        | _ => false
+        }
+      })
+      let displayKey = switch field {
+      | Some(f) => f.identifier
+      | None => key
+      }
       let newRows = metadataRows->Array.concat([
         {
           id: randomString(~length=10),
-          key: "",
+          key,
+          displayKey,
           value: "",
         },
       ])
@@ -111,13 +169,14 @@ module MetadataInput = {
     }
 
     let isRequiredField = (key: string): bool => {
-      if metadataSchema.id->isNonEmptyString {
-        metadataSchema.schema_data.fields.metadata_fields->Array.some(field =>
-          field.identifier == key && field.required
-        )
-      } else {
-        false
-      }
+      metadataSchema.id->isNonEmptyString
+        ? metadataSchema.schema_data.fields.metadata_fields->Array.some(field => {
+            switch field.field_name {
+            | Metadata(fieldKey) => fieldKey == key && field.required
+            | _ => false
+            }
+          })
+        : false
     }
 
     let updateRowKey = (id: string, newKey: string) => {
@@ -199,105 +258,125 @@ module MetadataInput = {
       }
     `
 
-    <div className="flex flex-col gap-3 mt-4">
+    <div className="flex flex-col gap-3 mb-2">
       <div className="flex flex-col gap-3 border border-nd_gray-200 rounded-xl p-4">
-        <p className={`${body.md.semibold} text-nd_gray-700 mb-4`}>
-          {"Metadata "->React.string}
-          <span className={`text-nd_gray-400 ${body.md.medium}`}>
-            {"(optional)"->React.string}
-          </span>
-        </p>
-        <style> {React.string(expandableTableScrollbarCss)} </style>
-        <div className="flex flex-col gap-3 max-h-40 overflow-y-scroll show-scrollbar pr-2">
-          {metadataRows
-          ->Array.map(row => {
-            let isRequired = isRequiredField(row.key)
-            let validationError = validationErrors->Dict.get(row.id)
-            <div
-              key={row.id}
-              className="flex flex-col gap-2 border border-nd_gray-200 rounded-xl p-3 bg-nd_gray-0">
-              <div className="flex items-center gap-3">
-                <RenderIf condition={!disabled && !isRequired}>
-                  <div className="cursor-pointer" onClick={_ => deleteRow(row.id, isRequired)}>
-                    <Icon name="nd-delete-dustbin-02" size=16 className="text-nd_red-500" />
-                  </div>
-                </RenderIf>
-                <RenderIf condition={isRequired}>
-                  <div className="cursor-not-allowed opacity-50">
-                    <Icon name="nd-delete-dustbin-02" size=16 className="text-nd_gray-400" />
-                  </div>
-                </RenderIf>
-                <div className="flex-1">
-                  {InputFields.textInput(
-                    ~inputStyle="!rounded-xl",
-                    ~isDisabled={disabled || isRequired},
-                  )(
-                    ~input=(
-                      {
-                        value: row.key->JSON.Encode.string,
-                        onChange: e => {
-                          let value = ReactEvent.Form.target(e)["value"]
-                          updateRowKey(row.id, value)
-                        },
-                        onBlur: _ => (),
-                        onFocus: _ => (),
-                        name: "",
-                        checked: false,
-                      }: ReactFinalForm.fieldRenderPropsInput
-                    ),
-                    ~placeholder="Key",
-                  )}
-                </div>
-                <div className="flex items-center text-nd_gray-400"> {"="->React.string} </div>
-                <div className="flex-1">
-                  {InputFields.textInput(
-                    ~inputStyle={
-                      validationError->Option.isSome
-                        ? "!rounded-xl !border-nd_red-500"
-                        : "!rounded-xl"
-                    },
-                    ~isDisabled=disabled,
-                  )(
-                    ~input=(
-                      {
-                        value: row.value->JSON.Encode.string,
-                        onChange: e => {
-                          let value = ReactEvent.Form.target(e)["value"]
-                          updateRowValue(row.id, value)
-                        },
-                        onBlur: _ => (),
-                        onFocus: _ => (),
-                        name: "",
-                        checked: false,
-                      }: ReactFinalForm.fieldRenderPropsInput
-                    ),
-                    ~placeholder="Value",
-                  )}
-                </div>
-              </div>
-              <RenderIf condition={validationError->Option.isSome}>
-                <div className="pl-8">
-                  <p className={`${body.sm.regular} text-nd_red-600`}>
-                    {validationError->Option.getOr("")->React.string}
-                  </p>
-                </div>
-              </RenderIf>
-            </div>
-          })
-          ->React.array}
+        <div className="flex flex-row justify-between items-center">
+          <p className={`${body.md.semibold} text-nd_gray-700 mb-4`}>
+            {"Metadata "->React.string}
+          </p>
+          <RenderIf condition={!disabled && unusedOptionalFields->Array.length > 0}>
+            <SelectBox
+              input={
+                onChange: ev => {
+                  let value = ev->Identity.formReactEventToString
+                  if value->isNonEmptyString {
+                    addOptionalField(value)
+                  }
+                },
+                value: ""->JSON.Encode.string,
+                name: "",
+                onBlur: _ => (),
+                onFocus: _ => (),
+                checked: false,
+              }
+              options={unusedOptionalFields->Array.map((field): SelectBox.dropdownOption => {
+                let fieldKeyName = getFieldNameFromMetadataField(field)
+                {
+                  value: fieldKeyName,
+                  label: field.identifier ++ " (Optional)",
+                }
+              })}
+              buttonText="Add Field"
+              isHorizontal=true
+            />
+          </RenderIf>
         </div>
-        <RenderIf condition={!disabled}>
-          <div className="flex flex-row justify-start h-full items-end mt-2">
-            <div
-              className="flex items-center gap-2 hover:text-nd_primary_blue-600 hover:scale-105 cursor-pointer"
-              onClick={_ => addNewRow()}>
-              <Icon
-                name="nd-plus" size=16 className={`text-nd_primary_blue-500 ${body.md.semibold}`}
-              />
-              <span className={`${body.md.semibold} text-nd_primary_blue-500`}>
-                {"Add Field"->React.string}
-              </span>
+        <RenderIf condition={isMetadataLoading}>
+          <div className="h-full flex flex-col justify-center items-center py-10">
+            <div className="animate-spin mb-1">
+              <Icon name="spinner" size=20 />
             </div>
+          </div>
+        </RenderIf>
+        <style> {React.string(expandableTableScrollbarCss)} </style>
+        <RenderIf condition={!isMetadataLoading}>
+          <div
+            className="flex flex-col gap-3 min-h-40 max-h-40 overflow-y-scroll show-scrollbar pr-2">
+            {metadataRows
+            ->Array.map(row => {
+              let isRequired = isRequiredField(row.key)
+              let isSchema = isSchemaField(row.key)
+              let validationError = validationErrors->Dict.get(row.id)
+              <div
+                key={row.id}
+                className="flex flex-col gap-2 border border-nd_gray-200 rounded-xl p-3 bg-nd_gray-0">
+                <div className="flex items-center gap-3">
+                  <RenderIf condition={!disabled && !isRequired}>
+                    <div className="cursor-pointer" onClick={_ => deleteRow(row.id, isRequired)}>
+                      <Icon name="nd-delete-dustbin-02" size=16 className="text-nd_red-500" />
+                    </div>
+                  </RenderIf>
+                  <RenderIf condition={isRequired}>
+                    <div className="cursor-not-allowed opacity-50">
+                      <Icon name="nd-delete-dustbin-02" size=16 className="text-nd_gray-400" />
+                    </div>
+                  </RenderIf>
+                  <div className="flex-1">
+                    {InputFields.textInput(
+                      ~inputStyle="!rounded-xl",
+                      ~isDisabled={disabled || isSchema},
+                    )(
+                      ~input=(
+                        {
+                          value: row.displayKey->JSON.Encode.string,
+                          onChange: e => {
+                            let value = ReactEvent.Form.target(e)["value"]
+                            updateRowKey(row.id, value)
+                          },
+                          onBlur: _ => (),
+                          onFocus: _ => (),
+                          name: "",
+                          checked: false,
+                        }: ReactFinalForm.fieldRenderPropsInput
+                      ),
+                      ~placeholder="Key",
+                    )}
+                  </div>
+                  <div className="flex items-center text-nd_gray-400"> {"="->React.string} </div>
+                  <div className="flex-1">
+                    {InputFields.textInput(
+                      ~inputStyle={
+                        `!rounded-xl ${validationError->Option.isSome ? "!border-nd_red-500" : ""}`
+                      },
+                      ~isDisabled=disabled,
+                    )(
+                      ~input=(
+                        {
+                          value: row.value->JSON.Encode.string,
+                          onChange: e => {
+                            let value = ReactEvent.Form.target(e)["value"]
+                            updateRowValue(row.id, value)
+                          },
+                          onBlur: _ => (),
+                          onFocus: _ => (),
+                          name: "",
+                          checked: false,
+                        }: ReactFinalForm.fieldRenderPropsInput
+                      ),
+                      ~placeholder="Value",
+                    )}
+                  </div>
+                </div>
+                <RenderIf condition={validationError->Option.isSome}>
+                  <div className="pl-8">
+                    <p className={`${body.sm.regular} text-nd_red-600`}>
+                      {validationError->Option.getOr("")->React.string}
+                    </p>
+                  </div>
+                </RenderIf>
+              </div>
+            })
+            ->React.array}
           </div>
         </RenderIf>
       </div>
@@ -311,19 +390,29 @@ module TransformationConfigSelectInput = {
     ~transformationsList: array<ReconEngineTypes.transformationConfigType>,
     ~disabled: bool,
     ~setMetadataSchema,
+    ~setIsMetadataLoading,
     ~input: ReactFinalForm.fieldRenderPropsInput,
   ) => {
     open ReconEngineHooks
+    open ReconEngineUtils
 
     let form = ReactFinalForm.useForm()
     let fetchMetadataSchema = useFetchMetadataSchema()
 
     let handleFetchMetadataSchema = async (transformationId: string) => {
       try {
-        let schema = await fetchMetadataSchema(~transformationId)
+        setIsMetadataLoading(_ => true)
+        let schema =
+          (await fetchMetadataSchema(~transformationId))
+          ->getDictFromJsonObject
+          ->metadataSchemaItemToObjMapper
         setMetadataSchema(_ => schema)
+        setIsMetadataLoading(_ => false)
       } catch {
-      | _ => setMetadataSchema(_ => Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper)
+      | _ => {
+          setMetadataSchema(_ => Dict.make()->metadataSchemaItemToObjMapper)
+          setIsMetadataLoading(_ => false)
+        }
       }
     }
 
@@ -336,7 +425,8 @@ module TransformationConfigSelectInput = {
         if transformationId->isNonEmptyString {
           handleFetchMetadataSchema(transformationId)->ignore
         } else {
-          setMetadataSchema(_ => Dict.make()->ReconEngineUtils.metadataSchemaItemToObjMapper)
+          setMetadataSchema(_ => Dict.make()->metadataSchemaItemToObjMapper)
+          setIsMetadataLoading(_ => false)
         }
       },
     }
@@ -363,6 +453,7 @@ let transformationConfigSelectInputField = (
   ~transformationsList: array<ReconEngineTypes.transformationConfigType>,
   ~disabled: bool=false,
   ~setMetadataSchema,
+  ~setIsMetadataLoading,
 ) => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
@@ -371,7 +462,9 @@ let transformationConfigSelectInputField = (
       ~name="transformation_id",
       ~placeholder="Select transformation config",
       ~customInput=(~input, ~placeholder as _) => {
-        <TransformationConfigSelectInput transformationsList disabled setMetadataSchema input />
+        <TransformationConfigSelectInput
+          transformationsList disabled setMetadataSchema input setIsMetadataLoading
+        />
       },
       ~isRequired=true,
       ~disabled,
@@ -384,6 +477,7 @@ let metadataCustomInputField = (
   ~metadataSchema: ReconEngineTypes.metadataSchemaType,
   ~metadataRows: array<ReconEngineExceptionsTypes.metadataRow>,
   ~setMetadataRows,
+  ~isMetadataLoading,
 ) => {
   <FormRenderer.FieldRenderer
     field={FormRenderer.makeFieldInfo(
@@ -391,7 +485,13 @@ let metadataCustomInputField = (
       ~name="metadata",
       ~customInput=(~input, ~placeholder) =>
         <MetadataInput
-          input placeholder disabled={disabled} metadataSchema metadataRows setMetadataRows
+          input
+          placeholder
+          disabled={disabled}
+          metadataSchema
+          metadataRows
+          setMetadataRows
+          isMetadataLoading
         />,
       ~validate=ReconEngineExceptionsUtils.validateMetadataField(~metadataRows),
     )}

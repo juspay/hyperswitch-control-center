@@ -1,12 +1,17 @@
 open FRMTypes
-let frmList: array<ConnectorTypes.connectorTypes> = [FRM(Signifyd), FRM(Riskifyed)]
+let frmList: array<ConnectorTypes.connectorTypes> = [
+  FRM(CybersourceDecisionManager),
+  FRM(Signifyd),
+  FRM(Riskifyed),
+]
 
-let flowTypeList = [PreAuth, PostAuth]
+let flowTypeList = [PreAuth]
 
 let getFRMAuthType = (connector: ConnectorTypes.connectorTypes) => {
   switch connector {
   | FRM(Signifyd) => "HeaderKey"
   | FRM(Riskifyed) => "BodyKey"
+  | FRM(CybersourceDecisionManager) => "SignatureKey"
   | _ => ""
   }
 }

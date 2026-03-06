@@ -26,6 +26,7 @@ type resolutionConfig = {
 type metadataRow = {
   id: string,
   key: string,
+  displayKey: string,
   value: string,
 }
 
