@@ -2482,3 +2482,23 @@ let stepsArr = (~connector) => {
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }
+
+let checkIfPredecryptFlowEnabledForApplePay = connector => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(NUVEI)
+  | Processors(ADYEN)
+  | Processors(CHECKOUT)
+  | Processors(WORLDPAYVANTIV) => true
+  | _ => false
+  }
+}
+
+let checkIfPredecryptFlowEnabledForGooglePay = connector => {
+  switch connector->getConnectorNameTypeFromString {
+  | Processors(NUVEI)
+  | Processors(ADYEN)
+  | Processors(CHECKOUT)
+  | Processors(WORLDPAYVANTIV) => true
+  | _ => false
+  }
+}

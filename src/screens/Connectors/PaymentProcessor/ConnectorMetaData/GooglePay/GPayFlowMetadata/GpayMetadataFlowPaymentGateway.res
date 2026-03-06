@@ -1,70 +1,44 @@
 @react.component
-let make = (
-  ~googlePayFields,
-  ~googlePayIntegrationType,
-  ~closeModal,
-  ~connector,
-  ~closeAccordionFn,
-  ~update,
-) => {
+let make = (~connector, ~googlePayFields, ~closeAccordionFn, ~update, ~closeModal) => {
   open LogicUtils
-  open GPayFlowUtils
-
-  let form = ReactFinalForm.useForm()
+  open GooglePayUtils
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-
   let initialGooglePayDict = React.useMemo(() => {
-    formState.values->getDictFromJsonObject->getDictfromDict("connector_wallets_details")
+    formState.values->getDictFromJsonObject->getDictfromDict("metadata")
   }, [])
 
-  let googlePayFieldsForPaymentGateway = googlePayFields->Array.filter(field => {
-    let typedData = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-    !(ignoreDirectFields->Array.includes(typedData.name))
-  })
-
-  let setFormData = () => {
-    if connector->isNonEmptyString {
-      let value = googlePay(
-        initialGooglePayDict->getDictfromDict("google_pay"),
-        connector,
-        ~googlePayIntegrationType,
-      )
-      form.change("connector_wallets_details.google_pay", value->Identity.genericTypeToJson)
-    }
-  }
-
+  let form = ReactFinalForm.useForm()
   React.useEffect(() => {
-    setFormData()
+    if connector->isNonEmptyString {
+      let value = googlePay(initialGooglePayDict->getDictfromDict("google_pay"), connector)
+      switch value {
+      | Standard(data) => form.change("metadata.google_pay", data->Identity.genericTypeToJson)
+      | _ => ()
+      }
+    }
     None
   }, [connector])
 
   let onSubmit = () => {
-    let connectorWalletDetails =
-      formState.values->getDictFromJsonObject->getDictfromDict("connector_wallets_details")
-
-    let metadataDetails =
-      connectorWalletDetails
-      ->getMetadataFromConnectorWalletDetailsGooglePay(connector)
-      ->Identity.genericTypeToJson
-
-    form.change("metadata.google_pay", metadataDetails)
+    let metadata =
+      formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
     closeAccordionFn()
-    let _ = update(metadataDetails)
+    let _ = update(metadata)
     Nullable.null->Promise.resolve
   }
 
   <div className="flex flex-col gap-6">
     <div>
-      {googlePayFieldsForPaymentGateway
+      {googlePayFields
       ->Array.mapWithIndex((field, index) => {
         let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
         <div key={`${googlePayField.name}-${index->Int.toString}`}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
+            field={googlePayValueInput(~googlePayField)}
           />
         </div>
       })
@@ -75,7 +49,7 @@ let make = (
         labelClass="font-semibold !text-hyperswitch_black"
         fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
         field={FormRenderer.makeFieldInfo(
-          ~name={"connector_wallets_details.google_pay.support_predecrypted_token"},
+          ~name={"metadata.google_pay.support_predecrypted_token"},
           ~label="Enable pre decrypted token",
           ~customInput=InputFields.boolInput(
             ~isDisabled=false,
@@ -100,7 +74,7 @@ let make = (
         }}
         text="Proceed"
         buttonType={Primary}
-        buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
+        buttonState={formState.values->validateGooglePay(connector)}
         customButtonStyle="w-full"
       />
     </div>
