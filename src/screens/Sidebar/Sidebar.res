@@ -1022,6 +1022,9 @@ let make = (
                           <MenuOption
                             onClick={_ => {
                               panelProps["close"]()
+                              if isMobileView {
+                                setIsSidebarExpanded(_ => false)
+                              }
                               RescriptReactRouter.replace(
                                 GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
                               )
