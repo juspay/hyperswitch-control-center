@@ -193,7 +193,7 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
-    let {orgId, merchantId} = React.useContext(
+    let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let widthClass = "w-1/3"
@@ -205,7 +205,7 @@ module DisputesSection = {
           detailsFields=DisputesEntity.columnsInPaymentPage
           getHeading=DisputesEntity.getHeading
           getCell={(disputes, disputesColsType) =>
-            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId)}
+            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId, ~profileId)}
           widthClass
         />
       </div>
@@ -352,7 +352,7 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
-    let {orgId, merchantId} = React.useContext(
+    let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let expand = -1
@@ -389,7 +389,9 @@ module Disputes = {
     }
 
     let rows = disputesData->Array.map(item => {
-      columnsInPaymentPage->Array.map(colType => getCell(item, colType, merchantId, orgId))
+      columnsInPaymentPage->Array.map(colType =>
+        getCell(item, colType, merchantId, orgId, ~profileId)
+      )
     })
 
     let getRowDetails = rowIndex => {
