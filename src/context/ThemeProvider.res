@@ -325,9 +325,10 @@ let make = (~children) => {
             ->LogicUtils.getString("theme_config_version", "")
           HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
           let url = ThemeFeatureUtils.appendVersionParam(
-            `${GlobalVars.getHostUrl}/api/user/theme/${id}`,
+            `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
             ~version=Some(themeConfigVersion),
           )
+
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
@@ -383,7 +384,7 @@ let make = (~children) => {
           let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
           applyThemeConfig(themeValues)
         }
-      | _ => applyThemeConfig(getDefaultStyle())
+      | _ => ()
       }
     } catch {
     | _ => ()

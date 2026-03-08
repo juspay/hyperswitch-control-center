@@ -518,11 +518,6 @@ module FileUploadField = {
         </div>
         <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
         <div className="flex gap-4">
-          <label
-            htmlFor=inputId
-            className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
-            <Icon name="nd-upload-file" />
-          </label>
           {switch selectedFile {
           | Some(file) =>
             <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
@@ -531,6 +526,11 @@ module FileUploadField = {
             </div>
           | None => React.null
           }}
+          <label
+            htmlFor=inputId
+            className="flex items-center justify-center gap-2 rounded-md border border-gray-300 cursor-pointer hover:border-gray-400 p-4">
+            <Icon name="nd-upload-file" />
+          </label>
         </div>
       </div>
     </div>
