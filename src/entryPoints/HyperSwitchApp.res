@@ -189,9 +189,7 @@ let make = () => {
                       headerLeftActions={
                         let logoElement = switch logoURL {
                         | Some(url) if url->LogicUtils.isNonEmptyString =>
-                          <div className="flex md:gap-4 gap-2 items-center">
-                            <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
-                          </div>
+                          <img className="h-8 w-auto object-contain" alt="image" src={`${url}`} />
                         | _ => React.null
                         }
                         <div className="flex md:gap-4 gap-2 items-center">
