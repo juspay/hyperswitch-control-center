@@ -8,9 +8,6 @@ let make = (~remainingPath) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
   let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
-  let {themeId: themeIdFromUserInfo} = React.useContext(
-    UserInfoProvider.defaultContext,
-  ).getResolvedUserInfo()
 
   let fetchThemeList = async () => {
     try {
@@ -42,7 +39,7 @@ let make = (~remainingPath) => {
       remainingPath
       renderList={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
-          <ThemeList themeIdFromUserInfo />
+          <ThemeList />
         </AccessControl>}
       renderNewForm={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
