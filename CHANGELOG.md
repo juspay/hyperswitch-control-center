@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.09.0
+
+### Features
+
+- Add Pre decrypt flow ([#4194](https://github.com/juspay/hyperswitch-control-center/pull/4194)) ([`ebce1bf`](https://github.com/juspay/hyperswitch-control-center/commit/ebce1bf4571100060f034272020dbb274cc43ff2))
+- Add Truelayer Connector in Dashboard for Payouts ([#4306](https://github.com/juspay/hyperswitch-control-center/pull/4306)) ([`f87a089`](https://github.com/juspay/hyperswitch-control-center/commit/f87a08973055ee97a585929714cf2c112b2e9e75))
+
+### Bug Fixes
+
+- Update test creds link ([#4312](https://github.com/juspay/hyperswitch-control-center/pull/4312)) ([`91a4322`](https://github.com/juspay/hyperswitch-control-center/commit/91a43225c0f9eea4d9da71cd1397a111ea7e10cf))
+- Okta and auth bug fixes ([#4002](https://github.com/juspay/hyperswitch-control-center/pull/4002)) ([`2975151`](https://github.com/juspay/hyperswitch-control-center/commit/2975151e59253a5e4af3dadd736b2f810218d89c))
+- Add empty array fallback in payment analytics itemToObjMapper ([#4301](https://github.com/juspay/hyperswitch-control-center/pull/4301)) ([`1026e7d`](https://github.com/juspay/hyperswitch-control-center/commit/1026e7d52728158fa44be1aaadeb73e8fc3fd999))
+
+**Full Changelog:** [`2026.03.06.0...2026.03.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.06.0...2026.03.09.0)
+
+- - -
+
 ## 2026.03.06.0
 
 ### Features
