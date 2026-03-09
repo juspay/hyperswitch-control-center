@@ -24,6 +24,7 @@ let make = (
   ~showBottomUp=false,
   ~textClass="text-sm",
   ~closeListOnClick=false,
+  ~showTick=true,
 ) => {
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let dropdownPositionClass = switch dropdownPosition {
@@ -104,6 +105,8 @@ let make = (
                                     </span>
                                   </div>
                                 </AddDataAttributes>
+                              </div>
+                              <div className="flex flex-row items-center gap-2">
                                 {switch option.rightIcon {
                                 | FontAwesome(iconName) =>
                                   <Icon
@@ -119,14 +122,14 @@ let make = (
                                   <Icon className="align-middle" size=12 name=iconName />
                                 | _ => React.null
                                 }}
+                                <RenderIf condition={selected && showTick}>
+                                  {if isCloseIcon {
+                                    <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                  } else {
+                                    <Tick isSelected=selected />
+                                  }}
+                                </RenderIf>
                               </div>
-                              <RenderIf condition=selected>
-                                {if isCloseIcon {
-                                  <Icon name="close" size=10 className="text-red-500 mr-1" />
-                                } else {
-                                  <Tick isSelected=selected />
-                                }}
-                              </RenderIf>
                             </div>
                           }}
                         </Menu.Item>
@@ -187,6 +190,8 @@ let make = (
                                   </span>
                                 </div>
                               </AddDataAttributes>
+                            </div>
+                            <div className="flex flex-row items-center gap-2">
                               {switch option.rightIcon {
                               | FontAwesome(iconName) =>
                                 <Icon
@@ -202,12 +207,12 @@ let make = (
                                 <Icon className="align-middle" size=12 name=iconName />
                               | _ => React.null
                               }}
+                              {selected && showTick
+                                ? props["active"] && deSelectAllowed
+                                    ? <Icon name="close" size=10 className="text-red-500 mr-1" />
+                                    : <Tick isSelected=selected />
+                                : React.null}
                             </div>
-                            {selected
-                              ? props["active"] && deSelectAllowed
-                                  ? <Icon name="close" size=10 className="text-red-500 mr-1" />
-                                  : <Tick isSelected=selected />
-                              : React.null}
                           </div>}
                       </Menu.Item>
                     })

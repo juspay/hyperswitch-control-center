@@ -799,6 +799,18 @@ let useGetURL = () => {
         | #Merchant => `analytics/v1/merchant/report/payouts`
         | #Profile => `analytics/v1/profile/report/payouts`
         }
+      | SAVED_VIEWS =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) => `user/views?${queryParams}`
+          | None => "user/views"
+          }
+        | Post => "user/views/create"
+        | Put => "user/views/update"
+        | Delete => "user/views/delete"
+        | _ => ""
+        }
 
       | REFUND_REPORT =>
         switch transactionEntity {
