@@ -66,6 +66,10 @@ let getSearchresults = (result: GlobalSearchTypes.defaultResult) => {
   (results, result.searchText)
 }
 
+let getMapToCsvRow = (itemToObjMapper, itemToCSVMapping) => {
+  raw => raw->itemToObjMapper->itemToCSVMapping
+}
+
 let getDownloadConfig = section => {
   open GlobalSearchTypes
   switch section {
@@ -73,10 +77,10 @@ let getDownloadConfig = section => {
   | SessionizerPaymentIntents =>
     Some({
       csvHeaders: PaymentIntentEntity.csvHeaders,
-      mapToCsvRow: raw =>
-        raw
-        ->PaymentIntentEntity.tableItemToObjMapper
-        ->PaymentIntentEntity.itemToCSVMapping,
+      mapToCsvRow: getMapToCsvRow(
+        PaymentIntentEntity.tableItemToObjMapper,
+        PaymentIntentEntity.itemToCSVMapping,
+      ),
       fileNamePrefix: "payment_intents",
     })
 
@@ -84,37 +88,37 @@ let getDownloadConfig = section => {
   | SessionizerPaymentAttempts =>
     Some({
       csvHeaders: PaymentAttemptEntity.csvHeaders,
-      mapToCsvRow: raw =>
-        raw
-        ->PaymentAttemptEntity.tableItemToObjMapper
-        ->PaymentAttemptEntity.itemToCSVMapping,
+      mapToCsvRow: getMapToCsvRow(
+        PaymentAttemptEntity.tableItemToObjMapper,
+        PaymentAttemptEntity.itemToCSVMapping,
+      ),
       fileNamePrefix: "payment_attempts",
     })
   | Payouts =>
     Some({
       csvHeaders: PayoutTableEntity.csvHeaders,
-      mapToCsvRow: raw =>
-        raw
-        ->PayoutTableEntity.tableItemToObjMapper
-        ->PayoutTableEntity.itemToCSVMapping,
+      mapToCsvRow: getMapToCsvRow(
+        PayoutTableEntity.tableItemToObjMapper,
+        PayoutTableEntity.itemToCSVMapping,
+      ),
       fileNamePrefix: "payouts",
     })
   | Refunds | SessionizerPaymentRefunds =>
     Some({
       csvHeaders: RefundsTableEntity.csvHeaders,
-      mapToCsvRow: raw =>
-        raw
-        ->RefundsTableEntity.tableItemToObjMapper
-        ->RefundsTableEntity.itemToCSVMapping,
+      mapToCsvRow: getMapToCsvRow(
+        RefundsTableEntity.tableItemToObjMapper,
+        RefundsTableEntity.itemToCSVMapping,
+      ),
       fileNamePrefix: "refunds",
     })
   | Disputes | SessionizerPaymentDisputes =>
     Some({
       csvHeaders: DisputeTableEntity.csvHeaders,
-      mapToCsvRow: raw =>
-        raw
-        ->DisputeTableEntity.tableItemToObjMapper
-        ->DisputeTableEntity.itemToCSVMapping,
+      mapToCsvRow: getMapToCsvRow(
+        DisputeTableEntity.tableItemToObjMapper,
+        DisputeTableEntity.itemToCSVMapping,
+      ),
       fileNamePrefix: "disputes",
     })
   | PayoutAttempts | Others | Default | Local => None

@@ -78,11 +78,12 @@ module DownloadButton = {
       })
     }
 
-    <RenderIf
-      condition={switch section.section {
-      | Local | Others | Default => false
-      | _ => true
-      }}>
+    let isDownloadEnabled = switch section.section {
+    | Local | Others | Default => false
+    | _ => true
+    }
+
+    <RenderIf condition={isDownloadEnabled}>
       <Button
         text={`Download (${section.results->Array.length->Int.toString} records)`}
         buttonType={Primary}
