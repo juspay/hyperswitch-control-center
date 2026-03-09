@@ -6,6 +6,8 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
+  let {threeDsAuthenticatorProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
   let (
     filteredConnectorData: array<
       RescriptCore.Nullable.t<ConnectorTypes.connectorPayloadCommonType>,
@@ -97,7 +99,7 @@ let make = () => {
             configuredConnectors,
           )}
           connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
-            ? ConnectorUtils.threedsAuthenticatorListForLive
+            ? threeDsAuthenticatorProcessorsLiveList
             : ConnectorUtils.threedsAuthenticatorList}
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
