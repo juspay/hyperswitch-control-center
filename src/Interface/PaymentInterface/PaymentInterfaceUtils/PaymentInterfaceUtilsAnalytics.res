@@ -17,8 +17,8 @@ type analytics_row = {
   amount_capturable: float,
   amount_captured: float,
   client_secret: string,
-  created_at: float, 
-  created: float,    
+  created_at: float,
+  created: float,
   modified_at: float,
   currency: string,
   customer_id: string,
@@ -70,7 +70,7 @@ let analyticsAttemptItemToObjMapper = dict => {
 }
 
 let getAnalyticsAttempts = json => {
-  LogicUtils.getArrayDataFromJson(json, analyticsAttemptItemToObjMapper)
+  getArrayDataFromJson(json, analyticsAttemptItemToObjMapper)
 }
 
 let getAnalyticsRow = (json: JSON.t): analytics_row => {
@@ -85,7 +85,7 @@ let getAnalyticsRow = (json: JSON.t): analytics_row => {
     amount_captured: dict->getFloat("amount_captured", 0.0),
     client_secret: dict->getString("client_secret", ""),
     created_at: dict->getFloat("created_at", 0.0),
-    created: dict->getFloat("created", 0.0), 
+    created: dict->getFloat("created", 0.0),
     modified_at: dict->getFloat("modified_at", 0.0),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
@@ -98,7 +98,7 @@ let getAnalyticsRow = (json: JSON.t): analytics_row => {
     payment_method_data: dict->getOptionString("payment_method_data"),
     external_authentication_details: dict->getOptionString("external_authentication_details"),
     payment_token: dict->getString("payment_token", ""),
-    shipping: dict->getDictFromNestedDict("shipping", "address"), 
+    shipping: dict->getDictFromNestedDict("shipping", "address"),
     shipping_email: dict->getString("shipping_email", ""),
     shipping_phone: dict->getString("shipping_phone", ""),
     billing: dict->getDictFromNestedDict("billing", "address"),
@@ -125,7 +125,10 @@ let getAnalyticsRow = (json: JSON.t): analytics_row => {
     attempt_count: dict->getInt("attempt_count", 0),
     connector_label: dict->getString("connector_label", ""),
     active_attempt_id: dict->getString("active_attempt_id", ""),
-    attempts_list: dict->getArrayFromDict("attempts_list", [])->JSON.Encode.array->getAnalyticsAttempts,
+    attempts_list: dict
+    ->getArrayFromDict("attempts_list", [])
+    ->JSON.Encode.array
+    ->getAnalyticsAttempts,
   }
 }
 
@@ -134,11 +137,11 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     row.attempts_list
     ->Array.find(attempt => attempt.attempt_id == row.active_attempt_id)
     ->Option.getOr({
-       attempt_id: "",
-       connector_transaction_id: "",
-       capture_method: "",
-       error_message: "",
-       metadata: "",
+      attempt_id: "",
+      connector_transaction_id: "",
+      capture_method: "",
+      error_message: "",
+      metadata: "",
     })
 
   // Resolving Fields
@@ -147,44 +150,47 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
   let error_message = activeAttempt.error_message
 
   // Date Conversion
-  let createdVal = if row.created_at != 0.0 { row.created_at } else { row.created }
+  let createdVal = if row.created_at != 0.0 {
+    row.created_at
+  } else {
+    row.created
+  }
   let modifiedVal = row.modified_at
 
-  let safeDateConverter = (val) => {
+  let safeDateConverter = val => {
     try {
-       if (val == 0.0) {
-         "" 
-       } else {
-         let valInMs = val /. 1000000.0
-         let date = valInMs->Date.fromTime
-         date->Date.toISOString
-       }
+      if val == 0.0 {
+        ""
+      } else {
+        let valInMs = val /. 1000000.0
+        let date = valInMs->Date.fromTime
+        date->Date.toISOString
+      }
     } catch {
-    | _ => "" 
+    | _ => ""
     }
   }
 
   // Metadata Logic
   let metadataDict = {
     let metaString = row.metadata
-    let metaStringToUse = if metaString == "" {
+    let metaStringToUse = if metaString->isEmptyString {
       activeAttempt.metadata
     } else {
       metaString
     }
 
-    if metaStringToUse != "" {
-      try {
-        let json = metaStringToUse->JSON.parseExn
-        json->getDictFromJsonObject
-      } catch {
-      | _ => 
-        Js.log("Failed to parse metadata JSON")
+    metaStringToUse
+    ->safeParseOpt
+    ->Option.mapOr(
+      {
+        if metaStringToUse->isNonEmptyString {
+          Js.log("Failed to parse metadata JSON")
+        }
         Dict.make()
-      }
-    } else {
-      Dict.make()
-    }
+      },
+      getDictFromJsonObject,
+    )
   }
 
   {
@@ -219,7 +225,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     shippingEmail: row.shipping_email,
     shippingPhone: row.shipping_phone,
     billing: row.billing->JSON.Encode.object->JSON.stringify,
-    billingEmail: row.email, 
+    billingEmail: row.email,
     billingPhone: row.phone,
     payment_method_billing_address: "",
     payment_method_billing_phone: "",
@@ -228,7 +234,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     payment_method_billing_last_name: "",
     metadata: metadataDict,
     email: row.email,
-    name: "", 
+    name: "",
     phone: row.phone,
     return_url: row.return_url,
     authentication_type: row.authentication_type,
@@ -261,7 +267,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
     frm_merchant_decision: row.merchant_decision,
     profile_id: row.profile_id,
     disputes: [],
-    attempts: [], 
+    attempts: [],
     merchant_order_reference_id: row.merchant_order_reference_id,
     attempt_count: row.attempt_count,
     connector_label: row.connector_label,
@@ -274,7 +280,7 @@ let mapAnalyticsRowToCommonType = (row: analytics_row): PaymentInterfaceTypes.or
 }
 
 let mapAnalyticsHitToOrder = (hit: JSON.t): PaymentInterfaceTypes.order => {
-    hit
-    ->getAnalyticsRow
-    ->mapAnalyticsRowToCommonType
+  hit
+  ->getAnalyticsRow
+  ->mapAnalyticsRowToCommonType
 }
