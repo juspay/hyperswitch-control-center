@@ -8,7 +8,9 @@ module ClearFilters = {
   ) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let textStyle = "text-red-900"
-    let leftIcon: Button.iconType = CustomIcon(<Icon name="trash-outline" size=24 />)
+    let leftIcon: Button.iconType = CustomIcon(
+      <Icon name="trash-outline" size=24 className="text-red-900" />,
+    )
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
@@ -111,6 +113,7 @@ let make = (
   ~defaultFilterKeys=[],
   ~customRightView=React.null,
   ~customLeftView=React.null,
+  ~customFilterActions=React.null,
   ~updateUrlWith=?,
   ~clearFilters=?,
   ~showClearFilter=true,
@@ -205,7 +208,7 @@ let make = (
     | None => ()
     }
     None
-  }, (searchParams, filterKeys))
+  }, (searchParams, filterKeys, remoteFilters, remoteOptions))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
@@ -331,6 +334,7 @@ let make = (
         <div className="flex lg:flex-row flex-col justify-between items-center gap-4 mb-2">
           <div className="flex gap-2 flex-wrap items-center">
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
+            {customFilterActions}
             <RenderIf condition={isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             </RenderIf>
