@@ -11,6 +11,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   open HSwitchRemoteFilter
   open LogicUtils
   open OrderUIUtils
+  open APIUtilsTypes
 
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
@@ -24,6 +25,11 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let defaultDate = getDateFilteredObject(~range=30)
   let {filterValueJson} = FilterContext.filterContext->React.useContext
+
+  let report_type = switch entityName {
+  | V2(REVENUE_RECOVERY_REPORT) => Some("revenue_recovery")
+  | _ => None
+  }
 
   let downloadReport = async body => {
     try {
@@ -40,7 +46,11 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let onSubmit = (values, _) => {
     let metadata = values->Identity.genericTypeToJson
     mixpanelEvent(~eventName="generate_reports_download", ~metadata)
-    downloadReport(values->Identity.genericTypeToJson)
+    let bodyDict = metadata->getDictFromJsonObject
+    report_type->Option.mapOr((), value =>
+      bodyDict->Dict.set("reportType", value->JSON.Encode.string)
+    )
+    downloadReport(bodyDict->JSON.Encode.object)
   }
 
   let initialValues = {
