@@ -133,7 +133,11 @@ module VaultedPaymentMethodsTable = {
     let (tableData, setTableData) = React.useState(_ => [])
     let (showModal, setShowModal) = React.useState(_ => false)
     let (paymentId, setPaymentId) = React.useState(_ => "")
-    let customerIdFromUrl = url.path->List.toArray->Array.get(4)->Option.getOr("")
+    let customerIdFromUrl = if isOrchestrationVault {
+      url.path->List.toArray->Array.get(2)->Option.getOr("")
+    } else {
+      url.path->List.toArray->Array.get(4)->Option.getOr("")
+    }
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
     let fetchPaymentMethods = async () => {
