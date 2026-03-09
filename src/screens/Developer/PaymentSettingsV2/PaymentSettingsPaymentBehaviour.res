@@ -470,20 +470,24 @@ let make = () => {
             ~name="is_network_tokenization_enabled",
             ~label="Network Tokenization",
             ~customInput=InputFields.boolInput(
-              ~isDisabled=true,
+              ~isDisabled=!featureFlagDetails.networkTokenization,
               ~boolCustomClass="rounded-lg",
               ~toggleEnableColor="bg-nd_primary_blue-450",
             ),
           )}
         />
         <div className={`${body.md.medium} ml-1 text-nd_gray-400 pb-8`}>
-          {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
-          <a
-            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-            className="text-primary hover:cursor-pointer hover:underline"
-            target="_blank">
-            {"Slack"->React.string}
-          </a>
+          {`${"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor-Token Service Provider (TR-TSP)."}${featureFlagDetails.networkTokenization
+              ? ""
+              : " To enable this feature for your merchant account, please reach out to us on "}`->React.string}
+          <RenderIf condition={!featureFlagDetails.networkTokenization}>
+            <a
+              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+              className="text-primary hover:cursor-pointer hover:underline"
+              target="_blank">
+              {"Slack"->React.string}
+            </a>
+          </RenderIf>
         </div>
       </DesktopRow>
       <hr />
