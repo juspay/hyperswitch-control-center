@@ -47,10 +47,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     let metadata = values->Identity.genericTypeToJson
     mixpanelEvent(~eventName="generate_reports_download", ~metadata)
     let bodyDict = metadata->getDictFromJsonObject
-    switch report_type {
-    | Some(value) => bodyDict->Dict.set("report_type", value->JSON.Encode.string)
-    | None => ()
-    }
+    report_type->Option.mapOr((), value =>
+      bodyDict->Dict.set("reportType", value->JSON.Encode.string)
+    )
     downloadReport(bodyDict->JSON.Encode.object)
   }
 
