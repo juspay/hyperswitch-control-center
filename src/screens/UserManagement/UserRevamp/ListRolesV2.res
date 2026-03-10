@@ -18,10 +18,12 @@ let make = () => {
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  // Default to Merchant for all entities except Profile.
+  let initialRolesEntity = checkUserEntity([#Profile]) ? #Profile : #Merchant
   let (
     userModuleEntity: UserManagementTypes.userModuleTypes,
     setUserModuleEntity,
-  ) = React.useState(_ => #Merchant)
+  ) = React.useState(_ => initialRolesEntity)
 
   let getRolesAvailable = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
@@ -64,7 +66,7 @@ let make = () => {
   }, ~wait=200)
 
   React.useEffect(() => {
-    getRolesAvailable(#Merchant)->ignore
+    getRolesAvailable(initialRolesEntity)->ignore
     None
   }, [])
 
