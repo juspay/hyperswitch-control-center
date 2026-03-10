@@ -348,7 +348,7 @@ let make = (~children) => {
           let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
           applyThemeConfig(themeValues)
         }
-      | _ => applyThemeConfig(getDefaultStyle())
+      | _ => ()
       }
     } catch {
     | _ => ()
@@ -367,6 +367,7 @@ let make = (~children) => {
   }, (theme, setTheme, contextLogoUrl))
 
   React.useEffect(() => {
+    Js.log("addEventListener")
     Window.addEventListener("message", handleInitConfigMessage)
     Some(() => Window.removeEventListener("message", handleInitConfigMessage))
   }, [])
