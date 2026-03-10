@@ -10,23 +10,21 @@ let useFetchAnalyticsOrdersHook = () => {
   async (~payload, ~version: UserInfoTypes.version) => {
     try {
       let paymentsData = switch version {
-      | V1 => {
-          try {
-            let ordersUrl = getURL(~entityName=V1(PAYMENTS_LIST), ~methodType=Post)
+      | V1 => try {
+          let ordersUrl = getURL(~entityName=V1(PAYMENTS_LIST), ~methodType=Post)
+          let res = await updateDetails(ordersUrl, payload, Post)
+          let mappedRes = res->mapAnalyticsResponseToOrdersObject
+          mappedRes
+        } catch {
+        | Exn.Error(_e) => {
+            let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
             let res = await updateDetails(ordersUrl, payload, Post)
-            let mappedRes = res->mapAnalyticsResponseToOrdersObject
-            mappedRes
-          } catch {
-          | Exn.Error(_e) => {
-              let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
-              let res = await updateDetails(ordersUrl, payload, Post)
-              res->mapJsonToOrdersObject(paymentInterfaceV1)
-            }
-          | _ => {
-              let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
-              let res = await updateDetails(ordersUrl, payload, Post)
-              res->mapJsonToOrdersObject(paymentInterfaceV1)
-            }
+            res->mapJsonToOrdersObject(paymentInterfaceV1)
+          }
+        | _ => {
+            let ordersUrl = getURL(~entityName=V1(ORDERS), ~methodType=Post)
+            let res = await updateDetails(ordersUrl, payload, Post)
+            res->mapJsonToOrdersObject(paymentInterfaceV1)
           }
         }
       | V2 => {
