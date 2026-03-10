@@ -288,6 +288,14 @@ let getFloatFromJson = (json, default) => {
   }
 }
 
+let getIntStringFromJson = json => {
+  switch json->JSON.Classify.classify {
+  | Number(num) => num->Float.toInt->Int.toString->JSON.Encode.string
+  | String(str) => str->JSON.Encode.string
+  | _ => JSON.Encode.string("")
+  }
+}
+
 let isUint8Array: 'a => bool = %raw("(val) => val instanceof Uint8Array")
 
 let getUInt8ArrayFromJson = (json, default) => {
@@ -638,6 +646,8 @@ let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).for
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) =>
   keys->Array.forEach(key => dict->Dict.delete(key))
+
+let isEmptyArray = arr => arr->Array.length === 0
 
 let removeTrailingSlash = str => {
   if str->String.endsWith("/") {

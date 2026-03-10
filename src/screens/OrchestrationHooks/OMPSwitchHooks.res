@@ -167,7 +167,10 @@ let useProfileSwitch = () => {
     try {
       // Need to remove the Empty string check once userInfo contains the profileId
       if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
-        let url = getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
+        let url = switch version {
+        | V1 => getURL(~entityName=V1(USERS), ~userType=#SWITCH_PROFILE, ~methodType=Post)
+        | V2 => getURL(~entityName=V2(USERS), ~userType=#SWITCH_PROFILE_NEW, ~methodType=Post)
+        }
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         mixpanelEvent(~eventName=`switch_profile`, ~metadata=expectedProfileId->JSON.Encode.string)
@@ -282,17 +285,12 @@ let useOMPType = () => {
   let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.merchantDetailsValueAtom,
   )
-  let {organization_type} = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.organizationDetailsValueAtom,
-  )
+  let orgDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.organizationDetailsValueAtom)
 
-  let isCurrentMerchantPlatform = switch merchant_account_type {
-  | #platform => true
-  | _ => false
-  }
+  let isCurrentMerchantPlatform = merchant_account_type == #platform ? true : false
 
-  let isCurrentOrganizationPlatform = switch organization_type {
-  | #platform => true
+  let isCurrentOrganizationPlatform = switch orgDetails.type_ {
+  | Some(#platform) => true
   | _ => false
   }
 

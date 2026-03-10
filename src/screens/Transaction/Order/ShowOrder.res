@@ -193,7 +193,7 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
-    let {orgId, merchantId} = React.useContext(
+    let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let widthClass = "w-1/3"
@@ -205,7 +205,7 @@ module DisputesSection = {
           detailsFields=DisputesEntity.columnsInPaymentPage
           getHeading=DisputesEntity.getHeading
           getCell={(disputes, disputesColsType) =>
-            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId)}
+            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId, ~profileId)}
           widthClass
         />
       </div>
@@ -352,7 +352,7 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
-    let {orgId, merchantId} = React.useContext(
+    let {orgId, merchantId, profileId} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let expand = -1
@@ -389,7 +389,9 @@ module Disputes = {
     }
 
     let rows = disputesData->Array.map(item => {
-      columnsInPaymentPage->Array.map(colType => getCell(item, colType, merchantId, orgId))
+      columnsInPaymentPage->Array.map(colType =>
+        getCell(item, colType, merchantId, orgId, ~profileId)
+      )
     })
 
     let getRowDetails = rowIndex => {
@@ -639,6 +641,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
+        ~version,
       )
       let res = await fetchDetails(url)
       let order = switch version {
@@ -672,7 +675,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~id=Some(id),
         ~queryParameters=Some("expand_attempts=true"),
       )
-    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    | V2 =>
+      getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("expand_attempts=true"),
+      )
     }
 
     fetchOrderDetails(accountUrl)->ignore
@@ -695,7 +704,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     status !== Failed &&
     status !== Cancelled &&
     status !== Expired &&
-    status !== CancelledPostCapture
+    status !== CancelledPostCapture &&
+    status !== RequiresPaymentMethod
   }, [orderData])
 
   let refreshStatus = async () => {
@@ -931,6 +941,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       ExtendedAuthApplied,
                       ExtendedAuthLastAppliedAt,
                       RequestExtendedAuth,
+                      HyperswitchErrorDescription,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}

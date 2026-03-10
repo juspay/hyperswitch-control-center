@@ -40,6 +40,7 @@ let make = () => {
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -110,7 +111,7 @@ let make = () => {
   }
 
   let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
-  | Orchestration(V1) => true
+  | Orchestration(V1) => featureFlagDetails.globalSearch
   | _ => false
   }
 
@@ -185,19 +186,21 @@ let make = () => {
                           </RenderIf>
                         </div>
                       </div>}
-                      headerLeftActions={switch logoURL {
-                      | Some(url) if url->LogicUtils.isNonEmptyString =>
-                        <div className="flex md:gap-4 gap-2 items-center">
+                      headerLeftActions={
+                        let logoElement = switch logoURL {
+                        | Some(url) if url->LogicUtils.isNonEmptyString =>
                           <img className="h-8 w-auto object-contain" alt="image" src={url} />
-                          <ProfileSwitch />
-                          <LiveMode />
-                        </div>
-                      | _ =>
+                        | _ => React.null
+                        }
+
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <ProfileSwitch />
+                          {logoElement}
+                          <RenderIf condition={!isCurrentMerchantPlatform}>
+                            <ProfileSwitch />
+                          </RenderIf>
                           <LiveMode />
                         </div>
-                      }}
+                      }
                       midUiActions={<TestMode />}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${leftCustomClass}`}
                     />
@@ -219,6 +222,13 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
                         | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
+                        | (_, list{"users", ..._})
+                          if featureFlagDetails.devModularityV2 && featureFlagDetails.devUsers =>
+                          <AccessControl
+                            isEnabled={version == V1}
+                            authorization={userHasAccess(~groupAccess=UsersView)}>
+                            <UserManagementContainer />
+                          </AccessControl>
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"

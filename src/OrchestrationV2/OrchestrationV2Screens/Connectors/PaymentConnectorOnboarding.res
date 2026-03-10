@@ -172,6 +172,11 @@ let make = () => {
     )
   }
 
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
+
   let titleElement =
     <>
       <GatewayIcon gateway={`${connector}`->String.toUpperCase} className="w-6 h-6" />

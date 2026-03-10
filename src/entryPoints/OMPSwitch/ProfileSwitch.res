@@ -1,15 +1,24 @@
 module NewProfileCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getProfileList) => {
+  let make = (
+    ~setShowModal,
+    ~showModal,
+    ~getProfileList,
+    ~profileList: array<OMPSwitchTypes.ompListTypes>,
+  ) => {
     open APIUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let createNewProfile = async values => {
       try {
-        let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+        let url = switch version {
+        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
+        }
         let body = values
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
         let _ = await updateDetails(url, body, Post)
@@ -57,17 +66,11 @@ module NewProfileCreationModal = {
       open LogicUtils
       let errors = Dict.make()
       let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
-      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-
-      let errorMessage = if profileName->isEmptyString {
-        "Profile name cannot be empty"
-      } else if profileName->String.length > 64 {
-        "Profile name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
-        "Profile name should not contain special characters"
-      } else {
-        ""
-      }
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=profileName,
+        ~list=profileList,
+        ~entityLabel="Profile",
+      )
 
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
@@ -176,7 +179,7 @@ let make = () => {
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
-      let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true)
+      let _ = await internalSwitch(~expectedProfileId=Some(value), ~changePath=true, ~version)
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
@@ -223,11 +226,6 @@ let make = () => {
     listItem
   })
 
-  let bottomComponent = switch version {
-  | V1 => <AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />
-  | V2 => React.null
-  }
-
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -244,7 +242,7 @@ let make = () => {
       baseComponent={<ListBaseComp
         user={#Profile} heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
-      bottomComponent
+      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
       customDropdownOuterClass="!border-none "
       fullLength=true
       toggleChevronState
@@ -254,7 +252,7 @@ let make = () => {
       placeholderCss="text-fs-13"
     />
     <RenderIf condition={showModal}>
-      <NewProfileCreationModal setShowModal showModal getProfileList />
+      <NewProfileCreationModal setShowModal showModal getProfileList profileList />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingProfile}
