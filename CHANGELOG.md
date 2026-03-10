@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.10.0
+
+### Features
+
+- Add download button and data export logic for global search results sections ([#4273](https://github.com/juspay/hyperswitch-control-center/pull/4273)) ([`09930d2`](https://github.com/juspay/hyperswitch-control-center/commit/09930d25e0a3385af731ed0aec7a0dd46f88e33a))
+- Revenue recovery generate reports feature ([#4270](https://github.com/juspay/hyperswitch-control-center/pull/4270)) ([`c2d33a4`](https://github.com/juspay/hyperswitch-control-center/commit/c2d33a4a5d99525bc8b49a7d084c05926332e837))
+- Add WASM changes for Truelayer Connector in Dashboard for Payouts ([#4310](https://github.com/juspay/hyperswitch-control-center/pull/4310)) ([`907a8fe`](https://github.com/juspay/hyperswitch-control-center/commit/907a8fe2d89f415f18feb0d8e1c09acc8279ba74))
+
+### Refactors
+
+- Make sidebar route matching dynamic instead of hardcoded depth ([#3833](https://github.com/juspay/hyperswitch-control-center/pull/3833)) ([`f39de69`](https://github.com/juspay/hyperswitch-control-center/commit/f39de69c9402190e2dead86c133acd2b905ef29d))
+
+### Miscellaneous Tasks
+
+- Added functionality to add connectors to prod environment using config.toml ([#4164](https://github.com/juspay/hyperswitch-control-center/pull/4164)) ([`90d2466`](https://github.com/juspay/hyperswitch-control-center/commit/90d2466a1398dbf3217dff3fe244ef4cf17f8cfd))
+
+**Full Changelog:** [`2026.03.09.0...2026.03.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.09.0...2026.03.10.0)
+
+- - -
+
 ## 2026.03.09.0
 
 ### Features
