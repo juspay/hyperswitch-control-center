@@ -367,7 +367,6 @@ let make = (~children) => {
   }, (theme, setTheme, contextLogoUrl))
 
   React.useEffect(() => {
-    Js.log("addEventListener")
     Window.addEventListener("message", handleInitConfigMessage)
     Some(() => Window.removeEventListener("message", handleInitConfigMessage))
   }, [])
