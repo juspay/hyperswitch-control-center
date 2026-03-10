@@ -64,7 +64,7 @@ describe("Test live connectors", () => {
   });
 
   Object.values(connectorConfig).forEach((connector) => {
-    it.only(`should setup and verify ${connector.label} connector`, () => {
+    it(`should setup and verify ${connector.label} connector`, () => {
       paymentConnector.connectorSearchInput.type(connector.label);
       paymentConnector.addConnectButton.click();
 
