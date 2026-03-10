@@ -81,6 +81,14 @@ let getV2Url = (
       }
     | _ => ""
     }
+  /* REPORTS */
+  | REVENUE_RECOVERY_REPORT =>
+    switch transactionEntity {
+    | #Tenant
+    | #Organization => `/v2/analytics/org/report/payments`
+    | #Merchant => `/v2/analytics/merchant/report/payments`
+    | #Profile => `/v2/analytics/profile/report/payments`
+    }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
     | Get =>
