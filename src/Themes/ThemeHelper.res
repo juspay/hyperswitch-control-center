@@ -583,7 +583,7 @@ module ThemeUploadAssetsModal = {
           ~contentType=AuthHooks.Unknown,
         )
       } catch {
-      | _ => showToast(~message=`Failed to upload ${assetName}`, ~toastType=ToastError)
+      | _ => Exn.raiseError("Failed to upload asset.")
       }
     }
     let getThemeByThemeId = async () => {
@@ -597,7 +597,7 @@ module ThemeUploadAssetsModal = {
         let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
         res
       } catch {
-      | Exn.Error(_) => Exn.raiseError("Failed to fetch theme.json")
+      | _ => Exn.raiseError("Failed to fetch theme.json")
       }
     }
 
@@ -628,7 +628,7 @@ module ThemeUploadAssetsModal = {
         )
         let _ = await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
       } catch {
-      | Exn.Error(_) => Exn.raiseError("Failed to update theme")
+      | _ => Exn.raiseError("Failed to update theme")
       }
     }
 
