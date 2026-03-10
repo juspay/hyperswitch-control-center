@@ -272,13 +272,13 @@ let make = (~children) => {
       let logoUrlWithVersion = switch val.logoUrl {
       | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
         Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
-      | other => other
+      | _ => None
       }
 
       let faviconUrlWithVersion = switch val.faviconUrl {
       | Some(url) if url !== "/HyperswitchFavicon.png" =>
         Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
-      | other => other
+      | _ => None
       }
 
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
@@ -316,13 +316,13 @@ let make = (~children) => {
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
-        if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
+        if themesID->Option.isSome && themesID->Option.getOr("")->isNonEmptyString {
           let id = themesID->Option.getOr("")
           let versionApiResponse = await getThemeConfigVersion(~themeId=id)
           let themeConfigVersion =
             versionApiResponse
-            ->LogicUtils.getDictFromJsonObject
-            ->LogicUtils.getString("theme_config_version", "")
+            ->getDictFromJsonObject
+            ->getString("theme_config_version", "")
           HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
           let url = ThemeFeatureUtils.appendVersionParam(
             `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
@@ -338,7 +338,7 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         } // this need to be removed once all the exisitng user started consuming theme from the cdn
         // else if condition for backward compatibility
-        else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+        else if domain->Option.isSome && domain->Option.getOr("")->isNonEmptyString {
           let domainValue = domain->Option.getOr("")
           let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
           let themeResponse = await fetchApi(
