@@ -32,9 +32,9 @@ describe("connector", () => {
     );
     paymentConnector.connectAndProceedButton.click();
     paymentConnector.PMTproceedButton.click();
-    cy.get('[data-toast="Connector Created Successfully!"]', {
-      timeout: 5000,
-    }).click();
+    cy.get('[data-toast="Connector Created Successfully!"]').should(
+      "be.visible",
+    );
     paymentConnector.connectorSetupDone.click();
     cy.url().should("include", "/dashboard/connectors");
     cy.contains("stripe_test_default").should("be.visible");

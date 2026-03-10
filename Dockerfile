@@ -1,4 +1,4 @@
-FROM node:18 AS base
+FROM public.ecr.aws/docker/library/node:18 AS base
 WORKDIR /usr/src/app
 COPY . .
 ENV NODE_OPTIONS="--max-old-space-size=4096"
@@ -7,7 +7,7 @@ ARG BUILD_TYPE=prod
 
 RUN npm i
 RUN if [ "$BUILD_TYPE" = "embeddedapp" ]; then npm run build:embeddedapp; else npm run build:prod; fi
-FROM node:18-alpine
+FROM public.ecr.aws/docker/library/node:18-alpine
 
 WORKDIR /usr/src/app
 COPY --from=base /usr/src/app/dist /usr/src/app/dist
