@@ -4,7 +4,7 @@ open Typography
 module LineageCard = {
   @react.component
   let make = (~title: string, ~children: React.element) => {
-    <div className="flex flex-col gap-4 justify-center p-3 border rounded-lg bg-nd_gray-25">
+    <div className="flex flex-col gap-4 p-3 border rounded-lg bg-nd_gray-25">
       <p className={`${body.lg.semibold} text-nd_gray-800`}> {title->React.string} </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> {children} </div>
     </div>
@@ -177,18 +177,20 @@ let make = (~entry: ReconEngineTypes.entryType) => {
       closeOnOutsideClick=true
       modalHeading="Lineage"
       modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
-      modalClass="flex flex-col justify-start h-screen w-1/3 float-right overflow-hidden !bg-white"
+      modalClass="flex flex-col justify-start h-screen w-full md:w-1/3 float-right overflow-hidden !bg-white"
       childClass="relative h-full">
-      <div className="h-full p-6 flex flex-col justify-between">
-        <div className="flex flex-col max-h-750-px overflow-y-auto">
+      <div className="h-full relative p-6">
+        <div className="flex flex-col overflow-y-auto max-h-full pb-16">
           <LineageContent entry />
         </div>
-        <Button
-          customButtonStyle="!w-full"
-          buttonType=Primary
-          onClick={_ => setShowModal(_ => false)}
-          text="OK"
-        />
+        <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
+          <Button
+            customButtonStyle="!w-full"
+            buttonType=Primary
+            onClick={_ => setShowModal(_ => false)}
+            text="OK"
+          />
+        </div>
       </div>
     </Modal>
   </RenderIf>
