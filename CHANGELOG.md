@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.11.0
+
+### Bug Fixes
+
+- Label state field as State in Edit Checkout Details modal ([#4313](https://github.com/juspay/hyperswitch-control-center/pull/4313)) ([`5125f48`](https://github.com/juspay/hyperswitch-control-center/commit/5125f48b7ee62980a127865d284f27c0dcd9e702))
+
+**Full Changelog:** [`2026.03.10.0...2026.03.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.10.0...2026.03.11.0)
+
+- - -
+
 ## 2026.03.10.0
 
 ### Features
