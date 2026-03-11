@@ -95,10 +95,7 @@ let make = () => {
           <LoadedTableWithCustomColumns
             title="All Reports"
             actualData={filteredReportsData}
-            entity={ReportsTableEntity.reportsEntity(
-              `v2/recon/reports`,
-              ~authorization=Access,
-            )}
+            entity={ReportsTableEntity.reportsEntity(`v2/recon/reports`, ~authorization=Access)}
             resultsPerPage=10
             filters={<TableSearchFilter
               data={configuredReports->Array.map(Nullable.make)}
