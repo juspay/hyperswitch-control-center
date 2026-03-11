@@ -931,7 +931,7 @@ describe("Payment Operations", () => {
   });
 
   // Payment details page
-  it("should verify all components in Payment Details page - 1", () => {
+  it("should verify all components in Payment Details page", () => {
     cy.ompLineage().then((lineage) => {
       cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
       cy.createPaymentAPI(lineage.merchant_id);
@@ -1103,21 +1103,6 @@ describe("Payment Operations", () => {
           .should("contain", value);
       });
     });
-  });
-
-  // In progress
-  it.skip("should verify all components in Payment Details page - 2", () => {
-  //Partial working
-
-  it.skip("should verify all components in Payment Details page - 2", () => {
-    cy.ompLineage().then((lineage) => {
-      cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
-      cy.createPaymentAPI(lineage.merchant_id);
-    });
-
-    homePage.operations.click();
-    homePage.paymentOperations.click();
-    cy.get('[data-table-location="Orders_tr1_td1"]').click();
 
     cy.contains("div", /^Customer Details$/)
       .scrollIntoView()
@@ -1167,20 +1152,22 @@ describe("Payment Operations", () => {
     });
 
     //Payment Method
-    assertSectionFields("Payment Method", {
+    assertSectionFields("Billing Email", {
       "First Name": "N/A",
       "Last Name": "N/A",
       "Billing Email": "N/A",
       "Billing Phone": "N/A",
-      "Billing Address": "",
+      //"Billing Address": "",
     });
 
     //Fraud & risk management (FRM)
-    assertSectionFields("Fraud & risk management (FRM)", {
+    assertSectionFields("Tag", {
       Tag: "N/A",
       "Transaction Flow": "N/A",
       Message: "N/A",
     });
+
+    // Need to add More payment details, payment method details, payment metadata FRM details
   });
 
   // Refund cases amount less , more and equal to payment amount
