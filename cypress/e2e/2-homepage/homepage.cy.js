@@ -117,6 +117,9 @@ describe("Homepage", () => {
     homePage.homeV2.should("be.visible").click();
     cy.url().should("include", "/dashboard/v2/home");
 
+    homePage.users.should("be.visible").click();
+    cy.url().should("include", "/dashboard/users");
+
     cy.contains("MY MODULES").should("be.visible");
 
     cy.get('[data-testid="overview"]').should("be.visible").click();
@@ -166,6 +169,12 @@ describe("Homepage", () => {
     homePage.payoutRouting.should("be.visible").click();
     cy.url().should("include", "/dashboard/payoutrouting");
 
+    homePage.vault.should("be.visible").click();
+    homePage.valtConfiguration.should("be.visible").click();
+    cy.url().should("include", "/dashboard/vault-onboarding");
+    homePage.vaultCustomersAndTokens.should("be.visible").click();
+    cy.url().should("include", "/dashboard/vault-customers-tokens");
+
     homePage.developer.should("be.visible").click();
     homePage.paymentSettings.should("be.visible").click();
     cy.url().should("include", "/dashboard/payment-settings");
@@ -177,7 +186,7 @@ describe("Homepage", () => {
     homePage.settings.should("be.visible").click();
     homePage.configurePMT.should("be.visible").click();
     cy.url().should("include", "/dashboard/configure-pmts");
-    homePage.users.should("be.visible").click();
-    cy.url().should("include", "/dashboard/users");
+    homePage.organizationSettings.should("be.visible").click();
+    cy.url().should("include", "/dashboard/organization-settings");
   });
 });

@@ -904,28 +904,18 @@ describe("Payment Operations", () => {
           homePage.operations.click();
           homePage.paymentOperations.click();
 
-          cy.get(
-            '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
-          ).click();
+          cy.get('[data-icon="external-link-alt"]').should("be.visible");
 
-          cy.get('[class="opacity-70 py-1"]')
-            .should("have.attr", "href")
+          cy.get('[data-icon="external-link-alt"]')
+            .parent("a")
+            .should("have.attr", "target", "_blank")
+            .invoke("attr", "href")
             .then((href) => {
-              cy.get('[data-table-location="Orders_tr1_td2"]')
-                .invoke("text")
-                .then((orderValue) => {
-                  cy.ompLineage().then((lineage) => {
-                    const expectedUrlPart = `/dashboard/payments/${orderValue}/${lineage.profile_id}/${lineage.merchant_id}/${lineage.org_id}`;
-                    expect(href).to.include(expectedUrlPart);
-                  });
-                });
+              cy.ompLineage().then((lineage) => {
+                const expectedUrlPart = `/dashboard/payments/${response.body.payment_id}/${lineage.profile_id}/${lineage.merchant_id}/${lineage.org_id}`;
+                expect(href).to.include(expectedUrlPart);
+              });
             });
-
-          cy.get('[class="opacity-70 py-1"]').should(
-            "have.attr",
-            "target",
-            "_blank",
-          );
         });
       });
   });

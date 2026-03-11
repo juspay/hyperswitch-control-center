@@ -69,7 +69,11 @@ class HomePage {
 
   //V2 Home
   get homeV2() {
-    return cy.get('[class="flex flex-col gap-2 mb-2"]');
+    return cy.get('[href="/dashboard/v2/home"]');
+  }
+
+  get users() {
+    return cy.get('[href="/dashboard/users"]');
   }
 
   //Operations
@@ -164,6 +168,19 @@ class HomePage {
     return cy.get('[data-testid="payoutrouting"]');
   }
 
+  //Vault
+  get vault() {
+    return cy.get('[data-testid="vault"]');
+  }
+
+  get valtConfiguration() {
+    return cy.get('[data-testid="configuration"]');
+  }
+
+  get vaultCustomersAndTokens() {
+    return cy.get('[data-testid="customers&tokens"]');
+  }
+
   // Developer
   get developer() {
     return cy.get('[data-testid="developers"]');
@@ -190,8 +207,8 @@ class HomePage {
     return cy.get('[data-testid="configurepmts"]');
   }
 
-  get users() {
-    return cy.get('[data-testid="users"]');
+  get organizationSettings() {
+    return cy.get('[data-testid="organizationsettings"]');
   }
 
   //Profile
