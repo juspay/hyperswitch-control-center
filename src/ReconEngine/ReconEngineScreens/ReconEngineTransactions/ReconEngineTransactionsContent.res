@@ -84,23 +84,23 @@ let make = (~account: ReconEngineTypes.accountType) => {
         statusFilter,
       )
 
+      let statusList = getTransactionStatusValueFromStatusList([
+        Expected,
+        Missing,
+        OverAmount(Mismatch),
+        UnderAmount(Mismatch),
+        OverAmount(Expected),
+        UnderAmount(Expected),
+        Posted(Auto),
+        Posted(Manual),
+        Posted(Force),
+        Void,
+        PartiallyReconciled,
+        DataMismatch,
+      ])
+
       if finalStatusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set(
-          "status",
-          [
-            "expected",
-            "over_amount_mismatch",
-            "under_amount_mismatch",
-            "over_amount_expected",
-            "under_amount_expected",
-            "posted_auto",
-            "posted_manual",
-            "posted_force",
-            "void",
-            "partially_reconciled",
-            "data_mismatch",
-          ]->getJsonFromArrayOfString,
-        )
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       } else {
         enhancedFilterValueJson->Dict.set(
           "status",
@@ -128,6 +128,19 @@ let make = (~account: ReconEngineTypes.accountType) => {
       ) => {
         let exists = acc->Array.some(t => t.transaction_id == transaction.transaction_id)
         exists ? acc : acc->Array.concat([transaction])
+      })
+      uniqueTransactions->Array.sort((a, b) => {
+        let createdAtSort = compareLogic(b.created_at, a.created_at)
+        if createdAtSort !== 0. {
+          createdAtSort
+        } else {
+          let effectiveAtSort = compareLogic(b.effective_at, a.effective_at)
+          if effectiveAtSort !== 0. {
+            effectiveAtSort
+          } else {
+            compareLogic(a.transaction_id, b.transaction_id)
+          }
+        }
       })
 
       setConfiguredTransactions(_ => uniqueTransactions)

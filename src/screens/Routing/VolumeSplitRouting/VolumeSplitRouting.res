@@ -226,6 +226,7 @@ let make = (
   let getConnectorsList = () => {
     setConnectors(_ => connectorList)
   }
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
 
   let activeRoutingDetails = async () => {
     let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
@@ -247,8 +248,17 @@ let make = (
         }
 
       | None => {
+          let currentTime = getTimeInCustomTimeZone(
+            "ddd, DD MMM YYYY HH:mm:ss",
+            ~includeTimeZone=true,
+          )
+          let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
           setInitialValues(_ => {
-            let dict = VOLUME_SPLIT->RoutingUtils.constructNameDescription
+            let dict = RoutingUtils.constructNameDescription(
+              ~routingType=VOLUME_SPLIT,
+              ~currentTime,
+              ~currentDate,
+            )
             dict->Dict.set("profile_id", profile->JSON.Encode.string)
             dict->Dict.set(
               "algorithm",

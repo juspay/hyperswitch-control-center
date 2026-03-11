@@ -38,9 +38,10 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
-    | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
-    | list{"sdk"} =>
+    | list{"sdk"}
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <ConnectorContainer />
       </AccessControl>
@@ -88,7 +89,10 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
-    | list{"users", ..._} => <UserManagementContainer />
+    | list{"users", ..._} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=UsersView)}>
+        <UserManagementContainer />
+      </AccessControl>
     | list{"developer-api-keys"} =>
       <AccessControl
         // TODO: Remove `MerchantDetailsView` permission in future

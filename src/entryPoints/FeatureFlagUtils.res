@@ -56,7 +56,7 @@ type featureFlag = {
   devWebhooks: bool,
   sampleDataAnalytics: bool,
   threedsExemptionRules: bool,
-  paymentSettingsV2: bool,
+  paymentSettingsRevamped: bool,
   acquirerConfigSettings: bool,
   exploreRecipes: bool,
   devOrchestrationV2Product: bool,
@@ -71,7 +71,9 @@ type featureFlag = {
   devSidebarV2: bool,
   vaultProcessor: bool,
   devTheme: bool,
+  devUsers: bool,
   allowConnectedMerchants: bool,
+  devVault: bool,
   networkTokenization: bool,
 }
 
@@ -131,7 +133,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devWebhooks: dict->getBool("dev_webhooks", false),
     sampleDataAnalytics: dict->getBool("sample_data_analytics", false),
     acquirerConfigSettings: dict->getBool("acquirer_config_settings", false),
-    paymentSettingsV2: dict->getBool("payment_settings_v2", false),
     exploreRecipes: dict->getBool("explore_recipes", false),
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
@@ -146,7 +147,10 @@ let featureFlagType = (featureFlags: JSON.t) => {
     devSidebarV2: dict->getBool("dev_sidebar_v2", false),
     vaultProcessor: dict->getBool("vault_processor", false),
     devTheme: dict->getBool("dev_theme", false),
+    devUsers: dict->getBool("dev_users", false),
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
+    devVault: dict->getBool("dev_vault", false),
+    paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
     networkTokenization: dict->getBool("network_tokenization", false),
   }
 }

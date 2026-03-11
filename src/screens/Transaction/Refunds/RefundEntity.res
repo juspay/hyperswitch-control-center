@@ -121,6 +121,7 @@ let getCell = (refundData, colType, merchantId, orgId): Table.cell => {
         url={`/refunds/${refundData.refund_id}/${refundData.profile_id}/${merchantId}/${orgId}`}
         displayValue={refundData.refund_id}
         copyValue={Some(refundData.refund_id)}
+        endValue={idCellEndValue}
       />,
       "",
     )

@@ -22,6 +22,10 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
   client_source: dict->getString("client_source", ""),
   client_version: dict->getString("client_version", ""),
+  hyperswitch_error_description: dict
+  ->getDictfromDict("error_details")
+  ->getDictfromDict("unified_details")
+  ->getString("description", ""),
 }
 
 let getAttempts: JSON.t => array<attempts_v1> = json => {
@@ -228,6 +232,7 @@ let mapAttemptsV1ToCommonType: attempts_v1 => PaymentInterfaceTypes.attempts = a
     reference_id: attempts.reference_id,
     client_source: attempts.client_source,
     client_version: attempts.client_version,
+    hyperswitch_error_description: attempts.hyperswitch_error_description,
   }
 }
 

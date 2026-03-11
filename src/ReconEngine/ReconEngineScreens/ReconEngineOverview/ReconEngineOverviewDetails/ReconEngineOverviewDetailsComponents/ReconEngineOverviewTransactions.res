@@ -1,6 +1,8 @@
 @react.component
 let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
+  open ReconEngineFilterUtils
+  open ReconEngineTypes
   open HierarchicalTransactionsTableEntity
 
   let (configuredTransactions, setConfiguredReports) = React.useState(_ => [])
@@ -26,27 +28,24 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
 
       // If posted_manual is selected, automatically add posted_force
-      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
-        statusFilter,
-      )
+      let finalStatusFilter = getMergedPostedTransactionStatusFilter(statusFilter)
+      let statusList = getTransactionStatusValueFromStatusList([
+        Expected,
+        Missing,
+        OverAmount(Mismatch),
+        UnderAmount(Mismatch),
+        OverAmount(Expected),
+        UnderAmount(Expected),
+        DataMismatch,
+        PartiallyReconciled,
+        Posted(Auto),
+        Posted(Manual),
+        Posted(Force),
+        Void,
+      ])
 
       if finalStatusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set(
-          "status",
-          [
-            "expected",
-            "over_amount_mismatch",
-            "under_amount_mismatch",
-            "over_amount_expected",
-            "under_amount_expected",
-            "data_mismatch",
-            "posted_auto",
-            "posted_manual",
-            "posted_force",
-            "partially_reconciled",
-            "void",
-          ]->getJsonFromArrayOfString,
-        )
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       } else {
         enhancedFilterValueJson->Dict.set(
           "status",
