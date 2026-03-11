@@ -2,7 +2,6 @@
 let make = () => {
   open LogicUtils
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (selectedId, setSelectedId) = React.useState(_ =>
     Dict.make()->ReconReportUtils.getAllReportPayloadType
   )
@@ -98,7 +97,7 @@ let make = () => {
             actualData={filteredReportsData}
             entity={ReportsTableEntity.reportsEntity(
               `v2/recon/reports`,
-              ~authorization=userHasAccess(~groupAccess=UsersManage),
+              ~authorization=Access,
             )}
             resultsPerPage=10
             filters={<TableSearchFilter
