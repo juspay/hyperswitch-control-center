@@ -7,7 +7,7 @@ MAX_TRIES=5
 git clone --depth 1 $REPO hyperswitch || true
 cd hyperswitch
 
-git fetch --tags
+git fetch --tags --quiet
 
 # install docker compose once
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
