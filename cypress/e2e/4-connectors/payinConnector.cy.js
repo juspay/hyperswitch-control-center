@@ -1,7 +1,7 @@
 import * as helper from "../../support/helper";
 import HomePage from "../../support/pages/homepage/HomePage";
 import PaymentConnector from "../../support/pages/connector/PaymentConnector";
-import { connectorConfig } from "../../fixtures/connectorConfig";
+import { connectorConfig } from "../../fixtures/payinConnectorConfig";
 
 const homePage = new HomePage();
 const paymentConnector = new PaymentConnector();
@@ -66,7 +66,7 @@ describe("Test live connectors", () => {
   Object.values(connectorConfig).forEach((connector) => {
     it(`should setup and verify ${connector.label} connector`, () => {
       paymentConnector.connectorSearchInput.type(connector.label);
-      paymentConnector.addConnectButton.click();
+      paymentConnector.addConnectButton.eq(0).click();
 
       cy.assertConnectorFieldLabels(connector.fields.fieldLabels);
       cy.fillConnectorFields(connector.fields);
