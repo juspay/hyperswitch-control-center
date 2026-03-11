@@ -1,10 +1,11 @@
 @react.component
 let make = () => {
-  open FRMUtils
   open APIUtils
   open ConnectorTypes
+  open ConnectorUtils
   open LogicUtils
   open FRMInfo
+
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
@@ -13,6 +14,10 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let frmID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
+  let {profileId, merchantId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let updateDetails = useUpdateMethod()
 
   let initStep = PaymentMethods
 
@@ -22,11 +27,16 @@ let make = () => {
   }
 
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
-
+  let displayNameForConnector =
+    frmName->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(~selectedFRMName=frmName, ~isLiveMode=featureFlagDetails.isLiveMode)
+      FRMUtils.generateInitialValuesDict(
+        ~selectedFRMName=frmName,
+        ~isLiveMode=featureFlagDetails.isLiveMode,
+        ~profileId,
+      )
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
     frmName
@@ -41,6 +51,30 @@ let make = () => {
     } catch {
     | _ => setScreenState(_ => Error("Error Occurred!"))
     }
+  }
+
+  let updateMerchantDetails = async () => {
+    let frmName =
+      frmName
+      ->getConnectorNameTypeFromString(~connectorType=FRMPlayer)
+      ->getConnectorNameString
+    let info =
+      [
+        ("data", frmName->JSON.Encode.string),
+        ("type", "single"->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+    let body =
+      [
+        ("frm_routing_algorithm", info),
+        ("merchant_id", merchantId->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+    let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
+    try {
+      let _ = await updateDetails(url, body, Post)
+    } catch {
+    | _ => setScreenState(_ => Error("Failed to update merchant details"))
+    }
+    Nullable.null
   }
 
   React.useEffect(() => {
@@ -77,10 +111,10 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
       <BreadCrumbNavigation
-        path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
+        path currentPageTitle={displayNameForConnector} cursorStyle="cursor-pointer"
       />
       <RenderIf condition={currentStep !== Preview}>
-        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
+        <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr=FRMInfo.stepsArr />
       </RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
@@ -91,6 +125,7 @@ let make = () => {
             setInitialValues
             retrivedValues=Some(initialValues)
             isUpdateFlow
+            updateMerchantDetails
           />
         | PaymentMethods =>
           <FRMPaymentMethods
@@ -98,7 +133,9 @@ let make = () => {
           />
         | SummaryAndTest
         | Preview =>
-          <FRMSummary initialValues setInitialValues currentStep />
+          <FRMSummary
+            initialValues setInitialValues currentStep updateMerchantDetails isUpdateFlow
+          />
         | _ => React.null
         }}
       </div>

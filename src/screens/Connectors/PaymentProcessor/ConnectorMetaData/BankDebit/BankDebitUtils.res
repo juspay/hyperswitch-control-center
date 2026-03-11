@@ -17,17 +17,19 @@ let itemToObjMapper = dict => {
   }
 }
 
-let validateSelectedPMAuth = (values, paymentMethodType) => {
-  let existingPaymentMethodValues =
-    values
-    ->getDictFromJsonObject
-    ->getDictfromDict("pm_auth_config")
-    ->getArrayFromDict("enabled_payment_methods", [])
-    ->JSON.Encode.array
-    ->getArrayDataFromJson(itemToObjMapper)
-
-  let newPaymentMethodValues =
-    existingPaymentMethodValues->Array.filter(item => item.payment_method_type == paymentMethodType)
-
-  newPaymentMethodValues->Array.length > 0 ? Button.Normal : Button.Disabled
+let getPaymentMethodsObject = (
+  connectorName: string,
+  paymentMethod: string,
+  paymentMethodType: string,
+  getPMConnectorId,
+) => {
+  open ConnectorUtils
+  {
+    payment_method: paymentMethod,
+    payment_method_type: paymentMethodType,
+    connector_name: connectorName,
+    mca_id: getPMConnectorId(
+      connectorName->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor),
+    ),
+  }
 }

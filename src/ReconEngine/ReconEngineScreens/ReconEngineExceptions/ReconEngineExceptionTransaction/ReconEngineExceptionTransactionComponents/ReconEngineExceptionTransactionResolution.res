@@ -425,8 +425,6 @@ module LinkStagingEntryModalContent = {
     let (filteredStagingEntries, setFilteredStagingEntries) = React.useState(_ => [])
     let (selectedRows, setSelectedRows) = React.useState(_ => [])
     let (searchText, setSearchText) = React.useState(_ => "")
-    let (offset, setOffset) = React.useState(_ => 0)
-    let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
 
     let filterLogic = ReactDebounce.useDebounced(ob => {
       let (searchText, arr) = ob
@@ -547,11 +545,6 @@ module LinkStagingEntryModalContent = {
           selectedRows
           onRowSelect={_ => ()}
           sections=entriesTableSections
-          offset=0
-          setOffset={_ => ()}
-          resultsPerPage=10
-          setResultsPerPage={_ => ()}
-          totalResults=1
         />
         <PageLoaderWrapper
           screenState
@@ -572,11 +565,6 @@ module LinkStagingEntryModalContent = {
             selectedRows
             onRowSelect={handleRowSelect}
             sections=stagingEntriesTableSections
-            offset
-            setOffset
-            resultsPerPage
-            setResultsPerPage
-            totalResults={filteredStagingEntries->Array.length}
             showSearchFilter=true
             searchFilterElement={<TableSearchFilter
               data={linkableStagingEntries}

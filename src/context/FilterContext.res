@@ -1,5 +1,6 @@
 type filterUpdater = {
   query: string,
+  queryV2: string,
   filterValue: Dict.t<string>,
   updateExistingKeys: Dict.t<string> => unit,
   removeKeys: array<string> => unit,
@@ -12,6 +13,7 @@ type filterUpdater = {
 
 let filterUpdater = {
   query: "",
+  queryV2: "",
   filterValue: Dict.make(),
   updateExistingKeys: _dict => (),
   removeKeys: _arr => (),
@@ -34,6 +36,7 @@ let make = (~index: string, ~children) => {
   open LogicUtils
   open SessionStorage
   let query = React.useMemo(() => {ref("")}, [])
+  let queryV2 = React.useMemo(() => {ref("")}, [])
   let (filterKeys, setfilterKeys) = React.useState(_ => [])
   let searcParamsToDict = query.contents->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
@@ -70,6 +73,7 @@ let make = (~index: string, ~children) => {
       updatedDict
     }
     query := dict->FilterUtils.parseFilterDict
+    queryV2 := dict->FilterUtils.parseFilterDictV2
     setfilterDict(_ => dict)
     let resolve = Promise.make((resolve, _) => {
       let _ = setTimeout(() => resolve(dict), delay)
@@ -109,6 +113,7 @@ let make = (~index: string, ~children) => {
           updatedDict
         }
         query := dict->FilterUtils.parseFilterDict
+        queryV2 := dict->FilterUtils.parseFilterDictV2
         dict
       })
     }
@@ -117,6 +122,7 @@ let make = (~index: string, ~children) => {
       let dict = Dict.make()
       setfilterDict(_ => dict)
       query := dict->FilterUtils.parseFilterDict
+      queryV2 := dict->FilterUtils.parseFilterDictV2
       clearSessionStorage()
     }
 
@@ -135,12 +141,14 @@ let make = (~index: string, ~children) => {
           updatedDict
         }
         query := dict->FilterUtils.parseFilterDict
+        queryV2 := dict->FilterUtils.parseFilterDictV2
         dict
       })
       clearSessionStorage()
     }
     {
       query: query.contents,
+      queryV2: queryV2.contents,
       filterValue: filterDict,
       updateExistingKeys: updateFilter,
       removeKeys,

@@ -51,7 +51,11 @@ module DummyProcessorBanner = {
 }
 
 @react.component
-let make = (~showDummyProcessorBanner=true) => {
+let make = (
+  ~showDummyProcessorBanner=true,
+  ~showRequestConnectorBtn=true,
+  ~showDummyConnectorButton=true,
+) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
@@ -68,6 +72,8 @@ let make = (~showDummyProcessorBanner=true) => {
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {paymentProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -117,7 +123,7 @@ let make = (~showDummyProcessorBanner=true) => {
   }, ~wait=200)
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? connectorListForLive
+    ? paymentProcessorsLiveList
     : connectorList
 
   <div>
@@ -166,6 +172,8 @@ let make = (~showDummyProcessorBanner=true) => {
           connectorsAvailableForIntegration
           urlPrefix="connectors/new"
           setProcessorModal
+          showRequestConnectorBtn
+          showDummyConnectorButton
         />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal

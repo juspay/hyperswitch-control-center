@@ -1,7 +1,9 @@
-module RenderSearchResultBody = {
-  open GlobalSearchTypes
-  open LogicUtils
+open GlobalSearchTypes
+open LogicUtils
+open Typography
+open SearchResultsPageUtils
 
+module RenderSearchResultBody = {
   @react.component
   let make = (~section: resultType) => {
     let redirectOnSelect = element => {
@@ -53,21 +55,65 @@ module RenderSearchResultBody = {
   }
 }
 
+module DownloadButton = {
+  @react.component
+  let make = (~section: resultType, ~searchText) => {
+    let showToast = ToastState.useShowToast()
+
+    let downloadData = () => {
+      let toast = (~message, ~toastType) => showToast(~message, ~toastType)
+      let rawData = section.results->Array.map(item => {
+        item.texts->getValueFromArray(0, JSON.Encode.null)
+      })
+
+      getDownloadConfig(section.section)->Option.mapOr((), config => {
+        DownloadUtils.downloadTableAsCsv(
+          ~csvHeaders=config.csvHeaders,
+          ~rawData,
+          ~tableItemToObjMapper=config.mapToCsvRow,
+          ~itemToCSVMapping=x => x,
+          ~fileName=`${config.fileNamePrefix}_${searchText}.csv`,
+          ~toast,
+        )
+      })
+    }
+
+    let isDownloadEnabled = switch section.section {
+    | Local | Others | Default => false
+    | _ => true
+    }
+
+    <RenderIf condition={isDownloadEnabled}>
+      <Button
+        text={`Download (${section.results->Array.length->Int.toString} records)`}
+        buttonType={Primary}
+        leftIcon={Button.CustomIcon(
+          <Icon name="nd-download-bar-down" size=16 className="text-white" />,
+        )}
+        onClick={_ => downloadData()}
+        buttonSize={Small}
+      />
+    </RenderIf>
+  }
+}
+
 module SearchResultsComponent = {
-  open GlobalSearchTypes
   @react.component
   let make = (~searchResults, ~searchText) => {
     searchResults
     ->Array.mapWithIndex((section: resultType, i) => {
       let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
       <div className={`py-5 ${borderClass}`} key={i->Int.toString}>
-        <div className="flex justify-between">
-          <div className="text-lightgray_background font-bold  text-lg pb-2">
+        <div className="flex justify-between items-center pb-2">
+          <div className={`text-nd_gray-800 ${heading.sm.bold}`}>
             {section.section->getSectionHeader->React.string}
           </div>
-          <GlobalSearchBarHelper.ShowMoreLink
-            section textStyleClass="text-sm pt-2 font-medium text-blue-900" searchText
-          />
+          <div className="flex items-center gap-4">
+            <GlobalSearchBarHelper.ShowMoreLink
+              section textStyleClass={`${body.md.medium} text-blue-900`} searchText
+            />
+            <DownloadButton section searchText />
+          </div>
         </div>
         <RenderSearchResultBody section />
       </div>
@@ -78,9 +124,6 @@ module SearchResultsComponent = {
 
 @react.component
 let make = () => {
-  open LogicUtils
-  open SearchResultsPageUtils
-  open GlobalSearchTypes
   open GlobalSearchBarUtils
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useUpdateMethod()

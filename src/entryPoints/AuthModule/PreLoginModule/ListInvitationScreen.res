@@ -4,6 +4,7 @@ let make = () => {
   open LogicUtils
   open PreLoginTypes
   open HSwitchUtils
+  open CommonAuthTypes
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -14,6 +15,10 @@ let make = () => {
   let (acceptedInvites, setAcceptedInvites) = React.useState(_ => [])
   let (pendindInvites, setPendingInvites) = React.useState(_ => [])
   let handleLogout = useHandleLogout()
+  let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
+  | Some(url) => (IconWithURL, Some(url))
+  | _ => (IconWithText, None)
+  }
 
   let getListOfMerchantIds = async () => {
     try {
@@ -71,7 +76,7 @@ let make = () => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <img alt="logo-with-text" src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
+          <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUrl />
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>

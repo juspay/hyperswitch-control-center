@@ -200,7 +200,11 @@ module RenderListItemInBaseRadio: {
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
   array<dropdownOptionWithoutOptional>,
 >
-let getSortedKeys: (RescriptCore.Dict.t<'a>, ~reverseSort: bool=?) => array<string>
+let getSortedKeys: (
+  RescriptCore.Dict.t<'a>,
+  ~reverseSort: bool=?,
+  ~customSortOrder: array<string>=?,
+) => array<string>
 module BaseRadio: {
   @react.component
   let make: (
@@ -247,6 +251,7 @@ module BaseRadio: {
     ~customSelectionIcon: Button.iconType=?,
     ~placeholderCss: string=?,
     ~reverseSortGroupKeys: bool=?,
+    ~customSortOrder: array<string>=?,
   ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -335,6 +340,7 @@ module BaseDropdown: {
     ~placeholderCss: string=?,
     ~reverseSortGroupKeys: bool=?,
     ~maxButtonWidth: string=?,
+    ~customSortOrder: array<string>=?,
   ) => React.element
 }
 module InfraSelectBox: {
