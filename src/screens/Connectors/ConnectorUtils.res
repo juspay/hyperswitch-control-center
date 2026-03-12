@@ -862,6 +862,10 @@ let truelayerInfo = {
   description: "A leading open banking payments and financial data platform that enables secure, real-time bank-to-bank payments, identity verification and direct access to bank account data via authorised APIs.",
 }
 
+let testDummyInfo = {
+  description: "Dummy description",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -972,6 +976,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYMODULAR => "worldpaymodular"
   | SANTANDER => "santander"
   | REVOLV3 => "revolv3"
+  | TESTDUMMY => "TestDummy"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1338,6 +1343,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYMODULAR => worldpayModularInfo
   | SANTANDER => santanderInfo
   | REVOLV3 => revolv3Info
+  | TESTDUMMY => testDummyInfo
   }
 }
 
@@ -2307,6 +2313,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYMODULAR => "Worldpay Modular"
   | SANTANDER => "Santander"
   | REVOLV3 => "Revolv3"
+  | TESTDUMMY => "TestDummy"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

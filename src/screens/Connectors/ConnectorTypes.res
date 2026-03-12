@@ -136,6 +136,7 @@ type processorTypes =
   | WORLDPAYMODULAR
   | SANTANDER
   | REVOLV3
+  | TESTDUMMY
 
 type payoutProcessorTypes =
   | ADYEN
