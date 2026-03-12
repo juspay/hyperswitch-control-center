@@ -348,7 +348,7 @@ let make = (~children) => {
           let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
           applyThemeConfig(themeValues)
         }
-      | _ => applyThemeConfig(getDefaultStyle())
+      | _ => ()
       }
     } catch {
     | _ => ()

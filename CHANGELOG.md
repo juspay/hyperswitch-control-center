@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.12.0
+
+### Bug Fixes
+
+- Themes fix for control center ([#4340](https://github.com/juspay/hyperswitch-control-center/pull/4340)) ([`8c106f6`](https://github.com/juspay/hyperswitch-control-center/commit/8c106f66063b3c3e123f17432690e8125d36f345))
+- Generate reports url bug fix ([#4344](https://github.com/juspay/hyperswitch-control-center/pull/4344)) ([`0ccd8fe`](https://github.com/juspay/hyperswitch-control-center/commit/0ccd8feaf8c82defdb89241c52c04bb2877f8b32))
+- Deny vault-customers-tokens access for profile entity ([#4354](https://github.com/juspay/hyperswitch-control-center/pull/4354)) ([`e652226`](https://github.com/juspay/hyperswitch-control-center/commit/e6522260d6fc07985cd49781f3f2e4bbb84e5fa5))
+
+### Miscellaneous Tasks
+
+- Added agents to help with ai ([#4346](https://github.com/juspay/hyperswitch-control-center/pull/4346)) ([`85615c3`](https://github.com/juspay/hyperswitch-control-center/commit/85615c32e35f21b4cd6a6c69d633d968c4317b35))
+
+**Full Changelog:** [`2026.03.11.0...2026.03.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.11.0...2026.03.12.0)
+
+- - -
+
 ## 2026.03.11.0
 
 ### Bug Fixes
