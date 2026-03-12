@@ -303,7 +303,25 @@ module ChooseColumns = {
       }
     }
 
-    let colTypeArray = retrieveColumnValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
+    let colTypeArrayWithNewDefaults = {
+      // current stored columns in local storage for this table
+      let colTypeArray =
+        retrieveColumnValueFromLocalStorage(title)->Belt.Array.keepMap(getHeadingCol)
+
+      // new default columns which are not in stored columns
+      let newDefaultColumns =
+        defaultColumns->Array.filter(col => !(colTypeArray->Array.includes(col)))
+
+      if newDefaultColumns->Array.length > 0 && colTypeArray->Array.length > 0 {
+        let updatedColumns = Array.concat(colTypeArray, newDefaultColumns)
+
+        let updatedColumnTitles = updatedColumns->Array.map(col => getHeading(col).title)
+        setColumnValueInLocalStorage(updatedColumnTitles, title)
+        updatedColumns
+      } else {
+        colTypeArray
+      }
+    }
 
     let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
@@ -311,8 +329,8 @@ module ChooseColumns = {
     }, [setVisibleColumns])
 
     React.useEffect(() => {
-      if !{colTypeArray->Array.length === 0} {
-        setColumns(_ => colTypeArray)
+      if colTypeArrayWithNewDefaults->Array.length !== 0 {
+        setColumns(_ => colTypeArrayWithNewDefaults)
       }
       None
     }, [])

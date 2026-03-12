@@ -99,12 +99,9 @@ let make = () => {
   let hashKeyVal = businessProfileRecoilVal.payment_response_hash_key->Option.getOr("NA")
   let truncatedHashKey = `${hashKeyVal->String.slice(~start=0, ~end=20)}....`
 
-  <div className="flex flex-col gap-8">
+  <div className="flex flex-col gap-4">
     <div className="flex flex-col gap-2">
-      <PageUtils.PageHeading
-        title="Payment settings"
-        subTitle="Set up and monitor transaction webhooks for real-time notifications."
-      />
+      <PageUtils.PageHeading title="Payment settings" />
     </div>
     <div className={`flex flex-col`}>
       <div className="flex">

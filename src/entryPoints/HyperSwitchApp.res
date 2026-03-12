@@ -111,7 +111,7 @@ let make = () => {
   }
 
   let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
-  | Orchestration(V1) => true
+  | Orchestration(V1) => featureFlagDetails.globalSearch
   | _ => false
   }
 
@@ -222,6 +222,13 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
                         | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
+                        | (_, list{"users", ..._})
+                          if featureFlagDetails.devModularityV2 && featureFlagDetails.devUsers =>
+                          <AccessControl
+                            isEnabled={version == V1}
+                            authorization={userHasAccess(~groupAccess=UsersView)}>
+                            <UserManagementContainer />
+                          </AccessControl>
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"

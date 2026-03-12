@@ -81,6 +81,14 @@ let getV2Url = (
       }
     | _ => ""
     }
+  /* REPORTS */
+  | REVENUE_RECOVERY_REPORT =>
+    switch transactionEntity {
+    | #Tenant
+    | #Organization => `v2/analytics/org/report/payments`
+    | #Merchant => `v2/analytics/merchant/report/payments`
+    | #Profile => `v2/analytics/profile/report/payments`
+    }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
     | Get =>
@@ -122,7 +130,7 @@ let getV2Url = (
   | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
