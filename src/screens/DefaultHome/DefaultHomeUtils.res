@@ -29,9 +29,6 @@ module DefaultHomeCard = {
   @react.component
   let make = (~product, ~heading, ~description, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {activeProduct, onProductSelectClick} = React.useContext(
-      ProductSelectionProvider.defaultContext,
-    )
     let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     <div
@@ -52,12 +49,9 @@ module DefaultHomeCard = {
         customButtonStyle="w-full"
         onClick={_ => {
           switch action {
-          | InternalRoute =>
-            if product === activeProduct {
+          | InternalRoute => {
               let productUrl = ProductUtils.getProductUrl(~productType=product, ~isLiveMode)
               RescriptReactRouter.replace(productUrl)
-            } else {
-              onProductSelectClick(heading)
             }
           | ExternalLink({url, trackingEvent}) => {
               mixpanelEvent(~eventName=trackingEvent)
