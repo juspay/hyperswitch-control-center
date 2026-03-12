@@ -130,6 +130,10 @@ class HomePage {
     return cy.get('[data-testid="taxprocessor"]');
   }
 
+  get billingConnectors() {
+    return cy.get('[data-testid="billingprocessor"]');
+  }
+
   get vaultConnectors() {
     return cy.get('[data-testid="vaultprocessor"]');
   }
@@ -166,6 +170,10 @@ class HomePage {
 
   get payoutRouting() {
     return cy.get('[data-testid="payoutrouting"]');
+  }
+
+  get threeDSExemptionManager() {
+    return cy.get('[data-testid="3dsexemptionmanager"]');
   }
 
   //Vault

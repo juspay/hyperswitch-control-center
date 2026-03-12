@@ -150,6 +150,8 @@ describe("Homepage", () => {
     cy.url().should("include", "/dashboard/pm-authentication-processor");
     homePage.taxConnectors.should("be.visible").click();
     cy.url().should("include", "/dashboard/tax-processor");
+    homePage.billingConnectors.should("be.visible").click();
+    cy.url().should("include", "/dashboard/billing-processor");
     homePage.vaultConnectors.should("be.visible").click();
     cy.url().should("include", "/dashboard/vault-processor");
 
@@ -168,6 +170,8 @@ describe("Homepage", () => {
     cy.url().should("include", "/dashboard/3ds");
     homePage.payoutRouting.should("be.visible").click();
     cy.url().should("include", "/dashboard/payoutrouting");
+    homePage.threeDSExemptionManager.should("be.visible").click();
+    cy.url().should("include", "/dashboard/3ds-exemption");
 
     homePage.vault.should("be.visible").click();
     homePage.valtConfiguration.should("be.visible").click();
