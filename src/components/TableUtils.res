@@ -453,15 +453,16 @@ module LinkCell = {
 }
 
 module DateCell = {
+  open LogicUtils
   let getMillisecondsPart = timestamp => {
     let timestampParts = timestamp->String.replace("Z", "")->String.split("T")
-    let timePart = timestampParts[1]->Option.getOr("")
+    let timePart = timestampParts->getValueFromArray(1, "")
     let timeComponents = timePart->String.split(":")
-    let secondPart = timeComponents[2]->Option.getOr("")
+    let secondPart = timeComponents->getValueFromArray(2, "")
     let secondComponents = secondPart->String.split(".")
     let milliseconds =
-      secondComponents[1]
-      ->Option.getOr("000")
+      secondComponents
+      ->getValueFromArray(1, "000")
       ->String.replaceRegExp(%re("/\\D.*$/"), "")
 
     if milliseconds->String.length == 1 {
