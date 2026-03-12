@@ -140,6 +140,10 @@ module ControlCenter = {
     | V2 => "/v2/orchestration/connectors"
     }
 
+    let connectorCount = isLiveMode
+      ? ConnectorUtils.connectorListForLive->Array.length
+      : ConnectorUtils.connectorList->Array.length
+
     let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
       <CardLayout width="" customStyle="flex-1 rounded-xl p-6 gap-4">
@@ -147,7 +151,7 @@ module ControlCenter = {
           <img alt="sdk" src="/assets/IntegrateProcessorsOver.png" />
           <CardHeader
             heading="Integrate a Processor"
-            subHeading="Give a headstart by connecting with more than 20+ gateways, payment methods, and networks."
+            subHeading={`Give a headstart by connecting with more than ${connectorCount->Int.toString}+ gateways, payment methods, and networks.`}
           />
         </div>
         <Button
