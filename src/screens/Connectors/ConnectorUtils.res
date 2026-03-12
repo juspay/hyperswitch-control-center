@@ -2217,7 +2217,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ELAVON => "Elavon"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
-  | FISERV => "Fiserv Commerce Hub"
+  | FISERV => "Fiserv"
   | SHIFT4 => "Shift4"
   | RAPYD => "Rapyd"
   | PAYU => "PayU"
