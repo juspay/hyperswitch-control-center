@@ -7,13 +7,17 @@ module SwitchMerchantBody = {
     ~setActiveProductValue,
   ) => {
     open Typography
+    open GlobalVars
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastState.useShowToast()
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
 
     let switchMerch = async () => {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~isLiveMode)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -43,8 +47,10 @@ module SelectMerchantBody = {
   ) => {
     open Typography
     open LogicUtils
+    open GlobalVars
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastState.useShowToast()
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
 
@@ -98,6 +104,8 @@ module SelectMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~isLiveMode)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -168,11 +176,13 @@ module CreateNewMerchantBody = {
     open APIUtils
     open LogicUtils
     open Typography
+    open GlobalVars
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
@@ -191,6 +201,8 @@ module CreateNewMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct, ~isLiveMode)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
