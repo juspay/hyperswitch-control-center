@@ -126,6 +126,7 @@ let mapPaymentMethodTypeValues = (
   payment_method_types_index: pmtIndex,
   merchant_connector_id: connectorPayload.id,
   connector_name: connectorPayload.connector_name,
+  connector_label: connectorPayload.connector_label,
   profile_id: connectorPayload.profile_id,
   payment_method: paymentMethod,
   payment_method_type: paymentMethodType.payment_method_subtype,

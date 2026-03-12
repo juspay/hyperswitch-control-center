@@ -1,6 +1,8 @@
 open PaymentMethodConfigTypes
 type colType =
   | Processor
+  | ConnectorLabel
+  | MCAID
   | PaymentMethodType
   | PaymentMethod
   | CardNetwork
@@ -9,6 +11,8 @@ type colType =
 
 let defaultColumns = [
   Processor,
+  ConnectorLabel,
+  MCAID,
   PaymentMethodType,
   PaymentMethod,
   CountriesAllowed,
@@ -19,6 +23,8 @@ let defaultColumns = [
 let getHeading = colType => {
   switch colType {
   | Processor => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
+  | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
+  | MCAID => Table.makeHeaderInfo(~key="merchant_connector_id", ~title="MCA ID")
   | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method")
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type")
@@ -40,6 +46,20 @@ let getCell = (~setReferesh) => {
       Table.CustomCell(
         <PaymentMethodConfig
           paymentMethodConfig config={paymentMethodConfig.connector_name} setReferesh
+        />,
+        "",
+      )
+    | ConnectorLabel =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig config={paymentMethodConfig.connector_label} setReferesh
+        />,
+        "",
+      )
+    | MCAID =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig config={paymentMethodConfig.merchant_connector_id} setReferesh
         />,
         "",
       )
