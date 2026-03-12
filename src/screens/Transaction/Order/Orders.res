@@ -177,13 +177,14 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
+      customFilterActions={<SavedViewsComponent version entity="payments" />}
       entityName={switch version {
       | V1 => V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)
       }}
       version
     />
-  }, [searchText])
+  }, (searchText, version))
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>

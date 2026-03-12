@@ -166,6 +166,7 @@ module RemoteTableFilters = {
     ~entityName: APIUtilsTypes.entityTypeWithVersion,
     ~version=UserInfoTypes.V1,
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
+    ~customFilterActions=React.null,
     (),
   ) => {
     open LogicUtils
@@ -315,14 +316,16 @@ module RemoteTableFilters = {
     }, [filterValueJson])
 
     React.useEffect(() => {
-      if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => Some(filterValueJson))
-        setOffset(_ => 0)
-      } else {
-        setFilters(_ => Some(Dict.make()))
-        setOffset(_ => 0)
-      }
-      None
+      let timer = Js.Global.setTimeout(() => {
+        if filterValueJson->Dict.keysToArray->Array.length != 0 {
+          setFilters(_ => Some(filterValueJson))
+          setOffset(_ => 0)
+        } else {
+          setFilters(_ => Some(Dict.make()))
+          setOffset(_ => 0)
+        }
+      }, 50)
+      Some(() => Js.Global.clearTimeout(timer))
     }, [filterValue])
 
     let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
@@ -359,43 +362,23 @@ module RemoteTableFilters = {
       )
     let remoteOptions = []
 
-    switch filterDataJson {
-    | Some(_) =>
-      <Filter
-        key="0"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters={initialDisplayFilters}
-        localOptions=[]
-        remoteOptions
-        remoteFilters
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    | _ =>
-      <Filter
-        key="1"
-        customLeftView
-        defaultFilters
-        fixedFilters={initialFixedFilter(version)}
-        requiredSearchFieldsList=[]
-        localFilters=[]
-        localOptions=[]
-        remoteOptions=[]
-        remoteFilters=[]
-        autoApply=false
-        submitInputOnEnter
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
-        updateUrlWith={updateExistingKeys}
-        clearFilters={() => reset()}
-        title
-      />
-    }
+    <Filter
+      key="remoteFilters"
+      customLeftView
+      defaultFilters
+      fixedFilters={initialFixedFilter(version)}
+      requiredSearchFieldsList=[]
+      localFilters={initialDisplayFilters}
+      localOptions=[]
+      remoteOptions
+      remoteFilters
+      autoApply=false
+      submitInputOnEnter
+      defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+      updateUrlWith={updateExistingKeys}
+      clearFilters={() => reset()}
+      title
+      customFilterActions
+    />
   }
 }

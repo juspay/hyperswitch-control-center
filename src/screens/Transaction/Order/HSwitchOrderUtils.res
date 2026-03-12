@@ -328,3 +328,46 @@ module CopyLinkTableCell = {
     </div>
   }
 }
+
+let rec filterNullValues = json => {
+  switch json->JSON.Classify.classify {
+  | Object(dict) =>
+    let newDict = Dict.make()
+    dict
+    ->Dict.toArray
+    ->Array.forEach(((key, value)) => {
+      switch value->JSON.Classify.classify {
+      | Null => ()
+      | Object(_) =>
+        let filteredObj = filterNullValues(value)
+        if filteredObj->getDictFromJsonObject->Dict.toArray->Array.length > 0 {
+          newDict->Dict.set(key, filteredObj)
+        }
+      | _ => newDict->Dict.set(key, value)
+      }
+    })
+    newDict->JSON.Encode.object
+  | _ => json
+  }
+}
+
+let itemToSavedView = json => {
+  let dict = json->getDictFromJsonObject
+  let savedView: SavedViewTypes.savedView = {
+    view_name: dict->getString("view_name", ""),
+    entity: dict->getString("entity", ""),
+    filters: dict->getJsonObjectFromDict("filters")->filterNullValues,
+    created_at: dict->getString("created_at", ""),
+    updated_at: dict->getString("updated_at", ""),
+  }
+  savedView
+}
+
+let savedViewsResponseMapper = json => {
+  let dict = json->getDictFromJsonObject
+  let response: SavedViewTypes.savedViewsResponse = {
+    count: dict->getInt("count", 0),
+    views: dict->getArrayFromDict("views", [])->Array.map(itemToSavedView),
+  }
+  response
+}
