@@ -97,7 +97,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFixedFilter = _ => [
+let initialFixedFilter = (~disable=false, _) => [
   (
     {
       localFilter: None,
@@ -125,6 +125,7 @@ let initialFixedFilter = _ => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,

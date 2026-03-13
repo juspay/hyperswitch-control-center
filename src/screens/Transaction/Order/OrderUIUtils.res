@@ -421,7 +421,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys,
   })
 }
 
-let initialFixedFilter = (version: UserInfoTypes.version) => [
+let initialFixedFilter = (version: UserInfoTypes.version, ~disable=false) => [
   (
     {
       localFilter: None,
@@ -449,6 +449,7 @@ let initialFixedFilter = (version: UserInfoTypes.version) => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
+          ~disable,
         ),
         ~inputFields=[],
         ~isRequired=false,
