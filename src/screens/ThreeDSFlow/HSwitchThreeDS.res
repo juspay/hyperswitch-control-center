@@ -141,9 +141,13 @@ let make = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
-  let (initialValues, _setInitialValues) = React.useState(_ =>
-    buildInitial3DSValue->Identity.genericTypeToJson
-  )
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
+
+  let (initialValues, _setInitialValues) = React.useState(_ => {
+    let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
+    let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
+    getInitial3DSValue(~currentDate, ~currentTime)->Identity.genericTypeToJson
+  })
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => NEW)
@@ -248,7 +252,7 @@ let make = () => {
     AdvancedRoutingUtils.validateNameAndDescription(
       ~dict,
       ~errors,
-      ~validateFields=["name", "description"],
+      ~validateFields=[Name, Description],
     )
 
     switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
@@ -307,6 +311,12 @@ let make = () => {
       <PageUtils.PageHeading
         title={"3DS Decision Manager"}
         subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
+      />
+      <HSwitchUtils.AlertBanner
+        bannerContent={<p>
+          {"Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."->React.string}
+        </p>}
+        bannerType=Warning
       />
       {switch pageView {
       | NEW =>

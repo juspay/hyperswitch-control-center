@@ -9,7 +9,12 @@ type appEnv = [#production | #sandbox | #integration | #development]
 let isLocalhost =
   Window.Location.hostname === "localhost" || Window.Location.hostname === "127.0.0.1"
 
-let dashboardPrefix = "dashboard"
+let dashboardPrefix = if Window.Location.pathName->String.includes("embedded") {
+  "embedded"
+} else {
+  "dashboard"
+}
+
 let dashboardBasePath = Some(`/${dashboardPrefix}`)
 
 let appendTrailingSlash = url => {

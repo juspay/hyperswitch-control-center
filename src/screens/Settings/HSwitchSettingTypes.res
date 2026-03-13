@@ -73,7 +73,7 @@ type merchantPayload = {
 
 type organizationPayload = {
   organization_id: string,
-  organization_name: option<string>,
+  organization_name: string,
   organization_type: OMPSwitchTypes.ompType,
 }
 
@@ -103,8 +103,13 @@ type validationFields =
   | AuthenticationConnectors(array<JSON.t>)
   | ThreeDsRequestorUrl
   | ThreeDsRequestorAppUrl
+  | VaultProcessorDetails
   | UnknownValidateFields(string)
   | MaxAutoRetries
+
+type domainValidationFields =
+  | DomainName
+  | AllowedDomains
 
 type formStateType = Preview | Edit
 type fieldType = {

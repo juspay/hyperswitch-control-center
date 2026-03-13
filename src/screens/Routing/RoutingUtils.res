@@ -5,17 +5,6 @@ external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
 }
-let currentTimeInUTC = Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
-let getCurrentUTCTime = () => {
-  let currentDate = Date.now()->Js.Date.fromFloat
-  let month = currentDate->Js.Date.getUTCMonth +. 1.0
-  let day = currentDate->Js.Date.getUTCDate
-  let currMonth = month->Float.toString->String.padStart(2, "0")
-  let currDay = day->Float.toString->String.padStart(2, "0")
-  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
-
-  `${currYear}-${currMonth}-${currDay}`
-}
 
 let routingTypeMapper = routingType => {
   switch routingType {
@@ -138,16 +127,13 @@ let threeDsTypeMapper = dict => {
   val
 }
 
-let constructNameDescription = routingType => {
+let constructNameDescription = (~routingType, ~currentTime, ~currentDate) => {
   let routingText = routingType->routingTypeName
   Dict.fromArray([
-    (
-      "name",
-      `${routingText->capitalizeString} Based Routing-${getCurrentUTCTime()}`->JSON.Encode.string,
-    ),
+    ("name", `${routingText->capitalizeString} Based Routing-${currentDate}`->JSON.Encode.string),
     (
       "description",
-      `This is a ${routingText} based routing created at ${currentTimeInUTC}`->JSON.Encode.string,
+      `This is a ${routingText} based routing created at ${currentTime}`->JSON.Encode.string,
     ),
   ])
 }
@@ -161,6 +147,7 @@ module SaveAndActivateButton = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let handleSaveAndActivate = async _ => {
       try {
@@ -174,9 +161,10 @@ module SaveAndActivateButton = {
         let _ = Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
       }
     }
-    <Button
+    <ACLButton
       text={"Save and Activate Rule"}
       buttonType={Primary}
+      authorization={userHasAccess(~groupAccess=WorkflowsManage)}
       buttonSize=Button.Small
       onClick={_ => {
         handleSaveAndActivate()->ignore
@@ -191,10 +179,12 @@ module ConfigureRuleButton = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-    <Button
+    <ACLButton
       text="Configure Rule"
       buttonType=Primary
+      authorization={userHasAccess(~groupAccess=WorkflowsManage)}
       buttonState={!formState.hasValidationErrors ? Normal : Disabled}
       onClick={_ => {
         setShowModal(_ => true)

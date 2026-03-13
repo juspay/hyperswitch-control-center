@@ -1,6 +1,7 @@
 open InsightsUtils
 open NewAnalyticsUtils
 open LogicUtils
+open CurrencyFormatUtils
 open SuccessfulRefundsDistributionTypes
 
 let getStringFromVariant = value => {
@@ -54,7 +55,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => successfulRefundsDistributionObject 
 
 let getObjects: JSON.t => array<successfulRefundsDistributionObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

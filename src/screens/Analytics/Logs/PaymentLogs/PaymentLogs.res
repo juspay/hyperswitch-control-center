@@ -6,7 +6,7 @@ let make = (~paymentId, ~createdAt) => {
   let apiLogsUrl = getURL(
     ~entityName=V1(API_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
+    ~queryParameters=Some(`type=Payment&payment_id=${paymentId}`),
   )
   let sdkLogsUrl = getURL(~entityName=V1(SDK_EVENT_LOGS), ~methodType=Post, ~id=Some(paymentId))
   let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
@@ -25,17 +25,17 @@ let make = (~paymentId, ~createdAt) => {
   let webhookLogsUrl = getURL(
     ~entityName=V1(WEBHOOKS_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`payment_id=${paymentId}`),
+    ~queryParameters=Some(`payment_id=${paymentId}`),
   )
   let connectorLogsUrl = getURL(
     ~entityName=V1(CONNECTOR_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
+    ~queryParameters=Some(`type=Payment&payment_id=${paymentId}`),
   )
   let routingLogsUrl = getURL(
     ~entityName=V1(ROUTING_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
+    ~queryParameters=Some(`type=Payment&payment_id=${paymentId}`),
   )
 
   let urls = [

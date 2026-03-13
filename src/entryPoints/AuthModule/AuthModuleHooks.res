@@ -30,7 +30,7 @@ let useAuthMethods = (): authMethodProps => {
         ~entityName=V1(USERS),
         ~userType=#GET_AUTH_LIST,
         ~methodType=Get,
-        ~queryParamerters=Some(`auth_id=${authId}`),
+        ~queryParameters=Some(`auth_id=${authId}`),
       )
 
       let json = await fetchDetails(`${authListUrl}`)

@@ -22,9 +22,12 @@ type authFlow =
   | ResendVerifyEmail
   | LiveMode
   | ActivateFromEmail
+
 type data = {code: string, message: string, type_: string}
 type subCode =
   | HE_02
+  | IR_48
+  | IR_47
   | UR_00
   | UR_01
   | UR_03
@@ -39,6 +42,7 @@ type subCode =
   | UR_48
   | UR_49
   | UR_06
+  | UR_35
   | UR_37
   | UR_39
 

@@ -176,7 +176,7 @@ let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   },
   {
     name: "Stripe Billing",
-    icon: "/Gateway/STRIPEBILLING.svg",
+    icon: "/assets/Gateway/STRIPEBILLING.svg",
   },
 ]
 

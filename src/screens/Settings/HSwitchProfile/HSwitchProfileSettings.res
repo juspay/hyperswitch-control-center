@@ -120,7 +120,7 @@ module ResetPassword = {
           ~entityName=V1(USERS),
           ~userType=#FORGOT_PASSWORD,
           ~methodType=Post,
-          ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`),
+          ~queryParameters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`),
         )
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
@@ -250,7 +250,9 @@ module BasicDetailsSection = {
 }
 @react.component
 let make = () => {
-  let {userInfo: {isTwoFactorAuthSetup}} = React.useContext(UserInfoProvider.defaultContext)
+  let {isTwoFactorAuthSetup} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getResolvedUserInfo()
 
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />

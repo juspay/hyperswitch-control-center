@@ -82,23 +82,23 @@ function processConfigList(configList, body, domain, listType) {
 function updateMerchantConfigWithEnv(tomlConfig, body, domain = "default") {
   let modifiedConfig = {};
 
-  // Handle blacklist configurations
-  if (tomlConfig.blacklist) {
-    modifiedConfig.blacklist = processConfigList(
-      tomlConfig.blacklist,
+  // Handle denylist configurations
+  if (tomlConfig.denylist) {
+    modifiedConfig.denylist = processConfigList(
+      tomlConfig.denylist,
       body,
       domain,
-      "blacklist",
+      "denylist",
     );
   }
 
-  // Handle whitelist configurations
-  if (tomlConfig.whitelist) {
-    modifiedConfig.whitelist = processConfigList(
-      tomlConfig.whitelist,
+  // Handle allowlist configurations
+  if (tomlConfig.allowlist) {
+    modifiedConfig.allowlist = processConfigList(
+      tomlConfig.allowlist,
       body,
       domain,
-      "whitelist",
+      "allowlist",
     );
   }
 

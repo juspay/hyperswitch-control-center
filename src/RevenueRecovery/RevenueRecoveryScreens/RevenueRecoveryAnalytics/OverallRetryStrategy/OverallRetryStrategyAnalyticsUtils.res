@@ -38,7 +38,7 @@ let customTooltipFormatter = (~title) => {
       let line3Point = this.points->getValueFromArray(3, defaultValue)
 
       let getRowsHtml = (~iconColor, ~value, ~metricType, ~comparisionComponent="", ~name="") => {
-        let formattedValue = LogicUtils.valueFormatter(value, metricType)
+        let formattedValue = CurrencyFormatUtils.valueFormatter(value, metricType)
         let key = name
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>

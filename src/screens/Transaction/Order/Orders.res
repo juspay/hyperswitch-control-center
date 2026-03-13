@@ -5,11 +5,22 @@ let make = (~previewOnly=false) => {
   open LogicUtils
 
   let fetchOrdersHook = OrdersHook.useFetchOrdersHook()
+  let fetchAnalyticsOrdersHook = AnalyticsOrdersHook.useFetchAnalyticsOrdersHook()
+  let {devOpensearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {
-    userInfo: {transactionEntity, merchantId, orgId, version},
-    checkUserEntity,
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {transactionEntity} = getResolvedUserInfo()
+  let {merchantId, orgId, version} = getCommonSessionDetails()
+
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchOrdersHook = (~payload, ~version) => {
+    devOpensearch && userHasResourceAccess(~resourceAccess=Analytics) === Access
+      ? fetchAnalyticsOrdersHook(~payload, ~version)
+      : fetchOrdersHook(~payload, ~version)
+  }
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -196,7 +207,8 @@ let make = (~previewOnly=false) => {
               entityMapper=UserInfoUtils.transactionEntityMapper
             />
           </Portal>
-          <RenderIf condition={generateReport && email && orderData->Array.length > 0}>
+          <RenderIf
+            condition={generateReport && email && orderData->Array.length > 0 && version == V1}>
             <GenerateReport entityName={V1(PAYMENT_REPORT)} />
           </RenderIf>
         </div>

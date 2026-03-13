@@ -23,7 +23,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
 
 let getObjects: JSON.t => array<failreResonsObjectType> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
@@ -70,7 +70,7 @@ let getCell = (obj, colType): Table.cell => {
   | Refund_Reason_Count => Text(obj.refund_reason_count->Int.toString)
   | Total_Refund_Reason_Count => Text(obj.total_refund_reason_count->Int.toString)
   | Refund_Reason_Count_Ratio =>
-    Text(obj.refund_reason_count_ratio->LogicUtils.valueFormatter(Rate))
+    Text(obj.refund_reason_count_ratio->CurrencyFormatUtils.valueFormatter(Rate))
   | Connector => Text(obj.connector)
   }
 }

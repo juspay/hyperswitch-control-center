@@ -76,9 +76,14 @@ type betaEndpoint = {
 
 let useApiFetcher = () => {
   open Promise
+  open LogicUtils
+  open CommonAuthUtils
+
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
+  let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
+
   React.useCallback(
     (
       uri,
@@ -93,17 +98,23 @@ let useApiFetcher = () => {
       ~merchantId="",
       ~profileId="",
       ~version=UserInfoTypes.V1,
+      ~isEmbeddableSession=false,
     ) => {
       let token = {
-        switch authStatus {
-        | PreLogin(info) => info.token
-        | LoggedIn(info) =>
-          switch info {
-          | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+        if isEmbeddableSession {
+          Some(EmbeddedStorageUtils.LocalStorage.getEmbeddedTokenFromStorage())
+        } else {
+          switch authStatus {
+          | PreLogin(info) => info.token
+          | LoggedIn(info) =>
+            switch info {
+            | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+            }
+          | _ => None
           }
-        | _ => None
         }
       }
+
       let uri = switch betaEndpointConfig {
       | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
       | None => uri
@@ -148,16 +159,35 @@ let useApiFetcher = () => {
           resp => {
             setReqProgress(p => p - 1)
             if resp->Fetch.Response.status === 401 {
-              switch authStatus {
-              | LoggedIn(_) =>
-                let _ = CommonAuthUtils.clearLocalStorage()
-                let _ = CommonAuthUtils.handleSwitchUserQueryParam(~url)
-                setAuthStateToLogout()
-                AuthUtils.redirectToLogin()
-                resolve(resp)
+              let jsonPromise =
+                resp
+                ->Fetch.Response.clone
+                ->Fetch.Response.json
+                ->catch(_ => resolve(JSON.Encode.null))
 
-              | _ => resolve(resp)
-              }
+              jsonPromise->then(
+                json => {
+                  let errorDict = json->getDictFromJsonObject
+                  let errorCode = errorDict->getObj("error", Dict.make())->getString("code", "")
+
+                  if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_48 {
+                    EmbeddedIframeUtils.sendEventToParentForRefetchToken()
+                  } else if isEmbeddableSession && errorCode->errorSubCodeMapper == IR_47 {
+                    setEmbeddedStateToError()
+                  } else {
+                    switch authStatus {
+                    | LoggedIn(_) =>
+                      let _ = clearLocalStorage()
+                      let _ = handleSwitchUserQueryParam(~url)
+                      setAuthStateToLogout()
+                      AuthUtils.redirectToLogin()
+
+                    | _ => ()
+                    }
+                  }
+                  resolve(resp)
+                },
+              )
             } else {
               resolve(resp)
             }

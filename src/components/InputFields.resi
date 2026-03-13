@@ -35,6 +35,7 @@ let selectInput: (
   ~dropdownClassName: string=?,
   ~descriptionOnHover: bool=?,
   ~buttonSize: Button.buttonSize=?,
+  ~maxButtonWidth: string=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'b) => React.element
 let infraSelectInput: (
   ~options: array<SelectBox.dropdownOption>,
@@ -330,4 +331,5 @@ let boolInput: (
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let colorPickerInput: (
   ~defaultValue: string=?,
+  ~showErrorWhenEmpty: bool=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element

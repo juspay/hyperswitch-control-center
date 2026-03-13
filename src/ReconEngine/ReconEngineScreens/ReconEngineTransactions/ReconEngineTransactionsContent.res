@@ -29,7 +29,11 @@ let make = (~account: ReconEngineTypes.accountType) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase((obj.transaction_status :> string), searchText)
+          isContainingStringLowercase(
+            obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
+            searchText,
+          ) ||
+          obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
         | None => false
         }
       })
@@ -73,17 +77,34 @@ let make = (~account: ReconEngineTypes.accountType) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
-      if statusFilter->Array.length === 0 {
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
+
+      // If posted_manual is selected, automatically add posted_force
+      let finalStatusFilter = ReconEngineFilterUtils.getMergedPostedTransactionStatusFilter(
+        statusFilter,
+      )
+
+      let statusList = getTransactionStatusValueFromStatusList([
+        Expected,
+        Missing,
+        OverAmount(Mismatch),
+        UnderAmount(Mismatch),
+        OverAmount(Expected),
+        UnderAmount(Expected),
+        Posted(Auto),
+        Posted(Manual),
+        Posted(Force),
+        Void,
+        PartiallyReconciled,
+        DataMismatch,
+      ])
+
+      if finalStatusFilter->Array.length === 0 {
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
+      } else {
         enhancedFilterValueJson->Dict.set(
-          "transaction_status",
-          [
-            "expected",
-            "mismatched",
-            "posted",
-            "void",
-            "partially_reconciled",
-          ]->getJsonFromArrayOfString,
+          "status",
+          finalStatusFilter->Array.map(v => v->getStringFromJson(""))->getJsonFromArrayOfString,
         )
       }
 
@@ -97,8 +118,8 @@ let make = (~account: ReconEngineTypes.accountType) => {
         "&debit_account=" ++
         account.account_id
 
-      let sourceTransactions = await getTransactions(~queryParamerters=Some(sourceQueryString))
-      let targetTransactions = await getTransactions(~queryParamerters=Some(targetQueryString))
+      let sourceTransactions = await getTransactions(~queryParameters=Some(sourceQueryString))
+      let targetTransactions = await getTransactions(~queryParameters=Some(targetQueryString))
 
       let allTransactions = sourceTransactions->Array.concat(targetTransactions)
       let uniqueTransactions = allTransactions->Array.reduce([], (
@@ -107,6 +128,19 @@ let make = (~account: ReconEngineTypes.accountType) => {
       ) => {
         let exists = acc->Array.some(t => t.transaction_id == transaction.transaction_id)
         exists ? acc : acc->Array.concat([transaction])
+      })
+      uniqueTransactions->Array.sort((a, b) => {
+        let createdAtSort = compareLogic(b.created_at, a.created_at)
+        if createdAtSort !== 0. {
+          createdAtSort
+        } else {
+          let effectiveAtSort = compareLogic(b.effective_at, a.effective_at)
+          if effectiveAtSort !== 0. {
+            effectiveAtSort
+          } else {
+            compareLogic(a.transaction_id, b.transaction_id)
+          }
+        }
       })
 
       setConfiguredTransactions(_ => uniqueTransactions)
@@ -167,7 +201,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         filters={<TableSearchFilter
           data={configuredTransactions->Array.map(Nullable.make)}
           filterLogic
-          placeholder="Search Transaction Id or Status"
+          placeholder="Search Transaction ID or Order ID or Status"
           searchVal=searchText
           setSearchVal=setSearchText
           customSearchBarWrapperWidth="w-full lg:w-1/3"

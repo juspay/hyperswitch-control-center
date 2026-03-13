@@ -6,17 +6,17 @@ let make = (~refundId, ~paymentId) => {
   let webhookLogsUrl = getURL(
     ~entityName=V1(WEBHOOKS_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`payment_id=${paymentId}&refund_id=${refundId}`),
+    ~queryParameters=Some(`payment_id=${paymentId}&refund_id=${refundId}`),
   )
   let refundsLogsUrl = getURL(
     ~entityName=V1(API_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`type=Refund&payment_id=${paymentId}&refund_id=${refundId}`),
+    ~queryParameters=Some(`type=Refund&payment_id=${paymentId}&refund_id=${refundId}`),
   )
   let connectorLogsUrl = getURL(
     ~entityName=V1(CONNECTOR_EVENT_LOGS),
     ~methodType=Get,
-    ~queryParamerters=Some(`payment_id=${paymentId}&refund_id=${refundId}`),
+    ~queryParameters=Some(`payment_id=${paymentId}&refund_id=${refundId}`),
   )
   let urls = [
     {

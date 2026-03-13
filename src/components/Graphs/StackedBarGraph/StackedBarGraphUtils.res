@@ -7,6 +7,7 @@ let getStackedBarGraphOptions = (
   ~yMax,
   ~labelItemDistance,
   ~pointWidth=30,
+  ~onPointClick: option<string => unit>=?,
 ) => {
   let {categories, data, labelFormatter} = stackedBarGraphOptions
 
@@ -70,6 +71,22 @@ let getStackedBarGraphOptions = (
         pointWidth,
         borderRadius: 5,
       },
+      series: switch onPointClick {
+      | Some(clickHandler) =>
+        Some({
+          point: Some({
+            events: Some({
+              click: Some(
+                event => {
+                  let seriesName = event.point.series.name
+                  clickHandler(seriesName)
+                },
+              ),
+            }),
+          }),
+        })
+      | None => None
+      },
     },
     series: data,
     credits: {
@@ -86,7 +103,7 @@ let stackedBarGraphLabelFormatter = (~statType: LogicUtilsTypes.valueType, ~curr
     (this: labelFormatter) => {
       let name = this.name
       let yData = this.yData->getValueFromArray(0, 0)->Int.toFloat
-      let formattedValue = LogicUtils.valueFormatter(yData, statType, ~currency)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(yData, statType, ~currency)
 
       let title = `<div style="color: #525866; font-weight: 500;">${name}<span style="color: #99A0AE"> | ${formattedValue}</span></div>`
       title

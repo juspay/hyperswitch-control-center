@@ -1,3 +1,5 @@
+open ReconEngineTypes
+
 type resolvingException =
   | ForceReconcile
   | VoidTransaction
@@ -13,6 +15,7 @@ type activeModal =
   | EditEntryModal
   | CreateEntryModal
   | MarkAsReceivedModal
+  | LinkStagingEntriesModal
 
 type resolutionOptionTypes =
   | IgnoreTransaction
@@ -25,30 +28,19 @@ type exceptionResolutionStage =
   | ConfirmResolution(resolvingException)
   | ExceptionResolved
 
-type metadataRow = {
-  id: string,
-  key: string,
-  value: string,
-}
-
-type modalLayout = CenterModal | SidePanelModal
-
-type resolutionConfig = {
-  heading: string,
-  description?: string,
-  layout: modalLayout,
-  closeOnOutsideClick: bool,
-}
-
 type accountInfo = {
   account_info_name: string,
   account_info_type: string,
 }
 
-type validationRule = (string, Dict.t<JSON.t> => option<string>)
-
 type tableSection = {
-  titleElement: React.element,
+  titleElement?: React.element,
   rows: array<array<Table.cell>>,
   rowData: array<RescriptCore.JSON.t>,
+}
+
+// Extended entry type for exception resolution with UI-specific fields
+type exceptionResolutionEntryType = {
+  ...entryType,
+  entry_key: string,
 }

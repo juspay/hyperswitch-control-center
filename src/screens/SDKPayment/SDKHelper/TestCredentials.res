@@ -20,7 +20,7 @@ module TestCredsField = {
 let make = () => {
   let testCardNumber = "4242 4242 4242 4242"
   let cardNumberCopy = "4242424242424242"
-  let testCredsLink = "https://docs.hyperswitch.io/hyperswitch-cloud/connectors/test-a-payment-with-connector"
+  let testCredsLink = "https://docs.hyperswitch.io/explore-hyperswitch/connectors/activate-connector-on-hyperswitch/test-a-payment-with-connector#test-cards-for-popular-connectors"
 
   <div className="p-6 bg-jp-gray-test_credentials_bg w-full h-fit">
     <div>

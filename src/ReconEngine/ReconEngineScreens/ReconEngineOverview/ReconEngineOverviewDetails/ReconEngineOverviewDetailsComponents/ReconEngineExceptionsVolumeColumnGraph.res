@@ -4,6 +4,7 @@ open ReconEngineOverviewUtils
 @react.component
 let make = (~ruleId: string) => {
   open LogicUtils
+  open ReconEngineFilterUtils
 
   let (transactionsData, setTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -18,16 +19,21 @@ let make = (~ruleId: string) => {
   let fetchTransactions = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
-        ~filterValueJson=enhancedFilterValueJson,
-      )
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let statusList =
+        getTransactionStatusValueFromStatusList([
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          DataMismatch,
+        ])->Array.joinWith(",")
+
+      let suffix = `rule_id=${ruleId}&status=${statusList}`
       let queryString = if baseQueryString->isNonEmptyString {
-        `${baseQueryString}&rule_id=${ruleId}&transaction_status=mismatched`
+        `${baseQueryString}&${suffix}`
       } else {
-        `rule_id=${ruleId}&transaction_status=mismatched`
+        suffix
       }
-      let transactions = await getTransactions(~queryParamerters=Some(queryString))
+      let transactions = await getTransactions(~queryParameters=Some(queryString))
       setTransactionsData(_ => transactions)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

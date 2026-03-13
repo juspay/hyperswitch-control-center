@@ -11,46 +11,30 @@ module OrgTile = {
     ~handleIdUnderEdit,
     ~isPlatformOrganization,
   ) => {
-    open LogicUtils
     open APIUtils
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
-    let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
+    let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {
       globalUIConfig: {
-        sidebarColor: {backgroundColor, primaryTextColor, secondaryTextColor, borderColor},
+        sidebarColor: {
+          backgroundColor,
+          primaryTextColor,
+          secondaryTextColor,
+          borderColor: sidebarBorderColor,
+        },
       },
     } = React.useContext(ThemeProvider.themeContext)
-
-    let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
-      compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
-    }
-
-    let getOrgList = async () => {
-      try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
-        let response = await fetchDetails(url)
-        let orgData = response->getArrayDataFromJson(OMPSwitchUtils.orgItemToObjMapper)
-        orgData->Array.sort(sortByOrgName)
-        setOrgList(_ => orgData)
-      } catch {
-      | _ => {
-          setOrgList(_ => [OMPSwitchUtils.ompDefaultValue(orgId, "")])
-          showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
-        }
-      }
-    }
 
     let onSubmit = async (newOrgName: string) => {
       try {
         let values = {"organization_name": newOrgName}->Identity.genericTypeToJson
         let url = getURL(~entityName=V1(ORGANIZATION_RETRIEVE), ~methodType=Put, ~id=Some(orgID))
         let _ = await updateDetails(url, values, Put)
-        let _ = await getOrgList()
+        let _ = await fetchOrganizationList()
 
         showToast(~message="Updated organization name!", ~toastType=ToastSuccess)
       } catch {
@@ -100,11 +84,6 @@ module OrgTile = {
       ? `p-2 ${baseCSS} border-grey-400 border-opacity-40`
       : `${baseCSS} ${hoverInput2} shadow-lg `
     let nonEditCSS = !isEditingAnotherIndex ? `p-2` : ``
-    let ringClass = switch isActive {
-    | true => "border-primary ring-primary/20 ring-offset-0 ring-2"
-    | false => "ring-grey-outline"
-    }
-
     let handleClick = () => {
       if !isActive {
         orgSwitch(orgID)->ignore
@@ -115,7 +94,7 @@ module OrgTile = {
       onClick={_ => handleClick()}
       className={`w-10 h-10 rounded-lg flex items-center justify-center relative cursor-pointer ${hoverLabel1}`}>
       <div
-        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${ringClass} ${isActive
+        className={`w-8 h-8 border cursor-pointer flex items-center justify-center rounded-md shadow-md relative ${isActive
             ? `bg-white/20 ${primaryTextColor} border-sidebar-textColorPrimary`
             : `${secondaryTextColor} hover:bg-white/10 border-sidebar-textColor/30`}`}>
         <RenderIf condition={isPlatformOrganization}>
@@ -126,7 +105,8 @@ module OrgTile = {
           />
         </RenderIf>
         <span className={body.xs.medium}> {displayText->React.string} </span>
-        <div className={` ${currentEditCSS} ${nonEditCSS} border ${borderColor} border-opacity-40`}>
+        <div
+          className={`${currentEditCSS} ${nonEditCSS} border ${sidebarBorderColor} border-opacity-40`}>
           <InlineEditInput
             index
             labelText={orgName}
@@ -146,7 +126,13 @@ module OrgTile = {
               </div>}
               toolTipPosition=ToolTip.Right
             />}
-            showEditIcon={isActive && userHasAccess(~groupAccess=OrganizationManage) === Access}
+            showEditIcon={isActive &&
+            hasAnyGroupAccess(
+              //TODO: Remove OrganizationManage permission in future
+              userHasAccess(~groupAccess=OrganizationManage),
+              userHasAccess(~groupAccess=AccountManage),
+            ) === Access &&
+            checkUserEntity([#Organization])}
             handleEdit=handleIdUnderEdit
             isUnderEdit
             displayHoverOnEdit={currentlyEditingId->Option.isNone}
@@ -156,6 +142,7 @@ module OrgTile = {
             customIconStyle={`${secondaryTextColor}`}
             onSubmit
             showTooltipOnHover=true
+            toolTipPosition=BottomRight
           />
         </div>
       </div>
@@ -174,7 +161,7 @@ module OrgTileGroup = {
     ~currentlyEditingId,
     ~handleIdUnderEdit,
   ) => {
-    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     <div className="flex flex-col justify-center gap-3">
       <RenderIf condition={hasPlatformOrg}>
@@ -207,18 +194,20 @@ module OrgTileGroup = {
 
 module NewOrgCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~getOrgList) => {
+  let make = (~setShowModal, ~showModal) => {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
+    let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
+
     let createNewOrg = async values => {
       try {
         let url = getURL(~entityName=V1(USERS), ~userType=#CREATE_ORG, ~methodType=Post)
         mixpanelEvent(~eventName="create_new_org", ~metadata=values)
         let _ = await updateDetails(url, values, Post)
-        getOrgList()->ignore
+        fetchOrganizationList()->ignore
         showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
       } catch {
       | _ => showToast(~toastType=ToastError, ~message="Org Creation Failed", ~autoClose=true)
@@ -341,18 +330,17 @@ module NewOrgCreationModal = {
 
 @react.component
 let make = () => {
-  open APIUtils
-  open LogicUtils
   open OMPSwitchUtils
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-  let fetchOrganizationDetails = OrganizationDetailsHook.useFetchOrganizationDetails()
+  let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {orgId, roleId, version}} = React.useContext(UserInfoProvider.defaultContext)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId} = getCommonSessionDetails()
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
@@ -392,43 +380,13 @@ let make = () => {
   let standardOrgList = getOrgsListBasedOnType(#standard)
   let platformOrgList = getOrgsListBasedOnType(#platform)
 
-  let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {
-    compareLogic(org2.name->String.toLowerCase, org1.name->String.toLowerCase)
-  }
-
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor, borderColor}},
+    globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, borderColor, secondaryTextColor}},
   } = React.useContext(ThemeProvider.themeContext)
-
-  let fetchOrgDetails = async () => {
-    try {
-      let _ = await fetchOrganizationDetails()
-    } catch {
-    | _ => showToast(~message="Failed to fetch organization details", ~toastType=ToastError)
-    }
-  }
-
-  let getOrgList = async () => {
-    try {
-      let url = getURL(~entityName=V1(USERS), ~userType=#LIST_ORG, ~methodType=Get)
-      let response = await fetchDetails(url)
-      let orgData = response->getArrayDataFromJson(orgItemToObjMapper)
-      if version === V1 && userHasAccess(~groupAccess=OrganizationManage) === Access {
-        fetchOrgDetails()->ignore
-      }
-      orgData->Array.sort(sortByOrgName)
-      setOrgList(_ => orgData)
-    } catch {
-    | _ => {
-        setOrgList(_ => [ompDefaultValue(orgId, "")])
-        showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
-      }
-    }
-  }
 
   React.useEffect(() => {
     if !isInternalUser {
-      getOrgList()->ignore
+      fetchOrganizationList()->ignore
     } else {
       setOrgList(_ => [ompDefaultValue(orgId, "")])
     }
@@ -447,9 +405,13 @@ let make = () => {
       }
     }
   }
-  let (currentlyEditingId, setUnderEdit) = React.useState(_ => None)
-  let handleIdUnderEdit = (selectedEditId: option<int>) => {
-    setUnderEdit(_ => selectedEditId)
+  let (currentlyEditingPlatformId, setPlatformUnderEdit) = React.useState(_ => None)
+  let (currentlyEditingStandardId, setStandardUnderEdit) = React.useState(_ => None)
+  let handlePlatformIdUnderEdit = selectedEditId => {
+    setPlatformUnderEdit(_ => selectedEditId)
+  }
+  let handleStandardIdUnderEdit = selectedEditId => {
+    setStandardUnderEdit(_ => selectedEditId)
   }
   let hasPlatformOrg = platformOrgList->Array.length > 0
 
@@ -473,8 +435,8 @@ let make = () => {
           hasPlatformOrg
           orgList=platformOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingPlatformId}
+          handleIdUnderEdit={handlePlatformIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={standardOrgList->Array.length > 0}>
@@ -486,8 +448,8 @@ let make = () => {
           hasPlatformOrg
           orgList=standardOrgList
           orgSwitch
-          currentlyEditingId
-          handleIdUnderEdit
+          currentlyEditingId={currentlyEditingStandardId}
+          handleIdUnderEdit={handleStandardIdUnderEdit}
         />
       </RenderIf>
       <RenderIf condition={orgList->Array.length > maxVisibleOrgs && !showAllOrgs}>
@@ -502,16 +464,12 @@ let make = () => {
         <div
           onClick={_ => setShowAddOrgModal(_ => true)}
           className={`w-8 h-8 mt-2 flex items-center justify-center cursor-pointer 
-      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary}`}>
+      rounded-md border shadow-sm ${hoverColor}  border-${backgroundColor.sidebarSecondary} ${secondaryTextColor}`}>
           <Icon name="plus" size=20 className={secondaryTextColor} />
         </div>
       </RenderIf>
     </div>
-    <RenderIf condition={showAddOrgModal}>
-      <NewOrgCreationModal
-        setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList
-      />
-    </RenderIf>
+    <NewOrgCreationModal setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} />
     <LoaderModal
       showModal={showSwitchingOrg}
       setShowModal={setShowSwitchingOrg}

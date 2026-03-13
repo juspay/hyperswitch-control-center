@@ -9,7 +9,7 @@ let make = (~isFromMilestoneCard=false) => {
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
   )
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
 
   let getProdVerifyDetails = async () => {
@@ -19,7 +19,7 @@ let make = (~isFromMilestoneCard=false) => {
         ~entityName=V1(USERS),
         ~userType=#USER_DATA,
         ~methodType=Get,
-        ~queryParamerters=Some(`keys=ProdIntent`),
+        ~queryParameters=Some(`keys=ProdIntent`),
       )
       let res = await fetchDetails(url)
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)

@@ -1,11 +1,14 @@
 #!/bin/bash
 
 git clone --depth 1 https://github.com/juspay/hyperswitch
+cd hyperswitch
+today=$(date +'%Y.%m.%d')
+git fetch --tags
+latest_tag=$(git tag --sort=-creatordate | grep "^$today" | head -n 1)
+git checkout "$latest_tag"
 
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-# Navigate to the cloned directory
-cd hyperswitch
 sed 's|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:nightly|g' docker-compose.yml > docker-compose.tmp
 mv docker-compose.tmp docker-compose.yml
 

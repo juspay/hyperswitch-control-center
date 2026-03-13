@@ -2,6 +2,7 @@ open RoutingAnalyticsTrendsTypes
 open LogicUtils
 open LogicUtilsTypes
 open NewAnalyticsUtils
+open CurrencyFormatUtils
 
 type routingMapperConfig = {
   title: string,

@@ -8,6 +8,7 @@ open InsightsPaymentAnalyticsUtils
 module PaymentsSuccessRateHeader = {
   open InsightsUtils
   open LogicUtils
+  open CurrencyFormatUtils
   @react.component
   let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~granularityOptions) => {
     let setGranularity = value => {

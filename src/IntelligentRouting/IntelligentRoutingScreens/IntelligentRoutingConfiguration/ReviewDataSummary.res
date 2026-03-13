@@ -17,11 +17,11 @@ let make = (~reviewFields, ~isUpload=false, ~fileUInt8Array) => {
     try {
       setShowLoading(_ => true)
       setButtonState(_ => Button.Loading)
-      let queryParamerters = `upload_data=${isUpload ? "true" : "false"}`
+      let queryParameters = `upload_data=${isUpload ? "true" : "false"}`
       let url = getURL(
         ~entityName=V1(SIMULATE_INTELLIGENT_ROUTING),
         ~methodType=Post,
-        ~queryParamerters=Some(queryParamerters),
+        ~queryParameters=Some(queryParameters),
       )
       let formData = formData()
 

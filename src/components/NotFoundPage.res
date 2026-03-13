@@ -1,6 +1,7 @@
 @react.component
 let make = (~message="Error 404!") => {
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+
   <NoDataFound message renderType={NotFound}>
     <Button
       text={"Go to Home"}

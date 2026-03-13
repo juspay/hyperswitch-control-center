@@ -1,5 +1,6 @@
 open Table
 open Typography
+open LogicUtils
 
 module RowProcessor = {
   let make = (rows: array<array<cell>>, showSerial: bool) => {
@@ -67,7 +68,7 @@ module TableHeader = {
                               }
 
                               <SelectBox.BaseDropdown
-                                allowMultiSelect=true
+                                allowMultiSelect=false
                                 hideMultiSelectButtons=true
                                 buttonText=""
                                 input={filterInput}
@@ -118,6 +119,7 @@ module TableBody = {
     ~showOptions: bool,
     ~selectedRows: array<JSON.t>,
     ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
+    ~isRowSelectable: option<JSON.t => bool>=?,
   ) => {
     <tbody>
       {rowInfo
@@ -143,7 +145,8 @@ module TableBody = {
           showOptions
           selectedRows
           ?onRowSelect
-          rowData={rowData->Array.get(rowIndex)->Option.getOr(JSON.Encode.null)}
+          rowData={rowData->getValueFromArray(rowIndex, JSON.Encode.null)}
+          ?isRowSelectable
         />
       })
       ->React.array}
@@ -161,6 +164,9 @@ let make = (
   ~selectedRows=[],
   ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
   ~sections: array<ReconEngineExceptionTransactionTypes.tableSection>,
+  ~showSearchFilter=false,
+  ~searchFilterElement: option<React.element>=?,
+  ~isRowSelectable: option<JSON.t => bool>=?,
 ) => {
   let heading = if showOptions {
     [makeHeaderInfo(~key="options", ~title="")]->Array.concat(headingProp)
@@ -258,6 +264,7 @@ let make = (
       showOptions
       selectedRows
       ?onRowSelect
+      ?isRowSelectable
     />
   }
 
@@ -268,9 +275,12 @@ let make = (
         section: ReconEngineExceptionTransactionTypes.tableSection,
         sectionIndex,
       ) => {
-        <div key={`section-${sectionIndex->Int.toString}`} className="mb-6">
-          {section.titleElement}
-          <div className="border rounded-xl overflow-scroll">
+        let isLastSection = sectionIndex === sections->Array.length - 1
+        let sectionMarginClass = isLastSection ? "" : "mb-6"
+
+        <div key={`section-${sectionIndex->Int.toString}`} className={sectionMarginClass}>
+          {section.titleElement->Option.getOr(React.null)}
+          <div className={`border rounded-xl overflow-x-scroll ${scrollBarClass}`}>
             <table className="table-auto w-full h-full" colSpan=0>
               <TableHeader
                 heading
@@ -295,10 +305,18 @@ let make = (
     <RenderIf condition={showScrollBar}>
       <style> {expandableTableScrollbarCss->React.string} </style>
     </RenderIf>
-    <div className={`overflow-scroll ${scrollBarClass}`}>
-      <AddDataAttributes attributes=[("data-expandable-table", title)]>
-        {renderSections(sections)}
-      </AddDataAttributes>
+    <div className="flex flex-col w-full">
+      <RenderIf condition={showSearchFilter}>
+        <div className="mb-4"> {searchFilterElement->Option.getOr(React.null)} </div>
+      </RenderIf>
+      <RenderIf condition={sections->Array.length > 0}>
+        <AddDataAttributes attributes=[("data-expandable-table", title)]>
+          {renderSections(sections)}
+        </AddDataAttributes>
+      </RenderIf>
+      <RenderIf condition={sections->Array.length === 0}>
+        <NoDataFound customCssClass="my-6" message="No Data Available" renderType=Painting />
+      </RenderIf>
     </div>
   </>
 }

@@ -48,7 +48,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
+        ~queryParameters=Some(`auth_id=${authId}&domain=${domain}&theme_id=${themeId}`), // todo: domain shall be removed from query params later
       )
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
@@ -104,7 +104,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#FORGOT_PASSWORD,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`),
+        ~queryParameters=Some(`auth_id=${authId}&theme_id=${themeId}`),
       )
       let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ForgetPasswordEmailSent)
@@ -122,7 +122,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~entityName=V1(USERS),
         ~userType=#VERIFY_EMAIL_REQUEST,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}&theme_id=${themeId}`),
+        ~queryParameters=Some(`auth_id=${authId}&theme_id=${themeId}`),
       )
       let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ResendVerifyEmailSent)

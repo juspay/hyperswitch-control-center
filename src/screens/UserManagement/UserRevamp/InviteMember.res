@@ -10,9 +10,11 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
-  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let {userEntity} = getResolvedUserInfo()
+  let {orgId, merchantId, profileId} = getCommonSessionDetails()
 
   let invitationFormInitialValues = React.useMemo(() => {
     /*
@@ -54,7 +56,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       ~entityName=V1(USERS),
       ~userType=#INVITE_MULTIPLE,
       ~methodType=Post,
-      ~queryParamerters=Some(`auth_id=${authId}`),
+      ~queryParameters=Some(`auth_id=${authId}`),
     )
 
     if !email {

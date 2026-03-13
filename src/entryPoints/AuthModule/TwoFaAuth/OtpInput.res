@@ -1,9 +1,13 @@
+open Typography
+
 @send
 external focus: (Dom.element, unit) => unit = "focus"
 module InputFieldForOtp = {
   @react.component
-  let make = (~inputRef, ~value, ~index, ~handleChange, ~handleFocus) => {
-    let inputClass = `text-center h-full w-full border border-jp-2-light-gray-600 rounded-lg outline-none focus:border-primary focus:shadow-focusBoxShadow text-2xl overflow-hidden`
+  let make = (~inputRef, ~value, ~index, ~handleChange, ~handleFocus, ~hasError=false) => {
+    let inputClass = `${heading.lg.regular} text-center h-full w-full border ${hasError
+        ? "border-nd_red-400 focus:border-nd_red-400"
+        : "border-nd_gray-200 focus:border-primary focus:shadow-focusBoxShadow"} rounded-lg outline-none overflow-hidden`
 
     let onChange = ev => {
       let currValue = {ev->ReactEvent.Form.target}["value"]
@@ -39,7 +43,7 @@ module InputFieldForOtp = {
   }
 }
 @react.component
-let make = (~value, ~setValue) => {
+let make = (~value, ~setValue, ~hasError=false) => {
   let input1Ref = React.useRef(Nullable.null)
   let input2Ref = React.useRef(Nullable.null)
   let input3Ref = React.useRef(Nullable.null)
@@ -80,7 +84,7 @@ let make = (~value, ~setValue) => {
     {inputRefArray
     ->Array.mapWithIndex((ref, index) =>
       <div className="w-16 h-16" key={index->Int.toString}>
-        <InputFieldForOtp inputRef={ref} value handleChange index handleFocus />
+        <InputFieldForOtp inputRef={ref} value handleChange index handleFocus hasError />
       </div>
     )
     ->React.array}

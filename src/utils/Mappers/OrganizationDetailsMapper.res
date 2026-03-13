@@ -4,8 +4,8 @@ open LogicUtils
 let getOrganizationDetails = (values: JSON.t) => {
   let values = values->getDictFromJsonObject
   {
-    organization_id: values->getString("organization_id", ""),
-    organization_name: values->getOptionString("organization_name"),
-    organization_type: values->getString("organization_type", "")->OMPSwitchUtils.ompTypeMapper,
+    organization_id: values->getString("org_id", ""),
+    organization_name: values->getString("org_name", ""),
+    organization_type: values->getString("org_type", "")->OMPSwitchUtils.ompTypeMapper,
   }
 }

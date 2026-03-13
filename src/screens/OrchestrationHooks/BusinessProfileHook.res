@@ -37,27 +37,29 @@ let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
 let useUpdateBusinessProfile = (~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let setBusinessProfileRecoil =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
 
   async (~body, ~shouldTransform=false) => {
     try {
-      let (entityName, transformedBody) = switch version {
+      let (entityName, transformedBody, methodType: Fetch.requestMethod) = switch version {
       | V1 => (
           V1(BUSINESS_PROFILE),
           mapJsonToRequestType(businessProfileInterfaceV1, body)->Identity.genericTypeToJson,
+          Post,
         )
 
       | V2 => (
           V2(BUSINESS_PROFILE),
           mapJsonToRequestType(businessProfileInterfaceV2, body)->Identity.genericTypeToJson,
+          Put,
         )
       }
       let finalBody = shouldTransform ? transformedBody : body
 
-      let url = getURL(~entityName, ~methodType=Post, ~id=Some(profileId))
-      let res = await updateDetails(url, finalBody, Post)
+      let url = getURL(~entityName, ~methodType, ~id=Some(profileId))
+      let res = await updateDetails(url, finalBody, methodType)
       let commonTypedData = switch version {
       | V1 => mapJsonToCommonType(businessProfileInterfaceV1, res)
 

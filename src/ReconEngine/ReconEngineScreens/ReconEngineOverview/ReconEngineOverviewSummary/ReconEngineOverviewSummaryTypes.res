@@ -2,9 +2,9 @@ open ReconEngineTypes
 
 @unboxed
 type amountType =
-  | Reconciled
-  | Pending
-  | Mismatched
+  | ReconciledAmount
+  | PendingAmount
+  | MismatchedAmount
 
 type accountTransactionCounts = {
   posted_confirmation_count: int,
@@ -32,8 +32,8 @@ type accountTransactionData = {
 
 @unboxed
 type subHeaderType =
-  | Debit
-  | Credit
+  | DebitAmount
+  | CreditAmount
 
 type reconData = {
   inAmount: string,
@@ -44,7 +44,7 @@ type reconData = {
 
 type reconStatusData = {
   statusType: amountType,
-  data: reconData,
+  reconStatusData: reconData,
 }
 
 type nodeData = {

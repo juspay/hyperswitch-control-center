@@ -129,6 +129,14 @@ type processorTypes =
   | LOONIO
   | TESOURO
   | FINIX
+  | PAYJUSTNOW
+  | ZIFT
+  | PAYJUSTNOWINSTORE
+  | AMAZONPAY
+  | WORLDPAYMODULAR
+  | SANTANDER
+  | REVOLV3
+  | TRUELAYER
 
 type payoutProcessorTypes =
   | ADYEN
@@ -143,6 +151,8 @@ type payoutProcessorTypes =
   | GIGADAT
   | LOONIO
   | WORLDPAY
+  | WORLDPAYXML
+  | TRUELAYER
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -155,12 +165,15 @@ type threeDsAuthenticatorTypes =
 type frmTypes =
   | Signifyd
   | Riskifyed
+  | CybersourceDecisionManager
 
 type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
 type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
+
+type vaultProcessorTypes = VGS
 
 type connectorTypeVariants =
   | PaymentProcessor
@@ -170,6 +183,7 @@ type connectorTypeVariants =
   | PMAuthProcessor
   | TaxProcessor
   | BillingProcessor
+  | VaultProcessor
 
 type connectorTypes =
   | Processors(processorTypes)
@@ -179,6 +193,7 @@ type connectorTypes =
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | TaxProcessor(taxProcessorTypes)
   | BillingProcessor(billingProcessorTypes)
+  | VaultProcessor(vaultProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -189,6 +204,8 @@ type paymentMethod =
   | BankTransfer
   | Crypto
   | BankDebit
+  | NetworkToken
+  | Voucher
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =
@@ -205,6 +222,10 @@ type paymentMethodTypes =
   | AliPay
   | WeChatPay
   | DirectCarrierBilling
+  | AmazonPay
+  | Pix
+  | Boleto
+  | NetworkToken
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -437,6 +458,7 @@ type connector =
   | PMAuthenticationProcessor
   | TaxProcessor
   | BillingProcessor
+  | VaultProcessor
 
 type connectorFieldTypes = {
   bodyType: string,

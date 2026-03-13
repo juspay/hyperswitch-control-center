@@ -60,7 +60,7 @@ module BaseComponent = {
     let transformValue = if isSelected {
       `translateX(${transformValue})`
     } else {
-      "translateX(0px)"
+      "translateX(2px)"
     }
 
     let cursorClass = if isDisabled {

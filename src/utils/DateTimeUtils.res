@@ -1,14 +1,14 @@
-type days = Sunday | Monday | Tuesday | Wednesday | Thrusday | Friday | Saturday
+type days = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday
 
-let daysArr = [Sunday, Monday, Tuesday, Wednesday, Thrusday, Friday, Saturday]
+let daysArr = [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
 
 let dayMapper = (days: days) => {
   switch days {
   | Sunday => "Sunday"
   | Monday => "Monday"
-  | Tuesday => "Tuesda"
+  | Tuesday => "Tuesday"
   | Wednesday => "Wednesday"
-  | Thrusday => "Thrusday"
+  | Thursday => "Thursday"
   | Friday => "Friday"
   | Saturday => "Saturday"
   }
@@ -46,6 +46,31 @@ let utcToIST = timeStr => {
     timeStr->Date.toISOString
   } else {
     Js.Date.fromFloat(istTime)->Date.toISOString
+  }
+}
+
+let unixToISOString = unixTime => {
+  let unixTimeStr = unixTime->Float.toString
+  switch unixTimeStr->String.length {
+  | 10 => {
+      // seconds
+      let milliseconds = unixTime *. 1000.0
+      Js.Date.fromFloat(milliseconds)->Date.toISOString
+    }
+  | 13 =>
+    // milliseconds
+    Js.Date.fromFloat(unixTime)->Date.toISOString
+  | 16 => {
+      // microseconds
+      let milliseconds = unixTime /. 1000.0
+      Js.Date.fromFloat(milliseconds)->Date.toISOString
+    }
+  | 19 => {
+      // nanoseconds
+      let milliseconds = unixTime /. 1000000.0
+      Js.Date.fromFloat(milliseconds)->Date.toISOString
+    }
+  | _ => "NA"
   }
 }
 

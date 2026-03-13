@@ -1,8 +1,8 @@
 open Typography
 
 @react.component
-let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
-  open LogicUtils
+let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
+  open CurrencyFormatUtils
 
   let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -11,8 +11,22 @@ let make = (~ruleDetails: ReconEngineTypes.reconRuleType) => {
   let getAllTransactionsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Expected,
+          Missing,
+          OverAmount(Expected),
+          UnderAmount(Expected),
+          PartiallyReconciled,
+          Posted(Auto),
+          Posted(Manual),
+          Posted(Force),
+          OverAmount(Mismatch),
+          UnderAmount(Mismatch),
+          DataMismatch,
+        ])->Array.joinWith(",")
       let transactionsData = await getTransactions(
-        ~queryParamerters=Some(`rule_id=${ruleDetails.rule_id}`),
+        ~queryParameters=Some(`rule_id=${ruleDetails.rule_id}&status=${statusList}`),
       )
       setAllTransactionsData(_ => transactionsData)
       setScreenState(_ => PageLoaderWrapper.Success)

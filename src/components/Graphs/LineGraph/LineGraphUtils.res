@@ -26,7 +26,7 @@ let lineGraphYAxisFormatter = (
     @this
     (this: yAxisFormatter) => {
       let value = this.value->Int.toFloat /. scaleFactor
-      let formattedValue = LogicUtils.valueFormatter(value, statType, ~currency, ~suffix)
+      let formattedValue = CurrencyFormatUtils.valueFormatter(value, statType, ~currency, ~suffix)
       formattedValue
     }
   )->asTooltipPointFormatter

@@ -1,96 +1,17 @@
 open ReconEngineRulesTypes
 open LogicUtils
+open ReconEngineRulesUtils
 
-let defaultColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleDescription, Status]
+let defaultColumns: array<ruleColType> = [Priority, RuleName, RuleType, RuleDescription, Status]
 
-let allColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleDescription, Status]
-
-let operatorMapper = dict => {
-  {
-    operator_version: dict->getString("operator_version", ""),
-    value: dict->getString("value", ""),
-  }
-}
-
-let triggerMapper = dict => {
-  {
-    trigger_version: dict->getString("trigger_version", ""),
-    field: dict->getString("field", ""),
-    operator: dict->getJsonObjectFromDict("operator")->getDictFromJsonObject->operatorMapper,
-    value: dict->getString("value", ""),
-  }
-}
-
-let sourceMapper = dict => {
-  {
-    id: dict->getString("id", ""),
-    account_id: dict->getString("account_id", ""),
-    trigger: dict->getJsonObjectFromDict("trigger")->getDictFromJsonObject->triggerMapper,
-  }
-}
-
-let matchRuleMapper = dict => {
-  {
-    source_field: dict->getString("source_field", ""),
-    target_field: dict->getString("target_field", ""),
-    operator: dict->getString("operator", ""),
-  }
-}
-
-let matchRulesMapper = dict => {
-  {
-    match_version: dict->getString("match_version", ""),
-    rules: dict
-    ->getArrayFromDict("rules", [])
-    ->Array.map(item => item->JSON.Decode.object->Option.getOr(Dict.make())->matchRuleMapper),
-  }
-}
-
-let searchIdentifierMapper = dict => {
-  {
-    search_version: dict->getString("search_version", ""),
-    source_field: dict->getString("source_field", ""),
-    target_field: dict->getString("target_field", ""),
-  }
-}
-
-let targetMapper = dict => {
-  {
-    id: dict->getString("id", ""),
-    account_id: dict->getString("account_id", ""),
-    match_rules: dict
-    ->getJsonObjectFromDict("match_rules")
-    ->getDictFromJsonObject
-    ->matchRulesMapper,
-    search_identifier: dict
-    ->getJsonObjectFromDict("search_identifier")
-    ->getDictFromJsonObject
-    ->searchIdentifierMapper,
-  }
-}
-
-let ruleItemToObjMapper = dict => {
-  {
-    rule_id: dict->getString("rule_id", ""),
-    rule_name: dict->getString("rule_name", ""),
-    rule_description: dict->getString("rule_description", ""),
-    priority: dict->getInt("priority", 0),
-    is_active: dict->getBool("is_active", false),
-    profile_id: dict->getString("profile_id", ""),
-    sources: dict
-    ->getArrayFromDict("sources", [])
-    ->Array.map(item => item->JSON.Decode.object->Option.getOr(Dict.make())->sourceMapper),
-    targets: dict
-    ->getArrayFromDict("targets", [])
-    ->Array.map(item => item->JSON.Decode.object->Option.getOr(Dict.make())->targetMapper),
-  }
-}
+let allColumns: array<ruleColType> = [Priority, RuleId, RuleName, RuleType, RuleDescription, Status]
 
 let getHeading = (colType: ruleColType) => {
   switch colType {
   | Priority => Table.makeHeaderInfo(~key="priority", ~title="Priority")
   | RuleId => Table.makeHeaderInfo(~key="rule_id", ~title="Rule ID")
   | RuleName => Table.makeHeaderInfo(~key="rule_name", ~title="Rule Name")
+  | RuleType => Table.makeHeaderInfo(~key="rule_type", ~title="Rule Type")
   | RuleDescription => Table.makeHeaderInfo(~key="rule_description", ~title="Description")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status")
   }
@@ -99,9 +20,10 @@ let getHeading = (colType: ruleColType) => {
 let getCell = (rule: rulePayload, colType: ruleColType): Table.cell => {
   switch colType {
   | Priority => Text(rule.priority->Int.toString)
-  | RuleId => Text(rule.rule_id)
+  | RuleId => DisplayCopyCell(rule.rule_id)
   | RuleName => Text(rule.rule_name)
   | RuleDescription => EllipsisText(rule.rule_description, "max-w-xs")
+  | RuleType => Text(getReconStrategyDisplayName(rule.strategy))
   | Status =>
     Label({
       title: rule.is_active ? "ACTIVE" : "INACTIVE",

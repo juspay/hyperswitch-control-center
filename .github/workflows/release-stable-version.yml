@@ -25,10 +25,9 @@ jobs:
           private-key: ${{ secrets.HYPERSWITCH_BOT_APP_PRIVATE_KEY }}
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.AUTO_RELEASE_PAT || github.token }}
 
       - name: Check if the input is valid CalVer tag
         shell: bash

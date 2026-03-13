@@ -32,7 +32,10 @@ let make = () => {
   | FORCE_SET_PASSWORD
   | RESET_PASSWORD =>
     <ResetPassword flowType />
-  | ACCEPT_INVITATION_FROM_EMAIL => <AcceptInviteScreen onClick=onClickErrorPageButton />
+  | ACCEPT_INVITATION_FROM_EMAIL =>
+    featureFlagDetails.devAcceptInvite
+      ? {<AcceptInviteScreenV2 onClick=onClickErrorPageButton />}
+      : {<AcceptInviteScreen onClick=onClickErrorPageButton />}
   | VERIFY_EMAIL => <VerifyUserFromEmail onClick=onClickErrorPageButton />
   | USER_INFO => <UserInfoScreen onClick=onClickErrorPageButton />
   | ERROR => <CommonAuthError onClick=onClickErrorPageButton />

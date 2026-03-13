@@ -1,7 +1,7 @@
 open LogicUtils
 open InsightsUtils
 open SuccessfulSmartRetryDistributionTypes
-
+open CurrencyFormatUtils
 let getStringFromVariant = value => {
   switch value {
   | Payments_Success_Rate_Distribution_With_Only_Retries => "payments_success_rate_distribution_with_only_retries"
@@ -67,7 +67,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => successfulSmartRetryDistributionObje
 
 let getObjects: JSON.t => array<successfulSmartRetryDistributionObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

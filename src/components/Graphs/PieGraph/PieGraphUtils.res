@@ -95,7 +95,8 @@ let pieGraphTooltipFormatter = (
     (this: PieGraphTypes.pointFormatter) => {
       let value = this.y < 0.0 ? this.y *. -1.0 : this.y
 
-      let valueString = value->LogicUtils.valueFormatter(valueFormatterType, ~currency, ~suffix)
+      let valueString =
+        value->CurrencyFormatUtils.valueFormatter(valueFormatterType, ~currency, ~suffix)
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
 
       let tableItems = `
@@ -167,7 +168,7 @@ let getCategoryWisePieChartPayload = (
   let title: PieGraphTypes.title = {
     text: `
     <div className="flex flex-col items-center justify-center">
-      <p class="text-center mt-1 text-gray-800 text-2xl font-semibold font-inter-style">${totalAmount->LogicUtils.valueFormatter(
+      <p class="text-center mt-1 text-gray-800 text-2xl font-semibold font-inter-style">${totalAmount->CurrencyFormatUtils.valueFormatter(
         toolTipStyle.valueFormatterType,
       )}</p>
     <p class="text-sm text-grey-500 font-inter-style px-4">${toolTipStyle.title}</p>

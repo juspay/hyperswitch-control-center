@@ -1,4 +1,4 @@
-open LogicUtils
+open CurrencyFormatUtils
 
 let summaryCols: array<LeastCostRoutingAnalyticsSummaryTableTypes.summaryColType> = [
   SignatureBrand,

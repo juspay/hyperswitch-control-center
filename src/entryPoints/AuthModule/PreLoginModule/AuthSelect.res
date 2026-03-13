@@ -10,7 +10,9 @@ let make = (~setSelectedAuthId) => {
   let {setAuthStatus, authMethods} = React.useContext(AuthInfoProvider.authStatusContext)
   let {fetchAuthMethods} = AuthModuleHooks.useAuthMethods()
   let updateDetails = useUpdateMethod()
+  let {isPasswordEnabled, isMagicLinkEnabled} = AuthModuleHooks.useAuthMethods()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)
@@ -67,6 +69,16 @@ let make = (~setSelectedAuthId) => {
         customButtonStyle="!w-full"
         onClick={_ => handleTerminateSSO(method.id)->ignore}
       />
+    | (MAGIC_LINK, #Magic_Link) =>
+      <RenderIf condition={isMagicLinkEnabled() && !isPasswordEnabled()}>
+        <Button
+          text="Continue with Magic Link"
+          buttonType={Primary}
+          buttonSize={Large}
+          customButtonStyle="!w-full"
+          onClick={_ => handleTerminateSSO(method.id)->ignore}
+        />
+      </RenderIf>
     | (_, _) => React.null
     }
   }
@@ -89,7 +101,11 @@ let make = (~setSelectedAuthId) => {
               ->Array.mapWithIndex((authMethod, index) =>
                 <React.Fragment key={index->Int.toString}>
                   {authMethod->renderComponentForAuthTypes}
-                  <RenderIf condition={index === 0 && authMethods->Array.length !== 2}>
+                  <RenderIf
+                    condition={authMethods->SSOUtils.checkToRenderOr(
+                      index,
+                      featureFlagValues.email,
+                    ) && index != authMethods->Array.length - 1}>
                     {PreLoginUtils.divider}
                   </RenderIf>
                 </React.Fragment>

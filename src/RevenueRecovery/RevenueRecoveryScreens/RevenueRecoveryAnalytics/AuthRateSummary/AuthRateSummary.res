@@ -4,6 +4,7 @@ open AuthRateSummaryUtils
 open BarGraphTypes
 open AuthRateSummaryTypes
 open Typography
+open CurrencyFormatUtils
 
 module LegendItem = {
   @react.component

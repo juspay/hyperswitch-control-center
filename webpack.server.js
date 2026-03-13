@@ -24,6 +24,7 @@ module.exports = {
       IS_SCOPING_MODULE_ACTIVE: JSON.stringify(
         process.env.IS_SCOPING_MODULE_ACTIVE || "true",
       ),
+      APP_NAME: JSON.stringify(process.env.APP_NAME || "hyperswitch"),
     }),
     new CopyWebpackPlugin({
       patterns: [{ from: "config", to: "config" }],

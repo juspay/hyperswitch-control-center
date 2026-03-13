@@ -49,6 +49,7 @@ type attemptColType =
   | ReferenceID
   | ClientSource
   | ClientVersion
+  | HyperswitchErrorDescription
 
 type colType =
   | PaymentId
@@ -62,6 +63,7 @@ type colType =
   | ConnectorTransactionID
   | ClientSecret
   | Created
+  | Modified
   | Currency
   | CustomerId
   | Description
@@ -93,6 +95,7 @@ type colType =
   | CardNetwork
   | MerchantOrderReferenceId
   | AttemptCount
+  | PaymentType
 
 type summaryColType =
   | Created
@@ -156,6 +159,10 @@ type otherDetailsColType =
   | FRMTransactionType
   | FRMStatus
   | MerchantOrderReferenceId
+  | ExtendedAuthLastAppliedAt
+  | ExtendedAuthApplied
+  | RequestExtendedAuth
+  | HyperswitchErrorDescription
 
 type optionObj = {
   urlKey: string,

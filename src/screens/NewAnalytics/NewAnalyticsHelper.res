@@ -48,7 +48,7 @@ module Tabs = {
 
 module NoData = {
   @react.component
-  let make = (~height="h-96", ~message="No entires in selected time period.") => {
+  let make = (~height="h-96", ~message="No entries in the selected time period.") => {
     <div
       className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
       {message->React.string}

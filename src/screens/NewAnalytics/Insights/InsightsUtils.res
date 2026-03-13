@@ -61,12 +61,13 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
   | No_Change => ("#A0A0A0", "")
   }
 
-  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->LogicUtils.valueFormatter(
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->CurrencyFormatUtils.valueFormatter(
       Rate,
     )}</span>`
 }
 
 open LogicUtils
+open CurrencyFormatUtils
 // removes the NA buckets
 let filterQueryData = (query, key) => {
   query->Array.filter(data => {

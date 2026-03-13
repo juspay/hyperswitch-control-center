@@ -1,6 +1,7 @@
 open LogicUtils
 open InsightsUtils
 open FailureSmartRetryDistributionTypes
+open CurrencyFormatUtils
 
 let getStringFromVariant = value => {
   switch value {
@@ -67,7 +68,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => failureSmartRetryDistributionObject 
 
 let getObjects: JSON.t => array<failureSmartRetryDistributionObject> = json => {
   json
-  ->LogicUtils.getArrayFromJson([])
+  ->getArrayFromJson([])
   ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })

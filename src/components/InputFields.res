@@ -40,6 +40,7 @@ let selectInput = (
   ~dropdownClassName="",
   ~descriptionOnHover=false,
   ~buttonSize=Button.Large,
+  ~maxButtonWidth="",
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -74,6 +75,7 @@ let selectInput = (
     dropdownClassName
     descriptionOnHover
     buttonSize
+    maxButtonWidth
   />
 }
 
@@ -711,9 +713,9 @@ let boolInput = (
   <BoolInput input isDisabled isCheckBox boolCustomClass toggleEnableColor />
 }
 
-let colorPickerInput = (~defaultValue="") => (
+let colorPickerInput = (~defaultValue="", ~showErrorWhenEmpty=true) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
 ) => {
-  <ColorPickerInput input defaultValue />
+  <ColorPickerInput input defaultValue showErrorWhenEmpty />
 }

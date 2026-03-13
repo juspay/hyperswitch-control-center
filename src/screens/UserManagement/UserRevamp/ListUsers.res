@@ -33,7 +33,7 @@ let make = () => {
         ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
-        ~queryParamerters=userModuleEntity == #Default
+        ~queryParameters=userModuleEntity == #Default
           ? None
           : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
@@ -96,7 +96,7 @@ let make = () => {
         filters={<TableSearchFilter
           data={usersData}
           filterLogic=filterLogicForUsers
-          placeholder="Search by name or email.."
+          placeholder="Search by name or email"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full"
           searchVal=searchText

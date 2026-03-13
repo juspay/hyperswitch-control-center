@@ -25,21 +25,26 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let {
-    userInfo: {orgId, merchantId, profileId, roleId, version},
-    checkUserEntity,
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {roleId} = getResolvedUserInfo()
+  let {orgId, merchantId, profileId, version} = getCommonSessionDetails()
+
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let isReconEnabled = React.useMemo(() => {
     merchantDetailsTypedValue.recon_status === Active
   }, [merchantDetailsTypedValue.merchant_id])
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
-  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValuesForCurrentActive(~isReconEnabled)
+  let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive(~isReconEnabled)
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
+
   sessionExpired := false
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()
   let applyTheme = async () => {
@@ -57,8 +62,14 @@ let make = () => {
       setuserGroupACL(_ => None)
       setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
+      if featureFlagDetails.paymentLinkThemeConfigurator {
+        Window.paymentLinkWasmInit()->ignore
+      }
       let merchantResponse = await fetchMerchantAccountDetails(~version)
       let _ = await fetchMerchantSpecificConfig()
+      if !isInternalUser {
+        let _ = await fetchMerchantList()
+      }
       let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
@@ -100,7 +111,7 @@ let make = () => {
   }
 
   let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
-  | Orchestration(V1) => true
+  | Orchestration(V1) => featureFlagDetails.globalSearch
   | _ => false
   }
 
@@ -119,9 +130,9 @@ let make = () => {
             <div className="flex relative  h-screen ">
               <RenderIf condition={screenState === Success}>
                 <Sidebar
-                  path={url.path}
+                  path=url.path
+                  isReconEnabled
                   sidebars={hyperSwitchAppSidebars}
-                  key={(screenState :> string)}
                   productSiebars=productSidebars
                 />
               </RenderIf>
@@ -175,19 +186,21 @@ let make = () => {
                           </RenderIf>
                         </div>
                       </div>}
-                      headerLeftActions={switch logoURL {
-                      | Some(url) if url->LogicUtils.isNonEmptyString =>
-                        <div className="flex md:gap-4 gap-2 items-center">
+                      headerLeftActions={
+                        let logoElement = switch logoURL {
+                        | Some(url) if url->LogicUtils.isNonEmptyString =>
                           <img className="h-8 w-auto object-contain" alt="image" src={url} />
-                          <ProfileSwitch />
-                          <LiveMode />
-                        </div>
-                      | _ =>
+                        | _ => React.null
+                        }
+
                         <div className="flex md:gap-4 gap-2 items-center">
-                          <ProfileSwitch />
+                          {logoElement}
+                          <RenderIf condition={!isCurrentMerchantPlatform}>
+                            <ProfileSwitch />
+                          </RenderIf>
                           <LiveMode />
                         </div>
-                      }}
+                      }
                       midUiActions={<TestMode />}
                       midUiActionsCustomClass={`top-0 relative flex justify-center ${leftCustomClass}`}
                     />
@@ -208,7 +221,14 @@ let make = () => {
                         | (_, list{"v2", "home"}) => <DefaultHome />
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
-
+                        | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
+                        | (_, list{"users", ..._})
+                          if featureFlagDetails.devModularityV2 && featureFlagDetails.devUsers =>
+                          <AccessControl
+                            isEnabled={version == V1}
+                            authorization={userHasAccess(~groupAccess=UsersView)}>
+                            <UserManagementContainer />
+                          </AccessControl>
                         | (_, list{"account-settings", "profile", ...remainingPath}) =>
                           <EntityScaffold
                             entityName="profile setting"

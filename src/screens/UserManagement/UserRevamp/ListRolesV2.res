@@ -30,7 +30,7 @@ let make = () => {
         ~entityName=V1(USER_MANAGEMENT),
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters=Some(
+        ~queryParameters=Some(
           `groups=true&entity_type=${(userModuleEntity :> string)->String.toLowerCase}`,
         ),
       )
@@ -74,7 +74,7 @@ let make = () => {
         <TableSearchFilter
           data={matrixData.roles->Array.map(role => Nullable.make(role))}
           filterLogic={filterLogicForRoles}
-          placeholder="Search by role name"
+          placeholder="Search by Role"
           customSearchBarWrapperWidth="w-full lg:w-1/3"
           customInputBoxWidth="w-full text-sm rounded-lg"
           searchVal=searchText

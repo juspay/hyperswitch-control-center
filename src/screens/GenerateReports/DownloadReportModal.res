@@ -11,16 +11,25 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   open HSwitchRemoteFilter
   open LogicUtils
   open OrderUIUtils
+  open APIUtilsTypes
 
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {transactionEntity} = getResolvedUserInfo()
+  let {version} = getCommonSessionDetails()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let defaultDate = getDateFilteredObject(~range=30)
   let {filterValueJson} = FilterContext.filterContext->React.useContext
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+
+  let report_type = switch entityName {
+  | V2(REVENUE_RECOVERY_REPORT) => Some("revenue_recovery")
+  | _ => None
+  }
 
   let downloadReport = async body => {
     try {
@@ -37,7 +46,11 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let onSubmit = (values, _) => {
     let metadata = values->Identity.genericTypeToJson
     mixpanelEvent(~eventName="generate_reports_download", ~metadata)
-    downloadReport(values->Identity.genericTypeToJson)
+    let bodyDict = metadata->getDictFromJsonObject
+    report_type->Option.mapOr((), value =>
+      bodyDict->Dict.set("reportType", value->JSON.Encode.string)
+    )
+    downloadReport(bodyDict->JSON.Encode.object)
   }
 
   let initialValues = {
@@ -53,6 +66,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
 
   let category = switch entityName {
   | V1(PAYMENT_REPORT) => "Payment"
+  | V1(PAYOUT_REPORT) => "Payout"
   | V1(REFUND_REPORT) => "Refund"
   | V1(DISPUTE_REPORT) => "Dispute"
   | _ => ""

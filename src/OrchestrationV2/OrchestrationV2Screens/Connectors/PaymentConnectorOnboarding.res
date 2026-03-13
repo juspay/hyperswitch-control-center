@@ -13,8 +13,7 @@ let make = () => {
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-  let {profileId} = getUserInfoData()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
@@ -172,6 +171,11 @@ let make = () => {
       errors->JSON.Encode.object,
     )
   }
+
+  React.useEffect(() => {
+    setShowSideBar(_ => false)
+    None
+  }, [])
 
   let titleElement =
     <>

@@ -257,6 +257,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useUpdateMethod()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutData, setPayoutsData) = React.useState(_ => Dict.make()->PayoutsEntity.itemToObjMapper)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
@@ -295,7 +298,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   React.useEffect(() => {
     fetchPayoutsData()->ignore
     None
-  }, [])
+  }, [id])
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
@@ -314,6 +317,25 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       </div>
       {<div className="flex flex-col gap-8">
         <PayoutInfo payoutData />
+        <RenderIf
+          condition={version == V1 &&
+          featureFlagDetails.auditTrail &&
+          userHasAccess(~groupAccess=AnalyticsView) === Access}>
+          <RenderAccordian
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                  <LogsWrapper wrapperFor={#PAYOUT}>
+                    <PayoutLogs payoutId={id} />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </RenderIf>
         <div className="overflow-scroll">
           <Attempts data=payoutData />
         </div>
@@ -321,7 +343,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion=[
             {
               title: "Customer Details",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <CustomerDetails payoutData />
               },
               renderContentOnTop: None,
@@ -332,7 +354,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion=[
             {
               title: "More Payout Details",
-              renderContent: () => {
+              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                 <MorePayoutDetails payoutData />
               },
               renderContentOnTop: None,
@@ -346,7 +368,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion=[
               {
                 title: "Payout Method Details",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={payoutData.payout_method_data
@@ -366,7 +388,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion=[
               {
                 title: "Payout Metadata",
-                renderContent: () => {
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={payoutData.metadata->JSON.stringifyAny->Option.getOr("")}

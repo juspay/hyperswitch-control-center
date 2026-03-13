@@ -1,28 +1,51 @@
 open Typography
-open ReconEngineTypes
+open ReconEngineRulesTypes
 
 module RuleWiseStackedBarGraph = {
   @react.component
-  let make = (~rule: ReconEngineTypes.reconRuleType) => {
+  let make = (~rule: rulePayload) => {
+    open CurrencyFormatUtils
     open LogicUtils
 
     let getTransactions = ReconEngineHooks.useGetTransactions()
     let (allTransactionsData, setAllTransactionsData) = React.useState(_ => [])
     let isMiniLaptopView = MatchMedia.useScreenSizeChecker(~screenSize="1600")
+    let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
 
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
     let getAllTransactionsData = async _ => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let transactionsData = await getTransactions(
-          ~queryParamerters=Some(`rule_id=${rule.rule_id}`),
-        )
+        let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+        let statusList =
+          ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+            Posted(Auto),
+            Posted(Manual),
+            Posted(Force),
+            Expected,
+            Missing,
+            PartiallyReconciled,
+            OverAmount(Mismatch),
+            OverAmount(Expected),
+            UnderAmount(Mismatch),
+            UnderAmount(Expected),
+            DataMismatch,
+          ])->Array.joinWith(",")
+
+        let queryString = if baseQueryString->isNonEmptyString {
+          `${baseQueryString}&rule_id=${rule.rule_id}&status=${statusList}`
+        } else {
+          `rule_id=${rule.rule_id}&status=${statusList}`
+        }
+        let transactionsData = await getTransactions(~queryParameters=Some(queryString))
         setAllTransactionsData(_ => transactionsData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
+
     let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
       ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
     }, [allTransactionsData])
@@ -42,9 +65,11 @@ module RuleWiseStackedBarGraph = {
     }, [postedCount, mismatchedCount, expectedCount])
 
     React.useEffect(() => {
-      getAllTransactionsData()->ignore
+      if !(filterValue->isEmptyDict) {
+        getAllTransactionsData()->ignore
+      }
       None
-    }, [])
+    }, [filterValue])
 
     <PageLoaderWrapper
       screenState
@@ -73,7 +98,7 @@ module RuleWiseStackedBarGraph = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<rulePayload>) => {
   <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
     {reconRulesList
     ->Array.map(rule => <RuleWiseStackedBarGraph rule key={rule.rule_id} />)

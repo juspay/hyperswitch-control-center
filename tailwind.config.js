@@ -35,6 +35,7 @@ module.exports = {
       margin: {
         "15-px": "15px",
         "54-px": "54px",
+        "300-px": "300px",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -62,6 +63,7 @@ module.exports = {
         "32-px": "32px",
         "36-px": "36px",
         "40-px": "40px",
+        "50-px": "50px",
         "68-px": "68px",
         "84-px": "84px",
         "120-px": "120px",
@@ -69,6 +71,9 @@ module.exports = {
         "195-px": "195px",
         "344-px": "344px",
         "400-px": "400px",
+        "590-px": "590px",
+        "650-px": "650px",
+        "700-px": "700px",
         "774-px": "774px",
         "840-px": "840px",
         "890-px": "890px",
@@ -78,6 +83,7 @@ module.exports = {
       },
       padding: {
         "10-px": "10px",
+        "2-px": "2px",
       },
       minWidth: {
         "25-rem": "25rem",
@@ -86,6 +92,7 @@ module.exports = {
         "15-rem": "15rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
+        "750-px": "750px",
       },
       minHeight: {
         "500-px": "500px",
@@ -93,7 +100,9 @@ module.exports = {
       inset: {
         "5-px": "5px",
         "76-px": "76px",
+        "120-px": "120px",
         "180-px": "180px",
+        "500-px": "500px",
       },
       letterSpacing: {
         compressed: "-2px",
@@ -123,6 +132,7 @@ module.exports = {
         "137-px": "137px",
         "145-px": "145px",
         "147-px": "147px",
+        "267-px": "267px",
         "298-px": "298px",
         "334-px": "334px",
         "499-px": "499px",
@@ -146,6 +156,9 @@ module.exports = {
         700: "700px",
         800: "800px",
         400: "400px",
+        325: "325px",
+        250: "250px",
+        200: "200px",
       },
       lineHeight: {
         14: "14px",
@@ -187,6 +200,7 @@ module.exports = {
         cardShadow: "0px 2px 2px 0px rgba(0, 0, 0, 0.04)",
         rightDrawerShadow:
           "0px 4px 6px 0px rgba(0,0,0,0.05) , 0px 10px 15px -3px rgba(16,24,40,0.1)",
+        cardSelectedShadow: "0px 3px 16px 3px rgba(190, 219, 255, 0.6)",
       },
       fontSize: {
         base: "var(--base-font-size)",
@@ -225,7 +239,7 @@ module.exports = {
           textColorPrimary: withOpacity("--sidebar-text-color-primary"),
           secondary: `hsl(from rgb(var(--sidebar-primary)) h s calc(l + 10) / 1)`, //color for dropdowns in sidebar
           hoverColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.5)`,
-          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 4) / 0.8)`,
+          borderColor: `hsl(from rgb(var(--sidebar-primary)) h s calc(l - 8) / 1)`,
         },
 
         background: {
@@ -381,6 +395,7 @@ module.exports = {
           border_gray: "#E8E8E8", // need to check this
           secondary_hover: "#EEEEEE",
           test_credentials_bg: "#D9D9D959",
+          text_muted: "#808080",
         },
         hyperswitch_dark_bg: "#212E46",
         light_blue: "#006DF966",
@@ -438,11 +453,12 @@ module.exports = {
         nd_green: {
           50: "#ECF4EE",
           100: "#E8F8F5",
+          150: "#F0FDF4",
           200: "#52B87A",
           300: "#69AF7D",
           400: "#2DA160",
           500: "#11927E",
-          600: "#217645",
+          600: "#25744C",
         },
         nd_red: {
           50: "#FCF1EF",
@@ -455,13 +471,25 @@ module.exports = {
         nd_orange: {
           50: "#FDF1DD",
           100: "#FFE6CC",
+          150: "#FFF7ED",
+          200: "#FFD6A8",
+          300: "#FF6900",
           600: "#9E5400",
         },
         nd_yellow: {
+          50: "#FEFCE8",
           100: "#FFFBEE",
           200: "#5E4200",
           300: "#FFDF20",
+          500: "#EFB100",
+          600: "#D08700",
+          700: "#A65F00",
           800: "#998335",
+        },
+        nd_purple: {
+          100: "#FAF5FF",
+          200: "#F3E8FF",
+          300: "#AD46FF",
         },
       },
       borderRadius: {

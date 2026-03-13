@@ -11,7 +11,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
 
   let setUpConnectoreContainer = async () => {
@@ -98,6 +98,26 @@ let make = () => {
           renderShow={(_, _) => <TaxProcessorHome />}
         />
       </AccessControl>
+    | list{"billing-processor", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Billing Processor"
+          remainingPath
+          renderList={() => <BillingProcessorList />}
+          renderNewForm={() => <BillingProcessorHome />}
+          renderShow={(_, _) => <BillingProcessorHome />}
+        />
+      </AccessControl>
+    | list{"vault-processor", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <EntityScaffold
+          entityName="Vault Processor"
+          remainingPath
+          renderList={() => <VaultProcessorsList />}
+          renderNewForm={() => <VaultProcessorsHome />}
+          renderShow={(_, _) => <VaultProcessorsHome />}
+        />
+      </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.frm}
@@ -123,6 +143,14 @@ let make = () => {
           />
         </FilterContext>
       </AccessControl>
+    | list{"payment-link-theme"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.paymentLinkThemeConfigurator}
+        authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+        <SDKProvider>
+          <PaymentLinkThemeConfigurator />
+        </SDKProvider>
+      </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
@@ -145,18 +173,24 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <EntityScaffold
-        entityName="PaymentSettings"
-        remainingPath
-        renderList={() => <PaymentSettings webhookOnly=false showFormOnly=false />}
-      />
-    | list{"payment-settings-new", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.paymentSettingsV2} authorization=Access>
-        <EntityScaffold
-          entityName="PaymentSettingsV2" remainingPath renderList={() => <PaymentSettingsV2 />}
-        />
-      </AccessControl>
-
+      <>
+        <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
+          <AccessControl authorization=Access>
+            <EntityScaffold
+              entityName="PaymentSettingsRevamped"
+              remainingPath
+              renderList={() => <PaymentSettingsRevamped />}
+            />
+          </AccessControl>
+        </RenderIf>
+        <RenderIf condition={!featureFlagDetails.paymentSettingsRevamped}>
+          <AccessControl authorization=Access>
+            <EntityScaffold
+              entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
+            />
+          </AccessControl>
+        </RenderIf>
+      </>
     | list{"webhooks", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
         <FilterContext key="webhooks" index="webhooks">
@@ -180,6 +214,9 @@ let make = () => {
           <SDKPage />
         </SDKProvider>
       </AccessControl>
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
+      <OrchestrationVaultContainer />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

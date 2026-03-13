@@ -1,5 +1,4 @@
 open Typography
-open LogicUtils
 open ReconEngineTypes
 
 module AmountRow = {
@@ -26,7 +25,7 @@ module AccountDetailCard = {
     ~transactionData: ReconEngineOverviewSummaryTypes.accountTransactionData,
   ) => {
     let formatAmount = (balance: balanceType): string => {
-      `${Math.abs(balance.value)->valueFormatter(Amount)} ${balance.currency}`
+      `${Math.abs(balance.value)->CurrencyFormatUtils.valueFormatter(Amount)} ${balance.currency}`
     }
 
     let formatCount = (count: int): string => {

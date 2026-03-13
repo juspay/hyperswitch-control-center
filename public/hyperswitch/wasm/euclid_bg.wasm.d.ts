@@ -20,6 +20,7 @@ export const getVariantValues: (a: number, b: number, c: number) => void;
 export const addTwo: (a: bigint, b: bigint) => bigint;
 export const getDescriptionCategory: (a: number) => void;
 export const getConnectorConfig: (a: number, b: number, c: number) => void;
+export const getBillingConnectorConfig: (a: number, b: number, c: number) => void;
 export const getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
 export const getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
 export const getTaxProcessorConfig: (a: number, b: number, c: number) => void;

@@ -8,7 +8,7 @@ let emptyComponent = CustomComponent({
 let home = Link({
   name: "Overview",
   icon: "nd-home",
-  link: "v2/orchestration/home",
+  link: "/v2/orchestration/home",
   access: Access,
   selectedIcon: "nd-fill-home",
 })
@@ -16,7 +16,7 @@ let home = Link({
 let payments = userHasResourceAccess => {
   SubLevelLink({
     name: "Payments",
-    link: `v2/orchestration/payments`,
+    link: `/v2/orchestration/payments`,
     access: userHasResourceAccess(~resourceAccess=Payment),
     searchOptions: [("View payment operations", "")],
   })
@@ -41,7 +41,7 @@ let operations = (isOperationsEnabled, ~userHasResourceAccess) => {
 let paymentProcessor = (_isLiveMode, userHasResourceAccess) => {
   SubLevelLink({
     name: "Payment Processors",
-    link: `v2/orchestration/connectors`,
+    link: `/v2/orchestration/connectors`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     // searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
     //   ~processorList=isLiveMode
@@ -69,17 +69,25 @@ let connectors = (isConnectorsEnabled, ~isLiveMode, ~userHasResourceAccess) => {
 let apiKeys = userHasResourceAccess => {
   SubLevelLink({
     name: "API Keys",
-    link: `v2/orchestration/developer-api-keys`,
+    link: `/v2/orchestration/developer-api-keys`,
     access: userHasResourceAccess(~resourceAccess=ApiKey),
     searchOptions: [("View API Keys", ""), ("Create API Key", "")],
+  })
+}
+let paymentSettings = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Settings",
+    link: `/v2/orchestration/payment-settings`,
+    access: userHasResourceAccess(~resourceAccess=Account),
   })
 }
 
 let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity) => {
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(userHasResourceAccess)
-
+  let paymentSettings = paymentSettings(userHasResourceAccess)
   let defaultDevelopersOptions = []
+  defaultDevelopersOptions->Array.push(paymentSettings)
   if !isProfileUser {
     defaultDevelopersOptions->Array.push(apiKeys)
   }
@@ -102,8 +110,8 @@ let useGetOrchestrationV2SidebarValues = () => {
 
   let sidebar = [
     home,
-    default->connectors(~isLiveMode, ~userHasResourceAccess),
     default->operations(~userHasResourceAccess),
+    default->connectors(~isLiveMode, ~userHasResourceAccess),
     default->developers(~userHasResourceAccess, ~checkUserEntity),
   ]
 

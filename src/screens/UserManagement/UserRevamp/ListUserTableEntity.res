@@ -90,5 +90,5 @@ let userEntity = EntityType.makeEntity(
   ~getCell=getCellForUser,
   ~dataKey="",
   ~getShowLink=userId =>
-    GlobalVars.appendDashboardPath(~url=`/users/details?email=${userId.email}`),
+    GlobalVars.appendDashboardPath(~url=`/users/details?email=${userId.email->encodeURIComponent}`),
 )
