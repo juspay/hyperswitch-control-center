@@ -74,6 +74,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
 
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
@@ -83,7 +84,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
-
+      mixpanelEvent(~eventName="payment_settings_three_ds")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

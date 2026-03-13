@@ -206,6 +206,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     businessProfileRecoilVal->Identity.genericTypeToJson
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
   let onSubmit = async (values, _) => {
@@ -219,6 +220,7 @@ let make = () => {
       }
 
       setInitialValues(_ => updatedInitialValues)
+      mixpanelEvent(~eventName="payment_settings_custom_metadata_headers")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       setAllowEdit(_ => false)
