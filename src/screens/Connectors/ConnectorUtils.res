@@ -178,6 +178,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDPAYMODULAR),
   Processors(SANTANDER),
   Processors(REVOLV3),
+  Processors(TRUELAYER),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -972,6 +973,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYMODULAR => "worldpaymodular"
   | SANTANDER => "santander"
   | REVOLV3 => "revolv3"
+  | TRUELAYER => "truelayer"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1166,6 +1168,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpaymodular" => Processors(WORLDPAYMODULAR)
     | "santander" => Processors(SANTANDER)
     | "revolv3" => Processors(REVOLV3)
+    | "truelayer" => Processors(TRUELAYER)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1338,6 +1341,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYMODULAR => worldpayModularInfo
   | SANTANDER => santanderInfo
   | REVOLV3 => revolv3Info
+  | TRUELAYER => truelayerInfo
   }
 }
 
@@ -2307,6 +2311,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYMODULAR => "Worldpay Modular"
   | SANTANDER => "Santander"
   | REVOLV3 => "Revolv3"
+  | TRUELAYER => "Truelayer"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
