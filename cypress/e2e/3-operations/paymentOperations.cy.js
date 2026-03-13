@@ -921,7 +921,7 @@ describe("Payment Operations", () => {
   });
 
   // Payment details page
-  it("should verify all components in Payment Details page", () => {
+  it("should verify all components in Payment Details page - 1", () => {
     cy.ompLineage().then((lineage) => {
       cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
       cy.createPaymentAPI(lineage.merchant_id);
@@ -1114,6 +1114,17 @@ describe("Payment Operations", () => {
           });
         });
     };
+  });
+
+  it("should verify all components in Payment Details page - 2", () => {
+    cy.ompLineage().then((lineage) => {
+      cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
+      cy.createPaymentAPI(lineage.merchant_id);
+    });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+    cy.get('[data-table-location="Orders_tr1_td1"]').click();
 
     // Customer section
     assertSectionFields("Customer", {

@@ -174,7 +174,7 @@ describe("Homepage", () => {
     cy.url().should("include", "/dashboard/3ds-exemption");
 
     homePage.vault.should("be.visible").click();
-    homePage.valtConfiguration.should("be.visible").click();
+    homePage.vaultConfiguration.should("be.visible").click();
     cy.url().should("include", "/dashboard/vault-onboarding");
     homePage.vaultCustomersAndTokens.should("be.visible").click();
     cy.url().should("include", "/dashboard/vault-customers-tokens");

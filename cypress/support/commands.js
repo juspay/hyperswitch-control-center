@@ -596,7 +596,29 @@ Cypress.Commands.add("get_authID_by_email", () => {
 
 Cypress.Commands.add("ompLineage", () => {
   return cy.window().then((win) => {
-    const token = JSON.parse(win.localStorage.getItem("USER_INFO")).token;
+    const rawUserInfo = win.localStorage.getItem("USER_INFO");
+
+    if (!rawUserInfo) {
+      throw new Error(
+        "ompLineage: USER_INFO not found in localStorage. User may not be logged in.",
+      );
+    }
+
+    let userInfo;
+    try {
+      userInfo = JSON.parse(rawUserInfo);
+    } catch (e) {
+      throw new Error(
+        `ompLineage: Failed to parse USER_INFO from localStorage: ${e.message}`,
+      );
+    }
+
+    const token = userInfo && userInfo.token;
+    if (!token) {
+      throw new Error(
+        "ompLineage: token not found in USER_INFO. User may not be authenticated.",
+      );
+    }
 
     return cy
       .request({

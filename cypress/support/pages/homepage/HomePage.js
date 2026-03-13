@@ -181,7 +181,7 @@ class HomePage {
     return cy.get('[data-testid="vault"]');
   }
 
-  get valtConfiguration() {
+  get vaultConfiguration() {
     return cy.get('[data-testid="configuration"]');
   }
 
