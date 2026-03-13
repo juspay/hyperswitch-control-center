@@ -163,7 +163,7 @@ let make = (~previewOnly=false) => {
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
     />
-  let hasSearchText = searchText->LogicUtils.isNonEmptyString
+  let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       title="Orders"

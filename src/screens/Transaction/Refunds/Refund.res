@@ -43,7 +43,7 @@ let make = () => {
       handleClick=handleExtendDateButtonClick
     />
   }
-  let hasSearchText = searchText->LogicUtils.isNonEmptyString
+  let hasSearchText = searchText->isNonEmptyString
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
