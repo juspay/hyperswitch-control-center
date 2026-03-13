@@ -28,7 +28,8 @@ module MenuOption = {
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40"
+            >
               {<Navbar.MenuOption
                 text={connectorStatusAvailableToSwitch}
                 onClick={_ => {
@@ -84,10 +85,15 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let connectorID = connectorInfo.merchant_connector_id
-      let disableConnectorPayload = ConnectorUtils.getDisableConnectorPayload(
-        connectorInfo.connector_type->ConnectorUtils.connectorTypeTypedValueToStringMapper,
-        isConnectorDisabled,
-      )
+      let initialValuesDict = initialValues->LogicUtils.getDictFromJsonObject
+      let disableConnectorPayload =
+        [
+          (
+            "connector_type",
+            initialValuesDict->LogicUtils.getString("connector_type", "")->JSON.Encode.string,
+          ),
+          ("disabled", !isConnectorDisabled->JSON.Encode.bool),
+        ]->LogicUtils.getJsonFromArrayOfJson
       let url = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=Some(connectorID))
       let res = await updateDetails(url, disableConnectorPayload, Post)
       setInitialValues(_ => res)
@@ -291,7 +297,8 @@ let make = () => {
         cursorStyle="cursor-pointer"
       />
       <div
-        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
+        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar"
+      >
         {switch currentStep {
         | ConfigurationFields =>
           <Form initialValues={initialValues} onSubmit validate={validateMandatoryField}>
@@ -299,9 +306,11 @@ let make = () => {
               connector=connectorName
               connectorType={TaxProcessor}
               headerButton={<AddDataAttributes
-                attributes=[("data-testid", "connector-submit-button")]>
+                attributes=[("data-testid", "connector-submit-button")]
+              >
                 <FormRenderer.SubmitButton loadingText="Processing..." text="Connect and Proceed" />
-              </AddDataAttributes>}>
+              </AddDataAttributes>}
+            >
               <div className="flex flex-col gap-2 p-2 md:px-10">
                 <ConnectorAccountDetailsHelper.BusinessProfileRender
                   isUpdateFlow selectedConnector={connectorName}
@@ -329,7 +338,8 @@ let make = () => {
 
         | Summary | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
-            connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
+            connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}
+          >
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={ConnectorInterface.mapDictToTypedConnectorPayload(
                 ConnectorInterface.connectorInterfaceV1,
