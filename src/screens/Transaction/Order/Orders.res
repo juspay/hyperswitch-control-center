@@ -163,7 +163,7 @@ let make = (~previewOnly=false) => {
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
     />
-  let isSearchingById = searchText->LogicUtils.isNonEmptyString
+  let hasSearchText = searchText->LogicUtils.isNonEmptyString
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       title="Orders"
@@ -171,7 +171,7 @@ let make = (~previewOnly=false) => {
       endTimeFilterKey={endTimeFilterKey(version)}
       startTimeFilterKey={startTimeFilterKey(version)}
       initialFilters
-      initialFixedFilter={version => initialFixedFilter(version, ~disable=isSearchingById)}
+      initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
       setOffset
       submitInputOnEnter=true
       customLeftView={<div className="flex flex-col gap-1">

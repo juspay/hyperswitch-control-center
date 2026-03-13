@@ -43,7 +43,7 @@ let make = () => {
       handleClick=handleExtendDateButtonClick
     />
   }
-  let isSearchingById = searchText->LogicUtils.isNonEmptyString
+  let hasSearchText = searchText->LogicUtils.isNonEmptyString
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -117,7 +117,7 @@ let make = () => {
             endTimeFilterKey
             startTimeFilterKey
             initialFilters
-            initialFixedFilter={version => initialFixedFilter(version, ~disable=isSearchingById)}
+            initialFixedFilter={version => initialFixedFilter(version, ~disable=hasSearchText)}
             setOffset
             customLeftView={<div className="flex flex-col gap-1">
               <SearchBarFilter
