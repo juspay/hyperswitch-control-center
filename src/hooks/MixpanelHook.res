@@ -8,6 +8,7 @@ let useSendEvent = () => {
   let {name, email: authInfoEmail} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getResolvedUserInfo()
+  let merchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
 
   let deviceId = switch LocalStorage.getItem("deviceId")->Nullable.toOption {
   | Some(id) => id
@@ -53,8 +54,8 @@ let useSendEvent = () => {
         "$device_id": deviceId->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,
         "$screen_width": Screen.screenWidth,
-        "name": email,
-        "merchantName": name,
+        "name": name,
+        "merchantName": merchantDetailsValue.merchant_name->Option.getOr(merchantId),
         "email": email,
         "mp_lib": "restapi",
         "merchantId": merchantId,
@@ -104,6 +105,7 @@ let usePageView = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let {name, email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let merchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
 
   let environment = GlobalVars.hostType->getEnvironment
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
@@ -119,8 +121,8 @@ let usePageView = () => {
         "$device_id": email->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,
         "$screen_width": Screen.screenWidth,
-        "name": email,
-        "merchantName": name,
+        "name": name,
+        "merchantName": merchantDetailsValue.merchant_name->Option.getOr(merchantId),
         "email": email,
         "mp_lib": "restapi",
         "merchantId": merchantId,
