@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.13.0
+
+### Features
+
+- Add Truelayer Connector in dashboard for Payments ([#4355](https://github.com/juspay/hyperswitch-control-center/pull/4355)) ([`184a4d0`](https://github.com/juspay/hyperswitch-control-center/commit/184a4d014b0d39d8b62c394beef2004a7b4353ee))
+- Add WASM for Truelayer connector in dashboard for payments ([#4367](https://github.com/juspay/hyperswitch-control-center/pull/4367)) ([`7cd26e4`](https://github.com/juspay/hyperswitch-control-center/commit/7cd26e4bba6f0cb74d5aa3e88b7277f8eeb2e36f))
+
+### Miscellaneous Tasks
+
+- Add banner to show 3ds manager deprecation notice ([#4337](https://github.com/juspay/hyperswitch-control-center/pull/4337)) ([`811d262`](https://github.com/juspay/hyperswitch-control-center/commit/811d262b71da4e50a680a3ecffa52e927018ab20))
+- Update Fiserv connector display names ([#4365](https://github.com/juspay/hyperswitch-control-center/pull/4365)) ([`b020dc3`](https://github.com/juspay/hyperswitch-control-center/commit/b020dc361bf89fa50b8532c968b505423788ea05))
+
+**Full Changelog:** [`2026.03.12.0...2026.03.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.12.0...2026.03.13.0)
+
+- - -
+
 ## 2026.03.12.0
 
 ### Bug Fixes
