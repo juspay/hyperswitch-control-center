@@ -27,6 +27,7 @@ let messageToTypeConversion = messageString => {
   switch messageString->String.toLowerCase {
   | "auth_token" => EmbeddedTypes.AUTH_TOKEN
   | "auth_error" => EmbeddedTypes.AUTH_ERROR
+  | "init_config" => EmbeddedTypes.INIT_CONFIG
   | str => EmbeddedTypes.Unknown(str)
   }
 }

@@ -111,7 +111,7 @@ let make = () => {
   }
 
   let showGlobalSearchBar = switch merchantDetailsTypedValue.product_type {
-  | Orchestration(V1) => true
+  | Orchestration(V1) => featureFlagDetails.globalSearch
   | _ => false
   }
 

@@ -40,7 +40,6 @@ module Details = {
   let make = (
     ~data: DisputeTypes.disputes,
     ~getHeading,
-    ~getCell,
     ~excludeColKeys=[],
     ~detailsFields,
     ~justifyClassName="justify-start",
@@ -169,14 +168,7 @@ module DisputesInfo = {
           subText="The chargeback has exceeded the dispute amount. Go to the Payments tab to learn more."
         />
       </RenderIf>
-      <Details
-        data=disputesData
-        getHeading
-        getCell={(data, colType, merchantId, orgId, ~profileId) =>
-          getCell(data, colType, merchantId, orgId, ~profileId)}
-        detailsFields=allColumns
-        setDisputeData
-      />
+      <Details data=disputesData getHeading detailsFields=allColumns setDisputeData />
       <RenderIf condition={!showNoteComponentCondition}>
         <DisputesNoteComponent disputesData />
       </RenderIf>

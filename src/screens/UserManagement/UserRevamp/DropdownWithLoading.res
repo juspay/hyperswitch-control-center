@@ -122,7 +122,7 @@ let make = (
                 }
               }}>
               <span
-                className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">
+                className="px-1 text-fs-13 text-sm font-medium leading-5 truncate !text-gray-500">
                 {buttonValue->React.string}
               </span>
               <Icon

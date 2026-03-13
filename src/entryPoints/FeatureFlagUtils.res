@@ -74,6 +74,7 @@ type featureFlag = {
   devUsers: bool,
   allowConnectedMerchants: bool,
   devVault: bool,
+  networkTokenization: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -150,6 +151,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     allowConnectedMerchants: dict->getBool("allow_connected_merchants", false),
     devVault: dict->getBool("dev_vault", false),
     paymentSettingsRevamped: dict->getBool("payment_settings_revamped", false),
+    networkTokenization: dict->getBool("network_tokenization", false),
   }
 }
 

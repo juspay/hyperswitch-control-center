@@ -42,7 +42,7 @@ let useGetTransactions = () => {
       )
       let res = await fetchDetails(url)
       let transactions = res->getArrayDataFromJson(transactionItemToObjMapper)
-      transactions->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
+      transactions->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
       transactions
     } catch {
     | _ => Exn.raiseError("Something went wrong")

@@ -6,6 +6,15 @@ const homePage = new HomePage();
 beforeEach(function () {
   const email = helper.generateUniqueEmail();
   cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+
+  cy.intercept("GET", "/dashboard/config/feature?domain=", (req) => {
+    req.continue((res) => {
+      if (res.body && res.body.features) {
+        res.body.features.global_search = true;
+      }
+    });
+  }).as("getFeatureDataSearch");
+
   cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 

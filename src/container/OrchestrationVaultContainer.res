@@ -3,6 +3,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let (sampleReport, setSampleReport) = React.useState(_ => false)
   let setIsOrchestrationVault = Recoil.useSetRecoilState(HyperswitchAtom.orchestrationVaultAtom)
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
   React.useEffect(() => {
     setIsOrchestrationVault(_ => true)
@@ -23,7 +24,7 @@ let make = () => {
       <EntityScaffold
         entityName="Vault"
         remainingPath
-        access=Access
+        access={checkUserEntity([#Profile]) ? NoAccess : Access}
         renderList={() => <VaultCustomersAndTokens sampleReport setSampleReport />}
         renderShow={(id, _) => <VaultCustomerSummary id sampleReport />}
       />
