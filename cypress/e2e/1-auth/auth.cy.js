@@ -432,7 +432,7 @@ describe("Sign in", () => {
       cy.url().should("contain", "okta.com");
     });
 
-    it(`should automatically log in and redirect to the dashboard after logout once initial Okta login is successfull`, () => {
+    it(`should automatically log in and redirect to the dashboard after logout once initial Okta login is successfully`, () => {
       cy.visit(`/?auth_id=${auth_id}`);
 
       signinPage.continueWithOktaButton.click();
