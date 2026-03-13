@@ -55,7 +55,6 @@ describe("Test live connectors", () => {
 
   before(() => {
     email = helper.generateUniqueEmail();
-    cy.session(`logged-in-user-${email}`, createSession);
   });
 
   beforeEach(() => {
