@@ -226,6 +226,18 @@ module Navigator = {
     }
   }
 
+  let browserNameToString = (browser: browserType) => {
+    switch browser {
+    | Edge => "Edge"
+    | Opera => "Opera"
+    | Chrome => "Chrome"
+    | Safari => "Safari"
+    | Firefox => "Firefox"
+    | InternetExplorer => "Internet Explorer"
+    | Unknown => "Unknown"
+    }
+  }
+
   let getBrowserVersion = {
     let ua = userAgent
     let extractVersion = (pattern: string) => {
