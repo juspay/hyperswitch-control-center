@@ -1,15 +1,41 @@
 @react.component
 let make = (~selectedTransformationHistoryId: option<string>) => {
   open LogicUtils
-  open ReconEngineDataTransformedEntriesHelper
   open ReconEngineDataTransformedEntriesUtils
   open ReconEngineHooks
+  open ReconEngineDataTransformedEntriesTypes
 
+  let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} = React.useContext(
+    FilterContext.filterContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (stagingData, setStagingData) = React.useState(_ => [
     Dict.make()->getProcessingEntryPayloadFromDict,
   ])
+  let (activeView: transformedEntriesViewType, setActiveView) = React.useState(_ =>
+    UnknownTransformedEntriesViewType
+  )
   let getProcessingEntries = useGetProcessingEntries()
+
+  let customFilterKey = "status"
+
+  let updateViewsFilterValue = (view: transformedEntriesViewType) => {
+    let statusFilter = view->getViewStatusFilter
+    if statusFilter->isNonEmptyString {
+      let customFilter = `[${statusFilter}]`
+      updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
+
+      if !(filterKeys->Array.includes(customFilterKey)) {
+        filterKeys->Array.push(customFilterKey)
+        setfilterKeys(_ => filterKeys)
+      }
+    }
+  }
+
+  let onViewClick = (view: transformedEntriesViewType) => {
+    setActiveView(_ => view)
+    updateViewsFilterValue(view)
+  }
 
   let fetchStagingData = async () => {
     try {
@@ -27,20 +53,56 @@ let make = (~selectedTransformationHistoryId: option<string>) => {
     }
   }
 
+  let settingActiveView = () => {
+    let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
+    let appliedStatusArray = appliedStatusFilter->getStrArrayFromJsonArray
+
+    let allViewStatuses = AllViewType->getViewStatusFilter->String.split(",")
+    let isAllView =
+      appliedStatusArray->Array.toSorted(compareLogic) ==
+        allViewStatuses->Array.toSorted(compareLogic)
+
+    if isAllView {
+      setActiveView(_ => AllViewType)
+    } else if appliedStatusFilter->Array.length == 1 {
+      let status =
+        appliedStatusFilter
+        ->getValueFromArray(0, ""->JSON.Encode.string)
+        ->getStringFromJson("")
+
+      let viewType = status->getViewTypeFromStatus
+      setActiveView(_ => viewType)
+    } else {
+      setActiveView(_ => UnknownTransformedEntriesViewType)
+    }
+  }
+
   React.useEffect(() => {
     fetchStagingData()->ignore
     None
   }, [])
 
+  React.useEffect(() => {
+    settingActiveView()
+    None
+  }, [filterValueJson])
+
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-2">
     {cardDetails(~stagingData)
     ->Array.map(card => {
+      let isClickable = card.viewType !== UnknownTransformedEntriesViewType
+      let isActive = isClickable && card.viewType === activeView
       <PageLoaderWrapper
         key={randomString(~length=10)}
         screenState
         customUI={<NewAnalyticsHelper.NoData height="h-28" message="No data available" />}
         customLoader={<Shimmer styleClass="w-full h-28 rounded-xl" />}>
-        <TransformedEntriesOverviewCard key=card.title title=card.title value=card.value />
+        <ReconEngineDataTransformedEntriesHelper.TransformedEntriesOverviewCard
+          title={card.title}
+          value={card.value}
+          onClick={isClickable ? Some(() => onViewClick(card.viewType)) : None}
+          isActive={isActive}
+        />
       </PageLoaderWrapper>
     })
     ->React.array}
