@@ -112,8 +112,8 @@ let getFinalDict = (
           filterDict
           ->getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
           ->String.split(", ")
-        value->Array.forEachWithIndex((value, indx) => {
-          let key = key->Array.length > indx ? key[indx]->Option.getOr("") : ""
+        value->Array.forEachWithIndex((value, index) => {
+          let key = key->Array.length > index ? key[index]->Option.getOr("") : ""
           if value->isNonEmptyString && key->isNonEmptyString {
             let isformat = searchkeysDict !== Dict.make()
             let value = if isformat {

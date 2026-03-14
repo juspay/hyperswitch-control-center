@@ -9,7 +9,7 @@ let make = (
   ~closeOnOutsideClick=true,
   ~submitButtonText="Update",
   ~onSubmitModal,
-  ~showLoderButton=false,
+  ~showLoaderButton=false,
   ~totalNotifications=0,
   ~setNotificationCount=?,
   ~notificationCount=0,
@@ -75,7 +75,7 @@ let make = (
     customIcon
     headerAlignmentClass
     paddingClass="pt-0 overflow-hidden">
-    {showLoderButton && showMarkAllRead
+    {showLoaderButton && showMarkAllRead
       ? <div
           className="text-xs text-sky-500 relative -top-10 left-64 w-fit cursor-pointer"
           onClick={_ => {
@@ -91,7 +91,7 @@ let make = (
       className="overflow-auto p-6 border-b border-solid  border-slate-300 dark:border-slate-500 relative"
       style={height: btnRequired ? "calc(100vh - 9.6rem)" : "100vh"}>
       element
-      <RenderIf condition={showLoderButton && notificationCount > 10}>
+      <RenderIf condition={showLoaderButton && notificationCount > 10}>
         <div
           className="flex fixed items-center justify-center" style={top: "100px", right: "100px"}>
           <Button
@@ -108,7 +108,7 @@ let make = (
           />
         </div>
       </RenderIf>
-      <RenderIf condition={totalNotifications - notificationCount > 0 && showLoderButton}>
+      <RenderIf condition={totalNotifications - notificationCount > 0 && showLoaderButton}>
         <div className="sticky bottom-20 flex items-center justify-center">
           <Button
             text="Load More"

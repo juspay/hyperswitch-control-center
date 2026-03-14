@@ -174,7 +174,7 @@ let make = (
         <tbody>
           {rowInfo
           ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
-            <CollapsableTableRow
+            <CollapsibleTableRow
               key={Int.toString(rowIndex)}
               item
               rowIndex

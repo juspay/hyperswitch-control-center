@@ -35,7 +35,7 @@ let convertToModuleVisePref = json => {
   ->Dict.fromArray
 }
 
-let converToUserPref = dict => {
+let convertToUserPref = dict => {
   dict
   ->Dict.keysToArray
   ->Array.map(key => {
@@ -71,7 +71,7 @@ let saveUserPref = (userPref: Dict.t<userPref>) => {
 let getUserPref = () => {
   switch LocalStorage.getItem(userPreferenceKeyInLocalStorage)->Nullable.toOption {
   | Some(str) =>
-    str->LogicUtils.safeParse->JSON.Decode.object->Option.getOr(Dict.make())->converToUserPref
+    str->LogicUtils.safeParse->JSON.Decode.object->Option.getOr(Dict.make())->convertToUserPref
 
   | None => Dict.make()
   }

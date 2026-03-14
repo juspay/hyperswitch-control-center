@@ -19,8 +19,8 @@ let useSendEvent = () => {
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {clientCountry} = HSwitchUtils.getBrowswerDetails()
-  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
+  let {clientCountry} = HSwitchUtils.getBrowserDetails()
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
 
   let environment = GlobalVars.hostType->getEnvironment
 
@@ -105,8 +105,8 @@ let usePageView = () => {
   let {name, email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
 
   let environment = GlobalVars.hostType->getEnvironment
-  let {clientCountry} = HSwitchUtils.getBrowswerDetails()
-  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
+  let {clientCountry} = HSwitchUtils.getBrowserDetails()
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async (~path) => {
     let mixpanel_token = Window.env.mixpanelToken

@@ -451,7 +451,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=false,
     ~customStyle="",
@@ -628,7 +628,7 @@ module BaseSelect = {
     let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -698,7 +698,7 @@ module BaseSelect = {
       ""
     }
 
-    let listComponent = (~item: dropdownOptionWithoutOptional, ~indx, ~isItemDisabled=false) => {
+    let listComponent = (~item: dropdownOptionWithoutOptional, ~idx, ~isItemDisabled=false) => {
       let dragIcon = isItemDisabled
         ? React.null
         : <Icon
@@ -709,11 +709,11 @@ module BaseSelect = {
           />
       let valueToConsider = item.value
       let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-      let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
+      let isPrevSelected = switch filteredOptions->Array.get(idx - 1) {
       | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
       | None => false
       }
-      let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
+      let isNextSelected = switch filteredOptions->Array.get(idx + 1) {
       | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
       | None => false
       }
@@ -748,7 +748,7 @@ module BaseSelect = {
             description=item.description
             customMarginStyle
             listFlexDirection
-            dataId=indx
+            dataId=idx
             showDescriptionAsTool
             optionClass
             selectClass
@@ -758,7 +758,7 @@ module BaseSelect = {
           />
           {isDraggable ? dragIcon : React.null}
         </div>
-        {switch optionRigthElement {
+        {switch optionRightElement {
         | Some(rightElement) => rightElement
         | None => React.null
         }}
@@ -766,7 +766,7 @@ module BaseSelect = {
     }
 
     let keyExtractor = (index, item: dropdownOptionWithoutOptional, _, isDragDisabled) => {
-      listComponent(~item, ~indx=index, ~isItemDisabled=isDragDisabled)
+      listComponent(~item, ~idx=index, ~isItemDisabled=isDragDisabled)
     }
 
     let handleSetDraggableList = val => {
@@ -943,8 +943,8 @@ module BaseSelect = {
               />
             } else {
               filteredOptions
-              ->Array.mapWithIndex((item, indx) => {
-                listComponent(~item, ~indx)
+              ->Array.mapWithIndex((item, idx) => {
+                listComponent(~item, ~idx)
               })
               ->React.array
             }
@@ -1756,7 +1756,7 @@ module BaseDropdown = {
     let dropdownRef = React.useRef(Nullable.null)
     let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
-      newInputSelect.value->LogicUtils.getStrArryFromJson
+      newInputSelect.value->LogicUtils.getStrArrayFromJson
     )
 
     let onApply = ev => {
@@ -1765,7 +1765,7 @@ module BaseDropdown = {
       | None => ()
       }
 
-      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
+      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArrayFromJson)
     }
 
     let clearBtnRef = React.useRef(Nullable.null)
@@ -1889,7 +1889,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo(() => {
+    let allSelectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1902,7 +1902,7 @@ module BaseDropdown = {
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
-    let title = showAllSelectedOptions ? allSellectedOptions : buttonText
+    let title = showAllSelectedOptions ? allSelectedOptions : buttonText
 
     let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
@@ -2118,7 +2118,7 @@ module BaseDropdown = {
                       description={showNameAsToolTip
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
-                          ->LogicUtils.getStrArryFromJson
+                          ->LogicUtils.getStrArrayFromJson
                           ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
@@ -2291,7 +2291,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initialClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2322,7 +2322,7 @@ module ChipFilterSelectBox = {
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? passedClassName : initalClassName
+        let selectedClass = isSelected ? passedClassName : initialClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
@@ -2374,7 +2374,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2514,7 +2514,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

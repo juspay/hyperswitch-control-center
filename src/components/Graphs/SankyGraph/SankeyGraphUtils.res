@@ -1,6 +1,6 @@
 open SankeyGraphTypes
 
-// contants
+// constants
 let textColor = "#333333"
 let fontFamily = "Arial, sans-serif"
 

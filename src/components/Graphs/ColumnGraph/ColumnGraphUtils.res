@@ -106,7 +106,7 @@ let columnGraphTooltipFormatter = (
       let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
       let _defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}, key: ""}
 
-      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisonComponent="") => {
         let formattedValue = CurrencyFormatUtils.valueFormatter(
           value,
           metricType,
@@ -116,7 +116,7 @@ let columnGraphTooltipFormatter = (
 
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="margin-left: 8px;">${date}${comparisonComponent}</div>
             <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${formattedValue}</div>
         </div>`
       }
@@ -136,7 +136,7 @@ let columnGraphTooltipFormatter = (
             ~iconColor=color,
             ~date=key,
             ~value=y,
-            ~comparisionComponent={
+            ~comparisonComponent={
               switch comparison {
               | Some(value) =>
                 value == DateRangeUtils.EnableComparison && showComparison

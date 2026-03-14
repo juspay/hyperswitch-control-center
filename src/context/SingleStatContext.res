@@ -43,7 +43,7 @@ let make = (
     endTimeFilterKey,
     filterKeys,
     dataFetcherObj,
-    metrixMapper,
+    metricsMapper,
   } = singleStatEntity
 
   let {merchantId, profileId} = React.useContext(
@@ -131,7 +131,7 @@ let make = (
     dataFetcherObj
     ->Array.map(item => {
       let {metrics} = item
-      let updatedMetrics = metrics->metrixMapper
+      let updatedMetrics = metrics->metricsMapper
       (updatedMetrics, Loading)
     })
     ->Dict.fromArray
@@ -140,7 +140,7 @@ let make = (
     dataFetcherObj
     ->Array.map(item => {
       let {metrics} = item
-      let updatedMetrics = metrics->metrixMapper
+      let updatedMetrics = metrics->metricsMapper
       (updatedMetrics, AnalyticsUtils.Shimmer)
     })
     ->Dict.fromArray
@@ -205,7 +205,7 @@ let make = (
       dataFetcherObj
       ->Array.mapWithIndex((urlConfig, index) => {
         let {url, metrics} = urlConfig
-        let updatedMetrics = metrics->metrixMapper
+        let updatedMetrics = metrics->metricsMapper
         setIndividualSingleStatTime(
           prev => {
             let individualTime = prev->Dict.toArray->Dict.fromArray
@@ -269,7 +269,7 @@ let make = (
             ~profileId,
           )
           ->addLogsAroundFetch(
-            ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
+            ~logTitle=`SingleStat histotic data for metrics ${metrics->metricsMapper}`,
           )
           ->then(
             text => {
@@ -322,7 +322,7 @@ let make = (
             ~merchantId,
             ~profileId,
           )
-          ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
+          ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metricsMapper}`)
           ->then(
             text => {
               let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)
@@ -376,7 +376,7 @@ let make = (
             ~profileId,
           )
           ->addLogsAroundFetch(
-            ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,
+            ~logTitle=`SingleStat Time Series data for metrics ${metrics->metricsMapper}`,
           )
           ->then(
             text => {

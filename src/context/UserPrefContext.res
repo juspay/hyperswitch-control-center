@@ -32,7 +32,7 @@ module Provider = {
 
 @react.component
 let make = (~children) => {
-  // this fetch will only happen once after that context will be updated each time when url chnaged and it keep hitting the update api
+  // this fetch will only happen once after that context will be updated each time when url changed and it keep hitting the update api
   let userPrefInitialVal: Dict.t<userPref> = UserPrefUtils.getUserPref()
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 

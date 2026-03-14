@@ -169,7 +169,7 @@ let getStrArrayFromJsonArray = jsonArr => {
   jsonArr->Belt.Array.keepMap(JSON.Decode.string)
 }
 
-let getStrArryFromJson = arr => {
+let getStrArrayFromJson = arr => {
   arr->JSON.Decode.array->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 
@@ -426,7 +426,7 @@ let checkEmptyJson = json => {
   json == JSON.Encode.object(Dict.make())
 }
 
-let numericArraySortComperator = (a, b) => {
+let numericArraySortComparator = (a, b) => {
   if a < b {
     -1.
   } else if a > b {

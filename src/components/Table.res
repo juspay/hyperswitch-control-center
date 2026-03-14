@@ -5,7 +5,7 @@ module TableFilterRow = {
     ~item: array<filterRow>,
     ~removeVerticalLines,
     ~removeHorizontalLines,
-    ~evenVertivalLines,
+    ~evenVerticalLines,
     ~tableDataBorderClass,
     ~customFilterRowStyle,
     ~showCheckbox,
@@ -34,7 +34,7 @@ module TableFilterRow = {
           `${borderTop} ${borderColor}`
         } else if customSeparationArray->Array.some(((start, _)) => cellIndex === start) {
           `${borderTop} border-r-2 border-blue-500 ${borderColor}`
-        } else if removeVerticalLines || (evenVertivalLines && mod(cellIndex, 2) === 0) {
+        } else if removeVerticalLines || (evenVerticalLines && mod(cellIndex, 2) === 0) {
           `${borderTop} ${borderColor}`
         } else {
           `${borderTop} border-r ${borderColor}`
@@ -64,7 +64,7 @@ module TableRow = {
     ~offset,
     ~removeVerticalLines,
     ~removeHorizontalLines,
-    ~evenVertivalLines,
+    ~evenVerticalLines,
     ~highlightEnabledFieldsArray,
     ~tableDataBorderClass="",
     ~collapseTableRow=false,
@@ -208,7 +208,7 @@ module TableRow = {
             `${borderTop} ${borderColor}`
           } else if customSeparationArray->Array.some(((start, _)) => cellIndex === start) {
             `${borderTop} border-r-2 border-blue-500 ${borderColor}`
-          } else if removeVerticalLines || (evenVertivalLines && mod(cellIndex, 2) === 0) {
+          } else if removeVerticalLines || (evenVerticalLines && mod(cellIndex, 2) === 0) {
             `${borderTop} ${borderColor}`
           } else {
             `${borderTop} border-r ${borderColor}`
@@ -637,7 +637,7 @@ let make = (
   ~fullWidth=true,
   ~removeVerticalLines=true,
   ~removeHorizontalLines=false,
-  ~evenVertivalLines=false,
+  ~evenVerticalLines=false,
   ~showScrollBar=false,
   ~setSortedObj=?,
   ~sortedObj=?,
@@ -767,7 +767,7 @@ let make = (
         onRowClickPresent
         removeVerticalLines
         removeHorizontalLines
-        evenVertivalLines
+        evenVerticalLines
         highlightEnabledFieldsArray
         tableDataBorderClass
         collapseTableRow
@@ -800,10 +800,10 @@ let make = (
 
   let renderTableHeadingRow = (headingArray, isFrozen, isCustomiseColumn, lastHeadingClass) => {
     let columnFilterRow = switch columnFilterRow {
-    | Some(fitlerRows) =>
+    | Some(filterRows) =>
       switch isFrozen {
-      | true => Some(fitlerRows->Array.slice(~start=0, ~end=frozenUpto))
-      | false => Some(fitlerRows->Array.sliceToEnd(~start=frozenUpto))
+      | true => Some(filterRows->Array.slice(~start=0, ~end=frozenUpto))
+      | false => Some(filterRows->Array.sliceToEnd(~start=frozenUpto))
       }
     | None => None
     }
@@ -842,10 +842,10 @@ let make = (
 
   let tableFilterRow = (~isFrozen) => {
     switch columnFilterRow {
-    | Some(fitlerRows) => {
+    | Some(filterRows) => {
         let filterRows = switch isFrozen {
-        | true => fitlerRows->Array.slice(~start=0, ~end=frozenUpto)
-        | false => fitlerRows->Array.sliceToEnd(~start=frozenUpto)
+        | true => filterRows->Array.slice(~start=0, ~end=frozenUpto)
+        | false => filterRows->Array.sliceToEnd(~start=frozenUpto)
         }
 
         <TableFilterRow
@@ -853,7 +853,7 @@ let make = (
           removeVerticalLines
           removeHorizontalLines
           tableDataBorderClass
-          evenVertivalLines
+          evenVerticalLines
           customFilterRowStyle
           showCheckbox
           customSeparationArray
@@ -873,7 +873,7 @@ let make = (
   })
 
   let remainingHeading = heading->Array.sliceToEnd(~start=frozenUpto)
-  let remaingRow = rowInfo->Array.map(row => {
+  let remainingRow = rowInfo->Array.map(row => {
     row->Array.sliceToEnd(~start=frozenUpto)
   })
 
@@ -931,7 +931,7 @@ let make = (
       </RenderIf>
       <tbody>
         {tableFilterRow(~isFrozen=false)}
-        {tableRows(remaingRow, false)}
+        {tableRows(remainingRow, false)}
       </tbody>
     </table>
   }

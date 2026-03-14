@@ -414,7 +414,7 @@ let make = (
   ~showTableLegend=true,
   ~showMarkers=false,
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
-  ~comparitionWidget=false,
+  ~comparisonWidget=false,
 ) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -447,13 +447,13 @@ let make = (
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      let fitlerName = keyArr->Array.get(1)->Option.getOr("")
+      let filterName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
       if chartId->isEmptyString {
         Some((prefix, value))
-      } else if prefix === chartId && fitlerName->isNonEmptyString {
-        Some((fitlerName, value))
+      } else if prefix === chartId && filterName->isNonEmptyString {
+        Some((filterName, value))
       } else {
         None
       }
@@ -496,7 +496,7 @@ let make = (
     )
   )
 
-  let (currentTopMatrix, currentBottomMetrix) = currentMetrics
+  let (currentTopMatrix, currentBottomMetric) = currentMetrics
   // if we won't see anything in the url then we will update the url
   React.useEffect(() => {
     let cardinality = getChartCompFilters->getString("cardinality", "TOP_5")
@@ -507,7 +507,7 @@ let make = (
       )
     let chartTopMetric = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
-    let chartBottomMetric = getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
+    let chartBottomMetric = getChartCompFilters->getString("chartBottomMetric", currentBottomMetric)
 
     let dict = Dict.make()
     let chartMatrixArr = entityAllMetrics->Array.map(item => item.metric_label)
@@ -533,8 +533,8 @@ let make = (
 
     if chartMatrixArr->Array.includes(chartBottomMetric) {
       dict->Dict.set("chartBottomMetric", chartBottomMetric)
-    } else if chartMatrixArr->Array.includes(currentBottomMetrix) {
-      dict->Dict.set("chartBottomMetric", currentBottomMetrix)
+    } else if chartMatrixArr->Array.includes(currentBottomMetric) {
+      dict->Dict.set("chartBottomMetric", currentBottomMetric)
     } else {
       dict->Dict.set("chartBottomMetric", chartMatrixArr->Array.get(0)->Option.getOr(""))
     }
@@ -827,7 +827,7 @@ let make = (
                 className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
                 {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
-                } else if comparitionWidget {
+                } else if comparisonWidget {
                   <div>
                     <RenderIf condition={featureFlagDetails.granularity}>
                       <div className="w-full flex justify-end p-2">
@@ -868,7 +868,7 @@ let make = (
                             showTableLegend
                             showMarkers
                             legendType
-                            comparitionWidget
+                            comparisonWidget
                             selectedTab={selectedTab->Option.getOr([])}
                           />
                         }

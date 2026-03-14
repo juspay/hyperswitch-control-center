@@ -164,11 +164,11 @@ let make = (
     let localCheckedFilters = checkedFilters->Array.copy
     let localSelectedFiltersList = selectedFiltersList->Array.copy
     newlyAdded->Array.forEach(value => {
-      let optionObjArry = localOptions->Array.filter(option => option.urlKey === value)
+      let optionObjArray = localOptions->Array.filter(option => option.urlKey === value)
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
-      let optionObj = optionObjArry[0]->Option.getOr(defaultEntityOptionType)
+      let optionObj = optionObjArray[0]->Option.getOr(defaultEntityOptionType)
       localSelectedFiltersList->Array.push(optionObj.field)->ignore
       localCheckedFilters->Array.push(value)->ignore
     })

@@ -107,11 +107,11 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
 
   let onKeyUp = tableInput.onChange
 
-  let onChange = (elemIndex, coloumnIndex, value) => {
+  let onChange = (elemIndex, columnIndex, value) => {
     let a = keyValue->Array.mapWithIndex((itm, index) => {
       if index == elemIndex {
         itm->Array.mapWithIndex((val, k) => {
-          if k == coloumnIndex {
+          if k == columnIndex {
             value
           } else {
             val

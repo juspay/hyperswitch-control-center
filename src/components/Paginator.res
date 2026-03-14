@@ -5,7 +5,7 @@ let make = (
   ~resultsPerPage,
   ~setOffset,
   ~handleRefetch=?,
-  ~currrentFetchCount,
+  ~currentFetchCount,
   ~downloadCsv=?,
   ~isNewPaginator=false,
   ~actualData,
@@ -26,7 +26,7 @@ let make = (
   }
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
-  let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
+  let shouldRefetch = toNum > currentFetchCount && toNum <= totalResults && !tableDataLoading
   React.useEffect(() => {
     if shouldRefetch {
       switch handleRefetch {
@@ -63,7 +63,7 @@ let make = (
 
     let newOffset = (page - 1) * resultsPerPage
     setOffset(_ => newOffset)
-  }, (setOffset, resultsPerPage, currrentFetchCount, url.search, totalResults))
+  }, (setOffset, resultsPerPage, currentFetchCount, url.search, totalResults))
 
   let marginClass = "md:mr-0"
 

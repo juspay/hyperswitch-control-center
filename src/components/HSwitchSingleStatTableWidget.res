@@ -52,7 +52,7 @@ let percentFormat = value => {
 
 type statType = Amount | Rate | NegativeRate | Volume | Latency | LatencyMs | Default
 
-let stringToVarient = statType => {
+let stringToVariant = statType => {
   switch statType {
   | "Amount" => Amount
   | "Rate" => Rate
@@ -66,7 +66,7 @@ let stringToVarient = statType => {
 
 // if day > then only date else time
 let statValue = (val, statType) => {
-  let statType = statType->stringToVarient
+  let statType = statType->stringToVariant
   open CurrencyFormatUtils
   switch statType {
   | Amount => val->indianShortNum
@@ -128,7 +128,7 @@ module ShowMore = {
           offset
           setOffset
           defaultSort
-          currrentFetchCount={tableData->Array.length}
+          currentFetchCount={tableData->Array.length}
           tableLocalFilter=false
           tableheadingClass=tableBorderClass
           showResultsPerPageSelector=false
