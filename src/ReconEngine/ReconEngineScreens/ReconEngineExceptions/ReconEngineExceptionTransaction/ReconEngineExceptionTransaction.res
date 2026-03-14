@@ -13,7 +13,6 @@ let make = (~ruleId: string) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
@@ -147,7 +146,7 @@ let make = (~ruleId: string) => {
           actualData={filteredExceptionData}
           entity={hierarchicalTransactionsLoadedTableEntity(
             "v1/recon-engine/exceptions/recon",
-            ~authorization=userHasAccess(~groupAccess=UsersManage),
+            ~authorization=Access,
           )}
           resultsPerPage=6
           filters={<TableSearchFilter
