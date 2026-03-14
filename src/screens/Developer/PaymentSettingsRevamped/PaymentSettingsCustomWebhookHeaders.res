@@ -203,12 +203,14 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     businessProfileRecoilVal->Identity.genericTypeToJson
   )
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
   let onSubmit = async (values, _) => {
     open BusinessProfileInterface
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = await updateBusinessProfile(~body=values, ~shouldTransform=true)
+      mixpanelEvent(~eventName="payment_settings_webhook_headers")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setAllowEdit(_ => false)
       let updatedInitialValues = switch version {

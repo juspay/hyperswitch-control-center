@@ -102,6 +102,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -115,7 +116,7 @@ let make = () => {
       let body = values->getPaymentLinkDomainPayload->JSON.Encode.object
       let _ = await updateDetails(url, body, Post)
       fetchBusinessProfileFromId(~profileId=Some(profileId))->ignore
-
+      mixpanelEvent(~eventName="payment_settings_payment_link_domain")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
