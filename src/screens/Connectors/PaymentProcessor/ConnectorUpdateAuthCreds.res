@@ -88,6 +88,42 @@ let make = (
     connectorInfo.metadata,
   ))
 
+  let prepareValuesForSubmit = values => {
+    let valuesDict = values->getDictFromJsonObject
+    let metadataDict = switch valuesDict->Dict.get("metadata") {
+    | Some(metadataJson) => metadataJson->getDictFromJsonObject
+    | None => Dict.make()
+    }
+
+    metadataDict
+    ->Dict.toArray
+    ->Array.forEach(((key, value)) => {
+      switch value->JSON.Decode.string {
+      | Some(str) if str === "" => metadataDict->Dict.set(key, JSON.Encode.null)
+      | _ => ()
+      }
+    })
+
+    let existingMetadataDict = connectorInfo.metadata->getDictFromJsonObject
+    let editableMetadataKeys =
+      connectorMetaDataFields
+      ->Dict.keysToArray
+      ->Array.filter(key => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, key))
+
+    editableMetadataKeys->Array.forEach(key => {
+      switch metadataDict->Dict.get(key) {
+      | Some(_) => ()
+      | None =>
+        if existingMetadataDict->Dict.get(key)->Option.isSome {
+          metadataDict->Dict.set(key, JSON.Encode.null)
+        }
+      }
+    })
+
+    valuesDict->Dict.set("metadata", metadataDict->JSON.Encode.object)
+    valuesDict->JSON.Encode.object
+  }
+
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(
@@ -95,7 +131,7 @@ let make = (
         ~methodType=Post,
         ~id=Some(connectorInfo.merchant_connector_id),
       )
-      let _ = await updateAPIHook(url, values, Post)
+      let _ = await updateAPIHook(url, prepareValuesForSubmit(values), Post)
       switch getConnectorDetails {
       | Some(fun) => fun()->ignore
       | _ => ()
