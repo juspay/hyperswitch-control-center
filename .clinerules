@@ -28,7 +28,7 @@ Bundle all edits to a single file into one operation to ensure atomic, reviewabl
 
 You need to follow clinerules. Do not assume anything. Ask if you have doubts.
 
-## Making code chnages
+## Making code changes
 
 It is _EXTREMELY_ important that your generated code can be run immediately by the USER. To ensure this, follow these instructions carefully:
 

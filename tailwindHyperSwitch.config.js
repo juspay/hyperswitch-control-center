@@ -63,7 +63,7 @@ module.exports = {
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",
-        onBordingSupplier: "calc(100vh - 300px)",
+        onBoardingSupplier: "calc(100vh - 300px)",
       },
       maxHeight: {
         "25-rem": "25rem",
