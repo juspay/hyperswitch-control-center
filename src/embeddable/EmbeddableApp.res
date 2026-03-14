@@ -97,6 +97,7 @@ let make = () => {
     <ErrorBoundary>
       {switch url.path->urlPath {
       | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
+      | list{"payments", ..._} => <PaymentsEmbeddedContainer />
       | _ => <NotFoundPage />
       }}
     </ErrorBoundary>
