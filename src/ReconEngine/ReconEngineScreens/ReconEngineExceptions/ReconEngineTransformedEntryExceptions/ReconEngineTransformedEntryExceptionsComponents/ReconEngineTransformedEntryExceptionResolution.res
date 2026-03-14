@@ -100,44 +100,46 @@ module EditEntryModalContent = {
     }, [entryDetails.id])
 
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
-      <div className="flex flex-col gap-4 mx-4">
-        <Form onSubmit validate initialValues>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold"
-            field={FormRenderer.makeMultiInputFieldInfo(
-              ~label="Account",
-              ~comboCustomInput=accountComboSelectInputField(
-                ~accountsList,
-                ~disabled=false,
-                ~setTransformationsList,
-                ~initialAccountId=entryDetails.account.account_id,
-              ),
-              ~inputFields=[
-                FormRenderer.makeInputFieldInfo(~name="account.account_id"),
-                FormRenderer.makeInputFieldInfo(~name="account.account_name"),
-              ],
-              ~isRequired=true,
+      <div className="flex flex-col gap-4 mx-4 h-full">
+        <Form onSubmit validate initialValues formClass="h-full flex flex-col justify-between">
+          <div className="flex flex-col max-h-890-px overflow-y-auto">
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeMultiInputFieldInfo(
+                ~label="Account",
+                ~comboCustomInput=accountComboSelectInputField(
+                  ~accountsList,
+                  ~disabled=false,
+                  ~setTransformationsList,
+                  ~initialAccountId=entryDetails.account.account_id,
+                ),
+                ~inputFields=[
+                  FormRenderer.makeInputFieldInfo(~name="account.account_id"),
+                  FormRenderer.makeInputFieldInfo(~name="account.account_name"),
+                ],
+                ~isRequired=true,
+              )}
+            />
+            {transformationConfigSelectInputField(
+              ~transformationsList,
+              ~disabled=false,
+              ~setMetadataSchema,
+              ~setIsMetadataLoading,
             )}
-          />
-          {transformationConfigSelectInputField(
-            ~transformationsList,
-            ~disabled=false,
-            ~setMetadataSchema,
-            ~setIsMetadataLoading,
-          )}
-          {entryTypeSelectInputField(~disabled=false)}
-          {currencySelectInputField(~entryDetails, ~disabled=false)}
-          {amountTextInputField(~disabled=false)}
-          {orderIdTextInputField(~disabled=false)}
-          {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(
-            ~disabled=false,
-            ~metadataSchema,
-            ~metadataRows,
-            ~setMetadataRows,
-            ~isMetadataLoading,
-          )}
-          <div className="flex justify-end my-4">
+            {entryTypeSelectInputField(~disabled=false)}
+            {currencySelectInputField(~entryDetails, ~disabled=false)}
+            {amountTextInputField(~disabled=false)}
+            {orderIdTextInputField(~disabled=false)}
+            {effectiveAtDatePickerInputField()}
+            {metadataCustomInputField(
+              ~disabled=false,
+              ~metadataSchema,
+              ~metadataRows,
+              ~setMetadataRows,
+              ~isMetadataLoading,
+            )}
+          </div>
+          <div className="my-4">
             <FormRenderer.SubmitButton
               tooltipForWidthClass="w-full"
               text="Save changes"

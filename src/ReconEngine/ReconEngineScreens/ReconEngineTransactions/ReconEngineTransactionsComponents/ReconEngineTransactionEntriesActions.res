@@ -1,22 +1,5 @@
-open ReconEngineTypes
-open Typography
 open LogicUtils
-open ReconEngineDataTransformedEntriesTypes
-
-module MetadataView = {
-  @react.component
-  let make = (~metadata) => {
-    <div className="relative border rounded-lg p-2 bg-nd_gray-25">
-      <HelperComponents.CopyTextCustomComp
-        customParentClass="flex flex-row items-center gap-x-2 absolute right-4"
-        displayValue=Some("Copy")
-        customTextCss={`${Typography.body.sm.medium} text-nd_gray-600`}
-        copyValue={Some(metadata->JSON.stringify)}
-      />
-      <PrettyPrintJson jsonToDisplay={metadata->JSON.stringify} />
-    </div>
-  }
-}
+open Typography
 
 module LineageCard = {
   @react.component
@@ -50,36 +33,53 @@ module LineageField = {
 
 module LineageContent = {
   @react.component
-  let make = (~entry: ReconEngineTypes.processingEntryType) => {
+  let make = (~entry: ReconEngineTypes.entryType) => {
     open APIUtils
-    open ReconEngineDataTransformedEntriesUtils
+    open ReconEngineTransactionsUtils
+    open ReconEngineTransactionsTypes
 
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (transformationHistoryData, setTransformationHistoryData) = React.useState(_ =>
-      Dict.make()->getTransformedEntriesTransformationHistoryPayloadFromDict
+      Dict.make()->getTransactionsTransformationHistoryPayloadFromDict
     )
     let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
-      Dict.make()->getTransformedEntriesIngestionHistoryPayloadFromDict
+      Dict.make()->getTransactionsIngestionHistoryPayloadFromDict
     )
     let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
+    let (processingEntryData, setProcessingEntryData) = React.useState(_ =>
+      Dict.make()->getTransactionsProcessingEntryPayloadFromDict
+    )
 
     let fetchLineageData = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
+        let entryUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
+          ~queryParameters=None,
+          ~id=entry.staging_entry_id,
+        )
+        let processingEntry = await fetchDetails(entryUrl)
+        let processingEntryData =
+          processingEntry
+          ->getDictFromJsonObject
+          ->getTransactionsProcessingEntryPayloadFromDict
+        setProcessingEntryData(_ => processingEntryData)
         let url = getURL(
           ~entityName=V1(HYPERSWITCH_RECON),
           ~methodType=Get,
           ~hyperswitchReconType=#TRANSFORMATION_HISTORY,
           ~queryParameters=None,
-          ~id=Some(entry.transformation_history_id),
+          ~id=Some(processingEntryData.transformation_history_id),
         )
         let res = await fetchDetails(url)
         let transformationHistoryData =
           res
           ->getDictFromJsonObject
-          ->getTransformedEntriesTransformationHistoryPayloadFromDict
+          ->getTransactionsTransformationHistoryPayloadFromDict
         let ingestionHistoryData = await getIngestionHistory(
           ~queryParameters=Some(
             `ingestion_history_id=${transformationHistoryData.ingestion_history_id}`,
@@ -91,7 +91,7 @@ module LineageContent = {
         let latestIngestionHistory =
           ingestionHistoryData->getValueFromArray(
             0,
-            Dict.make()->getTransformedEntriesIngestionHistoryPayloadFromDict,
+            Dict.make()->getTransactionsIngestionHistoryPayloadFromDict,
           )
         if (
           latestIngestionHistory.ingestion_history_id->isNonEmptyString ||
@@ -111,15 +111,22 @@ module LineageContent = {
     React.useEffect(() => {
       fetchLineageData()->ignore
       None
-    }, [entry.transformation_history_id])
+    }, [entry.staging_entry_id])
 
     let lineageSections = React.useMemo(() => {
-      getLineageSections(~ingestionHistoryData, ~transformationHistoryData, ~entry)
+      getLineageSections(
+        ~ingestionHistoryData,
+        ~transformationHistoryData,
+        ~processingEntry=processingEntryData,
+        ~entry,
+      )
     }, (ingestionHistoryData, transformationHistoryData, entry))
 
     <PageLoaderWrapper
       screenState
-      customUI={<NewAnalyticsHelper.NoData height="h-52" message="No data available." />}
+      customUI={<NewAnalyticsHelper.NoData
+        height="h-52" message="Lineage not available for manually created entries."
+      />}
       customLoader={<Shimmer styleClass="h-52 w-full rounded-lg" />}>
       <div className="flex flex-col gap-4">
         {lineageSections
@@ -150,85 +157,41 @@ module LineageContent = {
   }
 }
 
-module ModalContentRenderer = {
-  @react.component
-  let make = (~content: modalContentType, ~onClose: unit => unit) => {
-    <div className="h-full relative p-6">
-      {switch content {
-      | MetadataContent(metadata) => <MetadataView metadata />
-      | LineageContent(entry) => <LineageContent entry />
-      | UnknownModalContent => React.null
-      }}
-      <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
-        <Button
-          customButtonStyle="!w-full" buttonType=Button.Primary onClick={_ => onClose()} text="OK"
-        />
-      </div>
-    </div>
-  }
-}
-
 @react.component
-let make = (~processingEntry: processingEntryType) => {
-  let (modalState, setModalState) = React.useState(_ => {
-    showModal: false,
-    content: UnknownModalContent,
-  })
+let make = (~entry: ReconEngineTypes.entryType) => {
+  let (showModal, setShowModal) = React.useState(_ => false)
 
-  let openModal = (content: modalContentType) => {
-    setModalState(_ => {showModal: true, content})
-  }
-
-  let closeModal = () => {
-    setModalState(_ => {showModal: false, content: UnknownModalContent})
-  }
-
-  let transformedEntriesActions = [
-    {
-      iconType: ViewIcon,
-      modalContent: MetadataContent(processingEntry.metadata),
-    },
-  ]
-
-  if processingEntry.transformation_history_id->isNonEmptyString {
-    transformedEntriesActions->Array.push({
-      iconType: ChartIcon,
-      modalContent: LineageContent(processingEntry),
-    })
-  }
-
-  let getModalHeading = (content: modalContentType) => {
-    switch content {
-    | MetadataContent(_) => "Metadata"
-    | LineageContent(_) => "Lineage"
-    | UnknownModalContent => ""
-    }
-  }
-
-  <div className="flex flex-row gap-4">
-    {transformedEntriesActions
-    ->Array.mapWithIndex((action, index) =>
-      <Icon
-        key={index->Int.toString}
-        name={(action.iconType :> string)}
-        className="text-nd_gray-600 hover:text-nd_gray-800 hover:scale-110 cursor-pointer"
-        size=16
-        onClick={ev => {
-          ev->ReactEvent.Mouse.stopPropagation
-          openModal(action.modalContent)
-        }}
-      />
-    )
-    ->React.array}
+  <RenderIf condition={entry.staging_entry_id->Option.isSome}>
+    <Icon
+      name="nd-graph-chart-gantt"
+      className="text-nd_gray-600 hover:text-nd_gray-800 hover:scale-110 cursor-pointer"
+      size=16
+      onClick={ev => {
+        ev->ReactEvent.Mouse.stopPropagation
+        setShowModal(_ => true)
+      }}
+    />
     <Modal
-      setShowModal={_ => closeModal()}
-      showModal={modalState.showModal}
+      setShowModal
+      showModal
       closeOnOutsideClick=true
-      modalHeading={getModalHeading(modalState.content)}
+      modalHeading="Lineage"
       modalHeadingClass={`text-nd_gray-800 ${heading.sm.semibold}`}
       modalClass="flex flex-col justify-start h-screen w-full md:w-1/3 float-right overflow-hidden !bg-white"
       childClass="relative h-full">
-      <ModalContentRenderer content={modalState.content} onClose={closeModal} />
+      <div className="h-full relative p-6">
+        <div className="flex flex-col overflow-y-auto max-h-full pb-16">
+          <LineageContent entry />
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
+          <Button
+            customButtonStyle="!w-full"
+            buttonType=Primary
+            onClick={_ => setShowModal(_ => false)}
+            text="OK"
+          />
+        </div>
+      </div>
     </Modal>
-  </div>
+  </RenderIf>
 }
