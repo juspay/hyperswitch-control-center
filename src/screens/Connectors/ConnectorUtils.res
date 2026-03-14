@@ -1720,22 +1720,45 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
     ->Identity.jsonToAnyType
   convertMapObjectToDict(authKeyMap)
 }
-let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
-  keys->Array.map(field => {
-    let key = `connector_account_details.auth_key_map.${country}.${field}`
-    let value = valuesFlattenJson->getString(`${key}`, "")
-    value->String.length === 0 ? false : true
-  })
-}
+let checkCashtoCodeFields = (dict, valuesFlattenJson) => {
+  let countries = dict->Dict.keysToArray
+  // 0: has partially filled country (invalid)
+  // 1: has fully filled country (valid)
+  let flags = Js.Vector.make(2, false)
 
-let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
-  let value = dict->getDictfromDict(country)->Dict.keysToArray
-  let result = value->Array.map(method => {
-    let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
-    keys->checkCashtoCodeFields(country, valuesFlattenJson)->Array.includes(false) ? false : true
+  countries->Array.forEach(country => {
+    let methods = dict->getDictfromDict(country)->Dict.keysToArray
+
+    methods->Array.forEach(method => {
+      let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
+
+      let isAnyFieldFilledInMethod = keys->Array.some(
+        field => {
+          let key = `connector_account_details.auth_key_map.${country}.${field}`
+          let value = valuesFlattenJson->getString(key, "")
+          value->String.trim->isNonEmptyString
+        },
+      )
+
+      let isMethodFullyFilled = keys->Array.every(
+        field => {
+          let key = `connector_account_details.auth_key_map.${country}.${field}`
+          let value = valuesFlattenJson->getString(key, "")
+          value->String.trim->isNonEmptyString
+        },
+      )
+
+      if isAnyFieldFilledInMethod && !isMethodFullyFilled {
+        flags->Js.Vector.set(0, true) // Invalid state: partially filled method
+      }
+
+      if isMethodFullyFilled {
+        flags->Js.Vector.set(1, true) // Valid state: at least one method fully filled
+      }
+    })
   })
 
-  result->Array.includes(true)
+  !(flags->Js.Vector.get(0)) && flags->Js.Vector.get(1)
 }
 
 let checkPayloadFields = (dict, valuesFlattenJson) => {
@@ -1793,20 +1816,9 @@ let validateConnectorRequiredFields = (
   switch connector {
   | Processors(CASHTOCODE) => {
       let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+      let isValid = checkCashtoCodeFields(dict, valuesFlattenJson)
 
-      let indexLength = dict->Dict.keysToArray->Array.length
-      let vector = Js.Vector.make(indexLength, false)
-
-      dict
-      ->Dict.keysToArray
-      ->Array.forEachWithIndex((country, index) => {
-        let res = checkCashtoCodeInnerField(valuesFlattenJson, dict, country)
-
-        vector->Js.Vector.set(index, res)
-      })
-
-      Js.Vector.filterInPlace(val => val, vector)
-      if vector->Js.Vector.length === 0 {
+      if !isValid {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
       }
     }
