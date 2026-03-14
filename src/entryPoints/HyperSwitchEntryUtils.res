@@ -20,6 +20,19 @@ let getThemeIdfromStore = () => {
   let themeId = LocalStorage.getItem("theme_id")->Nullable.toOption
   themeId
 }
+let getThemeConfigVersionfromStore = () => {
+  let themeConfigVersion = LocalStorage.getItem("themeConfigVersion")->Nullable.toOption
+  themeConfigVersion
+}
+
+let setThemeConfigVersiontoStore = themeConfigVersion => {
+  let version = themeConfigVersion->getNonEmptyString
+  if version->Option.isSome {
+    LocalStorage.setItem("themeConfigVersion", version->Option.getOr(""))
+  } else {
+    LocalStorage.setItem("themeConfigVersion", "") //to change back to default if no version present on switchz
+  }
+}
 
 let setThemeIdtoStore = themeId => {
   let themeID = themeId->getNonEmptyString

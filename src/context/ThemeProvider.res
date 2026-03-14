@@ -243,7 +243,7 @@ let make = (~children) => {
     | _ => Exn.raiseError("Error on configuring favicon")
     }
   }
-  let updateThemeURLs = themesData => {
+  let updateThemeURLs = (~themesData, ~themeConfigVersion=None) => {
     open HyperSwitchConfigTypes
     try {
       let urlsDict = themesData->getDictFromJsonObject->getDictfromDict("urls")
@@ -268,10 +268,23 @@ let make = (~children) => {
           existingEnv.urlThemeConfig.logoUrl,
         ),
       }
+
+      let logoUrlWithVersion = switch val.logoUrl {
+      | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | _ => None
+      }
+
+      let faviconUrlWithVersion = switch val.faviconUrl {
+      | Some(url) if url !== "/HyperswitchFavicon.png" =>
+        Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
+      | _ => None
+      }
+
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
       DOMUtils.window._env_ = updatedUrlConfig
-      configureFavIcon(val.faviconUrl)
-      setContextLogoUrl(_ => val.logoUrl)
+      configureFavIcon(faviconUrlWithVersion)
+      setContextLogoUrl(_ => logoUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -286,16 +299,36 @@ let make = (~children) => {
   }
 
   let applyThemeConfig = (config: JSON.t) => {
-    updateThemeURLs(config)
+    updateThemeURLs(~themesData=config)
     configCustomDomainTheme(config)
+  }
+
+  let getThemeConfigVersion = async (~themeId) => {
+    try {
+      let url = `${GlobalVars.getHostUrl}/api/user/theme/${themeId}/version`
+      let response = await fetchApi(url, ~method_=Get, ~xFeatureRoute=false, ~forceCookies=false)
+      await response->(res => res->Fetch.Response.json)
+    } catch {
+    | _ => JSON.Encode.null
+    }
   }
 
   let getThemesJson = async (~themesID, ~domain=None) => {
     try {
       let themeJson = {
-        if themesID->Option.isSome && themesID->Option.getOr("")->LogicUtils.isNonEmptyString {
+        if themesID->Option.isSome && themesID->Option.getOr("")->isNonEmptyString {
           let id = themesID->Option.getOr("")
-          let url = `${GlobalVars.getHostUrl}/themes/${id}/theme.json`
+          let versionApiResponse = await getThemeConfigVersion(~themeId=id)
+          let themeConfigVersion =
+            versionApiResponse
+            ->getDictFromJsonObject
+            ->getString("theme_config_version", "")
+          HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
+          let url = ThemeFeatureUtils.appendVersionParam(
+            `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
+            ~version=Some(themeConfigVersion),
+          )
+
           let themeResponse = await fetchApi(
             url,
             ~method_=Get,
@@ -305,7 +338,7 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         } // this need to be removed once all the exisitng user started consuming theme from the cdn
         // else if condition for backward compatibility
-        else if domain->Option.isSome && domain->Option.getOr("")->LogicUtils.isNonEmptyString {
+        else if domain->Option.isSome && domain->Option.getOr("")->isNonEmptyString {
           let domainValue = domain->Option.getOr("")
           let url = `${GlobalVars.getHostUrl}/themes?domain=${domainValue}`
           let themeResponse = await fetchApi(
@@ -326,12 +359,15 @@ let make = (~children) => {
           await themeResponse->(res => res->Fetch.Response.json)
         }
       }
-      applyThemeConfig(themeJson)
+      let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
+      updateThemeURLs(~themesData={themeJson}, ~themeConfigVersion)->ignore
+      configCustomDomainTheme(themeJson)->ignore
       themeJson
     } catch {
     | _ => {
         let defaultStyle = getDefaultStyle()
-        applyThemeConfig(defaultStyle)
+        updateThemeURLs(~themesData=defaultStyle)->ignore
+        configCustomDomainTheme(defaultStyle)->ignore
         defaultStyle
       }
     }

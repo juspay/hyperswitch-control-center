@@ -3,11 +3,11 @@ module OverlappingCircles = {
   let make = (~colorA: string, ~colorB: string) => {
     <div className="relative w-9 h-6 flex items-center">
       <div
-        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className={`absolute left-0 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
         style={ReactDOM.Style.make(~backgroundColor=colorA, ())}
       />
       <div
-        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md `}
+        className={`absolute left-4 w-6 h-6 rounded-full border border-nd_gray-50 shadow-md`}
         style={ReactDOM.Style.make(~backgroundColor=colorB, ())}
       />
     </div>
@@ -88,7 +88,7 @@ let orgDisplayField = (~getNameForId) =>
     ~name="display.organization_name",
     ~customInput=(~input as _, ~placeholder as _) =>
       <div
-        className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 flex items-center">
+        className="w-full border border-nd_gray-200 bg-nd_gray-50 rounded-lg px-3 py-2 flex items-center">
         <span className="text-nd_gray-600 font-medium">
           {getNameForId(#Organization)->React.string}
         </span>
@@ -232,10 +232,10 @@ module LineageFormContent = {
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
@@ -256,10 +256,10 @@ module LineageFormContent = {
           />
           <div className="relative pl-8">
             <div
-              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-4 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-4 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
@@ -271,10 +271,10 @@ module LineageFormContent = {
           </div>
           <div className="relative pl-16">
             <div
-              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-gray-300"
+              className="absolute left-12 top-0 bottom-0 h-50-px w-px border-l-2 border-dashed border-nd_gray-300"
             />
             <div
-              className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-gray-300"
+              className="absolute left-12 top-12 w-4 h-px border-t-2 border-dashed border-nd_gray-300"
             />
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-full"
@@ -493,5 +493,227 @@ module ThemeLineageModal = {
         <LineageFormContent showModal setShowModal step setStep themeExists setThemeExists />
       </Modal>
     </Form>
+  }
+}
+
+module FileUploadField = {
+  @react.component
+  let make = (
+    ~label,
+    ~inputId,
+    ~acceptTypes,
+    ~tooltipDescription,
+    ~selectedFile,
+    ~onFileChange,
+  ) => {
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex justify-between gap-4">
+        <div className={`flex ${body.md.medium} text-nd_gray-700 gap-2 items-center`}>
+          {label->React.string}
+          <ToolTip
+            toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+            description=tooltipDescription
+            toolTipPosition=Right
+          />
+        </div>
+        <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
+        <div className="flex gap-4">
+          {switch selectedFile {
+          | Some(file) =>
+            <div className="mt-2 flex items-center gap-2 text-sm text-nd_gray-600">
+              <Icon name="file-icon" size=16 />
+              <span> {file["name"]->React.string} </span>
+            </div>
+          | None => React.null
+          }}
+          <label
+            htmlFor=inputId
+            className="flex items-center justify-center gap-2 rounded-md border border-nd_gray-300 cursor-pointer hover:border-nd_gray-400 p-4">
+            <Icon name="nd-upload-file" />
+          </label>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+module ThemeUploadAssetsModal = {
+  @react.component
+  let make = (~showModal, ~setShowModal, ~themeId, ~redirectToList) => {
+    open APIUtils
+    open LogicUtils
+    let showToast = ToastState.useShowToast()
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
+    let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
+    let fetchDetails = useGetMethod()
+    let (selectedFiles, setSelectedFiles) = React.useState(_ => Dict.make())
+    let baseUrl = GlobalVars.getHostUrl
+
+    let handleFileChange = assetName => ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) =>
+        setSelectedFiles(prev => {
+          let newDict = prev->Dict.copy
+          newDict->Dict.set(assetName, file)
+          newDict
+        })
+      | None => ()
+      }
+    }
+
+    let uploadAsset = async (~assetFile, ~assetName) => {
+      try {
+        let formData = FormDataUtils.formData()
+        FormDataUtils.append(formData, "asset_name", assetName)
+        FormDataUtils.append(formData, "asset_data", assetFile)
+        let url = getURL(
+          ~entityName=V1(USERS),
+          ~methodType=Post,
+          ~id=Some(themeId),
+          ~userType=#THEME_UPLOAD_ASSET,
+        )
+        let _ = await updateDetails(
+          ~bodyFormData=formData,
+          ~headers=Dict.make(),
+          url,
+          Dict.make()->JSON.Encode.object,
+          Post,
+          ~contentType=AuthHooks.Unknown,
+        )
+      } catch {
+      | _ => Exn.raiseError("Failed to upload asset.")
+      }
+    }
+    let getThemeByThemeId = async () => {
+      try {
+        let url = getURL(
+          ~entityName=V1(USERS),
+          ~methodType=Get,
+          ~id=Some(`${themeId}`),
+          ~userType=#THEME,
+        )
+        let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
+        res
+      } catch {
+      | _ => Exn.raiseError("Failed to fetch theme.json")
+      }
+    }
+
+    let updateThemeWithAssetUrls = async (~uploadedFiles) => {
+      try {
+        let currentThemeData = await getThemeByThemeId()
+        let currentThemeDict = currentThemeData->getDictFromJsonObject
+        let currentThemeDataDict = currentThemeDict->getDictfromDict("theme_data")
+        let existingUrls = currentThemeDataDict->getDictfromDict("urls")
+
+        if uploadedFiles->Dict.get("logo.png")->Option.isSome {
+          let logoUrl = `${baseUrl}/themes/${themeId}/logo.png`
+          existingUrls->Dict.set("logoUrl", logoUrl->JSON.Encode.string)
+        }
+        if uploadedFiles->Dict.get("favicon.png")->Option.isSome {
+          let faviconUrl = `${baseUrl}/themes/${themeId}/favicon.png`
+          existingUrls->Dict.set("faviconUrl", faviconUrl->JSON.Encode.string)
+        }
+
+        currentThemeDataDict->Dict.set("urls", existingUrls->JSON.Encode.object)
+        currentThemeDict->Dict.set("theme_data", currentThemeDataDict->JSON.Encode.object)
+
+        let updateUrl = getURL(
+          ~entityName=V1(USERS),
+          ~methodType=Put,
+          ~id=Some(themeId),
+          ~userType=#THEME,
+        )
+        let _ = await updateDetails(updateUrl, currentThemeDict->JSON.Encode.object, Put)
+      } catch {
+      | _ => Exn.raiseError("Failed to update theme")
+      }
+    }
+
+    let handleUpload = async () => {
+      try {
+        setScreenState(_ => Loading)
+        switch selectedFiles->Dict.get("logo.png") {
+        | Some(iconFile) =>
+          let _ = await uploadAsset(~assetFile=iconFile, ~assetName="logo.png")
+        | None => ()
+        }
+        switch selectedFiles->Dict.get("favicon.png") {
+        | Some(faviconFile) =>
+          let _ = await uploadAsset(~assetFile=faviconFile, ~assetName="favicon.png")
+        | None => ()
+        }
+        let _ = await updateThemeWithAssetUrls(~uploadedFiles=selectedFiles)
+
+        showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => Success)
+        setShowModal(_ => false)
+        redirectToList()
+      } catch {
+      | _ =>
+        showToast(~message="Failed to upload assets", ~toastType=ToastState.ToastError)
+        setScreenState(_ => Success)
+      }
+    }
+
+    let handleCancel = () => {
+      setShowModal(_ => false)
+      showToast(
+        ~message="Theme has been created. You can upload assets later",
+        ~toastType=ToastState.ToastInfo,
+      )
+      redirectToList()
+    }
+
+    <Modal
+      showModal
+      closeOnOutsideClick=false
+      setShowModal
+      modalHeading="Upload Assets"
+      modalHeadingClass={`${heading.sm.semibold}`}
+      modalClass="w-1/2 m-auto"
+      childClass="p-0"
+      modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
+        {"Upload icon and favicon files for your theme."->React.string}
+      </div>}>
+      <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
+        <div className="p-2">
+          <FileUploadField
+            label="Icon"
+            inputId="iconInput"
+            acceptTypes=".png,.jpg,.jpeg"
+            tooltipDescription="Supported formats: PNG, JPG, JPEG. Recommended size: 32x32px"
+            selectedFile={selectedFiles->Dict.get("logo.png")}
+            onFileChange={handleFileChange("logo.png")}
+          />
+          <FileUploadField
+            label="Favicon"
+            inputId="faviconInput"
+            acceptTypes=".png,.ico,.jpg,.jpeg"
+            tooltipDescription="Supported formats: ICO, PNG. Recommended size: 16x16px or 32x32px"
+            selectedFile={selectedFiles->Dict.get("favicon.png")}
+            onFileChange={handleFileChange("favicon.png")}
+          />
+          <div className="flex justify-end gap-3 pt-4 border-t border-nd_gray-200">
+            <Button
+              text="Skip for now"
+              buttonType=Secondary
+              buttonState=Normal
+              buttonSize=Small
+              onClick={_ => handleCancel()->ignore}
+            />
+            <Button
+              text="Save & Upload"
+              buttonType=Primary
+              buttonState={selectedFiles->Dict.toArray->Array.length > 0 ? Normal : Disabled}
+              buttonSize=Small
+              onClick={_ => handleUpload()->ignore}
+            />
+          </div>
+        </div>
+      </PageLoaderWrapper>
+    </Modal>
   }
 }
