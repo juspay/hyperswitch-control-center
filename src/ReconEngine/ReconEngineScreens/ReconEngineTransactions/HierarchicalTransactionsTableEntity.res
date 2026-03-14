@@ -88,9 +88,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <>
+          <React.Fragment key={randomString(~length=10)}>
             <RenderIf condition={entry.entry_id->isNonEmptyString}>
-              <div key={randomString(~length=10)} className="px-8 py-3.5">
+              <div className="px-8 py-3.5">
                 <HelperComponents.CopyTextCustomComp
                   customParentClass="flex flex-row items-center gap-2"
                   customTextCss="truncate whitespace-nowrap max-w-32"
@@ -103,7 +103,7 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
                 {"N/A"->React.string}
               </p>
             </RenderIf>
-          </>
+          </React.Fragment>
         })
         ->React.array}
       </div>
@@ -113,9 +113,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
       <div className=hierarchicalContainerClassName>
         {transaction.entries
         ->Array.map(entry => {
-          <>
+          <React.Fragment key={randomString(~length=10)}>
             <RenderIf condition={entry.order_id->isNonEmptyString}>
-              <div key={randomString(~length=10)} className="px-8 py-3.5">
+              <div className="px-8 py-3.5">
                 <HelperComponents.CopyTextCustomComp
                   customParentClass="flex flex-row items-center gap-2"
                   customTextCss="truncate whitespace-nowrap max-w-48"
@@ -124,11 +124,9 @@ let getCell = (transaction: transactionType, colType: hierarchicalColType): cell
               </div>
             </RenderIf>
             <RenderIf condition={entry.order_id->isEmptyString}>
-              <p key={randomString(~length=10)} className="px-8 py-3.5 text-nd_gray-600">
-                {"N/A"->React.string}
-              </p>
+              <p className="px-8 py-3.5 text-nd_gray-600"> {"N/A"->React.string} </p>
             </RenderIf>
-          </>
+          </React.Fragment>
         })
         ->React.array}
       </div>

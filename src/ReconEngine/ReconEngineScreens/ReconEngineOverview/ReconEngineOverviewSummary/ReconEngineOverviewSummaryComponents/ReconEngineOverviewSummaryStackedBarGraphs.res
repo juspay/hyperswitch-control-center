@@ -4,6 +4,7 @@ open ReconEngineRulesTypes
 module RuleWiseStackedBarGraph = {
   @react.component
   let make = (~rule: rulePayload) => {
+    open ReconEngineOverviewSummaryUtils
     open CurrencyFormatUtils
     open LogicUtils
 
@@ -57,11 +58,7 @@ module RuleWiseStackedBarGraph = {
         : 0.0
 
     let stackedBarGraphData = React.useMemo(() => {
-      ReconEngineOverviewSummaryUtils.getSummaryStackedBarGraphData(
-        ~postedCount,
-        ~mismatchedCount,
-        ~expectedCount,
-      )
+      getSummaryStackedBarGraphData(~postedCount, ~mismatchedCount, ~expectedCount)
     }, [postedCount, mismatchedCount, expectedCount])
 
     React.useEffect(() => {
@@ -89,6 +86,8 @@ module RuleWiseStackedBarGraph = {
               ~yMax=totalTransactions,
               ~labelItemDistance={isMiniLaptopView ? 45 : 80},
               ~pointWidth=12,
+              ~onPointClick=seriesName =>
+                ReconEngineOverviewUtils.handleBarClick(~rule, seriesName),
             )}
           />
         </div>
