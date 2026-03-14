@@ -3,6 +3,12 @@ open PopUpState
 @react.component
 let make = (~children) => {
   let (openPopUps, setOpenPopUp) = Recoil.useRecoilState(PopUpState.openPopUp)
+  let url = RescriptReactRouter.useUrl()
+
+  React.useEffect(() => {
+    setOpenPopUp(_ => [])
+    None
+  }, (url.path, url.hash))
   let activePopUp = openPopUps->Array.get(0)
   let popUp = switch activePopUp {
   | Some(popUp) => {
