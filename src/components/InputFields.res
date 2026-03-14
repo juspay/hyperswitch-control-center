@@ -40,6 +40,7 @@ let selectInput = (
   ~dropdownClassName="",
   ~descriptionOnHover=false,
   ~buttonSize=Button.Large,
+  ~maxButtonWidth="",
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -74,6 +75,7 @@ let selectInput = (
     dropdownClassName
     descriptionOnHover
     buttonSize
+    maxButtonWidth
   />
 }
 

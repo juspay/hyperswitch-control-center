@@ -6,7 +6,13 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
+  let {vaultProcessorsLiveList} =
+    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+
+  let businessProfileRecoilVal =
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -46,7 +52,9 @@ let make = () => {
     getConnectorList()->ignore
     None
   }, [])
-
+  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
+    ? vaultProcessorsLiveList
+    : ConnectorUtils.vaultProcessorList
   <div>
     <PageUtils.PageHeading
       title={"Vault Processor"} subTitle={"Connect and configure Vault Processor"}
@@ -62,6 +70,7 @@ let make = () => {
             entity={VaultProcessorsEntity.vaultProcessorEntity(
               "vault-processor",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~external_vault_connector_details=businessProfileRecoilVal.external_vault_connector_details,
             )}
             filters={<TableSearchFilter
               data={configuredConnectors->Array.map(Nullable.make)}
@@ -85,7 +94,7 @@ let make = () => {
             ConnectorTypes.VaultProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.vaultProcessorList
+          connectorsAvailableForIntegration
           urlPrefix="vault-processor/new"
           connectorType=ConnectorTypes.VaultProcessor
         />

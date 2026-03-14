@@ -11,7 +11,7 @@ beforeEach(function () {
   cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
-const columnSize = 23;
+const columnSize = 24;
 const requiredColumnsSize = 14;
 
 describe("Payment Operations", () => {
@@ -126,11 +126,11 @@ describe("Payment Operations", () => {
             "Payment Method Type",
             "Card Network",
             "Connector Transaction ID",
-            "Customer Email",
             "Merchant Order Reference Id",
             "Description",
             "Metadata",
             "Created",
+            "Modified",
           ];
           cy.get("table thead tr th").each(($el, index) => {
             cy.wrap($el).should("have.text", expectedHeaders[index]);
@@ -138,9 +138,11 @@ describe("Payment Operations", () => {
 
           // Payment details in table row
           cy.get(`[data-table-location="Orders_tr1_td1"]`).contains("1");
-          cy.get(`[data-table-location="Orders_tr1_td2"]`)
-            .contains("...")
-            .click();
+          cy.get(`[data-table-location="Orders_tr1_td2"]`).then(($td) => {
+            if ($td.find(".text-blue-811").length > 0) {
+              cy.wrap($td).find(".text-blue-811").click();
+            }
+          });
           cy.get(`[data-table-location="Orders_tr1_td2"]`).contains(
             response.body.payment_id,
           );
@@ -167,16 +169,13 @@ describe("Payment Operations", () => {
             response.body.connector_transaction_id,
           );
           cy.get(`[data-table-location="Orders_tr1_td11"]`).contains(
-            response.body.email,
-          );
-          cy.get(`[data-table-location="Orders_tr1_td12"]`).contains(
             response.body.merchant_order_reference_id,
           );
           cy.get(`[class="text-sm font-extrabold cursor-pointer"]`).click();
-          cy.get(`[data-table-location="Orders_tr1_td13"]`).contains(
+          cy.get(`[data-table-location="Orders_tr1_td12"]`).contains(
             response.body.description,
           );
-          cy.get(`[data-table-location="Orders_tr1_td14"]`).contains(
+          cy.get(`[data-table-location="Orders_tr1_td13"]`).contains(
             JSON.stringify(response.body.metadata),
           );
         });
@@ -194,9 +193,9 @@ describe("Payment Operations", () => {
         "Payment Method Type",
         "Payment Method",
         "Payment ID",
-        "Customer Email",
         "Description",
         "Created",
+        "Modified",
         "Connector Transaction ID",
         "Connector",
         "Profile Id",
@@ -210,6 +209,7 @@ describe("Payment Operations", () => {
         "Merchant ID",
         "Setup Future Usage",
         "Attempt count",
+        "Error Message",
       ],
       optional: [
         "AmountCapturable",
@@ -221,6 +221,7 @@ describe("Payment Operations", () => {
         "Merchant ID",
         "Setup Future Usage",
         "Attempt count",
+        "Error Message",
       ],
       mandatory: [
         "Card Network",
@@ -230,9 +231,9 @@ describe("Payment Operations", () => {
         "Payment Method Type",
         "Payment Method",
         "Payment ID",
-        "Customer Email",
         "Description",
         "Created",
+        "Modified",
         "Connector Transaction ID",
         "Connector",
         "Profile Id",
@@ -299,9 +300,9 @@ describe("Payment Operations", () => {
       "Payment Method Type",
       "Payment Method",
       "Payment ID",
-      "Customer Email",
       "Description",
       "Created",
+      "Modified",
       "Connector Transaction ID",
       "Connector",
       "Profile Id",
@@ -315,6 +316,7 @@ describe("Payment Operations", () => {
       "Merchant ID",
       "Setup Future Usage",
       "Attempt count",
+      "Error Message",
     ];
 
     let merchant_id;
@@ -389,11 +391,11 @@ describe("Payment Operations", () => {
       "Payment Method Type",
       "Card Network",
       "Connector Transaction ID",
-      "Customer Email",
       "Merchant Order Reference Id",
       "Description",
       "Metadata",
       "Created",
+      "Modified",
       "AmountCapturable",
       "Authentication Type",
       "Capture Method",
@@ -403,6 +405,7 @@ describe("Payment Operations", () => {
       "Merchant ID",
       "Setup Future Usage",
       "Attempt count",
+      "Error Message",
     ];
 
     let merchant_id;
@@ -462,9 +465,11 @@ describe("Payment Operations", () => {
       .then((text) => {
         paymentOperations.searchBox.type(text + "{enter}");
 
-        cy.get(
-          '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
-        ).click();
+        cy.get(`[data-table-location="Orders_tr1_td2"]`).then(($td) => {
+          if ($td.find(".text-blue-811").length > 0) {
+            cy.wrap($td).find(".text-blue-811").click();
+          }
+        });
 
         cy.get('[data-table-location="Orders_tr1_td2"]').should(
           "contain",
@@ -487,9 +492,11 @@ describe("Payment Operations", () => {
       .then((text) => {
         paymentOperations.searchBox.type(text + "{enter}");
 
-        cy.get(
-          '[class="flex text-blue-811 text-sm font-extrabold cursor-pointer"]',
-        ).click();
+        cy.get(`[data-table-location="Orders_tr1_td2"]`).then(($td) => {
+          if ($td.find(".text-blue-811").length > 0) {
+            cy.wrap($td).find(".text-blue-811").click();
+          }
+        });
 
         cy.get('[data-table-location="Orders_tr1_td2"]').should(
           "contain",
@@ -739,9 +746,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-date-picker-predefined="predefined-options"]', {
-      timeout: 10000,
-    }) //Expected to find element, but never found it.
+    cy.get('[data-date-picker-predefined="predefined-options"]').should(
+      "be.visible",
+    );
+    cy.get('[data-date-picker-predefined="predefined-options"]')
       .should("exist")
       .should("be.visible")
       .within(() => {
@@ -770,10 +778,10 @@ describe("Payment Operations", () => {
 
     for (const timeRange of predefinedTimeRange) {
       paymentOperations.dateSelector.click();
-      cy.get('[data-date-picker-predefined="predefined-options"]', {
-        timeout: 10000,
-      }).within(
-        //Expected to find element, but never found it.
+      cy.get('[data-date-picker-predefined="predefined-options"]').should(
+        "be.visible",
+      );
+      cy.get('[data-date-picker-predefined="predefined-options"]').within(
         () => {
           cy.contains(timeRange).click();
         },
@@ -807,7 +815,10 @@ describe("Payment Operations", () => {
     homePage.paymentOperations.click();
 
     paymentOperations.dateSelector.should("be.visible").click();
-    cy.get('[data-daterange-dropdown-value="Custom Range"]', { timeout: 10000 })
+    cy.get('[data-date-picker-predefined="predefined-options"]').should(
+      "be.visible",
+    );
+    cy.get('[data-daterange-dropdown-value="Custom Range"]')
       .should("exist")
       .should("be.visible")
       .click({ force: true });
@@ -828,9 +839,58 @@ describe("Payment Operations", () => {
     );
   });
 
-  // generate reports
-
   // Views
+  it.skip("should verify all transaction filter views are displayed", () => {
+    const transactionViews = [
+      "All",
+      "Succeeded",
+      "Failed",
+      "Dropoffs",
+      "Cancelled",
+    ];
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    paymentOperations.transactionView.should("be.visible").within(() => {
+      transactionViews.forEach((view) => {
+        cy.contains(view).should("exist");
+      });
+    });
+  });
+
+  it.skip("should switch between different transaction views and verify applied filters", () => {
+    const viewFilters = {
+      Succeeded: "Succeeded",
+      Failed: "Failed",
+      Dropoffs: "Dropoffs",
+      Cancelled: "Cancelled",
+    };
+
+    let merchant_id;
+    homePage.merchantID
+      .eq(0)
+      .invoke("text")
+      .then((text) => {
+        merchant_id = text;
+        cy.createDummyConnectorAPI(merchant_id, "stripe_test_1");
+        cy.createPaymentAPI(merchant_id);
+      });
+
+    homePage.operations.click();
+    homePage.paymentOperations.click();
+
+    for (const [view, filter] of Object.entries(viewFilters)) {
+      paymentOperations.transactionView.contains(view).click();
+
+      cy.get('[class="flex relative  flex-row  flex-wrap"]').should(
+        "contain",
+        filter,
+      );
+    }
+  });
+
+  // generate reports
 
   // Verify "Open in new tab" button for payment ID
 

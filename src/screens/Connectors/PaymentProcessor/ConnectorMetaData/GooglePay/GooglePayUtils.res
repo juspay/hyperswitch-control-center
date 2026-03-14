@@ -13,6 +13,7 @@ let getCustomGateWayName = connector => {
   | Processors(GLOBALPAY) => "globalpayments"
   | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) => "cybersource"
   | Processors(FIUU) => "molpay"
+  | Processors(WORLDPAYXML) | Processors(WORLDPAYMODULAR) => "worldpay"
   | _ => connector
   }
 }
@@ -97,6 +98,7 @@ let googlePay = (dict, connector: string) => {
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
   let standGooglePayConfig = {
+    support_predecrypted_token: merchantInfoDict->getOptionBool("support_predecrypted_token"),
     merchant_info: merchantInfoDict->merchantInfo,
     allowed_payment_methods: [allowedPaymentMethodDict->allowedPaymentMethod(connector)],
   }

@@ -6,7 +6,7 @@ let dayMapper = (days: days) => {
   switch days {
   | Sunday => "Sunday"
   | Monday => "Monday"
-  | Tuesday => "Tuesda"
+  | Tuesday => "Tuesday"
   | Wednesday => "Wednesday"
   | Thursday => "Thursday"
   | Friday => "Friday"

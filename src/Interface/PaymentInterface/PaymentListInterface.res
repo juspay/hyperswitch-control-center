@@ -80,3 +80,14 @@ let mapJsonToOrdersObject = (json: JSON.t, interface): PaymentInterfaceTypes.ord
 
   {count, data, total_count}
 }
+
+let mapAnalyticsResponseToOrdersObject = (json: JSON.t): PaymentInterfaceTypes.ordersObject => {
+  let dict = json->getDictFromJsonObject
+  let total_count = dict->getInt("count", 0)
+  let hits = dict->getArrayFromDict("hits", [])
+  let data = hits->Array.map(hit => {
+    hit->PaymentInterfaceUtilsAnalytics.mapAnalyticsHitToOrder
+  })
+
+  {count: total_count, data, total_count}
+}

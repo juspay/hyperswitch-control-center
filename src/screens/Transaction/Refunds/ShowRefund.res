@@ -57,7 +57,9 @@ module RefundInfo = {
   @react.component
   let make = (~orderDict) => {
     let refundData = itemToObjMapper(orderDict)
-    let {userInfo: {merchantId, orgId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {merchantId, orgId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
@@ -92,9 +94,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastState.useShowToast()
   let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
 
-  let {userInfo: {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo}} = React.useContext(
+  let {merchantId: merchantIdFromUserInfo, orgId: orgIdFromUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
-  )
+  ).getCommonSessionDetails()
+
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchRefundData = async () => {
     try {
@@ -197,7 +200,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Events and logs",
-              renderContent: () => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#REFUND}>
                   <RefundLogs refundId=id paymentId />
                 </LogsWrapper>

@@ -31,7 +31,7 @@ let useFetchMerchantList = () => {
   let showToast = ToastState.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let v2MerchantListFetcher = useFetchMerchantListV2()
 

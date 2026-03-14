@@ -4,7 +4,9 @@ let make = () => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {userInfo: {merchantId, orgId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, orgId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
@@ -14,6 +16,7 @@ let make = () => {
   let (filters, _setFilters) = React.useState(_ => None)
   let (searchText, _setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let setData = (total, data) => {
     let arr = Array.make(~length=offset, Dict.make()->RevenueRecoveryEntity.itemToObjMapper)
@@ -114,6 +117,9 @@ let make = () => {
     <div className={`flex flex-col mx-auto h-full w-full min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="List of Invoices" customTitleStyle="py-0 !pt-0" />
+        <RenderIf condition={generateReport && email && revenueRecoveryData->Array.length > 0}>
+          <GenerateReport entityName={V2(REVENUE_RECOVERY_REPORT)} />
+        </RenderIf>
       </div>
       <PageLoaderWrapper screenState>
         <LoadedTableWithCustomColumns

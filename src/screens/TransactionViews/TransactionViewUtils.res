@@ -1,16 +1,26 @@
 open TransactionViewTypes
 
-let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Cancelled]
+let paymentViewsArray: array<viewTypes> = [
+  All,
+  Succeeded,
+  Failed,
+  Dropoffs,
+  Cancelled,
+  RequiresCapture,
+]
 
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
 let disputeViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
+
+let payoutViewsArray: array<viewTypes> = [All, Succeeded, Failed, Cancelled, Expired, Reversed]
 
 let getCustomFilterKey = entity =>
   switch entity {
   | Orders => "status"
   | Refunds => "refund_status"
   | Disputes => "dispute_status"
+  | Payouts => "status"
   }
 
 let getViewsDisplayName = (view: viewTypes) => {
@@ -21,6 +31,9 @@ let getViewsDisplayName = (view: viewTypes) => {
   | Dropoffs => "Dropoffs"
   | Cancelled => "Cancelled"
   | Pending => "Pending"
+  | Expired => "Expired"
+  | Reversed => "Reversed"
+  | RequiresCapture => "Requires Capture"
   | _ => ""
   }
 }
@@ -34,6 +47,7 @@ let getViewTypeFromString = (view, entity) => {
     | "failed" => Failed
     | "requires_payment_method" => Dropoffs
     | "pending" => Pending
+    | "requires_capture" => RequiresCapture
     | _ => All
     }
   | Refunds =>
@@ -48,6 +62,15 @@ let getViewTypeFromString = (view, entity) => {
     | "dispute_won" => Succeeded
     | "dispute_lost" => Failed
     | "dispute_opened" => Pending
+    | _ => All
+    }
+  | Payouts =>
+    switch view {
+    | "success" => Succeeded
+    | "failed" => Failed
+    | "cancelled" => Cancelled
+    | "expired" => Expired
+    | "reversed" => Reversed
     | _ => All
     }
   }
@@ -72,6 +95,7 @@ let getViewsString = (view, obj, entity) => {
     | Dropoffs => "requires_payment_method"
     | Cancelled => "cancelled"
     | Pending => "pending"
+    | RequiresCapture => "requires_capture"
     | _ => ""
     }
   | Refunds =>
@@ -88,6 +112,16 @@ let getViewsString = (view, obj, entity) => {
     | Succeeded => "dispute_won"
     | Failed => "dispute_lost"
     | Pending => "dispute_opened"
+    | _ => ""
+    }
+  | Payouts =>
+    switch view {
+    | All => getAllViewsString(obj)
+    | Succeeded => "success"
+    | Failed => "failed"
+    | Cancelled => "cancelled"
+    | Expired => "expired"
+    | Reversed => "reversed"
     | _ => ""
     }
   }

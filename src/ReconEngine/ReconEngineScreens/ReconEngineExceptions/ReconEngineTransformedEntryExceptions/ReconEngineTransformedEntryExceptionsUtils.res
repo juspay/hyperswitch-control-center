@@ -3,7 +3,6 @@ open LogicUtils
 open ReconEngineTransformedEntryExceptionsTypes
 open ReconEngineExceptionsUtils
 open ReconEngineTransactionsUtils
-open ReconEngineExceptionsTypes
 
 let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
   compareLogic(c1.version, c2.version)
@@ -38,7 +37,7 @@ let getGroupedEntriesAndAccountMaps = (~updatedEntriesList: array<processingEntr
 }
 
 let getMainResolutionButtons = (~isResolutionAvailable, ~setExceptionStage, ~setActiveModal): array<
-  buttonConfig,
+  ReconEngineExceptionsTypes.buttonConfig,
 > => {
   [
     {
@@ -123,7 +122,9 @@ let initialDisplayFilters = (~accountOptions) => {
   ]
 }
 
-let getResolutionModalConfig = (exceptionStage: exceptionResolutionStage): resolutionConfig => {
+let getResolutionModalConfig = (
+  exceptionStage: exceptionResolutionStage,
+): ReconEngineExceptionsTypes.resolutionConfig => {
   switch exceptionStage {
   | ResolvingTransformedEntry(VoidTransformedEntry) => {
       heading: "Ignore Entry",
@@ -173,7 +174,11 @@ let hasFormValuesChanged = (
 ): bool => {
   let currentData = currentValues->getDictFromJsonObject
   let initialMetadata = initialEntryDetails.metadata->getFilteredMetadataFromEntries
-
+  let currentAccountData = currentData->getDictfromDict("account")
+  let isAccountChanged =
+    currentAccountData->getString("account_id", "") != initialEntryDetails.account.account_id
+  let isTransformationConfigChanged =
+    currentData->getString("transformation_id", "") != initialEntryDetails.transformation_id
   let isEntryTypeChanged =
     currentData->getString("entry_type", "") != (initialEntryDetails.entry_type :> string)
   let isAmountChanged = currentData->getFloat("amount", 0.0) != initialEntryDetails.amount
@@ -181,13 +186,16 @@ let hasFormValuesChanged = (
     currentData->getString("effective_at", "") != initialEntryDetails.effective_at
 
   let isMetadataChanged = {
-    let currentMetadata = currentData->getJsonObjectFromDict("metadata")
-    let currentMetadataJson = currentMetadata
-    let initialMetadataJson = initialMetadata->JSON.Encode.object
-    currentMetadataJson->JSON.stringify != initialMetadataJson->JSON.stringify
+    let currentMetadataArray = currentData->getDictfromDict("metadata")->Dict.toArray
+    let initialMetadataArray = initialMetadata->Dict.toArray
+    currentMetadataArray->Array.length != initialMetadataArray->Array.length ||
+      currentMetadataArray->Array.some(((key, value)) => {
+        initialMetadata->Dict.get(key)->Option.mapOr(true, initialValue => initialValue != value)
+      })
   }
   let isOrderIdChanged = currentData->getString("order_id", "") != initialEntryDetails.order_id
-
+  isAccountChanged ||
+  isTransformationConfigChanged ||
   isEntryTypeChanged ||
   isAmountChanged ||
   isEffectiveAtChanged ||
@@ -198,9 +206,9 @@ let hasFormValuesChanged = (
 let validateEditEntryDetails = (
   values: JSON.t,
   ~initialEntryDetails: processingEntryType,
+  ~metadataSchema: metadataSchemaType,
 ): JSON.t => {
   let data = values->getDictFromJsonObject
-
   let accountData = data->getDictfromDict("account")
 
   let validationRules = [
@@ -210,6 +218,7 @@ let validateEditEntryDetails = (
         ? requiredString("account.account_id", "Account cannot be empty!")
         : _ => None,
     ),
+    ("transformation_id", requiredString("transformation_id", "Cannot be empty!")),
     ("entry_type", requiredString("entry_type", "Cannot be empty!")),
     ("currency", requiredString("currency", "Cannot be empty!")),
     ("order_id", requiredString("order_id", "Cannot be empty!")),
@@ -218,6 +227,28 @@ let validateEditEntryDetails = (
   ]
 
   let fieldErrors = validateFields(data, validationRules)->getDictFromJsonObject
+
+  if metadataSchema.id->isNonEmptyString {
+    let metadataDict = data->getJsonObjectFromDict("metadata")->getDictFromJsonObject
+
+    metadataSchema.schema_data.fields.metadata_fields->Array.forEach(field => {
+      let fieldKey = getFieldNameFromMetadataField(field)
+      let value = metadataDict->getString(fieldKey, "")
+      let error = ReconEngineExceptionsUtils.validateMetadataFieldValue(
+        fieldKey,
+        value,
+        metadataSchema,
+      )
+      switch error {
+      | Some(err) => {
+          let errorKey = `metadata.${fieldKey}`
+          fieldErrors->Dict.set(errorKey, err->JSON.Encode.string)
+        }
+      | None => ()
+      }
+    })
+  }
+
   let hasChanges = hasFormValuesChanged(values, initialEntryDetails)
   if !hasChanges {
     fieldErrors->Dict.set("No changes", "Please make changes before saving."->JSON.Encode.string)
@@ -296,13 +327,19 @@ let generateResolutionSummary = (
     summary->Array.push(message)
   }
 
-  let initialMetadata = currentEntry.metadata->getFilteredMetadataFromEntries->JSON.Encode.object
-  let updatedMetadata = updatedEntry.metadata->getFilteredMetadataFromEntries->JSON.Encode.object
+  let initialMetadata = currentEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
 
-  if initialMetadata->JSON.stringify != updatedMetadata->JSON.stringify {
-    let message = "Metadata fields updated."
-    summary->Array.push(message)
-  }
+  initialMetadata->Array.forEach(((key, initialValue)) => {
+    let updatedStr =
+      updatedEntry.metadata
+      ->getFilteredMetadataFromEntries
+      ->getString(key, "")
+    let initialStr = initialValue->getStringFromJson("")
+    if initialStr != updatedStr {
+      let message = `Metadata field '${key}' changed from '${initialStr}' to '${updatedStr}'.`
+      summary->Array.push(message)
+    }
+  })
 
   summary
 }

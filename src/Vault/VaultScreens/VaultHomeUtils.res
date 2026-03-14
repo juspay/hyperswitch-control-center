@@ -100,3 +100,7 @@ let getVaultMixPanelEvent = currentStep => {
   | #ReviewAndConnect => "vault_onboarding_step4"
   }
 }
+
+let getVaultMixpanelEventName = (~isOrchestrationVault, ~eventName) => {
+  isOrchestrationVault ? `orchestration_${eventName}` : eventName
+}

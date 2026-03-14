@@ -25,7 +25,7 @@ let make = (~queryData) => {
       <ExemptionGraphs
         entity={authenticationSuccessEntity}
         chartEntity={authenticationSuccessChartEntity}
-        metricXKey="authentication_success_count"
+        metricXKey="authentication_success_rate"
         groupByKey="authentication_connector"
       />
       <ExemptionGraphs

@@ -7,6 +7,7 @@ let getStackedBarGraphOptions = (
   ~yMax,
   ~labelItemDistance,
   ~pointWidth=30,
+  ~onPointClick: option<string => unit>=?,
 ) => {
   let {categories, data, labelFormatter} = stackedBarGraphOptions
 
@@ -69,6 +70,22 @@ let getStackedBarGraphOptions = (
         borderWidth: 3,
         pointWidth,
         borderRadius: 5,
+      },
+      series: switch onPointClick {
+      | Some(clickHandler) =>
+        Some({
+          point: Some({
+            events: Some({
+              click: Some(
+                event => {
+                  let seriesName = event.point.series.name
+                  clickHandler(seriesName)
+                },
+              ),
+            }),
+          }),
+        })
+      | None => None
       },
     },
     series: data,

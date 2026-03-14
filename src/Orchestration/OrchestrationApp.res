@@ -5,11 +5,12 @@ let make = (~setScreenState) => {
   let url = RescriptReactRouter.useUrl()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {
-    useIsFeatureEnabledForBlackListMerchant,
+    isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -37,23 +38,30 @@ let make = (~setScreenState) => {
     | list{"routing", ..._}
     | list{"payoutrouting", ..._}
     | list{"payment-settings", ..._}
-    | list{"payment-settings-new", ..._}
     | list{"webhooks", ..._}
-    | list{"sdk"} =>
-      <ConnectorContainer />
+    | list{"sdk"}
+    | list{"vault-onboarding", ..._}
+    | list{"vault-customers-tokens", ..._} =>
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <ConnectorContainer />
+      </AccessControl>
     | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
     | list{"payouts", ..._} =>
-      <TransactionContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <TransactionContainer />
+      </AccessControl>
     | list{"analytics-payments"}
     | list{"performance-monitor"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
     | list{"analytics-routing", ..._} =>
-      <AnalyticsContainer />
+      <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
+        <AnalyticsContainer />
+      </AccessControl>
 
     | list{"new-analytics"}
     | list{"new-analytics", "payment"}
@@ -61,7 +69,7 @@ let make = (~setScreenState) => {
     | list{"new-analytics", "smart-retry"} =>
       <AccessControl
         isEnabled={featureFlagDetails.newAnalytics &&
-        useIsFeatureEnabledForBlackListMerchant(merchantSpecificConfig.newAnalytics)}
+        isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)}
         authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="NewAnalytics" index="NewAnalytics">
           <InsightsAnalyticsContainer />
@@ -81,7 +89,10 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
-    | list{"users", ..._} => <UserManagementContainer />
+    | list{"users", ..._} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=UsersView)}>
+        <UserManagementContainer />
+      </AccessControl>
     | list{"developer-api-keys"} =>
       <AccessControl
         // TODO: Remove `MerchantDetailsView` permission in future
@@ -121,6 +132,12 @@ let make = (~setScreenState) => {
           userHasAccess(~groupAccess=AccountManage),
         )}>
         <HSwitchSettings />
+      </AccessControl>
+    | list{"organization-settings"} =>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=AccountManage)}
+        isEnabled={checkUserEntity([#Organization])}>
+        <OrganizationSettings />
       </AccessControl>
     | list{"search"} => <SearchResultsPage />
     | list{"payment-attempts"} =>

@@ -9,11 +9,9 @@ let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayl
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
 )
 
-let organizationDetailsValueAtom: Recoil.recoilAtom<
-  HSwitchSettingTypes.organizationPayload,
-> = Recoil.atom(
+let organizationDetailsValueAtom: Recoil.recoilAtom<OMPSwitchTypes.ompListTypes> = Recoil.atom(
   "organizationDetailsValue",
-  JSON.Encode.null->OrganizationDetailsMapper.getOrganizationDetails,
+  ompDefaultValue,
 )
 
 let connectorListAtom: Recoil.recoilAtom<
@@ -31,11 +29,19 @@ let businessProfileFromIdAtomInterface = Recoil.atom(
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
 )
 
+let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
+
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
 let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
+)
+let connectorListForLiveAtom: Recoil.recoilAtom<
+  ConnectorListForLiveFromConfigTypes.connectorListForLive,
+> = Recoil.atom(
+  "connectorListForLive",
+  JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
 )
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
@@ -89,3 +95,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)

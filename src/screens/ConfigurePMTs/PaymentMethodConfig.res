@@ -73,6 +73,8 @@ let make = (
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
+  open LogicUtils
+
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
@@ -97,7 +99,6 @@ let make = (
   let updateDetails = useUpdateMethod()
 
   let getProcessorDetails = async () => {
-    open LogicUtils
     try {
       setShowPaymentMthdConfigModal(_ => true)
       setScreenState(_ => Loading)
@@ -179,7 +180,12 @@ let make = (
         setShowModal={setShowPaymentMthdConfigModal}
         modalClass="w-full max-w-lg m-auto !bg-white">
         <PageLoaderWrapper screenState sectionHeight="h-30-vh">
-          <Form key="pmts-configuration" initialValues onSubmit={onSubmit}>
+          <Form
+            key="pmts-configuration"
+            initialValues
+            onSubmit
+            validate={valueInput =>
+              PaymentMethodConfigUtils.validatePMTsConfig(valueInput, paymentMethodConfig)}>
             <div className="p-5">
               <FieldRenderer
                 field={valueInput({
@@ -203,7 +209,11 @@ let make = (
                   ~label="Minimum Amount",
                   ~name=`${id}.minimum_amount`,
                   ~placeholder="Enter Minimum Amount",
-                  ~customInput=InputFields.numericTextInput(~customStyle="!rounded-xl"),
+                  ~customInput=InputFields.numericTextInput(
+                    ~customStyle="!rounded-xl",
+                    ~precision=0,
+                  ),
+                  ~isRequired=true,
                 )}
               />
               <FormRenderer.FieldRenderer
@@ -212,13 +222,19 @@ let make = (
                   ~label="Maximum Amount",
                   ~name=`${id}.maximum_amount`,
                   ~placeholder="Enter Maximum Amount",
-                  ~customInput=InputFields.numericTextInput(~customStyle="!rounded-xl"),
+                  ~customInput=InputFields.numericTextInput(
+                    ~customStyle="!rounded-xl",
+                    ~precision=0,
+                  ),
+                  ~isRequired=true,
                 )}
               />
             </div>
             <hr className="w-full" />
             <div className="flex justify-end w-full pr-5 pb-3 mt-5">
-              <FormRenderer.SubmitButton loadingText="Processing..." text="Submit" />
+              <FormRenderer.SubmitButton
+                loadingText="Processing..." text="Submit" showToolTip=false
+              />
             </div>
           </Form>
         </PageLoaderWrapper>

@@ -13,6 +13,11 @@ type authConnectorDetailsType_v1 = {
   three_ds_requestor_app_url: option<string>,
 }
 
+type externalVaultConnectorDetailsType_v1 = {
+  vault_connector_id: string,
+  vault_token_selector: option<array<JSON.t>>,
+}
+
 type profileEntityRequestType_v1 = {
   profile_name: string,
   return_url: option<JSON.t>,
@@ -36,6 +41,8 @@ type profileEntityRequestType_v1 = {
   always_request_extended_authorization: option<JSON.t>,
   is_manual_retry_enabled: option<JSON.t>,
   always_enable_overcapture: option<JSON.t>,
+  is_external_vault_enabled: option<string>,
+  external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
 }
 type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
 
@@ -110,4 +117,6 @@ type profileEntity_v1 = {
   always_enable_overcapture: option<bool>,
   billing_processor_id: option<string>,
   payment_link_config: option<paymentLinkConfig_v1>,
+  is_external_vault_enabled: option<string>,
+  external_vault_connector_details: option<externalVaultConnectorDetailsType_v1>,
 }

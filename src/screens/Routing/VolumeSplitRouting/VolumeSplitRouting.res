@@ -26,6 +26,7 @@ module VolumeRoutingView = {
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let gateways =
       initialValues
@@ -161,9 +162,10 @@ module VolumeRoutingView = {
               <GatewayView gateways={gateways->getGatewayTypes} connectorList />
             </div>
             <div className="flex flex-col md:flex-row gap-4">
-              <Button
+              <ACLButton
                 text={"Duplicate & Edit Configuration"}
                 buttonType={Secondary}
+                authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                 onClick={_ => {
                   setFormState(_ => RoutingTypes.EditConfig)
                   setPageState(_ => Create)
@@ -171,9 +173,10 @@ module VolumeRoutingView = {
                 customButtonStyle="w-1/5"
               />
               <RenderIf condition={!isActive}>
-                <Button
+                <ACLButton
                   text={"Activate Configuration"}
                   buttonType={Primary}
+                  authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                   onClick={_ => {
                     handleActivateConfiguration(routingId)->ignore
                   }}
@@ -181,9 +184,10 @@ module VolumeRoutingView = {
                 />
               </RenderIf>
               <RenderIf condition={isActive}>
-                <Button
+                <ACLButton
                   text={"Deactivate Configuration"}
                   buttonType={Primary}
+                  authorization={userHasAccess(~groupAccess=WorkflowsManage)}
                   onClick={_ => {
                     handleDeactivateConfiguration()->ignore
                   }}
@@ -209,7 +213,7 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let (formState, setFormState) = React.useState(_ => RoutingTypes.EditReplica)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
@@ -222,6 +226,7 @@ let make = (
   let getConnectorsList = () => {
     setConnectors(_ => connectorList)
   }
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
 
   let activeRoutingDetails = async () => {
     let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
@@ -243,8 +248,17 @@ let make = (
         }
 
       | None => {
+          let currentTime = getTimeInCustomTimeZone(
+            "ddd, DD MMM YYYY HH:mm:ss",
+            ~includeTimeZone=true,
+          )
+          let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
           setInitialValues(_ => {
-            let dict = VOLUME_SPLIT->RoutingUtils.constructNameDescription
+            let dict = RoutingUtils.constructNameDescription(
+              ~routingType=VOLUME_SPLIT,
+              ~currentTime,
+              ~currentDate,
+            )
             dict->Dict.set("profile_id", profile->JSON.Encode.string)
             dict->Dict.set(
               "algorithm",

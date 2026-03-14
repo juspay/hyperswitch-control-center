@@ -63,9 +63,10 @@ let make = () => {
   let accordionItems = steps->Array.map(step => {
     let accItem: Accordion.accordion = {
       title: step.title,
-      renderContent: () => <AccordionItemComponent step />,
+      renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
+        <AccordionItemComponent step />,
       renderContentOnTop: None,
-      onItemExpandClick: _ => {
+      onItemExpandClick: () => {
         mixpanelEvent(~eventName=step.sectionTrackingEvent)
       },
     }

@@ -113,3 +113,9 @@ type viewType =
   | Results
   | FiltersSugsestions
   | EmptyResult
+
+type downloadConfig = {
+  csvHeaders: array<(string, string)>,
+  mapToCsvRow: Dict.t<JSON.t> => JSON.t,
+  fileNamePrefix: string,
+}

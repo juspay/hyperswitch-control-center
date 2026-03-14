@@ -713,7 +713,10 @@ module BaseSelect = {
               condition={filteredOptions->Array.length > 1 &&
                 filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
               <div
-                onClick={selectAll(noOfSelected === 0)}
+                onClick={ev => {
+                  ev->ReactEvent.Mouse.stopPropagation
+                  selectAll(noOfSelected === 0)(ev)
+                }}
                 className={`flex px-3 py-2 border-b-2 gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
                 <CheckBoxIcon
                   isSelected={noOfSelected !== 0}
@@ -725,7 +728,10 @@ module BaseSelect = {
             </RenderIf>
           } else {
             <div
-              onClick={selectAll(noOfSelected !== options->Array.length)}
+              onClick={ev => {
+                ev->ReactEvent.Mouse.stopPropagation
+                selectAll(noOfSelected !== options->Array.length)(ev)
+              }}
               className={`flex ${isHorizontal
                   ? "flex-col"
                   : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>

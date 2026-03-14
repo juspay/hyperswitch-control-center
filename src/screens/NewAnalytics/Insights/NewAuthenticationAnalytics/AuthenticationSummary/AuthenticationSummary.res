@@ -30,6 +30,7 @@ module TableModule = {
       Exemption_Approval_Rate,
       Exemption_Request_Rate,
       User_Drop_Off_Rate,
+      Authentication_Failure_Rate,
     ]
 
     <div className>
@@ -103,7 +104,7 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((entity.domain: domain :> string)),
       )
       let primaryResponse = if isSampleDataEnabled {
-        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/payments.json`
+        let paymentsUrl = `${GlobalVars.getHostUrl}/test-data/analytics/authentication.json`
         let res = await fetchApi(
           paymentsUrl,
           ~method_=Get,
@@ -120,7 +121,11 @@ let make = (~entity: moduleEntity) => {
           ~endTime=endTimeVal,
           ~delta=entity.requestBodyConfig.delta,
           ~metrics=entity.requestBodyConfig.metrics,
-          ~groupByNames=Some(["authentication_connector"]),
+          ~groupByNames=Some(
+            entity.requestBodyConfig.groupBy
+            ->Option.getOr([])
+            ->Array.map(dimension => (dimension: InsightsTypes.dimension :> string)),
+          ),
           ~filter=Some(
             NewAuthenticationAnalyticsUtils.getUpdatedFilterValueJson(
               filterValueJson,

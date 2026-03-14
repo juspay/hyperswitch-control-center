@@ -4,7 +4,7 @@ let make = (
   ~googlePayIntegrationType,
   ~closeModal,
   ~connector,
-  ~setShowWalletConfigurationModal,
+  ~closeAccordionFn,
   ~update,
 ) => {
   open LogicUtils
@@ -49,24 +49,42 @@ let make = (
       connectorWalletDetails
       ->getMetadataFromConnectorWalletDetailsGooglePay(connector)
       ->Identity.genericTypeToJson
+
     form.change("metadata.google_pay", metadataDetails)
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
     let _ = update(metadataDetails)
     Nullable.null->Promise.resolve
   }
 
-  <>
-    {googlePayFieldsForPaymentGateway
-    ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-      <div key={index->Int.toString}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
-          field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
-        />
-      </div>
-    })
-    ->React.array}
+  <div className="flex flex-col gap-6">
+    <div>
+      {googlePayFieldsForPaymentGateway
+      ->Array.mapWithIndex((field, index) => {
+        let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
+        <div key={`${googlePayField.name}-${index->Int.toString}`}>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
+          />
+        </div>
+      })
+      ->React.array}
+    </div>
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-hyperswitch_black"
+        fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
+        field={FormRenderer.makeFieldInfo(
+          ~name={"connector_wallets_details.google_pay.support_predecrypted_token"},
+          ~label="Enable pre decrypted token",
+          ~customInput=InputFields.boolInput(
+            ~isDisabled=false,
+            ~boolCustomClass="rounded-lg ",
+            ~isCheckBox=false,
+          ),
+        )}
+      />
+    </RenderIf>
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"
@@ -74,6 +92,7 @@ let make = (
         onClick={_ => {
           closeModal()->ignore
         }}
+        customButtonStyle="w-full"
       />
       <Button
         onClick={_ => {
@@ -82,7 +101,8 @@ let make = (
         text="Proceed"
         buttonType={Primary}
         buttonState={formState.values->validateGooglePay(connector, ~googlePayIntegrationType)}
+        customButtonStyle="w-full"
       />
     </div>
-  </>
+  </div>
 }

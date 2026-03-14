@@ -12,10 +12,8 @@ type buttonType =
   | Delete
   | Transparent
   | SelectTransparent
-
   | DarkPurple
   | Dropdown
-
 type buttonSize = Large | Medium | Small | XSmall
 type iconType =
   | FontAwesome(string)
@@ -41,7 +39,6 @@ let useGetBgColor: (
   ~isDropdownOpen: bool=?,
   ~isPhoneDropdown: bool=?,
 ) => string
-
 let useGetTextColor: (
   ~buttonType: buttonType,
   ~buttonState: buttonState,
@@ -67,7 +64,7 @@ let make: (
   ~flattenBottom: bool=?,
   ~flattenTop: bool=?,
   ~onEnterPress: bool=?,
-  ~onClick: JsxEvent.Mouse.t => unit=?,
+  ~onClick: JsxEventU.Mouse.t => unit=?,
   ~textStyle: string=?,
   ~iconColor: string=?,
   ~iconBorderColor: string=?,
@@ -95,4 +92,5 @@ let make: (
   ~tooltipText: string=?,
   ~toolTipPosition: ToolTip.toolTipPosition=?,
   ~dataTestId: string=?,
+  ~maxButtonWidth: string=?,
 ) => React.element

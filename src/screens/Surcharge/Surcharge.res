@@ -155,9 +155,13 @@ let make = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
-  let (initialValues, setInitialValues) = React.useState(_ =>
-    buildInitialSurchargeValue->Identity.genericTypeToJson
-  )
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
+
+  let (initialValues, setInitialValues) = React.useState(_ => {
+    let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
+    let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
+    buildInitialSurchargeValue(~currentDate, ~currentTime)->Identity.genericTypeToJson
+  })
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => LANDING)
@@ -303,7 +307,11 @@ let make = () => {
     } else {
       redirectToNewRule()
     }
-    setInitialValues(_ => buildInitialSurchargeValue->Identity.genericTypeToJson)
+    let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
+    let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
+    setInitialValues(_ =>
+      buildInitialSurchargeValue(~currentDate, ~currentTime)->Identity.genericTypeToJson
+    )
   }
 
   <PageLoaderWrapper screenState>

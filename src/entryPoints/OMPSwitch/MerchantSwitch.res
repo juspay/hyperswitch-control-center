@@ -1,8 +1,12 @@
+open Typography
+open OMPSwitchHelper
+
 module NewMerchantCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
     open LogicUtils
+
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -10,6 +14,15 @@ module NewMerchantCreationModal = {
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let getMerchantList = MerchantListHook.useFetchMerchantList()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let (_, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
+    let {allowConnectedMerchants} = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
+
+    let enableMerchantType =
+      allowConnectedMerchants &&
+      isCurrentOrganizationPlatform &&
+      userHasAccess(~groupAccess=AccountManage) == CommonAuthTypes.Access
+
     let createNewMerchant = async values => {
       try {
         switch activeProduct {
@@ -56,46 +69,25 @@ module NewMerchantCreationModal = {
       createNewMerchant(dict->JSON.Encode.object)
     }
 
-    let merchantName = FormRenderer.makeFieldInfo(
-      ~label="Merchant Name",
-      ~name="company_name",
-      ~customInput=(~input, ~placeholder as _) =>
-        InputFields.textInput()(
-          ~input={
-            ...input,
-            onChange: event =>
-              ReactEvent.Form.target(event)["value"]
-              ->String.trimStart
-              ->Identity.stringToFormReactEvent
-              ->input.onChange,
-          },
-          ~placeholder="Eg: My New Merchant",
-        ),
-      ~isRequired=true,
-    )
-
     let validateForm = (values: JSON.t) => {
       let errors = Dict.make()
-      let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
-      let isDuplicate =
-        merchantList->Array.some(merchant =>
-          merchant.name->String.toLowerCase == companyName->String.toLowerCase
-        )
-      let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
-      let errorMessage = if companyName->isEmptyString {
-        "Merchant name cannot be empty"
-      } else if companyName->String.length > 64 {
-        "Merchant name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
-        "Merchant name should not contain special characters"
-      } else if isDuplicate {
-        "Merchant with this name already exists"
-      } else {
-        ""
-      }
+      let valuesDict = values->getDictFromJsonObject
+      let companyName = valuesDict->getString("company_name", "")->String.trim
+      let errorMessage = OMPSwitchUtils.validateOmpName(
+        ~name=companyName,
+        ~list=merchantList,
+        ~entityLabel="Merchant",
+      )
 
       if errorMessage->isNonEmptyString {
         Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)
+      }
+
+      if enableMerchantType {
+        let merchantAccountType = valuesDict->getString("merchant_account_type", "")
+        if merchantAccountType->isEmptyString {
+          Dict.set(errors, "merchant_account_type", "Merchant type is required"->JSON.Encode.string)
+        }
       }
 
       errors->JSON.Encode.object
@@ -116,16 +108,27 @@ module NewMerchantCreationModal = {
         <hr />
         <Form key="new-merchant-creation" onSubmit validate={validateForm} initialValues>
           <div className="flex flex-col h-full w-full">
-            <div className="py-10">
+            <div className="py-10 flex flex-col gap-4">
               <FormRenderer.DesktopRow>
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
                   field={merchantName}
                   showErrorOnChange=true
                   errorClass={ProdVerifyModalUtils.errorClass}
-                  labelClass="!text-black font-medium !-ml-[0.5px]"
+                  labelClass={`!text-black !-ml-[0.5px] ${body.sm.medium}`}
                 />
               </FormRenderer.DesktopRow>
+              <RenderIf condition={enableMerchantType}>
+                <FormRenderer.DesktopRow>
+                  <FormRenderer.FieldRenderer
+                    fieldWrapperClass="w-full"
+                    field={merchantTypeField}
+                    showErrorOnChange=true
+                    errorClass={ProdVerifyModalUtils.errorClass}
+                    labelClass={`!text-black !-ml-[0.5px] ${body.sm.medium}`}
+                  />
+                </FormRenderer.DesktopRow>
+              </RenderIf>
             </div>
             <hr className="mt-4" />
             <div className="flex justify-end w-full p-3">
@@ -151,11 +154,10 @@ module NewMerchantCreationModal = {
 @react.component
 let make = () => {
   open OMPSwitchUtils
-  open OMPSwitchHelper
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let showToast = ToastState.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModal, setShowModal) = React.useState(_ => false)
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let isMobileView = MatchMedia.useMobileChecker()
@@ -163,7 +165,9 @@ let make = () => {
   let (arrow, setArrow) = React.useState(_ => false)
   let (isCurrentMerchantPlatform, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
   let {
-    globalUIConfig: {sidebarColor: {backgroundColor, borderColor, secondaryTextColor}},
+    globalUIConfig: {
+      sidebarColor: {backgroundColor, borderColor, primaryTextColor, secondaryTextColor},
+    },
   } = React.useContext(ThemeProvider.themeContext)
 
   let switchMerch = async value => {
@@ -254,7 +258,7 @@ let make = () => {
       bottomComponent={<AddNewOMPButton
         user=#Merchant
         setShowModal
-        customStyle={`${backgroundColor.sidebarSecondary} ${borderColor} !border-none`}
+        customStyle={`${backgroundColor.sidebarSecondary} ${primaryTextColor} ${borderColor} !border-none`}
         addItemBtnStyle
         customHRTagStyle={borderColor}
       />}
@@ -265,11 +269,11 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
-      reverseSortGroupKeys=true
+      customSortOrder={[#platform, #connected, #standard]->Array.map(ompType =>
+        ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+      )}
     />
-    <RenderIf condition={showModal}>
-      <NewMerchantCreationModal setShowModal showModal />
-    </RenderIf>
+    <NewMerchantCreationModal setShowModal showModal />
     <LoaderModal
       showModal={showSwitchingMerch}
       setShowModal={setShowSwitchingMerch}

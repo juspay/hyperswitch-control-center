@@ -37,6 +37,7 @@ let useUserGroupACLHook = () => {
   let fetchDetails = useGetMethod()
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
 
   let fetchUserGroupACL = async () => {
     try {
@@ -73,32 +74,53 @@ let useUserGroupACLHook = () => {
   }
 
   let userHasAccess = (~groupAccess) => {
-    switch userGroupACL {
-    | Some(groupACLValue) =>
-      switch groupACLValue.groups->Map.get(groupAccess) {
-      | Some(value) => value
+    if isEmbeddableSession() {
+      Access
+    } else {
+      switch userGroupACL {
+      | Some(groupACLValue) =>
+        switch groupACLValue.groups->Map.get(groupAccess) {
+        | Some(value) => value
+        | None => NoAccess
+        }
       | None => NoAccess
       }
-    | None => NoAccess
     }
   }
+
   let userHasResourceAccess = (~resourceAccess) => {
-    switch userGroupACL {
-    | Some(groupACLValue) =>
-      switch groupACLValue.resources->Map.get(resourceAccess) {
-      | Some(value) => value
+    if isEmbeddableSession() {
+      Access
+    } else {
+      switch userGroupACL {
+      | Some(groupACLValue) =>
+        switch groupACLValue.resources->Map.get(resourceAccess) {
+        | Some(value) => value
+        | None => NoAccess
+        }
       | None => NoAccess
       }
-    | None => NoAccess
     }
   }
+
   let hasAnyGroupAccess = (group1, group2) =>
-    switch (group1, group2) {
-    | (NoAccess, NoAccess) => NoAccess
-    | (_, _) => Access
+    if isEmbeddableSession() {
+      Access
+    } else {
+      switch (group1, group2) {
+      | (NoAccess, NoAccess) => NoAccess
+      | (_, _) => Access
+      }
     }
+
   let hasAllGroupsAccess = groups => {
-    groups->Array.every(group => group === Access) ? Access : NoAccess
+    if isEmbeddableSession() {
+      Access
+    } else if groups->Array.every(group => group === Access) {
+      Access
+    } else {
+      NoAccess
+    }
   }
 
   {

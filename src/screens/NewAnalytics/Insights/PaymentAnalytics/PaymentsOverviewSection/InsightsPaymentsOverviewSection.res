@@ -76,6 +76,15 @@ let make = (~entity: moduleEntity) => {
           ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
         )
 
+        let primaryBodyAuthorisedUncapturedPayments = getPayload(
+          ~entity,
+          ~metrics=[#sessionized_payment_intent_count],
+          ~groupByNames=Some(["status"]),
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+
         let primaryBodyRefunds = getPayload(
           ~entity,
           ~metrics=[#refund_processed_amount],
@@ -93,16 +102,32 @@ let make = (~entity: moduleEntity) => {
         )
 
         let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
+        let primaryResponseAuthorisedUncapturedPayments = await updateDetails(
+          paymentsUrl,
+          primaryBodyAuthorisedUncapturedPayments,
+          Post,
+        )
         let primaryResponseRefunds = await updateDetails(refundsUrl, primaryBodyRefunds, Post)
         let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
 
         let primaryDataPayments = primaryResponsePayments->parseResponse("metaData")
+        let primaryDataAuthorisedUncapturedPayments =
+          primaryResponseAuthorisedUncapturedPayments->parseResponseAuthorisedUncapturedPayments(
+            "queryData",
+          )
         let primaryDataRefunds = primaryResponseRefunds->parseResponse("metaData")
         let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
 
         primaryData->setValue(
           ~data=primaryDataPayments,
           ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
+          ~metricType,
+          ~currency,
+        )
+
+        primaryData->setValue(
+          ~data=primaryDataAuthorisedUncapturedPayments,
+          ~ids=[Total_Authorised_Uncaptured_Count],
           ~metricType,
           ~currency,
         )
@@ -132,6 +157,14 @@ let make = (~entity: moduleEntity) => {
           ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
         )
 
+        let secondaryBodyAuthorisedUncapturedPayments = getPayload(
+          ~entity,
+          ~metrics=[#sessionized_payment_intent_count],
+          ~startTime=compareToStartTime,
+          ~endTime=compareToEndTime,
+          ~filter=generateFilterObject(~globalFilters=filterValueJson)->Some,
+        )
+
         let secondaryBodyRefunds = getPayload(
           ~entity,
           ~metrics=[#refund_processed_amount],
@@ -155,6 +188,11 @@ let make = (~entity: moduleEntity) => {
               secondaryBodyPayments,
               Post,
             )
+            let secondaryResponseAuthorisedUncapturedPayments = await updateDetails(
+              paymentsUrl,
+              secondaryBodyAuthorisedUncapturedPayments,
+              Post,
+            )
             let secondaryResponseRefunds = await updateDetails(
               refundsUrl,
               secondaryBodyRefunds,
@@ -167,12 +205,23 @@ let make = (~entity: moduleEntity) => {
             )
 
             let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
+            let secondaryDataAuthorisedUncapturedPayments =
+              secondaryResponseAuthorisedUncapturedPayments->parseResponseAuthorisedUncapturedPayments(
+                "queryData",
+              )
             let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("metaData")
             let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
 
             secondaryData->setValue(
               ~data=secondaryDataPayments,
               ~ids=[Total_Smart_Retried_Amount, Total_Success_Rate, Total_Payment_Processed_Amount],
+              ~metricType,
+              ~currency,
+            )
+
+            secondaryData->setValue(
+              ~data=secondaryDataAuthorisedUncapturedPayments,
+              ~ids=[Total_Authorised_Uncaptured_Count],
               ~metricType,
               ~currency,
             )
@@ -222,28 +271,31 @@ let make = (~entity: moduleEntity) => {
       <InsightsPaymentsOverviewSectionHelper.SmartRetryCard
         data responseKey={Total_Smart_Retried_Amount}
       />
-      <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
-        <OverViewStat
-          data responseKey={Total_Success_Rate} getInfo getValueFromObj getStringFromVariant
-        />
-        <OverViewStat
-          data
-          responseKey={Total_Payment_Processed_Amount}
-          getInfo
-          getValueFromObj
-          getStringFromVariant
-        />
-        <OverViewStat
-          data
-          responseKey={Total_Refund_Processed_Amount}
-          getInfo
-          getValueFromObj
-          getStringFromVariant
-        />
-        <OverViewStat
-          data responseKey={Total_Dispute} getInfo getValueFromObj getStringFromVariant
-        />
-      </div>
+      <OverViewStat
+        data responseKey={Total_Success_Rate} getInfo getValueFromObj getStringFromVariant
+      />
+      <OverViewStat
+        data
+        responseKey={Total_Payment_Processed_Amount}
+        getInfo
+        getValueFromObj
+        getStringFromVariant
+      />
+      <OverViewStat
+        data
+        responseKey={Total_Authorised_Uncaptured_Count}
+        getInfo
+        getValueFromObj
+        getStringFromVariant
+      />
+      <OverViewStat
+        data
+        responseKey={Total_Refund_Processed_Amount}
+        getInfo
+        getValueFromObj
+        getStringFromVariant
+      />
+      <OverViewStat data responseKey={Total_Dispute} getInfo getValueFromObj getStringFromVariant />
     </div>
   </PageLoaderWrapper>
 }

@@ -2,7 +2,8 @@ type routingType = VOLUME_SPLIT | ADVANCED | DEFAULTFALLBACK | AUTH_RATE_ROUTING
 type formState = CreateConfig | EditConfig | ViewConfig | EditReplica
 type status = ACTIVE | APPROVED | PENDING | REJECTED
 type pageState = Preview | Create | Edit
-type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
+type variantType =
+  Number | Enum_variant | Metadata_value | String_value | FixedNumber | UnknownVariant(string)
 type logicalOperator = AND | OR | UnknownLogicalOperator(string)
 type val = StringArray(array<string>) | String(string) | Int(int)
 
@@ -162,3 +163,5 @@ type pageConfig = {
   entityName: APIUtilsTypes.entityTypeWithVersion,
   mixpanelEvent: string,
 }
+
+type validationFields = CARD_BIN | EXTENDED_CARD_BIN | OTHER

@@ -6,11 +6,14 @@ let make = (
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
   ~connector,
+  ~appleIntegrationType,
 ) => {
   open LogicUtils
   open APIUtils
   open ApplePayIntegrationHelper
   open ApplePayIntegrationUtils
+  open Typography
+
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
@@ -19,7 +22,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let form = ReactFinalForm.useForm()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
@@ -140,7 +143,19 @@ let make = (
       </div>
     })
     ->React.array
-  <>
+  <div className="p-6">
+    <div className="flex gap-4">
+      <Icon
+        name="nd-arrow-left "
+        onClick={_ => {
+          setApplePayIntegrationSteps(_ => Landing)
+        }}
+        className="cursor-pointer"
+      />
+      <span className={body.lg.semibold}>
+        {appleIntegrationType->getHeadingBasedOnApplePayFlow->React.string}
+      </span>
+    </div>
     <SimplifiedHelper
       customElement={applePaySimplifiedFields}
       heading="Provide your sandbox domain where the verification file will be hosted"
@@ -168,6 +183,21 @@ let make = (
           )}`}
       />}
     />
+    <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForApplePay(connector)}>
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-hyperswitch_black"
+        fieldWrapperClass="w-full flex justify-between items-center py-6"
+        field={FormRenderer.makeFieldInfo(
+          ~name={"metadata.apple_pay_combined.support_predecrypted_token"},
+          ~label="Enable pre decrypted token",
+          ~customInput=InputFields.boolInput(
+            ~isDisabled=false,
+            ~boolCustomClass="rounded-lg ",
+            ~isCheckBox=false,
+          ),
+        )}
+      />
+    </RenderIf>
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>
@@ -183,13 +213,14 @@ let make = (
       | _ => React.null
       }}
     </RenderIf>
-    <div className="w-full flex gap-2 justify-end p-6">
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}
         onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"
@@ -197,8 +228,9 @@ let make = (
         onClick={_ => {
           onSubmit()->ignore
         }}
+        customButtonStyle="w-full"
         buttonState={formState.values->validateSimplifiedFlow}
       />
     </div>
-  </>
+  </div>
 }

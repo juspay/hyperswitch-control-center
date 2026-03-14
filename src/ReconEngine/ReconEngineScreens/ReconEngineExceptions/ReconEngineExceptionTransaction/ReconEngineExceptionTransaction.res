@@ -40,7 +40,10 @@ let make = (~ruleId: string) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.transaction_id, searchText) ||
-          isContainingStringLowercase((obj.transaction_status :> string), searchText) ||
+          isContainingStringLowercase(
+            obj.transaction_status->TransactionsTableEntity.getDomainTransactionStatusString,
+            searchText,
+          ) ||
           obj.entries->Array.some(entry => isContainingStringLowercase(entry.order_id, searchText))
         | None => false
         }
@@ -55,17 +58,23 @@ let make = (~ruleId: string) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
-      let statusFilter = filterValueJson->getArrayFromDict("transaction_status", [])
+      let statusFilter = filterValueJson->getArrayFromDict("status", [])
+      let statusList = ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+        Expected,
+        Missing,
+        OverAmount(Mismatch),
+        UnderAmount(Mismatch),
+        OverAmount(Expected),
+        UnderAmount(Expected),
+        DataMismatch,
+        PartiallyReconciled,
+      ])
       if statusFilter->Array.length === 0 {
-        enhancedFilterValueJson->Dict.set(
-          "transaction_status",
-          ["expected", "mismatched", "partially_reconciled"]->getJsonFromArrayOfString,
-        )
+        enhancedFilterValueJson->Dict.set("status", statusList->getJsonFromArrayOfString)
       }
       enhancedFilterValueJson->Dict.set("rule_id", ruleId->JSON.Encode.string)
       let queryString = buildQueryStringFromFilters(~filterValueJson=enhancedFilterValueJson)
       let exceptionList = await getTransactions(~queryParameters=Some(queryString))
-
       let exceptionDataList = exceptionList->Array.map(Nullable.make)
       setExceptionData(_ => exceptionList)
       setFilteredExceptionData(_ => exceptionDataList)

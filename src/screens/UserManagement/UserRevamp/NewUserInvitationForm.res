@@ -66,9 +66,11 @@ module RoleAccessOverview = {
 module NoteComponent = {
   @react.component
   let make = () => {
-    let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+    let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
       UserInfoProvider.defaultContext,
     )
+    let {userEntity} = getResolvedUserInfo()
+    let {orgId, merchantId, profileId} = getCommonSessionDetails()
 
     // TODO : Change id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
@@ -201,7 +203,7 @@ let make = () => {
         {switch roleTypeValue {
         | Some(role) =>
           <>
-            <p className={`${p1MediumTextClass} !font-semibold py-2`}>
+            <p className={`${p1MediumTextClass} !font-semibold py-2 break-words`}>
               {`Role Description - '${roleNameValue->snakeToTitle}'`->React.string}
             </p>
             <PageLoaderWrapper screenState>

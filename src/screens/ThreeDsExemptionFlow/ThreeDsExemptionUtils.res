@@ -8,9 +8,12 @@ let rules: rule = {
   statements: ThreeDSUtils.statementObject,
 }
 
-let buildInitial3DSValueFor3DsExemptions: ThreeDSUtils.threeDsRoutingType = {
-  name: `3DS Rule-${RoutingUtils.getCurrentUTCTime()}`,
-  description: `This is a Three-Ds Rule created at ${RoutingUtils.currentTimeInUTC}`,
+let getInitial3DSValueFor3DsExemptions = (
+  ~currentDate,
+  ~currentTime,
+): ThreeDSUtils.threeDsRoutingType => {
+  name: `3DS Rule-${currentDate}`,
+  description: `This is a Three-Ds Rule created at ${currentTime}`,
   algorithm: {
     rules: [rules],
     defaultSelection: {

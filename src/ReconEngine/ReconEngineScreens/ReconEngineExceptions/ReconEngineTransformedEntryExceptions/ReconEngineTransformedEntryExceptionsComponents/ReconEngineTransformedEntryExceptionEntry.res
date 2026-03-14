@@ -26,8 +26,6 @@ let make = (
   ) = React.useState(_ => ShowTransformedEntryResolutionOptions(
     NoTransformedEntryResolutionOptionNeeded,
   ))
-  let (offset, setOffset) = React.useState(_ => 0)
-  let (resultsPerPage, setResultsPerPage) = React.useState(_ => 10)
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
 
   let detailsFields = [
@@ -143,11 +141,6 @@ let make = (
       showScrollBar=true
       showOptions={exceptionStage == ResolvingTransformedEntry(EditTransformedEntry)}
       sections=tableSections
-      offset
-      setOffset
-      resultsPerPage
-      setResultsPerPage
-      totalResults=1
     />
     <RenderIf condition={exceptionStage == ConfirmTransformedEntryResolution(EditTransformedEntry)}>
       <div

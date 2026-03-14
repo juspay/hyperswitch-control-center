@@ -369,7 +369,7 @@ let enterBillingCity = FormRenderer.makeFieldInfo(
 )
 
 let enterBillingState = FormRenderer.makeFieldInfo(
-  ~label="City",
+  ~label="State",
   ~name="billing.address.state",
   ~placeholder="Enter your State",
   ~isRequired=false,
@@ -556,7 +556,7 @@ let enterShippingCity = FormRenderer.makeFieldInfo(
 )
 
 let enterShippingState = FormRenderer.makeFieldInfo(
-  ~label="City",
+  ~label="State",
   ~name="shipping.address.state",
   ~placeholder="Enter your State",
   ~isRequired=false,

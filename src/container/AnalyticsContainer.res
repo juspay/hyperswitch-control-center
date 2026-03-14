@@ -4,9 +4,8 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = getResolvedUserInfo()
   let {performanceMonitor, disputeAnalytics, authenticationAnalytics, routingAnalytics} =
     featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(analyticsEntity :> string)}>

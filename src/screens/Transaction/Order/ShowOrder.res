@@ -193,7 +193,9 @@ module AttemptsSection = {
 module DisputesSection = {
   @react.component
   let make = (~data: DisputeTypes.disputes) => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId, profileId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let widthClass = "w-1/3"
     <div className="flex flex-row flex-wrap">
       <div className="w-full p-2">
@@ -203,7 +205,7 @@ module DisputesSection = {
           detailsFields=DisputesEntity.columnsInPaymentPage
           getHeading=DisputesEntity.getHeading
           getCell={(disputes, disputesColsType) =>
-            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId)}
+            DisputesEntity.getCell(disputes, disputesColsType, merchantId, orgId, ~profileId)}
           widthClass
         />
       </div>
@@ -350,7 +352,9 @@ module Disputes = {
   open DisputesEntity
   @react.component
   let make = (~disputesData) => {
-    let {userInfo: {orgId, merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId, profileId} = React.useContext(
+      UserInfoProvider.defaultContext,
+    ).getCommonSessionDetails()
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
@@ -385,7 +389,9 @@ module Disputes = {
     }
 
     let rows = disputesData->Array.map(item => {
-      columnsInPaymentPage->Array.map(colType => getCell(item, colType, merchantId, orgId))
+      columnsInPaymentPage->Array.map(colType =>
+        getCell(item, colType, merchantId, orgId, ~profileId)
+      )
     })
 
     let getRowDetails = rowIndex => {
@@ -412,25 +418,36 @@ module OrderActions = {
   let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
     let (amountAvailableToRefund, setAmountAvailableToRefund) = React.useState(_ => 0.0)
     let refundData = orderData.refunds
+    let disputeData = orderData.disputes
 
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(orderData.currency)
-
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
+    let disputeAmount = ref(0.0)
+
     let _ = refundData->Array.map(ele => {
-      if ele.status === "pending" {
+      let refundStatus = ele.status->HSwitchOrderUtils.refundStatusVariantMapper
+      if refundStatus === Pending {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
-      } else if ele.status === "succeeded" {
+      } else if refundStatus === Success {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
+
+    let _ = disputeData->Array.map(ele => {
+      let disputeStatus = ele.dispute_status->DisputesUtils.disputeStatusVariantMapper
+      if disputeStatus === DisputeLost {
+        disputeAmount := disputeAmount.contents +. ele.amount->Float.fromString->Option.getOr(0.0)
+      }
+    })
+
     React.useEffect(_ => {
-      setAmountAvailableToRefund(_ =>
+      let amountToBeRefunded =
         orderData.amount_captured /. conversionFactor -.
         amountRefunded.contents /. conversionFactor -.
+        disputeAmount.contents /. conversionFactor -.
         requestedRefundAmount.contents /. conversionFactor
-      )
-
+      setAmountAvailableToRefund(_ => amountToBeRefunded > 0.0 ? amountToBeRefunded : 0.0)
       None
     }, [orderData])
 
@@ -604,7 +621,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open OrderUIUtils
   let getURL = useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {version}} = React.useContext(UserInfoProvider.defaultContext)
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -624,6 +641,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedOrgId=orgId,
         ~expectedMerchantId=merchantId,
         ~expectedProfileId=profileId,
+        ~version,
       )
       let res = await fetchDetails(url)
       let order = switch version {
@@ -657,7 +675,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~id=Some(id),
         ~queryParameters=Some("expand_attempts=true"),
       )
-    | V2 => getURL(~entityName=V2(V2_ORDERS_LIST), ~methodType=Get, ~id=Some(id))
+    | V2 =>
+      getURL(
+        ~entityName=V2(V2_ORDERS_LIST),
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParameters=Some("expand_attempts=true"),
+      )
     }
 
     fetchOrderDetails(accountUrl)->ignore
@@ -680,7 +704,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     status !== Failed &&
     status !== Cancelled &&
     status !== Expired &&
-    status !== CancelledPostCapture
+    status !== CancelledPostCapture &&
+    status !== RequiresPaymentMethod
   }, [orderData])
 
   let refreshStatus = async () => {
@@ -767,7 +792,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "Events and logs",
-                renderContent: () => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
                     <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
                   </LogsWrapper>
@@ -792,7 +817,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
               accordion={[
                 {
                   title: "Disputes",
-                  renderContent: () => {
+                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                     <Disputes disputesData={orderData.disputes} />
                   },
                   renderContentOnTop: None,
@@ -805,7 +830,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "Customer Details",
-              renderContent: () => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <div>
                   <ShowOrderDetails
                     sectionTitle="Customer"
@@ -892,7 +917,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           accordion={[
             {
               title: "More Payment Details",
-              renderContent: () => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <div className="mb-10">
                   <ShowOrderDetails
                     data=orderData
@@ -913,11 +938,15 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
                       StatementDescriptorSuffix,
                       PaymentExperience,
                       MerchantOrderReferenceId,
+                      ExtendedAuthApplied,
+                      ExtendedAuthLastAppliedAt,
+                      RequestExtendedAuth,
+                      HyperswitchErrorDescription,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
                     openRefundModal={() => ()}
-                    widthClass="md:w-1/4 w-full"
+                    widthClass="md:w-1/3 w-full"
                     paymentId={orderData.payment_id}
                     border=""
                   />
@@ -934,7 +963,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "Payment Method Details",
-                renderContent: () => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.payment_method_data
@@ -954,7 +983,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "External Authentication Details",
-                renderContent: () => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <AuthenticationDetails order={orderData} />
                   </div>
@@ -969,7 +998,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "Payment Metadata",
-                renderContent: () => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
@@ -987,7 +1016,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             accordion={[
               {
                 title: "FRM Details",
-                renderContent: () => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
                     <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
                   </div>

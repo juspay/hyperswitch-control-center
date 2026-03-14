@@ -7,8 +7,9 @@ let make = () => {
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,
   )
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-  let {merchantId, profileId} = getUserInfoData()
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let defaultPath = RevenueRecoveryHooks.useGetDefaultPath()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -69,7 +70,10 @@ let make = () => {
           entityName="Invoices"
           remainingPath
           access=Access
-          renderList={() => <RevenueRecoveryInvoices />}
+          renderList={() =>
+            <FilterContext key="RecoveryInvoices" index="RecoveryInvoices">
+              <RevenueRecoveryInvoices />
+            </FilterContext>}
           renderCustomWithOMP={(id, _, _, _) => <ShowRevenueRecovery id />}
         />
       } else {

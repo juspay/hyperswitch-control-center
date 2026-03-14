@@ -18,14 +18,14 @@ let getV2Url = (
   switch entityName {
   | CUSTOMERS =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | CUSTOMERS_COUNT =>
     switch (methodType, id) {
-    | (Get, None) => "v2/customers/list_with_count"
-    | (Get, Some(customerId)) => `v2/customers/${customerId}`
+    | (Get, None) => "v1/customers/list_with_count"
+    | (Get, Some(customerId)) => `v1/customers/${customerId}`
     | _ => ""
     }
   | V2_CONNECTOR =>
@@ -54,7 +54,7 @@ let getV2Url = (
       | Some(key_id) =>
         switch queryParameters {
         | Some(queryParams) => `${paymentsBaseURL}/${key_id}?${queryParams}`
-        | None => `${paymentsBaseURL}/${key_id}/get-intent`
+        | None => `${paymentsBaseURL}/${key_id}`
         }
       | None =>
         switch queryParameters {
@@ -80,6 +80,14 @@ let getV2Url = (
         }
       }
     | _ => ""
+    }
+  /* REPORTS */
+  | REVENUE_RECOVERY_REPORT =>
+    switch transactionEntity {
+    | #Tenant
+    | #Organization => `v2/analytics/org/report/payments`
+    | #Merchant => `v2/analytics/merchant/report/payments`
+    | #Profile => `v2/analytics/profile/report/payments`
     }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
@@ -116,13 +124,13 @@ let getV2Url = (
     }
   | PAYMENT_METHOD_LIST =>
     switch id {
-    | Some(customerId) => `v2/customers/${customerId}/saved-payment-methods`
+    | Some(customerId) => `v1/customers/${customerId}/saved-payment-methods`
     | None => ""
     }
-  | TOTAL_TOKEN_COUNT => `v2/customers/total-payment-methods`
+  | TOTAL_TOKEN_COUNT => `v1/customers/total-payment-methods`
   | RETRIEVE_PAYMENT_METHOD =>
     switch id {
-    | Some(paymentMethodId) => `v2/payment-methods/${paymentMethodId}`
+    | Some(paymentMethodId) => `v1/payment-methods/${paymentMethodId}`
     | None => ""
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
@@ -137,6 +145,7 @@ let getV2Url = (
       }
     | #LIST_MERCHANT => `v2/${userUrl}/list/merchant`
     | #SWITCH_MERCHANT_NEW => `v2/${userUrl}/switch/merchant`
+    | #SWITCH_PROFILE_NEW => `v2/${userUrl}/switch/profile`
 
     | #LIST_PROFILE => `v2/${userUrl}/list/profile`
     | _ => ""
@@ -175,11 +184,17 @@ let getV2Url = (
 
     | _ => `v2/profiles`
     }
+  | REFUNDS =>
+    switch methodType {
+    | Post => `v2/refunds`
+    | _ => ""
+    }
   }
 }
 
 let useGetURL = () => {
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = getCommonSessionDetails()
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -193,7 +208,15 @@ let useGetURL = () => {
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
-    let {transactionEntity, analyticsEntity, userEntity, merchantId, profileId} = getUserInfoData()
+    let (transactionEntity, analyticsEntity, userEntity) = switch state {
+    | DashboardSession(userInfo) => (
+        userInfo.transactionEntity,
+        userInfo.analyticsEntity,
+        userInfo.userEntity,
+      )
+    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    }
+
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
@@ -472,6 +495,21 @@ let useGetURL = () => {
           }
         | _ => `disputes/aggregate`
         }
+      | PAYOUTS_AGGREGATE =>
+        switch methodType {
+        | Get =>
+          switch queryParameters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `payouts/profile/aggregate?${queryParams}`
+            | #Merchant
+            | _ =>
+              `payouts/aggregate?${queryParams}`
+            }
+          | None => `payouts/aggregate`
+          }
+        | _ => `payouts/aggregate`
+        }
       | PAYOUTS =>
         switch methodType {
         | Get =>
@@ -550,6 +588,13 @@ let useGetURL = () => {
         switch methodType {
         | Get =>
           `account/${merchantId}/business_profile/${profileId}/dynamic_routing/get_volume_split`
+        | _ => ""
+        }
+
+      /* OIDC */
+      | OIDC_AUTHORIZE =>
+        switch methodType {
+        | Get => `oidc/authorize`
         | _ => ""
         }
       /* ANALYTICS V2 */
@@ -738,6 +783,7 @@ let useGetURL = () => {
           }
         | _ => ""
         }
+      | THREE_DS_EXEMPTION_DELETE_RULE => `routing/deactivate`
 
       /* SURCHARGE ROUTING */
       | SURCHARGE => `routing/decision/surcharge`
@@ -753,6 +799,17 @@ let useGetURL = () => {
         | #Organization => `analytics/v1/org/report/payments`
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
+        }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
         }
       | PAYOUT_REPORT =>
         switch transactionEntity {
@@ -1006,8 +1063,8 @@ let useGetURL = () => {
           switch methodType {
           | Get =>
             switch id {
-            | Some(ruleId) => `${reconBaseURL}/recon_rules/${ruleId}`
-            | None => `${reconBaseURL}/recon_rules`
+            | Some(ruleId) => `${reconBaseURL}/recon_rules/v2/${ruleId}`
+            | None => `${reconBaseURL}/recon_rules/v2`
             }
           | _ => ""
           }
@@ -1063,6 +1120,16 @@ let useGetURL = () => {
               | Some(queryParams) => `${reconBaseURL}/transformations/configs?${queryParams}`
               | None => `${reconBaseURL}/transformations/configs`
               }
+            }
+          | _ => ""
+          }
+        | #TRANSFORMATION_CONFIG_WITH_METADATA =>
+          switch methodType {
+          | Get =>
+            switch id {
+            | Some(transformationId) =>
+              `${reconBaseURL}/transformations/configs/${transformationId}/metadata_schema`
+            | None => ""
             }
           | _ => ""
           }
@@ -1122,15 +1189,6 @@ let useGetURL = () => {
             | Some(ingestionHistoryId) =>
               `${reconBaseURL}/ingestions/history/${ingestionHistoryId}/download`
             | None => ``
-            }
-          | _ => ""
-          }
-        | #METADATA_SCHEMA =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(schemaId) => `${reconBaseURL}/metadata_schemas/${schemaId}`
-            | None => `${reconBaseURL}/metadata_schemas`
             }
           | _ => ""
           }
@@ -1270,6 +1328,8 @@ let useGetURL = () => {
 
         // CREATE_ORG
         | #CREATE_ORG => `user/create_org`
+        // CREATE_PLATFORM
+        | #CREATE_PLATFORM => `user/create_platform`
         // CREATE MERCHANT
         | #CREATE_MERCHANT =>
           switch queryParameters {
@@ -1278,7 +1338,7 @@ let useGetURL = () => {
           }
         | #SWITCH_ORG => `${userUrl}/switch/org`
         | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
-        | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+        | #SWITCH_PROFILE | #SWITCH_PROFILE_NEW => `${userUrl}/switch/profile`
 
         // Org-Merchant-Profile List
         | #LIST_ORG => `${userUrl}/list/org`
@@ -1296,6 +1356,7 @@ let useGetURL = () => {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
+        | #TERMINATE_ACCEPT_INVITE => `${userUrl}/terminate_accept_invite`
 
         // SPT FLOWS (Totp)
         | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
@@ -1358,7 +1419,7 @@ let useGetURL = () => {
         | #THEME_LIST =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(params) => `${userUrl}/theme/list?${params}`
             | None => `${userUrl}/theme/list`
             }
@@ -1368,7 +1429,7 @@ let useGetURL = () => {
         | #THEME_BY_LINEAGE =>
           switch methodType {
           | Get =>
-            switch queryParamerters {
+            switch queryParameters {
             | Some(params) => `${userUrl}/theme?${params}`
             | None => `${userUrl}/theme`
             }
@@ -1460,6 +1521,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~isEmbeddableSession=false,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -1504,12 +1566,14 @@ let responseHandler = async (
             }
           }
         | 401 =>
-          if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
+          if !isEmbeddableSession {
+            if !sessionExpired.contents {
+              showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
 
-            handleLogout()->ignore
-            AuthUtils.redirectToLogin()
-            sessionExpired := true
+              handleLogout()->ignore
+              AuthUtils.redirectToLogin()
+              sessionExpired := true
+            }
           }
 
         | 403 =>
@@ -1569,7 +1633,10 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1602,6 +1669,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
@@ -1613,6 +1681,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>
@@ -1623,7 +1692,10 @@ let useGetMethod = (~showErrorToast=true) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true) => {
-  let {userInfo: {merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -1669,6 +1741,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~merchantId,
         ~profileId,
         ~version,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
       await responseHandler(
         ~url,
@@ -1680,6 +1753,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
     | Exn.Error(e) =>

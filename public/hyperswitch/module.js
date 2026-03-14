@@ -25,8 +25,8 @@ async function dynamicRoutingInit() {
 
 async function paymentLinkInit() {
   try {
-    paymentLinkWasm = await import("/payment_link/payment_link.js");
-    await paymentLinkWasm.default("/payment_link/payment_link_bg.wasm");
+    paymentLinkWasm = await import("/payment_link_wasm/payment_link.js");
+    await paymentLinkWasm.default("/payment_link_wasm/payment_link_bg.wasm");
     return { status: true, paymentLinkWasm };
   } catch (e) {
     console.error(e, "FAILED TO LOAD PAYMENT LINK WASM CONFIG");

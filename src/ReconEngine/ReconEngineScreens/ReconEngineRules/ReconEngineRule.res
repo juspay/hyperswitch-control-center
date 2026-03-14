@@ -4,6 +4,8 @@ open ReconEngineRulesEntity
 @react.component
 let make = () => {
   open APIUtils
+  open ReconEngineRulesUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)

@@ -1,5 +1,6 @@
 @react.component
 let make = () => {
+  open Typography
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
@@ -48,11 +49,16 @@ let make = () => {
   }, [])
 
   <div className="flex flex-col gap-12">
+    <PageUtils.PageHeading
+      title="Vault Configuration"
+      customTitleStyle={`${heading.lg.semibold}`}
+      customHeadingStyle="py-0"
+    />
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <p className="text-xl font-semibold"> {"PCI Vault Configuration"->React.string} </p>
         <p className="text-base text-nd_gray-400">
-          {"Tokenize and secure your customers' card data in our PCI-compliant vault:"->React.string}
+          {"Apart from tokenizing cards during payments flow, you can also directly tokenize and secure your customers’ card data in our PCI-compliant vault"->React.string}
         </p>
       </div>
       <div className="grid grid-cols-3 gap-8 w-full">

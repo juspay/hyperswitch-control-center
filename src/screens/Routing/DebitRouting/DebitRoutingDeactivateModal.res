@@ -5,6 +5,7 @@ let make = (~showModal, ~setShowModal) => {
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let handleUpdate = async () => {
     try {
@@ -45,9 +46,10 @@ let make = (~showModal, ~setShowModal) => {
           }}
           buttonSize=Small
         />
-        <Button
+        <ACLButton
           text="Deactivate Configuration"
           buttonType=Primary
+          authorization={userHasAccess(~groupAccess=WorkflowsManage)}
           onClick={_ => {
             handleUpdate()->ignore
             mixpanelEvent(~eventName=`debit_routing_disabled`)

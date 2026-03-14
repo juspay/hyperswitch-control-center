@@ -1,5 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 open Typography
+open PaymentSettingsRevampedUtils
 
 module WebhooksConfiguration = {
   @react.component
@@ -14,7 +15,7 @@ module WebhooksConfiguration = {
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
       ~version=UserInfoTypes.V2,
     )
-    let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -78,11 +79,11 @@ module WebhooksConfiguration = {
     <PageLoaderWrapper screenState sectionHeight="h-28">
       <Form
         initialValues={businessProfileRecoilVal
-        ->PaymentSettingsV2Utils.parseBusinessProfileForPaymentBehaviour
+        ->parseBusinessProfileForPaymentBehaviour
         ->Identity.genericTypeToJson}
         onSubmit
         validate={values => {
-          PaymentSettingsV2Utils.validateMerchantAccountFormV2(
+          validateMerchantAccountFormV2(
             ~values,
             ~isLiveMode=featureFlagDetails.isLiveMode,
             ~businessProfileRecoilVal,
@@ -546,7 +547,7 @@ let make = () => {
   open LogicUtils
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject

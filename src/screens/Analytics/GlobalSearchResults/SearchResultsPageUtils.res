@@ -65,3 +65,62 @@ let getSearchresults = (result: GlobalSearchTypes.defaultResult) => {
 
   (results, result.searchText)
 }
+
+let getMapToCsvRow = (itemToObjMapper, itemToCSVMapping) => {
+  raw => raw->itemToObjMapper->itemToCSVMapping
+}
+
+let getDownloadConfig = section => {
+  open GlobalSearchTypes
+  switch section {
+  | PaymentIntents
+  | SessionizerPaymentIntents =>
+    Some({
+      csvHeaders: PaymentIntentEntity.csvHeaders,
+      mapToCsvRow: getMapToCsvRow(
+        PaymentIntentEntity.tableItemToObjMapper,
+        PaymentIntentEntity.itemToCSVMapping,
+      ),
+      fileNamePrefix: "payment_intents",
+    })
+
+  | PaymentAttempts
+  | SessionizerPaymentAttempts =>
+    Some({
+      csvHeaders: PaymentAttemptEntity.csvHeaders,
+      mapToCsvRow: getMapToCsvRow(
+        PaymentAttemptEntity.tableItemToObjMapper,
+        PaymentAttemptEntity.itemToCSVMapping,
+      ),
+      fileNamePrefix: "payment_attempts",
+    })
+  | Payouts =>
+    Some({
+      csvHeaders: PayoutTableEntity.csvHeaders,
+      mapToCsvRow: getMapToCsvRow(
+        PayoutTableEntity.tableItemToObjMapper,
+        PayoutTableEntity.itemToCSVMapping,
+      ),
+      fileNamePrefix: "payouts",
+    })
+  | Refunds | SessionizerPaymentRefunds =>
+    Some({
+      csvHeaders: RefundsTableEntity.csvHeaders,
+      mapToCsvRow: getMapToCsvRow(
+        RefundsTableEntity.tableItemToObjMapper,
+        RefundsTableEntity.itemToCSVMapping,
+      ),
+      fileNamePrefix: "refunds",
+    })
+  | Disputes | SessionizerPaymentDisputes =>
+    Some({
+      csvHeaders: DisputeTableEntity.csvHeaders,
+      mapToCsvRow: getMapToCsvRow(
+        DisputeTableEntity.tableItemToObjMapper,
+        DisputeTableEntity.itemToCSVMapping,
+      ),
+      fileNamePrefix: "disputes",
+    })
+  | PayoutAttempts | Others | Default | Local => None
+  }
+}
