@@ -50,6 +50,14 @@ let getEventTypeFromJson = (json: JSON.t): auditEvent => {
       count: dict->getInt("count", 0),
       timestamp: dict->getString("timestamp", ""),
     })
+  | "transactions_matched" =>
+    TransactionsMatched({
+      accounts: dict
+      ->getArrayFromDict("accounts", [])
+      ->Array.map(parseAccountData),
+      count: dict->getInt("count", 0),
+      timestamp: dict->getString("timestamp", ""),
+    })
   | "transactions_reconciled" =>
     TransactionsReconciled({
       accounts: dict
@@ -66,7 +74,7 @@ let getEventTypeFromJson = (json: JSON.t): auditEvent => {
       count: dict->getInt("count", 0),
       timestamp: dict->getString("timestamp", ""),
     })
-  | _ => NoAuditEvent
+  | _ => UnknownAuditEvent
   }
 }
 
@@ -112,6 +120,18 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
         accountNames
       },
     }
+  | TransactionsMatched({accounts, count, _}) => {
+      eventType: EventSuccess,
+      color: "bg-green-500",
+      title: count === 1 ? "1 Transaction Matched" : `${count->Int.toString} Transactions Matched`,
+      description: {
+        let accountNames =
+          accounts
+          ->Array.map(acc => acc.account_name)
+          ->Array.joinWith(", ")
+        accountNames
+      },
+    }
   | TransactionsReconciled({accounts, count, _}) => {
       eventType: EventSuccess,
       color: "bg-green-500",
@@ -140,7 +160,7 @@ let getEventMetadata = (event: auditEvent): eventMetadata => {
         accountNames
       },
     }
-  | NoAuditEvent => {
+  | UnknownAuditEvent => {
       eventType: EventNone,
       color: "bg-gray-500",
       title: "No Event",
@@ -155,10 +175,11 @@ let getTimestamp = (event: auditEvent): string => {
   | StagingEntriesCreated({timestamp, _})
   | StagingEntryNeedsManualReview({timestamp, _})
   | ExpectationsCreated({timestamp, _})
+  | TransactionsMatched({timestamp, _})
   | TransactionsReconciled({timestamp, _})
   | TransactionsMismatched({timestamp, _}) => timestamp
   | IngestionsFailed({last_failed_at, _}) => last_failed_at
-  | NoAuditEvent => ""
+  | UnknownAuditEvent => ""
   }
 }
 

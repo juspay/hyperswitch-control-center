@@ -27,8 +27,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
       let enhancedFilterValueJson = Dict.copy(filterValueJson)
       let statusFilter = filterValueJson->getArrayFromDict("status", [])
 
-      // If posted_manual is selected, automatically add posted_force
-      let finalStatusFilter = getMergedPostedTransactionStatusFilter(statusFilter)
+      // If matched_manual is selected, automatically add matched_force
+      let finalStatusFilter = getMergedMatchedTransactionStatusFilter(statusFilter)
       let statusList = getTransactionStatusValueFromStatusList([
         Expected,
         Missing,
@@ -38,9 +38,10 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         UnderAmount(Expected),
         DataMismatch,
         PartiallyReconciled,
-        Posted(Auto),
         Posted(Manual),
-        Posted(Force),
+        Matched(Auto),
+        Matched(Manual),
+        Matched(Force),
         Void,
       ])
 

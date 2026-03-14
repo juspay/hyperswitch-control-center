@@ -18,9 +18,10 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
           OverAmount(Expected),
           UnderAmount(Expected),
           PartiallyReconciled,
-          Posted(Auto),
           Posted(Manual),
-          Posted(Force),
+          Matched(Auto),
+          Matched(Manual),
+          Matched(Force),
           OverAmount(Mismatch),
           UnderAmount(Mismatch),
           DataMismatch,
@@ -36,17 +37,17 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }
 
   let isMiniLaptopView = MatchMedia.useMatchMedia("(max-width: 1600px)")
-  let (postedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
+  let (matchedCount, mismatchedCount, expectedCount) = React.useMemo(() => {
     ReconEngineOverviewUtils.calculateTransactionCounts(allTransactionsData)
   }, [allTransactionsData])
 
-  let totalTransactions = postedCount + mismatchedCount + expectedCount
+  let totalTransactions = matchedCount + mismatchedCount + expectedCount
   let stackedBarGraphData = React.useMemo(() => {
-    ReconEngineOverviewUtils.getStackedBarGraphData(~postedCount, ~mismatchedCount, ~expectedCount)
-  }, [postedCount, mismatchedCount, expectedCount])
+    ReconEngineOverviewUtils.getStackedBarGraphData(~matchedCount, ~mismatchedCount, ~expectedCount)
+  }, [matchedCount, mismatchedCount, expectedCount])
   let reconciliationPercentage =
     totalTransactions > 0
-      ? postedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
+      ? matchedCount->Int.toFloat /. totalTransactions->Int.toFloat *. 100.0
       : 0.0
 
   React.useEffect(() => {

@@ -8,9 +8,9 @@ open ReconEngineUtils
 // Color constants for ReconEngine graphs
 let mismatchedColor = "#EA8A8F"
 let expectedColor = "#8BC2F3"
-let postedColor = "#7AB891"
+let matchedColor = "#7AB891"
 let exceptionsVolumeColor = "#F39B8B"
-let reconciledVolumeColor = "#8BC2F3"
+let matchedVolumeColor = "#8BC2F3"
 
 // Flow diagram colors
 let highlightStrokeColor = "#3b82f6"
@@ -32,25 +32,35 @@ let getAccountNameAndCurrency = (accountData: array<accountType>, accountId: str
 }
 
 let calculateTransactionCounts = (transactionsData: array<ReconEngineTypes.transactionType>) => {
-  transactionsData->Array.reduce((0, 0, 0), ((posted, mismatched, expected), transaction) => {
+  transactionsData->Array.reduce((0, 0, 0), ((matched, mismatched, expected), transaction) => {
     switch transaction.transaction_status {
-    | Posted(_) => (posted + 1, mismatched, expected)
+    | Matched(Force) | Matched(Manual) | Matched(Auto) | Posted(Manual) => (
+        matched + 1,
+        mismatched,
+        expected,
+      )
     | UnderAmount(Mismatch) | OverAmount(Mismatch) | DataMismatch => (
-        posted,
+        matched,
         mismatched + 1,
         expected,
       )
     | Expected | UnderAmount(Expected) | OverAmount(Expected) | PartiallyReconciled | Missing => (
-        posted,
+        matched,
         mismatched,
         expected + 1,
       )
-    | _ => (posted, mismatched, expected)
+    | Archived
+    | Void
+    | UnknownDomainTransactionStatus
+    | Matched(UnknownDomainTransactionMatchedStatus)
+    | Posted(UnknownDomainTransactionPostedStatus)
+    | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+    | UnderAmount(UnknownDomainTransactionAmountMismatchStatus) => (matched, mismatched, expected)
     }
   })
 }
 
-let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
+let getStackedBarGraphData = (~matchedCount: int, ~mismatchedCount: int, ~expectedCount: int) => {
   {
     StackedBarGraphTypes.categories: ["Transactions"],
     data: [
@@ -65,9 +75,9 @@ let getStackedBarGraphData = (~postedCount: int, ~mismatchedCount: int, ~expecte
         color: expectedColor,
       },
       {
-        name: "Reconciled",
-        data: [postedCount->Int.toFloat],
-        color: postedColor,
+        name: "Matched",
+        data: [matchedCount->Int.toFloat],
+        color: matchedColor,
       },
     ],
     labelFormatter: StackedBarGraphUtils.stackedBarGraphLabelFormatter(~statType=Default),
@@ -206,8 +216,9 @@ let createColumnGraphCountPayload = (
 
 let initialDisplayFilters = () => {
   let statusOptions = ReconEngineFilterUtils.getGroupedTransactionStatusOptions([
-    Posted(Auto),
     Posted(Manual),
+    Matched(Auto),
+    Matched(Manual),
     OverAmount(Mismatch),
     OverAmount(Expected),
     UnderAmount(Mismatch),

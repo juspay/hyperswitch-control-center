@@ -30,7 +30,7 @@ type exceptionResolutionStage =
 
 type accountInfo = {
   account_info_name: string,
-  account_info_type: string,
+  account_info_type: accountTypeVariant,
 }
 
 type tableSection = {

@@ -166,9 +166,15 @@ let getGroupingField = (strategy: reconStrategyType): option<string> => {
     switch oneToOne {
     | ManySingle(data) => Some(data.source_account.grouping_field)
     | ManyMany(data) => Some(data.source_account.grouping_field)
-    | _ => None
+    | UnknownOneToOneStrategy | SingleSingle(_) | SingleMany(_) => None
     }
-  | _ => None
+  | OneToMany(oneToMany) =>
+    switch oneToMany {
+    | SingleSingle(_)
+    | UnknownOneToManyStrategy =>
+      None
+    }
+  | UnknownReconStrategy => None
   }
 }
 
