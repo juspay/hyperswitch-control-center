@@ -195,7 +195,7 @@ let singleStateInitialValue = {
   payment_success_rate: 0.0,
   payment_count: 0,
   retries_count: 0,
-  retries_amount_processe: 0.0,
+  retries_amount_processed: 0.0,
   payment_success_count: 0,
   currency: "NA",
   connector_success_rate: 0.0,
@@ -208,7 +208,7 @@ let singleStateSeriesInitialValue = {
   payment_success_rate: 0.0,
   payment_count: 0,
   retries_count: 0,
-  retries_amount_processe: 0.0,
+  retries_amount_processed: 0.0,
   payment_success_count: 0,
   time_series: "",
   payment_processed_amount: 0.0,
@@ -228,7 +228,7 @@ let singleStateItemToObjMapper = json => {
     currency: dict->getString("currency", "NA"),
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0),
     retries_count: dict->getInt("retries_count", 0),
-    retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
+    retries_amount_processed: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
     authorised_uncaptured_payments: 0,
   })
@@ -248,7 +248,7 @@ let singleStateSeriesItemToObjMapper = json => {
     payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0)->setPrecision,
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0)->setPrecision,
     retries_count: dict->getInt("retries_count", 0),
-    retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
+    retries_amount_processed: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
     authorised_uncaptured_payments: 0,
   })
@@ -409,7 +409,7 @@ let constructData = (
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.retries_amount_processe /. conversionFactor,
+      ob.retries_amount_processed /. conversionFactor,
     ))
     ->Array.toSorted(compareLogic)
   | "connector_success_rate" =>
@@ -577,19 +577,19 @@ let getStatData = (
       title: `Smart Retries Savings`,
       tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supported currently)",
       deltaTooltipComponent: singlestatDeltaTooltipFormat(
-        singleStatData.retries_amount_processe /. conversionFactor,
+        singleStatData.retries_amount_processed /. conversionFactor,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.retries_amount_processe /. conversionFactor,
+      value: singleStatData.retries_amount_processed /. conversionFactor,
       delta: {
         Js.Float.fromString(
           Float.toFixedWithPrecision(
-            singleStatData.retries_amount_processe /. conversionFactor,
+            singleStatData.retries_amount_processed /. conversionFactor,
             ~digits=precisionDigits,
           ),
         )
       },
-      data: constructData("retries_amount_processe", timeSeriesData, currency),
+      data: constructData("retries_amount_processed", timeSeriesData, currency),
       statType: "Amount",
       showDelta: false,
     }
