@@ -1,11 +1,11 @@
-name: Cypress Tests
+name: Cypress AI-Generated Tests
 
 on:
   pull_request:
   merge_group:
 
 jobs:
-  cypress-tests:
+  cypress-ai-generated-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,30 +14,46 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Check for AI-generated test files
+        id: check_tests
+        run: |
+          if find cypress/e2e/cypress-ai-generated -name '*.cy.js' 2>/dev/null | grep -q .; then
+            echo "has_tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_tests=false" >> "$GITHUB_OUTPUT"
+            echo "No AI-generated test files found in cypress/e2e/cypress-ai-generated/ — skipping."
+          fi
+
       - name: Clear Docker cache
+        if: steps.check_tests.outputs.has_tests == 'true'
         run: docker builder prune -af
 
       - name: Execute Shell Script
+        if: steps.check_tests.outputs.has_tests == 'true'
         run: |
           chmod +x cypress/start_hyperswitch.sh
           sh cypress/start_hyperswitch.sh
 
       - name: Set up Node.js
+        if: steps.check_tests.outputs.has_tests == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: 24
 
       - name: Install dependencies
+        if: steps.check_tests.outputs.has_tests == 'true'
         run: npm install --force
 
       - name: Health check for Backend
+        if: steps.check_tests.outputs.has_tests == 'true'
         run: |
           # Once the backend services are up, hit the health endpoint with  the actual curl request
           response=$(curl --location --request GET 'http://0.0.0.0:8080/health')
           echo "Response:"
           echo "$response"
 
-      - name: Cypress run
+      - name: Cypress run (AI-generated tests only)
+        if: steps.check_tests.outputs.has_tests == 'true'
         uses: cypress-io/github-action@v6
         env:
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -51,21 +67,11 @@ jobs:
           install: false
           build: npm run build:test
           start: npm run test:start
-          config: excludeSpecPattern=cypress/e2e/cypress-ai-generated/**
-
-      - name: Artifact - Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: ./coverage
+          spec: cypress/e2e/cypress-ai-generated/**/*.cy.js
 
       - name: Artifact - Test failure screenshots
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-screenshots
+          name: cypress-ai-generated-screenshots
           path: ./cypress/screenshots
-
-      # - name: Check Coverage Thresholds
-      #   run: |
-      #     npx nyc check-coverage --lines 50 --functions 50 --branches 50 --statements 50
