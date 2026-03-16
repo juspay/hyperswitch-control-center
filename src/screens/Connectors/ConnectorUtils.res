@@ -33,6 +33,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAY),
   PayoutProcessor(WORLDPAYXML),
   PayoutProcessor(TRUELAYER),
+  PayoutProcessor(ENVOY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -179,6 +180,7 @@ let connectorList: array<connectorTypes> = [
   Processors(SANTANDER),
   Processors(REVOLV3),
   Processors(TRUELAYER),
+  Processors(ENVOY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -1175,6 +1177,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => Processors(SANTANDER)
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
+    | "envoy" => Processors(ENVOY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1193,6 +1196,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpay" => PayoutProcessor(WORLDPAY)
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | "truelayer" => PayoutProcessor(TRUELAYER)
+    | "envoy" => PayoutProcessor(ENVOY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
