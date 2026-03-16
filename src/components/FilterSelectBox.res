@@ -814,14 +814,14 @@ module BaseSelect = {
           } else {
             {
               filteredOptions
-              ->Array.mapWithIndex((item, index) => {
+              ->Array.mapWithIndex((item, indx) => {
                 let valueToConsider = item.value
                 let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-                let isPrevSelected = switch filteredOptions->Array.get(index - 1) {
+                let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
                 | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
                 | None => false
                 }
-                let isNextSelected = switch filteredOptions->Array.get(index + 1) {
+                let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
                 | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
                 | None => false
                 }
@@ -853,7 +853,7 @@ module BaseSelect = {
                     description=item.description
                     customMarginStyle
                     listFlexDirection
-                    dataId=index
+                    dataId=indx
                     showDescriptionAsTool
                     optionClass
                     selectClass
@@ -2035,7 +2035,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initialClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2066,7 +2066,7 @@ module ChipFilterSelectBox = {
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? passedClassName : initialClassName
+        let selectedClass = isSelected ? passedClassName : initalClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
