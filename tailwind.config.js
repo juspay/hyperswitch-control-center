@@ -635,5 +635,5 @@ module.exports = {
 
 // clean jp-gray
 // refactor colors object
-// use Primar and secondary color for button
+// use Primary and secondary color for button
 // we should use UIConfigs value as placeholder in the button
