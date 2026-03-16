@@ -222,7 +222,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           totalResults=1
           offset
           setOffset
-          currrentFetchCount=1
+          currentFetchCount=1
         />
       </RenderIf>
     </PageLoaderWrapper>

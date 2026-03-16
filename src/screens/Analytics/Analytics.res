@@ -62,7 +62,7 @@ module BaseTableComponent = {
               offset
               setOffset
               defaultSort
-              currrentFetchCount={tableData->Array.length}
+              currentFetchCount={tableData->Array.length}
               tableLocalFilter=false
               tableheadingClass=tableBorderClass
               tableBorderClass
@@ -409,7 +409,7 @@ module TabDetails = {
     | _ => Dict.make()
     }
 
-    let comparitionWidget = switch analyticsType {
+    let comparisonWidget = switch analyticsType {
     | AUTHENTICATION => false
     | _ => true
     }
@@ -426,7 +426,7 @@ module TabDetails = {
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
           tabTitleMapper
-          comparitionWidget
+          comparisonWidget
         />
         {switch tableEntity {
         | Some(tableEntity) =>
@@ -839,7 +839,7 @@ let make = (
                     updateUrlWithPrefix(dict)
                   }}
                   tabContainerClass="analyticsTabs"
-                  initalTab=?activeTab
+                  initialTab=?activeTab
                 />
                 <TabDetails
                   chartEntity

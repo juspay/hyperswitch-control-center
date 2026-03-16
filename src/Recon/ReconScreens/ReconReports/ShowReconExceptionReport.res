@@ -214,7 +214,7 @@ let make = (~showOnBoarding, ~id) => {
           resultsPerPage=20
           offset
           setOffset
-          currrentFetchCount={attemptData->Array.length}
+          currentFetchCount={attemptData->Array.length}
         />
       </PageLoaderWrapper>
     </div>

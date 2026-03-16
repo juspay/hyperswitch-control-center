@@ -57,7 +57,7 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
-    ~comparitionWidget=false,
+    ~comparisonWidget=false,
     ~selectedTab: option<array<string>>=?,
   ) => {
     let {theme} = React.useContext(ThemeProvider.themeContext)
@@ -716,7 +716,7 @@ module LineChart1D = {
                 setOffset
                 defaultSort
                 showPagination=false
-                currrentFetchCount={legendData->Array.length}
+                currentFetchCount={legendData->Array.length}
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}

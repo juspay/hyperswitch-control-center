@@ -350,7 +350,7 @@ module TabDetails = {
           showTableLegend=false
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
-          comparitionWidget=true
+          comparisonWidget=true
         />
         {switch tableEntity {
         | Some(tableEntity) =>
@@ -491,7 +491,7 @@ module OverallSummary = {
           updateUrlWithPrefix(dict)
         }}
         tabContainerClass="analyticsTabs"
-        initalTab=?activeTab
+        initialTab=?activeTab
       />
       <TabDetails
         chartEntity
