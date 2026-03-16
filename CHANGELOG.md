@@ -3,6 +3,62 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.16.0
+
+### Features
+
+- Implement analytics-driven payment listing with a new API endpoint ([#4225](https://github.com/juspay/hyperswitch-control-center/pull/4225)) ([`13f852f`](https://github.com/juspay/hyperswitch-control-center/commit/13f852f7797a7feec9d791ca78fee100b9fcde60))
+
+### Miscellaneous Tasks
+
+- Enable network tokenization based on feature flag ([#4350](https://github.com/juspay/hyperswitch-control-center/pull/4350)) ([`5ee1a4e`](https://github.com/juspay/hyperswitch-control-center/commit/5ee1a4ecc2f6ef0c681cc2ca0e8d4c23a96727ea))
+
+**Full Changelog:** [`2026.03.13.0...2026.03.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.13.0...2026.03.16.0)
+
+- - -
+
+## 2026.03.13.0
+
+### Features
+
+- Add Truelayer Connector in dashboard for Payments ([#4355](https://github.com/juspay/hyperswitch-control-center/pull/4355)) ([`184a4d0`](https://github.com/juspay/hyperswitch-control-center/commit/184a4d014b0d39d8b62c394beef2004a7b4353ee))
+- Add WASM for Truelayer connector in dashboard for payments ([#4367](https://github.com/juspay/hyperswitch-control-center/pull/4367)) ([`7cd26e4`](https://github.com/juspay/hyperswitch-control-center/commit/7cd26e4bba6f0cb74d5aa3e88b7277f8eeb2e36f))
+
+### Miscellaneous Tasks
+
+- Add banner to show 3ds manager deprecation notice ([#4337](https://github.com/juspay/hyperswitch-control-center/pull/4337)) ([`811d262`](https://github.com/juspay/hyperswitch-control-center/commit/811d262b71da4e50a680a3ecffa52e927018ab20))
+- Update Fiserv connector display names ([#4365](https://github.com/juspay/hyperswitch-control-center/pull/4365)) ([`b020dc3`](https://github.com/juspay/hyperswitch-control-center/commit/b020dc361bf89fa50b8532c968b505423788ea05))
+
+**Full Changelog:** [`2026.03.12.0...2026.03.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.12.0...2026.03.13.0)
+
+- - -
+
+## 2026.03.12.0
+
+### Bug Fixes
+
+- Themes fix for control center ([#4340](https://github.com/juspay/hyperswitch-control-center/pull/4340)) ([`8c106f6`](https://github.com/juspay/hyperswitch-control-center/commit/8c106f66063b3c3e123f17432690e8125d36f345))
+- Generate reports url bug fix ([#4344](https://github.com/juspay/hyperswitch-control-center/pull/4344)) ([`0ccd8fe`](https://github.com/juspay/hyperswitch-control-center/commit/0ccd8feaf8c82defdb89241c52c04bb2877f8b32))
+- Deny vault-customers-tokens access for profile entity ([#4354](https://github.com/juspay/hyperswitch-control-center/pull/4354)) ([`e652226`](https://github.com/juspay/hyperswitch-control-center/commit/e6522260d6fc07985cd49781f3f2e4bbb84e5fa5))
+
+### Miscellaneous Tasks
+
+- Added agents to help with ai ([#4346](https://github.com/juspay/hyperswitch-control-center/pull/4346)) ([`85615c3`](https://github.com/juspay/hyperswitch-control-center/commit/85615c32e35f21b4cd6a6c69d633d968c4317b35))
+
+**Full Changelog:** [`2026.03.11.0...2026.03.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.11.0...2026.03.12.0)
+
+- - -
+
+## 2026.03.11.0
+
+### Bug Fixes
+
+- Label state field as State in Edit Checkout Details modal ([#4313](https://github.com/juspay/hyperswitch-control-center/pull/4313)) ([`5125f48`](https://github.com/juspay/hyperswitch-control-center/commit/5125f48b7ee62980a127865d284f27c0dcd9e702))
+
+**Full Changelog:** [`2026.03.10.0...2026.03.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.10.0...2026.03.11.0)
+
+- - -
+
 ## 2026.03.10.0
 
 ### Features
