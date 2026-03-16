@@ -84,6 +84,7 @@ dev_roles_v2=false
 dev_customer=false
 dev_accept_invite=true
 dev_theme=false
+dev_opensearch=false
 dev_vault=false
 dev_users=false
 [default.connector_list_for_live]
