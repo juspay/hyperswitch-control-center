@@ -728,7 +728,7 @@ module Base = {
               disableFutureDates
               ?dateRangeLimit
               setShowMsg
-              calendarContaierStyle="md:m-3 border-0 md:border"
+              calendarContainerStyle="md:m-3 border-0 md:border"
               ?allowedDateRange
             />
             <div

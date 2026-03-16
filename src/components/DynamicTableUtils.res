@@ -281,7 +281,7 @@ module ChooseColumns = {
     ~showColumnSelector,
     ~isModalView=true,
     ~sortingBasedOnDisabled=true,
-    ~orderdColumnBasedOnDefaultCol: bool=false,
+    ~orderedColumnBasedOnDefaultCol: bool=false,
     ~showSerialNumber=true,
     ~mandatoryOptions=[],
     ~isDraggable=false,
@@ -346,7 +346,7 @@ module ChooseColumns = {
         defaultColumns
         isModalView
         sortingBasedOnDisabled
-        orderdColumnBasedOnDefaultCol
+        orderedColumnBasedOnDefaultCol
         showSerialNumber
         isDraggable
         title

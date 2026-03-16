@@ -451,7 +451,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=false,
     ~customStyle="",
@@ -628,7 +628,7 @@ module BaseSelect = {
     let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -758,7 +758,7 @@ module BaseSelect = {
           />
           {isDraggable ? dragIcon : React.null}
         </div>
-        {switch optionRigthElement {
+        {switch optionRightElement {
         | Some(rightElement) => rightElement
         | None => React.null
         }}
@@ -2374,7 +2374,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2514,7 +2514,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

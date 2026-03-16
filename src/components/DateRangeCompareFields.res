@@ -621,7 +621,7 @@ module Base = {
                 ~startDate=compareWithStartTime,
                 ~endDate=compareWithEndTime,
               ) + 1}
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              calendarContainerStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
