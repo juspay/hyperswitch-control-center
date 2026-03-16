@@ -133,8 +133,8 @@ let make = (~children) => {
   | Light => ""
   }
 
-  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
-    let dict = uiConfg->getDictFromJsonObject
+  let configCustomDomainTheme = React.useCallback((uiConfig: JSON.t) => {
+    let dict = uiConfig->getDictFromJsonObject
     let settings = dict->getDictfromDict("settings")
     let url = dict->getDictfromDict("urls")
     let colorsConfig = settings->getDictfromDict("colors")

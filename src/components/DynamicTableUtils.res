@@ -7,7 +7,7 @@ let visibilityColFunc = (
   ~tableCell: Table.cell,
 ) => {
   switch tableCell {
-  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for serch
+  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for search
   | Text(x) | EllipsisText(x, _) | CustomCell(_, x) => (x->JSON.Encode.string->Some, jsonVal)
   | Date(x) => (dateFormatConvertor(x), dateFormatConvertor(x))
   | StartEndDate(start, end) => (

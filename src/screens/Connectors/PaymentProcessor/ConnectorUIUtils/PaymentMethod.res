@@ -617,7 +617,7 @@ module CardRenderer = {
                           <RenderIf
                             condition={paymentMethod->getPaymentMethodFromString === BankDebit}>
                             <p className={`${body.sm.medium} text-grey-700 opacity-50 mr-2`}>
-                              {"Optional Configuraiton"->React.string}
+                              {"Optional Configuration"->React.string}
                             </p>
                           </RenderIf>
                         </div>

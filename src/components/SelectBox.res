@@ -1889,7 +1889,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo(() => {
+    let allSelectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1902,7 +1902,7 @@ module BaseDropdown = {
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
-    let title = showAllSelectedOptions ? allSellectedOptions : buttonText
+    let title = showAllSelectedOptions ? allSelectedOptions : buttonText
 
     let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
@@ -2291,7 +2291,7 @@ module ChipFilterSelectBox = {
   ) => {
     let transformedOptions = useTransformed(options)
 
-    let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
+    let initialClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
@@ -2322,7 +2322,7 @@ module ChipFilterSelectBox = {
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? passedClassName : initalClassName
+        let selectedClass = isSelected ? passedClassName : initialClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
