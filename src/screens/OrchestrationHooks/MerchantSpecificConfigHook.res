@@ -25,7 +25,9 @@ let useMerchantSpecificConfig = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let setMerchantSpecificConfig =
     HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useSetRecoilState
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {orgId, merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let merchantSpecificConfig =
     HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useRecoilValueFromAtom
   let fetchMerchantSpecificConfig = async () => {

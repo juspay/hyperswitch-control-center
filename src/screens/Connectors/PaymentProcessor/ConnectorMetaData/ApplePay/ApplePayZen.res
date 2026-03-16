@@ -1,11 +1,5 @@
 @react.component
-let make = (
-  ~applePayFields,
-  ~update,
-  ~closeModal,
-  ~setShowWalletConfigurationModal,
-  ~connector,
-) => {
+let make = (~applePayFields, ~update, ~closeModal, ~closeAccordionFn, ~connector) => {
   open LogicUtils
   open ApplePayIntegrationUtils
   open ApplePayIntegrationHelper
@@ -34,7 +28,7 @@ let make = (
     let metadata =
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
     let _ = update(metadata)
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
     Nullable.null->Promise.resolve
   }
   let applePayManualFields =
@@ -49,16 +43,17 @@ let make = (
       </div>
     })
     ->React.array
-  <>
-    {applePayManualFields}
-    <div className="w-full flex gap-2 justify-end p-6">
+
+  <div className="flex flex-col gap-6 p-6">
+    <div> {applePayManualFields} </div>
+    <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"
         buttonType={Secondary}
         onClick={_ => {
-          // setShowWalletConfigurationModal(_ => false)
           closeModal()
         }}
+        customButtonStyle="w-full"
       />
       <Button
         text="Verify & Enable"
@@ -67,7 +62,8 @@ let make = (
           onSubmit()->ignore
         }}
         buttonState={formState.values->validateZenFlow}
+        customButtonStyle="w-full"
       />
     </div>
-  </>
+  </div>
 }

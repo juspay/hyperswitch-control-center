@@ -1,6 +1,4 @@
 open OrganisationChartArrowUtils
-@val @scope("window")
-external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
 @react.component
 let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
@@ -134,11 +132,11 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
           25
         }
         let _ = setTimeout(() => {
-          requestAnimationFrame(_ => tryUpdate())
+          Window.requestAnimationFrame(_ => tryUpdate())
         }, delay)
       }
     }
-    requestAnimationFrame(_ => tryUpdate())
+    Window.requestAnimationFrame(_ => tryUpdate())
   }
 
   React.useEffect(() => {

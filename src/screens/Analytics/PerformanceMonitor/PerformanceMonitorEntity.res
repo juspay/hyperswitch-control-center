@@ -231,7 +231,7 @@ let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
   | ErrorReason => Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType)
-  | Count => Table.makeHeaderInfo(~key, ~title="Total Occurences", ~dataType=TextType)
+  | Count => Table.makeHeaderInfo(~key, ~title="Total Occurrences", ~dataType=TextType)
   | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
   }
 }

@@ -66,7 +66,7 @@ let make = () => {
       renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
         <AccordionItemComponent step />,
       renderContentOnTop: None,
-      onItemExpandClick: _ => {
+      onItemExpandClick: () => {
         mixpanelEvent(~eventName=step.sectionTrackingEvent)
       },
     }

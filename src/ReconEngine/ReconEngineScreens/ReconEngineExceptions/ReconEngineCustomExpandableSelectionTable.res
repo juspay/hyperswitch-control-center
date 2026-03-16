@@ -1,5 +1,6 @@
 open Table
 open Typography
+open LogicUtils
 
 module RowProcessor = {
   let make = (rows: array<array<cell>>, showSerial: bool) => {
@@ -144,7 +145,7 @@ module TableBody = {
           showOptions
           selectedRows
           ?onRowSelect
-          rowData={rowData->Array.get(rowIndex)->Option.getOr(JSON.Encode.null)}
+          rowData={rowData->getValueFromArray(rowIndex, JSON.Encode.null)}
           ?isRowSelectable
         />
       })
@@ -163,11 +164,6 @@ let make = (
   ~selectedRows=[],
   ~onRowSelect: option<(array<JSON.t> => array<JSON.t>) => unit>=?,
   ~sections: array<ReconEngineExceptionTransactionTypes.tableSection>,
-  ~offset: int,
-  ~setOffset: (int => int) => unit,
-  ~resultsPerPage: int,
-  ~setResultsPerPage: (int => int) => unit,
-  ~totalResults: int,
   ~showSearchFilter=false,
   ~searchFilterElement: option<React.element>=?,
   ~isRowSelectable: option<JSON.t => bool>=?,
@@ -272,26 +268,6 @@ let make = (
     />
   }
 
-  let paginatedSections = React.useMemo(() => {
-    sections->Array.map(section => {
-      let startIndex = offset
-      let endIndex = offset + resultsPerPage
-      let paginatedRows = section.rows->Array.slice(~start=startIndex, ~end=endIndex)
-      let paginatedRowData = section.rowData->Array.slice(~start=startIndex, ~end=endIndex)
-
-      (
-        {
-          titleElement: switch section.titleElement {
-          | Some(element) => element
-          | None => React.null
-          },
-          rows: paginatedRows,
-          rowData: paginatedRowData,
-        }: ReconEngineExceptionTransactionTypes.tableSection
-      )
-    })
-  }, (sections, offset, resultsPerPage))
-
   let renderSections = sections => {
     <>
       {sections
@@ -333,23 +309,12 @@ let make = (
       <RenderIf condition={showSearchFilter}>
         <div className="mb-4"> {searchFilterElement->Option.getOr(React.null)} </div>
       </RenderIf>
-      <RenderIf condition={totalResults > 0}>
+      <RenderIf condition={sections->Array.length > 0}>
         <AddDataAttributes attributes=[("data-expandable-table", title)]>
-          {renderSections(paginatedSections)}
+          {renderSections(sections)}
         </AddDataAttributes>
-        <Paginator
-          totalResults
-          offset
-          resultsPerPage
-          setOffset
-          setResultsPerPage
-          currrentFetchCount=totalResults
-          actualData=[]
-          tableDataLoading=false
-          showResultsPerPageSelector=true
-        />
       </RenderIf>
-      <RenderIf condition={totalResults === 0}>
+      <RenderIf condition={sections->Array.length === 0}>
         <NoDataFound customCssClass="my-6" message="No Data Available" renderType=Painting />
       </RenderIf>
     </div>

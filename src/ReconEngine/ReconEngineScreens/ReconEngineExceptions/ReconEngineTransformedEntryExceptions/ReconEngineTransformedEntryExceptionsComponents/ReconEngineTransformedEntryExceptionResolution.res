@@ -39,12 +39,22 @@ module EditEntryModalContent = {
     open APIUtils
     open ReconEngineHooks
     open LogicUtils
+    open ReconEngineExceptionsHelper
+    open ReconEngineUtils
+
     let getAccounts = useGetAccounts()
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
+
+    let fetchMetadataSchema = useFetchMetadataSchema()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (accountsList, setAccountsList) = React.useState(_ => [])
     let (transformationsList, setTransformationsList) = React.useState(_ => [])
+    let (metadataSchema, setMetadataSchema) = React.useState(_ =>
+      Dict.make()->metadataSchemaItemToObjMapper
+    )
+    let (metadataRows, setMetadataRows) = React.useState(_ => [])
+    let (isMetadataLoading, setIsMetadataLoading) = React.useState(_ => false)
 
     let fetchData = async () => {
       try {
@@ -60,8 +70,15 @@ module EditEntryModalContent = {
           )
           let res = await fetchDetails(url)
           setTransformationsList(_ =>
-            res->getArrayDataFromJson(ReconEngineUtils.transformationConfigItemToObjMapper)
+            res->getArrayDataFromJson(transformationConfigItemToObjMapper)
           )
+        }
+        if entryDetails.transformation_id->isNonEmptyString {
+          let schema =
+            (await fetchMetadataSchema(~transformationId=entryDetails.transformation_id))
+            ->getDictFromJsonObject
+            ->metadataSchemaItemToObjMapper
+          setMetadataSchema(_ => schema)
         }
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -75,8 +92,8 @@ module EditEntryModalContent = {
     }, [])
 
     let validate = React.useCallback(values => {
-      validateEditEntryDetails(values, ~initialEntryDetails=entryDetails)
-    }, [entryDetails])
+      validateEditEntryDetails(values, ~initialEntryDetails=entryDetails, ~metadataSchema)
+    }, (entryDetails, metadataSchema.id))
 
     let initialValues = React.useMemo(() => {
       getInitialValuesForEditEntries(entryDetails)
@@ -91,7 +108,7 @@ module EditEntryModalContent = {
               ~label="Account",
               ~comboCustomInput=accountComboSelectInputField(
                 ~accountsList,
-                ~disabled=true,
+                ~disabled=false,
                 ~setTransformationsList,
                 ~initialAccountId=entryDetails.account.account_id,
               ),
@@ -102,22 +119,32 @@ module EditEntryModalContent = {
               ~isRequired=true,
             )}
           />
-          {transformationConfigSelectInputField(~transformationsList, ~disabled=true)}
+          {transformationConfigSelectInputField(
+            ~transformationsList,
+            ~disabled=false,
+            ~setMetadataSchema,
+            ~setIsMetadataLoading,
+          )}
           {entryTypeSelectInputField(~disabled=false)}
           {currencySelectInputField(~entryDetails, ~disabled=false)}
           {amountTextInputField(~disabled=false)}
           {orderIdTextInputField(~disabled=false)}
           {effectiveAtDatePickerInputField()}
-          {metadataCustomInputField(~disabled=false)}
-          <div className="absolute bottom-4 left-0 right-0 bg-white p-4">
-            <FormRenderer.DesktopRow itemWrapperClass="" wrapperClass="items-center">
-              <FormRenderer.SubmitButton
-                tooltipForWidthClass="w-full"
-                text="Save changes"
-                buttonType={Primary}
-                customSumbitButtonStyle="!w-full"
-              />
-            </FormRenderer.DesktopRow>
+          {metadataCustomInputField(
+            ~disabled=false,
+            ~metadataSchema,
+            ~metadataRows,
+            ~setMetadataRows,
+            ~isMetadataLoading,
+          )}
+          <div className="flex justify-end my-4">
+            <FormRenderer.SubmitButton
+              tooltipForWidthClass="w-full"
+              text="Save changes"
+              buttonType={Primary}
+              showToolTip=false
+              customSumbitButtonStyle="!w-full"
+            />
           </div>
         </Form>
       </div>

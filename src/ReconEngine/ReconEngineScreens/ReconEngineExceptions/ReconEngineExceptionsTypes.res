@@ -22,3 +22,12 @@ type resolutionConfig = {
   layout: modalLayout,
   closeOnOutsideClick: bool,
 }
+
+type metadataRow = {
+  id: string,
+  key: string,
+  displayKey: string,
+  value: string,
+}
+
+type validationRule = (string, Dict.t<JSON.t> => option<string>)

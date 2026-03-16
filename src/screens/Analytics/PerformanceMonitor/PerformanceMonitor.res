@@ -20,9 +20,8 @@ let make = (~domain="payments") => {
     ~origin="analytics",
     (),
   )
-  let {checkUserEntity, userInfo: {analyticsEntity}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {checkUserEntity, getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {analyticsEntity} = getResolvedUserInfo()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let filterBody = (~groupBy) => {

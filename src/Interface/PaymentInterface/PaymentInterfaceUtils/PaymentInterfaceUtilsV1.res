@@ -22,6 +22,10 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
   client_source: dict->getString("client_source", ""),
   client_version: dict->getString("client_version", ""),
+  hyperswitch_error_description: dict
+  ->getDictfromDict("error_details")
+  ->getDictfromDict("unified_details")
+  ->getString("description", ""),
 }
 
 let getAttempts: JSON.t => array<attempts_v1> = json => {
@@ -92,6 +96,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     amount_received: dict->getFloat("amount_received", 0.0),
     client_secret: dict->getString("client_secret", ""),
     created: dict->getString("created", ""),
+    modified_at: dict->getString("modified_at", ""),
     last_updated: dict->getString("last_updated", ""),
     currency: dict->getString("currency", ""),
     customer_id: dict->getString("customer_id", ""),
@@ -190,6 +195,10 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     extended_auth_last_applied_at: dict->getString("extended_auth_last_applied_at", ""),
     extended_auth_applied: dict->getBool("extended_auth_applied", false),
     request_extended_auth: dict->getBool("request_extended_auth", false),
+    hyperswitch_error_description: dict
+    ->getDictfromDict("error_details")
+    ->getDictfromDict("unified_details")
+    ->getString("description", ""),
   }
 }
 
@@ -223,6 +232,7 @@ let mapAttemptsV1ToCommonType: attempts_v1 => PaymentInterfaceTypes.attempts = a
     reference_id: attempts.reference_id,
     client_source: attempts.client_source,
     client_version: attempts.client_version,
+    hyperswitch_error_description: attempts.hyperswitch_error_description,
   }
 }
 
@@ -274,6 +284,7 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     amount_captured: order.amount_received,
     client_secret: order.client_secret,
     created_at: order.created,
+    modified_at: order.modified_at,
     last_updated: order.last_updated,
     currency: order.currency,
     customer_id: order.customer_id,
@@ -331,5 +342,6 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     extended_auth_last_applied_at: order.extended_auth_last_applied_at,
     extended_auth_applied: order.extended_auth_applied,
     request_extended_auth: order.request_extended_auth,
+    hyperswitch_error_description: order.hyperswitch_error_description,
   }
 }

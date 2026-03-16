@@ -794,3 +794,10 @@ let filterMetrics = metrics => {
     metricName != "payments_distribution"
   })
 }
+
+type paymentStatus = [#authorizedUncaptured]
+
+let statusVariantToString = status =>
+  switch status {
+  | #authorizedUncaptured => "authorized"
+  }

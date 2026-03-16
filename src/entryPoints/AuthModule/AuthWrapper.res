@@ -46,7 +46,8 @@ module AuthHeaderWrapper = {
 let make = (~children) => {
   open APIUtils
   open AuthUtils
-
+  open LogicUtils
+  open APIUtilsTypes
   let getURL = useGetURL()
 
   let url = RescriptReactRouter.useUrl()
@@ -58,7 +59,6 @@ let make = (~children) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let getAuthDetails = () => {
-    open LogicUtils
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
@@ -74,7 +74,6 @@ let make = (~children) => {
 
   let getDetailsFromEmail = async () => {
     open CommonAuthUtils
-    open LogicUtils
     try {
       let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
       let url = getURL(~entityName=V1(USERS), ~userType=#FROM_EMAIL, ~methodType=Post)
@@ -98,6 +97,16 @@ let make = (~children) => {
     setAuthStatus(PreLogin(info))
   }
 
+  let handleOIDCAuthorize = () => {
+    let queryString = url.search
+    if queryString->isEmptyString {
+      setScreenState(_ => PageLoaderWrapper.Error("Missing authorization parameters."))
+    } else {
+      let apiUrl = getURL(~entityName=V1(OIDC_AUTHORIZE), ~methodType=Get)
+      Window.Location.replace(`${apiUrl}?${queryString}`)
+    }
+  }
+
   let handleLoginWithSso = id => {
     switch id {
     | Some(method_id) =>
@@ -116,7 +125,8 @@ let make = (~children) => {
       getDetailsFromEmail()->ignore
     //redirection url from sso
     | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
-
+    //redirection url from oidc authorize
+    | list{"oauth2", "authorize"} => handleOIDCAuthorize()
     | list{"register"} => setAuthStateToLogout()
     | _ => getAuthDetails()
     }

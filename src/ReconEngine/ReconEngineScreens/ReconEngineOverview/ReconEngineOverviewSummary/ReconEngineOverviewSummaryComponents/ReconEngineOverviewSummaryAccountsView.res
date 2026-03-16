@@ -135,9 +135,9 @@ module AccountsList = {
 }
 
 @react.component
-let make = (~reconRulesList: array<reconRuleType>) => {
+let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
   open ReconEngineOverviewSummaryUtils
-  open ReconEngineAccountsUtils
+  open ReconEngineDataUtils
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
@@ -151,10 +151,23 @@ let make = (~reconRulesList: array<reconRuleType>) => {
       let accountData = await getAccounts()
 
       let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let statusList =
+        ReconEngineFilterUtils.getTransactionStatusValueFromStatusList([
+          Posted(Auto),
+          Posted(Manual),
+          Posted(Force),
+          Expected,
+          Missing,
+          PartiallyReconciled,
+          OverAmount(Mismatch),
+          OverAmount(Expected),
+          UnderAmount(Mismatch),
+          UnderAmount(Expected),
+          DataMismatch,
+        ])->Array.joinWith(",")
+
       let allTransactions = await getTransactions(
-        ~queryParameters=Some(
-          `${queryString}&transaction_status=posted,mismatched,expected,partially_reconciled`,
-        ),
+        ~queryParameters=Some(`${queryString}&status=${statusList}`),
       )
 
       let accountTransactionData = processAllTransactionsWithAmounts(

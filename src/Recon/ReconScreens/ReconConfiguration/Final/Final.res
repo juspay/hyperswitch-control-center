@@ -47,7 +47,7 @@ let make = (~currentStep: step, ~setCurrentStep, ~setShowOnBoarding) => {
           customSelectionBorderClass="border-nd_br_gray-500"
         />
         <ReconConfigurationHelper.StepCard
-          key="processor_data_sucessful"
+          key="processor_data_successful"
           stepName="Processor connection successful"
           description=""
           isSelected=true

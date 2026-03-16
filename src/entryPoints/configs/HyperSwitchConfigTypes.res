@@ -2,6 +2,13 @@ type urlThemeConfig = {
   faviconUrl: option<string>,
   logoUrl: option<string>,
 }
+type emailConfig = {
+  entity_name: string,
+  entity_logo_url: string,
+  primary_color: string,
+  foreground_color: string,
+  background_color: string,
+}
 type urlConfig = {
   apiBaseUrl: string,
   mixpanelToken: string,

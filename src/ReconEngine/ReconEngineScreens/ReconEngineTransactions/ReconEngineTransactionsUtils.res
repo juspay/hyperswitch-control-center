@@ -57,11 +57,17 @@ let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirecti
 }
 
 let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], ()) => {
-  let statusOptions = getTransactionStatusOptions([
-    Expected,
-    Mismatched,
+  let statusOptions = getGroupedTransactionStatusOptions([
+    Posted(Auto),
+    Posted(Manual),
+    OverAmount(Mismatch),
+    OverAmount(Expected),
+    UnderAmount(Mismatch),
+    UnderAmount(Expected),
+    DataMismatch,
     PartiallyReconciled,
-    Posted,
+    Expected,
+    Missing,
     Void,
   ])
 
@@ -70,7 +76,7 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
       {
         field: FormRenderer.makeFieldInfo(
           ~label="transaction_status",
-          ~name="transaction_status",
+          ~name="status",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=statusOptions,
             ~buttonText="Select Transaction Status",
@@ -126,13 +132,16 @@ let initialDisplayFilters = (~creditAccountOptions=[], ~debitAccountOptions=[], 
   ]
 }
 
-let getTransactionStatusLabel = (status: transactionStatus): string => {
+let getTransactionStatusLabelColor = (status: domainTransactionStatus): TableUtils.labelColor => {
   switch status {
-  | Mismatched => "bg-nd_red-50 text-nd_red-600"
-  | Posted => "bg-nd_green-50 text-nd_green-600"
-  | Expected => "bg-nd_primary_blue-50 text-nd_primary_blue-600"
-  | Archived => "bg-nd_gray-150 text-nd_gray-600"
-  | PartiallyReconciled => "bg-nd_orange-50 text-nd_orange-600"
-  | _ => "bg-nd_gray-50 text-nd_gray_600"
+  | Posted(_) => LabelGreen
+  | OverAmount(Mismatch)
+  | UnderAmount(Mismatch)
+  | DataMismatch =>
+    LabelRed
+  | Expected | UnderAmount(Expected) | OverAmount(Expected) => LabelBlue
+  | Archived => LabelGray
+  | PartiallyReconciled | Missing => LabelOrange
+  | Void | UnknownDomainTransactionStatus => LabelLightGray
   }
 }

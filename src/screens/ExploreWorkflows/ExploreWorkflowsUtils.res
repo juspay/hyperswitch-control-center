@@ -5,7 +5,7 @@ let workflowCardsData: array<cardDetails> = [
   {
     title: "Explore Smart Retries",
     description: "Automatically re-attempt failed payments to boost your success rates. Set up your rules now.",
-    buttonText: "Try Smart Retires",
+    buttonText: "Try Smart Retries",
     imageLink: "smart_retries_graphic.png",
     workflowType: #ExploreSmartRetries,
   },

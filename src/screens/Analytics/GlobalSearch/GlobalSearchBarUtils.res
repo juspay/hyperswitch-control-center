@@ -189,7 +189,7 @@ let getElements = (hits, section) => {
 
       {
         texts: [disId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/${disId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
+        redirect_link: `/disputes/${disId}/${profileId}/${merchantId}/${orgId}`->JSON.Encode.string,
       }
     })
   | Payouts =>

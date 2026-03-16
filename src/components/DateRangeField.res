@@ -713,7 +713,7 @@ module Base = {
     let calendarElement =
       <div className={`flex flex-col tablet:flex-row w-full py-2`}>
         {if predefinedDays->Array.length > 0 && showOption {
-          <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
+          <AddDataAttributes attributes=[("data-date-picker-predefined", "predefined-options")]>
             <div className="flex flex-wrap gap-1 md:flex-col">
               {filteredPredefinedDays
               ->Array.mapWithIndex((value, i) => {

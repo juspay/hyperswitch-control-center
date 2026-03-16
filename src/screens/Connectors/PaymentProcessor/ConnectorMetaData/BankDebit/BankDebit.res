@@ -6,47 +6,44 @@ module PMAuthProcessorInput = {
     ~paymentMethod: string,
     ~paymentMethodType: string,
     ~getPMConnectorId: ConnectorTypes.connectorTypes => string,
+    ~isMethodEnabled: bool,
   ) => {
     open LogicUtils
-    let (currentSelection, setCurrentSelection) = React.useState(_ => "")
-
+    open BankDebitUtils
     let enabledList = (
       fieldsArray->Array.get(0)->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
     ).input
+
+    let currentSelection = {
+      let currentValues = enabledList.value->getArrayDataFromJson(itemToObjMapper)
+      currentValues
+      ->Array.find(item => item.payment_method_type === paymentMethodType)
+      ->Option.mapOr("", item => item.connector_name)
+    }
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
-        let getPaymentMethodsObject = connector => {
-          open BankDebitTypes
-          {
-            payment_method: paymentMethod,
-            payment_method_type: paymentMethodType,
-            connector_name: connector,
-            mca_id: getPMConnectorId(
-              connector->ConnectorUtils.getConnectorNameTypeFromString(
-                ~connectorType=PMAuthenticationProcessor,
-              ),
-            ),
-          }
+
+        let existingPaymentMethodsArray = enabledList.value->getArrayDataFromJson(itemToObjMapper)
+
+        let filteredArray =
+          existingPaymentMethodsArray->Array.filter(item =>
+            item.payment_method_type !== paymentMethodType
+          )
+
+        let newPaymentMethodsArray = if value->isNonEmptyString {
+          let paymentMethodsObject =
+            value->getPaymentMethodsObject(paymentMethod, paymentMethodType, getPMConnectorId)
+
+          [...filteredArray, paymentMethodsObject]
+        } else {
+          filteredArray
         }
-        if value->isNonEmptyString {
-          let paymentMethodsObject = value->getPaymentMethodsObject
-          setCurrentSelection(_ => value)
 
-          let existingPaymentMethodsArray =
-            enabledList.value->getArrayDataFromJson(BankDebitUtils.itemToObjMapper)
-
-          let newPaymentMethodsArray =
-            existingPaymentMethodsArray->Array.filter(item =>
-              item.payment_method_type !== paymentMethodType
-            )
-
-          newPaymentMethodsArray->Array.push(paymentMethodsObject)
-          enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
-        }
+        enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
       },
       onFocus: _ => (),
       value: currentSelection->JSON.Encode.string,
@@ -63,20 +60,17 @@ module PMAuthProcessorInput = {
       fullLength=true
       dropdownCustomWidth="w-full"
       dropdownClassName={`${options->PaymentMethodConfigUtils.dropdownClassName}`}
+      disableSelect={!isMethodEnabled}
     />
   }
 }
 
 @react.component
-let make = (
-  ~setShowWalletConfigurationModal,
-  ~update,
-  ~paymentMethod,
-  ~paymentMethodType,
-  ~setInitialValues,
-) => {
+let make = (~paymentMethod, ~paymentMethodType, ~closeAccordionFn, ~paymentMethodsEnabled) => {
   open LogicUtils
   open BankDebitUtils
+  open Typography
+
   let connectorsListPMAuth = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PMAuthProcessor,
   )
@@ -84,6 +78,15 @@ let make = (
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let form = ReactFinalForm.useForm()
+
+  let isMethodEnabled = {
+    let paymentObj = paymentMethodsEnabled->ConnectorUtils.getSelectedPaymentObj(paymentMethod)
+    let stateProviders =
+      paymentObj.provider->Option.getOr(
+        []->JSON.Encode.array->ConnectorUtils.getPaymentMethodMapper,
+      )
+    stateProviders->Array.some(provider => provider.payment_method_type === paymentMethodType)
+  }
 
   let pmAuthConnectorOptions =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate->dropdownOptions
@@ -119,22 +122,21 @@ let make = (
   }
 
   let closeModal = () => {
-    update()
     onCancelClick()
-    setShowWalletConfigurationModal(_ => false)
+    closeAccordionFn()
   }
 
   let onSubmit = () => {
-    setShowWalletConfigurationModal(_ => false)
-    setInitialValues(_ => formState.values)
-    update()
+    closeAccordionFn()
     Nullable.null->Promise.resolve
   }
 
   let renderValueInp = (options: array<SelectBox.dropdownOption>) => (
     fieldsArray: array<ReactFinalForm.fieldRenderProps>,
   ) => {
-    <PMAuthProcessorInput options fieldsArray paymentMethod paymentMethodType getPMConnectorId />
+    <PMAuthProcessorInput
+      options fieldsArray paymentMethod paymentMethodType getPMConnectorId isMethodEnabled
+    />
   }
 
   let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {
@@ -143,30 +145,35 @@ let make = (
       ~label=`${inputArg.label}`,
       ~comboCustomInput=renderValueInp(inputArg.options),
       ~inputFields=[makeInputFieldInfo(~name=`${inputArg.name1}`), makeInputFieldInfo(~name=``)],
-      ~isRequired=true,
       (),
     )
   }
 
-  <div className="p-4">
+  <div className="flex flex-col gap-2 p-6">
     <FormRenderer.FieldRenderer
       field={valueInput({
         name1: `pm_auth_config.enabled_payment_methods`,
         name2: ``,
-        label: `Select the open banking verification provider to verify the bank accounts`,
+        label: `Select PM Authenticator (optional)`,
         options: pmAuthConnectorOptions,
       })}
       labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
     />
+    <div className={`${body.sm.regular} text-nd_gray-700 opacity-50 ml-1`}>
+      {"(Enable method to choose an authenticator)"->React.string}
+    </div>
     <div className={`flex gap-2 justify-end mt-4`}>
-      <Button text="Cancel" buttonType={Secondary} onClick={_ => closeModal()} />
+      <Button
+        text="Cancel" buttonType={Secondary} onClick={_ => closeModal()} customButtonStyle="w-full"
+      />
       <Button
         onClick={_ => {
           onSubmit()->ignore
         }}
         text="Proceed"
         buttonType={Primary}
-        buttonState={validateSelectedPMAuth(formState.values, paymentMethodType)}
+        buttonState={isMethodEnabled ? Button.Normal : Button.Disabled}
+        customButtonStyle="w-full"
       />
     </div>
   </div>

@@ -88,8 +88,15 @@ module AccordionInfo = {
     ~titleStyle="",
     ~accordionHeaderTextClass="",
     ~expandedTitleStyle="",
+    ~onToggle: unit => unit,
+    ~singleOpen,
   ) => {
     let (isExpanded, setIsExpanded) = React.useState(() => expanded)
+
+    React.useEffect(() => {
+      setIsExpanded(_ => expanded)
+      None
+    }, [expanded])
 
     let handleClick = _ => {
       if !isExpanded {
@@ -103,10 +110,20 @@ module AccordionInfo = {
         | None => ()
         }
       }
-      setIsExpanded(prevExpanded => !prevExpanded)
+      if singleOpen {
+        onToggle()
+      } else {
+        setIsExpanded(prev => !prev)
+      }
     }
 
-    let closeAccordionFn = () => setIsExpanded(_ => false)
+    let closeAccordionFn = () => {
+      if singleOpen {
+        onToggle()
+      } else {
+        setIsExpanded(_ => false)
+      }
+    }
 
     let titleStyleFull = isExpanded ? `${titleStyle} ${expandedTitleStyle}` : titleStyle
 
@@ -166,7 +183,21 @@ let make = (
   ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
   ~accordionHeaderTextClass="",
   ~expandedTitleStyle="",
+  ~singleOpen=false,
+  ~initialOpenIndex=-1,
 ) => {
+  let (openIndex, setOpenIndex) = React.useState(_ => initialOpenIndex)
+
+  let handleOnToggle = i => {
+    setOpenIndex(prev =>
+      if prev == i {
+        -1
+      } else {
+        i
+      }
+    )
+  }
+
   <div className={`w-full ${gapClass}`}>
     {accordion
     ->Array.mapWithIndex((accordion, i) => {
@@ -178,10 +209,12 @@ let make = (
         accordianTopContainerCss
         accordianBottomContainerCss
         contentExpandCss
-        expanded={initialExpandedArray->Array.includes(i)}
+        expanded={singleOpen ? openIndex == i : initialExpandedArray->Array.includes(i)}
+        onToggle={_ => handleOnToggle(i)}
         titleStyle
         accordionHeaderTextClass
         expandedTitleStyle
+        singleOpen
       />
     })
     ->React.array}

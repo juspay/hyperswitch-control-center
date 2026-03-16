@@ -267,7 +267,7 @@ Toast notifications provide non-blocking feedback about errors:
 ```rescript
 showToast(
   ~toastType=ToastError,
-  ~message=errorDict->getString("message", "Error Occured"),
+  ~message=errorDict->getString("message", "Error Occurred"),
   ~autoClose=false,
 )
 ```

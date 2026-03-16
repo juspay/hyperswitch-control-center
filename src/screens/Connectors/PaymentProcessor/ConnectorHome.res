@@ -53,7 +53,7 @@ module ConnectorCurrentStepIndicator = {
 }
 
 @react.component
-let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
+let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarning=true) => {
   open ConnectorTypes
   open ConnectorUtils
   open APIUtils
@@ -212,7 +212,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
       <RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation
           path=[
-            connectorID === "new"
+            connectorID === "new" && showBreadCrumbWarning
               ? {
                   title: "Processor",
                   link: "/connectors",

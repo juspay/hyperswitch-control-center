@@ -374,7 +374,7 @@ let make = (
   ~setIsDateClicked=?,
 ) => {
   open LogicUtils
-  let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
+  let heading = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
   let getMonthInFloat = mon => Array.indexOf(months, mon)->Float.fromInt

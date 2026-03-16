@@ -1,14 +1,14 @@
-type days = Sunday | Monday | Tuesday | Wednesday | Thrusday | Friday | Saturday
+type days = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday
 
-let daysArr = [Sunday, Monday, Tuesday, Wednesday, Thrusday, Friday, Saturday]
+let daysArr = [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
 
 let dayMapper = (days: days) => {
   switch days {
   | Sunday => "Sunday"
   | Monday => "Monday"
-  | Tuesday => "Tuesda"
+  | Tuesday => "Tuesday"
   | Wednesday => "Wednesday"
-  | Thrusday => "Thrusday"
+  | Thursday => "Thursday"
   | Friday => "Friday"
   | Saturday => "Saturday"
   }

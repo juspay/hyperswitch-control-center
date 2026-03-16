@@ -128,7 +128,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
               setMetaData
               isPayoutFlow=false
               initialValues
-              setInitialValues
+              isUpdateFlow
             />
           </div>
         </div>

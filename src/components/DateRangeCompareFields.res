@@ -586,7 +586,7 @@ module Base = {
 
     let dropDownElement = () => {
       <div className={"flex flex-col tablet:flex-row w-full gap-2 p-2"}>
-        <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
+        <AddDataAttributes attributes=[("data-date-picker-predefined", "predefined-options")]>
           <div className="flex flex-wrap gap-1 md:flex-col">
             {[No_Comparison, Previous_Period, Custom]
             ->Array.mapWithIndex((value, i) => {

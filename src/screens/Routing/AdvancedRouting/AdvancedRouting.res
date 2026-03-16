@@ -524,11 +524,15 @@ let make = (
 ) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
-  let (initialValues, setInitialValues) = React.useState(_ =>
-    initialValues->Identity.genericTypeToJson
-  )
+  let getTimeInCustomTimeZone = TimeZoneHook.useGetTimeInCustomTimeZone()
+
+  let (initialValues, setInitialValues) = React.useState(_ => {
+    let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
+    let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
+    getInitialValues(~currentDate, ~currentTime)->Identity.genericTypeToJson
+  })
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()

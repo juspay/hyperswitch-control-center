@@ -1,3 +1,5 @@
+open LogicUtils
+
 module HoverInline = {
   @react.component
   let make = (
@@ -46,7 +48,7 @@ module HoverInline = {
             leftActionButtons
           </div>
         </div>
-        <RenderIf condition={subText->LogicUtils.isNonEmptyString}>
+        <RenderIf condition={subText->isNonEmptyString}>
           <div className="text-xs text-nd_gray-400"> {React.string(subText)} </div>
         </RenderIf>
       </div>
@@ -89,7 +91,7 @@ let make = (
   }
   let handleSave = () => {
     setValue(_ => value)
-    if !{inputErrors->LogicUtils.isEmptyDict} || value == labelText {
+    if !{inputErrors->isEmptyDict} || value == labelText {
       handleCancel()
     } else {
       switch onSubmit {
@@ -104,7 +106,7 @@ let make = (
   }
 
   React.useEffect(() => {
-    if labelText->LogicUtils.isNonEmptyString {
+    if labelText->isNonEmptyString {
       setValue(_ => labelText)
     }
     None
@@ -114,7 +116,7 @@ let make = (
     let key = e->ReactEvent.Keyboard.key
     let keyCode = e->ReactEvent.Keyboard.keyCode
     if key === "Enter" || keyCode === enterKeyCode {
-      if inputErrors->LogicUtils.isEmptyDict {
+      if inputErrors->isEmptyDict {
         handleSave()
       } else {
         handleCancel()
@@ -124,7 +126,7 @@ let make = (
       handleCancel()
     }
   }
-  let isDisabled = !{inputErrors->LogicUtils.isEmptyDict}
+  let isDisabled = !{inputErrors->isEmptyDict}
   let isDisabledCss = {isDisabled ? "!cursor-not-allowed" : "cursor-pointer"}
   let dropdownRef = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
@@ -195,7 +197,7 @@ let make = (
           {leftIcon->Option.getOr(React.null)}
         </RenderIf>
         <div
-          className={`group relative flex items-center bg-white ${inputErrors->LogicUtils.isEmptyDict
+          className={`group relative flex items-center bg-white ${inputErrors->isEmptyDict
               ? "focus-within:ring-1 focus-within:ring-blue-400"
               : "ring-1 ring-red-300"}  rounded-md text-md !py-2 ${customStyle} `}>
           <div className={`flex-1 `}>

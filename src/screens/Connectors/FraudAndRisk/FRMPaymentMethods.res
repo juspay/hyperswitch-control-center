@@ -5,7 +5,7 @@ module ToggleSwitch = {
     let cursorType = isToggleDisabled ? "cursor-not-allowed" : "cursor-pointer"
 
     let enabledClasses = if isOpen {
-      `bg-green-700 ${cursorType} ${toggleDefaultStyle}`
+      `bg-primary ${cursorType} ${toggleDefaultStyle}`
     } else {
       `bg-gray-300 ${cursorType} ${toggleDefaultStyle}`
     }
@@ -25,51 +25,11 @@ module ToggleSwitch = {
     </HeadlessUI.Switch>
   }
 }
-
-module FormField = {
-  open FRMInfo
-  @react.component
-  let make = (~fromConfigIndex, ~paymentMethodIndex, ~options, ~label, ~description) => {
-    <div className="w-max">
-      <div className="flex">
-        <h3 className="font-semibold text-bold text-lg pb-2">
-          {label->LogicUtils.snakeToTitle->React.string}
-        </h3>
-        <div className="w-10 h-7 text-gray-300">
-          <ToolTip
-            description
-            tooltipWidthClass="w-96"
-            toolTipFor={<Icon name="info-circle" size=15 />}
-            toolTipPosition=ToolTip.Top
-          />
-        </div>
-      </div>
-      <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <FormRenderer.FieldRenderer
-          field={FormRenderer.makeFieldInfo(
-            ~label="",
-            ~name=`frm_configs[${fromConfigIndex}].payment_methods[${paymentMethodIndex}].flow`,
-            ~customInput=InputFields.radioInput(
-              ~options=options->Array.map((item): SelectBox.dropdownOption => {
-                {
-                  label: item->getFlowTypeLabel,
-                  value: item,
-                }
-              }),
-              ~buttonText="options",
-              ~baseComponentCustomStyle="flex",
-              ~customStyle="flex gap-2 !overflow-visible",
-            ),
-          )}
-        />
-      </div>
-    </div>
-  }
-}
-
 module CheckBoxRenderer = {
   open FRMUtils
-  open FRMInfo
+  open FormRenderer
+  open Typography
+  open LogicUtils
   @react.component
   let make = (
     ~fromConfigIndex,
@@ -93,7 +53,7 @@ module CheckBoxRenderer = {
 
     let (isOpen, setIsOpen) = React.useState(_ => initToggleValue)
 
-    let showConfitmation = () => {
+    let showConfirmation = () => {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: "Heads up!",
@@ -130,27 +90,23 @@ module CheckBoxRenderer = {
           | _ => ()
           }
           setIsOpen(_ => !isOpen)
-        } else if frmConfigInfo.payment_methods->Array.length > 0 {
-          if isUpdateFlow {
-            showConfitmation()
-          } else {
-            frmConfigInfo.payment_methods = []
-            setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
-            setIsOpen(_ => !isOpen)
-          }
+        } else if isUpdateFlow {
+          showConfirmation()
+        } else {
+          frmConfigInfo.payment_methods = []
+          setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
+          setIsOpen(_ => !isOpen)
         }
       }
     }
 
+    let paymentMethodsConfig =
+      connectorPaymentMethods->mapOptionOrDefault([], generateFRMPaymentMethodsConfig)
+
     React.useEffect(() => {
       if isOpen && !isUpdateFlow {
-        switch connectorPaymentMethods {
-        | Some(paymentMethods) => {
-            frmConfigInfo.payment_methods = paymentMethods->generateFRMPaymentMethodsConfig
-            setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
-          }
-        | _ => ()
-        }
+        frmConfigInfo.payment_methods = paymentMethodsConfig
+        setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
       }
       None
     }, [])
@@ -158,8 +114,9 @@ module CheckBoxRenderer = {
     <div>
       <div
         className="w-full px-5 py-3 bg-light-gray-bg flex items-center gap-3 justify-between border">
-        <div className="font-semibold text-bold text-lg">
-          {frmConfigInfo.gateway->LogicUtils.snakeToTitle->React.string}
+        <div className={`flex ${heading.sm.semibold} gap-2 items-center`}>
+          <GatewayIcon gateway={frmConfigInfo.gateway->String.toUpperCase} className="w-10 h-10" />
+          {frmConfigInfo.gateway->snakeToTitle->React.string}
         </div>
         <div className="mt-2">
           {if isToggleDisabled {
@@ -173,38 +130,42 @@ module CheckBoxRenderer = {
           }}
         </div>
       </div>
-      {frmConfigInfo.payment_methods
-      ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <RenderIf condition={isOpen} key={index->Int.toString}>
-          <Accordion
-            key={index->Int.toString}
-            initialExpandedArray=[0]
-            accordion={[
-              {
-                title: paymentMethodInfo.payment_method->LogicUtils.snakeToTitle,
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <FormField
-                      options={flowTypeAllOptions}
-                      label="Choose one of the flows"
-                      fromConfigIndex
-                      paymentMethodIndex={index->Int.toString}
-                      description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
-                        ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
-                    />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-            accordianTopContainerCss="border"
-            accordianBottomContainerCss="p-5"
-            contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
-            titleStyle="font-semibold text-bold text-md"
-          />
-        </RenderIf>
-      })
-      ->React.array}
+      <RenderIf condition={isOpen}>
+        {paymentMethodsConfig
+        ->Array.mapWithIndex((paymentMethodInfo, index) => {
+          <div className="flex flex-col border px-5 py-3 ">
+            <div className="flex justify-between items-center">
+              <p className={`${body.lg.semibold}`}>
+                {paymentMethodInfo.payment_method->snakeToTitle->React.string}
+              </p>
+              <FormRenderer.FieldRenderer
+                field={makeFieldInfo(
+                  ~name=`frm_configs[${fromConfigIndex}].payment_methods[${index->Int.toString}].flow`,
+                  ~label="",
+                  ~customInput=(~input, ~placeholder) =>
+                    FRMHelper.customAuthTypeInput(
+                      ~input,
+                      ~placeholder,
+                      ~paymentMethodName=paymentMethodInfo.payment_method,
+                      ~frmConfigInfo,
+                      ~frmConfigs,
+                      ~setConfigJson,
+                    ),
+                )}
+              />
+            </div>
+            <RenderIf
+              condition={frmConfigInfo.payment_methods->Array.some(pm =>
+                pm.payment_method === paymentMethodInfo.payment_method
+              )}>
+              <p className={`${body.lg.medium} text-nd_gray-300`}>
+                {"Enabled with Pre-Authorization"->React.string}
+              </p>
+            </RenderIf>
+          </div>
+        })
+        ->React.array}
+      </RenderIf>
     </div>
   }
 }
@@ -218,17 +179,13 @@ module PaymentMethodsRenderer = {
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
     let (connectorConfig, setConnectorConfig) = React.useState(_ => Dict.make())
     let setConfigJson = frmConfigInput.onChange
-    let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+    let connectorsList = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=PaymentProcessor,
+    )
 
     let getConfiguredConnectorDetails = async () => {
       try {
-        let response = await fetchConnectorListResponse()
-        let connectorsConfig =
-          response
-          ->FRMUtils.filterList(~removeFromList=FRMPlayer)
-          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator)
-          ->getConnectorConfig
-
+        let connectorsConfig = connectorsList->getConnectorConfig
         let updateFRMConfig =
           connectorsConfig
           ->createAllOptions

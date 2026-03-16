@@ -6,6 +6,15 @@ const homePage = new HomePage();
 beforeEach(function () {
   const email = helper.generateUniqueEmail();
   cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
+
+  cy.intercept("GET", "/dashboard/config/feature?domain=", (req) => {
+    req.continue((res) => {
+      if (res.body && res.body.features) {
+        res.body.features.global_search = true;
+      }
+    });
+  }).as("getFeatureDataSearch");
+
   cy.login_UI(email, Cypress.env("CYPRESS_PASSWORD"));
 });
 
@@ -19,12 +28,9 @@ describe("Homepage", () => {
   };
 
   it("should verify all components on homepage", () => {
-    homePage.subHeaderText
-      .should("be.visible")
-      .and(
-        "have.text",
-        "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
-      );
+    cy.contains(
+      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+    ).should("be.visible");
 
     homePage.orgIcon.should("be.visible");
     homePage.merchantDropdown.should("be.visible");

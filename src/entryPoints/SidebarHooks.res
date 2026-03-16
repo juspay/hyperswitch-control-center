@@ -6,8 +6,9 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
@@ -27,13 +28,14 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
     devAltPaymentMethods,
     devWebhooks,
     threedsExemptionRules,
-    paymentSettingsV2,
     routingAnalytics,
     billingProcessor,
     paymentLinkThemeConfigurator,
     vaultProcessor,
     devModularityV2,
     devTheme,
+    devVault,
+    devUsers,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -41,51 +43,67 @@ let useGetHsSidebarValues = (~isReconEnabled: bool) => {
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
+  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
+
+  let standardModules = !isCurrentMerchantPlatform
+    ? [
+        default->connectors(
+          ~isLiveMode,
+          ~isFrmEnabled=frm,
+          ~isPayoutsEnabled=payOut,
+          ~isThreedsConnectorEnabled=threedsAuthenticator,
+          ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+          ~isTaxProcessor=taxProcessor,
+          ~userHasResourceAccess,
+          ~isBillingProcessor=billingProcessor,
+          ~isVaultProcessor=vaultProcessor,
+        ),
+        default->analytics(
+          disputeAnalytics,
+          performanceMonitorFlag,
+          isNewAnalyticsEnable,
+          routingAnalytics,
+          ~authenticationAnalyticsFlag=authenticationAnalytics,
+          ~userHasResourceAccess,
+        ),
+        default->workflow(
+          isSurchargeEnabled,
+          threedsExemptionRules,
+          ~userHasResourceAccess,
+          ~isPayoutEnabled=payOut,
+          ~userEntity,
+        ),
+        devVault->vault(~userHasResourceAccess),
+        devAltPaymentMethods->alternatePaymentMethods,
+      ]
+    : []
 
   [
     default->home,
-    default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
-    default->connectors(
-      ~isLiveMode,
-      ~isFrmEnabled=frm,
+    default->operations(
+      ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
-      ~isThreedsConnectorEnabled=threedsAuthenticator,
-      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
-      ~isTaxProcessor=taxProcessor,
-      ~userHasResourceAccess,
-      ~isBillingProcessor=billingProcessor,
-      ~isVaultProcessor=vaultProcessor,
-    ),
-    default->analytics(
-      disputeAnalytics,
-      performanceMonitorFlag,
-      isNewAnalyticsEnable,
-      routingAnalytics,
-      ~authenticationAnalyticsFlag=authenticationAnalytics,
-      ~userHasResourceAccess,
-    ),
-    default->workflow(
-      isSurchargeEnabled,
-      threedsExemptionRules,
-      ~userHasResourceAccess,
-      ~isPayoutEnabled=payOut,
       ~userEntity,
+      ~isCurrentMerchantPlatform,
     ),
-    devAltPaymentMethods->alternatePaymentMethods,
+    ...standardModules,
     recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
       ~userHasResourceAccess,
       ~checkUserEntity,
-      ~isPaymentSettingsV2Enabled=paymentSettingsV2,
       ~paymentLinkThemeConfigurator,
+      ~isCurrentMerchantPlatform,
     ),
     settings(
       ~isConfigurePmtsEnabled=configurePmts,
       ~userHasResourceAccess,
+      ~userHasAccess,
+      ~checkUserEntity,
       ~complianceCertificate,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
+      ~devUsers,
     ),
   ]
 }
@@ -206,8 +224,9 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
-  if featureFlagDetails.devModularityV2 && featureFlagDetails.devTheme {
-    defaultSidebar->Array.pushMany([
+  if featureFlagDetails.devModularityV2 {
+    // show Home when modularity is enabled
+    defaultSidebar->Array.push(
       Link({
         name: "Home",
         icon: "nd-home",
@@ -215,24 +234,32 @@ let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
         access: Access,
         selectedIcon: "nd-fill-home",
       }),
-      ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess),
+    )
+
+    // Show Users only if devUsers flag is enabled
+    if featureFlagDetails.devUsers {
+      defaultSidebar->Array.push(
+        Link({
+          name: "Users",
+          icon: "nd-user",
+          link: "/users",
+          access: Access,
+          selectedIcon: "nd-user",
+        }),
+      )
+    }
+
+    // Show Theme only if devTheme flag is enabled
+    if featureFlagDetails.devTheme {
+      defaultSidebar->Array.push(ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess))
+    }
+
+    // Always show product header when modularity is enabled
+    defaultSidebar->Array.push(
       CustomComponent({
         component: <ProductHeaderComponent />,
       }),
-    ])
-  } else if featureFlagDetails.devModularityV2 {
-    defaultSidebar->Array.pushMany([
-      Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
-        access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-      CustomComponent({
-        component: <ProductHeaderComponent />,
-      }),
-    ])
+    )
   }
 
   let sidebarValuesForProduct = switch activeProduct {

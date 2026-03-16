@@ -9,5 +9,5 @@ let getDisableConnectorPayload = (connectorInfo, previousConnectorState) => {
   [
     ("connector_type", dictToJson->LogicUtils.getString("connector_type", "")->JSON.Encode.string),
     ("disabled", !previousConnectorState->JSON.Encode.bool),
-  ]->Dict.fromArray
+  ]->LogicUtils.getJsonFromArrayOfJson
 }

@@ -257,6 +257,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useUpdateMethod()
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutData, setPayoutsData) = React.useState(_ => Dict.make()->PayoutsEntity.itemToObjMapper)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
@@ -314,6 +317,25 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       </div>
       {<div className="flex flex-col gap-8">
         <PayoutInfo payoutData />
+        <RenderIf
+          condition={version == V1 &&
+          featureFlagDetails.auditTrail &&
+          userHasAccess(~groupAccess=AnalyticsView) === Access}>
+          <RenderAccordian
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                  <LogsWrapper wrapperFor={#PAYOUT}>
+                    <PayoutLogs payoutId={id} />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </RenderIf>
         <div className="overflow-scroll">
           <Attempts data=payoutData />
         </div>
