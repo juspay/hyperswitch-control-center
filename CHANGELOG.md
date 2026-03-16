@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.16.0
+
+### Features
+
+- Implement analytics-driven payment listing with a new API endpoint ([#4225](https://github.com/juspay/hyperswitch-control-center/pull/4225)) ([`13f852f`](https://github.com/juspay/hyperswitch-control-center/commit/13f852f7797a7feec9d791ca78fee100b9fcde60))
+
+### Miscellaneous Tasks
+
+- Enable network tokenization based on feature flag ([#4350](https://github.com/juspay/hyperswitch-control-center/pull/4350)) ([`5ee1a4e`](https://github.com/juspay/hyperswitch-control-center/commit/5ee1a4ecc2f6ef0c681cc2ca0e8d4c23a96727ea))
+
+**Full Changelog:** [`2026.03.13.0...2026.03.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.13.0...2026.03.16.0)
+
+- - -
+
 ## 2026.03.13.0
 
 ### Features
