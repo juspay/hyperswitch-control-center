@@ -193,7 +193,7 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
-      customFilterActions={<SavedViewsComponent version entity="payments" />}
+      customFilterActions={<SavedViewsComponent version entity="payment_views" />}
       entityName={switch version {
       | V1 => V1(ORDER_FILTERS)
       | V2 => V2(V2_ORDER_FILTERS)

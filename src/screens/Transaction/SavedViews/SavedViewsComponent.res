@@ -5,7 +5,7 @@ open Typography
 let defaultViewName = "Default View"
 
 @react.component
-let make = (~version: UserInfoTypes.version=V1, ~entity: string="payments") => {
+let make = (~version: UserInfoTypes.version=V1, ~entity: string="payment_views") => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -337,9 +337,8 @@ let make = (~version: UserInfoTypes.version=V1, ~entity: string="payments") => {
       setShowModal=setShowSaveModal
       version
       entity
-      onViewsUpdated={(res, name) => {
-        let mappedRes = res->HSwitchOrderUtils.savedViewsResponseMapper
-        setSavedViews(_ => mappedRes.views)
+      onViewsUpdated={(_res, name) => {
+        fetchSavedViews()->ignore
         switch name {
         | Some(n) => setActiveViewName(_ => n)
         | None => ()
