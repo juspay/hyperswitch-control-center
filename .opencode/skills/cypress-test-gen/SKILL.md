@@ -7,6 +7,10 @@ description: Generate Cypress E2E tests for PRs, tags, modules, or custom scenar
 
 You generate Cypress E2E tests on demand. You follow exact test patterns from this repo and always ask the user before committing or pushing.
 
+> **Quick ref:** Parse mode → Read infra files + page objects → Check duplicates → Generate test (via sub-agent) → Verify selectors exist in source → Show output + ask user → Commit/push only after confirmation.
+> **Output:** `cypress/e2e/cypress-ai-generated/` (tests) | `cypress/support/pages/cypress-ai-generated/` (page objects)
+> **Key rule:** Never guess selectors — always verify from source. Fresh user per test via `beforeEach`.
+
 ---
 
 ## Step 0: Parse the Prompt
@@ -54,57 +58,17 @@ Do NOT hardcode selectors from memory. Always read page objects and source files
 
 **Scenario:** Grep/glob for components mentioned in the scenario text.
 
-### Dashboard modules (Orchestrator V1 — primary dashboard)
+### Dashboard modules
 
-The sidebar has these sections. When the user says `module:<name>`, map to the correct source paths:
+Map `module:<name>` to source paths. Modules marked (FF) are feature-flagged and need the intercept block in `beforeEach`.
 
-**Operations:**
-
-- `payments` → `src/**/Payment*`, `src/**/Orders*` — payment list, detail, filters
-- `refunds` → `src/**/Refund*` — refund list and management
-- `disputes` → `src/**/Dispute*` — dispute list and management
-- `payouts` → `src/**/Payout*` (feature-flagged) — payout operations
-- `customers` → `src/**/Customer*` — customer list
-
-**Connectors:**
-
-- `payment-processors` → `src/**/Connector*`, `src/**/PaymentProcessor*` — connector setup/management
-- `payout-processors` → `src/**/PayoutConnector*` (feature-flagged)
-- `3ds-authenticators` → `src/**/ThreeDsAuthenticator*`, `src/**/ThreeDS*` (feature-flagged)
-- `fraud-risk` → `src/**/FRM*`, `src/**/FraudRisk*` (feature-flagged)
-- `pm-auth-processor` → `src/**/PMAuthentication*` (feature-flagged)
-- `tax-processor` → `src/**/TaxProcessor*` (feature-flagged)
-
-**Analytics:**
-
-- `analytics-payments` → `src/**/Analytics*Payment*` — payment analytics
-- `analytics-refunds` → `src/**/Analytics*Refund*` — refund analytics
-- `analytics-disputes` → `src/**/Analytics*Dispute*` (feature-flagged)
-- `analytics-authentication` → `src/**/Analytics*Authentication*` (feature-flagged)
-- `performance-monitor` → `src/**/PerformanceMonitor*` (feature-flagged)
-
-**Workflow:**
-
-- `routing` → `src/**/Routing*` — payment routing (volume, rule-based, default fallback)
-- `surcharge` → `src/**/Surcharge*` (feature-flagged)
-- `3ds-decision` → `src/**/ThreeDS*Decision*`, `src/**/3ds*` — 3DS decision manager
-- `payout-routing` → `src/**/PayoutRouting*` (feature-flagged)
-
-**Developers:**
-
-- `payment-settings` → `src/**/PaymentSettings*` — payment configuration
-- `api-keys` → `src/**/APIKeys*`, `src/**/DeveloperAPIKeys*` — API key management
-- `webhooks` → `src/**/Webhook*` (feature-flagged)
-
-**Settings:**
-
-- `users` → `src/**/Users*` — user invitation and role management
-- `configure-pmts` → `src/**/ConfigurePMTs*` (feature-flagged)
-- `compliance` → `src/**/Compliance*` (feature-flagged)
-
-**Auth (standalone):**
-
-- `auth` → `src/**/Auth*`, `src/**/Login*`, `src/**/SignIn*`, `src/**/SignUp*`
+- **Operations:** `payments` → `src/**/Payment*`, `src/**/Orders*` | `refunds` → `src/**/Refund*` | `disputes` → `src/**/Dispute*` | `payouts` → `src/**/Payout*` (FF) | `customers` → `src/**/Customer*`
+- **Connectors:** `payment-processors` → `src/**/Connector*`, `src/**/PaymentProcessor*` | `payout-processors` → `src/**/PayoutConnector*` (FF) | `3ds-authenticators` → `src/**/ThreeDsAuthenticator*`, `src/**/ThreeDS*` (FF) | `fraud-risk` → `src/**/FRM*`, `src/**/FraudRisk*` (FF) | `pm-auth-processor` → `src/**/PMAuthentication*` (FF) | `tax-processor` → `src/**/TaxProcessor*` (FF)
+- **Analytics:** `analytics-payments` → `src/**/Analytics*Payment*` | `analytics-refunds` → `src/**/Analytics*Refund*` | `analytics-disputes` → `src/**/Analytics*Dispute*` (FF) | `analytics-authentication` → `src/**/Analytics*Authentication*` (FF) | `performance-monitor` → `src/**/PerformanceMonitor*` (FF)
+- **Workflow:** `routing` → `src/**/Routing*` | `surcharge` → `src/**/Surcharge*` (FF) | `3ds-decision` → `src/**/ThreeDS*Decision*`, `src/**/3ds*` | `payout-routing` → `src/**/PayoutRouting*` (FF)
+- **Developers:** `payment-settings` → `src/**/PaymentSettings*` | `api-keys` → `src/**/APIKeys*`, `src/**/DeveloperAPIKeys*` | `webhooks` → `src/**/Webhook*` (FF)
+- **Settings:** `users` → `src/**/Users*` | `configure-pmts` → `src/**/ConfigurePMTs*` (FF) | `compliance` → `src/**/Compliance*` (FF)
+- **Auth:** `auth` → `src/**/Auth*`, `src/**/Login*`, `src/**/SignIn*`, `src/**/SignUp*`
 
 If the module name doesn't match any of the above, list these options and ask the user to pick.
 
@@ -155,7 +119,7 @@ beforeEach(function () {
   const email = helper.generateUniqueEmail();
   cy.signup_API(email, Cypress.env("CYPRESS_PASSWORD"));
 
-  // If the feature under test is behind a feature flag, intercept before login:
+  // If the feature under test is behind a feature flag, check if feature is enabled in config.toml and if not intercept before login:
   // cy.intercept("GET", "/dashboard/config/feature?domain=", (req) => {
   //   req.continue((res) => {
   //     if (res.body && res.body.features) {
@@ -170,33 +134,24 @@ beforeEach(function () {
 
 When the PR or module involves a feature-flagged page (payouts, 3DS, fraud-risk, webhooks, etc.), **uncomment and adapt** the intercept block above. Use `req.continue()` to modify the real response — do not fully stub it.
 
-### Selector priority (STRICT order)
+### Selector priority
 
-Use the highest-priority selector available. CSS class/tag selectors are **ABSOLUTE LAST RESORT**.
+Pick the highest available tier. Always verify selectors exist in source code — never guess.
 
-1. `[data-testid="..."]` — best, always prefer
-2. `[data-button-for="..."]` — buttons
-3. `[data-component="..."]` — modals/complex components
-4. `[data-table-location="..."]` — table cells (pattern: `{Table}_tr{N}_td{N}`)
-5. `[data-icon="..."]` — icon elements
-6. `[data-toast="..."]` — toast notifications
-7. `[data-button-text="..."]` — button text identifiers
-8. `[data-value="..."]` / `[data-dropdown-value="..."]` / `[data-label="..."]` — dropdowns/labels
-9. `[data-date-picker-predefined="..."]` / `[data-daterange-dropdown-value="..."]` — date pickers
-10. `[data-component-field-wrapper="..."]` / `[data-searched-text="..."]` — field wrappers/search
-11. `[data-table-heading="..."]` / `[data-dropdown-numeric]` — table headings
-12. `[data-breadcrumb="..."]` / `[data-form-error]` — breadcrumbs/form errors
-13. `[name="..."]` — form fields
-14. `#id` — only when no data attributes are available
-15. `cy.contains("exact text")` — text-based selection
-16. CSS class/tag selectors — **LAST RESORT ONLY**, always add `// TODO: replace with data-testid`
+| Tier | Selector                    | When to use                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `[data-testid="..."]`       | Default choice for any element                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 2    | Other `[data-*]` attributes | Use the specific attribute that matches: `data-button-for`, `data-component`, `data-table-location` (pattern: `{Table}_tr{N}_td{N}`), `data-icon`, `data-toast`, `data-button-text`, `data-value`, `data-dropdown-value`, `data-label`, `data-date-picker-predefined`, `data-daterange-dropdown-value`, `data-component-field-wrapper`, `data-searched-text`, `data-table-heading`, `data-dropdown-numeric`, `data-breadcrumb`, `data-form-error` |
+| 3    | `[name="..."]` or `#id`     | Form fields, only when no `data-*` attributes exist                                                                                                                                                                                                                                                                                                                                                                                               |
+| 4    | `cy.contains("exact text")` | Text-based, when element has no targetable attributes                                                                                                                                                                                                                                                                                                                                                                                             |
+| 5    | CSS class/tag               | **Last resort only** — add `// TODO: replace with data-testid`                                                                                                                                                                                                                                                                                                                                                                                    |
 
-To discover available selectors: read the page objects in `cypress/support/pages/` and the actual source component files. Never guess selectors — verify they exist in source code.
+Discover selectors by reading page objects in `cypress/support/pages/` and the component source files.
 
 ### Test structure rules
 
 1. **describe block** MUST include source: `describe("Payment Filters - PR #42", () => { ... })`
-2. **API-first setup**: Create data via API commands, not UI:
+2. **API-first setup**: Create data via API commands, not UI — UI setup is slow, flaky, and couples tests to unrelated UI changes:
    ```javascript
    homePage.merchantID
      .eq(0)
@@ -208,7 +163,7 @@ To discover available selectors: read the page objects in `cypress/support/pages
    ```
 3. **Navigation**: Use page object sidebar getters: `homePage.operations.click();`
 4. **Assertions**: Use `.should()` chains, `cy.url().should("include", ...)`, `cy.contains().should("be.visible")`
-5. **Timeouts**: Explicit for slow elements: `cy.get('[data-toast="..."]', { timeout: 10000 })`
+5. **Timeouts**: Explicit for slow elements: `cy.get('[data-toast="..."]', { timeout: 10000 })` — default 4s is too short for API-dependent renders
 6. **Force clicks**: Only when elements are covered by overlays: `.click({ force: true })`
 7. **New page objects**: ES6 class, getter properties returning `cy.get()`, default export
 
@@ -232,7 +187,7 @@ Pure backend/API changes, config files, docs, CI changes, type-only changes.
 ### API host distinction
 
 - Backend API (user signup, connectors, payments): `http://localhost:8080`
-- Dashboard API (login, feature config): `http://localhost:9000/api/...`
+- Dashboard Base URL: `http://localhost:9000`
 
 When writing custom commands that call APIs directly, use the correct host.
 
@@ -281,15 +236,15 @@ cy.get('[data-table-location="Orders_tr1_td2"]').should(
 
 Before showing output, run this checklist:
 
-- [ ] All `data-*` selectors reference attributes that exist in the PR diff or current source code
-- [ ] `beforeEach` creates a fresh user — no shared state between tests
-- [ ] Page object getters return `cy.get(...)` calls, not stored values
-- [ ] Imports use relative paths: `../../support/...` (tests are 2 levels deep in `cypress/e2e/cypress-ai-generated/`)
-- [ ] API setup uses correct host (`localhost:8080` for backend, `localhost:9000` for dashboard)
-- [ ] `merchant_id` is obtained from the DOM: `homePage.merchantID.eq(0).invoke("text")`
-- [ ] Feature-flagged modules have the intercept block in `beforeEach`
-- [ ] Tests do not duplicate existing coverage in `cypress/e2e/1-auth/` through `cypress/e2e/9-profile/`
-- [ ] No `afterEach` blocks — tests are self-contained with fresh users
+- All `data-*` selectors reference attributes that exist in the PR diff or current source code
+- `beforeEach` creates a fresh user — no shared state between tests (prevents cross-test state leakage)
+- Page object getters return `cy.get(...)` calls, not stored values
+- Imports use relative paths: `../../support/...` (tests are 2 levels deep in `cypress/e2e/cypress-ai-generated/`)
+- API setup uses correct host (`localhost:8080` for backend, `localhost:9000` for dashboard)
+- `merchant_id` is obtained from the DOM: `homePage.merchantID.eq(0).invoke("text")`
+- Feature-flagged modules have the intercept block in `beforeEach`
+- Tests do not duplicate existing coverage in `cypress/e2e/1-auth/` through `cypress/e2e/9-profile/`
+- No `afterEach` blocks — `signup_API` creates disposable users, no cleanup needed
 
 ## Step 5: Show Generated Files
 
@@ -362,7 +317,9 @@ No fixtures exist. Test data is created via API commands.
 
 ---
 
-## Error Handling
+## Error Handling & Troubleshooting
+
+**Tool/input errors:**
 
 - `gh` not authenticated → tell user to run `gh auth login`
 - PR/tag not found → report clearly with available alternatives
@@ -371,14 +328,19 @@ No fixtures exist. Test data is created via API commands.
 - No `data-*` attributes found in source → use `cy.contains()` / `[name="..."]`, add warning comment
 - Git push fails → report error with guidance
 
+**Common test failures (add comments in generated tests when relevant):**
+
+- **Stale selector** → selector exists in source but test fails: the component may render conditionally or lazily. Add `{ timeout: 10000 }` or guard with `.should("exist")` before interacting.
+- **Element detached from DOM** → re-query the element instead of caching: use `cy.get(...)` again rather than chaining off a prior reference.
+- **Feature flag intercept not firing** → ensure the intercept is registered BEFORE `cy.login_UI()` triggers the navigation that loads the config endpoint.
+- **`cy.wait` misuse** → never use `cy.wait(ms)` for timing. Use `cy.intercept()` + `cy.wait("@alias")` for API calls, or `.should()` assertions for DOM readiness.
+
 ## Important Rules
 
-- NEVER modify files in `cypress/e2e/1-auth/` through `cypress/e2e/9-profile/`
-- NEVER modify `cypress/support/helper.js`, `cypress/support/e2e.js`, or existing page objects
-- Adding new commands to `cypress/support/commands.js` is allowed when a PR introduces a new API that needs a setup command. Follow naming convention: `verb_noun` or `verbNoun`. Use `cy.createAPIKey(merchant_id)` to get API keys for backend calls. Always ask the user before modifying `commands.js`.
-- ONLY create new page objects in `cypress/support/pages/cypress-ai-generated/`
+File modification boundaries are defined in the folder structure section above — respect them strictly.
+
+- Adding new commands to `cypress/support/commands.js` is allowed when only required. Follow naming convention: `verb_noun` or `verbNoun`. Use `cy.createAPIKey(merchant_id)` to get API keys for backend calls. Always ask the user before modifying `commands.js`.
 - ALWAYS use `beforeEach` with `cy.signup_API` + `cy.login_UI` for fresh user isolation
 - ALWAYS use `../../support/...` relative import paths (tests are 2 levels deep)
-- CSS class selectors are ABSOLUTE LAST RESORT — exhaust all `data-*`, `[name]`, and `cy.contains()` first
 - For PR-batch/tag modes, generate ONE test file per PR
 - ALWAYS ask user before committing, pushing, or creating PRs
