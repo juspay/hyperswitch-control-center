@@ -59,7 +59,7 @@ let useSetInitialFilters = (
                 let (
                   compareToStartTime,
                   compareToEndTime,
-                ) = DateRangeUtils.getComparisionTimePeriod(
+                ) = DateRangeUtils.getComparisonTimePeriod(
                   ~startDate=defaultDate.start_time,
                   ~endDate=defaultDate.end_time,
                 )

@@ -243,7 +243,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   | LoginWithEmail => ["email"]
   | SignUP => featureFlagValues.email ? ["email"] : ["email", "password"]
   | LoginWithPassword => ["email"]
-  | ResetPassword => ["create_password", "comfirm_password"]
+  | ResetPassword => ["create_password", "confirm_password"]
   | _ => []
   }
 
