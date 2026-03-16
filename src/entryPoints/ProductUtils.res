@@ -115,9 +115,9 @@ let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
     } else {
       appendDashboardPath(~url="v2/recovery/overview")
     }
+  | DynamicRouting => appendDashboardPath(~url=`v2/${productType->getProductRouteName}`)
   | Vault
   | CostObservability
-  | DynamicRouting
   | Orchestration(V2) =>
     appendDashboardPath(~url=`v2/${productType->getProductRouteName}/home`)
   | OnBoarding(_) => ""
