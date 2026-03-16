@@ -766,7 +766,7 @@ module BaseSelect = {
     }
 
     let keyExtractor = (index, item: dropdownOptionWithoutOptional, _, isDragDisabled) => {
-      listComponent(~item, ~index=index, ~isItemDisabled=isDragDisabled)
+      listComponent(~item, ~index, ~isItemDisabled=isDragDisabled)
     }
 
     let handleSetDraggableList = val => {
