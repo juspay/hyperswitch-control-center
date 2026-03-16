@@ -87,7 +87,6 @@ let make = (~accountId) => {
         customTextClass="text-nd_gray-400"
         titleTextClass="text-nd_gray-600 font-medium"
         fontWeight="font-medium"
-        dividerVal=Slash
         childGapClass="gap-2"
       />
       <Button

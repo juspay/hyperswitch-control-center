@@ -96,7 +96,6 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
         customTextClass="text-nd_gray-400"
         titleTextClass="text-nd_gray-600 font-medium"
         fontWeight="font-medium"
-        dividerVal=Slash
         childGapClass="gap-2"
       />
       <div className="flex flex-col gap-10">
