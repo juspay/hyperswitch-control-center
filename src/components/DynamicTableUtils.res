@@ -53,10 +53,10 @@ let filteredData = (
         // either to take this row or not if any filter is present then take row or else drop
         let rowDict = row->Identity.genericTypeToDictOfJson
         let anyMatch = selectedFiltersKeys->Array.find(keys => {
-          // Selected fitler
+          // Selected filter
           switch Dict.get(columnFilter, keys) {
           | Some(selectedArr) => {
-              // selected value of the fitler
+              // selected value of the filter
               let jsonVal = Dict.get(
                 rowDict->JSON.Encode.object->JsonFlattenUtils.flattenObject(false),
                 keys,

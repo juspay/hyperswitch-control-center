@@ -63,7 +63,7 @@ let make = () => {
   let accordionItems = steps->Array.map(step => {
     let accItem: Accordion.accordion = {
       title: step.title,
-      renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>
+      renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
         <AccordionItemComponent step />,
       renderContentOnTop: None,
       onItemExpandClick: () => {
@@ -149,8 +149,8 @@ let make = () => {
               accordion=accordionItems
               initialExpandedArray=[0]
               arrowPosition=Right
-              accordianTopContainerCss="border-0 border-b border-nd_br_gray-150"
-              accordianBottomContainerCss="py-4 px-0 pb-6"
+              accordionTopContainerCss="border-0 border-b border-nd_br_gray-150"
+              accordionBottomContainerCss="py-4 px-0 pb-6"
               contentExpandCss="border-none"
               titleStyle={`${body.md.semibold} text-nd_gray-700 justify-between hover:bg-white`}
               gapClass="space-y-4"

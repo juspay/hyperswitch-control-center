@@ -1275,7 +1275,7 @@ let useGetURL = () => {
           | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
           }
 
-        // POST LOGIN QUESTIONARE
+        // POST LOGIN QUESTIONNAIRE
         | #SET_METADATA =>
           switch queryParameters {
           | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`

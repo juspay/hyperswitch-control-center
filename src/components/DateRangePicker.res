@@ -221,7 +221,7 @@ module Base = {
         setEndDateVal(_ => localEndDate)
       }
     }
-    let resetToInitalValues = () => {
+    let resetToInitialValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
       setLocalOpt(_ => "")
@@ -234,7 +234,7 @@ module Base = {
         setIsDropdownExpanded(_ => false)
         setCalendarVisibility(p => !p)
         if isDropdownExpandedActual && isCustomSelected {
-          resetToInitalValues()
+          resetToInitialValues()
         }
       },
     )
@@ -367,7 +367,7 @@ module Base = {
     }
 
     let cancelButton = _ => {
-      resetToInitalValues()
+      resetToInitialValues()
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
     }
@@ -645,7 +645,7 @@ module Base = {
 
     let removeApplyFilter = ev => {
       ev->ReactEvent.Mouse.stopPropagation
-      resetToInitalValues()
+      resetToInitialValues()
       setStartDateVal(_ => "")
       setEndDateVal(_ => "")
     }

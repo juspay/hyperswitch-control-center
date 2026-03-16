@@ -26,3 +26,4 @@ downloads
 .nyc_output
 coverage
 .worktree/
+.sisyphus/
