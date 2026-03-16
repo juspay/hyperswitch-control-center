@@ -572,7 +572,7 @@ module SubmitButton = {
   @react.component
   let make = (
     ~text="Submit",
-    ~disabledParamter=false,
+    ~disabledParameter=false,
     ~icon=Button.NoIcon,
     ~rightIcon=Button.NoIcon,
     ~loginPageValidator=false,
@@ -622,7 +622,7 @@ module SubmitButton = {
       }
     }
 
-    let disabled = hasError || disabledParamter
+    let disabled = hasError || disabledParameter
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)

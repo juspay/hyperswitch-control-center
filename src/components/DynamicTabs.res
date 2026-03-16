@@ -216,11 +216,11 @@ let make = (
   ~tabId="",
   ~setActiveTab: string => unit,
   ~updateUrlDict=?,
-  ~initalTab: option<array<string>>=?,
+  ~initialTab: option<array<string>>=?,
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
-  ~updateCollapsableTabs=false,
+  ~updateCollapsibleTabs=false,
   ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
@@ -259,13 +259,13 @@ let make = (
 
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
+  let (initialIndex, updatedCollapsibleTabs) = React.useMemo(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
-          ->getStrArryFromJson
+          ->getStrArrayFromJson
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
@@ -313,7 +313,7 @@ let make = (
 
     | None => defaultTabs
     }
-    let tabName = switch initalTab {
+    let tabName = switch initialTab {
     | Some(value) => value
     | None =>
       getTabNames->getStrArrayFromDict("tabName", [])->Array.filter(item => item->isNonEmptyString)
@@ -351,9 +351,9 @@ let make = (
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [updateCollapsableTabs])
+  }, [updateCollapsibleTabs])
 
-  let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
+  let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsibleTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
   React.useEffect(_ => {
@@ -362,9 +362,9 @@ let make = (
   }, [initialIndex])
 
   React.useEffect(_ => {
-    setCollapsibleTabs(_ => updatedCollapsableTabs)
+    setCollapsibleTabs(_ => updatedCollapsibleTabs)
     None
-  }, [updatedCollapsableTabs])
+  }, [updatedCollapsibleTabs])
 
   // this will update the current available tabs to the userpreference
   React.useEffect(() => {
@@ -380,8 +380,8 @@ let make = (
     None
   }, [collapsibleTabs])
   let (tabStacksnames, setTabStacksnames) = React.useState(_ => [
-    getValueFromArrayTab(updatedCollapsableTabs, 0),
-    getValueFromArrayTab(updatedCollapsableTabs, initialIndex),
+    getValueFromArrayTab(updatedCollapsibleTabs, 0),
+    getValueFromArrayTab(updatedCollapsibleTabs, initialIndex),
   ])
 
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
@@ -457,11 +457,11 @@ let make = (
           isRemovable: true,
         },
       ]
-      let updatedCollapsableTabs = Array.concat(collapsibleTabs, newTab)
+      let updatedCollapsibleTabs = Array.concat(collapsibleTabs, newTab)
 
-      setCollapsibleTabs(_ => updatedCollapsableTabs)
+      setCollapsibleTabs(_ => updatedCollapsibleTabs)
       setTabDetails(_ => Array.concat(tabsDetails, newTab))
-      setSelectedIndex(_ => Array.length(updatedCollapsableTabs) - 1)
+      setSelectedIndex(_ => Array.length(updatedCollapsibleTabs) - 1)
       setTabStacksnames(prev => Array.concat(prev, [getValueFromArrayTab(newTab, 0)]))
       updateTabNameWith(Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))

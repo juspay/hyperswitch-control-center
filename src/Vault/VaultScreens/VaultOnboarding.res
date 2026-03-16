@@ -79,9 +79,9 @@ let make = () => {
       let updatedData = paymentMethodType->Array.map(
         val => {
           let wasmDict = val->getDictFromJsonObject
-          let exisitngData =
+          let existingData =
             wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
-          exisitngData
+          existingData
         },
       )
       updatedData

@@ -15,7 +15,7 @@ module RenderPermissionModule = {
       switch currentGroup {
       | Some(groupJson) => {
           let groupDict = groupJson->getDictFromJsonObject
-          getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+          getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
         }
       | None => []
       }
@@ -176,7 +176,7 @@ let make = () => {
         ->getArrayFromDict("parent_groups", [])
         ->Array.filter(groupJson => {
           let groupDict = groupJson->getDictFromJsonObject
-          let scopes = getStrArryFromJson(getJsonObjectFromDict(groupDict, "scopes"))
+          let scopes = getStrArrayFromJson(getJsonObjectFromDict(groupDict, "scopes"))
           scopes->Array.length > 0
         })
       valuesDict->Dict.set("parent_groups", parentGroups->JSON.Encode.array)

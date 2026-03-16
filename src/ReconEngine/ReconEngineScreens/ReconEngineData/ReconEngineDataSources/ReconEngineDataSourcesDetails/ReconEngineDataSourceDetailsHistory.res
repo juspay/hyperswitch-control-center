@@ -124,7 +124,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
         totalResults={filteredHistoryData->Array.length}
         offset
         setOffset
-        currrentFetchCount={filteredHistoryData->Array.length}
+        currentFetchCount={filteredHistoryData->Array.length}
         tableheadingClass="h-12"
         tableHeadingTextClass="!font-normal"
         nonFrozenTableParentClass="!rounded-lg"

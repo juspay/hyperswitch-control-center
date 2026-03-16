@@ -41,6 +41,6 @@ let make = (~onClick) => {
   }, [])
 
   <EmailVerifyScreen
-    errorMessage onClick trasitionMessage="Verifying... You will be redirecting.."
+    errorMessage onClick transitionMessage="Verifying... You will be redirecting.."
   />
 }
