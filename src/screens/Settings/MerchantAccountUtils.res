@@ -219,7 +219,7 @@ let getCustomHeadersPayload = (values: JSON.t) => {
   customHeaderDict
 }
 
-let getMetdataKeyValuePayload = (values: JSON.t) => {
+let getMetadataKeyValuePayload = (values: JSON.t) => {
   let customHeaderDict = Dict.make()
   let valuesDict = values->getDictFromJsonObject
   let customMetadataVal = Dict.make()

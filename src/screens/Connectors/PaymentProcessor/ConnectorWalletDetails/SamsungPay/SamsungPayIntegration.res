@@ -34,7 +34,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   }, [connector])
 
   let setSamsungFormData = () => {
-    let initalFormValue =
+    let initialFormValue =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("connector_wallets_details")
@@ -43,7 +43,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
 
     form.change(
       "connector_wallets_details.samsung_pay.merchant_credentials",
-      initalFormValue->samsungPayRequest->Identity.genericTypeToJson,
+      initialFormValue->samsungPayRequest->Identity.genericTypeToJson,
     )
   }
 

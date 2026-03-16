@@ -16,11 +16,11 @@ module RenderSearchResultBody = {
     switch section.section {
     | Local =>
       section.results
-      ->Array.mapWithIndex((item, indx) => {
+      ->Array.mapWithIndex((item, index) => {
         let elementsArray = item.texts
         <div
           className={`p-2 text-sm cursor-pointer hover:bg-gray-100 -ml-2`}
-          key={indx->Int.toString}
+          key={index->Int.toString}
           onClick={_ => redirectOnSelect(item)}>
           {elementsArray
           ->Array.mapWithIndex((item, index) => {

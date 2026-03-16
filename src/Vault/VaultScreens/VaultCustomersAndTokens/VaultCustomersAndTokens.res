@@ -206,7 +206,7 @@ let make = (~sampleReport, ~setSampleReport) => {
           totalResults={filteredCustomersData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredCustomersData->Array.length}
+          currentFetchCount={filteredCustomersData->Array.length}
           showResultsPerPageSelector=false
           showAutoScroll=true
           collapseTableRow=false

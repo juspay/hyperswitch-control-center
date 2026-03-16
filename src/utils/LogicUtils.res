@@ -169,7 +169,7 @@ let getStrArrayFromJsonArray = jsonArr => {
   jsonArr->Belt.Array.keepMap(JSON.Decode.string)
 }
 
-let getStrArryFromJson = arr => {
+let getStrArrayFromJson = arr => {
   arr->JSON.Decode.array->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 

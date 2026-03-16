@@ -82,7 +82,7 @@ module ShowOrderDetails = {
                 value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
-                overiddingHeadingStyles="text-black text-sm font-medium"
+                overridingHeadingStyles="text-black text-sm font-medium"
                 textColor="!font-normal !text-jp-gray-700"
               />
             </div>
@@ -528,7 +528,7 @@ module FraudRiskBannerDetails = {
               value={getFrmCell(order, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-black text-sm font-medium"
+              overridingHeadingStyles="text-black text-sm font-medium"
               textColor="!font-normal !text-jp-gray-700"
             />
           </div>
@@ -574,7 +574,7 @@ module AuthenticationDetails = {
               value={getAuthenticationCell(order, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles="text-black text-sm font-medium"
+              overridingHeadingStyles="text-black text-sm font-medium"
               textColor="!font-normal !text-jp-gray-700"
             />
           </div>
@@ -787,12 +787,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           condition={version == V1 &&
           featureFlagDetails.auditTrail &&
           userHasAccess(~groupAccess=AnalyticsView) === Access}>
-          <RenderAccordian
+          <RenderAccordion
             initialExpandedArray=[0]
             accordion={[
               {
                 title: "Events and logs",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
                     <PaymentLogs paymentId={id} createdAt={orderData.created_at} />
                   </LogsWrapper>
@@ -812,12 +812,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </RenderIf>
         <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
-            <RenderAccordian
+            <RenderAccordion
               initialExpandedArray={isDisputeDataVisible ? [0] : []}
               accordion={[
                 {
                   title: "Disputes",
-                  renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                     <Disputes disputesData={orderData.disputes} />
                   },
                   renderContentOnTop: None,
@@ -826,11 +826,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             />
           </div>
         </RenderIf>
-        <RenderAccordian
+        <RenderAccordion
           accordion={[
             {
               title: "Customer Details",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <div>
                   <ShowOrderDetails
                     sectionTitle="Customer"
@@ -913,11 +913,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             },
           ]}
         />
-        <RenderAccordian
+        <RenderAccordion
           accordion={[
             {
               title: "More Payment Details",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <div className="mb-10">
                   <ShowOrderDetails
                     data=orderData
@@ -959,11 +959,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "Payment Method Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.payment_method_data
@@ -979,11 +979,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "External Authentication Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <AuthenticationDetails order={orderData} />
                   </div>
@@ -994,11 +994,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "Payment Metadata",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
                       jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
@@ -1012,11 +1012,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           />
         </RenderIf>
         <div className="overflow-scroll">
-          <RenderAccordian
+          <RenderAccordion
             accordion={[
               {
                 title: "FRM Details",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
                     <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
                   </div>

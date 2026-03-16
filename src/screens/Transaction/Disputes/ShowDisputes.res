@@ -130,7 +130,7 @@ module Details = {
                   value={getCell(data, colType, merchantId, orgId)}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
-                  overiddingHeadingStyles="text-black text-sm font-medium"
+                  overridingHeadingStyles="text-black text-sm font-medium"
                   textColor="!font-normal !text-jp-gray-700"
                 />
               </div>
@@ -235,11 +235,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
         userHasAccess(~groupAccess=AnalyticsView) == Access}>
-        <OrderUIUtils.RenderAccordian
+        <OrderUIUtils.RenderAccordion
           accordion={[
             {
               title: "Events and logs",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#DISPUTE}>
                   <DisputeLogs disputeId=id paymentId />
                 </LogsWrapper>
