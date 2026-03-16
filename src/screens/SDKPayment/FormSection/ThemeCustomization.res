@@ -57,7 +57,7 @@ let make = (~getClientSecret) => {
     <SubmitButton
       text="Show preview"
       disabledParamter={paymentConnectorList->Array.length === 0}
-      customSumbitButtonStyle="!mt-5 !w-full"
+      customSubmitButtonStyle="!mt-5 !w-full"
     />
   </Form>
 }

@@ -300,7 +300,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               | ResendVerifyEmail
               | SignUP =>
                 <FormRenderer.SubmitButton
-                  customSumbitButtonStyle="!w-full"
+                  customSubmitButtonStyle="!w-full"
                   text=submitBtnText
                   userInteractionRequired=true
                   showToolTip=false

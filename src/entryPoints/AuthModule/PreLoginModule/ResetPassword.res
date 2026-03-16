@@ -137,7 +137,7 @@ let make = (~flowType) => {
                   <ResetPasswordForm />
                   <div id="auth-submit-btn" className="flex flex-col gap-2">
                     <FormRenderer.SubmitButton
-                      customSumbitButtonStyle="!w-full !rounded"
+                      customSubmitButtonStyle="!w-full !rounded"
                       text="Confirm"
                       userInteractionRequired=true
                       showToolTip=false

@@ -270,7 +270,7 @@ let make = (
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -308,7 +308,7 @@ let make = (
                       customButtonStyle="w-fit"
                     />
                     <FormRenderer.SubmitButton
-                      text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                      text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                     />
                   </>
                 } else {
@@ -355,7 +355,7 @@ let make = (
                     customButtonStyle="w-fit"
                   />
                   <FormRenderer.SubmitButton
-                    text="Save" buttonSize={Small} customSumbitButtonStyle="w-fit"
+                    text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
                   />
                 </>
               } else {
