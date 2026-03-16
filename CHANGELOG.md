@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.16.1
+
+### Features
+
+- Add OpenCode skills for PR review and PR workflow ([#4376](https://github.com/juspay/hyperswitch-control-center/pull/4376)) ([`65afd05`](https://github.com/juspay/hyperswitch-control-center/commit/65afd0502d1ddbf46ac6779584fafcfdd2a047a9))
+
+### Bug Fixes
+
+- Connectorlistforlive not being parsed from env ([#4353](https://github.com/juspay/hyperswitch-control-center/pull/4353)) ([`3c8a6aa`](https://github.com/juspay/hyperswitch-control-center/commit/3c8a6aa06d7a1e40a382128ce76c670843d15e10))
+
+### Miscellaneous Tasks
+
+- Changed config handler to support argo as well as prod autopilot ([#3911](https://github.com/juspay/hyperswitch-control-center/pull/3911)) ([`8d437d6`](https://github.com/juspay/hyperswitch-control-center/commit/8d437d668d206223cef5e4a9126bf18028789aae))
+
+**Full Changelog:** [`2026.03.16.0...2026.03.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.16.0...2026.03.16.1)
+
+- - -
+
 ## 2026.03.16.0
 
 ### Features
