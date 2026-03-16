@@ -45,7 +45,7 @@ let make = (
   }
 
   let defaultColumnsString = defaultColumns->Array.map(head => getHeading(head).title)
-  let initalHeadingData = heading->Array.map(head => {
+  let initialHeadingData = heading->Array.map(head => {
     let columnName = getHeading(head).title
     let isDisabled = defaultColumnsString->Array.includes(columnName)
     let options: SelectBox.dropdownOption = {
@@ -79,7 +79,7 @@ let make = (
     onSubmit
     initialValues
     isModalView
-    options=initalHeadingData
+    options=initialHeadingData
     sortingBasedOnDisabled
     showSerialNumber
     isDraggable

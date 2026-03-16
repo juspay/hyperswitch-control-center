@@ -35,7 +35,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass

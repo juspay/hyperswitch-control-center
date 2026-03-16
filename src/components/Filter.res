@@ -114,7 +114,7 @@ let make = (
   ~updateUrlWith=?,
   ~clearFilters=?,
   ~showClearFilter=true,
-  ~initalCount=0,
+  ~initialCount=0,
   ~showSelectFiltersSearch=false,
 ) => {
   open HeadlessUI
@@ -127,7 +127,7 @@ let make = (
   )
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let (filterList, setFilterList) = React.useState(_ => [])
-  let (count, setCount) = React.useState(_ => initalCount)
+  let (count, setCount) = React.useState(_ => initialCount)
   let searchParams = query->decodeURI
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
@@ -195,7 +195,7 @@ let make = (
         })
 
         setFilterList(_ => selectedFilters)
-        setCount(_prev => clearFilterJson + initalCount)
+        setCount(_prev => clearFilterJson + initialCount)
         setAllFilters(_prev => filtersUnseletced)
         let finalInitialValueJson =
           initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
@@ -354,7 +354,7 @@ let make = (
             fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />
           <RenderIf condition={count > 0}>
-            <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
+            <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initialCount > 0} />
           </RenderIf>
         </div>
       </>}

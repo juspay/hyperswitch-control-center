@@ -216,7 +216,7 @@ let make = (
   ~tabId="",
   ~setActiveTab: string => unit,
   ~updateUrlDict=?,
-  ~initalTab: option<array<string>>=?,
+  ~initialTab: option<array<string>>=?,
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
@@ -265,7 +265,7 @@ let make = (
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
-          ->getStrArryFromJson
+          ->getStrArrayFromJson
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
@@ -313,7 +313,7 @@ let make = (
 
     | None => defaultTabs
     }
-    let tabName = switch initalTab {
+    let tabName = switch initialTab {
     | Some(value) => value
     | None =>
       getTabNames->getStrArrayFromDict("tabName", [])->Array.filter(item => item->isNonEmptyString)
