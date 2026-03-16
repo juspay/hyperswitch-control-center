@@ -163,7 +163,7 @@ let make = (
   ~headBottomMargin="mb-6 mobile:mb-4",
   ~removeVerticalLines: option<bool>=?,
   ~removeHorizontalLines=false,
-  ~evenVertivalLines=false,
+  ~evenVerticalLines=false,
   ~showPagination=true,
   ~downloadCsv=?,
   ~ignoreUrlUpdate=false,
@@ -324,8 +324,8 @@ let make = (
 
   let setColumnFilter = React.useMemo(() => {
     (filterKey, filterValue: array<JSON.t>) => {
-      setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Dict.toArray->Dict.fromArray
+      setColumnFilterOrig(oldFilters => {
+        let newObj = oldFilters->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
@@ -364,8 +364,8 @@ let make = (
   let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
   let setIsFilterOpen = React.useMemo(() => {
     (filterKey, value: bool) => {
-      setIsFilterOpenOrig(oldFitlers => {
-        let newObj = oldFitlers->DictionaryUtils.copyOfDict
+      setIsFilterOpenOrig(oldFilters => {
+        let newObj = oldFilters->DictionaryUtils.copyOfDict
         newObj->Dict.set(filterKey, value)
         newObj
       })
@@ -729,7 +729,7 @@ let make = (
 
   let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
 
-  let customizeColumsButtons = {
+  let customizeColumnsButtons = {
     switch clearFormattedDataButton {
     | Some(clearFormattedDataButton) =>
       <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
@@ -786,7 +786,7 @@ let make = (
                 setSortedObj
                 ?sortedObj
                 removeVerticalLines=handleRemoveLines
-                evenVertivalLines
+                evenVerticalLines
                 ?columnFilterRow
                 tableheadingClass
                 tableBorderClass
@@ -977,7 +977,7 @@ let make = (
           <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
           </RenderIf>
-          <RenderIf condition={!hideCustomisableColumnButton}> customizeColumsButtons </RenderIf>
+          <RenderIf condition={!hideCustomisableColumnButton}> customizeColumnsButtons </RenderIf>
         </div>
       </div>
       {if dataLoading {

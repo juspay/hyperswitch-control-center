@@ -46,7 +46,7 @@ let make = (~initialValues, ~isInEditState, ~ignoreKeys=[]) => {
             val->getDictFromJsonObject->getString("payment_experience", "")
 
           let wasmDict = val->getDictFromJsonObject
-          let exisitngData = switch initialValue.payment_methods_enabled->Array.find(
+          let existingData = switch initialValue.payment_methods_enabled->Array.find(
             ele => {
               ele.payment_method_type == pm
             },
@@ -87,7 +87,7 @@ let make = (~initialValues, ~isInEditState, ~ignoreKeys=[]) => {
           | None => wasmDict->getPaymentMethodDictV2(key, connector)
           }
 
-          exisitngData
+          existingData
         },
       )
       let existingDataInDict =
