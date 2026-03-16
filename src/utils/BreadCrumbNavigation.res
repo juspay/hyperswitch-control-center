@@ -14,10 +14,7 @@ type dividerVal =
 let make = (
   ~path: array<breadcrumb>=[],
   ~currentPageTitle="",
-  ~is_reverse=false,
   ~cursorStyle="cursor-help",
-  ~commonTextClass="",
-  ~linkTextClass="",
   ~customTextClass="",
   ~fontWeight="font-semibold",
   ~titleTextClass="text-jp-gray-930",
@@ -66,6 +63,7 @@ let make = (
   }
 
   let allItems = Array.concat(blendItems, [currentItem])
-
-  <BlendBreadcrumb items=allItems />
+  <div>
+    <BlendBreadcrumb items=allItems />
+  </div>
 }
