@@ -157,7 +157,7 @@ let make = (
   ~onEntityClick=?,
   ~onEntityDoubleClick=?,
   ~onExpandClickData=?,
-  ~currrentFetchCount,
+  ~currentFetchCount,
   ~filters=?,
   ~showFilterBorder=false,
   ~headBottomMargin="mb-6 mobile:mb-4",
@@ -417,14 +417,14 @@ let make = (
   let offsetVal = ignoreUrlUpdate ? offset : offsetVal
 
   React.useEffect(() => {
-    if offset > currrentFetchCount && offset <= totalResults && !tableDataLoading {
+    if offset > currentFetchCount && offset <= totalResults && !tableDataLoading {
       switch handleRefetch {
       | Some(fun) => fun()
       | None => ()
       }
     }
     None
-  }, (offset, currrentFetchCount, totalResults, tableDataLoading))
+  }, (offset, currentFetchCount, totalResults, tableDataLoading))
 
   let originalActualData = actualData
   let actualData = React.useMemo(() => {
@@ -749,7 +749,7 @@ let make = (
           resultsPerPage=localResultsPerPage
           setOffset=newSetOffset
           ?handleRefetch
-          currrentFetchCount
+          currentFetchCount
           ?downloadCsv
           actualData
           tableDataLoading

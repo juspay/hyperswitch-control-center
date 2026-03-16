@@ -414,7 +414,7 @@ let make = (
   ~showTableLegend=true,
   ~showMarkers=false,
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
-  ~comparitionWidget=false,
+  ~comparisonWidget=false,
 ) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -827,7 +827,7 @@ let make = (
                 className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
                 {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
-                } else if comparitionWidget {
+                } else if comparisonWidget {
                   <div>
                     <RenderIf condition={featureFlagDetails.granularity}>
                       <div className="w-full flex justify-end p-2">
@@ -868,7 +868,7 @@ let make = (
                             showTableLegend
                             showMarkers
                             legendType
-                            comparitionWidget
+                            comparisonWidget
                             selectedTab={selectedTab->Option.getOr([])}
                           />
                         }

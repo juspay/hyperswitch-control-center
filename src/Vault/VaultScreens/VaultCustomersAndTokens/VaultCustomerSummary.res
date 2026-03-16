@@ -198,7 +198,7 @@ module VaultedPaymentMethodsTable = {
             ),
           )
         }}
-        currrentFetchCount={tableData->Array.length}
+        currentFetchCount={tableData->Array.length}
         showAutoScroll=true
       />
       <Modal
