@@ -210,7 +210,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let response = await updateBusinessProfile(~body=values, ~shouldTransform=true)
-      mixpanelEvent(~eventName="payment_settings_webhook_headers")
+      mixpanelEvent(~eventName="payment_settings_custom_webhook_headers")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setAllowEdit(_ => false)
       let updatedInitialValues = switch version {
