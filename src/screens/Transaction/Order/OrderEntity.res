@@ -807,12 +807,23 @@ let getCell = (order, colType: colType, merchantId, orgId): Table.cell => {
       },
     )
   | CardNetwork => {
-      let dict = switch order.payment_method_data {
-      | Some(val) => val->getDictFromJsonObject
-      | _ => Dict.make()
-      }
+      let cardNetwork = switch order.payment_method_data {
+      | Some(val) =>
+        switch val->JSON.Classify.classify {
+        | Object(value) => Some(value->getString("card_network", ""))
+        | String(value) =>
+          Some(
+            value
+            ->safeParse
+            ->getDictFromJsonObject
+            ->getStringFromNestedDict("card", "card_network", ""),
+          )
+        | _ => None
+        }
+      | _ => None
+      }->Option.mapOr("", val => val)
 
-      Text(dict->getString("card_network", ""))
+      Text(cardNetwork)
     }
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id->Option.getOr(""))
   | AttemptCount => Text(order.attempt_count->Int.toString)

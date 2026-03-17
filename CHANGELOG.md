@@ -3,6 +3,64 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.17.0
+
+### Miscellaneous Tasks
+
+- Fix typos in config and infrastructure files ([#4379](https://github.com/juspay/hyperswitch-control-center/pull/4379)) ([`2d2010d`](https://github.com/juspay/hyperswitch-control-center/commit/2d2010d6ba8d17cf9ec67ed8f4da6545667b2cae))
+
+**Full Changelog:** [`2026.03.16.1...2026.03.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.16.1...2026.03.17.0)
+
+- - -
+
+## 2026.03.16.1
+
+### Features
+
+- Add OpenCode skills for PR review and PR workflow ([#4376](https://github.com/juspay/hyperswitch-control-center/pull/4376)) ([`65afd05`](https://github.com/juspay/hyperswitch-control-center/commit/65afd0502d1ddbf46ac6779584fafcfdd2a047a9))
+
+### Bug Fixes
+
+- Connectorlistforlive not being parsed from env ([#4353](https://github.com/juspay/hyperswitch-control-center/pull/4353)) ([`3c8a6aa`](https://github.com/juspay/hyperswitch-control-center/commit/3c8a6aa06d7a1e40a382128ce76c670843d15e10))
+
+### Miscellaneous Tasks
+
+- Changed config handler to support argo as well as prod autopilot ([#3911](https://github.com/juspay/hyperswitch-control-center/pull/3911)) ([`8d437d6`](https://github.com/juspay/hyperswitch-control-center/commit/8d437d668d206223cef5e4a9126bf18028789aae))
+
+**Full Changelog:** [`2026.03.16.0...2026.03.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.16.0...2026.03.16.1)
+
+- - -
+
+## 2026.03.16.0
+
+### Features
+
+- Implement analytics-driven payment listing with a new API endpoint ([#4225](https://github.com/juspay/hyperswitch-control-center/pull/4225)) ([`13f852f`](https://github.com/juspay/hyperswitch-control-center/commit/13f852f7797a7feec9d791ca78fee100b9fcde60))
+
+### Miscellaneous Tasks
+
+- Enable network tokenization based on feature flag ([#4350](https://github.com/juspay/hyperswitch-control-center/pull/4350)) ([`5ee1a4e`](https://github.com/juspay/hyperswitch-control-center/commit/5ee1a4ecc2f6ef0c681cc2ca0e8d4c23a96727ea))
+
+**Full Changelog:** [`2026.03.13.0...2026.03.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.13.0...2026.03.16.0)
+
+- - -
+
+## 2026.03.13.0
+
+### Features
+
+- Add Truelayer Connector in dashboard for Payments ([#4355](https://github.com/juspay/hyperswitch-control-center/pull/4355)) ([`184a4d0`](https://github.com/juspay/hyperswitch-control-center/commit/184a4d014b0d39d8b62c394beef2004a7b4353ee))
+- Add WASM for Truelayer connector in dashboard for payments ([#4367](https://github.com/juspay/hyperswitch-control-center/pull/4367)) ([`7cd26e4`](https://github.com/juspay/hyperswitch-control-center/commit/7cd26e4bba6f0cb74d5aa3e88b7277f8eeb2e36f))
+
+### Miscellaneous Tasks
+
+- Add banner to show 3ds manager deprecation notice ([#4337](https://github.com/juspay/hyperswitch-control-center/pull/4337)) ([`811d262`](https://github.com/juspay/hyperswitch-control-center/commit/811d262b71da4e50a680a3ecffa52e927018ab20))
+- Update Fiserv connector display names ([#4365](https://github.com/juspay/hyperswitch-control-center/pull/4365)) ([`b020dc3`](https://github.com/juspay/hyperswitch-control-center/commit/b020dc361bf89fa50b8532c968b505423788ea05))
+
+**Full Changelog:** [`2026.03.12.0...2026.03.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.12.0...2026.03.13.0)
+
+- - -
+
 ## 2026.03.12.0
 
 ### Bug Fixes
