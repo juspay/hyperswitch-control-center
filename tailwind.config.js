@@ -20,7 +20,7 @@ module.exports = {
   theme: {
     fontFamily: {
       "inter-style": '"InterDisplay"',
-      "jetbrain-mono": '"JetBrains Mono"',
+      "jetbrains-mono": '"JetBrains Mono"',
     },
     extend: {
       screens: {
@@ -78,7 +78,7 @@ module.exports = {
         "840-px": "840px",
         "890-px": "890px",
         "12.5-rem": "12.5rem",
-        onBordingSupplier: "calc(100vh - 300px)",
+        onBoardingSupplier: "calc(100vh - 300px)",
         modalContentHeight: "calc(100vh - 140px)",
       },
       padding: {
@@ -635,5 +635,5 @@ module.exports = {
 
 // clean jp-gray
 // refactor colors object
-// use Primar and seconday color for button
+// use Primary and secondary color for button
 // we should use UIConfigs value as placeholder in the button
