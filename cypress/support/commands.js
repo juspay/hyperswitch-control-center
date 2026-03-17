@@ -637,7 +637,9 @@ Cypress.Commands.add("ompLineage", () => {
           profile_id,
         };
       });
-    
+  });
+});
+
 Cypress.Commands.add("assertConnectorFieldLabels", (fieldLabels) => {
   fieldLabels.forEach((label) => {
     // Look for label text in the form
