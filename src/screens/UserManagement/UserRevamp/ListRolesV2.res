@@ -66,7 +66,7 @@ let make = () => {
   }, ~wait=200)
 
   React.useEffect(() => {
-    getRolesAvailable(initialRolesEntity)->ignore
+    getRolesAvailable(userModuleEntity)->ignore
     None
   }, [])
 
