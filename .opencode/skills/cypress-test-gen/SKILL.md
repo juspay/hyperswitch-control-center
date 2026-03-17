@@ -1,6 +1,6 @@
 ---
 name: cypress-test-gen
-description: Generate Cypress E2E tests for PRs, tags, modules, or custom scenarios. Triggers on phrases like "generate cypress tests", "generate-cypress-tests", "write tests for PR", "create cypress tests for tag", "generate tests for module". Also triggers on "@bot generate-cypress-tests #123", "@bot generate-cypress-tests tag:2026.03.14", "@bot generate-cypress-tests module:payment-operations".
+description: Generate Cypress E2E tests for PRs, tags, modules, or custom scenarios. Triggers on phrases like "generate cypress tests", "generate-cypress-tests", "write tests for PR", "create cypress tests for tag", "generate tests for module". Also triggers on "@bot generate-cypress-tests #123", "@bot generate-cypress-tests tag:2026.03.14", "@bot generate-cypress-tests module:payment-operations". Ask for confirmation before completing.
 ---
 
 # Cypress Test Generation Skill

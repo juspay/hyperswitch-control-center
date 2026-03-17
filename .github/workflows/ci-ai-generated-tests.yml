@@ -1,4 +1,6 @@
 name: Cypress AI-Generated Tests
+permissions:
+  contents: read
 
 on:
   pull_request:
