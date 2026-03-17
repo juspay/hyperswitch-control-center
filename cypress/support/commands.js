@@ -637,5 +637,43 @@ Cypress.Commands.add("ompLineage", () => {
           profile_id,
         };
       });
+    
+Cypress.Commands.add("assertConnectorFieldLabels", (fieldLabels) => {
+  fieldLabels.forEach((label) => {
+    // Look for label text in the form
+    cy.contains("label", label)
+      .should("be.visible")
+      .then(($label) => {
+        // Optionally check that the label has a corresponding input
+        const inputId = $label.attr("for");
+        if (inputId) {
+          cy.get(`#${inputId}`).should("exist");
+        }
+      });
+  });
+});
+
+Cypress.Commands.add("fillConnectorFields", (fields) => {
+  cy.get('[class="grid grid-cols-2 flex-1"]')
+    .find('input[type="text"]')
+    .each(($input) => {
+      const placeholder = $input.attr("placeholder");
+      const value = fields.overrides?.[placeholder] ?? fields.default;
+
+      cy.wrap($input).clear({ force: true }).type(value, { force: true });
+    });
+});
+
+Cypress.Commands.add("assertPaymentMethodTypes", (sections) => {
+  Object.values(sections).forEach(({ label, methods }) => {
+    cy.contains(label)
+      .scrollIntoView({ ensureScrollable: false })
+      .should("be.visible");
+
+    methods.forEach((method) => {
+      cy.contains(method)
+        .scrollIntoView({ ensureScrollable: false })
+        .should("be.visible");
+    });
   });
 });
