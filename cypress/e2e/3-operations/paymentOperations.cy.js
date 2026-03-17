@@ -921,7 +921,7 @@ describe("Payment Operations", () => {
   });
 
   // Payment details page
-  it.only("should verify all components in Payment Details page - 1", () => {
+  it("should verify all components in Payment Details page - 1", () => {
     cy.ompLineage().then((lineage) => {
       cy.createDummyConnectorAPI(lineage.merchant_id, "stripe_test_1");
       cy.createPaymentAPI(lineage.merchant_id);
