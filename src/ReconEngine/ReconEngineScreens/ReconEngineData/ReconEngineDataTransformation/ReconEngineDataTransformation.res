@@ -37,9 +37,9 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={accountData->Array.length > 0}>
-        <Accordion
+        <AccordionAdapter
           initialExpandedArray=[0]
-          accordion={accountData->Array.map((account): Accordion.accordion => {
+          accordion={accountData->Array.map((account): AccordionAdapter.accordion => {
             {
               title: account.account_name,
               renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) =>

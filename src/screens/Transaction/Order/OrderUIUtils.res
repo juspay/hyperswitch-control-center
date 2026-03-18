@@ -59,7 +59,7 @@ let isParentChildFilterMatch = (name, key) => {
 module RenderAccordian = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
-    <Accordion
+    <AccordionAdapter
       initialExpandedArray
       accordion
       accordianTopContainerCss="border"

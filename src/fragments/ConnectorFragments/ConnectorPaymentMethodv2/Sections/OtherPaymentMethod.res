@@ -213,7 +213,7 @@ let make = (
               <div className={`flex flex-col gap-4 w-full`}>
                 {methodsWithAdditionalDetails
                 ->Array.mapWithIndex((pmtData, i) => {
-                  <Accordion
+                  <AccordionAdapter
                     arrowPosition=Right
                     initialExpandedArray=[]
                     accordion={[

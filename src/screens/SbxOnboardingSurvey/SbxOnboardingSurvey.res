@@ -183,7 +183,7 @@ let make = (~showModal, ~setShowModal) => {
       validate=validateForm>
       <div className="flex flex-col gap-4 h-full w-full ">
         <div className="!max-h-96 !overflow-y-scroll flex flex-col gap-4 h-full">
-          <Accordion
+          <AccordionAdapter
             initialExpandedArray=[0]
             accordion={[
               // TODO: Move this to prod onboarding form

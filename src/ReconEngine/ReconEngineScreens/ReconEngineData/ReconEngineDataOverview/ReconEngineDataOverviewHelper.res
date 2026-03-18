@@ -99,7 +99,7 @@ let getAccordionConfig = (
   ~setManualReviewStatus,
   ~stagingEntryId,
   ~transformationHistoryId,
-): array<Accordion.accordion> => {
+): array<AccordionAdapter.accordion> => {
   [
     {
       title: "Source & Ingestion Config",
