@@ -98,7 +98,7 @@ module ApiEditModal = {
       | Exn.Error(e) =>
         switch Exn.message(e) {
         | Some(_error) =>
-          showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
+          showToast(~message="API Key Generation Failed", ~toastType=ToastState.ToastError)
         | None => ()
         }
         setModalState(_ => SettingApiModalError)
