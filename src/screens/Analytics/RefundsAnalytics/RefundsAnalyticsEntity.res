@@ -44,7 +44,7 @@ let getUpdatedHeading = (~item as _, ~dateObj as _) => {
       Table.makeHeaderInfo(~key, ~title="Refund Processed Amount", ~dataType=NumericType)
     | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown)
     | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown)
-    | RefundMethod => Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown)
+    | RefundMethod => Table.makeHeaderInfo(~key, ~title="Refund Method", ~dataType=DropDown)
     | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown)
 
     | NoCol => Table.makeHeaderInfo(~key, ~title="")
@@ -268,7 +268,7 @@ let getStatData = (
     }
   | Count => {
       title: "Overall Refunds",
-      tooltipText: "Total refund initiated",
+      tooltipText: "Total refunds initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.refund_count->Int.toFloat,
         deltaTimestampData.currentSr,

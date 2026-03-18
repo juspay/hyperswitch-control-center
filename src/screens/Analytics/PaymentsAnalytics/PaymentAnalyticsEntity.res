@@ -483,7 +483,7 @@ let getStatData = (
     }
   | SuccessCount => {
       title: "Success Payments",
-      tooltipText: "Total number of payments with status as succeeded. ",
+      tooltipText: "Total number of payments with status as succeeded.",
       deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.payment_success_count->Int.toFloat,
         deltaTimestampData.currentSr,
