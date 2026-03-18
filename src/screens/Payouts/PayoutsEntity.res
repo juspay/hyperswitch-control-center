@@ -365,17 +365,17 @@ let getHeading = (colType: payoutsColType) => {
   | Created => Table.makeHeaderInfo(~key="Created", ~title="Created At")
   | PayoutType => Table.makeHeaderInfo(~key="PayoutType", ~title="Payout Type")
   | Billing => Table.makeHeaderInfo(~key="Billing", ~title="Billing")
-  | AutoFulfill => Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Full fill")
+  | AutoFulfill => Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Fulfill")
   | Name => Table.makeHeaderInfo(~key="Name", ~title="Name")
   | Phone => Table.makeHeaderInfo(~key="Phone", ~title="Phone")
   | PhoneCountryCode => Table.makeHeaderInfo(~key="PhoneCountryCode", ~title="Phone Country Code")
   | ClientSecret => Table.makeHeaderInfo(~key="ClientSecret", ~title="Client Secret")
-  | ReturnUrl => Table.makeHeaderInfo(~key="ReturnUrl", ~title="Return Url")
+  | ReturnUrl => Table.makeHeaderInfo(~key="ReturnUrl", ~title="Return URL")
   | BusinessLabel => Table.makeHeaderInfo(~key="BusinessLabel", ~title="Business Label")
   | Description => Table.makeHeaderInfo(~key="Description", ~title="Description")
   | Entity_type => Table.makeHeaderInfo(~key="Entity_type", ~title="Entity Type")
   | Recurring => Table.makeHeaderInfo(~key="Recurring", ~title="Recurring")
-  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="ErrorCode")
+  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="Error Code")
   | ConnectorTransactionId =>
     Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction ID")
   | SendPriority => Table.makeHeaderInfo(~key="SendPriority", ~title="Send Priority")
@@ -615,7 +615,7 @@ let getHeadingForSummary = summaryColType => {
 
 let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payout connector")
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Payout Connector")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand")

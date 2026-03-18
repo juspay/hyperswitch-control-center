@@ -23,7 +23,7 @@ module Add3DSCondition = {
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
-            <div className=classStyle> {"= is Equal to"->React.string} </div>
+            <div className=classStyle> {"= (is equal to)"->React.string} </div>
             <FormRenderer.FieldRenderer
               field={FormRenderer.makeFieldInfo(
                 ~label="",
@@ -70,7 +70,7 @@ module Add3DSConditionForThreeDsExemption = {
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
-            <div className=classStyle> {"= is Equal to"->React.string} </div>
+            <div className=classStyle> {"= (is equal to)"->React.string} </div>
             <FormRenderer.FieldRenderer
               field={FormRenderer.makeFieldInfo(
                 ~label="",
@@ -319,7 +319,7 @@ module Wrapper = {
       </div>
 
     <div className="flex flex-col">
-      <div className={`flex flex-row tems-center justify-between z-10 -mt-6 mx-2`}>
+      <div className={`flex flex-row items-center justify-between z-10 -mt-6 mx-2`}>
         <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
         </RenderIf>

@@ -293,7 +293,7 @@ let make = (
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
       if gateways->Array.length === 0 {
-        Some("Need atleast 1 Gateway")
+        Some("Need at least 1 gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
           json->JSON.Decode.object->Option.flatMap(val => val->(getOptionFloat(_, "split")))
