@@ -18,7 +18,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
-  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let themeId = HyperSwitchEntryUtils.getThemeIdfromStore()->Option.getOr("")
   let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")

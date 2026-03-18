@@ -7,7 +7,7 @@ let make = () => {
   open FRMInfo
 
   let getURL = useGetURL()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

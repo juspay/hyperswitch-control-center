@@ -72,7 +72,7 @@ let make = (
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
-  let visibleColumns = customColumnMapper->Recoil.useRecoilValueFromAtom
+  let visibleColumns = customColumnMapper->Jotai.useAtomValue
 
   let chooseCols =
     <DynamicTableUtils.ChooseColumnsWrapper

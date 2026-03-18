@@ -43,7 +43,7 @@ module RoleAccessOverview = {
       ->getJsonObjectFromDict("parent_groups")
       ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
 
-    let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
+    let roleInfo = Jotai.useAtomValue(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
       detailedUserAccess,

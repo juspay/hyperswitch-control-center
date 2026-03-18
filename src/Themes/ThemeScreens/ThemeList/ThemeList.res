@@ -8,7 +8,7 @@ let make = () => {
   let getMethod = APIUtils.useGetMethod()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
+  let themeList = Jotai.useAtomValue(HyperswitchAtom.themeListAtom)
   let {themeId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])

@@ -18,12 +18,12 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
+let sortAtom: Jotai.jotaiAtom<Dict.t<sortOb>> = Jotai.atom("sortAtom", Dict.make())
 
 let backgroundClass = "dark:bg-jp-gray-darkgray_background"
 
 let useSortedObj = (title: string, defaultSort) => {
-  let (dict, setDict) = Recoil.useRecoilState(sortAtom)
+  let (dict, setDict) = Jotai.useAtom(sortAtom)
   let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
@@ -127,7 +127,7 @@ type pageDetails = {
   resultsPerPage: int,
 }
 
-let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(
+let table_pageDetails: Jotai.jotaiAtom<Dict.t<pageDetails>> = Jotai.atom(
   "table_pageDetails",
   Dict.make(),
 )
@@ -252,8 +252,8 @@ let make = (
   let customizeColumnNewTheme = None
   let defaultValue: pageDetails = {offset, resultsPerPage}
   let (firstRender, setFirstRender) = React.useState(_ => true)
-  let setPageDetails = Recoil.useSetRecoilState(table_pageDetails)
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(table_pageDetails)
+  let setPageDetails = Jotai.useSetAtom(table_pageDetails)
+  let pageDetailDict = Jotai.useAtomValue(table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get(title)->Option.getOr(defaultValue)
 
   let (

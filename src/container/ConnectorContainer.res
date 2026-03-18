@@ -8,7 +8,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()

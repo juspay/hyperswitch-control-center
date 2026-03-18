@@ -115,7 +115,7 @@ let make = (
     filterCheck,
     filterForRow,
   } = entity
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let tableName =
     prefixAddition->Option.getOr(false)
       ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some

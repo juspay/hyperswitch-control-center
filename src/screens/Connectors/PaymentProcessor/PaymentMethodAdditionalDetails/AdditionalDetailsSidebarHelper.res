@@ -1,7 +1,7 @@
 module Heading = {
   @react.component
   let make = (~title: string, ~iconName: string) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let {isLiveMode} = featureFlagDetails
     <>
       <div className="flex gap-3 p-2 m-2">

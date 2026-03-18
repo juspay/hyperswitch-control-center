@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open HyperswitchAtom
-  let {downTime} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {downTime} = featureFlagAtom->Jotai.useAtomValue
   <>
     <RenderIf condition={downTime}>
       <UnderMaintenance />

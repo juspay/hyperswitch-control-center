@@ -7,7 +7,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
   let {newAnalyticsSmartRetries, newAnalyticsRefunds} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {updateExistingKeys, updateFilterAsync} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)

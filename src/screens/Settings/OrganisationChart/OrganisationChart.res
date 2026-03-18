@@ -13,9 +13,9 @@ module OrgChartTree = {
     ~onProfileSelect,
   ) => {
     open Typography
-    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+    let orgList = Jotai.useAtomValue(HyperswitchAtom.orgListAtom)
+    let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
+    let profileList = Jotai.useAtomValue(HyperswitchAtom.profileListAtom)
     let getButtonStyles = isSelected => {
       isSelected
         ? "border-blue-600 bg-blue-50 text-blue-600"
@@ -95,7 +95,7 @@ let make = () => {
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
   let (switching, setSwitching) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {
       setSwitching(_ => Switching("organization"))

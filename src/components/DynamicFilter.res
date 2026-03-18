@@ -10,7 +10,7 @@ module CustomFilters = {
     open LogicUtils
     let (errMessage, setErrMessage) = React.useState(_ => "")
 
-    let (completionDisposable, setCompletionDisposable) = Recoil.useRecoilState(
+    let (completionDisposable, setCompletionDisposable) = Jotai.useAtom(
       AnalyticsAtoms.completionProvider,
     )
     let theme = switch ThemeProvider.useTheme() {

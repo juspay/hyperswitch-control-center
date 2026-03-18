@@ -85,7 +85,7 @@ module RenderConnectorInputFields = {
     ~labelTextStyleClass="",
     ~labelClass="font-semibold !text-hyperswitch_black",
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     // open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))

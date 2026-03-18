@@ -12,7 +12,7 @@ let make = (~setSelectedAuthId) => {
   let updateDetails = useUpdateMethod()
   let {isPasswordEnabled, isMagicLinkEnabled} = AuthModuleHooks.useAuthMethods()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)

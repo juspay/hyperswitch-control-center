@@ -138,11 +138,10 @@ let make = () => {
   let {profileId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
-  let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+  let (profileList, setProfileList) = Jotai.useAtom(HyperswitchAtom.profileListAtom)
   let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
   let isMobileView = MatchMedia.useMobileChecker()
   let {globalUIConfig: {font: {textColor: {primaryNormal}}}} = React.useContext(
     ThemeProvider.themeContext,

@@ -16,7 +16,7 @@ let make = (
   open RevenueRecoveryOnboardingUtils
   open ConnectProcessorsHelper
   open Typography
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(

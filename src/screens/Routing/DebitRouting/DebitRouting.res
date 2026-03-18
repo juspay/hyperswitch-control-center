@@ -7,7 +7,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
     ).is_debit_routing_enabled->Option.getOr(false)
   let handleButtonClick = _ => {
     if debitRoutingValue {

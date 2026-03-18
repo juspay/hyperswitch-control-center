@@ -78,8 +78,7 @@ let make = (
   let ip3 = ReactFinalForm.useField(`profile_id`).input
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
   React.useEffect(() => {

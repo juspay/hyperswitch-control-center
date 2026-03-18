@@ -43,7 +43,7 @@ let make = (~flowType) => {
     }
   }
 
-  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {branding} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let (logoVariant, iconUrl) = switch (Window.env.urlThemeConfig.logoUrl, branding) {
   | (Some(url), true) => (IconWithURL, Some(url))

@@ -4,7 +4,7 @@ let make = () => {
   open DefaultHomeUtils
   open HyperswitchAtom
   let {devVaultV2Product, devRecoveryV2Product, devReconv2Product, devHypersenseV2Product} =
-    featureFlagAtom->Recoil.useRecoilValueFromAtom
+    featureFlagAtom->Jotai.useAtomValue
   <div
     className="flex flex-1 flex-col gap-6 md:gap-8 w-full h-screen items-center overflow-auto p-4">
     <div className="flex flex-col w-full gap-3 items-center justify-center cursor-pointer">

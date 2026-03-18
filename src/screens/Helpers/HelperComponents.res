@@ -172,7 +172,7 @@ module ProfileNameComponent = {
   let make = (~profile_id: string, ~className="") => {
     let {name} =
       HyperswitchAtom.profileListAtom
-      ->Recoil.useRecoilValueFromAtom
+      ->Jotai.useAtomValue
       ->Array.find(obj => obj.id == profile_id)
       ->Option.getOr({
         id: profile_id,

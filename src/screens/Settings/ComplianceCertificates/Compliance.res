@@ -23,7 +23,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let downloadPDF = _ => {
     setButtonState(_ => Button.Loading)
     let currentDate =

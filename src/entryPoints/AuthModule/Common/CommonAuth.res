@@ -46,7 +46,7 @@ module Header = {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
     let form = ReactFinalForm.useForm()
-    let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
     let headerStyle = switch authType {

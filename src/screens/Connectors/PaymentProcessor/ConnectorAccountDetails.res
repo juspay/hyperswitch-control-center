@@ -11,7 +11,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let updateDetails = useUpdateMethod(~showErrorToast=false)
 
@@ -25,8 +25,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     connectorTypeFromName->getConnectorInfo
   }, [connector])
 
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
 
   let connectorDetails = React.useMemo(() => {
     try {

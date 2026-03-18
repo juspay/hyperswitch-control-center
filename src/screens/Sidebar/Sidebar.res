@@ -306,7 +306,7 @@ module NestedSectionItem = {
       },
     } = React.useContext(ThemeProvider.themeContext)
     let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-    let {devSidebarV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {devSidebarV2} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
     let sidebarNestedSectionRef = React.useRef(Nullable.null)
@@ -637,8 +637,8 @@ let make = (
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
   let {devModularityV2, devSidebarV2, devTheme, devUsers} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
+  let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
   let expandedSections = [activeProduct->getProductDisplayName]
   let hasMerchantData = React.useMemo(() => {

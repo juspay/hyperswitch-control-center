@@ -48,7 +48,7 @@ module TableWrapper = {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
+    let customFilter = Jotai.useAtomValue(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let filterValueDict = filterValueJson
     let fetchDetails = APIUtils.useUpdateMethod()
@@ -272,7 +272,7 @@ module TableWrapper = {
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo(() => {
-      Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
+      Jotai.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
     let modifyData = data => {

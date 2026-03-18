@@ -234,7 +234,7 @@ let makeEntity = (
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -416,7 +416,7 @@ let make = (
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
   ~comparitionWidget=false,
 ) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let updateChartCompFilters = switch updateUrl {
   | Some(fn) => fn

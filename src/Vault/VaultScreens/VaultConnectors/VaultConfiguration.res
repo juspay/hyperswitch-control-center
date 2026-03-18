@@ -2,7 +2,7 @@
 let make = () => {
   open Typography
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
+  let setCurrentTabName = Jotai.useSetAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
 
   let vaultPspTokenizationTabElement = {

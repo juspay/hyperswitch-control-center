@@ -200,7 +200,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let (initialValues, setInitialValues) = React.useState(_ =>

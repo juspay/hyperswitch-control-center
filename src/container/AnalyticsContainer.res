@@ -7,7 +7,7 @@ let make = () => {
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {analyticsEntity} = getResolvedUserInfo()
   let {performanceMonitor, disputeAnalytics, authenticationAnalytics, routingAnalytics} =
-    featureFlagAtom->Recoil.useRecoilValueFromAtom
+    featureFlagAtom->Jotai.useAtomValue
   <div key={(analyticsEntity :> string)}>
     {switch url.path->urlPath {
     | list{"analytics-payments"} =>

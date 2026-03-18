@@ -9,7 +9,7 @@ let make = () => {
     ~version=V2,
   )
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(~version=V2)
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
+  let setConnectorList = HyperswitchAtom.connectorListAtom->Jotai.useSetAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let setUpConnectorContainer = async () => {

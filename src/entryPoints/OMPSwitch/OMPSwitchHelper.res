@@ -355,7 +355,7 @@ module MerchantDropdownItem = {
     let {
       globalUIConfig: {sidebarColor: {backgroundColor, hoverColor, secondaryTextColor}},
     } = React.useContext(ThemeProvider.themeContext)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
     let getMerchantList = MerchantListHook.useFetchMerchantList()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -502,11 +502,10 @@ module ProfileDropdownItem = {
     ).getCommonSessionDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let (profileList, setProfileList) = Jotai.useAtom(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
-    let setBusinessProfileRecoil =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+    let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useSetAtom
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getProfileList = async () => {
       try {

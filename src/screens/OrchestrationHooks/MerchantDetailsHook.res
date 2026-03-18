@@ -1,7 +1,7 @@
 open HyperswitchAtom
 let useFetchMerchantDetails = () => {
   let getURL = APIUtils.useGetURL()
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Jotai.useSetAtom
 
   let fetchDetails = APIUtils.useGetMethod()
 
@@ -30,4 +30,4 @@ let useFetchMerchantDetails = () => {
   }
 }
 
-let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+let useMerchantDetailsValue = () => Jotai.useAtomValue(merchantDetailsValueAtom)

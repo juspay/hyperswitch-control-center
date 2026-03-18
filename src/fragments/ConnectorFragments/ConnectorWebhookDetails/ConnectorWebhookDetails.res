@@ -10,7 +10,7 @@ let make = (
   open LogicUtils
   open ConnectorHelperV2
   let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let connectorTypeFromName =
     connector->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=processorType)

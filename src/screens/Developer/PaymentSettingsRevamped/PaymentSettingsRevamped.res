@@ -29,7 +29,7 @@ module InfoViewForWebhooks = {
 let make = () => {
   open HyperswitchAtom
 
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
@@ -41,7 +41,7 @@ let make = () => {
   let {profileId, merchantId, version} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let isBusinessProfileHasThreeds =
     threedsConnectorList->Array.some(item => item.profile_id == profileId)
   let isBusinessProfileHasVault =

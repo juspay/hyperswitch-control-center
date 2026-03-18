@@ -12,7 +12,7 @@ let make = (
   open LogicUtils
   open ConnectProcessorsHelper
   open RevenueRecoveryOnboardingUtils
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let (arrow, setArrow) = React.useState(_ => false)
 
   let input: ReactFinalForm.fieldRenderPropsInput = {

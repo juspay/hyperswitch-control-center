@@ -143,7 +143,7 @@ let make = (
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
   open LogicUtils
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()

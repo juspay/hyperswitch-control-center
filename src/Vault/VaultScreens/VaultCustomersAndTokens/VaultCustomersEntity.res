@@ -34,7 +34,7 @@ let getCell = (customersData, colType): Table.cell => {
   }
 }
 
-let vaultCustomersMapDefaultCols = Recoil.atom("vaultCustomersMapDefaultCols", defaultColumns)
+let vaultCustomersMapDefaultCols = Jotai.atom("vaultCustomersMapDefaultCols", defaultColumns)
 
 let itemToObjMapper = dict => {
   open LogicUtils

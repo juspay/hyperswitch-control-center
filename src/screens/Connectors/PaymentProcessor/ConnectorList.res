@@ -2,7 +2,7 @@ module DummyProcessorBanner = {
   @react.component
   let make = (~configuredConnectors, ~setProcessorModal) => {
     let isMobileView = MatchMedia.useMobileChecker()
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
     let textStyle = HSwitchUtils.getTextClass((H2, Optional))
     let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
@@ -71,9 +71,8 @@ let make = (
     ~retainInList=PaymentProcessor,
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {paymentProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
+  let {paymentProcessorsLiveList} = HyperswitchAtom.connectorListForLiveAtom->Jotai.useAtomValue
 
   let getConnectorListAndUpdateState = async () => {
     try {

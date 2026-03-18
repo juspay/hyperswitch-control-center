@@ -20,9 +20,9 @@ let make = () => {
     ProductSelectionProvider.defaultContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
+  let merchantDetailsTypedValue = Jotai.useAtomValue(merchantDetailsValueAtom)
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
+  let (userGroupACL, setuserGroupACL) = Jotai.useAtom(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()

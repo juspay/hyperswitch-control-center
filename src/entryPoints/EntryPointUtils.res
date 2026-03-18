@@ -9,7 +9,7 @@ module ContextWrapper = {
 
     <React.Suspense fallback={loader}>
       <ErrorBoundary renderFallback={_ => <div> {React.string("Error")} </div>}>
-        <Recoil.RecoilRoot>
+        <Jotai.Provider>
           <ErrorBoundary>
             <ThemeProvider>
               <PopUpContainer>
@@ -27,7 +27,7 @@ module ContextWrapper = {
               </PopUpContainer>
             </ThemeProvider>
           </ErrorBoundary>
-        </Recoil.RecoilRoot>
+        </Jotai.Provider>
       </ErrorBoundary>
     </React.Suspense>
   }

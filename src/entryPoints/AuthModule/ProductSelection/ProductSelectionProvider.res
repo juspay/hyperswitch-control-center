@@ -52,7 +52,7 @@ module Provider = {
 
 @react.component
 let make = (~children) => {
-  let merchantList: array<OMPSwitchTypes.ompListTypes> = Recoil.useRecoilValueFromAtom(
+  let merchantList: array<OMPSwitchTypes.ompListTypes> = Jotai.useAtomValue(
     HyperswitchAtom.merchantListAtom,
   )
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()

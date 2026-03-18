@@ -4,7 +4,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
   let {hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(

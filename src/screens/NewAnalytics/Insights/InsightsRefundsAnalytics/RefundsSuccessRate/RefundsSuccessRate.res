@@ -15,7 +15,7 @@ module PaymentsSuccessRateHeader = {
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
-    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
     let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
     let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
@@ -75,7 +75,7 @@ let make = (
   let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
-  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
   let defaulGranularity = getDefaultGranularity(

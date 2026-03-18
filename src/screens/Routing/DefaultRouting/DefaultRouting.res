@@ -8,8 +8,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection, ~connectorVariant) => {
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (profile, setProfile) = React.useState(_ => profileId)
   let showToast = ToastState.useShowToast()

@@ -20,8 +20,8 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let vault_processor_id =
     businessProfileRecoilVal.external_vault_connector_details->Option.mapOr("", details =>
       details.vault_connector_id

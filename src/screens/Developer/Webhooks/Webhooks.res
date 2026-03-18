@@ -8,14 +8,13 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (webhooksData, setWebhooksData) = React.useState(_ => [])
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let pageDetailDict = Jotai.useAtomValue(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Webhooks")->Option.getOr(defaultValue)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {updateExistingKeys, filterValueJson, reset} = FilterContext.filterContext->React.useContext
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
   let (searchText, setSearchText) = React.useState(_ => "")
   let (lastFilterState, setLastFilterState) = React.useState(_ => "")
 

@@ -140,8 +140,7 @@ module ConnectorSummaryGrid = {
 
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
@@ -368,8 +367,7 @@ let make = (
 ) => {
   open APIUtils
   open ConnectorUtils
-  let {feedback, paypalAutomaticFlow} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {feedback, paypalAutomaticFlow} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

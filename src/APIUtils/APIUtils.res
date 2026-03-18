@@ -1468,7 +1468,7 @@ let useHandleLogout = (~eventName="user_sign_out") => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   () => {
     try {
       let logoutUrl = getURL(~entityName=V1(USERS), ~methodType=Post, ~userType=#SIGNOUT)
@@ -1646,7 +1646,7 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   async (url, ~version=UserInfoTypes.V1) => {
     try {
@@ -1706,7 +1706,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   async (
     url,

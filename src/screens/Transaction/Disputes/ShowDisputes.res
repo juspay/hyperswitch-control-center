@@ -55,7 +55,7 @@ module Details = {
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
-    let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
     let (disputeEvidenceStatus, setDisputeEvidenceStatus) = React.useState(_ => Landing)
@@ -184,7 +184,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchDetails = useGetMethod()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 

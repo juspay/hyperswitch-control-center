@@ -15,7 +15,7 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastState.useShowToast()

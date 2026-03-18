@@ -22,8 +22,8 @@ let make = () => {
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"billing-processor", "new"} => false

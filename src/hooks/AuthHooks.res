@@ -81,7 +81,7 @@ let useApiFetcher = () => {
 
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let url = RescriptReactRouter.useUrl()
-  let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
+  let setReqProgress = Jotai.useSetAtom(ApiProgressHooks.pendingRequestCount)
   let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
 
   React.useCallback(

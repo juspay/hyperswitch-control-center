@@ -2,7 +2,7 @@
 let make = () => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {showFeedbackModal, setShowFeedbackModal, setShowSideBar} = React.useContext(
     GlobalProvider.defaultContext,

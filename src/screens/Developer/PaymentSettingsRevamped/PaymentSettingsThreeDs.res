@@ -65,9 +65,9 @@ let make = () => {
   let threedsConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=AuthenticationProcessor,
   )
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let showToast = ToastState.useShowToast()
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let {profileId, version} = React.useContext(

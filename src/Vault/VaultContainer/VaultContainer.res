@@ -9,8 +9,8 @@ let make = () => {
 
   let (sampleReport, setSampleReport) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
-  let setIsOrchestrationVault = Recoil.useSetRecoilState(HyperswitchAtom.orchestrationVaultAtom)
+  let setConnectorList = HyperswitchAtom.connectorListAtom->Jotai.useSetAtom
+  let setIsOrchestrationVault = Jotai.useSetAtom(HyperswitchAtom.orchestrationVaultAtom)
 
   let setUpVaultContainer = async () => {
     try {

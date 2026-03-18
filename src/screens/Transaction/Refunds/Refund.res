@@ -13,7 +13,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let pageDetailDict = Jotai.useAtomValue(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
@@ -86,7 +86,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">

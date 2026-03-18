@@ -17,7 +17,7 @@ let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (sharedData, setSharedData) = React.useState(_ => JSON.Encode.null)
-  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let (granularityTabState, setGranularityTabState) = React.useState(_ =>
     RoutingAnalyticsUtils.defaultGranularityOptionsObject

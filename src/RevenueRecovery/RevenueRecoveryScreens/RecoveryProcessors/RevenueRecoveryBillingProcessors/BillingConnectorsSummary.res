@@ -9,7 +9,7 @@ module WebhooksConfiguration = {
     open FormRenderer
 
     let getURL = useGetURL()
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
@@ -17,7 +17,7 @@ module WebhooksConfiguration = {
     )
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let (isEditMode, setIsEditMode) = React.useState(_ => false)
     let (merchantBusinessProfileInfo, setMerchantBusinessProfileInfo) = React.useState(() =>
@@ -545,7 +545,7 @@ module RetriesConfiguration = {
 @react.component
 let make = () => {
   open LogicUtils
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 

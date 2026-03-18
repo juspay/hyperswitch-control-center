@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open InsightsPaymentAnalyticsEntity
-  let {newAnalyticsFilters} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {newAnalyticsFilters} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   <div className="flex flex-col gap-14 mt-5 pt-7">
     <div className="flex gap-2">

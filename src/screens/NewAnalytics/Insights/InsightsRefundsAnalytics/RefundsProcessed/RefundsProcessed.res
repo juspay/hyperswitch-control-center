@@ -72,7 +72,7 @@ module RefundsProcessedHeader = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let currency = filterValueJson->getString((#currency: filters :> string), "")
-    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
     let primaryValue = getMetaDataValue(
       ~data,
@@ -178,7 +178,7 @@ let make = (
   let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let currency = filterValueJson->getString((#currency: filters :> string), "")
   let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
-  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let granularityOptions = getGranularityOptions(~startTime=startTimeVal, ~endTime=endTimeVal)
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,

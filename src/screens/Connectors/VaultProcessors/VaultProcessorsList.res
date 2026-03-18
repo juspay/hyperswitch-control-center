@@ -6,13 +6,12 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let {vaultProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {vaultProcessorsLiveList} = HyperswitchAtom.connectorListForLiveAtom->Jotai.useAtomValue
 
   let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils

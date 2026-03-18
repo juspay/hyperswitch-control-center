@@ -6,7 +6,7 @@ let make = () => {
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {transactionEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-  let {payOut} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {payOut} = featureFlagAtom->Jotai.useAtomValue
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {
     | list{"payments", ...remainingPath} =>

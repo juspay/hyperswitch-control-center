@@ -7,10 +7,9 @@ let make = () => {
   open APIUtils
 
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
-  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-  let {id: orgId, name: orgName} =
-    HyperswitchAtom.organizationDetailsValueAtom->Recoil.useRecoilValueFromAtom
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
+  let orgList = Jotai.useAtomValue(HyperswitchAtom.orgListAtom)
+  let {id: orgId, name: orgName} = HyperswitchAtom.organizationDetailsValueAtom->Jotai.useAtomValue
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

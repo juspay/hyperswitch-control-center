@@ -10,7 +10,7 @@ let make = () => {
   let {analyticsEntity} = getResolvedUserInfo()
   let url = RescriptReactRouter.useUrl()
   let featureFlagAtom = HyperswitchAtom.featureFlagAtom
-  let {isLiveMode, debitRouting} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {isLiveMode, debitRouting} = featureFlagAtom->Jotai.useAtomValue
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let dateDropDownTriggerMixpanelCallback = () => {

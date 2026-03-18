@@ -18,7 +18,7 @@ let useAuthMethods = (): authMethodProps => {
   open LogicUtils
 
   let getURL = useGetURL()
-  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let fetchDetails = useGetMethod(~showErrorToast=false)
 
   let {authMethods, setAuthMethods} = React.useContext(AuthInfoProvider.authStatusContext)

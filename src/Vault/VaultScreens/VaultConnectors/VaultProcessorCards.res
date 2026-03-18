@@ -3,7 +3,7 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn) => {
-    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+    let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleClick = () => {
       mixpanelEvent(
@@ -38,9 +38,9 @@ let make = (
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
-  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+  let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>

@@ -93,7 +93,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
   let {allFilterDimension} = chartEntity
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let sortingParams = React.useMemo((): option<AnalyticsNewUtils.sortedBasedOn> => {
     switch chartEntity {
@@ -598,8 +598,7 @@ module SDKAnalyticsChartContext = {
     ~segmentValue: option<array<string>>=?,
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
-    let {xFeatureRoute, forceCookies} =
-      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
     let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)

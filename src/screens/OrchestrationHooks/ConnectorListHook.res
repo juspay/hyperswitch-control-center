@@ -6,7 +6,7 @@ open ConnectorInterfaceUtils
 let useFetchConnectorList = (~entityName=V1(CONNECTOR), ~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
+  let setConnectorList = HyperswitchAtom.connectorListAtom->Jotai.useSetAtom
 
   async _ => {
     try {

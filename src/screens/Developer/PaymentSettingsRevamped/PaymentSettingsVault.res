@@ -67,9 +67,9 @@ module VaultFields = {
 let make = () => {
   open FormRenderer
 
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let showToast = ToastState.useShowToast()
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()

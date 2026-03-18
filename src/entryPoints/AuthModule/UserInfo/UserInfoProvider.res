@@ -14,7 +14,7 @@ let make = (~children, ~isEmbeddableApp=false) => {
   ))
 
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let getUserInfo = async () => {
     open LogicUtils

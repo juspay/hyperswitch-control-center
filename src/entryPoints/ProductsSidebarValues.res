@@ -14,7 +14,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     devOrchestrationV2Product,
     devReconEngineV1,
   } =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let {
     isFeatureEnabledForAllowListMerchant,

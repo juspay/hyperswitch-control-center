@@ -1,3 +1,3 @@
 let defaultDict: Dict.t<Dom.element> = Dict.make()
 
-let portalNodes = Recoil.atom("portalNodes", defaultDict)
+let portalNodes = Jotai.atom("portalNodes", defaultDict)

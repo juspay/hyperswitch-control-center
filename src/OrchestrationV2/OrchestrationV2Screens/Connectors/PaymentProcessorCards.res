@@ -67,7 +67,7 @@ let make = (
   open ConnectorUtils
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let searchRef = React.useRef(Nullable.null)

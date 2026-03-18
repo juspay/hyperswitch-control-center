@@ -543,7 +543,7 @@ let make = (
   let (connectors, setConnectors) = React.useState(_ => [])
   let (pageState, setPageState) = React.useState(() => Create)
   let (showModal, setShowModal) = React.useState(_ => false)
-  let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
+  let currentTabName = Jotai.useAtomValue(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getConnectorsList = () => {

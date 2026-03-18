@@ -103,7 +103,7 @@ let make = () => {
   let (allowEdit, setAllowEdit) = React.useState(_ => false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()

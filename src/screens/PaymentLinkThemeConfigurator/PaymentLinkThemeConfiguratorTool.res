@@ -34,10 +34,8 @@ module ConfiguratorForm = {
     let (previewError, setPreviewError) = React.useState(_ => None)
     let {paymentResult} = React.useContext(SDKProvider.defaultContext)
 
-    let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.merchantDetailsValueAtom,
-    )
-    let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    let merchantDetailsTypedValue = Jotai.useAtomValue(HyperswitchAtom.merchantDetailsValueAtom)
+    let businessProfileRecoilVal = Jotai.useAtomValue(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
@@ -291,7 +289,7 @@ module CreateNewStyleID = {
     open Typography
     let showToast = ToastState.useShowToast()
     let (showModal, setShowModal) = React.useState(() => false)
-    let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+    let businessProfileRecoilVal = Jotai.useAtomValue(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile()
@@ -426,7 +424,7 @@ module StyleIdSelection = {
     open BusinessProfileInterfaceUtils
     open Typography
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Recoil.useRecoilState(
+    let (businessProfileRecoilVal, setBusinessProfileRecoilVal) = Jotai.useAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
     let (availableStyles, setAvailableStyles) = React.useState(_ => [])
@@ -516,7 +514,7 @@ module StyleIdSelection = {
 @react.component
 let make = () => {
   let (selectedStyleId, setSelectedStyleId) = React.useState(() => "")
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
 

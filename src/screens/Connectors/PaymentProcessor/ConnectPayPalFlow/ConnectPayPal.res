@@ -183,7 +183,7 @@ module RedirectionToPayPalFlow = {
       | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
       }
     }
-    let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
+    let setupAccountStatus = Jotai.useAtomValue(HyperswitchAtom.paypalAccountStatusAtom)
 
     React.useEffect(() => {
       getRedirectPaypalWindowUrl()->ignore
@@ -243,7 +243,7 @@ let make = (
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
+  let (setupAccountStatus, setSetupAccountStatus) = Jotai.useAtom(
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow

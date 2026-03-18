@@ -375,7 +375,7 @@ module ApiKeysTable = {
       }
     }
 
-    let visibleColumns = Recoil.useRecoilValueFromAtom(TableAtoms.apiDefaultCols)
+    let visibleColumns = Jotai.useAtomValue(TableAtoms.apiDefaultCols)
 
     let apiKeysTableEntity = EntityType.makeEntity(
       ~uri="",

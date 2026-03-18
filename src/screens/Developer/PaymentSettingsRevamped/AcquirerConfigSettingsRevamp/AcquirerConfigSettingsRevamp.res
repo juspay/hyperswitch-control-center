@@ -210,7 +210,7 @@ module AcquirerConfigContentRevamp = {
     let (isShowAcquirerConfigSettings, setIsShowAcquirerConfigSettings) = React.useState(_ => false)
     let (editingConfig, setEditingConfig) = React.useState(_ => None)
     let {acquirer_configs: acquirerConfig} =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
 
     let acquirerConfigArr = React.useMemo(
       () => acquirerConfig->Option.mapOr([], data => data->Array.map(acquirerConfigTypeMapper)),

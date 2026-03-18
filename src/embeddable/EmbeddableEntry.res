@@ -15,7 +15,7 @@ module EmbeddableEntryComponent = {
   @react.component
   let make = () => {
     let fetchDetails = APIUtils.useGetMethod()
-    let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useSetAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let configEnv = (urlConfig: JSON.t) => {
@@ -70,7 +70,7 @@ module ContextWrapper = {
 
     <React.Suspense fallback={loader}>
       <ErrorBoundary renderFallback={_ => <div> {React.string("Error")} </div>}>
-        <Recoil.RecoilRoot>
+        <Jotai.Provider>
           <ThemeProvider>
             <ErrorBoundary>
               <PopUpContainer>
@@ -82,7 +82,7 @@ module ContextWrapper = {
               </PopUpContainer>
             </ErrorBoundary>
           </ThemeProvider>
-        </Recoil.RecoilRoot>
+        </Jotai.Provider>
       </ErrorBoundary>
     </React.Suspense>
   }

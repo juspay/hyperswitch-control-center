@@ -148,7 +148,7 @@ module ActiveSection = {
 module LevelWiseRoutingSection = {
   @react.component
   let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
-    let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {debitRouting} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     <div className="flex flex-col flex-wrap rounded w-full py-6 gap-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-9">
         {types
@@ -183,10 +183,10 @@ module LevelWiseRoutingSection = {
 
 @react.component
 let make = (~routingType: array<JSON.t>) => {
-  let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {debitRouting} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
     ).is_debit_routing_enabled->Option.getOr(false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let totalCards = routingType->Array.length + (debitRoutingValue && debitRouting ? 1 : 0)

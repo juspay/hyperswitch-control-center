@@ -6,7 +6,7 @@ let make = (
 ) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
 
   let showSidebar = () => {
     setShowSideBar(_ => true)

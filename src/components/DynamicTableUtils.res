@@ -276,7 +276,7 @@ module ChooseColumns = {
     ~entity: EntityType.entityType<'colType, 't>,
     ~totalResults,
     ~defaultColumns,
-    ~activeColumnsAtom: Recoil.recoilAtom<array<'colType>>,
+    ~activeColumnsAtom: Jotai.jotaiAtom<array<'colType>>,
     ~setShowColumnSelector,
     ~showColumnSelector,
     ~isModalView=true,
@@ -288,7 +288,7 @@ module ChooseColumns = {
     ~title="",
   ) => {
     open LoadedTableWithCustomColumnsUtils
-    let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
+    let (visibleColumns, setVisibleColumns) = Jotai.useAtom(activeColumnsAtom)
 
     let {getHeading, allColumns} = entity
     let getHeadingCol = text => {

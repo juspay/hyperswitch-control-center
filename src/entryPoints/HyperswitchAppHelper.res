@@ -1,7 +1,7 @@
 module LiveMode = {
   @react.component
   let make = () => {
-    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
 
     <>
       <RenderIf condition={isLiveMode}>
@@ -23,7 +23,7 @@ module LiveMode = {
 module TestMode = {
   @react.component
   let make = () => {
-    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+    let isLiveMode = (HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue).isLiveMode
     let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 

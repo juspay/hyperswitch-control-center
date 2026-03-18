@@ -20,10 +20,10 @@ type popUpProps = {
 
 let defaultOpenPopUp: array<popUpProps> = []
 
-let openPopUp = Recoil.atom("openPopUp", defaultOpenPopUp)
+let openPopUp = Jotai.atom("openPopUp", defaultOpenPopUp)
 
 let useShowPopUp = () => {
-  let setOpenPopUp = Recoil.useSetRecoilState(openPopUp)
+  let setOpenPopUp = Jotai.useSetAtom(openPopUp)
 
   React.useCallback((popUpProps: popUpProps) => {
     setOpenPopUp(prevArr => prevArr->Array.concat([popUpProps]))

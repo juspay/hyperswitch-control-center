@@ -5,7 +5,7 @@ let make = (~setAppScreenState) => {
   open Typography
   let greeting = getGreeting()
   let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
   let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
 

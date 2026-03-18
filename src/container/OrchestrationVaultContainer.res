@@ -2,7 +2,7 @@
 let make = () => {
   let url = RescriptReactRouter.useUrl()
   let (sampleReport, setSampleReport) = React.useState(_ => false)
-  let setIsOrchestrationVault = Recoil.useSetRecoilState(HyperswitchAtom.orchestrationVaultAtom)
+  let setIsOrchestrationVault = Jotai.useSetAtom(HyperswitchAtom.orchestrationVaultAtom)
 
   React.useEffect(() => {
     setIsOrchestrationVault(_ => true)

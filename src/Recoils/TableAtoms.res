@@ -1,41 +1,41 @@
-let historyDefaultCols = Recoil.atom("hyperSwitchHistoryDefaultCols", HistoryEntity.defaultColumns)
+let historyDefaultCols = Jotai.atom("hyperSwitchHistoryDefaultCols", HistoryEntity.defaultColumns)
 
-let refundsMapDefaultCols = Recoil.atom("refundsMapDefaultCols", RefundEntity.defaultColumns)
+let refundsMapDefaultCols = Jotai.atom("refundsMapDefaultCols", RefundEntity.defaultColumns)
 
-let payoutsMapDefaultCols = Recoil.atom("payoutsMapDefaultCols", PayoutsEntity.defaultColumns)
+let payoutsMapDefaultCols = Jotai.atom("payoutsMapDefaultCols", PayoutsEntity.defaultColumns)
 
-let ordersMapDefaultCols = Recoil.atom("ordersMapDefaultCols", OrderEntity.defaultColumns)
+let ordersMapDefaultCols = Jotai.atom("ordersMapDefaultCols", OrderEntity.defaultColumns)
 
-let disputesMapDefaultCols = Recoil.atom("disputesMapDefaultCols", DisputesEntity.defaultColumns)
+let disputesMapDefaultCols = Jotai.atom("disputesMapDefaultCols", DisputesEntity.defaultColumns)
 
-let apiDefaultCols = Recoil.atom("hyperSwitchApiDefaultCols", DeveloperUtils.defaultColumns)
+let apiDefaultCols = Jotai.atom("hyperSwitchApiDefaultCols", DeveloperUtils.defaultColumns)
 
-let customersMapDefaultCols = Recoil.atom("customersMapDefaultCols", CustomersEntity.defaultColumns)
+let customersMapDefaultCols = Jotai.atom("customersMapDefaultCols", CustomersEntity.defaultColumns)
 
-let revenueRecoveryMapDefaultCols = Recoil.atom(
+let revenueRecoveryMapDefaultCols = Jotai.atom(
   "revenueRecoveryMapDefaultCols",
   RevenueRecoveryEntity.defaultColumns,
 )
-let reconReportsDefaultCols = Recoil.atom(
+let reconReportsDefaultCols = Jotai.atom(
   "reconReportsDefaultCols",
   ReportsTableEntity.defaultColumns,
 )
-let reconExceptionReportsDefaultCols = Recoil.atom(
+let reconExceptionReportsDefaultCols = Jotai.atom(
   "reconExceptionReportsDefaultCols",
   ReportsExceptionTableEntity.defaultColumns,
 )
 
-let reconTransactionsOverviewDefaultCols = Recoil.atom(
+let reconTransactionsOverviewDefaultCols = Jotai.atom(
   "reconTransactionsOverviewDefaultCols",
   TransactionsTableEntity.defaultColumnsOverview,
 )
 
-let reconTransactionsDefaultCols = Recoil.atom(
+let reconTransactionsDefaultCols = Jotai.atom(
   "reconTransactionsDefaultCols",
   TransactionsTableEntity.defaultColumns,
 )
 
-let transactionsHierarchicalDefaultCols = Recoil.atom(
+let transactionsHierarchicalDefaultCols = Jotai.atom(
   "transactionsHierarchicalDefaultCols",
   HierarchicalTransactionsTableEntity.defaultColumns,
 )

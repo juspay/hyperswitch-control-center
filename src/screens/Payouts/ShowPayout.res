@@ -259,7 +259,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let fetchDetails = useUpdateMethod()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutData, setPayoutsData) = React.useState(_ => Dict.make()->PayoutsEntity.itemToObjMapper)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()

@@ -103,7 +103,7 @@ let developers = (isDevelopersEnabled, ~userHasResourceAccess, ~checkUserEntity)
 }
 
 let useGetOrchestrationV2SidebarValues = () => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {default, isLiveMode} = featureFlagDetails

@@ -1,6 +1,6 @@
 @react.component
 let make = (~to, ~children) => {
-  let portalNodes = Recoil.useRecoilValueFromAtom(PortalState.portalNodes)
+  let portalNodes = Jotai.useAtomValue(PortalState.portalNodes)
 
   let portalNode = Dict.get(portalNodes, to)
 

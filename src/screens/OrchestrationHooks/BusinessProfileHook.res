@@ -5,9 +5,9 @@ open BusinessProfileInterface
 let useFetchBusinessProfileFromId = (~version=UserInfoTypes.V1) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
+  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useSetAtom
   let setBusinessProfileInterfaceRecoil =
-    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useSetAtom
   async (~profileId) => {
     try {
       let entityName = switch version {
@@ -39,7 +39,7 @@ let useUpdateBusinessProfile = (~version=UserInfoTypes.V1) => {
   let updateDetails = useUpdateMethod()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let setBusinessProfileRecoil =
-    HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
+    HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useSetAtom
 
   async (~body, ~shouldTransform=false) => {
     try {

@@ -82,7 +82,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )

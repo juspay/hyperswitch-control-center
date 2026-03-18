@@ -79,7 +79,7 @@ module GenerateSampleDataButton = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
-    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let generateSampleData = async () => {
@@ -163,7 +163,7 @@ module GenerateSampleDataButton = {
 module NoData = {
   @react.component
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
-    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
     <BluredTableComponent
       infoText={isConfigureConnector

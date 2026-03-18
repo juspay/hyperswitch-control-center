@@ -5,7 +5,7 @@ let make = (~onNextClick, ~setReviewFields, ~setIsUpload, ~fileUInt8Array, ~setF
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let fetchDetails = APIUtils.useGetMethod()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()

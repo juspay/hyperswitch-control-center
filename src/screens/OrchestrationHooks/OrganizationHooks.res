@@ -5,10 +5,8 @@ let useFetchOrganizationList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let setOrgList = Recoil.useSetRecoilState(HyperswitchAtom.orgListAtom)
-  let setOrganizationDetailsValue = Recoil.useSetRecoilState(
-    HyperswitchAtom.organizationDetailsValueAtom,
-  )
+  let setOrgList = Jotai.useSetAtom(HyperswitchAtom.orgListAtom)
+  let setOrganizationDetailsValue = Jotai.useSetAtom(HyperswitchAtom.organizationDetailsValueAtom)
   let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let sortByOrgName = (org1: OMPSwitchTypes.ompListTypes, org2: OMPSwitchTypes.ompListTypes) => {

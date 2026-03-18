@@ -13,9 +13,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let debitRoutingValue =
     (
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
     ).is_debit_routing_enabled->Option.getOr(false)
-  let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
+  let setCurrentTabName = Jotai.useSetAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (widthClass, marginClass) = React.useMemo(() => {

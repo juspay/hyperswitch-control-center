@@ -208,8 +208,7 @@ module IngestionHistoryActionsComponent = {
     let getURL = useGetURL()
     let fetchApi = AuthHooks.useApiFetcher()
     let showToast = ToastState.useShowToast()
-    let {xFeatureRoute, forceCookies} =
-      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
     let onDownloadClick = async ev => {
       ev->ReactEvent.Mouse.stopPropagation

@@ -47,7 +47,7 @@ let make = (~showModal, ~setShowModal) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (merchantDetailsTypedValue, setMerchantDetailsValue) =
-    HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilState
+    HyperswitchAtom.merchantDetailsValueAtom->Jotai.useAtom
 
   let getMerchantNameFromJson = values =>
     values->getDictFromJsonObject->getString("merchant_name", "")

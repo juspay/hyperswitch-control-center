@@ -14,7 +14,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (filters, setFilters) = React.useState(_ => None)
 
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,

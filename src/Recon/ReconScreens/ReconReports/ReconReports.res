@@ -7,7 +7,7 @@ let make = (~showOnBoarding) => {
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-  let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
+  let setCurrentTabName = Jotai.useSetAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let (selectedReconId, setSelectedReconId) = React.useState(_ => "Recon_235")
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchApi = AuthHooks.useApiFetcher()

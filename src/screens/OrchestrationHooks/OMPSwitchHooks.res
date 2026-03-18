@@ -15,7 +15,7 @@ let useUserInfo = () => {
   let {profileId, merchantId} = getCommonSessionDetails()
 
   let url = `${Window.env.apiBaseUrl}/user`
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let getUserInfo = async () => {
     try {
@@ -195,7 +195,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   open HyperswitchAtom
   let orgSwitch = useOrgSwitch(~setActiveProductValue)
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
-  let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let {product_type} = Jotai.useAtomValue(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
   let {getCommonSessionDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -255,9 +255,9 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
 
 let useOMPData = () => {
   open OMPSwitchUtils
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+  let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
+  let orgList = Jotai.useAtomValue(HyperswitchAtom.orgListAtom)
+  let profileList = Jotai.useAtomValue(HyperswitchAtom.profileListAtom)
   let {orgId, profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -282,10 +282,8 @@ let useOMPData = () => {
 }
 
 let useOMPType = () => {
-  let {merchant_account_type} = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.merchantDetailsValueAtom,
-  )
-  let orgDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.organizationDetailsValueAtom)
+  let {merchant_account_type} = Jotai.useAtomValue(HyperswitchAtom.merchantDetailsValueAtom)
+  let orgDetails = Jotai.useAtomValue(HyperswitchAtom.organizationDetailsValueAtom)
 
   let isCurrentMerchantPlatform = merchant_account_type == #platform ? true : false
 

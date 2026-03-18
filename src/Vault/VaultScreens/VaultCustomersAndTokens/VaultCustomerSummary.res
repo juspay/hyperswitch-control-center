@@ -125,8 +125,8 @@ module VaultedPaymentMethodsTable = {
     let url = RescriptReactRouter.useUrl()
     let fetchDetails = useGetMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-    let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+    let pageDetailDict = Jotai.useAtomValue(LoadedTable.table_pageDetails)
+    let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
     let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
     let pageDetail = pageDetailDict->Dict.get("vaultedPaymentMethods")->Option.getOr(defaultValue)
     let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -237,7 +237,7 @@ let make = (~id, ~sampleReport) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
   let defaultObject = Dict.make()->VaultCustomersEntity.itemToObjMapper
-  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+  let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
   let fetchCustomersData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)

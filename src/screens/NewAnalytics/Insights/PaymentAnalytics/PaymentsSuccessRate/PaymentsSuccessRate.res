@@ -16,7 +16,7 @@ module PaymentsSuccessRateHeader = {
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
-    let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
     let isSmartRetryEnabled =
       filterValueJson
@@ -95,7 +95,7 @@ let make = (
 
   open InsightsUtils
   open NewAnalyticsUtils
-  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let defaulGranularity = getDefaultGranularity(
     ~startTime=startTimeVal,
     ~endTime=endTimeVal,

@@ -3,7 +3,7 @@ let make = (~setScreenState) => {
   open HyperswitchAtom
 
   let url = RescriptReactRouter.useUrl()
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let {
     isFeatureEnabledForDenyListMerchant,
     merchantSpecificConfig,

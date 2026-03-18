@@ -3,9 +3,7 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodConfigUtils
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
-  )
+  let businessProfileRecoilVal = Jotai.useAtomValue(HyperswitchAtom.businessProfileFromIdAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ => [])
   let (filteredConnectors, setFiltersConnectors) = React.useState(_ => [])

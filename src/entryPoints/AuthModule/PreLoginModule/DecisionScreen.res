@@ -4,7 +4,7 @@ let make = () => {
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let url = RescriptReactRouter.useUrl()
   let pageViewEvent = MixpanelHook.usePageView()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let flowType = switch authStatus {
   | PreLogin(info) => info.token_type->PreLoginUtils.flowTypeStrToVariantMapperForNewFlow
   | _ => ERROR

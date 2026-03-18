@@ -9,7 +9,7 @@ module NoDataFoundComponent = {
     ~total,
     ~fieldArray,
   ) => {
-    let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+    let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleSampleReportButtonClick = () => {
       mixpanelEvent(
@@ -80,8 +80,8 @@ let make = (~sampleReport, ~setSampleReport) => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => [])
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+  let pageDetailDict = Jotai.useAtomValue(LoadedTable.table_pageDetails)
+  let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)

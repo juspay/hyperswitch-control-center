@@ -498,10 +498,10 @@ type sortOb = {
   sortType: sortTyp,
 }
 
-let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
+let sortAtom: Jotai.jotaiAtom<Dict.t<sortOb>> = Jotai.atom("sortAtom", Dict.make())
 
 let useSortedObj = (title: string, defaultSort) => {
-  let (dict, setDict) = Recoil.useRecoilState(sortAtom)
+  let (dict, setDict) = Jotai.useAtom(sortAtom)
   let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)

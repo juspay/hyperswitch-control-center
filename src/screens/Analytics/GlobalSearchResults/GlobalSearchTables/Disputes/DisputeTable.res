@@ -57,9 +57,9 @@ let make = () => {
   let widthClass = "w-full"
   let heightClass = ""
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 50}
-  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let pageDetailDict = Jotai.useAtomValue(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get(domain)->Option.getOr(defaultValue)
-  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
+  let setPageDetails = Jotai.useSetAtom(LoadedTable.table_pageDetails)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
   let path = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("source", "")

@@ -113,6 +113,6 @@ let mapConnectorPayloadToConnectorType = (
 }
 
 let useFilteredConnectorList = (~retainInList=PaymentProcessor) => {
-  let list = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
+  let list = Jotai.useAtomValue(HyperswitchAtom.connectorListAtom)
   filterConnectorList(list, retainInList)
 }

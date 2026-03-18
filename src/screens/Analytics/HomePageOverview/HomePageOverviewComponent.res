@@ -71,7 +71,7 @@ module OverviewInfo = {
   let make = () => {
     let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 

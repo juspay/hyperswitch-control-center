@@ -4,7 +4,7 @@ module AuthHeaderWrapper = {
     open FramerMotion.Motion
     open CommonAuthTypes
 
-    let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {branding} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let {logoURL} = React.useContext(ThemeProvider.themeContext)
     let (logoVariant, iconUrl) = switch (logoURL, branding) {
     | (Some(url), true) => (IconWithURL, Some(url))

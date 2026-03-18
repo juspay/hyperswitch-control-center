@@ -6,8 +6,8 @@ module HyperSwitchEntryComponent = {
     let fetchDetails = APIUtils.useGetMethod()
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
-    let setFeatureFlag = featureFlagAtom->Recoil.useSetRecoilState
-    let setConnectorListForLive = connectorListForLiveAtom->Recoil.useSetRecoilState
+    let setFeatureFlag = featureFlagAtom->Jotai.useSetAtom
+    let setConnectorListForLive = connectorListForLiveAtom->Jotai.useSetAtom
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
     let configureFavIcon = (faviconUrl: option<string>) => {

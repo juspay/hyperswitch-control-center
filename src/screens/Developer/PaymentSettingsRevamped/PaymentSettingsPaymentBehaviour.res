@@ -129,7 +129,7 @@ module ClickToPaySection = {
     let connectorListAtom = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=AuthenticationProcessor,
     )
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let connectorView = userHasAccess(~groupAccess=ConnectorsView) === Access
     let isClickToPayEnabled =
       formState.values->getDictFromJsonObject->getBool("is_click_to_pay_enabled", false)
@@ -288,11 +288,11 @@ module SplitTransactions = {
 let make = () => {
   open FormRenderer
 
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let showToast = ToastState.useShowToast()
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
+  let businessProfileRecoilVal = Jotai.useAtomValue(
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)

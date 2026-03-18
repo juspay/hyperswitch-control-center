@@ -16,7 +16,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
-  let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
+  let setSetupAccountStatus = Jotai.useSetAtom(HyperswitchAtom.paypalAccountStatusAtom)
 
   let connectorInfo = ConnectorInterface.mapDictToTypedConnectorPayload(
     ConnectorInterface.connectorInterfaceV1,

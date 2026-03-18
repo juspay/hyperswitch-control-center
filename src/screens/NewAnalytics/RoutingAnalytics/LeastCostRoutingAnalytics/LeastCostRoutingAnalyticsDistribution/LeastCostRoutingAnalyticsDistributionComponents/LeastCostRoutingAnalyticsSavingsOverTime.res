@@ -18,7 +18,7 @@ let make = () => {
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlag = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let (granularityTabState, setGranularityTabState) = React.useState(_ =>
     RoutingAnalyticsUtils.defaultGranularityOptionsObject

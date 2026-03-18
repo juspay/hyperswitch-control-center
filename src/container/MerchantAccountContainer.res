@@ -12,9 +12,9 @@ let make = (~setAppScreenState) => {
     hasAnyGroupAccess,
     userHasResourceAccess,
   } = GroupACLHooks.useUserGroupACLHook()
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let merchantDetailsTypedValue = Jotai.useAtomValue(merchantDetailsValueAtom)
 
   <div>
     {switch url.path->urlPath {

@@ -12,7 +12,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
+  let setCurrentTabName = Jotai.useSetAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (widthClass, marginClass) = React.useMemo(() => {

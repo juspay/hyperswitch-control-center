@@ -29,8 +29,8 @@ let useFetchMerchantList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let setMerchantList = Recoil.useSetRecoilState(HyperswitchAtom.merchantListAtom)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
+  let setMerchantList = Jotai.useSetAtom(HyperswitchAtom.merchantListAtom)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let v2MerchantListFetcher = useFetchMerchantListV2()

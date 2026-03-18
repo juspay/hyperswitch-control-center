@@ -18,7 +18,7 @@ let useSendEvent = () => {
     email->String.length == 0 ? authInfoEmail : email
   }
 
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
@@ -107,7 +107,7 @@ let usePageView = () => {
   let environment = GlobalVars.hostType->getEnvironment
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   async (~path) => {
     let mixpanel_token = Window.env.mixpanelToken
     let body = {
@@ -152,7 +152,7 @@ let useSetIdentity = () => {
   open GlobalVars
   let fetchApi = AuthHooks.useApiFetcher()
   let mixpanel_token = Window.env.mixpanelToken
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   async (~distinctId) => {
     let name = distinctId->LogicUtils.getNameFromEmail

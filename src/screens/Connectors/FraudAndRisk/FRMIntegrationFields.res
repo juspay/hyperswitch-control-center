@@ -81,7 +81,7 @@ let make = (
 
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 

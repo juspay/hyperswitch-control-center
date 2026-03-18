@@ -1,22 +1,21 @@
 let useClearRecoilValue = () => {
   open HyperswitchAtom
 
-  let setMerchantDetailsValue = merchantDetailsValueAtom->Recoil.useSetRecoilState
-  let setConnectorListAtom = connectorListAtom->Recoil.useSetRecoilState
-  let setEnumVariantAtom = enumVariantAtom->Recoil.useSetRecoilState
-  let setPaypalAccountStatusAtom = paypalAccountStatusAtom->Recoil.useSetRecoilState
-  let setUserPermissionAtom = userPermissionAtom->Recoil.useSetRecoilState
-  let setUserGroupACLAtom = userGroupACLAtom->Recoil.useSetRecoilState
-  let setSwitchMerchantListAtom = switchMerchantListAtom->Recoil.useSetRecoilState
-  let setCurrentTabNameRecoilAtom = currentTabNameRecoilAtom->Recoil.useSetRecoilState
-  let setOrgListRecoilAtom = orgListAtom->Recoil.useSetRecoilState
-  let setMerchantListRecoilAtom = merchantListAtom->Recoil.useSetRecoilState
-  let setProfileListRecoilAtom = profileListAtom->Recoil.useSetRecoilState
-  let setModuleListListRecoilAtom = moduleListRecoil->Recoil.useSetRecoilState
+  let setMerchantDetailsValue = merchantDetailsValueAtom->Jotai.useSetAtom
+  let setConnectorListAtom = connectorListAtom->Jotai.useSetAtom
+  let setEnumVariantAtom = enumVariantAtom->Jotai.useSetAtom
+  let setPaypalAccountStatusAtom = paypalAccountStatusAtom->Jotai.useSetAtom
+  let setUserPermissionAtom = userPermissionAtom->Jotai.useSetAtom
+  let setUserGroupACLAtom = userGroupACLAtom->Jotai.useSetAtom
+  let setSwitchMerchantListAtom = switchMerchantListAtom->Jotai.useSetAtom
+  let setCurrentTabNameRecoilAtom = currentTabNameRecoilAtom->Jotai.useSetAtom
+  let setOrgListRecoilAtom = orgListAtom->Jotai.useSetAtom
+  let setMerchantListRecoilAtom = merchantListAtom->Jotai.useSetAtom
+  let setProfileListRecoilAtom = profileListAtom->Jotai.useSetAtom
+  let setModuleListListRecoilAtom = moduleListRecoil->Jotai.useSetAtom
   //Todo: remove id atom once we start using businessProfileInterface
-  let setBusinessProfileRecoil = businessProfileFromIdAtom->Recoil.useSetRecoilState
-  let setBusinessProfileInterfaceRecoil =
-    businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
+  let setBusinessProfileRecoil = businessProfileFromIdAtom->Jotai.useSetAtom
+  let setBusinessProfileInterfaceRecoil = businessProfileFromIdAtomInterface->Jotai.useSetAtom
 
   let clearRecoilValue = () => {
     setMerchantDetailsValue(_ => JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails)

@@ -112,7 +112,7 @@ module CustomToastWrapper = {
 
 @react.component
 let make = (~children) => {
-  let (openToasts, setOpenToasts) = Recoil.useRecoilState(ToastState.openToasts)
+  let (openToasts, setOpenToasts) = Jotai.useAtom(ToastState.openToasts)
 
   let hideToast = React.useCallback(key => {
     setOpenToasts(prevArr => {

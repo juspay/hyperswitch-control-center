@@ -6,8 +6,8 @@ let make = (~selectedOrg, ~selectedMerchant, ~selectedProfile) => {
   let (paths, setPaths) = React.useState(() => [])
   // SVG viewBox dimensions - updated to match container size
   let (svgViewBox, setSvgViewBox) = React.useState(() => "0 0 1200 600")
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+  let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
+  let profileList = Jotai.useAtomValue(HyperswitchAtom.profileListAtom)
   let selectedProfileExists = profileList->Array.some(profile => profile.id == selectedProfile)
   let svgColorSelected = "#2563EB" // Blue color for selected paths
   let svgColorDefault = "#D1D5DB" // Gray color for default paths

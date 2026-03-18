@@ -61,7 +61,7 @@ let make = (
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let getTopLevelSingleStatFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray

@@ -7,7 +7,7 @@ let make = () => {
 
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
-  let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
+  let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Jotai.useSetAtom
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -27,8 +27,7 @@ let make = () => {
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarHooks.useGetHsSidebarValues(~isReconEnabled)
   let loader = LottieFiles.useLottieJson("loader-circle.json")
-  let {globalSearch, globalSearchFilters} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {globalSearch, globalSearchFilters} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()

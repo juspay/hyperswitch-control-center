@@ -39,7 +39,7 @@ let make = () => {
     None
   }, [connectorList])
 
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive

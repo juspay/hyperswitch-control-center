@@ -1,6 +1,6 @@
 @react.component
 let make = React.memo((~name: string, ~customStyle="") => {
-  let setPortalNodes = Recoil.useSetRecoilState(PortalState.portalNodes)
+  let setPortalNodes = Jotai.useSetAtom(PortalState.portalNodes)
   let setDiv = React.useCallback2((elem: Nullable.t<Dom.element>) => {
     setPortalNodes(
       prevDict => {

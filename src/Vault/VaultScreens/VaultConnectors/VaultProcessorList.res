@@ -15,7 +15,7 @@ let make = () => {
     ->Option.isSome
   )
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
+  let isOrchestrationVault = Jotai.useAtomValue(HyperswitchAtom.orchestrationVaultAtom)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offset, setOffset) = React.useState(_ => 0)

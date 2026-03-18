@@ -331,7 +331,7 @@ module NewOrgCreationModal = {
 @react.component
 let make = () => {
   open OMPSwitchUtils
-  let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+  let (orgList, setOrgList) = Jotai.useAtom(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
@@ -341,7 +341,7 @@ let make = () => {
   )
   let {roleId} = getResolvedUserInfo()
   let {orgId} = getCommonSessionDetails()
-  let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {tenantUser} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser

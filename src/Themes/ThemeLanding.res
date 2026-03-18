@@ -7,7 +7,7 @@ let make = (~remainingPath) => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let getURL = useGetURL()
-  let setThemeList = HyperswitchAtom.themeListAtom->Recoil.useSetRecoilState
+  let setThemeList = HyperswitchAtom.themeListAtom->Jotai.useSetAtom
 
   let fetchThemeList = async () => {
     try {

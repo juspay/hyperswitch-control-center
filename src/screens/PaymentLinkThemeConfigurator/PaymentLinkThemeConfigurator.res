@@ -4,9 +4,7 @@ let make = () => {
   let getURL = APIUtils.useGetURL()
   let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   let (currentStep, setCurrentStep) = React.useState(() => Checkout)
-  let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.businessProfileFromIdAtom,
-  )
+  let businessProfileRecoilVal = Jotai.useAtomValue(HyperswitchAtom.businessProfileFromIdAtom)
   let {setPaymentResult, setInitialValuesForCheckoutForm, setClientSecretStatus} = React.useContext(
     SDKProvider.defaultContext,
   )

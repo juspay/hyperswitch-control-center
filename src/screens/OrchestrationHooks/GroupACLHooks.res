@@ -35,8 +35,8 @@ let useUserGroupACLHook = () => {
   open HyperswitchAtom
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
-  let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
+  let (userGroupACL, setuserGroupACL) = Jotai.useAtom(userGroupACLAtom)
+  let setuserPermissionJson = Jotai.useSetAtom(userPermissionAtom)
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
 
   let fetchUserGroupACL = async () => {

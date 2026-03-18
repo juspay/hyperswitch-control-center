@@ -2,7 +2,7 @@ open PopUpState
 
 @react.component
 let make = (~children) => {
-  let (openPopUps, setOpenPopUp) = Recoil.useRecoilState(PopUpState.openPopUp)
+  let (openPopUps, setOpenPopUp) = Jotai.useAtom(PopUpState.openPopUp)
   let activePopUp = openPopUps->Array.get(0)
   let popUp = switch activePopUp {
   | Some(popUp) => {

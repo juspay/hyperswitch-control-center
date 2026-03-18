@@ -12,11 +12,11 @@ module NewMerchantCreationModal = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
     let getMerchantList = MerchantListHook.useFetchMerchantList()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (_, isCurrentOrganizationPlatform) = OMPSwitchHooks.useOMPType()
-    let {allowConnectedMerchants} = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
+    let {allowConnectedMerchants} = Jotai.useAtomValue(HyperswitchAtom.featureFlagAtom)
 
     let enableMerchantType =
       allowConnectedMerchants &&
@@ -159,7 +159,7 @@ let make = () => {
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
   let isMobileView = MatchMedia.useMobileChecker()
   let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)

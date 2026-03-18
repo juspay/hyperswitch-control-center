@@ -219,7 +219,7 @@ module BasicDetailsSection = {
     let {name: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     <div>
       <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
         <p className=sectionHeadingClass> {"User Info"->React.string} </p>

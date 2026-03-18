@@ -4,70 +4,67 @@ type accessMapping = {
 }
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 
-let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
+let merchantDetailsValueAtom: Jotai.jotaiAtom<HSwitchSettingTypes.merchantPayload> = Jotai.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
 )
 
-let organizationDetailsValueAtom: Recoil.recoilAtom<OMPSwitchTypes.ompListTypes> = Recoil.atom(
+let organizationDetailsValueAtom: Jotai.jotaiAtom<OMPSwitchTypes.ompListTypes> = Jotai.atom(
   "organizationDetailsValue",
   ompDefaultValue,
 )
 
-let connectorListAtom: Recoil.recoilAtom<
+let connectorListAtom: Jotai.jotaiAtom<
   array<ConnectorTypes.connectorPayloadCommonType>,
-> = Recoil.atom("connectorListAtom", [])
+> = Jotai.atom("connectorListAtom", [])
 
 //Todo: remove this once we start using businessProfileInterface
-let businessProfileFromIdAtom = Recoil.atom(
+let businessProfileFromIdAtom = Jotai.atom(
   "businessProfileFromIdAtom",
   JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
 )
 //Todo:remove this after businessProfileInterface is stable
-let businessProfileFromIdAtomInterface = Recoil.atom(
+let businessProfileFromIdAtomInterface = Jotai.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
 )
 
-let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
+let themeListAtom: Jotai.jotaiAtom<JSON.t> = Jotai.atom("themeListAtom", JSON.Encode.null)
 
-let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
+let enumVariantAtom = Jotai.atom("enumVariantDetails", "")
 
-let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(
+let featureFlagAtom: Jotai.jotaiAtom<FeatureFlagUtils.featureFlag> = Jotai.atom(
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
-let connectorListForLiveAtom: Recoil.recoilAtom<
+let connectorListForLiveAtom: Jotai.jotaiAtom<
   ConnectorListForLiveFromConfigTypes.connectorListForLive,
-> = Recoil.atom(
+> = Jotai.atom(
   "connectorListForLive",
   JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
 )
-let merchantSpecificConfigAtom: Recoil.recoilAtom<
+let merchantSpecificConfigAtom: Jotai.jotaiAtom<
   FeatureFlagUtils.merchantSpecificConfig,
-> = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
-let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
+> = Jotai.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
+let paypalAccountStatusAtom: Jotai.jotaiAtom<PayPalFlowTypes.setupAccountStatus> = Jotai.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
 // TODO: remove this after userGroupPermissionsAtom is stable
-let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.groupAccessJsonType> = Recoil.atom(
+let userPermissionAtom: Jotai.jotaiAtom<UserManagementTypes.groupAccessJsonType> = Jotai.atom(
   "userPermissionAtom",
   GroupACLMapper.defaultValueForGroupAccessJson,
 )
 
-let userGroupACLAtom: Recoil.recoilAtom<option<accessMapping>> = Recoil.atom(
-  "userGroupACLAtom",
-  None,
-)
+let userGroupACLAtom: Jotai.jotaiAtom<option<accessMapping>> = Jotai.atom("userGroupACLAtom", None)
 
-let switchMerchantListAtom: Recoil.recoilAtom<
+let switchMerchantListAtom: Jotai.jotaiAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,
-> = Recoil.atom("switchMerchantListAtom", [SwitchMerchantUtils.defaultValue])
+> = Jotai.atom("switchMerchantListAtom", [SwitchMerchantUtils.defaultValue])
 
-let currentTabNameRecoilAtom = Recoil.atom("currentTabName", "ActiveTab")
+let currentTabNameRecoilAtom = Jotai.atom("currentTabName", "ActiveTab")
 
-let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(
+let globalSeacrchAtom: Jotai.jotaiAtom<GlobalSearchTypes.defaultResult> = Jotai.atom(
   "globalSearch",
   {
     GlobalSearchTypes.local_results: [],
@@ -76,24 +73,24 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
   },
 )
 
-let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+let orgListAtom: Jotai.jotaiAtom<array<OMPSwitchTypes.ompListTypes>> = Jotai.atom(
   "orgListAtom",
   [ompDefaultValue],
 )
 
-let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+let merchantListAtom: Jotai.jotaiAtom<array<OMPSwitchTypes.ompListTypes>> = Jotai.atom(
   "merchantListAtom",
   [ompDefaultValue],
 )
 
-let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+let profileListAtom: Jotai.jotaiAtom<array<OMPSwitchTypes.ompListTypes>> = Jotai.atom(
   "profileListAtom",
   [ompDefaultValue],
 )
 
-let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
+let moduleListRecoil: Jotai.jotaiAtom<array<UserManagementTypes.userModuleType>> = Jotai.atom(
   "moduleListRecoil",
   [],
 )
 
-let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)
+let orchestrationVaultAtom: Jotai.jotaiAtom<bool> = Jotai.atom("orchestrationVaultAtom", false)

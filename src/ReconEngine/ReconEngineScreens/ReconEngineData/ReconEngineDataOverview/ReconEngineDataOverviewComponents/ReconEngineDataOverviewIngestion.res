@@ -12,7 +12,7 @@ let make = (~ingestionHistoryData: ingestionHistoryType) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let fetchApi = AuthHooks.useApiFetcher()
-  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionConfigData, setIngestionConfigData) = React.useState(_ =>
     Dict.make()->getIngestionConfigPayloadFromDict

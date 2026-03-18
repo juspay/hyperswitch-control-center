@@ -7,7 +7,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {email} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(

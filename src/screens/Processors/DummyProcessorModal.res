@@ -8,7 +8,7 @@ let make = (
   ~configuredConnectors,
   ~connectorsAvailableForIntegration,
 ) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let showTestProcessor = featureFlagDetails.testProcessors
 
   <RenderIf condition={processorModal}>

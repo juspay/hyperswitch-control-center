@@ -132,12 +132,12 @@ let make = () => {
   let (state, setState) = React.useState(_ => Idle)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
-  let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
+  let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Jotai.useAtomValue
   let merchentDetails = MerchantDetailsHook.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarHooks.useGetHsSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
-  let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {globalSearch} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
 

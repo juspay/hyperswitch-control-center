@@ -52,7 +52,7 @@ let makeToastProps = (
 
 let defaultOpenToasts: array<toastProps> = []
 
-let openToasts = Recoil.atom("openToasts", defaultOpenToasts)
+let openToasts = Jotai.atom("openToasts", defaultOpenToasts)
 
 type showToastFn = (
   ~message: string,
@@ -66,7 +66,7 @@ type showToastFn = (
 ) => unit
 
 let useShowToast = (): showToastFn => {
-  let setOpenToasts = Recoil.useSetRecoilState(openToasts)
+  let setOpenToasts = Jotai.useSetAtom(openToasts)
   React.useMemo1(() => {
     (
       ~message,
@@ -97,7 +97,7 @@ let useShowToast = (): showToastFn => {
 type hideToastFn = string => unit
 
 let useHideToast = (): hideToastFn => {
-  let setOpenToasts = Recoil.useSetRecoilState(openToasts)
+  let setOpenToasts = Jotai.useSetAtom(openToasts)
   React.useMemo(() => {
     (toastKey: string) => {
       setOpenToasts(prevArr => {

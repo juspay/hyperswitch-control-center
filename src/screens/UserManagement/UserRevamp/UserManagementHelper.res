@@ -5,7 +5,7 @@ module OrganisationSelection = {
   let make = () => {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let orgList = Jotai.useAtomValue(HyperswitchAtom.orgListAtom)
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let disableSelect = switch userEntity {
@@ -57,8 +57,8 @@ module MerchantSelection = {
   let make = () => {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let {devUsers} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let merchList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
+    let {devUsers} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let (showSwitchingMerchant, setShowSwitchingMerchant) = React.useState(_ => false)
     let form = ReactFinalForm.useForm()
@@ -135,7 +135,7 @@ module ProfileSelection = {
   let make = () => {
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
-    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+    let profileList = Jotai.useAtomValue(HyperswitchAtom.profileListAtom)
     let {userEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

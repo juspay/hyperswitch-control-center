@@ -5,7 +5,7 @@ open ProductTypes
 open HyperswitchAtom
 
 let useGetHsSidebarValues = (~isReconEnabled: bool) => {
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userEntity} = getResolvedUserInfo()
@@ -154,7 +154,7 @@ let getAllProductsBasedOnFeatureFlags = (
 let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>) => {
   open ProductUtils
 
-  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (featureFlagAtom->Jotai.useAtomValue).isLiveMode
 
   let orchestratorSidebars = useGetOrchestratorSidebars(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
@@ -181,10 +181,10 @@ let useGetAllProductSections = (~isReconEnabled, ~products: array<productTypes>)
 }
 
 let useGetSidebarProductModules = () => {
-  let merchantList = Recoil.useRecoilValueFromAtom(merchantListAtom)
+  let merchantList = Jotai.useAtomValue(merchantListAtom)
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let {
     isFeatureEnabledForAllowListMerchant,
     merchantSpecificConfig,
@@ -217,9 +217,9 @@ let useGetSidebarProductModules = () => {
 }
 
 let useGetSidebarValuesForCurrentActive = (~isReconEnabled) => {
-  let isLiveMode = (featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let isLiveMode = (featureFlagAtom->Jotai.useAtomValue).isLiveMode
   let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = featureFlagAtom->Jotai.useAtomValue
   let hsSidebars = useGetHsSidebarValues(~isReconEnabled)
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()

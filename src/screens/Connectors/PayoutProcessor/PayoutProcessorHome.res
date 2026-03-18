@@ -105,7 +105,7 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   open APIUtils
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")

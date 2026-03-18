@@ -63,7 +63,7 @@ module Snackbar = {
 
 @react.component
 let make = (~children) => {
-  let (openSnackbar, setOpenSnackbar) = Recoil.useRecoilState(SnackBarState.openSnackbar)
+  let (openSnackbar, setOpenSnackbar) = Jotai.useAtom(SnackBarState.openSnackbar)
 
   let hideSnackbar = React.useCallback(key => {
     setOpenSnackbar(prevArr => {

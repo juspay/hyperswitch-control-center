@@ -111,7 +111,7 @@ module RenderConnectorInputFields = {
     ~disabled=false,
     ~description="",
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
@@ -411,8 +411,7 @@ module BusinessProfileRender = {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+    let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let hereTextStyle = isUpdateFlow

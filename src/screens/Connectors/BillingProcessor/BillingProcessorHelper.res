@@ -52,7 +52,7 @@ module CustomConnectorCellWithDefaultIcon = {
   ) => {
     open Typography
     let businessProfileRecoilVal =
-      HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
+      HyperswitchAtom.businessProfileFromIdAtomInterface->Jotai.useAtomValue
     let connector_Type = switch connectorType {
     | Some(connectorType) => connectorType
     | None => Processor

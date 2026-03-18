@@ -44,7 +44,7 @@ module Modal = {
 
 @react.component
 let make = (~children) => {
-  let (openModals, setOpenModals) = Recoil.useRecoilState(ModalsState.openModals)
+  let (openModals, setOpenModals) = Jotai.useAtom(ModalsState.openModals)
   let hideModalAtIndex = React.useCallback(index => {
     setOpenModals(prevArr => {
       Array.filterWithIndex(

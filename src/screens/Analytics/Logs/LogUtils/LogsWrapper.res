@@ -16,7 +16,7 @@ module EventLogMobileView = {
 
 @react.component
 let make = (~wrapperFor, ~children) => {
-  let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {auditTrail} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
 
   <div className="overflow-x-scroll">

@@ -132,7 +132,7 @@ module CheckoutCard = {
 module ControlCenter = {
   @react.component
   let make = () => {
-    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let connectorUrl = switch version {

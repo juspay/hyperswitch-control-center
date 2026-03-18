@@ -67,8 +67,7 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
-  let businessProfileRecoilVal =
-    HyperswitchAtom.businessProfileFromIdAtom->Recoil.useRecoilValueFromAtom
+  let businessProfileRecoilVal = HyperswitchAtom.businessProfileFromIdAtom->Jotai.useAtomValue
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"pm-authentication-processor", "new"} => false

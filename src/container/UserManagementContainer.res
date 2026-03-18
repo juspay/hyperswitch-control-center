@@ -16,8 +16,8 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
-  let {devRolesV2} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let setRoleInfo = Jotai.useSetAtom(HyperswitchAtom.moduleListRecoil)
+  let {devRolesV2} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
 
   let fetchModuleList = async () => {
     try {

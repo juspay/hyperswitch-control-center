@@ -238,7 +238,7 @@ module SampleDataBanner = {
     open Typography
     open InsightsContainerUtils
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {sampleDataAnalytics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {sampleDataAnalytics} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let isSampleDataEnabled = filterValueJson->getStringFromDictAsBool(sampleDataKey, false)
     let stickyToggleClass = isSampleDataEnabled ? "sticky z-[30] top-0 " : "relative "

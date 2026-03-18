@@ -45,8 +45,7 @@ module SelectMerchantBody = {
     open LogicUtils
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let showToast = ToastState.useShowToast()
-    let merchantDetailsTypedValue =
-      HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
+    let merchantDetailsTypedValue = HyperswitchAtom.merchantDetailsValueAtom->Jotai.useAtomValue
 
     let dropDownOptions =
       merchantList
@@ -173,9 +172,8 @@ module CreateNewMerchantBody = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-    let merchantDetailsTypedValue =
-      HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let merchantDetailsTypedValue = HyperswitchAtom.merchantDetailsValueAtom->Jotai.useAtomValue
+    let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
 
     let initialValues = React.useMemo(() => {
       let dict = Dict.make()

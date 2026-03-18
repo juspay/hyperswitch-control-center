@@ -161,8 +161,8 @@ module LineageFormContent = {
 
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let showToast = ToastState.useShowToast()
-    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+    let merchantList = Jotai.useAtomValue(HyperswitchAtom.merchantListAtom)
+    let profileList = Jotai.useAtomValue(HyperswitchAtom.profileListAtom)
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
     let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
 

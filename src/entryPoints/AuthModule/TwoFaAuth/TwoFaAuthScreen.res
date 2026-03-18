@@ -8,9 +8,9 @@ let make = (~setAuthStatus) => {
     checkAuthMethodExists,
     isPasswordEnabled,
   } = AuthModuleHooks.useAuthMethods()
-  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let pageViewEvent = MixpanelHook.usePageView()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Jotai.useAtomValue
   let authInitState =
     isMagicLinkEnabled() && !isPasswordEnabled() ? LoginWithEmail : LoginWithPassword
 
