@@ -5,6 +5,4 @@ type breadcrumbItemType = {
 }
 
 @module("@juspay/blend-design-system") @react.component
-external make: (
-  ~items: array<breadcrumbItemType>,
-) => React.element = "Breadcrumb"
+external make: (~items: array<breadcrumbItemType>) => React.element = "Breadcrumb"

@@ -569,8 +569,7 @@ let make = (~id) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6">
       <BreadCrumbNavigation
-        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}]
-        currentPageTitle=id
+        path=[{title: "Rules Library", link: `/v1/recon-engine/rules`}] currentPageTitle=id
       />
       <PageUtils.PageHeading title="View Rule" customHeadingStyle="py-0" />
       {switch ruleData {

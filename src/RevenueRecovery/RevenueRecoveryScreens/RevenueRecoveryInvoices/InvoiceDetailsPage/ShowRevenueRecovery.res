@@ -299,8 +299,7 @@ let make = (~id) => {
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
-      path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
-      currentPageTitle=id
+      path=[{title: "Invoices", link: "/v2/recovery/invoices"}] currentPageTitle=id
     />
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">

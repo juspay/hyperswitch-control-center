@@ -138,8 +138,7 @@ let make = (~id) => {
           <div>
             <PageUtils.PageHeading title="Customers" />
             <BreadCrumbNavigation
-              path=[{title: "Customers", link: "/customers"}]
-              currentPageTitle=id
+              path=[{title: "Customers", link: "/customers"}] currentPageTitle=id
             />
           </div>
           <div />

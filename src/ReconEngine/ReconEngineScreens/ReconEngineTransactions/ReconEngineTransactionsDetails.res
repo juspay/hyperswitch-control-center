@@ -36,8 +36,7 @@ let make = (~id) => {
   <div>
     <div className="flex flex-col gap-4 mb-8">
       <BreadCrumbNavigation
-        path=[{title: "Transactions", link: `/v1/recon-engine/transactions`}]
-        currentPageTitle=id
+        path=[{title: "Transactions", link: `/v1/recon-engine/transactions`}] currentPageTitle=id
       />
       <PageUtils.PageHeading title="Transactions Detail" />
     </div>

@@ -744,8 +744,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         <div className="w-full">
           <PageUtils.PageHeading title="Payments" />
           <BreadCrumbNavigation
-            path=[{title: "Payments", link: breadCrumbLink}]
-            currentPageTitle=id
+            path=[{title: "Payments", link: breadCrumbLink}] currentPageTitle=id
           />
         </div>
         <RenderIf condition={showSyncButton()}>

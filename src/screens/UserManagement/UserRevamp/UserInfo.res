@@ -226,8 +226,7 @@ let make = () => {
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading title={"Team management"} />
       <BreadCrumbNavigation
-        path=[{title: "Team management", link: "/users"}]
-        currentPageTitle=userEmail
+        path=[{title: "Team management", link: "/users"}] currentPageTitle=userEmail
       />
     </div>
     <PageLoaderWrapper screenState>

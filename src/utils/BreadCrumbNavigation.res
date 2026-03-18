@@ -29,8 +29,7 @@ let make = (~path: array<breadcrumb>=[], ~currentPageTitle="") => {
             text: "No, don't go back",
           },
         })
-    | (None, None) =>
-      _ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=crumb.link))
+    | (None, None) => _ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=crumb.link))
     }
     let item: BreadcrumbBinding.breadcrumbItemType = {
       label: crumb.title,

@@ -46,8 +46,7 @@ let make = () => {
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading title=pageTitle />
       <BreadCrumbNavigation
-        path=[{title: "Profile", link: "/account-settings/profile"}]
-        currentPageTitle=pageTitle
+        path=[{title: "Profile", link: "/account-settings/profile"}] currentPageTitle=pageTitle
       />
     </div>
     {switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {

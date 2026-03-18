@@ -90,8 +90,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-6 w-full">
       <BreadCrumbNavigation
-        path={breadCrumbNavigationPath}
-        currentPageTitle=accountData.account_name
+        path={breadCrumbNavigationPath} currentPageTitle=accountData.account_name
       />
       <div className="flex flex-col gap-10">
         <PageUtils.PageHeading
