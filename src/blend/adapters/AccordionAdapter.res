@@ -5,8 +5,8 @@ type arrowPosition = Accordion.arrowPosition
 let make = (
   ~accordion: array<accordion>,
   ~arrowFillColor: string="#CED0DA",
-  ~accordianTopContainerCss: string="mt-5 rounded-lg",
-  ~accordianBottomContainerCss: string="p-4",
+  ~accordionTopContainerCss: string="mt-5 rounded-lg",
+  ~accordionBottomContainerCss: string="p-4",
   ~contentExpandCss="px-8 font-bold",
   ~arrowPosition=Accordion.Left,
   ~initialExpandedArray=[],
@@ -111,7 +111,7 @@ let make = (
           title={titleElem}
           chevronPosition={mapChevronPosition(arrowPosition)}>
           {item.renderContent(
-            ~currentAccordianState=isOpen,
+            ~currentAccordionState=isOpen,
             ~closeAccordionFn=makeCloseAccordionFn(i),
           )}
         </AccordionBinding.Item>
@@ -122,8 +122,8 @@ let make = (
     <Accordion
       accordion
       arrowFillColor
-      accordianTopContainerCss
-      accordianBottomContainerCss
+      accordionTopContainerCss
+      accordionBottomContainerCss
       contentExpandCss
       arrowPosition
       initialExpandedArray
