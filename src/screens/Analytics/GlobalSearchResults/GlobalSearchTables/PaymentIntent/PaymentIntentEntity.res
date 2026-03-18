@@ -167,16 +167,16 @@ let getObjects: JSON.t => array<paymentIntentObject> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType)
-  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType)
+  | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment ID", ~dataType=TextType)
+  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant ID", ~dataType=TextType)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
   | AmountCaptured => Table.makeHeaderInfo(~key, ~title="Amount Captured", ~dataType=TextType)
-  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer Id", ~dataType=TextType)
+  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer ID", ~dataType=TextType)
   | Description => Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType)
   | ReturnUrl => Table.makeHeaderInfo(~key, ~title="Return Url", ~dataType=TextType)
-  | ConnectorId => Table.makeHeaderInfo(~key, ~title="Connector Id", ~dataType=TextType)
+  | ConnectorId => Table.makeHeaderInfo(~key, ~title="Connector ID", ~dataType=TextType)
   | StatementDescriptorName =>
     Table.makeHeaderInfo(~key, ~title="Statement Descriptor Name", ~dataType=TextType)
   | StatementDescriptorSuffix =>
@@ -187,20 +187,20 @@ let getHeading = colType => {
   | SetupFutureUsage => Table.makeHeaderInfo(~key, ~title="Setup Future Usage", ~dataType=TextType)
   | OffSession => Table.makeHeaderInfo(~key, ~title="Off Session", ~dataType=TextType)
   | ClientSecret => Table.makeHeaderInfo(~key, ~title="Client Secret", ~dataType=TextType)
-  | ActiveAttemptId => Table.makeHeaderInfo(~key, ~title="Active Attempt Id", ~dataType=TextType)
+  | ActiveAttemptId => Table.makeHeaderInfo(~key, ~title="Active Attempt ID", ~dataType=TextType)
   | BusinessCountry => Table.makeHeaderInfo(~key, ~title="Business Country", ~dataType=TextType)
   | BusinessLabel => Table.makeHeaderInfo(~key, ~title="Business Label", ~dataType=TextType)
   | AttemptCount => Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType)
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Time Stamp", ~dataType=TextType)
-  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
-  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile ID", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization ID", ~dataType=TextType)
   | Metadata => Table.makeHeaderInfo(~key, ~title="Metadata", ~dataType=TextType)
   | MerchantOrderReferenceId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Order Reference Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Merchant Order Reference ID", ~dataType=TextType)
   | CardNetwork => Table.makeHeaderInfo(~key, ~title="Card Network", ~dataType=TextType)
   | CardHolderName => Table.makeHeaderInfo(~key, ~title="Card Holder Name", ~dataType=TextType)
-  | PaymentMethodId => Table.makeHeaderInfo(~key, ~title="Payment Method Id", ~dataType=TextType)
+  | PaymentMethodId => Table.makeHeaderInfo(~key, ~title="Payment Method ID", ~dataType=TextType)
   }
 }
 

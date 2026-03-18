@@ -19,7 +19,7 @@ let getHeading = colType => {
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector ID")
   }
 }
 let connectorStatusStyle = connectorStatus =>

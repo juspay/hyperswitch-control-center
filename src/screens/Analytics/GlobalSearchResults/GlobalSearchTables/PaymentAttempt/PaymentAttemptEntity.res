@@ -280,10 +280,10 @@ let getHeading = colType => {
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
   | AmountCaptured => Table.makeHeaderInfo(~key, ~title="Amount Captured", ~dataType=TextType)
-  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer Id", ~dataType=TextType)
+  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer ID", ~dataType=TextType)
   | Description => Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType)
   | ReturnUrl => Table.makeHeaderInfo(~key, ~title="Return Url", ~dataType=TextType)
-  | ConnectorId => Table.makeHeaderInfo(~key, ~title="Connector Id", ~dataType=TextType)
+  | ConnectorId => Table.makeHeaderInfo(~key, ~title="Connector ID", ~dataType=TextType)
   | StatementDescriptorName =>
     Table.makeHeaderInfo(~key, ~title="Statement Descriptor Name", ~dataType=TextType)
   | StatementDescriptorSuffix =>
@@ -294,7 +294,7 @@ let getHeading = colType => {
   | SetupFutureUsage => Table.makeHeaderInfo(~key, ~title="Setup Future Usage", ~dataType=TextType)
   | OffSession => Table.makeHeaderInfo(~key, ~title="Off Session", ~dataType=TextType)
   | ClientSecret => Table.makeHeaderInfo(~key, ~title="Client Secret", ~dataType=TextType)
-  | ActiveAttemptId => Table.makeHeaderInfo(~key, ~title="Active Attempt Id", ~dataType=TextType)
+  | ActiveAttemptId => Table.makeHeaderInfo(~key, ~title="Active Attempt ID", ~dataType=TextType)
   | BusinessCountry => Table.makeHeaderInfo(~key, ~title="Business Country", ~dataType=TextType)
   | BusinessLabel => Table.makeHeaderInfo(~key, ~title="Business Label", ~dataType=TextType)
   | AttemptCount => Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType)
@@ -303,17 +303,17 @@ let getHeading = colType => {
   | Confirm => Table.makeHeaderInfo(~key, ~title="Confirm", ~dataType=TextType)
   | MultipleCaptureCount =>
     Table.makeHeaderInfo(~key, ~title="Multiple Capture Count", ~dataType=TextType)
-  | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType)
+  | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt ID", ~dataType=TextType)
   | SaveToLocker => Table.makeHeaderInfo(~key, ~title="Save To Locker", ~dataType=TextType)
   | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
   | ErrorMessage => Table.makeHeaderInfo(~key, ~title="Error Message", ~dataType=TextType)
   | OfferAmount => Table.makeHeaderInfo(~key, ~title="Offer Amount", ~dataType=TextType)
   | SurchargeAmount => Table.makeHeaderInfo(~key, ~title="Surcharge Amount", ~dataType=TextType)
   | TaxAmount => Table.makeHeaderInfo(~key, ~title="Tax Amount", ~dataType=TextType)
-  | PaymentMethodId => Table.makeHeaderInfo(~key, ~title="Payment Method Id", ~dataType=TextType)
+  | PaymentMethodId => Table.makeHeaderInfo(~key, ~title="Payment Method ID", ~dataType=TextType)
   | PaymentMethod => Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=TextType)
   | ConnectorTransactionId =>
-    Table.makeHeaderInfo(~key, ~title="Connector Transaction Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Connector Transaction ID", ~dataType=TextType)
   | CaptureMethod => Table.makeHeaderInfo(~key, ~title="Capture Method", ~dataType=TextType)
   | CaptureOn => Table.makeHeaderInfo(~key, ~title="Capture On", ~dataType=TextType)
   | AuthenticationType =>
@@ -321,21 +321,21 @@ let getHeading = colType => {
   | CancellationReason =>
     Table.makeHeaderInfo(~key, ~title="Cancellation Reason", ~dataType=TextType)
   | AmountToCapture => Table.makeHeaderInfo(~key, ~title="Amount To Capture", ~dataType=TextType)
-  | MandateId => Table.makeHeaderInfo(~key, ~title="Mandate Id", ~dataType=TextType)
+  | MandateId => Table.makeHeaderInfo(~key, ~title="Mandate ID", ~dataType=TextType)
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key, ~title="Payment Method Type", ~dataType=TextType)
   | PaymentExperience => Table.makeHeaderInfo(~key, ~title="Payment Experience", ~dataType=TextType)
   | ErrorReason => Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType)
   | AmountCapturable => Table.makeHeaderInfo(~key, ~title="Amount Capturable", ~dataType=TextType)
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Connector Id", ~dataType=TextType)
+    Table.makeHeaderInfo(~key, ~title="Merchant Connector ID", ~dataType=TextType)
   | NetAmount => Table.makeHeaderInfo(~key, ~title="Net Amount", ~dataType=TextType)
   | UnifiedCode => Table.makeHeaderInfo(~key, ~title="Unified Code", ~dataType=TextType)
   | UnifiedMessage => Table.makeHeaderInfo(~key, ~title="Unified Message", ~dataType=TextType)
   | ClientSource => Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=TextType)
   | ClientVersion => Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=TextType)
-  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
-  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization Id", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile ID", ~dataType=TextType)
+  | OrganizationId => Table.makeHeaderInfo(~key, ~title="Organization ID", ~dataType=TextType)
   | PaymentMethodData =>
     Table.makeHeaderInfo(~key, ~title="Payment Method Data", ~dataType=TextType)
   | CardNetwork => Table.makeHeaderInfo(~key, ~title="Card Network", ~dataType=TextType)
