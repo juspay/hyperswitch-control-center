@@ -71,7 +71,7 @@ let payouts = userHasResourceAccess => {
     name: "Payouts",
     link: `/payouts`,
     access: userHasResourceAccess(~resourceAccess=Payout),
-    searchOptions: [("View payouts operations", "")],
+    searchOptions: [("View payout operations", "")],
   })
 }
 
@@ -501,7 +501,7 @@ let configurePMTs = userHasResourceAccess => {
 
 let complianceCertificateSection = {
   SubLevelLink({
-    name: "Compliance ",
+    name: "Compliance",
     link: `/compliance`,
     access: Access,
     searchOptions: [("PCI certificate", "")],
