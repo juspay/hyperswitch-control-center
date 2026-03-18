@@ -247,7 +247,7 @@ module DisputesInfoBarComponent = {
         setScreenState(_ => Success)
       } catch {
       | _ =>
-        showToast(~message="Failed to retrieve evidence for the dispute !", ~toastType=ToastError)
+        showToast(~message="Failed to retrieve evidence for the dispute!", ~toastType=ToastError)
       }
     }
 

@@ -691,7 +691,7 @@ let make = (
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
-      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully activated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -720,7 +720,7 @@ let make = (
       let deactivateRoutingURL = `${getURL(~entityName=urlEntityName, ~methodType=Post)}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post)
-      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
+      showToast(~message="Successfully deactivated!", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -784,7 +784,7 @@ let make = (
       let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
-        ~message="Successfully Created a new Configuration !",
+        ~message="Successfully created a new configuration!",
         ~toastType=ToastState.ToastSuccess,
       )
       setScreenState(_ => Success)

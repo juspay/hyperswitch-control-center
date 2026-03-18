@@ -175,7 +175,7 @@ let getHeading = colType => {
   | AmountCaptured => Table.makeHeaderInfo(~key, ~title="Amount Captured", ~dataType=TextType)
   | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer ID", ~dataType=TextType)
   | Description => Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType)
-  | ReturnUrl => Table.makeHeaderInfo(~key, ~title="Return Url", ~dataType=TextType)
+  | ReturnUrl => Table.makeHeaderInfo(~key, ~title="Return URL", ~dataType=TextType)
   | ConnectorId => Table.makeHeaderInfo(~key, ~title="Connector ID", ~dataType=TextType)
   | StatementDescriptorName =>
     Table.makeHeaderInfo(~key, ~title="Statement Descriptor Name", ~dataType=TextType)
