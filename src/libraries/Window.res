@@ -181,20 +181,20 @@ module Location = {
 }
 
 module Navigator = {
-  type browserType =
-    | Edge
-    | Opera
-    | Chrome
-    | Safari
-    | Firefox
-    | InternetExplorer
-    | Unknown
+  open LogicUtils
+
+  type browserType = [
+    | #Edge
+    | #Opera
+    | #Chrome
+    | #Safari
+    | #Firefox
+    | #InternetExplorer
+    | #Unknown
+  ]
 
   @val @scope(("window", "navigator"))
   external userAgent: string = "userAgent"
-
-  @val @scope(("window", "navigator"))
-  external browserNameRaw: string = "appName"
 
   @val @scope(("window", "navigator"))
   external browserVersion: string = "appVersion"
@@ -205,79 +205,46 @@ module Navigator = {
   @val @scope(("window", "navigator"))
   external browserLanguage: string = "language"
 
-  let browserName: browserType = {
+  // Each entry: (ua matches, browserType variant, version extraction pattern)
+  let browserEntries: array<(bool, browserType, string)> = {
     let ua = userAgent
-    if ua->String.includes("Edg/") || ua->String.includes("Edge/") {
-      Edge
-    } else if ua->String.includes("OPR/") || ua->String.includes("Opera/") {
-      Opera
-    } else if ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")) {
-      Chrome
-    } else if ua->String.includes("Safari/") && !(ua->String.includes("Chrome/")) {
-      Safari
-    } else if ua->String.includes("Firefox/") {
-      Firefox
-    } else if ua->String.includes("MSIE ") || ua->String.includes("Trident/") {
-      InternetExplorer
-    } else if browserNameRaw == "Netscape" {
-      Unknown
-    } else {
-      Unknown
-    }
+    [
+      (ua->String.includes("Edg/") || ua->String.includes("Edge/"), #Edge, "Edg/"),
+      (ua->String.includes("OPR/") || ua->String.includes("Opera/"), #Opera, "OPR/"),
+      (ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")), #Chrome, "Chrome/"),
+      (ua->String.includes("Safari/") && !(ua->String.includes("Chrome/")), #Safari, "Version/"),
+      (ua->String.includes("Firefox/"), #Firefox, "Firefox/"),
+      (ua->String.includes("MSIE ") || ua->String.includes("Trident/"), #InternetExplorer, "MSIE "),
+    ]
   }
 
-  let browserNameToString = (browser: browserType) => {
+  let browserName: browserType =
+    browserEntries
+    ->Array.find(((matches, _, _)) => matches)
+    ->Option.map(((_, browser, _)) => browser)
+    ->Option.getOr(#Unknown)
+
+  let browserNameToString = (browser: browserType) =>
     switch browser {
-    | Edge => "Edge"
-    | Opera => "Opera"
-    | Chrome => "Chrome"
-    | Safari => "Safari"
-    | Firefox => "Firefox"
-    | InternetExplorer => "Internet Explorer"
-    | Unknown => "Unknown"
+    | #InternetExplorer => "Internet Explorer"
+    | _ => (browser :> string)
     }
-  }
 
   let getBrowserVersion = {
     let ua = userAgent
-    let extractVersion = (pattern: string) => {
-      let parts = ua->String.split(pattern)
-      if parts->Array.length > 1 {
-        let rest = parts->LogicUtils.getValueFromArray(1, "")
-        let versionParts = rest->String.split(" ")
-        if versionParts->Array.length > 0 {
-          let version = versionParts->LogicUtils.getValueFromArray(0, "")
-          let cleanVersion = version->String.split("/")->LogicUtils.getValueFromArray(0, "")
-          cleanVersion
-        } else {
-          "Unknown"
-        }
-      } else {
-        "Unknown"
-      }
-    }
+    let extractVersion = (pattern: string) =>
+      ua
+      ->String.split(pattern)
+      ->getValueFromArray(1, "")
+      ->String.split(" ")
+      ->getValueFromArray(0, "")
+      ->String.split("/")
+      ->getValueFromArray(0, "Unknown")
 
-    if ua->String.includes("Edg/") {
-      extractVersion("Edg/")
-    } else if ua->String.includes("Edge/") {
-      extractVersion("Edge/")
-    } else if ua->String.includes("OPR/") {
-      extractVersion("OPR/")
-    } else if ua->String.includes("Opera/") {
-      extractVersion("Opera/")
-    } else if ua->String.includes("Chrome/") && !(ua->String.includes("Edg/")) {
-      extractVersion("Chrome/")
-    } else if ua->String.includes("Version/") && ua->String.includes("Safari/") {
-      extractVersion("Version/")
-    } else if ua->String.includes("Firefox/") {
-      extractVersion("Firefox/")
-    } else if ua->String.includes("MSIE ") {
-      extractVersion("MSIE ")
-    } else if ua->String.includes("rv:") && ua->String.includes("Trident/") {
-      extractVersion("rv:")
-    } else {
-      "Unknown"
-    }
+    browserEntries
+    ->Array.find(((matches, _, _)) => matches)
+    ->Option.map(((_, _, versionPattern)) => extractVersion(versionPattern))
+    ->Option.getOr("Unknown")
   }
 }
 
