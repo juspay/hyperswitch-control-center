@@ -330,7 +330,7 @@ let make = () => {
                       {"For example:"->React.string}
                       <p className="flex gap-2 items-center">
                         <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
-                        {"If amount is > 100 and currency is USD, enforce 3DS authentication ."->React.string}
+                        {"If amount is > 100 and currency is USD, enforce 3DS authentication."->React.string}
                       </p>
                     </span>
                     <span className="text-jp-gray-700 text-sm">
@@ -369,7 +369,7 @@ let make = () => {
               {"Configure 3DS Rule"->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
+              {"Create advanced rules using various payment parameters like amount, currency, payment method, etc. to enforce 3DS authentication for specific payments to reduce fraudulent transactions."->React.string}
             </p>
             <ACLButton
               text="Create New"
