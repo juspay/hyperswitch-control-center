@@ -84,7 +84,7 @@ module NoteComponent = {
     }
 
     <div className="flex gap-2 items-start justify-start">
-      <Icon name="info-vacent" size=18 customIconColor="!text-gray-400" />
+      <Icon name="info-vacant" size=18 customIconColor="!text-gray-400" />
       <span className={`${p3RegularTextClass} text-gray-500`}>
         {descriptionBasedOnEntity->React.string}
       </span>

@@ -269,7 +269,7 @@ module ConnectorSummaryGrid = {
               Processors(FIUU)}>
             <div
               className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacent" size=18 />
+              <Icon name="info-vacant" size=18 />
               <div>
                 <p className="mb-3">
                   {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
@@ -332,7 +332,7 @@ module ConnectorSummaryGrid = {
             </div>
             <div
               className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-              <Icon name="info-vacent" size=18 />
+              <Icon name="info-vacant" size=18 />
               <p>
                 {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
                 <a

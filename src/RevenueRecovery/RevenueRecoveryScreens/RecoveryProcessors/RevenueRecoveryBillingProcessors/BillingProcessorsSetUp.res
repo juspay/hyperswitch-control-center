@@ -125,7 +125,7 @@ let make = (
                   height="mt-0.5"
                   description="Sets the number of failed attempts that will be monitored before initiating retry scheduling"
                   toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacent" size=13 />
+                    <Icon name="info-vacant" size=13 />
                   </div>}
                   toolTipPosition=ToolTip.Top
                   newDesign=true
@@ -152,7 +152,7 @@ let make = (
                   height="mt-0.5"
                   description="Defines the maximum number of retry attempts before the system stops trying."
                   toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacent" size=13 />
+                    <Icon name="info-vacant" size=13 />
                   </div>}
                   toolTipPosition=ToolTip.Top
                   newDesign=true

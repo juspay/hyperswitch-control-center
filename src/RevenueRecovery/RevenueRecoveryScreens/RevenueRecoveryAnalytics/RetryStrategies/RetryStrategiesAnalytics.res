@@ -44,7 +44,7 @@ module RetryUpliftCard = {
         <ToolTip
           description
           toolTipFor={<div className="cursor-pointer">
-            <Icon name="info-vacent" size=15 />
+            <Icon name="info-vacant" size=15 />
           </div>}
           toolTipPosition=ToolTip.Top
           newDesign=true
