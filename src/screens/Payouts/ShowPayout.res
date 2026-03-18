@@ -309,7 +309,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
             <BreadCrumbNavigation
               path=[{title: "Payouts", link: "/payouts"}]
               currentPageTitle=id
-              cursorStyle="cursor-pointer"
             />
           </div>
           <div />

@@ -301,12 +301,6 @@ let make = (~id) => {
     <BreadCrumbNavigation
       path=[{title: "Invoices", link: "/v2/recovery/invoices"}]
       currentPageTitle=id
-      cursorStyle="cursor-pointer"
-      customTextClass="text-nd_gray-400"
-      titleTextClass="text-nd_gray-600 font-medium"
-      fontWeight="font-medium"
-      dividerVal=Slash
-      childGapClass="gap-2"
     />
     <div className="flex flex-col gap-10">
       <div className="flex flex-row justify-between items-center">

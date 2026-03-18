@@ -92,12 +92,6 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
       <BreadCrumbNavigation
         path={breadCrumbNavigationPath}
         currentPageTitle=accountData.account_name
-        cursorStyle="cursor-pointer"
-        customTextClass="text-nd_gray-400"
-        titleTextClass="text-nd_gray-600 font-medium"
-        fontWeight="font-medium"
-        dividerVal=Slash
-        childGapClass="gap-2"
       />
       <div className="flex flex-col gap-10">
         <PageUtils.PageHeading

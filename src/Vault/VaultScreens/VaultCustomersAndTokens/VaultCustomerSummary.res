@@ -291,7 +291,6 @@ let make = (~id, ~sampleReport) => {
                 },
               ]
               currentPageTitle=id
-              cursorStyle="cursor-pointer"
             />
           </div>
         </div>

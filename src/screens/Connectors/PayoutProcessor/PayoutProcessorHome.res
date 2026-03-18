@@ -233,7 +233,6 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector(
             ~connectorType=PayoutProcessor,
           )}
-          cursorStyle="cursor-pointer"
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
