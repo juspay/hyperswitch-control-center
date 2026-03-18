@@ -1023,6 +1023,9 @@ describe("Payment Operations", () => {
     });
 
     cy.get('[data-table-location="Attempts_tr1_td1"]').click({ force: true });
+    cy.get('[data-heading="Attempt Details"]')
+      .scrollIntoView()
+      .should("be.visible");
 
     const expectedValues = {
       "Attempt ID": "Attempt ID",
