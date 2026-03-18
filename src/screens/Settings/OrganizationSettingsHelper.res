@@ -176,11 +176,12 @@ module PlatformInfoModal = {
               <li> {"Franchise or multi-location businesses"->React.string} </li>
             </ul>
           </div>
-          <HSwitchUtils.AlertBanner
-            bannerContent={<p className={`${body.sm.regular}`}>
-              {"Creating a new platform organization will set up a separate entity. Your existing organization will remain unchanged."->React.string}
-            </p>}
-            bannerType=Info
+          <AlertV2Binding
+            \"type"=Primary
+            slot={{
+              slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+            }}
+            description="Creating a new platform organization will set up a separate entity. Your existing organization will remain unchanged."
           />
         </div>
       </div>

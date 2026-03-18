@@ -281,19 +281,20 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
 module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
-    <HSwitchUtils.AlertBanner
-      bannerContent={<p>
-        {`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`->React.string}
-      </p>}
-      bannerType=Warning
-      customRightAction={<Button
-        text="Regenerate recovery-codes"
-        buttonType={Secondary}
-        onClick={_ =>
-          RescriptReactRouter.push(
-            GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-          )}
-      />}
+    <AlertV2Binding
+      \"type"=Warning
+      slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+      description={`You are low on recovery-codes. Only ${recoveryCode->Int.toString} left.`}
+      actions={{
+        position: Bottom,
+        primaryAction: {
+          text: "Regenerate recovery-codes",
+          onClick: _ =>
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+            ),
+        },
+      }}
     />
   }
 }

@@ -109,11 +109,10 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         </div>
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
-            <HSwitchUtils.AlertBanner
-              bannerContent={<p>
-                {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
-              </p>}
-              bannerType=Warning
+            <AlertV2Binding
+              \"type"=Warning
+              slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
+              description="Please verify if the payment methods are turned on at the processor end as well."
             />
             <PaymentMethod.PaymentMethodsRender
               _showAdvancedConfiguration

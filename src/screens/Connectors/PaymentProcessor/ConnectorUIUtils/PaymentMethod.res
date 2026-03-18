@@ -563,11 +563,12 @@ module CardRenderer = {
         <RenderIf condition={methodsWithAdditionalDetails->Array.length > 0}>
           <div className="flex flex-col gap-4">
             <RenderIf condition={paymentMethod->getPaymentMethodFromString == BankDebit}>
-              <HSwitchUtils.AlertBanner
-                bannerContent={<p>
-                  {"Below methods can be enabled independently. Add optional payment authenticator if needed."->React.string}
-                </p>}
-                bannerType={Info}
+              <AlertV2Binding
+                \"type"=Primary
+                slot={{
+                  slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+                }}
+                description="Below methods can be enabled independently. Add optional payment authenticator if needed."
               />
             </RenderIf>
             <RenderIf condition={paymentMethod->getPaymentMethodFromString != BankDebit}>

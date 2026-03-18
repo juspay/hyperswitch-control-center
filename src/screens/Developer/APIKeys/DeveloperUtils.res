@@ -278,8 +278,7 @@ module SuccessUI = {
   let make = (~downloadFun, ~apiKey) => {
     <div>
       <div className="flex p-5">
-        <Icon className="align-middle fill-blue-600 self-center" size=40 name="info-circle" />
-        <div className="text-jp-gray-900 ml-4">
+        <div className="text-jp-gray-900">
           <div
             className="font-bold text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
             {React.string("Download the API Key")}
@@ -292,11 +291,12 @@ module SuccessUI = {
               customParentClass="flex items-center gap-5"
             />
           </div>
-          <HSwitchUtils.AlertBanner
-            bannerType=Info
-            bannerContent={<p>
-              {"Please note down the API key for your future use as you won't be able to view it later."->React.string}
-            </p>}
+          <AlertV2Binding
+            \"type"=Primary
+            slot={{
+              slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+            }}
+            description="Please note down the API key for your future use as you won't be able to view it later."
           />
         </div>
       </div>

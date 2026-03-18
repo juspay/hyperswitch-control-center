@@ -85,17 +85,22 @@ let make = () => {
     ) === Access && checkUserEntity([#Organization])
 
   let contactUsBanner =
-    <HSwitchUtils.AlertBanner
-      bannerContent={<p className={`${body.sm.regular}`}>
-        {"Contact us for further assistance on "->React.string}
-        <a
-          href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-          className="text-primary hover:cursor-pointer hover:underline"
-          target="_blank">
-          {"Slack"->React.string}
-        </a>
-      </p>}
-      bannerType=Info
+    <AlertV2Binding
+      \"type"=Primary
+      slot={{
+        slot: <div className="flex items-center gap-2">
+          <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />
+          <p className={body.md.regular}>
+            {"Contact us for further assistance on "->React.string}
+            <a
+              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+              className="text-nd_primary_blue-450 hover:underline cursor-pointer"
+              target="_blank">
+              {"Slack"->React.string}
+            </a>
+          </p>
+        </div>,
+      }}
     />
 
   <PageLoaderWrapper screenState>
