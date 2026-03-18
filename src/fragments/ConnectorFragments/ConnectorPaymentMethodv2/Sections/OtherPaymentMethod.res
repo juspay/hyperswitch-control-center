@@ -219,7 +219,7 @@ let make = (
                     accordion={[
                       {
                         title: pmtData.payment_method_subtype,
-                        renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
+                        renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
                           <AdditionalDetailsSidebar
                             method={None}
                             setMetaData={_ => ()}
@@ -285,9 +285,9 @@ let make = (
                         ),
                       },
                     ]}
-                    accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                    accordionTopContainerCss="border border-nd_gray-150 rounded-lg "
                     contentExpandCss="p-0 "
-                    accordianBottomContainerCss="!p-2 flex justify-between w-full !font-normal !text-fs-16"
+                    accordionBottomContainerCss="!p-2 flex justify-between w-full !font-normal !text-fs-16"
                     gapClass="flex flex-col gap-8"
                   />
                 })

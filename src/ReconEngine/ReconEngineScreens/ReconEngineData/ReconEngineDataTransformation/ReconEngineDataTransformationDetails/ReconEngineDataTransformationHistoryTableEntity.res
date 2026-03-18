@@ -25,10 +25,10 @@ let transformationHistoryTableEntity = (
     ~getCell=getTransformationHistoryCell,
     ~dataKey="",
     ~getShowLink={
-      connec => {
+      connectorObj => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
-            ~url=`/${path}/${connec.ingestion_history_id}?transformationHistoryId=${connec.transformation_history_id}`,
+            ~url=`/${path}/${connectorObj.ingestion_history_id}?transformationHistoryId=${connectorObj.transformation_history_id}`,
           ),
           ~authorization,
         )
