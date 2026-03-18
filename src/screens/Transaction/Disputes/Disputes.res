@@ -147,7 +147,7 @@ let make = () => {
           totalResults={disputesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={disputesData->Array.length}
+          currentFetchCount={disputesData->Array.length}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false

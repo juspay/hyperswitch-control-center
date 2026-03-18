@@ -312,6 +312,12 @@ let make = () => {
         title={"3DS Decision Manager"}
         subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
       />
+      <HSwitchUtils.AlertBanner
+        bannerContent={<p>
+          {"Deprecation Notice: 3DS Decision Manager will be deprecated soon. Please use 3DS Exemption Manager for managing 3DS rules."->React.string}
+        </p>}
+        bannerType=Warning
+      />
       {switch pageView {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">

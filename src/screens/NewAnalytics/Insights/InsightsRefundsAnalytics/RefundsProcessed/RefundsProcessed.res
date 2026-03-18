@@ -39,7 +39,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={refundsProcessed->Array.length}
+        currentFetchCount={refundsProcessed->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass

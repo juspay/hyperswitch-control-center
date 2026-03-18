@@ -30,7 +30,7 @@ module PreviewTable = {
       offset={0}
       setOffset={_ => ()}
       defaultSort
-      currrentFetchCount={tableData->Array.length}
+      currentFetchCount={tableData->Array.length}
       tableLocalFilter=false
       tableheadingClass=tableBorderClass
       tableBorderClass
@@ -148,7 +148,7 @@ let make = () => {
         totalResults={totalCount}
         offset
         setOffset
-        currrentFetchCount={data->Array.length}
+        currentFetchCount={data->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass

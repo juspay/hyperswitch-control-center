@@ -36,7 +36,7 @@ module RefundInfo = {
                     value={getCell(data, colType)}
                     customMoneyStyle="!font-normal !text-sm"
                     labelMargin="!py-0 mt-2"
-                    overiddingHeadingStyles="text-black text-sm font-medium"
+                    overridingHeadingStyles="text-black text-sm font-medium"
                     textColor="!font-normal !text-jp-gray-700"
                   />
                 </div>
@@ -197,12 +197,12 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
         userHasAccess(~groupAccess=AnalyticsView) === Access}>
-        <OrderUIUtils.RenderAccordian
+        <OrderUIUtils.RenderAccordion
           initialExpandedArray=[0]
           accordion={[
             {
               title: "Events and logs",
-              renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+              renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                 <LogsWrapper wrapperFor={#REFUND}>
                   <RefundLogs refundId=id paymentId />
                 </LogsWrapper>
@@ -222,7 +222,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           totalResults=1
           offset
           setOffset
-          currrentFetchCount=1
+          currentFetchCount=1
         />
       </RenderIf>
     </PageLoaderWrapper>

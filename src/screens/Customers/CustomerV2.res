@@ -162,7 +162,7 @@ let make = () => {
             totalResults=total
             offset
             setOffset
-            currrentFetchCount={customersData->Array.length}
+            currentFetchCount={customersData->Array.length}
             defaultColumns={defaultColumns}
             customColumnMapper={TableAtoms.customersMapDefaultCols}
             showSerialNumberInCustomizeColumns=false

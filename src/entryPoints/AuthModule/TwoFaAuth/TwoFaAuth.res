@@ -13,8 +13,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let setMixpanelIdentity = MixpanelHook.useSetIdentity()
 
   let initialValues = Dict.make()->JSON.Encode.object
-  let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
-  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
+  let clientCountry = HSwitchUtils.getBrowserDetails().clientCountry
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVariant
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")

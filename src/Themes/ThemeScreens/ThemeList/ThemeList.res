@@ -74,7 +74,7 @@ let make = () => {
             totalResults={themeListArray->Array.length}
             offset=0
             setOffset={_ => ()}
-            currrentFetchCount={themeListArray->Array.length}
+            currentFetchCount={themeListArray->Array.length}
           />
         </RenderIf>
       </div>

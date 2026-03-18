@@ -394,9 +394,9 @@ module ReactWindowTableComponent = {
                 {
                   let len = colFilter->Array.length
                   switch colFilter->Array.get(i) {
-                  | Some(fitlerRows) =>
+                  | Some(filterRows) =>
                     <FilterRow
-                      item=fitlerRows
+                      item=filterRows
                       hideFilter={showCheckBox && isFirstCol}
                       removeVerticalLines
                       tableDataBorderClass
@@ -666,8 +666,8 @@ let make = (
 
   let setColumnFilter = React.useMemo(() => {
     (filterKey, filterValue: array<JSON.t>) => {
-      setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Dict.toArray->Dict.fromArray
+      setColumnFilterOrig(oldFilters => {
+        let newObj = oldFilters->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
@@ -699,8 +699,8 @@ let make = (
   let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
   let setIsFilterOpen = React.useMemo(() => {
     (filterKey, value: bool) => {
-      setIsFilterOpenOrig(oldFitlers => {
-        let newObj = oldFitlers->DictionaryUtils.copyOfDict
+      setIsFilterOpenOrig(oldFilters => {
+        let newObj = oldFilters->DictionaryUtils.copyOfDict
         newObj->Dict.set(filterKey, value)
         newObj
       })

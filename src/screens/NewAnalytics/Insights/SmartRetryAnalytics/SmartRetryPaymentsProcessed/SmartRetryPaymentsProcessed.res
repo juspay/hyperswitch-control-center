@@ -39,7 +39,7 @@ module TableModule = {
         offset
         setOffset
         defaultSort
-        currrentFetchCount={smartRetryPaymentsProcessed->Array.length}
+        currentFetchCount={smartRetryPaymentsProcessed->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass

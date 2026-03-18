@@ -131,7 +131,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={revenueRecoveryData->Array.length}
+          currentFetchCount={revenueRecoveryData->Array.length}
           customColumnMapper=TableAtoms.revenueRecoveryMapDefaultCols
           defaultColumns={RevenueRecoveryEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false
