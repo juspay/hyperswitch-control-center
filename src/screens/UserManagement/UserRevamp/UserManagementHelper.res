@@ -224,7 +224,7 @@ module ProfileSelection = {
             ...input,
             onChange: event => handleOnChange(event, input)->ignore,
           },
-          ~placeholder="Select a merchant",
+          ~placeholder="Select a profile",
         ),
     )
 
@@ -240,7 +240,7 @@ module ProfileSelection = {
 }
 
 let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email(s) ",
+  ~label="Enter email(s)",
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0

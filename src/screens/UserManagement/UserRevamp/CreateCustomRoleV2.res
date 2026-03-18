@@ -245,7 +245,7 @@ let make = () => {
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading
         title="Create Custom Role"
-        subTitle="Adjust permissions to create roles that match your requirement"
+        subTitle="Adjust permissions to create roles that match your requirements"
       />
       <BreadCrumbNavigation
         path=[{title: "Team management", link: `/users`}] currentPageTitle="Create Custom Role"

@@ -117,7 +117,7 @@ module ResendInviteSection = {
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message="Invite resend. Please check your email.", ~toastType=ToastSuccess)
+        showToast(~message="Invite resent. Please check your email.", ~toastType=ToastSuccess)
       } catch {
       | _ => {
           setScreenState(_ => PageLoaderWrapper.Success)
