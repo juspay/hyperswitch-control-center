@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.18.0
+
+### Testing
+
+- Added base test for payin and payout connector tests ([#4131](https://github.com/juspay/hyperswitch-control-center/pull/4131)) ([`d97711c`](https://github.com/juspay/hyperswitch-control-center/commit/d97711c155a5a076ebfa3b9cf721744c26d8297a))
+
+**Full Changelog:** [`2026.03.17.0...2026.03.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.17.0...2026.03.18.0)
+
+- - -
+
 ## 2026.03.17.0
 
 ### Miscellaneous Tasks

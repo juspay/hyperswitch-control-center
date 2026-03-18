@@ -43,7 +43,7 @@ let make: (
   ~onEntityClick: 'b => unit=?,
   ~onEntityDoubleClick: 'b => unit=?,
   ~onExpandClickData: 'd=?,
-  ~currrentFetchCount: int,
+  ~currentFetchCount: int,
   ~filters: React.element=?,
   ~showFilterBorder: bool=?,
   ~headBottomMargin: string=?,

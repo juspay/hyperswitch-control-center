@@ -165,7 +165,7 @@ let make = () => {
             "fraud-risk-management",
             ~authorization={userHasAccess(~groupAccess=ConnectorsManage)},
           )}
-          currrentFetchCount={configuredFRMs->Array.length}
+          currentFetchCount={configuredFRMs->Array.length}
           collapseTableRow=false
           showAutoScroll=true
         />

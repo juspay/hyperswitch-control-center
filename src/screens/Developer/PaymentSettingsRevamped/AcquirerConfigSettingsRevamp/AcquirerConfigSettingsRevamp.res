@@ -246,7 +246,7 @@ module AcquirerConfigContentRevamp = {
           offset
           setOffset
           entity=entityWithEditHandler
-          currrentFetchCount=totalResults
+          currentFetchCount=totalResults
           showPagination={totalResults > resultsPerPage}
           tableLocalFilter=false
           showSerialNumber=false
