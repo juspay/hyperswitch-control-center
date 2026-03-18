@@ -572,7 +572,7 @@ module CardRenderer = {
             </RenderIf>
             <RenderIf condition={paymentMethod->getPaymentMethodFromString != BankDebit}>
               <p className={`${body.md.medium} text-grey-700 opacity-50`}>
-                {"Below payment method types requires additional details"->React.string}
+                {"The following payment method types require additional details"->React.string}
               </p>
             </RenderIf>
             <div className={`flex flex-col gap-4 `}>
@@ -617,7 +617,7 @@ module CardRenderer = {
                           <RenderIf
                             condition={paymentMethod->getPaymentMethodFromString === BankDebit}>
                             <p className={`${body.sm.medium} text-grey-700 opacity-50 mr-2`}>
-                              {"Optional Configuraiton"->React.string}
+                              {"Optional Configuration"->React.string}
                             </p>
                           </RenderIf>
                         </div>

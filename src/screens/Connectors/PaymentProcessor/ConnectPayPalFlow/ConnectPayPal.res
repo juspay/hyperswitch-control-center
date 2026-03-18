@@ -213,7 +213,7 @@ module RedirectionToPayPalFlow = {
               actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
             />
             <Button
-              text="Refresh status "
+              text="Refresh status"
               buttonType={Secondary}
               buttonSize=Small
               onClick={_ => getPayPalStatus()->ignore}
