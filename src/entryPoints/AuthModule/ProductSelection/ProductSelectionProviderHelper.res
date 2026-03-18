@@ -27,7 +27,7 @@ module SwitchMerchantBody = {
     <div className="flex flex-col items-center gap-2">
       <Loader />
       <div className={`${heading.md.semibold} mb-4`}>
-        {"Switching merchant...."->React.string}
+        {"Switching merchant..."->React.string}
       </div>
     </div>
   }
@@ -138,7 +138,7 @@ module SelectMerchantBody = {
       <Form key="new-merchant-creation" onSubmit initialValues validate={validateForm}>
         <div className="flex flex-col h-full w-full">
           <span className={`${body.md.medium} text-nd_gray-400  mx-4 mt-4`}>
-            {"Select the appropriate Merchant from the list of ID's created for this module."->React.string}
+            {"Select the appropriate merchant from the list of IDs created for this module."->React.string}
           </span>
           <div className="py-4">
             <FormRenderer.DesktopRow>
