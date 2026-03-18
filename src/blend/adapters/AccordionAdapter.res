@@ -53,7 +53,9 @@ let make = (
       newValues->Array.forEach(v => {
         if !(openValues->Array.includes(v)) {
           let idx = v->Int.fromString->Option.getOr(-1)
-          accordion->Array.get(idx)->Option.forEach(item => {
+          accordion
+          ->Array.get(idx)
+          ->Option.forEach(item => {
             item.onItemExpandClick->Option.forEach(fn => fn())
           })
         }
@@ -63,7 +65,9 @@ let make = (
       openValues->Array.forEach(v => {
         if !(newValues->Array.includes(v)) {
           let idx = v->Int.fromString->Option.getOr(-1)
-          accordion->Array.get(idx)->Option.forEach(item => {
+          accordion
+          ->Array.get(idx)
+          ->Option.forEach(item => {
             item.onItemCollapseClick->Option.forEach(fn => fn())
           })
         }
@@ -90,8 +94,7 @@ let make = (
       onValueChange={handleValueChange}
       isCollapsible=true
       isMultiple={!singleOpen}
-      className=gapClass
-    >
+      className=gapClass>
       {accordion
       ->Array.mapWithIndex((item, i) => {
         let isOpen = openValues->Array.includes(i->Int.toString)
@@ -106,8 +109,7 @@ let make = (
           key={i->Int.toString}
           value={i->Int.toString}
           title={titleElem}
-          chevronPosition={mapChevronPosition(arrowPosition)}
-        >
+          chevronPosition={mapChevronPosition(arrowPosition)}>
           {item.renderContent(
             ~currentAccordianState=isOpen,
             ~closeAccordionFn=makeCloseAccordionFn(i),
