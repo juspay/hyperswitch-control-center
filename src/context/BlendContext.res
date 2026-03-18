@@ -5,12 +5,11 @@ module Provider = {
 }
 
 let useBlendEnabled = () => {
-  let featureFlags = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  featureFlags.devBlendEnabled
+  React.useContext(blendEnabledContext)
 }
 
 @react.component
 let make = (~children) => {
-  let isBlendEnabled = useBlendEnabled()
-  <Provider value=isBlendEnabled> children </Provider>
+  let {devBlendEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  <Provider value=devBlendEnabled> children </Provider>
 }
