@@ -39,7 +39,7 @@ module TabDetails = {
 
       let headerDataItem = headersArray->Array.map(header => {
         header
-        ->getStrArryFromJson
+        ->getStrArrayFromJson
         ->headerKeyValUI
       })
 
@@ -210,7 +210,7 @@ let make = (~id) => {
       onEntityClick={val => handleClickItem(val)}
       offset
       setOffset
-      currrentFetchCount={attemptTableArr->Array.map(Nullable.make)->Array.length}
+      currentFetchCount={attemptTableArr->Array.map(Nullable.make)->Array.length}
       collapseTableRow=false
       showSerialNumber=true
       highlightSelectedRow=true

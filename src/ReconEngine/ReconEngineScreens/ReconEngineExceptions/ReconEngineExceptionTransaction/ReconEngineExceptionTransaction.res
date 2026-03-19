@@ -162,7 +162,7 @@ let make = (~ruleId: string) => {
           totalResults={filteredExceptionData->Array.length}
           offset
           setOffset
-          currrentFetchCount={exceptionData->Array.length}
+          currentFetchCount={exceptionData->Array.length}
           customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
           defaultColumns={defaultColumns}
           showSerialNumberInCustomizeColumns=false
