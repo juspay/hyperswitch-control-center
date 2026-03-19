@@ -173,7 +173,7 @@ let make = () => {
       let responseDict = threeDsRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("program", Dict.make())
 
-      let intitialValue =
+      let initialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
           (
@@ -183,7 +183,7 @@ let make = () => {
           ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
-      setInitialRule(_ => Some(intitialValue))
+      setInitialRule(_ => Some(initialValue))
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong")

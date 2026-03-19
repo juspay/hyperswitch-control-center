@@ -1,4 +1,4 @@
-type clientSecretStatus = IntialPreview | Loading | Success | Error
+type clientSecretStatus = InitialPreview | Loading | Success | Error
 type address = {
   line1: string,
   line2: string,
