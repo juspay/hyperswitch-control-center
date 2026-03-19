@@ -283,15 +283,15 @@ let useGetURL = () => {
         }
       | PAYMENT_METHODS =>
         switch methodType {
-        | Get => "payemnt_methods"
+        | Get => "payment_methods"
         | _ => ""
         }
       | PAYMENT_METHODS_DETAILS =>
         switch methodType {
         | Get =>
           switch id {
-          | Some(id) => `payemnt_methods/${id}`
-          | None => `payemnt_methods`
+          | Some(id) => `payment_methods/${id}`
+          | None => `payment_methods`
           }
         | _ => ""
         }

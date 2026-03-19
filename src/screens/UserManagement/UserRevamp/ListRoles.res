@@ -72,7 +72,7 @@ let make = () => {
         offset=rolesOffset
         setOffset=setRolesOffset
         entity={rolesEntity}
-        currrentFetchCount={rolesAvailableData->Array.length}
+        currentFetchCount={rolesAvailableData->Array.length}
         collapseTableRow=false
         tableheadingClass="h-12"
         customBorderClass="border !rounded-xl"

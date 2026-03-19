@@ -80,9 +80,9 @@ let make = () => {
       let updatedData = paymentMethodType->Array.map(
         val => {
           let wasmDict = val->getDictFromJsonObject
-          let exisitngData =
+          let existingData =
             wasmDict->ConnectorPaymentMethodV2Utils.getPaymentMethodDictV2(key, connector)
-          exisitngData
+          existingData
         },
       )
       updatedData
@@ -209,7 +209,7 @@ let make = () => {
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
+                  customSubmitButtonStyle="!w-full mt-8"
                   tooltipForWidthClass="w-full"
                 />
               </div>
@@ -232,7 +232,7 @@ let make = () => {
                 <FormRenderer.SubmitButton
                   text="Next"
                   buttonSize={Small}
-                  customSumbitButtonStyle="!w-full mt-8"
+                  customSubmitButtonStyle="!w-full mt-8"
                   tooltipForWidthClass="w-full"
                 />
               </div>

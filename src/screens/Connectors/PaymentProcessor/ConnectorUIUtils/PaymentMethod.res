@@ -584,7 +584,7 @@ module CardRenderer = {
                 accordion={methodsWithAdditionalDetails->Array.map(value => {
                   let accordionElem: Accordion.accordion = {
                     title: value.payment_method_type,
-                    renderContent: (~currentAccordianState as _, ~closeAccordionFn) =>
+                    renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
                       <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
@@ -617,7 +617,7 @@ module CardRenderer = {
                           <RenderIf
                             condition={paymentMethod->getPaymentMethodFromString === BankDebit}>
                             <p className={`${body.sm.medium} text-grey-700 opacity-50 mr-2`}>
-                              {"Optional Configuraiton"->React.string}
+                              {"Optional Configuration"->React.string}
                             </p>
                           </RenderIf>
                         </div>
@@ -626,9 +626,9 @@ module CardRenderer = {
                   }
                   accordionElem
                 })}
-                accordianTopContainerCss="border border-nd_gray-150 rounded-lg "
+                accordionTopContainerCss="border border-nd_gray-150 rounded-lg "
                 contentExpandCss="p-0 "
-                accordianBottomContainerCss="!p-2 flex justify-between w-full"
+                accordionBottomContainerCss="!p-2 flex justify-between w-full"
                 gapClass="flex flex-col gap-4"
                 singleOpen=true
               />

@@ -437,7 +437,7 @@ module BaseSelect = {
     ~showSelectionAsChips=true,
     ~maxHeight="md:max-h-72",
     ~searchable=?,
-    ~optionRigthElement=?,
+    ~optionRightElement=?,
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~customStyle="",
@@ -612,7 +612,7 @@ module BaseSelect = {
 
     let searchRef = React.useRef(Nullable.null)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
-    let gapClass = switch optionRigthElement {
+    let gapClass = switch optionRightElement {
     | Some(_) => "flex gap-4"
     | None => ""
     }
@@ -861,7 +861,7 @@ module BaseSelect = {
                     checkboxDimension
                     iconStroke=item.iconStroke
                   />
-                  {switch optionRigthElement {
+                  {switch optionRightElement {
                   | Some(rightElement) => rightElement
                   | None => React.null
                   }}
@@ -1591,7 +1591,7 @@ module BaseDropdown = {
     let dropdownRef = React.useRef(Nullable.null)
     let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
-      newInputSelect.value->LogicUtils.getStrArryFromJson
+      newInputSelect.value->LogicUtils.getStrArrayFromJson
     )
 
     // this useEffect enables communication between transaction view changes and the filter dropdown options via filterValueJson
@@ -1617,7 +1617,7 @@ module BaseDropdown = {
       | None => ()
       }
 
-      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
+      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArrayFromJson)
     }
 
     let clearBtnRef = React.useRef(Nullable.null)
@@ -1925,7 +1925,7 @@ module BaseDropdown = {
                         description={showNameAsToolTip
                           ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                           : newInputSelect.value
-                            ->LogicUtils.getStrArryFromJson
+                            ->LogicUtils.getStrArrayFromJson
                             ->Array.joinWith(",\n")}
                         toolTipFor=selectButton
                         toolTipPosition=Bottom
@@ -2118,7 +2118,7 @@ let make = (
   ~maxHeight=?,
   ~searchable=?,
   ~fill="#0EB025",
-  ~optionRigthElement=?,
+  ~optionRightElement=?,
   ~hideBorder=false,
   ~allSelectType=Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
@@ -2249,7 +2249,7 @@ let make = (
       options
       optionSize
       isSelectedStateMinus
-      ?optionRigthElement
+      ?optionRightElement
       onSelect=newInputSelect.onChange
       value=newInputSelect.value
       isDropDown

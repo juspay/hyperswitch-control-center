@@ -326,7 +326,7 @@ let make = (
             customButtonStyle="w-20 !h-10"
           />
           <FormRenderer.SubmitButton
-            text={"Initiate Refund"} customSumbitButtonStyle="w-50 !h-10" showToolTip=false
+            text={"Initiate Refund"} customSubmitButtonStyle="w-50 !h-10" showToolTip=false
           />
         </div>
       </div>

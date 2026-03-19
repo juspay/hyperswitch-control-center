@@ -437,7 +437,7 @@ let make = (
     <FormRenderer.SubmitButton
       loadingText="Processing..."
       text="Proceed"
-      disabledParamter={configuartionType === NotSelected}
+      disabledParameter={configuartionType === NotSelected}
     />
   }
 
