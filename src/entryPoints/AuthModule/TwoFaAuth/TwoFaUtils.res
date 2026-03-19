@@ -46,23 +46,28 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
     }
 
     // confirm password check
-    CommonAuthUtils.confirmPasswordCheck(
-      value,
-      key,
-      "confirm_password",
-      "create_password",
-      valuesDict,
-      errors,
-    )
+    if keys->Array.includes("create_password") {
+      CommonAuthUtils.confirmPasswordCheck(
+        value,
+        key,
+        "confirm_password",
+        "create_password",
+        valuesDict,
+        errors,
+      )
+    }
+
     //confirm password check for #change_password
-    CommonAuthUtils.confirmPasswordCheck(
-      value,
-      key,
-      "confirm_password",
-      "new_password",
-      valuesDict,
-      errors,
-    )
+    if keys->Array.includes("new_password") {
+      CommonAuthUtils.confirmPasswordCheck(
+        value,
+        key,
+        "confirm_password",
+        "new_password",
+        valuesDict,
+        errors,
+      )
+    }
   })
 
   errors->JSON.Encode.object

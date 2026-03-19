@@ -4,7 +4,7 @@ class ResetPasswordPage {
   }
 
   get confirmPassword() {
-    return cy.get('[data-testid="confirm_password"] input').last();
+    return cy.get('[data-testid="confirm_password"]').children().eq(1);
   }
 
   get eyeIcon() {
