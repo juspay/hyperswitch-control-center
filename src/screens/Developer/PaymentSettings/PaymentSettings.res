@@ -268,7 +268,7 @@ module WebHookSection = {
 
     <ReactFinalForm.Form
       key="auth"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       render={({handleSubmit}) => {
@@ -433,7 +433,7 @@ module PaymentLinkDomain = {
 
     <ReactFinalForm.Form
       key="payment_link_domain"
-      initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+      initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
       subscription=ReactFinalForm.subscribeToValues
       onSubmit
       validate={values =>
@@ -904,7 +904,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false) => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={businessProfileDetails->parseBusinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               validateMerchantAccountForm(

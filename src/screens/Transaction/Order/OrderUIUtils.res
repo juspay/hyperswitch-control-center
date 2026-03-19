@@ -165,7 +165,7 @@ module NoData = {
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    <BluredTableComponent
+    <BlurredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
             ? "There are no payments as of now."
@@ -495,11 +495,11 @@ let isNonEmptyValue = value => {
 
 let orderViewList: OMPSwitchTypes.ompViews = [
   {
-    lable: "All Profiles",
+    label: "All Profiles",
     entity: #Merchant,
   },
   {
-    lable: "Profile",
+    label: "Profile",
     entity: #Profile,
   },
 ]

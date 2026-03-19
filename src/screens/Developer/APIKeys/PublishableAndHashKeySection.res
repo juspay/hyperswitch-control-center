@@ -31,8 +31,8 @@ let make = () => {
     None
   }, [])
 
-  let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getOr("")
-  let heading = `Publishable Key ${paymentResponsHashKey->LogicUtils.isNonEmptyString
+  let paymentResponseHashKey = merchantInfo.payment_response_hash_key->Option.getOr("")
+  let heading = `Publishable Key ${paymentResponseHashKey->LogicUtils.isNonEmptyString
       ? "and Payment Response Hash Key"
       : ""}`
 
@@ -72,13 +72,13 @@ let make = () => {
               customIconCss="text-jp-gray-700"
             />
           </div>
-          <RenderIf condition={paymentResponsHashKey->String.length !== 0}>
+          <RenderIf condition={paymentResponseHashKey->String.length !== 0}>
             <div className="flex flex-col gap-2 md:gap-4">
               <div className="break-all text-md text-base text-grey-700 font-semibold">
                 {"Payment Response Hash Key"->React.string}
               </div>
               <HelperComponents.CopyTextCustomComp
-                displayValue={Some(paymentResponsHashKey)}
+                displayValue={Some(paymentResponseHashKey)}
                 customTextCss="break-all truncate md:whitespace-normal text-sm font-semibold text-jp-gray-800 text-opacity-75"
                 customParentClass="flex items-center gap-5"
                 customIconCss="text-jp-gray-700"

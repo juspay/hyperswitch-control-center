@@ -123,13 +123,13 @@ let make = () => {
             setCurrentStep
             selectedFRMName
             setInitialValues
-            retrivedValues=Some(initialValues)
+            retrievedValues=Some(initialValues)
             isUpdateFlow
             updateMerchantDetails
           />
         | PaymentMethods =>
           <FRMPaymentMethods
-            setCurrentStep retrivedValues=Some(initialValues) setInitialValues isUpdateFlow
+            setCurrentStep retrievedValues=Some(initialValues) setInitialValues isUpdateFlow
           />
         | SummaryAndTest
         | Preview =>
