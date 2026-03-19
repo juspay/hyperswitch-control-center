@@ -1,4 +1,4 @@
-class PaymentConnector {
+class PayoutConnector {
   get pageHeading() {
     return cy.get('[class="text-fs-28 font-semibold leading-10 "]');
   }
@@ -15,13 +15,10 @@ class PaymentConnector {
     return cy.get('[data-testid="search-processor"]');
   }
 
-  get stripeDummyConnector() {
-    return cy.get('[data-testid="stripe_test"]');
-  }
-
   get addConnectButton() {
     return cy.get('[data-button-text="Connect"]');
   }
+
   get connectAndProceedButton() {
     return cy.get("[data-button-for=connectAndProceed]");
   }
@@ -35,4 +32,4 @@ class PaymentConnector {
   }
 }
 
-export default PaymentConnector;
+export default PayoutConnector;
