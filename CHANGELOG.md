@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.19.0
+
+### Bug Fixes
+
+- Correct typos batch 1/7 ([#4386](https://github.com/juspay/hyperswitch-control-center/pull/4386)) ([`cf7c06e`](https://github.com/juspay/hyperswitch-control-center/commit/cf7c06ebb6221f0365355b310d344cd5227c98aa))
+- Correct typos batch 2/7 ([#4387](https://github.com/juspay/hyperswitch-control-center/pull/4387)) ([`7d8d7d9`](https://github.com/juspay/hyperswitch-control-center/commit/7d8d7d988088f09232d464f87204af95caabba9c))
+
+### Testing
+
+- Add skill to generate cypress tests ([#4401](https://github.com/juspay/hyperswitch-control-center/pull/4401)) ([`0fb527e`](https://github.com/juspay/hyperswitch-control-center/commit/0fb527e7ffbc97ee926c1527b9b3304907db1270))
+
+**Full Changelog:** [`2026.03.18.0...2026.03.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.18.0...2026.03.19.0)
+
+- - -
+
+## 2026.03.18.0
+
+### Testing
+
+- Added base test for payin and payout connector tests ([#4131](https://github.com/juspay/hyperswitch-control-center/pull/4131)) ([`d97711c`](https://github.com/juspay/hyperswitch-control-center/commit/d97711c155a5a076ebfa3b9cf721744c26d8297a))
+
+**Full Changelog:** [`2026.03.17.0...2026.03.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.17.0...2026.03.18.0)
+
+- - -
+
+## 2026.03.17.0
+
+### Miscellaneous Tasks
+
+- Fix typos in config and infrastructure files ([#4379](https://github.com/juspay/hyperswitch-control-center/pull/4379)) ([`2d2010d`](https://github.com/juspay/hyperswitch-control-center/commit/2d2010d6ba8d17cf9ec67ed8f4da6545667b2cae))
+
+**Full Changelog:** [`2026.03.16.1...2026.03.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.16.1...2026.03.17.0)
+
+- - -
+
 ## 2026.03.16.1
 
 ### Features
