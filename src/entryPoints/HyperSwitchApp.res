@@ -66,10 +66,11 @@ let make = () => {
         Window.paymentLinkWasmInit()->ignore
       }
       let merchantResponsePromise = fetchMerchantAccountDetails(~version)
-      let setupDataPromise = [
-        fetchMerchantSpecificConfig(),
-        fetchUserGroupACL()->Promise.thenResolve(_ => ()),
-      ]->Promise.all
+      let setupDataPromise =
+        [
+          fetchMerchantSpecificConfig(),
+          fetchUserGroupACL()->Promise.thenResolve(_ => ()),
+        ]->Promise.all
       let merchantResponse = await merchantResponsePromise
       let _ = await setupDataPromise
       if !isInternalUser {
