@@ -25,3 +25,5 @@ downloads
 .env
 .nyc_output
 coverage
+.worktree/
+.sisyphus/

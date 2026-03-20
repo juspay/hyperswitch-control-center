@@ -211,7 +211,7 @@ let make = (~showModal, ~setShowModal) => {
               // },
               {
                 title: "Business details ",
-                renderContent: (~currentAccordianState as _, ~closeAccordionFn as _) => {
+                renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
                   <div>
                     <FormRenderer.FieldRenderer
                       fieldWrapperClass="w-full"
@@ -284,7 +284,7 @@ let make = (~showModal, ~setShowModal) => {
               //   renderContentOnTop: None,
               // },
             ]}
-            accordianTopContainerCss="rounded-md"
+            accordionTopContainerCss="rounded-md"
             contentExpandCss="p-4"
             gapClass="flex flex-col gap-4"
             titleStyle="font-semibold text-bold text-md"
