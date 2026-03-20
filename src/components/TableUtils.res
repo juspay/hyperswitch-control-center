@@ -224,51 +224,17 @@ module LabelCell = {
     ~fontStyle="font-ibm-plex",
     ~showIcon=true,
   ) => {
-    let isMobileView = MatchMedia.useMobileChecker()
-    let bgOpacity = isMobileView ? "bg-opacity-12 dark:!bg-opacity-12" : ""
-    let borderColor = switch labelColor {
-    | LabelGreen => `bg-nd_green-50 ${bgOpacity} dark:bg-opacity-50`
-    | LabelRed => `bg-nd_red-50 ${bgOpacity} dark:bg-opacity-50`
-    | LabelBlue => `bg-nd_primary_blue-50 bg-opacity-50`
-    | LabelGray => "bg-nd_gray-150"
-    | LabelOrange => `bg-nd_orange-50 ${bgOpacity} dark:bg-opacity-50`
-    | LabelYellow => "bg-nd_yellow-100"
-    | LabelLightGray => "bg-nd_gray-50"
+    let _ = (labelMargin, highlightText, fontStyle, showIcon)
+    let color = switch labelColor {
+    | LabelGreen => TagBinding.Success
+    | LabelRed => TagBinding.Error
+    | LabelBlue => TagBinding.Primary
+    | LabelGray => TagBinding.Neutral
+    | LabelOrange => TagBinding.Warning
+    | LabelYellow => TagBinding.Warning
+    | LabelLightGray => TagBinding.Neutral
     }
-
-    let textColor = switch labelColor {
-    | LabelGreen => "text-nd_green-600"
-    | LabelRed => "text-nd_red-600"
-    | LabelOrange => "text-nd_orange-600"
-    | LabelYellow => "text-nd_yellow-800"
-    | LabelGray => "text-nd_gray-600"
-    | LabelLightGray => "text-nd_gray_600"
-    | LabelBlue => "text-nd_primary_blue-600"
-    }
-
-    let mobileTextColor = switch labelColor {
-    | LabelGreen => "text-green-950"
-    | LabelOrange => "text-orange-950"
-    | LabelRed => "text-red-960"
-    | _ => "text-white"
-    }
-
-    let textColor = isMobileView ? mobileTextColor : textColor
-
-    let fontStyle = "font-inter-style"
-
-    <div className="flex">
-      <div className="flex-initial ">
-        <div className={`rounded ${borderColor}`}>
-          <div
-            className={`${labelMargin} ${fontStyle} ${textColor} text-fs-10 font-bold px-2 py-0.5 whitespace-nowrap`}>
-            <AddDataAttributes attributes=[("data-label", text)]>
-              <div> {highlightedText(text, highlightText)} </div>
-            </AddDataAttributes>
-          </div>
-        </div>
-      </div>
-    </div>
+    <TagBinding text color variant=Subtle shape=Squarical size=Xs />
   }
 }
 
