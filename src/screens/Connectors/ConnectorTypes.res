@@ -153,6 +153,7 @@ type payoutProcessorTypes =
   | WORLDPAY
   | WORLDPAYXML
   | TRUELAYER
+  | TRUSTLY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO

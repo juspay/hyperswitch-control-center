@@ -33,6 +33,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAY),
   PayoutProcessor(WORLDPAYXML),
   PayoutProcessor(TRUELAYER),
+  PayoutProcessor(TRUSTLY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -863,6 +864,10 @@ let truelayerInfo = {
   description: "A leading open banking payments and financial data platform that enables secure, real-time bank-to-bank payments, identity verification and direct access to bank account data via authorised APIs.",
 }
 
+let trustlyInfo = {
+  description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -992,6 +997,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | WORLDPAY => "worldpay"
   | WORLDPAYXML => "worldpayxml"
   | TRUELAYER => "truelayer"
+  | TRUSTLY => "trustly"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1187,6 +1193,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpay" => PayoutProcessor(WORLDPAY)
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | "truelayer" => PayoutProcessor(TRUELAYER)
+    | "trustly" => PayoutProcessor(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1361,6 +1368,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | WORLDPAY => worldpayInfo
   | WORLDPAYXML => worldpayxmlInfo
   | TRUELAYER => truelayerInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -2330,6 +2338,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | WORLDPAY => "Worldpay"
   | WORLDPAYXML => "Worldpay WPG"
   | TRUELAYER => "Truelayer"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
