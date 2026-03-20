@@ -65,12 +65,16 @@ let make = () => {
       if featureFlagDetails.paymentLinkThemeConfigurator {
         Window.paymentLinkWasmInit()->ignore
       }
-      let merchantResponse = await fetchMerchantAccountDetails(~version)
-      let _ = await fetchMerchantSpecificConfig()
+      let merchantResponsePromise = fetchMerchantAccountDetails(~version)
+      let setupDataPromise = [
+        fetchMerchantSpecificConfig(),
+        fetchUserGroupACL()->Promise.thenResolve(_ => ()),
+      ]->Promise.all
+      let merchantResponse = await merchantResponsePromise
+      let _ = await setupDataPromise
       if !isInternalUser {
         let _ = await fetchMerchantList()
       }
-      let _ = await fetchUserGroupACL()
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
     } catch {
