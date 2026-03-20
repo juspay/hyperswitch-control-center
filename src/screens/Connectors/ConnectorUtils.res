@@ -175,6 +175,7 @@ let connectorList: array<connectorTypes> = [
   Processors(FINIX),
   Processors(ZIFT),
   Processors(PAYJUSTNOWINSTORE),
+  Processors(FISERVCOMMERCEHUB),
   Processors(AMAZONPAY),
   Processors(WORLDPAYMODULAR),
   Processors(SANTANDER),
@@ -1182,6 +1183,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
     | "envoy" => Processors(ENVOY)
+    | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -2330,7 +2332,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REVOLV3 => "Revolv3"
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
-  | FISERVCOMMERCEHUB => "Fiservcommercehub"
+  | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
