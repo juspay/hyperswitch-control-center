@@ -88,7 +88,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   ).getCommonSessionDetails()
   let getGranularity = LineChartUtils.getGranularityNewStr
   let {filterValue} = React.useContext(FilterContext.filterContext)
-  let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
+  let (currentTopMatrix, currentBottomMetric) = chartEntity.currentMetrics
   let (startTimeFilterKey, endTimeFilterKey) = chartEntity.dateFilterKeys
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
@@ -169,13 +169,13 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      let fitlerName = keyArr->Array.get(1)->Option.getOr("")
+      let filterName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
       if chartId->isEmptyString {
         Some((prefix, value))
-      } else if prefix === chartId && fitlerName->isNonEmptyString {
-        Some((fitlerName, value))
+      } else if prefix === chartId && filterName->isNonEmptyString {
+        Some((filterName, value))
       } else {
         None
       }
@@ -202,7 +202,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
   let chartBottomMetricFromUrl =
-    getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
+    getChartCompFilters->getString("chartBottomMetric", currentBottomMetric)
 
   let (granularity, setGranularity) = React.useState(_ => None)
   let current_granularity = if (
@@ -620,7 +620,7 @@ module SDKAnalyticsChartContext = {
 
     let getGranularity = LineChartUtils.getGranularityNewStr
     let {filterValue} = React.useContext(FilterContext.filterContext)
-    let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
+    let (currentTopMatrix, currentBottomMetric) = chartEntity.currentMetrics
     let (startTimeFilterKey, endTimeFilterKey) = chartEntity.dateFilterKeys
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
@@ -688,13 +688,13 @@ module SDKAnalyticsChartContext = {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
-        let fitlerName = keyArr->Array.get(1)->Option.getOr("")
+        let filterName = keyArr->Array.get(1)->Option.getOr("")
 
         // when chart id is not there then there won't be any prefix so the prefix will the filter name
         if chartId->isEmptyString {
           Some((prefix, value))
-        } else if prefix === chartId && fitlerName->isNonEmptyString {
-          Some((fitlerName, value))
+        } else if prefix === chartId && filterName->isNonEmptyString {
+          Some((filterName, value))
         } else {
           None
         }
@@ -727,7 +727,7 @@ module SDKAnalyticsChartContext = {
     let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
     let _chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
     let _chartBottomMetricFromUrl =
-      getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
+      getChartCompFilters->getString("chartBottomMetric", currentBottomMetric)
 
     let (granularity, setGranularity) = React.useState(_ => None)
     let current_granularity = if (

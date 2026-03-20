@@ -49,7 +49,7 @@ let make: (
   ~headBottomMargin: string=?,
   ~removeVerticalLines: bool=?,
   ~removeHorizontalLines: bool=?,
-  ~evenVertivalLines: bool=?,
+  ~evenVerticalLines: bool=?,
   ~showPagination: bool=?,
   ~downloadCsv: React.element=?,
   ~ignoreUrlUpdate: bool=?,

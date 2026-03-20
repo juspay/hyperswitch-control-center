@@ -56,14 +56,14 @@ let isParentChildFilterMatch = (name, key) => {
   | _ => false
   }
 }
-module RenderAccordian = {
+module RenderAccordion = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
     <Accordion
       initialExpandedArray
       accordion
-      accordianTopContainerCss="border"
-      accordianBottomContainerCss="p-5"
+      accordionTopContainerCss="border"
+      accordionBottomContainerCss="p-5"
       contentExpandCss="px-4 py-3 !border-t-0"
       titleStyle="font-semibold text-bold text-md"
     />
