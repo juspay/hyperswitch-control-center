@@ -401,12 +401,12 @@ let textTagInput = (
   ~name="",
   ~customStyle=?,
   ~disabled=false,
-  ~separateByComma=false,
-  ~separateBySpace=false,
+  ~seperateByComma=false,
+  ~seperateBySpace=false,
   ~customButtonStyle=?,
 ) => {
   <MultipleTextInput
-    input name disabled separateByComma separateBySpace ?customStyle ?customButtonStyle placeholder
+    input name disabled seperateByComma seperateBySpace ?customStyle ?customButtonStyle placeholder
   />
 }
 
