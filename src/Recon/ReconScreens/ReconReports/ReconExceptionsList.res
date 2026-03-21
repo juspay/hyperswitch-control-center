@@ -84,7 +84,7 @@ let make = () => {
             totalResults={filteredReportsData->Array.length}
             offset
             setOffset
-            currrentFetchCount={configuredReports->Array.length}
+            currentFetchCount={configuredReports->Array.length}
             customColumnMapper=TableAtoms.reconExceptionReportsDefaultCols
             defaultColumns={ReportsExceptionTableEntity.defaultColumns}
             showSerialNumberInCustomizeColumns=false

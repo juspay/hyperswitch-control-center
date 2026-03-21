@@ -187,7 +187,7 @@ let make = (~account: ReconEngineTypes.accountType) => {
         resultsPerPage=6
         offset
         setOffset
-        currrentFetchCount={filteredTransactionsData->Array.length}
+        currentFetchCount={filteredTransactionsData->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
         defaultColumns
         showPagination=true
