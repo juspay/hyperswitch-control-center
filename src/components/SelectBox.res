@@ -1756,7 +1756,7 @@ module BaseDropdown = {
     let dropdownRef = React.useRef(Nullable.null)
     let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
-      newInputSelect.value->LogicUtils.getStrArryFromJson
+      newInputSelect.value->LogicUtils.getStrArrayFromJson
     )
 
     let onApply = ev => {
@@ -1765,7 +1765,7 @@ module BaseDropdown = {
       | None => ()
       }
 
-      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
+      setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArrayFromJson)
     }
 
     let clearBtnRef = React.useRef(Nullable.null)
@@ -2118,7 +2118,7 @@ module BaseDropdown = {
                       description={showNameAsToolTip
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
-                          ->LogicUtils.getStrArryFromJson
+                          ->LogicUtils.getStrArrayFromJson
                           ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom

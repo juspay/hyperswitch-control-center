@@ -73,7 +73,7 @@ let make = () => {
             />}
             offset
             setOffset
-            currrentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
+            currentFetchCount={configuredConnectors->Array.map(Nullable.make)->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />

@@ -96,7 +96,7 @@ let make = (~isPayoutFlow=false) => {
           entity={PaymentMethodEntity.paymentMethodEntity(
             ~setReferesh=getConnectorListAndUpdateState,
           )}
-          currrentFetchCount={filteredConnectors->Array.length}
+          currentFetchCount={filteredConnectors->Array.length}
           collapseTableRow=false
           showAutoScroll=true
         />

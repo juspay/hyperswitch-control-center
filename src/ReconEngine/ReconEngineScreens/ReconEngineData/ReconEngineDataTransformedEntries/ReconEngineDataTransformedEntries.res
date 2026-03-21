@@ -172,7 +172,7 @@ let make = () => {
           totalResults={filteredStagingData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredStagingData->Array.length}
+          currentFetchCount={filteredStagingData->Array.length}
           tableheadingClass="h-12"
           tableHeadingTextClass="!font-normal"
           nonFrozenTableParentClass="!rounded-lg"
