@@ -1,23 +1,8 @@
 import { request, type APIRequestContext } from "@playwright/test";
-import { randomUUID } from "crypto";
+import { generateDateTimeString } from "./helper";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
-
-function generateDateTimeString(): string {
-  const now = new Date();
-  return now
-    .toISOString()
-    .replace(/[-:.T]/g, "")
-    .slice(0, 14);
-}
-
-/**
- * Generate a unique email for test isolation.
- */
-export function generateUniqueEmail(): string {
-  return `test-${randomUUID()}@playwright.test`;
-}
 
 /**
  * Sign up a new user via the Hyperswitch backend API.
@@ -61,14 +46,8 @@ export async function loginUser(
 ): Promise<{ token: string; merchantId: string }> {
   const ctx = context ?? (await request.newContext());
   const response = await ctx.post(`${BASE_URL}/api/user/signin`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: {
-      email,
-      password,
-      country: "IN",
-    },
+    headers: { "Content-Type": "application/json" },
+    data: { email, password, country: "IN" },
   });
 
   if (!response.ok()) {
@@ -78,8 +57,6 @@ export async function loginUser(
 
   const body = await response.json();
 
-  // Handle 2FA: if token is present directly, use it.
-  // If response indicates 2FA is required, attempt to skip it.
   let token: string = body.token ?? body.token_type ?? "";
   let merchantId: string = body.merchant_id ?? "";
 
@@ -146,7 +123,6 @@ export async function createDummyConnector(
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
 
-  // First create an API key, then use it to create the connector
   const apiKey = await createAPIKey(merchantId, token, ctx);
 
   const response = await ctx.post(
@@ -173,15 +149,7 @@ export async function createDummyConnector(
             payment_method_types: [
               {
                 payment_method_type: "debit",
-                card_networks: ["Mastercard"],
-                minimum_amount: 0,
-                maximum_amount: 68607706,
-                recurring_enabled: true,
-                installment_payment_enabled: false,
-              },
-              {
-                payment_method_type: "debit",
-                card_networks: ["Visa"],
+                card_networks: ["Mastercard", "Visa"],
                 minimum_amount: 0,
                 maximum_amount: 68607706,
                 recurring_enabled: true,
@@ -194,15 +162,7 @@ export async function createDummyConnector(
             payment_method_types: [
               {
                 payment_method_type: "credit",
-                card_networks: ["Mastercard"],
-                minimum_amount: 0,
-                maximum_amount: 68607706,
-                recurring_enabled: true,
-                installment_payment_enabled: false,
-              },
-              {
-                payment_method_type: "credit",
-                card_networks: ["Visa"],
+                card_networks: ["Mastercard", "Visa"],
                 minimum_amount: 0,
                 maximum_amount: 68607706,
                 recurring_enabled: true,

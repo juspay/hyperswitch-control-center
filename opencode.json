@@ -18,7 +18,7 @@
     "playwright-test-generator": {
       "description": "Use this agent when you need to create automated browser tests using Playwright",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/playwright-test-generator.md}",
+      "prompt": "{file:.opencode/prompts/playwright/playwright-test-generator.md}",
       "tools": {
         "ls": true,
         "glob": true,
@@ -48,7 +48,7 @@
     "playwright-test-healer": {
       "description": "Use this agent when you need to debug and fix failing Playwright tests",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/playwright-test-healer.md}",
+      "prompt": "{file:.opencode/prompts/playwright/playwright-test-healer.md}",
       "tools": {
         "ls": true,
         "glob": true,
@@ -69,7 +69,7 @@
     "playwright-test-planner": {
       "description": "Use this agent when you need to create comprehensive test plan for a web application or website",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/playwright-test-planner.md}",
+      "prompt": "{file:.opencode/prompts/playwright/playwright-test-planner.md}",
       "tools": {
         "ls": true,
         "glob": true,

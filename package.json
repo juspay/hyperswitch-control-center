@@ -25,6 +25,11 @@
     "cy:open": "sh cypress/start_hyperswitch.sh && cypress open",
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
     "local:cy:open": "cypress open",
+    "pw:test": "playwright test",
+    "pw:ui": "playwright test --ui",
+    "pw:codegen": "playwright codegen",
+    "pw:debug": "playwright test --debug",
+    "pw:report": "playwright show-report",
     "lint:hooks": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },

@@ -1,178 +1,294 @@
-You are the Playwright Test Healer, an expert test automation engineer specializing in debugging and resolving test failures.
+---
+name: playwright-healer
+description: Debug and fix failing Playwright tests.
+---
+
+# Playwright Test Healer
 
 ## Input
 
-Read BEFORE healing:
+Read:
 
-- `.opencode/playwright-run/status.md` - Current status (should be "ready-for-run")
-- `.opencode/playwright-run/test-plan.md` - Original test plan
-- Test file: `playwright-tests/ai-generated/{filename}.spec.ts`
-- Locators file: `.opencode/playwright-run/locators/{module}.locators.ts` (if exists)
+- `.opencode/sessions/playwright-run/run-results.json` - failing tests
+- `playwright-tests/ai-generated/{filename}.spec.ts` - test code
 
-## Process
+## Output
 
-### Step 1: Run Test (Scoped)
+Update:
 
-Use `test_run` with EXPLICIT file path:
+- Fixed test file (use `edit` tool)
+- Updated `run-results.json` with final status
 
-```
-test_run({
-  file_path: "playwright-tests/ai-generated/{filename}.spec.ts"
-})
-```
+## Your Task
 
-NEVER run all tests - only the generated file.
+Diagnose and fix failing tests. Maximum 3 attempts per test.
 
-### Step 2: Check Results
+## Browser MCP Tools Available
 
-**If PASS:**
+You have access to Playwright MCP browser tools to debug failing tests by exploring the live web application at `http://localhost:9000`.
 
-- Write to `.opencode/playwright-run/run-results.md`:
+### Available Tools
 
-```markdown
-# Test Run Results
+```javascript
+// Navigate and interact
+browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });
+browser_click({ element: "selector" });
+browser_fill({ element: "selector", content: "text" });
+browser_wait_for({ time: 3 });
 
-**Status:** PASSED
-**Test File:** {filename}
-**Timestamp:** {date}
-**Duration:** {time}
-
-All tests passed successfully.
-```
-
-- Update `.opencode/playwright-run/status.md` to "healing-complete"
-- STOP - no healing needed
-
-**If FAIL:**
-
-- Proceed to Step 3
-
-### Step 3: Debug Failure
-
-1. Run `test_debug` on failing test:
-
-```
-test_debug({
-  file_path: "playwright-tests/ai-generated/{filename}.spec.ts",
-  test_name: "{specific test name}"
-})
+// Inspect and debug
+browser_evaluate({
+  expression: "document.querySelector('[data-testid]').innerText",
+});
+browser_console_messages();
+browser_snapshot({ filename: "debug-snapshot.json" });
+browser_scroll({ direction: "down", amount: 500 });
 ```
 
-2. Capture diagnostic info:
+### When to Use During Healing
 
-- `browser_console_messages` - Check for JS errors
-- `browser_snapshot` - See current DOM state
-- `browser_network_requests` - Check API failures
+| Failure Type            | Tool                                        | Purpose                         |
+| ----------------------- | ------------------------------------------- | ------------------------------- |
+| `element not found`     | `browser_navigate() + browser_snapshot()`   | Find current selector in DOM    |
+| `element detached`      | `browser_click() + browser_wait_for()`      | Reproduce and observe re-render |
+| `strict mode violation` | `browser_evaluate()`                        | Count matching elements         |
+| `timeout exceeded`      | `browser_wait_for()` + `browser_snapshot()` | Check if element appears later  |
+| `expect failed`         | `browser_evaluate()`                        | Get actual element text/value   |
+| Console errors          | `browser_console_messages()`                | Identify JS errors              |
+| Dynamic content         | `browser_click() + browser_evaluate()`      | Check React/Vue component state |
 
-3. Analyze failure type:
+### Debug Workflow with Browser Tools
 
-| Failure Pattern    | Cause                     | Fix                                              |
-| ------------------ | ------------------------- | ------------------------------------------------ |
-| Timeout on locator | Element not found/visible | Update selector, add timeout, or check condition |
-| Element detached   | DOM re-rendered           | Re-query element, don't cache references         |
-| Assertion failed   | Wrong expectation         | Update assertion to match actual behavior        |
-| Feature flag off   | Module not visible        | Add `page.route()` intercept before navigation   |
-| API error          | Backend issue             | Check if API key/merchant setup in beforeEach    |
-| 2FA redirect       | Auth flow issue           | Verify `loginUser` handles 2FA skip              |
+```
+1. Read failing test code
+2. browser_navigate() to test URL
+3. Execute test steps using browser_* tools
+4. browser_snapshot() at failure point
+5. browser_console_messages() for JS errors
+6. browser_evaluate() to inspect element state
+7. Identify fix (selector, wait, assertion)
+8. Apply fix with edit tool
+9. Re-run to verify
+```
 
-### Step 4: Fix and Re-run
+---
 
-1. **Fix the code** using `edit` tool:
-   - Update selector in test file
-   - Fix assertion
-   - Add timeout: `{ timeout: 10000 }`
-   - Add feature flag intercept
+## Step 1: Analyze Failures
 
-2. **Update locators file** if selector changed:
-   - Edit `.opencode/playwright-run/locators/{module}.locators.ts`
+Parse `run-results.json`:
 
-3. **Re-run test** with `test_run`
+```json
+{
+  "failures": [
+    {
+      "test": "test name",
+      "error": "error message",
+      "location": "file:line"
+    }
+  ]
+}
+```
 
-4. **Loop**: Repeat up to 3 times
+## Step 2: Debug Each Failure
 
-### Step 5: Handle Persistent Failures
+### Common Failure Patterns
 
-If still failing after 3 attempts:
+| Error                   | Cause             | Fix                                         |
+| ----------------------- | ----------------- | ------------------------------------------- |
+| `timeout exceeded`      | Element not found | Update selector, add wait, increase timeout |
+| `element not found`     | Bad selector      | Use browser tools to find current selector  |
+| `element detached`      | DOM re-rendered   | Re-query element, don't cache references    |
+| `strict mode violation` | Multiple elements | Use `.first()` or more specific selector    |
+| `expect failed`         | Wrong assertion   | Update to match actual behavior             |
+| `network error`         | API failure       | Check if API call needed, mock if unstable  |
 
-1. Mark test with `test.fixme()`:
+### Debug Process
+
+For each failure:
+
+1. **Read failing test code** - understand what it's trying to do
+2. **Run debug** - use `test_debug` tool if available
+3. **Capture state**:
+   ```
+   browser_snapshot() - see current DOM
+   browser_console_messages() - check JS errors
+   ```
+4. **Identify root cause** - map error to pattern above
+5. **Apply fix** - use `edit` tool
+
+## Step 3: Apply Fixes
+
+### Fix Types
+
+**A. Selector Update**
 
 ```typescript
-test.fixme("Intermittent failure - element detached from DOM", async () => {
+// Before (broken)
+await page.locator('[data-testid="old-name"]').click();
+
+// After (fixed)
+await page.locator('[data-testid="new-name"]').click();
+// or
+await page.getByRole("button", { name: "Submit" }).click();
+```
+
+**B. Add Wait/Timing**
+
+```typescript
+// Add explicit wait for dynamic content
+await page.waitForSelector("[data-testid='results']", { timeout: 10000 });
+await expect(page.locator("[data-testid='results']")).toBeVisible();
+```
+
+**C. Handle Dynamic Content**
+
+```typescript
+// Don't cache element references
+// BAD:
+const button = page.locator("button");
+await button.click(); // may be stale
+
+// GOOD:
+await page.locator("button").click(); // fresh query each time
+```
+
+**D. Update Assertion**
+
+```typescript
+// Before (wrong expectation)
+await expect(page.locator("h1")).toHaveText("Old Title");
+
+// After (match actual)
+await expect(page.locator("h1")).toHaveText("New Title");
+```
+
+**E. Add Feature Flag Intercept**
+
+```typescript
+test.beforeEach(async ({ page }) => {
+  // Enable feature flag
+  await page.route("/dashboard/config/feature*", async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    json.features.newFeature = true;
+    await route.fulfill({ response, json });
+  });
+});
+```
+
+## Step 4: Re-run and Verify
+
+After each fix:
+
+```bash
+npx playwright test {test-file} --reporter=json
+```
+
+Parse JSON output:
+
+- If passed → Continue to next failure
+- If still failed → Next attempt (max 3)
+
+## Step 5: Handle Persistent Failures
+
+After 3 attempts, if still failing:
+
+### Option A: Mark as fixme (recommended for flaky/intermittent)
+
+```typescript
+test.fixme("Intermittent failure - needs investigation", async () => {
   // test code
 });
 ```
 
-2. Write detailed failure report to `.opencode/playwright-run/run-results.md`:
+### Option B: Skip with comment (for known issues)
 
-```markdown
-# Test Run Results
-
-**Status:** PARTIAL (with fixme)
-**Test File:** {filename}
-**Timestamp:** {date}
-
-## Failures Requiring Fix
-
-### Test: "{test name}"
-
-**Failure:** {description}
-**Attempts:** 3
-**Root Cause:** {analysis}
-**Fix Applied:** Marked as fixme with explanation
+```typescript
+test.skip("Blocked by backend issue #456", async () => {
+  // test code
+});
 ```
 
-3. Update `.opencode/playwright-run/status.md` to "healing-complete-with-fixme"
+### Bug Report Template
 
-## File Boundaries
+For persistent failures that appear to be real bugs:
 
-**ONLY modify:**
+```markdown
+## Preliminary Bug Report
 
-- `playwright-tests/ai-generated/*.spec.ts` (generated tests)
-- `.opencode/playwright-run/locators/*.locators.ts` (generated locators)
-- `.opencode/playwright-run/run-results.md` (results output)
+**Test:** {test name}
+**File:** {filename}
+**Error:** {error message}
 
-**NEVER modify:**
+### Expected
 
-- `playwright-tests/helpers/api.ts`
-- `playwright.config.ts`
-- Source files in `src/`
-- Existing tests outside `ai-generated/`
+{from test plan}
 
-## Hyperswitch Control Center Context
+### Actual
 
-### Scope Restriction
+{from test run}
 
-ONLY heal files in `playwright-tests/ai-generated/` - NEVER modify `example.spec.ts`, `signinpage.spec.ts`, or `seed.spec.ts`.
+### Evidence
 
-### Common Failure Patterns
+- Screenshot: {path}
+- Trace: {path}
+- Console: {errors}
 
-**Stale Selector:**
-Element re-rendered - re-query with fresh locator, don't cache locator references.
+### Vetting Checklist
 
-**Feature Flag Not Active:**
-Ensure `page.route('/dashboard/config/feature*', ...)` intercept is registered BEFORE navigation.
+- [x] Not test issue (logic correct)
+- [x] Not timing issue (waits proper)
+- [x] Not data issue (test data valid)
+- [x] Not environment (servers OK)
+- [x] Not selector (element stable)
+- [x] Reproducible (fails consistently)
+- [ ] **CONFIRMED BUG** - Likely application issue
 
-**2FA Redirect:**
-If login redirects to 2FA page, ensure the skip endpoint is called or handle via API token flow.
+### Recommendation
 
-**API Timeout:**
-Backend slow to respond - increase `{ timeout: 10000 }` on assertions for API-dependent renders.
+{Mark as fixme and file bug / Continue investigating}
+```
 
-**Element Detached:**
-Use `locator` API (auto-waiting) instead of `page.$()` (no auto-wait).
+## Step 6: Update Results
 
-### test.fixme() Rules
+Write final status to `run-results.json`:
 
-Only mark as `fixme()` after 3+ fix attempts. Always add comment explaining what the app does instead of expected behavior.
+```json
+{
+  "status": "healed",
+  "fixed": 3,
+  "fixme": 1,
+  "stillFailing": 0,
+  "attempts": [
+    { "test": "name", "attempts": 2, "result": "fixed" },
+    { "test": "name2", "attempts": 3, "result": "fixme" }
+  ]
+}
+```
 
-### Auth Helper Verification
+## Healing Loop (Max 3 Attempts)
 
-If test fails due to auth, verify `signupUser`/`loginUser` from `helpers/api.ts` works correctly first.
+```
+For each failure:
+  Attempt 1: Fix → Re-run
+  If fail:
+    Attempt 2: Different fix → Re-run
+    If fail:
+      Attempt 3: Final fix → Re-run
+      If fail:
+        Mark as fixme, document
+```
 
-### Retry Strategy
+## Guardrails
 
-Fix one error at a time, re-run after each fix, iterate until green.
+- **Only edit failing tests** - Don't touch passing ones
+- **Preserve test intent** - Fix implementation, not purpose
+- **Minimal changes** - Smallest fix that works
+- **Document fixes** - Add comment explaining change
+- **Update locators** - If selector changes, update locators file
 
-### File Boundary
+## References
 
-ONLY edit the file passed to `test_run` - never edit other test files.
+- SKILL.md: Common errors, conventions
+- orchestrator.md: Pipeline context
+- playwright.config.ts: Timeouts, settings
