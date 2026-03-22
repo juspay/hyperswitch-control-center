@@ -1,7 +1,23 @@
-export const connectorConfig = {
+export interface ConnectorFieldConfig {
+  default: string;
+  overrides: Record<string, string>;
+  fieldLabels: string[];
+}
+
+export interface PaymentSection {
+  label: string;
+  methods: string[];
+}
+
+export interface ConnectorConfig {
+  label: string;
+  fields: ConnectorFieldConfig;
+  paymentSections: Record<string, PaymentSection>;
+}
+
+export const connectorConfig: Record<string, ConnectorConfig> = {
   adyen: {
     label: "adyen",
-
     fields: {
       default: "test_value",
       overrides: {
@@ -15,7 +31,6 @@ export const connectorConfig = {
         "Source verification key *",
       ],
     },
-
     paymentSections: {
       Credit: {
         label: "Credit",
@@ -145,7 +160,6 @@ export const connectorConfig = {
 
   authorizedotnet: {
     label: "authorizedotnet",
-
     fields: {
       default: "test_value",
       overrides: {
@@ -153,7 +167,6 @@ export const connectorConfig = {
       },
       fieldLabels: ["API Login ID *", "Transaction Key *", "Connector label *"],
     },
-
     paymentSections: {
       Credit: {
         label: "Credit",

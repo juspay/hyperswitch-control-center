@@ -1,7 +1,23 @@
-export const payoutConnectorConfig = {
+export interface ConnectorFieldConfig {
+  default: string;
+  overrides: Record<string, string>;
+  fieldLabels: string[];
+}
+
+export interface PaymentSection {
+  label: string;
+  methods: string[];
+}
+
+export interface PayoutConnectorConfig {
+  label: string;
+  fields: ConnectorFieldConfig;
+  paymentSections: Record<string, PaymentSection>;
+}
+
+export const payoutConnectorConfig: Record<string, PayoutConnectorConfig> = {
   adyen: {
     label: "adyen",
-
     fields: {
       default: "test_value",
       overrides: {
@@ -15,7 +31,6 @@ export const payoutConnectorConfig = {
         "Live endpoint prefix *",
       ],
     },
-
     paymentSections: {
       Credit: {
         label: "Credit",

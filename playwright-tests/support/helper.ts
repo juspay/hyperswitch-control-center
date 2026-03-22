@@ -6,8 +6,13 @@ export function generateUniqueEmail(): string {
 
 export function generateDateTimeString(): string {
   const now = new Date();
-  return now
-    .toISOString()
-    .replace(/[-:.T]/g, "")
-    .slice(0, 14);
+  const randomSuffix = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, "0");
+  return (
+    now
+      .toISOString()
+      .replace(/[-:.T]/g, "")
+      .slice(0, 14) + randomSuffix
+  );
 }

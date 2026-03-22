@@ -1,13 +1,19 @@
-import { request, type APIRequestContext } from "@playwright/test";
+import {
+  request,
+  type APIRequestContext,
+  type Page,
+  expect,
+} from "@playwright/test";
 import { generateDateTimeString } from "./helper";
+import { SignInPage } from "./pages/auth/SignInPage";
+import { SignUpPage } from "./pages/auth/SignUpPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
+const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 
-/**
- * Sign up a new user via the Hyperswitch backend API.
- * Mirrors Cypress `signup_API` command.
- */
+
 export async function signupUser(
   email: string,
   password: string,
@@ -33,12 +39,6 @@ export async function signupUser(
   }
 }
 
-/**
- * Sign in a user via the dashboard proxy endpoint.
- * Mirrors Cypress `login_API` command.
- * Returns the auth token from the response.
- * Handles 2FA skip if required.
- */
 export async function loginUser(
   email: string,
   password: string,
@@ -78,11 +78,6 @@ export async function loginUser(
   return { token, merchantId };
 }
 
-/**
- * Create an API key for a merchant.
- * Mirrors Cypress `createAPIKey` command.
- * Returns the generated api_key string.
- */
 export async function createAPIKey(
   merchantId: string,
   token: string,
@@ -111,10 +106,6 @@ export async function createAPIKey(
   return body.api_key as string;
 }
 
-/**
- * Create a dummy connector (stripe_test) for a merchant.
- * Mirrors Cypress `createDummyConnectorAPI` command.
- */
 export async function createDummyConnector(
   merchantId: string,
   token: string,
@@ -183,10 +174,6 @@ export async function createDummyConnector(
   }
 }
 
-/**
- * Create a payment via the Hyperswitch API.
- * Mirrors Cypress `createPaymentAPI` command.
- */
 export async function createPayment(
   merchantId: string,
   apiKey: string,
@@ -272,5 +259,206 @@ export async function createPayment(
   if (!response.ok()) {
     const body = await response.text();
     throw new Error(`createPayment failed (${response.status()}): ${body}`);
+  }
+}
+
+export async function visitSignupPage(page: Page): Promise<void> {
+  const signinPage = new SignInPage(page);
+  await page.goto("/");
+  await signinPage.signUpLink.click();
+  await expect(page).toHaveURL(/.*register/);
+}
+
+export async function enableEmailFeatureFlag(page: Page): Promise<void> {
+  await page.route("**/dashboard/config/feature?domain=", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        theme: {
+          primary_color: "#006DF9",
+          primary_hover_color: "#005ED6",
+          sidebar_color: "#242F48",
+        },
+        endpoints: {
+          api_url: "http://localhost:9000/api",
+        },
+        features: {
+          email: true,
+        },
+      }),
+    });
+  });
+  await page.goto("/");
+}
+
+export async function mockMagicLinkSigninSuccess(
+  page: Page,
+  userEmail?: string,
+): Promise<void> {
+  const email = userEmail || process.env.PLAYWRIGHT_USERNAME || "";
+
+  await page.route(
+    "**/api/user/connect_account?auth_id=&domain=",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          is_email_sent: true,
+        }),
+      });
+    },
+  );
+}
+
+export async function loginUI(
+  page: Page,
+  name?: string,
+  pass?: string,
+): Promise<void> {
+  const signinPage = new SignInPage(page);
+  const username = name || process.env.PLAYWRIGHT_USERNAME || "";
+  const password = pass || process.env.PLAYWRIGHT_PASSWORD || "";
+
+  await page.goto("/");
+  await signinPage.emailInput.fill(username);
+  await signinPage.passwordInput.fill(password);
+  await signinPage.signinButton.click();
+  await signinPage.skip2FAButton.click();
+}
+
+export async function deleteConnector(
+  mcaId: string,
+  merchantId: string,
+  token: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+
+  const response = await ctx.delete(
+    `${API_URL}/account/${merchantId}/connectors/${mcaId}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`deleteConnector failed (${response.status()}): ${body}`);
+  }
+}
+
+export async function createAuth(context?: APIRequestContext): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+
+  const response = await ctx.post(`${API_URL}/user/auth`, {
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "test_admin",
+    },
+    data: {
+      owner_id: "okta_test",
+      owner_type: "organization",
+      auth_method: {
+        auth_type: "open_id_connect",
+        private_config: {
+          base_url: process.env.PLAYWRIGHT_SSO_BASE_URL || "",
+          client_id: process.env.PLAYWRIGHT_SSO_CLIENT_ID || "",
+          client_secret: process.env.PLAYWRIGHT_SSO_CLIENT_SECRET || "",
+        },
+        public_config: {
+          name: "okta",
+        },
+      },
+      allow_signup: false,
+      email_domain: "cypresstest.in",
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`createAuth failed (${response.status()}): ${body}`);
+  }
+}
+
+export async function getAuthIdByEmail(
+  context?: APIRequestContext,
+): Promise<string> {
+  const ctx = context ?? (await request.newContext());
+
+  const response = await ctx.get(
+    `${API_URL}/user/auth/list?email_domain=cypresstest.in`,
+  );
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`getAuthIdByEmail failed (${response.status()}): ${body}`);
+  }
+
+  const body = await response.json();
+  return body[0]?.auth_id as string;
+}
+
+export async function assertConnectorFieldLabels(
+  page: Page,
+  fieldLabels: string[],
+): Promise<void> {
+  for (const label of fieldLabels) {
+    const labelElement = page.locator("label", { hasText: label });
+    await expect(labelElement).toBeVisible();
+
+    const inputId = await labelElement.getAttribute("for");
+    if (inputId) {
+      await expect(page.locator(`#${inputId}`)).toBeAttached();
+    }
+  }
+}
+
+export async function fillConnectorFields(
+  page: Page,
+  fields: {
+    default: string;
+    overrides?: Record<string, string>;
+  },
+): Promise<void> {
+  const inputs = page
+    .locator('.grid.grid-cols-2 input[type="text"]')
+    .locator("visible=true");
+
+  const count = await inputs.count();
+  for (let i = 0; i < count; i++) {
+    const input = inputs.nth(i);
+    const placeholder = (await input.getAttribute("placeholder")) || "";
+    const value = fields.overrides?.[placeholder] ?? fields.default;
+
+    await input.clear();
+    await input.fill(value);
+  }
+}
+
+export async function assertPaymentMethodTypes(
+  page: Page,
+  sections: Record<
+    string,
+    {
+      label: string;
+      methods: string[];
+    }
+  >,
+): Promise<void> {
+  for (const section of Object.values(sections)) {
+    const labelElement = page.getByText(section.label);
+    await labelElement.scrollIntoViewIfNeeded();
+    await expect(labelElement).toBeVisible();
+
+    for (const method of section.methods) {
+      const methodElement = page.getByText(method);
+      await methodElement.scrollIntoViewIfNeeded();
+      await expect(methodElement).toBeVisible();
+    }
   }
 }

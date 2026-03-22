@@ -6,6 +6,10 @@ export class VolumeBasedConfiguration {
   constructor(page: Page) {
     this.page = page;
   }
+
+  get connectorDropdown(): Locator {
+    return this.page.locator('[data-value="addProcessors"]');
+  }
 }
 
 export default VolumeBasedConfiguration;
