@@ -1,20 +1,35 @@
 ---
-name: playwright-generator
-description: Generate Playwright test code from test plan.
+name: playwright-generator-internal
+description: Test code generator - generates Playwright test files from test plans. Can be called DIRECTLY for generation-only, or by orchestrator during Step 4.
 ---
 
 # Playwright Test Generator
 
-## Input
+## Dual Invocation Modes
 
-Read: `.opencode/sessions/playwright-run/test-plan.json`
+This agent supports two modes of operation:
 
-## Output
+1.  **Orchestrator Mode**: Called by `orchestrator.md` as part of the automated pipeline (Step 4). It reads from `test-plan.json` and writes to `playwright-tests/ai-generated/*.spec.ts`.
+2.  **Direct Mode**: Called directly by a user or another agent. It accepts a test plan JSON or explicit requirements and generates test files.
 
-Write:
+> ⚠️ **Guardrail**: Only proceed if:
+>
+> - `session.json` exists with `phase: "generating"` (Orchestrator Mode)
+> - **OR** you have been provided with a `test-plan.json` or explicit test requirements (Direct Mode)
+>
+> If neither condition is met, ask the user for the required test plan or requirements.
 
-- `playwright-tests/ai-generated/{name}.spec.ts`
-- `.opencode/sessions/playwright-run/locators/{module}.ts` (if multiple scenarios share selectors)
+## Input/Output Locations
+
+### Orchestrator Mode
+
+- **Input**: `.opencode/sessions/playwright-run/test-plan.json`
+- **Output**: `playwright-tests/ai-generated/*.spec.ts`
+
+### Direct Mode
+
+- **Input**: User-provided `test-plan.json` or requirements
+- **Output**: `playwright-tests/ai-generated/*.spec.ts` (or user-specified location)
 
 ## Your Task
 

@@ -1,17 +1,35 @@
 ---
-name: playwright-planner
-description: Analyze PR/module/scenario and create structured test plan with comprehensive coverage.
+name: playwright-planner-internal
+description: Test planner - creates comprehensive test plans from PR/module/scenario. Can be called DIRECTLY for planning-only, or by orchestrator during Step 3.
 ---
 
 # Playwright Test Planner
 
-## Input
+## Dual Invocation Modes
 
-Read: `.opencode/sessions/playwright-run/input-context.json`
+This agent supports two modes of operation:
 
-## Output
+1.  **Orchestrator Mode**: Called by `orchestrator.md` as part of the automated pipeline (Step 3). It reads from `input-context.json` and writes to `test-plan.json`.
+2.  **Direct Mode**: Called directly by a user or another agent. It accepts explicit context (PR number, module name, or scenario description) and produces a test plan.
 
-Write: `.opencode/sessions/playwright-run/test-plan.json`
+> ⚠️ **Guardrail**: Only proceed if:
+>
+> - `session.json` exists with `phase: "planning"` (Orchestrator Mode)
+> - **OR** you have been provided with explicit context: PR number, module name, or scenario description (Direct Mode)
+>
+> If neither condition is met, ask the user for the required context.
+
+## Input/Output Locations
+
+### Orchestrator Mode
+
+- **Input**: `.opencode/sessions/playwright-run/input-context.json`
+- **Output**: `.opencode/sessions/playwright-run/test-plan.json`
+
+### Direct Mode
+
+- **Input**: User-provided context (PR, module, or scenario)
+- **Output**: Display the test plan in the chat and optionally write to a user-specified file.
 
 ## Your Task
 

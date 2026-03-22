@@ -1,44 +1,83 @@
 ---
 name: playwright-test-gen
-description: Generate Playwright E2E tests for Hyperswitch Control Center. Triggers on "generate playwright tests for PR #123", "create playwright tests for module:auth", "run playwright tests for scenario:X". Orchestrates plan-generate-heal pipeline.
+description: Router entry point for Playwright test automation. Routes to orchestrator for full pipeline ("generate tests", "create test flow") or direct to individual agents ("plan tests", "generate test cases", "heal tests"). Analyzes user intent and delegates appropriately.
 triggers:
-  - generate playwright tests
+  # Full pipeline triggers (routes to orchestrator)
   - create playwright tests
   - run playwright tests
+  - playwright test flow
+  - end-to-end test
+  - e2e test
   - test PR
   - test module
   - test scenario
+  # Individual agent triggers (routes directly)
+  - plan tests
+  - create test plan
+  - analyze for testing
+  - generate test cases
+  - write test code
+  - create test file
+  - heal tests
+  - fix failing tests
+  - debug playwright
+  - repair tests
 ---
 
 # Playwright Test Generation Skill
 
-## Quick Start
+> 🎯 **SMART ROUTER - Analyzes user intent and delegates appropriately**
+
+## Routing Logic
+
+Based on user input, route to the correct component:
+
+### Full Pipeline Flow
+
+**Trigger phrases:** "generate playwright tests", "create test flow", "end-to-end testing", "test PR #123", "test module:auth", "run playwright tests"
 
 ```
-User Request → Orchestrator → Plan → Generate → Run → Heal → Summary → Cleanup
+User Input → SKILL.md → orchestrator.md → _planner → _generator → Run → _healer (if needed) → Validate → Summary → Cleanup
 ```
 
-## Files
+Use orchestrator when user wants complete end-to-end test automation including planning, generation, execution, and healing.
 
-| File                           | Purpose                       |
-| ------------------------------ | ----------------------------- |
-| `SKILL.md`                     | Entry point + project context |
-| `orchestrator.md`              | Pipeline orchestration        |
-| `playwright-test-planner.md`   | PR analysis + test planning   |
-| `playwright-test-generator.md` | Code generation patterns      |
-| `playwright-test-healer.md`    | Debug + fix failures          |
+### Individual Agent Flow
 
-## Session State
+**Trigger phrases:** "plan tests", "generate test cases", "heal/fix tests"
 
-Location: `.opencode/sessions/playwright-run/{sessionId}/`
+| User Intent                  | Route To        | Flow                                         | When to Use                              |
+| ---------------------------- | --------------- | -------------------------------------------- | ---------------------------------------- |
+| "plan tests for..."          | `_planner.md`   | SKILL.md → \_planner → Output test-plan.json | User just wants a test plan document     |
+| "generate test cases..."     | `_generator.md` | SKILL.md → \_generator → Output \*.spec.ts   | User has test plan, wants code generated |
+| "heal tests" / "fix failing" | `_healer.md`    | SKILL.md → \_healer → Output fixed tests     | User has failing tests to debug and fix  |
 
-| File                 | Purpose                 |
-| -------------------- | ----------------------- |
-| `session.json`       | Pipeline state, metrics |
-| `input-context.json` | Parsed request          |
-| `test-plan.json`     | Test scenarios          |
-| `run-results.json`   | Execution results       |
-| `summary.json`       | Final report            |
+Use individual agents when user wants only ONE specific step, not the complete pipeline.
+
+---
+
+## Quick Reference
+
+### Decision Matrix
+
+| User Says                     | Route        | Agents Involved                              |
+| ----------------------------- | ------------ | -------------------------------------------- |
+| "Generate tests for PR #123"  | orchestrator | Full pipeline (planner → generator → healer) |
+| "Create test flow for module" | orchestrator | Full pipeline                                |
+| "Plan tests for auth"         | \_planner    | Planner only                                 |
+| "Generate test cases"         | \_generator  | Generator only                               |
+| "Fix failing tests"           | \_healer     | Healer only                                  |
+
+---
+
+## Agent Descriptions
+
+| Agent             | Role                        | When to Use                                        |
+| ----------------- | --------------------------- | -------------------------------------------------- |
+| `orchestrator.md` | Full pipeline orchestration | User wants complete end-to-end flow with all steps |
+| `_planner.md`     | Test planning only          | User just wants a test plan document               |
+| `_generator.md`   | Test generation only        | User has test plan, wants code generated           |
+| `_healer.md`      | Test fixing only            | User has failing tests to fix                      |
 
 ---
 
@@ -105,7 +144,7 @@ generateUniqueEmail(): string
 generateDateTimeString(): string
 ```
 
-### Standard beforeEach Pattern (matches Cypress)
+### Standard beforeEach Pattern
 
 ```typescript
 test.describe("Feature Name", () => {
@@ -124,12 +163,11 @@ test.describe("Feature Name", () => {
       const json = await response.json();
       if (json.features) {
         json.features.global_search = true;
-        // Add other flags as needed: payouts, three_ds, frm, webhooks
       }
       await route.fulfill({ response, json });
     });
 
-    // 3. Login via UI (mirrors Cypress login_UI)
+    // 3. Login via UI
     await page.goto("/dashboard/login");
     await page.getByTestId("email").fill(testEmail);
     await page.getByTestId("password").fill(testPassword);
@@ -148,34 +186,6 @@ test.describe("Feature Name", () => {
   });
 });
 ```
-
-### Simplified beforeEach (API only)
-
-```typescript
-test.beforeEach(async () => {
-  const email = generateUniqueEmail();
-  await signupUser(email, "Test@123");
-  const { token, merchantId } = await loginUser(email, "Test@123");
-});
-```
-
-### Maintenance Guide
-
-**When to Update:**
-
-1. New endpoints added
-2. Breaking API changes
-3. Feature flag changes
-4. Auth flow changes
-
-**Common Issues:**
-
-| Issue            | Cause                       | Fix                            |
-| ---------------- | --------------------------- | ------------------------------ |
-| 401 Unauthorized | Token expired               | Regenerate token in test setup |
-| 404 Not Found    | Endpoint path changed       | Update URL in commands.ts      |
-| 400 Bad Request  | Request body format changed | Update payload structure       |
-| Missing fields   | Response schema changed     | Update type definitions        |
 
 ---
 
@@ -416,6 +426,14 @@ Every test plan must include:
 
 ---
 
-## Entry Point
+## Entry Point Reference
+
+### Full Pipeline Entry
 
 **Start with:** Read `orchestrator.md` and execute Step 1
+
+### Individual Agent Entry
+
+**Planner:** Read `_planner.md` for planning-only mode  
+**Generator:** Read `_generator.md` for generation-only mode  
+**Healer:** Read `_healer.md` for healing-only mode

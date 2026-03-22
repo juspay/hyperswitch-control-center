@@ -3,11 +3,7 @@
   "mcp": {
     "playwright-test": {
       "type": "local",
-      "command": [
-        "npx",
-        "playwright",
-        "run-test-mcp-server"
-      ],
+      "command": ["npx", "playwright", "run-test-mcp-server"],
       "enabled": true
     }
   },
@@ -15,10 +11,32 @@
     "playwright*": false
   },
   "agent": {
-    "playwright-test-generator": {
-      "description": "Use this agent when you need to create automated browser tests using Playwright",
+    "playwright-test-orchestrator": {
+      "description": "FULL PIPELINE orchestrator for Playwright tests",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/playwright/playwright-test-generator.md}",
+      "prompt": "{file:.opencode/skills/playwright-test-gen/orchestrator.md}",
+      "tools": {
+        "ls": true,
+        "glob": true,
+        "grep": true,
+        "read": true,
+        "edit": true,
+        "write": true,
+        "bash": true,
+        "skill": true,
+        "task": true,
+        "playwright-test*browser_navigate": true,
+        "playwright-test*browser_click": true,
+        "playwright-test*browser_evaluate": true,
+        "playwright-test*browser_snapshot": true,
+        "playwright-test*browser_wait_for": true,
+        "playwright-test*test_run": true
+      }
+    },
+    "playwright-test-generator": {
+      "description": "Test code generator - generates Playwright test files... Can be called DIRECTLY or by orchestrator",
+      "mode": "subagent",
+      "prompt": "{file:.opencode/skills/playwright-test-gen/_generator.md}",
       "tools": {
         "ls": true,
         "glob": true,
@@ -46,9 +64,9 @@
       }
     },
     "playwright-test-healer": {
-      "description": "Use this agent when you need to debug and fix failing Playwright tests",
+      "description": "Test healer - debugs and fixes failing tests... Can be called DIRECTLY or by orchestrator",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/playwright/playwright-test-healer.md}",
+      "prompt": "{file:.opencode/skills/playwright-test-gen/_healer.md}",
       "tools": {
         "ls": true,
         "glob": true,
@@ -67,9 +85,9 @@
       }
     },
     "playwright-test-planner": {
-      "description": "Use this agent when you need to create comprehensive test plan for a web application or website",
+      "description": "Test planner agent - creates test plans... Can be called DIRECTLY or by orchestrator",
       "mode": "subagent",
-      "prompt": "{file:.opencode/prompts/playwright/playwright-test-planner.md}",
+      "prompt": "{file:.opencode/skills/playwright-test-gen/_planner.md}",
       "tools": {
         "ls": true,
         "glob": true,

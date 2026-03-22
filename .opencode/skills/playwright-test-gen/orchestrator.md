@@ -1,13 +1,48 @@
 ---
 name: playwright-orchestrator
-description: Main orchestrator for Playwright test generation. Triggers on "generate playwright tests for PR #123", "create playwright tests for module:auth", "run playwright tests for scenario:X". Manages full pipeline lifecycle.
+description: FULL PIPELINE orchestrator for Playwright tests. Manages complete lifecycle: plan→generate→run→heal→summary. Called by SKILL.md for end-to-end flows.
 ---
 
 # Playwright Test Orchestrator
 
+## Pipeline Flow
+
+```
+User Input → SKILL.md → orchestrator.md → _planner → _generator → Run Tests → _healer (if fail) → Validate → Summary → Cleanup
+```
+
+## Orchestrator vs Direct Agent Calls
+
+| Approach          | Scope                         | Best For                                                |
+| ----------------- | ----------------------------- | ------------------------------------------------------- |
+| **Orchestrator**  | Full Lifecycle (9 steps)      | End-to-end test generation from PR/Module/Scenario      |
+| **Direct Agents** | Single Step (e.g., \_planner) | Debugging, manual overrides, or specific task execution |
+
+Use the **Orchestrator** when you need a guaranteed "hands-off" experience from input to PR comment.
+
 ## Your Role
 
-You are the central coordinator. You **do not** implement logic directly—you **delegate** to specialized agents and manage state via JSON files.
+**Who calls this:** SKILL.md (entry point) - NEVER user input directly  
+**What you do:** Central coordinator that delegates to specialized agents  
+**What you do NOT do:** Implement test logic directly
+
+You manage state via JSON files and orchestrate the pipeline.
+
+## Pipeline (Mandatory Order)
+
+| Step | Action                               | Delegate To        |
+| ---- | ------------------------------------ | ------------------ |
+| 1    | Parse input → `input-context.json`   | self               |
+| 2    | Check/start servers → `session.json` | self               |
+| 3    | Plan tests → `test-plan.json`        | **\_planner.md**   |
+| 4    | Generate tests → `*.spec.ts`         | **\_generator.md** |
+| 5    | Run tests → `run-results.json`       | self               |
+| 6    | Fix failures (if any)                | **\_healer.md**    |
+| 7    | Summary → `summary.json`             | self               |
+| 8    | Present to user                      | self               |
+| 9    | Cleanup                              | self               |
+
+> Steps 3, 4, 6 MUST be delegated. Never skip or inline them.
 
 ## Browser MCP Tools (Available to ALL Agents)
 
@@ -86,11 +121,11 @@ The session ID enables concurrent runs without data corruption.
 
 ## Agent Delegation
 
-| Step | Agent                     | Prompt File                    | Input              | Output           |
-| ---- | ------------------------- | ------------------------------ | ------------------ | ---------------- |
-| 3    | playwright-test-planner   | `playwright-test-planner.md`   | input-context.json | test-plan.json   |
-| 4    | playwright-test-generator | `playwright-test-generator.md` | test-plan.json     | \*.spec.ts       |
-| 6    | playwright-test-healer    | `playwright-test-healer.md`    | run-results.json   | fixed \*.spec.ts |
+| Step | Agent       | Prompt File     | Input              | Output           |
+| ---- | ----------- | --------------- | ------------------ | ---------------- |
+| 3    | \_planner   | `_planner.md`   | input-context.json | test-plan.json   |
+| 4    | \_generator | `_generator.md` | test-plan.json     | \*.spec.ts       |
+| 6    | \_healer    | `_healer.md`    | run-results.json   | fixed \*.spec.ts |
 
 ## Pipeline Flow
 
@@ -624,8 +659,8 @@ await expect(page.getByRole("heading", { name: /payouts/i })).toBeVisible();
 ## References
 
 - Conventions: `SKILL.md`
-- Planning: `playwright-test-planner.md`
-- Generation: `playwright-test-generator.md`
-- Healing: `playwright-test-healer.md`
+- Planning: `_planner.md`
+- Generation: `_generator.md`
+- Healing: `_healer.md`
 - Config: `playwright.config.ts`
 - Helpers: `playwright-tests/support/commands.ts`

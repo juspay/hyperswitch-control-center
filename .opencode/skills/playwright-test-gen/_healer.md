@@ -1,23 +1,35 @@
 ---
-name: playwright-healer
-description: Debug and fix failing Playwright tests.
+name: playwright-healer-internal
+description: Test healer - debugs and fixes failing Playwright tests. Can be called DIRECTLY for fixing-only, or by orchestrator during Step 6.
 ---
 
 # Playwright Test Healer
 
-## Input
+## Dual Invocation Modes
 
-Read:
+This agent supports two modes of operation:
 
-- `.opencode/sessions/playwright-run/run-results.json` - failing tests
-- `playwright-tests/ai-generated/{filename}.spec.ts` - test code
+1.  **Orchestrator Mode**: Called by `orchestrator.md` as part of the automated pipeline (Step 6) when tests fail. It reads from `run-results.json` and updates the failing test files.
+2.  **Direct Mode**: Called directly by a user or another agent. It accepts failing test files or error logs and attempts to fix them.
 
-## Output
+> ⚠️ **Guardrail**: Only proceed if:
+>
+> - `session.json` exists with `phase: "healing"` (Orchestrator Mode)
+> - **OR** you have been provided with failing test files or specific error logs (Direct Mode)
+>
+> If neither condition is met, ask the user for the failing test details.
 
-Update:
+## Input/Output Locations
 
-- Fixed test file (use `edit` tool)
-- Updated `run-results.json` with final status
+### Orchestrator Mode
+
+- **Input**: `.opencode/sessions/playwright-run/run-results.json` and failing test files
+- **Output**: Updated test files and updated `run-results.json`
+
+### Direct Mode
+
+- **Input**: User-provided failing test files or logs
+- **Output**: Fixed test files (use `edit` tool)
 
 ## Your Task
 
