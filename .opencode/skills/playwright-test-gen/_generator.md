@@ -1,35 +1,30 @@
 ---
-name: playwright-generator-internal
-description: Test code generator - generates Playwright test files from test plans. Can be called DIRECTLY for generation-only, or by orchestrator during Step 4.
+name: playwright-generator
+description: Test generator agent for Playwright. Called by orchestrator.md during Step 4 to generate executable test code from test plans. Writes *.spec.ts files to playwright-tests/ai-generated/.
 ---
 
 # Playwright Test Generator
 
-## Dual Invocation Modes
+> 🎯 **Called by orchestrator.md during Step 4 (Generate Tests)**
 
-This agent supports two modes of operation:
+**Who calls this:** orchestrator.md ONLY  
+**When called:** During generation phase of any mode that includes generation (full or generate-only)  
+**Input:** test-plan.json (written by planner)  
+**Output:** `playwright-tests/ai-generated/*.spec.ts`
 
-1.  **Orchestrator Mode**: Called by `orchestrator.md` as part of the automated pipeline (Step 4). It reads from `test-plan.json` and writes to `playwright-tests/ai-generated/*.spec.ts`.
-2.  **Direct Mode**: Called directly by a user or another agent. It accepts a test plan JSON or explicit requirements and generates test files.
+## Guardrail
 
-> ⚠️ **Guardrail**: Only proceed if:
+> ⚠️ **Only proceed if:**
 >
-> - `session.json` exists with `phase: "generating"` (Orchestrator Mode)
-> - **OR** you have been provided with a `test-plan.json` or explicit test requirements (Direct Mode)
+> - `session.json` exists with `phase: "generating"`
+> - `test-plan.json` exists with scenarios array
 >
-> If neither condition is met, ask the user for the required test plan or requirements.
+> If conditions not met, inform orchestrator of missing test plan.
 
-## Input/Output Locations
+## Input/Output
 
-### Orchestrator Mode
-
-- **Input**: `.opencode/sessions/playwright-run/test-plan.json`
-- **Output**: `playwright-tests/ai-generated/*.spec.ts`
-
-### Direct Mode
-
-- **Input**: User-provided `test-plan.json` or requirements
-- **Output**: `playwright-tests/ai-generated/*.spec.ts` (or user-specified location)
+- **Input:** `.opencode/sessions/playwright-run/test-plan.json`
+- **Output:** `playwright-tests/ai-generated/*.spec.ts`
 
 ## Your Task
 
@@ -42,13 +37,10 @@ You have access to Playwright MCP browser tools to explore the live web applicat
 ### Available Tools
 
 ```javascript
-// Navigate and interact
 browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });
 browser_click({ element: "selector" });
 browser_fill({ element: "selector", content: "text" });
 browser_wait_for({ time: 3 });
-
-// Inspect page state
 browser_evaluate({
   expression: "document.querySelector('[data-testid]').innerText",
 });
@@ -57,23 +49,15 @@ browser_snapshot({ filename: "ui-snapshot.json" });
 browser_scroll({ direction: "down", amount: 500 });
 ```
 
-### When to Use During Generation
+### When to Use
 
 | Task                       | Tool                                      | Purpose                        |
 | -------------------------- | ----------------------------------------- | ------------------------------ |
 | Verify selectors from plan | `browser_navigate() + browser_snapshot()` | Confirm selectors exist        |
 | Discover missing selectors | `browser_click() + browser_evaluate()`    | Find dynamic elements          |
-| Check console errors       | `browser_console_messages()`              | Avoid generating broken tests  |
+| Check console errors       | `browser_console_messages()`              | Avoid broken tests             |
 | Verify feature flags       | `browser_evaluate()`                      | Check `window.config.features` |
 | Test interaction flow      | `browser_click() + browser_wait_for()`    | Validate step sequences        |
-
-### Best Practices
-
-1. **Verify selectors before using** - Navigate to page and snapshot to confirm selectors exist
-2. **Test click sequences** - Use browser tools to verify interaction flows work
-3. **Check for dynamic content** - Use `browser_evaluate()` to find elements that appear after actions
-4. **Validate form submissions** - Test fill + click sequences
-5. **Capture console errors** - Ensure no JS errors during test flow
 
 ## CRITICAL GUARDRAIL
 
@@ -83,47 +67,50 @@ You may ONLY create or modify files within the `playwright-tests/` directory tre
 
 - `playwright-tests/ai-generated/*.spec.ts` — Generated test files
 - `playwright-tests/support/pages/*` — Page Object Models
-- `playwright-tests/support/commands.ts` — API helpers
-- `playwright-tests/support/helper.ts` — Utilities
-- `playwright-tests/fixtures/*` — Test data
 
 **FORBIDDEN paths:**
 
 - `src/**/*` — Source code
 - `cypress/**/*` — Legacy test files
-- `.opencode/**/*` — Configuration (except session locators)
-- `config/**/*` — Config files
-- Root directory files
-
-If you need to reference existing patterns, READ them from source but WRITE only to playwright-tests/.
-
----
+- `.opencode/**/*` — Configuration
 
 ## Step 1: Read Test Plan
 
 Parse `test-plan.json`:
 
-- `scenarios[]` - test cases to implement
-- `selectors{}` - discovered selectors
-- `url` - target page
-- `featureFlags[]` - flags to enable
-
-## Step 2: Generate Locators (if needed)
-
-If multiple scenarios share selectors, create locators file:
-
-```typescript
-// .opencode/sessions/playwright-run/locators/{module}.ts
-export const {Module}Locators = {
-  emailInput: '[data-testid="email"]',
-  passwordInput: '[data-testid="password"]',
-  signInButton: '[data-testid="signin-button"]',
-} as const;
+```json
+{
+  "sessionId": "uuid",
+  "source": "PR #123 | module:auth",
+  "scenarios": [
+    {
+      "id": "scenario-1",
+      "title": "Test name",
+      "category": "happy-path",
+      "preconditions": [...],
+      "steps": [...],
+      "selectors": {...}
+    }
+  ],
+  "selectors": { "global": {...} },
+  "featureFlags": [...],
+  "url": "/dashboard/{module}"
+}
 ```
+
+## Step 2: Determine File Name
+
+| Source   | Pattern                      | Example                          |
+| -------- | ---------------------------- | -------------------------------- |
+| PR       | `PR-{number}-{slug}.spec.ts` | `PR-123-payment-form.spec.ts`    |
+| Module   | `module-{name}.spec.ts`      | `module-auth.spec.ts`            |
+| Scenario | `scenario-{slug}.spec.ts`    | `scenario-checkout-flow.spec.ts` |
+
+Slug: lowercase, hyphens, max 50 chars.
 
 ## Step 3: Generate Test Code
 
-### File Structure
+### File Structure Template
 
 ```typescript
 /**
@@ -138,7 +125,6 @@ import {
   loginUser,
   generateUniqueEmail,
 } from "../support/commands";
-// import { ModuleLocators } from "../locators/module"; // if using locators file
 
 test.describe("{Feature} - {Source}", () => {
   let testEmail: string;
@@ -155,7 +141,7 @@ test.describe("{Feature} - {Source}", () => {
       const response = await route.fetch();
       const json = await response.json();
       if (json.features) {
-        // Enable flags as needed from test-plan.json
+        // Enable flags from test-plan.json
         json.features.global_search = true;
       }
       await route.fulfill({ response, json });
@@ -174,10 +160,10 @@ test.describe("{Feature} - {Source}", () => {
     }
   });
 
-  // Scenarios generated from test-plan.json
-  {
-    scenarios;
-  }
+  // Scenarios from test-plan.json
+  test("{scenario title}", async ({ page }) => {
+    // Generated steps
+  });
 });
 ```
 
@@ -187,13 +173,13 @@ From test-plan.json scenario:
 
 ```typescript
 test("{title}", async ({ page }) => {
-  // Arrange (preconditions)
+  // Arrange (preconditions from test-plan)
   {precondition setup}
 
-  // Act (steps)
+  // Act (steps from test-plan)
   {step implementations}
 
-  // Assert (expected results)
+  // Assert (expected results from test-plan)
   {assertions}
 });
 ```
@@ -225,7 +211,7 @@ await expect(page.locator(".message")).toContainText("success");
 // URL matches
 await expect(page).toHaveURL(/\/dashboard\/home/);
 
-// Toast/notification appears
+// Toast/notification
 await expect(page.getByText("Operation successful")).toBeVisible();
 
 // Table row count
@@ -236,10 +222,8 @@ await expect(page.locator("input[name='email']")).toHaveValue(
   "test@example.com",
 );
 
-// Disabled state
+// Disabled/enabled state
 await expect(page.locator("button")).toBeDisabled();
-
-// Enabled state
 await expect(page.locator("button")).toBeEnabled();
 ```
 
@@ -247,32 +231,33 @@ await expect(page.locator("button")).toBeEnabled();
 
 ```typescript
 test("handles API error gracefully", async ({ page }) => {
-  // Mock API failure
   await page.route("**/api/endpoint", async (route) => {
     await route.fulfill({ status: 500, body: "Server Error" });
   });
 
-  // Perform action
   await page.locator("[data-testid='submit']").click();
-
-  // Verify error handling
   await expect(page.getByText("Something went wrong")).toBeVisible();
 });
 ```
 
-## Step 4: File Naming
+## Step 4: Verify Selectors
 
-| Mode     | Pattern                      | Example                          |
-| -------- | ---------------------------- | -------------------------------- |
-| pr       | `PR-{number}-{slug}.spec.ts` | `PR-123-payment-form.spec.ts`    |
-| module   | `module-{name}.spec.ts`      | `module-auth.spec.ts`            |
-| scenario | `scenario-{slug}.spec.ts`    | `scenario-user-checkout.spec.ts` |
+Before writing, verify selectors exist:
 
-Slug: lowercase, hyphens, max 50 chars.
+1. Navigate to target page using browser tools
+2. Use `browser_snapshot()` to capture DOM
+3. Confirm selectors from test-plan exist
+4. Note any missing or changed selectors
+
+If selectors are missing:
+
+- Use alternative selectors (getByRole, getByText)
+- Add TODO comment: `// TODO: Add data-testid for reliability`
+- Document in test file
 
 ## Step 5: Write File
 
-Use `Write` tool:
+Use Write tool:
 
 ```javascript
 Write({
@@ -280,6 +265,23 @@ Write({
   content: testCode,
 });
 ```
+
+## Step 6: Return to Orchestrator
+
+Update `session.json`:
+
+```json
+{
+  "phase": "generating-complete",
+  "metrics": {
+    "testsGenerated": N
+  }
+}
+```
+
+Report to orchestrator: "Generation complete. {N} tests written to {filename}"
+
+---
 
 ## Conventions
 
@@ -292,6 +294,6 @@ Write({
 
 ## References
 
-- SKILL.md: Conventions, helper functions
-- orchestrator.md: Pipeline context
-- playwright.config.ts: Timeouts, baseURL
+- Conventions: `SKILL.md`
+- Planning: `_planner.md`
+- Orchestrator: `orchestrator.md`

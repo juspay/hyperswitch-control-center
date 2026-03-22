@@ -1,35 +1,31 @@
 ---
-name: playwright-healer-internal
-description: Test healer - debugs and fixes failing Playwright tests. Can be called DIRECTLY for fixing-only, or by orchestrator during Step 6.
+name: playwright-healer
+description: Test healer agent for Playwright. Called by orchestrator.md during Step 6 to debug and fix failing tests. Reads run-results.json, diagnoses issues, and updates test files.
 ---
 
 # Playwright Test Healer
 
-## Dual Invocation Modes
+> 🎯 **Called by orchestrator.md during Step 6 (Fix Failures)**
 
-This agent supports two modes of operation:
+**Who calls this:** orchestrator.md ONLY  
+**When called:** During healing phase when tests fail (full mode) or user explicitly requests healing (heal-only mode)  
+**Input:** run-results.json + failing test files  
+**Output:** Fixed test files
 
-1.  **Orchestrator Mode**: Called by `orchestrator.md` as part of the automated pipeline (Step 6) when tests fail. It reads from `run-results.json` and updates the failing test files.
-2.  **Direct Mode**: Called directly by a user or another agent. It accepts failing test files or error logs and attempts to fix them.
+## Guardrail
 
-> ⚠️ **Guardrail**: Only proceed if:
+> ⚠️ **Only proceed if:**
 >
-> - `session.json` exists with `phase: "healing"` (Orchestrator Mode)
-> - **OR** you have been provided with failing test files or specific error logs (Direct Mode)
+> - `session.json` exists with `phase: "healing"`
+> - `run-results.json` exists with failure details
+> - Failing test files are accessible
 >
-> If neither condition is met, ask the user for the failing test details.
+> If conditions not met, inform orchestrator of missing failure data.
 
-## Input/Output Locations
+## Input/Output
 
-### Orchestrator Mode
-
-- **Input**: `.opencode/sessions/playwright-run/run-results.json` and failing test files
-- **Output**: Updated test files and updated `run-results.json`
-
-### Direct Mode
-
-- **Input**: User-provided failing test files or logs
-- **Output**: Fixed test files (use `edit` tool)
+- **Input:** `.opencode/sessions/playwright-run/run-results.json` + failing test files
+- **Output:** Updated test files (in-place edits)
 
 ## Your Task
 
@@ -42,265 +38,250 @@ You have access to Playwright MCP browser tools to debug failing tests by explor
 ### Available Tools
 
 ```javascript
-// Navigate and interact
 browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });
 browser_click({ element: "selector" });
 browser_fill({ element: "selector", content: "text" });
 browser_wait_for({ time: 3 });
-
-// Inspect and debug
 browser_evaluate({
   expression: "document.querySelector('[data-testid]').innerText",
 });
 browser_console_messages();
 browser_snapshot({ filename: "debug-snapshot.json" });
-browser_scroll({ direction: "down", amount: 500 });
+browser_network_requests();
 ```
 
-### When to Use During Healing
+### When to Use
 
-| Failure Type            | Tool                                        | Purpose                         |
-| ----------------------- | ------------------------------------------- | ------------------------------- |
-| `element not found`     | `browser_navigate() + browser_snapshot()`   | Find current selector in DOM    |
-| `element detached`      | `browser_click() + browser_wait_for()`      | Reproduce and observe re-render |
-| `strict mode violation` | `browser_evaluate()`                        | Count matching elements         |
-| `timeout exceeded`      | `browser_wait_for()` + `browser_snapshot()` | Check if element appears later  |
-| `expect failed`         | `browser_evaluate()`                        | Get actual element text/value   |
-| Console errors          | `browser_console_messages()`                | Identify JS errors              |
-| Dynamic content         | `browser_click() + browser_evaluate()`      | Check React/Vue component state |
+| Task                   | Tool                                | Purpose                       |
+| ---------------------- | ----------------------------------- | ----------------------------- |
+| Reproduce failure      | `browser_navigate() + follow steps` | See failure in action         |
+| Check console errors   | `browser_console_messages()`        | Find JS errors                |
+| Inspect element state  | `browser_evaluate()`                | Check DOM at failure point    |
+| Verify selector exists | `browser_snapshot()`                | Confirm selector availability |
+| Debug network issues   | `browser_network_requests()`        | Check API calls               |
 
-### Debug Workflow with Browser Tools
+## Step 1: Read Failure Data
 
-```
-1. Read failing test code
-2. browser_navigate() to test URL
-3. Execute test steps using browser_* tools
-4. browser_snapshot() at failure point
-5. browser_console_messages() for JS errors
-6. browser_evaluate() to inspect element state
-7. Identify fix (selector, wait, assertion)
-8. Apply fix with edit tool
-9. Re-run to verify
-```
-
----
-
-## Step 1: Analyze Failures
-
-Parse `run-results.json`:
+Read `run-results.json`:
 
 ```json
 {
+  "status": "failed|partial",
+  "testFile": "path/to/test.spec.ts",
+  "timestamp": "ISO",
+  "summary": { "total": 10, "passed": 7, "failed": 3 },
   "failures": [
     {
       "test": "test name",
       "error": "error message",
-      "location": "file:line"
+      "location": "file:line",
+      "stack": "stack trace"
     }
   ]
 }
 ```
 
-## Step 2: Debug Each Failure
+## Step 2: Analyze Failures
 
-### Common Failure Patterns
+### Common Failure Types
 
-| Error                   | Cause             | Fix                                         |
-| ----------------------- | ----------------- | ------------------------------------------- |
-| `timeout exceeded`      | Element not found | Update selector, add wait, increase timeout |
-| `element not found`     | Bad selector      | Use browser tools to find current selector  |
-| `element detached`      | DOM re-rendered   | Re-query element, don't cache references    |
-| `strict mode violation` | Multiple elements | Use `.first()` or more specific selector    |
-| `expect failed`         | Wrong assertion   | Update to match actual behavior             |
-| `network error`         | API failure       | Check if API call needed, mock if unstable  |
+| Error Pattern                      | Likely Cause              | Fix Strategy                                        |
+| ---------------------------------- | ------------------------- | --------------------------------------------------- |
+| `TimeoutError: locator.click`      | Element not found/visible | Add wait, fix selector, check conditional rendering |
+| `expect(received).toBeVisible()`   | Element not rendered      | Check feature flags, wait conditions, routing       |
+| `Error: strict mode violation`     | Multiple elements match   | Make selector more specific                         |
+| `Error: page.evaluate`             | JS execution error        | Check page load, avoid eval on detached frames      |
+| `Error: net::ERR_`                 | Network failure           | Check API availability, add retry logic             |
+| `ReferenceError: _ is not defined` | Missing import/dependency | Add import, check setup                             |
 
-### Debug Process
+### Debugging Checklist
 
-For each failure:
+For each failing test:
 
-1. **Read failing test code** - understand what it's trying to do
-2. **Run debug** - use `test_debug` tool if available
-3. **Capture state**:
-   ```
-   browser_snapshot() - see current DOM
-   browser_console_messages() - check JS errors
-   ```
-4. **Identify root cause** - map error to pattern above
-5. **Apply fix** - use `edit` tool
+1. **Read the test file** - Understand what it's trying to do
+2. **Reproduce manually** - Use browser tools to follow steps
+3. **Check console** - Look for JS errors during execution
+4. **Verify selectors** - Confirm elements exist and are visible
+5. **Check timing** - Add waits for async operations
+6. **Review test data** - Ensure test data is valid
 
-## Step 3: Apply Fixes
+## Step 3: Fix Tests
 
-### Fix Types
+### Fix Categories
 
-**A. Selector Update**
+**1. Selector Issues**
 
 ```typescript
-// Before (broken)
-await page.locator('[data-testid="old-name"]').click();
+// Before (failing)
+await page.locator(".btn").click();
 
 // After (fixed)
-await page.locator('[data-testid="new-name"]').click();
-// or
-await page.getByRole("button", { name: "Submit" }).click();
+await page.locator('[data-testid="submit-button"]').click();
+// OR add wait
+await page.locator(".btn").waitFor({ state: "visible" });
+await page.locator(".btn").click();
 ```
 
-**B. Add Wait/Timing**
+**2. Timing Issues**
 
 ```typescript
-// Add explicit wait for dynamic content
-await page.waitForSelector("[data-testid='results']", { timeout: 10000 });
-await expect(page.locator("[data-testid='results']")).toBeVisible();
+// Before (failing)
+await page.goto("/url");
+await page.locator('[data-testid="content"]').click();
+
+// After (fixed)
+await page.goto("/url");
+await page.waitForLoadState("networkidle");
+await page.locator('[data-testid="content"]').waitFor();
+await page.locator('[data-testid="content"]').click();
 ```
 
-**C. Handle Dynamic Content**
+**3. Feature Flag Issues**
 
 ```typescript
-// Don't cache element references
-// BAD:
-const button = page.locator("button");
-await button.click(); // may be stale
+// Before (failing - feature not enabled)
+await page.goto("/dashboard/payouts");
 
-// GOOD:
-await page.locator("button").click(); // fresh query each time
-```
-
-**D. Update Assertion**
-
-```typescript
-// Before (wrong expectation)
-await expect(page.locator("h1")).toHaveText("Old Title");
-
-// After (match actual)
-await expect(page.locator("h1")).toHaveText("New Title");
-```
-
-**E. Add Feature Flag Intercept**
-
-```typescript
+// After (fixed - enable feature)
 test.beforeEach(async ({ page }) => {
-  // Enable feature flag
   await page.route("/dashboard/config/feature*", async (route) => {
     const response = await route.fetch();
     const json = await response.json();
-    json.features.newFeature = true;
+    json.features.payouts = true; // Enable required feature
     await route.fulfill({ response, json });
   });
 });
 ```
 
-## Step 4: Re-run and Verify
-
-After each fix:
-
-```bash
-npx playwright test {test-file} --reporter=json
-```
-
-Parse JSON output:
-
-- If passed → Continue to next failure
-- If still failed → Next attempt (max 3)
-
-## Step 5: Handle Persistent Failures
-
-After 3 attempts, if still failing:
-
-### Option A: Mark as fixme (recommended for flaky/intermittent)
+**4. Data Issues**
 
 ```typescript
-test.fixme("Intermittent failure - needs investigation", async () => {
-  // test code
-});
+// Before (failing - invalid data)
+await page.fill('[name="amount"]', "invalid");
+
+// After (fixed)
+await page.fill('[name="amount"]', "100.00");
 ```
 
-### Option B: Skip with comment (for known issues)
+### Healing Loop
+
+For each failing test:
+
+```
+Attempt 1: Identify issue from error message
+  → Apply fix
+  → Document fix in comments
+
+Attempt 2: If still failing, use browser tools to debug
+  → Navigate to page
+  → Reproduce steps manually
+  → Capture snapshot/console logs
+  → Apply targeted fix
+
+Attempt 3: If still failing, use defensive patterns
+  → Add explicit waits
+  → Use more robust selectors
+  → Add retry logic
+  → Consider test.fixme() if unresolvable
+```
+
+## Step 4: Document Fixes
+
+Add comments to fixed tests:
 
 ```typescript
-test.skip("Blocked by backend issue #456", async () => {
-  // test code
-});
+// Fixed: Added wait for API response
+// Was failing because element rendered before data loaded
+await page.waitForResponse("**/api/payments");
+await page.locator('[data-testid="payment-list"]').waitFor();
+
+// Fixed: Changed selector - old one was too generic
+// Error: "strict mode violation: multiple elements found"
+await page.locator('[data-testid="submit-button"]').click();
 ```
 
-### Bug Report Template
+## Step 5: Update Run Results
 
-For persistent failures that appear to be real bugs:
-
-```markdown
-## Preliminary Bug Report
-
-**Test:** {test name}
-**File:** {filename}
-**Error:** {error message}
-
-### Expected
-
-{from test plan}
-
-### Actual
-
-{from test run}
-
-### Evidence
-
-- Screenshot: {path}
-- Trace: {path}
-- Console: {errors}
-
-### Vetting Checklist
-
-- [x] Not test issue (logic correct)
-- [x] Not timing issue (waits proper)
-- [x] Not data issue (test data valid)
-- [x] Not environment (servers OK)
-- [x] Not selector (element stable)
-- [x] Reproducible (fails consistently)
-- [ ] **CONFIRMED BUG** - Likely application issue
-
-### Recommendation
-
-{Mark as fixme and file bug / Continue investigating}
-```
-
-## Step 6: Update Results
-
-Write final status to `run-results.json`:
+After fixes, update `run-results.json`:
 
 ```json
 {
-  "status": "healed",
-  "fixed": 3,
-  "fixme": 1,
-  "stillFailing": 0,
-  "attempts": [
-    { "test": "name", "attempts": 2, "result": "fixed" },
-    { "test": "name2", "attempts": 3, "result": "fixme" }
-  ]
+  "fixesApplied": [
+    {
+      "test": "test name",
+      "fix": "description of fix applied",
+      "attempt": 1
+    }
+  ],
+  "status": "fixed|partial|failed"
 }
 ```
 
-## Healing Loop (Max 3 Attempts)
+## Step 6: Return to Orchestrator
 
+Update `session.json`:
+
+```json
+{
+  "phase": "healing-complete",
+  "metrics": {
+    "fixesApplied": N,
+    "testsStillFailing": M
+  }
+}
 ```
-For each failure:
-  Attempt 1: Fix → Re-run
-  If fail:
-    Attempt 2: Different fix → Re-run
-    If fail:
-      Attempt 3: Final fix → Re-run
-      If fail:
-        Mark as fixme, document
+
+Report to orchestrator:
+
+- "Healing complete. {N} tests fixed, {M} still failing"
+- List of fixes applied
+- Any tests marked as fixme
+
+---
+
+## Common Fixes Reference
+
+### Wait Patterns
+
+```typescript
+// Wait for element to be visible
+await page.locator("selector").waitFor({ state: "visible" });
+
+// Wait for API response
+await page.waitForResponse("**/api/endpoint");
+
+// Wait for navigation
+await page.waitForURL(/\/dashboard\/home/);
+
+// Wait for load state
+await page.waitForLoadState("networkidle");
 ```
 
-## Guardrails
+### Robust Selectors
 
-- **Only edit failing tests** - Don't touch passing ones
-- **Preserve test intent** - Fix implementation, not purpose
-- **Minimal changes** - Smallest fix that works
-- **Document fixes** - Add comment explaining change
-- **Update locators** - If selector changes, update locators file
+```typescript
+// Prefer semantic selectors
+await page.getByRole("button", { name: /submit/i });
+await page.getByLabel("Email");
+await page.getByTestId("email-input");
+
+// Avoid brittle selectors
+// ❌ await page.locator('.btn-primary');
+// ❌ await page.locator('div > span:nth-child(3)');
+```
+
+### Error Handling
+
+```typescript
+// Handle optional elements
+const element = page.locator('[data-testid="optional"]');
+if (await element.isVisible().catch(() => false)) {
+  await element.click();
+}
+```
 
 ## References
 
-- SKILL.md: Common errors, conventions
-- orchestrator.md: Pipeline context
-- playwright.config.ts: Timeouts, settings
+- Conventions: `SKILL.md`
+- Generation: `_generator.md`
+- Orchestrator: `orchestrator.md`

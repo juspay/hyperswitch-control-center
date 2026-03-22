@@ -12,7 +12,7 @@
   },
   "agent": {
     "playwright-test-orchestrator": {
-      "description": "FULL PIPELINE orchestrator for Playwright tests",
+      "description": "Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full/plan/generate/heal), and orchestrates the appropriate workflow. Handles setup, task execution, summary, bug reports, and cleanup consistently across all modes.",
       "mode": "subagent",
       "prompt": "{file:.opencode/skills/playwright-test-gen/orchestrator.md}",
       "tools": {
@@ -30,89 +30,17 @@
         "playwright-test*browser_evaluate": true,
         "playwright-test*browser_snapshot": true,
         "playwright-test*browser_wait_for": true,
-        "playwright-test*test_run": true
-      }
-    },
-    "playwright-test-generator": {
-      "description": "Test code generator - generates Playwright test files... Can be called DIRECTLY or by orchestrator",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/skills/playwright-test-gen/_generator.md}",
-      "tools": {
-        "ls": true,
-        "glob": true,
-        "grep": true,
-        "read": true,
-        "playwright-test*browser_click": true,
-        "playwright-test*browser_drag": true,
-        "playwright-test*browser_evaluate": true,
-        "playwright-test*browser_file_upload": true,
-        "playwright-test*browser_handle_dialog": true,
-        "playwright-test*browser_hover": true,
-        "playwright-test*browser_navigate": true,
-        "playwright-test*browser_press_key": true,
-        "playwright-test*browser_select_option": true,
-        "playwright-test*browser_snapshot": true,
-        "playwright-test*browser_type": true,
-        "playwright-test*browser_verify_element_visible": true,
-        "playwright-test*browser_verify_list_visible": true,
-        "playwright-test*browser_verify_text_visible": true,
-        "playwright-test*browser_verify_value": true,
-        "playwright-test*browser_wait_for": true,
+        "playwright-test*test_run": true,
+        "playwright-test*browser_console_messages": true,
+        "playwright-test*browser_generate_locator": true,
+        "playwright-test*browser_network_requests": true,
+        "playwright-test*test_debug": true,
+        "playwright-test*test_list": true,
+        "playwright-test*planner_setup_page": true,
+        "playwright-test*planner_save_plan": true,
         "playwright-test*generator_read_log": true,
         "playwright-test*generator_setup_page": true,
         "playwright-test*generator_write_test": true
-      }
-    },
-    "playwright-test-healer": {
-      "description": "Test healer - debugs and fixes failing tests... Can be called DIRECTLY or by orchestrator",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/skills/playwright-test-gen/_healer.md}",
-      "tools": {
-        "ls": true,
-        "glob": true,
-        "grep": true,
-        "read": true,
-        "edit": true,
-        "write": true,
-        "playwright-test*browser_console_messages": true,
-        "playwright-test*browser_evaluate": true,
-        "playwright-test*browser_generate_locator": true,
-        "playwright-test*browser_network_requests": true,
-        "playwright-test*browser_snapshot": true,
-        "playwright-test*test_debug": true,
-        "playwright-test*test_list": true,
-        "playwright-test*test_run": true
-      }
-    },
-    "playwright-test-planner": {
-      "description": "Test planner agent - creates test plans... Can be called DIRECTLY or by orchestrator",
-      "mode": "subagent",
-      "prompt": "{file:.opencode/skills/playwright-test-gen/_planner.md}",
-      "tools": {
-        "ls": true,
-        "glob": true,
-        "grep": true,
-        "read": true,
-        "playwright-test*browser_click": true,
-        "playwright-test*browser_close": true,
-        "playwright-test*browser_console_messages": true,
-        "playwright-test*browser_drag": true,
-        "playwright-test*browser_evaluate": true,
-        "playwright-test*browser_file_upload": true,
-        "playwright-test*browser_handle_dialog": true,
-        "playwright-test*browser_hover": true,
-        "playwright-test*browser_navigate": true,
-        "playwright-test*browser_navigate_back": true,
-        "playwright-test*browser_network_requests": true,
-        "playwright-test*browser_press_key": true,
-        "playwright-test*browser_run_code": true,
-        "playwright-test*browser_select_option": true,
-        "playwright-test*browser_snapshot": true,
-        "playwright-test*browser_take_screenshot": true,
-        "playwright-test*browser_type": true,
-        "playwright-test*browser_wait_for": true,
-        "playwright-test*planner_setup_page": true,
-        "playwright-test*planner_save_plan": true
       }
     }
   }

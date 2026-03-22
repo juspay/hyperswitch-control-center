@@ -1,105 +1,118 @@
 ---
 name: playwright-orchestrator
-description: FULL PIPELINE orchestrator for Playwright tests. Manages complete lifecycle: plan→generate→run→heal→summary. Called by SKILL.md for end-to-end flows.
+description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full/plan/generate/heal), and orchestrates the appropriate workflow with consistent setup, summary, bug reports, and cleanup across all modes.
+triggers:
+  - generate playwright tests
+  - create playwright tests
+  - run playwright tests
+  - playwright test flow
+  - end-to-end test
+  - e2e test
+  - test PR
+  - test module
+  - test scenario
+  - plan tests
+  - create test plan
+  - analyze for testing
+  - generate test cases
+  - write test code
+  - create test file
+  - heal tests
+  - fix failing tests
+  - debug playwright
+  - repair tests
 ---
 
 # Playwright Test Orchestrator
 
-## Pipeline Flow
+> 🎯 **CENTRAL DISPATCHER - All user requests flow through here**
+
+**Who calls this:** SKILL.md (ALWAYS - sole entry point)  
+**What you do:** Detect execution mode, orchestrate workflow, manage state, produce summary  
+**What you do NOT do:** Implement test logic directly (delegate to specialized agents)
+
+---
+
+## Execution Modes
+
+Detect mode from user input and execute appropriate workflow:
+
+| Mode              | Trigger Phrases                                                                         | Steps Executed    | Output                               |
+| ----------------- | --------------------------------------------------------------------------------------- | ----------------- | ------------------------------------ |
+| **Full Pipeline** | "generate tests", "create test flow", "run playwright tests", "test PR/module/scenario" | 1→2→3→4→5→6→7→8→9 | Complete test suite with bug reports |
+| **Plan-Only**     | "plan tests", "create test plan", "analyze for testing"                                 | 1→2→3→7→8→9       | test-plan.json + summary             |
+| **Generate-Only** | "generate test cases", "write test code", "create test file"                            | 1→2→4→7→8→9       | \*.spec.ts files + summary           |
+| **Heal-Only**     | "heal tests", "fix failing tests", "debug playwright", "repair tests"                   | 1→2→6→7→8→9       | Fixed tests + summary                |
+
+All modes include:
+
+- ✅ Step 1: Parse input
+- ✅ Step 2: Environment setup (server checks)
+- ✅ Step 7: Summary generation
+- ✅ Step 8: Bug reports (if issues) + commit options
+- ✅ Step 9: Cleanup
+
+---
+
+## Mode-Specific Pipeline Flows
+
+### Full Pipeline Mode
 
 ```
-User Input → SKILL.md → orchestrator.md → _planner → _generator → Run Tests → _healer (if fail) → Validate → Summary → Cleanup
+User Input → Step 1: Parse → Step 2: Setup → Step 3: _planner → Step 4: _generator → Step 5: Run → Step 6: _healer (if fail) → Step 7: Summary → Step 8: Bug Reports + Options → Step 9: Cleanup
 ```
 
-## Orchestrator vs Direct Agent Calls
+### Plan-Only Mode
 
-| Approach          | Scope                         | Best For                                                |
-| ----------------- | ----------------------------- | ------------------------------------------------------- |
-| **Orchestrator**  | Full Lifecycle (9 steps)      | End-to-end test generation from PR/Module/Scenario      |
-| **Direct Agents** | Single Step (e.g., \_planner) | Debugging, manual overrides, or specific task execution |
+```
+User Input → Step 1: Parse → Step 2: Setup → Step 3: _planner → Step 7: Summary → Step 8: Options → Step 9: Cleanup
+```
 
-Use the **Orchestrator** when you need a guaranteed "hands-off" experience from input to PR comment.
+### Generate-Only Mode
 
-## Your Role
+```
+User Input → Step 1: Parse → Step 2: Setup → Step 3: _planner → Step 4: _generator → Step 7: Summary → Step 8: Options → Step 9: Cleanup
+```
 
-**Who calls this:** SKILL.md (entry point) - NEVER user input directly  
-**What you do:** Central coordinator that delegates to specialized agents  
-**What you do NOT do:** Implement test logic directly
+### Heal-Only Mode
 
-You manage state via JSON files and orchestrate the pipeline.
+```
+User Input → Step 1: Parse → Step 2: Setup → Step 6: _healer → Step 7: Summary → Step 8: Options → Step 9: Cleanup
+```
 
-## Pipeline (Mandatory Order)
+---
 
-| Step | Action                               | Delegate To        |
-| ---- | ------------------------------------ | ------------------ |
-| 1    | Parse input → `input-context.json`   | self               |
-| 2    | Check/start servers → `session.json` | self               |
-| 3    | Plan tests → `test-plan.json`        | **\_planner.md**   |
-| 4    | Generate tests → `*.spec.ts`         | **\_generator.md** |
-| 5    | Run tests → `run-results.json`       | self               |
-| 6    | Fix failures (if any)                | **\_healer.md**    |
-| 7    | Summary → `summary.json`             | self               |
-| 8    | Present to user                      | self               |
-| 9    | Cleanup                              | self               |
+## Agent Delegation Reference
 
-> Steps 3, 4, 6 MUST be delegated. Never skip or inline them.
+| Agent          | File            | Called In Modes           | Purpose                          |
+| -------------- | --------------- | ------------------------- | -------------------------------- |
+| Test Planner   | `_planner.md`   | Full, Plan-Only           | Creates comprehensive test plans |
+| Test Generator | `_generator.md` | Full, Generate-Only       | Generates test code from plans   |
+| Test Healer    | `_healer.md`    | Full (if fail), Heal-Only | Fixes failing tests              |
 
-## Browser MCP Tools (Available to ALL Agents)
-
-All specialized agents (planner, generator, healer) have access to Playwright MCP browser tools to explore the live web application for improved accuracy.
-
-### Available Tools
-
-| Tool                                         | Purpose           | Use When                                |
-| -------------------------------------------- | ----------------- | --------------------------------------- |
-| `browser_navigate({ url })`                  | Navigate to URL   | Starting exploration, switching pages   |
-| `browser_click({ element })`                 | Click element     | Interacting with UI, triggering actions |
-| `browser_fill({ element, content })`         | Fill input        | Entering test data                      |
-| `browser_select_option({ element, option })` | Select dropdown   | Choosing from select elements           |
-| `browser_hover({ element })`                 | Hover element     | Triggering hover states, tooltips       |
-| `browser_evaluate({ expression })`           | Execute JS        | Checking component state, feature flags |
-| `browser_console_messages()`                 | Get console logs  | Debugging JS errors                     |
-| `browser_snapshot({ filename })`             | Capture DOM state | Analyzing page structure                |
-| `browser_wait_for({ time })`                 | Wait seconds      | Allowing page load, animations          |
-| `browser_scroll({ direction, amount })`      | Scroll page       | Revealing off-screen content            |
-
-### Server Requirements
-
-Before using browser tools, ensure:
-
-- Backend is running on `http://localhost:8080`
-- Frontend is running on `http://localhost:9000`
-
-### Delegate with Browser Context
-
-When delegating to agents, they should:
-
-1. Navigate to the target page
-2. Explore the live DOM structure
-3. Identify selectors dynamically
-4. Verify test scenarios against actual UI
+---
 
 ## State Management
 
 **Session Directory:** `.opencode/sessions/playwright-run/{sessionId}/`
 
-The session ID enables concurrent runs without data corruption.
-
-| File                 | Purpose                                      | Updated By       |
-| -------------------- | -------------------------------------------- | ---------------- |
-| `session.json`       | Pipeline state, phase, metrics, server flags | You              |
-| `input-context.json` | Parsed user request                          | Step 1           |
-| `test-plan.json`     | Structured test scenarios                    | Step 3 (planner) |
-| `run-results.json`   | Test execution results                       | Step 5           |
-| `summary.json`       | Final report                                 | Step 7           |
+| File                 | Purpose                              | Updated By         |
+| -------------------- | ------------------------------------ | ------------------ |
+| `session.json`       | Pipeline state, mode, phase, metrics | You (every step)   |
+| `input-context.json` | Parsed user request                  | Step 1             |
+| `test-plan.json`     | Structured test scenarios            | Step 3 (\_planner) |
+| `run-results.json`   | Test execution results               | Step 5             |
+| `summary.json`       | Final report                         | Step 7             |
+| `bug-report.md`      | Bug findings (if failures)           | Step 8             |
 
 **Session JSON Schema:**
 
 ```json
 {
   "sessionId": "uuid",
+  "mode": "full|plan-only|generate-only|heal-only",
   "status": "initialized|running|complete|failed",
-  "phase": "parse|planning|generating|running|healing|summary|cleanup",
+  "phase": "parse|setup|planning|generating|running|healing|summary|cleanup",
   "startedAt": "ISO",
   "servers": {
     "backendWasStarted": false,
@@ -112,73 +125,71 @@ The session ID enables concurrent runs without data corruption.
     "fixesApplied": 0
   },
   "files": {
-    "testFile": "playwright-tests/e2e/{folder}/{name}.spec.ts",
     "testPlan": "test-plan.json",
-    "results": "run-results.json"
+    "testFile": "playwright-tests/ai-generated/*.spec.ts",
+    "results": "run-results.json",
+    "summary": "summary.json"
   }
 }
 ```
 
-## Agent Delegation
-
-| Step | Agent       | Prompt File     | Input              | Output           |
-| ---- | ----------- | --------------- | ------------------ | ---------------- |
-| 3    | \_planner   | `_planner.md`   | input-context.json | test-plan.json   |
-| 4    | \_generator | `_generator.md` | test-plan.json     | \*.spec.ts       |
-| 6    | \_healer    | `_healer.md`    | run-results.json   | fixed \*.spec.ts |
-
-## Pipeline Flow
-
-```
-Step 1: Parse Input → Write input-context.json + session.json
-Step 2: Check/Start Servers → Update session.json
-Step 3: Task Planner → Read input-context.json → Write test-plan.json
-Step 4: Task Generator → Read test-plan.json → Write *.spec.ts
-Step 5: Run Tests → Write run-results.json
-Step 6: Task Healer (if fail) → Fix → Update run-results.json
-Step 7: Generate Summary → Write summary.json
-Step 8: Present to User
-Step 9: Cleanup → Stop servers (if started) → Finalize session.json
-```
-
 ---
 
-## Step 1: Parse and Initialize
+## Step 1: Parse Input & Detect Mode
 
-### 1.1 Detect Mode
+### 1.1 Read User Input
 
-| Pattern             | Mode     | Target       |
-| ------------------- | -------- | ------------ |
-| `#123` or `PR #123` | pr       | PR number    |
-| `#42 #55`           | pr-batch | Multiple PRs |
-| `tag:v1.2.0`        | tag      | Tag name     |
-| `module:auth`       | module   | Module name  |
-| Free text           | scenario | Description  |
+Extract from the conversation context:
 
-### 1.2 Generate Session ID
+- Raw user message
+- Any PR numbers, module names, or scenario descriptions
 
-Generate UUID: `sessionId = crypto.randomUUID()`
+### 1.2 Detect Execution Mode
 
-Use this ID for the session directory: `.opencode/sessions/playwright-run/{sessionId}/`
+Analyze user input keywords:
 
-### 1.3 Write input-context.json
+| Keywords Detected                                                   | Mode              |
+| ------------------------------------------------------------------- | ----------------- |
+| "plan" OR "analyze" OR "create test plan"                           | **plan-only**     |
+| "generate" AND ("cases" OR "code" OR "write")                       | **generate-only** |
+| "heal" OR "fix" OR "debug" OR "repair"                              | **heal-only**     |
+| "generate" OR "create" OR "run" OR "test" (without above modifiers) | **full**          |
+| Default (no specific keywords)                                      | **full**          |
+
+### 1.3 Parse Target
+
+Based on mode, extract:
+
+- **PR Mode:** PR number (e.g., #123)
+- **Module Mode:** module name (e.g., "auth", "payments")
+- **Scenario Mode:** description text
+- **Tag Mode:** tag name
+
+### 1.4 Generate Session ID
+
+```javascript
+sessionId = crypto.randomUUID();
+```
+
+### 1.5 Write input-context.json
 
 ```json
 {
   "rawInput": "user's message",
-  "mode": "pr|pr-batch|tag|module|scenario",
-  "target": "#123|v1.2.0|auth|description",
+  "mode": "full|plan-only|generate-only|heal-only",
+  "target": "#123|auth|description",
+  "targetType": "pr|module|scenario|tag",
   "timestamp": "ISO",
-  "inferredScope": "what to test",
   "sessionId": "uuid"
 }
 ```
 
-### 1.4 Initialize session.json
+### 1.6 Initialize session.json
 
 ```json
 {
   "sessionId": "uuid",
+  "mode": "detected-mode",
   "status": "initialized",
   "phase": "parse",
   "startedAt": "ISO",
@@ -194,108 +205,117 @@ Use this ID for the session directory: `.opencode/sessions/playwright-run/{sessi
 
 ---
 
-## Step 2: Server Management
+## Step 2: Environment Setup
 
 ### 2.1 Check Backend
 
 ```bash
-curl -s http://localhost:8080/health > /dev/null && echo "UP" || echo "DOWN"
+curl -s http://localhost:8080/health
 ```
 
 **If DOWN:**
 
 1. Run: `sh cypress/start_hyperswitch.sh`
 2. Poll every 5s, max 120s
-3. If success: Update `session.json.servers.backendWasStarted = true`
+3. Update `session.json.servers.backendWasStarted = true`
 4. If fail: Ask user to continue or abort
 
-**If UP:** Continue
-
 ### 2.2 Check Frontend
-
-Frontend auto-starts via Playwright webServer. Just verify:
 
 ```bash
 curl -s http://localhost:9000 > /dev/null && echo "UP" || echo "DOWN"
 ```
 
-If DOWN, webServer will handle it.
+Frontend auto-starts via Playwright webServer if DOWN.
+
+### 2.3 Update Session
+
+```json
+{
+  "phase": "setup",
+  "servers": {
+    "backendWasStarted": true|false,
+    "frontendWasStarted": true|false
+  }
+}
+```
 
 ---
 
-## Step 3: Task Planner
+## Step 3: Plan Tests (Full & Plan-Only Modes)
 
-**Delegate to:** `planner` agent
+**Skip this step for:** generate-only, heal-only modes
 
-**Action:**
+**Delegate to:** `_planner.md`
 
+### 3.1 Task Planner
+
+Read `input-context.json` and delegate to planner agent.
+
+**Input:** input-context.json  
+**Output:** test-plan.json
+
+### 3.2 Verify Output
+
+Check test-plan.json exists with scenarios array.
+
+**On fail:**
+
+- Update session.json status="planning-failed"
+- Report error
+- Stop
+
+### 3.3 Update Session
+
+```json
+{
+  "phase": "planning",
+  "metrics": { "testsPlanned": N }
+}
 ```
-Read: input-context.json
-Task: planner agent with context
-Write: test-plan.json
-```
-
-**Verify:** test-plan.json exists with scenarios array
-
-**On fail:** Update session.json status="planning-failed", report error, STOP
 
 ---
 
-## Step 4: Task Generator (with Chunking)
+## Step 4: Generate Tests (Full & Generate-Only Modes)
 
-**Delegate to:** `generator` agent
+**Skip this step for:** plan-only, heal-only modes
+
+**Delegate to:** `_generator.md`
 
 ### 4.1 Check Scenario Count
 
-Read test-plan.json and count scenarios:
+Read test-plan.json (or use provided context for generate-only mode).
 
 - If ≤ 20: Generate all in one batch
 - If > 20: Split into chunks of 10
 
-### 4.2 Chunking Logic
+### 4.2 Task Generator
 
-```javascript
-const scenarios = testPlan.scenarios;
-const CHUNK_SIZE = 10;
-const chunks = [];
+Delegate to generator agent with context.
 
-for (let i = 0; i < scenarios.length; i += CHUNK_SIZE) {
-  chunks.push(scenarios.slice(i, i + CHUNK_SIZE));
+**Input:** test-plan.json (or explicit requirements)  
+**Output:** `playwright-tests/ai-generated/*.spec.ts`
+
+### 4.3 Update Session
+
+```json
+{
+  "phase": "generating",
+  "metrics": { "testsGenerated": N }
 }
 ```
 
-### 4.3 Process Chunks
-
-For each chunk:
-
-1. Write chunk-specific test-plan: `test-plan-chunk-{n}.json`
-2. Delegate to generator agent
-3. Write: `playwright-tests/ai-generated/{name}-chunk-{n}.spec.ts`
-
-### 4.4 Merge Results
-
-After all chunks complete:
-
-- Update session.json.metrics.testsGenerated with total
-- Verify all chunk files exist
-
-**On fail:** Update session.json status="generation-failed", report error, STOP
-
 ---
 
-## Step 5: Run Tests
+## Step 5: Run Tests (Full Mode Only)
 
-**Delegate to:** `oh-my-opencode` agent (built-in)
+**Skip this step for:** plan-only, generate-only, heal-only modes
 
-**Action:**
+**Execute:** `npx playwright test {test-file} --reporter=json --output=test-results/`
 
-```
-Command: npx playwright test {test-file} --reporter=json --output=test-results/
-Capture: JSON output
-Write: run-results.json
-```
+### 5.1 Capture Results
 
-**run-results.json schema:**
+Write run-results.json:
 
 ```json
 {
@@ -307,104 +327,94 @@ Write: run-results.json
 }
 ```
 
-**Decision:**
+### 5.2 Update Session
 
-- If passed → Skip to Step 7
-- If failed → Step 6
+```json
+{
+  "phase": "running",
+  "metrics": {
+    "testsPassed": N,
+    "testsFailed": N
+  }
+}
+```
 
 ---
 
-## Step 6: Task Healer
+## Step 6: Fix Failures (Full & Heal-Only Modes)
 
-**Delegate to:** `healer` agent
+**Skip this step for:** plan-only, generate-only modes (unless explicitly requested)
 
-**Action:**
+**Execute for:** Full mode (if tests failed) OR heal-only mode
 
+**Delegate to:** `_healer.md`
+
+### 6.1 Check Condition
+
+- **Full mode:** Only if `run-results.json` shows failures
+- **Heal-only mode:** Always (user explicitly requested)
+
+### 6.2 Task Healer
+
+Read run-results.json and failing test files, delegate to healer.
+
+**Input:** run-results.json + failing test files  
+**Output:** Fixed test files
+
+### 6.3 Re-run Tests (Full Mode Only)
+
+After healing, re-run tests to verify fixes.
+
+### 6.4 Update Session
+
+```json
+{
+  "phase": "healing",
+  "metrics": { "fixesApplied": N }
+}
 ```
-Read: run-results.json, test file
-Task: healer agent (fixes only failing tests)
-Re-run: (healer handles internally)
-Update: run-results.json with final status
-```
-
-**Loop:** Max 3 healing attempts
-
-**On persistent failure:** Mark as `test.fixme()`, continue
 
 ---
 
 ## Step 7: Generate Summary
+
+**Execute for ALL modes**
 
 Read all JSON files, write summary.json:
 
 ```json
 {
   "sessionId": "uuid",
+  "mode": "full|plan-only|generate-only|heal-only",
   "request": "raw input",
-  "mode": "pr|module|scenario",
-  "target": "#123|auth|description",
   "status": "complete|partial|failed",
   "duration": "ms",
   "files": {
-    "test": "path/to/test.spec.ts",
-    "plan": "test-plan.json",
-    "results": "run-results.json"
+    "testPlan": "path/to/test-plan.json",
+    "testFiles": ["path/to/test1.spec.ts"],
+    "results": "path/to/run-results.json",
+    "summary": "path/to/summary.json"
   },
   "results": {
-    "total": 0,
-    "passed": 0,
-    "failed": 0,
-    "fixed": 0,
-    "fixme": 0,
+    "testsPlanned": 0,
+    "testsGenerated": 0,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "testsFixed": 0,
     "skipped": 0
-  },
-  "bugReport": {
-    "generated": true,
-    "title": "Test Results: {mode} {target}",
-    "summary": "Brief summary of what was tested and results",
-    "findings": [
-      {
-        "severity": "critical|high|medium|low",
-        "category": "functional|ui|performance|security",
-        "test": "Test case name",
-        "issue": "Description of the issue",
-        "reproduction": "Steps to reproduce",
-        "expected": "Expected behavior",
-        "actual": "Actual behavior",
-        "evidence": "Screenshot path or log excerpt"
-      }
-    ],
-    "recommendations": ["Suggested fixes or improvements"],
-    "usage": {
-      "prMode": "Post as PR comment",
-      "otherModes": "Create new GitHub issue"
-    }
-  },
-  "servers": {
-    "backendStarted": false,
-    "stopped": false
   }
 }
 ```
 
-### Bug Report Generation
+---
 
-Generate structured bug report from test failures:
+## Step 8: Bug Report & User Options
 
-1. **Analyze Failures**: Read run-results.json failures array
-2. **Categorize Issues**:
-   - `critical`: Complete failure, blocking functionality
-   - `high`: Major functionality broken
-   - `medium`: Partial failure, workarounds exist
-   - `low`: Minor UI issues, cosmetic
+**Execute for ALL modes**
 
-3. **Extract Evidence**:
-   - Screenshot paths from test-results/
-   - Console logs
-   - Error stack traces
-   - Network failure details
+### 8.1 Generate Bug Report (if issues found)
 
-4. **Generate Markdown Report** (for PR/issue posting):
+Create structured report from results:
 
 ```markdown
 ## 🧪 Test Results Summary
@@ -417,155 +427,53 @@ Generate structured bug report from test failures:
 - ✅ Passed: {passed}
 - ❌ Failed: {failed}
 - 🔧 Fixed: {fixed}
-- ⏸️ Fixme: {fixme}
 
 ### Findings
 
-#### 🔴 Critical
-
-1. **{testName}**
-   - **Issue:** {description}
-   - **Repro:** {steps}
-   - **Expected:** {expected}
-   - **Actual:** {actual}
-
-#### 🟠 High
-
-...
+[If failures exist, list them with severity]
 
 ### Recommendations
 
-1. {recommendation}
-
----
-
-_Generated by Playwright Test Automation_
+[Suggested fixes or improvements]
 ```
 
-### Usage Instructions
+### 8.2 Post Bug Report
 
-| Mode                | Action                                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **PR**              | Post `bugReport.markdown` as PR comment using `gh pr comment {number} --body-file bug-report.md`                          |
-| **Module/Scenario** | Create GitHub issue: `gh issue create --title "{bugReport.title}" --body-file bug-report.md --label "bug,automated-test"` |
+**For PR Mode:** Post as PR comment
+**For Other Modes:** Create GitHub issue (optional)
 
----
+### 8.3 Present Options
 
-## Step 8: Present to User and Post Bug Report
-
-Display:
-
-1. Summary (from summary.json)
-2. Test results
-3. File locations
-4. Bug report preview (if failures exist)
-
-### 8.1 Post Bug Report
-
-If there are failed tests (`results.failed > 0` or `results.fixme > 0`):
-
-**For PR Mode:**
-
-```bash
-gh pr comment {target} --body-file .opencode/sessions/playwright-run/{sessionId}/bug-report.md
-```
-
-**For Module/Scenario Mode:**
-
-```bash
-gh issue create \
-  --title "$(cat summary.json | jq -r '.bugReport.title')" \
-  --body-file .opencode/sessions/playwright-run/{sessionId}/bug-report.md \
-  --label "bug,automated-test,needs-review"
-```
-
-### 8.2 Ask User (Mode-Specific Options)
-
-Display results and present mode-appropriate options:
+Display results and options:
 
 ```
 Test execution complete!
 
-Results: {passed} passed, {failed} failed, {fixme} fixme
-Bug report: {posted as PR comment / created as GitHub issue #{number} / not generated}
+Mode: {mode}
+Results: {summary}
 
-Mode: {pr|module|scenario}
-```
-
-**For PR Mode:**
-
-```
 What next?
-1. Commit tests to current branch (updates PR #{target})
-2. Create new branch + separate PR with tests
-3. View bug report in PR comments
-4. Regenerate failed tests
-5. Clean up and exit (keep servers running)
-6. Stop servers, clean up and exit
-```
-
-**For Module/Scenario Mode:**
-
-```
-What next?
-1. Create new branch + PR with tests
-2. View bug report GitHub issue
-3. Regenerate failed tests
-4. Clean up and exit (keep servers running)
-5. Stop servers, clean up and exit
-
-Note: "Commit to current branch" is not available for module/scenario tests.
-      A new PR is required to submit generated tests.
-```
-
-### 8.3 Handle User Selection
-
-| Mode                | Selection                   | Action                                                                                 |
-| ------------------- | --------------------------- | -------------------------------------------------------------------------------------- |
-| **PR**              | 1. Commit to current branch | `git add . && git commit -m "test: add Playwright tests for PR #{target}" && git push` |
-| **PR**              | 2. Create new branch + PR   | Create branch `playwright-tests-{target}`, commit, push, create PR                     |
-| **PR**              | 3. View bug report          | Open PR #{target} in browser (bug report already posted as comment)                    |
-| **PR**              | 4. Regenerate failed tests  | Go back to Step 6 (Healer) with failed tests only                                      |
-| **Module/Scenario** | 1. Create new branch + PR   | Create branch `playwright-tests-{module}-{timestamp}`, commit, push, create PR         |
-| **Module/Scenario** | 2. View bug report          | Open GitHub issue #{issueNumber} in browser                                            |
-| **Module/Scenario** | 3. Regenerate failed tests  | Go back to Step 6 (Healer) with failed tests only                                      |
-| **All**             | Exit options                | Proceed to Step 9 (Cleanup)                                                            |
-
-### 8.4 Bug Report Summary
-
-Always display bug report delivery info:
-
-**PR Mode:**
-
-```
-📋 Bug Report: Posted as PR comment
-   URL: https://github.com/{owner}/{repo}/pull/{target}
-```
-
-**Module/Scenario Mode:**
-
-```
-📋 Bug Report: Created as GitHub issue
-   Issue: #{issueNumber}
-   URL: https://github.com/{owner}/{repo}/issues/{issueNumber}
+1. Commit tests to current branch
+2. Create new branch + separate PR
+3. View bug report
+4. Regenerate/Re-run
+5. Clean up and exit
 ```
 
 ---
 
 ## Step 9: Cleanup
 
+**Execute for ALL modes**
+
 ### 9.1 Stop Servers (if we started them)
 
-Check `session.json.servers.backendWasStarted`:
-
 ```bash
-# If true:
+# If session.json.servers.backendWasStarted == true:
 curl -X POST http://localhost:8080/shutdown 2>/dev/null || \
   pkill -f "hyperswitch" || \
   echo "Backend stop attempted"
 ```
-
-Update `session.json.servers.stopped = true`
 
 ### 9.2 File Cleanup (per user choice)
 
@@ -575,76 +483,19 @@ Update `session.json.servers.stopped = true`
 | Keep passing | Delete tests with fixme                             |
 | Clean slate  | Delete ai-generated/\*.spec.ts, clear session files |
 
-### 9.3 Finalize
+### 9.3 Finalize Session
 
-Update `session.json.status = "complete"`
+Update `session.json`:
 
----
-
-## Server Utilization for Agent Exploration
-
-Agents can leverage running servers to explore the dashboard for better test planning, generation, and healing:
-
-### Dashboard Access
-
-When servers are running, agents can:
-
-- Navigate via browser to `http://localhost:9000` using Playwright's browser automation
-- Inspect element hierarchy with `playwright codegen` or `npx playwright open`
-- Verify selector accuracy by testing on live UI
-- Observe dynamic content loading patterns
-
-### Exploration Workflow
-
-**For Planner Agent:**
-
-1. Navigate to target module after test setup
-2. Document page structure, form fields, and interaction flows
-3. Identify dynamic elements (tables, modals, loaders)
-4. Map user journeys for test scenario generation
-
-**For Generator Agent:**
-
-1. Verify selector availability on live dashboard
-2. Test page.goto() paths match actual routing
-3. Confirm element visibility patterns
-4. Validate API helper integration
-
-**For Healer Agent:**
-
-1. Reproduce failures in browser context
-2. Inspect DOM for selector changes
-3. Verify timing and wait conditions
-4. Test fixes before applying
-
-### Browser Tools Available
-
-| Tool      | Use Case                          | Command                                        |
-| --------- | --------------------------------- | ---------------------------------------------- |
-| Codegen   | Generate selectors by clicking UI | `npx playwright codegen http://localhost:9000` |
-| UI Mode   | Debug failing tests interactively | `npx playwright test --ui`                     |
-| Trace     | Record and replay test execution  | `npx playwright test --trace on`               |
-| Inspector | Step through test execution       | `PWDEBUG=1 npx playwright test`                |
-
-### Feature Flag Handling
-
-When using page.route() to intercept feature flags:
-
-```typescript
-// Intercept feature config
-await page.route("**/config/feature*", async (route) => {
-  const response = await route.fetch();
-  const json = await response.json();
-  json.features.payout = true;
-  await route.fulfill({ response, json });
-});
-
-// Page refresh REQUIRED after intercept
-await page.goto("/dashboard/payouts");
-await expect(page.getByRole("heading", { name: /payouts/i })).toBeVisible();
+```json
+{
+  "status": "complete",
+  "phase": "cleanup",
+  "completedAt": "ISO"
+}
 ```
 
-**Note:** Intercept modifies network response only. A page refresh is required to render UI with feature flags enabled.
+---
 
 ## Error Handling
 
@@ -655,6 +506,8 @@ await expect(page.getByRole("heading", { name: /payouts/i })).toBeVisible();
 | Backend timeout        | Report, ask to continue or abort         |
 | Agent fails            | Update status, report error, offer retry |
 | All heal attempts fail | Mark fixme, continue to summary          |
+
+---
 
 ## References
 

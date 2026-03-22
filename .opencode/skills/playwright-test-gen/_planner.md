@@ -1,35 +1,30 @@
 ---
-name: playwright-planner-internal
-description: Test planner - creates comprehensive test plans from PR/module/scenario. Can be called DIRECTLY for planning-only, or by orchestrator during Step 3.
+name: playwright-planner
+description: Test planner agent for Playwright. Called by orchestrator.md during Step 3 to create comprehensive test plans from PR/module/scenario analysis. Writes test-plan.json for use by generator agent.
 ---
 
 # Playwright Test Planner
 
-## Dual Invocation Modes
+> 🎯 **Called by orchestrator.md during Step 3 (Plan Tests)**
 
-This agent supports two modes of operation:
+**Who calls this:** orchestrator.md ONLY  
+**When called:** During planning phase of any mode that includes planning (full or plan-only)  
+**Input:** input-context.json (written by orchestrator Step 1)  
+**Output:** test-plan.json
 
-1.  **Orchestrator Mode**: Called by `orchestrator.md` as part of the automated pipeline (Step 3). It reads from `input-context.json` and writes to `test-plan.json`.
-2.  **Direct Mode**: Called directly by a user or another agent. It accepts explicit context (PR number, module name, or scenario description) and produces a test plan.
+## Guardrail
 
-> ⚠️ **Guardrail**: Only proceed if:
+> ⚠️ **Only proceed if:**
 >
-> - `session.json` exists with `phase: "planning"` (Orchestrator Mode)
-> - **OR** you have been provided with explicit context: PR number, module name, or scenario description (Direct Mode)
+> - `session.json` exists with `phase: "planning"`
+> - `input-context.json` exists with parsed user request
 >
-> If neither condition is met, ask the user for the required context.
+> If conditions not met, inform orchestrator of missing context.
 
-## Input/Output Locations
+## Input/Output
 
-### Orchestrator Mode
-
-- **Input**: `.opencode/sessions/playwright-run/input-context.json`
-- **Output**: `.opencode/sessions/playwright-run/test-plan.json`
-
-### Direct Mode
-
-- **Input**: User-provided context (PR, module, or scenario)
-- **Output**: Display the test plan in the chat and optionally write to a user-specified file.
+- **Input:** `.opencode/sessions/playwright-run/input-context.json`
+- **Output:** `.opencode/sessions/playwright-run/test-plan.json`
 
 ## Your Task
 
@@ -37,316 +32,207 @@ Analyze the input and create a comprehensive test plan with QA-grade coverage.
 
 ## Browser MCP Tools Available
 
-You have access to Playwright MCP browser tools to explore the live web application at `http://localhost:9000`.
+You have access to Playwright MCP browser tools to explore the live web application at `http://localhost:9000` for accurate test scenario identification.
 
 ### Available Tools
 
 ```javascript
-// Navigate to page
 browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });
-
-// Interact with elements
 browser_click({ element: "selector" });
 browser_fill({ element: "selector", content: "text" });
-browser_select_option({ element: "selector", option: "value" });
-browser_hover({ element: "selector" });
-
-// Inspect page state
+browser_wait_for({ time: 3 });
 browser_evaluate({
   expression: "document.querySelector('[data-testid]').innerText",
 });
 browser_console_messages();
 browser_snapshot({ filename: "ui-snapshot.json" });
-
-// Control flow
-browser_wait_for({ time: 3 });
 browser_scroll({ direction: "down", amount: 500 });
 ```
 
 ### When to Use
 
-| Task                    | Tool                                   | Example                              |
-| ----------------------- | -------------------------------------- | ------------------------------------ |
-| Discover selectors      | `browser_snapshot()`                   | Capture full DOM to find data-testid |
-| Verify feature flags    | `browser_evaluate()`                   | Check `window.config.features`       |
-| Check console errors    | `browser_console_messages()`           | Debug JS issues                      |
-| Navigate flows          | `browser_click() + browser_wait_for()` | Step through user journeys           |
-| Inspect dynamic content | `browser_evaluate()`                   | Check React component state          |
+| Task                  | Tool                                      | Purpose                        |
+| --------------------- | ----------------------------------------- | ------------------------------ |
+| Verify selectors      | `browser_navigate() + browser_snapshot()` | Confirm selectors exist        |
+| Discover selectors    | `browser_click() + browser_evaluate()`    | Find dynamic elements          |
+| Check console errors  | `browser_console_messages()`              | Avoid broken tests             |
+| Verify feature flags  | `browser_evaluate()`                      | Check `window.config.features` |
+| Test interaction flow | `browser_click() + browser_wait_for()`    | Validate step sequences        |
 
-### Best Practices
+## Step 1: Read Input Context
 
-1. **Always start with `browser_navigate()`** to reach the target page
-2. **Use `browser_wait_for()`** after navigation or clicks for async content
-3. **Capture `browser_snapshot()`** before designing selectors
-4. **Check `browser_console_messages()`** for hidden errors
-5. **Use `browser_evaluate()`** to inspect feature flags or component state
+Read `input-context.json`:
 
----
+```json
+{
+  "rawInput": "user's message",
+  "mode": "full|plan-only|generate-only|heal-only",
+  "target": "#123|auth|description",
+  "targetType": "pr|module|scenario|tag",
+  "timestamp": "ISO",
+  "sessionId": "uuid"
+}
+```
 
-## Step 1: Analyze Input
-
-Parse input-context.json:
-
-- `mode`: pr | module | scenario | tag
-- `target`: PR number, module name, or description
-- `inferredScope`: what functionality to test
-
-## Step 2: Gather Context
+## Step 2: Gather Context Based on Mode
 
 ### PR Mode
 
-```bash
-# Fetch PR details
-gh pr view {number} --json title,body,files
-gh pr diff {number}
-```
-
-**Analyze:**
-
-- Changed files (focus on .ts/.tsx/.res)
-- Component modifications
-- API changes
-- UI updates
-
-**Second-Order Effects:**
+Fetch PR metadata and diff:
 
 ```bash
-# Find components that import changed files
-for file in changed_files; do
-  component=$(basename $file .ts | sed 's/\.tsx//')
-  grep -r "import.*$component\|<$component" src/ --include="*.ts" --include="*.tsx" -l
-done
+gh pr view {NUMBER} --json number,title,body,files
+gh pr diff {NUMBER}
 ```
+
+Read FULL source files touched by PR to find:
+
+- `data-*` attributes
+- Navigation flows
+- Form fields
+- API calls
 
 ### Module Mode
 
-Map module to known info:
+Map module name to source paths:
 
-- URL: from SKILL.md module mapping
-- Components: grep `src/**/*{Module}*`
-- Feature flags: check if module is FF-marked
-- Shared dependencies: find components that use this module
+- **auth** → `src/**/Auth*`, `src/**/Login*`, `src/**/SignIn*`, `src/**/SignUp*`
+- **payments** → `src/**/Payment*`, `src/**/Orders*`
+- **refunds** → `src/**/Refund*`
+- **disputes** → `src/**/Dispute*`
+- **connectors** → `src/**/Connector*`, `src/**/PaymentProcessor*`
+- **routing** → `src/**/Routing*`
+- **analytics** → `src/**/Analytics*`
+- **users** → `src/**/Users*`
+- **api-keys** → `src/**/APIKeys*`
+- **settings** → `src/**/Settings*`, `src/**/ConfigurePMTs*`
 
 ### Scenario Mode
 
-- Parse user description
-- Identify implied modules
-- Map user journey
-- Find relevant source files
+Grep/glob for components mentioned in scenario text.
 
----
+## Step 3: Analyze Application (Browser Tools)
 
-## Step 3: Check for Existing Tests (Deduplication)
+Navigate to target module and document:
 
-Before designing scenarios, check if tests already exist for this functionality.
+1. **Page Structure**
+   - Main sections and components
+   - Navigation elements
+   - Form fields and inputs
+   - Tables and data displays
+   - Buttons and actions
 
-### 3.1 Scan Existing Test Files
+2. **Dynamic Elements**
+   - Modals and dialogs
+   - Dropdowns and selects
+   - Loading states
+   - Error states
 
-Search for existing tests that may cover the same scenarios:
+3. **User Journeys**
+   - Primary flows (happy path)
+   - Alternative flows
+   - Error handling paths
 
-```bash
-# Search in e2e folder
-grep -r "{scenario_keyword}" playwright-tests/e2e/ --include="*.spec.ts" -l
+## Step 4: Create Test Plan
 
-# Search in ai-generated folder
-grep -r "{scenario_keyword}" playwright-tests/ai-generated/ --include="*.spec.ts" -l
-
-# Example: For "login" scenarios
-grep -ri "login\|signin\|sign-in" playwright-tests/e2e/ playwright-tests/ai-generated/ --include="*.spec.ts" -l
-```
-
-### 3.2 Compare Test Titles
-
-Read existing test files and extract test titles:
-
-```bash
-# Extract test titles from existing files
-grep -h "test(" playwright-tests/e2e/**/*.spec.ts playwright-tests/ai-generated/**/*.spec.ts 2>/dev/null | \
-  sed 's/.*test("//; s/".*//; s/,.*//' | sort -u > existing_tests.txt
-```
-
-### 3.3 Deduplication Logic
-
-For each proposed scenario title:
-
-| Check                                             | Action                                  |
-| ------------------------------------------------- | --------------------------------------- |
-| **Exact match** in existing tests                 | **SKIP** - Mark as duplicate            |
-| **Semantic match** (same flow, different wording) | **SKIP** - Mark as duplicate            |
-| **Partial match** (overlapping coverage)          | **MODIFY** - Focus on uncovered aspects |
-| **No match**                                      | **INCLUDE** - Add to scenarios          |
-
-**Example deduplication:**
-
-Proposed: `"should successfully login with valid credentials"`
-Existing: `"should login with valid credentials"`
-→ **SKIP** (semantic match)
-
-Proposed: `"should show error for invalid email format"`
-Existing: `"should login with valid credentials"`
-→ **INCLUDE** (different scenario)
-
-### 3.4 Document Skipped Tests
-
-Add skipped scenarios to test-plan.json with reason:
+Write `test-plan.json`:
 
 ```json
 {
-  "scenarios": [
-    {
-      "id": "TC-03",
-      "title": "should login with valid credentials",
-      "status": "skipped",
-      "skipReason": "Duplicate: covered in playwright-tests/e2e/1-auth/signin.spec.ts"
-    }
-  ]
-}
-```
-
----
-
-## Step 4: Explore UI (Browser MCP Tools)
-
-Navigate to target URL and discover:
-
-```
-browser_navigate({ url: "http://localhost:9000/dashboard/{module}" })
-browser_wait_for({ time: 3 })
-browser_snapshot({ filename: ".opencode/sessions/playwright-run/ui-snapshot.json" })
-```
-
-**Identify:**
-
-- Form fields (inputs, selects, buttons)
-- Data displays (tables, cards, lists)
-- Navigation elements
-- Dynamic content areas
-- Error/success message locations
-
----
-
-## Step 5: Design Test Scenarios
-
-### Coverage Categories (Generate ALL applicable)
-
-**A. Happy Path**
-
-- Standard flow from start to success
-- Default inputs
-- Expected outcomes
-
-**B. Edge Cases**
-
-- Empty/null inputs
-- Minimum values (0, 1)
-- Maximum values (max length, max items)
-- Special characters, Unicode
-- Rapid actions (double-click spam)
-
-**C. Input Validation**
-
-- Invalid data types
-- Out of range values
-- Malformed data
-- Required field checks
-- Format validation (email, phone)
-
-**D. Error Handling**
-
-- Network failures
-- API errors (4xx, 5xx)
-- Timeouts
-- Permission denied
-- Resource not found
-
-**E. State Management**
-
-- Loading states
-- Empty states
-- Error states
-- Success states
-- Partial data
-
----
-
-## Step 6: Write Test Plan JSON (Compressed Format)
-
-Use compact JSON format to optimize context window usage. Steps and expected results use pipe-delimited shorthand.
-
-```json
-{
-  "source": "PR #123 / module:auth / scenario",
-  "mode": "pr|module|scenario",
-  "target": "#123|auth|description",
-  "url": "http://localhost:9000/dashboard/...",
+  "sessionId": "uuid",
+  "source": "PR #123 - title | module:auth | scenario description",
+  "mode": "full|plan-only",
   "timestamp": "ISO",
   "scenarios": [
     {
-      "id": "TC-01",
-      "title": "Happy path - successful login",
-      "type": "happy-path",
-      "priority": "high",
-      "pre": ["Backend running", "User not logged in"],
-      "data": "email:test@example.com|password:TestPass123",
-      "steps": "nav:/login|fill:email|fill:password|click:signin|wait:redirect",
-      "exp": "url:/home|visible:welcome|text:username"
-    },
-    {
-      "id": "TC-02",
-      "title": "Error - invalid credentials",
-      "type": "error-handling",
-      "priority": "high",
-      "data": "email:invalid@test.com|password:wrong",
-      "steps": "nav:/login|fill:email|fill:password|click:signin",
-      "exp": "toast:Invalid credentials|url:/login|value:email"
+      "id": "scenario-1",
+      "title": "Descriptive test name",
+      "category": "happy-path|validation|error-handling|edge-case",
+      "preconditions": ["List of required setup steps"],
+      "steps": [
+        {
+          "action": "navigate|click|type|select|verify",
+          "target": "selector or description",
+          "value": "input value (if applicable)",
+          "expected": "expected outcome"
+        }
+      ],
+      "selectors": {
+        "elementName": "[data-testid='value']"
+      }
     }
   ],
-  "sel": {
-    "email": "[data-testid='email']",
-    "password": "[data-testid='password']",
-    "signin": "[data-testid='signin-button']"
+  "selectors": {
+    "global": {
+      "elementName": "selector"
+    }
   },
-  "ff": ["flag1", "flag2"],
-  "impacts": ["ComponentA", "ComponentB"]
+  "featureFlags": ["flag1", "flag2"],
+  "url": "/dashboard/{module}"
 }
 ```
 
-### Shorthand Key
+### Coverage Requirements
 
-| Prefix     | Meaning         | Example           |
-| ---------- | --------------- | ----------------- |
-| `nav:`     | Navigate to     | `nav:/login`      |
-| `fill:`    | Fill input      | `fill:email`      |
-| `click:`   | Click element   | `click:signin`    |
-| `wait:`    | Wait for        | `wait:redirect`   |
-| `url:`     | URL assertion   | `url:/home`       |
-| `visible:` | Visibility      | `visible:welcome` |
-| `text:`    | Text assertion  | `text:username`   |
-| `toast:`   | Toast message   | `toast:Error`     |
-| `value:`   | Value assertion | `value:email`     |
+Every test plan must include scenarios for:
+
+- ✅ **Happy path** - Standard success flow
+- ✅ **Edge cases** - Empty, min, max, special chars
+- ✅ **Input validation** - Invalid, malformed data
+- ✅ **Error handling** - API errors, network failures
+- ✅ **Cross-component** - Impacts on related features
+- ✅ **Second-order effects** - Components using changed code
+
+### Scenario Categories
+
+| Category             | Description                       | Example                          |
+| -------------------- | --------------------------------- | -------------------------------- |
+| Component visibility | All UI elements render            | Headings, buttons, inputs render |
+| Happy path           | Primary flow works end-to-end     | Create, save, activate works     |
+| Validation           | Form validation catches bad input | Invalid email rejected           |
+| Empty state          | Behavior when no data             | "No results" message shown       |
+| Error handling       | Graceful failure handling         | API error shows toast            |
+| Navigation           | Links and routing work            | Sidebar nav, breadcrumbs         |
+| Data display         | Tables/lists show correct data    | Column values match API          |
+| Interaction          | Modals, dropdowns work            | Open/close modal, apply filters  |
+
+## Step 5: Verify Output
+
+Before returning to orchestrator:
+
+- [ ] All `data-*` selectors reference attributes that exist in source
+- [ ] Scenarios cover all coverage requirements
+- [ ] Feature flags identified if module is FF-gated
+- [ ] test-plan.json is valid JSON
+- [ ] At least one scenario in each required category
+
+## Step 6: Return to Orchestrator
+
+Update `session.json`:
+
+```json
+{
+  "phase": "planning-complete",
+  "metrics": {
+    "testsPlanned": N
+  }
+}
+```
+
+Report to orchestrator: "Planning complete. {N} scenarios created in test-plan.json"
 
 ---
 
-## Coverage Checklist
+## Conventions
 
-Before writing JSON, verify:
-
-- [ ] Existing tests checked for duplicates
-- [ ] Happy path tested
-- [ ] Edge cases: empty, min, max, special chars
-- [ ] Input validation: valid, invalid, malformed
-- [ ] Error handling: 4xx, 5xx, network, timeout
-- [ ] State management: loading, empty, error, success
-- [ ] Cross-component impacts documented
-- [ ] Feature flags noted
-- [ ] Selectors discovered via browser tools
-- [ ] Each scenario has: preconditions, data, steps, expected
-- [ ] Skipped tests documented with reasons
-
----
+- Use `data-testid` selectors as primary
+- Add `{ timeout: 10000 }` for API-dependent renders
+- One test per scenario
+- Use `test.beforeEach` for common setup (document in preconditions)
+- Prefer semantic selectors (getByRole, getByLabel) over testid
 
 ## References
 
-- SKILL.md: Module mappings, conventions
-- orchestrator.md: Full pipeline context
-- playwright-tests/helpers/api.ts: Setup functions
+- Conventions: `SKILL.md`
+- Orchestrator: `orchestrator.md`
+- Next step: `_generator.md`
