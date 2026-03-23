@@ -54,7 +54,11 @@ module ChangePasswordModal = {
       <Form
         key="auth"
         validate={values =>
-          TwoFaUtils.validateTotpForm(values, ["old_password", "new_password", "confirm_password"])}
+          TwoFaUtils.validateTotpForm(
+            values,
+            ["old_password", "new_password", "confirm_password"],
+            Some({key1: "new_password", key2: "confirm_password"}),
+          )}
         onSubmit>
         <div className="flex flex-col gap-6 m-2">
           <div
