@@ -135,7 +135,7 @@ module ControlCenter = {
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-    let connectorUrl = RouteUtils.Connectors.list(version)
+    let connectorUrl = RouteUtils.getPath(~path="/connectors", version)
 
     let liveModeStyles = isLiveMode || version == V2 ? "w-1/2 " : "flex flex-col md:flex-row gap-5 "
     <div className=liveModeStyles>
@@ -186,7 +186,7 @@ module DevResources = {
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
-    let apiKeysUrl = RouteUtils.ApiKeys.list(version)
+    let apiKeysUrl = RouteUtils.getPath(~path="/developer-api-keys", version)
 
     <div className="flex flex-col mb-5 gap-6 ">
       <PageHeading
