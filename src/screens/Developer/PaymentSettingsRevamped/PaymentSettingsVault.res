@@ -73,6 +73,7 @@ let make = () => {
     HyperswitchAtom.businessProfileFromIdAtomInterface,
   )
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
@@ -80,6 +81,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
+      mixpanelEvent(~eventName="payment_settings_vault")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
