@@ -128,10 +128,10 @@ let make = (~flowType) => {
               validate={values =>
                 TwoFaUtils.validateTotpForm(
                   values,
-                  ["create_password", "comfirm_password"],
+                  ["create_password", "confirm_password"],
                   Some({
                     key1: "create_password",
-                    key2: "comfirm_password",
+                    key2: "confirm_password",
                   }),
                 )}
               onSubmit>

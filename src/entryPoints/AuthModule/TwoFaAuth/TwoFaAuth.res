@@ -249,7 +249,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let equalKeys = switch authType {
   | ResetPassword =>
-    Some(({key1: "create_password", key2: "comfirm_password"}: TwoFaTypes.equalValidationKeys))
+    Some(({key1: "create_password", key2: "confirm_password"}: TwoFaTypes.equalValidationKeys))
   | _ => None
   }
 
