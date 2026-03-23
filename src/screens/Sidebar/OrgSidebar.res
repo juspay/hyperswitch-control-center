@@ -109,7 +109,7 @@ module OrgTile = {
           <img
             className="h-6 w-6 object-contain rounded-sm"
             alt="Organization Logo"
-            src={logoURL->Option.getOr("/juspayLogoIcon.png")}
+            src={logoURL->Option.getOr("/juspayLogoIcon.svg")}
           />
         </RenderIf>
         <RenderIf condition={!isActive || logoURL->Option.isNone}>
