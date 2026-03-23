@@ -102,7 +102,7 @@ let make = () => {
               "payoutconnectors",
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
-            currrentFetchCount={filteredConnectorData->Array.length}
+            currentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
             showAutoScroll=true
           />
