@@ -33,6 +33,8 @@ module Raw = {
     ~description: string=?,
     ~actions: alertV2Actions=?,
     ~closeButton: alertV2CloseButton=?,
+    ~maxWidth: string=?,
+    ~className: string=?,
   ) => React.element = "AlertV2"
 }
 
@@ -43,6 +45,16 @@ let make = (
   ~heading: string=?,
   ~description: string=?,
   ~actions: alertV2Actions=?,
+  ~className: string=?,
 ) => {
-  <Raw \"type" ?slot ?heading ?description ?actions closeButton={{show: false}} />
+  <Raw
+    \"type"
+    ?slot
+    ?heading
+    ?description
+    ?actions
+    closeButton={{show: false}}
+    maxWidth="none"
+    ?className
+  />
 }
