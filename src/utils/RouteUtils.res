@@ -4,14 +4,18 @@ open UserInfoTypes
  * Centralized URL routing utilities for handling V1/V2 version-based routes.
  * Use these functions instead of inline switch statements on version.
  */
+
+let v2Prefix = "/v2/orchestration"
+
 /**
  * Routes for the Connectors module
  */
 module Connectors = {
+  let path = "/connectors"
   let list = (version: version) =>
     switch version {
-    | V1 => "/connectors"
-    | V2 => "/v2/orchestration/connectors"
+    | V1 => path
+    | V2 => v2Prefix ++ path
     }
 }
 
@@ -19,10 +23,11 @@ module Connectors = {
  * Routes for the API Keys/Developer module
  */
 module ApiKeys = {
+  let path = "/developer-api-keys"
   let list = (version: version) =>
     switch version {
-    | V1 => "/developer-api-keys"
-    | V2 => "/v2/orchestration/developer-api-keys"
+    | V1 => path
+    | V2 => v2Prefix ++ path
     }
 }
 
@@ -30,16 +35,17 @@ module ApiKeys = {
  * Routes for the Payments module
  */
 module Payments = {
+  let path = "/payments"
   let list = (version: version) =>
     switch version {
-    | V1 => "/payments"
-    | V2 => "/v2/orchestration/payments"
+    | V1 => path
+    | V2 => v2Prefix ++ path
     }
 
   let detail = (version: version, paymentId: string) =>
     switch version {
-    | V1 => `/payments/${paymentId}`
-    | V2 => `/v2/orchestration/payments/${paymentId}`
+    | V1 => `${path}/${paymentId}`
+    | V2 => `${v2Prefix}${path}/${paymentId}`
     }
 }
 
@@ -47,10 +53,11 @@ module Payments = {
  * Routes for the Home/Overview module
  */
 module Home = {
+  let path = "/home"
   let overview = (version: version) =>
     switch version {
-    | V1 => "/home"
-    | V2 => "/v2/orchestration/home"
+    | V1 => path
+    | V2 => v2Prefix ++ path
     }
 }
 
@@ -58,10 +65,11 @@ module Home = {
  * Routes for Payment Settings
  */
 module PaymentSettings = {
+  let path = "/payment-settings"
   let settings = (version: version) =>
     switch version {
-    | V1 => "/payment-settings"
-    | V2 => "/v2/orchestration/payment-settings"
+    | V1 => path
+    | V2 => v2Prefix ++ path
     }
 }
 
