@@ -1,5 +1,3 @@
-open Typography
-
 @react.component
 let make = (~id) => {
   open LogicUtils
@@ -108,13 +106,7 @@ let make = (~id) => {
           currentTransactionDetails={currentExceptionsDetails}
           detailsFields=[TransactionId, Status, Variance, CreatedAt]
         />
-        <Tabs
-          tabs
-          showBorder=true
-          includeMargin=false
-          defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-          selectTabBottomBorderColor="bg-primary"
-        />
+        <Tabs tabs />
       </div>
     </PageLoaderWrapper>
   </div>

@@ -148,14 +148,7 @@ let make = (~accountId) => {
           </div>
         </RenderIf>
         <RenderIf condition={transformationConfigs->Array.length > 0}>
-          <Tabs
-            tabs
-            showBorder=true
-            includeMargin=false
-            initialIndex={getActiveTabIndex}
-            defaultClasses={`!w-max flex flex-auto flex-row items-center justify-center ${body.md.semibold}`}
-            selectTabBottomBorderColor="bg-primary"
-          />
+          <Tabs tabs initialIndex={getActiveTabIndex} />
         </RenderIf>
       </PageLoaderWrapper>
     </div>

@@ -372,16 +372,6 @@ let make = () => {
     <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
       {topFilterUi}
     </div>
-    <Tabs
-      initialIndex={tabIndex}
-      tabs
-      onTitleClick={tabId => setTabIndex(_ => tabId)}
-      disableIndicationArrow=true
-      showBorder=true
-      includeMargin=false
-      lightThemeColor="black"
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600 !z-0"
-    />
+    <Tabs initialIndex={tabIndex} tabs onTitleClick={tabId => setTabIndex(_ => tabId)} />
   </PageLoaderWrapper>
 }

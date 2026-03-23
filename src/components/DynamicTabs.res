@@ -51,13 +51,13 @@ module TabInfo = {
   ) => {
     let fontClass = "font-inter-style"
 
-    let defaultThemeBasedClass = `${fontClass} px-6`
+    let defaultThemeBasedClass = `${fontClass} px-2`
 
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
+    let defaultClasses = `font-medium ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-fs-14`
     let selectionClasses = if isSelected {
-      "font-semibold text-black"
+      "font-medium text-gray-700"
     } else {
-      "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
+      "text-gray-500 hover:text-gray-500"
     }
     let handleClick = React.useCallback(_ => {
       handleSelectedTab(
@@ -75,7 +75,7 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let lineStyle = "bg-black w-full h-0.5 rounded-full"
+    let lineStyle = "bg-gray-700 w-full h-0.5"
 
     let crossIcon = switch isRemovable {
     | true =>
@@ -151,16 +151,11 @@ module TabInfo = {
           crossIcon
         </div>
         <div />
-        <RenderIf condition={isSelected}>
-          <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        </RenderIf>
-        <RenderIf condition={!isSelected}>
-          <div className="w-full h-0.5 rounded-full" />
-        </RenderIf>
+        <div className={isSelected ? lineStyle : "w-full h-0.5"} />
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
+      className={`flex flex-row cursor-pointer py-1.5 ${borderClass} ${bottomBorderColor} items-center`}>
       {tab}
     </div>
   }

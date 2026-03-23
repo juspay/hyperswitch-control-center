@@ -151,16 +151,7 @@ let make = (~entity: moduleEntity) => {
       screenState
       customLoader={<InsightsHelper.Shimmer layoutId=entity.title className="h-64 rounded-lg" />}
       customUI={<NewAnalyticsHelper.NoData height="h-64 p-0 -m-0" />}>
-      <Tabs
-        initialIndex=0
-        tabs={getTabs()}
-        onTitleClick={_ => ()}
-        disableIndicationArrow=true
-        showBorder=true
-        includeMargin=false
-        lightThemeColor="black"
-        defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-      />
+      <Tabs initialIndex=0 tabs={getTabs()} onTitleClick={_ => ()} />
     </PageLoaderWrapper>
   </div>
 }

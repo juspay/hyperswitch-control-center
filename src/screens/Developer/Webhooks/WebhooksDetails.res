@@ -228,16 +228,7 @@ let make = (~id) => {
     },
   ]
 
-  let details =
-    <Tabs
-      tabs=tabList
-      showBorder=false
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600"
-    />
+  let details = <Tabs tabs=tabList />
 
   <div className="flex flex-col gap-4">
     <PageUtils.PageHeading title="Webhooks" subTitle="" />

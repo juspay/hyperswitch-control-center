@@ -120,14 +120,7 @@ let make = () => {
           copyValue=hashKeyVal
         />
       </div>
-      <Tabs
-        tabs
-        showBorder=true
-        includeMargin=false
-        initialIndex={tabIndex}
-        onTitleClick={index => setTabIndex(_ => index)}
-        selectTabBottomBorderColor="bg-nd_primary_blue-500"
-      />
+      <Tabs tabs initialIndex={tabIndex} onTitleClick={index => setTabIndex(_ => index)} />
     </div>
   </div>
 }
