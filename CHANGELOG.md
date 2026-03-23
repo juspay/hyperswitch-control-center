@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.20.0
+
+### Features
+
+- Envoy - envoy payouts connector ([#4384](https://github.com/juspay/hyperswitch-control-center/pull/4384)) ([`86c7099`](https://github.com/juspay/hyperswitch-control-center/commit/86c7099b22b7eb731befa734f5e3b86c1509170a))
+
+### Bug Fixes
+
+- Envoy payouts wasm ([#4424](https://github.com/juspay/hyperswitch-control-center/pull/4424)) ([`e4c3c1e`](https://github.com/juspay/hyperswitch-control-center/commit/e4c3c1ed0b2fef1e8c485e8033449cda29ae1fa3))
+
+### Miscellaneous Tasks
+
+- Added mixpanel events for payment settings revamped ([#4371](https://github.com/juspay/hyperswitch-control-center/pull/4371)) ([`faf1966`](https://github.com/juspay/hyperswitch-control-center/commit/faf19665eb6738bd2fdf6973b2e43f298e2ce2e4))
+- Added tests for payment details page. ([#4142](https://github.com/juspay/hyperswitch-control-center/pull/4142)) ([`e8359d9`](https://github.com/juspay/hyperswitch-control-center/commit/e8359d94528954888581e4424e3828dded867d48))
+
+**Full Changelog:** [`2026.03.19.0...2026.03.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.19.0...2026.03.20.0)
+
+- - -
+
 ## 2026.03.19.0
 
 ### Bug Fixes
