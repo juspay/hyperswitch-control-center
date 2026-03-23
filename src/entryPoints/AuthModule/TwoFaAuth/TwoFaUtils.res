@@ -5,7 +5,11 @@ let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
   }
 }
 
-let validateTotpForm = (values: JSON.t, keys: array<string>) => {
+let validateTotpForm = (
+  values: JSON.t,
+  keys: array<string>,
+  equalKeys: option<TwoFaTypes.equalValidationKeys>,
+) => {
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   let errors = Dict.make()
@@ -45,29 +49,10 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
     | _ => CommonAuthUtils.passwordKeyValidation(value, key, "create_password", errors)
     }
 
-    // confirm password check
-    if keys->Array.includes("create_password") {
-      CommonAuthUtils.confirmPasswordCheck(
-        value,
-        key,
-        "confirm_password",
-        "create_password",
-        valuesDict,
-        errors,
-      )
-    }
-
-    //confirm password check for #change_password
-    if keys->Array.includes("new_password") {
-      CommonAuthUtils.confirmPasswordCheck(
-        value,
-        key,
-        "confirm_password",
-        "new_password",
-        valuesDict,
-        errors,
-      )
-    }
+    // check if the password keys are same
+    equalKeys->Option.mapOr((), ({key1, key2}) => {
+      CommonAuthUtils.confirmPasswordCheck(value, key, key1, key2, valuesDict, errors)
+    })
   })
 
   errors->JSON.Encode.object
