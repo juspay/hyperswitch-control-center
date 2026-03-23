@@ -26,3 +26,8 @@ type expiredTypes =
   | TWO_FA_EXPIRED
 
 type twoFaStatusType = TwoFaExpired(expiredTypes) | TwoFaNotExpired
+
+type equalValidationKeys = {
+  key1: string,
+  key2: string,
+}

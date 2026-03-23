@@ -247,6 +247,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   | _ => []
   }
 
+  let equalKeys = switch authType {
+  | ResetPassword =>
+    Some(({key1: "create_password", key2: "comfirm_password"}: TwoFaTypes.equalValidationKeys))
+  | _ => None
+  }
+
   React.useEffect(() => {
     if url.hash === "playground" {
       openPlayground()
@@ -259,7 +265,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     key="auth"
     initialValues
     subscription=ReactFinalForm.subscribeToValues
-    validate={values => validateTotpForm(values, validateKeys)}
+    validate={values => validateTotpForm(values, validateKeys, equalKeys)}
     onSubmit
     render={({handleSubmit}) => {
       <>

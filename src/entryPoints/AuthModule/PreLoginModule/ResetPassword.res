@@ -126,7 +126,14 @@ let make = (~flowType) => {
               key="auth"
               initialValues
               validate={values =>
-                TwoFaUtils.validateTotpForm(values, ["create_password", "confirm_password"])}
+                TwoFaUtils.validateTotpForm(
+                  values,
+                  ["create_password", "comfirm_password"],
+                  Some({
+                    key1: "create_password",
+                    key2: "comfirm_password",
+                  }),
+                )}
               onSubmit>
               <div className="flex flex-col gap-6">
                 <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
