@@ -33,6 +33,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAY),
   PayoutProcessor(WORLDPAYXML),
   PayoutProcessor(TRUELAYER),
+  PayoutProcessor(ENVOY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -179,6 +180,7 @@ let connectorList: array<connectorTypes> = [
   Processors(SANTANDER),
   Processors(REVOLV3),
   Processors(TRUELAYER),
+  Processors(ENVOY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -863,6 +865,10 @@ let truelayerInfo = {
   description: "A leading open banking payments and financial data platform that enables secure, real-time bank-to-bank payments, identity verification and direct access to bank account data via authorised APIs.",
 }
 
+let envoyInfo = {
+  description: "Envoy, specialized in providing single-point access to over 200 local payment methods worldwide, enhancing Worldpay's ability to handle international online and mobile transactions. ",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -974,6 +980,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | SANTANDER => "santander"
   | REVOLV3 => "revolv3"
   | TRUELAYER => "truelayer"
+  | ENVOY => "envoy"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -992,6 +999,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | WORLDPAY => "worldpay"
   | WORLDPAYXML => "worldpayxml"
   | TRUELAYER => "truelayer"
+  | ENVOY => "envoy"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1169,6 +1177,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => Processors(SANTANDER)
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
+    | "envoy" => Processors(ENVOY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1187,6 +1196,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpay" => PayoutProcessor(WORLDPAY)
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | "truelayer" => PayoutProcessor(TRUELAYER)
+    | "envoy" => PayoutProcessor(ENVOY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1342,6 +1352,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | SANTANDER => santanderInfo
   | REVOLV3 => revolv3Info
   | TRUELAYER => truelayerInfo
+  | ENVOY => envoyInfo
   }
 }
 
@@ -1361,6 +1372,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | WORLDPAY => worldpayInfo
   | WORLDPAYXML => worldpayxmlInfo
   | TRUELAYER => truelayerInfo
+  | ENVOY => envoyInfo
   }
 }
 
@@ -2312,6 +2324,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | SANTANDER => "Santander"
   | REVOLV3 => "Revolv3"
   | TRUELAYER => "Truelayer"
+  | ENVOY => "Worldpay Envoy"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2330,6 +2343,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | WORLDPAY => "Worldpay"
   | WORLDPAYXML => "Worldpay WPG"
   | TRUELAYER => "Truelayer"
+  | ENVOY => "Worldpay Envoy"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
