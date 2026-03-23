@@ -8,11 +8,11 @@ export class SignInPage {
   }
 
   get emailInput(): Locator {
-    return this.page.locator('[data-testid="email"]');
+    return this.page.getByPlaceholder("Enter your Email");
   }
 
   get passwordInput(): Locator {
-    return this.page.locator('[data-testid="password"]');
+    return this.page.getByPlaceholder("Enter your Password");
   }
 
   get signinButton(): Locator {
@@ -52,7 +52,9 @@ export class SignInPage {
   }
 
   get headerText2FA(): Locator {
-    return this.page.locator('[class="text-fs-24 leading-32 font-semibold font-inter-style"]');
+    return this.page.locator(
+      '[class="text-fs-24 leading-32 font-semibold font-inter-style"]',
+    );
   }
 
   get instructions2FA(): Locator {
@@ -84,7 +86,9 @@ export class SignInPage {
   }
 
   get resetPasswordButton(): Locator {
-    return this.page.locator('[data-testid="auth-submit-btn"]').locator(">> nth=1");
+    return this.page
+      .locator('[data-testid="auth-submit-btn"]')
+      .locator(">> nth=1");
   }
 
   get cancelForgetPassword(): Locator {
