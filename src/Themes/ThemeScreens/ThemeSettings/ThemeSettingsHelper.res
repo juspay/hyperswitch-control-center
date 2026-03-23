@@ -129,145 +129,123 @@ module ButtonSettings = {
   }
 }
 
+module AssetField = {
+  @react.component
+  let make = (
+    ~label: string,
+    ~originalUrl: option<string>,
+    ~action: ThemeUpdateUtils.assetAction,
+    ~setAction: (ThemeUpdateUtils.assetAction => ThemeUpdateUtils.assetAction) => unit,
+    ~accept: string,
+    ~inputId: string,
+    ~themeConfigVersion: option<string>,
+  ) => {
+    let handleFileChange = ev => {
+      let files = ReactEvent.Form.target(ev)["files"]
+      switch files[0] {
+      | Some(file) => setAction(_ => ThemeUpdateUtils.Updated({file: Some(file)}))
+      | None => ()
+      }
+    }
+
+    let handleRemove = () => {
+      switch action {
+      | Updated(_)
+      | Unchanged =>
+        setAction(_ => Updated({file: None}))
+      }
+    }
+
+    let versionedUrl = switch originalUrl {
+    | Some(url) => `${url}?version=${themeConfigVersion->Option.getOr("")}`
+    | None => ""
+    }
+
+    let uploadInput =
+      <div className="flex flex-col gap-2">
+        <input type_="file" accept hidden=true onChange={handleFileChange} id={inputId} />
+        <label
+          htmlFor={inputId}
+          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition">
+          {React.string(`Upload ${label}`)}
+        </label>
+      </div>
+
+    <div className="flex flex-col gap-2">
+      <div className={`${body.md.medium} text-gray-700`}> {React.string(label)} </div>
+      <div className="flex items-center gap-3">
+        {switch action {
+        | Unchanged =>
+          switch originalUrl {
+          | Some(_) =>
+            <>
+              <div
+                className="w-16 h-16 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
+                <img
+                  src={versionedUrl} alt={label} className="max-w-full max-h-full object-contain"
+                />
+              </div>
+              <button
+                type_="button"
+                onClick={_ => handleRemove()}
+                className="p-2 hover:bg-gray-100 rounded-md transition">
+                <Icon name="nd-cross" size=16 className="text-gray-500" />
+              </button>
+            </>
+          | None => uploadInput
+          }
+        | Updated({file: Some(file)}) =>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Icon name="file-icon" size=16 />
+              <span> {(file->Identity.jsonToAnyType)["name"]->React.string} </span>
+            </div>
+            <button
+              type_="button"
+              onClick={_ => handleRemove()}
+              className="p-2 hover:bg-gray-100 rounded-md transition">
+              <Icon name="nd-cross" size=16 className="text-gray-500" />
+            </button>
+          </div>
+        | Updated({file: None}) => uploadInput
+        }}
+      </div>
+    </div>
+  }
+}
+
 module IconSettings = {
   @react.component
   let make = (
-    ~logoUrl: option<string>,
-    ~faviconUrl: option<string>,
-    ~themeId as _,
-    ~selectedLogoFile,
-    ~setSelectedLogoFile,
-    ~selectedFaviconFile,
-    ~setSelectedFaviconFile,
+    ~originalLogoUrl: option<string>,
+    ~originalFaviconUrl: option<string>,
+    ~logoAction: ThemeUpdateUtils.assetAction,
+    ~setLogoAction: (ThemeUpdateUtils.assetAction => ThemeUpdateUtils.assetAction) => unit,
+    ~faviconAction: ThemeUpdateUtils.assetAction,
+    ~setFaviconAction: (ThemeUpdateUtils.assetAction => ThemeUpdateUtils.assetAction) => unit,
     ~themeConfigVersion,
   ) => {
-    let (previewLogoImage, setPreviewLogoImage) = React.useState(() => true)
-    let (previewFaviconImage, setPreviewFaviconImage) = React.useState(() => true)
-
-    let handleLogoFileChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setSelectedLogoFile(_ => Some(file))
-      | None => setSelectedLogoFile(_ => None)
-      }
-    }
-
-    let handleFaviconFileChange = ev => {
-      let files = ReactEvent.Form.target(ev)["files"]
-      switch files[0] {
-      | Some(file) => setSelectedFaviconFile(_ => Some(file))
-      | None => setSelectedFaviconFile(_ => None)
-      }
-    }
-
-    let url = React.useMemo1(() => {
-      switch logoUrl {
-      | Some(url) => `${url}?version=${themeConfigVersion->Option.getOr("")}`
-      | None => ""
-      }
-    }, [logoUrl])
-
-    let handleRemoveLogo = async () => {
-      Js.log("Removing logo")
-      setPreviewLogoImage(_ => false)
-    }
-
-    let handleRemoveFavicon = async () => {
-      Js.log("Removing favicon")
-      setPreviewFaviconImage(_ => false)
-    }
-
     <div className="flex flex-col gap-4">
       <div className={`${body.lg.semibold}`}> {React.string("Icons")} </div>
       <div className="space-y-4">
-        <div className="flex flex-col gap-2">
-          <div className={`${body.md.medium} text-gray-700`}> {React.string("Logo")} </div>
-          <div className="flex items-center gap-3">
-            <RenderIf condition={previewLogoImage}>
-              {<>
-                <div
-                  className="w-16 h-16 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
-                  <img src={url} alt="Logo" className="max-w-full max-h-full object-contain" />
-                </div>
-                <button
-                  onClick={_ => handleRemoveLogo()->ignore}
-                  className="p-2 hover:bg-gray-100 rounded-md transition">
-                  <Icon name="nd-cross" size=16 className="text-gray-500" />
-                </button>
-              </>}
-            </RenderIf>
-            <RenderIf condition={!previewLogoImage}>
-              <div className="flex flex-col gap-2">
-                <input
-                  type_="file"
-                  accept=".png,.jpg,.jpeg"
-                  hidden=true
-                  onChange={handleLogoFileChange}
-                  id="logoFileInput"
-                />
-                <label
-                  htmlFor="logoFileInput"
-                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition">
-                  {React.string("Upload Logo")}
-                </label>
-                {switch selectedLogoFile {
-                | Some(file) =>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
-                    <Icon name="file-icon" size=16 />
-                    <span> {file["name"]->React.string} </span>
-                  </div>
-                | None => React.null
-                }}
-              </div>
-            </RenderIf>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className={`${body.md.medium} text-gray-700`}> {React.string("Favicon")} </div>
-          <div className="flex items-center gap-3">
-            <RenderIf condition={previewFaviconImage}>
-              {<>
-                <div
-                  className="w-16 h-16 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden bg-white">
-                  <img
-                    src={faviconUrl->Option.getOr("")}
-                    alt="Favicon"
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-                <button
-                  onClick={_ => handleRemoveFavicon()->ignore}
-                  className="p-2 hover:bg-gray-100 rounded-md transition">
-                  <Icon name="nd-cross" size=16 />
-                </button>
-              </>}
-            </RenderIf>
-            <RenderIf condition={!previewFaviconImage}>
-              {<div className="flex flex-col gap-2">
-                <input
-                  type_="file"
-                  accept=".png,.ico,.jpg,.jpeg"
-                  hidden=true
-                  onChange={handleFaviconFileChange}
-                  id="faviconFileInput"
-                />
-                <label
-                  htmlFor="faviconFileInput"
-                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer transition">
-                  {React.string("Upload Favicon")}
-                </label>
-                {switch selectedFaviconFile {
-                | Some(file) =>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
-                    <Icon name="file-icon" size=16 />
-                    <span> {file["name"]->React.string} </span>
-                  </div>
-                | None => React.null
-                }}
-              </div>}
-            </RenderIf>
-          </div>
-        </div>
+        <AssetField
+          label="Logo"
+          originalUrl=originalLogoUrl
+          action=logoAction
+          setAction=setLogoAction
+          accept=".png,.jpg,.jpeg"
+          inputId="logoFileInput"
+          themeConfigVersion
+        />
+        <AssetField
+          label="Favicon"
+          originalUrl=originalFaviconUrl
+          action=faviconAction
+          setAction=setFaviconAction
+          accept=".png,.ico,.jpg,.jpeg"
+          inputId="faviconFileInput"
+          themeConfigVersion
+        />
       </div>
     </div>
   }

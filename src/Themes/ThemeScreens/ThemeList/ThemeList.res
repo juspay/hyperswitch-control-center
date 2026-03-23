@@ -77,7 +77,7 @@ let make = (~themeIdFromUserInfo) => {
             title="List of created themes"
             hideTitle=false
             actualData={themeListArray->Array.map(Nullable.make)}
-            entity=ThemeListEntity.themeTableEntity
+            entity={ThemeListEntity.themeTableEntity(~orgId)}
             resultsPerPage=20
             showSerialNumber=true
             totalResults={themeListArray->Array.length}

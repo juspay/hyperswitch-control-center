@@ -558,7 +558,6 @@ module ThemeUploadAssetsModal = {
       | _ => JSON.Encode.null
       }
     }
-    Js.log2("baseUrl", GlobalVars.getHostUrl)
 
     let updateThemeWithAssetUrls = async (~iconName, ~faviconName) => {
       let currentThemeData = await getThemeByThemeId()

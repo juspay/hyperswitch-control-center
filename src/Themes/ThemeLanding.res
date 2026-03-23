@@ -42,16 +42,46 @@ let make = (~remainingPath) => {
       remainingPath
       renderList={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeView)}>
-          <ThemeList />
+          <ThemeList themeIdFromUserInfo />
         </AccessControl>}
       renderNewForm={() =>
         <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
           <ThemeCreate />
         </AccessControl>}
-      renderShow={(themeId, _) =>
-        <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
-          <ThemeUpdate themeId />
-        </AccessControl>}
+      renderShow={(themeId, remainingPath) => {
+        switch remainingPath {
+        | Some(val) => {
+            let parts = val->String.replace("key=", "")->String.trim->String.split("+")
+            let (extractedProfileId, extractedMerchantId, extractedOrgId) = switch parts {
+            | [p, m, o] => (p, m, o)
+            | _ => ("all_profiles", "all_merchants", "all_orgs")
+            }
+            let profileId = if extractedProfileId == "all_profiles" {
+              None
+            } else {
+              Some(extractedProfileId)
+            }
+            let merchantId = if extractedMerchantId == "all_merchants" {
+              None
+            } else {
+              Some(extractedMerchantId)
+            }
+            let orgId = if extractedOrgId == "all_orgs" {
+              None
+            } else {
+              Some(extractedOrgId)
+            }
+
+            <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+              <ThemeUpdate themeId orgId merchantId profileId />
+            </AccessControl>
+          }
+        | None =>
+          <AccessControl authorization={userHasAccess(~groupAccess=ThemeManage)}>
+            <ThemeUpdate themeId orgId=None merchantId=None profileId=None />
+          </AccessControl>
+        }
+      }}
     />
   </PageLoaderWrapper>
 }

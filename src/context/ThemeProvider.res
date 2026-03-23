@@ -13,6 +13,7 @@ type customUIConfig = {
   configCustomDomainTheme: JSON.t => unit,
   getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
+  faviconURL: option<string>,
 }
 open HyperSwitchConfigTypes
 
@@ -83,6 +84,7 @@ let themeContext = {
     }
   },
   logoURL: Some(""),
+  faviconURL: Some(""),
 }
 
 let themeContext = React.createContext(themeContext)
@@ -101,6 +103,7 @@ let make = (~children) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
   let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
+  let (contextFaviconUrl, setContextFaviconUrl) = React.useState(() => Some(""))
 
   let initialTheme = Light
 
@@ -286,7 +289,7 @@ let make = (~children) => {
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(faviconUrlWithVersion)->ignore
       setContextLogoUrl(_ => logoUrlWithVersion)
-      // setContextFaviconUrl(_ => faviconUrlWithVersion)
+      setContextFaviconUrl(_ => faviconUrlWithVersion)
     } catch {
     | _ => Exn.raiseError("Error while updating theme URL and favicon")
     }
@@ -374,6 +377,7 @@ let make = (~children) => {
       configCustomDomainTheme,
       getThemesJson,
       logoURL: contextLogoUrl,
+      faviconURL: contextFaviconUrl,
     }
   }, (theme, setTheme, contextLogoUrl))
   React.useEffect(() => {
