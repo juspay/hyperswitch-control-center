@@ -210,6 +210,7 @@ let make = (~reconRulesList: array<ReconEngineRulesTypes.rulePayload>) => {
       screenState
       customUI={<NewAnalyticsHelper.NoData height="h-64" message="No data available." />}
       customLoader={<Shimmer styleClass="h-64 w-full rounded-xl" />}>
+      <ReconEngineOverviewBalanceBreakdown accountsData />
       <div className="border border-nd_br_gray-150 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <AccountsHeader currency />
