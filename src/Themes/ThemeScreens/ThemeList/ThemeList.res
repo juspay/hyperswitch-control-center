@@ -11,6 +11,7 @@ let make = () => {
   let themeList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.themeListAtom)
   let (currentTheme, setCurrentTheme) = React.useState(_ => None)
   let themeListArray = themeList->getArrayFromJson([])
+  let showToast = ToastState.useShowToast()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {themeId: themeIdFromUserInfo} = React.useContext(
@@ -32,7 +33,10 @@ let make = () => {
       setCurrentTheme(_ => Some(res))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Success)
+    | _ => {
+        showToast(~toastType=ToastError, ~message="Failed to fetch current theme")
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     }
   }
 
