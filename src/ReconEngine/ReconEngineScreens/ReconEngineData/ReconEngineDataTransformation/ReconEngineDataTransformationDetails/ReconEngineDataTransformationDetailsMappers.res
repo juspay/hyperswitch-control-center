@@ -78,7 +78,8 @@ module TabDetails = {
       {switch activeTab {
       | #advanced =>
         <div className="p-4">
-          <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll py-2">
+          <ReconEngineTransformationSchemaViz schemaData={metadataSchema.schema_data} />
+          <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll py-2 mt-4">
             <PrettyPrintJson jsonToDisplay={schemaData->JSON.stringify} />
           </div>
         </div>
