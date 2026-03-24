@@ -25,7 +25,7 @@ let make = () => {
     setUserModuleEntity,
   ) = React.useState(_ => initialRolesEntity)
 
-  let getRolesAvailable = async (userModuleEntity: UserManagementTypes.userModuleTypes) => {
+  let getRolesAvailable = async (selectedEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
@@ -33,7 +33,7 @@ let make = () => {
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
         ~queryParameters=Some(
-          `groups=true&entity_type=${(userModuleEntity :> string)->String.toLowerCase}`,
+          `groups=true&entity_type=${(selectedEntity :> string)->String.toLowerCase}`,
         ),
       )
       let res = await fetchDetails(userDataURL)
@@ -42,7 +42,7 @@ let make = () => {
       let processedMatrixData = processRolesData(rolesDataRaw)
       setMatrixData(_ => processedMatrixData)
       setFilteredRoles(_ => processedMatrixData.roles)
-      setUserModuleEntity(_ => userModuleEntity)
+      setUserModuleEntity(_ => selectedEntity)
       setScreenStateRoles(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateRoles(_ => PageLoaderWrapper.Error(""))
