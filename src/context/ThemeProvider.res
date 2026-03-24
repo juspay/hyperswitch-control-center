@@ -272,13 +272,15 @@ let make = (~children) => {
       let logoUrlWithVersion = switch val.logoUrl {
       | Some(url) if url !== "/assets/Dark/hyperswitchLogoIconWithText.svg" =>
         Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
-      | _ => None
+      | Some(url) => Some(url)
+      | _ => val.logoUrl
       }
 
       let faviconUrlWithVersion = switch val.faviconUrl {
       | Some(url) if url !== "/HyperswitchFavicon.png" =>
         Some(ThemeFeatureUtils.appendVersionParam(url, ~version=themeConfigVersion))
-      | _ => None
+      | Some(url) => Some(url)
+      | _ => val.faviconUrl
       }
 
       let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
