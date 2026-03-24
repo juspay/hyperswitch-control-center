@@ -175,6 +175,7 @@ let connectorList: array<connectorTypes> = [
   Processors(FINIX),
   Processors(ZIFT),
   Processors(PAYJUSTNOWINSTORE),
+  Processors(FISERVCOMMERCEHUB),
   Processors(AMAZONPAY),
   Processors(WORLDPAYMODULAR),
   Processors(SANTANDER),
@@ -868,6 +869,9 @@ let truelayerInfo = {
 let envoyInfo = {
   description: "Envoy, specialized in providing single-point access to over 200 local payment methods worldwide, enhancing Worldpay's ability to handle international online and mobile transactions. ",
 }
+let fiservcommercehubInfo = {
+  description: "Fiservcommercehub is a developer-friendly, flexible communication standards, unified APIs, and pre-certified integrations, Commerce Hub reduces development time and accelerates speed to market.",
+}
 
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
@@ -981,6 +985,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | REVOLV3 => "revolv3"
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
+  | FISERVCOMMERCEHUB => "fiservcommercehub"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1178,6 +1183,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "revolv3" => Processors(REVOLV3)
     | "truelayer" => Processors(TRUELAYER)
     | "envoy" => Processors(ENVOY)
+    | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1353,6 +1359,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | REVOLV3 => revolv3Info
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
+  | FISERVCOMMERCEHUB => fiservcommercehubInfo
   }
 }
 
@@ -2325,6 +2332,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | REVOLV3 => "Revolv3"
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
+  | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

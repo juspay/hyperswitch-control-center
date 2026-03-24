@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.24.0
+
+### Features
+
+- Add blend design system setup ([#4403](https://github.com/juspay/hyperswitch-control-center/pull/4403)) ([`f9e894f`](https://github.com/juspay/hyperswitch-control-center/commit/f9e894fcef7acf2ccd05e2170529e19bda62b813))
+
+### Bug Fixes
+
+- Correct typos batch 3/7 ([#4388](https://github.com/juspay/hyperswitch-control-center/pull/4388)) ([`d5cd4fe`](https://github.com/juspay/hyperswitch-control-center/commit/d5cd4fed11076b84468ea75f50e67f831f79d365))
+
+**Full Changelog:** [`2026.03.23.0...2026.03.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.23.0...2026.03.24.0)
+
+- - -
+
+## 2026.03.23.0
+
+### Features
+
+- FISERVCOMMERCEHUB payin connector ([#4427](https://github.com/juspay/hyperswitch-control-center/pull/4427)) ([`14751c7`](https://github.com/juspay/hyperswitch-control-center/commit/14751c72b1f2e295dcf42fd648b81a817adef1be))
+
+**Full Changelog:** [`2026.03.20.0...2026.03.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.20.0...2026.03.23.0)
+
+- - -
+
 ## 2026.03.20.0
 
 ### Features
