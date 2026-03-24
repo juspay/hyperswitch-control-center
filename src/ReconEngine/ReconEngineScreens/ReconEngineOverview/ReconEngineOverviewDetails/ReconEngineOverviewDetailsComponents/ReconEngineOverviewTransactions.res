@@ -131,7 +131,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
         totalResults={filteredTransactionsData->Array.length}
         offset
         setOffset
-        currrentFetchCount={configuredTransactions->Array.length}
+        currentFetchCount={configuredTransactions->Array.length}
         customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
         defaultColumns
         showSerialNumberInCustomizeColumns=false
