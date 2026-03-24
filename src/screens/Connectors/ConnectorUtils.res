@@ -2474,7 +2474,10 @@ let getDisplayNameForConnectorType = (connectorType: ConnectorTypes.connectorTyp
 }
 
 let sortByName = (c1, c2) => {
-  compareLogic(c2->getDisplayNameForConnectorType, c1->getDisplayNameForConnectorType)
+  compareLogic(
+    c2->getDisplayNameForConnectorType->String.toLowerCase,
+    c1->getDisplayNameForConnectorType->String.toLowerCase,
+  )
 }
 
 let existsInArray = (element, connectorList) => {
