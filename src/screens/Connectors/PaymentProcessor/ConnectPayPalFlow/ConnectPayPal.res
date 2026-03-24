@@ -237,7 +237,7 @@ let make = (
 ) => {
   open LogicUtils
   let url = RescriptReactRouter.useUrl()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()

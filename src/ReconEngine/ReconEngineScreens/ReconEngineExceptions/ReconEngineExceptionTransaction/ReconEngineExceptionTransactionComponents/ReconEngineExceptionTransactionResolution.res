@@ -616,7 +616,7 @@ let make = (
 
   let (activeModal, setActiveModal) = React.useState(_ => None)
   let (availableResolutions, setAvailableResolutions) = React.useState(_ => [])
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()

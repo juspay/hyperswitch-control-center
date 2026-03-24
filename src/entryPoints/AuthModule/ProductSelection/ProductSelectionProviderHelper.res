@@ -8,7 +8,7 @@ module SwitchMerchantBody = {
   ) => {
     open Typography
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let switchMerch = async () => {
       try {
@@ -44,7 +44,7 @@ module SelectMerchantBody = {
     open Typography
     open LogicUtils
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom
 
@@ -171,7 +171,7 @@ module CreateNewMerchantBody = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
     let merchantDetailsTypedValue =
       HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilValueFromAtom

@@ -6,7 +6,7 @@ let make = (~children) => {
   let {setActiveProductValue} = React.useContext(ProductSelectionProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch(~setActiveProductValue)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let clearUserSwitchParams = () => {
     SessionStorage.sessionStorage.removeItem("switch-user-omp")

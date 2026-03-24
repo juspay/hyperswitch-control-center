@@ -20,7 +20,7 @@ let make = (
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList(
     ~entityName=V2(V2_CONNECTOR),
     ~version=V2,

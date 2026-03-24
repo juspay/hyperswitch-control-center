@@ -25,7 +25,7 @@ let make = (~entity=TransactionViewTypes.Orders, ~version: UserInfoTypes.version
   open TransactionViewUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let (countRes, setCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)

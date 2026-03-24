@@ -51,7 +51,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()

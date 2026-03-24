@@ -94,7 +94,7 @@ let make = () => {
   let (selectedMerchant, setSelectedMerchant) = React.useState(() => merchantId)
   let (selectedProfile, setSelectedProfile) = React.useState(() => profileId)
   let (switching, setSwitching) = React.useState(() => None)
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let onOrgSelect = async (org: OMPSwitchTypes.ompListTypes) => {
     try {

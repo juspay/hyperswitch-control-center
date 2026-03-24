@@ -20,7 +20,7 @@ module DownloadCertificateTile = {
 
 @react.component
 let make = () => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

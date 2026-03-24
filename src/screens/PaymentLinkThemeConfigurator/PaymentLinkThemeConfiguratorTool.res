@@ -27,7 +27,7 @@ module ConfiguratorForm = {
       }
     `
 
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (initialValues, setInitialValues) = React.useState(_ => initialFormValues)
     let (previewLoading, setPreviewLoading) = React.useState(_ => false)
     let (previewHtml, setPreviewHtml) = React.useState(_ => "")
@@ -289,7 +289,7 @@ module CreateNewStyleID = {
   let make = (~setSelectedStyleId) => {
     open FormRenderer
     open Typography
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (showModal, setShowModal) = React.useState(() => false)
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
@@ -431,7 +431,7 @@ module StyleIdSelection = {
     )
     let (availableStyles, setAvailableStyles) = React.useState(_ => [])
     let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
 
     let fetchBusinessProfile = async () => {
       try {

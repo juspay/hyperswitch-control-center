@@ -55,7 +55,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let verifyTotpLogic = TotpHooks.useVerifyTotp()
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (otpInModal, setOtpInModal) = React.useState(_ => "")

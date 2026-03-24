@@ -359,7 +359,7 @@ module MerchantDropdownItem = {
     let getMerchantList = MerchantListHook.useFetchMerchantList()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {getCommonSessionDetails, checkUserEntity} = React.useContext(
       UserInfoProvider.defaultContext,
     )
@@ -496,7 +496,7 @@ module ProfileDropdownItem = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let fetchDetails = useGetMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {profileId, version} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()

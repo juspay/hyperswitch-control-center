@@ -30,7 +30,7 @@ module MerchantAuthInfo = {
   open Typography
   @react.component
   let make = () => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let handleCopy = copyValue => {
       Clipboard.writeText(copyValue)
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)

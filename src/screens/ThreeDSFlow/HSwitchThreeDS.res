@@ -9,7 +9,7 @@ module ActiveRulePreview = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
@@ -153,7 +153,7 @@ let make = () => {
   let (pageView, setPageView) = React.useState(_ => NEW)
   let showPopUp = PopUpState.useShowPopUp()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
 
   let getWasm = async () => {
     try {

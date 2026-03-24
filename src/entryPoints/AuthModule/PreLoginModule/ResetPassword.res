@@ -10,7 +10,7 @@ let make = (~flowType) => {
   let getURL = useGetURL()
 
   let initialValues = Dict.make()->JSON.Encode.object
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 

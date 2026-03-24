@@ -10,7 +10,7 @@ module NewProfileCreationModal = {
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let createNewProfile = async values => {
@@ -132,7 +132,7 @@ let make = () => {
   open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {profileId, version} = React.useContext(

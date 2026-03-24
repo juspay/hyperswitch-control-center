@@ -14,7 +14,7 @@ module EnterAccessCode = {
     ~isSkippable,
     ~showOnlyRc=false,
   ) => {
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
     let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
@@ -129,7 +129,7 @@ module ConfigureTotpScreen = {
 
     let verifyTotpLogic = TotpHooks.useVerifyTotp()
 
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let (otp, setOtp) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
     let (hasOtpError, setHasOtpError) = React.useState(_ => false)
@@ -275,7 +275,7 @@ let make = (
   open TwoFaTypes
 
   let getURL = APIUtils.useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
   let handleLogout = APIUtils.useHandleLogout()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

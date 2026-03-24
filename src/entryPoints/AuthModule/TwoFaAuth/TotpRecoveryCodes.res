@@ -2,7 +2,7 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 
 @react.component
 let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
   let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])

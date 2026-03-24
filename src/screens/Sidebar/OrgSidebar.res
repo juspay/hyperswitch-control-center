@@ -15,7 +15,7 @@ module OrgTile = {
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
     let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let {
@@ -199,7 +199,7 @@ module NewOrgCreationModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let showToast = ToastState.useShowToast()
+    let showToast = ToastAdapter.useShowToast()
     let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
 
     let createNewOrg = async values => {
@@ -345,7 +345,7 @@ let make = () => {
   let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let (showAllOrgs, setShowAllOrgs) = React.useState(_ => false)
   let (maxVisibleOrgs, setMaxVisibleOrgs) = React.useState(_ => 15)
   let calculateMaxOrgs = () => {

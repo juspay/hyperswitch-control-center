@@ -70,7 +70,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
   open APIUtils
 
   let getURL = useGetURL()
-  let showToast = ToastState.useShowToast()
+  let showToast = ToastAdapter.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
   let verifyTotpLogic = TotpHooks.useVerifyTotp()
   let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
