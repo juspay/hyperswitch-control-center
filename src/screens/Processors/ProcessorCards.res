@@ -161,7 +161,8 @@ let make = (
               authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => ()}
               key={i->string_of_int}
-              className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
+              className="border p-6 gap-4 bg-white rounded flex flex-col justify-between h-full"
+              tooltipForWidthClass="!h-full"
               dataAttrStr=connectorName>
               <div className="flex flex-col gap-3 items-start">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
