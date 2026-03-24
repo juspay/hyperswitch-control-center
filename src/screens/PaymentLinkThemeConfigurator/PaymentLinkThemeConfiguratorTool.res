@@ -492,7 +492,7 @@ module StyleIdSelection = {
       <div className={`text-nd_gray-700 py-2 ${body.md.medium}`}>
         {"Select Style ID"->React.string}
       </div>
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText="Select Style ID"
         input

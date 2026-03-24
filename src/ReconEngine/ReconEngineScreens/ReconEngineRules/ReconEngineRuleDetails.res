@@ -93,7 +93,7 @@ module SearchIdentifier = {
                 <div className="flex items-center gap-10">
                   <div className="flex-1 max-w-325">
                     <label className=labelCss> {source_account_name->React.string} </label>
-                    <SelectBox.BaseDropdown
+                    <SelectBoxAdapter.BaseDropdown
                       allowMultiSelect=false
                       buttonText={getFieldDisplayName(identifier.source_field)}
                       input=sourceFieldInput
@@ -110,7 +110,7 @@ module SearchIdentifier = {
                   </div>
                   <div className="flex-1 max-w-325">
                     <label className=labelCss> {target_account_name->React.string} </label>
-                    <SelectBox.BaseDropdown
+                    <SelectBoxAdapter.BaseDropdown
                       allowMultiSelect=false
                       buttonText={getFieldDisplayName(identifier.target_field)}
                       input=targetFieldInput
@@ -205,7 +205,7 @@ module MappingRules = {
                     <div className="flex items-center gap-10">
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {source_account_name->React.string} </label>
-                        <SelectBox.BaseDropdown
+                        <SelectBoxAdapter.BaseDropdown
                           allowMultiSelect=false
                           buttonText={getFieldDisplayName(mapping.source_field)}
                           input=sourceFieldInput
@@ -222,7 +222,7 @@ module MappingRules = {
                       </div>
                       <div className="flex-1 max-w-325">
                         <label className=labelCss> {target_account_name->React.string} </label>
-                        <SelectBox.BaseDropdown
+                        <SelectBoxAdapter.BaseDropdown
                           allowMultiSelect=false
                           buttonText={getFieldDisplayName(mapping.target_field)}
                           input=targetFieldInput
@@ -303,7 +303,7 @@ module TriggerRules = {
       <p className={`${body.md.medium} text-nd_gray-700`}> {"Filters"->React.string} </p>
       <div className="flex flex-row gap-4">
         <div className="flex-1 flex flex-col gap-2 max-w-325">
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={getFieldDisplayName(triggerField)}
             input=fieldInput
@@ -315,7 +315,7 @@ module TriggerRules = {
             customButtonStyle="w-147-px h-40-px"
           />
         </div>
-        <SelectBox.BaseDropdown
+        <SelectBoxAdapter.BaseDropdown
           allowMultiSelect=false
           buttonText={operatorOptions
           ->Array.find(opt => opt.value === triggerOperator)
@@ -404,7 +404,7 @@ module SourceTargetAccount = {
       <div className="flex items-center gap-10">
         <div className="flex-1 max-w-325">
           <label className=labelCss> {"Source Account"->React.string} </label>
-          <SelectBox.BaseDropdown
+          <SelectBoxAdapter.BaseDropdown
             allowMultiSelect=false
             buttonText={getAccountName(sourceAccountId)}
             input=sourceAccountInput
@@ -441,7 +441,7 @@ module SourceTargetAccount = {
               | _ => ""
               }
               <div key={index->Int.toString} className="flex flex-col">
-                <SelectBox.BaseDropdown
+                <SelectBoxAdapter.BaseDropdown
                   allowMultiSelect=false
                   buttonText={getAccountName(targetInfo.account_id)}
                   input=targetInput

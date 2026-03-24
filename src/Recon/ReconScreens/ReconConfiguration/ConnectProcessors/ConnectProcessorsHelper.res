@@ -163,7 +163,7 @@ module ConnectProcessorsFields = {
     let dropdownContainerStyle = "rounded-md border border-1 !w-full"
 
     <>
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText=""
         input

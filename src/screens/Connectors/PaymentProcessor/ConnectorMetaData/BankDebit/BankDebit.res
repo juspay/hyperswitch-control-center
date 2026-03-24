@@ -49,7 +49,7 @@ module PMAuthProcessorInput = {
       value: currentSelection->JSON.Encode.string,
       checked: true,
     }
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       buttonText="Select PM Authentication Processor"
       input

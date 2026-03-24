@@ -31,7 +31,7 @@ module PmtConfigInp = {
       value: enabledList.value,
       checked: true,
     }
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=true
       buttonText="Select Value"
       input

@@ -140,7 +140,7 @@ let make = (~showOnBoarding) => {
             </p>
             <div className="flex flex-row gap-4">
               <div className="flex flex-row gap-6">
-                <SelectBox.BaseDropdown
+                <SelectBoxAdapter.BaseDropdown
                   allowMultiSelect=false
                   buttonText=""
                   input=reconInput

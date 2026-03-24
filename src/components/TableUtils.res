@@ -861,7 +861,7 @@ module HeaderActions = {
     | None => React.null
     }
 
-    <SelectBox.BaseDropdown
+    <SelectBoxAdapter.BaseDropdown
       allowMultiSelect=false
       hideMultiSelectButtons=true
       fixedDropDownDirection={isLastCol ? BottomLeft : BottomRight}

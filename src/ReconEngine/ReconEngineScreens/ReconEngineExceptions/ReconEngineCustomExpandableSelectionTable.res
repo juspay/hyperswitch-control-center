@@ -67,7 +67,7 @@ module TableHeader = {
                                 checked: true,
                               }
 
-                              <SelectBox.BaseDropdown
+                              <SelectBoxAdapter.BaseDropdown
                                 allowMultiSelect=false
                                 hideMultiSelectButtons=true
                                 buttonText=""

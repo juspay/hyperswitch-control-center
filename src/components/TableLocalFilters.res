@@ -128,7 +128,7 @@ module FilterDropDown = {
     }
 
     if options->Array.length > 1 {
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=true
         hideMultiSelectButtons=true
         buttonText
