@@ -82,6 +82,7 @@ module RuleWiseStackedBarGraph = {
         <p className={`text-nd_gray-800 ${heading.md.semibold}`}>
           {`${reconciliationPercentage->valueFormatter(Rate)}`->React.string}
         </p>
+        <ReconEngineOverviewProgressBar postedCount mismatchedCount expectedCount />
         <div className="w-full">
           <StackedBarGraph
             options={StackedBarGraphUtils.getStackedBarGraphOptions(
