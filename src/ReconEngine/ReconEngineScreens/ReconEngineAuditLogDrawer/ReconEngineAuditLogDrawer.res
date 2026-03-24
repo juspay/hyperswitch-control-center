@@ -38,6 +38,36 @@ module EventCard = {
   }
 }
 
+module EventFilterChips = {
+  @react.component
+  let make = (~activeFilters: array<eventType>, ~onToggle: eventType => unit) => {
+    let chipData = [
+      (EventSuccess, "bg-green-500", "Success"),
+      (EventInfo, "bg-blue-500", "Info"),
+      (EventWarning, "bg-yellow-500", "Warning"),
+      (EventError, "bg-red-500", "Error"),
+    ]
+
+    <div className="flex flex-row flex-wrap gap-2 px-6 py-3 border-b border-nd_gray-150">
+      {chipData
+      ->Array.map(((eventType, dotColor, label)) => {
+        let isActive = activeFilters->Array.includes(eventType)
+        let chipStyle = isActive
+          ? "bg-nd_gray-100 border-nd_gray-300"
+          : "bg-white border-nd_gray-150 opacity-50"
+        <div
+          key={label}
+          className={`flex flex-row items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-opacity ${chipStyle}`}
+          onClick={_ => onToggle(eventType)}>
+          <div className={`w-2 h-2 rounded-full ${dotColor}`} />
+          <span className={`${body.sm.medium} text-nd_gray-700`}> {label->React.string} </span>
+        </div>
+      })
+      ->React.array}
+    </div>
+  }
+}
+
 module EmptyState = {
   @react.component
   let make = () => {
@@ -60,8 +90,31 @@ let make = (~showDrawer: bool) => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (auditEvents, setAuditEvents) = React.useState(_ => [])
+  let (activeFilters, setActiveFilters) = React.useState(_ => [
+    EventSuccess,
+    EventInfo,
+    EventWarning,
+    EventError,
+  ])
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+
+  let toggleFilter = (eventType: eventType) => {
+    setActiveFilters(prev => {
+      if prev->Array.includes(eventType) {
+        prev->Array.filter(f => f !== eventType)
+      } else {
+        [...prev, eventType]
+      }
+    })
+  }
+
+  let filteredEvents = React.useMemo(() => {
+    auditEvents->Array.filter(event => {
+      let metadata = getEventMetadata(event)
+      activeFilters->Array.includes(metadata.eventType)
+    })
+  }, (auditEvents, activeFilters))
 
   let fetchAuditEvents = async () => {
     try {
@@ -109,6 +162,7 @@ let make = (~showDrawer: bool) => {
           />
         </div>
       </div>
+      <EventFilterChips activeFilters onToggle={toggleFilter} />
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <PageLoaderWrapper
           screenState
@@ -118,14 +172,14 @@ let make = (~showDrawer: bool) => {
             </div>
           </div>}
           customUI={<NewAnalyticsHelper.NoData height="h-44" message="No data available." />}>
-          <RenderIf condition={auditEvents->Array.length == 0}>
+          <RenderIf condition={filteredEvents->Array.length == 0}>
             <EmptyState />
           </RenderIf>
-          <RenderIf condition={auditEvents->Array.length > 0}>
+          <RenderIf condition={filteredEvents->Array.length > 0}>
             <div className="flex flex-col pt-4">
-              {auditEvents
+              {filteredEvents
               ->Array.mapWithIndex((event, index) => {
-                let isLast = index === auditEvents->Array.length - 1
+                let isLast = index === filteredEvents->Array.length - 1
                 <EventCard key={index->Int.toString} event isLast />
               })
               ->React.array}
