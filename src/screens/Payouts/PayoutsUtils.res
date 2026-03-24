@@ -30,7 +30,7 @@ let getPayoutsList = async (
       setOffset(_ => 0)
     }
 
-    if total > 0 {
+    if total > 0 && data->Array.length > 0 {
       let payoutDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
       let payoutData =
         arr->Array.concat(payoutDataDictArr)->Array.map(PayoutsEntity.itemToObjMapper)
