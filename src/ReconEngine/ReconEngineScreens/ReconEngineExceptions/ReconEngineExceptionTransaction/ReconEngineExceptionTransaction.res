@@ -141,6 +141,7 @@ let make = (~ruleId: string) => {
         </div>
       </RenderIf>
       <RenderIf condition={exceptionData->Array.length > 0}>
+        <ReconEngineExceptionSummaryCards exceptionData />
         <LoadedTableWithCustomColumns
           title="Exception Entries - Expected & Mismatched"
           actualData={filteredExceptionData}
