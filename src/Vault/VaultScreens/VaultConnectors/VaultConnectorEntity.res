@@ -101,11 +101,11 @@ let connectorEntity = (
 ) => {
   let getShowLink = !isOrchestrationVault
     ? Some(
-        connec => {
+        connectorObj => {
           sendMixpanelEvent()
           GroupAccessUtils.linkForGetShowLinkViaAccess(
             ~url=GlobalVars.appendDashboardPath(
-              ~url=`/${path}/${connec.id}?name=${connec.connector_name}`,
+              ~url=`/${path}/${connectorObj.id}?name=${connectorObj.connector_name}`,
             ),
             ~authorization,
           )

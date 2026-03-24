@@ -3,7 +3,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
   open Typography
   let featureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  <div className="flex flex-col gap-6 p-6">
+  <div className="flex flex-col gap-6 p-6 ">
     {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(ZEN) => <GooglePayZen connector update onCloseClickCustomFun closeAccordionFn />
     | Processors(CYBERSOURCE) =>
@@ -19,6 +19,10 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     | Processors(NUVEI)
     | Processors(TESOURO) =>
       <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
+
+    | Processors(ADYEN) | Processors(CHECKOUT) =>
+      <GPayFlowMetadata connector closeAccordionFn update onCloseClickCustomFun />
+
     | _ => <GooglePayFlow connector closeAccordionFn update onCloseClickCustomFun />
     }}
   </div>

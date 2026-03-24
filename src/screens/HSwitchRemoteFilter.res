@@ -56,10 +56,7 @@ let useSetInitialFilters = (
           ? [(startTimeFilterKey, defaultDate.start_time)]
           : switch enableCompareTo {
             | Some(_) => {
-                let (
-                  compareToStartTime,
-                  compareToEndTime,
-                ) = DateRangeUtils.getComparisionTimePeriod(
+                let (compareToStartTime, compareToEndTime) = DateRangeUtils.getComparisonTimePeriod(
                   ~startDate=defaultDate.start_time,
                   ~endDate=defaultDate.end_time,
                 )

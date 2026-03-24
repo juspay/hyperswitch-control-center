@@ -12,6 +12,7 @@ module UserAction = {
       ->LogicUtils.getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
+      ->decodeURIComponent
     let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
       UserInfoProvider.defaultContext,
     )
@@ -169,6 +170,7 @@ module UserDetails = {
       ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
+      ->decodeURIComponent
 
     <div className="flex flex-col bg-white rounded-xl border p-6 gap-12">
       <div className="flex gap-4">
@@ -198,6 +200,7 @@ let make = () => {
     ->getDictFromUrlSearchParams
     ->Dict.get("email")
     ->Option.getOr("")
+    ->decodeURIComponent
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userData, setUserData) = React.useState(_ => JSON.Encode.null->valueToType)
 

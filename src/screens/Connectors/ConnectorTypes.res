@@ -135,6 +135,10 @@ type processorTypes =
   | AMAZONPAY
   | WORLDPAYMODULAR
   | SANTANDER
+  | REVOLV3
+  | TRUELAYER
+  | ENVOY
+  | FISERVCOMMERCEHUB
 
 type payoutProcessorTypes =
   | ADYEN
@@ -150,6 +154,8 @@ type payoutProcessorTypes =
   | LOONIO
   | WORLDPAY
   | WORLDPAYXML
+  | TRUELAYER
+  | ENVOY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
