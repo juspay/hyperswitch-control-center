@@ -744,7 +744,7 @@ let make = (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
         compareWithEndTime->LogicUtils.isNonEmptyString
     ) {
-      let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
+      let (startTime, endTime) = DateRangeUtils.getComparisonTimePeriod(
         ~startDate=compareWithStartTime,
         ~endDate=compareWithEndTime,
       )
