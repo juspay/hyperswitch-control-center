@@ -57,6 +57,7 @@ let make = (~id) => {
           currentTransactionDetails={currentTransactionDetails}
           detailsFields=[TransactionId, Status, Variance, CreatedAt, RuleName]
         />
+        <ReconEngineTransactionEntryComparison entries={currentTransactionDetails.entries} />
         <AuditTrail allTransactionDetails={allTransactionDetails} />
       </div>
     </PageLoaderWrapper>
