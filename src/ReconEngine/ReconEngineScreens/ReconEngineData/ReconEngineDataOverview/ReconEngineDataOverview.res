@@ -100,11 +100,14 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
         childGapClass="gap-2"
       />
       <div className="flex flex-col gap-10">
-        <PageUtils.PageHeading
-          title=ingestionHistoryData.file_name
-          customTitleStyle={`${heading.lg.semibold}`}
-          customHeadingStyle="py-0"
-        />
+        <div className="flex flex-row items-center gap-3">
+          <PageUtils.PageHeading
+            title=ingestionHistoryData.file_name
+            customTitleStyle={`${heading.lg.semibold}`}
+            customHeadingStyle="py-0"
+          />
+          <ReconEngineIngestionStatusIndicator status={ingestionHistoryData.status} />
+        </div>
         <Accordion
           initialExpandedArray={initialExpandedArray->Array.make(~length=1)}
           accordion={ReconEngineDataOverviewHelper.getAccordionConfig(
