@@ -138,6 +138,7 @@ type processorTypes =
   | REVOLV3
   | TRUELAYER
   | ENVOY
+  | FISERVCOMMERCEHUB
 
 type payoutProcessorTypes =
   | ADYEN
