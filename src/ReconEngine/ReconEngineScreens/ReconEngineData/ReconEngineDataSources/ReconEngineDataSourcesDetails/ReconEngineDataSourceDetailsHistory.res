@@ -112,6 +112,7 @@ let make = (~config: ReconEngineTypes.ingestionConfigType, ~isUploading) => {
   <div className="flex flex-col gap-4 my-4">
     <div className="flex-shrink-0"> {topFilterUi} </div>
     <PageLoaderWrapper screenState>
+      <ReconEngineIngestionHistorySummary historyData={filteredHistoryData} />
       <LoadedTable
         title="Ingestion History"
         hideTitle=true
