@@ -528,6 +528,7 @@ module RuleDetailsContent = {
           <StatusBadge isActive={rule.is_active} />
         </div>
       </div>
+      <ReconEngineRuleStrategyDisplay activeStrategy={rule.strategy} />
       <RuleSchemaComponents rule />
     </div>
   }
