@@ -71,7 +71,7 @@ let make = () => {
       let merchantListFetch = if !isInternalUser {
         fetchMerchantList()
       } else {
-        Promise.resolve(())
+        Promise.resolve()
       }
       let userGroupACLFetch = fetchUserGroupACL()
       let merchantResponse = await merchantDetailsFetch
