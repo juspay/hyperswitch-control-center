@@ -2457,8 +2457,24 @@ let connectorTypeTypedValueToStringMapper = val => {
   }
 }
 
+let getDisplayNameForConnectorType = (connectorType: ConnectorTypes.connectorTypes) => {
+  switch connectorType {
+  | Processors(connector) => connector->getDisplayNameForProcessor
+  | PayoutProcessor(payoutProcessor) => payoutProcessor->getDisplayNameForPayoutProcessor
+  | ThreeDsAuthenticator(threeDsAuthenticator) =>
+    threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
+  | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
+  | PMAuthenticationProcessor(pmAuthenticationConnector) =>
+    pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
+  | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
+  | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
+  | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
+  | UnknownConnector(str) => str
+  }
+}
+
 let sortByName = (c1, c2) => {
-  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
+  compareLogic(c2->getDisplayNameForConnectorType, c1->getDisplayNameForConnectorType)
 }
 
 let existsInArray = (element, connectorList) => {
