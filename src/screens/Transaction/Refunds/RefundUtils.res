@@ -36,6 +36,7 @@ let getRefundsList = async (
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
     ~version: UserInfoTypes.version=?,
+    ~signal: Fetch.signal=?,
   ) => promise<JSON.t>,
   ~setRefundsData,
   ~setScreenState,

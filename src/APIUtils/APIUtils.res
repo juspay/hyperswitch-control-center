@@ -1640,7 +1640,7 @@ let useGetMethod = (~showErrorToast=true) => {
     })
   let {xFeatureRoute, forceCookies} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async (url, ~version=UserInfoTypes.V1) => {
+  async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
       let res = await fetchApi(
         url,
@@ -1651,6 +1651,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~profileId,
         ~version,
         ~isEmbeddableSession=isEmbeddableSession(),
+        ~signal?,
       )
       await responseHandler(
         ~url,
@@ -1708,6 +1709,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
     ~version=UserInfoTypes.V1,
+    ~signal=?,
   ) => {
     try {
       let res = await fetchApi(
@@ -1723,6 +1725,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~profileId,
         ~version,
         ~isEmbeddableSession=isEmbeddableSession(),
+        ~signal?,
       )
       await responseHandler(
         ~url,
