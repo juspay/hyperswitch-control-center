@@ -96,7 +96,7 @@ let make = (~onClick) => {
   <EmailVerifyScreen
     errorMessage
     onClick
-    trasitionMessage={isProcessingToken
+    transitionMessage={isProcessingToken
       ? "Accepting invite... You will be redirected to the Dashboard.."
       : "Processing invitation... Please wait..."}
   />

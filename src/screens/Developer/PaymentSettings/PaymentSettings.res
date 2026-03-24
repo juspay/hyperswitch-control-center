@@ -281,7 +281,7 @@ module WebHookSection = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
@@ -448,7 +448,7 @@ module PaymentLinkDomain = {
                   text="Update"
                   buttonType=Button.Primary
                   buttonSize=Button.Medium
-                  disabledParamter={!allowEdit}
+                  disabledParameter={!allowEdit}
                 />
                 <Button
                   buttonType=Button.Secondary
