@@ -51,7 +51,8 @@ let useShowToast = (): showToastFn => {
           }
 
           let toastOptions: SnackbarBinding.addToastOptions = {
-            header: message,
+            header: "",
+            description: ?Some(message),
             variant: ?Some(variant),
             ?duration,
             position: ?Some(SnackbarBinding.TopCenter),
