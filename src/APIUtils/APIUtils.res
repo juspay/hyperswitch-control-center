@@ -85,9 +85,9 @@ let getV2Url = (
   | REVENUE_RECOVERY_REPORT =>
     switch transactionEntity {
     | #Tenant
-    | #Organization => `/v2/analytics/org/report/payments`
-    | #Merchant => `/v2/analytics/merchant/report/payments`
-    | #Profile => `/v2/analytics/profile/report/payments`
+    | #Organization => `v2/analytics/org/report/payments`
+    | #Merchant => `v2/analytics/merchant/report/payments`
+    | #Profile => `v2/analytics/profile/report/payments`
     }
   | V2_ATTEMPTS_LIST =>
     switch methodType {
@@ -799,6 +799,17 @@ let useGetURL = () => {
         | #Organization => `analytics/v1/org/report/payments`
         | #Merchant => `analytics/v1/merchant/report/payments`
         | #Profile => `analytics/v1/profile/report/payments`
+        }
+      | PAYMENTS_LIST =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => `analytics/v1/payments/list`
+          | #Profile => `analytics/v1/profile/payments/list`
+          | _ => `payments/list`
+          }
+
+        | _ => ""
         }
       | PAYOUT_REPORT =>
         switch transactionEntity {
