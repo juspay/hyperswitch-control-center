@@ -157,10 +157,10 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     ->getString("last_name", ""),
     payment_method_billing_phone: dict
     ->getDictfromDict("payment_method_data")
-    ->getStringFromNestedDict("billing", "email", ""),
+    ->getStringFromNestedDict("billing", "phone", ""),
     payment_method_billing_email: dict
     ->getDictfromDict("payment_method_data")
-    ->getStringFromNestedDict("billing", "", ""),
+    ->getStringFromNestedDict("billing", "email", ""),
     billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
     billingPhone: dict
     ->getDictFromNestedDict("billing", "phone")

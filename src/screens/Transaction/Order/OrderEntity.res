@@ -544,7 +544,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | PMBillingEmail =>
     Table.makeHeaderInfo(~key="payment_method_billing_email", ~title="Billing Email")
   | PMBillingFirstName =>
-    Table.makeHeaderInfo(~key="payment_method_firat_name", ~title="First Name")
+    Table.makeHeaderInfo(~key="payment_method_first_name", ~title="First Name")
   | PMBillingLastName => Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name")
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
@@ -677,8 +677,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType: otherDetailsColType): 
   | FRMStatus => Text(order.frm_message.frm_status)
   | BillingEmail => Text(order.billingEmail)
   | PMBillingAddress => Text(order.payment_method_billing_address)
-  | PMBillingPhone => Text(order.payment_method_billing_email)
-  | PMBillingEmail => Text(order.payment_method_billing_phone)
+  | PMBillingPhone => Text(order.payment_method_billing_phone)
+  | PMBillingEmail => Text(order.payment_method_billing_email)
   | PMBillingFirstName => Text(order.payment_method_billing_first_name)
   | PMBillingLastName => Text(order.payment_method_billing_last_name)
   | BillingPhone => Text(`${order.billingPhone}`)
