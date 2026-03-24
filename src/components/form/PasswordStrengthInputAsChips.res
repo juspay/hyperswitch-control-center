@@ -135,7 +135,6 @@ let make = (
       ->Array.mapWithIndex((chipType, index) => {
         if specialCharatersInfoText->LogicUtils.isNonEmptyString && chipType === SpecialChar {
           <ToolTip
-            tooltipWidthClass="w-fit"
             description=specialCharatersInfoText
             toolTipFor={<PasswordChip
               key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle

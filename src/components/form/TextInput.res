@@ -310,7 +310,6 @@ let make = (
           ? <ToolTip
               description
               toolTipPosition=Right
-              height="h-min"
               toolTipFor={<div className="cursor-pointer select-none -ml-8">
                 <Icon name="new-question-circle" size=16 className="stroke-jp-2-light-gray-1000" />
               </div>}

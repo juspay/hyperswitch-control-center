@@ -115,7 +115,6 @@ module ListBaseComp = {
             </div>
             <ToolTip
               description="Organization Chart"
-              customStyle="!whitespace-nowrap"
               toolTipFor={<button
                 className={`${backgroundColor.sidebarNormal} border ${borderColor} w-5 h-5 rounded-md flex items-center justify-center`}
                 onClick={ev => {
@@ -194,9 +193,6 @@ module AddNewOMPButton = {
       authorization={hasOMPCreateAccess}
       noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => setShowModal(_ => true)}
-      isRelative=false
-      contentAlign=Default
-      tooltipForWidthClass="!h-full"
       className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}
       showTooltip={hasOMPCreateAccess == Access}>
       {<>
@@ -379,7 +375,6 @@ module MerchantDropdownItem = {
     } else if !isActive && !isUnderEdit {
       <ToolTip
         description={productType->getProductDisplayName}
-        customStyle="!whitespace-nowrap"
         toolTipFor={<Icon
           name={productType->ProductUtils.productTypeIconMapper}
           className={`${secondaryTextColor} opacity-50`}
@@ -464,7 +459,6 @@ module MerchantDropdownItem = {
           customInputStyle={`!py-0 ${secondaryTextColor}`}
           customIconComponent={<ToolTip
             description="Copy Merchant ID"
-            customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
                 customIconCss={`${secondaryTextColor}`}
@@ -591,7 +585,6 @@ module ProfileDropdownItem = {
           customInputStyle="!py-0 text-nd_gray-600"
           customIconComponent={<ToolTip
             description="Copy Profile ID"
-            customStyle="!whitespace-nowrap"
             toolTipFor={<div className="cursor-pointer">
               <HelperComponents.CopyTextCustomComp
                 displayValue=Some("") copyValue=Some(currentId) customIconCss="text-nd_gray-600"
@@ -623,7 +616,6 @@ let generateDropdownOptions: (
       icon: Button.CustomRightIcon(
         <ToolTip
           description={item.id}
-          customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp
               displayValue=Some("") copyValue=Some({item.id}) customIconCss
@@ -651,7 +643,6 @@ let generateDropdownOptionsCustomComponent: (
       icon: Button.CustomRightIcon(
         <ToolTip
           description={item.id}
-          customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
@@ -673,7 +664,6 @@ let generateDropdownOptionsCustomComponent: (
       icon: Button.CustomRightIcon(
         <ToolTip
           description={item.id}
-          customStyle="!whitespace-nowrap"
           toolTipFor={<div className="cursor-pointer">
             <HelperComponents.CopyTextCustomComp displayValue=Some("") copyValue=Some({item.id}) />
           </div>}
@@ -701,10 +691,7 @@ module MerchantTypeCard = {
           <div className="flex items-center gap-2">
             <h3 className={`text-nd_gray-700 ${body.md.medium}`}> {header->React.string} </h3>
             <ToolTip
-              description
-              toolTipFor={<Icon size=14 name="nd-info-circle" />}
-              justifyClass="justify-start"
-              toolTipPosition=Right
+              description toolTipFor={<Icon size=14 name="nd-info-circle" />} toolTipPosition=Right
             />
           </div>
           <p className={`text-nd_gray-400 ${body.md.regular}`}> {subtext->React.string} </p>

@@ -278,13 +278,7 @@ module ListItem = {
 
                     {
                       if showToolTipOptions {
-                        <ToolTip
-                          key={i->Int.toString}
-                          description=item
-                          toolTipFor=selectOptions
-                          contentAlign=Default
-                          justifyClass="justify-start"
-                        />
+                        <ToolTip key={i->Int.toString} description=item toolTipFor=selectOptions />
                       } else {
                         selectOptions
                       }
@@ -330,12 +324,7 @@ module ListItem = {
         if isDropDown {
           showDescriptionAsTool
             ? {
-                <ToolTip
-                  description={str}
-                  toolTipFor=comp
-                  contentAlign=Default
-                  justifyClass="justify-start"
-                />
+                <ToolTip description={str} toolTipFor=comp />
               }
             : {
                 <div>
@@ -1929,7 +1918,6 @@ module BaseDropdown = {
                             ->Array.joinWith(",\n")}
                         toolTipFor=selectButton
                         toolTipPosition=Bottom
-                        tooltipWidthClass=""
                       />
                     } else {
                       selectButton

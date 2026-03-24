@@ -9,10 +9,8 @@ module TooltipString = {
     let class = showTableBelow ? "w-fit" : "w-20"
     if text->String.length > 15 && !showTableBelow {
       <ToolTip
-        contentAlign=Left
         description=text
         toolTipPosition={isMobileView ? TopRight : Top}
-        tooltipWidthClass={isMobileView ? "w-fit" : ""}
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden w-15`}>
           <AddDataAttributes attributes=[("data-text", text)]>
             <div> {React.string(`${String.slice(~start=0, ~end=12, text)}...`)} </div>

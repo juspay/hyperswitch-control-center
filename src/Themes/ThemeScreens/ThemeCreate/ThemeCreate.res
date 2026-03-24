@@ -61,7 +61,6 @@ let make = () => {
                   buttonType=Primary
                   buttonSize={Small}
                   customSumbitButtonStyle={`${body.md.semibold} py-4`}
-                  tooltipForWidthClass="w-full"
                 />
               </div>
             </div>
