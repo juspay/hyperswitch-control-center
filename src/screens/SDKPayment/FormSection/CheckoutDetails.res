@@ -97,7 +97,7 @@ let make = (
     </RenderIf>
     <SubmitButton
       text=submitButtonText
-      disabledParamter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
+      disabledParameter={initialValuesForCheckoutForm.profile_id->LogicUtils.isEmptyString ||
       paymentConnectorList->Array.length == 0 ||
       isInternalUser}
       customSumbitButtonStyle="!mt-5 !w-full"

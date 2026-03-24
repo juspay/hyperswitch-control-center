@@ -27,7 +27,7 @@ let title: LineScatterGraphTypes.title = {
   text: "",
 }
 
-let smartRetriesComparisionMapper = (
+let smartRetriesComparisonMapper = (
   ~params: InsightsTypes.getObjects<JSON.t>,
 ): LineScatterGraphTypes.lineScatterGraphPayload => {
   open InsightsUtils
