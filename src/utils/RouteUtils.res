@@ -4,6 +4,8 @@ open UserInfoTypes
  * Centralized URL routing utilities for handling V1/V2 version-based routes.
  * Use these functions instead of inline switch statements on version.
  */
+let v2Prefix = "/v2/orchestration"
+
 /**
  * Routes for the Connectors module
  */

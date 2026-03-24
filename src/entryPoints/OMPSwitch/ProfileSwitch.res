@@ -1,4 +1,20 @@
 module NewProfileCreationModal = {
+  open APIUtils
+
+  let createNewProfileV1 = async (~getURL, ~updateDetails, ~values, ~getProfileList) => {
+    let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
+    let body = values
+    let _ = await updateDetails(url, body, Post)
+    getProfileList()->ignore
+  }
+
+  let createNewProfileV2 = async (~getURL, ~updateDetails, ~values, ~getProfileList) => {
+    let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
+    let body = values
+    let _ = await updateDetails(url, body, Post)
+    getProfileList()->ignore
+  }
+
   @react.component
   let make = (
     ~setShowModal,
@@ -6,7 +22,6 @@ module NewProfileCreationModal = {
     ~getProfileList,
     ~profileList: array<OMPSwitchTypes.ompListTypes>,
   ) => {
-    open APIUtils
     let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
@@ -15,14 +30,11 @@ module NewProfileCreationModal = {
 
     let createNewProfile = async values => {
       try {
-        let url = switch version {
-        | V1 => getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post)
-        | V2 => getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Post)
-        }
-        let body = values
         mixpanelEvent(~eventName="create_new_profile", ~metadata=values)
-        let _ = await updateDetails(url, body, Post)
-        getProfileList()->ignore
+        switch version {
+        | V1 => await createNewProfileV1(~getURL, ~updateDetails, ~values, ~getProfileList)
+        | V2 => await createNewProfileV2(~getURL, ~updateDetails, ~values, ~getProfileList)
+        }
         showToast(
           ~toastType=ToastSuccess,
           ~message="Profile Created Successfully!",
@@ -124,6 +136,32 @@ module NewProfileCreationModal = {
   }
 }
 
+let getProfileListV1 = async (~getURL, ~fetchDetails, ~profileId, ~setProfileList, ~showToast) => {
+  try {
+    let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+    let response = await fetchDetails(url)
+    setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+  } catch {
+  | _ => {
+      setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+      showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+    }
+  }
+}
+
+let getProfileListV2 = async (~getURL, ~fetchDetails, ~profileId, ~setProfileList, ~showToast) => {
+  try {
+    let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
+    let response = await fetchDetails(url, ~version=V2)
+    setProfileList(_ => response->getArrayDataFromJson(OMPSwitchUtils.profileItemToObjMapper))
+  } catch {
+  | _ => {
+      setProfileList(_ => [OMPSwitchUtils.ompDefaultValue(profileId, "")])
+      showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+    }
+  }
+}
+
 @react.component
 let make = () => {
   open APIUtils
@@ -152,24 +190,9 @@ let make = () => {
   let roundedClass = isMobileView ? "rounded-none" : "rounded-md"
 
   let getProfileList = async () => {
-    try {
-      let response = switch version {
-      | V1 => {
-          let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-          await fetchDetails(url)
-        }
-      | V2 => {
-          let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-          await fetchDetails(url, ~version=V2)
-        }
-      }
-
-      setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
-    } catch {
-    | _ => {
-        setProfileList(_ => [ompDefaultValue(profileId, "")])
-        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-      }
+    switch version {
+    | V1 => await getProfileListV1(~getURL, ~fetchDetails, ~profileId, ~setProfileList, ~showToast)
+    | V2 => await getProfileListV2(~getURL, ~fetchDetails, ~profileId, ~setProfileList, ~showToast)
     }
   }
   let customStyle = `${primaryNormal} bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full`
