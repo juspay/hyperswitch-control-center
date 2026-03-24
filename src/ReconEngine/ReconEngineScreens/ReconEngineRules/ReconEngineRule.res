@@ -10,8 +10,10 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (rulesData, setRulesData) = React.useState(_ => [])
+  let (accountData, setAccountData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let resultsPerPage = 20
+  let getAccounts = ReconEngineHooks.useGetAccounts()
   let getRulesList = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -22,7 +24,9 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       let rulesList = res->LogicUtils.getArrayDataFromJson(ruleItemToObjMapper)
+      let accounts = await getAccounts()
       setRulesData(_ => rulesList)
+      setAccountData(_ => accounts)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -39,6 +43,7 @@ let make = () => {
       <PageUtils.PageHeading
         title="Rules Library" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
       />
+      <ReconEngineRuleCardPreview rulesData accountData />
       <div className="bg-white rounded-lg">
         <LoadedTable
           title="Recon Rules"
