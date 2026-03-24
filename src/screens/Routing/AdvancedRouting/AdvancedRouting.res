@@ -907,7 +907,6 @@ let make = (
                     buttonSize=Button.Small
                     buttonType=Button.Secondary
                     customSumbitButtonStyle="w-1/5 rounded-xl"
-                    tooltipWidthClass="w-48"
                   />}
                   submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                     onSubmit handleActivateConfiguration

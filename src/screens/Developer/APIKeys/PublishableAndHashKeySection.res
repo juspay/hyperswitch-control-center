@@ -52,7 +52,6 @@ let make = () => {
               </div>
               <div className="ml-1 mt-0.5 h-5 w-5">
                 <ToolTip
-                  tooltipWidthClass="w-fit"
                   description="Visit Dev Docs"
                   toolTipFor={<div
                     className="cursor-pointer"

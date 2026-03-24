@@ -174,10 +174,7 @@ let make = () => {
               <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
               <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSumbitButtonStyle="!w-full mt-8"
               />
             </div>
           </Form>
@@ -195,10 +192,7 @@ let make = () => {
             <div className="flex flex-col mb-5 gap-3 ">
               <ConnectorPaymentMethodV2 initialValues isInEditState=true />
               <FormRenderer.SubmitButton
-                text="Next"
-                buttonSize={Small}
-                customSumbitButtonStyle="!w-full mt-8"
-                tooltipForWidthClass="w-full"
+                text="Next" buttonSize={Small} customSumbitButtonStyle="!w-full mt-8"
               />
             </div>
           </Form>

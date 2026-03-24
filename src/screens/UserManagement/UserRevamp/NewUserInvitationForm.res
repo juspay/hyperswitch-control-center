@@ -185,7 +185,6 @@ let make = () => {
           loadingText="Loading..."
           buttonSize={Small}
           customSumbitButtonStyle="w-full !h-12"
-          tooltipForWidthClass="w-full"
         />
       </div>
     </div>

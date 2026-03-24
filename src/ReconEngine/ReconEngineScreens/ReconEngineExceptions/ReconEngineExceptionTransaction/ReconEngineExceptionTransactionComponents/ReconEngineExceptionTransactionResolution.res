@@ -169,7 +169,6 @@ module EditEntryModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Save changes"
               buttonType={Primary}
               showToolTip=false
@@ -287,7 +286,6 @@ module MarkAsReceivedModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Mark as Received"
               buttonType={Primary}
               showToolTip=false
@@ -369,7 +367,6 @@ module CreateEntryModalContent = {
           )}
           <div className="flex justify-end my-4">
             <FormRenderer.SubmitButton
-              tooltipForWidthClass="w-full"
               text="Create new entry"
               buttonType={Primary}
               showToolTip=false

@@ -18,7 +18,7 @@ module CantFindProcessor = {
       <div
         className="flex flex-row items-center gap-2 text-primary cursor-pointer font-semibold"
         onClick={_ => handleClick()}>
-        <ToolTip iconOpacityVal="100" />
+        <ToolTip />
         {"Request a processor"->React.string}
       </div>
     </RenderIf>
