@@ -1220,6 +1220,26 @@ let useGetURL = () => {
             }
           | _ => ""
           }
+        | #CREATE_ACCOUNT =>
+          switch methodType {
+          | Post => `${reconBaseURL}/accounts`
+          | _ => ""
+          }
+        | #CREATE_INGESTION_CONFIG =>
+          switch methodType {
+          | Post => `${reconBaseURL}/ingestions/config`
+          | _ => ""
+          }
+        | #CREATE_TRANSFORMATION_CONFIG_V2 =>
+          switch methodType {
+          | Post => `${reconBaseURL}/transformations/v2/configs`
+          | _ => ""
+          }
+        | #CREATE_RECON_RULE =>
+          switch methodType {
+          | Post => `${reconBaseURL}/recon_rules/v2`
+          | _ => ""
+          }
         | #NONE => ""
         }
 

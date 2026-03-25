@@ -90,7 +90,24 @@ let reconAccounts = {
   })
 }
 
+let reconSetup = {
+  Link({
+    name: "Setup",
+    link: `/v1/recon-engine/setup`,
+    access: Access,
+    icon: "nd-connectors",
+    selectedIcon: "nd-connectors-fill",
+  })
+}
+
 let reconEngineSidebars = {
-  let sidebar = [reconOverview, reconTransactions, exceptions, reconRuleCreation, reconAccounts]
+  let sidebar = [
+    reconOverview,
+    reconSetup,
+    reconTransactions,
+    exceptions,
+    reconRuleCreation,
+    reconAccounts,
+  ]
   sidebar
 }
