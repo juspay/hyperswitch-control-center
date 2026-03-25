@@ -177,7 +177,8 @@ let make = (
         let searchLower = searchedConnector->String.toLowerCase
         item->getConnectorNameString->String.includes(searchLower) ||
           item
-          ->getDisplayNameForConnectorType
+          ->getConnectorNameString
+          ->getDisplayNameForConnector
           ->String.toLowerCase
           ->String.includes(searchLower)
       })

@@ -2457,26 +2457,10 @@ let connectorTypeTypedValueToStringMapper = val => {
   }
 }
 
-let getDisplayNameForConnectorType = (connectorType: ConnectorTypes.connectorTypes) => {
-  switch connectorType {
-  | Processors(connector) => connector->getDisplayNameForProcessor
-  | PayoutProcessor(payoutProcessor) => payoutProcessor->getDisplayNameForPayoutProcessor
-  | ThreeDsAuthenticator(threeDsAuthenticator) =>
-    threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
-  | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
-  | PMAuthenticationProcessor(pmAuthenticationConnector) =>
-    pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
-  | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
-  | BillingProcessor(billingProcessor) => billingProcessor->getDisplayNameForBillingProcessor
-  | VaultProcessor(vaultProcessor) => vaultProcessor->getDisplayNameForVaultProcessor
-  | UnknownConnector(str) => str
-  }
-}
-
 let sortByName = (c1, c2) => {
   compareLogic(
-    c2->getDisplayNameForConnectorType->String.toLowerCase,
-    c1->getDisplayNameForConnectorType->String.toLowerCase,
+    c2->getConnectorNameString->getDisplayNameForConnector->String.toLowerCase,
+    c1->getConnectorNameString->getDisplayNameForConnector->String.toLowerCase,
   )
 }
 
