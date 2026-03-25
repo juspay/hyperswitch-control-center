@@ -34,6 +34,32 @@ const mergeProd = () => {
           // `...`,
           // new CssMinimizerPlugin(),
         ],
+        splitChunks: {
+          chunks: "all",
+          cacheGroups: {
+            monaco: {
+              test: /[\\/]node_modules[\\/](@monaco-editor|monaco-editor)[\\/]/,
+              name: "monaco",
+              chunks: "all",
+              priority: 30,
+              reuseExistingChunk: true,
+            },
+            charts: {
+              test: /[\\/]node_modules[\\/]highcharts[\\/]/,
+              name: "charts",
+              chunks: "all",
+              priority: 20,
+              reuseExistingChunk: true,
+            },
+            vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              name: "vendors",
+              chunks: "all",
+              priority: 10,
+              reuseExistingChunk: true,
+            },
+          },
+        },
       },
     },
   ]);
