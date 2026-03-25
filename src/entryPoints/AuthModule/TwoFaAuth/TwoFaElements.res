@@ -40,7 +40,9 @@ module TotpScanQR = {
               : "blur-sm"}`}>
           <p className=p3Regular> {"Scan the QR Code into your app"->React.string} </p>
           {if isQrVisible {
-            <ReactQRCode value=totpUrl size=170 />
+            <ReactSuspenseWrapper loadingText="">
+              <ReactQRCode value=totpUrl size=170 />
+            </ReactSuspenseWrapper>
           } else {
             <Icon
               name="spinner"

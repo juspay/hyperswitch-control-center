@@ -114,7 +114,9 @@ module ChatMessage = {
                   <div
                     className="px-7 py-4 max-h-96 overflow-auto overscroll-contain min-w-0 w-full">
                     <div className="min-w-max">
-                      <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
+                      <ReactSuspenseWrapper loadingText="">
+                        <Markdown.MdPreview source={response.markdown} style={{fontSize: "14px"}} />
+                      </ReactSuspenseWrapper>
                     </div>
                   </div>
                 </RenderIf>

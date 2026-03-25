@@ -43,23 +43,25 @@ let make = (
           </div>
         </RenderIf>
         <div className="overflow-auto">
-          <ReactSyntaxHighlighter.SyntaxHighlighter
-            style={ReactSyntaxHighlighter.lightfair}
-            language="json"
-            showLineNumbers={true}
-            lineNumberContainerStyle={{
-              paddingLeft: "0px",
-              backgroundColor: "red",
-              padding: "100px",
-            }}
-            customStyle={{
-              backgroundColor: "transparent",
-              lineHeight: "1.7rem",
-              fontSize: "0.875rem",
-              padding: "5px",
-            }}>
-            {parsedJson}
-          </ReactSyntaxHighlighter.SyntaxHighlighter>
+          <ReactSuspenseWrapper loadingText="">
+            <ReactSyntaxHighlighter.SyntaxHighlighter
+              style={ReactSyntaxHighlighter.lightfair}
+              language="json"
+              showLineNumbers={true}
+              lineNumberContainerStyle={{
+                paddingLeft: "0px",
+                backgroundColor: "red",
+                padding: "100px",
+              }}
+              customStyle={{
+                backgroundColor: "transparent",
+                lineHeight: "1.7rem",
+                fontSize: "0.875rem",
+                padding: "5px",
+              }}>
+              {parsedJson}
+            </ReactSyntaxHighlighter.SyntaxHighlighter>
+          </ReactSuspenseWrapper>
         </div>
       </>}
     </RenderIf>

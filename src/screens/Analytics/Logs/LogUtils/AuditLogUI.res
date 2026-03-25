@@ -49,24 +49,26 @@ module LogDetailsSection = {
           <span
             className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
             <style> {React.string(auditLogScrollbar)} </style>
-            <ReactSyntaxHighlighter.SyntaxHighlighter
-              wrapLines={true}
-              wrapLongLines=true
-              style={ReactSyntaxHighlighter.lightfair}
-              language="json"
-              showLineNumbers={false}
-              lineNumberContainerStyle={{
-                paddingLeft: "0px",
-                backgroundColor: "red",
-                padding: "0px",
-              }}
-              customStyle={{
-                backgroundColor: "transparent",
-                fontSize: "0.875rem",
-                padding: "0px 0px 6px 0px",
-              }}>
-              {value->JSON.stringify}
-            </ReactSyntaxHighlighter.SyntaxHighlighter>
+            <ReactSuspenseWrapper loadingText="">
+              <ReactSyntaxHighlighter.SyntaxHighlighter
+                wrapLines={true}
+                wrapLongLines=true
+                style={ReactSyntaxHighlighter.lightfair}
+                language="json"
+                showLineNumbers={false}
+                lineNumberContainerStyle={{
+                  paddingLeft: "0px",
+                  backgroundColor: "red",
+                  padding: "0px",
+                }}
+                customStyle={{
+                  backgroundColor: "transparent",
+                  fontSize: "0.875rem",
+                  padding: "0px 0px 6px 0px",
+                }}>
+                {value->JSON.stringify}
+              </ReactSyntaxHighlighter.SyntaxHighlighter>
+            </ReactSuspenseWrapper>
           </span>
         </div>
       })

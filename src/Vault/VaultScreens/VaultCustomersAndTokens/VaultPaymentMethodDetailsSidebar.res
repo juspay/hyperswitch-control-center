@@ -7,24 +7,26 @@ module PaymentMethodDetails = {
         {"Payment Method Details"->React.string}
       </div>
       <div className="border rounded-md py-6 px-10 bg-nd_gray-25">
-        <ReactSyntaxHighlighter.SyntaxHighlighter
-          wrapLines={false}
-          wrapLongLines=true
-          style={ReactSyntaxHighlighter.lightfair}
-          language="json"
-          showLineNumbers={true}
-          lineNumberContainerStyle={{
-            paddingLeft: "0px",
-            backgroundColor: "red",
-            padding: "0px",
-          }}
-          customStyle={{
-            backgroundColor: "transparent",
-            fontSize: "0.875rem",
-            padding: "0px",
-          }}>
-          {data->JSON.stringifyWithIndent(2)}
-        </ReactSyntaxHighlighter.SyntaxHighlighter>
+        <ReactSuspenseWrapper loadingText="">
+          <ReactSyntaxHighlighter.SyntaxHighlighter
+            wrapLines={false}
+            wrapLongLines=true
+            style={ReactSyntaxHighlighter.lightfair}
+            language="json"
+            showLineNumbers={true}
+            lineNumberContainerStyle={{
+              paddingLeft: "0px",
+              backgroundColor: "red",
+              padding: "0px",
+            }}
+            customStyle={{
+              backgroundColor: "transparent",
+              fontSize: "0.875rem",
+              padding: "0px",
+            }}>
+            {data->JSON.stringifyWithIndent(2)}
+          </ReactSyntaxHighlighter.SyntaxHighlighter>
+        </ReactSuspenseWrapper>
       </div>
     </div>
   }
@@ -65,24 +67,26 @@ module NetworkTokens = {
         {"Network Tokens"->React.string}
       </div>
       <div className="border rounded-md py-6 px-10 bg-nd_gray-25">
-        <ReactSyntaxHighlighter.SyntaxHighlighter
-          wrapLines={false}
-          wrapLongLines=true
-          style={ReactSyntaxHighlighter.lightfair}
-          language="json"
-          showLineNumbers={true}
-          lineNumberContainerStyle={{
-            paddingLeft: "0px",
-            backgroundColor: "red",
-            padding: "0px",
-          }}
-          customStyle={{
-            backgroundColor: "transparent",
-            fontSize: "0.875rem",
-            padding: "0px",
-          }}>
-          {data->JSON.stringifyWithIndent(2)}
-        </ReactSyntaxHighlighter.SyntaxHighlighter>
+        <ReactSuspenseWrapper loadingText="">
+          <ReactSyntaxHighlighter.SyntaxHighlighter
+            wrapLines={false}
+            wrapLongLines=true
+            style={ReactSyntaxHighlighter.lightfair}
+            language="json"
+            showLineNumbers={true}
+            lineNumberContainerStyle={{
+              paddingLeft: "0px",
+              backgroundColor: "red",
+              padding: "0px",
+            }}
+            customStyle={{
+              backgroundColor: "transparent",
+              fontSize: "0.875rem",
+              padding: "0px",
+            }}>
+            {data->JSON.stringifyWithIndent(2)}
+          </ReactSyntaxHighlighter.SyntaxHighlighter>
+        </ReactSuspenseWrapper>
       </div>
     </div>
   }

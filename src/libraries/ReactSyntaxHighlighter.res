@@ -1,3 +1,5 @@
+open LazyUtils
+
 type editorStyle
 
 @module("react-syntax-highlighter/dist/esm/styles/hljs")
@@ -22,16 +24,8 @@ type props = {
   children: string,
 }
 
+let make: props => React.element = reactLazy(() => import_("react-syntax-highlighter"))
+
 module SyntaxHighlighter = {
-  @module("react-syntax-highlighter") @react.component
-  external make: (
-    ~language: string=?,
-    ~style: editorStyle=?,
-    ~customStyle: style,
-    ~showLineNumbers: bool,
-    ~wrapLines: bool=?,
-    ~wrapLongLines: bool=?,
-    ~lineNumberContainerStyle: style,
-    ~children: string,
-  ) => React.element = "default"
+  let make = make
 }

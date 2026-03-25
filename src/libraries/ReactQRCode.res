@@ -1,7 +1,10 @@
-@module("react-qr-code") @react.component
-external make: (
-  ~value: string=?,
-  ~style: string=?,
-  ~size: int=?,
-  ~viewBox: string=?,
-) => React.element = "default"
+open LazyUtils
+
+type props = {
+  value?: string,
+  style?: string,
+  size?: int,
+  viewBox?: string,
+}
+
+let make: props => React.element = reactLazy(() => import_("react-qr-code"))
