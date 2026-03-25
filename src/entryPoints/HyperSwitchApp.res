@@ -242,21 +242,45 @@ let make = () => {
                         | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
 
-                        | (Recon(V1), _) => <ReconEngineApp />
+                        | (Recon(V1), _) =>
+                          <ReactSuspenseWrapper>
+                            <ReconEngineAppLazy />
+                          </ReactSuspenseWrapper>
 
                         /* RECON V2 PRODUCT */
 
-                        | (Recon(V2), _) => <ReconApp />
+                        | (Recon(V2), _) =>
+                          <ReactSuspenseWrapper>
+                            <ReconAppLazy />
+                          </ReactSuspenseWrapper>
 
                         /* RECOVERY PRODUCT */
-                        | (Recovery, _) => <RevenueRecoveryApp />
+                        | (Recovery, _) =>
+                          <ReactSuspenseWrapper>
+                            <RevenueRecoveryAppLazy />
+                          </ReactSuspenseWrapper>
                         /* VAULT PRODUCT */
-                        | (Vault, _) => <VaultApp />
+                        | (Vault, _) =>
+                          <ReactSuspenseWrapper>
+                            <VaultAppLazy />
+                          </ReactSuspenseWrapper>
                         /* HYPERSENSE PRODUCT */
-                        | (CostObservability, _) => <HypersenseApp />
-                        | (DynamicRouting, _) => <IntelligentRoutingApp />
-                        | (Orchestration(V2), _) => <OrchestrationV2App />
-                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+                        | (CostObservability, _) =>
+                          <ReactSuspenseWrapper>
+                            <HypersenseAppLazy />
+                          </ReactSuspenseWrapper>
+                        | (DynamicRouting, _) =>
+                          <ReactSuspenseWrapper>
+                            <IntelligentRoutingAppLazy />
+                          </ReactSuspenseWrapper>
+                        | (Orchestration(V2), _) =>
+                          <ReactSuspenseWrapper>
+                            <OrchestrationV2AppLazy />
+                          </ReactSuspenseWrapper>
+                        | (Orchestration(V1), _) =>
+                          <ReactSuspenseWrapper>
+                            <OrchestrationAppLazy setScreenState />
+                          </ReactSuspenseWrapper>
                         | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>
