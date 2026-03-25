@@ -74,10 +74,12 @@ let make = () => {
         Promise.resolve()
       }
       let userGroupACLFetch = fetchUserGroupACL()
-      let merchantResponse = await merchantDetailsFetch
-      let _ = await merchantConfigFetch
-      let _ = await merchantListFetch
-      let _ = await userGroupACLFetch
+      let (merchantResponse, _, _, _) = await Promise.all4((
+        merchantDetailsFetch,
+        merchantConfigFetch,
+        merchantListFetch,
+        userGroupACLFetch,
+      ))
       setActiveProductValue(merchantResponse.product_type)
       setShowSideBar(_ => true)
     } catch {
