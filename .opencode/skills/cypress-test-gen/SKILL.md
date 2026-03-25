@@ -46,7 +46,19 @@ Read ALL of these files to discover available commands, helpers, selectors, and 
 | `cypress/e2e/1-auth/auth.cy.js`                    | Reference test — auth flows                                                                |
 | `cypress.config.js`                                | Base URL, viewport, env vars                                                               |
 
-Do NOT hardcode selectors from memory. Always read page objects and source files at runtime to discover the current `data-testid`, `data-button-for`, and other `data-*` attributes.
+Do NOT hardcode selectors from memory. Always read page objects and source files at runtime to discover the current 
+## Selector Strategy
+
+Priority order (highest to lowest):
+
+1. **`getByRole()`** - Buttons, links, headings, textboxes
+2. **`getByLabel()`** - Form inputs with labels
+3. **`getByPlaceholder()`** - Placeholder text
+4. **`getByText()`** - Visible text content
+5. **`getByTestId()`** - Fallback when semantic unavailable
+7. `data-testid`, `data-button-for`, and other `data-*` attributes.
+6. **CSS/XPath** - Last resort only
+
 
 ### 1b: Mode-specific context
 

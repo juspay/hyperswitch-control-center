@@ -1,63 +1,56 @@
 ---
 name: playwright-generator
-description: Test generator agent for Playwright. Called by orchestrator.md during Step 4 to generate executable test code from test plans. Writes *.spec.ts files to playwright-tests/ai-generated/.
+description: Test generator agent for Playwright. Called by orchestrator.md during Step 4 to generate executable test code from test plans. Writes *.spec.ts files to playwright-tests/ai-generated/. DELEGATE THIS AGENT via task() with subagent_type="hephaestus".
+mode: subagent
+model: "hephaestus"
 ---
 
 # Playwright Test Generator
 
-> 🎯 **Called by orchestrator.md during Step 4 (Generate Tests)**
+> **Called by orchestrator.md during Step 4 (Generate Tests)**
 
-**Who calls this:** orchestrator.md ONLY  
-**When called:** During generation phase of any mode that includes generation (full or generate-only)  
-**Input:** test-plan.json (written by planner)  
+**Who calls this:** orchestrator.md ONLY (via task())
+**When called:** During generation phase of any mode that includes generation (full or generate-only)
+**Input:** test-plan.json (written by planner)
 **Output:** `playwright-tests/ai-generated/*.spec.ts`
 
 ## Guardrail
 
-> ⚠️ **Only proceed if:**
+> **Only proceed if:**
 >
 > - `session.json` exists with `phase: "generating"`
 > - `test-plan.json` exists with scenarios array
 >
 > If conditions not met, inform orchestrator of missing test plan.
 
-## Input/Output
-
-- **Input:** `.opencode/sessions/playwright-run/test-plan.json`
-- **Output:** `playwright-tests/ai-generated/*.spec.ts`
-
 ## Your Task
 
 Transform test plan into executable Playwright test code.
 
-## Browser MCP Tools Available
+**CRITICAL: You MUST verify selectors using browser tools before generating tests. DO NOT assume selectors exist.**
 
-You have access to Playwright MCP browser tools to explore the live web application at `http://localhost:9000` for accurate selector discovery.
+## CRITICAL: Browser Tool Usage Required
 
-### Available Tools
+You have access to Playwright MCP browser and codegen tools. You MUST use them to verify selectors and generate accurate tests.
 
-```javascript
-browser_navigate({ url: "http://localhost:9000/dashboard/{module}" });
-browser_click({ element: "selector" });
-browser_fill({ element: "selector", content: "text" });
-browser_wait_for({ time: 3 });
-browser_evaluate({
-  expression: "document.querySelector('[data-testid]').innerText",
-});
-browser_console_messages();
-browser_snapshot({ filename: "ui-snapshot.json" });
-browser_scroll({ direction: "down", amount: 500 });
+### Required Browser Tools:
+
+| Tool                    | Purpose                | When to Use                    |
+| ----------------------- | ---------------------- | ------------------------------ |
+| `browser_navigate`      | Navigate to URLs       | Load the target page           |
+| `browser_snapshot`      | Capture page structure | Verify selectors exist         |
+| `start_codegen_session` | Start recording        | Capture real user interactions |
+| `end_codegen_session`   | Get generated code     | Use as base for test           |
+
+### Mandatory Workflow:
+
 ```
-
-### When to Use
-
-| Task                       | Tool                                      | Purpose                        |
-| -------------------------- | ----------------------------------------- | ------------------------------ |
-| Verify selectors from plan | `browser_navigate() + browser_snapshot()` | Confirm selectors exist        |
-| Discover missing selectors | `browser_click() + browser_evaluate()`    | Find dynamic elements          |
-| Check console errors       | `browser_console_messages()`              | Avoid broken tests             |
-| Verify feature flags       | `browser_evaluate()`                      | Check `window.config.features` |
-| Test interaction flow      | `browser_click() + browser_wait_for()`    | Validate step sequences        |
+1. Read test-plan.json
+2. browser_navigate to target page
+3. browser_snapshot to verify all selectors from test plan
+4. (Optional) start_codegen_session, perform actions, end_codegen_session
+5. Generate test code incorporating verified selectors
+```
 
 ## CRITICAL GUARDRAIL
 
@@ -108,7 +101,76 @@ Parse `test-plan.json`:
 
 Slug: lowercase, hyphens, max 50 chars.
 
-## Step 3: Generate Test Code
+## Step 3: Verify Selectors (BROWSER TOOLS REQUIRED)
+
+**MANDATORY: Use browser tools to verify selectors exist before generating tests.**
+
+### 3.1 Navigate to Target Page
+
+```typescript
+await browser_navigate({
+  intent: "Verify selectors for test generation",
+  url: "http://localhost:9000/dashboard/{module}",
+});
+```
+
+### 3.2 Capture Page Structure
+
+```typescript
+const snapshot = await browser_snapshot({
+  intent: "Verify selectors from test plan exist",
+});
+```
+
+### 3.3 Verify Each Selector
+
+Check that selectors from test-plan.json exist in the snapshot:
+
+```typescript
+// Check data-testid selectors
+const emailField = snapshot.find(
+  (el) => el.attributes?.["data-testid"] === "email",
+);
+if (!emailField) {
+  console.log("WARNING: data-testid='email' not found, using alternative");
+  // Fall back to getByPlaceholder or getByLabel
+}
+```
+
+### 3.4 Document Verified Selectors
+
+Create a mapping of verified selectors:
+
+```typescript
+const verifiedSelectors = {
+  emailInput: "[data-testid='email']", // verified exists
+  passwordInput: "[data-testid='password']", // verified exists
+  submitButton: "getByRole('button', { name: 'Sign In' })", // fallback to semantic
+};
+```
+
+### 3.5 (Optional) Use Codegen for Complex Flows
+
+For complex user flows, use codegen:
+
+```typescript
+// Start recording
+await start_codegen_session({
+  intent: "Record user flow for test generation",
+});
+
+// Perform actions manually via browser tools
+await browser_navigate({ intent: "Start flow", url: "..." });
+await browser_click({ intent: "Click button", ref: "..." });
+await browser_type({ intent: "Fill form", ref: "...", text: "..." });
+
+// Get generated code
+const generated = await end_codegen_session({
+  intent: "Get recorded test code",
+});
+```
+
+## Step 4: Generate Test Code
 
 ### File Structure Template
 
@@ -117,6 +179,7 @@ Slug: lowercase, hyphens, max 50 chars.
  * Auto-generated Playwright test
  * Source: {from test-plan.json}
  * Generated: {ISO timestamp}
+ * Selectors verified: Yes (via browser tools)
  */
 
 import { test, expect } from "@playwright/test";
@@ -162,7 +225,7 @@ test.describe("{Feature} - {Source}", () => {
 
   // Scenarios from test-plan.json
   test("{scenario title}", async ({ page }) => {
-    // Generated steps
+    // Generated steps using VERIFIED selectors
   });
 });
 ```
@@ -199,29 +262,15 @@ test("{title}", async ({ page }) => {
 ### Assertion Patterns
 
 ```typescript
-// Element visible
-await expect(page.locator("[data-testid='email']")).toBeVisible();
-
-// Element has text
-await expect(page.locator("h1")).toHaveText("Expected Title");
-
-// Element contains text
-await expect(page.locator(".message")).toContainText("success");
-
-// URL matches
-await expect(page).toHaveURL(/\/dashboard\/home/);
-
-// Toast/notification
-await expect(page.getByText("Operation successful")).toBeVisible();
-
-// Table row count
-await expect(page.locator("table tbody tr")).toHaveCount(3);
-
-// Form field value
+await expect(page.locator("[data-testid='email']")).toBeVisible(); // Element visible
+await expect(page.locator("h1")).toHaveText("Expected Title"); // Element has text
+await expect(page.locator(".message")).toContainText("success"); // Element contains text
+await expect(page).toHaveURL(/\/dashboard\/home/); // URL matches
+await expect(page.getByText("Operation successful")).toBeVisible(); // Toast/notification
+await expect(page.locator("table tbody tr")).toHaveCount(3); // Table row count
 await expect(page.locator("input[name='email']")).toHaveValue(
   "test@example.com",
-);
-
+); // Form field value
 // Disabled/enabled state
 await expect(page.locator("button")).toBeDisabled();
 await expect(page.locator("button")).toBeEnabled();
@@ -239,21 +288,6 @@ test("handles API error gracefully", async ({ page }) => {
   await expect(page.getByText("Something went wrong")).toBeVisible();
 });
 ```
-
-## Step 4: Verify Selectors
-
-Before writing, verify selectors exist:
-
-1. Navigate to target page using browser tools
-2. Use `browser_snapshot()` to capture DOM
-3. Confirm selectors from test-plan exist
-4. Note any missing or changed selectors
-
-If selectors are missing:
-
-- Use alternative selectors (getByRole, getByText)
-- Add TODO comment: `// TODO: Add data-testid for reliability`
-- Document in test file
 
 ## Step 5: Write File
 
@@ -279,18 +313,18 @@ Update `session.json`:
 }
 ```
 
-Report to orchestrator: "Generation complete. {N} tests written to {filename}"
+Report to orchestrator: "Generation complete. {N} tests written to {filename}. All selectors verified via browser tools."
 
 ---
 
 ## Conventions
 
 - Use API helpers for setup (don't use UI for setup)
-- Prefer `data-testid` selectors
+- Use verified selectors (data-testid preferred, semantic fallback)
 - Add `{ timeout: 10000 }` for API-dependent renders
 - One describe block per feature
-- One test per scenario from plan
-- Use `test.beforeEach` for common setup
+- Use `test.before` and `test.beforeEach` for common setup
+- Document any selector fallbacks in comments
 
 ## References
 
