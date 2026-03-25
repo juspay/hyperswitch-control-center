@@ -288,6 +288,7 @@ module TableRow = {
       }}
     </>
   }
+  let make = React.memo(make)
 }
 
 module SortAction = {
