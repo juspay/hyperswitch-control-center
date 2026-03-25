@@ -112,7 +112,7 @@ let make = (~flowType) => {
   <HSwitchUtils.BackgroundImageWrapper
     customPageCss="flex flex-col items-center justify-center overflow-scroll ">
     <div
-      className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
+      className="h-full flex flex-col items-center justify-between text-grey-0 w-full mobile:w-30-rem">
       <div className="flex flex-col items-center justify-center gap-6 flex-1 mt-4 w-30-rem">
         <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
           <div className="px-7 py-6">
@@ -126,7 +126,14 @@ let make = (~flowType) => {
               key="auth"
               initialValues
               validate={values =>
-                TwoFaUtils.validateTotpForm(values, ["create_password", "comfirm_password"])}
+                TwoFaUtils.validateTotpForm(
+                  values,
+                  ["create_password", "confirm_password"],
+                  Some({
+                    key1: "create_password",
+                    key2: "confirm_password",
+                  }),
+                )}
               onSubmit>
               <div className="flex flex-col gap-6">
                 <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
