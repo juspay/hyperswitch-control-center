@@ -1,0 +1,138 @@
+name: PR AI Summary
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-summary:
+    runs-on: self-hosted
+
+    env:
+      GH_REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      REPO_DIR: /home/phoenix/repos/hyperswitch-control-center
+      SUMMARY_TAG: "<!-- ai-pr-summary -->"
+
+    steps:
+      - name: Checkout repo metadata context
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare PR context
+        id: pr_context
+        run: |
+          set -e
+
+          mkdir -p /tmp/pr-summary
+
+          echo "${{ github.event.pull_request.title }}" > /tmp/pr-summary/title.txt
+
+          cat <<'EOF' > /tmp/pr-summary/body.txt
+          ${{ github.event.pull_request.body }}
+          EOF
+
+          gh pr diff "$PR_NUMBER" --repo "$GH_REPO" > /tmp/pr-summary/diff.txt
+          gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json files --jq '.files[].path' > /tmp/pr-summary/files.txt
+
+          echo "title_file=/tmp/pr-summary/title.txt" >> "$GITHUB_OUTPUT"
+          echo "body_file=/tmp/pr-summary/body.txt" >> "$GITHUB_OUTPUT"
+          echo "diff_file=/tmp/pr-summary/diff.txt" >> "$GITHUB_OUTPUT"
+          echo "files_file=/tmp/pr-summary/files.txt" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Build OpenCode prompt
+        run: |
+          set -e
+
+          TITLE=$(cat "${{ steps.pr_context.outputs.title_file }}")
+          BODY=$(cat "${{ steps.pr_context.outputs.body_file }}")
+
+          cat <<EOF > /tmp/pr-summary/prompt.txt
+          You are generating a reviewer briefing for a pull request.
+
+          Repository: $GH_REPO
+          PR Number: #$PR_NUMBER
+          PR Title: $TITLE
+
+          PR Description:
+          $BODY
+
+          Changed Files:
+          $(cat "${{ steps.pr_context.outputs.files_file }}")
+
+          Instructions:
+          Write a concise but useful PR summary comment for reviewers.
+
+          Your output must include these sections only:
+
+          ## PR Summary
+          Briefly describe what this PR changes in plain English.
+
+          ## Key Changes
+          Bullet points of the main code or behavior changes.
+
+          ## Potential Impact Areas
+          Bullet points describing modules, systems, or flows that may be affected.
+
+          ## Things Reviewers May Want to Validate
+          Bullet points for likely risk areas, regressions, integration concerns, auth concerns, contract concerns, UI state concerns, pagination/performance concerns, or test gaps.
+
+          ## Suggested Review Lenses
+          Provide short reviewer guidance under:
+          - Frontend
+          - Backend/API
+          - Contract/Auth
+          - QA/Product
+
+          Rules:
+          - Be precise and grounded in the diff.
+          - Do not comment on formatting or naming.
+          - Do not invent bugs without evidence.
+          - Phrase risk as "may need validation", "reviewers may want to check", or similar.
+          - Keep the tone practical and reviewer-friendly.
+          - Output markdown only.
+          - Do not include any text before the markdown sections.
+
+          Pull Request Diff:
+          $(cat "${{ steps.pr_context.outputs.diff_file }}")
+          EOF
+
+      - name: Run OpenCode summary generation
+        run: |
+          set -e
+
+          cd "$REPO_DIR"
+
+          opencode run \
+            --dir "$REPO_DIR" \
+            "$(cat /tmp/pr-summary/prompt.txt)" > /tmp/pr-summary/output.txt
+
+          {
+            echo "${SUMMARY_TAG}"
+            cat /tmp/pr-summary/output.txt
+          } > /tmp/pr-summary/final_comment.txt
+
+      - name: Create or update PR summary comment
+        run: |
+          set -e
+
+          EXISTING_COMMENT_ID=$(gh api \
+            repos/$GH_REPO/issues/$PR_NUMBER/comments \
+            --jq ".[] | select(.body | contains(\"$SUMMARY_TAG\")) | .id" \
+            | head -n 1)
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            gh api \
+              --method PATCH \
+              repos/$GH_REPO/issues/comments/$EXISTING_COMMENT_ID \
+              -f body="$(cat /tmp/pr-summary/final_comment.txt)"
+          else
+            gh pr comment "$PR_NUMBER" \
+              --repo "$GH_REPO" \
+              --body-file /tmp/pr-summary/final_comment.txt
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
