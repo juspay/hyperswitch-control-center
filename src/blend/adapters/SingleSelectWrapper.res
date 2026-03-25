@@ -18,6 +18,7 @@ let makeItems = (
     let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
     let items: array<MultiSelectBindings.selectMenuItemType> = groupOptions->Array.map(opt => {
       let slot1 = MultiSelectWrapper.getSlotElementFromIcon(opt.icon)
+      let slot2 = MultiSelectWrapper.getSlot2FromIcon(opt.icon)
       let isSelected = opt.value === selectedValue
       let alwaysSelected = deselectDisable && isSelected
       {
@@ -25,6 +26,7 @@ let makeItems = (
         value: opt.value,
         subLabel: ?opt.labelDescription,
         ?slot1,
+        ?slot2,
         disabled: ?opt.isDisabled,
         alwaysSelected: ?(alwaysSelected ? Some(true) : None),
         tooltip: ?opt.description,

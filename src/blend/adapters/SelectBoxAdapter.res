@@ -133,9 +133,13 @@ module BaseDropdown = {
       | None => fixedDropDownDirection->Option.map(getSideFromDirection)
       }
       let slot = MultiSelectWrapper.getSlotElementFromIcon(defaultLeftIcon)
+      // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
+      // Custom React components (e.g. OMPViewBaseComp) don't forward injected props,
+      // causing the dropdown to never open.
+      let wrapTrigger = el => <div> el </div>
       let customTrigger = switch baseComponent {
-      | Some(el) => Some(el)
-      | None => customButton->Option.map(el => el)
+      | Some(el) => Some(wrapTrigger(el))
+      | None => customButton->Option.map(wrapTrigger)
       }
       let selectedValues = input.value->LogicUtils.getStrArrayFromJson
       let selectedValue = input.value->LogicUtils.getStringFromJson("")
@@ -408,10 +412,12 @@ let make = (
     // slot element from leftIcon
     let slot = MultiSelectWrapper.getSlotElementFromIcon(leftIcon)
 
-    // customTrigger: baseComponent takes priority, then customButton
+    // Wrap in a plain <div> so Radix asChild can inject onClick onto a DOM element.
+    // Custom React components don't forward injected props, causing dropdown to never open.
+    let wrapTrigger = el => <div> el </div>
     let customTrigger = switch baseComponent {
-    | Some(el) => Some(el)
-    | None => customButton
+    | Some(el) => Some(wrapTrigger(el))
+    | None => customButton->Option.map(wrapTrigger)
     }
 
     let selectedValues = input.value->LogicUtils.getStrArrayFromJson

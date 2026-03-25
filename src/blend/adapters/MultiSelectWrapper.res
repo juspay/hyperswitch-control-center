@@ -1,8 +1,14 @@
 let getSlotElementFromIcon = (icon: option<Button.iconType>) =>
   switch icon {
-  | Some(CustomIcon(el)) | Some(CustomRightIcon(el)) => Some(el)
+  | Some(CustomIcon(el)) => Some(el)
   | Some(FontAwesome(name)) => Some(<Icon name size=20 />)
   | Some(Euler(name)) => Some(<Icon name size=20 />)
+  | _ => None
+  }
+
+let getSlot2FromIcon = (icon: option<Button.iconType>) =>
+  switch icon {
+  | Some(CustomRightIcon(el)) => Some(el)
   | _ => None
   }
 
@@ -26,6 +32,7 @@ let makeItems = (
     let groupOptions = groups->Dict.get(groupKey)->Option.getOr([])
     let items: array<MultiSelectBindings.selectMenuItemType> = groupOptions->Array.map(opt => {
       let slot1 = getSlotElementFromIcon(opt.icon)
+      let slot2 = getSlot2FromIcon(opt.icon)
       let isChecked = selectedValues->Array.includes(opt.value)
       let alwaysSelected = deselectDisable && isChecked
       {
@@ -34,6 +41,7 @@ let makeItems = (
         checked: isChecked,
         subLabel: ?opt.labelDescription,
         ?slot1,
+        ?slot2,
         disabled: ?opt.isDisabled,
         alwaysSelected: ?(alwaysSelected ? Some(true) : None),
         tooltip: ?opt.description,
@@ -122,7 +130,7 @@ let make = (
     selectedValues
     onChange=handleChange
     items
-    label=?{label->LogicUtils.isEmptyString ? None : Some(label)}
+    label
     disabled=isDisabled
     helpIconHintText=?{helpIconHintText->LogicUtils.isEmptyString ? None : Some(helpIconHintText)}
     required

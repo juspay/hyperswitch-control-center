@@ -214,16 +214,15 @@ module OMPViewBaseComp = {
   @react.component
   let make = (~displayName, ~arrow, ~disabled, ~customLabel="View data for:") => {
     let arrowClass = arrow
-      ? "rotate-180 transition duration-[250ms] opacity-70"
-      : "rotate-0 transition duration-[250ms] opacity-70"
+      ? "rotate-180 transition duration-[250ms]"
+      : "rotate-0 transition duration-[250ms]"
 
     let containerClass = disabled
-      ? "p-0.5 !bg-nd_gray-50 !text-nd_gray-400 cursor-not-allowed border-nd_br_gray-200"
-      : "cursor-pointer p-0.5 border-nd_br_gray-400"
+      ? "!bg-nd_gray-50 cursor-not-allowed border-nd_br_gray-200"
+      : "cursor-pointer border-nd_br_gray-400"
 
     let textClass = disabled ? "text-nd_gray-400" : "text-nd_gray-600"
-
-    let displayNameClass = disabled ? "text-nowrap text-nd_gray-400" : "text-nowrap text-primary"
+    let displayNameClass = disabled ? "text-nd_gray-400" : "text-primary"
 
     let truncatedDisplayName = if displayName->String.length > 15 {
       <HelperComponents.EllipsisText
@@ -233,16 +232,12 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className={`flex items-center border rounded-lg text-sm font-medium ${containerClass}`}>
-      <div className="flex flex-col items-start">
-        <div className="text-left flex items-center gap-1 p-2">
-          <Icon name="settings-new" size=18 className={textClass} />
-          <p className={`sm:block hidden fs-10 ${textClass} overflow-scroll text-nowrap`}>
-            {customLabel->React.string}
-          </p>
-          <span className={displayNameClass}> {truncatedDisplayName} </span>
-          <Icon className={`${arrowClass} ml-1`} name="angle-up" size=15 />
-        </div>
+    <div className={`flex items-center border rounded-lg ${containerClass}`}>
+      <div className={`flex items-center gap-2 p-2 ${body.md.medium}`}>
+        <Icon name="settings-new" size=18 className={textClass} />
+        <span className={`sm:block hidden ${textClass}`}> {customLabel->React.string} </span>
+        <span className={`text-nowrap ${displayNameClass}`}> {truncatedDisplayName} </span>
+        <Icon name="nd-angle-down" size=12 className={`${arrowClass} ${textClass}`} />
       </div>
     </div>
   }
@@ -282,7 +277,7 @@ module OMPViewsComp = {
     let dropdownContainerStyle = "rounded-lg border md:w-full md:shadow-md"
 
     <div className="flex h-fit rounded-lg hover:bg-opacity-80">
-      <SelectBox.BaseDropdown
+      <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText=""
         input
