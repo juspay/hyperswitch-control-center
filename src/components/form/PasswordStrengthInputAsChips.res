@@ -117,7 +117,7 @@ let make = (
   let passwordChips = [MinEightChars, Lowercase, Number, SpecialChar, Uppercase]
 
   <>
-    <TextInput
+    <TextInputAdapter
       input=newInput
       placeholder
       type_="password"

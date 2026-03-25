@@ -113,7 +113,7 @@ let make = (
     None
   }, [input.value])
 
-  <TextInput
+  <TextInputAdapter
     input=modifiedInput
     customStyle
     placeholder

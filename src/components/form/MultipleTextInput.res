@@ -147,7 +147,7 @@ let make = (
       }
     })
     ->React.array}
-    <TextInput
+    <TextInputAdapter
       input=input1
       focusOnKeyPress={keyDownCondition}
       placeholder

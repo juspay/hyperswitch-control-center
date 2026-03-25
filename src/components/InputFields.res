@@ -364,7 +364,7 @@ let textInput = (
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <TextInput
+  <TextInputAdapter
     input
     placeholder
     description
