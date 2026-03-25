@@ -25,7 +25,7 @@ module ShowOrderDetails = {
               value={getCell(data, colType)}
               customMoneyStyle="!font-normal !text-sm"
               labelMargin="!py-0 mt-2"
-              overiddingHeadingStyles=" flex text-nd_gray-400 text-sm font-medium"
+              overridingHeadingStyles=" flex text-nd_gray-400 text-sm font-medium"
               isHorizontal
             />
           </div>

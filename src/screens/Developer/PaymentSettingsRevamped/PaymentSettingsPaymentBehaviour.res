@@ -297,12 +297,13 @@ let make = () => {
   )
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
 
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
-
+      mixpanelEvent(~eventName="payment_settings_payment_behaviour")
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
