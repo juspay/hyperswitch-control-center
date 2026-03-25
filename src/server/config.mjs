@@ -168,6 +168,7 @@ const configHandler = async (
     res.writeHead(200, {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "max-age=300, must-revalidate",
     });
     res.end(JSON.stringify(merchantConfig));
   } catch (error) {
@@ -211,6 +212,7 @@ const merchantConfigHandler = async (
     res.writeHead(200, {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "max-age=300, must-revalidate",
     });
     res.end(JSON.stringify(data));
   } catch (error) {

@@ -36,6 +36,7 @@ const themeConfigHandler = async (
     res.writeHead(200, {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "max-age=300, must-revalidate",
     });
     res.end(config);
   } catch (error) {
