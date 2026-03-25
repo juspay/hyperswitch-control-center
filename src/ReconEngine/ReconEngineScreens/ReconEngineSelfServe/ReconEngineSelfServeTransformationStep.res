@@ -309,15 +309,28 @@ let make = (
         ->React.array}
       </div>
     </RenderIf>
+    // Info box
+    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 flex gap-3">
+      <span className="text-lg flex-shrink-0"> {`\u{1F4CB}`->React.string} </span>
+      <div className="text-xs text-purple-800 leading-relaxed">
+        <p className="font-semibold mb-1"> {"What is a transformation?"->React.string} </p>
+        <p className="text-purple-700">
+          {"A transformation tells the system how to read your CSV files. You map each CSV column header to a system field. For example, if your CSV has a column called \"Settle Amount\", you map it to the system's \"amount\" field."->React.string}
+        </p>
+      </div>
+    </div>
     // Add transformation form
     <RenderIf condition={!allConfigured}>
-      <div className="border border-gray-200 rounded-lg p-5 bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">
-          {"Define Column Mapping"->React.string}
-        </h3>
-        <div className="flex flex-col gap-5">
-          // Ingestion + Name
-          <div className="grid grid-cols-2 gap-4">
+      <div className="border border-gray-200 rounded-lg overflow-hidden">
+        // Header section
+        <div className="p-5 bg-white">
+          <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[10px] font-bold">
+              {"1"->React.string}
+            </span>
+            {"Basic Setup"->React.string}
+          </h3>
+          <div className="grid grid-cols-2 gap-4 ml-7">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {"Ingestion Source"->React.string}
@@ -349,15 +362,19 @@ let make = (
               />
             </div>
           </div>
-          // Required field mappings section
-          <div className="border-t border-gray-200 pt-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              {"Required Field Mappings"->React.string}
-              <span className="text-xs font-normal text-gray-400">
-                {"(Enter the CSV column name for each)"->React.string}
-              </span>
-            </h4>
-            <div className="grid grid-cols-2 gap-4">
+        </div>
+        // Required field mappings section
+        <div className="p-5 bg-white border-t border-gray-100">
+          <h4 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[10px] font-bold">
+              {"2"->React.string}
+            </span>
+            {"Required Field Mappings"->React.string}
+          </h4>
+          <p className="text-xs text-gray-500 mb-4 ml-7">
+            {"Enter the exact CSV column header name for each system field. These are the core fields every entry needs."->React.string}
+          </p>
+            <div className="grid grid-cols-2 gap-4 ml-7">
               // Currency
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -525,9 +542,12 @@ let make = (
             </div>
           </div>
           // Metadata Fields section
-          <div className="border-t border-gray-200 pt-4">
+          <div className="p-5 bg-white border-t border-gray-100">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-700">
+              <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[10px] font-bold">
+                  {"3"->React.string}
+                </span>
                 {"Additional Metadata Fields"->React.string}
               </h4>
               <button
@@ -538,8 +558,8 @@ let make = (
                 {"Add Field"->React.string}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mb-3">
-              {"Map additional CSV columns to metadata fields. These will be available for matching in recon rules."->React.string}
+            <p className="text-xs text-gray-500 mb-3 ml-7">
+              {"Map additional CSV columns to metadata fields. These become available as matching fields in recon rules."->React.string}
             </p>
             <div className="flex flex-col gap-2">
               {metadataFields
@@ -562,11 +582,17 @@ let make = (
             </RenderIf>
           </div>
           // Unique Constraint section
-          <div className="border-t border-gray-200 pt-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">
-              {"Unique Constraint"->React.string}
+          <div className="p-5 bg-white border-t border-gray-100">
+            <h4 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[10px] font-bold">
+                {"4"->React.string}
+              </span>
+              {"Unique Constraint & Processing"->React.string}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <p className="text-xs text-gray-500 mb-3 ml-7">
+              {"Which field should be unique per entry? Duplicates based on this field will be flagged."->React.string}
+            </p>
+            <div className="grid grid-cols-2 gap-4 ml-7">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
                   {"Unique Field"->React.string}
