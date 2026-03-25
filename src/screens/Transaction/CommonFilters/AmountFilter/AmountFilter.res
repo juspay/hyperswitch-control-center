@@ -152,7 +152,7 @@ let make = (~options) => {
   let (displayCustomCss, buttonText) = displaySelectedRange()
 
   <>
-    <FilterSelectBox.BaseDropdown
+    <FilterSelectBoxAdapter
       key={buttonText}
       allowMultiSelect=false
       buttonText={buttonText}
