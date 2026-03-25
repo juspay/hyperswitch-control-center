@@ -1,3 +1,18 @@
+// @deprecated Use ChartContextOptimized and ChartAtoms instead.
+//
+// This monolithic context causes unnecessary re-renders because ALL consumers
+// re-render whenever ANY chart state changes (top chart, bottom chart, legend, granularity).
+//
+// Migration guide:
+//   Provider: Replace <ChartContext ...> with <ChartContextOptimized ...>
+//   Data access: Replace React.useContext(ChartContext.chartContext).topChartData
+//                with UseChartAtoms.useTopChartData()
+//   Actions: Replace React.useContext(ChartContext.chartContext).setTopChartVisible
+//            with UseChartAtoms.useChartActions().setTopChartVisible
+//
+// See: ChartContextOptimized.res, ChartAtoms.res, UseChartAtoms.res
+// Issue: https://github.com/juspay/hyperswitch-control-center/issues/4559
+
 open AnalyticsTypesUtils
 open Promise
 open LogicUtils
