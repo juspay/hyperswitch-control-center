@@ -2175,7 +2175,7 @@ module BaseDropdown = {
         | Some(jsonArr) =>
           jsonArr
           ->LogicUtils.getStrArrayFromJsonArray
-          ->Array.mapWithIndex((str, i) => {
+          ->Array.mapWithIndex((str, _i) => {
             let actualValueIndex = Array.findIndex(options->Array.map(x => x.value), item =>
               item == str
             )
@@ -2185,7 +2185,7 @@ module BaseDropdown = {
               | None => ("", NoIcon)
               }
 
-              <div key={Int.toString(i)} className="m-2">
+              <div key={str} className="m-2">
                 <Button
                   buttonFor=buttonText
                   buttonSize=Small
@@ -2254,12 +2254,12 @@ module InfraSelectBox = {
 
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-y-4 gap-x-2.5`}>
       {transformedOptions
-      ->Array.mapWithIndex((option, i) => {
+      ->Array.mapWithIndex((option, _i) => {
         let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? selectedClass : nonSelectedClass
 
         <div
-          key={Int.toString(i)}
+          key={option.value}
           onClick={_ => onItemClick(option.value, option.isDisabled)}
           className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
           {if isSelected && showTickMark {
@@ -2320,14 +2320,14 @@ module ChipFilterSelectBox = {
 
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-4 `}>
       {transformedOptions
-      ->Array.mapWithIndex((option, i) => {
+      ->Array.mapWithIndex((option, _i) => {
         let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
         let chipsCss =
           customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
         <div
-          key={Int.toString(i)}
+          key={option.value}
           onClick={_ => onItemClick(option.value, option.isDisabled)}
           className={`px-4 py-1 mr-1 mt-0.5 border rounded-full flex flex-row gap-2 items-center cursor-pointer ${chipsCss}`}>
           {if isTickRequired {
