@@ -141,7 +141,22 @@ let serverHandler: Http.serverHandler = (request, response) => {
       // Fall back to regular serve-handler if Brotli/Gzip not available or not supported
       open ServerHandler
 
-      let cache = if request.url.toString()->String.endsWith(".svg") {
+      let urlStr = request.url.toString()
+      let cache = if (
+        urlStr->String.endsWith(".woff2") ||
+        urlStr->String.endsWith(".woff") ||
+        urlStr->String.endsWith(".ttf")
+      ) {
+        "max-age=31536000, immutable"
+      } else if (
+        urlStr->String.endsWith(".png") ||
+        urlStr->String.endsWith(".jpg") ||
+        urlStr->String.endsWith(".jpeg") ||
+        urlStr->String.endsWith(".gif") ||
+        urlStr->String.endsWith(".webp")
+      ) {
+        "max-age=31536000, immutable"
+      } else if urlStr->String.endsWith(".svg") {
         "max-age=3600, must-revalidate"
       } else {
         "no-cache"

@@ -59,6 +59,25 @@ export function serveCompressed(
 }
 
 /**
+ * Determine Cache-Control header value based on file extension
+ */
+function getCacheControl(ext) {
+  const fontExts = [".woff2", ".woff", ".ttf"];
+  const imageExts = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
+
+  if (fontExts.includes(ext)) {
+    return "max-age=31536000, immutable";
+  }
+  if (imageExts.includes(ext)) {
+    return "max-age=31536000, immutable";
+  }
+  if (ext === ".svg") {
+    return "max-age=3600, must-revalidate";
+  }
+  return "no-cache";
+}
+
+/**
  * Helper function to serve a compressed file with appropriate headers
  */
 function serveCompressedFile(
@@ -93,8 +112,7 @@ function serveCompressedFile(
       ETag: Etag,
       "Content-Length": stats.size,
       Vary: "Accept-Encoding",
-      "Cache-Control":
-        ext === ".svg" ? "max-age=3600, must-revalidate" : "no-cache",
+      "Cache-Control": getCacheControl(ext),
     });
     res.end(content);
     return true;
