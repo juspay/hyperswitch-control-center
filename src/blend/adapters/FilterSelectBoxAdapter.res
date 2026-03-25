@@ -1,4 +1,3 @@
-// Re-export legacy types so call sites need no type annotation changes
 type dropdownOption = FilterSelectBox.dropdownOption
 type dropdownOptionWithoutOptional = FilterSelectBox.dropdownOptionWithoutOptional
 type allSelectType = FilterSelectBox.allSelectType
@@ -7,7 +6,6 @@ type direction = FilterSelectBox.direction
 let makeOptions = FilterSelectBox.makeOptions
 let makeNonOptional = FilterSelectBox.makeNonOptional
 
-// Direction helpers: FilterSelectBox's 6-value direction → Blend's alignment + side
 let getAlignmentFromDirection = (direction: FilterSelectBox.direction) =>
   switch direction {
   | BottomLeft | TopLeft => MultiSelectBindings.End
@@ -21,7 +19,6 @@ let getSideFromDirection = (direction: FilterSelectBox.direction) =>
   | BottomLeft | BottomMiddle | BottomRight => MultiSelectBindings.Bottom
   }
 
-// Convert FilterSelectBox.dropdownOption to Blend multi-select items
 let makeFilterItems = (
   options: array<FilterSelectBox.dropdownOption>,
   ~selectedValues: array<string>,
@@ -57,7 +54,6 @@ let makeFilterItems = (
   })
 }
 
-// Convert FilterSelectBox.dropdownOption to Blend single-select items
 let makeFilterItemsSingle = (
   options: array<FilterSelectBox.dropdownOption>,
   ~selectedValue: string,
@@ -96,7 +92,7 @@ let makeFilterItemsSingle = (
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~buttonText="Normal Selection",
-  ~buttonSize: Button.buttonSize=?,
+  ~buttonSize: option<Button.buttonSize>=?,
   ~allowMultiSelect=false,
   ~isDropDown=true,
   ~hideMultiSelectButtons=false,
@@ -116,55 +112,55 @@ let make = (
   ~customStyle="",
   ~showSelectionAsChips=true,
   ~showToggle=false,
-  ~maxHeight: string=?,
-  ~searchable: bool=?,
+  ~maxHeight: option<string>=?,
+  ~searchable: option<bool>=?,
   ~fill="#0EB025",
-  ~optionRigthElement: React.element=?,
+  ~optionRigthElement: option<React.element>=?,
   ~hideBorder=false,
   ~allSelectType: FilterSelectBox.allSelectType=FilterSelectBox.Icon,
   ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
-  ~searchInputPlaceHolder: string=?,
+  ~searchInputPlaceHolder: option<string>=?,
   ~showSearchIcon=true,
-  ~customLabelStyle: string=?,
+  ~customLabelStyle: option<string>=?,
   ~customMargin="",
   ~showToolTip=false,
   ~showNameAsToolTip=false,
-  ~showBorder: bool=?,
+  ~showBorder: option<bool>=?,
   ~showCustomBtnAtEnd=false,
   ~dropDownCustomBtnClick=false,
   ~addDynamicValue=false,
   ~showMatchingRecordsText=true,
   ~customButton=React.null,
   ~descriptionOnHover=false,
-  ~fixedDropDownDirection: FilterSelectBox.direction=?,
-  ~dropdownCustomWidth: string=?,
-  ~baseComponent: React.element=?,
-  ~baseComponentMethod: bool => React.element=?,
-  ~customMarginStyle: string=?,
-  ~buttonTextWeight: string=?,
-  ~customButtonLeftIcon: Button.iconType=?,
-  ~customTextPaddingClass: string=?,
-  ~customButtonPaddingClass: string=?,
-  ~customButtonIconMargin: string=?,
-  ~setExtSearchString: ('a => string) => unit=?,
+  ~fixedDropDownDirection: option<FilterSelectBox.direction>=?,
+  ~dropdownCustomWidth: option<string>=?,
+  ~baseComponent: option<React.element>=?,
+  ~baseComponentMethod: option<bool => React.element>=?,
+  ~customMarginStyle: option<string>=?,
+  ~buttonTextWeight: option<string>=?,
+  ~customButtonLeftIcon: option<Button.iconType>=?,
+  ~customTextPaddingClass: option<string>=?,
+  ~customButtonPaddingClass: option<string>=?,
+  ~customButtonIconMargin: option<string>=?,
+  ~setExtSearchString: option<('a => string) => unit>=?,
   ~buttonStyleOnDropDownOpened="",
   ~listFlexDirection="",
   ~baseComponentCustomStyle="",
   ~ellipsisOnly=false,
   ~customSelectStyle="",
   ~isPhoneDropdown=false,
-  ~hasApplyButton: bool=?,
-  ~onApply: JsxEventU.Mouse.t => unit=?,
-  ~showAllSelectedOptions: bool=?,
-  ~buttonClickFn: string => unit=?,
+  ~hasApplyButton: option<bool>=?,
+  ~onApply: option<JsxEventU.Mouse.t => unit>=?,
+  ~showAllSelectedOptions: option<bool>=?,
+  ~buttonClickFn: option<string => unit>=?,
   ~showDescriptionAsTool=true,
   ~optionClass="",
   ~selectClass="",
   ~toggleProps="",
   ~showSelectCountButton=false,
-  ~leftIcon: Button.iconType=?,
-  ~customBackColor: string=?,
-  ~customSelectAllStyle: string=?,
+  ~leftIcon: option<Button.iconType>=?,
+  ~customBackColor: option<string>=?,
+  ~customSelectAllStyle: option<string>=?,
   ~checkboxDimension="",
   ~showToolTipOptions=false,
   ~textEllipsisForDropDownOptions=false,
@@ -175,48 +171,73 @@ let make = (
   (),
 ) => {
   let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
-  // baseComponentMethod (render prop) is incompatible with Blend; always use legacy when present
   let useBlend = isBlendEnabled && isDropDown && baseComponentMethod->Option.isNone
+
+  let authContext = React.useContext(FormAuthContext.formAuthContext)
+  let form = ReactFinalForm.useForm()
+  let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+
+  let (pendingValues, setPendingValues) = React.useState(() =>
+    input.value->LogicUtils.getStrArrayFromJson
+  )
+
+  React.useEffect1(() => {
+    setPendingValues(_ => input.value->LogicUtils.getStrArrayFromJson)
+    None
+  }, [input.value])
 
   if useBlend {
     let alignment = fixedDropDownDirection->Option.map(getAlignmentFromDirection)
     let side = fixedDropDownDirection->Option.map(getSideFromDirection)
 
-    // Wrap baseComponent in a plain <div> so Radix asChild can inject onClick
     let wrapTrigger = el => <div> el </div>
     let customTrigger = baseComponent->Option.map(wrapTrigger)
 
-    // Map hasApplyButton → Blend primaryAction
-    let primaryAction: option<MultiSelectBindings.actionButtonType> = if (
-      hasApplyButton->Option.getOr(false)
-    ) {
-      Some({
-        text: "Apply",
-        onClick: values => {
-          let json = values->Array.map(JSON.Encode.string)->JSON.Encode.array
-          input.onChange(json->Identity.jsonToFormReactEvent)
-        },
-      })
-    } else {
-      None
+    let isDisabled = disableSelect || authContext === CommonAuthTypes.NoAccess
+
+    let onClearAllClick = () => {
+      [input.name]->removeKeys
+      setfilterKeys(_ => filterKeys->Array.filter(item => item !== input.name))
     }
 
     if allowMultiSelect {
-      let selectedValues = input.value->LogicUtils.getStrArrayFromJson
-      let blendItems = makeFilterItems(options, ~selectedValues)
-      <MultiSelectWrapper
+      let handleChange = (value: string) => {
+        setPendingValues(prev =>
+          if prev->Array.includes(value) {
+            prev->Array.filter(v => v !== value)
+          } else {
+            Array.concat(prev, [value])
+          }
+        )
+      }
+
+      let primaryAction: MultiSelectBindings.actionButtonType = {
+        text: "Apply",
+        onClick: _blendValues => {
+          let json = pendingValues->Array.map(JSON.Encode.string)->JSON.Encode.array
+          input.onChange(json->Identity.jsonToFormReactEvent)
+          form.submit()->ignore
+        },
+      }
+
+      let blendItems = makeFilterItems(options, ~selectedValues=pendingValues)
+      <MultiSelectBindings
+        selectedValues=pendingValues
+        onChange=handleChange
         items=blendItems
         placeholder=buttonText
-        input
-        disabled=disableSelect
+        disabled=isDisabled
         fullWidth=fullLength
-        showSelectAll
+        enableSelectAll=showSelectAll
         ?customTrigger
-        ?primaryAction
-        ?alignment
-        ?side
+        primaryAction
+        showActionButtons=true
+        selectionTagType=MultiSelectBindings.Count
+        onClearAllClick
         minMenuWidth=300
         maxMenuWidth=300
+        ?alignment
+        ?side
       />
     } else {
       let selectedValue = input.value->LogicUtils.getStringFromJson("")
@@ -228,7 +249,7 @@ let make = (
         placeholder=buttonText
         input
         enableSearch=computedEnableSearch
-        disabled=disableSelect
+        disabled=isDisabled
         fullWidth=fullLength
         allowDeselect={!deselectDisable}
         ?customTrigger
