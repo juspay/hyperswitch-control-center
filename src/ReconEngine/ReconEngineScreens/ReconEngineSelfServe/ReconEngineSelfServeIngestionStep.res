@@ -1,5 +1,4 @@
 open ReconEngineSelfServeTypes
-open ReconEngineSelfServeUtils
 
 @react.component
 let make = (~state: selfServeState, ~merchantId, ~profileId, ~onIngestionCreated, ~onNext, ~onBack) => {

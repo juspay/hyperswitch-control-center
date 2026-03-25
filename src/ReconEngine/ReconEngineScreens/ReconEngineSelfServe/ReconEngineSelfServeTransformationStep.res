@@ -626,19 +626,20 @@ let make = (
             </div>
           </div>
           // Submit
-          <button
-            type_="button"
-            disabled={transformationName->String.trim->String.length === 0 ||
-              currencyColumn->String.length === 0 ||
-              amountColumn->String.length === 0 ||
-              effectiveAtColumn->String.length === 0 ||
-              orderIdColumn->String.length === 0 ||
-              isSubmitting}
-            onClick={_ => handleSubmit()->ignore}
-            className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
-            {(isSubmitting ? "Creating Transformation..." : "Save Transformation")->React.string}
-          </button>
-        </div>
+          <div className="p-5 border-t border-gray-100">
+            <button
+              type_="button"
+              disabled={transformationName->String.trim->String.length === 0 ||
+                currencyColumn->String.length === 0 ||
+                amountColumn->String.length === 0 ||
+                effectiveAtColumn->String.length === 0 ||
+                orderIdColumn->String.length === 0 ||
+                isSubmitting}
+              onClick={_ => handleSubmit()->ignore}
+              className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+              {(isSubmitting ? "Creating Transformation..." : "Save Transformation")->React.string}
+            </button>
+          </div>
       </div>
     </RenderIf>
     <RenderIf condition={allConfigured}>
