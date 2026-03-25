@@ -2,8 +2,30 @@ const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
 const serverConfig = require("./webpack.server");
 const { execSync } = require("child_process");
+
+const createCompressionPlugins = (test) => [
+  new CompressionPlugin({
+    filename: "[path][base].br",
+    algorithm: "brotliCompress",
+    test,
+    compressionOptions: { level: 11 },
+    threshold: 10240,
+    minRatio: 0.8,
+    deleteOriginalAssets: false,
+  }),
+  new CompressionPlugin({
+    filename: "[path][base].gz",
+    algorithm: "gzip",
+    test,
+    compressionOptions: { level: 9 },
+    threshold: 10240,
+    minRatio: 0.8,
+    deleteOriginalAssets: false,
+  }),
+];
 
 process.env["NODE_ENV"] = "production";
 
@@ -35,6 +57,11 @@ const mergeProd = () => {
           // new CssMinimizerPlugin(),
         ],
       },
+      plugins: [
+        ...createCompressionPlugins(/\.(js|jsx|ts|tsx)$/),
+        ...createCompressionPlugins(/\.(wasm)$/),
+        ...createCompressionPlugins(/\.css$/),
+      ],
     },
   ]);
 };
