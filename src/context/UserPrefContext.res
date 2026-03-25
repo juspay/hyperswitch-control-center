@@ -53,7 +53,8 @@ let make = (~children) => {
   React.useEffect(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
-        let currentConfig = prev->Dict.get(username)->Option.getOr({})
+        let newPref = prev->Dict.copy
+        let currentConfig = newPref->Dict.get(username)->Option.getOr({})
         let updatedPrev = currentConfig
         let updatedValue = if (
           urlPathConcationation !== updatedPrev.lastVisitedTab->Option.getOr("")
@@ -62,9 +63,9 @@ let make = (~children) => {
         } else {
           updatedPrev
         }
-        prev->Dict.set(username, updatedValue)
-        UserPrefUtils.saveUserPref(prev)
-        prev
+        newPref->Dict.set(username, updatedValue)
+        UserPrefUtils.saveUserPref(newPref)
+        newPref
       })
     }
 
@@ -74,10 +75,11 @@ let make = (~children) => {
   // UPDATE THE searchParams IN LAST VISITED TAB
   React.useEffect(() => {
     setUserPref(prev => {
-      let currentConfig = prev->Dict.get(username)->Option.getOr({})
+      let newPref = prev->Dict.copy
+      let currentConfig = newPref->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
-      | {moduleVisePref} => moduleVisePref
+      | {moduleVisePref} => moduleVisePref->Dict.copy
       | _ => Dict.make()
       }
       let currentModulePerf =
@@ -114,9 +116,9 @@ let make = (~children) => {
         ...updatedPrev,
         moduleVisePref: moduleWisePref,
       }
-      prev->Dict.set(username, updatedCurrentConfig)
-      UserPrefUtils.saveUserPref(prev)
-      prev
+      newPref->Dict.set(username, updatedCurrentConfig)
+      UserPrefUtils.saveUserPref(newPref)
+      newPref
     })
 
     None
@@ -129,16 +131,17 @@ let make = (~children) => {
 
   let addConfig = (key, value) => {
     setUserPref(prev => {
-      let currentConfig = prev->Dict.get(username)->Option.getOr({})
+      let newPref = prev->Dict.copy
+      let currentConfig = newPref->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
-      | {moduleVisePref} => moduleVisePref
+      | {moduleVisePref} => moduleVisePref->Dict.copy
       | _ => Dict.make()
       }
       let currentModulePerf =
         moduleWisePref->Dict.get(urlPathConcationation)->Option.getOr(defaultUserModuleWisePref)
       let moduleConfig = switch currentModulePerf {
-      | {moduleConfig} => moduleConfig
+      | {moduleConfig} => moduleConfig->Dict.copy
       | _ => Dict.make()
       }
       moduleConfig->Dict.set(key, value)
@@ -148,9 +151,9 @@ let make = (~children) => {
         ...updatedPrev,
         moduleVisePref: moduleWisePref,
       }
-      prev->Dict.set(username, updatedCurrentConfig)
-      UserPrefUtils.saveUserPref(prev)
-      prev
+      newPref->Dict.set(username, updatedCurrentConfig)
+      UserPrefUtils.saveUserPref(newPref)
+      newPref
     })
   }
 
