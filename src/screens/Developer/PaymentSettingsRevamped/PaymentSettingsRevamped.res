@@ -67,6 +67,11 @@ let make = () => {
     renderContent: () => <PaymentSettingsDomainName />,
   }
 
+  let webhookConfigTab: Tabs.tab = {
+    title: "Webhook Configuration",
+    renderContent: () => <PaymentSettingsWebhookConfiguration />,
+  }
+
   let additionalTabs: array<Tabs.tab> = [
     {
       title: "Custom Headers",
@@ -80,6 +85,8 @@ let make = () => {
 
   let tabs = {
     let baseTabs = [paymentBehaviourTab]
+
+    baseTabs->Array.push(webhookConfigTab)
 
     if version == V1 || (version == V2 && isBusinessProfileHasThreeds) {
       baseTabs->Array.push(threeDsTab)

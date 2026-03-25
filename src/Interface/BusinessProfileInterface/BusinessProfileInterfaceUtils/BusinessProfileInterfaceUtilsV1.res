@@ -10,6 +10,9 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
   payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
   payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
+  payment_statuses_enabled: webhookDetailsDict->getOptionalArrayFromDict("payment_statuses_enabled"),
+  refund_statuses_enabled: webhookDetailsDict->getOptionalArrayFromDict("refund_statuses_enabled"),
+  payout_statuses_enabled: webhookDetailsDict->getOptionalArrayFromDict("payout_statuses_enabled"),
 }
 
 let constructAuthConnectorObject = authConnectorDict => {
@@ -20,10 +23,44 @@ let constructAuthConnectorObject = authConnectorDict => {
   three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
 }
 
+let convertOptionalArrayToOptionalJson = optArray => {
+  switch optArray {
+  | Some(arr) => Some(arr->JSON.Encode.array)
+  | None => None
+  }
+}
+
 let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest_v1 = webhookDetailsDict => {
   webhook_url: webhookDetailsDict
   ->getOptionString("webhook_url")
   ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
+  webhook_version: webhookDetailsDict
+  ->getOptionString("webhook_version")
+  ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
+  webhook_username: webhookDetailsDict
+  ->getOptionString("webhook_username")
+  ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
+  webhook_password: webhookDetailsDict
+  ->getOptionString("webhook_password")
+  ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
+  payment_created_enabled: webhookDetailsDict
+  ->getOptionBool("payment_created_enabled")
+  ->BusinessProfileInterfaceUtils.convertOptionalBoolToOptionalJson,
+  payment_succeeded_enabled: webhookDetailsDict
+  ->getOptionBool("payment_succeeded_enabled")
+  ->BusinessProfileInterfaceUtils.convertOptionalBoolToOptionalJson,
+  payment_failed_enabled: webhookDetailsDict
+  ->getOptionBool("payment_failed_enabled")
+  ->BusinessProfileInterfaceUtils.convertOptionalBoolToOptionalJson,
+  payment_statuses_enabled: webhookDetailsDict
+  ->getOptionalArrayFromDict("payment_statuses_enabled")
+  ->convertOptionalArrayToOptionalJson,
+  refund_statuses_enabled: webhookDetailsDict
+  ->getOptionalArrayFromDict("refund_statuses_enabled")
+  ->convertOptionalArrayToOptionalJson,
+  payout_statuses_enabled: webhookDetailsDict
+  ->getOptionalArrayFromDict("payout_statuses_enabled")
+  ->convertOptionalArrayToOptionalJson,
 }
 
 let mapV1WebhookDetailsToCommonType: webhookDetails_v1 => BusinessProfileInterfaceTypes.webhookDetails = webhookDetailsRecord => {
@@ -35,6 +72,9 @@ let mapV1WebhookDetailsToCommonType: webhookDetails_v1 => BusinessProfileInterfa
     payment_created_enabled: webhookDetailsRecord.payment_created_enabled,
     payment_succeeded_enabled: webhookDetailsRecord.payment_succeeded_enabled,
     payment_failed_enabled: webhookDetailsRecord.payment_failed_enabled,
+    payment_statuses_enabled: webhookDetailsRecord.payment_statuses_enabled,
+    refund_statuses_enabled: webhookDetailsRecord.refund_statuses_enabled,
+    payout_statuses_enabled: webhookDetailsRecord.payout_statuses_enabled,
   }
 }
 

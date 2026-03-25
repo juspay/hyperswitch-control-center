@@ -52,6 +52,15 @@ let parseBusinessProfileForPaymentBehaviour = (
     collect_shipping_details_from_wallet_connector,
   )
   webhookDict->setDictNull("webhook_url", webhook_details.webhook_url)
+  webhookDict->setOptionString("webhook_version", webhook_details.webhook_version)
+  webhookDict->setOptionString("webhook_username", webhook_details.webhook_username)
+  webhookDict->setOptionString("webhook_password", webhook_details.webhook_password)
+  webhookDict->setOptionBool("payment_created_enabled", webhook_details.payment_created_enabled)
+  webhookDict->setOptionBool("payment_succeeded_enabled", webhook_details.payment_succeeded_enabled)
+  webhookDict->setOptionBool("payment_failed_enabled", webhook_details.payment_failed_enabled)
+  webhookDict->setOptionArray("payment_statuses_enabled", webhook_details.payment_statuses_enabled)
+  webhookDict->setOptionArray("refund_statuses_enabled", webhook_details.refund_statuses_enabled)
+  webhookDict->setOptionArray("payout_statuses_enabled", webhook_details.payout_statuses_enabled)
   profileInfo->setOptionDict("webhook_details", Some(webhookDict))
   profileInfo->setOptionBool(
     "collect_billing_details_from_wallet_connector",

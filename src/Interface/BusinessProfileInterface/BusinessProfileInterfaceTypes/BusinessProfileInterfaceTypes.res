@@ -6,6 +6,9 @@ type webhookDetails = {
   payment_created_enabled: option<bool>,
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
+  payment_statuses_enabled: option<array<JSON.t>>,
+  refund_statuses_enabled: option<array<JSON.t>>,
+  payout_statuses_enabled: option<array<JSON.t>>,
 }
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,
