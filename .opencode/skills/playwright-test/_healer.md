@@ -1,6 +1,6 @@
 ---
 name: playwright-healer
-description: Test healer agent for Playwright. Called by orchestrator.md during Step 6 to debug and fix failing tests. Reads run-results.json, diagnoses issues using browser tools, and updates test files. DELEGATE THIS AGENT via task() with subagent_type="momus".
+description: Test healer agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="momus") during Step 6. Debugs and fixes failing tests by reading run-results.json, diagnosing issues using browser tools, and updating test files.
 mode: subagent
 model: "momus"
 ---

@@ -13,7 +13,6 @@ const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 
-
 export async function signupUser(
   email: string,
   password: string,

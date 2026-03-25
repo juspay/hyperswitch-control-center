@@ -1,6 +1,6 @@
 ---
 name: playwright-orchestrator
-description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full/plan/generate/heal), and orchestrates the appropriate workflow by delegating to sub-agents (metis for planner, hephaestus for generator, momus for healer). THIS FILE SHOULD BE EXECUTED BY THE MAIN AGENT, NOT DELEGATED.
+description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full/plan/generate/heal), and orchestrates the appropriate workflow by delegating to sub-agents (metis for planner, momus for generator, momus for healer). THIS FILE SHOULD BE EXECUTED BY THE MAIN AGENT, NOT DELEGATED.
 mode: primary
 ---
 
@@ -38,11 +38,13 @@ User Input → Step 1: Parse → Step 2: Setup → Step 6: \_healer (via task())
 
 ## Agent Delegation Reference
 
-| Agent          | File            | Called In Modes                | Purpose                          | How to Invoke                                                                                      |
-| -------------- | --------------- | ------------------------------ | -------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Test Planner   | `_planner.md`   | Full, Plan-Only, Generate-Only | Creates comprehensive test plans | `task(category="unspecified-high", load_skills=["playwright-test"], prompt="You are playwright-planner...")`   |
-| Test Generator | `_generator.md` | Full, Generate-Only            | Generates test code from plans   | `task(category="unspecified-high", load_skills=["playwright-test"], prompt="You are playwright-generator...")` |
-| Test Healer    | `_healer.md`    | Full (if fail), Heal-Only      | Fixes failing tests              | `task(category="unspecified-high", load_skills=["playwright-test"], prompt="You are playwright-healer...")`    |
+| Agent Name      | Subagent Type | Instructions File | Called In Modes                | Purpose                          |
+| --------------- | ------------- | ----------------- | ------------------------------ | -------------------------------- |
+| playwright-test | `metis`       | `_planner.md`     | Full, Plan-Only, Generate-Only | Creates comprehensive test plans |
+| playwright-test | `momus`       | `_generator.md`   | Full, Generate-Only            | Generates test code from plans   |
+| playwright-test | `momus`       | `_healer.md`      | Full (if fail), Heal-Only      | Fixes failing tests              |
+
+**How to invoke:** `task({ category: "unspecified-high", load_skills: ["playwright-test"], subagent_type: "metis|momus|momus", prompt: "You are playwright-{role}..." })`
 
 ---
 
@@ -53,15 +55,15 @@ User Input → Step 1: Parse → Step 2: Setup → Step 6: \_healer (via task())
 ### Correct Delegation Pattern:
 
 ```typescript
-// Step 3: Delegate to Planner
+// Step 3: Delegate to Planner Agent (metis)
 const plannerResult = await task({
   category: "unspecified-high",
   load_skills: ["playwright-test"],
-  subagent_type="metis",
+  subagent_type: "metis",
   run_in_background: false,
-  description: "Create test plan via playwright-planner",
+  description: "Create test plan via metis",
   prompt: `
-    You are the playwright-planner agent.
+    You are the metis agent.
 
     READ: .opencode/sessions/playwright-run/input-context.json
 
@@ -88,11 +90,11 @@ if (!plannerResult.success) {
   report error and stop;
 }
 
-// Step 4: Delegate to Generator (only if planner succeeded)
+// Step 4: Delegate to Generator Agent (momus)
 const generatorResult = await task({
   category: "unspecified-high",
   load_skills: ["playwright-test"],
-  subagent_type="hephaestus",
+  subagent_type: "momus",  // playwright-generator agent
   run_in_background: false,
   description: "Generate test code via playwright-generator",
   prompt: `
@@ -268,13 +270,13 @@ Frontend auto-starts via Playwright webServer if DOWN.
 
 **CRITICAL:** Delegate to planner agent via task(). DO NOT plan tests yourself.
 
-### 3.1 Delegate to `metis` Planner Agent
+### 3.1 Delegate to Planner Agent (metis)
 
 ```typescript
 const plannerResult = await task({
   category: "unspecified-high",
   load_skills: ["playwright-test"],
-  subagent_type="metis",
+  subagent_type: "metis", // This loads _planner.md instructions
   run_in_background: false,
   description: "Create test plan via playwright-planner agent",
   prompt: `
@@ -344,13 +346,13 @@ Check that test-plan.json exists and contains valid scenarios array.
 
 **CRITICAL:** Delegate to generator agent via task(). DO NOT generate tests yourself.
 
-### 4.1 Delegate to `hephaestus` Generator Agent
+### 4.1 Delegate to Generator Agent (momus)
 
 ```typescript
 const generatorResult = await task({
   category: "unspecified-high",
   load_skills: ["playwright-test"],
-  subagent_type="hephaestus",
+  subagent_type: "momus", // This loads _generator.md instructions
   run_in_background: false,
   description: "Generate test code via playwright-generator agent",
   prompt: `
@@ -454,13 +456,13 @@ Write run-results.json:
 - **Full mode:** Only if `run-results.json` shows failures
 - **Heal-only mode:** Always (user explicitly requested)
 
-### 6.2 Delegate to `momus` Healer Agent
+### 6.2 Delegate to Healer Agent (momus)
 
 ```typescript
 const healerResult = await task({
   category: "unspecified-high",
   load_skills: ["playwright-test"],
-  subagent_type="momus",
+  subagent_type: "momus", // This loads _healer.md instructions
   run_in_background: false,
   description: "Debug and fix failing tests via playwright-healer agent",
   prompt: `

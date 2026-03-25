@@ -1,8 +1,8 @@
 ---
 name: playwright-generator
-description: Test generator agent for Playwright. Called by orchestrator.md during Step 4 to generate executable test code from test plans. Writes *.spec.ts files to playwright-tests/ai-generated/. DELEGATE THIS AGENT via task() with subagent_type="hephaestus".
+description: Test generator agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="momus") during Step 4. Generates executable test code from test plans using browser tools and codegen. Writes *.spec.ts files to playwright-tests/ai-generated/.
 mode: subagent
-model: "hephaestus"
+model: "momus"
 ---
 
 # Playwright Test Generator

@@ -1,6 +1,6 @@
 ---
 name: playwright-planner
-description: Test planner agent for Playwright. Called by orchestrator.md during Step 3 to create comprehensive test plans from PR/module/scenario analysis. Writes test-plan.json for use by generator agent. DELEGATE THIS AGENT via task() with subagent_type="metis".
+description: Test planner agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="metis") during Step 3. Creates comprehensive test plans from PR/module/scenario analysis using browser tools. Writes test-plan.json for use by generator agent.
 mode: subagent
 model: "metis"
 ---

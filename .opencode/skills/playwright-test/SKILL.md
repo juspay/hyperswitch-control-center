@@ -1,13 +1,21 @@
 ---
 name: playwright-test
-description: Entry point for Playwright test automation. ALWAYS delegates to orchestrator.md. The orchestrator detects execution mode (full pipeline, plan-only, generate-only, or heal-only) and manages the complete workflow including setup, execution, summary, bug reports, and cleanup. Triggers on phrases like "generate playwright tests", "create playwright tests", "run playwright tests", "playwright test flow", "end-to-end test", "e2e test", "test PR", "test module", "test scenario", "plan tests", "create test plan", "analyze for testing", "generate test cases", "write test code", "create test file", "heal tests", "fix failing tests", "debug playwright", "repair tests".
+description: Entry point for Playwright test automation. ALWAYS delegates to orchestrator.md. The orchestrator (YOU) detects execution mode (full pipeline, plan-only, generate-only, or heal-only) and manages the complete workflow including setup, execution, summary, bug reports, and cleanup. Triggers on phrases like "generate playwright tests", "create playwright tests", "run playwright tests", "playwright test flow", "end-to-end test", "e2e test", "test PR", "test module", "test scenario", "plan tests", "create test plan", "analyze for testing", "generate test cases", "write test code", "create test file", "heal tests", "fix failing tests", "debug playwright", "repair tests".
 ---
 
 # Playwright Test Generation Skill
 
 **READ `orchestrator.md` and EXECUTE its instructions directly. DO NOT delegate orchestrator.md.**
 
-The orchestrator.md contains the full pipeline logic that YOU (the main agent) should execute. The orchestrator coordinates the workflow and delegates to sub-agents (\_planner, \_generator, \_healer) via task() calls.
+The orchestrator.md contains the full pipeline logic that YOU (the main agent) should execute. YOU are the orchestrator - you coordinate the workflow and delegate to sub-agents via task() calls.
+
+**Execution Flow:**
+
+1. **You (main agent)** read and execute orchestrator.md instructions
+2. **You** delegate planning to metis agent via task()
+3. **You** delegate generation to hep agent via task()
+4. **You** delegate healing to momus agent via task() when needed
+5. **You** produce the final summary
 
 > **ENTRY POINT - Always delegates to orchestrator.md**
 
@@ -22,7 +30,7 @@ You execute orchestrator.md instructions:
     - Step 1: Parse input
     - Step 2: Environment setup
     - Step 3: Delegate to _planner.md via task(subagent_type="metis", ...)
-    - Step 4: Delegate to _generator.md via task(subagent_type="hephaestus", ...)
+    - Step 4: Delegate to _generator.md via task(subagent_type="momus", ...)
     - Step 5: Run tests via CLI
     - Step 6: Delegate to _healer.md via task(subagent_type="momus", ...) if needed
     - Step 7: Generate summary
@@ -30,57 +38,59 @@ You execute orchestrator.md instructions:
 Summary & Options
 ```
 
-### Sub-Agent Delegation Pattern
+### Sub-Agent Delegation Pattern (Executed by Main Agent)
+
+The main agent (you) delegates to sub-agents using the following pattern:
 
 ```typescript
-// Delegate planning to metis (test planner agent) (Step 3)
+// Step 3: Delegate to playwright-planner (metis)
 await task({
-  agent: "metis",
+  category: "unspecified-high",
+  load_skills: ["playwright-test"],
+  subagent_type: "metis", // Loads _planner.md instructions
   run_in_background: false,
-  description: "Analyze the input and create a comprehensive test plan with QA-grade coverage.",
+  description: "Create test plan via playwright-planner",
   prompt: `
-    CONTEXT FILES — READ THESE FIRST BEFORE ANYTHING ELSE:
-    1. Read .opencode/skills/playwright-test/SKILL.md — project conventions, tool list, rules
-    2. Read .opencode/skills/playwright-test/_planner.md — your instructions
-
-    AFTER reading both files, follow _planner.md instructions exactly. Explore the app with playwright browser tools, create test-plan.json.
+    You are the playwright-planner agent.
     
-    INPUT:  playwright-run/input-context.json
-    OUTPUT: playwright-run/test-plan.json
+    Read: .opencode/sessions/playwright-run/input-context.json
+    Use browser tools to explore the app, then create test-plan.json.
+    
+    OUTPUT: .opencode/sessions/playwright-run/test-plan.json
   `,
 });
 
-// Delegate to generator (test generator agent) (Step 4)
+// Step 4: Delegate to playwright-generator (momus)
 await task({
-  subagent_type: "hephaestus",
+  category: "unspecified-high",
+  load_skills: ["playwright-test"],
+  subagent_type: "momus", // Loads _generator.md instructions
   run_in_background: false,
-  description: "Transform test plan into executable Playwright test code.",
+  description: "Generate test code via playwright-generator",
   prompt: `
-    CONTEXT FILES — READ THESE FIRST BEFORE ANYTHING ELSE:
-    1. Read .opencode/skills/playwright-test/SKILL.md — project conventions, tool list, rules
-    2. Read .opencode/skills/playwright-test/_generator.md — your instructions
-
-    AFTER reading both files, follow _generator.md instructions exactly. Generate playwright test cases from test plan also use playwright codegen and browser tools.
+    You are the playwright-generator agent.
     
-    INPUT:  playwright-run/test-plan.json
-    OUTPUT: generated test files in playwright-tests/ai-generated/*.spec.ts
+    Read: .opencode/sessions/playwright-run/test-plan.json
+    Use browser tools to verify selectors, then generate test files.
+    
+    OUTPUT: playwright-tests/ai-generated/*.spec.ts
   `,
 });
 
-// Delegate to healer (test healer agent) (Step 6)
+// Step 6: Delegate to playwright-healer (momus) - if tests fail
 await task({
-  subagent_type: "momus",
+  category: "unspecified-high",
+  load_skills: ["playwright-test"],
+  subagent_type: "momus", // Loads _healer.md instructions
   run_in_background: false,
-  description: "Fix failing tests",
+  description: "Fix failing tests via playwright-healer",
   prompt: `
-    CONTEXT FILES — READ THESE FIRST BEFORE ANYTHING ELSE:
-    1. Read .opencode/skills/playwright-test/SKILL.md — project conventions, tool list, rules
-    2. Read .opencode/skills/playwright-test/_healer.md — your instructions
-
-    AFTER reading both files, follow _healer.md instructions exactly. Debug failing tests with browser tools and fix test files.
-
-    INPUT:  playwright-run/run-results.json
-    OUTPUT: fixed test files in playwright-tests/ai-generated/*.spec.ts
+    You are the playwright-healer agent.
+    
+    Read: .opencode/sessions/playwright-run/run-results.json
+    Use browser tools to debug failures and fix test files.
+    
+    OUTPUT: Fixed test files in playwright-tests/ai-generated/*.spec.ts
   `,
 });
 ```
@@ -98,16 +108,17 @@ await task({
 
 The orchestrator automatically detects mode based on your input:
 
-| Mode              | Trigger Phrases                                                                | What Happens                                                 |
-| ----------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Mode              | Trigger Phrases                                                              | What Happens                                                 |
+| ----------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
 | **Full Pipeline** | "generate tests", "create test flow", "run playwright tests", "test PR #123" | Plan → Generate → Run → Heal (if needed) → Summary → Cleanup |
-| **Plan-Only**     | "plan tests", "create test plan", "analyze for testing"                        | Plan → Summary → Cleanup                                     |
-| **Generate-Only** | "generate test cases", "write test code", "create test file"                   | Setup → Plan → Generate → Summary → Cleanup                  |
-| **Heal-Only**     | "heal tests", "fix failing tests", "debug playwright", "repair tests"          | Setup → Plan → Heal → Summary → Cleanup                       |
+| **Plan-Only**     | "plan tests", "create test plan", "analyze for testing"                      | Plan → Summary → Cleanup                                     |
+| **Generate-Only** | "generate test cases", "write test code", "create test file"                 | Setup → Plan → Generate → Summary → Cleanup                  |
+| **Heal-Only**     | "heal tests", "fix failing tests", "debug playwright", "repair tests"        | Setup → Plan → Heal → Summary → Cleanup                      |
 
 ---
 
 ## Project Context
+
 This project is a dashboard for managing payments, refunds, disputes, and payouts built with React + ReScript on the frontend, a Rust-based Hyperswitch backend, and a Node.js dashboard server. The Playwright test suite covers critical user flows across modules like auth, payments, refunds, disputes, customers, connectors, routing, analytics, and settings.
 
 ### Technology Stack
@@ -205,28 +216,28 @@ All sub-agents (planner, generator, healer) **MUST** use browser tools to explor
 
 ### Browser Tools
 
-| Tool                             | Purpose                                           | Used By   |
-| -------------------------------- | ------------------------------------------------- | --------- |
-| `browser_snapshot`               | PRIMARY — get page structure and element refs     | All       |
-| `browser_navigate`               | Go to a URL                                       | All       |
-| `browser_click`                  | Click elements using ref                          | All       |
-| `browser_fill_form`              | Fill multiple form fields                         | All       |
-| `browser_type`                   | Type into a single input                          | All       |
-| `browser_select_option`          | Select dropdown value                             | All       |
-| `browser_hover`                  | Reveal tooltips and hidden elements               | All       |
-| `browser_press_key`              | Keyboard interactions                             | All       |
-| `browser_wait_for`               | Wait for text, element, or time                   | All       |
-| `browser_evaluate`               | Run custom JS to extract state                    | All       |
-| `browser_run_code`               | Execute and validate playwright snippet instantly | All       |
-| `browser_generate_locator`       | Generate stable locator from snapshot ref         | All       |  
-| `browser_network_requests`       | Inspect API calls                                 | All       |
-| `browser_console_messages`       | Capture JS errors and logs                        | All       |
-| `browser_take_screenshot`        | Visual capture for diagnosis only                 | All       |
-| `browser_storage_state`          | Save auth/cookie state to file                    | All       |
-| `browser_set_storage_state`      | Restore auth/cookie state from file               | All       |
-| `browser_verify_element_visible` | Assert element exists                             | All       |
-| `browser_verify_text_visible`    | Assert text is visible                            | All       |
-| `browser_verify_value`           | Assert input or checkbox value                    | All       |
+| Tool                             | Purpose                                           | Used By |
+| -------------------------------- | ------------------------------------------------- | ------- |
+| `browser_snapshot`               | PRIMARY — get page structure and element refs     | All     |
+| `browser_navigate`               | Go to a URL                                       | All     |
+| `browser_click`                  | Click elements using ref                          | All     |
+| `browser_fill_form`              | Fill multiple form fields                         | All     |
+| `browser_type`                   | Type into a single input                          | All     |
+| `browser_select_option`          | Select dropdown value                             | All     |
+| `browser_hover`                  | Reveal tooltips and hidden elements               | All     |
+| `browser_press_key`              | Keyboard interactions                             | All     |
+| `browser_wait_for`               | Wait for text, element, or time                   | All     |
+| `browser_evaluate`               | Run custom JS to extract state                    | All     |
+| `browser_run_code`               | Execute and validate playwright snippet instantly | All     |
+| `browser_generate_locator`       | Generate stable locator from snapshot ref         | All     |
+| `browser_network_requests`       | Inspect API calls                                 | All     |
+| `browser_console_messages`       | Capture JS errors and logs                        | All     |
+| `browser_take_screenshot`        | Visual capture for diagnosis only                 | All     |
+| `browser_storage_state`          | Save auth/cookie state to file                    | All     |
+| `browser_set_storage_state`      | Restore auth/cookie state from file               | All     |
+| `browser_verify_element_visible` | Assert element exists                             | All     |
+| `browser_verify_text_visible`    | Assert text is visible                            | All     |
+| `browser_verify_value`           | Assert input or checkbox value                    | All     |
 
 ---
 
@@ -267,4 +278,12 @@ Slug: lowercase, hyphens, max 50 chars.
 
 ## Next Step
 
-**Delegate to orchestrator.md via task() to begin execution.**
+**YOU (the main agent) must READ and EXECUTE orchestrator.md directly.**
+
+Do NOT delegate orchestrator.md - it contains the instructions YOU should follow to coordinate the workflow. The orchestrator.md will guide you on when to delegate to sub-agents (playwright-planner, playwright-generator, playwright-healer).
+
+**Your role:**
+
+1. Read orchestrator.md
+2. Follow its step-by-step instructions
+3. Delegate planning/generation/healing to appropriate sub-agents via task() when instructed

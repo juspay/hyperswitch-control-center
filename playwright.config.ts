@@ -1,27 +1,29 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const PLAYWRIGHT_USERNAME =
+  process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
+const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+
 export default defineConfig({
   testDir: "./playwright-tests",
   // Ignore stub files
-  testIgnore: [
-    "*seed.spec.ts",
-  ],
-  fullyParallel: true,                       // Run tests in files in parallel 
-  forbidOnly: !!process.env.CI,              // Fail the build on CI if you accidentally left test.only in the source code. 
-  retries: process.env.CI ? 2 : 0,           // Retry on CI only 
-  workers: process.env.CI ? 4 : undefined,   // Opt out of parallel tests on CI. 
-  // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. 
+  testIgnore: ["*seed.spec.ts"],
+  fullyParallel: true, // Run tests in files in parallel
+  forbidOnly: !!process.env.CI, // Fail the build on CI if you accidentally left test.only in the source code.
+  retries: process.env.CI ? 2 : 0, // Retry on CI only
+  workers: process.env.CI ? 4 : undefined, // Opt out of parallel tests on CI.
+  // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000",  // Base URL to use in actions like `await page.goto('')`. 
-    screenshot: "only-on-failure",                                        // Screenshot on failure for debugging 
-    video: process.env.CI ? "on" : "retain-on-failure",                   // Video recording for CI debugging 
-    trace: process.env.CI ? "on" : "on-first-retry",                      // Collect trace for detailed debugging 
-    actionTimeout: 15000,                                                 // Action timeout 
-    navigationTimeout: 30000,                                             // Navigation timeout
-    viewport: { width: 1280, height: 720 },                               // Viewport 
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000", // Base URL to use in actions like `await page.goto('')`.
+    screenshot: "only-on-failure", // Screenshot on failure for debugging
+    video: process.env.CI ? "on" : "retain-on-failure", // Video recording for CI debugging
+    trace: process.env.CI ? "on" : "on-first-retry", // Collect trace for detailed debugging
+    actionTimeout: 15000, // Action timeout
+    navigationTimeout: 30000, // Navigation timeout
+    viewport: { width: 1280, height: 720 }, // Viewport
   },
-  outputDir: "test-results/",                                             // Output directory for test artifacts
-  reporter: process.env.CI                                                // Reporter configuration 
+  outputDir: "test-results/", // Output directory for test artifacts
+  reporter: process.env.CI // Reporter configuration
     ? [
         ["html", { open: "never", outputFolder: "playwright-report" }],
         ["json", { outputFile: "test-results/report.json" }],
@@ -29,7 +31,7 @@ export default defineConfig({
       ]
     : [["html", { open: "on-failure" }]],
 
-  // Configure projects for major browsers 
+  // Configure projects for major browsers
   projects: [
     {
       name: "chromium",
@@ -61,7 +63,7 @@ export default defineConfig({
     }, */
   ],
 
-  // Run your local dev server before starting the tests 
+  // Run your local dev server before starting the tests
   webServer: {
     command: "npm run build:test && npm run test:start",
     url: "http://localhost:9000",
