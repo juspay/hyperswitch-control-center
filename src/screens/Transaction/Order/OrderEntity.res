@@ -370,7 +370,7 @@ let allColumnsV2 = [
   ErrorMessage,
 ]
 
-let getHeading = (colType: colType) => {
+let getHeading = (~devSortEnabled=false, colType: colType) => {
   switch colType {
   | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
@@ -384,7 +384,7 @@ let getHeading = (colType: colType) => {
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
-  | Modified => Table.makeHeaderInfo(~key="modified", ~title="Modified", ~showSort=true)
+  | Modified => Table.makeHeaderInfo(~key="modified", ~title="Modified", ~showSort=devSortEnabled)
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
@@ -840,13 +840,13 @@ let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, PaymentInterfaceUtils.mapDictToPaymentPayload)
 }
 
-let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1) =>
+let orderEntity = (merchantId, orgId, ~version: UserInfoTypes.version=V1, ~devSortEnabled=false) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
     ~defaultColumns,
     ~allColumns=getAllColumns(version),
-    ~getHeading,
+    ~getHeading=colType => getHeading(~devSortEnabled, colType),
     ~getCell=(order, colType) => getCell(order, colType, merchantId, orgId),
     ~dataKey="",
     ~getShowLink={
