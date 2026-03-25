@@ -1,3 +1,25 @@
+// @deprecated Use FilterContextOptimized + FilterAtoms instead.
+// FilterContextOptimized splits this monolithic context into:
+//   1. Recoil atoms for high-frequency state (filterValue, query, filterKeys) - see FilterAtoms.res
+//   2. React Context for stable action functions (updateExistingKeys, removeKeys, reset)
+//
+// Migration guide:
+//   BEFORE: let {filterValueJson} = React.useContext(FilterContext.filterContext)
+//   AFTER:  let filterValueJson = Recoil.useRecoilValueFromAtom(FilterAtoms.filterValueJsonAtom)
+//
+//   BEFORE: let {updateExistingKeys, removeKeys, reset} = React.useContext(FilterContext.filterContext)
+//   AFTER:  let {updateExistingKeys, removeKeys, reset} = FilterContextOptimized.useFilterActions()
+//
+//   BEFORE: let {query} = React.useContext(FilterContext.filterContext)
+//   AFTER:  let query = Recoil.useRecoilValueFromAtom(FilterAtoms.queryAtom)
+//
+//   BEFORE: let {filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+//   AFTER:  let filterKeys = Recoil.useRecoilValueFromAtom(FilterAtoms.filterKeysAtom)
+//           let setFilterKeys = Recoil.useSetRecoilState(FilterAtoms.filterKeysAtom)
+//
+// See also: src/context/FilterContextOptimized.res, src/Recoils/FilterAtoms.res
+// Tracking issue: https://github.com/juspay/hyperswitch-control-center/issues/4560
+
 type filterUpdater = {
   query: string,
   queryV2: string,
