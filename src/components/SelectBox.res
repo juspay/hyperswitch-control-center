@@ -369,6 +369,7 @@ module ListItem = {
       }}
     </>
   }
+  let make = React.memo(make)
 }
 
 type dropdownOptionWithoutOptional = {
