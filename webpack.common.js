@@ -69,7 +69,14 @@ module.exports = () => {
       ],
     },
     plugins: [
-      new MiniCssExtractPlugin(),
+      new MiniCssExtractPlugin(
+        isDevelopment
+          ? {}
+          : {
+              filename: "[name].[contenthash].css",
+              chunkFilename: "[name].[contenthash].css",
+            },
+      ),
       new CopyPlugin({
         patterns: [
           { from: "public/common" },

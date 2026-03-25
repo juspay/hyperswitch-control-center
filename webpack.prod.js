@@ -19,6 +19,8 @@ const mergeProd = () => {
       mode: "production",
       output: {
         publicPath,
+        filename: "[name].[contenthash].js",
+        chunkFilename: "[name].[contenthash].js",
       },
       optimization: {
         minimize: true,
