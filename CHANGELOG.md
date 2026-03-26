@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.03.26.0
+
+### Features
+
+- Add Milliseconds to timestamps on the dashboard for created at/ modified at fields ([#4308](https://github.com/juspay/hyperswitch-control-center/pull/4308)) ([`bfa481c`](https://github.com/juspay/hyperswitch-control-center/commit/bfa481c34b6ad15b2474b5db13debd3a0f71abce))
+
+### Bug Fixes
+
+- Entity-based initial selection for roles page ([#4339](https://github.com/juspay/hyperswitch-control-center/pull/4339)) ([`90957c7`](https://github.com/juspay/hyperswitch-control-center/commit/90957c7880901eca6758a418a3700a1880ab474f))
+
+### Refactors
+
+- Centralize version-based routing in RouteUtils ([#4501](https://github.com/juspay/hyperswitch-control-center/pull/4501)) ([`08bbeb5`](https://github.com/juspay/hyperswitch-control-center/commit/08bbeb5d2f7957806154e55cb101c6777b5ab333))
+- Optimize getGroupAccessJson to use Map-based O(1) lookup ([#4510](https://github.com/juspay/hyperswitch-control-center/pull/4510)) ([`3a28e87`](https://github.com/juspay/hyperswitch-control-center/commit/3a28e87c7938db91e1534a771d8a3f1918c46ed8))
+
+### Miscellaneous Tasks
+
+- Add context7.json for library claim ([#4515](https://github.com/juspay/hyperswitch-control-center/pull/4515)) ([`776f550`](https://github.com/juspay/hyperswitch-control-center/commit/776f550abad095abd7c8eea619e7223b737bd34a))
+
+**Full Changelog:** [`2026.03.25.0...2026.03.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.25.0...2026.03.26.0)
+
+- - -
+
+## 2026.03.25.0
+
+### Bug Fixes
+
+- Correct landing page for Intelligent Routing on merchant switch ([#4383](https://github.com/juspay/hyperswitch-control-center/pull/4383)) ([`9cb1577`](https://github.com/juspay/hyperswitch-control-center/commit/9cb15779460e9fea8ffd5721bb4689b47e75c51f))
+- Add font-display swap to all @font-face declarations ([#4415](https://github.com/juspay/hyperswitch-control-center/pull/4415)) ([`785f58c`](https://github.com/juspay/hyperswitch-control-center/commit/785f58c7bb3e9c9f86c628c9011dcb183d783cf2))
+- Remove role access restrictions in Recon ([#4347](https://github.com/juspay/hyperswitch-control-center/pull/4347)) ([`a95af43`](https://github.com/juspay/hyperswitch-control-center/commit/a95af43fc9e380d065bc9bd54f2597062acc01db))
+
+**Full Changelog:** [`2026.03.24.0...2026.03.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.03.24.0...2026.03.25.0)
+
+- - -
+
 ## 2026.03.24.0
 
 ### Features
