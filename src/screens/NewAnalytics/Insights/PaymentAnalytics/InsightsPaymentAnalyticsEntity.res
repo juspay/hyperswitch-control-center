@@ -146,6 +146,30 @@ let failedPaymentsDistributionTableEntity = {
   )
 }
 
+// Split Payments Section
+let splitPaymentsSectionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#sessionized_payments_distribution],
+  },
+  title: "Split Payments",
+  domain: #payments,
+}
+
+let splitPaymentsSectionTableEntity = {
+  open SplitPaymentsSectionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=[],
+    ~requiredSearchFieldsList=[],
+    ~allColumns=[],
+    ~getCell,
+    ~getHeading,
+  )
+}
+
 // Payments Failure Reasons
 let failureReasonsEntity: moduleEntity = {
   requestBodyConfig: {

@@ -5,6 +5,7 @@ let getPageIndex = (url: RescriptReactRouter.url) => {
   switch url.path->HSwitchUtils.urlPath {
   | list{"new-analytics", "smart-retry"} => 1
   | list{"new-analytics", "refund"} => 2
+  | list{"new-analytics", "split-payments"} => 3
   | list{"new-analytics", "payment"} | _ => 0
   }
 }
@@ -13,6 +14,7 @@ let getPageFromIndex = index => {
   switch index {
   | 1 => NewAnalyticsSmartRetry
   | 2 => NewAnalyticsRefund
+  | 3 => NewAnalyticsSplitPayments
   | 0 | _ => NewAnalyticsPayment
   }
 }

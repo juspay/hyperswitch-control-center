@@ -192,8 +192,8 @@ let textTagInput: (
   ~name: string=?,
   ~customStyle: string=?,
   ~disabled: bool=?,
-  ~separateByComma: bool=?,
-  ~separateBySpace: bool=?,
+  ~seperateByComma: bool=?,
+  ~seperateBySpace: bool=?,
   ~customButtonStyle: string=?,
 ) => React.element
 let fileInput: unit => (~input: ReactFinalForm.fieldRenderPropsInput) => React.element

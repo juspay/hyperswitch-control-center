@@ -6,6 +6,7 @@ type analyticsPagesRoutes =
   | @as("new-analytics/payment") NewAnalyticsPayment
   | @as("new-analytics/smart-retry") NewAnalyticsSmartRetry
   | @as("new-analytics/refund") NewAnalyticsRefund
+  | @as("new-analytics/split-payments") NewAnalyticsSplitPayments
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
@@ -19,6 +20,8 @@ type dimension = [
   | #refund_reason
   | #authentication_connector
   | #authentication_status
+  | #is_split_payment
+  | #split_payment_connector
 ]
 type status = [#charged | #failure | #success | #pending]
 type metrics = [
@@ -33,6 +36,7 @@ type metrics = [
   | #payment_success_rate
   | #failure_reasons
   | #sessionized_payment_intent_count
+  | #sessionized_payments_distribution
   | // Refunds
   #sessionized_refund_processed_amount
   | #sessionized_refund_success_count

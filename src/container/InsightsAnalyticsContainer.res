@@ -109,6 +109,16 @@ let make = () => {
     })
   }
 
+  tabs->Array.push({
+    title: "Split Payments",
+    renderContent: () =>
+      <div className="mt-5">
+        <SplitPaymentsSection
+          entity={InsightsPaymentAnalyticsEntity.splitPaymentsSectionEntity}
+        />
+      </div>,
+  })
+
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)
