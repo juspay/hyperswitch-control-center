@@ -28,6 +28,17 @@ let make = (~isFromMilestoneCard=false) => {
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       if !hideHeader {
         valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->JSON.Encode.string)
+        // Pre-select orchestration if no products were previously selected
+        let existingProducts = valueForProdIntent->LogicUtils.getStrArrayFromDict(
+          SelectedProducts->getStringFromVariant,
+          [],
+        )
+        if existingProducts->Array.length === 0 {
+          valueForProdIntent->Dict.set(
+            SelectedProducts->getStringFromVariant,
+            ["orchestration"]->Array.map(JSON.Encode.string)->JSON.Encode.array,
+          )
+        }
       }
       setIsProdIntentCompleted(_ => Some(hideHeader))
       setInitialValues(_ => valueForProdIntent)

@@ -7,6 +7,7 @@ type prodFormColumnType =
   | Country
   | Website
   | POCName
+  | SelectedProducts
 
 let getStringFromVariant = key => {
   switch key {
@@ -16,6 +17,7 @@ let getStringFromVariant = key => {
   | Country => "business_location"
   | Website => "business_website"
   | POCName => "poc_name"
+  | SelectedProducts => "selected_products"
   }
 }
 
@@ -86,6 +88,12 @@ let validateEmptyValue = (key, errors) => {
       key->getStringFromVariant,
       "Please enter a Point of Contact Name"->JSON.Encode.string,
     )
+  | SelectedProducts =>
+    Dict.set(
+      errors,
+      key->getStringFromVariant,
+      "Please select at least one product"->JSON.Encode.string,
+    )
   | _ => ()
   }
 }
@@ -100,7 +108,7 @@ let getFormField = columnType => {
   }
 }
 
-let formFields = [BusinessName, Country, Website, POCName, POCemail]
+let formFields = [SelectedProducts, BusinessName, Country, Website, POCName, POCemail]
 
 let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail]
 
@@ -130,9 +138,16 @@ let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>) => {
   let valuesDict = values->getDictFromJsonObject
 
   fieldsToValidate->Array.forEach(key => {
-    let value = LogicUtils.getString(valuesDict, key->getStringFromVariant, "")
-
-    value->String.length < 1 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
+    switch key {
+    | SelectedProducts =>
+      let products = LogicUtils.getStrArrayFromDict(valuesDict, key->getStringFromVariant, [])
+      if products->Array.length < 1 {
+        key->validateEmptyValue(errors)
+      }
+    | _ =>
+      let value = LogicUtils.getString(valuesDict, key->getStringFromVariant, "")
+      value->String.length < 1 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
+    }
   })
 
   errors->JSON.Encode.object
@@ -177,5 +192,14 @@ let getBody = (values: JSON.t) => {
     "business_country_name",
     valuesDict->getOptionString("business_country_name"),
   )
+
+  let selectedProducts = valuesDict->getStrArrayFromDict(SelectedProducts->getStringFromVariant, [])
+  if selectedProducts->Array.length > 0 {
+    prodOnboardingpayload->Dict.set(
+      SelectedProducts->getStringFromVariant,
+      selectedProducts->Array.map(JSON.Encode.string)->JSON.Encode.array,
+    )
+  }
+
   prodOnboardingpayload
 }

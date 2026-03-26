@@ -10,18 +10,10 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
-
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
-      bodyValues
-      ->LogicUtils.getDictFromJsonObject
-      ->Dict.set(
-        "product_type",
-        activeProduct->ProductUtils.getProductStringName->JSON.Encode.string,
-      )
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
@@ -39,9 +31,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   }
 
   let onSubmit = (values, _) => {
-    values
-    ->LogicUtils.getDictFromJsonObject
-    ->Dict.set("product_type", activeProduct->ProductUtils.getProductStringName->JSON.Encode.string)
     mixpanelEvent(~eventName="create_get_production_access_request", ~metadata=values)
     setScreenState(_ => PageLoaderWrapper.Loading)
     updateProdDetails(values)
@@ -70,9 +59,13 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
               validate={values => values->validateForm(~fieldsToValidate=formFields)}
               onSubmit>
               <div className="flex flex-col gap-12 w-full">
+                <div className="px-5">
+                  <ProdIntentHelper.ProductSelector />
+                </div>
                 <FormRenderer.DesktopRow>
                   <div className="flex flex-col gap-5">
                     {formFields
+                    ->Array.filter(col => col !== SelectedProducts)
                     ->Array.mapWithIndex((column, index) =>
                       <FormRenderer.FieldRenderer
                         key={index->Int.toString}
