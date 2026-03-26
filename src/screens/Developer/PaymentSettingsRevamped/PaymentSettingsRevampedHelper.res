@@ -249,7 +249,6 @@ let payoutStatusesEnabled = FormRenderer.makeFieldInfo(
     ~buttonText="Select Payout Statuses",
     ~showSelectionAsChips=false,
     ~customButtonStyle="!rounded-lg",
-    ~fixedDropDownDirection=BottomRight,
     ~dropdownClassName="!max-h-15-rem !overflow-auto",
   ),
   ~isRequired=false,
