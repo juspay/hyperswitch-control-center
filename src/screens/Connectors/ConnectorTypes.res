@@ -137,6 +137,7 @@ type processorTypes =
   | SANTANDER
   | REVOLV3
   | TRUELAYER
+  | FISERVCOMMERCEHUB
 
 type payoutProcessorTypes =
   | ADYEN
