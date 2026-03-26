@@ -168,8 +168,8 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <Form
       initialValues={businessProfileRecoilVal
-        ->PaymentSettingsRevampedUtils.parseBusinessProfileForPaymentBehaviour
-        ->Identity.genericTypeToJson}
+      ->PaymentSettingsRevampedUtils.parseBusinessProfileForPaymentBehaviour
+      ->Identity.genericTypeToJson}
       onSubmit
       validate={values => {
         PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
