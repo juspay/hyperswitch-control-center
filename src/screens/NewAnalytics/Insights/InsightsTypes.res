@@ -22,6 +22,7 @@ type dimension = [
   | #authentication_status
   | #is_split_payment
   | #split_payment_connector
+  | #charge_type
 ]
 type status = [#charged | #failure | #success | #pending]
 type metrics = [
@@ -57,6 +58,10 @@ type metrics = [
   | #authentication_error_message
   | #authentication_exemption_approved_count
   | #authentication_exemption_requested_count
+  | // Split Payment Metrics
+  #sessionized_total_platform_fees
+  | #sessionized_total_transfer_amount
+  | #sessionized_avg_platform_fee_rate
 ]
 
 type requestBodyConfig = {

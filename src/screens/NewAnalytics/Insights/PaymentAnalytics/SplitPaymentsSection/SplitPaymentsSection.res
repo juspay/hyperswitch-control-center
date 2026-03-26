@@ -89,6 +89,9 @@ let make = (~entity: moduleEntity) => {
   let (distributionData, setDistributionData) = React.useState(_ => JSON.Encode.array([]))
   let (splitPaymentsCount, setSplitPaymentsCount) = React.useState(_ => 0.0)
   let (totalPaymentsCount, setTotalPaymentsCount) = React.useState(_ => 0.0)
+  let (totalPlatformFees, setTotalPlatformFees) = React.useState(_ => 0.0)
+  let (totalTransferAmount, setTotalTransferAmount) = React.useState(_ => 0.0)
+  let (avgPlatformFeeRate, setAvgPlatformFeeRate) = React.useState(_ => 0.0)
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -143,6 +146,28 @@ let make = (~entity: moduleEntity) => {
         ->getFloat("payment_intent_count", 0.0)
       setSplitPaymentsCount(_ => splitCount)
 
+      // Fetch platform fees, transfer amount, and avg fee rate
+      let splitMetricsBody = requestBody(
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~metrics=[
+          #sessionized_total_platform_fees,
+          #sessionized_total_transfer_amount,
+          #sessionized_avg_platform_fee_rate,
+        ],
+        ~filter=splitFilter->Some,
+      )
+      let splitMetricsResponse = await updateDetails(url, splitMetricsBody, Post)
+      let metricsData =
+        splitMetricsResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
+        ->getDictFromJsonObject
+      setTotalPlatformFees(_ => metricsData->getFloat("total_platform_fees", 0.0))
+      setTotalTransferAmount(_ => metricsData->getFloat("total_transfer_amount", 0.0))
+      setAvgPlatformFeeRate(_ => metricsData->getFloat("avg_platform_fee_rate", 0.0))
+
       // Fetch distribution data
       let distributionBody = requestBody(
         ~startTime=startTimeVal,
@@ -184,34 +209,77 @@ let make = (~entity: moduleEntity) => {
 
   let pieOptions = splitPaymentsDistributionPieMapper(distributionData)
 
-  <div>
-    <ModuleHeader title={entity.title} />
-    <PageLoaderWrapper
-      screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        <SplitPaymentStatCard
-          title="Total Split Payments"
-          value={splitPaymentsCount->Float.toInt->Int.toString}
-          description="Total number of payments processed as split payments"
-        />
-        <SplitPaymentStatCard
-          title="Split Payment Percentage"
-          value={splitPercentage->CurrencyFormatUtils.valueFormatter(Rate)}
-          description="Percentage of total payments that are split payments"
-        />
-      </div>
-      <Card>
-        <SplitPaymentsSectionHeader viewType setViewType />
-        <div className="mb-5">
-          {switch viewType {
-          | Graph =>
-            <div className="flex justify-center">
-              <PieGraph options={pieOptions} />
-            </div>
-          | Table => <TableModule data={distributionData} className="mx-7" />
-          }}
+  <div className="flex flex-col gap-14">
+    <div>
+      <ModuleHeader title={entity.title} />
+      <PageLoaderWrapper
+        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        // Overview stat cards
+        <div className="grid grid-cols-5 gap-6 mb-6">
+          <SplitPaymentStatCard
+            title="Total Split Payments"
+            value={splitPaymentsCount->Float.toInt->Int.toString}
+            description="Total split payments processed"
+          />
+          <SplitPaymentStatCard
+            title="Split Payment %"
+            value={splitPercentage->CurrencyFormatUtils.valueFormatter(Rate)}
+            description="% of total payments that are split"
+          />
+          <SplitPaymentStatCard
+            title="Platform Fees"
+            value={totalPlatformFees->CurrencyFormatUtils.valueFormatter(Amount)}
+            description="Total platform fees collected"
+          />
+          <SplitPaymentStatCard
+            title="Transfer Amount"
+            value={totalTransferAmount->CurrencyFormatUtils.valueFormatter(Amount)}
+            description="Total transferred to connected accounts"
+          />
+          <SplitPaymentStatCard
+            title="Avg Fee Rate"
+            value={avgPlatformFeeRate->CurrencyFormatUtils.valueFormatter(Rate)}
+            description="Average platform fee rate"
+          />
         </div>
-      </Card>
-    </PageLoaderWrapper>
+        // Split Payments Distribution (existing pie chart)
+        <Card>
+          <SplitPaymentsSectionHeader viewType setViewType />
+          <div className="mb-5">
+            {switch viewType {
+            | Graph =>
+              <div className="flex justify-center">
+                <PieGraph options={pieOptions} />
+              </div>
+            | Table => <TableModule data={distributionData} className="mx-7" />
+            }}
+          </div>
+        </Card>
+      </PageLoaderWrapper>
+    </div>
+    // Platform Fees Over Time (line chart)
+    <PlatformFeesOverTime
+      entity=InsightsPaymentAnalyticsEntity.platformFeesOverTimeEntity
+      chartEntity=InsightsPaymentAnalyticsEntity.platformFeesOverTimeChartEntity
+    />
+    // Transfer Amount Over Time (line chart)
+    <TransferAmountOverTime
+      entity=InsightsPaymentAnalyticsEntity.transferAmountOverTimeEntity
+      chartEntity=InsightsPaymentAnalyticsEntity.transferAmountOverTimeChartEntity
+    />
+    // Platform Fees by Connector (pie chart)
+    <PlatformFeesByConnector
+      entity=InsightsPaymentAnalyticsEntity.platformFeesByConnectorEntity
+    />
+    // Platform Fee Rate by Connector (bar chart)
+    <PlatformFeeRateByConnector
+      entity=InsightsPaymentAnalyticsEntity.platformFeeRateByConnectorEntity
+      chartEntity=InsightsPaymentAnalyticsEntity.platformFeeRateByConnectorChartEntity
+    />
+    // Fees by Charge Type (bar chart)
+    <FeesByChargeType
+      entity=InsightsPaymentAnalyticsEntity.feesByChargeTypeEntity
+      chartEntity=InsightsPaymentAnalyticsEntity.feesByChargeTypeChartEntity
+    />
   </div>
 }
