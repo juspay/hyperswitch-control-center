@@ -745,6 +745,9 @@ let defaultValueForBusinessProfile: BusinessProfileInterfaceTypesV1.profileEntit
     payment_created_enabled: None,
     payment_succeeded_enabled: None,
     payment_failed_enabled: None,
+    payment_statuses_enabled: None,
+    refund_statuses_enabled: None,
+    payout_statuses_enabled: None,
   },
   authentication_connector_details: Some({
     authentication_connectors: None,

@@ -156,7 +156,10 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to update webhook configuration`, ~toastType=ToastState.ToastError)
+        showToast(
+          ~message=`Failed to update webhook configuration`,
+          ~toastType=ToastState.ToastError,
+        )
       }
     }
     Nullable.null

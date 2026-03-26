@@ -161,7 +161,11 @@ let webhookPassword = FormRenderer.makeFieldInfo(
   ~label="Webhook Password",
   ~name="webhook_details.webhook_password",
   ~placeholder="Enter Webhook Password",
-  ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl", ~type_="password"),
+  ~customInput=InputFields.textInput(
+    ~autoComplete="off",
+    ~customStyle="rounded-xl",
+    ~type_="password",
+  ),
   ~isRequired=false,
 )
 
@@ -183,13 +187,7 @@ let paymentStatusOptions = [
   "expired",
 ]
 
-let refundStatusOptions = [
-  "failure",
-  "manual_review",
-  "pending",
-  "success",
-  "transaction_failure",
-]
+let refundStatusOptions = ["failure", "manual_review", "pending", "success", "transaction_failure"]
 
 let payoutStatusOptions = [
   "success",
