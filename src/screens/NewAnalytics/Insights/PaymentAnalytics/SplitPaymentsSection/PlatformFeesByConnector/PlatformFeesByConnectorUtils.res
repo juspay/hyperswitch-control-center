@@ -43,7 +43,9 @@ let platformFeesByConnectorPieMapper = (data: JSON.t) => {
       @this
       (this: PieGraphTypes.legendLabelFormatter) => {
         let name = this.name->snakeToTitle
-        `<div style="font-size: 14px; font-weight: 600; padding: 4px 0;">${name} | ${this.y->valueFormatter(Amount)}</div>`
+        `<div style="font-size: 14px; font-weight: 600; padding: 4px 0;">${name} | ${this.y->valueFormatter(
+            Amount,
+          )}</div>`
       }
     )->PieGraphTypes.asLegendPointFormatter,
     startAngle: 0,
@@ -82,7 +84,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => platformFeesByConnectorObject = dict
 }
 
 let getObjects: JSON.t => array<platformFeesByConnectorObject> = json => {
-  json->getArrayFromJson([])->Array.map(item => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }

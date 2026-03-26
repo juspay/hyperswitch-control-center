@@ -32,10 +32,7 @@ let feesByChargeTypeMapper = (
     categories,
     data: [barGraphData],
     title,
-    tooltipFormatter: bargraphTooltipFormatter(
-      ~title="Fees by Charge Type",
-      ~metricType=Amount,
-    ),
+    tooltipFormatter: bargraphTooltipFormatter(~title="Fees by Charge Type", ~metricType=Amount),
   }
 }
 
@@ -47,7 +44,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => feesByChargeTypeObject = dict => {
 }
 
 let getObjects: JSON.t => array<feesByChargeTypeObject> = json => {
-  json->getArrayFromJson([])->Array.map(item => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }

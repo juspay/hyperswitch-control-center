@@ -192,7 +192,9 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <PlatformFeesOverTimeHeader viewType setViewType granularity setGranularity granularityOptions />
+        <PlatformFeesOverTimeHeader
+          viewType setViewType granularity setGranularity granularityOptions
+        />
         <div className="mb-5">
           {switch viewType {
           | Graph => <LineGraph options className="mr-3" />

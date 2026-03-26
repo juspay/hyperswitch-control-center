@@ -47,7 +47,9 @@ let tableItemToObjMapper: Dict.t<JSON.t> => platformFeeRateByConnectorObject = d
 }
 
 let getObjects: JSON.t => array<platformFeeRateByConnectorObject> = json => {
-  json->getArrayFromJson([])->Array.map(item => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }

@@ -268,9 +268,7 @@ let make = (~entity: moduleEntity) => {
       chartEntity=InsightsPaymentAnalyticsEntity.transferAmountOverTimeChartEntity
     />
     // Platform Fees by Connector (pie chart)
-    <PlatformFeesByConnector
-      entity=InsightsPaymentAnalyticsEntity.platformFeesByConnectorEntity
-    />
+    <PlatformFeesByConnector entity=InsightsPaymentAnalyticsEntity.platformFeesByConnectorEntity />
     // Platform Fee Rate by Connector (bar chart)
     <PlatformFeeRateByConnector
       entity=InsightsPaymentAnalyticsEntity.platformFeeRateByConnectorEntity
