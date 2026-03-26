@@ -8,6 +8,9 @@ type prodFormColumnType =
   | Website
   | POCName
   | SelectedProducts
+  | Designation
+  | MonthlyPaymentVolume
+  | Industry
 
 let getStringFromVariant = key => {
   switch key {
@@ -18,38 +21,77 @@ let getStringFromVariant = key => {
   | Website => "business_website"
   | POCName => "poc_name"
   | SelectedProducts => "selected_products"
+  | Designation => "designation"
+  | MonthlyPaymentVolume => "monthly_payment_volume"
+  | Industry => "industry"
   }
 }
 
 let businessName = FormRenderer.makeFieldInfo(
-  ~label="Legal Business Name",
+  ~label="Organization Name",
   ~name=BusinessName->getStringFromVariant,
-  ~placeholder="Eg: HyperSwitch Pvt Ltd",
+  ~placeholder="Eg: Hyperswitch",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
 
 let website = FormRenderer.makeFieldInfo(
-  ~label="Business Website",
+  ~label="Organization Website",
   ~name=Website->getStringFromVariant,
-  ~placeholder="Enter a website",
+  ~placeholder="Enter Website URL",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
 
 let pocName = FormRenderer.makeFieldInfo(
-  ~label="Contact Name",
+  ~label="Your Full Name",
   ~name=POCName->getStringFromVariant,
-  ~placeholder="Eg: Jack Ryan",
+  ~placeholder="Eg: John Doe",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
 )
 
 let pocEmail = FormRenderer.makeFieldInfo(
-  ~label="Contact Email",
+  ~label="Email ID",
   ~name=POCemail->getStringFromVariant,
-  ~placeholder="Eg: jackryan@hyperswitch.io",
+  ~placeholder="john.doe+1@gmail.com",
   ~customInput=InputFields.textInput(),
+  ~isRequired=true,
+)
+
+let designation = FormRenderer.makeFieldInfo(
+  ~label="Designation",
+  ~name=Designation->getStringFromVariant,
+  ~placeholder="Eg: Engineering Manager",
+  ~customInput=InputFields.textInput(),
+  ~isRequired=true,
+)
+
+let monthlyPaymentVolume = FormRenderer.makeFieldInfo(
+  ~label="Monthly Payment Volume (USD)",
+  ~name=MonthlyPaymentVolume->getStringFromVariant,
+  ~placeholder="Select Range",
+  ~customInput=InputFields.selectInput(
+    ~options=ProdIntentHelper.monthlyPaymentVolumeOptions->SelectBox.makeOptions,
+    ~buttonText="Select Range",
+    ~fullLength=true,
+    ~customButtonStyle="!rounded-md",
+    ~deselectDisable=true,
+  ),
+  ~isRequired=true,
+)
+
+let industry = FormRenderer.makeFieldInfo(
+  ~label="Your Industry",
+  ~name=Industry->getStringFromVariant,
+  ~placeholder="Select Industry",
+  ~customInput=InputFields.selectInput(
+    ~options=ProdIntentHelper.industryOptions->SelectBox.makeOptions,
+    ~buttonText="Select Industry",
+    ~fullLength=true,
+    ~customButtonStyle="!rounded-md",
+    ~deselectDisable=true,
+  ),
   ~isRequired=true,
 )
 
@@ -58,7 +100,7 @@ let countryFieldInput = () => (fieldsArray: array<ReactFinalForm.fieldRenderProp
 }
 
 let countryField = FormRenderer.makeMultiInputFieldInfoOld(
-  ~label="Business country",
+  ~label="Organization Country",
   ~comboCustomInput=countryFieldInput(),
   ~inputFields=[
     FormRenderer.makeInputFieldInfo(~name=`business_location`),
@@ -71,28 +113,50 @@ let countryField = FormRenderer.makeMultiInputFieldInfoOld(
 let validateEmptyValue = (key, errors) => {
   switch key {
   | POCemail =>
+    Dict.set(errors, key->getStringFromVariant, "Please enter your email"->JSON.Encode.string)
+  | BusinessName =>
     Dict.set(
       errors,
       key->getStringFromVariant,
-      "Please enter a Point of Contact Email"->JSON.Encode.string,
+      "Please enter your organization name"->JSON.Encode.string,
     )
-  | BusinessName =>
-    Dict.set(errors, key->getStringFromVariant, "Please enter a Business Name"->JSON.Encode.string)
   | Country =>
-    Dict.set(errors, key->getStringFromVariant, "Please select a Country"->JSON.Encode.string)
+    Dict.set(errors, key->getStringFromVariant, "Please select your country"->JSON.Encode.string)
   | Website =>
-    Dict.set(errors, key->getStringFromVariant, "Please enter a Website"->JSON.Encode.string)
+    Dict.set(
+      errors,
+      key->getStringFromVariant,
+      "Please enter your organization website"->JSON.Encode.string,
+    )
   | POCName =>
     Dict.set(
       errors,
       key->getStringFromVariant,
-      "Please enter a Point of Contact Name"->JSON.Encode.string,
+      "Please enter your full name"->JSON.Encode.string,
     )
   | SelectedProducts =>
     Dict.set(
       errors,
       key->getStringFromVariant,
       "Please select at least one product"->JSON.Encode.string,
+    )
+  | Designation =>
+    Dict.set(
+      errors,
+      key->getStringFromVariant,
+      "Please enter your designation"->JSON.Encode.string,
+    )
+  | MonthlyPaymentVolume =>
+    Dict.set(
+      errors,
+      key->getStringFromVariant,
+      "Please select a payment volume range"->JSON.Encode.string,
+    )
+  | Industry =>
+    Dict.set(
+      errors,
+      key->getStringFromVariant,
+      "Please select your industry"->JSON.Encode.string,
     )
   | _ => ()
   }
@@ -104,11 +168,25 @@ let getFormField = columnType => {
   | BusinessName => businessName
   | Website => website
   | POCName => pocName
+  | Designation => designation
+  | MonthlyPaymentVolume => monthlyPaymentVolume
+  | Industry => industry
   | _ => countryField
   }
 }
 
-let formFields = [SelectedProducts, BusinessName, Country, Website, POCName, POCemail]
+// 2-column grid: fields are rendered in pairs (left, right) per row
+let formFields = [
+  SelectedProducts,
+  POCName,
+  POCemail,
+  Designation,
+  Country,
+  Website,
+  MonthlyPaymentVolume,
+  BusinessName,
+  Industry,
+]
 
 let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail]
 
@@ -146,7 +224,9 @@ let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>) => {
       }
     | _ =>
       let value = LogicUtils.getString(valuesDict, key->getStringFromVariant, "")
-      value->String.length < 1 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
+      value->String.length < 1
+        ? key->validateEmptyValue(errors)
+        : key->validateCustom(errors, value)
     }
   })
 
@@ -191,6 +271,19 @@ let getBody = (values: JSON.t) => {
   prodOnboardingpayload->setOptionString(
     "business_country_name",
     valuesDict->getOptionString("business_country_name"),
+  )
+
+  prodOnboardingpayload->setOptionString(
+    Designation->getStringFromVariant,
+    valuesDict->getOptionString(Designation->getStringFromVariant),
+  )
+  prodOnboardingpayload->setOptionString(
+    MonthlyPaymentVolume->getStringFromVariant,
+    valuesDict->getOptionString(MonthlyPaymentVolume->getStringFromVariant),
+  )
+  prodOnboardingpayload->setOptionString(
+    Industry->getStringFromVariant,
+    valuesDict->getOptionString(Industry->getStringFromVariant),
   )
 
   let selectedProducts = valuesDict->getStrArrayFromDict(SelectedProducts->getStringFromVariant, [])

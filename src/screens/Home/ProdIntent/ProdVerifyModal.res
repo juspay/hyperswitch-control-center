@@ -10,6 +10,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
+
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType=#USER_DATA, ~methodType=Post)
@@ -36,13 +37,16 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
     updateProdDetails(values)
   }
 
+  let renderFormFields =
+    formFields->Array.filter(col => col !== SelectedProducts)
+
   let modalBody = {
     <>
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top">
           <CardHeader
-            heading="Get access to Live environment"
-            subHeading="We require some details for business verification. Once verified, our team will reach out and provide live credentials within a business day "
+            heading="Get Live Environment Access"
+            subHeading="We need a few details to verify your business. Once approved, our team will get in touch."
             customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
@@ -58,28 +62,25 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
               initialValues={initialValues->JSON.Encode.object}
               validate={values => values->validateForm(~fieldsToValidate=formFields)}
               onSubmit>
-              <div className="flex flex-col gap-12 w-full">
+              <div className="flex flex-col gap-8 w-full">
                 <div className="px-5">
                   <ProdIntentHelper.ProductSelector />
                 </div>
-                <FormRenderer.DesktopRow>
-                  <div className="flex flex-col gap-5">
-                    {formFields
-                    ->Array.filter(col => col !== SelectedProducts)
-                    ->Array.mapWithIndex((column, index) =>
-                      <FormRenderer.FieldRenderer
-                        key={index->Int.toString}
-                        fieldWrapperClass="w-full"
-                        field={column->getFormField}
-                        errorClass
-                        labelClass="!text-black font-medium !-ml-[0.5px]"
-                      />
-                    )
-                    ->React.array}
-                  </div>
-                </FormRenderer.DesktopRow>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-5 px-5">
+                  {renderFormFields
+                  ->Array.mapWithIndex((column, index) =>
+                    <FormRenderer.FieldRenderer
+                      key={index->Int.toString}
+                      fieldWrapperClass="w-full"
+                      field={column->getFormField}
+                      errorClass
+                      labelClass="!text-black font-medium !-ml-[0.5px]"
+                    />
+                  )
+                  ->React.array}
+                </div>
                 <div className="flex justify-end w-full pr-5 pb-3">
-                  <FormRenderer.SubmitButton text="Get Production Access" buttonSize={Small} />
+                  <FormRenderer.SubmitButton text="Submit Access Request" buttonSize={Small} />
                 </div>
               </div>
             </Form>

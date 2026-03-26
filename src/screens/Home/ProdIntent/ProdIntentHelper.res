@@ -1,3 +1,25 @@
+let monthlyPaymentVolumeOptions = [
+  "Just getting started",
+  "Less than $1 Mn",
+  "$1 Mn - $10 Mn",
+  "$10 Mn - $100 Mn",
+  "$100 Mn - $1 Bn",
+  "More than $1 Bn",
+]
+
+let industryOptions = [
+  "Software & Digital Platforms - SaaS",
+  "Software & Digital Platforms - Marketplace",
+  "Services - Travel - Airlines, Hotels & OTAs",
+  "Services - On-Demand & Mobility",
+  "Services - Utilities",
+  "Services - eCommerce",
+  "Financial Services - PSPs & Fintechs",
+  "Financial Services - Insurance",
+  "Financial Services - Banking",
+  "Others",
+]
+
 let productOptions = [
   ("orchestration", "Orchestration"),
   ("recon", "Reconciliation"),
@@ -9,7 +31,6 @@ let productOptions = [
 module ProductSelector = {
   @react.component
   let make = () => {
-    let form = ReactFinalForm.useForm()
     let fieldInput = ReactFinalForm.useField("selected_products").input
     let selectedProducts =
       fieldInput.value->LogicUtils.getStrArrayFromJson
@@ -17,10 +38,8 @@ module ProductSelector = {
     let allSelected = selectedProducts->Array.length === productOptions->Array.length
 
     let updateProducts = updated => {
-      form.change(
-        "selected_products",
-        updated->Array.map(JSON.Encode.string)->JSON.Encode.array,
-      )
+      let value = updated->Array.map(JSON.Encode.string)->JSON.Encode.array
+      fieldInput.onChange(value->Identity.anyTypeToReactEvent)
     }
 
     let toggleProduct = product => {
