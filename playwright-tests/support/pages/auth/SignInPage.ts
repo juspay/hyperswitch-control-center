@@ -86,9 +86,7 @@ export class SignInPage {
   }
 
   get resetPasswordButton(): Locator {
-    return this.page
-      .locator('[data-testid="auth-submit-btn"]')
-      .locator(">> nth=1");
+    return this.page.locator('[data-testid="auth-submit-btn"]');
   }
 
   get cancelForgetPassword(): Locator {

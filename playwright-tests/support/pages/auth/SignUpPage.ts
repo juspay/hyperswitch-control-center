@@ -16,7 +16,7 @@ export class SignUpPage {
   }
 
   get emailInput(): Locator {
-    return this.page.locator('[data-testid="email"]').first();
+    return this.page.getByPlaceholder("Enter your Email");
   }
 
   get passwordInput(): Locator {
@@ -24,7 +24,7 @@ export class SignUpPage {
   }
 
   get signUpButton(): Locator {
-    return this.page.locator('[data-testid="auth-submit-btn"]').nth(1);
+    return this.page.locator('[data-testid="auth-submit-btn"]');
   }
 
   get invalidInputError(): Locator {

@@ -73,12 +73,36 @@ export class HomePage {
       .nth(1);
   }
 
+  get homeV2(): Locator {
+    return this.page.locator('[href="/dashboard/v2/home"]');
+  }
+
+  get users(): Locator {
+    return this.page.locator('[href="/dashboard/users"]');
+  }
+
   get operations(): Locator {
     return this.page.locator("[data-testid=operations]");
   }
 
   get paymentOperations(): Locator {
     return this.page.locator("[data-testid=payments]");
+  }
+
+  get refundOperations(): Locator {
+    return this.page.locator('[data-testid="refunds"]');
+  }
+
+  get disputesOperations(): Locator {
+    return this.page.locator('[data-testid="disputes"]');
+  }
+
+  get payoutsOperations(): Locator {
+    return this.page.locator('[data-testid="payouts"]');
+  }
+
+  get customers(): Locator {
+    return this.page.locator('[data-testid="customers"]');
   }
 
   get connectors(): Locator {
@@ -89,12 +113,108 @@ export class HomePage {
     return this.page.locator("[data-testid=paymentprocessors]");
   }
 
+  get payoutConnectors(): Locator {
+    return this.page.locator('[data-testid="payoutprocessors"]');
+  }
+
+  get threeDSConnectors(): Locator {
+    return this.page.locator('[data-testid="3dsauthenticators"]');
+  }
+
+  get frmConnectors(): Locator {
+    return this.page.locator('[data-testid="fraud&risk"]');
+  }
+
+  get pmAuthConnectors(): Locator {
+    return this.page.locator('[data-testid="pmauthprocessor"]');
+  }
+
+  get taxConnectors(): Locator {
+    return this.page.locator('[data-testid="taxprocessor"]');
+  }
+
+  get billingConnectors(): Locator {
+    return this.page.locator('[data-testid="billingprocessor"]');
+  }
+
+  get vaultConnectors(): Locator {
+    return this.page.locator('[data-testid="vaultprocessor"]');
+  }
+
+  get analytics(): Locator {
+    return this.page.locator('[data-testid="analytics"]');
+  }
+
+  get paymentsAnalytics(): Locator {
+    return this.page.locator('[data-testid="payments"]');
+  }
+
+  get refundAnalytics(): Locator {
+    return this.page.locator('[data-testid="refunds"]');
+  }
+
   get workflow(): Locator {
     return this.page.locator('[data-testid="workflow"]');
   }
 
   get routing(): Locator {
     return this.page.locator('[data-testid="routing"]');
+  }
+
+  get surchargeRouting(): Locator {
+    return this.page.locator('[data-testid="surcharge"]');
+  }
+
+  get threeDSRouting(): Locator {
+    return this.page.locator('[data-testid="3dsdecisionmanager"]');
+  }
+
+  get payoutRouting(): Locator {
+    return this.page.locator('[data-testid="payoutrouting"]');
+  }
+
+  get threeDSExemptionManager(): Locator {
+    return this.page.locator('[data-testid="3dsexemptionmanager"]');
+  }
+
+  get vault(): Locator {
+    return this.page.locator('[data-testid="vault"]');
+  }
+
+  get vaultConfiguration(): Locator {
+    return this.page.locator('[data-testid="configuration"]');
+  }
+
+  get vaultCustomersAndTokens(): Locator {
+    return this.page.locator('[data-testid="customers&tokens"]');
+  }
+
+  get developer(): Locator {
+    return this.page.locator('[data-testid="developers"]');
+  }
+
+  get paymentSettings(): Locator {
+    return this.page.locator('[data-testid="paymentsettings"]');
+  }
+
+  get apiKeys(): Locator {
+    return this.page.locator('[data-testid="apikeys"]');
+  }
+
+  get webhooks(): Locator {
+    return this.page.locator('[data-testid="webhooks"]');
+  }
+
+  get settings(): Locator {
+    return this.page.locator('[data-testid="settings"]');
+  }
+
+  get configurePMT(): Locator {
+    return this.page.locator('[data-testid="configurepmts"]');
+  }
+
+  get organizationSettings(): Locator {
+    return this.page.locator('[data-testid="organizationsettings"]');
   }
 
   get userAccount(): Locator {

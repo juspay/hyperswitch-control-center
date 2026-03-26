@@ -20,7 +20,7 @@ export class PaymentRouting {
   }
 
   get defaultFallbackManageButton(): Locator {
-    return this.page.locator('[data-button-for="manage"]').locator(">>").nth(0);
+    return this.page.locator('[data-button-for="manage"]').nth(0);
   }
 }
 

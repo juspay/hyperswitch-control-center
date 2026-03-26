@@ -8,6 +8,7 @@ import { generateDateTimeString } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { checkPermissionsFromTestName as checkPermissions } from "./permissions";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
@@ -44,9 +45,12 @@ export async function loginUser(
   context?: APIRequestContext,
 ): Promise<{ token: string; merchantId: string }> {
   const ctx = context ?? (await request.newContext());
-  const response = await ctx.post(`${BASE_URL}/api/user/signin`, {
-    headers: { "Content-Type": "application/json" },
-    data: { email, password, country: "IN" },
+  const response = await ctx.post(`${API_URL}/user/v2/signin`, {
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "test_admin",
+    },
+    data: { email, password },
   });
 
   if (!response.ok()) {
@@ -60,9 +64,10 @@ export async function loginUser(
   let merchantId: string = body.merchant_id ?? "";
 
   if (!token && body.two_factor_auth_required) {
-    const skipResponse = await ctx.post(`${BASE_URL}/api/user/2fa/skip`, {
+    const skipResponse = await ctx.post(`${API_URL}/user/v2/2fa/skip`, {
       headers: {
         "Content-Type": "application/json",
+        "api-key": "test_admin",
         Authorization: `Bearer ${body.interim_token ?? body.token}`,
       },
     });
@@ -268,6 +273,57 @@ export async function visitSignupPage(page: Page): Promise<void> {
   await expect(page).toHaveURL(/.*register/);
 }
 
+export async function signupAPI(
+  name?: string,
+  pass?: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const username = name || process.env.PLAYWRIGHT_USERNAME || "";
+  const password = pass || process.env.PLAYWRIGHT_PASSWORD || "";
+  const ctx = context ?? (await request.newContext());
+
+  const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "test_admin",
+    },
+    data: {
+      email: username,
+      password: password,
+      company_name: generateDateTimeString(),
+      name: "Playwright_test_user",
+    },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`signupAPI failed (${response.status()}): ${body}`);
+  }
+}
+
+export async function loginAPI(
+  name?: string,
+  pass?: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const username = name || process.env.PLAYWRIGHT_USERNAME || "";
+  const password = pass || process.env.PLAYWRIGHT_PASSWORD || "";
+  const ctx = context ?? (await request.newContext());
+
+  const response = await ctx.post(`${API_URL}/user/v2/signin`, {
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "test_admin",
+    },
+    data: { email: username, password },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(`loginAPI failed (${response.status()}): ${body}`);
+  }
+}
+
 export async function enableEmailFeatureFlag(page: Page): Promise<void> {
   await page.route("**/dashboard/config/feature?domain=", async (route) => {
     await route.fulfill({
@@ -461,3 +517,202 @@ export async function assertPaymentMethodTypes(
     }
   }
 }
+
+export async function createConnectorUI(page: Page): Promise<void> {
+  await page.locator("[data-testid=connectors]").click();
+  await page.locator("[data-testid=paymentprocessors]").click();
+  await expect(page.getByText("Payment Processors")).toBeVisible();
+  await expect(page.getByText("Connect a Dummy Processor")).toBeVisible();
+  await page.locator("[data-button-for=connectNow]").click({ force: true });
+
+  const modal = page.locator(
+    '[data-component="modal:Connect a Dummy Processor"]',
+  );
+  await expect(modal).toBeVisible({ timeout: 10000 });
+  await expect(modal.locator("button")).toHaveCount(4);
+
+  await expect(page.getByText("Stripe Dummy")).toBeVisible();
+  await page
+    .locator('[data-testid="stripe_test"]')
+    .locator("button")
+    .click({ force: true });
+
+  await expect(page).toHaveURL(/.*dashboard\/connectors/);
+  await expect(page.getByText("Credentials")).toBeVisible();
+
+  await page.locator("[name=connector_account_details\\.api_key]").clear();
+  await page
+    .locator("[name=connector_account_details\\.api_key]")
+    .fill("dummy_api_key");
+  await page.locator("[name=connector_label]").clear();
+  await page
+    .locator("[name=connector_label]")
+    .fill("stripe_test_default_label");
+  await page.locator("[data-button-for=connectAndProceed]").click();
+
+  await page.locator("[data-testid=credit_select_all]").click();
+  await page.locator("[data-testid=credit_mastercard]").click();
+  await page.locator("[data-testid=debit_cartesbancaires]").click();
+  await page.locator("[data-testid=pay_later_klarna]").click();
+  await page.locator("[data-testid=wallet_we_chat_pay]").click();
+  await page.locator("[data-button-for=proceed]").click();
+
+  await expect(
+    page.locator('[data-toast="Connector Created Successfully!"]'),
+  ).toBeVisible({ timeout: 10000 });
+  await page.locator("[data-button-for=done]").click();
+
+  await expect(page).toHaveURL(/.*dashboard\/connectors/);
+  await expect(page.getByText("stripe_test_default_label")).toBeVisible();
+}
+
+export async function processPaymentSdkUI(page: Page): Promise<void> {
+  const context = page.context();
+  await context.clearCookies();
+
+  await page.locator("[data-testid=connectors]").click();
+  await page.locator("[data-testid=paymentprocessors]").click();
+  await expect(page.getByText("Payment Processors")).toBeVisible();
+  await page.locator("[data-testid=home]").first().click();
+  await page.locator("[data-button-for=tryItOut]").click();
+
+  await expect(
+    page.locator('[data-breadcrumb="Explore Demo Checkout Experience"]'),
+  ).toBeAttached();
+
+  await page.locator("[data-testid=amount]").locator("input").clear();
+  await page.locator("[data-testid=amount]").locator("input").fill("77");
+  await page.locator("[data-button-for=showPreview]").click();
+
+  await page.waitForTimeout(2000);
+
+  const iframe = page.frameLocator("iframe").first();
+  const cardInput = iframe.locator("[data-testid=cardNoInput]");
+  await cardInput.waitFor({ state: "visible", timeout: 20000 });
+  await cardInput.fill("4242424242424242");
+  await iframe.locator("[data-testid=expiryInput]").fill("0127");
+  await iframe.locator("[data-testid=cvvInput]").scrollIntoViewIfNeeded();
+  await iframe.locator("[data-testid=cvvInput]").fill("492");
+
+  await page.locator("[data-button-for=payUSD77]").click();
+  await expect(page.getByText("Payment Successful")).toBeAttached();
+}
+
+export async function signUpWithEmail(
+  page: Page,
+  username: string,
+  password: string,
+): Promise<void> {
+  const signinPage = new SignInPage(page);
+  const resetPasswordPage = new ResetPasswordPage(page);
+
+  await expect(page).toHaveURL(/.*register/);
+
+  const signupPage = new SignUpPage(page);
+  await signupPage.emailInput.fill(username);
+  await signupPage.signUpButton.click();
+
+  await expect(page.locator("[data-testid=card-header]")).toContainText(
+    "Please check your inbox",
+  );
+
+  await page.goto(MAIL_URL);
+  await page.locator("div.messages > div:nth-child(2)").click();
+  await page.waitForTimeout(1000);
+
+  const iframe = page.frameLocator("iframe").first();
+  const verifyLink = await iframe.locator("a").first().getAttribute("href");
+  if (verifyLink) {
+    await page.goto(verifyLink);
+  }
+
+  await signinPage.skip2FAButton.click();
+
+  await resetPasswordPage.createPassword.fill(password);
+  await resetPasswordPage.confirmPassword.fill(password);
+  await resetPasswordPage.confirmButton.click();
+
+  await signinPage.emailInput.fill(username);
+  await signinPage.passwordInput.fill(password);
+  await signinPage.signinButton.click();
+  await signinPage.skip2FAButton.click();
+}
+
+export async function redirectFromMailInbox(page: Page): Promise<void> {
+  await page.goto(MAIL_URL);
+  await page.locator("div.messages > div:nth-child(2)").click();
+  await page.waitForTimeout(1000);
+
+  const iframe = page.frameLocator("iframe").first();
+  const verifyLink = await iframe.locator("a").first().getAttribute("href");
+  if (verifyLink) {
+    await page.goto(verifyLink);
+  }
+}
+
+export async function signinFromMailInbox(page: Page): Promise<void> {
+  await page.goto(MAIL_URL);
+  await page
+    .locator("div.messages > div")
+    .getByText("Unlock Hyperswitch: Use Your Magic Link to Sign In")
+    .click();
+  await page.waitForTimeout(1000);
+
+  const iframe = page.frameLocator("iframe").first();
+  const verifyLink = await iframe.locator("a").first().getAttribute("href");
+  if (verifyLink) {
+    await page.goto(verifyLink);
+  }
+}
+
+export async function ompLineage(
+  page: Page,
+): Promise<{ orgId: string; merchantId: string; profileId: string }> {
+  const rawUserInfo = await page.evaluate(() => {
+    return window.localStorage.getItem("USER_INFO");
+  });
+
+  if (!rawUserInfo) {
+    throw new Error(
+      "ompLineage: USER_INFO not found in localStorage. User may not be logged in.",
+    );
+  }
+
+  let userInfo: { token?: string };
+  try {
+    userInfo = JSON.parse(rawUserInfo);
+  } catch (e) {
+    throw new Error(
+      `ompLineage: Failed to parse USER_INFO from localStorage: ${(e as Error).message}`,
+    );
+  }
+
+  const token = userInfo?.token;
+  if (!token) {
+    throw new Error(
+      "ompLineage: token not found in USER_INFO. User may not be authenticated.",
+    );
+  }
+
+  const ctx = await request.newContext();
+  const response = await ctx.get(`${API_URL}/user`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok()) {
+    throw new Error(
+      `ompLineage: Failed to fetch user info (${response.status()})`,
+    );
+  }
+
+  const body = await response.json();
+  return {
+    orgId: body.org_id ?? "",
+    merchantId: body.merchant_id ?? "",
+    profileId: body.profile_id ?? "",
+  };
+}
+
+export { checkPermissions as checkPermissionsFromTestName };

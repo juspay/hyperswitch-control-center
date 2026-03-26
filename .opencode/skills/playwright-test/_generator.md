@@ -10,7 +10,7 @@ model: "momus"
 > **Called by orchestrator.md during Step 4 (Generate Tests)**
 
 **Who calls this:** orchestrator.md ONLY (via task())
-**When called:** During generation phase of any mode that includes generation (full or generate-only)
+**When called:** During generation phase of full mode only
 **Input:** test-plan.json (written by planner)
 **Output:** `playwright-tests/ai-generated/*.spec.ts`
 

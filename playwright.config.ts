@@ -18,9 +18,9 @@ export default defineConfig({
     screenshot: "only-on-failure", // Screenshot on failure for debugging
     video: process.env.CI ? "on" : "retain-on-failure", // Video recording for CI debugging
     trace: process.env.CI ? "on" : "on-first-retry", // Collect trace for detailed debugging
-    actionTimeout: 15000, // Action timeout
-    navigationTimeout: 30000, // Navigation timeout
-    viewport: { width: 1280, height: 720 }, // Viewport
+    actionTimeout: 30000, // Action timeout - aligned with Cypress
+    navigationTimeout: 90000, // Navigation timeout - aligned with Cypress
+    viewport: { width: 1440, height: 1005 }, // Viewport - aligned with Cypress
   },
   outputDir: "test-results/", // Output directory for test artifacts
   reporter: process.env.CI // Reporter configuration

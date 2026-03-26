@@ -1,8 +1,8 @@
 ---
 name: playwright-planner
-description: Test planner agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="metis") during Step 3. Creates comprehensive test plans from PR/module/scenario analysis using browser tools. Writes test-plan.json for use by generator agent.
+description: Test planner agent for Playwright. Invoked by main agent (orchestrator) via task(subagent_type="playwright-planner") during Step 3. Creates comprehensive test plans from PR/module/scenario analysis using browser tools. Writes test-plan.json for use by generator agent.
 mode: subagent
-model: "metis"
+model: "playwright-planner"
 ---
 
 # Playwright Test Planner
@@ -64,7 +64,7 @@ Read `input-context.json`:
 ```json
 {
   "rawInput": "user's message",
-  "mode": "full|plan-only|generate-only|heal-only",
+  "mode": "full|plan-only|heal-only",
   "target": "#123|auth|description",
   "targetType": "pr|module|scenario|tag",
   "timestamp": "ISO",

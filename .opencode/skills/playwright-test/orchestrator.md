@@ -1,6 +1,6 @@
 ---
 name: playwright-orchestrator
-description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full/plan/generate/heal), and orchestrates the appropriate workflow by delegating to sub-agents (metis for planner, momus for generator, momus for healer). THIS FILE SHOULD BE EXECUTED BY THE MAIN AGENT, NOT DELEGATED.
+description: Central dispatcher for Playwright test automation. Receives ALL user requests from SKILL.md, detects execution mode (full/plan/heal), and orchestrates the appropriate workflow by delegating to sub-agents (playwright-planner, playwright-generator, playwright-healer). THIS FILE SHOULD BE EXECUTED BY THE MAIN AGENT (YOU), NOT DELEGATED.
 mode: primary
 ---
 
@@ -10,7 +10,7 @@ mode: primary
 
 **Who calls this:** SKILL.md (ALWAYS - sole entry point)
 **What you do:** Detect execution mode, orchestrate workflow by DELEGATING to sub-agents via task() calls, manage state, produce summary
-**What you do NOT do:** Implement test logic directly (delegate to specialized agents via task())
+**What you do NOT do:** Implement test pipeline logic directly (delegate to specialized agents via task())
 
 **CRITICAL RULE:** You MUST use task() to delegate to sub-agents. Do NOT do the work yourself.
 
@@ -20,195 +20,115 @@ mode: primary
 
 ### Full Pipeline Mode
 
-User Input → Step 1: Parse → Step 2: Setup → Step 3: \_planner (via task()) → Step 4: \_generator (via task()) → Step 5: Run → Step 6: \_healer (via task() if fail) → Step 7: Summary → Step 8: Bug Reports + Options → Step 9: Cleanup
+```
+Step 1: Parse → Step 2: Setup → Step 3: Plan → Step 4: Generate → Step 5: Run
+    → Step 6: Fix (if fail) → Step 7: Summary → Step 8: Finalization (User Choice + Cleanup)
+```
 
 ### Plan-Only Mode
 
-User Input → Step 1: Parse → Step 2: Setup → Step 3: \_planner (via task()) → Step 7: Summary → Step 8: Options → Step 9: Cleanup
-
-### Generate-Only Mode
-
-User Input → Step 1: Parse → Step 2: Setup → Step 3: \_planner (via task()) → Step 4: \_generator (via task()) → Step 7: Summary → Step 8: Options → Step 9: Cleanup
+```
+Step 1: Parse → Step 2: Setup → Step 3: Plan → Step 7: Summary → Step 8: Finalization
+```
 
 ### Heal-Only Mode
 
-User Input → Step 1: Parse → Step 2: Setup → Step 6: \_healer (via task()) → Step 7: Summary → Step 8: Options → Step 9: Cleanup
+```
+Step 1: Parse → Step 2: Setup → Step 5: Run → Step 6: Fix → Step 7: Summary → Step 8: Finalization
+```
+
+> **Note:** Step 8 has two parts - Part A presents options and waits for user input, Part B executes cleanup after user responds.
 
 ---
 
 ## Agent Delegation Reference
 
-| Agent Name      | Subagent Type | Instructions File | Called In Modes                | Purpose                          |
-| --------------- | ------------- | ----------------- | ------------------------------ | -------------------------------- |
-| playwright-test | `metis`       | `_planner.md`     | Full, Plan-Only, Generate-Only | Creates comprehensive test plans |
-| playwright-test | `momus`       | `_generator.md`   | Full, Generate-Only            | Generates test code from plans   |
-| playwright-test | `momus`       | `_healer.md`      | Full (if fail), Heal-Only      | Fixes failing tests              |
+| Agent Name      | Subagent Type          | Instructions File | Called In Modes           | Purpose                          |
+| --------------- | ---------------------- | ----------------- | ------------------------- | -------------------------------- |
+| playwright-test | `playwright-planner`   | `_planner.md`     | Full, Plan-Only           | Creates comprehensive test plans |
+| playwright-test | `playwright-generator` | `_generator.md`   | Full                      | Generates test code from plans   |
+| playwright-test | `playwright-healer`    | `_healer.md`      | Full (if fail), Heal-Only | Fixes failing tests              |
 
-**How to invoke:** `task({ category: "unspecified-high", load_skills: ["playwright-test"], subagent_type: "metis|momus|momus", prompt: "You are playwright-{role}..." })`
-
----
-
-## CRITICAL: Delegation Pattern
-
-**YOU MUST delegate via task() calls. DO NOT implement logic yourself.**
-
-### Correct Delegation Pattern:
+**How to invoke:**
 
 ```typescript
-// Step 3: Delegate to Planner Agent (metis)
-const plannerResult = await task({
+await task({
+  mode: "subagent",
   category: "unspecified-high",
-  load_skills: ["playwright-test"],
-  subagent_type: "metis",
-  run_in_background: false,
-  description: "Create test plan via metis",
-  prompt: `
-    You are the metis agent.
-
-    READ: .opencode/sessions/playwright-run/input-context.json
-
-    Your task:
-    1. Read the input context to understand what to test
-    2. Use browser tools (browser_navigate, browser_snapshot) to explore the application at http://localhost:9000
-    3. Create a comprehensive test plan in: .opencode/sessions/playwright-run/test-plan.json
-
-    The test plan must include:
-    - Scenarios array with detailed steps
-    - Selectors for elements
-    - Preconditions for each test
-    - Expected outcomes
-
-    Use data-testid selectors where available.
-    Add { timeout: 10000 } for API-dependent renders.
-
-    After writing test-plan.json, report: "Planning complete. N scenarios created."
-  `
+  load_skills: ["playwright-test", "playwright-planner"],
+  mcp: ["playwright"],
+  subagent_type:
+    "playwright-planner" | "playwright-generator" | "playwright-healer",
+  prompt: "You are playwright-{role}...",
 });
-
-// Check planner result and proceed only if successful
-if (!plannerResult.success) {
-  report error and stop;
-}
-
-// Step 4: Delegate to Generator Agent (momus)
-const generatorResult = await task({
-  category: "unspecified-high",
-  load_skills: ["playwright-test"],
-  subagent_type: "momus",  // playwright-generator agent
-  run_in_background: false,
-  description: "Generate test code via playwright-generator",
-  prompt: `
-    You are the playwright-generator agent.
-
-    READ: .opencode/sessions/playwright-run/test-plan.json
-
-    Your task:
-    1. Read the test plan
-    2. Use browser tools to verify selectors exist on the actual page
-    3. Generate executable Playwright test code in: playwright-tests/ai-generated/*.spec.ts
-    4. Use API helpers (signupUser, etc.) from support/commands.ts
-    5. Follow the file naming convention from SKILL.md
-
-    After writing test files, report: "Generation complete. N tests written to {filename}."
-  `
-});
-```
-
----
-
-## State Management
-
-**Session Directory:** `.opencode/sessions/playwright-run/{sessionId}/`
-
-| File                 | Purpose                              | Updated By         |
-| -------------------- | ------------------------------------ | ------------------ |
-| `session.json`       | Pipeline state, mode, phase, metrics | You (every step)   |
-| `input-context.json` | Parsed user request                  | Step 1             |
-| `test-plan.json`     | Structured test scenarios            | Step 3 (\_planner) |
-| `run-results.json`   | Test execution results               | Step 5             |
-| `summary.json`       | Final report                         | Step 7             |
-| `bug-report.md`      | Bug findings (if failures)           | Step 8             |
-
-**Session JSON Schema:**
-
-```json
-{
-  "sessionId": "uuid",
-  "mode": "full|plan-only|generate-only|heal-only",
-  "status": "initialized|running|complete|failed",
-  "phase": "parse|setup|planning|generating|running|healing|summary|cleanup",
-  "startedAt": "ISO",
-  "servers": {
-    "backendWasStarted": false,
-    "frontendWasStarted": false
-  },
-  "metrics": {
-    "testsGenerated": 0,
-    "testsPassed": 0,
-    "testsFailed": 0,
-    "fixesApplied": 0
-  },
-  "files": {
-    "testPlan": "test-plan.json",
-    "testFile": "playwright-tests/ai-generated/*.spec.ts",
-    "results": "run-results.json",
-    "summary": "summary.json"
-  }
-}
 ```
 
 ---
 
 ## Step 1: Parse Input & Detect Mode
 
-### 1.1 Read User Input
+### PRECONDITION
 
-Extract from the conversation context:
+Before executing this step, verify:
 
-- Raw user message
-- Any PR numbers, module names, or scenario descriptions
+- User input received from SKILL.md via conversation context
 
-### 1.2 Detect Execution Mode
+### EXECUTE
 
-Analyze user input keywords:
+1. Extract from conversation context:
+   - Raw user message
+   - Any PR numbers, module names, or scenario descriptions
 
-| Keywords Detected                                                   | Mode              |
-| ------------------------------------------------------------------- | ----------------- |
-| "plan" OR "analyze" OR "create test plan"                           | **plan-only**     |
-| "generate" AND ("cases" OR "code" OR "write")                       | **generate-only** |
-| "heal" OR "fix" OR "debug" OR "repair"                              | **heal-only**     |
-| "generate" OR "create" OR "run" OR "test" (without above modifiers) | **full**          |
-| Default (no specific keywords)                                      | **full**          |
+2. Detect execution mode by analyzing keywords:
+   | Keywords Detected | Mode |
+   | ------------------------------------------------------------------- | ------------- |
+   | "plan tests", "create test plan" | **plan-only** |
+   | "fix failing tests", "fix tests", "heal tests", "repair tests" | **heal-only** |
+   | "generate tests", "create test flow", "run playwright tests", "test PR #123" (without above modifiers) | **full** |
+   | Default (no specific keywords) | **full** |
 
-### 1.3 Parse Target
+3. Parse target based on mode:
+   - **PR Mode:** PR number (e.g., #123)
+   - **Module Mode:** module name (e.g., "auth", "payments")
+   - **Scenario Mode:** description text
+   - **Tag Mode:** tag name
 
-Based on mode, extract:
+4. Generate session ID:
 
-- **PR Mode:** PR number (e.g., #123)
-- **Module Mode:** module name (e.g., "auth", "payments")
-- **Scenario Mode:** description text
-- **Tag Mode:** tag name
+   ```javascript
+   sessionId = crypto.randomUUID();
+   ```
 
-### 1.4 Generate Session ID
+5. Write `input-context.json`:
+   ```json
+   {
+     "rawInput": "user's message",
+     "mode": "full|plan-only|heal-only",
+     "target": "#123|auth|description",
+     "targetType": "pr|module|scenario|tag",
+     "timestamp": "ISO",
+     "sessionId": "uuid"
+   }
+   ```
 
-```javascript
-sessionId = crypto.randomUUID();
-```
+### VERIFY
 
-### 1.5 Write input-context.json
+- [ ] `mode` is one of: ["full", "plan-only", "heal-only"]
+- [ ] `sessionId` is a valid UUID format
+- [ ] `input-context.json` was written successfully
+- [ ] `target` is not empty
 
-```json
-{
-  "rawInput": "user's message",
-  "mode": "full|plan-only|generate-only|heal-only",
-  "target": "#123|auth|description",
-  "targetType": "pr|module|scenario|tag",
-  "timestamp": "ISO",
-  "sessionId": "uuid"
-}
-```
+### ONLY PROCEED TO STEP 2 IF ALL VERIFY CHECKS PASS
 
-### 1.6 Initialize session.json
+If any check fails:
+
+1. Repeat step for 2 times
+2. If fail: Report failure to user, If not: Continue
+3. Log error: "Step 1 failed: [specific failure reason]"
+
+### SESSION UPDATE
+
+Initialize `session.json`:
 
 ```json
 {
@@ -219,6 +139,7 @@ sessionId = crypto.randomUUID();
   "startedAt": "ISO",
   "servers": { "backendWasStarted": false, "frontendWasStarted": false },
   "metrics": {
+    "testsPlanned": 0,
     "testsGenerated": 0,
     "testsPassed": 0,
     "testsFailed": 0,
@@ -227,32 +148,70 @@ sessionId = crypto.randomUUID();
 }
 ```
 
+### HANDOVER TO STEP 2
+
+Proceed to Step 2 for ALL modes.
+
 ---
 
 ## Step 2: Environment Setup
 
-### 2.1 Check Backend
+### PRECONDITION
 
-```bash
-curl -s http://localhost:8080/health
-```
+Before executing this step, verify:
 
-**If DOWN:**
+- `session.json` exists with `phase="parse"`
+- `mode` is one of ["full", "plan-only", "heal-only"]
 
-1. Run: `sh cypress/start_hyperswitch.sh`
-2. Poll every 5s, max 120s
-3. Update `session.json.servers.backendWasStarted = true`
-4. If fail: Ask user to continue or abort
+### EXECUTE
 
-### 2.2 Check Frontend
+1. Check backend health:
 
-```bash
-curl -s http://localhost:9000 > /dev/null && echo "UP" || echo "DOWN"
-```
+   ```bash
+   curl -s http://localhost:8080/health
+   ```
 
-Frontend auto-starts via Playwright webServer if DOWN.
+   **If DOWN or non-200 response:**
+   - Run: `sh cypress/start_hyperswitch.sh`
+   - Poll every 5s, max 120s
+   - Set `backendWasStarted = true`
+   - If still DOWN after 120s: ask user to continue or abort
 
-### 2.3 Update Session
+2. Check frontend:
+
+   ```bash
+   curl -s http://localhost:9000 > /dev/null && echo "UP" || echo "DOWN"
+   ```
+
+   **If DOWN:**
+   - Run: `npm run build:test && npm run test:start`
+   - Poll every 5s, max 120s
+   - Set `frontendWasStarted = true`
+   - If still DOWN after 120s: ask user to continue or abort
+
+### VERIFY
+
+- [ ] Backend responds with HTTP 200 on `:8080/health`
+- [ ] Frontend responds with HTTP 200 on `:9000`
+- [ ] Both services are accessible
+
+### ONLY PROCEED TO STEP 3 IF BOTH SERVICES ARE UP
+
+If either service is DOWN:
+
+1. Log error: "Step 1 failed: [specific failure reason]"
+2. Repeat step for 2 times
+3. If fail: Report failure to user, If not: Continue
+4. Update `session.json`:
+   ```json
+   { "status": "failed", "phase": "setup", "error": "Environment setup failed" }
+   ```
+5. STOP pipeline
+6. Report failure to user
+
+### SESSION UPDATE
+
+Update `session.json`:
 
 ```json
 {
@@ -264,72 +223,54 @@ Frontend auto-starts via Playwright webServer if DOWN.
 }
 ```
 
+### HANDOVER TO NEXT STEP
+
+- **Full mode** → Step 3
+- **Plan-Only mode** → Step 3
+- **Heal-Only mode** → Step 5
+
 ---
 
 ## Step 3: Plan Tests (All Modes)
 
-**CRITICAL:** Delegate to planner agent via task(). DO NOT plan tests yourself.
+### PRECONDITION
 
-### 3.1 Delegate to Planner Agent (metis)
+Before executing this step, verify:
 
-```typescript
-const plannerResult = await task({
-  category: "unspecified-high",
-  load_skills: ["playwright-test"],
-  subagent_type: "metis", // This loads _planner.md instructions
-  run_in_background: false,
-  description: "Create test plan via playwright-planner agent",
-  prompt: `
-    You are the playwright-planner agent. Your job is to create a comprehensive test plan.
-    
-    **MANDATORY ACTIONS:**
-    1. Read: .opencode/sessions/playwright-run/input-context.json
-    2. Use browser tools to explore the application:
-       - browser_navigate to http://localhost:9000/dashboard/login (or appropriate URL)
-       - browser_snapshot to analyze page structure
-       - Identify all interactive elements, forms, buttons, navigation
-    3. Create test-plan.json with detailed scenarios
-    
-    **Output File:** .opencode/sessions/playwright-run/test-plan.json
-    
-    **Test Plan Structure:**
-    {
-      "sessionId": "uuid",
-      "source": "description",
-      "scenarios": [
-        {
-          "id": "scenario-1",
-          "title": "Test name",
-          "category": "happy-path|validation|error-handling",
-          "preconditions": ["setup steps"],
-          "steps": [{"action": "navigate|click|type|verify", "target": "selector", "value": "...", "expected": "..."}],
-          "selectors": {"elementName": "[data-testid='value']"}
-        }
-      ]
-    }
-    
-    **Coverage Requirements:**
-    - Happy path scenarios
-    - Validation scenarios  
-    - Error handling scenarios
-    - Navigation scenarios
-    
-    After completing, report: "Planning complete. N scenarios created in test-plan.json"
-  `,
-});
-```
+- `session.json` exists with `phase="setup"`
+- Backend and frontend services are running
+- `input-context.json` exists with parsed input
 
-### 3.2 Verify Output
+### EXECUTE
 
-Check that test-plan.json exists and contains valid scenarios array.
+Delegate to playwright-planner agent via task():
 
-**On fail:**
+### VERIFY
 
-- Update session.json status="planning-failed"
-- Report error
-- Stop
+- [ ] `test-plan.json` exists in session directory
+- [ ] `test-plan.json` contains valid JSON
+- [ ] `scenarios` array exists with length > 0
+- [ ] Each scenario has required fields: id, title, category, steps
+- [ ] Agent reported success in result
 
-### 3.3 Update Session
+### ONLY PROCEED TO NEXT STEP IF ALL VERIFY CHECKS PASS
+
+If verification fails:
+
+1. Update `session.json`:
+   ```json
+   {
+     "status": "failed",
+     "phase": "planning",
+     "error": "Test plan creation failed"
+   }
+   ```
+2. STOP pipeline
+3. Report error to user
+
+### SESSION UPDATE
+
+Update `session.json`:
 
 ```json
 {
@@ -338,67 +279,54 @@ Check that test-plan.json exists and contains valid scenarios array.
 }
 ```
 
+### HANDOVER TO NEXT STEP
+
+- **Full mode** → Step 4
+- **Plan-Only mode** → Step 7
+- **Heal-Only mode** → Step 5
+
 ---
 
-## Step 4: Generate Tests (Full & Generate-Only Modes)
+## Step 4: Generate Tests (Full Mode Only)
 
-**Skip this step for:** plan-only, heal-only modes
+### PRECONDITION
 
-**CRITICAL:** Delegate to generator agent via task(). DO NOT generate tests yourself.
+Before executing this step, verify:
 
-### 4.1 Delegate to Generator Agent (momus)
+- `session.json` exists with `phase="planning"`
+- `mode === "full"`
+- `test-plan.json` exists with valid scenarios
+- **SKIP this step for plan-only and heal-only modes**
 
-```typescript
-const generatorResult = await task({
-  category: "unspecified-high",
-  load_skills: ["playwright-test"],
-  subagent_type: "momus", // This loads _generator.md instructions
-  run_in_background: false,
-  description: "Generate test code via playwright-generator agent",
-  prompt: `
-    You are the playwright-generator agent. Your job is to generate executable Playwright tests.
-    
-    **MANDATORY ACTIONS:**
-    1. Read: .opencode/sessions/playwright-run/test-plan.json
-    2. Read existing Page Object Models in playwright-tests/support/pages/ 
-    3. Use browser tools to verify selectors from the test plan actually exist:
-       - browser_navigate to target page
-       - browser_snapshot to verify selectors
-    4. Generate test file: playwright-tests/ai-generated/{filename}.spec.ts
-    
-    **File Naming:**
-    - PR: PR-{number}-{slug}.spec.ts
-    - Module: module-{name}.spec.ts
-    - Scenario: scenario-{slug}.spec.ts
-    
-    **Test Structure Template:**
-    import { test, expect } from "@playwright/test";
-    import { signupUser, generateUniqueEmail } from "../support/commands";
-    
-    test.describe("Feature", () => {
-      test.beforeEach(async ({ page }) => {
-        // Setup via API
-        const email = generateUniqueEmail();
-        await signupUser(email, password);
-        // Login via UI
-        await page.goto("/dashboard/login");
-        // ... login steps
-      });
-      
-      // Scenarios from test-plan.json
-    });
-    
-    **Use:**
-    - API helpers for setup (signupUser, etc.)
-    - Semantic selectors (getByRole, getByLabel, getByTestId)
-    - { timeout: 10000 } for API-dependent operations
-    
-    After completing, report: "Generation complete. N tests written to {filename}"
-  `,
-});
-```
+### EXECUTE
 
-### 4.2 Update Session
+Delegate to playwright-generator agent via task():
+
+### VERIFY
+
+- [ ] At least one `.spec.ts` file created in `playwright-tests/ai-generated/`
+- [ ] Generated files contain valid TypeScript/Playwright syntax
+- [ ] Files follow naming convention from SKILL.md
+- [ ] Agent reported success with file count
+
+### ONLY PROCEED TO STEP 5 IF TEST FILES GENERATED
+
+If generation fails:
+
+1. Update `session.json`:
+   ```json
+   {
+     "status": "failed",
+     "phase": "generating",
+     "error": "Test generation failed"
+   }
+   ```
+2. STOP pipeline
+3. Report error to user
+
+### SESSION UPDATE
+
+Update `session.json`:
 
 ```json
 {
@@ -407,17 +335,42 @@ const generatorResult = await task({
 }
 ```
 
+### HANDOVER TO STEP 5
+
+Proceed to Step 5 for Full mode.
+
 ---
 
-## Step 5: Run Tests (Full Mode and Generate-Only Modes)
+## Step 5: Run Tests (Full Mode Only)
 
-**Skip this step for:** plan-only, heal-only modes
+### PRECONDITION
 
-**Execute:** `npx playwright test {test-file} --reporter=json --output=test-results/`
+Before executing this step, verify:
 
-### 5.1 Capture Results
+- `session.json` exists with `phase="generating"`
+- `mode === "full"`
+- Test files exist in `playwright-tests/ai-generated/`
+- **SKIP this step for plan-only mode**
+- **ALWAYS run for heal-only mode** (tests should already exist)
 
-Write run-results.json:
+### EXECUTE
+
+Run tests via CLI:
+
+```bash
+npx playwright test playwright-tests/ai-generated/*.spec.ts --reporter=json --output=test-results/
+```
+
+Capture exit code and output.
+
+### VERIFY
+
+- [ ] `run-results.json` created successfully
+- [ ] JSON contains valid test results structure
+- [ ] Required fields present: status, summary.total, summary.passed, summary.failed
+- [ ] Can parse `testsPassed` and `testsFailed` counts
+
+Write `run-results.json`:
 
 ```json
 {
@@ -429,7 +382,20 @@ Write run-results.json:
 }
 ```
 
-### 5.2 Update Session
+### ONLY PROCEED TO NEXT STEP IF RESULTS CAPTURED
+
+If test run fails to produce results:
+
+1. Update `session.json`:
+   ```json
+   { "status": "failed", "phase": "running", "error": "Test execution failed" }
+   ```
+2. STOP pipeline
+3. Report error to user
+
+### SESSION UPDATE
+
+Update `session.json`:
 
 ```json
 {
@@ -441,86 +407,92 @@ Write run-results.json:
 }
 ```
 
+### HANDOVER TO NEXT STEP
+
+- **If `testsFailed > 0`** → Step 6
+- **If `testsFailed == 0`** → Step 7
+
 ---
 
 ## Step 6: Fix Failures (Full & Heal-Only Modes)
 
-**Skip this step for:** plan-only modes
+### PRECONDITION
 
-**Execute for:** Full mode (if tests failed) OR heal-only mode
+Before executing this step, verify ONE of:
 
-**CRITICAL:** Delegate to healer agent via task(). DO NOT fix tests yourself.
+- **Full mode:** `phase="running"` AND `testsFailed > 0`
+- **Heal-Only mode:** `run-results.json` exists with failures
+- **SKIP this step for plan-only mode**
 
-### 6.1 Check Condition
+### EXECUTE
 
-- **Full mode:** Only if `run-results.json` shows failures
-- **Heal-only mode:** Always (user explicitly requested)
+Delegate to playwright-healer agent via task():
 
-### 6.2 Delegate to Healer Agent (momus)
+### VERIFY
 
-```typescript
-const healerResult = await task({
-  category: "unspecified-high",
-  load_skills: ["playwright-test"],
-  subagent_type: "momus", // This loads _healer.md instructions
-  run_in_background: false,
-  description: "Debug and fix failing tests via playwright-healer agent",
-  prompt: `
-    You are the playwright-healer agent. Your job is to diagnose and fix failing tests.
-    
-    **MANDATORY ACTIONS:**
-    1. Read: .opencode/sessions/playwright-run/run-results.json
-    2. Read the failing test files
-    3. For each failing test:
-       - Use browser_navigate to go to the test page
-       - Use browser_console_messages to check for JS errors
-       - Use browser_snapshot to inspect the DOM at failure point
-       - Reproduce the failure steps manually
-       - Identify the root cause (selector, timing, data, etc.)
-       - Fix the test code
-    
-    **Common Fixes:**
-    - Add waits: await page.locator("...").waitFor({ state: "visible" })
-    - Fix selectors: Use data-testid or semantic selectors
-    - Add timing: await page.waitForLoadState("networkidle")
-    - Handle conditional elements: Check isVisible() before clicking
-    
-    **Max 3 attempts per test.**
-    
-    **Document fixes in comments:**
-    // Fixed: Added wait for API response
-    // Was failing because element rendered before data loaded
-    
-    After completing, report: "Healing complete. N tests fixed, M still failing"
-  `,
-});
-```
+- [ ] Agent reported completion
+- [ ] Test files were modified (check timestamps or git diff)
+- [ ] **Full mode only:** Re-run tests to verify fixes applied
 
-### 6.3 Re-run Tests (Full Mode Only)
+**For Full mode after healing:**
+Re-run: `npx playwright test {files} --reporter=json`
+Verify failures reduced or tests now pass.
 
-After healing, re-run tests to verify fixes.
+### ONLY PROCEED TO STEP 7 IF FIXES APPLIED OR MAX ATTEMPTS REACHED
 
-### 6.4 Update Session
+If healing fails completely:
+
+1. Mark remaining failures with `.fixme()` in test files
+2. Log: "Healing incomplete - marked failures as fixme"
+3. Continue to Step 7 (do not stop pipeline)
+
+### SESSION UPDATE
+
+Update `session.json`:
 
 ```json
 {
   "phase": "healing",
-  "metrics": { "fixesApplied": N }
+  "metrics": {
+    "fixesApplied": N,
+    "testsPassed": [updated count],
+    "testsFailed": [updated count]
+  }
 }
 ```
 
+### HANDOVER TO STEP 7
+
+Proceed to Step 7 for all applicable modes.
+
 ---
 
-## Step 7: Generate Summary
+## Step 7: Generate Summary (All Modes)
 
-**Execute for ALL modes**
+### PRECONDITION
 
-Read all JSON files, write summary.json:
+Before executing this step, verify:
+
+- **Full mode:** `phase` is "running" or "healing"
+- **Plan-Only mode:** `phase="planning"`
+- **Heal-Only mode:** `phase="healing"`
+
+### EXECUTE
+
+1. Read all relevant JSON files:
+   - `input-context.json` (request details)
+   - `test-plan.json` (planned count)
+   - `run-results.json` (if exists - pass/fail counts)
+   - `session.json` (metrics)
+
+2. Calculate duration: `Date.now() - new Date(startedAt).getTime()`
+
+3. Write `summary.json`:
 
 ```json
 {
   "sessionId": "uuid",
-  "mode": "full|plan-only|generate-only|heal-only",
+  "mode": "full|plan-only|heal-only",
   "request": "raw input",
   "status": "complete|partial|failed",
   "duration": "ms",
@@ -541,45 +513,300 @@ Read all JSON files, write summary.json:
 }
 ```
 
----
+### VERIFY
 
-## Step 8: Bug Report & User Options
+- [ ] `summary.json` created successfully
+- [ ] All required fields present
+- [ ] Numbers match session.json metrics
+- [ ] Status determined correctly:
+  - "complete" = all tests passed
+  - "partial" = some tests failed or fixme
+  - "failed" = critical error stopped pipeline
 
-**Execute for ALL modes**
+### ONLY PROCEED TO STEP 8 IF SUMMARY GENERATED
 
-### 8.1 Generate Bug Report (if issues found)
+If summary generation fails:
 
-Create structured report from results.
+1. Log error details
+2. Continue to Step 8 with partial data (do not stop pipeline)
 
-### 8.2 Present Options
-
-Display results and options to user.
-
----
-
-## Step 9: Cleanup
-
-**Execute for ALL modes**
-
-### 9.1 Stop Servers (if we started them)
-
-```bash
-# If session.json.servers.backendWasStarted == true:
-cd hyperswitch
-docker rm -f hyperswitch-mailhog-1 2>/dev/null; docker compose down -v
-```
-
-### 9.2 File Cleanup (per user choice)
-
-| Choice       | Action                                              |
-| ------------ | --------------------------------------------------- |
-| Keep all     | No action                                           |
-| Keep passing | Delete tests with fixme                             |
-| Clean slate  | Delete ai-generated/\*.spec.ts, clear session files |
-
-### 9.3 Finalize Session
+### SESSION UPDATE
 
 Update `session.json`:
+
+```json
+{
+  "phase": "summary"
+}
+```
+
+### HANDOVER TO STEP 8
+
+Proceed to Step 8 for ALL modes.
+
+---
+
+## Step 8: Finalization - User Choice & Cleanup (All Modes)
+
+> **CRITICAL: This is the FINAL step. User input MUST be collected before any cleanup actions.**
+
+### PRECONDITION
+
+Before executing this step, verify:
+
+- `session.json` exists with `phase="summary"`
+- `summary.json` exists (even if partial)
+
+### PART A: Present Summary & Collect User Choice
+
+1. **Generate Bug Report** (if failures exist):
+   - Read `run-results.json` failures array
+   - Create `bug-report.md` with structured findings
+   - Include: test name, error message, location, suggested fix
+
+2. **Present Summary to User:**
+
+   ```
+   === Test Run Complete ===
+
+   Mode: [full|plan-only|heal-only]
+   Tests Planned: N
+   Tests Generated: N
+   Tests Passed: N
+   Tests Failed: N
+   Fixes Applied: N
+   Duration: N ms
+
+   What would you like to do?
+
+   [1] commit       - Commit and push all changes (create PR)
+   [2] keep-passing - Commit only passing tests (delete .fixme() tests)
+   [3] keep         - Keep all files (no cleanup)
+   [4] clean        - Delete all generated files
+
+   Reply with your choice (1, 2, 3, or 4) or type the action name.
+   ```
+
+3. **WAIT FOR USER INPUT** ⏸️
+
+   > **STOP HERE. DO NOT PROCEED WITHOUT USER CHOICE.**
+   - The orchestrator MUST end its current response after presenting options
+   - Wait for the user's explicit reply
+   - Only after user responds, continue to Part B
+
+4. **Parse User Response** (on next interaction):
+   - Valid choices: `commit`, `keep-passing`, `keep`, `clean`
+   - Aliases: `1`→`commit`, `2`→`keep-passing`, `3`→`keep`, `4`→`clean`
+   - Store validated choice in `session.json`
+
+### PART B: Execute Cleanup (After User Responds)
+
+> **Only execute Part B after the user has provided their choice.**
+
+#### PRECONDITION FOR PART B
+
+- User has responded with a valid choice
+- `session.json` updated with `userChoice`
+
+#### EXECUTE CLEANUP ACTIONS
+
+1. **Stop Servers** (if we started them):
+
+   ```bash
+   # If session.json.servers.backendWasStarted == true:
+   cd hyperswitch
+   docker rm -f hyperswitch-mailhog-1 2>/dev/null
+   docker compose down -v
+   ```
+
+   ```bash
+   # If session.json.servers.frontendWasStarted == true:
+   # Kill process on port 9000
+   lsof -ti:9000 | xargs kill -9
+   ```
+
+2. **Execute User Choice:**
+
+   | Choice         | Action                                                        |
+   | -------------- | ------------------------------------------------------------- |
+   | `commit`       | Commit changes, push to branch, create PR                     |
+   | `keep-passing` | Delete tests with `.fixme()` or in failing files, then commit |
+   | `keep`         | No action - leave all files as-is                             |
+   | `clean`        | Delete ai-generated/\*.spec.ts, clear session files           |
+
+### SESSION UPDATE
+
+After Part A (presenting options):
+
+```json
+{
+  "phase": "awaiting-user-choice",
+  "message": "Waiting for user input: commit|keep-passing|keep|clean"
+}
+```
+
+After Part B (cleanup complete):
+
+```json
+{
+  "status": "complete",
+  "phase": "cleanup",
+  "userChoice": "commit|keep-passing|keep|clean",
+  "completedAt": "ISO"
+}
+```
+
+### VERIFY
+
+**After Part A:**
+
+- [ ] Summary presented to user
+- [ ] Options clearly listed with numbers and names
+- [ ] Session shows `phase="awaiting-user-choice"`
+- [ ] **Orchestrator response ENDS here - waits for user**
+
+**After Part B:**
+
+- [ ] Valid user choice received and parsed
+- [ ] Servers stopped (if we started them)
+- [ ] Files cleaned according to user choice
+- [ ] No orphaned processes
+- [ ] Session marked complete
+
+### HANDLING INVALID USER INPUT
+
+If user provides invalid input:
+
+1. Respond: `"Invalid choice '{input}'. Please reply with: commit, keep-passing, keep, or clean (or 1, 2, 3, 4)"`
+2. Remain in `awaiting-user-choice` phase
+3. Wait for valid input
+
+### COMPLETION REPORT
+
+After successful cleanup, report to user:
+
+```
+=== Pipeline Complete ===
+
+Session ID: {uuid}
+Mode: {mode}
+Action Taken: {userChoice}
+Status: complete
+Duration: {ms} ms
+
+Files:
+- Test Plan: {path}
+- Test Files: {paths}
+- Results: {path}
+- Summary: {path}
+- Bug Report: {path} (if failures exist)
+
+Next Steps:
+- Review generated tests: playwright-tests/ai-generated/
+- Review test plan: .opencode/sessions/playwright-run/test-plan.json
+```
+
+=== Test Run Complete ===
+
+Mode: [full|plan-only|heal-only]
+Tests Planned: N
+Tests Generated: N
+Tests Passed: N
+Tests Failed: N
+Fixes Applied: N
+Duration: N ms
+
+Choose action:
+
+1.  Commit and push all changes
+2.  Commit passing only (delete fixme tests)
+3.  Keep all (no cleanup)
+4.  Clean slate (delete all generated files)
+
+````
+
+3. **Capture User Choice** and store for Step 9
+
+### VERIFY
+
+- [ ] User has made a selection
+- [ ] Choice is one of: ["commit", "keep", "keep-passing", "clean"]
+- [ ] Choice stored in session
+
+### **ONLY PROCEED TO STEP 9 IF USER CHOICE CONFIRMED**
+
+Wait for user input if needed.
+
+### SESSION UPDATE
+
+Update `session.json`:
+
+```json
+{
+"phase": "options",
+"userChoice": "commit|keep|keep-passing|clean"
+}
+````
+
+### HANDOVER TO STEP 9
+
+Proceed to Step 9 for ALL modes.
+
+---
+
+## Step 9: Cleanup (All Modes)
+
+### PRECONDITION
+
+Before executing this step, verify:
+
+- `session.json` exists with `phase="options"`
+- `userChoice` is set
+
+### **PROCEED ONLY IF STEP 8 IS COMPLETED WITH USER CHOICE**
+
+### EXECUTE
+
+1. **Stop Servers** (if we started them):
+
+   ```bash
+   # If session.json.servers.backendWasStarted == true:
+   cd hyperswitch
+   docker rm -f hyperswitch-mailhog-1 2>/dev/null
+   docker compose down -v
+   ```
+
+   ```bash
+   # If session.json.servers.frontendWasStarted == true:
+   # Kill process on port 9000
+   lsof -ti:9000 | xargs kill -9
+   ```
+
+2. **File Cleanup** (per `userChoice`):
+   | Choice | Action |
+   | ------------- | ---------------------------------------------------- |
+   | `commit` | Commit changes, push to branch, create PR |
+   | `keep` | No action - leave all files |
+   | `keep-passing`| Delete tests with `.fixme()` or in failing files |
+   | `clean` | Delete ai-generated/\*.spec.ts, clear session files |
+
+### VERIFY
+
+- [ ] Servers stopped (if we started them)
+- [ ] Files cleaned according to user choice
+- [ ] No orphaned processes
+- [ ] Session marked complete
+
+### ONLY PROCEED TO END IF CLEANUP COMPLETED
+
+If cleanup fails:
+
+1. Log warning: "Cleanup incomplete - manual intervention may be needed"
+2. Continue to finalize session (do not block on cleanup errors)
+
+### SESSION UPDATE
+
+Finalize `session.json`:
 
 ```json
 {
@@ -589,25 +816,51 @@ Update `session.json`:
 }
 ```
 
+### HANDOVER TO END
+
+Report completion to user:
+
+```
+=== Pipeline Complete ===
+
+Session ID: {uuid}
+Mode: {mode}
+Status: complete
+Duration: {ms} ms
+
+Files:
+- Test Plan: {path}
+- Test Files: {paths}
+- Results: {path}
+- Summary: {path}
+
+Next: Review generated tests in playwright-tests/ai-generated/
+```
+
 ---
 
 ## Error Handling
 
-| Error                  | Action                                   |
-| ---------------------- | ---------------------------------------- |
-| gh not auth            | Prompt: "Run `gh auth login`"            |
-| PR not found           | List recent PRs, ask to verify           |
-| Backend timeout        | Report, ask to continue or abort         |
-| Agent fails            | Update status, report error, offer retry |
-| All heal attempts fail | Mark fixme, continue to summary          |
+| Error                  | Action                                              |
+| ---------------------- | --------------------------------------------------- |
+| gh not auth            | Prompt: "Run `gh auth login`"                       |
+| PR not found           | List recent PRs, ask to verify                      |
+| Backend timeout        | Report, ask to continue or abort                    |
+| Agent fails            | Update status, report error, offer retry            |
+| All heal attempts fail | Mark fixme, continue to summary                     |
+| Test file not found    | Check path, regenerate if needed                    |
+| Selector not found     | Log warning, use fallback selector, continue        |
+| Session corruption     | Log error, attempt recovery from input-context.json |
 
 ---
 
 ## References
 
-- Conventions: `SKILL.md`
-- Planning: `_planner.md`
-- Generation: `_generator.md`
-- Healing: `_healer.md`
-- Config: `playwright.config.ts`
-- Helpers: `playwright-tests/support/commands.ts`
+| File                                   | Purpose                   |
+| -------------------------------------- | ------------------------- |
+| `SKILL.md`                             | Conventions & entry point |
+| `_planner.md`                          | Planning logic            |
+| `_generator.md`                        | Generation logic          |
+| `_healer.md`                           | Healing logic             |
+| `playwright.config.ts`                 | Playwright configuration  |
+| `playwright-tests/support/commands.ts` | API helpers               |

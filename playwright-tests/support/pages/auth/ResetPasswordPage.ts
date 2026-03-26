@@ -12,7 +12,7 @@ export class ResetPasswordPage {
   }
 
   get confirmPassword(): Locator {
-    return this.page.locator('[data-testid="comfirm_password"]').nth(1);
+    return this.page.locator('[data-testid="confirm_password"]').nth(1);
   }
 
   get eyeIcon(): Locator {
@@ -28,7 +28,7 @@ export class ResetPasswordPage {
   }
 
   get confirmPasswordField(): Locator {
-    return this.page.locator('[data-testid="comfirm_password"]');
+    return this.page.locator('[data-testid="confirm_password"]');
   }
 }
 
