@@ -113,9 +113,7 @@ let make = () => {
     title: "Split Payments",
     renderContent: () =>
       <div className="mt-5">
-        <SplitPaymentsSection
-          entity={InsightsPaymentAnalyticsEntity.splitPaymentsSectionEntity}
-        />
+        <SplitPaymentsSection entity={InsightsPaymentAnalyticsEntity.splitPaymentsSectionEntity} />
       </div>,
   })
 

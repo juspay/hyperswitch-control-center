@@ -104,7 +104,10 @@ let make = (~entity: moduleEntity) => {
       )
 
       let splitFilters = splitPaymentFilter()
-      let splitFilter = generateFilterObject(~globalFilters=filterValueJson, ~localFilters=splitFilters->Some)
+      let splitFilter = generateFilterObject(
+        ~globalFilters=filterValueJson,
+        ~localFilters=splitFilters->Some,
+      )
 
       // Fetch total payments count
       let totalPaymentsBody = requestBody(

@@ -22,15 +22,14 @@ let splitPaymentsDistributionPieMapper = (data: JSON.t) => {
   let rateKey = Payments_Success_Rate_Distribution_Without_Smart_Retries->getStringFromVariant
   let connectorKey = Split_Payment_Connector->getStringFromVariant
 
-  let pieData: array<PieGraphTypes.pieGraphDataType> =
-    queryData->Array.map(item => {
-      let dict = item->getDictFromJsonObject
-      let dataObj: PieGraphTypes.pieGraphDataType = {
-        name: dict->getString(connectorKey, "")->snakeToTitle,
-        y: dict->getFloat(rateKey, 0.0),
-      }
-      dataObj
-    })
+  let pieData: array<PieGraphTypes.pieGraphDataType> = queryData->Array.map(item => {
+    let dict = item->getDictFromJsonObject
+    let dataObj: PieGraphTypes.pieGraphDataType = {
+      name: dict->getString(connectorKey, "")->snakeToTitle,
+      y: dict->getFloat(rateKey, 0.0),
+    }
+    dataObj
+  })
 
   let payload: PieGraphTypes.pieGraphPayload<int> = {
     chartSize: "80%",
