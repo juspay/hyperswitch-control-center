@@ -660,3 +660,35 @@ let revertFocus = (~inputRef: React.ref<'a>) => {
   | None => ()
   }
 }
+
+type clipboardIdType = PaymentId | RefundId
+
+type clipboardSuggestion = {
+  id: string,
+  idType: clipboardIdType,
+}
+
+let getFilterKey = idType => {
+  switch idType {
+  | PaymentId => "payment_id"
+  | RefundId => "refund_id"
+  }
+}
+
+let getLabel = idType => {
+  switch idType {
+  | PaymentId => "payment_id"
+  | RefundId => "refund_id"
+  }
+}
+
+let detectClipboardId = (text: string) => {
+  let trimmed = text->String.trim
+  if trimmed->String.length > 4 && RegExp.test(%re("/^pay_[A-Za-z0-9_]+$/"), trimmed) {
+    Some({id: trimmed, idType: PaymentId})
+  } else if trimmed->String.length > 4 && RegExp.test(%re("/^ref_[A-Za-z0-9_]+$/"), trimmed) {
+    Some({id: trimmed, idType: RefundId})
+  } else {
+    None
+  }
+}

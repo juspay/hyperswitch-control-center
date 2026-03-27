@@ -232,6 +232,44 @@ module NoResults = {
   }
 }
 
+module ClipboardSuggestion = {
+  open GlobalSearchBarUtils
+  open FramerMotion.Motion
+  @react.component
+  let make = (~clipboardSuggestion, ~onClipboardSuggestionClicked) => {
+    switch clipboardSuggestion {
+    | Some(suggestion: clipboardSuggestion) =>
+      let label = suggestion.idType->getLabel
+      let displayValue = `${label} ${filterSeparator} ${suggestion.id}`
+      let filter: categoryOption = {
+        categoryType: Payment_id,
+        options: [suggestion.id],
+        placeholder: `${label}:${suggestion.id}`,
+      }
+
+      <Div
+        initial={{opacity: 0.5}}
+        animate={{opacity: 0.5}}
+        layoutId="clipboard-section"
+        className="px-2 pt-2 border-t dark:border-jp-gray-960">
+        <Div layoutId="clipboard-title" className="font-bold px-2">
+          {"FROM CLIPBOARD"->React.string}
+        </Div>
+        <div>
+          <FilterOption
+            onClick={_ => onClipboardSuggestionClicked(suggestion)}
+            value=displayValue
+            placeholder={Some("Click to search")}
+            filter
+            viewType=FiltersSugsestions
+          />
+        </div>
+      </Div>
+    | None => React.null
+    }
+  }
+}
+
 module FilterResultsComponent = {
   open GlobalSearchBarUtils
   open FramerMotion.Motion

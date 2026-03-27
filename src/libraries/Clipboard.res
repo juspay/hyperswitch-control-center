@@ -4,6 +4,22 @@ type styleObj
 @val @scope(("navigator", "clipboard"))
 external writeTextDoc: string => unit = "writeText"
 
+@val @scope(("navigator", "clipboard"))
+external readTextDoc: unit => promise<string> = "readText"
+
+let readText = async () => {
+  try {
+    if Window.isSecureContext {
+      let text = await readTextDoc()
+      Some(text)
+    } else {
+      None
+    }
+  } catch {
+  | _ => None
+  }
+}
+
 @val external document: 'a = "document"
 @set external setPosition: (styleObj, string) => unit = "position"
 @set external setLeft: (styleObj, string) => unit = "left"
