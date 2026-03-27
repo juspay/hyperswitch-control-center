@@ -2511,7 +2511,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NUVEI)
   | Processors(ADYEN)
   | Processors(CHECKOUT)
-  | Processors(WORLDPAYVANTIV) => true
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
   | _ => false
   }
 }
@@ -2521,7 +2522,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NUVEI)
   | Processors(ADYEN)
   | Processors(CHECKOUT)
-  | Processors(WORLDPAYVANTIV) => true
+  | Processors(WORLDPAYVANTIV)
+  | Processors(NMI) => true
   | _ => false
   }
 }
