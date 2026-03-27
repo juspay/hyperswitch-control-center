@@ -283,7 +283,10 @@ let make = (~children) => {
       | _ => val.faviconUrl
       }
 
-      let updatedUrlConfig = {...existingEnv, urlThemeConfig: val}
+      let updatedUrlConfig = {
+        ...existingEnv,
+        urlThemeConfig: {logoUrl: logoUrlWithVersion, faviconUrl: faviconUrlWithVersion},
+      }
       DOMUtils.window._env_ = updatedUrlConfig
       configureFavIcon(faviconUrlWithVersion)
       setContextLogoUrl(_ => logoUrlWithVersion)

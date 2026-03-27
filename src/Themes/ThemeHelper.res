@@ -506,32 +506,30 @@ module FileUploadField = {
     ~selectedFile,
     ~onFileChange,
   ) => {
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex justify-between gap-4">
-        <div className={`flex ${body.md.medium} text-nd_gray-700 gap-2 items-center`}>
-          {label->React.string}
-          <ToolTip
-            toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
-            description=tooltipDescription
-            toolTipPosition=Right
-          />
-        </div>
-        <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
-        <div className="flex gap-4">
-          {switch selectedFile {
-          | Some(file) =>
-            <div className="mt-2 flex items-center gap-2 text-sm text-nd_gray-600">
-              <Icon name="file-icon" size=16 />
-              <span> {file["name"]->React.string} </span>
-            </div>
-          | None => React.null
-          }}
-          <label
-            htmlFor=inputId
-            className="flex items-center justify-center gap-2 rounded-md border border-nd_gray-300 cursor-pointer hover:border-nd_gray-400 p-4">
-            <Icon name="nd-upload-file" />
-          </label>
-        </div>
+    <div className="flex justify-between gap-4">
+      <div className={`flex ${body.md.medium} text-nd_gray-700 gap-2 items-center`}>
+        {label->React.string}
+        <ToolTip
+          toolTipFor={<Icon name="info-vacent" size=13 className="cursor-pointer" />}
+          description=tooltipDescription
+          toolTipPosition=Right
+        />
+      </div>
+      <input type_="file" accept=acceptTypes hidden=true onChange=onFileChange id=inputId />
+      <div className="flex gap-4">
+        {switch selectedFile {
+        | Some(file) =>
+          <div className="mt-2 flex items-center gap-2 text-sm text-nd_gray-600">
+            <Icon name="file-icon" size=16 />
+            <span> {file["name"]->React.string} </span>
+          </div>
+        | None => React.null
+        }}
+        <label
+          htmlFor=inputId
+          className="flex items-center justify-center gap-2 rounded-md border border-nd_gray-300 cursor-pointer hover:border-nd_gray-400 p-4">
+          <Icon name="nd-upload-file" />
+        </label>
       </div>
     </div>
   }
@@ -548,7 +546,6 @@ module ThemeUploadAssetsModal = {
     let (screenState, setScreenState) = React.useState(() => PageLoaderWrapper.Success)
     let fetchDetails = useGetMethod()
     let (selectedFiles, setSelectedFiles) = React.useState(_ => Dict.make())
-    let baseUrl = GlobalVars.getHostUrl
 
     let handleFileChange = assetName => ev => {
       let files = ReactEvent.Form.target(ev)["files"]
@@ -591,7 +588,7 @@ module ThemeUploadAssetsModal = {
         let url = getURL(
           ~entityName=V1(USERS),
           ~methodType=Get,
-          ~id=Some(`${themeId}`),
+          ~id=Some(themeId),
           ~userType=#THEME,
         )
         let res = await fetchDetails(url, ~version=UserInfoTypes.V1)
@@ -609,11 +606,11 @@ module ThemeUploadAssetsModal = {
         let existingUrls = currentThemeDataDict->getDictfromDict("urls")
 
         if uploadedFiles->Dict.get("logo.png")->Option.isSome {
-          let logoUrl = `${baseUrl}/themes/${themeId}/logo.png`
+          let logoUrl = `${GlobalVars.getHostUrl}/themes/${themeId}/logo.png`
           existingUrls->Dict.set("logoUrl", logoUrl->JSON.Encode.string)
         }
         if uploadedFiles->Dict.get("favicon.png")->Option.isSome {
-          let faviconUrl = `${baseUrl}/themes/${themeId}/favicon.png`
+          let faviconUrl = `${GlobalVars.getHostUrl}/themes/${themeId}/favicon.png`
           existingUrls->Dict.set("faviconUrl", faviconUrl->JSON.Encode.string)
         }
 
@@ -635,16 +632,12 @@ module ThemeUploadAssetsModal = {
     let handleUpload = async () => {
       try {
         setScreenState(_ => Loading)
-        switch selectedFiles->Dict.get("logo.png") {
-        | Some(iconFile) =>
-          let _ = await uploadAsset(~assetFile=iconFile, ~assetName="logo.png")
-        | None => ()
-        }
-        switch selectedFiles->Dict.get("favicon.png") {
-        | Some(faviconFile) =>
-          let _ = await uploadAsset(~assetFile=faviconFile, ~assetName="favicon.png")
-        | None => ()
-        }
+        let _ =
+          selectedFiles
+          ->Dict.toArray
+          ->Array.map(async ((assetName, assetFile)) => {
+            let _ = await uploadAsset(~assetFile, ~assetName)
+          })
         let _ = await updateThemeWithAssetUrls(~uploadedFiles=selectedFiles)
 
         showToast(~message="Theme has been created with assets", ~toastType=ToastState.ToastSuccess)
@@ -669,17 +662,17 @@ module ThemeUploadAssetsModal = {
 
     <Modal
       showModal
-      closeOnOutsideClick=false
       setShowModal
       modalHeading="Upload Assets"
       modalHeadingClass={`${heading.sm.semibold}`}
       modalClass="w-1/2 m-auto"
       childClass="p-0"
+      showCloseIcon=false
       modalHeadingDescriptionElement={<div className={`${body.md.medium} text-nd_gray-400 mt-2`}>
         {"Upload icon and favicon files for your theme."->React.string}
       </div>}>
       <PageLoaderWrapper screenState={screenState} sectionHeight="h-20-vh">
-        <div className="p-2">
+        <div className="flex flex-col gap-2 p-3">
           <FileUploadField
             label="Icon"
             inputId="iconInput"
@@ -707,7 +700,7 @@ module ThemeUploadAssetsModal = {
             <Button
               text="Save & Upload"
               buttonType=Primary
-              buttonState={selectedFiles->Dict.toArray->Array.length > 0 ? Normal : Disabled}
+              buttonState={selectedFiles->isEmptyDict ? Disabled : Normal}
               buttonSize=Small
               onClick={_ => handleUpload()->ignore}
             />
