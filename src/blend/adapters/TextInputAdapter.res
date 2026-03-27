@@ -41,16 +41,10 @@ let make = (
 ) => {
   let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
   let showPopUp = PopUpState.useShowPopUp()
-  let (showPassword, setShowPassword) = React.useState(_ => false)
   let inputRef = React.useRef(Nullable.null)
   let {meta} = ReactFinalForm.useField(input.name)
 
   let isPasswordType = type_ == "password" || type_ == "password_without_icon"
-  let effectiveType = if isPasswordType {
-    showPassword ? "text" : "password"
-  } else {
-    type_
-  }
 
   React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
@@ -114,20 +108,15 @@ let make = (
   | _ => ""
   }
 
-  let isInValid =
-    if !removeValidationCheck {
-      if !meta.valid && meta.touched {
-        (!(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit) ||
-          !(meta.error->Js.Nullable.isNullable)
-      } else {
-        false
-      }
+  let isInValid = if !removeValidationCheck {
+    if !meta.valid && meta.touched {
+      (!(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit) ||
+        !(meta.error->Js.Nullable.isNullable)
     } else {
       false
     }
-
-  let togglePasswordVisibility = _ => {
-    setShowPassword(prev => !prev)
+  } else {
+    false
   }
 
   let blendSize = switch customWidth {
@@ -180,21 +169,6 @@ let make = (
     }
   }
 
-  let rightSlot = switch (rightIcon, isPasswordType, rightIconOnClick) {
-  | (Some(icon), false, Some(onClick)) =>
-    Some(<div onClick={ev => onClick(ev)} className="cursor-pointer"> icon </div>)
-  | (Some(icon), false, None) => Some(icon)
-  | (None, true, _) =>
-    let eyeIcon = showPassword ? "eye" : "eye-slash"
-    Some(
-      <div onClick={togglePasswordVisibility} className="cursor-pointer">
-        <Icon name=eyeIcon size=15 className="fill-jp-gray-700" />
-      </div>,
-    )
-  | (Some(icon), true, _) => Some(icon)
-  | (None, false, _) => None
-  }
-
   let leftSlot = switch leftIcon {
   | Some(icon) => Some(icon)
   | None =>
@@ -242,7 +216,7 @@ let make = (
       error=isInValid
       leftSlot=?blendLeftSlot
       rightSlot=?blendRightSlot
-      type_=effectiveType
+      type_
       ?pattern
       ?autoComplete
       ?maxLength
