@@ -25,13 +25,6 @@ let constructAuthConnectorObject = authConnectorDict => {
   three_ds_requestor_app_url: authConnectorDict->getOptionString("three_ds_requestor_app_url"),
 }
 
-let convertOptionalArrayToOptionalJson = optArray => {
-  switch optArray {
-  | Some(arr) => Some(arr->JSON.Encode.array)
-  | None => None
-  }
-}
-
 let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest_v2 = webhookDetailsDict => {
   webhook_url: webhookDetailsDict
   ->getOptionString("webhook_url")
@@ -217,7 +210,7 @@ let commonTypeJsonToV2ForRequest: JSON.t => profileEntityRequestType_v2 = json =
     ->convertOptionalBoolToOptionalJson,
     return_url: dict
     ->getOptionString("return_url")
-    ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
+    ->convertOptionalStringToOptionalJson,
     webhook_details: !{webhookDetails->isEmptyDict}
       ? Some(
           webhookDetails

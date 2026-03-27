@@ -184,14 +184,7 @@ let paymentStatusOptions = [
 
 let refundStatusOptions = ["failure", "success"]
 
-let payoutStatusOptions = [
-  "success",
-  "failed",
-  "cancelled",
-  "initiated",
-  "expired",
-  "reversed",
-]
+let payoutStatusOptions = ["success", "failed", "cancelled", "initiated", "expired", "reversed"]
 
 let makeDropdownOptions = options =>
   options->Array.map((item): SelectBox.dropdownOption => {
