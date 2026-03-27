@@ -71,6 +71,7 @@
     "@iarna/toml": "^2.2.5",
     "@juspay-tech/hyper-js": "^2.0.4",
     "@juspay-tech/react-hyper-js": "^1.2.4",
+    "@juspay/blend-design-system": "^0.0.36-beta.2",
     "@monaco-editor/react": "^4.4.5",
     "@rescript/core": "^0.6.0",
     "@rescript/react": "^0.12.0",
@@ -100,8 +101,7 @@
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
     "rescript-webapi": "0.10.0",
-    "tailwindcss": "^3.0.0",
-    "@juspay/blend-design-system": "0.0.36-beta.2"
+    "tailwindcss": "^3.0.0"
   },
   "packageManager": "yarn@3.2.1"
 }

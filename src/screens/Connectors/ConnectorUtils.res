@@ -34,6 +34,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(WORLDPAYXML),
   PayoutProcessor(TRUELAYER),
   PayoutProcessor(ENVOY),
+  PayoutProcessor(TRUSTLY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -182,6 +183,7 @@ let connectorList: array<connectorTypes> = [
   Processors(REVOLV3),
   Processors(TRUELAYER),
   Processors(ENVOY),
+  Processors(TRUSTLY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -873,6 +875,10 @@ let fiservcommercehubInfo = {
   description: "Fiservcommercehub is a developer-friendly, flexible communication standards, unified APIs, and pre-certified integrations, Commerce Hub reduces development time and accelerates speed to market.",
 }
 
+let trustlyInfo = {
+  description: "Trustly provides a secure, efficient, and cost-effective payment solution for your businesses to offer customers a convenient and hassle-free payment experience.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -986,6 +992,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
   | FISERVCOMMERCEHUB => "fiservcommercehub"
+  | TRUSTLY => "trustly"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1005,6 +1012,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | WORLDPAYXML => "worldpayxml"
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
+  | TRUSTLY => "trustly"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1184,6 +1192,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "truelayer" => Processors(TRUELAYER)
     | "envoy" => Processors(ENVOY)
     | "fiservcommercehub" => Processors(FISERVCOMMERCEHUB)
+    | "trustly" => Processors(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1203,6 +1212,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayxml" => PayoutProcessor(WORLDPAYXML)
     | "truelayer" => PayoutProcessor(TRUELAYER)
     | "envoy" => PayoutProcessor(ENVOY)
+    | "trustly" => PayoutProcessor(TRUSTLY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1360,6 +1370,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
   | FISERVCOMMERCEHUB => fiservcommercehubInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -1380,6 +1391,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | WORLDPAYXML => worldpayxmlInfo
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
+  | TRUSTLY => trustlyInfo
   }
 }
 
@@ -2333,6 +2345,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
   | FISERVCOMMERCEHUB => "Fiserv Commerce Hub"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2352,6 +2365,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | WORLDPAYXML => "Worldpay WPG"
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
+  | TRUSTLY => "Trustly"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
