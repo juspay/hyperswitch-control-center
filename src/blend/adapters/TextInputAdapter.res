@@ -1,15 +1,9 @@
-// TextInput Adapter - Feature-flagged adapter for Blend Design System migration
-// Provides backward compatibility with legacy TextInput while enabling Blend integration
-// NOTE: isBlendEnabled is passed as prop to avoid cyclic dependency with BlendContext
-
-// Type coercion helpers for ReactFinalForm integration
 external ffInputToStringInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
 
 @react.component
 let make = (
-  // Core text input props (from legacy TextInput)
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
   ~description: string="",
@@ -44,15 +38,13 @@ let make = (
   ~removeValidationCheck: bool=false,
   ~focusOnKeyPress: option<ReactEvent.Keyboard.t => bool>=?,
   ~customDashboardClass: option<string>=?,
-  // Feature flag - passed as prop to avoid cyclic dependency
-  ~isBlendEnabled: bool=false,
 ) => {
-  // ALL HOOKS MUST BE BEFORE ANY CONDITIONAL LOGIC
+  let isBlendEnabled = React.useContext(BlendContext.blendEnabledContext)
   let showPopUp = PopUpState.useShowPopUp()
   let (showPassword, setShowPassword) = React.useState(_ => false)
   let inputRef = React.useRef(Nullable.null)
+  let {meta} = ReactFinalForm.useField(input.name)
 
-  // Determine password type
   let isPasswordType = type_ == "password" || type_ == "password_without_icon"
   let effectiveType = if isPasswordType {
     showPassword ? "text" : "password"
@@ -60,7 +52,6 @@ let make = (
     type_
   }
 
-  // Handle width matching with placeholder length (legacy behavior)
   React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
@@ -79,7 +70,6 @@ let make = (
     None
   }, (inputRef.current, input.name))
 
-  // XSS Protection - check for script tags
   React.useEffect(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
     if val->String.includes("<script>") || val->String.includes("</script>") {
@@ -99,7 +89,6 @@ let make = (
     None
   }, [input.value])
 
-  // Focus on key press handler
   React.useEffect(() => {
     switch focusOnKeyPress {
     | Some(func) => {
@@ -119,16 +108,13 @@ let make = (
     }
   }, [focusOnKeyPress])
 
-  // Determine input value
   let value = switch input.value->JSON.Classify.classify {
   | String(str) => str
   | Number(num) => num->Float.toString
   | _ => ""
   }
 
-  // Handle validation state
-  let isInValid = try {
-    let {meta} = ReactFinalForm.useField(input.name)
+  let isInValid =
     if !removeValidationCheck {
       if !meta.valid && meta.touched {
         (!(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit) ||
@@ -139,16 +125,11 @@ let make = (
     } else {
       false
     }
-  } catch {
-  | _ => false
-  }
 
-  // Password visibility toggle handler
   let togglePasswordVisibility = _ => {
     setShowPassword(prev => !prev)
   }
 
-  // Determine size based on customWidth (approximate mapping)
   let blendSize = switch customWidth {
   | "w-full" => TextInputBinding.Lg
   | "w-96" => TextInputBinding.Lg
@@ -159,10 +140,8 @@ let make = (
   | _ => TextInputBinding.Lg
   }
 
-  // Handle change event
   let handleChange = (event: ReactEvent.Form.t) => {
     let newValue = ReactEvent.Form.target(event)["value"]
-    // Apply maxLength constraint if specified
     switch maxLength {
     | Some(maxLen) =>
       let strValue = newValue->JSON.Decode.string->Option.getOr("")
@@ -173,7 +152,6 @@ let make = (
     }
   }
 
-  // Handle key down for form submission prevention
   let handleKeyDown = switch onKeyUp {
   | Some(customHandler) =>
     Some(
@@ -202,26 +180,21 @@ let make = (
     }
   }
 
-  // Prepare right slot (icon with optional click handler)
   let rightSlot = switch (rightIcon, isPasswordType, rightIconOnClick) {
   | (Some(icon), false, Some(onClick)) =>
     Some(<div onClick={ev => onClick(ev)} className="cursor-pointer"> icon </div>)
   | (Some(icon), false, None) => Some(icon)
   | (None, true, _) =>
-    // Password visibility toggle
     let eyeIcon = showPassword ? "eye" : "eye-slash"
     Some(
       <div onClick={togglePasswordVisibility} className="cursor-pointer">
         <Icon name=eyeIcon size=15 className="fill-jp-gray-700" />
       </div>,
     )
-  | (Some(icon), true, _) =>
-    // Password with custom right icon
-    Some(icon)
+  | (Some(icon), true, _) => Some(icon)
   | (None, false, _) => None
   }
 
-  // Prepare left slot
   let leftSlot = switch leftIcon {
   | Some(icon) => Some(icon)
   | None =>
@@ -232,31 +205,30 @@ let make = (
     }
   }
 
-  // Convert hint text from description
+  let blendRightSlot = if isPasswordType {
+    None
+  } else {
+    switch (rightIcon, rightIconOnClick) {
+    | (Some(icon), Some(onClick)) =>
+      Some(<div onClick={ev => onClick(ev)} className="cursor-pointer"> icon </div>)
+    | (Some(icon), None) => Some(icon)
+    | (None, _) => None
+    }
+  }
+
+  let blendLeftSlot = if isPasswordType {
+    None
+  } else {
+    leftSlot
+  }
+
   let hintText = if description->LogicUtils.isNonEmptyString {
     Some(description)
   } else {
     None
   }
 
-  // Convert error message
-  let errorMessageOpt = if isInValid {
-    try {
-      let {meta} = ReactFinalForm.useField(input.name)
-      let errorMsg = switch meta.error->Js.Nullable.toOption {
-      | Some(err) => Some(err)
-      | None => Some("Invalid input")
-      }
-      errorMsg
-    } catch {
-    | _ => Some("Invalid input")
-    }
-  } else {
-    None
-  }
-
   if isBlendEnabled {
-    // Blend branch
     <TextInputBinding
       value
       onChange=handleChange
@@ -268,9 +240,8 @@ let make = (
       disabled=isDisabled
       ?hintText
       error=isInValid
-      errorMessage=?errorMessageOpt
-      ?leftSlot
-      ?rightSlot
+      leftSlot=?blendLeftSlot
+      rightSlot=?blendRightSlot
       type_=effectiveType
       ?pattern
       ?autoComplete
@@ -285,7 +256,6 @@ let make = (
       onKeyDown=?handleKeyDown
     />
   } else {
-    // Legacy branch - pass through all props unchanged
     <TextInput
       input
       placeholder
