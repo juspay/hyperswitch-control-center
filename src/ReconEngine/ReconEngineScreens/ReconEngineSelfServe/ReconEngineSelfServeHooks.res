@@ -34,7 +34,10 @@ let useCreateAccount = () => {
       | Exn.Error(e) => {
           let rawErr = Exn.message(e)->Option.getOr("Failed to create account")
           let err = try {
-            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+            rawErr
+            ->LogicUtils.safeParse
+            ->LogicUtils.getDictFromJsonObject
+            ->LogicUtils.getString("message", rawErr)
           } catch {
           | _ => rawErr
           }
@@ -91,7 +94,10 @@ let useCreateIngestionConfig = () => {
       | Exn.Error(e) => {
           let rawErr = Exn.message(e)->Option.getOr("Failed to create data source")
           let err = try {
-            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+            rawErr
+            ->LogicUtils.safeParse
+            ->LogicUtils.getDictFromJsonObject
+            ->LogicUtils.getString("message", rawErr)
           } catch {
           | _ => rawErr
           }
@@ -156,7 +162,10 @@ let useCreateTransformationConfig = () => {
       | Exn.Error(e) => {
           let rawErr = Exn.message(e)->Option.getOr("Failed to create column mapping")
           let err = try {
-            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+            rawErr
+            ->LogicUtils.safeParse
+            ->LogicUtils.getDictFromJsonObject
+            ->LogicUtils.getString("message", rawErr)
           } catch {
           | _ => rawErr
           }
@@ -213,7 +222,10 @@ let useCreateReconRule = () => {
       | Exn.Error(e) => {
           let rawErr = Exn.message(e)->Option.getOr("Failed to create recon rule")
           let err = try {
-            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+            rawErr
+            ->LogicUtils.safeParse
+            ->LogicUtils.getDictFromJsonObject
+            ->LogicUtils.getString("message", rawErr)
           } catch {
           | _ => rawErr
           }

@@ -59,6 +59,14 @@ let make = (
         </div>
       </div>
     </div>
+    // Quick Start hint (shown when no accounts exist yet)
+    <RenderIf condition={wizardState.accounts->Array.length === 0}>
+      <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+        <p className="text-xs text-amber-700">
+          {"Start by creating a credit account for your payment processor (e.g., \"FIUU\" or \"Stripe\"), then create a debit account for your bank settlement data."->React.string}
+        </p>
+      </div>
+    </RenderIf>
     // Form
     <div
       className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
