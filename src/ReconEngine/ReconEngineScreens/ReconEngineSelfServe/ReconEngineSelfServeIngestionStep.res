@@ -73,9 +73,9 @@ let make = (
           setSelectedAccountId(_ => "")
           setConfigVariantStr(_ => "manual")
         }
-    | None => ()
-    }
-    setIsSubmitting(_ => false)
+      | None => ()
+      }
+      setIsSubmitting(_ => false)
     }
   }
 

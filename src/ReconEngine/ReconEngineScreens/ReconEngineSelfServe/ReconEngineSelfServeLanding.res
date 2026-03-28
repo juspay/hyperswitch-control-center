@@ -23,13 +23,13 @@ let make = (~onSelectMode: selfServeMode => unit) => {
       <div
         className="flex items-center gap-1.5 px-3 py-1.5 bg-nd_gray-100 text-nd_gray-500 rounded-full">
         <Icon name="nd-connectors" customHeight="12" />
-        {"Ingestion"->React.string}
+        {"Data Source"->React.string}
       </div>
       <Icon name="nd-arrow-right" customHeight="10" className="text-nd_gray-300" />
       <div
         className="flex items-center gap-1.5 px-3 py-1.5 bg-nd_gray-100 text-nd_gray-500 rounded-full">
         <Icon name="nd-connectors" customHeight="12" />
-        {"Transformation"->React.string}
+        {"Mapping"->React.string}
       </div>
       <Icon name="nd-arrow-right" customHeight="10" className="text-nd_gray-300" />
       <div
