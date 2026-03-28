@@ -1,7 +1,7 @@
 open ReconEngineSelfServeTypes
 
 @react.component
-let make = (~onSelectMode: selfServeMode => unit) => {
+let make = () => {
   <div className="flex flex-col items-center justify-center min-h-[70vh] gap-10 px-6">
     // Header
     <div className="flex flex-col items-center gap-3 text-center max-w-2xl">
@@ -46,11 +46,11 @@ let make = (~onSelectMode: selfServeMode => unit) => {
         className="flex-1 flex flex-col gap-4 p-6 rounded-xl border border-nd_gray-200 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all duration-200 group"
         tabIndex=0
         role="button"
-        onClick={_ => onSelectMode(Guided)}
+        onClick={_ => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup/guided"))}
         onKeyDown={e =>
           if ReactEvent.Keyboard.key(e) === "Enter" || ReactEvent.Keyboard.key(e) === " " {
             ReactEvent.Keyboard.preventDefault(e)
-            onSelectMode(Guided)
+            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup/guided"))
           }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -85,11 +85,11 @@ let make = (~onSelectMode: selfServeMode => unit) => {
         className="flex-1 flex flex-col gap-4 p-6 rounded-xl border border-nd_gray-200 hover:border-nd_gray-400 hover:shadow-md cursor-pointer transition-all duration-200 group"
         tabIndex=0
         role="button"
-        onClick={_ => onSelectMode(Expert)}
+        onClick={_ => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup/expert"))}
         onKeyDown={e =>
           if ReactEvent.Keyboard.key(e) === "Enter" || ReactEvent.Keyboard.key(e) === " " {
             ReactEvent.Keyboard.preventDefault(e)
-            onSelectMode(Expert)
+            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup/expert"))
           }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-nd_gray-100 flex items-center justify-center">

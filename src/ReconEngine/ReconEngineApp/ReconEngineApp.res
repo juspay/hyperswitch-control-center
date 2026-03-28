@@ -13,7 +13,9 @@ let make = () => {
     | list{"v1", "recon-engine", "transformation", ..._} => <ReconEngineTransformationContainer />
     | list{"v1", "recon-engine", "transformed-entries", ..._} =>
       <ReconEngineTransformedEntriesContainer />
-    | list{"v1", "recon-engine", "setup", ..._} => <ReconEngineSelfServe />
+    | list{"v1", "recon-engine", "setup"} => <ReconEngineSelfServe />
+    | list{"v1", "recon-engine", "setup", "guided", ..._} => <ReconEngineSelfServe.GuidedMode />
+    | list{"v1", "recon-engine", "setup", "expert", ..._} => <ReconEngineSelfServe.ExpertMode />
     | _ => <EmptyPage path="/v1/recon-engine/overview" />
     }}
     <ReconEngineActivityFAB />

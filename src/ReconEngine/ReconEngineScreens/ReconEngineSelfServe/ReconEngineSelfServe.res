@@ -207,11 +207,5 @@ module ExpertMode = {
 
 @react.component
 let make = () => {
-  let (mode, setMode) = React.useState(_ => None)
-
-  switch mode {
-  | None => <ReconEngineSelfServeLanding onSelectMode={m => setMode(_ => Some(m))} />
-  | Some(Guided) => <GuidedMode />
-  | Some(Expert) => <ExpertMode />
-  }
+  <ReconEngineSelfServeLanding />
 }
