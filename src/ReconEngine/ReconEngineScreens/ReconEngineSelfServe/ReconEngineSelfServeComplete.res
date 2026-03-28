@@ -1,4 +1,5 @@
 open ReconEngineSelfServeTypes
+open ReconEngineSelfServeUtils
 
 @react.component
 let make = (~wizardState: wizardState) => {
@@ -32,12 +33,12 @@ let make = (~wizardState: wizardState) => {
         </div>
         <div className="flex flex-col gap-1">
           {wizardState.accounts
-          ->Array.mapWithIndex((account, idx) => {
+          ->Array.map(account => {
             let badgeColor =
-              account.account_type === "credit"
+              isCreditAccount(account)
                 ? "bg-blue-50 text-blue-600"
                 : "bg-green-50 text-green-600"
-            <div key={idx->Int.toString} className="flex items-center gap-2">
+            <div key={account.account_id} className="flex items-center gap-2">
               <span className={`text-xs px-2 py-0.5 rounded-full ${badgeColor}`}>
                 {account.account_type->React.string}
               </span>
@@ -63,8 +64,8 @@ let make = (~wizardState: wizardState) => {
         </div>
         <div className="flex flex-col gap-1">
           {wizardState.ingestions
-          ->Array.mapWithIndex((ing, idx) =>
-            <div key={idx->Int.toString} className="text-xs text-nd_gray-600">
+          ->Array.map(ing =>
+            <div key={ing.ingestion_id} className="text-xs text-nd_gray-600">
               {ing.name->React.string}
             </div>
           )
@@ -85,8 +86,8 @@ let make = (~wizardState: wizardState) => {
         </div>
         <div className="flex flex-col gap-1">
           {wizardState.transformations
-          ->Array.mapWithIndex((t, idx) =>
-            <div key={idx->Int.toString} className="text-xs text-nd_gray-600">
+          ->Array.map(t =>
+            <div key={t.transformation_id} className="text-xs text-nd_gray-600">
               {t.name->React.string}
             </div>
           )
@@ -107,8 +108,8 @@ let make = (~wizardState: wizardState) => {
         </div>
         <div className="flex flex-col gap-1">
           {wizardState.rules
-          ->Array.mapWithIndex((rule, idx) =>
-            <div key={idx->Int.toString} className="text-xs text-nd_gray-600">
+          ->Array.map(rule =>
+            <div key={rule.rule_id} className="text-xs text-nd_gray-600">
               {rule.rule_name->React.string}
             </div>
           )

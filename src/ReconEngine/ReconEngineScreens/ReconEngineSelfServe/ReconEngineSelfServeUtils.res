@@ -1,5 +1,57 @@
 open ReconEngineSelfServeTypes
 
+// Shared DOM helper — used by step components for auto-scroll behavior
+@send
+external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
+  "scrollIntoView"
+
+// Shared API error handler — extracts message from JSON error response
+let extractApiErrorMessage = (e, ~fallback) => {
+  let rawErr = Exn.message(e)->Option.getOr(fallback)
+  try {
+    rawErr
+    ->LogicUtils.safeParse
+    ->LogicUtils.getDictFromJsonObject
+    ->LogicUtils.getString("message", rawErr)
+  } catch {
+  | _ => rawErr
+  }
+}
+
+// Shared wizard state hook — eliminates callback duplication between GuidedMode and ExpertMode
+let useWizardState = () => {
+  let (wizardState, setWizardState) = React.useState(_ => {
+    accounts: [],
+    ingestions: [],
+    transformations: [],
+    rules: [],
+  })
+
+  let onAccountCreated = (account: createdAccount) =>
+    setWizardState(prev => {...prev, accounts: prev.accounts->Array.concat([account])})
+
+  let onIngestionCreated = (ingestion: createdIngestion) =>
+    setWizardState(prev => {...prev, ingestions: prev.ingestions->Array.concat([ingestion])})
+
+  let onTransformationCreated = (transformation: createdTransformation) =>
+    setWizardState(prev => {
+      ...prev,
+      transformations: prev.transformations->Array.concat([transformation]),
+    })
+
+  let onRuleCreated = (rule: createdRule) =>
+    setWizardState(prev => {...prev, rules: prev.rules->Array.concat([rule])})
+
+  (
+    wizardState,
+    setWizardState,
+    onAccountCreated,
+    onIngestionCreated,
+    onTransformationCreated,
+    onRuleCreated,
+  )
+}
+
 // Helper to create a controlled SelectBox input for local state
 // For single-select (allowMultiSelect=false, the default):
 //   - Display: reads value->JSON.Decode.string to find the label
@@ -22,22 +74,11 @@ let makeControlledSelectInput = (
   checked: true,
 }
 
-// Read-only SelectBox input — for display only
-let makeReadOnlySelectInput = (
-  ~name: string,
-  ~value: string,
-): ReactFinalForm.fieldRenderPropsInput => {
-  name,
-  onBlur: _ => (),
-  onChange: _ => (),
-  onFocus: _ => (),
-  value: value->JSON.Encode.string,
-  checked: true,
-}
-
 let inputClassName = "w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
 
 let innerInputClassName = "w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+
+let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
 
 let emptyWizardState: wizardState = {
   accounts: [],
@@ -46,6 +87,8 @@ let emptyWizardState: wizardState = {
   rules: [],
 }
 
+let isCreditAccount = (account: createdAccount) => account.account_type === "credit"
+
 let stepToString = (step: selfServeStep): string => {
   switch step {
   | AccountStep => "account"
@@ -53,26 +96,6 @@ let stepToString = (step: selfServeStep): string => {
   | TransformationStep => "transformation"
   | RuleStep => "rule"
   | CompleteStep => "complete"
-  }
-}
-
-let stepToDisplayName = (step: selfServeStep): string => {
-  switch step {
-  | AccountStep => "Create Accounts"
-  | IngestionStep => "Connect Data Sources"
-  | TransformationStep => "Map CSV Columns"
-  | RuleStep => "Define Recon Rules"
-  | CompleteStep => "Complete"
-  }
-}
-
-let stepToDescription = (step: selfServeStep): string => {
-  switch step {
-  | AccountStep => "Create credit and debit accounts to track your financial data sources"
-  | IngestionStep => "Configure how data is imported from your sources"
-  | TransformationStep => "Map your CSV columns to standard fields and define additional metadata"
-  | RuleStep => "Define how the engine matches and reconciles entries between accounts"
-  | CompleteStep => "Your reconciliation setup is complete"
   }
 }
 

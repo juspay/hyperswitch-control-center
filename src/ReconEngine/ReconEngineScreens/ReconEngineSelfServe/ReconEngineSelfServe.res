@@ -1,47 +1,25 @@
 open ReconEngineSelfServeTypes
+open ReconEngineSelfServeUtils
 
 module GuidedMode = {
   @react.component
   let make = () => {
     let (currentStep, setCurrentStep) = React.useState(_ => AccountStep)
-    let (wizardState, setWizardState) = React.useState(_ =>
-      ReconEngineSelfServeUtils.emptyWizardState
-    )
+    let (
+      wizardState,
+      _setWizardState,
+      onAccountCreated,
+      onIngestionCreated,
+      onTransformationCreated,
+      onRuleCreated,
+    ) = useWizardState()
 
     let goToStep = step => setCurrentStep(_ => step)
 
-    let onAccountCreated = (account: createdAccount) => {
-      setWizardState(prev => {
-        ...prev,
-        accounts: prev.accounts->Array.concat([account]),
-      })
-    }
-
-    let onIngestionCreated = (ingestion: createdIngestion) => {
-      setWizardState(prev => {
-        ...prev,
-        ingestions: prev.ingestions->Array.concat([ingestion]),
-      })
-    }
-
-    let onTransformationCreated = (transformation: createdTransformation) => {
-      setWizardState(prev => {
-        ...prev,
-        transformations: prev.transformations->Array.concat([transformation]),
-      })
-    }
-
-    let onRuleCreated = (rule: createdRule) => {
-      setWizardState(prev => {
-        ...prev,
-        rules: prev.rules->Array.concat([rule]),
-      })
-    }
-
     let onBack = () => {
-      let currentIndex = currentStep->ReconEngineSelfServeUtils.stepToIndex
+      let currentIndex = currentStep->stepToIndex
       if currentIndex > 0 {
-        setCurrentStep(_ => (currentIndex - 1)->ReconEngineSelfServeUtils.indexToStep)
+        setCurrentStep(_ => (currentIndex - 1)->indexToStep)
       } else {
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup"))
       }
@@ -89,13 +67,18 @@ module ExpertMode = {
   @react.component
   let make = () => {
     let getAccounts = ReconEngineHooks.useGetAccounts()
-    let (activeTab, setActiveTab) = React.useState(_ => "account")
+    let (activeTab, setActiveTab) = React.useState(_ => AccountStep)
     let (showComplete, setShowComplete) = React.useState(_ => false)
-    let (wizardState, setWizardState) = React.useState(_ =>
-      ReconEngineSelfServeUtils.emptyWizardState
-    )
+    let (isLoadingAccounts, setIsLoadingAccounts) = React.useState(_ => true)
+    let (
+      wizardState,
+      setWizardState,
+      onAccountCreated,
+      onIngestionCreated,
+      onTransformationCreated,
+      onRuleCreated,
+    ) = useWizardState()
 
-    // Fetch existing accounts from the API for expert mode
     React.useEffect0(() => {
       let fetchExistingAccounts = async () => {
         try {
@@ -103,60 +86,38 @@ module ExpertMode = {
           let existingAccounts: array<createdAccount> = accounts->Array.map(a => {
             account_id: a.account_id,
             account_name: a.account_name,
-            account_type: switch a.account_type {
-            | "credit" => "credit"
-            | "debit" => "debit"
-            | other => other
-            },
+            account_type: a.account_type,
           })
           if existingAccounts->Array.length > 0 {
             setWizardState(prev => {...prev, accounts: existingAccounts})
           }
         } catch {
-        | _ => () // Silently ignore — user can still create accounts manually
+        | _ => Console.error("Failed to fetch existing accounts")
         }
+        setIsLoadingAccounts(_ => false)
       }
       fetchExistingAccounts()->ignore
       None
     })
 
-    let onAccountCreated = (account: createdAccount) => {
-      setWizardState(prev => {
-        ...prev,
-        accounts: prev.accounts->Array.concat([account]),
-      })
-    }
-
-    let onIngestionCreated = (ingestion: createdIngestion) => {
-      setWizardState(prev => {
-        ...prev,
-        ingestions: prev.ingestions->Array.concat([ingestion]),
-      })
-    }
-
-    let onTransformationCreated = (transformation: createdTransformation) => {
-      setWizardState(prev => {
-        ...prev,
-        transformations: prev.transformations->Array.concat([transformation]),
-      })
-    }
-
-    let onRuleCreated = (rule: createdRule) => {
-      setWizardState(prev => {
-        ...prev,
-        rules: prev.rules->Array.concat([rule]),
-      })
-    }
-
-    let tabs = [
-      ("account", "Accounts", wizardState.accounts->Array.length),
-      ("ingestion", "Data Sources", wizardState.ingestions->Array.length),
-      ("transformation", "Column Mapping", wizardState.transformations->Array.length),
-      ("rule", "Rules", wizardState.rules->Array.length),
+    let tabs: array<(selfServeStep, string, int)> = [
+      (AccountStep, "Accounts", wizardState.accounts->Array.length),
+      (IngestionStep, "Data Sources", wizardState.ingestions->Array.length),
+      (TransformationStep, "Column Mapping", wizardState.transformations->Array.length),
+      (RuleStep, "Rules", wizardState.rules->Array.length),
     ]
 
     if showComplete {
       <ReconEngineSelfServeComplete wizardState />
+    } else if isLoadingAccounts {
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"
+          />
+          <p className="text-sm text-nd_gray-400"> {"Loading accounts..."->React.string} </p>
+        </div>
+      </div>
     } else {
       <div className="flex flex-col gap-6 px-6 py-8">
         // Header
@@ -180,15 +141,16 @@ module ExpertMode = {
         // Tabs
         <div className="flex border-b border-nd_gray-200">
           {tabs
-          ->Array.map(((key, label, count)) => {
-            let isActive = activeTab === key
+          ->Array.map(((step, label, count)) => {
+            let key = step->stepToString
+            let isActive = activeTab === step
             let tabStyle = isActive
               ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
               : "text-nd_gray-400 hover:text-nd_gray-600"
             <div
               key
               className={`px-4 py-2.5 text-sm transition-colors cursor-pointer ${tabStyle}`}
-              onClick={_ => setActiveTab(_ => key)}>
+              onClick={_ => setActiveTab(_ => step)}>
               <div className="flex items-center gap-2">
                 {label->React.string}
                 <RenderIf condition={count > 0}>
@@ -204,38 +166,38 @@ module ExpertMode = {
         // Tab content
         <div className="max-w-3xl">
           {switch activeTab {
-          | "account" =>
+          | AccountStep =>
             <ReconEngineSelfServeAccountStep
               wizardState
               onAccountCreated
-              onNext={() => setActiveTab(_ => "ingestion")}
+              onNext={() => setActiveTab(_ => IngestionStep)}
               isGuidedMode=false
             />
-          | "ingestion" =>
+          | IngestionStep =>
             <ReconEngineSelfServeIngestionStep
               wizardState
               onIngestionCreated
-              onNext={() => setActiveTab(_ => "transformation")}
-              onBack={() => setActiveTab(_ => "account")}
+              onNext={() => setActiveTab(_ => TransformationStep)}
+              onBack={() => setActiveTab(_ => AccountStep)}
               isGuidedMode=false
             />
-          | "transformation" =>
+          | TransformationStep =>
             <ReconEngineSelfServeTransformationStep
               wizardState
               onTransformationCreated
-              onNext={() => setActiveTab(_ => "rule")}
-              onBack={() => setActiveTab(_ => "ingestion")}
+              onNext={() => setActiveTab(_ => RuleStep)}
+              onBack={() => setActiveTab(_ => IngestionStep)}
               isGuidedMode=false
             />
-          | "rule" =>
+          | RuleStep =>
             <ReconEngineSelfServeRuleStep
               wizardState
               onRuleCreated
               onNext={() => setShowComplete(_ => true)}
-              onBack={() => setActiveTab(_ => "transformation")}
+              onBack={() => setActiveTab(_ => TransformationStep)}
               isGuidedMode=false
             />
-          | _ => React.null
+          | CompleteStep => React.null
           }}
         </div>
       </div>

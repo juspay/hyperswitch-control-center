@@ -1,10 +1,6 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
-@send
-external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
-  "scrollIntoView"
-
 @react.component
 let make = (
   ~wizardState: wizardState,
@@ -32,8 +28,6 @@ let make = (
   }, [accountCount])
 
   let isAccountNameEmpty = accountName->String.trim->String.length === 0
-
-  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
 
   let handleSubmit = async () => {
     if isAccountNameEmpty {
@@ -213,18 +207,13 @@ let make = (
         </h3>
         <div className="flex flex-col gap-2">
           {wizardState.accounts
-          ->Array.mapWithIndex((account, idx) => {
-            let bgColor =
-              account.account_type === "credit"
-                ? "bg-blue-50 border-blue-200"
-                : "bg-green-50 border-green-200"
-            let textColor = account.account_type === "credit" ? "text-blue-700" : "text-green-700"
-            let badgeColor =
-              account.account_type === "credit"
-                ? "bg-blue-100 text-blue-600"
-                : "bg-green-100 text-green-600"
+          ->Array.map(account => {
+            let isCredit = isCreditAccount(account)
+            let bgColor = isCredit ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"
+            let textColor = isCredit ? "text-blue-700" : "text-green-700"
+            let badgeColor = isCredit ? "bg-blue-100 text-blue-600" : "bg-green-100 text-green-600"
             <div
-              key={idx->Int.toString}
+              key={account.account_id}
               className={`flex items-center justify-between p-3 rounded-lg border ${bgColor}`}>
               <div className="flex items-center gap-3">
                 <Icon name="nd-check" customHeight="14" className="text-green-500" />

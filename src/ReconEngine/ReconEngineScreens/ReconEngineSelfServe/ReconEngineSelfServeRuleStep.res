@@ -1,10 +1,6 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
-@send
-external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
-  "scrollIntoView"
-
 let defaultRuleForm: ruleFormState = {
   ruleName: "",
   ruleDescription: "",
@@ -139,7 +135,6 @@ let make = (
   let isSourceAccountIdEmpty = form.sourceAccountId->String.length === 0
   let isTargetAccountIdEmpty = form.targetAccountId->String.length === 0
   let isTriggerValueEmpty = form.triggerValue->String.trim->String.length === 0
-  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
 
   let setOneToOneSubtype = (fn: string => string) =>
     setForm(prev => {
@@ -735,9 +730,9 @@ let make = (
           {`Created Rules (${wizardState.rules->Array.length->Int.toString})`->React.string}
         </h3>
         {wizardState.rules
-        ->Array.mapWithIndex((rule, idx) =>
+        ->Array.map(rule =>
           <div
-            key={idx->Int.toString}
+            key={rule.rule_id}
             className="flex items-center justify-between p-3 rounded-lg border border-nd_gray-200 bg-nd_gray-50">
             <div className="flex items-center gap-3">
               <Icon name="nd-check" customHeight="14" className="text-green-500" />

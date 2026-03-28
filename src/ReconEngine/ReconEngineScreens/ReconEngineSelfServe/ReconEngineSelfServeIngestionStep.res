@@ -1,10 +1,6 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
-@send
-external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
-  "scrollIntoView"
-
 @react.component
 let make = (
   ~wizardState: wizardState,
@@ -65,7 +61,6 @@ let make = (
 
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let nextButtonRef = React.useRef(Nullable.null)
-  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
   let isNameEmpty = ingestionName->String.trim->String.length === 0
   let isAccountEmpty = selectedAccountId->String.length === 0
 
@@ -334,14 +329,14 @@ let make = (
         </h3>
         <div className="flex flex-col gap-2">
           {wizardState.ingestions
-          ->Array.mapWithIndex((ingestion, idx) => {
+          ->Array.map(ingestion => {
             let accountName =
               wizardState.accounts
               ->Array.find(a => a.account_id === ingestion.account_id)
               ->Option.map(a => a.account_name)
               ->Option.getOr("Unknown")
             <div
-              key={idx->Int.toString}
+              key={ingestion.ingestion_id}
               className="flex items-center justify-between p-3 rounded-lg border border-nd_gray-200 bg-nd_gray-50">
               <div className="flex items-center gap-3">
                 <Icon name="nd-check" customHeight="14" className="text-green-500" />

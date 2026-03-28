@@ -1,10 +1,6 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
-@send
-external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
-  "scrollIntoView"
-
 let defaultMetadataField: metadataFieldFormState = {
   identifier: "",
   fieldName: "",
@@ -202,7 +198,6 @@ let make = (
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let nextButtonRef = React.useRef(Nullable.null)
-  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
   let isNameEmpty = form.name->String.trim->String.length === 0
   let isAccountEmpty = form.accountId->String.length === 0
   let isIngestionEmpty = form.ingestionId->String.length === 0
@@ -875,9 +870,9 @@ let make = (
             ->Int.toString})`->React.string}
         </h3>
         {wizardState.transformations
-        ->Array.mapWithIndex((t, idx) =>
+        ->Array.map(t =>
           <div
-            key={idx->Int.toString}
+            key={t.transformation_id}
             className="flex items-center justify-between p-3 rounded-lg border border-nd_gray-200 bg-nd_gray-50">
             <div className="flex items-center gap-3">
               <Icon name="nd-check" customHeight="14" className="text-green-500" />
