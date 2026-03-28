@@ -152,7 +152,12 @@ let encodeIngestionConfigCreate = (
     ->Dict.fromArray
     ->JSON.Encode.object
   | SftpInternal =>
-    [("sftp_internal", [("file_path", sftpFilePath->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object)]
+    [
+      (
+        "sftp_internal",
+        [("file_path", sftpFilePath->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
+      ),
+    ]
     ->Dict.fromArray
     ->JSON.Encode.object
   }
