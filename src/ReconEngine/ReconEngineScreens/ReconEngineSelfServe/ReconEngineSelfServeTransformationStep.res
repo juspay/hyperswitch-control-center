@@ -329,16 +329,20 @@ let make = (
     }
   }
 
-  let hasTransformations = wizardState.transformations->Array.length > 0
+  // In guided mode: all accounts must have transformation configs to proceed
+  let allAccountsCoveredByTransformation =
+    wizardState.accounts->Array.every(account =>
+      wizardState.transformations->Array.some(t => t.account_id === account.account_id)
+    )
 
   React.useEffect(() => {
-    if isGuidedMode && hasTransformations {
+    if isGuidedMode && allAccountsCoveredByTransformation {
       nextButtonRef.current
       ->Nullable.toOption
       ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
     }
     None
-  }, [hasTransformations])
+  }, [allAccountsCoveredByTransformation])
 
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps (guided mode only)
@@ -885,7 +889,7 @@ let make = (
           onClick={_ => onBack()}
           leftIcon={CustomIcon(<Icon name="nd-arrow-left" customHeight="14" />)}
         />
-        <RenderIf condition={hasTransformations}>
+        <RenderIf condition={allAccountsCoveredByTransformation}>
           <Button
             text="Continue to Rules"
             buttonType=Primary
@@ -896,6 +900,15 @@ let make = (
           />
         </RenderIf>
       </div>
+      <RenderIf
+        condition={!allAccountsCoveredByTransformation &&
+          wizardState.transformations->Array.length > 0}>
+        <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <p className="text-xs text-amber-700">
+            {"Each account needs a column mapping. Create mappings for all your accounts to continue."->React.string}
+          </p>
+        </div>
+      </RenderIf>
     </RenderIf>
   </div>
 }

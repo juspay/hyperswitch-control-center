@@ -98,17 +98,20 @@ let make = (
     }
   }
 
-  // Check if all accounts have ingestion configs
-  let hasIngestions = wizardState.ingestions->Array.length > 0
+  // In guided mode: all accounts must have ingestion configs to proceed
+  let allAccountsCovered =
+    wizardState.accounts->Array.every(account =>
+      wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id)
+    )
 
   React.useEffect(() => {
-    if isGuidedMode && hasIngestions {
+    if isGuidedMode && allAccountsCovered {
       nextButtonRef.current
       ->Nullable.toOption
       ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
     }
     None
-  }, [hasIngestions])
+  }, [allAccountsCovered])
 
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps (guided mode only)
@@ -358,7 +361,7 @@ let make = (
           onClick={_ => onBack()}
           leftIcon={CustomIcon(<Icon name="nd-arrow-left" customHeight="14" />)}
         />
-        <RenderIf condition={hasIngestions}>
+        <RenderIf condition={allAccountsCovered}>
           <Button
             text="Continue to Column Mapping"
             buttonType=Primary
@@ -369,6 +372,14 @@ let make = (
           />
         </RenderIf>
       </div>
+      <RenderIf
+        condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
+        <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <p className="text-xs text-amber-700">
+            {"Each account needs a data source. Create data sources for all your accounts to continue."->React.string}
+          </p>
+        </div>
+      </RenderIf>
     </RenderIf>
   </div>
 }
