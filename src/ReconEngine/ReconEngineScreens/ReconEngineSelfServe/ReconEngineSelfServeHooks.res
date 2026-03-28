@@ -80,10 +80,7 @@ let useCreateIngestionConfig = () => {
           account_id: accountId,
           name,
         }
-        showToast(
-          ~message=`Data source "${name}" created successfully`,
-          ~toastType=ToastSuccess,
-        )
+        showToast(~message=`Data source "${name}" created successfully`, ~toastType=ToastSuccess)
         Some(created)
       } catch {
       | Exn.Error(e) => {
