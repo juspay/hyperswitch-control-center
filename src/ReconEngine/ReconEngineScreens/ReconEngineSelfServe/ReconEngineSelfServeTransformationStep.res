@@ -187,6 +187,13 @@ let make = (
   }
   let (form, setForm) = React.useState(_ => defaultForm)
 
+  // When a new transformation is created, reset form with fresh auto-filled defaults
+  let transformationCount = wizardState.transformations->Array.length
+  React.useEffect(() => {
+    setForm(_ => defaultForm)
+    None
+  }, [transformationCount])
+
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let nextButtonRef = React.useRef(Nullable.null)
