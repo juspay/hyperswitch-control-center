@@ -421,8 +421,8 @@ let make = (
             showClearAll=false
           />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+          <div className="flex-1 flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
             <label className="text-sm font-medium text-blue-700">
               {"Source Account"->React.string}
             </label>
@@ -440,7 +440,23 @@ let make = (
               <p className="text-xs text-red-500"> {"Source account is required"->React.string} </p>
             </RenderIf>
           </div>
-          <div className="flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
+          <div className="flex items-center justify-center">
+            <Button
+              text=""
+              leftIcon={CustomIcon(
+                <Icon name="nd-arrow-right" customHeight="14" className="rotate-90 sm:rotate-0" />,
+              )}
+              buttonType=Secondary
+              buttonSize=XSmall
+              onClick={_ => {
+                let src = form.sourceAccountId
+                let tgt = form.targetAccountId
+                setForm(prev => {...prev, sourceAccountId: tgt, targetAccountId: src})
+              }}
+              customButtonStyle="!border-nd_gray-200 !rounded-full !p-1.5"
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
             <label className="text-sm font-medium text-green-700">
               {"Target Account"->React.string}
             </label>
