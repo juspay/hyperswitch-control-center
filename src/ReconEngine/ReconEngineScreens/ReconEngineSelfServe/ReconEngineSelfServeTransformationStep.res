@@ -175,6 +175,15 @@ let make = (
     ingestionId: autoIngestionId,
   }
   let (form, setForm) = React.useState(_ => defaultForm)
+
+  // Reset form with proper defaults when a transformation is created
+  let transformationCount = wizardState.transformations->Array.length
+  React.useEffect(() => {
+    if transformationCount > 0 {
+      setForm(_ => defaultForm)
+    }
+    None
+  }, [transformationCount])
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
