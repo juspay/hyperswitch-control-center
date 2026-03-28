@@ -818,6 +818,11 @@ let make = (
             deselectDisable=true
             showClearAll=false
           />
+          <RenderIf condition={showErrors && isUniqueConstraintEmpty}>
+            <p className="text-xs text-red-500">
+              {"Please select a unique field"->React.string}
+            </p>
+          </RenderIf>
         </div>
         <div className="flex flex-col gap-1.5">
           <label
@@ -838,9 +843,6 @@ let make = (
           />
         </div>
       </div>
-      <RenderIf condition={showErrors && isUniqueConstraintEmpty}>
-        <p className="text-xs text-red-500"> {"Please select a unique field"->React.string} </p>
-      </RenderIf>
     </div>
     // Submit
     <div className="ml-4 sm:ml-10">
