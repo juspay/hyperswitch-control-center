@@ -14,9 +14,21 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // Show all accounts — one account can have multiple ingestion sources
-  let availableAccounts = wizardState.accounts
-  let (selectedAccountId, setSelectedAccountId) = React.useState(_ => "")
+  // Guided mode: filter to accounts without ingestion configs (guides exhaustive setup)
+  // Expert mode: show all accounts (user may want multiple configs per account)
+  let availableAccounts = if isGuidedMode {
+    wizardState.accounts->Array.filter(account =>
+      !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
+    )
+  } else {
+    wizardState.accounts
+  }
+  let autoAccountId = if isGuidedMode {
+    availableAccounts->Array.get(0)->Option.map(a => a.account_id)->Option.getOr("")
+  } else {
+    ""
+  }
+  let (selectedAccountId, setSelectedAccountId) = React.useState(_ => autoAccountId)
   let (ingestionName, setIngestionName) = React.useState(_ => "")
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)

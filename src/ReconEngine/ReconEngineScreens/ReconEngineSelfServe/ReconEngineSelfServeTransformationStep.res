@@ -152,9 +152,39 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // Show all accounts — one account can have multiple transformations
-  let availableAccounts = wizardState.accounts
-  let defaultForm = defaultTransformationForm
+  // Guided mode: filter to accounts without transformation configs (guides exhaustive setup)
+  // Expert mode: show all accounts (user may want multiple configs per account)
+  let availableAccounts = if isGuidedMode {
+    wizardState.accounts->Array.filter(account =>
+      !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
+    )
+  } else {
+    wizardState.accounts
+  }
+  // Auto-select first available account and its ingestion in guided mode
+  let autoAccountId = if isGuidedMode {
+    availableAccounts->Array.get(0)->Option.map(a => a.account_id)->Option.getOr("")
+  } else {
+    ""
+  }
+  let autoIngestionId = if isGuidedMode && autoAccountId !== "" {
+    wizardState.ingestions
+    ->Array.find(i => i.account_id === autoAccountId)
+    ->Option.map(i => i.ingestion_id)
+    ->Option.getOr("")
+  } else {
+    ""
+  }
+  let defaultForm = {
+    ...defaultTransformationForm,
+    accountId: autoAccountId,
+    ingestionId: autoIngestionId,
+    processingMode: if isGuidedMode && wizardState.transformations->Array.length > 0 {
+      Confirmation
+    } else {
+      Transaction
+    },
+  }
   let (form, setForm) = React.useState(_ => defaultForm)
 
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
