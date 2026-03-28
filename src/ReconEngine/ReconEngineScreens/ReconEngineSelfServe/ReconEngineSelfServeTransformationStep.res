@@ -819,9 +819,7 @@ let make = (
             showClearAll=false
           />
           <RenderIf condition={showErrors && isUniqueConstraintEmpty}>
-            <p className="text-xs text-red-500">
-              {"Please select a unique field"->React.string}
-            </p>
+            <p className="text-xs text-red-500"> {"Please select a unique field"->React.string} </p>
           </RenderIf>
         </div>
         <div className="flex flex-col gap-1.5">
