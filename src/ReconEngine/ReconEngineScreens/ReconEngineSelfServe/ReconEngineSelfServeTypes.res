@@ -28,6 +28,7 @@ type createdTransformation = {
   account_id: string,
   ingestion_id: string,
   name: string,
+  metadataFieldNames: array<string>,
 }
 
 type createdRule = {

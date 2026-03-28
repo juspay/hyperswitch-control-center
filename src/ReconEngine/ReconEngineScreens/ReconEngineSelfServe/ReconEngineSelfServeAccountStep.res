@@ -24,21 +24,26 @@ let make = (
       setShowErrors(_ => true)
     } else {
       setShowErrors(_ => false)
-    }
-    setIsSubmitting(_ => true)
-    let balance = initialBalance->Float.fromString->Option.getOr(0.0)
-    let result = await createAccount(~accountName, ~accountType, ~currency, ~initialBalance=balance)
-    switch result {
-    | Some(account) => {
-        onAccountCreated(account)
-        setAccountName(_ => "")
-        setAccountType(_ => "credit")
-        setCurrency(_ => "USD")
-        setInitialBalance(_ => "0")
+      setIsSubmitting(_ => true)
+      let balance = initialBalance->Float.fromString->Option.getOr(0.0)
+      let result = await createAccount(
+        ~accountName,
+        ~accountType,
+        ~currency,
+        ~initialBalance=balance,
+      )
+      switch result {
+      | Some(account) => {
+          onAccountCreated(account)
+          setAccountName(_ => "")
+          setAccountType(_ => "credit")
+          setCurrency(_ => "USD")
+          setInitialBalance(_ => "0")
+        }
+      | None => ()
       }
-    | None => ()
+      setIsSubmitting(_ => false)
     }
-    setIsSubmitting(_ => false)
   }
 
   <div className="flex flex-col gap-10 max-w-3xl">

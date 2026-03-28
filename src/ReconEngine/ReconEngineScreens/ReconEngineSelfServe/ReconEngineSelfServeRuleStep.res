@@ -32,7 +32,7 @@ module MatchRuleRow = {
     ~index: int,
     ~onUpdate: (int, ReconEngineRulesTypes.matchRuleType) => unit,
     ~onRemove: int => unit,
-    ~entryFieldOptions: array<SelectBox.dropdownOption>,
+    ~entryFieldOpts: array<SelectBox.dropdownOption>,
   ) => {
     let setSourceField = (fn: string => string) => {
       let newVal = fn(rule.source_field)
@@ -60,7 +60,7 @@ module MatchRuleRow = {
             ~value=rule.source_field,
             ~setValue=setSourceField,
           )}
-          options={entryFieldOptions}
+          options={entryFieldOpts}
           deselectDisable=true
           showClearAll=false
         />
@@ -88,7 +88,7 @@ module MatchRuleRow = {
             ~value=rule.target_field,
             ~setValue=setTargetField,
           )}
-          options={entryFieldOptions}
+          options={entryFieldOpts}
           deselectDisable=true
           showClearAll=false
         />
@@ -183,6 +183,18 @@ let make = (
     let typeLabel = account.account_type === "credit" ? "Credit" : "Debit"
     {SelectBox.label: `${account.account_name} (${typeLabel})`, value: account.account_id}
   })
+
+  // Extend entry field options with metadata field names from transformations
+  let metadataFieldOpts: array<SelectBox.dropdownOption> =
+    wizardState.transformations
+    ->Array.flatMap(t =>
+      t.metadataFieldNames->Array.map(fieldName => {
+        let displayName = fieldName->String.replace("metadata.", "")
+        {SelectBox.label: `Metadata: ${displayName}`, value: fieldName}
+      })
+    )
+
+  let allEntryFieldOptions = entryFieldOptions->Array.concat(metadataFieldOpts)
 
   let needsGroupingField = switch form.oneToOneSubtype {
   | ManySingle | ManyMany => true
@@ -336,9 +348,7 @@ let make = (
             onChange={e => setForm(prev => {...prev, ruleName: ReactEvent.Form.target(e)["value"]})}
           />
           <RenderIf condition={showErrors && isRuleNameEmpty}>
-            <p className="text-xs text-red-500">
-              {"Rule name is required"->React.string}
-            </p>
+            <p className="text-xs text-red-500"> {"Rule name is required"->React.string} </p>
           </RenderIf>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -417,9 +427,7 @@ let make = (
               showClearAll=false
             />
             <RenderIf condition={showErrors && isSourceAccountIdEmpty}>
-              <p className="text-xs text-red-500">
-                {"Source account is required"->React.string}
-              </p>
+              <p className="text-xs text-red-500"> {"Source account is required"->React.string} </p>
             </RenderIf>
           </div>
           <div className="flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
@@ -437,9 +445,7 @@ let make = (
               showClearAll=false
             />
             <RenderIf condition={showErrors && isTargetAccountIdEmpty}>
-              <p className="text-xs text-red-500">
-                {"Target account is required"->React.string}
-              </p>
+              <p className="text-xs text-red-500"> {"Target account is required"->React.string} </p>
             </RenderIf>
           </div>
         </div>
@@ -458,7 +464,7 @@ let make = (
                 ~value=form.groupingField,
                 ~setValue=setGroupingField,
               )}
-              options={entryFieldOptions}
+              options={allEntryFieldOptions}
               deselectDisable=true
               showClearAll=false
             />
@@ -488,7 +494,7 @@ let make = (
               ~value=form.triggerField,
               ~setValue=setTriggerField,
             )}
-            options={entryFieldOptions}
+            options={allEntryFieldOptions}
             deselectDisable=true
             showClearAll=false
           />
@@ -524,9 +530,7 @@ let make = (
               setForm(prev => {...prev, triggerValue: ReactEvent.Form.target(e)["value"]})}
           />
           <RenderIf condition={showErrors && isTriggerValueEmpty}>
-            <p className="text-xs text-red-500">
-              {"Trigger value is required"->React.string}
-            </p>
+            <p className="text-xs text-red-500"> {"Trigger value is required"->React.string} </p>
           </RenderIf>
         </div>
       </div>
@@ -558,7 +562,7 @@ let make = (
                 ~value=form.searchSourceField,
                 ~setValue=setSearchSourceField,
               )}
-              options={entryFieldOptions}
+              options={allEntryFieldOptions}
               deselectDisable=true
               showClearAll=false
             />
@@ -573,7 +577,7 @@ let make = (
                 ~value=form.searchTargetField,
                 ~setValue=setSearchTargetField,
               )}
-              options={entryFieldOptions}
+              options={allEntryFieldOptions}
               deselectDisable=true
               showClearAll=false
             />
@@ -603,7 +607,7 @@ let make = (
             index=idx
             onUpdate=updateMatchRule
             onRemove=removeMatchRule
-            entryFieldOptions
+            entryFieldOpts=allEntryFieldOptions
           />
         )
         ->React.array}

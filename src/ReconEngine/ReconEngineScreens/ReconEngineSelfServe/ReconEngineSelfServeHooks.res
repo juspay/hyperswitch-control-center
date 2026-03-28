@@ -152,6 +152,7 @@ let useCreateTransformationConfig = () => {
           account_id: form.accountId,
           ingestion_id: form.ingestionId,
           name: form.name,
+          metadataFieldNames: form.metadataFields->Array.map(f => f.fieldName),
         }
         showToast(
           ~message=`Column mapping "${form.name}" created successfully`,

@@ -278,7 +278,11 @@ let make = (
 
   let handleSubmit = async () => {
     let hasErrors =
-      isNameEmpty || isAccountEmpty || isIngestionEmpty || isCurrencyEmpty || isAmountEmpty ||
+      isNameEmpty ||
+      isAccountEmpty ||
+      isIngestionEmpty ||
+      isCurrencyEmpty ||
+      isAmountEmpty ||
       isDateEmpty ||
       isOrderIdEmpty ||
       isBalanceDirEmpty
