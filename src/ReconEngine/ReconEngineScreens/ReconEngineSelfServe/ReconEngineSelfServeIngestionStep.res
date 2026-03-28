@@ -49,25 +49,34 @@ let make = (
 
   let configVariant = configVariantStr->stringToIngestionConfigVariant
 
+  let (showErrors, setShowErrors) = React.useState(_ => false)
+  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
+  let isNameEmpty = ingestionName->String.trim->String.length === 0
+  let isAccountEmpty = selectedAccountId->String.length === 0
+
   let handleSubmit = async () => {
-    setIsSubmitting(_ => true)
-    let result = await createIngestion(
-      ~merchantId,
-      ~profileId,
-      ~name=ingestionName,
-      ~accountId=selectedAccountId,
-      ~configVariant,
-    )
-    switch result {
-    | Some(ingestion) => {
-        onIngestionCreated(ingestion)
-        setIngestionName(_ => "")
-        setSelectedAccountId(_ => "")
-        setConfigVariantStr(_ => "manual")
-      }
+    let hasErrors = isNameEmpty || isAccountEmpty
+    setShowErrors(_ => hasErrors)
+    if !hasErrors {
+      setIsSubmitting(_ => true)
+      let result = await createIngestion(
+        ~merchantId,
+        ~profileId,
+        ~name=ingestionName,
+        ~accountId=selectedAccountId,
+        ~configVariant,
+      )
+      switch result {
+      | Some(ingestion) => {
+          onIngestionCreated(ingestion)
+          setIngestionName(_ => "")
+          setSelectedAccountId(_ => "")
+          setConfigVariantStr(_ => "manual")
+        }
     | None => ()
     }
     setIsSubmitting(_ => false)
+    }
   }
 
   // Check if all accounts have ingestion configs
@@ -142,11 +151,16 @@ let make = (
         <input
           id="ingestionName"
           type_="text"
-          className=inputClassName
+          className={showErrors && isNameEmpty
+            ? `${inputClassName} ${errorInputClass}`
+            : inputClassName}
           placeholder="e.g., FIUU Manual Upload, Bank Settlement Manual Upload"
           value={ingestionName}
           onChange={e => setIngestionName(_ => ReactEvent.Form.target(e)["value"])}
         />
+        <RenderIf condition={showErrors && isNameEmpty}>
+          <p className="text-xs text-red-500"> {"Data source name is required"->React.string} </p>
+        </RenderIf>
       </div>
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-nd_gray-700">
