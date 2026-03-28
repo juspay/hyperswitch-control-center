@@ -103,7 +103,7 @@ let make = (~onSelectMode: selfServeMode => unit) => {
           </div>
         </div>
         <p className="text-sm text-nd_gray-500 leading-relaxed">
-          {"Tabbed interface with all sections accessible independently. Create accounts, configs, and rules in any order."->React.string}
+          {"Tabbed interface with all sections accessible. Create accounts, data sources, column mappings, and rules."->React.string}
         </p>
         <div className="flex items-center gap-2 text-xs text-nd_gray-400">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
