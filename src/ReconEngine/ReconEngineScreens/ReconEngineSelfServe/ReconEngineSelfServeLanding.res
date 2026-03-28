@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
-  let navigateTo = url =>
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
+  let navigateTo = url => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
 
   <div className="flex flex-col items-center justify-center min-h-[70vh] gap-10 px-4 sm:px-6">
     // Header
