@@ -31,7 +31,7 @@ let make = (
     setIsSubmitting(_ => false)
   }
 
-  <div className="flex flex-col gap-8 max-w-2xl">
+  <div className="flex flex-col gap-10 max-w-3xl">
     // Header
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">

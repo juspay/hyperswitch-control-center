@@ -124,8 +124,8 @@ module ExpertMode = {
 
     let tabs = [
       ("account", "Accounts", wizardState.accounts->Array.length),
-      ("ingestion", "Ingestion", wizardState.ingestions->Array.length),
-      ("transformation", "Transformation", wizardState.transformations->Array.length),
+      ("ingestion", "Data Sources", wizardState.ingestions->Array.length),
+      ("transformation", "Column Mapping", wizardState.transformations->Array.length),
       ("rule", "Rules", wizardState.rules->Array.length),
     ]
 

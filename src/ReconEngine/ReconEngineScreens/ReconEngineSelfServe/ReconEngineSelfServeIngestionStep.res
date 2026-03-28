@@ -69,7 +69,7 @@ let make = (
   let allAccountsCovered =
     accountsWithIngestion->Array.length === wizardState.accounts->Array.length
 
-  <div className="flex flex-col gap-8 max-w-2xl">
+  <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
       <div

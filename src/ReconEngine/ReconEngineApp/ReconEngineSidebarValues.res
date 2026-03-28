@@ -101,6 +101,13 @@ let reconSetup = {
 }
 
 let reconEngineSidebars = {
-  let sidebar = [reconOverview, reconSetup, reconTransactions, exceptions, reconRuleCreation, reconAccounts]
+  let sidebar = [
+    reconOverview,
+    reconSetup,
+    reconTransactions,
+    exceptions,
+    reconRuleCreation,
+    reconAccounts,
+  ]
   sidebar
 }

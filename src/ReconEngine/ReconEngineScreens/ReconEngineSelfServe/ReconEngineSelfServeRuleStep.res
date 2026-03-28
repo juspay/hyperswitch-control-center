@@ -501,9 +501,7 @@ let make = (
       </div>
       // Search identifier
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-nd_gray-500 font-medium">
-          {"Matching Key"->React.string}
-        </p>
+        <p className="text-xs text-nd_gray-500 font-medium"> {"Matching Key"->React.string} </p>
         <p className="text-xs text-nd_gray-400">
           {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
         </p>

@@ -58,7 +58,7 @@ let make = (~wizardState: wizardState) => {
             </span>
           </div>
           <span className="text-sm font-semibold text-nd_gray-700">
-            {"Ingestion Configs"->React.string}
+            {"Data Sources"->React.string}
           </span>
         </div>
         <div className="flex flex-col gap-1">
@@ -80,7 +80,7 @@ let make = (~wizardState: wizardState) => {
             </span>
           </div>
           <span className="text-sm font-semibold text-nd_gray-700">
-            {"Transformations"->React.string}
+            {"Column Mappings"->React.string}
           </span>
         </div>
         <div className="flex flex-col gap-1">
@@ -124,7 +124,7 @@ let make = (~wizardState: wizardState) => {
         <div className="flex items-start gap-2">
           <span className="text-xs font-semibold text-blue-600 mt-0.5"> {"1."->React.string} </span>
           <p className="text-xs text-blue-600">
-            {"Go to Sources and upload your CSV files for each ingestion config"->React.string}
+            {"Go to Sources and upload your CSV files for each data source"->React.string}
           </p>
         </div>
         <div className="flex items-start gap-2">

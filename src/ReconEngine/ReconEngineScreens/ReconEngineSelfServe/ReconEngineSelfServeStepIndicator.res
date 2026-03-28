@@ -10,13 +10,13 @@ let sections: array<section> = [
   },
   {
     id: "ingestion",
-    name: "Configure Ingestion",
+    name: "Connect Data Sources",
     icon: "nd-connectors",
     subSections: None,
   },
   {
     id: "transformation",
-    name: "Set Up Transformation",
+    name: "Map CSV Columns",
     icon: "nd-connectors",
     subSections: None,
   },
