@@ -179,11 +179,12 @@ let make = (
       {...prev, searchTargetField: newVal}
     })
 
-  let allAccountOptions: array<SelectBox.dropdownOption> =
-    wizardState.accounts->Array.map(account => {
-      let typeLabel = account.account_type === "credit" ? "Credit" : "Debit"
-      {SelectBox.label: `${account.account_name} (${typeLabel})`, value: account.account_id}
-    })
+  let allAccountOptions: array<
+    SelectBox.dropdownOption,
+  > = wizardState.accounts->Array.map(account => {
+    let typeLabel = account.account_type === "credit" ? "Credit" : "Debit"
+    {SelectBox.label: `${account.account_name} (${typeLabel})`, value: account.account_id}
+  })
 
   // Filter out the selected account from the opposite dropdown
   let sourceAccountOptions =
