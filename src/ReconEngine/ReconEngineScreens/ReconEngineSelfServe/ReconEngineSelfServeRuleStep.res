@@ -443,10 +443,10 @@ let make = (
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"3"->React.string}
         </span>
-        {"Source Trigger"->React.string}
+        {"Entry Filter"->React.string}
       </div>
       <p className="text-xs text-nd_gray-400">
-        {"A trigger filters which source entries are eligible for this rule. For example, \"currency equals MYR\" means only MYR entries are processed."->React.string}
+        {"Only process entries that match this condition. For example, \"currency equals MYR\" means only MYR entries are processed by this rule."->React.string}
       </p>
       <div className="grid grid-cols-3 gap-3">
         <div className="flex flex-col gap-1">
@@ -502,10 +502,10 @@ let make = (
       // Search identifier
       <div className="flex flex-col gap-3">
         <p className="text-xs text-nd_gray-500 font-medium">
-          {"Search Identifier"->React.string}
+          {"Matching Key"->React.string}
         </p>
         <p className="text-xs text-nd_gray-400">
-          {"Which fields are used to FIND candidate matches? The engine searches for target entries where the target field matches the source field value."->React.string}
+          {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
         </p>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 p-2 bg-blue-50 rounded-md">
@@ -579,7 +579,7 @@ let make = (
             className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
             {"5"->React.string}
           </span>
-          {"Aging Config (Optional)"->React.string}
+          {"Unmatched Entry Timeout (Optional)"->React.string}
         </div>
         <Icon
           name={showAging ? "nd-angle-up" : "nd-angle-down"}
@@ -589,7 +589,7 @@ let make = (
       </div>
       <RenderIf condition={showAging}>
         <p className="text-xs text-nd_gray-400">
-          {"Aging determines when unmatched entries are flagged as exceptions. With a threshold, entries older than the specified days become exceptions."->React.string}
+          {"How long should the engine wait before flagging an unmatched entry as an exception? Leave disabled if entries should wait indefinitely."->React.string}
         </p>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 cursor-pointer">

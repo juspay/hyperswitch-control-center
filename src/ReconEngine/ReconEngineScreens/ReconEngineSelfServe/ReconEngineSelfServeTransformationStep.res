@@ -549,7 +549,7 @@ let make = (
               <input
                 type_="text"
                 className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
-                placeholder="e.g., MYR"
+                placeholder="e.g., CR, credit, incoming"
                 value={creditValueInput}
                 onChange={e => setCreditValueInput(_ => ReactEvent.Form.target(e)["value"])}
                 onKeyDown={e =>
@@ -586,7 +586,7 @@ let make = (
               <input
                 type_="text"
                 className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
-                placeholder="e.g., CA"
+                placeholder="e.g., DR, debit, outgoing"
                 value={debitValueInput}
                 onChange={e => setDebitValueInput(_ => ReactEvent.Form.target(e)["value"])}
                 onKeyDown={e =>
