@@ -224,7 +224,7 @@ let make = (
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
       <div
-        className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+        className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-4 sm:ml-10 mb-2">
         <div className="flex items-center gap-2">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
           {`Accounts: ${wizardState.accounts
@@ -260,15 +260,15 @@ let make = (
           {"Define Recon Rules"->React.string}
         </h2>
       </div>
-      <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
+      <p className="text-sm text-nd_gray-500 leading-relaxed ml-4 sm:ml-10">
         {"Rules tell the engine HOW to match entries between accounts. Define the search strategy, match criteria, and which accounts to reconcile."->React.string}
       </p>
     </div>
     // Strategy explainer
-    <div className="ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
+    <div className="ml-4 sm:ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
       <div className="flex flex-col gap-3">
         <p className="text-sm font-medium text-blue-700"> {"Strategy Types"->React.string} </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
             <p className="text-xs font-semibold text-nd_gray-700">
               {"Single:Single"->React.string}
@@ -303,7 +303,7 @@ let make = (
       </div>
     </div>
     // Section 1: Basic Info
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -313,10 +313,11 @@ let make = (
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700">
+          <label htmlFor="ruleName" className="text-sm font-medium text-nd_gray-700">
             {"Rule Name"->React.string}
           </label>
           <input
+            id="ruleName"
             type_="text"
             className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., FIUU <-> Bank"
@@ -325,10 +326,11 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700">
+          <label htmlFor="ruleDescription" className="text-sm font-medium text-nd_gray-700">
             {"Description"->React.string}
           </label>
           <input
+            id="ruleDescription"
             type_="text"
             className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., Reconciliation between FIUU and Bank"
@@ -338,13 +340,14 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700">
+          <label htmlFor="rulePriority" className="text-sm font-medium text-nd_gray-700">
             {"Priority"->React.string}
           </label>
           <p className="text-xs text-nd_gray-400">
             {"Lower number = higher priority. Rules are evaluated in order."->React.string}
           </p>
           <input
+            id="rulePriority"
             type_="number"
             className="w-24 px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
             value={form.priority->Int.toString}
@@ -357,7 +360,7 @@ let make = (
       </div>
     </div>
     // Section 2: Strategy & Accounts
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -381,7 +384,7 @@ let make = (
             showClearAll=false
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
             <label className="text-sm font-medium text-blue-700">
               {"Source Account"->React.string}
@@ -437,7 +440,7 @@ let make = (
       </div>
     </div>
     // Section 3: Trigger
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -448,7 +451,7 @@ let make = (
       <p className="text-xs text-nd_gray-400">
         {"Only process entries that match this condition. For example, \"currency equals MYR\" means only MYR entries are processed by this rule."->React.string}
       </p>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-nd_gray-600"> {"Field"->React.string} </label>
           <SelectBox
@@ -478,8 +481,9 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600"> {"Value"->React.string} </label>
+          <label htmlFor="triggerValue" className="text-xs font-medium text-nd_gray-600"> {"Value"->React.string} </label>
           <input
+            id="triggerValue"
             type_="text"
             className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., MYR, USD"
@@ -491,7 +495,7 @@ let make = (
       </div>
     </div>
     // Section 4: Search & Match
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -505,7 +509,7 @@ let make = (
         <p className="text-xs text-nd_gray-400">
           {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 p-2 bg-blue-50 rounded-lg">
             <label className="text-xs font-medium text-blue-600">
               {"Source Field"->React.string}
@@ -568,9 +572,10 @@ let make = (
       </div>
     </div>
     // Section 5: Aging (collapsible)
-    <div className="ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div
         className="flex items-center justify-between w-full cursor-pointer"
+        ariaExpanded={showAging}
         onClick={_ => setShowAging(prev => !prev)}>
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
           <span
@@ -604,10 +609,11 @@ let make = (
         </div>
         <RenderIf condition={form.agingEnabled}>
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium text-nd_gray-600">
+            <label htmlFor="agingDays" className="text-xs font-medium text-nd_gray-600">
               {"Days:"->React.string}
             </label>
             <input
+              id="agingDays"
               type_="number"
               className="w-20 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
               value={form.agingThresholdDays->Int.toString}
@@ -625,7 +631,7 @@ let make = (
       </RenderIf>
     </div>
     // Submit
-    <div className="ml-10">
+    <div className="ml-4 sm:ml-10">
       <Button
         text="Create Recon Rule"
         buttonType=Primary
@@ -637,7 +643,7 @@ let make = (
     </div>
     // Created rules
     <RenderIf condition={wizardState.rules->Array.length > 0}>
-      <div className="ml-10 flex flex-col gap-3">
+      <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Rules (${wizardState.rules->Array.length->Int.toString})`->React.string}
         </h3>
@@ -661,7 +667,7 @@ let make = (
       </div>
     </RenderIf>
     // Navigation
-    <div className="ml-10 flex gap-3">
+    <div className="ml-4 sm:ml-10 flex gap-3">
       <Button
         text="Back"
         buttonType=Secondary

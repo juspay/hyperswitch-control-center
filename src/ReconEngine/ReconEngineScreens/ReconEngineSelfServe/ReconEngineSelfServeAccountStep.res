@@ -43,12 +43,12 @@ let make = (
           {"Create Accounts"->React.string}
         </h2>
       </div>
-      <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
+      <p className="text-sm text-nd_gray-500 leading-relaxed ml-4 sm:ml-10">
         {"Accounts represent your data sources. You typically need at least two: a credit account (e.g., your payment gateway) and a debit account (e.g., your bank). The recon engine will match entries between these accounts."->React.string}
       </p>
     </div>
     // How it works
-    <div className="ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
+    <div className="ml-4 sm:ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
       <div className="flex items-start gap-3">
         <Icon name="nd-overview" className="text-blue-500 mt-0.5" customHeight="16" />
         <div className="flex flex-col gap-1">
@@ -60,12 +60,13 @@ let make = (
       </div>
     </div>
     // Form
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="accountName" className="text-sm font-medium text-nd_gray-700">
           {"Account Name"->React.string}
         </label>
         <input
+          id="accountName"
           type_="text"
           className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., FIUU, Bank Settlement, Stripe"
@@ -73,7 +74,7 @@ let make = (
           onChange={e => setAccountName(_ => ReactEvent.Form.target(e)["value"])}
         />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-nd_gray-700">
             {"Account Type"->React.string}
@@ -112,13 +113,14 @@ let make = (
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="initialBalance" className="text-sm font-medium text-nd_gray-700">
           {"Initial Balance"->React.string}
         </label>
         <p className="text-xs text-nd_gray-400">
           {"Starting balance (e.g., 0.00)"->React.string}
         </p>
         <input
+          id="initialBalance"
           type_="number"
           className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="0.00"
@@ -137,7 +139,7 @@ let make = (
     </div>
     // Created accounts list
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
-      <div className="ml-10 flex flex-col gap-3">
+      <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Accounts (${wizardState.accounts->Array.length->Int.toString})`->React.string}
         </h3>
@@ -176,7 +178,7 @@ let make = (
     </RenderIf>
     // Next button
     <RenderIf condition={wizardState.accounts->Array.length >= 2}>
-      <div className="ml-10">
+      <div className="ml-4 sm:ml-10">
         <Button
           text="Continue to Ingestion Setup"
           buttonType=Primary
@@ -188,7 +190,7 @@ let make = (
       </div>
     </RenderIf>
     <RenderIf condition={wizardState.accounts->Array.length === 1}>
-      <div className="ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+      <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
         <p className="text-xs text-amber-700">
           {"You need at least 2 accounts (one credit, one debit) to set up reconciliation. Create one more account to continue."->React.string}
         </p>

@@ -39,11 +39,18 @@ let make = (~onSelectMode: selfServeMode => unit) => {
       </div>
     </div>
     // Mode selection cards
-    <div className="flex gap-6 w-full max-w-3xl">
+    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-3xl">
       // Guided mode card
       <div
         className="flex-1 flex flex-col gap-4 p-6 rounded-xl border border-nd_gray-200 hover:border-blue-400 hover:shadow-md cursor-pointer transition-all duration-200 group"
-        onClick={_ => onSelectMode(Guided)}>
+        tabIndex=0
+        role="button"
+        onClick={_ => onSelectMode(Guided)}
+        onKeyDown={e =>
+          if ReactEvent.Keyboard.key(e) === "Enter" || ReactEvent.Keyboard.key(e) === " " {
+            ReactEvent.Keyboard.preventDefault(e)
+            onSelectMode(Guided)
+          }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
             <Icon name="nd-overview" className="text-blue-500" customHeight="20" />
@@ -75,7 +82,14 @@ let make = (~onSelectMode: selfServeMode => unit) => {
       // Expert mode card
       <div
         className="flex-1 flex flex-col gap-4 p-6 rounded-xl border border-nd_gray-200 hover:border-nd_gray-400 hover:shadow-md cursor-pointer transition-all duration-200 group"
-        onClick={_ => onSelectMode(Expert)}>
+        tabIndex=0
+        role="button"
+        onClick={_ => onSelectMode(Expert)}
+        onKeyDown={e =>
+          if ReactEvent.Keyboard.key(e) === "Enter" || ReactEvent.Keyboard.key(e) === " " {
+            ReactEvent.Keyboard.preventDefault(e)
+            onSelectMode(Expert)
+          }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-nd_gray-100 flex items-center justify-center">
             <Icon name="nd-reports" className="text-nd_gray-600" customHeight="20" />

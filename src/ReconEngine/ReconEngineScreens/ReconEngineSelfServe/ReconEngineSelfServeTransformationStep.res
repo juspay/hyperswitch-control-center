@@ -55,12 +55,13 @@ module MetadataFieldRow = {
           customButtonStyle="!text-red-400 !border-0"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600">
+          <label htmlFor={`metadataIdentifier_${index->Int.toString}`} className="text-xs font-medium text-nd_gray-600">
             {"CSV Column Name"->React.string}
           </label>
           <input
+            id={`metadataIdentifier_${index->Int.toString}`}
             type_="text"
             className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., Date, MerchantID, Settle Amount"
@@ -72,7 +73,7 @@ module MetadataFieldRow = {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600">
+          <label htmlFor={`metadataFieldKey_${index->Int.toString}`} className="text-xs font-medium text-nd_gray-600">
             {"Field Key"->React.string}
           </label>
           <div className="flex items-center">
@@ -81,6 +82,7 @@ module MetadataFieldRow = {
               {"metadata."->React.string}
             </span>
             <input
+              id={`metadataFieldKey_${index->Int.toString}`}
               type_="text"
               className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-r-md focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
               placeholder="e.g., date, merchant_id"
@@ -94,7 +96,7 @@ module MetadataFieldRow = {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-nd_gray-600">
             {"Field Type"->React.string}
@@ -111,10 +113,11 @@ module MetadataFieldRow = {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600">
+          <label htmlFor={`metadataDescription_${index->Int.toString}`} className="text-xs font-medium text-nd_gray-600">
             {"Description"->React.string}
           </label>
           <input
+            id={`metadataDescription_${index->Int.toString}`}
             type_="text"
             className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="Brief description of this field"
@@ -271,7 +274,7 @@ let make = (
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
       <div
-        className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+        className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-4 sm:ml-10 mb-2">
         <div className="flex items-center gap-2">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
           {`Accounts: ${wizardState.accounts
@@ -297,12 +300,12 @@ let make = (
           {"Map Your CSV Columns"->React.string}
         </h2>
       </div>
-      <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
+      <p className="text-sm text-nd_gray-500 leading-relaxed ml-4 sm:ml-10">
         {"Map your CSV columns to the recon engine's standard fields. This tells the engine where to find amounts, dates, order IDs, and additional metadata in your files."->React.string}
       </p>
     </div>
     // How it works
-    <div className="ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
+    <div className="ml-4 sm:ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
       <div className="flex items-start gap-3">
         <Icon name="nd-overview" className="text-blue-500 mt-0.5" customHeight="16" />
         <div className="flex flex-col gap-1">
@@ -314,7 +317,7 @@ let make = (
       </div>
     </div>
     // Form - Section 1: Basic Info
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -324,10 +327,11 @@ let make = (
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700">
+          <label htmlFor="transformationName" className="text-sm font-medium text-nd_gray-700">
             {"Transformation Name"->React.string}
           </label>
           <input
+            id="transformationName"
             type_="text"
             className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., PSP Payments, Bank Statements"
@@ -335,7 +339,7 @@ let make = (
             onChange={e => setForm(prev => {...prev, name: ReactEvent.Form.target(e)["value"]})}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-nd_gray-700">
               {"Account"->React.string}
@@ -388,7 +392,7 @@ let make = (
       </div>
     </div>
     // Section 2: Core Field Mappings
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -401,10 +405,11 @@ let make = (
       </p>
       // Currency
       <div className="flex flex-col gap-1.5 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="currencyColumn" className="text-sm font-medium text-nd_gray-700">
           {"Currency Column"->React.string}
         </label>
         <input
+          id="currencyColumn"
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Transaction Currency, Currency Code"
@@ -415,10 +420,11 @@ let make = (
       </div>
       // Amount
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="amountColumn" className="text-sm font-medium text-nd_gray-700">
           {"Amount Column"->React.string}
         </label>
         <input
+          id="amountColumn"
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Settle Amount, Credit"
@@ -426,7 +432,7 @@ let make = (
           onChange={e =>
             setForm(prev => {...prev, amountIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-nd_gray-600">
               {"Unit Type"->React.string}
@@ -463,10 +469,11 @@ let make = (
       </div>
       // Date
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="dateColumn" className="text-sm font-medium text-nd_gray-700">
           {"Date Column"->React.string}
         </label>
         <input
+          id="dateColumn"
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Date, Value Date"
@@ -474,7 +481,7 @@ let make = (
           onChange={e =>
             setForm(prev => {...prev, effectiveAtIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-nd_gray-600">
               {"Date Order"->React.string}
@@ -509,10 +516,11 @@ let make = (
       </div>
       // Order ID
       <div className="flex flex-col gap-1.5 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="orderIdColumn" className="text-sm font-medium text-nd_gray-700">
           {"Order ID Column"->React.string}
         </label>
         <input
+          id="orderIdColumn"
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Merchant Ref ID, Transaction Reference"
@@ -523,13 +531,14 @@ let make = (
       </div>
       // Balance Direction
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="balanceDirectionColumn" className="text-sm font-medium text-nd_gray-700">
           {"Credit/Debit Indicator"->React.string}
         </label>
         <p className="text-xs text-nd_gray-400">
           {"Which column in your CSV indicates if a row is a credit or debit? List the values from that column that mean credit vs debit."->React.string}
         </p>
         <input
+          id="balanceDirectionColumn"
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Transaction Currency, Account Type"
@@ -540,13 +549,14 @@ let make = (
               balanceDirectionIdentifier: ReactEvent.Form.target(e)["value"],
             })}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-nd_gray-600">
+            <label htmlFor="creditValueInput" className="text-xs font-medium text-nd_gray-600">
               {"Credit Values"->React.string}
             </label>
             <div className="flex gap-1.5">
               <input
+                id="creditValueInput"
                 type_="text"
                 className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
                 placeholder="e.g., CR, credit, incoming"
@@ -579,11 +589,12 @@ let make = (
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-nd_gray-600">
+            <label htmlFor="debitValueInput" className="text-xs font-medium text-nd_gray-600">
               {"Debit Values"->React.string}
             </label>
             <div className="flex gap-1.5">
               <input
+                id="debitValueInput"
                 type_="text"
                 className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
                 placeholder="e.g., DR, debit, outgoing"
@@ -619,7 +630,7 @@ let make = (
       </div>
     </div>
     // Section 3: Metadata Fields
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
           <span
@@ -666,9 +677,10 @@ let make = (
       ->React.array}
     </div>
     // Section 4: Unique Constraint (collapsible advanced)
-    <div className="ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div
         className="flex items-center justify-between w-full cursor-pointer"
+        ariaExpanded={showAdvanced}
         onClick={_ => setShowAdvanced(prev => !prev)}>
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
           <span
@@ -704,10 +716,11 @@ let make = (
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-nd_gray-600">
+            <label htmlFor="uniqueConstraintDescription" className="text-xs font-medium text-nd_gray-600">
               {"Description"->React.string}
             </label>
             <input
+              id="uniqueConstraintDescription"
               type_="text"
               className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
               placeholder="e.g., Merchant Ref Id must be unique across all transactions"
@@ -723,7 +736,7 @@ let make = (
       </RenderIf>
     </div>
     // Submit
-    <div className="ml-10">
+    <div className="ml-4 sm:ml-10">
       <Button
         text="Create Transformation Config"
         buttonType=Primary
@@ -735,9 +748,9 @@ let make = (
     </div>
     // Created transformations list
     <RenderIf condition={wizardState.transformations->Array.length > 0}>
-      <div className="ml-10 flex flex-col gap-3">
+      <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
-          {`Created Transformations (${wizardState.transformations
+          {`Created Column Mappings (${wizardState.transformations
             ->Array.length
             ->Int.toString})`->React.string}
         </h3>
@@ -759,7 +772,7 @@ let make = (
       </div>
     </RenderIf>
     // Navigation
-    <div className="ml-10 flex gap-3">
+    <div className="ml-4 sm:ml-10 flex gap-3">
       <Button
         text="Back"
         buttonType=Secondary

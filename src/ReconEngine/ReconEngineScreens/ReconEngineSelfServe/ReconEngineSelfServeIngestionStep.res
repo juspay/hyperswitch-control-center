@@ -30,15 +30,7 @@ let make = (
     {label: "SFTP Internal", value: "sftp_internal"},
   ]
 
-  let configVariantFromString = (s: string): ingestionConfigVariant => {
-    switch s {
-    | "adyen" => Adyen
-    | "sftp_internal" => SftpInternal
-    | _ => Manual
-    }
-  }
-
-  let configVariant = configVariantStr->configVariantFromString
+  let configVariant = configVariantStr->stringToIngestionConfigVariant
 
   let handleSubmit = async () => {
     setIsSubmitting(_ => true)
@@ -73,7 +65,7 @@ let make = (
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
       <div
-        className="flex items-center gap-2 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+        className="flex items-center gap-2 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-4 sm:ml-10 mb-2">
         <Icon name="nd-check" customHeight="10" className="text-green-500" />
         {`Using ${wizardState.accounts->Array.length->Int.toString} accounts: ${wizardState.accounts
           ->Array.map(a => a.account_name)
@@ -91,12 +83,12 @@ let make = (
           {"Connect Data Sources"->React.string}
         </h2>
       </div>
-      <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
+      <p className="text-sm text-nd_gray-500 leading-relaxed ml-4 sm:ml-10">
         {"Define how data enters the recon engine. Each account needs a data source. For most setups, \"Manual CSV Upload\" is the simplest way to start."->React.string}
       </p>
     </div>
     // How it works
-    <div className="ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
+    <div className="ml-4 sm:ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
       <div className="flex items-start gap-3">
         <Icon name="nd-overview" className="text-blue-500 mt-0.5" customHeight="16" />
         <div className="flex flex-col gap-1">
@@ -108,7 +100,7 @@ let make = (
       </div>
     </div>
     // Form
-    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-nd_gray-700"> {"Account"->React.string} </label>
         <p className="text-xs text-nd_gray-400">
@@ -126,10 +118,11 @@ let make = (
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-nd_gray-700">
+        <label htmlFor="ingestionName" className="text-sm font-medium text-nd_gray-700">
           {"Data Source Name"->React.string}
         </label>
         <input
+          id="ingestionName"
           type_="text"
           className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., FIUU Manual Upload, Bank Settlement Manual Upload"
@@ -166,7 +159,7 @@ let make = (
     </div>
     // Created ingestions list
     <RenderIf condition={wizardState.ingestions->Array.length > 0}>
-      <div className="ml-10 flex flex-col gap-3">
+      <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Data Sources (${wizardState.ingestions
             ->Array.length
@@ -202,7 +195,7 @@ let make = (
       </div>
     </RenderIf>
     // Navigation
-    <div className="ml-10 flex gap-3">
+    <div className="ml-4 sm:ml-10 flex gap-3">
       <Button
         text="Back"
         buttonType=Secondary
@@ -222,7 +215,7 @@ let make = (
       </RenderIf>
     </div>
     <RenderIf condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
-      <div className="ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+      <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
         <p className="text-xs text-amber-700">
           {"Each account needs a data source. Add data sources for all your accounts to continue."->React.string}
         </p>

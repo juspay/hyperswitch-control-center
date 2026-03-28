@@ -2,6 +2,7 @@ open ReconEngineSelfServeTypes
 
 // Helper to create a controlled SelectBox input for local state
 // SelectBox internally casts onChange to (array<string> => unit) via %identity
+// SelectBox reads value as JSON array: it does value->JSON.Decode.array
 // For single-select, it calls onChange([selectedValue])
 let makeControlledSelectInput = (
   ~name: string,
@@ -17,7 +18,8 @@ let makeControlledSelectInput = (
     setValue(_ => selected)
   },
   onFocus: _ => (),
-  value: value->JSON.Encode.string,
+  // SelectBox expects value as JSON array: ["selectedValue"]
+  value: [value->JSON.Encode.string]->JSON.Encode.array,
   checked: true,
 }
 
@@ -225,6 +227,14 @@ let stringToUnitType = (s: string): unitType => {
   switch s {
   | "minor_unit" => MinorUnit
   | _ => MajorUnit
+  }
+}
+
+let stringToIngestionConfigVariant = (s: string): ingestionConfigVariant => {
+  switch s {
+  | "adyen" => Adyen
+  | "sftp_internal" => SftpInternal
+  | _ => Manual
   }
 }
 
