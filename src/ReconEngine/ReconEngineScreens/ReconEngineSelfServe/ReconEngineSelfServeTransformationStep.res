@@ -163,6 +163,7 @@ let make = (
   let isDateEmpty = form.effectiveAtIdentifier->String.trim->String.length === 0
   let isOrderIdEmpty = form.orderIdIdentifier->String.trim->String.length === 0
   let isBalanceDirEmpty = form.balanceDirectionIdentifier->String.trim->String.length === 0
+  let isUniqueConstraintEmpty = form.uniqueConstraintField->String.length === 0
   let (showAdvanced, setShowAdvanced) = React.useState(_ => false)
   let (creditValueInput, setCreditValueInput) = React.useState(_ => "")
   let (debitValueInput, setDebitValueInput) = React.useState(_ => "")
@@ -285,7 +286,8 @@ let make = (
       isAmountEmpty ||
       isDateEmpty ||
       isOrderIdEmpty ||
-      isBalanceDirEmpty
+      isBalanceDirEmpty ||
+      isUniqueConstraintEmpty
     setShowErrors(_ => hasErrors)
     if !hasErrors {
       setIsSubmitting(_ => true)
@@ -717,30 +719,19 @@ let make = (
       )
       ->React.array}
     </div>
-    // Section 4: Unique Constraint (collapsible advanced)
+    // Section 4: Unique Constraint (required)
     <div
-      className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
-      <div
-        className="flex items-center justify-between w-full cursor-pointer"
-        ariaExpanded={showAdvanced}
-        onClick={_ => setShowAdvanced(prev => !prev)}>
-        <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-          <span
-            className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
-            {"4"->React.string}
-          </span>
-          {"Uniqueness Constraint"->React.string}
-        </div>
-        <Icon
-          name={showAdvanced ? "nd-angle-up" : "nd-angle-down"}
-          className="text-nd_gray-400"
-          customHeight="14"
-        />
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+      <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
+          {"4"->React.string}
+        </span>
+        {"Duplicate Prevention"->React.string}
       </div>
-      <RenderIf condition={showAdvanced}>
-        <p className="text-xs text-nd_gray-400">
-          {"Define which field must be unique across entries. This prevents duplicate processing."->React.string}
-        </p>
+      <p className="text-xs text-nd_gray-400">
+        {"Which field should be unique? If two rows have the same value for this field, the second will be flagged as a duplicate."->React.string}
+      </p>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-nd_gray-600">
@@ -777,7 +768,9 @@ let make = (
             />
           </div>
         </div>
-      </RenderIf>
+        <RenderIf condition={showErrors && isUniqueConstraintEmpty}>
+          <p className="text-xs text-red-500"> {"Please select a unique field"->React.string} </p>
+        </RenderIf>
     </div>
     // Submit
     <div className="ml-4 sm:ml-10">
