@@ -151,11 +151,28 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // Auto-set processing mode for second transformation
-  let defaultForm = if wizardState.transformations->Array.length > 0 {
-    {...defaultTransformationForm, processingMode: Confirmation}
-  } else {
-    defaultTransformationForm
+  // Auto-set defaults for second transformation
+  let accountsWithoutTransformation =
+    wizardState.accounts->Array.filter(account =>
+      !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
+    )
+  let autoAccountId = switch accountsWithoutTransformation {
+  | [singleAccount] => singleAccount.account_id
+  | _ => ""
+  }
+  let autoIngestionId = switch autoAccountId {
+  | "" => ""
+  | accountId =>
+    wizardState.ingestions
+    ->Array.find(i => i.account_id === accountId)
+    ->Option.map(i => i.ingestion_id)
+    ->Option.getOr("")
+  }
+  let defaultForm = {
+    ...defaultTransformationForm,
+    processingMode: wizardState.transformations->Array.length > 0 ? Confirmation : Transaction,
+    accountId: autoAccountId,
+    ingestionId: autoIngestionId,
   }
   let (form, setForm) = React.useState(_ => defaultForm)
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
