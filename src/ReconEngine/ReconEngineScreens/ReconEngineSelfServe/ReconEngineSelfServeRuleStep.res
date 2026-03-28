@@ -303,7 +303,8 @@ let make = (
       </div>
     </div>
     // Section 1: Basic Info
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -319,7 +320,7 @@ let make = (
           <input
             id="ruleName"
             type_="text"
-            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+            className=inputClassName
             placeholder="e.g., FIUU <-> Bank"
             value={form.ruleName}
             onChange={e => setForm(prev => {...prev, ruleName: ReactEvent.Form.target(e)["value"]})}
@@ -332,7 +333,7 @@ let make = (
           <input
             id="ruleDescription"
             type_="text"
-            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+            className=inputClassName
             placeholder="e.g., Reconciliation between FIUU and Bank"
             value={form.ruleDescription}
             onChange={e =>
@@ -360,7 +361,8 @@ let make = (
       </div>
     </div>
     // Section 2: Strategy & Accounts
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -440,7 +442,8 @@ let make = (
       </div>
     </div>
     // Section 3: Trigger
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -481,11 +484,13 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="triggerValue" className="text-xs font-medium text-nd_gray-600"> {"Value"->React.string} </label>
+          <label htmlFor="triggerValue" className="text-xs font-medium text-nd_gray-600">
+            {"Value"->React.string}
+          </label>
           <input
             id="triggerValue"
             type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+            className=innerInputClassName
             placeholder="e.g., MYR, USD"
             value={form.triggerValue}
             onChange={e =>
@@ -495,7 +500,8 @@ let make = (
       </div>
     </div>
     // Section 4: Search & Match
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -572,7 +578,8 @@ let make = (
       </div>
     </div>
     // Section 5: Aging (collapsible)
-    <div className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div
         className="flex items-center justify-between w-full cursor-pointer"
         ariaExpanded={showAging}

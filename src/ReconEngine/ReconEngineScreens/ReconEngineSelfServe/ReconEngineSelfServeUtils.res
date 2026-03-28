@@ -1,9 +1,10 @@
 open ReconEngineSelfServeTypes
 
 // Helper to create a controlled SelectBox input for local state
-// SelectBox internally casts onChange to (array<string> => unit) via %identity
-// SelectBox reads value as JSON array: it does value->JSON.Decode.array
-// For single-select, it calls onChange([selectedValue])
+// For single-select (allowMultiSelect=false, the default):
+//   - Display: reads value->JSON.Decode.string to find the label
+//   - onChange: receives the selected string via %identity cast (BaseRadio path)
+// The value must be a JSON string for display, and onChange receives a plain string
 let makeControlledSelectInput = (
   ~name: string,
   ~value: string,
@@ -12,14 +13,12 @@ let makeControlledSelectInput = (
   name,
   onBlur: _ => (),
   onChange: ev => {
-    // SelectBox calls this with array<string> via %identity cast
-    let arr = ev->Identity.genericTypeToJson->LogicUtils.getStrArrayFromJson
-    let selected = arr->Array.get(0)->Option.getOr("")
+    // For single-select, SelectBox calls onChange with a string via %identity cast
+    let selected = ev->Identity.genericTypeToJson->JSON.Decode.string->Option.getOr("")
     setValue(_ => selected)
   },
   onFocus: _ => (),
-  // SelectBox expects value as JSON array: ["selectedValue"]
-  value: [value->JSON.Encode.string]->JSON.Encode.array,
+  value: value->JSON.Encode.string,
   checked: true,
 }
 
@@ -35,6 +34,10 @@ let makeReadOnlySelectInput = (
   value: value->JSON.Encode.string,
   checked: true,
 }
+
+let inputClassName = "w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+
+let innerInputClassName = "w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
 
 let emptyWizardState: wizardState = {
   accounts: [],

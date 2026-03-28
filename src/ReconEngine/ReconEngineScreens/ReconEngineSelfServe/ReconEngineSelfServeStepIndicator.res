@@ -1,4 +1,3 @@
-open ReconEngineSelfServeTypes
 open VerticalStepIndicatorTypes
 
 let sections: array<section> = [
@@ -34,7 +33,7 @@ let sections: array<section> = [
   },
 ]
 
-let stepToIndicatorStep = (step: selfServeStep): step => {
+let stepToIndicatorStep = (step: ReconEngineSelfServeTypes.selfServeStep): step => {
   {
     sectionId: step->ReconEngineSelfServeUtils.stepToString,
     subSectionId: None,
@@ -42,7 +41,7 @@ let stepToIndicatorStep = (step: selfServeStep): step => {
 }
 
 @react.component
-let make = (~currentStep: selfServeStep, ~onBack: unit => unit) => {
+let make = (~currentStep: ReconEngineSelfServeTypes.selfServeStep, ~onBack: unit => unit) => {
   let titleElement =
     <div className="flex items-center gap-2">
       <Icon name="nd-connectors" className="text-nd_gray-600" customHeight="20" />

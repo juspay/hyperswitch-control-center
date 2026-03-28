@@ -60,7 +60,8 @@ let make = (
       </div>
     </div>
     // Form
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="accountName" className="text-sm font-medium text-nd_gray-700">
           {"Account Name"->React.string}
@@ -68,7 +69,7 @@ let make = (
         <input
           id="accountName"
           type_="text"
-          className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=inputClassName
           placeholder="e.g., FIUU, Bank Settlement, Stripe"
           value={accountName}
           onChange={e => setAccountName(_ => ReactEvent.Form.target(e)["value"])}
@@ -122,7 +123,7 @@ let make = (
         <input
           id="initialBalance"
           type_="number"
-          className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=inputClassName
           placeholder="0.00"
           value={initialBalance}
           onChange={e => setInitialBalance(_ => ReactEvent.Form.target(e)["value"])}

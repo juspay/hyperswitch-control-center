@@ -57,13 +57,15 @@ module MetadataFieldRow = {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label htmlFor={`metadataIdentifier_${index->Int.toString}`} className="text-xs font-medium text-nd_gray-600">
+          <label
+            htmlFor={`metadataIdentifier_${index->Int.toString}`}
+            className="text-xs font-medium text-nd_gray-600">
             {"CSV Column Name"->React.string}
           </label>
           <input
             id={`metadataIdentifier_${index->Int.toString}`}
             type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+            className=innerInputClassName
             placeholder="e.g., Date, MerchantID, Settle Amount"
             value={field.identifier}
             onChange={e => {
@@ -73,7 +75,9 @@ module MetadataFieldRow = {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor={`metadataFieldKey_${index->Int.toString}`} className="text-xs font-medium text-nd_gray-600">
+          <label
+            htmlFor={`metadataFieldKey_${index->Int.toString}`}
+            className="text-xs font-medium text-nd_gray-600">
             {"Field Key"->React.string}
           </label>
           <div className="flex items-center">
@@ -113,13 +117,15 @@ module MetadataFieldRow = {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor={`metadataDescription_${index->Int.toString}`} className="text-xs font-medium text-nd_gray-600">
+          <label
+            htmlFor={`metadataDescription_${index->Int.toString}`}
+            className="text-xs font-medium text-nd_gray-600">
             {"Description"->React.string}
           </label>
           <input
             id={`metadataDescription_${index->Int.toString}`}
             type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+            className=innerInputClassName
             placeholder="Brief description of this field"
             value={field.description}
             onChange={e => {
@@ -317,7 +323,8 @@ let make = (
       </div>
     </div>
     // Form - Section 1: Basic Info
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -333,7 +340,7 @@ let make = (
           <input
             id="transformationName"
             type_="text"
-            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+            className=inputClassName
             placeholder="e.g., PSP Payments, Bank Statements"
             value={form.name}
             onChange={e => setForm(prev => {...prev, name: ReactEvent.Form.target(e)["value"]})}
@@ -392,7 +399,8 @@ let make = (
       </div>
     </div>
     // Section 2: Core Field Mappings
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
         <span
           className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
@@ -411,7 +419,7 @@ let make = (
         <input
           id="currencyColumn"
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=innerInputClassName
           placeholder="e.g., Transaction Currency, Currency Code"
           value={form.currencyIdentifier}
           onChange={e =>
@@ -426,7 +434,7 @@ let make = (
         <input
           id="amountColumn"
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=innerInputClassName
           placeholder="e.g., Settle Amount, Credit"
           value={form.amountIdentifier}
           onChange={e =>
@@ -475,7 +483,7 @@ let make = (
         <input
           id="dateColumn"
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=innerInputClassName
           placeholder="e.g., Date, Value Date"
           value={form.effectiveAtIdentifier}
           onChange={e =>
@@ -522,7 +530,7 @@ let make = (
         <input
           id="orderIdColumn"
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=innerInputClassName
           placeholder="e.g., Merchant Ref ID, Transaction Reference"
           value={form.orderIdIdentifier}
           onChange={e =>
@@ -540,7 +548,7 @@ let make = (
         <input
           id="balanceDirectionColumn"
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          className=innerInputClassName
           placeholder="e.g., Transaction Currency, Account Type"
           value={form.balanceDirectionIdentifier}
           onChange={e =>
@@ -558,7 +566,7 @@ let make = (
               <input
                 id="creditValueInput"
                 type_="text"
-                className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+                className={`flex-1 ${innerInputClassName}`}
                 placeholder="e.g., CR, credit, incoming"
                 value={creditValueInput}
                 onChange={e => setCreditValueInput(_ => ReactEvent.Form.target(e)["value"])}
@@ -596,7 +604,7 @@ let make = (
               <input
                 id="debitValueInput"
                 type_="text"
-                className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+                className={`flex-1 ${innerInputClassName}`}
                 placeholder="e.g., DR, debit, outgoing"
                 value={debitValueInput}
                 onChange={e => setDebitValueInput(_ => ReactEvent.Form.target(e)["value"])}
@@ -630,7 +638,8 @@ let make = (
       </div>
     </div>
     // Section 3: Metadata Fields
-    <div className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
           <span
@@ -677,7 +686,8 @@ let make = (
       ->React.array}
     </div>
     // Section 4: Unique Constraint (collapsible advanced)
-    <div className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
+    <div
+      className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div
         className="flex items-center justify-between w-full cursor-pointer"
         ariaExpanded={showAdvanced}
@@ -716,13 +726,15 @@ let make = (
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="uniqueConstraintDescription" className="text-xs font-medium text-nd_gray-600">
+            <label
+              htmlFor="uniqueConstraintDescription"
+              className="text-xs font-medium text-nd_gray-600">
               {"Description"->React.string}
             </label>
             <input
               id="uniqueConstraintDescription"
               type_="text"
-              className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+              className=innerInputClassName
               placeholder="e.g., Merchant Ref Id must be unique across all transactions"
               value={form.uniqueConstraintDescription}
               onChange={e =>
