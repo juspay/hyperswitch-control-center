@@ -348,31 +348,33 @@ let make = (
       </div>
     </RenderIf>
     // Navigation
-    <div className="ml-4 sm:ml-10 flex gap-3">
-      <Button
-        text="Back"
-        buttonType=Secondary
-        buttonSize=Small
-        onClick={_ => onBack()}
-        leftIcon={CustomIcon(<Icon name="nd-arrow-left" customHeight="14" />)}
-      />
-      <RenderIf condition={allAccountsCovered}>
+    <RenderIf condition={isGuidedMode}>
+      <div className="ml-4 sm:ml-10 flex gap-3">
         <Button
-          text="Continue to Column Mapping"
-          buttonType=Primary
+          text="Back"
+          buttonType=Secondary
           buttonSize=Small
-          onClick={_ => onNext()}
-          rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
-          customButtonStyle="flex-1"
+          onClick={_ => onBack()}
+          leftIcon={CustomIcon(<Icon name="nd-arrow-left" customHeight="14" />)}
         />
-      </RenderIf>
-    </div>
-    <RenderIf condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
-      <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
-        <p className="text-xs text-amber-700">
-          {"Each account needs a data source. Add data sources for all your accounts to continue."->React.string}
-        </p>
+        <RenderIf condition={allAccountsCovered}>
+          <Button
+            text="Continue to Column Mapping"
+            buttonType=Primary
+            buttonSize=Small
+            onClick={_ => onNext()}
+            rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
+            customButtonStyle="flex-1"
+          />
+        </RenderIf>
       </div>
+      <RenderIf condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
+        <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <p className="text-xs text-amber-700">
+            {"Each account needs a data source. Add data sources for all your accounts to continue."->React.string}
+          </p>
+        </div>
+      </RenderIf>
     </RenderIf>
   </div>
 }

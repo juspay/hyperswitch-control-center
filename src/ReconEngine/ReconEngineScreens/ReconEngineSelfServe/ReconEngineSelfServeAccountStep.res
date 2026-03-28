@@ -6,6 +6,7 @@ let make = (
   ~wizardState: wizardState,
   ~onAccountCreated: createdAccount => unit,
   ~onNext: unit => unit,
+  ~isGuidedMode: bool=true,
 ) => {
   let createAccount = ReconEngineSelfServeHooks.useCreateAccount()
   let (accountName, setAccountName) = React.useState(_ => "")
@@ -228,25 +229,27 @@ let make = (
         </div>
       </div>
     </RenderIf>
-    // Next button
-    <RenderIf condition={wizardState.accounts->Array.length >= 2}>
-      <div className="ml-4 sm:ml-10">
-        <Button
-          text="Continue to Data Sources"
-          buttonType=Primary
-          buttonSize=Small
-          onClick={_ => onNext()}
-          rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
-          customButtonStyle="w-full"
-        />
-      </div>
-    </RenderIf>
-    <RenderIf condition={wizardState.accounts->Array.length === 1}>
-      <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
-        <p className="text-xs text-amber-700">
-          {"You need at least 2 accounts (one credit, one debit) to set up reconciliation. Create one more account to continue."->React.string}
-        </p>
-      </div>
+    // Navigation (guided mode only)
+    <RenderIf condition={isGuidedMode}>
+      <RenderIf condition={wizardState.accounts->Array.length >= 2}>
+        <div className="ml-4 sm:ml-10">
+          <Button
+            text="Continue to Data Sources"
+            buttonType=Primary
+            buttonSize=Small
+            onClick={_ => onNext()}
+            rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
+            customButtonStyle="w-full"
+          />
+        </div>
+      </RenderIf>
+      <RenderIf condition={wizardState.accounts->Array.length === 1}>
+        <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <p className="text-xs text-amber-700">
+            {"You need at least 2 accounts (one credit, one debit) to set up reconciliation. Create one more account to continue."->React.string}
+          </p>
+        </div>
+      </RenderIf>
     </RenderIf>
   </div>
 }

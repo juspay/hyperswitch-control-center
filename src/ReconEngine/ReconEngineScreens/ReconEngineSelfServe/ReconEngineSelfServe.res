@@ -100,16 +100,15 @@ module ExpertMode = {
       let fetchExistingAccounts = async () => {
         try {
           let accounts = await getAccounts()
-          let existingAccounts: array<createdAccount> =
-            accounts->Array.map(a => {
-              account_id: a.account_id,
-              account_name: a.account_name,
-              account_type: switch a.account_type {
-              | "credit" => "credit"
-              | "debit" => "debit"
-              | other => other
-              },
-            })
+          let existingAccounts: array<createdAccount> = accounts->Array.map(a => {
+            account_id: a.account_id,
+            account_name: a.account_name,
+            account_type: switch a.account_type {
+            | "credit" => "credit"
+            | "debit" => "debit"
+            | other => other
+            },
+          })
           if existingAccounts->Array.length > 0 {
             setWizardState(prev => {...prev, accounts: existingAccounts})
           }
@@ -207,7 +206,7 @@ module ExpertMode = {
           {switch activeTab {
           | "account" =>
             <ReconEngineSelfServeAccountStep
-              wizardState onAccountCreated onNext={() => setActiveTab(_ => "ingestion")}
+              wizardState onAccountCreated onNext={() => setActiveTab(_ => "ingestion")} isGuidedMode=false
             />
           | "ingestion" =>
             <ReconEngineSelfServeIngestionStep
@@ -231,6 +230,7 @@ module ExpertMode = {
               onRuleCreated
               onNext={() => setShowComplete(_ => true)}
               onBack={() => setActiveTab(_ => "transformation")}
+              isGuidedMode=false
             />
           | _ => React.null
           }}
