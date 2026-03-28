@@ -151,7 +151,13 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let (form, setForm) = React.useState(_ => defaultTransformationForm)
+  // Auto-set processing mode for second transformation
+  let defaultForm = if wizardState.transformations->Array.length > 0 {
+    {...defaultTransformationForm, processingMode: Confirmation}
+  } else {
+    defaultTransformationForm
+  }
+  let (form, setForm) = React.useState(_ => defaultForm)
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
@@ -405,7 +411,7 @@ let make = (
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-nd_gray-700">
-              {"Ingestion Source"->React.string}
+              {"Data Source"->React.string}
             </label>
             <SelectBox
               input={makeControlledSelectInput(
