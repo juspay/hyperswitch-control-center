@@ -269,7 +269,7 @@ let make = (
       <div className="flex flex-col gap-3">
         <p className="text-sm font-medium text-blue-700"> {"Strategy Types"->React.string} </p>
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
+          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
             <p className="text-xs font-semibold text-nd_gray-700">
               {"Single:Single"->React.string}
             </p>
@@ -277,13 +277,13 @@ let make = (
               {"One source entry matches exactly one target entry."->React.string}
             </p>
           </div>
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
+          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
             <p className="text-xs font-semibold text-nd_gray-700"> {"Many:Many"->React.string} </p>
             <p className="text-xs text-nd_gray-500">
               {"Multiple sources grouped together match multiple targets. Common for batch settlements."->React.string}
             </p>
           </div>
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
+          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
             <p className="text-xs font-semibold text-nd_gray-700">
               {"Single:Many"->React.string}
             </p>
@@ -291,7 +291,7 @@ let make = (
               {"One source matches many targets — e.g., one payout = multiple orders."->React.string}
             </p>
           </div>
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
+          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
             <p className="text-xs font-semibold text-nd_gray-700">
               {"Many:Single"->React.string}
             </p>
@@ -318,7 +318,7 @@ let make = (
           </label>
           <input
             type_="text"
-            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., FIUU <-> Bank"
             value={form.ruleName}
             onChange={e => setForm(prev => {...prev, ruleName: ReactEvent.Form.target(e)["value"]})}
@@ -330,7 +330,7 @@ let make = (
           </label>
           <input
             type_="text"
-            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., Reconciliation between FIUU and Bank"
             value={form.ruleDescription}
             onChange={e =>
@@ -481,7 +481,7 @@ let make = (
           <label className="text-xs font-medium text-nd_gray-600"> {"Value"->React.string} </label>
           <input
             type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., MYR, USD"
             value={form.triggerValue}
             onChange={e =>
@@ -506,7 +506,7 @@ let make = (
           {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
         </p>
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1 p-2 bg-blue-50 rounded-md">
+          <div className="flex flex-col gap-1 p-2 bg-blue-50 rounded-lg">
             <label className="text-xs font-medium text-blue-600">
               {"Source Field"->React.string}
             </label>
@@ -521,7 +521,7 @@ let make = (
               showClearAll=false
             />
           </div>
-          <div className="flex flex-col gap-1 p-2 bg-green-50 rounded-md">
+          <div className="flex flex-col gap-1 p-2 bg-green-50 rounded-lg">
             <label className="text-xs font-medium text-green-600">
               {"Target Field"->React.string}
             </label>
@@ -609,7 +609,7 @@ let make = (
             </label>
             <input
               type_="number"
-              className="w-20 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400"
+              className="w-20 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
               value={form.agingThresholdDays->Int.toString}
               onChange={e => {
                 let v = ReactEvent.Form.target(e)["value"]

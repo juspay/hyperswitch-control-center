@@ -62,7 +62,7 @@ module MetadataFieldRow = {
           </label>
           <input
             type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., Date, MerchantID, Settle Amount"
             value={field.identifier}
             onChange={e => {
@@ -82,7 +82,7 @@ module MetadataFieldRow = {
             </span>
             <input
               type_="text"
-              className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-r-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+              className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-r-md focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
               placeholder="e.g., date, merchant_id"
               value={field.fieldName->String.replace("metadata.", "")}
               onChange={e => {
@@ -116,7 +116,7 @@ module MetadataFieldRow = {
           </label>
           <input
             type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="Brief description of this field"
             value={field.description}
             onChange={e => {
@@ -280,7 +280,7 @@ let make = (
         </div>
         <div className="flex items-center gap-2">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
-          {`Ingestion configs: ${wizardState.ingestions
+          {`Data sources: ${wizardState.ingestions
             ->Array.map(i => i.name)
             ->Array.joinWith(", ")}`->React.string}
         </div>
@@ -329,7 +329,7 @@ let make = (
           </label>
           <input
             type_="text"
-            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+            className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
             placeholder="e.g., PSP Payments, Bank Statements"
             value={form.name}
             onChange={e => setForm(prev => {...prev, name: ReactEvent.Form.target(e)["value"]})}
@@ -406,7 +406,7 @@ let make = (
         </label>
         <input
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Transaction Currency, Currency Code"
           value={form.currencyIdentifier}
           onChange={e =>
@@ -420,7 +420,7 @@ let make = (
         </label>
         <input
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Settle Amount, Credit"
           value={form.amountIdentifier}
           onChange={e =>
@@ -468,7 +468,7 @@ let make = (
         </label>
         <input
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Date, Value Date"
           value={form.effectiveAtIdentifier}
           onChange={e =>
@@ -514,7 +514,7 @@ let make = (
         </label>
         <input
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Merchant Ref ID, Transaction Reference"
           value={form.orderIdIdentifier}
           onChange={e =>
@@ -531,7 +531,7 @@ let make = (
         </p>
         <input
           type_="text"
-          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+          className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Transaction Currency, Account Type"
           value={form.balanceDirectionIdentifier}
           onChange={e =>
@@ -548,7 +548,7 @@ let make = (
             <div className="flex gap-1.5">
               <input
                 type_="text"
-                className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+                className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
                 placeholder="e.g., CR, credit, incoming"
                 value={creditValueInput}
                 onChange={e => setCreditValueInput(_ => ReactEvent.Form.target(e)["value"])}
@@ -585,7 +585,7 @@ let make = (
             <div className="flex gap-1.5">
               <input
                 type_="text"
-                className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+                className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
                 placeholder="e.g., DR, debit, outgoing"
                 value={debitValueInput}
                 onChange={e => setDebitValueInput(_ => ReactEvent.Form.target(e)["value"])}
@@ -709,7 +709,7 @@ let make = (
             </label>
             <input
               type_="text"
-              className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+              className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
               placeholder="e.g., Merchant Ref Id must be unique across all transactions"
               value={form.uniqueConstraintDescription}
               onChange={e =>

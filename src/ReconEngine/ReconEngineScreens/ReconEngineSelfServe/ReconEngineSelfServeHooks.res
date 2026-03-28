@@ -81,13 +81,13 @@ let useCreateIngestionConfig = () => {
           name,
         }
         showToast(
-          ~message=`Ingestion config "${name}" created successfully`,
+          ~message=`Data source "${name}" created successfully`,
           ~toastType=ToastSuccess,
         )
         Some(created)
       } catch {
       | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to create ingestion config")
+          let err = Exn.message(e)->Option.getOr("Failed to create data source")
           showToast(~message=err, ~toastType=ToastError)
           None
         }
@@ -141,13 +141,13 @@ let useCreateTransformationConfig = () => {
           name: form.name,
         }
         showToast(
-          ~message=`Transformation config "${form.name}" created successfully`,
+          ~message=`Column mapping "${form.name}" created successfully`,
           ~toastType=ToastSuccess,
         )
         Some(created)
       } catch {
       | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to create transformation config")
+          let err = Exn.message(e)->Option.getOr("Failed to create column mapping")
           showToast(~message=err, ~toastType=ToastError)
           None
         }

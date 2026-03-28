@@ -102,7 +102,7 @@ let make = (
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-blue-700"> {"How it works"->React.string} </p>
           <p className="text-xs text-blue-600 leading-relaxed">
-            {"Each account needs its own ingestion config. Manual upload lets you upload CSV files through the UI. Adyen webhook receives data automatically. SFTP pulls files from a configured path."->React.string}
+            {"Each account needs its own data source. Manual upload lets you upload CSV files through the UI. Adyen webhook receives data automatically. SFTP pulls files from a configured path."->React.string}
           </p>
         </div>
       </div>
@@ -168,7 +168,7 @@ let make = (
     <RenderIf condition={wizardState.ingestions->Array.length > 0}>
       <div className="ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
-          {`Created Ingestion Configs (${wizardState.ingestions
+          {`Created Data Sources (${wizardState.ingestions
             ->Array.length
             ->Int.toString})`->React.string}
         </h3>
@@ -224,7 +224,7 @@ let make = (
     <RenderIf condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
       <div className="ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
         <p className="text-xs text-amber-700">
-          {"Each account needs an ingestion config. Create configs for all your accounts to continue."->React.string}
+          {"Each account needs a data source. Add data sources for all your accounts to continue."->React.string}
         </p>
       </div>
     </RenderIf>

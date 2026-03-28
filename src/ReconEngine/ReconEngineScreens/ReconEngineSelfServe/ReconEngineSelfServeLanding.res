@@ -14,22 +14,22 @@ let make = (~onSelectMode: selfServeMode => unit) => {
     </div>
     // Visual pipeline
     <div className="flex items-center gap-2 text-xs text-nd_gray-400 font-medium">
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-nd_gray-100 text-nd_gray-500 rounded-full">
         <Icon name="nd-connectors" customHeight="12" />
         {"Account"->React.string}
       </div>
       <Icon name="nd-arrow-right" customHeight="10" className="text-nd_gray-300" />
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-nd_gray-100 text-nd_gray-500 rounded-full">
         <Icon name="nd-connectors" customHeight="12" />
         {"Ingestion"->React.string}
       </div>
       <Icon name="nd-arrow-right" customHeight="10" className="text-nd_gray-300" />
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-nd_gray-100 text-nd_gray-500 rounded-full">
         <Icon name="nd-connectors" customHeight="12" />
         {"Transformation"->React.string}
       </div>
       <Icon name="nd-arrow-right" customHeight="10" className="text-nd_gray-300" />
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-nd_gray-100 text-nd_gray-500 rounded-full">
         <Icon name="nd-reports" customHeight="12" />
         {"Rules"->React.string}
       </div>
