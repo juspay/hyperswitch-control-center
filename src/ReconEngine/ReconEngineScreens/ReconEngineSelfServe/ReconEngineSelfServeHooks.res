@@ -135,7 +135,7 @@ let useCreateTransformationConfig = () => {
       form.accountId->String.length === 0 ||
       form.ingestionId->String.length === 0
     ) {
-      showToast(~message="Name, account, and ingestion source are required", ~toastType=ToastError)
+      showToast(~message="Name, account, and data source are required", ~toastType=ToastError)
       None
     } else if (
       form.currencyIdentifier->String.trim->String.length === 0 ||

@@ -256,7 +256,7 @@ let make = (
         <RenderIf condition={wizardState.ingestions->Array.length > 0}>
           <div className="flex items-center gap-2">
             <Icon name="nd-check" customHeight="10" className="text-green-500" />
-            {`Ingestions: ${wizardState.ingestions
+            {`Data sources: ${wizardState.ingestions
               ->Array.map(i => i.name)
               ->Array.joinWith(", ")}`->React.string}
           </div>
@@ -264,7 +264,7 @@ let make = (
         <RenderIf condition={wizardState.transformations->Array.length > 0}>
           <div className="flex items-center gap-2">
             <Icon name="nd-check" customHeight="10" className="text-green-500" />
-            {`Transformations: ${wizardState.transformations
+            {`Column mappings: ${wizardState.transformations
               ->Array.map(t => t.name)
               ->Array.joinWith(", ")}`->React.string}
           </div>

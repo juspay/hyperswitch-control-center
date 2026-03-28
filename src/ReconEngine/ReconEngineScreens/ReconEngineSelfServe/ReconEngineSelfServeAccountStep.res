@@ -69,20 +69,26 @@ let make = (
         <div className="flex flex-col gap-3">
           <p className="text-sm font-medium text-blue-700"> {"How it works"->React.string} </p>
           <div className="flex items-center gap-3">
-            <div className="flex flex-col gap-1 p-2 bg-blue-100 rounded-md border border-blue-200 text-center min-w-[100px]">
+            <div
+              className="flex flex-col gap-1 p-2 bg-blue-100 rounded-md border border-blue-200 text-center min-w-[100px]">
               <p className="text-xs font-semibold text-blue-700"> {"Credit"->React.string} </p>
               <p className="text-[10px] text-blue-600"> {"Payment Gateway"->React.string} </p>
-              <p className="text-[10px] text-blue-500 italic"> {"e.g., FIUU, Stripe"->React.string} </p>
+              <p className="text-[10px] text-blue-500 italic">
+                {"e.g., FIUU, Stripe"->React.string}
+              </p>
             </div>
             <div className="flex flex-col items-center gap-0.5">
               <Icon name="nd-arrow-right" customHeight="12" className="text-blue-400" />
               <p className="text-[9px] text-blue-400 font-medium"> {"reconcile"->React.string} </p>
               <Icon name="nd-arrow-left" customHeight="12" className="text-blue-400" />
             </div>
-            <div className="flex flex-col gap-1 p-2 bg-green-100 rounded-md border border-green-200 text-center min-w-[100px]">
+            <div
+              className="flex flex-col gap-1 p-2 bg-green-100 rounded-md border border-green-200 text-center min-w-[100px]">
               <p className="text-xs font-semibold text-green-700"> {"Debit"->React.string} </p>
               <p className="text-[10px] text-green-600"> {"Bank Settlement"->React.string} </p>
-              <p className="text-[10px] text-green-500 italic"> {"e.g., CIMB, HSBC"->React.string} </p>
+              <p className="text-[10px] text-green-500 italic">
+                {"e.g., CIMB, HSBC"->React.string}
+              </p>
             </div>
           </div>
           <p className="text-xs text-blue-600 leading-relaxed">
