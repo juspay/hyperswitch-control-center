@@ -379,6 +379,11 @@ let make = (
             value={form.name}
             onChange={e => setForm(prev => {...prev, name: ReactEvent.Form.target(e)["value"]})}
           />
+          <RenderIf condition={showErrors && isNameEmpty}>
+            <p className="text-xs text-red-500">
+              {"Transformation name is required"->React.string}
+            </p>
+          </RenderIf>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
@@ -395,6 +400,11 @@ let make = (
               deselectDisable=true
               showClearAll=false
             />
+            <RenderIf condition={showErrors && isAccountEmpty}>
+              <p className="text-xs text-red-500">
+                {"Account is required"->React.string}
+              </p>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-nd_gray-700">
@@ -410,6 +420,11 @@ let make = (
               deselectDisable=true
               showClearAll=false
             />
+            <RenderIf condition={showErrors && isIngestionEmpty}>
+              <p className="text-xs text-red-500">
+                {"Ingestion source is required"->React.string}
+              </p>
+            </RenderIf>
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -453,12 +468,19 @@ let make = (
         <input
           id="currencyColumn"
           type_="text"
-          className=innerInputClassName
+          className={showErrors && isCurrencyEmpty
+            ? `${innerInputClassName} ${errorInputClass}`
+            : innerInputClassName}
           placeholder="e.g., Transaction Currency, Currency Code"
           value={form.currencyIdentifier}
           onChange={e =>
             setForm(prev => {...prev, currencyIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
+        <RenderIf condition={showErrors && isCurrencyEmpty}>
+          <p className="text-xs text-red-500">
+            {"Currency column is required"->React.string}
+          </p>
+        </RenderIf>
       </div>
       // Amount
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
@@ -468,12 +490,19 @@ let make = (
         <input
           id="amountColumn"
           type_="text"
-          className=innerInputClassName
+          className={showErrors && isAmountEmpty
+            ? `${innerInputClassName} ${errorInputClass}`
+            : innerInputClassName}
           placeholder="e.g., Settle Amount, Credit"
           value={form.amountIdentifier}
           onChange={e =>
             setForm(prev => {...prev, amountIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
+        <RenderIf condition={showErrors && isAmountEmpty}>
+          <p className="text-xs text-red-500">
+            {"Amount column is required"->React.string}
+          </p>
+        </RenderIf>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-nd_gray-600">
@@ -517,12 +546,19 @@ let make = (
         <input
           id="dateColumn"
           type_="text"
-          className=innerInputClassName
+          className={showErrors && isDateEmpty
+            ? `${innerInputClassName} ${errorInputClass}`
+            : innerInputClassName}
           placeholder="e.g., Date, Value Date"
           value={form.effectiveAtIdentifier}
           onChange={e =>
             setForm(prev => {...prev, effectiveAtIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
+        <RenderIf condition={showErrors && isDateEmpty}>
+          <p className="text-xs text-red-500">
+            {"Date column is required"->React.string}
+          </p>
+        </RenderIf>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-nd_gray-600">
@@ -564,12 +600,19 @@ let make = (
         <input
           id="orderIdColumn"
           type_="text"
-          className=innerInputClassName
+          className={showErrors && isOrderIdEmpty
+            ? `${innerInputClassName} ${errorInputClass}`
+            : innerInputClassName}
           placeholder="e.g., Merchant Ref ID, Transaction Reference"
           value={form.orderIdIdentifier}
           onChange={e =>
             setForm(prev => {...prev, orderIdIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
+        <RenderIf condition={showErrors && isOrderIdEmpty}>
+          <p className="text-xs text-red-500">
+            {"Order ID column is required"->React.string}
+          </p>
+        </RenderIf>
       </div>
       // Balance Direction
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
@@ -582,7 +625,9 @@ let make = (
         <input
           id="balanceDirectionColumn"
           type_="text"
-          className=innerInputClassName
+          className={showErrors && isBalanceDirEmpty
+            ? `${innerInputClassName} ${errorInputClass}`
+            : innerInputClassName}
           placeholder="e.g., Transaction Currency, Account Type"
           value={form.balanceDirectionIdentifier}
           onChange={e =>
@@ -591,6 +636,11 @@ let make = (
               balanceDirectionIdentifier: ReactEvent.Form.target(e)["value"],
             })}
         />
+        <RenderIf condition={showErrors && isBalanceDirEmpty}>
+          <p className="text-xs text-red-500">
+            {"Credit/Debit indicator column is required"->React.string}
+          </p>
+        </RenderIf>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="creditValueInput" className="text-xs font-medium text-nd_gray-600">
@@ -732,45 +782,44 @@ let make = (
       <p className="text-xs text-nd_gray-400">
         {"Which field should be unique? If two rows have the same value for this field, the second will be flagged as a duplicate."->React.string}
       </p>
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-nd_gray-600">
-              {"Unique Field"->React.string}
-            </label>
-            <SelectBox
-              input={makeControlledSelectInput(
-                ~name="uniqueConstraintField",
-                ~value=form.uniqueConstraintField,
-                ~setValue=setUniqueConstraintField,
-              )}
-              options={constraintFieldOptions}
-              deselectDisable=true
-              showClearAll=false
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="uniqueConstraintDescription"
-              className="text-xs font-medium text-nd_gray-600">
-              {"Description"->React.string}
-            </label>
-            <input
-              id="uniqueConstraintDescription"
-              type_="text"
-              className=innerInputClassName
-              placeholder="e.g., Merchant Ref Id must be unique across all transactions"
-              value={form.uniqueConstraintDescription}
-              onChange={e =>
-                setForm(prev => {
-                  ...prev,
-                  uniqueConstraintDescription: ReactEvent.Form.target(e)["value"],
-                })}
-            />
-          </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-nd_gray-600">
+            {"Unique Field"->React.string}
+          </label>
+          <SelectBox
+            input={makeControlledSelectInput(
+              ~name="uniqueConstraintField",
+              ~value=form.uniqueConstraintField,
+              ~setValue=setUniqueConstraintField,
+            )}
+            options={constraintFieldOptions}
+            deselectDisable=true
+            showClearAll=false
+          />
         </div>
-        <RenderIf condition={showErrors && isUniqueConstraintEmpty}>
-          <p className="text-xs text-red-500"> {"Please select a unique field"->React.string} </p>
-        </RenderIf>
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="uniqueConstraintDescription" className="text-xs font-medium text-nd_gray-600">
+            {"Description"->React.string}
+          </label>
+          <input
+            id="uniqueConstraintDescription"
+            type_="text"
+            className=innerInputClassName
+            placeholder="e.g., Merchant Ref Id must be unique across all transactions"
+            value={form.uniqueConstraintDescription}
+            onChange={e =>
+              setForm(prev => {
+                ...prev,
+                uniqueConstraintDescription: ReactEvent.Form.target(e)["value"],
+              })}
+          />
+        </div>
+      </div>
+      <RenderIf condition={showErrors && isUniqueConstraintEmpty}>
+        <p className="text-xs text-red-500"> {"Please select a unique field"->React.string} </p>
+      </RenderIf>
     </div>
     // Submit
     <div className="ml-4 sm:ml-10">
