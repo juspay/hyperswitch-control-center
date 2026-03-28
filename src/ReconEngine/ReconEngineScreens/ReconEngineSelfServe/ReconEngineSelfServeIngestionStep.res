@@ -146,7 +146,7 @@ let make = (
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-nd_gray-700"> {"Account"->React.string} </label>
         <p className="text-xs text-nd_gray-400">
-          {"Select the account to configure ingestion for"->React.string}
+          {"Select the account for this data source"->React.string}
         </p>
         <SelectBox
           input={makeControlledSelectInput(
