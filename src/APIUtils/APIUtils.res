@@ -622,7 +622,8 @@ let useGetURL = () => {
       | ANALYTICS_PAYMENTS
       | ANALYTICS_DISPUTES
       | ANALYTICS_AUTHENTICATION
-      | ANALYTICS_ROUTING =>
+      | ANALYTICS_ROUTING
+      | ANALYTICS_RETRY =>
         switch methodType {
         | Get =>
           switch id {

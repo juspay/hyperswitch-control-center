@@ -109,6 +109,11 @@ let make = () => {
     })
   }
 
+  tabs->Array.push({
+    title: "Retry Analytics",
+    renderContent: () => <RetryAnalytics />,
+  })
+
   let applySampleDateFilters = async isSampleDateEnabled => {
     try {
       setScreenState(_ => Loading)

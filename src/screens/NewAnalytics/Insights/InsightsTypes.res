@@ -6,6 +6,7 @@ type analyticsPagesRoutes =
   | @as("new-analytics/payment") NewAnalyticsPayment
   | @as("new-analytics/smart-retry") NewAnalyticsSmartRetry
   | @as("new-analytics/refund") NewAnalyticsRefund
+  | @as("new-analytics/retry-analytics") NewAnalyticsRetryAnalytics
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
@@ -15,6 +16,8 @@ type dimension = [
   | #card_network
   | #authentication_type
   | #error_reason
+  | #standardised_code
+  | #error_category
   | #refund_error_message
   | #refund_reason
   | #authentication_connector
@@ -53,6 +56,9 @@ type metrics = [
   | #authentication_error_message
   | #authentication_exemption_approved_count
   | #authentication_exemption_requested_count
+  | #normalized_failure_reasons
+  | #retry_success_rate_by_error_type
+  | #retry_success_rate_by_connector
 ]
 
 type requestBodyConfig = {
