@@ -153,6 +153,16 @@ let make = (
 
   let (form, setForm) = React.useState(_ => defaultTransformationForm)
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
+  let (showErrors, setShowErrors) = React.useState(_ => false)
+  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
+  let isNameEmpty = form.name->String.trim->String.length === 0
+  let isAccountEmpty = form.accountId->String.length === 0
+  let isIngestionEmpty = form.ingestionId->String.length === 0
+  let isCurrencyEmpty = form.currencyIdentifier->String.trim->String.length === 0
+  let isAmountEmpty = form.amountIdentifier->String.trim->String.length === 0
+  let isDateEmpty = form.effectiveAtIdentifier->String.trim->String.length === 0
+  let isOrderIdEmpty = form.orderIdIdentifier->String.trim->String.length === 0
+  let isBalanceDirEmpty = form.balanceDirectionIdentifier->String.trim->String.length === 0
   let (showAdvanced, setShowAdvanced) = React.useState(_ => false)
   let (creditValueInput, setCreditValueInput) = React.useState(_ => "")
   let (debitValueInput, setDebitValueInput) = React.useState(_ => "")
@@ -196,8 +206,9 @@ let make = (
       !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
     )
 
-  let accountOptions: array<SelectBox.dropdownOption> =
-    accountsWithoutTransformation->Array.map(account => {
+  let accountOptions: array<
+    SelectBox.dropdownOption,
+  > = accountsWithoutTransformation->Array.map(account => {
     {
       SelectBox.label: `${account.account_name} (${account.account_type})`,
       value: account.account_id,
@@ -266,6 +277,12 @@ let make = (
   }
 
   let handleSubmit = async () => {
+    let hasErrors =
+      isNameEmpty || isAccountEmpty || isIngestionEmpty || isCurrencyEmpty || isAmountEmpty ||
+      isDateEmpty ||
+      isOrderIdEmpty ||
+      isBalanceDirEmpty
+    setShowErrors(_ => hasErrors)
     setIsSubmitting(_ => true)
     let result = await createTransformation(~form, ~merchantId, ~profileId)
     switch result {
@@ -347,7 +364,9 @@ let make = (
           <input
             id="transformationName"
             type_="text"
-            className=inputClassName
+            className={showErrors && isNameEmpty
+              ? `${inputClassName} ${errorInputClass}`
+              : inputClassName}
             placeholder="e.g., PSP Payments, Bank Statements"
             value={form.name}
             onChange={e => setForm(prev => {...prev, name: ReactEvent.Form.target(e)["value"]})}

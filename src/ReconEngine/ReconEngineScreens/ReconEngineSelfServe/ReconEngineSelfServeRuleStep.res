@@ -116,7 +116,14 @@ let make = (
   let createRule = ReconEngineSelfServeHooks.useCreateReconRule()
   let (form, setForm) = React.useState(_ => defaultRuleForm)
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
+  let (showErrors, setShowErrors) = React.useState(_ => false)
   let (showAging, setShowAging) = React.useState(_ => false)
+
+  let isRuleNameEmpty = form.ruleName->String.trim->String.length === 0
+  let isSourceAccountIdEmpty = form.sourceAccountId->String.length === 0
+  let isTargetAccountIdEmpty = form.targetAccountId->String.length === 0
+  let isTriggerValueEmpty = form.triggerValue->String.trim->String.length === 0
+  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
 
   let setOneToOneSubtype = (fn: string => string) =>
     setForm(prev => {
@@ -206,6 +213,9 @@ let make = (
   }
 
   let handleSubmit = async () => {
+    let hasErrors =
+      isRuleNameEmpty || isSourceAccountIdEmpty || isTargetAccountIdEmpty || isTriggerValueEmpty
+    setShowErrors(_ => hasErrors)
     setIsSubmitting(_ => true)
     let result = await createRule(~form)
     switch result {
@@ -318,11 +328,18 @@ let make = (
           <input
             id="ruleName"
             type_="text"
-            className=inputClassName
+            className={showErrors && isRuleNameEmpty
+              ? `${inputClassName} ${errorInputClass}`
+              : inputClassName}
             placeholder="e.g., FIUU <-> Bank"
             value={form.ruleName}
             onChange={e => setForm(prev => {...prev, ruleName: ReactEvent.Form.target(e)["value"]})}
           />
+          <RenderIf condition={showErrors && isRuleNameEmpty}>
+            <p className="text-xs text-red-500">
+              {"Rule name is required"->React.string}
+            </p>
+          </RenderIf>
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="ruleDescription" className="text-sm font-medium text-nd_gray-700">
@@ -399,6 +416,11 @@ let make = (
               deselectDisable=true
               showClearAll=false
             />
+            <RenderIf condition={showErrors && isSourceAccountIdEmpty}>
+              <p className="text-xs text-red-500">
+                {"Source account is required"->React.string}
+              </p>
+            </RenderIf>
           </div>
           <div className="flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
             <label className="text-sm font-medium text-green-700">
@@ -414,6 +436,11 @@ let make = (
               deselectDisable=true
               showClearAll=false
             />
+            <RenderIf condition={showErrors && isTargetAccountIdEmpty}>
+              <p className="text-xs text-red-500">
+                {"Target account is required"->React.string}
+              </p>
+            </RenderIf>
           </div>
         </div>
         // Grouping field (only for Many* strategies)
@@ -488,12 +515,19 @@ let make = (
           <input
             id="triggerValue"
             type_="text"
-            className=innerInputClassName
+            className={showErrors && isTriggerValueEmpty
+              ? `${innerInputClassName} ${errorInputClass}`
+              : innerInputClassName}
             placeholder="e.g., MYR, USD"
             value={form.triggerValue}
             onChange={e =>
               setForm(prev => {...prev, triggerValue: ReactEvent.Form.target(e)["value"]})}
           />
+          <RenderIf condition={showErrors && isTriggerValueEmpty}>
+            <p className="text-xs text-red-500">
+              {"Trigger value is required"->React.string}
+            </p>
+          </RenderIf>
         </div>
       </div>
     </div>

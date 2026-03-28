@@ -24,18 +24,28 @@ let make = (
       !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
     )
 
-  let accountOptions: array<SelectBox.dropdownOption> =
-    accountsWithoutIngestion->Array.map(account => {
-      let label = `${account.account_name} (${account.account_type})`
-      let value = account.account_id
-      {SelectBox.label, value}
-    })
+  let accountOptions: array<
+    SelectBox.dropdownOption,
+  > = accountsWithoutIngestion->Array.map(account => {
+    let label = `${account.account_name} (${account.account_type})`
+    let value = account.account_id
+    {SelectBox.label, value}
+  })
 
   let ingestionTypeOptions: array<SelectBox.dropdownOption> = [
     {label: "Manual CSV Upload", value: "manual"},
     {label: "Adyen Webhook", value: "adyen"},
     {label: "SFTP Internal", value: "sftp_internal"},
   ]
+
+  // Adyen config fields
+  let (hmacSecret, setHmacSecret) = React.useState(_ => "")
+  let (webhookUsername, setWebhookUsername) = React.useState(_ => "")
+  let (webhookPassword, setWebhookPassword) = React.useState(_ => "")
+  let (reportUsername, setReportUsername) = React.useState(_ => "")
+  let (reportPassword, setReportPassword) = React.useState(_ => "")
+  // SFTP config fields
+  let (sftpFilePath, setSftpFilePath) = React.useState(_ => "")
 
   let configVariant = configVariantStr->stringToIngestionConfigVariant
 
@@ -156,6 +166,102 @@ let make = (
           showClearAll=false
         />
       </div>
+      <RenderIf condition={configVariantStr === "adyen"}>
+        <div className="flex flex-col gap-3 p-4 bg-nd_gray-50 rounded-lg">
+          <p className="text-xs font-medium text-nd_gray-600">
+            {"Adyen Configuration"->React.string}
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="hmacSecret" className="text-xs font-medium text-nd_gray-600">
+              {"HMAC Secret"->React.string}
+            </label>
+            <input
+              id="hmacSecret"
+              type_="password"
+              className=innerInputClassName
+              placeholder="Enter HMAC secret"
+              value={hmacSecret}
+              onChange={e => setHmacSecret(_ => ReactEvent.Form.target(e)["value"])}
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="webhookUsername" className="text-xs font-medium text-nd_gray-600">
+                {"Webhook Username"->React.string}
+              </label>
+              <input
+                id="webhookUsername"
+                type_="text"
+                className=innerInputClassName
+                placeholder="Basic auth username"
+                value={webhookUsername}
+                onChange={e => setWebhookUsername(_ => ReactEvent.Form.target(e)["value"])}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="webhookPassword" className="text-xs font-medium text-nd_gray-600">
+                {"Webhook Password"->React.string}
+              </label>
+              <input
+                id="webhookPassword"
+                type_="password"
+                className=innerInputClassName
+                placeholder="Basic auth password"
+                value={webhookPassword}
+                onChange={e => setWebhookPassword(_ => ReactEvent.Form.target(e)["value"])}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="reportUsername" className="text-xs font-medium text-nd_gray-600">
+                {"Report Username"->React.string}
+              </label>
+              <input
+                id="reportUsername"
+                type_="text"
+                className=innerInputClassName
+                placeholder="Report auth username"
+                value={reportUsername}
+                onChange={e => setReportUsername(_ => ReactEvent.Form.target(e)["value"])}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="reportPassword" className="text-xs font-medium text-nd_gray-600">
+                {"Report Password"->React.string}
+              </label>
+              <input
+                id="reportPassword"
+                type_="password"
+                className=innerInputClassName
+                placeholder="Report auth password"
+                value={reportPassword}
+                onChange={e => setReportPassword(_ => ReactEvent.Form.target(e)["value"])}
+              />
+            </div>
+          </div>
+        </div>
+      </RenderIf>
+      <RenderIf condition={configVariantStr === "sftp_internal"}>
+        <div className="flex flex-col gap-3 p-4 bg-nd_gray-50 rounded-lg">
+          <p className="text-xs font-medium text-nd_gray-600">
+            {"SFTP Configuration"->React.string}
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="sftpFilePath" className="text-xs font-medium text-nd_gray-600">
+              {"File Path"->React.string}
+            </label>
+            <input
+              id="sftpFilePath"
+              type_="text"
+              className=innerInputClassName
+              placeholder="e.g., /data/imports/settlements/"
+              value={sftpFilePath}
+              onChange={e => setSftpFilePath(_ => ReactEvent.Form.target(e)["value"])}
+            />
+          </div>
+        </div>
+      </RenderIf>
       <Button
         text="Add Data Source"
         buttonType=Primary
