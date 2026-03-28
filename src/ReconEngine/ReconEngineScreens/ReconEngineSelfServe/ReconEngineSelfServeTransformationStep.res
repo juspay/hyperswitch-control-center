@@ -287,16 +287,18 @@ let make = (
       isOrderIdEmpty ||
       isBalanceDirEmpty
     setShowErrors(_ => hasErrors)
-    setIsSubmitting(_ => true)
-    let result = await createTransformation(~form, ~merchantId, ~profileId)
-    switch result {
-    | Some(transformation) => {
-        onTransformationCreated(transformation)
-        setForm(_ => defaultTransformationForm)
+    if !hasErrors {
+      setIsSubmitting(_ => true)
+      let result = await createTransformation(~form, ~merchantId, ~profileId)
+      switch result {
+      | Some(transformation) => {
+          onTransformationCreated(transformation)
+          setForm(_ => defaultTransformationForm)
+        }
+      | None => ()
       }
-    | None => ()
+      setIsSubmitting(_ => false)
     }
-    setIsSubmitting(_ => false)
   }
 
   let allAccountsCoveredByTransformation =

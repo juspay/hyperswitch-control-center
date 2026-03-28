@@ -185,14 +185,14 @@ let make = (
   })
 
   // Extend entry field options with metadata field names from transformations
-  let metadataFieldOpts: array<SelectBox.dropdownOption> =
-    wizardState.transformations
-    ->Array.flatMap(t =>
-      t.metadataFieldNames->Array.map(fieldName => {
-        let displayName = fieldName->String.replace("metadata.", "")
-        {SelectBox.label: `Metadata: ${displayName}`, value: fieldName}
-      })
-    )
+  let metadataFieldOpts: array<
+    SelectBox.dropdownOption,
+  > = wizardState.transformations->Array.flatMap(t =>
+    t.metadataFieldNames->Array.map(fieldName => {
+      let displayName = fieldName->String.replace("metadata.", "")
+      {SelectBox.label: `Metadata: ${displayName}`, value: fieldName}
+    })
+  )
 
   let allEntryFieldOptions = entryFieldOptions->Array.concat(metadataFieldOpts)
 
@@ -228,16 +228,18 @@ let make = (
     let hasErrors =
       isRuleNameEmpty || isSourceAccountIdEmpty || isTargetAccountIdEmpty || isTriggerValueEmpty
     setShowErrors(_ => hasErrors)
-    setIsSubmitting(_ => true)
-    let result = await createRule(~form)
-    switch result {
-    | Some(rule) => {
-        onRuleCreated(rule)
-        setForm(_ => defaultRuleForm)
+    if !hasErrors {
+      setIsSubmitting(_ => true)
+      let result = await createRule(~form)
+      switch result {
+      | Some(rule) => {
+          onRuleCreated(rule)
+          setForm(_ => defaultRuleForm)
+        }
+      | None => ()
       }
-    | None => ()
+      setIsSubmitting(_ => false)
     }
-    setIsSubmitting(_ => false)
   }
 
   <div className="flex flex-col gap-10 max-w-3xl">
