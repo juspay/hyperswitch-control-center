@@ -206,7 +206,10 @@ module ExpertMode = {
           {switch activeTab {
           | "account" =>
             <ReconEngineSelfServeAccountStep
-              wizardState onAccountCreated onNext={() => setActiveTab(_ => "ingestion")} isGuidedMode=false
+              wizardState
+              onAccountCreated
+              onNext={() => setActiveTab(_ => "ingestion")}
+              isGuidedMode=false
             />
           | "ingestion" =>
             <ReconEngineSelfServeIngestionStep

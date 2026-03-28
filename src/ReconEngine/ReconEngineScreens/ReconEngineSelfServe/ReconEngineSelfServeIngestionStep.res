@@ -1,6 +1,10 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
+@send
+external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
+  "scrollIntoView"
+
 @react.component
 let make = (
   ~wizardState: wizardState,
@@ -60,6 +64,7 @@ let make = (
   let configVariant = configVariantStr->stringToIngestionConfigVariant
 
   let (showErrors, setShowErrors) = React.useState(_ => false)
+  let nextButtonRef = React.useRef(Nullable.null)
   let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
   let isNameEmpty = ingestionName->String.trim->String.length === 0
   let isAccountEmpty = selectedAccountId->String.length === 0
@@ -108,6 +113,17 @@ let make = (
     )
   let allAccountsCovered =
     accountsWithIngestion->Array.length === wizardState.accounts->Array.length
+
+  React.useEffect(() => {
+    if isGuidedMode && allAccountsCovered {
+      nextButtonRef.current
+      ->Nullable.toOption
+      ->Option.forEach(el =>
+        el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"})
+      )
+    }
+    None
+  }, [allAccountsCovered])
 
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps
@@ -311,7 +327,7 @@ let make = (
       />
     </div>
     // Created ingestions list
-    <RenderIf condition={wizardState.ingestions->Array.length > 0}>
+    <RenderIf condition={isGuidedMode && wizardState.ingestions->Array.length > 0}>
       <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Data Sources (${wizardState.ingestions
@@ -349,7 +365,7 @@ let make = (
     </RenderIf>
     // Navigation
     <RenderIf condition={isGuidedMode}>
-      <div className="ml-4 sm:ml-10 flex gap-3">
+      <div className="ml-4 sm:ml-10 flex gap-3" ref={ReactDOM.Ref.domRef(nextButtonRef)}>
         <Button
           text="Back"
           buttonType=Secondary

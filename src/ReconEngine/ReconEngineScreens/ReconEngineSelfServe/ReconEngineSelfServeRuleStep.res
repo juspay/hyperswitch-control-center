@@ -1,6 +1,10 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
+@send
+external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
+  "scrollIntoView"
+
 let defaultRuleForm: ruleFormState = {
   ruleName: "",
   ruleDescription: "",
@@ -119,6 +123,19 @@ let make = (
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let (showAging, setShowAging) = React.useState(_ => false)
+  let nextButtonRef = React.useRef(Nullable.null)
+
+  let ruleCount = wizardState.rules->Array.length
+  React.useEffect(() => {
+    if isGuidedMode && ruleCount > 0 {
+      nextButtonRef.current
+      ->Nullable.toOption
+      ->Option.forEach(el =>
+        el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"})
+      )
+    }
+    None
+  }, [ruleCount])
 
   let isRuleNameEmpty = form.ruleName->String.trim->String.length === 0
   let isSourceAccountIdEmpty = form.sourceAccountId->String.length === 0
@@ -714,7 +731,7 @@ let make = (
       />
     </div>
     // Created rules
-    <RenderIf condition={wizardState.rules->Array.length > 0}>
+    <RenderIf condition={isGuidedMode && wizardState.rules->Array.length > 0}>
       <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Rules (${wizardState.rules->Array.length->Int.toString})`->React.string}
@@ -740,7 +757,7 @@ let make = (
     </RenderIf>
     // Navigation
     <RenderIf condition={isGuidedMode}>
-      <div className="ml-4 sm:ml-10 flex gap-3">
+      <div className="ml-4 sm:ml-10 flex gap-3" ref={ReactDOM.Ref.domRef(nextButtonRef)}>
         <Button
           text="Back"
           buttonType=Secondary

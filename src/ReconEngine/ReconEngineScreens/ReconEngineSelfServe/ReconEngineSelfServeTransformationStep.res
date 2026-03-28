@@ -1,6 +1,10 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
+@send
+external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
+  "scrollIntoView"
+
 let defaultMetadataField: metadataFieldFormState = {
   identifier: "",
   fieldName: "",
@@ -197,6 +201,7 @@ let make = (
   }, [transformationCount])
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
+  let nextButtonRef = React.useRef(Nullable.null)
   let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
   let isNameEmpty = form.name->String.trim->String.length === 0
   let isAccountEmpty = form.accountId->String.length === 0
@@ -341,6 +346,17 @@ let make = (
     wizardState.accounts->Array.every(account =>
       wizardState.transformations->Array.some(t => t.account_id === account.account_id)
     )
+
+  React.useEffect(() => {
+    if isGuidedMode && allAccountsCoveredByTransformation {
+      nextButtonRef.current
+      ->Nullable.toOption
+      ->Option.forEach(el =>
+        el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"})
+      )
+    }
+    None
+  }, [allAccountsCoveredByTransformation])
 
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps
@@ -853,7 +869,7 @@ let make = (
       />
     </div>
     // Created transformations list
-    <RenderIf condition={wizardState.transformations->Array.length > 0}>
+    <RenderIf condition={isGuidedMode && wizardState.transformations->Array.length > 0}>
       <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Column Mappings (${wizardState.transformations
@@ -879,7 +895,7 @@ let make = (
     </RenderIf>
     // Navigation
     <RenderIf condition={isGuidedMode}>
-      <div className="ml-4 sm:ml-10 flex gap-3">
+      <div className="ml-4 sm:ml-10 flex gap-3" ref={ReactDOM.Ref.domRef(nextButtonRef)}>
         <Button
           text="Back"
           buttonType=Secondary

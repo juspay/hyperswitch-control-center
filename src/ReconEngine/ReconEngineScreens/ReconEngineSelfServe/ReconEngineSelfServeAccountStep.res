@@ -1,6 +1,10 @@
 open ReconEngineSelfServeTypes
 open ReconEngineSelfServeUtils
 
+@send
+external scrollIntoViewSmooth: (Dom.element, {"behavior": string, "block": string}) => unit =
+  "scrollIntoView"
+
 @react.component
 let make = (
   ~wizardState: wizardState,
@@ -15,6 +19,19 @@ let make = (
   let (initialBalance, setInitialBalance) = React.useState(_ => "0")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
+  let nextButtonRef = React.useRef(Nullable.null)
+
+  let accountCount = wizardState.accounts->Array.length
+  React.useEffect(() => {
+    if isGuidedMode && accountCount >= 2 {
+      nextButtonRef.current
+      ->Nullable.toOption
+      ->Option.forEach(el =>
+        el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"})
+      )
+    }
+    None
+  }, [accountCount])
 
   let isAccountNameEmpty = accountName->String.trim->String.length === 0
 
@@ -191,7 +208,7 @@ let make = (
       />
     </div>
     // Created accounts list
-    <RenderIf condition={wizardState.accounts->Array.length > 0}>
+    <RenderIf condition={isGuidedMode && wizardState.accounts->Array.length > 0}>
       <div className="ml-4 sm:ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
           {`Created Accounts (${wizardState.accounts->Array.length->Int.toString})`->React.string}
@@ -232,7 +249,7 @@ let make = (
     // Navigation (guided mode only)
     <RenderIf condition={isGuidedMode}>
       <RenderIf condition={wizardState.accounts->Array.length >= 2}>
-        <div className="ml-4 sm:ml-10">
+        <div className="ml-4 sm:ml-10" ref={ReactDOM.Ref.domRef(nextButtonRef)}>
           <Button
             text="Continue to Data Sources"
             buttonType=Primary
