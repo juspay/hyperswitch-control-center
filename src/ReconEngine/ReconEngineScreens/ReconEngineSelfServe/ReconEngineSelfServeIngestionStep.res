@@ -372,8 +372,7 @@ let make = (
           />
         </RenderIf>
       </div>
-      <RenderIf
-        condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
+      <RenderIf condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
         <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
           <p className="text-xs text-amber-700">
             {"Each account needs a data source. Create data sources for all your accounts to continue."->React.string}

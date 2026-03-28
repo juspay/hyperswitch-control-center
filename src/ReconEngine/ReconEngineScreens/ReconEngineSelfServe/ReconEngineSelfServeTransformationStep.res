@@ -902,7 +902,7 @@ let make = (
       </div>
       <RenderIf
         condition={!allAccountsCoveredByTransformation &&
-          wizardState.transformations->Array.length > 0}>
+        wizardState.transformations->Array.length > 0}>
         <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
           <p className="text-xs text-amber-700">
             {"Each account needs a column mapping. Create mappings for all your accounts to continue."->React.string}
