@@ -164,7 +164,6 @@ let make = (
   let isOrderIdEmpty = form.orderIdIdentifier->String.trim->String.length === 0
   let isBalanceDirEmpty = form.balanceDirectionIdentifier->String.trim->String.length === 0
   let isUniqueConstraintEmpty = form.uniqueConstraintField->String.length === 0
-  let (showAdvanced, setShowAdvanced) = React.useState(_ => false)
   let (creditValueInput, setCreditValueInput) = React.useState(_ => "")
   let (debitValueInput, setDebitValueInput) = React.useState(_ => "")
 
@@ -401,9 +400,7 @@ let make = (
               showClearAll=false
             />
             <RenderIf condition={showErrors && isAccountEmpty}>
-              <p className="text-xs text-red-500">
-                {"Account is required"->React.string}
-              </p>
+              <p className="text-xs text-red-500"> {"Account is required"->React.string} </p>
             </RenderIf>
           </div>
           <div className="flex flex-col gap-1.5">
@@ -477,9 +474,7 @@ let make = (
             setForm(prev => {...prev, currencyIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
         <RenderIf condition={showErrors && isCurrencyEmpty}>
-          <p className="text-xs text-red-500">
-            {"Currency column is required"->React.string}
-          </p>
+          <p className="text-xs text-red-500"> {"Currency column is required"->React.string} </p>
         </RenderIf>
       </div>
       // Amount
@@ -499,9 +494,7 @@ let make = (
             setForm(prev => {...prev, amountIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
         <RenderIf condition={showErrors && isAmountEmpty}>
-          <p className="text-xs text-red-500">
-            {"Amount column is required"->React.string}
-          </p>
+          <p className="text-xs text-red-500"> {"Amount column is required"->React.string} </p>
         </RenderIf>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
@@ -555,9 +548,7 @@ let make = (
             setForm(prev => {...prev, effectiveAtIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
         <RenderIf condition={showErrors && isDateEmpty}>
-          <p className="text-xs text-red-500">
-            {"Date column is required"->React.string}
-          </p>
+          <p className="text-xs text-red-500"> {"Date column is required"->React.string} </p>
         </RenderIf>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
@@ -609,9 +600,7 @@ let make = (
             setForm(prev => {...prev, orderIdIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
         <RenderIf condition={showErrors && isOrderIdEmpty}>
-          <p className="text-xs text-red-500">
-            {"Order ID column is required"->React.string}
-          </p>
+          <p className="text-xs text-red-500"> {"Order ID column is required"->React.string} </p>
         </RenderIf>
       </div>
       // Balance Direction
