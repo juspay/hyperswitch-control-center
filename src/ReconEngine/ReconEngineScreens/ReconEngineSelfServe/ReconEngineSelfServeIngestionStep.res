@@ -206,7 +206,7 @@ let make = (
       />
       <RenderIf condition={allAccountsCovered}>
         <Button
-          text="Continue to Transformation"
+          text="Continue to Column Mapping"
           buttonType=Primary
           buttonSize=Small
           onClick={_ => onNext()}

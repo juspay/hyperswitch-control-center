@@ -32,7 +32,7 @@ module MatchRuleRow = {
     ~index: int,
     ~onUpdate: (int, ReconEngineRulesTypes.matchRuleType) => unit,
     ~onRemove: int => unit,
-    ~entryFieldOpts: array<SelectBox.dropdownOption>,
+    ~entryFieldOptions: array<SelectBox.dropdownOption>,
   ) => {
     let setSourceField = (fn: string => string) => {
       let newVal = fn(rule.source_field)
@@ -60,7 +60,7 @@ module MatchRuleRow = {
             ~value=rule.source_field,
             ~setValue=setSourceField,
           )}
-          options={entryFieldOpts}
+          options={entryFieldOptions}
           deselectDisable=true
           showClearAll=false
         />
@@ -88,7 +88,7 @@ module MatchRuleRow = {
             ~value=rule.target_field,
             ~setValue=setTargetField,
           )}
-          options={entryFieldOpts}
+          options={entryFieldOptions}
           deselectDisable=true
           showClearAll=false
         />
@@ -176,8 +176,6 @@ let make = (
     let typeLabel = account.account_type === "credit" ? "Credit" : "Debit"
     {SelectBox.label: `${account.account_name} (${typeLabel})`, value: account.account_id}
   })
-
-  let entryFieldOpts = entryFieldOptions
 
   let needsGroupingField = switch form.oneToOneSubtype {
   | ManySingle | ManyMany => true
@@ -433,7 +431,7 @@ let make = (
                 ~value=form.groupingField,
                 ~setValue=setGroupingField,
               )}
-              options={entryFieldOpts}
+              options={entryFieldOptions}
               deselectDisable=true
               showClearAll=false
             />
@@ -463,7 +461,7 @@ let make = (
               ~value=form.triggerField,
               ~setValue=setTriggerField,
             )}
-            options={entryFieldOpts}
+            options={entryFieldOptions}
             deselectDisable=true
             showClearAll=false
           />
@@ -526,7 +524,7 @@ let make = (
                 ~value=form.searchSourceField,
                 ~setValue=setSearchSourceField,
               )}
-              options={entryFieldOpts}
+              options={entryFieldOptions}
               deselectDisable=true
               showClearAll=false
             />
@@ -541,7 +539,7 @@ let make = (
                 ~value=form.searchTargetField,
                 ~setValue=setSearchTargetField,
               )}
-              options={entryFieldOpts}
+              options={entryFieldOptions}
               deselectDisable=true
               showClearAll=false
             />
@@ -571,7 +569,7 @@ let make = (
             index=idx
             onUpdate=updateMatchRule
             onRemove=removeMatchRule
-            entryFieldOpts
+            entryFieldOptions
           />
         )
         ->React.array}

@@ -181,7 +181,7 @@ let make = (
     <RenderIf condition={wizardState.accounts->Array.length >= 2}>
       <div className="ml-4 sm:ml-10">
         <Button
-          text="Continue to Ingestion Setup"
+          text="Continue to Data Sources"
           buttonType=Primary
           buttonSize=Small
           onClick={_ => onNext()}

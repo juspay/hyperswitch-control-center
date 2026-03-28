@@ -32,7 +32,12 @@ let useCreateAccount = () => {
         Some(created)
       } catch {
       | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to create account")
+          let rawErr = Exn.message(e)->Option.getOr("Failed to create account")
+          let err = try {
+            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+          } catch {
+          | _ => rawErr
+          }
           showToast(~message=err, ~toastType=ToastError)
           None
         }
@@ -57,7 +62,7 @@ let useCreateIngestionConfig = () => {
     ~configVariant: ingestionConfigVariant,
   ) => {
     if name->String.trim->String.length === 0 || accountId->String.trim->String.length === 0 {
-      showToast(~message="Ingestion name and account are required", ~toastType=ToastError)
+      showToast(~message="Data source name and account are required", ~toastType=ToastError)
       None
     } else {
       try {
@@ -84,7 +89,12 @@ let useCreateIngestionConfig = () => {
         Some(created)
       } catch {
       | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to create data source")
+          let rawErr = Exn.message(e)->Option.getOr("Failed to create data source")
+          let err = try {
+            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+          } catch {
+          | _ => rawErr
+          }
           showToast(~message=err, ~toastType=ToastError)
           None
         }
@@ -144,7 +154,12 @@ let useCreateTransformationConfig = () => {
         Some(created)
       } catch {
       | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to create column mapping")
+          let rawErr = Exn.message(e)->Option.getOr("Failed to create column mapping")
+          let err = try {
+            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+          } catch {
+          | _ => rawErr
+          }
           showToast(~message=err, ~toastType=ToastError)
           None
         }
@@ -196,7 +211,12 @@ let useCreateReconRule = () => {
         Some(created)
       } catch {
       | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to create recon rule")
+          let rawErr = Exn.message(e)->Option.getOr("Failed to create recon rule")
+          let err = try {
+            rawErr->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject->LogicUtils.getString("message", rawErr)
+          } catch {
+          | _ => rawErr
+          }
           showToast(~message=err, ~toastType=ToastError)
           None
         }
