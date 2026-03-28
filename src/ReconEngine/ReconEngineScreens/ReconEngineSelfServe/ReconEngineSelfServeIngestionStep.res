@@ -18,11 +18,18 @@ let make = (
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
 
-  let accountOptions: array<SelectBox.dropdownOption> = wizardState.accounts->Array.map(account => {
-    let label = `${account.account_name} (${account.account_type})`
-    let value = account.account_id
-    {SelectBox.label, value}
-  })
+  // Only show accounts that don't already have an ingestion config
+  let accountsWithoutIngestion =
+    wizardState.accounts->Array.filter(account =>
+      !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
+    )
+
+  let accountOptions: array<SelectBox.dropdownOption> =
+    accountsWithoutIngestion->Array.map(account => {
+      let label = `${account.account_name} (${account.account_type})`
+      let value = account.account_id
+      {SelectBox.label, value}
+    })
 
   let ingestionTypeOptions: array<SelectBox.dropdownOption> = [
     {label: "Manual CSV Upload", value: "manual"},

@@ -190,7 +190,14 @@ let make = (
   let setUniqueConstraintField = (fn: string => string) =>
     setForm(prev => {...prev, uniqueConstraintField: fn(prev.uniqueConstraintField)})
 
-  let accountOptions: array<SelectBox.dropdownOption> = wizardState.accounts->Array.map(account => {
+  // Only show accounts that don't already have a transformation config
+  let accountsWithoutTransformation =
+    wizardState.accounts->Array.filter(account =>
+      !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
+    )
+
+  let accountOptions: array<SelectBox.dropdownOption> =
+    accountsWithoutTransformation->Array.map(account => {
     {
       SelectBox.label: `${account.account_name} (${account.account_type})`,
       value: account.account_id,
