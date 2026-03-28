@@ -34,10 +34,9 @@ let make = (~wizardState: wizardState) => {
         <div className="flex flex-col gap-1">
           {wizardState.accounts
           ->Array.map(account => {
-            let badgeColor =
-              isCreditAccount(account)
-                ? "bg-blue-50 text-blue-600"
-                : "bg-green-50 text-green-600"
+            let badgeColor = isCreditAccount(account)
+              ? "bg-blue-50 text-blue-600"
+              : "bg-green-50 text-green-600"
             <div key={account.account_id} className="flex items-center gap-2">
               <span className={`text-xs px-2 py-0.5 rounded-full ${badgeColor}`}>
                 {account.account_type->React.string}

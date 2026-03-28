@@ -25,6 +25,71 @@ let defaultRuleForm: ruleFormState = {
   agingThresholdDays: 7,
 }
 
+module StrategyDiagram = {
+  @react.component
+  let make = (~strategyType: string) => {
+    let (sourceLabel, targetLabel, description) = switch strategyType {
+    | "single_single" => (
+        "1 Entry",
+        "1 Entry",
+        "Each source entry matches exactly one target entry. Best for payment-to-settlement matching.",
+      )
+    | "single_many" => (
+        "1 Entry",
+        "N Entries",
+        "One source matches multiple targets. Best for a payment that appears as multiple settlements.",
+      )
+    | "many_single" => (
+        "N Entries",
+        "1 Entry",
+        "Multiple sources match one target. Best for multiple payments grouped into one bank deposit.",
+      )
+    | "many_many" => (
+        "N Entries",
+        "N Entries",
+        "Multiple sources match multiple targets by grouping field. Best for daily batch settlements.",
+      )
+    | _ => ("", "", "")
+    }
+
+    <div className="bg-white rounded-lg border border-blue-200 p-4 mt-3">
+      <div className="flex items-center justify-center gap-4 mb-3">
+        <div className="flex flex-col items-center">
+          <div className="text-[10px] font-semibold text-nd_gray-400 uppercase mb-1">
+            {"Source"->React.string}
+          </div>
+          <div
+            className="bg-blue-100 border-2 border-blue-300 rounded-lg px-4 py-2 text-sm font-semibold text-blue-800">
+            {sourceLabel->React.string}
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="text-[9px] text-nd_gray-400 font-medium mb-0.5">
+            {"matches"->React.string}
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-6 h-0.5 bg-nd_gray-300" />
+            <Icon name="nd-arrow-right" customHeight="8" className="text-nd_gray-400" />
+            <div className="w-6 h-0.5 bg-nd_gray-300" />
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="text-[10px] font-semibold text-nd_gray-400 uppercase mb-1">
+            {"Target"->React.string}
+          </div>
+          <div
+            className="bg-green-100 border-2 border-green-300 rounded-lg px-4 py-2 text-sm font-semibold text-green-800">
+            {targetLabel->React.string}
+          </div>
+        </div>
+      </div>
+      <p className="text-xs text-nd_gray-600 leading-relaxed text-center">
+        {description->React.string}
+      </p>
+    </div>
+  }
+}
+
 module MatchRuleRow = {
   @react.component
   let make = (
@@ -136,7 +201,7 @@ let make = (
   let isTargetAccountIdEmpty = form.targetAccountId->String.length === 0
   let isTriggerValueEmpty = form.triggerValue->String.trim->String.length === 0
 
-  let setOneToOneSubtype = (fn: string => string) =>
+  let _setOneToOneSubtype = (fn: string => string) =>
     setForm(prev => {
       let newStr = fn(prev.oneToOneSubtype->oneToOneSubtypeToString)
       let subtype = switch newStr {
@@ -261,6 +326,15 @@ let make = (
     }
   }
 
+  let currentSubtypeStr = form.oneToOneSubtype->oneToOneSubtypeToString
+
+  let matchingPatterns = [
+    ("single_single", "1:1", "Single to Single"),
+    ("single_many", "1:N", "Single to Many"),
+    ("many_single", "N:1", "Many to Single"),
+    ("many_many", "N:N", "Many to Many"),
+  ]
+
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps (guided mode only)
     <RenderIf condition={isGuidedMode && wizardState.accounts->Array.length > 0}>
@@ -305,412 +379,444 @@ let make = (
         {"Rules tell the engine HOW to match entries between accounts. Define the search strategy, match criteria, and which accounts to reconcile."->React.string}
       </p>
     </div>
-    // Strategy explainer
-    <div className="ml-4 sm:ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
-      <div className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-blue-700"> {"Strategy Types"->React.string} </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
-            <p className="text-xs font-semibold text-nd_gray-700">
-              {"Single:Single"->React.string}
-            </p>
-            <p className="text-xs text-nd_gray-500">
-              {"One source entry matches exactly one target entry."->React.string}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
-            <p className="text-xs font-semibold text-nd_gray-700"> {"Many:Many"->React.string} </p>
-            <p className="text-xs text-nd_gray-500">
-              {"Multiple sources grouped together match multiple targets. Common for batch settlements."->React.string}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
-            <p className="text-xs font-semibold text-nd_gray-700">
-              {"Single:Many"->React.string}
-            </p>
-            <p className="text-xs text-nd_gray-500">
-              {"One source matches many targets — e.g., one payout = multiple orders."->React.string}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1 p-2 bg-white rounded-lg">
-            <p className="text-xs font-semibold text-nd_gray-700">
-              {"Many:Single"->React.string}
-            </p>
-            <p className="text-xs text-nd_gray-500">
-              {"Multiple source entries match one target — e.g., multiple partial payments."->React.string}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    // Section 1: Basic Info
-    <div
-      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
-      <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span
-          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
-          {"1"->React.string}
-        </span>
-        {"Rule Info"->React.string}
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="ruleName" className="text-sm font-medium text-nd_gray-700">
-            {"Rule Name"->React.string}
-          </label>
-          <input
-            id="ruleName"
-            type_="text"
-            className={showErrors && isRuleNameEmpty
-              ? `${inputClassName} ${errorInputClass}`
-              : inputClassName}
-            placeholder="e.g., FIUU <-> Bank"
-            value={form.ruleName}
-            onChange={e => setForm(prev => {...prev, ruleName: ReactEvent.Form.target(e)["value"]})}
-          />
-          <RenderIf condition={showErrors && isRuleNameEmpty}>
-            <p className="text-xs text-red-500"> {"Rule name is required"->React.string} </p>
-          </RenderIf>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="ruleDescription" className="text-sm font-medium text-nd_gray-700">
-            {"Description"->React.string}
-          </label>
-          <input
-            id="ruleDescription"
-            type_="text"
-            className=inputClassName
-            placeholder="e.g., Reconciliation between FIUU and Bank"
-            value={form.ruleDescription}
-            onChange={e =>
-              setForm(prev => {...prev, ruleDescription: ReactEvent.Form.target(e)["value"]})}
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="rulePriority" className="text-sm font-medium text-nd_gray-700">
-            {"Priority"->React.string}
-          </label>
-          <p className="text-xs text-nd_gray-400">
-            {"Lower number = higher priority. Rules are evaluated in order."->React.string}
-          </p>
-          <input
-            id="rulePriority"
-            type_="number"
-            className="w-24 px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
-            value={form.priority->Int.toString}
-            onChange={e => {
-              let v = ReactEvent.Form.target(e)["value"]
-              setForm(prev => {...prev, priority: v->Int.fromString->Option.getOr(1)})
-            }}
-          />
-        </div>
-      </div>
-    </div>
-    // Section 2: Strategy & Accounts
-    <div
-      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
-      <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span
-          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
-          {"2"->React.string}
-        </span>
-        {"Strategy & Accounts"->React.string}
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700">
-            {"Strategy Type"->React.string}
-          </label>
-          <SelectBox
-            input={makeControlledSelectInput(
-              ~name="oneToOneSubtype",
-              ~value=form.oneToOneSubtype->oneToOneSubtypeToString,
-              ~setValue=setOneToOneSubtype,
-            )}
-            options={oneToOneSubtypeOptions}
-            deselectDisable=true
-            showClearAll=false
-          />
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-          <div
-            className="flex-1 flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <label className="text-sm font-medium text-blue-700">
-              {"Source Account"->React.string}
-            </label>
-            <SelectBox
-              input={makeControlledSelectInput(
-                ~name="sourceAccountId",
-                ~value=form.sourceAccountId,
-                ~setValue=setSourceAccountId,
-              )}
-              options={sourceAccountOptions}
-              deselectDisable=true
-              showClearAll=false
-            />
-            <RenderIf condition={showErrors && isSourceAccountIdEmpty}>
-              <p className="text-xs text-red-500"> {"Source account is required"->React.string} </p>
-            </RenderIf>
-          </div>
-          <div className="flex items-center justify-center">
-            <Button
-              text=""
-              leftIcon={CustomIcon(
-                <Icon name="nd-arrow-right" customHeight="14" className="rotate-90 sm:rotate-0" />,
-              )}
-              buttonType=Secondary
-              buttonSize=XSmall
-              onClick={_ => {
-                let src = form.sourceAccountId
-                let tgt = form.targetAccountId
-                setForm(prev => {...prev, sourceAccountId: tgt, targetAccountId: src})
-              }}
-              customButtonStyle="!border-nd_gray-200 !rounded-full !p-1.5"
-            />
-          </div>
-          <div
-            className="flex-1 flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
-            <label className="text-sm font-medium text-green-700">
-              {"Target Account"->React.string}
-            </label>
-            <SelectBox
-              input={makeControlledSelectInput(
-                ~name="targetAccountId",
-                ~value=form.targetAccountId,
-                ~setValue=setTargetAccountId,
-              )}
-              options={targetAccountOptions}
-              deselectDisable=true
-              showClearAll=false
-            />
-            <RenderIf condition={showErrors && isTargetAccountIdEmpty}>
-              <p className="text-xs text-red-500"> {"Target account is required"->React.string} </p>
-            </RenderIf>
-          </div>
-        </div>
-        // Grouping field (only for Many* strategies)
-        <RenderIf condition={needsGroupingField}>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-nd_gray-700">
-              {"Grouping Field"->React.string}
-            </label>
-            <p className="text-xs text-nd_gray-400">
-              {"The field used to group multiple entries together (e.g., group by date for batch settlements)."->React.string}
-            </p>
-            <SelectBox
-              input={makeControlledSelectInput(
-                ~name="groupingField",
-                ~value=form.groupingField,
-                ~setValue=setGroupingField,
-              )}
-              options={allEntryFieldOptions}
-              deselectDisable=true
-              showClearAll=false
-            />
-          </div>
-        </RenderIf>
-      </div>
-    </div>
-    // Section 3: Trigger
-    <div
-      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
-      <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span
-          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
-          {"3"->React.string}
-        </span>
-        {"Entry Filter"->React.string}
-      </div>
-      <p className="text-xs text-nd_gray-400">
-        {"Only process entries that match this condition. For example, \"currency equals MYR\" means only MYR entries are processed by this rule."->React.string}
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600"> {"Field"->React.string} </label>
-          <SelectBox
-            input={makeControlledSelectInput(
-              ~name="triggerField",
-              ~value=form.triggerField,
-              ~setValue=setTriggerField,
-            )}
-            options={allEntryFieldOptions}
-            deselectDisable=true
-            showClearAll=false
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600">
-            {"Operator"->React.string}
-          </label>
-          <SelectBox
-            input={makeControlledSelectInput(
-              ~name="triggerOperator",
-              ~value=form.triggerOperator,
-              ~setValue=setTriggerOperator,
-            )}
-            options={operatorOptions}
-            deselectDisable=true
-            showClearAll=false
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="triggerValue" className="text-xs font-medium text-nd_gray-600">
-            {"Value"->React.string}
-          </label>
-          <input
-            id="triggerValue"
-            type_="text"
-            className={showErrors && isTriggerValueEmpty
-              ? `${innerInputClassName} ${errorInputClass}`
-              : innerInputClassName}
-            placeholder="e.g., MYR, USD"
-            value={form.triggerValue}
-            onChange={e =>
-              setForm(prev => {...prev, triggerValue: ReactEvent.Form.target(e)["value"]})}
-          />
-          <RenderIf condition={showErrors && isTriggerValueEmpty}>
-            <p className="text-xs text-red-500"> {"Trigger value is required"->React.string} </p>
-          </RenderIf>
-        </div>
-      </div>
-    </div>
-    // Section 4: Search & Match
-    <div
-      className="ml-4 sm:ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
-      <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span
-          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
-          {"4"->React.string}
-        </span>
-        {"Search & Match Rules"->React.string}
-      </div>
-      // Search identifier
-      <div className="flex flex-col gap-3">
-        <p className="text-xs text-nd_gray-500 font-medium"> {"Matching Key"->React.string} </p>
-        <p className="text-xs text-nd_gray-400">
-          {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1 p-2 bg-blue-50 rounded-lg">
-            <label className="text-xs font-medium text-blue-600">
-              {"Source Field"->React.string}
-            </label>
-            <SelectBox
-              input={makeControlledSelectInput(
-                ~name="searchSourceField",
-                ~value=form.searchSourceField,
-                ~setValue=setSearchSourceField,
-              )}
-              options={allEntryFieldOptions}
-              deselectDisable=true
-              showClearAll=false
-            />
-          </div>
-          <div className="flex flex-col gap-1 p-2 bg-green-50 rounded-lg">
-            <label className="text-xs font-medium text-green-600">
-              {"Target Field"->React.string}
-            </label>
-            <SelectBox
-              input={makeControlledSelectInput(
-                ~name="searchTargetField",
-                ~value=form.searchTargetField,
-                ~setValue=setSearchTargetField,
-              )}
-              options={allEntryFieldOptions}
-              deselectDisable=true
-              showClearAll=false
-            />
-          </div>
-        </div>
-      </div>
-      // Match rules
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-nd_gray-500 font-medium"> {"Match Rules"->React.string} </p>
-          <Button
-            text="+ Add Rule"
-            buttonType=Secondary
-            buttonSize=XSmall
-            onClick={_ => addMatchRule()}
-            customButtonStyle="!text-blue-600 !border-0"
-          />
-        </div>
-        <p className="text-xs text-nd_gray-400">
-          {"After finding candidates, these rules determine if entries actually match. All rules must pass."->React.string}
-        </p>
-        {form.matchRules
-        ->Array.mapWithIndex((rule, idx) =>
-          <MatchRuleRow
-            key={idx->Int.toString}
-            rule
-            index=idx
-            onUpdate=updateMatchRule
-            onRemove=removeMatchRule
-            entryFieldOpts=allEntryFieldOptions
-          />
-        )
-        ->React.array}
-      </div>
-    </div>
-    // Section 5: Aging (collapsible)
-    <div
-      className="ml-4 sm:ml-10 flex flex-col gap-3 p-6 rounded-xl border border-nd_gray-200 bg-white">
-      <div
-        className="flex items-center justify-between w-full cursor-pointer"
-        ariaExpanded={showAging}
-        onClick={_ => setShowAging(prev => !prev)}>
-        <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-          <span
-            className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
-            {"5"->React.string}
-          </span>
-          {"Unmatched Entry Timeout (Optional)"->React.string}
-        </div>
-        <Icon
-          name={showAging ? "nd-angle-up" : "nd-angle-down"}
-          className="text-nd_gray-400"
-          customHeight="14"
-        />
-      </div>
-      <RenderIf condition={showAging}>
-        <p className="text-xs text-nd_gray-400">
-          {"How long should the engine wait before flagging an unmatched entry as an exception? Leave disabled if entries should wait indefinitely."->React.string}
-        </p>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type_="checkbox"
-              className="rounded border-nd_gray-300"
-              checked={form.agingEnabled}
-              onChange={_ => setForm(prev => {...prev, agingEnabled: !prev.agingEnabled})}
-            />
-            <span className="text-sm text-nd_gray-700">
-              {"Enable aging threshold"->React.string}
+    // All sections in one bordered container
+    <div className="ml-4 sm:ml-10 border border-nd_gray-200 rounded-xl overflow-hidden">
+      // Section 1: Basic Info
+      <div className="p-6 bg-white">
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
+            <span
+              className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
+              {"1"->React.string}
             </span>
-          </label>
-        </div>
-        <RenderIf condition={form.agingEnabled}>
-          <div className="flex items-center gap-2">
-            <label htmlFor="agingDays" className="text-xs font-medium text-nd_gray-600">
-              {"Days:"->React.string}
-            </label>
-            <input
-              id="agingDays"
-              type_="number"
-              className="w-20 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
-              value={form.agingThresholdDays->Int.toString}
-              onChange={e => {
-                let v = ReactEvent.Form.target(e)["value"]
-                setForm(prev => {
-                  ...prev,
-                  agingThresholdDays: v->Int.fromString->Option.getOr(7),
-                })
-              }}
-            />
-            <span className="text-xs text-nd_gray-400"> {"week days"->React.string} </span>
+            {"Rule Info"->React.string}
           </div>
-        </RenderIf>
-      </RenderIf>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ruleName" className="text-sm font-medium text-nd_gray-700">
+                {"Rule Name"->React.string}
+              </label>
+              <input
+                id="ruleName"
+                type_="text"
+                className={showErrors && isRuleNameEmpty
+                  ? `${inputClassName} ${errorInputClass}`
+                  : inputClassName}
+                placeholder="e.g., FIUU <-> Bank"
+                value={form.ruleName}
+                onChange={e =>
+                  setForm(prev => {...prev, ruleName: ReactEvent.Form.target(e)["value"]})}
+              />
+              <RenderIf condition={showErrors && isRuleNameEmpty}>
+                <p className="text-xs text-red-500"> {"Rule name is required"->React.string} </p>
+              </RenderIf>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ruleDescription" className="text-sm font-medium text-nd_gray-700">
+                {"Description"->React.string}
+              </label>
+              <input
+                id="ruleDescription"
+                type_="text"
+                className=inputClassName
+                placeholder="e.g., Reconciliation between FIUU and Bank"
+                value={form.ruleDescription}
+                onChange={e =>
+                  setForm(prev => {...prev, ruleDescription: ReactEvent.Form.target(e)["value"]})}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="rulePriority" className="text-sm font-medium text-nd_gray-700">
+                {"Priority"->React.string}
+              </label>
+              <p className="text-xs text-nd_gray-400">
+                {"Lower number = higher priority. Rules are evaluated in order."->React.string}
+              </p>
+              <input
+                id="rulePriority"
+                type_="number"
+                className="w-24 px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
+                value={form.priority->Int.toString}
+                onChange={e => {
+                  let v = ReactEvent.Form.target(e)["value"]
+                  setForm(prev => {...prev, priority: v->Int.fromString->Option.getOr(1)})
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      // Section 2: Strategy & Accounts
+      <div className="p-6 bg-white border-t border-nd_gray-100">
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
+            <span
+              className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
+              {"2"->React.string}
+            </span>
+            {"Strategy & Accounts"->React.string}
+          </div>
+          <div className="flex flex-col gap-4">
+            // Strategy type cards (One-to-One vs One-to-Many)
+            <label
+              className="block text-xs font-semibold text-nd_gray-600 uppercase tracking-wide">
+              {"Strategy Type"->React.string}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div
+                className="p-4 border-2 rounded-lg cursor-pointer transition-all border-blue-400 bg-blue-50 shadow-sm">
+                <p className="text-sm font-semibold text-nd_gray-900">
+                  {"One-to-One"->React.string}
+                </p>
+                <p className="text-xs text-nd_gray-500 mt-0.5">
+                  {"Match entries between two accounts"->React.string}
+                </p>
+              </div>
+              <div
+                className="p-4 border-2 rounded-lg transition-all border-nd_gray-200 bg-nd_gray-50 opacity-60 cursor-not-allowed relative">
+                <p className="text-sm font-semibold text-nd_gray-900">
+                  {"One-to-Many"->React.string}
+                </p>
+                <p className="text-xs text-nd_gray-500 mt-0.5">
+                  {"Split one entry across multiple targets"->React.string}
+                </p>
+                <span
+                  className="absolute top-2 right-2 text-[10px] font-semibold text-nd_gray-400 bg-nd_gray-100 px-1.5 py-0.5 rounded">
+                  {"Coming soon"->React.string}
+                </span>
+              </div>
+            </div>
+            // Matching pattern selection (1:1, 1:N, N:1, N:N)
+            <label
+              className="block text-xs font-semibold text-nd_gray-600 uppercase tracking-wide">
+              {"Matching Pattern"->React.string}
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {matchingPatterns
+              ->Array.map(((value, badge, _label)) =>
+                <div
+                  key={value}
+                  className={`p-3 border-2 rounded-lg transition-all text-center cursor-pointer ${currentSubtypeStr ===
+                      value
+                      ? "border-blue-400 bg-blue-50 shadow-sm"
+                      : "border-nd_gray-200 hover:border-nd_gray-300"}`}
+                  onClick={_ => {
+                    let subtype = switch value {
+                    | "single_many" => SingleMany
+                    | "many_single" => ManySingle
+                    | "many_many" => ManyMany
+                    | _ => SingleSingle
+                    }
+                    setForm(prev => {...prev, oneToOneSubtype: subtype})
+                  }}>
+                  <span className="text-lg font-bold text-nd_gray-700">
+                    {badge->React.string}
+                  </span>
+                </div>
+              )
+              ->React.array}
+            </div>
+            // Visual diagram for selected pattern
+            <StrategyDiagram strategyType={currentSubtypeStr} />
+            // Source and target account cards
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+              <div
+                className="flex-1 flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <label className="text-sm font-medium text-blue-700">
+                  {"Source Account"->React.string}
+                </label>
+                <SelectBox
+                  input={makeControlledSelectInput(
+                    ~name="sourceAccountId",
+                    ~value=form.sourceAccountId,
+                    ~setValue=setSourceAccountId,
+                  )}
+                  options={sourceAccountOptions}
+                  deselectDisable=true
+                  showClearAll=false
+                />
+                <RenderIf condition={showErrors && isSourceAccountIdEmpty}>
+                  <p className="text-xs text-red-500">
+                    {"Source account is required"->React.string}
+                  </p>
+                </RenderIf>
+              </div>
+              <div className="flex items-center justify-center">
+                <Button
+                  text=""
+                  leftIcon={CustomIcon(
+                    <Icon
+                      name="nd-arrow-right" customHeight="14" className="rotate-90 sm:rotate-0"
+                    />,
+                  )}
+                  buttonType=Secondary
+                  buttonSize=XSmall
+                  onClick={_ => {
+                    let src = form.sourceAccountId
+                    let tgt = form.targetAccountId
+                    setForm(prev => {...prev, sourceAccountId: tgt, targetAccountId: src})
+                  }}
+                  customButtonStyle="!border-nd_gray-200 !rounded-full !p-1.5"
+                />
+              </div>
+              <div
+                className="flex-1 flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
+                <label className="text-sm font-medium text-green-700">
+                  {"Target Account"->React.string}
+                </label>
+                <SelectBox
+                  input={makeControlledSelectInput(
+                    ~name="targetAccountId",
+                    ~value=form.targetAccountId,
+                    ~setValue=setTargetAccountId,
+                  )}
+                  options={targetAccountOptions}
+                  deselectDisable=true
+                  showClearAll=false
+                />
+                <RenderIf condition={showErrors && isTargetAccountIdEmpty}>
+                  <p className="text-xs text-red-500">
+                    {"Target account is required"->React.string}
+                  </p>
+                </RenderIf>
+              </div>
+            </div>
+            // Grouping field (only for Many* strategies)
+            <RenderIf condition={needsGroupingField}>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-nd_gray-700">
+                  {"Grouping Field"->React.string}
+                </label>
+                <p className="text-xs text-nd_gray-400">
+                  {"The field used to group multiple entries together (e.g., group by date for batch settlements)."->React.string}
+                </p>
+                <SelectBox
+                  input={makeControlledSelectInput(
+                    ~name="groupingField",
+                    ~value=form.groupingField,
+                    ~setValue=setGroupingField,
+                  )}
+                  options={allEntryFieldOptions}
+                  deselectDisable=true
+                  showClearAll=false
+                />
+              </div>
+            </RenderIf>
+          </div>
+        </div>
+      </div>
+      // Section 3: Trigger
+      <div className="p-6 bg-white border-t border-nd_gray-100">
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
+            <span
+              className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
+              {"3"->React.string}
+            </span>
+            {"Entry Filter"->React.string}
+          </div>
+          <p className="text-xs text-nd_gray-400">
+            {"Only process entries that match this condition. For example, \"currency equals MYR\" means only MYR entries are processed by this rule."->React.string}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-nd_gray-600">
+                {"Field"->React.string}
+              </label>
+              <SelectBox
+                input={makeControlledSelectInput(
+                  ~name="triggerField",
+                  ~value=form.triggerField,
+                  ~setValue=setTriggerField,
+                )}
+                options={allEntryFieldOptions}
+                deselectDisable=true
+                showClearAll=false
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-nd_gray-600">
+                {"Operator"->React.string}
+              </label>
+              <SelectBox
+                input={makeControlledSelectInput(
+                  ~name="triggerOperator",
+                  ~value=form.triggerOperator,
+                  ~setValue=setTriggerOperator,
+                )}
+                options={operatorOptions}
+                deselectDisable=true
+                showClearAll=false
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="triggerValue" className="text-xs font-medium text-nd_gray-600">
+                {"Value"->React.string}
+              </label>
+              <input
+                id="triggerValue"
+                type_="text"
+                className={showErrors && isTriggerValueEmpty
+                  ? `${innerInputClassName} ${errorInputClass}`
+                  : innerInputClassName}
+                placeholder="e.g., MYR, USD"
+                value={form.triggerValue}
+                onChange={e =>
+                  setForm(prev => {...prev, triggerValue: ReactEvent.Form.target(e)["value"]})}
+              />
+              <RenderIf condition={showErrors && isTriggerValueEmpty}>
+                <p className="text-xs text-red-500">
+                  {"Trigger value is required"->React.string}
+                </p>
+              </RenderIf>
+            </div>
+          </div>
+        </div>
+      </div>
+      // Section 4: Search & Match
+      <div className="p-6 bg-white border-t border-nd_gray-100">
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
+            <span
+              className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
+              {"4"->React.string}
+            </span>
+            {"Search & Match Rules"->React.string}
+          </div>
+          // Search identifier
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-nd_gray-500 font-medium">
+              {"Matching Key"->React.string}
+            </p>
+            <p className="text-xs text-nd_gray-400">
+              {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1 p-2 bg-blue-50 rounded-lg">
+                <label className="text-xs font-medium text-blue-600">
+                  {"Source Field"->React.string}
+                </label>
+                <SelectBox
+                  input={makeControlledSelectInput(
+                    ~name="searchSourceField",
+                    ~value=form.searchSourceField,
+                    ~setValue=setSearchSourceField,
+                  )}
+                  options={allEntryFieldOptions}
+                  deselectDisable=true
+                  showClearAll=false
+                />
+              </div>
+              <div className="flex flex-col gap-1 p-2 bg-green-50 rounded-lg">
+                <label className="text-xs font-medium text-green-600">
+                  {"Target Field"->React.string}
+                </label>
+                <SelectBox
+                  input={makeControlledSelectInput(
+                    ~name="searchTargetField",
+                    ~value=form.searchTargetField,
+                    ~setValue=setSearchTargetField,
+                  )}
+                  options={allEntryFieldOptions}
+                  deselectDisable=true
+                  showClearAll=false
+                />
+              </div>
+            </div>
+          </div>
+          // Match rules
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-nd_gray-500 font-medium">
+                {"Match Rules"->React.string}
+              </p>
+              <Button
+                text="+ Add Rule"
+                buttonType=Secondary
+                buttonSize=XSmall
+                onClick={_ => addMatchRule()}
+                customButtonStyle="!text-blue-600 !border-0"
+              />
+            </div>
+            <p className="text-xs text-nd_gray-400">
+              {"After finding candidates, these rules determine if entries actually match. All rules must pass."->React.string}
+            </p>
+            {form.matchRules
+            ->Array.mapWithIndex((rule, idx) =>
+              <MatchRuleRow
+                key={idx->Int.toString}
+                rule
+                index=idx
+                onUpdate=updateMatchRule
+                onRemove=removeMatchRule
+                entryFieldOpts=allEntryFieldOptions
+              />
+            )
+            ->React.array}
+          </div>
+        </div>
+      </div>
+      // Section 5: Aging (collapsible)
+      <div className="p-6 bg-white border-t border-nd_gray-100">
+        <div className="flex flex-col gap-3">
+          <div
+            className="flex items-center justify-between w-full cursor-pointer"
+            ariaExpanded={showAging}
+            onClick={_ => setShowAging(prev => !prev)}>
+            <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
+              <span
+                className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
+                {"5"->React.string}
+              </span>
+              {"Unmatched Entry Timeout (Optional)"->React.string}
+            </div>
+            <Icon
+              name={showAging ? "nd-angle-up" : "nd-angle-down"}
+              className="text-nd_gray-400"
+              customHeight="14"
+            />
+          </div>
+          <RenderIf condition={showAging}>
+            <p className="text-xs text-nd_gray-400">
+              {"How long should the engine wait before flagging an unmatched entry as an exception? Leave disabled if entries should wait indefinitely."->React.string}
+            </p>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type_="checkbox"
+                  className="rounded border-nd_gray-300"
+                  checked={form.agingEnabled}
+                  onChange={_ => setForm(prev => {...prev, agingEnabled: !prev.agingEnabled})}
+                />
+                <span className="text-sm text-nd_gray-700">
+                  {"Enable aging threshold"->React.string}
+                </span>
+              </label>
+            </div>
+            <RenderIf condition={form.agingEnabled}>
+              <div className="flex items-center gap-2">
+                <label htmlFor="agingDays" className="text-xs font-medium text-nd_gray-600">
+                  {"Days:"->React.string}
+                </label>
+                <input
+                  id="agingDays"
+                  type_="number"
+                  className="w-20 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400"
+                  value={form.agingThresholdDays->Int.toString}
+                  onChange={e => {
+                    let v = ReactEvent.Form.target(e)["value"]
+                    setForm(prev => {
+                      ...prev,
+                      agingThresholdDays: v->Int.fromString->Option.getOr(7),
+                    })
+                  }}
+                />
+                <span className="text-xs text-nd_gray-400"> {"week days"->React.string} </span>
+              </div>
+            </RenderIf>
+          </RenderIf>
+        </div>
+      </div>
     </div>
     // Submit
     <div className="ml-4 sm:ml-10">
