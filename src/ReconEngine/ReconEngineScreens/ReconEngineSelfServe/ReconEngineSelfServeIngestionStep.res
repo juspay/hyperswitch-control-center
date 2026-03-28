@@ -13,7 +13,16 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  let (selectedAccountId, setSelectedAccountId) = React.useState(_ => "")
+  // Auto-select the only remaining account if there's just one left
+  let accountsWithoutIngestionForDefault =
+    wizardState.accounts->Array.filter(account =>
+      !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
+    )
+  let autoAccountId = switch accountsWithoutIngestionForDefault {
+  | [singleAccount] => singleAccount.account_id
+  | _ => ""
+  }
+  let (selectedAccountId, setSelectedAccountId) = React.useState(_ => autoAccountId)
   let (ingestionName, setIngestionName) = React.useState(_ => "")
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
