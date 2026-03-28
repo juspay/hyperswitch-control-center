@@ -813,7 +813,7 @@ let make = (
     // Submit
     <div className="ml-4 sm:ml-10">
       <Button
-        text="Create Transformation Config"
+        text="Create Column Mapping"
         buttonType=Primary
         buttonSize=Small
         onClick={_ => handleSubmit()->ignore}
