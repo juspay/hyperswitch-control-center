@@ -145,32 +145,43 @@ let make = (
   ~onTransformationCreated: createdTransformation => unit,
   ~onNext: unit => unit,
   ~onBack: unit => unit,
+  ~isGuidedMode: bool=true,
 ) => {
   let createTransformation = ReconEngineSelfServeHooks.useCreateTransformationConfig()
   let {merchantId} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // Auto-set defaults for second transformation
-  let accountsWithoutTransformation =
+  // In guided mode: auto-fill defaults for second transformation
+  // In expert mode: no auto-fill, show all accounts
+  let availableAccounts = if isGuidedMode {
     wizardState.accounts->Array.filter(account =>
       !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
     )
-  let autoAccountId = switch accountsWithoutTransformation {
-  | [singleAccount] => singleAccount.account_id
-  | _ => ""
+  } else {
+    wizardState.accounts
   }
-  let autoIngestionId = switch autoAccountId {
-  | "" => ""
-  | accountId =>
-    wizardState.ingestions
-    ->Array.find(i => i.account_id === accountId)
-    ->Option.map(i => i.ingestion_id)
-    ->Option.getOr("")
+  let (autoAccountId, autoIngestionId, autoProcessingMode) = if isGuidedMode {
+    let accountId = switch availableAccounts {
+    | [singleAccount] => singleAccount.account_id
+    | _ => ""
+    }
+    let ingestionId = switch accountId {
+    | "" => ""
+    | aid =>
+      wizardState.ingestions
+      ->Array.find(i => i.account_id === aid)
+      ->Option.map(i => i.ingestion_id)
+      ->Option.getOr("")
+    }
+    let mode = wizardState.transformations->Array.length > 0 ? Confirmation : Transaction
+    (accountId, ingestionId, mode)
+  } else {
+    ("", "", Transaction)
   }
   let defaultForm = {
     ...defaultTransformationForm,
-    processingMode: wizardState.transformations->Array.length > 0 ? Confirmation : Transaction,
+    processingMode: autoProcessingMode,
     accountId: autoAccountId,
     ingestionId: autoIngestionId,
   }
@@ -232,15 +243,9 @@ let make = (
   let setUniqueConstraintField = (fn: string => string) =>
     setForm(prev => {...prev, uniqueConstraintField: fn(prev.uniqueConstraintField)})
 
-  // Only show accounts that don't already have a transformation config
-  let accountsWithoutTransformation =
-    wizardState.accounts->Array.filter(account =>
-      !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
-    )
-
   let accountOptions: array<
     SelectBox.dropdownOption,
-  > = accountsWithoutTransformation->Array.map(account => {
+  > = availableAccounts->Array.map(account => {
     {
       SelectBox.label: `${account.account_name} (${account.account_type})`,
       value: account.account_id,

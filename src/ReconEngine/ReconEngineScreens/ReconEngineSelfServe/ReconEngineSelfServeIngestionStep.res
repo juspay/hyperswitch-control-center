@@ -7,35 +7,38 @@ let make = (
   ~onIngestionCreated: createdIngestion => unit,
   ~onNext: unit => unit,
   ~onBack: unit => unit,
+  ~isGuidedMode: bool=true,
 ) => {
   let createIngestion = ReconEngineSelfServeHooks.useCreateIngestionConfig()
   let {merchantId} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // Auto-select the only remaining account if there's just one left
-  let accountsWithoutIngestionForDefault =
+  // In guided mode: auto-select remaining account and filter configured ones
+  // In expert mode: show all accounts
+  let availableAccounts = if isGuidedMode {
     wizardState.accounts->Array.filter(account =>
       !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
     )
-  let autoAccountId = switch accountsWithoutIngestionForDefault {
-  | [singleAccount] => singleAccount.account_id
-  | _ => ""
+  } else {
+    wizardState.accounts
+  }
+  let autoAccountId = if isGuidedMode {
+    switch availableAccounts {
+    | [singleAccount] => singleAccount.account_id
+    | _ => ""
+    }
+  } else {
+    ""
   }
   let (selectedAccountId, setSelectedAccountId) = React.useState(_ => autoAccountId)
   let (ingestionName, setIngestionName) = React.useState(_ => "")
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
 
-  // Only show accounts that don't already have an ingestion config
-  let accountsWithoutIngestion =
-    wizardState.accounts->Array.filter(account =>
-      !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
-    )
-
   let accountOptions: array<
     SelectBox.dropdownOption,
-  > = accountsWithoutIngestion->Array.map(account => {
+  > = availableAccounts->Array.map(account => {
     let label = `${account.account_name} (${account.account_type})`
     let value = account.account_id
     {SelectBox.label, value}
@@ -87,6 +90,12 @@ let make = (
           setIngestionName(_ => "")
           setSelectedAccountId(_ => "")
           setConfigVariantStr(_ => "manual")
+          setHmacSecret(_ => "")
+          setWebhookUsername(_ => "")
+          setWebhookPassword(_ => "")
+          setReportUsername(_ => "")
+          setReportPassword(_ => "")
+          setSftpFilePath(_ => "")
         }
       | None => ()
       }

@@ -422,7 +422,8 @@ let make = (
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-          <div className="flex-1 flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <div
+            className="flex-1 flex flex-col gap-1.5 p-3 bg-blue-50 rounded-lg border border-blue-100">
             <label className="text-sm font-medium text-blue-700">
               {"Source Account"->React.string}
             </label>
@@ -456,7 +457,8 @@ let make = (
               customButtonStyle="!border-nd_gray-200 !rounded-full !p-1.5"
             />
           </div>
-          <div className="flex-1 flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
+          <div
+            className="flex-1 flex flex-col gap-1.5 p-3 bg-green-50 rounded-lg border border-green-100">
             <label className="text-sm font-medium text-green-700">
               {"Target Account"->React.string}
             </label>

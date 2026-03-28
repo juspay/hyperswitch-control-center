@@ -188,6 +188,7 @@ module ExpertMode = {
               onIngestionCreated
               onNext={() => setActiveTab(_ => "transformation")}
               onBack={() => setActiveTab(_ => "account")}
+              isGuidedMode=false
             />
           | "transformation" =>
             <ReconEngineSelfServeTransformationStep
@@ -195,6 +196,7 @@ module ExpertMode = {
               onTransformationCreated
               onNext={() => setActiveTab(_ => "rule")}
               onBack={() => setActiveTab(_ => "ingestion")}
+              isGuidedMode=false
             />
           | "rule" =>
             <ReconEngineSelfServeRuleStep
