@@ -59,8 +59,8 @@ let stepToString = (step: selfServeStep): string => {
 let stepToDisplayName = (step: selfServeStep): string => {
   switch step {
   | AccountStep => "Create Accounts"
-  | IngestionStep => "Configure Ingestion"
-  | TransformationStep => "Set Up Transformation"
+  | IngestionStep => "Connect Data Sources"
+  | TransformationStep => "Map CSV Columns"
   | RuleStep => "Define Recon Rules"
   | CompleteStep => "Complete"
   }
@@ -69,8 +69,8 @@ let stepToDisplayName = (step: selfServeStep): string => {
 let stepToDescription = (step: selfServeStep): string => {
   switch step {
   | AccountStep => "Create credit and debit accounts to track your financial data sources"
-  | IngestionStep => "Configure how data flows into the recon engine from your sources"
-  | TransformationStep => "Map your CSV columns to recon engine fields and define the metadata schema"
+  | IngestionStep => "Configure how data is imported from your sources"
+  | TransformationStep => "Map your CSV columns to standard fields and define additional metadata"
   | RuleStep => "Define how the engine matches and reconciles entries between accounts"
   | CompleteStep => "Your reconciliation setup is complete"
   }

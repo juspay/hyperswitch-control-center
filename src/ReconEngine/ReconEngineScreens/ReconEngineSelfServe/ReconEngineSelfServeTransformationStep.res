@@ -243,9 +243,7 @@ let make = (
   let setUniqueConstraintField = (fn: string => string) =>
     setForm(prev => {...prev, uniqueConstraintField: fn(prev.uniqueConstraintField)})
 
-  let accountOptions: array<
-    SelectBox.dropdownOption,
-  > = availableAccounts->Array.map(account => {
+  let accountOptions: array<SelectBox.dropdownOption> = availableAccounts->Array.map(account => {
     {
       SelectBox.label: `${account.account_name} (${account.account_type})`,
       value: account.account_id,
@@ -403,7 +401,7 @@ let make = (
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="transformationName" className="text-sm font-medium text-nd_gray-700">
-            {"Transformation Name"->React.string}
+            {"Mapping Name"->React.string}
           </label>
           <input
             id="transformationName"
@@ -417,7 +415,7 @@ let make = (
           />
           <RenderIf condition={showErrors && isNameEmpty}>
             <p className="text-xs text-red-500">
-              {"Transformation name is required"->React.string}
+              {"Mapping name is required"->React.string}
             </p>
           </RenderIf>
         </div>
@@ -456,7 +454,7 @@ let make = (
             />
             <RenderIf condition={showErrors && isIngestionEmpty}>
               <p className="text-xs text-red-500">
-                {"Ingestion source is required"->React.string}
+                {"Data source is required"->React.string}
               </p>
             </RenderIf>
           </div>

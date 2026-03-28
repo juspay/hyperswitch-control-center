@@ -36,9 +36,7 @@ let make = (
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
 
-  let accountOptions: array<
-    SelectBox.dropdownOption,
-  > = availableAccounts->Array.map(account => {
+  let accountOptions: array<SelectBox.dropdownOption> = availableAccounts->Array.map(account => {
     let label = `${account.account_name} (${account.account_type})`
     let value = account.account_id
     {SelectBox.label, value}
