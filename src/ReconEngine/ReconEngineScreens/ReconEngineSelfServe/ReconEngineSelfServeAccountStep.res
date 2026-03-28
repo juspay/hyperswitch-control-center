@@ -13,8 +13,18 @@ let make = (
   let (currency, setCurrency) = React.useState(_ => "USD")
   let (initialBalance, setInitialBalance) = React.useState(_ => "0")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
+  let (showErrors, setShowErrors) = React.useState(_ => false)
+
+  let isAccountNameEmpty = accountName->String.trim->String.length === 0
+
+  let errorInputClass = "!border-red-400 !focus:border-red-400 !focus:ring-red-400"
 
   let handleSubmit = async () => {
+    if isAccountNameEmpty {
+      setShowErrors(_ => true)
+    } else {
+      setShowErrors(_ => false)
+    }
     setIsSubmitting(_ => true)
     let balance = initialBalance->Float.fromString->Option.getOr(0.0)
     let result = await createAccount(~accountName, ~accountType, ~currency, ~initialBalance=balance)
@@ -77,11 +87,16 @@ let make = (
         <input
           id="accountName"
           type_="text"
-          className=inputClassName
+          className={showErrors && isAccountNameEmpty
+            ? `${inputClassName} ${errorInputClass}`
+            : inputClassName}
           placeholder="e.g., FIUU, Bank Settlement, Stripe"
           value={accountName}
           onChange={e => setAccountName(_ => ReactEvent.Form.target(e)["value"])}
         />
+        <RenderIf condition={showErrors && isAccountNameEmpty}>
+          <p className="text-xs text-red-500"> {"Account name is required"->React.string} </p>
+        </RenderIf>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
