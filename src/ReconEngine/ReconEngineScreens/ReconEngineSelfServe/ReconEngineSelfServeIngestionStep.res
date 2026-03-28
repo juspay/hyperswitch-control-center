@@ -149,6 +149,9 @@ let make = (
           deselectDisable=true
           showClearAll=false
         />
+        <RenderIf condition={showErrors && isAccountEmpty}>
+          <p className="text-xs text-red-500"> {"Please select an account"->React.string} </p>
+        </RenderIf>
       </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="ingestionName" className="text-sm font-medium text-nd_gray-700">
