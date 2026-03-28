@@ -1,0 +1,186 @@
+open ReconEngineSelfServeTypes
+open ReconEngineSelfServeUtils
+
+@react.component
+let make = (
+  ~wizardState: wizardState,
+  ~onAccountCreated: createdAccount => unit,
+  ~onNext: unit => unit,
+) => {
+  let createAccount = ReconEngineSelfServeHooks.useCreateAccount()
+  let (accountName, setAccountName) = React.useState(_ => "")
+  let (accountType, setAccountType) = React.useState(_ => "credit")
+  let (currency, setCurrency) = React.useState(_ => "USD")
+  let (initialBalance, setInitialBalance) = React.useState(_ => "0")
+  let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
+
+  let handleSubmit = async () => {
+    setIsSubmitting(_ => true)
+    let balance = initialBalance->Float.fromString->Option.getOr(0.0)
+    let result = await createAccount(
+      ~accountName,
+      ~accountType,
+      ~currency,
+      ~initialBalance=balance,
+    )
+    switch result {
+    | Some(account) => {
+        onAccountCreated(account)
+        setAccountName(_ => "")
+        setAccountType(_ => "credit")
+        setCurrency(_ => "USD")
+        setInitialBalance(_ => "0")
+      }
+    | None => ()
+    }
+    setIsSubmitting(_ => false)
+  }
+
+  <div className="flex flex-col gap-8 max-w-2xl">
+    // Header
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
+          {"1"->React.string}
+        </div>
+        <h2 className="text-lg font-semibold text-nd_gray-800">
+          {"Create Accounts"->React.string}
+        </h2>
+      </div>
+      <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
+        {"Accounts represent your data sources. You typically need at least two: a credit account (e.g., your payment gateway) and a debit account (e.g., your bank). The recon engine will match entries between these accounts."->React.string}
+      </p>
+    </div>
+    // How it works
+    <div className="ml-10 p-4 bg-blue-50 rounded-lg border border-blue-100">
+      <div className="flex items-start gap-3">
+        <Icon name="nd-overview" className="text-blue-500 mt-0.5" customHeight="16" />
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-blue-700"> {"How it works"->React.string} </p>
+          <p className="text-xs text-blue-600 leading-relaxed">
+            {"A credit account (e.g., \"FIUU\") typically holds payment gateway data — money coming in. A debit account (e.g., \"Bank\") holds bank settlement data — money confirmed. The engine reconciles between these two."->React.string}
+          </p>
+        </div>
+      </div>
+    </div>
+    // Form
+    <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-nd_gray-700">
+          {"Account Name"->React.string}
+        </label>
+        <input
+          type_="text"
+          className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          placeholder="e.g., FIUU, Bank Settlement, Stripe"
+          value={accountName}
+          onChange={e => setAccountName(_ => ReactEvent.Form.target(e)["value"])}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-nd_gray-700">
+            {"Account Type"->React.string}
+          </label>
+          <p className="text-xs text-nd_gray-400">
+            {"Credit = money in (gateway), Debit = money out (bank)"->React.string}
+          </p>
+          <SelectBox
+            input={makeControlledSelectInput(~name="accountType", ~value=accountType, ~setValue=setAccountType)}
+            options={accountTypeOptions}
+            deselectDisable=true
+            showClearAll=false
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-nd_gray-700">
+            {"Currency"->React.string}
+          </label>
+          <p className="text-xs text-nd_gray-400"> {"ISO 4217 currency code"->React.string} </p>
+          <SelectBox
+            input={makeControlledSelectInput(~name="currency", ~value=currency, ~setValue=setCurrency)}
+            options={currencyOptions}
+            deselectDisable=true
+            showClearAll=false
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-nd_gray-700">
+          {"Initial Balance"->React.string}
+        </label>
+        <p className="text-xs text-nd_gray-400">
+          {"Starting balance in major units (e.g., 0.00)"->React.string}
+        </p>
+        <input
+          type_="number"
+          className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 placeholder:text-nd_gray-300"
+          placeholder="0.00"
+          value={initialBalance}
+          onChange={e => setInitialBalance(_ => ReactEvent.Form.target(e)["value"])}
+        />
+      </div>
+      <Button
+        text="Create Account"
+        buttonType=Primary
+        buttonSize=Small
+        onClick={_ => handleSubmit()->ignore}
+        buttonState={isSubmitting ? Loading : Normal}
+        customButtonStyle="w-full mt-2"
+      />
+    </div>
+    // Created accounts list
+    <RenderIf condition={wizardState.accounts->Array.length > 0}>
+      <div className="ml-10 flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-nd_gray-700">
+          {`Created Accounts (${wizardState.accounts->Array.length->Int.toString})`->React.string}
+        </h3>
+        <div className="flex flex-col gap-2">
+          {wizardState.accounts
+          ->Array.mapWithIndex((account, idx) => {
+            let bgColor = account.account_type === "credit" ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"
+            let textColor = account.account_type === "credit" ? "text-blue-700" : "text-green-700"
+            let badgeColor = account.account_type === "credit" ? "bg-blue-100 text-blue-600" : "bg-green-100 text-green-600"
+            <div
+              key={idx->Int.toString}
+              className={`flex items-center justify-between p-3 rounded-lg border ${bgColor}`}>
+              <div className="flex items-center gap-3">
+                <Icon name="nd-check" customHeight="14" className="text-green-500" />
+                <span className={`text-sm font-medium ${textColor}`}>
+                  {account.account_name->React.string}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${badgeColor}`}>
+                  {account.account_type->React.string}
+                </span>
+              </div>
+              <span className="text-xs text-nd_gray-400 font-mono">
+                {account.account_id->React.string}
+              </span>
+            </div>
+          })
+          ->React.array}
+        </div>
+      </div>
+    </RenderIf>
+    // Next button
+    <RenderIf condition={wizardState.accounts->Array.length >= 2}>
+      <div className="ml-10">
+        <Button
+          text="Continue to Ingestion Setup"
+          buttonType=Primary
+          buttonSize=Small
+          onClick={_ => onNext()}
+          rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
+          customButtonStyle="w-full"
+        />
+      </div>
+    </RenderIf>
+    <RenderIf condition={wizardState.accounts->Array.length === 1}>
+      <div className="ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
+        <p className="text-xs text-amber-700">
+          {"You need at least 2 accounts (one credit, one debit) to set up reconciliation. Create one more account to continue."->React.string}
+        </p>
+      </div>
+    </RenderIf>
+  </div>
+}
