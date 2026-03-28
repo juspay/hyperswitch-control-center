@@ -270,14 +270,19 @@ let make = (
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
-      <div className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+      <div
+        className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
         <div className="flex items-center gap-2">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
-          {`Accounts: ${wizardState.accounts->Array.map(a => `${a.account_name} (${a.account_type})`)->Array.joinWith(", ")}`->React.string}
+          {`Accounts: ${wizardState.accounts
+            ->Array.map(a => `${a.account_name} (${a.account_type})`)
+            ->Array.joinWith(", ")}`->React.string}
         </div>
         <div className="flex items-center gap-2">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
-          {`Ingestion configs: ${wizardState.ingestions->Array.map(i => i.name)->Array.joinWith(", ")}`->React.string}
+          {`Ingestion configs: ${wizardState.ingestions
+            ->Array.map(i => i.name)
+            ->Array.joinWith(", ")}`->React.string}
         </div>
       </div>
     </RenderIf>
@@ -289,7 +294,7 @@ let make = (
           {"3"->React.string}
         </div>
         <h2 className="text-lg font-semibold text-nd_gray-800">
-          {"Set Up Transformation"->React.string}
+          {"Map Your CSV Columns"->React.string}
         </h2>
       </div>
       <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
@@ -519,10 +524,10 @@ let make = (
       // Balance Direction
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
         <label className="text-sm font-medium text-nd_gray-700">
-          {"Balance Direction"->React.string}
+          {"Credit/Debit Indicator"->React.string}
         </label>
         <p className="text-xs text-nd_gray-400">
-          {"Which column determines credit vs debit? Provide the column name and the values that indicate credit/debit."->React.string}
+          {"Which column in your CSV indicates if a row is a credit or debit? List the values from that column that mean credit vs debit."->React.string}
         </p>
         <input
           type_="text"

@@ -96,7 +96,7 @@ let make = (
           <label className="text-sm font-medium text-nd_gray-700">
             {"Currency"->React.string}
           </label>
-          <p className="text-xs text-nd_gray-400"> {"ISO 4217 currency code"->React.string} </p>
+          <p className="text-xs text-nd_gray-400"> {"Select the currency for this account"->React.string} </p>
           <SelectBox
             input={makeControlledSelectInput(
               ~name="currency",
@@ -114,7 +114,7 @@ let make = (
           {"Initial Balance"->React.string}
         </label>
         <p className="text-xs text-nd_gray-400">
-          {"Starting balance in major units (e.g., 0.00)"->React.string}
+          {"Starting balance (e.g., 0.00)"->React.string}
         </p>
         <input
           type_="number"

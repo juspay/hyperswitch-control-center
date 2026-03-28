@@ -60,6 +60,7 @@ type delimiter =
   | Slash
   | Hyphen
   | Dot
+  | Comma
   | Space
   | NoDelimiter
 
@@ -109,16 +110,11 @@ type oneToOneSubtype =
   | ManySingle
   | ManyMany
 
-type reconStrategyVariant =
-  | OneToOne
-  | OneToMany
-
 // Rule form state
 type ruleFormState = {
   ruleName: string,
   ruleDescription: string,
   priority: int,
-  strategyType: reconStrategyVariant,
   oneToOneSubtype: oneToOneSubtype,
   sourceAccountId: string,
   targetAccountId: string,

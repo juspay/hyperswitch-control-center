@@ -166,6 +166,7 @@ let delimiterToString = (d: delimiter): string => {
   | Slash => "slash"
   | Hyphen => "hyphen"
   | Dot => "dot"
+  | Comma => "comma"
   | Space => "space"
   | NoDelimiter => "none"
   }
@@ -199,6 +200,7 @@ let stringToDelimiter = (s: string): delimiter => {
   | "slash" => Slash
   | "hyphen" => Hyphen
   | "dot" => Dot
+  | "comma" => Comma
   | "space" => Space
   | _ => NoDelimiter
   }

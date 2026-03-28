@@ -5,7 +5,6 @@ let defaultRuleForm: ruleFormState = {
   ruleName: "",
   ruleDescription: "",
   priority: 1,
-  strategyType: OneToOne,
   oneToOneSubtype: SingleSingle,
   sourceAccountId: "",
   targetAccountId: "",
@@ -224,21 +223,28 @@ let make = (
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
-      <div className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+      <div
+        className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
         <div className="flex items-center gap-2">
           <Icon name="nd-check" customHeight="10" className="text-green-500" />
-          {`Accounts: ${wizardState.accounts->Array.map(a => a.account_name)->Array.joinWith(", ")}`->React.string}
+          {`Accounts: ${wizardState.accounts
+            ->Array.map(a => a.account_name)
+            ->Array.joinWith(", ")}`->React.string}
         </div>
         <RenderIf condition={wizardState.ingestions->Array.length > 0}>
           <div className="flex items-center gap-2">
             <Icon name="nd-check" customHeight="10" className="text-green-500" />
-            {`Ingestions: ${wizardState.ingestions->Array.map(i => i.name)->Array.joinWith(", ")}`->React.string}
+            {`Ingestions: ${wizardState.ingestions
+              ->Array.map(i => i.name)
+              ->Array.joinWith(", ")}`->React.string}
           </div>
         </RenderIf>
         <RenderIf condition={wizardState.transformations->Array.length > 0}>
           <div className="flex items-center gap-2">
             <Icon name="nd-check" customHeight="10" className="text-green-500" />
-            {`Transformations: ${wizardState.transformations->Array.map(t => t.name)->Array.joinWith(", ")}`->React.string}
+            {`Transformations: ${wizardState.transformations
+              ->Array.map(t => t.name)
+              ->Array.joinWith(", ")}`->React.string}
           </div>
         </RenderIf>
       </div>

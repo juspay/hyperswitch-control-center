@@ -116,10 +116,11 @@ let useCreateTransformationConfig = () => {
       form.currencyIdentifier->String.trim->String.length === 0 ||
       form.amountIdentifier->String.trim->String.length === 0 ||
       form.effectiveAtIdentifier->String.trim->String.length === 0 ||
-      form.orderIdIdentifier->String.trim->String.length === 0
+      form.orderIdIdentifier->String.trim->String.length === 0 ||
+      form.balanceDirectionIdentifier->String.trim->String.length === 0
     ) {
       showToast(
-        ~message="Currency, amount, date, and order ID column mappings are required",
+        ~message="All column mappings are required (currency, amount, date, order ID, balance direction)",
         ~toastType=ToastError,
       )
       None

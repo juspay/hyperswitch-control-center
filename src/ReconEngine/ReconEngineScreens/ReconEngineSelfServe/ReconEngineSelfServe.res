@@ -89,6 +89,7 @@ module ExpertMode = {
   @react.component
   let make = () => {
     let (activeTab, setActiveTab) = React.useState(_ => "account")
+    let (showComplete, setShowComplete) = React.useState(_ => false)
     let (wizardState, setWizardState) = React.useState(_ =>
       ReconEngineSelfServeUtils.emptyWizardState
     )
@@ -128,6 +129,9 @@ module ExpertMode = {
       ("rule", "Rules", wizardState.rules->Array.length),
     ]
 
+    if showComplete {
+      <ReconEngineSelfServeComplete wizardState />
+    } else {
     <div className="flex flex-col gap-6 px-6 py-8">
       // Header
       <div className="flex flex-col gap-1">
@@ -196,13 +200,14 @@ module ExpertMode = {
           <ReconEngineSelfServeRuleStep
             wizardState
             onRuleCreated
-            onNext={() => ()}
+            onNext={() => setShowComplete(_ => true)}
             onBack={() => setActiveTab(_ => "transformation")}
           />
         | _ => React.null
         }}
       </div>
     </div>
+    }
   }
 }
 

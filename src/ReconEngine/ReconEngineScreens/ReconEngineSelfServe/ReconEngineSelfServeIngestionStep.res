@@ -72,9 +72,12 @@ let make = (
   <div className="flex flex-col gap-8 max-w-2xl">
     // Context from previous steps
     <RenderIf condition={wizardState.accounts->Array.length > 0}>
-      <div className="flex items-center gap-2 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+      <div
+        className="flex items-center gap-2 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
         <Icon name="nd-check" customHeight="10" className="text-green-500" />
-        {`Using ${wizardState.accounts->Array.length->Int.toString} accounts: ${wizardState.accounts->Array.map(a => a.account_name)->Array.joinWith(", ")}`->React.string}
+        {`Using ${wizardState.accounts->Array.length->Int.toString} accounts: ${wizardState.accounts
+          ->Array.map(a => a.account_name)
+          ->Array.joinWith(", ")}`->React.string}
       </div>
     </RenderIf>
     // Header
@@ -85,11 +88,11 @@ let make = (
           {"2"->React.string}
         </div>
         <h2 className="text-lg font-semibold text-nd_gray-800">
-          {"Configure Ingestion"->React.string}
+          {"Connect Data Sources"->React.string}
         </h2>
       </div>
       <p className="text-sm text-nd_gray-500 leading-relaxed ml-10">
-        {"Ingestion defines how data enters the recon engine. Each account needs an ingestion source. For most setups, \"Manual CSV Upload\" is the simplest way to start."->React.string}
+        {"Define how data enters the recon engine. Each account needs a data source. For most setups, \"Manual CSV Upload\" is the simplest way to start."->React.string}
       </p>
     </div>
     // How it works
@@ -124,7 +127,7 @@ let make = (
       </div>
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-nd_gray-700">
-          {"Ingestion Name"->React.string}
+          {"Data Source Name"->React.string}
         </label>
         <input
           type_="text"
@@ -136,10 +139,10 @@ let make = (
       </div>
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-nd_gray-700">
-          {"Ingestion Type"->React.string}
+          {"Import Method"->React.string}
         </label>
         <p className="text-xs text-nd_gray-400">
-          {"How will data arrive? Manual = CSV upload, Adyen = webhook, SFTP = auto file pull"->React.string}
+          {"How will you send data? Manual = upload CSV files yourself. Adyen = automatic from your Adyen account. SFTP = automatic from a shared file server."->React.string}
         </p>
         <SelectBox
           input={makeControlledSelectInput(
@@ -153,7 +156,7 @@ let make = (
         />
       </div>
       <Button
-        text="Create Ingestion Config"
+        text="Add Data Source"
         buttonType=Primary
         buttonSize=Small
         onClick={_ => handleSubmit()->ignore}
