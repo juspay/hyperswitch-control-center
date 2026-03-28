@@ -414,9 +414,7 @@ let make = (
             onChange={e => setForm(prev => {...prev, name: ReactEvent.Form.target(e)["value"]})}
           />
           <RenderIf condition={showErrors && isNameEmpty}>
-            <p className="text-xs text-red-500">
-              {"Mapping name is required"->React.string}
-            </p>
+            <p className="text-xs text-red-500"> {"Mapping name is required"->React.string} </p>
           </RenderIf>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -453,9 +451,7 @@ let make = (
               showClearAll=false
             />
             <RenderIf condition={showErrors && isIngestionEmpty}>
-              <p className="text-xs text-red-500">
-                {"Data source is required"->React.string}
-              </p>
+              <p className="text-xs text-red-500"> {"Data source is required"->React.string} </p>
             </RenderIf>
           </div>
         </div>

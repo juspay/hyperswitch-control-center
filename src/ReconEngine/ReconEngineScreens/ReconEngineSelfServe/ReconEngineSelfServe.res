@@ -88,11 +88,38 @@ module GuidedMode = {
 module ExpertMode = {
   @react.component
   let make = () => {
+    let getAccounts = ReconEngineHooks.useGetAccounts()
     let (activeTab, setActiveTab) = React.useState(_ => "account")
     let (showComplete, setShowComplete) = React.useState(_ => false)
     let (wizardState, setWizardState) = React.useState(_ =>
       ReconEngineSelfServeUtils.emptyWizardState
     )
+
+    // Fetch existing accounts from the API for expert mode
+    React.useEffect0(() => {
+      let fetchExistingAccounts = async () => {
+        try {
+          let accounts = await getAccounts()
+          let existingAccounts: array<createdAccount> =
+            accounts->Array.map(a => {
+              account_id: a.account_id,
+              account_name: a.account_name,
+              account_type: switch a.account_type {
+              | "credit" => "credit"
+              | "debit" => "debit"
+              | other => other
+              },
+            })
+          if existingAccounts->Array.length > 0 {
+            setWizardState(prev => {...prev, accounts: existingAccounts})
+          }
+        } catch {
+        | _ => () // Silently ignore — user can still create accounts manually
+        }
+      }
+      fetchExistingAccounts()->ignore
+      None
+    })
 
     let onAccountCreated = (account: createdAccount) => {
       setWizardState(prev => {
