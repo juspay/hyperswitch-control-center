@@ -130,9 +130,7 @@ let make = (
     if isGuidedMode && ruleCount > 0 {
       nextButtonRef.current
       ->Nullable.toOption
-      ->Option.forEach(el =>
-        el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"})
-      )
+      ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
     }
     None
   }, [ruleCount])
@@ -269,8 +267,8 @@ let make = (
   }
 
   <div className="flex flex-col gap-10 max-w-3xl">
-    // Context from previous steps
-    <RenderIf condition={wizardState.accounts->Array.length > 0}>
+    // Context from previous steps (guided mode only)
+    <RenderIf condition={isGuidedMode && wizardState.accounts->Array.length > 0}>
       <div
         className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-4 sm:ml-10 mb-2">
         <div className="flex items-center gap-2">

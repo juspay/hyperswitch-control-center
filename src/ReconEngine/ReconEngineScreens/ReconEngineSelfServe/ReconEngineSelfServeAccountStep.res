@@ -26,9 +26,7 @@ let make = (
     if isGuidedMode && accountCount >= 2 {
       nextButtonRef.current
       ->Nullable.toOption
-      ->Option.forEach(el =>
-        el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"})
-      )
+      ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
     }
     None
   }, [accountCount])
