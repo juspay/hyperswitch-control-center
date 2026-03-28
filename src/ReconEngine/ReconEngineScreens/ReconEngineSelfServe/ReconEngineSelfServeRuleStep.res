@@ -458,8 +458,7 @@ let make = (
           </div>
           <div className="flex flex-col gap-4">
             // Strategy type cards (One-to-One vs One-to-Many)
-            <label
-              className="block text-xs font-semibold text-nd_gray-600 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-nd_gray-600 uppercase tracking-wide">
               {"Strategy Type"->React.string}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -487,8 +486,7 @@ let make = (
               </div>
             </div>
             // Matching pattern selection (1:1, 1:N, N:1, N:N)
-            <label
-              className="block text-xs font-semibold text-nd_gray-600 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-nd_gray-600 uppercase tracking-wide">
               {"Matching Pattern"->React.string}
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -685,9 +683,7 @@ let make = (
           </div>
           // Search identifier
           <div className="flex flex-col gap-3">
-            <p className="text-xs text-nd_gray-500 font-medium">
-              {"Matching Key"->React.string}
-            </p>
+            <p className="text-xs text-nd_gray-500 font-medium"> {"Matching Key"->React.string} </p>
             <p className="text-xs text-nd_gray-400">
               {"Which field should the engine use to find potential matches between your two data sources?"->React.string}
             </p>

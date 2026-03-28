@@ -19,7 +19,7 @@ let make = (
 
   let accountCount = wizardState.accounts->Array.length
   React.useEffect(() => {
-    if isGuidedMode && accountCount >= 2 {
+    if isGuidedMode && accountCount > 0 {
       nextButtonRef.current
       ->Nullable.toOption
       ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
@@ -234,26 +234,17 @@ let make = (
       </div>
     </RenderIf>
     // Navigation (guided mode only)
-    <RenderIf condition={isGuidedMode}>
-      <RenderIf condition={wizardState.accounts->Array.length >= 2}>
-        <div className="ml-4 sm:ml-10" ref={ReactDOM.Ref.domRef(nextButtonRef)}>
-          <Button
-            text="Continue to Data Sources"
-            buttonType=Primary
-            buttonSize=Small
-            onClick={_ => onNext()}
-            rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
-            customButtonStyle="w-full"
-          />
-        </div>
-      </RenderIf>
-      <RenderIf condition={wizardState.accounts->Array.length === 1}>
-        <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
-          <p className="text-xs text-amber-700">
-            {"You need at least 2 accounts (one credit, one debit) to set up reconciliation. Create one more account to continue."->React.string}
-          </p>
-        </div>
-      </RenderIf>
+    <RenderIf condition={isGuidedMode && wizardState.accounts->Array.length > 0}>
+      <div className="ml-4 sm:ml-10" ref={ReactDOM.Ref.domRef(nextButtonRef)}>
+        <Button
+          text="Continue to Data Sources"
+          buttonType=Primary
+          buttonSize=Small
+          onClick={_ => onNext()}
+          rightIcon={CustomIcon(<Icon name="nd-arrow-right" customHeight="14" />)}
+          customButtonStyle="w-full"
+        />
+      </div>
     </RenderIf>
   </div>
 }

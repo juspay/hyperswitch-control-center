@@ -152,49 +152,11 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // In guided mode: auto-fill defaults for second transformation
-  // In expert mode: no auto-fill, show all accounts
-  let availableAccounts = if isGuidedMode {
-    wizardState.accounts->Array.filter(account =>
-      !(wizardState.transformations->Array.some(t => t.account_id === account.account_id))
-    )
-  } else {
-    wizardState.accounts
-  }
-  let (autoAccountId, autoIngestionId, autoProcessingMode) = if isGuidedMode {
-    let accountId = switch availableAccounts {
-    | [singleAccount] => singleAccount.account_id
-    | _ => ""
-    }
-    let ingestionId = switch accountId {
-    | "" => ""
-    | aid =>
-      wizardState.ingestions
-      ->Array.find(i => i.account_id === aid)
-      ->Option.map(i => i.ingestion_id)
-      ->Option.getOr("")
-    }
-    let mode = wizardState.transformations->Array.length > 0 ? Confirmation : Transaction
-    (accountId, ingestionId, mode)
-  } else {
-    ("", "", Transaction)
-  }
-  let defaultForm = {
-    ...defaultTransformationForm,
-    processingMode: autoProcessingMode,
-    accountId: autoAccountId,
-    ingestionId: autoIngestionId,
-  }
+  // Show all accounts — one account can have multiple transformations
+  let availableAccounts = wizardState.accounts
+  let defaultForm = defaultTransformationForm
   let (form, setForm) = React.useState(_ => defaultForm)
 
-  // Reset form with proper defaults when a transformation is created
-  let transformationCount = wizardState.transformations->Array.length
-  React.useEffect(() => {
-    if transformationCount > 0 {
-      setForm(_ => defaultForm)
-    }
-    None
-  }, [transformationCount])
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showErrors, setShowErrors) = React.useState(_ => false)
   let nextButtonRef = React.useRef(Nullable.null)
@@ -337,19 +299,16 @@ let make = (
     }
   }
 
-  let allAccountsCoveredByTransformation =
-    wizardState.accounts->Array.every(account =>
-      wizardState.transformations->Array.some(t => t.account_id === account.account_id)
-    )
+  let hasTransformations = wizardState.transformations->Array.length > 0
 
   React.useEffect(() => {
-    if isGuidedMode && allAccountsCoveredByTransformation {
+    if isGuidedMode && hasTransformations {
       nextButtonRef.current
       ->Nullable.toOption
       ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
     }
     None
-  }, [allAccountsCoveredByTransformation])
+  }, [hasTransformations])
 
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps (guided mode only)
@@ -896,7 +855,7 @@ let make = (
           onClick={_ => onBack()}
           leftIcon={CustomIcon(<Icon name="nd-arrow-left" customHeight="14" />)}
         />
-        <RenderIf condition={allAccountsCoveredByTransformation}>
+        <RenderIf condition={hasTransformations}>
           <Button
             text="Continue to Rules"
             buttonType=Primary

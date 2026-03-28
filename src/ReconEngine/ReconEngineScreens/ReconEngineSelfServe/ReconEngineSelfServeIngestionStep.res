@@ -14,24 +14,9 @@ let make = (
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-  // In guided mode: auto-select remaining account and filter configured ones
-  // In expert mode: show all accounts
-  let availableAccounts = if isGuidedMode {
-    wizardState.accounts->Array.filter(account =>
-      !(wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id))
-    )
-  } else {
-    wizardState.accounts
-  }
-  let autoAccountId = if isGuidedMode {
-    switch availableAccounts {
-    | [singleAccount] => singleAccount.account_id
-    | _ => ""
-    }
-  } else {
-    ""
-  }
-  let (selectedAccountId, setSelectedAccountId) = React.useState(_ => autoAccountId)
+  // Show all accounts — one account can have multiple ingestion sources
+  let availableAccounts = wizardState.accounts
+  let (selectedAccountId, setSelectedAccountId) = React.useState(_ => "")
   let (ingestionName, setIngestionName) = React.useState(_ => "")
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
@@ -102,21 +87,16 @@ let make = (
   }
 
   // Check if all accounts have ingestion configs
-  let accountsWithIngestion =
-    wizardState.accounts->Array.filter(account =>
-      wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id)
-    )
-  let allAccountsCovered =
-    accountsWithIngestion->Array.length === wizardState.accounts->Array.length
+  let hasIngestions = wizardState.ingestions->Array.length > 0
 
   React.useEffect(() => {
-    if isGuidedMode && allAccountsCovered {
+    if isGuidedMode && hasIngestions {
       nextButtonRef.current
       ->Nullable.toOption
       ->Option.forEach(el => el->scrollIntoViewSmooth({"behavior": "smooth", "block": "center"}))
     }
     None
-  }, [allAccountsCovered])
+  }, [hasIngestions])
 
   <div className="flex flex-col gap-10 max-w-3xl">
     // Context from previous steps (guided mode only)
@@ -366,7 +346,7 @@ let make = (
           onClick={_ => onBack()}
           leftIcon={CustomIcon(<Icon name="nd-arrow-left" customHeight="14" />)}
         />
-        <RenderIf condition={allAccountsCovered}>
+        <RenderIf condition={hasIngestions}>
           <Button
             text="Continue to Column Mapping"
             buttonType=Primary
@@ -377,13 +357,6 @@ let make = (
           />
         </RenderIf>
       </div>
-      <RenderIf condition={!allAccountsCovered && wizardState.ingestions->Array.length > 0}>
-        <div className="ml-4 sm:ml-10 p-3 bg-amber-50 rounded-lg border border-amber-200">
-          <p className="text-xs text-amber-700">
-            {"Each account needs a data source. Add data sources for all your accounts to continue."->React.string}
-          </p>
-        </div>
-      </RenderIf>
     </RenderIf>
   </div>
 }
