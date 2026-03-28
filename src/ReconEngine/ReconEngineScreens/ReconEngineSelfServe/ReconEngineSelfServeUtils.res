@@ -124,6 +124,12 @@ let encodeIngestionConfigCreate = (
   ~name: string,
   ~accountId: string,
   ~configVariant: ingestionConfigVariant,
+  ~hmacSecret: string="",
+  ~webhookUsername: string="",
+  ~webhookPassword: string="",
+  ~reportUsername: string="",
+  ~reportPassword: string="",
+  ~sftpFilePath: string="",
 ) => {
   // IngestionConfigData is EXTERNALLY tagged: {"manual": null}, {"adyen": {...}}, {"sftp_internal": {...}}
   let configJson = switch configVariant {
@@ -133,11 +139,11 @@ let encodeIngestionConfigCreate = (
       (
         "adyen",
         [
-          ("hmac_secret", ""->JSON.Encode.string),
-          ("webhook_basic_auth_username", ""->JSON.Encode.string),
-          ("webhook_basic_auth_password", ""->JSON.Encode.string),
-          ("report_basic_auth_username", ""->JSON.Encode.string),
-          ("report_basic_auth_password", ""->JSON.Encode.string),
+          ("hmac_secret", hmacSecret->JSON.Encode.string),
+          ("webhook_basic_auth_username", webhookUsername->JSON.Encode.string),
+          ("webhook_basic_auth_password", webhookPassword->JSON.Encode.string),
+          ("report_basic_auth_username", reportUsername->JSON.Encode.string),
+          ("report_basic_auth_password", reportPassword->JSON.Encode.string),
         ]
         ->Dict.fromArray
         ->JSON.Encode.object,
@@ -146,7 +152,7 @@ let encodeIngestionConfigCreate = (
     ->Dict.fromArray
     ->JSON.Encode.object
   | SftpInternal =>
-    [("sftp_internal", [("file_path", ""->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object)]
+    [("sftp_internal", [("file_path", sftpFilePath->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object)]
     ->Dict.fromArray
     ->JSON.Encode.object
   }

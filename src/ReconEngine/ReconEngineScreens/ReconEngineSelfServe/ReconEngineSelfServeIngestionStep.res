@@ -65,6 +65,12 @@ let make = (
         ~name=ingestionName,
         ~accountId=selectedAccountId,
         ~configVariant,
+        ~hmacSecret,
+        ~webhookUsername,
+        ~webhookPassword,
+        ~reportUsername,
+        ~reportPassword,
+        ~sftpFilePath,
       )
       switch result {
       | Some(ingestion) => {

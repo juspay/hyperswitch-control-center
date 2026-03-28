@@ -63,6 +63,12 @@ let useCreateIngestionConfig = () => {
     ~name: string,
     ~accountId: string,
     ~configVariant: ingestionConfigVariant,
+    ~hmacSecret: string="",
+    ~webhookUsername: string="",
+    ~webhookPassword: string="",
+    ~reportUsername: string="",
+    ~reportPassword: string="",
+    ~sftpFilePath: string="",
   ) => {
     if name->String.trim->String.length === 0 || accountId->String.trim->String.length === 0 {
       showToast(~message="Data source name and account are required", ~toastType=ToastError)
@@ -80,6 +86,12 @@ let useCreateIngestionConfig = () => {
           ~name,
           ~accountId,
           ~configVariant,
+          ~hmacSecret,
+          ~webhookUsername,
+          ~webhookPassword,
+          ~reportUsername,
+          ~reportPassword,
+          ~sftpFilePath,
         )
         let res = await updateMethod(url, body, Post)
         let ingestionId = res->getDictFromJsonObject->getString("ingestion_id", "")
