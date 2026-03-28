@@ -17,12 +17,7 @@ let make = (
   let handleSubmit = async () => {
     setIsSubmitting(_ => true)
     let balance = initialBalance->Float.fromString->Option.getOr(0.0)
-    let result = await createAccount(
-      ~accountName,
-      ~accountType,
-      ~currency,
-      ~initialBalance=balance,
-    )
+    let result = await createAccount(~accountName, ~accountType, ~currency, ~initialBalance=balance)
     switch result {
     | Some(account) => {
         onAccountCreated(account)
@@ -40,7 +35,8 @@ let make = (
     // Header
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
+        <div
+          className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
           {"1"->React.string}
         </div>
         <h2 className="text-lg font-semibold text-nd_gray-800">
@@ -86,7 +82,11 @@ let make = (
             {"Credit = money in (gateway), Debit = money out (bank)"->React.string}
           </p>
           <SelectBox
-            input={makeControlledSelectInput(~name="accountType", ~value=accountType, ~setValue=setAccountType)}
+            input={makeControlledSelectInput(
+              ~name="accountType",
+              ~value=accountType,
+              ~setValue=setAccountType,
+            )}
             options={accountTypeOptions}
             deselectDisable=true
             showClearAll=false
@@ -98,7 +98,11 @@ let make = (
           </label>
           <p className="text-xs text-nd_gray-400"> {"ISO 4217 currency code"->React.string} </p>
           <SelectBox
-            input={makeControlledSelectInput(~name="currency", ~value=currency, ~setValue=setCurrency)}
+            input={makeControlledSelectInput(
+              ~name="currency",
+              ~value=currency,
+              ~setValue=setCurrency,
+            )}
             options={currencyOptions}
             deselectDisable=true
             showClearAll=false
@@ -138,9 +142,15 @@ let make = (
         <div className="flex flex-col gap-2">
           {wizardState.accounts
           ->Array.mapWithIndex((account, idx) => {
-            let bgColor = account.account_type === "credit" ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"
+            let bgColor =
+              account.account_type === "credit"
+                ? "bg-blue-50 border-blue-200"
+                : "bg-green-50 border-green-200"
             let textColor = account.account_type === "credit" ? "text-blue-700" : "text-green-700"
-            let badgeColor = account.account_type === "credit" ? "bg-blue-100 text-blue-600" : "bg-green-100 text-green-600"
+            let badgeColor =
+              account.account_type === "credit"
+                ? "bg-blue-100 text-blue-600"
+                : "bg-green-100 text-green-600"
             <div
               key={idx->Int.toString}
               className={`flex items-center justify-between p-3 rounded-lg border ${bgColor}`}>

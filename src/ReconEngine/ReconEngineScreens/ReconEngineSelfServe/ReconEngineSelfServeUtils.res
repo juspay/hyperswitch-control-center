@@ -22,7 +22,10 @@ let makeControlledSelectInput = (
 }
 
 // Read-only SelectBox input — for display only
-let makeReadOnlySelectInput = (~name: string, ~value: string): ReactFinalForm.fieldRenderPropsInput => {
+let makeReadOnlySelectInput = (
+  ~name: string,
+  ~value: string,
+): ReactFinalForm.fieldRenderPropsInput => {
   name,
   onBlur: _ => (),
   onChange: _ => (),
@@ -93,7 +96,12 @@ let indexToStep = (index: int): selfServeStep => {
 // ============================================================
 
 // --- Account Create ---
-let encodeAccountCreate = (~accountName: string, ~accountType: string, ~currency: string, ~initialBalance: float) => {
+let encodeAccountCreate = (
+  ~accountName: string,
+  ~accountType: string,
+  ~currency: string,
+  ~initialBalance: float,
+) => {
   [
     ("account_name", accountName->JSON.Encode.string),
     ("account_type", accountType->JSON.Encode.string),
@@ -114,8 +122,7 @@ let encodeIngestionConfigCreate = (
 ) => {
   // IngestionConfigData is EXTERNALLY tagged: {"manual": null}, {"adyen": {...}}, {"sftp_internal": {...}}
   let configJson = switch configVariant {
-  | Manual =>
-    [("manual", JSON.Encode.null)]->Dict.fromArray->JSON.Encode.object
+  | Manual => [("manual", JSON.Encode.null)]->Dict.fromArray->JSON.Encode.object
   | Adyen =>
     [
       (
@@ -134,12 +141,7 @@ let encodeIngestionConfigCreate = (
     ->Dict.fromArray
     ->JSON.Encode.object
   | SftpInternal =>
-    [
-      (
-        "sftp_internal",
-        [("file_path", ""->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
-      ),
-    ]
+    [("sftp_internal", [("file_path", ""->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object)]
     ->Dict.fromArray
     ->JSON.Encode.object
   }
@@ -224,7 +226,11 @@ let stringToUnitType = (s: string): unitType => {
   }
 }
 
-let encodeAmountConfig = (~identifier: string, ~unitType: unitType, ~amountDelimiter: delimiter) => {
+let encodeAmountConfig = (
+  ~identifier: string,
+  ~unitType: unitType,
+  ~amountDelimiter: delimiter,
+) => {
   // AmountSchemaConfig has #[serde(flatten)] on unit_config
   // So identifier + unit_type + delimiter all at same level
   let base = [
@@ -259,17 +265,10 @@ let encodeDateTimeFormat = (~dateOrd: dateOrder, ~dateDelim: delimiter) => {
   ->JSON.Encode.object
 }
 
-let encodeEffectiveAtConfig = (
-  ~identifier: string,
-  ~dateOrd: dateOrder,
-  ~dateDelim: delimiter,
-) => {
+let encodeEffectiveAtConfig = (~identifier: string, ~dateOrd: dateOrder, ~dateDelim: delimiter) => {
   [
     ("identifier", identifier->JSON.Encode.string),
-    (
-      "date_time_format",
-      encodeDateTimeFormat(~dateOrd, ~dateDelim),
-    ),
+    ("date_time_format", encodeDateTimeFormat(~dateOrd, ~dateDelim)),
   ]
   ->Dict.fromArray
   ->JSON.Encode.object
@@ -296,10 +295,7 @@ let encodeCurrencyConfig = (~identifier: string) => {
 }
 
 let encodeOrderIdConfig = (~identifier: string) => {
-  [
-    ("identifier", identifier->JSON.Encode.string),
-    ("transformation_rules", []->JSON.Encode.array),
-  ]
+  [("identifier", identifier->JSON.Encode.string), ("transformation_rules", []->JSON.Encode.array)]
   ->Dict.fromArray
   ->JSON.Encode.object
 }
@@ -368,10 +364,7 @@ let encodeMetadataSchemaData = (form: transformationFormState) => {
         ),
       ),
       ("order_id", encodeOrderIdConfig(~identifier=form.orderIdIdentifier)),
-      (
-        "metadata_fields",
-        form.metadataFields->Array.map(encodeMetadataField)->JSON.Encode.array,
-      ),
+      ("metadata_fields", form.metadataFields->Array.map(encodeMetadataField)->JSON.Encode.array),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
@@ -425,10 +418,7 @@ let encodeTransformationConfigCreate = (
 // --- Recon Rule Create ---
 
 let encodeOperator = (~value: string) => {
-  [
-    ("operator_version", "v1"->JSON.Encode.string),
-    ("value", value->JSON.Encode.string),
-  ]
+  [("operator_version", "v1"->JSON.Encode.string), ("value", value->JSON.Encode.string)]
   ->Dict.fromArray
   ->JSON.Encode.object
 }
@@ -541,7 +531,10 @@ let encodeReconStrategy = (form: ruleFormState) => {
     ("one_to_one_type", form.oneToOneSubtype->oneToOneSubtypeToString->JSON.Encode.string),
     (
       "search_identifier",
-      encodeSearchIdentifier(~sourceField=form.searchSourceField, ~targetField=form.searchTargetField),
+      encodeSearchIdentifier(
+        ~sourceField=form.searchSourceField,
+        ~targetField=form.searchTargetField,
+      ),
     ),
     ("match_rules", encodeMatchRules(form.matchRules)),
     ("source_account", sourceAccount),
@@ -625,8 +618,9 @@ let metadataFieldTypeOptions: array<SelectBox.dropdownOption> = [
   {label: "Currency", value: "currency"},
 ]
 
-let currencyOptions: array<SelectBox.dropdownOption> =
-  CurrencyUtils.currencyList->Array.map(currency => {
-    let code = currency->CurrencyUtils.getCurrencyCodeStringFromVariant
-    {SelectBox.label: code, value: code}
-  })
+let currencyOptions: array<
+  SelectBox.dropdownOption,
+> = CurrencyUtils.currencyList->Array.map(currency => {
+  let code = currency->CurrencyUtils.getCurrencyCodeStringFromVariant
+  {SelectBox.label: code, value: code}
+})

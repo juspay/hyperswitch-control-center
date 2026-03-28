@@ -33,12 +33,17 @@ let make = (~wizardState: wizardState) => {
         <div className="flex flex-col gap-1">
           {wizardState.accounts
           ->Array.mapWithIndex((account, idx) => {
-            let badgeColor = account.account_type === "credit" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
+            let badgeColor =
+              account.account_type === "credit"
+                ? "bg-blue-50 text-blue-600"
+                : "bg-green-50 text-green-600"
             <div key={idx->Int.toString} className="flex items-center gap-2">
               <span className={`text-xs px-2 py-0.5 rounded-full ${badgeColor}`}>
                 {account.account_type->React.string}
               </span>
-              <span className="text-xs text-nd_gray-600"> {account.account_name->React.string} </span>
+              <span className="text-xs text-nd_gray-600">
+                {account.account_name->React.string}
+              </span>
             </div>
           })
           ->React.array}
@@ -112,7 +117,8 @@ let make = (~wizardState: wizardState) => {
       </div>
     </div>
     // Next steps
-    <div className="flex flex-col gap-3 w-full max-w-xl p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <div
+      className="flex flex-col gap-3 w-full max-w-xl p-4 bg-blue-50 rounded-xl border border-blue-100">
       <p className="text-sm font-medium text-blue-700"> {"What's Next?"->React.string} </p>
       <div className="flex flex-col gap-2">
         <div className="flex items-start gap-2">

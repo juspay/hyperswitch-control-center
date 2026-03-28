@@ -63,7 +63,7 @@ module MetadataFieldRow = {
           <input
             type_="text"
             className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
-            placeholder="e.g., Date, MerchantID"
+            placeholder="e.g., Date, MerchantID, Settle Amount"
             value={field.identifier}
             onChange={e => {
               let v = ReactEvent.Form.target(e)["value"]
@@ -73,18 +73,25 @@ module MetadataFieldRow = {
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-nd_gray-600">
-            {"Internal Field Name"->React.string}
+            {"Field Key"->React.string}
           </label>
-          <input
-            type_="text"
-            className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
-            placeholder="e.g., metadata.date"
-            value={field.fieldName}
-            onChange={e => {
-              let v = ReactEvent.Form.target(e)["value"]
-              onUpdate(index, {...field, fieldName: v})
-            }}
-          />
+          <div className="flex items-center">
+            <span
+              className="px-2 py-1.5 text-sm text-nd_gray-400 bg-nd_gray-100 border border-r-0 border-nd_gray-200 rounded-l-md">
+              {"metadata."->React.string}
+            </span>
+            <input
+              type_="text"
+              className="flex-1 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-r-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
+              placeholder="e.g., date, merchant_id"
+              value={field.fieldName->String.replace("metadata.", "")}
+              onChange={e => {
+                let v = ReactEvent.Form.target(e)["value"]
+                let sanitized = v->String.replaceRegExp(%re("/[^a-zA-Z0-9_]/g"), "")
+                onUpdate(index, {...field, fieldName: `metadata.${sanitized}`})
+              }}
+            />
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -131,7 +138,8 @@ let make = (
   ~onBack: unit => unit,
 ) => {
   let createTransformation = ReconEngineSelfServeHooks.useCreateTransformationConfig()
-  let {merchantId} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+  let {merchantId} =
+    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let (form, setForm) = React.useState(_ => defaultTransformationForm)
@@ -173,10 +181,12 @@ let make = (
   let setUniqueConstraintField = (fn: string => string) =>
     setForm(prev => {...prev, uniqueConstraintField: fn(prev.uniqueConstraintField)})
 
-  let accountOptions: array<SelectBox.dropdownOption> =
-    wizardState.accounts->Array.map(account => {
-      {SelectBox.label: `${account.account_name} (${account.account_type})`, value: account.account_id}
-    })
+  let accountOptions: array<SelectBox.dropdownOption> = wizardState.accounts->Array.map(account => {
+    {
+      SelectBox.label: `${account.account_name} (${account.account_type})`,
+      value: account.account_id,
+    }
+  })
 
   let ingestionOptionsForAccount =
     wizardState.ingestions
@@ -192,15 +202,17 @@ let make = (
       {SelectBox.label: "Amount", value: "amount"},
       {SelectBox.label: "Effective At", value: "effective_at"},
     ]
-    let metaFields =
-      form.metadataFields->Array.map(f => {
-        {SelectBox.label: f.identifier, value: f.fieldName}
-      })
+    let metaFields = form.metadataFields->Array.map(f => {
+      {SelectBox.label: f.identifier, value: f.fieldName}
+    })
     standardFields->Array.concat(metaFields)
   }
 
   let addMetadataField = () => {
-    setForm(prev => {...prev, metadataFields: prev.metadataFields->Array.concat([defaultMetadataField])})
+    setForm(prev => {
+      ...prev,
+      metadataFields: prev.metadataFields->Array.concat([defaultMetadataField]),
+    })
   }
 
   let updateMetadataField = (index, field) => {
@@ -255,11 +267,25 @@ let make = (
       wizardState.transformations->Array.some(t => t.account_id === account.account_id)
     )
 
-  <div className="flex flex-col gap-8 max-w-2xl">
+  <div className="flex flex-col gap-10 max-w-3xl">
+    // Context from previous steps
+    <RenderIf condition={wizardState.accounts->Array.length > 0}>
+      <div className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+        <div className="flex items-center gap-2">
+          <Icon name="nd-check" customHeight="10" className="text-green-500" />
+          {`Accounts: ${wizardState.accounts->Array.map(a => `${a.account_name} (${a.account_type})`)->Array.joinWith(", ")}`->React.string}
+        </div>
+        <div className="flex items-center gap-2">
+          <Icon name="nd-check" customHeight="10" className="text-green-500" />
+          {`Ingestion configs: ${wizardState.ingestions->Array.map(i => i.name)->Array.joinWith(", ")}`->React.string}
+        </div>
+      </div>
+    </RenderIf>
     // Header
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
+        <div
+          className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
           {"3"->React.string}
         </div>
         <h2 className="text-lg font-semibold text-nd_gray-800">
@@ -285,7 +311,8 @@ let make = (
     // Form - Section 1: Basic Info
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"1"->React.string}
         </span>
         {"Basic Information"->React.string}
@@ -358,7 +385,8 @@ let make = (
     // Section 2: Core Field Mappings
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"2"->React.string}
         </span>
         {"Core Field Mappings"->React.string}
@@ -368,28 +396,36 @@ let make = (
       </p>
       // Currency
       <div className="flex flex-col gap-1.5 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700"> {"Currency Column"->React.string} </label>
+        <label className="text-sm font-medium text-nd_gray-700">
+          {"Currency Column"->React.string}
+        </label>
         <input
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Transaction Currency, Currency Code"
           value={form.currencyIdentifier}
-          onChange={e => setForm(prev => {...prev, currencyIdentifier: ReactEvent.Form.target(e)["value"]})}
+          onChange={e =>
+            setForm(prev => {...prev, currencyIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
       </div>
       // Amount
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700"> {"Amount Column"->React.string} </label>
+        <label className="text-sm font-medium text-nd_gray-700">
+          {"Amount Column"->React.string}
+        </label>
         <input
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Settle Amount, Credit"
           value={form.amountIdentifier}
-          onChange={e => setForm(prev => {...prev, amountIdentifier: ReactEvent.Form.target(e)["value"]})}
+          onChange={e =>
+            setForm(prev => {...prev, amountIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-nd_gray-600"> {"Unit Type"->React.string} </label>
+            <label className="text-xs font-medium text-nd_gray-600">
+              {"Unit Type"->React.string}
+            </label>
             <SelectBox
               input={makeControlledSelectInput(
                 ~name="amountUnitType",
@@ -403,7 +439,9 @@ let make = (
           </div>
           <RenderIf condition={form.amountUnitType === MajorUnit}>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-nd_gray-600"> {"Decimal Separator"->React.string} </label>
+              <label className="text-xs font-medium text-nd_gray-600">
+                {"Decimal Separator"->React.string}
+              </label>
               <SelectBox
                 input={makeControlledSelectInput(
                   ~name="amountDelimiter",
@@ -420,17 +458,22 @@ let make = (
       </div>
       // Date
       <div className="flex flex-col gap-3 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700"> {"Date Column"->React.string} </label>
+        <label className="text-sm font-medium text-nd_gray-700">
+          {"Date Column"->React.string}
+        </label>
         <input
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Date, Value Date"
           value={form.effectiveAtIdentifier}
-          onChange={e => setForm(prev => {...prev, effectiveAtIdentifier: ReactEvent.Form.target(e)["value"]})}
+          onChange={e =>
+            setForm(prev => {...prev, effectiveAtIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-nd_gray-600"> {"Date Order"->React.string} </label>
+            <label className="text-xs font-medium text-nd_gray-600">
+              {"Date Order"->React.string}
+            </label>
             <SelectBox
               input={makeControlledSelectInput(
                 ~name="dateOrder",
@@ -443,7 +486,9 @@ let make = (
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-nd_gray-600"> {"Date Separator"->React.string} </label>
+            <label className="text-xs font-medium text-nd_gray-600">
+              {"Date Separator"->React.string}
+            </label>
             <SelectBox
               input={makeControlledSelectInput(
                 ~name="dateDelimiter",
@@ -459,13 +504,16 @@ let make = (
       </div>
       // Order ID
       <div className="flex flex-col gap-1.5 p-3 bg-nd_gray-50 rounded-lg">
-        <label className="text-sm font-medium text-nd_gray-700"> {"Order ID Column"->React.string} </label>
+        <label className="text-sm font-medium text-nd_gray-700">
+          {"Order ID Column"->React.string}
+        </label>
         <input
           type_="text"
           className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
           placeholder="e.g., Merchant Ref ID, Transaction Reference"
           value={form.orderIdIdentifier}
-          onChange={e => setForm(prev => {...prev, orderIdIdentifier: ReactEvent.Form.target(e)["value"]})}
+          onChange={e =>
+            setForm(prev => {...prev, orderIdIdentifier: ReactEvent.Form.target(e)["value"]})}
         />
       </div>
       // Balance Direction
@@ -482,7 +530,10 @@ let make = (
           placeholder="e.g., Transaction Currency, Account Type"
           value={form.balanceDirectionIdentifier}
           onChange={e =>
-            setForm(prev => {...prev, balanceDirectionIdentifier: ReactEvent.Form.target(e)["value"]})}
+            setForm(prev => {
+              ...prev,
+              balanceDirectionIdentifier: ReactEvent.Form.target(e)["value"],
+            })}
         />
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
@@ -566,7 +617,8 @@ let make = (
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-          <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+          <span
+            className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
             {"3"->React.string}
           </span>
           {"Metadata Fields"->React.string}
@@ -584,7 +636,9 @@ let make = (
       </p>
       <RenderIf condition={form.metadataFields->Array.length === 0}>
         <div className="flex flex-col items-center gap-2 py-6 text-center">
-          <p className="text-sm text-nd_gray-400"> {"No metadata fields added yet."->React.string} </p>
+          <p className="text-sm text-nd_gray-400">
+            {"No metadata fields added yet."->React.string}
+          </p>
           <Button
             text="+ Add Field to map additional CSV columns"
             buttonType=Secondary
@@ -596,7 +650,13 @@ let make = (
       </RenderIf>
       {form.metadataFields
       ->Array.mapWithIndex((field, idx) =>
-        <MetadataFieldRow key={idx->Int.toString} field index=idx onUpdate=updateMetadataField onRemove=removeMetadataField />
+        <MetadataFieldRow
+          key={idx->Int.toString}
+          field
+          index=idx
+          onUpdate=updateMetadataField
+          onRemove=removeMetadataField
+        />
       )
       ->React.array}
     </div>
@@ -606,7 +666,8 @@ let make = (
         className="flex items-center justify-between w-full cursor-pointer"
         onClick={_ => setShowAdvanced(prev => !prev)}>
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-          <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+          <span
+            className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
             {"4"->React.string}
           </span>
           {"Uniqueness Constraint"->React.string}
@@ -623,7 +684,9 @@ let make = (
         </p>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-nd_gray-600"> {"Unique Field"->React.string} </label>
+            <label className="text-xs font-medium text-nd_gray-600">
+              {"Unique Field"->React.string}
+            </label>
             <SelectBox
               input={makeControlledSelectInput(
                 ~name="uniqueConstraintField",
@@ -636,7 +699,9 @@ let make = (
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-nd_gray-600"> {"Description"->React.string} </label>
+            <label className="text-xs font-medium text-nd_gray-600">
+              {"Description"->React.string}
+            </label>
             <input
               type_="text"
               className="w-full px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
@@ -667,7 +732,9 @@ let make = (
     <RenderIf condition={wizardState.transformations->Array.length > 0}>
       <div className="ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
-          {`Created Transformations (${wizardState.transformations->Array.length->Int.toString})`->React.string}
+          {`Created Transformations (${wizardState.transformations
+            ->Array.length
+            ->Int.toString})`->React.string}
         </h3>
         {wizardState.transformations
         ->Array.mapWithIndex((t, idx) =>

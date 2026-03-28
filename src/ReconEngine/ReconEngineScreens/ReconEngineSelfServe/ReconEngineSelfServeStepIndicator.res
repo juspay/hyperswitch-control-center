@@ -46,15 +46,10 @@ let make = (~currentStep: selfServeStep, ~onBack: unit => unit) => {
   let titleElement =
     <div className="flex items-center gap-2">
       <Icon name="nd-connectors" className="text-nd_gray-600" customHeight="20" />
-      <h1 className="text-base font-semibold text-nd_gray-700">
-        {"Recon Setup"->React.string}
-      </h1>
+      <h1 className="text-base font-semibold text-nd_gray-700"> {"Recon Setup"->React.string} </h1>
     </div>
 
   <VerticalStepIndicator
-    titleElement
-    sections
-    currentStep={currentStep->stepToIndicatorStep}
-    backClick=onBack
+    titleElement sections currentStep={currentStep->stepToIndicatorStep} backClick=onBack
   />
 }

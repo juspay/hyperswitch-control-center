@@ -4,7 +4,9 @@ module GuidedMode = {
   @react.component
   let make = () => {
     let (currentStep, setCurrentStep) = React.useState(_ => AccountStep)
-    let (wizardState, setWizardState) = React.useState(_ => ReconEngineSelfServeUtils.emptyWizardState)
+    let (wizardState, setWizardState) = React.useState(_ =>
+      ReconEngineSelfServeUtils.emptyWizardState
+    )
 
     let goToStep = step => setCurrentStep(_ => step)
 
@@ -41,9 +43,7 @@ module GuidedMode = {
       if currentIndex > 0 {
         setCurrentStep(_ => (currentIndex - 1)->ReconEngineSelfServeUtils.indexToStep)
       } else {
-        RescriptReactRouter.replace(
-          GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup"),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/v1/recon-engine/setup"))
       }
     }
 
@@ -55,9 +55,7 @@ module GuidedMode = {
         {switch currentStep {
         | AccountStep =>
           <ReconEngineSelfServeAccountStep
-            wizardState
-            onAccountCreated
-            onNext={() => goToStep(IngestionStep)}
+            wizardState onAccountCreated onNext={() => goToStep(IngestionStep)}
           />
         | IngestionStep =>
           <ReconEngineSelfServeIngestionStep
@@ -80,8 +78,7 @@ module GuidedMode = {
             onNext={() => goToStep(CompleteStep)}
             onBack={() => goToStep(TransformationStep)}
           />
-        | CompleteStep =>
-          <ReconEngineSelfServeComplete wizardState />
+        | CompleteStep => <ReconEngineSelfServeComplete wizardState />
         }}
       </div>
     </div>
@@ -92,7 +89,9 @@ module ExpertMode = {
   @react.component
   let make = () => {
     let (activeTab, setActiveTab) = React.useState(_ => "account")
-    let (wizardState, setWizardState) = React.useState(_ => ReconEngineSelfServeUtils.emptyWizardState)
+    let (wizardState, setWizardState) = React.useState(_ =>
+      ReconEngineSelfServeUtils.emptyWizardState
+    )
 
     let onAccountCreated = (account: createdAccount) => {
       setWizardState(prev => {
@@ -177,9 +176,7 @@ module ExpertMode = {
         {switch activeTab {
         | "account" =>
           <ReconEngineSelfServeAccountStep
-            wizardState
-            onAccountCreated
-            onNext={() => setActiveTab(_ => "ingestion")}
+            wizardState onAccountCreated onNext={() => setActiveTab(_ => "ingestion")}
           />
         | "ingestion" =>
           <ReconEngineSelfServeIngestionStep

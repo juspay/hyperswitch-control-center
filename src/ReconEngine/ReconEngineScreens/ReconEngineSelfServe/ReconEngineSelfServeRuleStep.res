@@ -52,7 +52,9 @@ module MatchRuleRow = {
 
     <div className="flex items-center gap-2 p-3 bg-nd_gray-50 rounded-lg">
       <div className="flex-1 flex flex-col gap-1">
-        <label className="text-xs text-blue-600 font-medium"> {"Source Field"->React.string} </label>
+        <label className="text-xs text-blue-600 font-medium">
+          {"Source Field"->React.string}
+        </label>
         <SelectBox
           input={makeControlledSelectInput(
             ~name=`matchSourceField_${index->Int.toString}`,
@@ -78,7 +80,9 @@ module MatchRuleRow = {
         />
       </div>
       <div className="flex-1 flex flex-col gap-1">
-        <label className="text-xs text-green-600 font-medium"> {"Target Field"->React.string} </label>
+        <label className="text-xs text-green-600 font-medium">
+          {"Target Field"->React.string}
+        </label>
         <SelectBox
           input={makeControlledSelectInput(
             ~name=`matchTargetField_${index->Int.toString}`,
@@ -115,57 +119,64 @@ let make = (
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
   let (showAging, setShowAging) = React.useState(_ => false)
 
-  let setOneToOneSubtype = (fn: string => string) => setForm(prev => {
-    let newStr = fn(prev.oneToOneSubtype->oneToOneSubtypeToString)
-    let subtype = switch newStr {
-    | "single_many" => SingleMany
-    | "many_single" => ManySingle
-    | "many_many" => ManyMany
-    | _ => SingleSingle
-    }
-    {...prev, oneToOneSubtype: subtype}
-  })
-
-  let setSourceAccountId = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.sourceAccountId)
-    {...prev, sourceAccountId: newVal}
-  })
-
-  let setTargetAccountId = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.targetAccountId)
-    {...prev, targetAccountId: newVal}
-  })
-
-  let setTriggerField = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.triggerField)
-    {...prev, triggerField: newVal}
-  })
-
-  let setTriggerOperator = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.triggerOperator)
-    {...prev, triggerOperator: newVal}
-  })
-
-  let setGroupingField = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.groupingField)
-    {...prev, groupingField: newVal}
-  })
-
-  let setSearchSourceField = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.searchSourceField)
-    {...prev, searchSourceField: newVal}
-  })
-
-  let setSearchTargetField = (fn: string => string) => setForm(prev => {
-    let newVal = fn(prev.searchTargetField)
-    {...prev, searchTargetField: newVal}
-  })
-
-  let accountOptions: array<SelectBox.dropdownOption> =
-    wizardState.accounts->Array.map(account => {
-      let typeLabel = account.account_type === "credit" ? "Credit" : "Debit"
-      {SelectBox.label: `${account.account_name} (${typeLabel})`, value: account.account_id}
+  let setOneToOneSubtype = (fn: string => string) =>
+    setForm(prev => {
+      let newStr = fn(prev.oneToOneSubtype->oneToOneSubtypeToString)
+      let subtype = switch newStr {
+      | "single_many" => SingleMany
+      | "many_single" => ManySingle
+      | "many_many" => ManyMany
+      | _ => SingleSingle
+      }
+      {...prev, oneToOneSubtype: subtype}
     })
+
+  let setSourceAccountId = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.sourceAccountId)
+      {...prev, sourceAccountId: newVal}
+    })
+
+  let setTargetAccountId = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.targetAccountId)
+      {...prev, targetAccountId: newVal}
+    })
+
+  let setTriggerField = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.triggerField)
+      {...prev, triggerField: newVal}
+    })
+
+  let setTriggerOperator = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.triggerOperator)
+      {...prev, triggerOperator: newVal}
+    })
+
+  let setGroupingField = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.groupingField)
+      {...prev, groupingField: newVal}
+    })
+
+  let setSearchSourceField = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.searchSourceField)
+      {...prev, searchSourceField: newVal}
+    })
+
+  let setSearchTargetField = (fn: string => string) =>
+    setForm(prev => {
+      let newVal = fn(prev.searchTargetField)
+      {...prev, searchTargetField: newVal}
+    })
+
+  let accountOptions: array<SelectBox.dropdownOption> = wizardState.accounts->Array.map(account => {
+    let typeLabel = account.account_type === "credit" ? "Credit" : "Debit"
+    {SelectBox.label: `${account.account_name} (${typeLabel})`, value: account.account_id}
+  })
 
   let entryFieldOpts = entryFieldOptions
 
@@ -210,11 +221,33 @@ let make = (
     setIsSubmitting(_ => false)
   }
 
-  <div className="flex flex-col gap-8 max-w-2xl">
+  <div className="flex flex-col gap-10 max-w-3xl">
+    // Context from previous steps
+    <RenderIf condition={wizardState.accounts->Array.length > 0}>
+      <div className="flex flex-col gap-1 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+        <div className="flex items-center gap-2">
+          <Icon name="nd-check" customHeight="10" className="text-green-500" />
+          {`Accounts: ${wizardState.accounts->Array.map(a => a.account_name)->Array.joinWith(", ")}`->React.string}
+        </div>
+        <RenderIf condition={wizardState.ingestions->Array.length > 0}>
+          <div className="flex items-center gap-2">
+            <Icon name="nd-check" customHeight="10" className="text-green-500" />
+            {`Ingestions: ${wizardState.ingestions->Array.map(i => i.name)->Array.joinWith(", ")}`->React.string}
+          </div>
+        </RenderIf>
+        <RenderIf condition={wizardState.transformations->Array.length > 0}>
+          <div className="flex items-center gap-2">
+            <Icon name="nd-check" customHeight="10" className="text-green-500" />
+            {`Transformations: ${wizardState.transformations->Array.map(t => t.name)->Array.joinWith(", ")}`->React.string}
+          </div>
+        </RenderIf>
+      </div>
+    </RenderIf>
     // Header
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
+        <div
+          className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
           {"4"->React.string}
         </div>
         <h2 className="text-lg font-semibold text-nd_gray-800">
@@ -231,7 +264,9 @@ let make = (
         <p className="text-sm font-medium text-blue-700"> {"Strategy Types"->React.string} </p>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
-            <p className="text-xs font-semibold text-nd_gray-700"> {"Single:Single"->React.string} </p>
+            <p className="text-xs font-semibold text-nd_gray-700">
+              {"Single:Single"->React.string}
+            </p>
             <p className="text-xs text-nd_gray-500">
               {"One source entry matches exactly one target entry."->React.string}
             </p>
@@ -243,13 +278,17 @@ let make = (
             </p>
           </div>
           <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
-            <p className="text-xs font-semibold text-nd_gray-700"> {"Single:Many"->React.string} </p>
+            <p className="text-xs font-semibold text-nd_gray-700">
+              {"Single:Many"->React.string}
+            </p>
             <p className="text-xs text-nd_gray-500">
               {"One source matches many targets — e.g., one payout = multiple orders."->React.string}
             </p>
           </div>
           <div className="flex flex-col gap-1 p-2 bg-white rounded-md">
-            <p className="text-xs font-semibold text-nd_gray-700"> {"Many:Single"->React.string} </p>
+            <p className="text-xs font-semibold text-nd_gray-700">
+              {"Many:Single"->React.string}
+            </p>
             <p className="text-xs text-nd_gray-500">
               {"Multiple source entries match one target — e.g., multiple partial payments."->React.string}
             </p>
@@ -260,14 +299,17 @@ let make = (
     // Section 1: Basic Info
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"1"->React.string}
         </span>
         {"Rule Info"->React.string}
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700"> {"Rule Name"->React.string} </label>
+          <label className="text-sm font-medium text-nd_gray-700">
+            {"Rule Name"->React.string}
+          </label>
           <input
             type_="text"
             className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
@@ -277,7 +319,9 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700"> {"Description"->React.string} </label>
+          <label className="text-sm font-medium text-nd_gray-700">
+            {"Description"->React.string}
+          </label>
           <input
             type_="text"
             className="w-full px-3 py-2 text-sm border border-nd_gray-200 rounded-lg focus:outline-none focus:border-blue-400 placeholder:text-nd_gray-300"
@@ -288,7 +332,9 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700"> {"Priority"->React.string} </label>
+          <label className="text-sm font-medium text-nd_gray-700">
+            {"Priority"->React.string}
+          </label>
           <p className="text-xs text-nd_gray-400">
             {"Lower number = higher priority. Rules are evaluated in order."->React.string}
           </p>
@@ -307,14 +353,17 @@ let make = (
     // Section 2: Strategy & Accounts
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"2"->React.string}
         </span>
         {"Strategy & Accounts"->React.string}
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-nd_gray-700"> {"Strategy Type"->React.string} </label>
+          <label className="text-sm font-medium text-nd_gray-700">
+            {"Strategy Type"->React.string}
+          </label>
           <SelectBox
             input={makeControlledSelectInput(
               ~name="oneToOneSubtype",
@@ -384,7 +433,8 @@ let make = (
     // Section 3: Trigger
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"3"->React.string}
         </span>
         {"Source Trigger"->React.string}
@@ -407,7 +457,9 @@ let make = (
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-nd_gray-600"> {"Operator"->React.string} </label>
+          <label className="text-xs font-medium text-nd_gray-600">
+            {"Operator"->React.string}
+          </label>
           <SelectBox
             input={makeControlledSelectInput(
               ~name="triggerOperator",
@@ -435,14 +487,17 @@ let make = (
     // Section 4: Search & Match
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-        <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+        <span
+          className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
           {"4"->React.string}
         </span>
         {"Search & Match Rules"->React.string}
       </div>
       // Search identifier
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-nd_gray-500 font-medium"> {"Search Identifier"->React.string} </p>
+        <p className="text-xs text-nd_gray-500 font-medium">
+          {"Search Identifier"->React.string}
+        </p>
         <p className="text-xs text-nd_gray-400">
           {"Which fields are used to FIND candidate matches? The engine searches for target entries where the target field matches the source field value."->React.string}
         </p>
@@ -514,7 +569,8 @@ let make = (
         className="flex items-center justify-between w-full cursor-pointer"
         onClick={_ => setShowAging(prev => !prev)}>
         <div className="flex items-center gap-2 text-sm font-semibold text-nd_gray-700">
-          <span className="w-6 h-6 rounded-full bg-nd_gray-100 flex items-center justify-center text-xs">
+          <span
+            className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-xs font-semibold text-blue-600">
             {"5"->React.string}
           </span>
           {"Aging Config (Optional)"->React.string}
@@ -537,12 +593,16 @@ let make = (
               checked={form.agingEnabled}
               onChange={_ => setForm(prev => {...prev, agingEnabled: !prev.agingEnabled})}
             />
-            <span className="text-sm text-nd_gray-700"> {"Enable aging threshold"->React.string} </span>
+            <span className="text-sm text-nd_gray-700">
+              {"Enable aging threshold"->React.string}
+            </span>
           </label>
         </div>
         <RenderIf condition={form.agingEnabled}>
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium text-nd_gray-600"> {"Days:"->React.string} </label>
+            <label className="text-xs font-medium text-nd_gray-600">
+              {"Days:"->React.string}
+            </label>
             <input
               type_="number"
               className="w-20 px-2.5 py-1.5 text-sm border border-nd_gray-200 rounded-md focus:outline-none focus:border-blue-400"

@@ -45,7 +45,8 @@ let make = (~onSelectMode: selfServeMode => unit) => {
             <Icon name="nd-overview" className="text-blue-500" customHeight="20" />
           </div>
           <div className="flex flex-col">
-            <h3 className="text-base font-semibold text-nd_gray-800 group-hover:text-blue-600 transition-colors">
+            <h3
+              className="text-base font-semibold text-nd_gray-800 group-hover:text-blue-600 transition-colors">
               {"Guide me through setup"->React.string}
             </h3>
             <p className="text-xs text-nd_gray-400">
@@ -76,12 +77,11 @@ let make = (~onSelectMode: selfServeMode => unit) => {
             <Icon name="nd-reports" className="text-nd_gray-600" customHeight="20" />
           </div>
           <div className="flex flex-col">
-            <h3 className="text-base font-semibold text-nd_gray-800 group-hover:text-nd_gray-600 transition-colors">
+            <h3
+              className="text-base font-semibold text-nd_gray-800 group-hover:text-nd_gray-600 transition-colors">
               {"I know what I'm doing"->React.string}
             </h3>
-            <p className="text-xs text-nd_gray-400">
-              {"For experienced users"->React.string}
-            </p>
+            <p className="text-xs text-nd_gray-400"> {"For experienced users"->React.string} </p>
           </div>
         </div>
         <p className="text-sm text-nd_gray-500 leading-relaxed">

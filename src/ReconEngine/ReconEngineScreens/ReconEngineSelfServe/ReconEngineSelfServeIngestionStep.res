@@ -9,7 +9,8 @@ let make = (
   ~onBack: unit => unit,
 ) => {
   let createIngestion = ReconEngineSelfServeHooks.useCreateIngestionConfig()
-  let {merchantId} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+  let {merchantId} =
+    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let (selectedAccountId, setSelectedAccountId) = React.useState(_ => "")
@@ -17,12 +18,11 @@ let make = (
   let (configVariantStr, setConfigVariantStr) = React.useState(_ => "manual")
   let (isSubmitting, setIsSubmitting) = React.useState(_ => false)
 
-  let accountOptions: array<SelectBox.dropdownOption> =
-    wizardState.accounts->Array.map(account => {
-      let label = `${account.account_name} (${account.account_type})`
-      let value = account.account_id
-      {SelectBox.label, value}
-    })
+  let accountOptions: array<SelectBox.dropdownOption> = wizardState.accounts->Array.map(account => {
+    let label = `${account.account_name} (${account.account_type})`
+    let value = account.account_id
+    {SelectBox.label, value}
+  })
 
   let ingestionTypeOptions: array<SelectBox.dropdownOption> = [
     {label: "Manual CSV Upload", value: "manual"},
@@ -66,13 +66,22 @@ let make = (
     wizardState.accounts->Array.filter(account =>
       wizardState.ingestions->Array.some(ing => ing.account_id === account.account_id)
     )
-  let allAccountsCovered = accountsWithIngestion->Array.length === wizardState.accounts->Array.length
+  let allAccountsCovered =
+    accountsWithIngestion->Array.length === wizardState.accounts->Array.length
 
   <div className="flex flex-col gap-8 max-w-2xl">
+    // Context from previous steps
+    <RenderIf condition={wizardState.accounts->Array.length > 0}>
+      <div className="flex items-center gap-2 px-3 py-2 bg-nd_gray-50 rounded-lg text-xs text-nd_gray-500 ml-10 mb-2">
+        <Icon name="nd-check" customHeight="10" className="text-green-500" />
+        {`Using ${wizardState.accounts->Array.length->Int.toString} accounts: ${wizardState.accounts->Array.map(a => a.account_name)->Array.joinWith(", ")}`->React.string}
+      </div>
+    </RenderIf>
     // Header
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
+        <div
+          className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-sm font-semibold text-blue-600">
           {"2"->React.string}
         </div>
         <h2 className="text-lg font-semibold text-nd_gray-800">
@@ -98,9 +107,7 @@ let make = (
     // Form
     <div className="ml-10 flex flex-col gap-5 p-6 rounded-xl border border-nd_gray-200 bg-white">
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-nd_gray-700">
-          {"Account"->React.string}
-        </label>
+        <label className="text-sm font-medium text-nd_gray-700"> {"Account"->React.string} </label>
         <p className="text-xs text-nd_gray-400">
           {"Select the account to configure ingestion for"->React.string}
         </p>
@@ -158,7 +165,9 @@ let make = (
     <RenderIf condition={wizardState.ingestions->Array.length > 0}>
       <div className="ml-10 flex flex-col gap-3">
         <h3 className="text-sm font-semibold text-nd_gray-700">
-          {`Created Ingestion Configs (${wizardState.ingestions->Array.length->Int.toString})`->React.string}
+          {`Created Ingestion Configs (${wizardState.ingestions
+            ->Array.length
+            ->Int.toString})`->React.string}
         </h3>
         <div className="flex flex-col gap-2">
           {wizardState.ingestions
