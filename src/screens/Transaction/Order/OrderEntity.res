@@ -423,7 +423,8 @@ let getHeading = (colType: colType) => {
   | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network")
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(~key="merchant_order_reference_id", ~title="Merchant Order Reference Id")
-  | AttemptCount => Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count")
+  | AttemptCount =>
+    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count", ~showSort=true)
   | PaymentType => Table.makeHeaderInfo(~key="payment_type", ~title="Payment Type")
   }
 }
