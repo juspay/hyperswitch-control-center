@@ -122,7 +122,7 @@ export class SignInPage {
   }
 
   get oktaErrorMessage(): Locator {
-    return this.page.locator('[role="alert"]');
+    return this.page.locator('[role="alert"]').first();
   }
 
   async login(email: string, password: string): Promise<void> {

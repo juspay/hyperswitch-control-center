@@ -557,152 +557,155 @@ test.describe("Forgot password", () => {
 });
 
 const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
-(ssoBaseUrl ? test.describe : test.describe.skip)("Okta SSO tests", () => {
-  let authId = "";
+(ssoBaseUrl ? test.describe.serial : test.describe.skip)(
+  "Okta SSO tests",
+  () => {
+    let authId = "";
 
-  test.beforeAll(async ({ request }) => {
-    const email = generateUniqueEmail();
-    await signupUser(email, PLAYWRIGHT_PASSWORD, request);
-    await createAuth(request);
-    authId = await getAuthIdByEmail(request);
-  });
+    test.beforeAll(async ({ request }) => {
+      const email = generateUniqueEmail();
+      await signupUser(email, PLAYWRIGHT_PASSWORD, request);
+      await createAuth(request);
+      authId = await getAuthIdByEmail(request);
+    });
 
-  test("should display 'Continue with Okta' button when login URL is accessed with valid okta enabled auth_id", async ({
-    page,
-  }) => {
-    const signinPage = new SignInPage(page);
+    test("should display 'Continue with Okta' button when login URL is accessed with valid okta enabled auth_id", async ({
+      page,
+    }) => {
+      const signinPage = new SignInPage(page);
 
-    await page.goto(`/?auth_id=${authId}`);
+      await page.goto(`/?auth_id=${authId}`);
 
-    await expect(signinPage.continueWithOktaButton).toBeVisible();
-    await expect(signinPage.continueWithOktaButton).toContainText(
-      "Continue with Okta",
-    );
-  });
+      await expect(signinPage.continueWithOktaButton).toBeVisible();
+      await expect(signinPage.continueWithOktaButton).toContainText(
+        "Continue with Okta",
+      );
+    });
 
-  test("should not display the SSO button when login URL is accessed without, with empty, or with invalid auth_id parameter", async ({
-    page,
-  }) => {
-    const signinPage = new SignInPage(page);
+    test("should not display the SSO button when login URL is accessed without, with empty, or with invalid auth_id parameter", async ({
+      page,
+    }) => {
+      const signinPage = new SignInPage(page);
 
-    await page.goto("/");
-    await expect(signinPage.continueWithOktaButton).not.toBeAttached();
+      await page.goto("/");
+      await expect(signinPage.continueWithOktaButton).not.toBeAttached();
 
-    await page.goto("/?auth_id=");
-    await expect(signinPage.continueWithOktaButton).not.toBeAttached();
+      await page.goto("/?auth_id=");
+      await expect(signinPage.continueWithOktaButton).not.toBeAttached();
 
-    await page.goto("/?auth_id=abcd");
-    await expect(signinPage.continueWithOktaButton).not.toBeAttached();
-  });
+      await page.goto("/?auth_id=abcd");
+      await expect(signinPage.continueWithOktaButton).not.toBeAttached();
+    });
 
-  test("should redirect to Okta login page when 'Continue with Okta' button is clicked", async ({
-    page,
-  }) => {
-    const signinPage = new SignInPage(page);
+    test("should redirect to Okta login page when 'Continue with Okta' button is clicked", async ({
+      page,
+    }) => {
+      const signinPage = new SignInPage(page);
 
-    await page.goto(`/?auth_id=${authId}`);
-    await signinPage.continueWithOktaButton.click();
+      await page.goto(`/?auth_id=${authId}`);
+      await signinPage.continueWithOktaButton.click();
 
-    await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
-  });
+      await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
+    });
 
-  test("should redirect to dashboard homepage after entering valid Okta credentials", async ({
-    page,
-  }) => {
-    const signinPage = new SignInPage(page);
-    const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
-    const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
+    test("should redirect to dashboard homepage after entering valid Okta credentials", async ({
+      page,
+    }) => {
+      const signinPage = new SignInPage(page);
+      const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
+      const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
 
-    await page.goto(`/?auth_id=${authId}`);
-    await signinPage.continueWithOktaButton.click();
+      await page.goto(`/?auth_id=${authId}`);
+      await signinPage.continueWithOktaButton.click();
 
-    await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
+      await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
 
-    await signinPage.oktaEmailInput.fill(ssoUsername);
-    await signinPage.oktaNextButton.click();
-    await signinPage.oktaPasswordInput.fill(ssoPassword);
-    await signinPage.oktaVerifyButton.click();
+      await signinPage.oktaEmailInput.fill(ssoUsername);
+      await signinPage.oktaNextButton.click();
+      await signinPage.oktaPasswordInput.fill(ssoPassword);
+      await signinPage.oktaVerifyButton.click();
 
-    await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
-  });
+      await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
+    });
 
-  test("should show authentication error after entering invalid Okta credentials and stay on Okta login page", async ({
-    page,
-  }) => {
-    const signinPage = new SignInPage(page);
+    test("should show authentication error after entering invalid Okta credentials and stay on Okta login page", async ({
+      page,
+    }) => {
+      const signinPage = new SignInPage(page);
 
-    await page.goto(`/?auth_id=${authId}`);
-    await signinPage.continueWithOktaButton.click();
+      await page.goto(`/?auth_id=${authId}`);
+      await signinPage.continueWithOktaButton.click();
 
-    await signinPage.oktaEmailInput.fill("demo.user@test.com");
-    await signinPage.oktaNextButton.click();
-    await signinPage.oktaPasswordInput.fill("Test@1234");
-    await signinPage.oktaVerifyButton.click();
+      await signinPage.oktaEmailInput.fill("demo.user@test.com");
+      await signinPage.oktaNextButton.click();
+      await signinPage.oktaPasswordInput.fill("Test@1234");
+      await signinPage.oktaVerifyButton.click();
 
-    await expect(signinPage.oktaErrorMessage).toBeVisible();
-    await expect(signinPage.oktaErrorMessage).toContainText(
-      "Unable to sign in",
-    );
-    await expect(page).toHaveURL(/.*okta\.com.*/);
-  });
+      await expect(signinPage.oktaErrorMessage).toBeVisible();
+      await expect(signinPage.oktaErrorMessage).toContainText(
+        "Unable to sign in",
+      );
+      await expect(page).toHaveURL(/.*okta\.com.*/);
+    });
 
-  test("should automatically log in and redirect to the dashboard after logout once initial Okta login is successful", async ({
-    page,
-  }) => {
-    const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
-    const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
+    test("should automatically log in and redirect to the dashboard after logout once initial Okta login is successful", async ({
+      page,
+    }) => {
+      const homePage = new HomePage(page);
+      const signinPage = new SignInPage(page);
+      const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
+      const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
 
-    await page.goto(`/?auth_id=${authId}`);
-    await signinPage.continueWithOktaButton.click();
+      await page.goto(`/?auth_id=${authId}`);
+      await signinPage.continueWithOktaButton.click();
 
-    await signinPage.oktaEmailInput.fill(ssoUsername);
-    await signinPage.oktaNextButton.click();
-    await signinPage.oktaPasswordInput.fill(ssoPassword);
-    await signinPage.oktaVerifyButton.click();
+      await signinPage.oktaEmailInput.fill(ssoUsername);
+      await signinPage.oktaNextButton.click();
+      await signinPage.oktaPasswordInput.fill(ssoPassword);
+      await signinPage.oktaVerifyButton.click();
 
-    await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
+      await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
 
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
 
-    await signinPage.continueWithOktaButton.click();
+      await signinPage.continueWithOktaButton.click();
 
-    await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
-  });
+      await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
+    });
 
-  test("should require full Okta login after logged out from okta", async ({
-    page,
-    request,
-  }) => {
-    const homePage = new HomePage(page);
-    const signinPage = new SignInPage(page);
-    const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
-    const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
-    const ssoBase = process.env.PLAYWRIGHT_SSO_BASE_URL || "";
+    test("should require full Okta login after logged out from okta", async ({
+      page,
+      request,
+    }) => {
+      const homePage = new HomePage(page);
+      const signinPage = new SignInPage(page);
+      const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
+      const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
+      const ssoBase = process.env.PLAYWRIGHT_SSO_BASE_URL || "";
 
-    await page.goto(`/?auth_id=${authId}`);
-    await signinPage.continueWithOktaButton.click();
+      await page.goto(`/?auth_id=${authId}`);
+      await signinPage.continueWithOktaButton.click();
 
-    await signinPage.oktaEmailInput.fill(ssoUsername);
-    await signinPage.oktaNextButton.click();
-    await signinPage.oktaPasswordInput.fill(ssoPassword);
-    await signinPage.oktaVerifyButton.click();
+      await signinPage.oktaEmailInput.fill(ssoUsername);
+      await signinPage.oktaNextButton.click();
+      await signinPage.oktaPasswordInput.fill(ssoPassword);
+      await signinPage.oktaVerifyButton.click();
 
-    await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
+      await page.waitForURL(/.*dashboard\/home/, { timeout: 10000 });
 
-    await homePage.userAccount.click();
-    await homePage.signOut.click();
+      await homePage.userAccount.click();
+      await homePage.signOut.click();
 
-    await request.get(`${ssoBase}/login/signout`, { maxRedirects: 0 });
+      await page.request.get(`${ssoBase}/login/signout`, { maxRedirects: 0 });
 
-    await signinPage.continueWithOktaButton.click();
+      await signinPage.continueWithOktaButton.click();
 
-    await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
-    await expect(page).toHaveURL(/.*okta\.com.*/);
-  });
-});
+      //await page.waitForURL(/.*okta\.com.*/, { timeout: 10000 });
+      await expect(page).toHaveURL(/.*okta\.com.*/);
+    });
+  },
+);
 
 test.describe("TOTP flows", () => {
   test.beforeEach(async ({ page, context }) => {
