@@ -3,6 +3,75 @@ open RoutingTypes
 open VolumeSplitRoutingPreviewer
 open LogicUtils
 
+module IndividualConnectorSelect = {
+  @react.component
+  let make = (
+    ~index: int, 
+    ~split: int, 
+    ~connectorOptions: array<SelectBox.dropdownOption>, 
+    ~selectedMci: string,
+    ~onChange: string => unit,
+    ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ) => {
+    let isSelected = selectedMci !== ""
+    
+    let getConnectorLabel = mci => {
+      switch connectorList->Array.find(c => c.id === mci) {
+      | Some(connector) => connector.connector_label
+      | None => mci
+      }
+    }
+    
+    <div className="flex flex-row items-center gap-4 p-3 border border-jp-gray-300 rounded-md bg-white">
+      <div className="font-medium text-jp-gray-700">
+        {React.string(`Slot ${(index + 1)->Int.toString}`)}
+      </div>
+      {if isSelected {
+        // Show selected connector name instead of dropdown
+        <div className="flex items-center gap-2 px-3 py-2 bg-jp-gray-100 rounded-md min-w-48">
+          <span className="font-medium text-jp-gray-800">
+            {React.string(selectedMci->getConnectorLabel)}
+          </span>
+          <Icon 
+            name="close" 
+            size=12 
+            className="cursor-pointer text-jp-gray-500 hover:text-jp-gray-700"
+            onClick={_ => onChange("")}
+          />
+        </div>
+      } else {
+        // Show dropdown for selection
+        <SelectBox.BaseDropdown
+          allowMultiSelect={false}
+          input={{
+            name: `connector-${index->Int.toString}`,
+            onBlur: _ => (),
+            onChange: ev => {
+              let value = ev->Identity.formReactEventToString
+              onChange(value)
+            },
+            onFocus: _ => (),
+            value: ""->JSON.Encode.string,
+            checked: true,
+          }}
+          options={connectorOptions}
+          buttonText="Select Connector"
+          buttonType={Button.SecondaryFilled}
+          searchable=true
+          hideMultiSelectButtons=true
+          customButtonStyle="w-48"
+        />
+      }}
+      <div className="flex items-center gap-1">
+        <div className="w-16 text-right px-2 py-1 border border-jp-gray-300 rounded-md bg-jp-gray-50">
+          <span className="font-medium">{React.string(split->Int.toString)}</span>
+          <span className="text-jp-gray-600 ml-1">{React.string("%")}</span>
+        </div>
+      </div>
+    </div>
+  }
+}
+
 module VolumeRoutingView = {
   open RoutingUtils
   @react.component
@@ -20,13 +89,32 @@ module VolumeRoutingView = {
     ~urlEntityName,
     ~connectorList,
     ~baseUrlForRedirection,
+    ~clipboardData: clipboardValidationResult=?,
+    ~onPasteConfiguration: ((clipboardRoutingData, ReactFinalForm.formApi) => unit)=?,
+    ~pastedSplits: array<int>=[],
   ) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
+    let form = ReactFinalForm.useForm()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    
+    // Track selected MCIs for filtering dropdown options
+    let (selectedMcis, setSelectedMcis) = React.useState(_ => [])
+    
+    // Sync selectedMcis when pastedSplits changes (e.g., after paste)
+    React.useEffect(() => {
+      if pastedSplits->Array.length > 0 {
+        setSelectedMcis(_ => pastedSplits->Array.map(_ => ""))
+      }
+      None
+    }, [pastedSplits])
+    
+    // Check if all pasted slots have connectors selected
+    let allSlotsFilled = pastedSplits->Array.length === 0 || 
+      selectedMcis->Array.every(mci => mci !== "")
 
     let gateways =
       initialValues
@@ -120,20 +208,139 @@ module VolumeRoutingView = {
         {switch pageState {
         | Create =>
           <div className="flex flex-col gap-4">
+            {switch clipboardData->Option.getOr(RoutingTypes.NotFound) {
+            | Valid(data) =>
+              let volumeSplits = {
+                let algoDict = data.algorithm->Identity.genericTypeToJson->getDictFromJsonObject
+                let dataArray = algoDict->getArrayFromDict("data", [])
+                dataArray->Array.filterMap(json => {
+                  switch json->JSON.Decode.object {
+                  | Some(dict) => {
+                      let split = dict->getInt("split", 0)
+                      Some(split)
+                    }
+                  | None => None
+                  }
+                })
+              }
+              let splitsText = volumeSplits->Array.map(s => `${s->Int.toString}%`)->Array.joinWith(", ")
+              <div
+                className="flex flex-col gap-3 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex items-center gap-2">
+                  <Icon name="nd-info" size=16 className="text-blue-600" />
+                  <span className="font-medium text-blue-900">
+                    {React.string("Paste configuration from another profile?")}
+                  </span>
+                </div>
+                <div className="text-sm text-blue-700">
+                  {React.string(
+                    `Copy "${data.name}" from profile ${data.source_profile->String.slice(~start=0, ~end=8)}...`,
+                  )}
+                </div>
+                <div className="text-sm font-medium text-blue-800 bg-blue-100 p-2 rounded">
+                  {React.string(`Original volume splits: ${splitsText}`)}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    text="Paste Configuration"
+                    buttonType={Primary}
+                    buttonSize={Small}
+                    onClick={_ => {
+                      switch onPasteConfiguration {
+                      | Some(callback) => callback(data, form)
+                      | None => ()
+                      }
+                    }}
+                  />
+                  <Button
+                    text="Dismiss"
+                    buttonType={Secondary}
+                    buttonSize={Small}
+                    onClick={_ => ()}
+                  />
+                </div>
+              </div>
+            | Expired => React.null
+            | Invalid => React.null
+            | NotFound => React.null
+            }}
             {listLength > 0
               ? <>
-                  <AddPLGateway
-                    id="algorithm.data"
-                    gatewayOptions={connectorOptions}
-                    isExpanded={true}
-                    isFirst={true}
-                    showPriorityIcon={false}
-                    showDistributionIcon={false}
-                    showFallbackIcon={false}
-                    dropDownButtonText="Add Processors"
-                    connectorList
-                  />
-                  <ConfigureRuleButton setShowModal />
+                  {pastedSplits->Array.length > 0
+                    ? <div className="flex flex-col gap-3">
+                        <div className="font-medium text-jp-gray-700 mb-2">
+                          {React.string("Select connector for each volume split:")}
+                        </div>
+                        {pastedSplits->Array.mapWithIndex((split, index) => {
+                          let key = `slot-${index->Int.toString}`
+                          // Get currently selected MCI for this slot
+                          let currentSelection = switch selectedMcis->Array.get(index) {
+                          | Some(mci) => mci
+                          | None => ""
+                          }
+                          // Filter out connectors selected in OTHER slots
+                          let availableOptions = connectorOptions->Array.filter(opt => {
+                            let isSelectedElsewhere = selectedMcis->Array.someWithIndex((mci, i) => {
+                              i !== index && mci === opt.value
+                            })
+                            !isSelectedElsewhere || opt.value === currentSelection
+                          })
+                          <IndividualConnectorSelect
+                            key
+                            index
+                            split
+                            connectorOptions={availableOptions}
+                            selectedMci={currentSelection}
+                            onChange={mciId => {
+                              // Get connector name using the same function as AddPLGateway
+                              let connectorObj = connectorList->ConnectorInterfaceTableEntity.getConnectorObjectFromListViaId(
+                                mciId,
+                                ~version=V1,
+                              )
+                              let connectorName = connectorObj.connector_name
+                              // Update state to filter other dropdowns
+                              setSelectedMcis(prev => {
+                                prev->Array.mapWithIndex((mci, i) => {
+                                  if i === index {
+                                    mciId
+                                  } else {
+                                    mci
+                                  }
+                                })
+                              })
+                              // Update form with correct connector name and MCI ID
+                              form.change(
+                                `algorithm.data[${index->Int.toString}].connector.merchant_connector_id`,
+                                mciId->JSON.Encode.string
+                              )
+                              form.change(
+                                `algorithm.data[${index->Int.toString}].connector.connector`,
+                                connectorName->JSON.Encode.string
+                              )
+                            }}
+                            connectorList
+                          />
+                        })->React.array}
+                        {allSlotsFilled
+                          ? <ConfigureRuleButton setShowModal />
+                          : <div className="text-sm text-orange-600 bg-orange-50 p-3 rounded-md">
+                              {React.string("Please select a connector for each slot to continue.")}
+                            </div>}
+                      </div>
+                    : <>
+                        <AddPLGateway
+                          id="algorithm.data"
+                          gatewayOptions={connectorOptions}
+                          isExpanded={true}
+                          isFirst={true}
+                          showPriorityIcon={false}
+                          showDistributionIcon={false}
+                          showFallbackIcon={false}
+                          dropDownButtonText="Add Processors"
+                          connectorList
+                        />
+                        <ConfigureRuleButton setShowModal />
+                      </>}
                   <CustomModal.RoutingCustomModal
                     showModal
                     setShowModal
@@ -169,6 +376,19 @@ module VolumeRoutingView = {
                 onClick={_ => {
                   setFormState(_ => RoutingTypes.EditConfig)
                   setPageState(_ => Create)
+                }}
+                customButtonStyle="w-1/5"
+              />
+              <ACLButton
+                text={"Copy Configuration"}
+                buttonType={Secondary}
+                authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+                onClick={_ => {
+                  copyRoutingToClipboard(
+                    ~routingConfig=initialValues,
+                    ~profileId=profile,
+                    ~showToast,
+                  )
                 }}
                 customButtonStyle="w-1/5"
               />
@@ -223,6 +443,8 @@ let make = (
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let showToast = ToastState.useShowToast()
+  let (clipboardData, setClipboardData) = React.useState(_ => None)
+  let (pastedSplits, setPastedSplits) = React.useState(_ => [])
   let getConnectorsList = () => {
     setConnectors(_ => connectorList)
   }
@@ -346,10 +568,94 @@ let make = (
     }
   }
 
+  let checkClipboard = async () => {
+    switch routingRuleId {
+    | None => {
+        // Only check clipboard when creating new routing
+        let clipboardText = await RoutingUtils.readRoutingFromClipboard()
+        switch clipboardText {
+        | Some(text) => {
+            let validationResult = RoutingUtils.validateClipboardData(text)
+            // Only show banner if the clipboard data is from a different profile
+            let shouldShow = switch validationResult {
+            | Valid(data) => data.source_profile !== profile
+            | _ => false
+            }
+            if shouldShow {
+              setClipboardData(_ => Some(validationResult))
+            }
+          }
+        | None => ()
+        }
+      }
+    | Some(_) => ()
+    }
+  }
+
+  let handlePasteConfiguration = (data: clipboardRoutingData, form: ReactFinalForm.formApi) => {
+    let newName = data.name ++ " (Copy)"
+    let newDescription = data.description ++ " (Cloned from another profile)"
+    
+    // Extract volume splits from clipboard data
+    let algoDict = data.algorithm->Identity.genericTypeToJson->getDictFromJsonObject
+    let volumeDataArray = algoDict->getArrayFromDict("data", [])
+    let splits = volumeDataArray->Array.filterMap(json => {
+      switch json->JSON.Decode.object {
+      | Some(dict) => {
+          let split = dict->getInt("split", 0)
+          Some(split)
+        }
+      | None => None
+      }
+    })
+    
+    // Pre-fill algorithm data with empty connectors but preserve splits
+    let algorithmDataArray = splits->Array.map(split => {
+      let gatewayDict = Dict.make()
+      gatewayDict->Dict.set("split", split->Int.toFloat->JSON.Encode.float)
+      let connectorDict = Dict.make()
+      connectorDict->Dict.set("connector", ""->JSON.Encode.string)
+      connectorDict->Dict.set("merchant_connector_id", ""->JSON.Encode.string)
+      gatewayDict->Dict.set("connector", connectorDict->JSON.Encode.object)
+      gatewayDict->JSON.Encode.object
+    })
+    
+    let algorithmDict = Dict.make()
+    algorithmDict->Dict.set("type", "volume_split"->JSON.Encode.string)
+    algorithmDict->Dict.set("data", algorithmDataArray->JSON.Encode.array)
+    
+    // Store splits for rendering individual selects
+    setPastedSplits(_ => splits)
+    
+    // Update form values using ReactFinalForm API
+    form.change("name", newName->JSON.Encode.string)
+    form.change("description", newDescription->JSON.Encode.string)
+    form.change("algorithm", algorithmDict->JSON.Encode.object)
+    
+    // Clear clipboard data to prevent duplicate paste
+    setClipboardData(_ => None)
+    
+    // Show success message
+    showToast(
+      ~message=`Configuration pasted! ${splits->Array.length->Int.toString} slots ready. Select connector for each.`,
+      ~toastType=ToastState.ToastSuccess,
+      ~autoClose=true,
+      ~toastDuration=5000,
+    )
+  }
+
   React.useEffect(() => {
     getDetails()->ignore
     None
   }, [routingRuleId])
+
+  React.useEffect(() => {
+    // Only check clipboard on initial mount when in Create mode
+    if pageState === Create {
+      checkClipboard()->ignore
+    }
+    None
+  }, [])
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
@@ -379,6 +685,9 @@ let make = (
             urlEntityName
             connectorList
             baseUrlForRedirection
+            clipboardData={clipboardData->Option.getOr(RoutingTypes.NotFound)}
+            onPasteConfiguration={handlePasteConfiguration}
+            pastedSplits
           />
         </RenderIf>
       </Form>

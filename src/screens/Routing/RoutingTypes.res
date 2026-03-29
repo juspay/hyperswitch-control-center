@@ -165,3 +165,27 @@ type pageConfig = {
 }
 
 type validationFields = CARD_BIN | EXTENDED_CARD_BIN | OTHER
+
+// Clipboard types for clone routing feature
+type clipboardVolumeSplitData = {
+  split: int,
+}
+
+type clipboardAlgorithm = {
+  "type": string,
+  "data": array<clipboardVolumeSplitData>,
+}
+
+type clipboardRoutingData = {
+  name: string,
+  description: string,
+  algorithm: clipboardAlgorithm,
+  source_profile: string,
+  copied_at: string,
+}
+
+type clipboardValidationResult =
+  | Valid(clipboardRoutingData)
+  | Invalid
+  | Expired
+  | NotFound

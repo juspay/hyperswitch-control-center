@@ -287,3 +287,143 @@ let getRoutingTypefromString = (routingType: string) => {
   | _ => Routing
   }
 }
+
+// Clipboard functionality for clone routing feature
+
+let extractVolumeSplitData = (algorithmDict: Dict.t<JSON.t>): array<clipboardVolumeSplitData> => {
+  let dataArray = algorithmDict->getArrayFromDict("data", [])
+  dataArray->Array.filterMap(json => {
+    switch json->JSON.Decode.object {
+    | Some(dict) => {
+        let split = dict->getInt("split", 0)
+        Some({split: split})
+      }
+    | None => None
+    }
+  })
+}
+
+let copyRoutingToClipboard = (
+  ~routingConfig: Dict.t<JSON.t>,
+  ~profileId: string,
+  ~showToast: ToastState.showToastFn,
+) => {
+  try {
+    let name = routingConfig->getString("name", "")
+    let description = routingConfig->getString("description", "")
+    let algorithm = routingConfig->getObj("algorithm", Dict.make())
+    let currentTime = Date.now()->Float.toString
+
+    let clipboardDataDict = Dict.fromArray([
+      ("name", name->JSON.Encode.string),
+      ("description", description->JSON.Encode.string),
+      ("algorithm", {
+        let algorithmDict = Dict.fromArray([
+          ("type", "volume_split"->JSON.Encode.string),
+          ("data", extractVolumeSplitData(algorithm)->Identity.genericTypeToJson),
+        ])
+        algorithmDict->JSON.Encode.object
+      }),
+      ("source_profile", profileId->JSON.Encode.string),
+      ("copied_at", currentTime->JSON.Encode.string),
+    ])
+
+    let jsonString = clipboardDataDict->JSON.Encode.object->JSON.stringify
+    Clipboard.writeText(jsonString)
+    showToast(
+      ~message="Configuration copied! Switch profiles and paste to clone.",
+      ~toastType=ToastState.ToastSuccess,
+      ~autoClose=true,
+      ~toastDuration=3000,
+    )
+  } catch {
+  | _ =>
+    showToast(
+      ~message="Failed to copy configuration. Please try again.",
+      ~toastType=ToastState.ToastError,
+      ~autoClose=true,
+      ~toastDuration=3000,
+    )
+  }
+}
+
+let validateClipboardData = (text: string): clipboardValidationResult => {
+  try {
+    let json = text->JSON.parseExn
+    let dict = json->getDictFromJsonObject
+
+    // Check required fields
+    let name = dict->getString("name", "")
+    let description = dict->getString("description", "")
+    let sourceProfile = dict->getString("source_profile", "")
+    let copiedAt = dict->getString("copied_at", "")
+    let algorithmDict = dict->getObj("algorithm", Dict.make())
+    let algorithmType = algorithmDict->getString("type", "")
+
+    if name->String.length === 0 ||
+      description->String.length === 0 ||
+      sourceProfile->String.length === 0 ||
+      copiedAt->String.length === 0 ||
+      algorithmType !== "volume_split" {
+      Invalid
+    } else {
+      // Check if data is expired (24 hours = 86400000 milliseconds)
+      let copiedTimestamp = copiedAt->Float.fromString->Option.getOr(0.0)
+      let currentTimestamp = Date.now()
+      let diffInMs = currentTimestamp -. copiedTimestamp
+
+      if diffInMs > 86400000.0 {
+        Expired
+      } else {
+        let volumeData = extractVolumeSplitData(algorithmDict)
+        if volumeData->Array.length === 0 {
+          Invalid
+        } else {
+          let algorithmData: clipboardAlgorithm = {
+            "type": algorithmType,
+            "data": volumeData,
+          }
+          let clipboardData: clipboardRoutingData = {
+            name: name,
+            description: description,
+            algorithm: algorithmData,
+            source_profile: sourceProfile,
+            copied_at: copiedAt,
+          }
+          Valid(clipboardData)
+        }
+      }
+    }
+  } catch {
+  | _ => Invalid
+  }
+}
+
+let readRoutingFromClipboard = (): Promise.t<option<string>> => {
+  Clipboard.readTextDoc()
+  ->Promise.then(text => {
+    Promise.resolve(Some(text))
+  })
+  ->Promise.catch(_ => {
+    Promise.resolve(None)
+  })
+}
+
+let generateUniqueName = (~baseName: string, ~existingNames: array<string>): string => {
+  let copySuffix = " (Copy)"
+  let newName = baseName ++ copySuffix
+
+  if !(existingNames->Array.includes(newName)) {
+    newName
+  } else {
+    let rec findUniqueName = (counter: int): string => {
+      let candidate = baseName ++ copySuffix ++ " " ++ counter->Int.toString
+      if !(existingNames->Array.includes(candidate)) {
+        candidate
+      } else {
+        findUniqueName(counter + 1)
+      }
+    }
+    findUniqueName(2)
+  }
+}
