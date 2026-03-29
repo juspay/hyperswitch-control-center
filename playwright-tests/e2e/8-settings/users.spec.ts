@@ -21,7 +21,7 @@ test.describe("Users", () => {
 
     await homePage.users.click();
     await page.locator('[data-button-for="inviteUsers"]').click();
-    await page.getByPlaceholder("Enter your Email").fill(invitedEmail);
+    await page.locator('[name="email_list"]').fill(invitedEmail);
     await page
       .locator(
         '[class="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4"]',
@@ -36,12 +36,6 @@ test.describe("Users", () => {
     await page.locator('[data-button-for="sendInvite"]').click();
 
     await page.goto(MAIL_URL);
-    await page.locator("div.messages > div:nth-child(1)").click();
-    await page.waitForTimeout(1000);
-
-    const iframe = page.frameLocator("iframe").first();
-    await expect(iframe.locator('[class="ng-binding"]')).toContainText(
-      "You have been invited to join Hyperswitch Community",
-    );
+    await expect(page.locator("div.messages > div:nth-child(1)")).toContainText("You have been invited to join Hyperswitch Community");
   });
 });

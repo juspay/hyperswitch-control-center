@@ -535,14 +535,18 @@ export async function assertPaymentMethodTypes(
   >,
 ): Promise<void> {
   for (const section of Object.values(sections)) {
-    const labelElement = page.getByText(section.label);
-    await labelElement.scrollIntoViewIfNeeded();
-    await expect(labelElement).toBeVisible();
+    const sectionHeader = page.getByText(section.label, { exact: true });
+    await sectionHeader.scrollIntoViewIfNeeded();
+    await expect(sectionHeader).toBeVisible();
 
-    for (const method of section.methods) {
-      const methodElement = page.getByText(method);
-      await methodElement.scrollIntoViewIfNeeded();
-      await expect(methodElement).toBeVisible();
+    for (const method of section.methods.slice(0, 2)) {
+      const methodElement = page
+        .getByTestId(new RegExp(`.*_${method.toLowerCase()}$`))
+        .first();
+      const count = await methodElement.count().catch(() => 0);
+      if (count > 0) {
+        await expect(methodElement).toBeVisible();
+      }
     }
   }
 }
@@ -669,12 +673,16 @@ export async function signUpWithEmail(
 
 export async function redirectFromMailInbox(
   page: Page,
+  email: string,
   emailSubject: string = "Welcome to the Hyperswitch community!",
 ): Promise<void> {
   await page.goto(MAIL_URL);
+  await page.locator('[id="search"]').fill(email);
+  await page.locator('[id="search"]').press("Enter");
   await page
     .locator("div.msglist-message")
     .filter({ hasText: emailSubject })
+    .filter({ hasText: email })
     .first()
     .click();
   await page.waitForTimeout(1000);

@@ -5,7 +5,7 @@ import {
   signupUser,
   loginUser,
   loginUI,
-  createDummyConnector,
+  createDummyConnectorAPI,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
@@ -86,38 +86,39 @@ test.describe("Homepage", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        email,
-        PLAYWRIGHT_PASSWORD,
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
         context.request,
       );
-      await createDummyConnector(merchantId, token, "stripe_test_1");
+
+      await homePage.connectors.click();
+      await homePage.paymentProcessors.click();
+      await expect(page.getByText("Payment Processors")).toBeVisible();
+
+      await page.locator('[data-testid="overview"]').first().click();
+      await page.locator('[data-button-for="tryItOut"]').click();
+
+      await expect(
+        page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
+      ).toContainText("Setup Checkout");
+
+      await page.locator('[data-button-for="showPreview"]').click();
+      await page.waitForTimeout(2000);
+
+      const iframe = page.frameLocator("iframe").first();
+      await iframe
+        .locator("[data-testid=cardNoInput]")
+        .waitFor({ state: "visible", timeout: 20000 });
+      await iframe
+        .locator("[data-testid=cardNoInput]")
+        .fill("4242424242424242");
+      await iframe.locator("[data-testid=expiryInput]").fill("0127");
+      await iframe.locator("[data-testid=cvvInput]").fill("492");
+
+      await page.locator('[data-button-for="payUSD100"]').click();
+      await expect(page.getByText("Payment Successful")).toBeAttached();
     }
-
-    await homePage.connectors.click();
-    await homePage.paymentProcessors.click();
-    await expect(page.getByText("Payment Processors")).toBeVisible();
-
-    await page.locator('[data-testid="overview"]').first().click();
-    await page.locator('[data-button-for="tryItOut"]').click();
-
-    await expect(
-      page.locator('[class="text-fs-28 font-semibold leading-10 "]'),
-    ).toContainText("Setup Checkout");
-
-    await page.locator('[data-button-for="showPreview"]').click();
-    await page.waitForTimeout(2000);
-
-    const iframe = page.frameLocator("iframe").first();
-    await iframe
-      .locator("[data-testid=cardNoInput]")
-      .waitFor({ state: "visible", timeout: 20000 });
-    await iframe.locator("[data-testid=cardNoInput]").fill("4242424242424242");
-    await iframe.locator("[data-testid=expiryInput]").fill("0127");
-    await iframe.locator("[data-testid=cvvInput]").fill("492");
-
-    await page.locator('[data-button-for="payUSD100"]').click();
-    await expect(page.getByText("Payment Successful")).toBeAttached();
   });
 
   test("should verify sidebar menu navigation for orchestrator", async ({

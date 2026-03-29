@@ -14,25 +14,27 @@ import { payoutConnectorConfig } from "../../support/fixtures/payoutConnectorCon
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
 
 test.describe("Payout Connector", () => {
-  test.describe.configure({ mode: "serial" });
-
   let email: string;
 
-  test.beforeAll(async () => {
+  test.beforeAll(() => {
     email = generateUniqueEmail();
   });
 
+  const payoutConnectors = Object.entries(payoutConnectorConfig);
   test.beforeEach(async ({ page, context }) => {
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
-    await page.goto("/dashboard/payoutconnectors");
   });
 
-  for (const connector of Object.values(payoutConnectorConfig)) {
-    test(`should setup and verify ${connector.label} payout connector`, async ({
+  for (const [key, connector] of payoutConnectors) {
+    test(`should setup and verify ${key} payout connector`, async ({
       page,
     }) => {
       const payoutConnector = new PayoutConnector(page);
+      const homePage = new HomePage(page);
+
+      await homePage.connectors.click();
+      await homePage.payoutConnectors.click();
 
       await expect(payoutConnector.pageHeading).toContainText(
         "Payout Processors",

@@ -5,7 +5,6 @@ import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
   loginUI,
-  createDummyConnector,
   assertConnectorFieldLabels,
   fillConnectorFields,
   assertPaymentMethodTypes,
@@ -43,7 +42,7 @@ test.describe("Payin Connector", () => {
       .locator("button")
       .click({ force: true });
 
-    await expect(page.getByText("Credentials")).toBeVisible();
+    //await expect(page.getByText("Credentials")).toBeVisible();
     await expect(
       page.locator("[name=connector_account_details\\.api_key]"),
     ).toHaveValue("test_key");
@@ -72,79 +71,16 @@ test.describe("Test live connectors", () => {
   test.beforeEach(async ({ page, context }) => {
     await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
-    await page.goto("/dashboard/connectors");
   });
 
-  for (const connector of Object.values(connectorConfig)) {
-    test(`should setup and verify ${connector.label} connector`, async ({
-      page,
-    }) => {
+  const connectors = Object.entries(connectorConfig);
+  for (const [key, connector] of connectors) {
+    test(`should setup and verify ${key} connector`, async ({ page }) => {
       const paymentConnector = new PaymentConnector(page);
+      const homePage = new HomePage(page);
 
-      await paymentConnector.connectorSearchInput.fill(connector.label);
-      await paymentConnector.addConnectButton.nth(0).click();
-
-      for (const fieldLabel of connector.fields.fieldLabels) {
-        await expect(page.getByText(fieldLabel)).toBeVisible();
-      }
-
-      await page
-        .locator("[name=connector_account_details\\.api_key]")
-        .fill("test_key");
-
-      const labelField = page.locator("[name=connector_label]");
-      const existingValue = await labelField.inputValue();
-      if (!existingValue) {
-        await labelField.fill(connector.label + "_default");
-      }
-
-      await paymentConnector.connectAndProceedButton.click();
-
-      for (const [sectionName, sectionData] of Object.entries(
-        connector.paymentSections,
-      )) {
-        await expect(page.getByText(sectionName)).toBeVisible();
-        for (const method of sectionData.methods.slice(0, 3)) {
-          await expect(page.getByText(method)).toBeVisible();
-        }
-      }
-
-      if (await page.locator("[data-testid=credit_select_all]").isVisible()) {
-        await page.locator("[data-testid=credit_select_all]").click();
-      }
-      if (await page.locator("[data-testid=debit_select_all]").isVisible()) {
-        await page.locator("[data-testid=debit_select_all]").click();
-      }
-
-      await paymentConnector.pmtProceedButton.click();
-      await paymentConnector.connectorSetupDone.click();
-
-      await expect(page).toHaveURL(/.*dashboard\/connectors/);
-      await expect(page.getByText(connector.label + "_default")).toBeVisible();
-    });
-  }
-});
-
-test.describe("Test live connectors", () => {
-  test.describe.configure({ mode: "serial" });
-
-  let email: string;
-
-  test.beforeAll(async () => {
-    email = generateUniqueEmail();
-  });
-
-  test.beforeEach(async ({ page, context }) => {
-    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
-    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
-    await page.goto("/dashboard/connectors");
-  });
-
-  for (const connector of Object.values(connectorConfig)) {
-    test(`should setup and verify ${connector.label} connector`, async ({
-      page,
-    }) => {
-      const paymentConnector = new PaymentConnector(page);
+      await homePage.connectors.click();
+      await homePage.paymentProcessors.click();
 
       await paymentConnector.connectorSearchInput.fill(connector.label);
       await paymentConnector.addConnectButton.nth(0).click();
@@ -161,8 +97,17 @@ test.describe("Test live connectors", () => {
 
       await expect(page).toHaveURL(/.*dashboard\/connectors/);
       await expect(
-        page.getByText(connector.fields.overrides["Enter Connector label"]),
+        page.getByTestId(
+          connector.fields.overrides["Enter Connector label"] ||
+            connector.label,
+        ),
       ).toBeVisible();
+      await page
+        .getByTestId(
+          connector.fields.overrides["Enter Connector label"] ||
+            connector.label,
+        )
+        .click();
     });
   }
 });

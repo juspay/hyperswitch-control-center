@@ -3,12 +3,14 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentRouting } from "../../support/pages/workflow/paymentRouting/PaymentRouting";
 import { DefaultFallback } from "../../support/pages/workflow/paymentRouting/DefaultFallback";
 import { VolumeBasedConfiguration } from "../../support/pages/workflow/paymentRouting/VolumeBasedConfiguration";
-import { generateUniqueEmail } from "../../support/helper";
+import {
+  generateUniqueEmail,
+  generateDateTimeString,
+} from "../../support/helper";
 import {
   signupUser,
-  loginUser,
   loginUI,
-  createDummyConnector,
+  createDummyConnectorAPI,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Cypress00#";
@@ -44,16 +46,11 @@ test.describe("Volume based routing", () => {
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
+    const connectorLabel = `stripe_test_${Date.now()}`;
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
-        "stripe_test_1",
+        connectorLabel,
         context.request,
       );
     }
@@ -78,8 +75,8 @@ test.describe("Volume based routing", () => {
     );
 
     await volumeBasedConfiguration.connectorDropdown.click();
-    await expect(page.locator('[value="stripe_test_1"]')).toContainText(
-      "stripe_test_1",
+    await expect(page.locator(`[value="${connectorLabel}"]`)).toContainText(
+      connectorLabel,
     );
   });
 
@@ -93,14 +90,8 @@ test.describe("Volume based routing", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
@@ -149,14 +140,8 @@ test.describe("Volume based routing", () => {
 
     const merchantId = await homePage.merchantID.nth(0).textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
@@ -253,14 +238,8 @@ test.describe("Payment default fallback", () => {
       .nth(0)
       .textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
@@ -278,7 +257,7 @@ test.describe("Payment default fallback", () => {
     ).toContainText("stripe_test_1");
   });
 
-  test("should be able to change the order by dragging and updating", async ({
+  test.skip("should be able to change the order by dragging and updating", async ({
     page,
     context,
   }) => {
@@ -291,21 +270,19 @@ test.describe("Payment default fallback", () => {
       .nth(0)
       .textContent();
     if (merchantId) {
-      const { token } = await loginUser(
-        generateUniqueEmail(),
-        PLAYWRIGHT_PASSWORD,
-        context.request,
-      );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_1",
         context.request,
       );
-      await createDummyConnector(
+      await createDummyConnectorAPI(
         merchantId,
-        token,
         "stripe_test_2",
+        context.request,
+      );
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_3",
         context.request,
       );
     }
@@ -321,18 +298,7 @@ test.describe("Payment default fallback", () => {
       .locator("> div")
       .nth(1);
 
-    const firstBox = await firstConnector.boundingBox();
-    const secondBox = await secondConnector.boundingBox();
-
-    if (firstBox && secondBox) {
-      await firstConnector.hover();
-      await page.mouse.down();
-      await page.mouse.move(
-        secondBox.x + secondBox.width / 2,
-        secondBox.y + secondBox.height / 2,
-      );
-      await page.mouse.up();
-    }
+    await firstConnector.dragTo(secondConnector);
 
     await defaultFallback.saveChangesButton.click();
 

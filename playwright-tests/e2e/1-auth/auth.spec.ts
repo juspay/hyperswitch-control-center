@@ -115,7 +115,7 @@ test.describe("Sign up", () => {
     await page.getByPlaceholder("Enter your Email").fill(email);
     await signupPage.signUpButton.click();
 
-    await redirectFromMailInbox(page);
+    await redirectFromMailInbox(page, email);
     await signinPage.skip2FAButton.click();
 
     await expect(resetPasswordPage.createPassword).toHaveAttribute(
@@ -156,7 +156,7 @@ test.describe("Sign up", () => {
     await signupPage.emailInput.fill(email);
     await signupPage.signUpButton.click();
 
-    await redirectFromMailInbox(page);
+    await redirectFromMailInbox(page, email);
 
     await signinPage.skip2FAButton.click();
 
@@ -285,7 +285,7 @@ test.describe("Sign in", () => {
       "Please check your inbox",
     );
 
-    await redirectFromMailInbox(page);
+    await redirectFromMailInbox(page, email);
     await signinPage.skip2FAButton.click();
 
     await resetPasswordPage.createPassword.fill(password);
@@ -536,6 +536,7 @@ test.describe("Forgot password", () => {
     await signinPage.resetPasswordButton.click();
     await redirectFromMailInbox(
       page,
+      email,
       "Get back to Hyperswitch - Reset Your Password Now!",
     );
 
