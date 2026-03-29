@@ -225,7 +225,7 @@ module VolumeRoutingView = {
               }
               let splitsText = volumeSplits->Array.map(s => `${s->Int.toString}%`)->Array.joinWith(", ")
               <div
-                className="flex flex-col gap-3 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                className="flex flex-col gap-3 p-4 bg-blue-50 border border-blue-200 rounded-md w-full">
                 <div className="flex items-center gap-2">
                   <Icon name="nd-info" size=16 className="text-blue-600" />
                   <span className="font-medium text-blue-900">
@@ -237,7 +237,7 @@ module VolumeRoutingView = {
                     `Copy "${data.name}" from profile ${data.source_profile->String.slice(~start=0, ~end=8)}...`,
                   )}
                 </div>
-                <div className="text-sm font-medium text-blue-800 bg-blue-100 p-2 rounded">
+                <div className="text-sm font-medium text-jp-gray-800 bg-jp-gray-100 border border-jp-gray-300 p-2 rounded">
                   {React.string(`Original volume splits: ${splitsText}`)}
                 </div>
                 <div className="flex gap-2">
@@ -323,7 +323,7 @@ module VolumeRoutingView = {
                         })->React.array}
                         {allSlotsFilled
                           ? <ConfigureRuleButton setShowModal />
-                          : <div className="text-sm text-orange-600 bg-orange-50 p-3 rounded-md">
+                          : <div className="text-sm font-medium text-jp-gray-800 bg-jp-gray-100 border border-jp-gray-300 p-3 rounded w-full">
                               {React.string("Please select a connector for each slot to continue.")}
                             </div>}
                       </div>
