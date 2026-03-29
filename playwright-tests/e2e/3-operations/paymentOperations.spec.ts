@@ -1211,4 +1211,190 @@ test.describe("Payment Operations", () => {
       Message: "N/A",
     });
   });
+
+  test("should display correct payment when searched with payment ID", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const paymentOperations = new PaymentOperations(page);
+
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      const { token } = await loginUser(
+        generateUniqueEmail(),
+        PLAYWRIGHT_PASSWORD,
+        context.request,
+      );
+      await createDummyConnector(
+        merchantId,
+        token,
+        "stripe_test_1",
+        context.request,
+      );
+      const apiKey = await createAPIKey(merchantId, token, context.request);
+      // Create two payments
+      await context.request.post(
+        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "api-key": apiKey,
+          },
+          data: {
+            amount: 10000,
+            currency: "USD",
+            confirm: true,
+            capture_method: "automatic",
+            customer_id: "test_customer",
+            authentication_type: "no_three_ds",
+            return_url: "https://google.com",
+            payment_method: "card",
+            payment_method_type: "credit",
+            payment_method_data: {
+              card: {
+                card_number: "4242424242424242",
+                card_exp_month: "01",
+                card_exp_year: "2027",
+                card_holder_name: "joseph Doe",
+                card_cvc: "100",
+              },
+            },
+          },
+        },
+      );
+      await context.request.post(
+        `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "api-key": apiKey,
+          },
+          data: {
+            amount: 10000,
+            currency: "USD",
+            confirm: true,
+            capture_method: "automatic",
+            customer_id: "test_customer",
+            authentication_type: "no_three_ds",
+            return_url: "https://google.com",
+            payment_method: "card",
+            payment_method_type: "credit",
+            payment_method_data: {
+              card: {
+                card_number: "4242424242424242",
+                card_exp_month: "01",
+                card_exp_year: "2027",
+                card_holder_name: "joseph Doe",
+                card_cvc: "100",
+              },
+            },
+          },
+        },
+      );
+    }
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await paymentOperations.paymentIdCopyButton.nth(0).click({ force: true });
+
+    const firstPaymentId = await page.evaluate(() =>
+      navigator.clipboard.readText(),
+    );
+    await paymentOperations.searchBox.fill(firstPaymentId);
+    await paymentOperations.searchBox.press("Enter");
+
+    await expect(
+      page.locator('[data-table-location="Orders_tr1_td2"]'),
+    ).toContainText(firstPaymentId);
+
+    await paymentOperations.searchBox.clear();
+
+    await paymentOperations.paymentIdCopyButton.nth(1).click({ force: true });
+
+    const secondPaymentId = await page.evaluate(() =>
+      navigator.clipboard.readText(),
+    );
+    await paymentOperations.searchBox.fill(secondPaymentId);
+    await paymentOperations.searchBox.press("Enter");
+
+    await expect(
+      page.locator('[data-table-location="Orders_tr1_td2"]'),
+    ).toContainText(secondPaymentId);
+  });
+
+  test("should verify open in new tab for a payment", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+
+    const lineage = await ompLineage(page);
+
+    const { token } = await loginUser(
+      generateUniqueEmail(),
+      PLAYWRIGHT_PASSWORD,
+      context.request,
+    );
+    await createDummyConnector(
+      lineage.merchantId,
+      token,
+      "stripe_test_1",
+      context.request,
+    );
+    const apiKey = await createAPIKey(
+      lineage.merchantId,
+      token,
+      context.request,
+    );
+    const response = await context.request.post(
+      `${process.env.HYPERSWITCH_API_URL || "http://localhost:8080"}/payments`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "api-key": apiKey,
+        },
+        data: {
+          amount: 10000,
+          currency: "USD",
+          confirm: true,
+          capture_method: "automatic",
+          customer_id: "test_customer",
+          authentication_type: "no_three_ds",
+          return_url: "https://google.com",
+          payment_method: "card",
+          payment_method_type: "credit",
+          payment_method_data: {
+            card: {
+              card_number: "4242424242424242",
+              card_exp_month: "01",
+              card_exp_year: "2027",
+              card_holder_name: "joseph Doe",
+              card_cvc: "100",
+            },
+          },
+        },
+      },
+    );
+    const paymentData = await response.json();
+
+    await homePage.operations.click();
+    await homePage.paymentOperations.click();
+
+    await expect(page.locator('[data-icon="external-link-alt"]')).toBeVisible();
+
+    const link = page
+      .locator('[data-icon="external-link-alt"]')
+      .locator("..")
+      .filter({ has: page.locator("a") });
+    await expect(link).toHaveAttribute("target", "_blank");
+
+    const href = await link.getAttribute("href");
+    const expectedUrlPart = `/dashboard/payments/${paymentData.payment_id}/${lineage.profileId}/${lineage.merchantId}/${lineage.orgId}`;
+    expect(href).toContain(expectedUrlPart);
+  });
 });

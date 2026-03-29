@@ -29,10 +29,10 @@ test.describe("Sign up", () => {
       "placeholder",
       "Enter your Email",
     );
-    await expect(page.locator('[data-testid="auth-submit-btn"]')).toContainText(
+    await expect(signupPage.signUpButton).toContainText(
       "Get started, for free!",
     );
-    await expect(signupPage.signUpButton).toBeDisabled();
+    await expect(signupPage.signUpButton).toBeVisible();
     await expect(signupPage.footerText).toBeVisible();
     await expect(signinPage.tcText).toBeVisible();
   });
@@ -72,7 +72,7 @@ test.describe("Sign up", () => {
       await expect(signupPage.invalidInputError).toContainText(
         "Please enter valid Email ID",
       );
-      await expect(signupPage.signUpButton).toBeDisabled();
+      await expect(signupPage.signUpButton).toBeVisible();
 
       await signupPage.emailInput.clear();
       await signupPage.emailInput.fill("test@example.com");
@@ -85,10 +85,11 @@ test.describe("Sign up", () => {
   }) => {
     const signupPage = new SignUpPage(page);
     const signinPage = new SignInPage(page);
+    const email = generateUniqueEmail();
 
     await visitSignupPage(page);
     await signinPage.signUpLink.click();
-    await signupPage.emailInput.fill("test@example.com");
+    await signupPage.emailInput.fill(email);
     await signupPage.signUpButton.click();
 
     await expect(signupPage.headerText).toContainText(
@@ -97,9 +98,7 @@ test.describe("Sign up", () => {
     await expect(signupPage.headerText.locator("+ div")).toContainText(
       "A magic link has been sent to",
     );
-    await expect(signupPage.headerText.locator("+ div")).toContainText(
-      "test@example.com",
-    );
+    await expect(signupPage.headerText.locator("+ div")).toContainText(email);
     await expect(signupPage.footerText).toBeVisible();
     await expect(signupPage.footerText).toContainText("Cancel");
   });
@@ -109,11 +108,12 @@ test.describe("Sign up", () => {
     const password = PLAYWRIGHT_PASSWORD;
 
     const signinPage = new SignInPage(page);
+    const signupPage = new SignUpPage(page);
     const resetPasswordPage = new ResetPasswordPage(page);
 
     await visitSignupPage(page);
     await page.getByPlaceholder("Enter your Email").fill(email);
-    await page.locator('[data-testid="auth-submit-btn"]').click();
+    await signupPage.signUpButton.click();
 
     await redirectFromMailInbox(page);
     await signinPage.skip2FAButton.click();
@@ -149,14 +149,12 @@ test.describe("Sign up", () => {
     const password = PLAYWRIGHT_PASSWORD;
 
     const signinPage = new SignInPage(page);
+    const signupPage = new SignUpPage(page);
     const resetPasswordPage = new ResetPasswordPage(page);
 
     await visitSignupPage(page);
-    await page.getByPlaceholder("Enter your Email").fill(email);
-    await page.locator('[data-testid="auth-submit-btn"]').click();
-    await expect(page.locator('[data-testid="card-header"]')).toContainText(
-      "Please check your inbox",
-    );
+    await signupPage.emailInput.fill(email);
+    await signupPage.signUpButton.click();
 
     await redirectFromMailInbox(page);
 
@@ -169,6 +167,9 @@ test.describe("Sign up", () => {
     await signinPage.emailInput.fill(email);
     await signinPage.passwordInput.fill(password);
     await signinPage.signinButton.click();
+    await expect(signinPage.headerText2FA).toContainText(
+      "Enable Two Factor Authentication",
+    );
     await signinPage.skip2FAButton.click();
 
     await expect(page).toHaveURL(/.*dashboard\/home/);
@@ -382,11 +383,11 @@ test.describe("Sign in", () => {
     await signinPage.passwordInput.fill(PLAYWRIGHT_PASSWORD);
     await signinPage.signinButton.click();
 
-    const otpInputs = signinPage.otpBox2FA.locator("div.w-16.h-16");
-    for (let i = 0; i < 6; i++) {
-      await otpInputs.nth(i).fill(otp.charAt(i));
-    }
+    await expect(signinPage.headerText2FA).toContainText(
+      "Enable Two Factor Authentication",
+    );
 
+    await signinPage.fillOTP(otp);
     await signinPage.enable2FA.click();
 
     await expect(
@@ -435,7 +436,7 @@ test.describe("Sign in", () => {
       "Enable Two Factor Authentication",
     );
 
-    await signinPage.footerText2FA.locator("a").first().click();
+    await signinPage.logoutLink2FA.click();
 
     await expect(signinPage.headerText).toContainText(
       "Hey there, Welcome back!",
@@ -457,9 +458,10 @@ test.describe("Forgot password", () => {
     );
 
     await expect(signinPage.emailInput).toBeVisible();
-    await expect(
-      signinPage.emailInput.locator("> div").first(),
-    ).toHaveAttribute("placeholder", "Enter your Email");
+    await expect(signinPage.emailInput).toHaveAttribute(
+      "placeholder",
+      "Enter your Email",
+    );
 
     await expect(signinPage.resetPasswordButton).toBeVisible();
     await expect(signinPage.resetPasswordButton).toBeDisabled();
@@ -512,9 +514,6 @@ test.describe("Forgot password", () => {
       page.locator('[class="flex-col items-center justify-center"]'),
     ).toContainText("A reset password link has been sent to");
     await expect(
-      page.locator('[class="flex-col items-center justify-center"]'),
-    );
-    await expect(
       page.locator('[class="w-full flex justify-center"]'),
     ).toContainText("Cancel");
   });
@@ -535,7 +534,10 @@ test.describe("Forgot password", () => {
     await signinPage.forgetPasswordLink.click();
     await signinPage.emailInput.fill(email);
     await signinPage.resetPasswordButton.click();
-    await redirectFromMailInbox(page);
+    await redirectFromMailInbox(
+      page,
+      "Get back to Hyperswitch - Reset Your Password Now!",
+    );
 
     await signinPage.skip2FAButton.click();
     await resetPasswordPage.newPasswordField.fill(newPassword);

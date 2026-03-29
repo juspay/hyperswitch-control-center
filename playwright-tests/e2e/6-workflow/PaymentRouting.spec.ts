@@ -278,7 +278,7 @@ test.describe("Payment default fallback", () => {
     ).toContainText("stripe_test_1");
   });
 
-  test.skip("should be able to change the order by dragging and updating", async ({
+  test("should be able to change the order by dragging and updating", async ({
     page,
     context,
   }) => {

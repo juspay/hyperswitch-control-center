@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PLAYWRIGHT_USERNAME =
-  process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
+process.env.PLAYWRIGHT_USERNAME || "playwright@test.com";
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 export default defineConfig({
@@ -37,7 +37,7 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    /* Test against different browsers. 
+    /* Test against different browsers.
     {
       name: 'Microsoft Edge',
       use: { ...devices['Desktop Edge'], channel: 'msedge' },
@@ -52,7 +52,7 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
 
-    Test against mobile viewports. 
+    Test against mobile viewports.
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },

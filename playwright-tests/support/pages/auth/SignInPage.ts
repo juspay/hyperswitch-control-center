@@ -69,6 +69,14 @@ export class SignInPage {
     return this.page.locator('[class="flex justify-center relative "]');
   }
 
+  async fillOTP(otp: string): Promise<void> {
+    const textboxes = this.page.getByRole("textbox");
+    const count = await textboxes.count();
+    for (let i = 0; i < otp.length && i < count; i++) {
+      await textboxes.nth(i).fill(otp.charAt(i));
+    }
+  }
+
   get skip2FAButton(): Locator {
     return this.page.locator('[data-testid="skip-now"]');
   }
@@ -78,7 +86,11 @@ export class SignInPage {
   }
 
   get footerText2FA(): Locator {
-    return this.page.locator('[class="text-grey-200 flex gap-2"]');
+    return this.page.getByText("Log in with a different account?");
+  }
+
+  get logoutLink2FA(): Locator {
+    return this.page.getByText("Click here to log out.");
   }
 
   get forgetPasswordHeader(): Locator {
@@ -86,7 +98,7 @@ export class SignInPage {
   }
 
   get resetPasswordButton(): Locator {
-    return this.page.locator('[data-testid="auth-submit-btn"]');
+    return this.page.locator('[data-button-for="resetPassword"]');
   }
 
   get cancelForgetPassword(): Locator {

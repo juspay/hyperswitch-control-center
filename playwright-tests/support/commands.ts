@@ -638,9 +638,16 @@ export async function signUpWithEmail(
   await signinPage.skip2FAButton.click();
 }
 
-export async function redirectFromMailInbox(page: Page): Promise<void> {
+export async function redirectFromMailInbox(
+  page: Page,
+  emailSubject: string = "Welcome to the Hyperswitch community!",
+): Promise<void> {
   await page.goto(MAIL_URL);
-  await page.locator("div.messages > div:nth-child(2)").click();
+  await page
+    .locator("div.msglist-message")
+    .filter({ hasText: emailSubject })
+    .first()
+    .click();
   await page.waitForTimeout(1000);
 
   const iframe = page.frameLocator("iframe").first();
@@ -655,6 +662,7 @@ export async function signinFromMailInbox(page: Page): Promise<void> {
   await page
     .locator("div.messages > div")
     .getByText("Unlock Hyperswitch: Use Your Magic Link to Sign In")
+    .first()
     .click();
   await page.waitForTimeout(1000);
 

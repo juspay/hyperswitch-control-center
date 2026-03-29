@@ -6,6 +6,9 @@ import {
   signupUser,
   loginUI,
   createDummyConnector,
+  assertConnectorFieldLabels,
+  fillConnectorFields,
+  assertPaymentMethodTypes,
 } from "../../support/commands";
 import { connectorConfig } from "../../support/fixtures/payinConnectorConfig";
 
@@ -118,6 +121,48 @@ test.describe("Test live connectors", () => {
 
       await expect(page).toHaveURL(/.*dashboard\/connectors/);
       await expect(page.getByText(connector.label + "_default")).toBeVisible();
+    });
+  }
+});
+
+test.describe("Test live connectors", () => {
+  test.describe.configure({ mode: "serial" });
+
+  let email: string;
+
+  test.beforeAll(async () => {
+    email = generateUniqueEmail();
+  });
+
+  test.beforeEach(async ({ page, context }) => {
+    await signupUser(email, PLAYWRIGHT_PASSWORD, context.request);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    await page.goto("/dashboard/connectors");
+  });
+
+  for (const connector of Object.values(connectorConfig)) {
+    test(`should setup and verify ${connector.label} connector`, async ({
+      page,
+    }) => {
+      const paymentConnector = new PaymentConnector(page);
+
+      await paymentConnector.connectorSearchInput.fill(connector.label);
+      await paymentConnector.addConnectButton.nth(0).click();
+
+      await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
+      await fillConnectorFields(page, connector.fields);
+
+      await paymentConnector.connectAndProceedButton.click();
+
+      await assertPaymentMethodTypes(page, connector.paymentSections);
+
+      await paymentConnector.pmtProceedButton.click();
+      await paymentConnector.connectorSetupDone.click();
+
+      await expect(page).toHaveURL(/.*dashboard\/connectors/);
+      await expect(
+        page.getByText(connector.fields.overrides["Enter Connector label"]),
+      ).toBeVisible();
     });
   }
 });

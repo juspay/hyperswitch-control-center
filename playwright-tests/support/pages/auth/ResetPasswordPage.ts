@@ -12,7 +12,7 @@ export class ResetPasswordPage {
   }
 
   get confirmPassword(): Locator {
-    return this.page.locator('[data-testid="confirm_password"]').nth(1);
+    return this.page.locator('[placeholder="Re-enter your Password"]');
   }
 
   get eyeIcon(): Locator {
@@ -24,11 +24,11 @@ export class ResetPasswordPage {
   }
 
   get newPasswordField(): Locator {
-    return this.page.locator('[data-testid="create_password"]');
+    return this.page.locator('[data-testid="create_password"] input');
   }
 
   get confirmPasswordField(): Locator {
-    return this.page.locator('[data-testid="confirm_password"]');
+    return this.page.locator('[data-testid="confirm_password"] input');
   }
 }
 
